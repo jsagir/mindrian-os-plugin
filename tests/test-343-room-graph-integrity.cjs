@@ -347,6 +347,251 @@ scenario('no direct node:sqlite require in the statement home', () => {
   assert.equal(/require\(['"]node:sqlite['"]\)/.test(src), false);
 });
 
+// ================= Task 2: the doctor organ =================
+
+const DOCTOR_MODULE_PATH = path.join(REPO, 'lib', 'core', 'doctor', 'room-graph-integrity-module.cjs');
+
+function makeScratchRegistry(scratch, rooms, activeName) {
+  const registryDir = path.join(scratch, '.rooms');
+  fs.mkdirSync(registryDir, { recursive: true });
+  const registryRooms = {};
+  for (const name of Object.keys(rooms)) {
+    registryRooms[name] = rooms[name];
+  }
+  const registry = { active: activeName || null, rooms: registryRooms };
+  fs.writeFileSync(path.join(registryDir, 'registry.json'), JSON.stringify(registry, null, 2));
+  return scratch;
+}
+
+function withScratchRoomsHome(scratch, fn) {
+  const prior = process.env.MINDRIAN_ROOMS_HOME;
+  process.env.MINDRIAN_ROOMS_HOME = scratch;
+  try {
+    return fn();
+  } finally {
+    if (prior === undefined) delete process.env.MINDRIAN_ROOMS_HOME;
+    else process.env.MINDRIAN_ROOMS_HOME = prior;
+  }
+}
+
+// Build a scratch room directory carrying the migrated fixture's room.db at
+// the real <roomDir>/.mindrian/room.db path (what the doctor organ's
+// resolveRoomPath + openRoomDbReadOnlyForCaller door expects), maximally
+// defective per the four measurable statements plus the type-outside-
+// allowlist statement.
+function makeDefectiveRoomDir(scratch, name) {
+  const roomDir = path.join(scratch, name);
+  fs.mkdirSync(roomDir, { recursive: true });
+  const db = roomDb.openRoomDb(roomDir);
+  const now = Date.now();
+  const fortyDaysAgo = now - (40 * 86400000);
+  rawInsertNode(db, 'valid_a', 'artifact');
+  rawInsertNode(db, 'valid_b', 'artifact');
+  rawInsertNode(db, 'claim_1', 'claim');
+  rawInsertNode(db, 'claim_2', 'claim');
+  rawInsertNode(db, 'prop_1', 'observation', { reviewStatus: 'proposed', createdAt: fortyDaysAgo });
+  rawInsertEdge(db, 'ghost1', 'valid_a', 'INFORMS');
+  rawInsertEdge(db, 'valid_a', 'valid_a', 'RELATED_TO');
+  rawInsertEdge(db, 'valid_a', 'valid_b', 'CONTRADICTS');
+  rawInsertEdge(db, 'valid_a', 'valid_b', 'BELONGS_TO');
+  roomDb.closeRoomDb(db);
+  return roomDir;
+}
+
+function makeEmptyRoomDir(scratch, name) {
+  const roomDir = path.join(scratch, name);
+  fs.mkdirSync(roomDir, { recursive: true });
+  return roomDir;
+}
+
+function schemaSnapshot(roomDir) {
+  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
+  const db = new DatabaseSync(dbPath);
+  try {
+    return db.prepare('SELECT name, sql FROM sqlite_master ORDER BY name').all();
+  } finally {
+    db.close();
+  }
+}
+
+scenario('doctor organ: check({}) with no registry returns skip, never a throw', () => {
+  const scratch = makeScratchDir('no-registry');
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({});
+    assert.equal(r.status, 'skip');
+    assert.equal(typeof r.detail, 'string');
+    assert.ok(r.detail.length > 0);
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: check({}) with a registry scopes to the active room only', () => {
+  const scratch = makeScratchDir('active-scope');
+  const roomADir = makeDefectiveRoomDir(scratch, 'room-a');
+  const roomBDir = makeDefectiveRoomDir(scratch, 'room-b');
+  makeScratchRegistry(
+    scratch,
+    { 'room-a': { path: 'room-a' }, 'room-b': { path: 'room-b' } },
+    'room-a'
+  );
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({});
+    assert.equal(r.scope, 'active-room');
+    assert.equal(r.status, 'ok');
+    assert.ok(Array.isArray(r.rooms));
+    assert.equal(r.rooms.length, 1);
+    assert.equal(r.rooms[0].room, 'room-a');
+  });
+  void roomADir; void roomBDir;
+  rmrf(scratch);
+});
+
+scenario('doctor organ: --cascade-rooms widens to fleet scope with totals', () => {
+  const scratch = makeScratchDir('fleet-scope');
+  makeDefectiveRoomDir(scratch, 'room-a');
+  makeDefectiveRoomDir(scratch, 'room-b');
+  makeScratchRegistry(
+    scratch,
+    { 'room-a': { path: 'room-a' }, 'room-b': { path: 'room-b' } },
+    'room-a'
+  );
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({ flags: { cascadeRooms: true } });
+    assert.equal(r.scope, 'fleet');
+    assert.equal(r.status, 'ok');
+    assert.equal(r.rooms.length, 2);
+    assert.ok(r.totals);
+    assert.equal(r.totals.edge_rows_missing_endpoint, 2); // 1 per room
+    assert.deepEqual(r.totals.edge_types_outside_allowlist, ['BELONGS_TO']);
+    assert.equal(r.totals.edge_types_outside_allowlist_unnameable, 0);
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: status is ok on a maximally defective fixture', () => {
+  const scratch = makeScratchDir('defective-status');
+  makeDefectiveRoomDir(scratch, 'room-a');
+  makeScratchRegistry(scratch, { 'room-a': { path: 'room-a' } }, 'room-a');
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({});
+    assert.equal(r.status, 'ok');
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: exports check and nothing named fix', () => {
+  delete require.cache[DOCTOR_MODULE_PATH];
+  const mod = require(DOCTOR_MODULE_PATH);
+  assert.equal(typeof mod.check, 'function');
+  assert.equal(typeof mod.fix, 'undefined');
+});
+
+scenario('doctor organ: a malformed registry entry soft-fails that room only', () => {
+  const scratch = makeScratchDir('malformed-entry');
+  makeDefectiveRoomDir(scratch, 'room-healthy');
+  makeScratchRegistry(
+    scratch,
+    { 'room-healthy': { path: 'room-healthy' }, 'room-broken': { path: 12345 } },
+    'room-healthy'
+  );
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({ flags: { cascadeRooms: true } });
+    assert.equal(r.status, 'ok');
+    const healthy = r.rooms.find((room) => room.room === 'room-healthy');
+    assert.ok(healthy);
+    assert.equal(healthy.edge_rows_missing_endpoint, 1);
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: a room registered with abs_path only is counted, not skipped', () => {
+  const scratch = makeScratchDir('abs-path-only');
+  const roomDir = makeDefectiveRoomDir(scratch, 'abs-room');
+  makeScratchRegistry(scratch, { 'abs-room': { abs_path: roomDir } }, 'abs-room');
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({});
+    assert.equal(r.rooms.length, 1);
+    assert.equal(r.rooms[0].room, 'abs-room');
+    assert.equal(r.rooms[0].edge_rows_missing_endpoint, 1);
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: a sweep leaves every room byte-identical (sqlite_master + mtime)', () => {
+  const scratch = makeScratchDir('mutation-pin');
+  const roomDir = makeDefectiveRoomDir(scratch, 'room-a');
+  makeScratchRegistry(scratch, { 'room-a': { path: 'room-a' } }, 'room-a');
+  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
+  const beforeSnapshot = schemaSnapshot(roomDir);
+  const beforeMtime = fs.statSync(dbPath).mtimeMs;
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    mod.check({ flags: { cascadeRooms: true } });
+  });
+  const afterSnapshot = schemaSnapshot(roomDir);
+  const afterMtime = fs.statSync(dbPath).mtimeMs;
+  assert.deepEqual(afterSnapshot, beforeSnapshot);
+  assert.equal(afterMtime, beforeMtime);
+  rmrf(scratch);
+});
+
+scenario('doctor organ: no absolute path or node id anywhere in the payload', () => {
+  const scratch = makeScratchDir('no-leak');
+  makeDefectiveRoomDir(scratch, 'room-a');
+  makeScratchRegistry(scratch, { 'room-a': { path: 'room-a' } }, 'room-a');
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({ flags: { cascadeRooms: true } });
+    const strings = [];
+    (function collect(v) {
+      if (typeof v === 'string') { strings.push(v); return; }
+      if (Array.isArray(v)) { v.forEach(collect); return; }
+      if (v && typeof v === 'object') { Object.values(v).forEach(collect); }
+    })(r);
+    for (const s of strings) {
+      assert.equal(path.isAbsolute(s), false, 'payload string looks like an absolute path: ' + s);
+      assert.equal(s.indexOf(scratch) === -1, true, 'payload string leaks the scratch root: ' + s);
+    }
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: not_measurable and writer_note ride the top-level payload', () => {
+  const scratch = makeScratchDir('not-measurable');
+  makeDefectiveRoomDir(scratch, 'room-a');
+  makeScratchRegistry(scratch, { 'room-a': { path: 'room-a' } }, 'room-a');
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({});
+    assert.ok(Array.isArray(r.not_measurable));
+    assert.equal(r.not_measurable.length, 2);
+    assert.equal(typeof r.writer_note, 'string');
+    assert.ok(r.writer_note.indexOf('273') !== -1);
+  });
+  rmrf(scratch);
+});
+
+scenario('doctor organ: never requires node:sqlite or room-db.cjs directly', () => {
+  const src = fs.readFileSync(DOCTOR_MODULE_PATH, 'utf8');
+  assert.equal(/require\(['"]node:sqlite['"]\)/.test(src), false);
+  assert.equal(/require\([^)]*room-db\.cjs['"]\)/.test(src), false);
+});
+
 // ---------------------------------------------------------------------
 
 if (migratedFixture) roomDb.closeRoomDb(migratedFixture.db);
