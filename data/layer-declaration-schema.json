@@ -1,0 +1,56 @@
+{
+  "_doc": {
+    "purpose": "Phase 344 (the layer contract): the closed layer vocabulary every declaring invocable surface draws from. Registry-is-the-table: this file IS the schema (the vocabulary enums inline), read by scripts/check-layer-declaration.cjs (ships in 344-02) and by the backfill authoring in data/layer-backfill.json (ships in 344-03). A surface declares one layer scalar (plus a conditional layer_why); the five real rungs come from docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md section 2, and the sixth is the honest none. This schema DECLARES the vocabulary; it does not execute a gate and does not re-implement the layer contract's prose. The prose contract is docs/LAYER-DECLARATION-CONTRACT.md. Sibling contract, cross-referenced both ways: data/hitl-shape-declaration-schema.json (the Shape-F declaration vocabulary, an orthogonal axis over the same surfaces).",
+    "layer_vocabulary": ["prompt", "context", "harness", "loop", "graph", "none"],
+    "layer_vocabulary_note": "The first five members come from the input spec section 2 and accumulate rather than substitute: a good graph node is a well-designed loop, and a good loop needs a solid harness. The sixth member, the literal none, is the honest value for a surface that engineers no rung at all (a pure diagnostic, a render-only view, a reference document), mirroring the none member of data/hitl-shape-declaration-schema.json's own shape_vocabulary (WD-11).",
+    "validation_rule": "A declaration is valid when layer is a member of layer_vocabulary; when layer is none, layer_why must also be a non-empty string (WD-12), otherwise layer_why is optional. A surface declares exactly ONE value: the own rung it engineers, never a set and never the highest rung it transitively rests on. The layers accumulate by definition, so a highest-rung reading would collapse every surface that touches a chain or a gate onto graph, which would make the vocabulary useless as a classifier. Declare what this surface itself does, not what it is reachable from.",
+    "classification_rubric": [
+      {
+        "step": 1,
+        "signal": "the surface coordinates more than one agent or step over shared state, or halts for an independent reviewer at a material step (hitl_stages present, a pipeline CHAIN.md, a command that dispatches a chain, swarm or fan-out)",
+        "layer": "graph"
+      },
+      {
+        "step": 2,
+        "signal": "the surface runs one agent's cycle to a stopping condition and files an artifact (a produces path, a single hitl_shape fork, a methodology body_shape)",
+        "layer": "loop"
+      },
+      {
+        "step": 3,
+        "signal": "the surface's job is to add, move, measure or repair tools, memory or scaffolding (it touches room.db, memory_event, the gate ledger, a registry, a doctor organ, a hook)",
+        "layer": "harness"
+      },
+      {
+        "step": 4,
+        "signal": "the surface's job is to change what the model can see this turn (it writes or assembles ROOM.md, STATE.md, USER.md, JTBD state, a session injection)",
+        "layer": "context"
+      },
+      {
+        "step": 5,
+        "signal": "the surface's job is to shape the wording of one request (persona, voice, output style)",
+        "layer": "prompt"
+      },
+      {
+        "step": 6,
+        "signal": "none of the above signals fire",
+        "layer": "none",
+        "requires_layer_why": true
+      }
+    ],
+    "surface_count_principle": "The denominator (how many surfaces declare a layer) is always enumerated from disk at check time by the gate: count(commands/*.md) + count(agents/*.md) + count(pipelines/*/CHAIN.md) + count(qualifying skills/*/SKILL.md) + count(MCP tool connector descriptors). No count appears in this file or in any gate as a frozen literal.",
+    "default_on_miss": "reject (fail closed): a layer value outside layer_vocabulary, or a none declaration with no layer_why, is a hard error, not a silent pass.",
+    "declaration_homes": [
+      {
+        "home": "a markdown surface's own frontmatter",
+        "surfaces": ["commands/*.md", "agents/*.md", "pipelines/*/CHAIN.md", "skills/*/SKILL.md"],
+        "form": "layer: <one of layer_vocabulary>, plus layer_why when layer is none"
+      },
+      {
+        "home": "an MCP tool's exported connectors descriptor",
+        "surfaces": ["lib/mcp/tools/*.cjs"],
+        "form": "one entry of the connectors array carries layer (and layer_why when none), because an MCP tool has no frontmatter (WD-7)"
+      }
+    ],
+    "body_shape_vocabulary_note": "body_shape is present on every command today (frontmatter-only census: for f in commands/*.md; do awk '/^---$/{c++; next} c==1 && /^body_shape:/{print; exit}' \"$f\"; done | sed 's/^body_shape: *//' | sort -u | wc -l) with 19 distinct values, no schema and no validator. Two of those values are not shapes at all (quoted prose strings \"methodology\" and \"action-report\"), and normalizing the set is deliberately deferred, OUT of this phase's scope (WD-9); this is a measured census result, not a frozen contract number, and a future gate must re-run the same awk command rather than read this file's prose."
+  }
+}
