@@ -234,6 +234,13 @@ function parseArgs(argv) {
     scanCommandsDir: null, scanScriptsDir: null,
     // Phase 194-07 (PSB-14): --bind-check <roomDir> local room-health job.
     bindCheck: false, bindCheckDir: null,
+    // Quick 260914-ntk (Finding 1b): --fix eureka is a POSITIONAL argument, not
+    // a flag, mirroring --bind-check <roomDir>. Before this fix the parse loop
+    // silently discarded the 'eureka' token and --fix eureka was a documented
+    // no-op since commit ec98625f. flags.fixTarget records the raw positional
+    // value; when it equals 'eureka' the capture block below also flips
+    // flags.eurekaSmoke so the class S dispatch activates.
+    fixTarget: null,
     // Quick task 260705-jeq (D-01, D-02): --report-registration-bug is a NEW
     // read-only sibling mode (like --check-rs-engine) that proves every locally-
     // checkable cause of "valid install yet a command did not register" is CLEAN
@@ -344,6 +351,23 @@ function parseArgs(argv) {
     const bcIdx = argv.indexOf('--bind-check');
     if (bcIdx !== -1 && typeof argv[bcIdx + 1] === 'string' && !argv[bcIdx + 1].startsWith('--')) {
       flags.bindCheckDir = argv[bcIdx + 1];
+    }
+  }
+  // Quick 260914-ntk (Finding 1b): capture the space-separated `--fix eureka`
+  // positional value, reusing the --bind-check idiom above verbatim rather
+  // than inventing a second argument grammar. 'eureka' is the only recognized
+  // target today; when it matches, activate class S (eureka-smoke) so the
+  // dispatch below actually reaches fixEurekaSmoke.
+  //
+  // Deliberately NOT added to the flags.all activation block: commands/doctor.md
+  // states class S stays opt-in and is NOT part of --all, and --fix --all must
+  // not trigger an unasked 380 MB download. Do not "helpfully" wire this into
+  // --all.
+  if (flags.fix) {
+    const fIdx = argv.indexOf('--fix');
+    if (fIdx !== -1 && typeof argv[fIdx + 1] === 'string' && !argv[fIdx + 1].startsWith('--')) {
+      flags.fixTarget = argv[fIdx + 1];
+      if (flags.fixTarget === 'eureka') flags.eurekaSmoke = true;
     }
   }
   return flags;
@@ -4022,14 +4046,49 @@ function main() {
   // path is handled earlier with its own canonical output; here we attach the
   // result into report.checks['eureka-smoke'] beside the brain-smoke block.
   if (flags.eurekaSmoke) {
-    const { checkEurekaSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
-    checkEurekaSmoke().then(function (result) {
-      report.checks['eureka-smoke'] = Object.assign({ class: 'S' }, result);
+    const classSMod = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
+    // Quick 260914-ntk (Finding 1b): same fix-then-recheck flow as the
+    // standalone classSEurekaSmoke() dispatch, applied here so a combined run
+    // (e.g. --brain-smoke --eureka-smoke --fix eureka) also reaches
+    // fixEurekaSmoke. --all deliberately excludes class S (commands/doctor.md),
+    // so this block is reached only by an explicit --eureka-smoke combined
+    // with another class flag -- correct, not an oversight.
+    (async function () {
+      let result;
+      let fixResult = null;
+      try {
+        result = await classSMod.checkEurekaSmoke();
+        // Dry-run always projects, independent of current ok state (see the
+        // standalone classSEurekaSmoke() comment for the full rationale). The
+        // real spawn stays gated on !result.ok.
+        if (flags.fix && flags.dryRun) {
+          fixResult = { fixed: false, projected: true, reason: 'would install the eureka embedding stack (dry-run; no subprocess spawned)' };
+        } else if (flags.fix && !result.ok) {
+          try {
+            fixResult = await classSMod.fixEurekaSmoke(result);
+          } catch (err) {
+            fixResult = { fixed: false, reason: (err && err.message) || 'fixer threw' };
+          }
+          try {
+            result = await classSMod.checkEurekaSmoke();
+          } catch (err) {
+            result = { ok: false, layers: [], overall_ms: 0, error: (err && err.message) || 'recheck threw' };
+          }
+        }
+        if (fixResult) result.fix_result = fixResult;
+        report.checks['eureka-smoke'] = Object.assign({ class: 'S' }, result);
+        if (fixResult) {
+          report.recovered.push({
+            tool: 'eureka-smoke',
+            status: fixResult.projected ? 'skip' : (fixResult.fixed ? 'ok' : 'error'),
+            detail: fixResult.reason,
+          });
+        }
+      } catch (err) {
+        report.checks['eureka-smoke'] = { class: 'S', status: 'error', detail: err && err.message };
+      }
       _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
-    }).catch(function (err) {
-      report.checks['eureka-smoke'] = { class: 'S', status: 'error', detail: err && err.message };
-      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
-    });
+    })();
     return;
   }
 
@@ -4282,7 +4341,35 @@ async function classMBrainSmoke(flags) {
 // _finalizeAndExit instead.
 async function classSEurekaSmoke(flags) {
   const { checkEurekaSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
-  const result = await checkEurekaSmoke();
+  let result = await checkEurekaSmoke();
+  // Quick 260914-ntk (Finding 1b): fix-then-recheck flow, gated on --fix.
+  // Dry-run always projects (it is the wiring-proof path -- a preview must
+  // not depend on whether this particular machine currently passes, since
+  // "would this install?" is the question --dry-run answers regardless of
+  // current state, and it is what makes --fix eureka safely testable without
+  // a 380 MB download). The REAL spawn stays gated on !result.ok, mirroring
+  // the accumulative engine's own fix-then-recheck ordering (see the
+  // `wantFix && mod.fix_supported === true` block above): there is nothing to
+  // fix on a machine that already passes.
+  let fixResult = null;
+  if (flags.fix && flags.dryRun) {
+    fixResult = { fixed: false, projected: true, reason: 'would install the eureka embedding stack (dry-run; no subprocess spawned)' };
+  } else if (flags.fix && !result.ok) {
+    try {
+      const { fixEurekaSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
+      fixResult = await fixEurekaSmoke(result);
+    } catch (err) {
+      // A thrown fixer becomes a soft failure, never a crash (class-flag invariant).
+      fixResult = { fixed: false, reason: (err && err.message) || 'fixer threw' };
+    }
+    // Re-run the check so the reported result reflects post-fix state.
+    try {
+      result = await checkEurekaSmoke();
+    } catch (err) {
+      result = { ok: false, layers: [], overall_ms: 0, error: (err && err.message) || 'recheck threw' };
+    }
+  }
+  if (fixResult) result.fix_result = fixResult;
   if (flags.json) {
     console.log(JSON.stringify(Object.assign({ class: 'S' }, result), null, 2));
   } else {
@@ -4292,8 +4379,11 @@ async function classSEurekaSmoke(flags) {
       const marker = layer.ok ? 'PASS' : 'FAIL';
       console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
     }
+    if (fixResult) {
+      console.log('  Fix: ' + fixResult.reason);
+    }
   }
-  // Class-flag invariant: exit 0 even on per-layer FAIL.
+  // Class-flag invariant: exit 0 even on per-layer FAIL, even on a failed fix.
   return 0;
 }
 
