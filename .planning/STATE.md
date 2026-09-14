@@ -3,15 +3,16 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-09-PLAN.md
-last_updated: "2026-09-14T15:52:00.000Z"
-last_activity: 2026-09-14 -- 344-09 completed (phase close: full gate sweep green,
+stopped_at: Completed 343-01-PLAN.md
+last_updated: "2026-09-14T16:51:00.000Z"
+last_activity: 2026-09-14 -- 343-01 completed (phase foundation: CENSUS-01..17 minted,
+  docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md landed, tests/run-all-343.sh stood up)
 progress:
   total_phases: 97
   completed_phases: 29
   total_plans: 274
-  completed_plans: 231
-  percent: 84
+  completed_plans: 232
+  percent: 85
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -1217,6 +1218,7 @@ progress:
   `node scripts/check-layer-declaration.cjs` (0 undeclared over the whole enumerated tree), `node
   scripts/doctor.cjs --acceptance` (20/20, no self-patch), `node scripts/run-harness.cjs --check`
   (9 pass, 0 fail, 3 ghost, 2 declared), `node tests/test-298-contract-parity.cjs` (20/20).
+
 - **What shipped:** `data/layer-declaration-schema.json` (the closed six-member layer vocabulary),
   `docs/LAYER-DECLARATION-CONTRACT.md` (the frontmatter contract, twelve RULED decisions),
   `docs/LAYER-CONTRACT.md` (the five-rung architecture contract with corpus grounding),
@@ -1229,12 +1231,14 @@ progress:
   (`docs/MINDRIAN-CANON.md` Appendix B, per WD-1) with three pointers, and
   `docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md` (the literal wording handed to Phase
   340, zero Canon bytes landed).
+
 - **Requirements:** LAYER-01 through LAYER-15 are `[x]` in `.planning/REQUIREMENTS.md`, each with a
   `Measured:` clause naming its proving command/file/test, in the CANON-01..10 citation style.
   LAYER-16 stays `[ ]` with a stated reason: three of its four clauses are measured (the gate
   sweep, every LAYER row's own Measured: clause, the docs/ half of the durable record); the fourth
   clause, the research-room mirror into `~/MindrianRooms/rethinking-mindrianos/research/2026-09-14-layer-contract-and-icm-map/`,
   did NOT land this session.
+
 - **Why the room mirror did not land:** Claude Code's own `write-scope-check` PreToolUse hook
   denied the Write-tool attempt because this session's active MindrianRooms room (per
   `~/MindrianRooms/.rooms/registry.json`) is `idem-room`, not `rethinking-mindrianos`. A follow-up
@@ -1247,12 +1251,14 @@ progress:
   honestly in `.planning/REQUIREMENTS.md` (LAYER-16's own row), `344-VALIDATION.md` (row
   344-09-03's footnote), `docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md` (deferral 6), and
   `docs/OPEN-HANDOFFS.md` (the new dated row).
+
 - **Resume path:** run `/mos:rooms switch rethinking-mindrianos` (or otherwise set that room
   active), then file the research entry at the path above. The full drafted content (the corpus
   grounding table with hop counts and sources, the four-statement ICM comparison, and the
   advisory-gate/counts-only reasoning) is preserved in `344-09-SUMMARY.md` and in
   `docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md`'s own cross-link note, ready to file
   without re-deriving any reasoning.
+
 - **Deferred, not fixed, named with reasons in the close-out record:** `body_shape` normalization
   (a measured, deferred census beside the layer vocabulary, per WD-9); three stale `.room-graph`
   skip-list constants naming a retired path (`lib/core/rs-engine.cjs:87`,
@@ -1261,9 +1267,11 @@ progress:
   layer gate's harness rung from `logged` to `blocking` and wiring it into pre-commit (a later
   human edit after a window of green runs); ingesting the layer contract into the langtalks corpus
   (a named follow-up, out of this phase's scope); and the room-mirror filing itself.
+
 - **Zero Canon bytes, zero context-assembly-path change, zero `data/help-groups.json` change, zero
   packages installed, zero live-room mutation** -- all verified and recorded in the close-out
   record's "What this phase deliberately did NOT do" section.
+
 - Commits: `03dade25` (LAYER requirement closure + ROADMAP finalization), `5858fb57` (close-out
   record + OPEN-HANDOFFS row + LAYER-16 correction). See `344-09-SUMMARY.md` for the full account.
 
@@ -4346,7 +4354,21 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - COMPLETE
+Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
+Plan: 343-01 complete (1/9 plans)
+Status: Plan 343-01 shipped the phase foundation: CENSUS-01..17 minted as open rows in
+  .planning/REQUIREMENTS.md (CENSUS-15 closed with Measured: proof, the other sixteen stay
+  open to close by 343-09-PLAN.md); docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md landed as the
+  single tracked home for WD-1..WD-21, the measured 2026-09-14 fleet baseline, the two
+  not_measurable records, the .room-graph name collision, and the Phase 273 anchor-ownership
+  non-goal; tests/run-all-343.sh stood up with seven run_if-guarded legs for 343-02..343-08
+  plus the three existing suites this phase extends. bash tests/run-all-343.sh confirmed
+  PASS=3 FAIL=0 SKIP=7 immediately after this plan's own final tracking commit landed (a
+  transient FAIL on test-298-contract-parity's clean-tree leg during the plan, caused by a
+  peer session's already-finished but not-yet-committed Phase 348 STATE.md/ROADMAP.md
+  addition, cleared once that addition was committed here). Phase 344 (the layer contract)
+  remains COMPLETE, 9/9 plans, unaffected by this plan.
+Previously: Phase 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - COMPLETE
 Plan: 344-01 through 344-09 complete (9/9 plans)
 Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0,
   doctor --acceptance 20/20, run-harness --check 9 pass/0 fail). LAYER-01..15 closed with Measured:
@@ -5709,6 +5731,7 @@ Progress: [█████████░] 92%
 | Phase 344 P07 | 20min | 3 tasks | 2 files |
 | Phase 344 P08 | 45min | 3 tasks | 6 files |
 | Phase 344 P09 | ~20min | 3 tasks | 5 files |
+| Phase 343 P01 | 55min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5932,6 +5955,19 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
+- Phase 348 added (2026-09-14, `/gsd-phase`), continuing the "graph-engineering learning
+  N" series (345/346/347): "The supersession node" -- automatic supersession of a
+  CONTRADICTS-linked confirmed claim as the consequence of a human-approved gate answer,
+  closing the specific gap named in that day's dev-vetting session against comparable
+  agent-memory systems (Zep/Graphiti's bi-temporal fact invalidation), grounded live via
+  `langtalks-graph-expert` (GraphRAG/human-in-the-loop/agent-memory entity queries) plus
+  Tavily research. Depends on Phase 347 (default, sequential). Not yet planned (0 plans,
+  Goal/Requirements still TBD). Flagged blocker to check before planning: the same
+  session's `langtalks-graph-expert` `add_source` call to file the comparison note as a
+  corpus entry failed live with Gemini API `403 PERMISSION_DENIED` -- a credential/project
+  problem on that tool's own backend, not this repo; confirm fixed or file the research
+  as a plain doc instead before this phase cites a live corpus entry for the grounding.
 
 - Phases 283, 319-322, 324-326, 333-334, 303 edited in place (2026-09-08, Phase 298
   wave 1-2 review session, `/gsd-phase --edit`-equivalent, intent pre-approved via an
@@ -6315,7 +6351,6 @@ Progress: [█████████░] 92%
 - Phase 346 PLANNED 2026-09-14: 8 plans / 6 waves, VERIFICATION PASSED, no warnings; ARB-01..16; code identifier `arbitration` (posture and stance are bound); the two existing axes reused, only enforce-versus-judge new; one checkpoint (346-07) before attachment to decide() via applyProjectionLift; replay eval against the 07-02 WATCH incidents with the sourced 86 percent before-number. Next: /gsd-execute-phase 346 after 345
 - Phase 347 PLANNED 2026-09-14: 12 plans / 9 waves, VERIFICATION PASSED (two non-blocking notes); SHARED-01..13; the chain-state record is a room-graph node with typed pointer edges, a projection of pipeline-state.json (WD-347-2); D-164-S2 not reversed, fan-out delegated to cell-fanout.cjs (WD-347-1); one checkpoint (347-05) before the dispatcher reads the projection; waves 6-9 hard-block on 344-09. Next: /gsd-execute-phase 347 (waves 1-5 can run now)
 - Phase 344 EXECUTED and VERIFIED 2026-09-14: 9/9 plans, VERIFICATION status passed (all gates re-run fresh: run-all-344 PASS 13 FAIL 0 SKIP 0; layer gate 0 undeclared over 284 surfaces; harness 9/0; doctor 20/20 per 344-09). LAYER-01..15 closed with Measured proof; LAYER-16 open on the research-room mirror clause by navigator ruling (dev repo only). Twelve decisions RULED. Code review advisory pending. Not pushed: another process landed release v2.0.0-beta.39 and the beta.40 bump on this branch mid-phase
-
 
 ### Decisions
 
@@ -7267,6 +7302,7 @@ Progress: [█████████░] 92%
 - [Phase 344]: 344-06: docs/LAYER-CONTRACT.md ships as the pinned five-rung architecture contract, superseding docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md for architecture claims - Corpus-grounded by hop count and source, WD-3 and WD-5 owner-surface markers ruled beneath their kept NAVIGATOR DECISION cells, help-map interface named for Phase 343 item 4, amendment ledger seeded
 - [Phase 344]: 344-07: docs/ICM-NESTED-PART-CONTRACT.md ships with one subsection per data/icm-parts.json row (Reads/Does/Writes/Human check/Change-impact plus IS today/NEEDS TO BE/Gap), six owned cross-cutting gaps, and a counts-only measurement pointer, locked bidirectionally to its declaration file by a mutation-proven drift test. - Task 3's TDD gate landed as a single test commit rather than RED-then-GREEN, since the document under test was already built by Tasks 1-2 (344-06 precedent for the same schema-derived structural-pin test shape); the mutation proof (fake declared id, fake document subsection, both flipping the test red then reverted) stands in for RED.
 - [Phase 344]: Single-canonical ICM map test disqualifies a file from full-mapping status when it also names the canonical file (docs/MINDRIAN-CANON.md) - Lets two files legitimately retain raw Layer 0-4 content (docs/ARCHITECTURE-DEEP-DIVE.md's provenance table, templates/icm/CLAUDE.md's fleet-level list) without breaking the exactly-one-canonical assertion
+- [Phase 343]: CENSUS-01..17 minted; WD-1..21 recorded WORKING in docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md (tracked, since .planning/ is gitignored); tests/run-all-343.sh stood up with seven run_if-guarded legs for later waves
 
 ### Pending Todos
 
@@ -7406,8 +7442,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T15:27:15.648Z
-Stopped at: Completed 344-08-PLAN.md
+Last session: 2026-09-14T16:50:44.811Z
+Stopped at: Completed 343-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

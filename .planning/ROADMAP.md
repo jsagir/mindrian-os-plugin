@@ -698,11 +698,11 @@ Plans:
 **Goal:** Every room's local graph is measured by a counts-only audit organ that names four defect classes and refuses to judge them, the same measurement fires as an insight sensor on a per-room threshold, every sensor declares the counter-metric that watches what it optimizes, the release lockstep has one home plus a Theo re-emit gate that fails closed, and the help family map labels every command by its engineering layer.
 **Requirements**: CENSUS-01 .. CENSUS-17
 **Depends on:** Phase 342 (and, for plan 343-08 only, Phase 344's 344-03 command backfill: a deliberate, recorded dependency inversion)
-**Plans:** 9 plans
+**Plans:** 1/9 plans executed
 
 Plans:
 
-- [ ] 343-01-PLAN.md - mint CENSUS-01..17, land the tracked twenty-one-row working-decisions ledger with its two not-measurable records and the Phase 273 non-goal map, and stand up the phase aggregator
+- [x] 343-01-PLAN.md - mint CENSUS-01..17, land the tracked twenty-one-row working-decisions ledger with its two not-measurable records and the Phase 273 non-goal map, and stand up the phase aggregator
 - [ ] 343-02-PLAN.md - the counts-only room-graph integrity organ: four measurable defect statements in one shared statement home, read-only door, null and never zero on a legacy schema, the writer gaps named in its own output
 - [ ] 343-03-PLAN.md - lib/core/navigation/CONTEXT.md replaces the stale ROOM.md, one routing row in the loaded CLAUDE.md include, the wrong lazygraph path corrected and the .room-graph name collision annotated at all five sites
 - [ ] 343-04-PLAN.md - the counter-metric declaration inside sensor-priority.cjs as per-id records, a fourth fail-closed arm on the shipped build gate, and the doctrine with the counting rule quoted verbatim

@@ -1708,8 +1708,12 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       from `data/command-registry.json`, and the six loop-versus-graph signals are written as
       the stated rule for when `chain_resolve` composes a chain versus runs one framework.
 
-- [ ] **CENSUS-15**: every working decision of this phase lands in a tracked `docs/` file
-      with a status and a date, because `.planning/` is gitignored here.
+- [x] **CENSUS-15**: every working decision of this phase lands in a tracked `docs/` file
+      with a status and a date, because `.planning/` is gitignored here. Measured:
+      `docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` exists and is tracked (`git check-ignore -q
+      docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` exits 1, non-zero); its Section 2 table
+      carries all of WD-1 through WD-21, each row's status column reading WORKING and its
+      date column reading 2026-09-14 (343-01-SUMMARY.md).
 
 - [ ] **CENSUS-16**: every CENSUS id closes with a `Measured:` clause citing a command and
       its observed output, and the phase validation map is filled.
