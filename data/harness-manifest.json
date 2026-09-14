@@ -42,7 +42,7 @@
     {
       "role": "brain_orchestration",
       "path": "lib/core/directive-envelope.cjs",
-      "digest": "ed2451cb75df1ac7b09d5f71b10fc6e5426f182c9339713f49f759fe3a04c81e"
+      "digest": "14d6c740ef4df022feefda6f37102e9b8ccbd36062bfad47e5608e127e35a886"
     }
   ],
   "policies": {
@@ -59,7 +59,7 @@
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "096044c41ad58b4e62129391aac8af6b8eef4f8c1f120ade4b1fe461ba4de04c"
+      "digest": "35172b29e9f27827fedd6bea1ac394ad1a087d8d3cd3f66ae6340f608a65340a"
     },
     {
       "role": "desktop_cowork_wire",
