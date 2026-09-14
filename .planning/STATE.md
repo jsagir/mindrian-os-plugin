@@ -6143,6 +6143,8 @@ Progress: [█████████░] 92%
 - Phase 346 added (2026-09-14, via /gsd-phase): the arbitration node (transcript learning 3c, conflicting loops): one logged arbiter for teach/deliver, guided/autonomous, enforce/judge; closes the 07-02 'less like Larry' WATCH
 - Phase 347 added (2026-09-14, via /gsd-phase): the shared-state contract for chains (transcript learning 5): typed room-graph state on every chain edge, scoped context per node, explicit readable routing, reviewer never the worker
 - Phase 344 PLANNED 2026-09-14: 9 plans / 6 waves / 26 tasks, plan-checker VERIFICATION PASSED first round; LAYER-01..16 minted by 344-01; one checkpoint (344-03) before the command-file backfill; twelve working decisions ledgered in docs/LAYER-DECLARATION-CONTRACT.md (plan files are gitignored here). Research + langtalks consult + validation map on disk in the phase dir. Next: /gsd-execute-phase 344
+- Phase 343 PLANNED 2026-09-14: 9 plans / 6 waves, plan-checker VERIFICATION PASSED (one non-blocking wave-number note on 343-07); CENSUS-01..17 minted by 343-01 including the fourth measurable defect (edge types outside ALLOWED_EDGE_TYPES, written raw by graph-ops.cjs and build-ecosystem-graph.cjs); two ghosts recorded as not_measurable; sensor SENS-19 across seven registration places proven through decide(); 343-08 depends on 344-03; icm-architect and langtalks consults on disk. Next: /gsd-execute-phase 343 after 344 closes
+
 
 ### Decisions
 
