@@ -1711,7 +1711,7 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
 - [ ] **CENSUS-13**: `scripts/release.sh` verifies Theo's command-layer stamp for the CURRENT
       version before any mutation and fails closed on a mismatch and on a network error.
 
-- [ ] **CENSUS-14**: the help family map labels every command by its `layer:` value read
+- [x] **CENSUS-14**: the help family map labels every command by its `layer:` value read
       from `data/command-registry.json`, and the six loop-versus-graph signals are written as
       the stated rule for when `chain_resolve` composes a chain versus runs one framework.
 

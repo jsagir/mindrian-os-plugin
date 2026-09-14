@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 343-04-PLAN.md
-last_updated: "2026-09-14T18:10:35.844Z"
-last_activity: "2026-09-14 -- 343-04 completed (SENS_PRIORITY reshaped to per-id counter-metric
-  records, a fourth fail-closed arm on the SENS_PRIORITY completeness gate,
-  tests/test-343-counter-metric-declaration.cjs, docs/COUNTER-METRIC-DOCTRINE.md)"
+status: Plan 343-08 labeled every help card by its engineering layer and wrote the six loop-versus-graph signals (CENSUS-14)
+stopped_at: Completed 343-08-PLAN.md
+last_updated: "2026-09-14T18:33:43.812Z"
+last_activity: "2026-09-14 -- 343-08 completed (help family map layer label + loop-versus-graph signals, CENSUS-14)"
 progress:
-  total_phases: 97
-  completed_phases: 29
+  total_phases: 98
+  completed_phases: 28
   total_plans: 274
-  completed_plans: 235
+  completed_plans: 236
   percent: 86
 ---
 
@@ -4356,8 +4354,24 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-04 complete (4/9 plans)
-Status: Plan 343-04 shipped the counter-metric declaration and its fourth gate
+Plan: 343-08 complete (5/9 plans; 343-05, 343-06, 343-07, 343-09 remain, executed out of wave
+  order per the plan's own recorded WD-11/WD-17 dependency inversion on 344-03)
+Status: Plan 343-08 labeled every help card by its engineering layer (CENSUS-14): scripts/help-
+  renderer.cjs reads data/command-registry.json's generated layer field once into a per-command
+  map, validated against data/layer-declaration-schema.json's vocabulary (never copied as a
+  literal list); a total-absence halts naming 344-03, a partial gap renders the [no-layer]
+  marker instead. docs/LOOP-VERSUS-GRAPH-SIGNALS.md (140 lines) writes the six loop-versus-graph
+  signals, material-step cited to chain_run's shipped halt behaviour. commands/help.md (+ its
+  skills/help/SKILL.md mirror) gained exactly two lines: the layer-read instruction and a pointer
+  to the signals doc. tests/test-343-help-layer-label.cjs: 24 assertions, RED then GREEN. Four
+  commits: 5143c6ee (RED test), 831a864c (GREEN renderer), cec8d2af (signals doc), 7586c6df
+  (help.md + mirror + surface arm). bash tests/run-all-343.sh confirmed PASS=8 FAIL=0 SKIP=3 on a
+  clean tree; data/help-groups.json and scripts/check-help-coverage.cjs both untouched. One
+  deviation (Rule 1): the plan's literal help.md vocabulary/count acceptance scan runs over the
+  WHOLE file including frontmatter, which false-positives against 344-03's own pre-existing
+  layer/layer_why frontmatter plus the plan's own mandatory doc-filename citation; the test's scan
+  was scoped to the markdown body only (frontmatter excluded). Full detail in 343-08-SUMMARY.md.
+Previously: Plan 343-04 shipped the counter-metric declaration and its fourth gate
   arm: lib/core/sensors/sensor-priority.cjs's SENS_PRIORITY reshaped from
   twenty id strings to twenty frozen { id, optimizes, watched_by, why }
   records (WD-8, order and rank contract byte-identical to the prior table),
@@ -5783,6 +5797,7 @@ Progress: [█████████░] 92%
 | Phase 343 P02 | 95min | 3 tasks | 8 files |
 | Phase 343 P03 | 55min | 3 tasks | 9 files |
 | Phase 343 P04 | 70min | 3 tasks | 5 files |
+| Phase 343 P08 | 25min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -7358,6 +7373,7 @@ Progress: [█████████░] 92%
 - [Phase 343]: 343-03: five stale .room-graph skip-list entries are annotated, never removed, per WD-16, since every skip-list already carries .mindrian and removing an inert entry still changes traversal
 - [Phase 343]: SENS_PRIORITY reshaped to per-id { id, optimizes, watched_by, why } records (WD-8); 18 of 20 sensors paired, SENS-01/SENS-05 explicit null/null - one home per fact over a third index-parallel array; a fourth fail-closed build gate arm now enforces the pairing
 - [Phase 343]: docs/COUNTER-METRIC-DOCTRINE.md ships with the counting rule quoted verbatim and the first pair's 2026-09-14 reading (7,794 filed, 0 contradicted, 7,791 never cited) - prevents 0 contradicted from reading as a perfect score; sets no threshold and produces no score per SEED-074
+- [Phase 343]: 343-08: scoped the help.md vocabulary/count acceptance scan to prose body only (frontmatter excluded), since the plan's literal whole-file check false-positives against 344-03's own pre-existing frontmatter plus the mandatory LOOP-VERSUS-GRAPH-SIGNALS.md filename citation
 
 ### Pending Todos
 
@@ -7497,8 +7513,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T18:10:35.678Z
-Stopped at: Completed 343-04-PLAN.md
+Last session: 2026-09-14T18:33:43.706Z
+Stopped at: Completed 343-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
