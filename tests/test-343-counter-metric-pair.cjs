@@ -32,6 +32,7 @@ const roomDb = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
 const {
   countClaimCounterMetric,
   CITATION_LAG_DAYS,
+  BANNED_ADJECTIVES,
 } = require(path.join(REPO, 'lib', 'core', 'navigation', 'claim-counter-metric.cjs'));
 
 let passed = 0;
@@ -238,10 +239,11 @@ scenario('no direct node:sqlite require in the statement home', () => {
   assert.equal(/require\(['"]node:sqlite['"]\)/.test(src), false);
 });
 
-const BANNED_ADJECTIVES = [
-  'orphan', 'orphaned', 'dangling', 'broken', 'corrupt', 'stale', 'unhealthy',
-  'degraded', 'dense', 'sparse', 'density', 'risk', 'healthy',
-];
+// WR-04 (343 review): imported from claim-counter-metric.cjs itself -- the
+// ONE home for this file's own extended banned-adjective list (its docblock
+// bans 5 words beyond the base 13-word list graph-integrity-counts.cjs
+// shares, specifically because `divergence` must never be rendered as a
+// ratio/score/percent) -- rather than a second, driftable copy here.
 const BANNED_RE = new RegExp('\\b(' + BANNED_ADJECTIVES.join('|') + ')\\b', 'i');
 
 function walkForBannedWords(value, pathLabel, hits) {
