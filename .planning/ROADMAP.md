@@ -707,11 +707,11 @@ Plans:
 **Goal:** Every engineering layer of MindrianOS and every ICM nested part of a room is named, contracted, declared in machine-readable form on the surface that owns it, and measured by a counts-only organ, with one canonical ICM L0-L4 statement and three pointers to it.
 **Requirements**: LAYER-01 .. LAYER-16
 **Depends on:** Phase 343
-**Plans:** 9 plans
+**Plans:** 1/9 plans executed
 
 Plans:
 
-- [ ] 344-01-PLAN.md - mint LAYER-01..16, ship the closed layer vocabulary (data/layer-declaration-schema.json), the declaration contract with its twelve-row decision ledger, and the phase test aggregator
+- [x] 344-01-PLAN.md - mint LAYER-01..16, ship the closed layer vocabulary (data/layer-declaration-schema.json), the declaration contract with its twelve-row decision ledger, and the phase test aggregator
 - [ ] 344-02-PLAN.md - the fail-closed sibling gate (scripts/check-layer-declaration.cjs), its harness policy at rung logged, and the layer lift into data/command-registry.json
 - [ ] 344-03-PLAN.md - the idempotent command backfill, with one blocking navigator checkpoint immediately before the material edit
 - [ ] 344-04-PLAN.md - the same declaration across agents, pipelines, qualifying skills and every MCP tool connector descriptor; gate green over the whole tree

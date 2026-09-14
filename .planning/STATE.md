@@ -3,16 +3,24 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 341-05-PLAN.md
-last_updated: "2026-09-10T05:31:53.463Z"
-last_activity: 2026-09-11 -- quick tasks 260911-juq (hooks.json unknown-keys warning silenced) and 260911-iko (x-theo-install-id header) complete on main, unreleased; v2.0.0-beta.35 released with 260911-axz + 260911-ddd; Phase 341 wave 6 halted at the cold-install checkpoint (Linux PASS, Windows/Mac pending)
+stopped_at: Completed 344-01-PLAN.md
+last_updated: "2026-09-14T12:42:32.170Z"
+last_activity: 2026-09-14 -- Phase 344 execution started
 progress:
-  total_phases: 92
+  total_phases: 97
   completed_phases: 27
-  total_plans: 227
-  completed_plans: 221
-  percent: 97
+  total_plans: 240
+  completed_plans: 222
+  percent: 93
 ---
+
+<!-- NOTE (344-01 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.update-progress` correctly computed `percent: 93` (completed_plans 222 /
+     total_plans 240) in its own returned JSON but persisted the stale `percent: 28` into the
+     frontmatter -- hand-corrected to 93. `state.record-metric`, both `state.add-decision` calls,
+     and `state.record-session` did not re-clobber `percent` this run (checked after each call);
+     only the plain `state.update-progress` write needed the correction. Same root cause as every
+     other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (341-05 execute-plan, 2026-09-10, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
@@ -4218,7 +4226,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 341 — Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update
+**Current focus:** Phase 344 - the-layer-contract-name-describe-and-pin-every-engineering-l
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4263,10 +4271,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
-Plan: 6 of 10
+Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-09-14 - Completed quick task 260914-hvb: landed the layer contract and ICM nested-part map under docs/, Phase 344 input spec
+Last activity: 2026-09-14 -- Phase 344 execution started
   (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
   5 sqlite-vec platform packages), @huggingface/transformers removed from dependencies, and two
   harness policies stood up (release-payload-ceiling blocking, registry-drift logged). Both plan
@@ -5532,6 +5540,7 @@ Progress: [█████████░] 92%
 | Phase 341 P03 | 25min | 3 tasks | 8 files |
 | Phase 341 P04 | 100min | 3 tasks | 15 files |
 | Phase 341 P05 | 130min | 3 tasks | 11 files |
+| Phase 344 P01 | 6min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -6133,7 +6142,6 @@ Progress: [█████████░] 92%
 - Phase 346 added (2026-09-14, via /gsd-phase): the arbitration node (transcript learning 3c, conflicting loops): one logged arbiter for teach/deliver, guided/autonomous, enforce/judge; closes the 07-02 'less like Larry' WATCH
 - Phase 347 added (2026-09-14, via /gsd-phase): the shared-state contract for chains (transcript learning 5): typed room-graph state on every chain edge, scoped context per node, explicit readable routing, reviewer never the worker
 - Phase 344 PLANNED 2026-09-14: 9 plans / 6 waves / 26 tasks, plan-checker VERIFICATION PASSED first round; LAYER-01..16 minted by 344-01; one checkpoint (344-03) before the command-file backfill; twelve working decisions ledgered in docs/LAYER-DECLARATION-CONTRACT.md (plan files are gitignored here). Research + langtalks consult + validation map on disk in the phase dir. Next: /gsd-execute-phase 344
-
 
 ### Decisions
 
@@ -7073,6 +7081,8 @@ Progress: [█████████░] 92%
 - [Phase 341]: requirements.mark-complete D-02/D-03/D-04/D-05/D-08/D-13 returned not_found for all six -- Phase 341's D-* decision IDs were never registered in .planning/REQUIREMENTS.md (same pre-existing gap class as the ANCHOR-*/PYPORT-*/DCW-* precedents); not fixed here, recorded as a decision instead
 - [Phase 341]: doctor.cjs version-of-record-published accepts either the npm source shape or the legacy git-ref shape during the transition (continuity requirement)
 - [Phase 341]: tests/run-all-310.sh leg 3 retired its Step 5.5/Step 1 normalization special-casing after the fixture was regenerated wholesale in Plan 05
+- [Phase 344]: WD-1..WD-12 seeded WORKING in docs/LAYER-DECLARATION-CONTRACT.md decision ledger (five navigator-reserved, seven design-fork/mechanical)
+- [Phase 344]: Classification rubric orders widest-scope-first (graph, loop, harness, context, prompt, none), first match wins
 
 ### Pending Todos
 
@@ -7212,8 +7222,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-10T05:31:53.187Z
-Stopped at: Completed 341-05-PLAN.md
+Last session: 2026-09-14T12:42:15.609Z
+Stopped at: Completed 344-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
