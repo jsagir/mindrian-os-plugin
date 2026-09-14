@@ -3,6 +3,29 @@
 ### Added
 - 
 
+### Fixed - eight doctor findings from the beta.37 install-health-check QA sweep (quick task 260914-ntk)
+
+- `doctor --fix eureka` reaches the real installer again: the positional argument was
+  silently discarded since commit ec98625f, so the documented `--fix eureka` surface has
+  been a no-op. `--fix eureka --dry-run` now proves the wiring by reporting a projected
+  install with no subprocess spawned (Finding 1b).
+- A room whose last derive skipped every pair for lack of the local semantic encoder now
+  reports an install-the-encoder instruction (`/mos:doctor --fix eureka`) instead of the
+  generic re-enqueue advice, and is skipped by `--heal-room` instead of being re-enqueued
+  forever (Finding 1a).
+- A room that ran a real derive and legitimately found zero semantic relationships now
+  converges to a healthy status instead of being re-enqueued on every doctor pass
+  (Finding 5c).
+- `doctor --all` no longer prints the literal word "undefined" in a check row or a fix
+  row under a combined run, for example `--brain-smoke --eureka-smoke` (Finding 3).
+- The `--room-md` check no longer flags dot-directories such as `.intelligence` and
+  `.snapshots` as rooms missing ROOM.md/MINTO.md (Findings 4.1 and 4.2).
+- A MINTO.md missing `schema_version`, `governing_thought`, or `last_generated_at` now
+  reports those fields as missing, not unexpected (Finding 4.3).
+- The `--statusline-visibility` check now resolves a statusLine command written in
+  `$HOME`-form (`bash "$HOME/.claude/statusline-mos"`) instead of reporting it stale
+  (Finding 5.ii).
+
 ## [2.0.0-beta.37] - 2026-09-11
 
 ### Fixed - hooks.json no longer prints an unknown-keys warning at every session start (quick task 260911-juq)
