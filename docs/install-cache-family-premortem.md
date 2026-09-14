@@ -103,6 +103,10 @@ fix that retires the entire Plan 04 Step 9.6 surface along with the
 env-var-driven minisite + retire Step 9.6. Predicted to land within
 2 milestones.
 
+[2026-09-14, superseded: the lockstep count now has one home, `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`
+RULE 5 (Phase 343 card (d), WD-12). The prediction above is left byte-identical because a premortem
+is a record of what was predicted, and editing the prediction destroys its value as a record.]
+
 **F. Cowork cross-tenant activation drift.** Severity: medium (latent until
 Cowork ships at scale). The Class N `activation-reached-the-wire` gate
 added in case #7 assumes ONE active install per host. In Cowork mode, a

@@ -61,7 +61,7 @@ The full constitution is docs/MINDRIAN-CANON.md (load on demand); the phase-to-c
 Run the relevant suite after edits, before declaring a task done. Users never run these commands; Claude runs them.
 
 - **Phase tests:** `bash tests/run-all-<phase>.sh` (for example `bash tests/run-all-187.sh`).
-- **Release gate:** `scripts/verify-release`, and `scripts/release.sh <version>` for the five-gate version lockstep (never bump versions by hand).
+- **Release gate:** `scripts/verify-release`, and `scripts/release.sh <version>` for the release version lockstep -- see `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 for the single enumeration, this line carries no number of its own (never bump versions by hand).
 - **Born-wired / projection / render gates:** `node scripts/build-connector-registry.cjs --check`, `node scripts/build-orchestration-projection.cjs --check`, `node scripts/check-render-coverage.cjs`.
 - **Acceptance roll-up:** `node scripts/doctor.cjs --acceptance`.
 - **Harness policy runner:** `node scripts/run-harness.cjs --check` (standalone), `--tier pre-tag` (release-tier form), `--room <dir>` (Layer 0 convergence check), `--policy <id>` (promotion review).

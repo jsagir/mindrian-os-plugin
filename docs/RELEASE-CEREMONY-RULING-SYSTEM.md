@@ -34,15 +34,22 @@
 
 - Any self-test that shells `release.sh` (e.g. the doctor `release-dry-run-output` check) MUST pass an explicit bump mode (`patch`). A bare `release.sh --dry-run` requires a mode when the current version is a clean X.Y.Z; during `--finalize` the version is already clean by the time pre-tag self-tests run, so a bare dry-run exits 1 and aborts the finalize.
 
-## RULE 5 -- Version sync (the 5-place + lockstep)
+## RULE 5 -- Version sync (the single home of the lockstep count)
 
-A release is a release only when ALL are in sync (enforced by `release.sh`, never bumped by hand):
+**This is the single home of the release lockstep count.** Any other file that mentions the lockstep points here and carries no number of its own (Phase 343 card (d), WD-12: the count was previously stated four different ways across four files, and every seventh-place addition before this one landed against a system that could not agree with itself on how many places already existed).
+
+A release is a release only when ALL of the following are in sync (enforced by `release.sh`, never bumped by hand):
 1. `CHANGELOG.md` top entry == NEW_VERSION (maintain a `## [Unreleased]` section between cuts; release.sh renames it).
 2. `.claude-plugin/plugin.json` version.
 3. `package.json` version.
 4. git tag `v<version>` on Commit A.
 5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` version + `source.version == <version>` (npm source, `package: @mindrian_os/cli`, no `v` prefix; the git `ref`/`url` pin was retired by Phase 341 D-01/D-06 as of v2.0.0-beta.31, 2026-09-10).
-Plus the dual-website / install-minisite lockstep (Step 9.6a minisite, 9.6b mindrian-website) and the npm publish of `@mindrian_os/cli`. The minisite/website carry the npx COMMAND string (`npx @mindrian_os/cli`) -- update it on rename, not just the version.
+6. The npm publish of `@mindrian_os/cli` at NEW_VERSION (Step 9.5).
+7. The mindrian-website sync (Step 9.6b), which carries the npx COMMAND string (`npx @mindrian_os/cli`) -- update it on rename, not just the version.
+
+The install minisite (formerly Step 9.6a) is NOT counted as a place here: it was retired on 2026-06-09, and `NO_MINISITE=1` is the default (`release.sh:113`).
+
+**A different six-count, not this one.** `lib/core/doctor/install-state-module.cjs`'s `collectVersionOfRecord` six-way comparison (IP, AV, SR, LV, PB, and the spot-checked installed plugin.json) is a runtime install-consistency check over artifacts already on a user's machine, not this release-cut lockstep. Conflating the two is the most likely error a later reader makes; they share no members and answer different questions.
 
 **5a -- the catalog advertises the RELEASED stable, never the dev next-bump (load-bearing).** The marketplace `marketplace.json.version` is what `claude plugin install` LABELS users with NOW. It MUST equal the released `NEW_VERSION` with `source.ref == vNEW_VERSION`. Commit B's next-bump advances ONLY the plugin repo's `plugin.json` + `package.json` (the next dev cycle) -- it MUST NOT touch `marketplace.json`. A catalog that advances to the dev next-bump pushes users onto a pre-release they never opted into (2026-06-02: a tester installed `1.13.1-beta.1` minutes after the `1.13.0` finalize because the old Commit B bumped the catalog version; RCA `marketplace-catalog-advertises-dev-next-bump`). Invariant to assert post-cut: `marketplace.json.version === source.ref without the leading 'v'`.
 
