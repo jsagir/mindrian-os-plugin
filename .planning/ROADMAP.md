@@ -766,7 +766,7 @@ Plans:
 **Goal:** What flows between chain steps is a typed room-graph record rather than conversation prose, each node gets its own scoped context, routing is declared and readable including halts and the reviewer node, and the reviewer is provably never the worker.
 **Requirements**: SHARED-01 .. SHARED-13 (minted 2026-09-14 in docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md, scoped to Phase 347 only, registered in .planning/REQUIREMENTS.md at phase close by 347-12-PLAN.md per the ICML / TOOLHON / CANON precedent)
 **Depends on:** Phase 346. Six of the twelve plans additionally carry a hard dependency on Phase 344 closing (344-09), because Phase 344 claims commands/*.md, agents/*.md, lib/mcp/tools/*.cjs, lib/mcp/tool-router.cjs, .planning/REQUIREMENTS.md, .planning/ROADMAP.md and docs/OPEN-HANDOFFS.md in its own files_modified, and because 347-06 amends Phase 344 working decision WD-5.
-**Plans:** 1/12 plans executed
+**Plans:** 2/12 plans executed
 
 Plans:
 
@@ -776,7 +776,7 @@ Plans:
 
 **Wave 2**
 
-- [ ] 347-02-PLAN.md - the reconstructibility proof and the writer contract pins, authored BEFORE the writer, plus the three-schema-variant fixture room
+- [x] 347-02-PLAN.md - the reconstructibility proof and the writer contract pins, authored BEFORE the writer, plus the three-schema-variant fixture room
 
 **Wave 3**
 
