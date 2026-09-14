@@ -1547,11 +1547,11 @@ constitutionally.
       `skills/*/SKILL.md`, and every MCP tool connector descriptor carries its layer through the
       same map and the same generator path.
 
-- [ ] **LAYER-08**: `lib/core/doctor/icm-part-wiring-module.cjs` reports layer-declaration counts
+- [x] **LAYER-08**: `lib/core/doctor/icm-part-wiring-module.cjs` reports layer-declaration counts
       and ICM part producer and consumer counts as raw counts, with status never 'warn', no `fix`
       export, and no health or completeness adjective in any rendered string.
 
-- [ ] **LAYER-09**: `data/icm-parts.json` declares every ICM nested part of a room with its
+- [x] **LAYER-09**: `data/icm-parts.json` declares every ICM nested part of a room with its
       producer surfaces and its consumer modules, and the per-section `CONTEXT.md` headings
       "Commands that write here" and "Inputs" are read as the room-side declaration, giving the
       L2 contract its first code consumer.

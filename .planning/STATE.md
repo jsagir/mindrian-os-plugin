@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-02-PLAN.md
-last_updated: "2026-09-14T13:00:48.047Z"
+stopped_at: Completed 344-05-PLAN.md
+last_updated: "2026-09-14T13:23:36.547Z"
 last_activity: 2026-09-14 -- Phase 344 execution started
 progress:
   total_phases: 97
   completed_phases: 27
-  total_plans: 256
-  completed_plans: 223
+  total_plans: 274
+  completed_plans: 224
   percent: 28
 ---
 
@@ -4272,7 +4272,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-09-14 -- Phase 344 execution started
   (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
@@ -5542,6 +5542,7 @@ Progress: [█████████░] 92%
 | Phase 341 P05 | 130min | 3 tasks | 11 files |
 | Phase 344 P01 | 6min | 3 tasks | 6 files |
 | Phase 344 P02 | 5min | 3 tasks | 7 files |
+| Phase 344 P05 | 55min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6144,7 +6145,6 @@ Progress: [█████████░] 92%
 - Phase 347 added (2026-09-14, via /gsd-phase): the shared-state contract for chains (transcript learning 5): typed room-graph state on every chain edge, scoped context per node, explicit readable routing, reviewer never the worker
 - Phase 344 PLANNED 2026-09-14: 9 plans / 6 waves / 26 tasks, plan-checker VERIFICATION PASSED first round; LAYER-01..16 minted by 344-01; one checkpoint (344-03) before the command-file backfill; twelve working decisions ledgered in docs/LAYER-DECLARATION-CONTRACT.md (plan files are gitignored here). Research + langtalks consult + validation map on disk in the phase dir. Next: /gsd-execute-phase 344
 - Phase 343 PLANNED 2026-09-14: 9 plans / 6 waves, plan-checker VERIFICATION PASSED (one non-blocking wave-number note on 343-07); CENSUS-01..17 minted by 343-01 including the fourth measurable defect (edge types outside ALLOWED_EDGE_TYPES, written raw by graph-ops.cjs and build-ecosystem-graph.cjs); two ghosts recorded as not_measurable; sensor SENS-19 across seven registration places proven through decide(); 343-08 depends on 344-03; icm-architect and langtalks consults on disk. Next: /gsd-execute-phase 343 after 344 closes
-
 
 ### Decisions
 
@@ -7088,6 +7088,8 @@ Progress: [█████████░] 92%
 - [Phase 344]: Classification rubric orders widest-scope-first (graph, loop, harness, context, prompt, none), first match wins
 - [Phase 344]: MCP tool connector descriptors join the layer gate's denominator only on a real-repo run; a synthetic CHECK_LAYER_DECLARATION_ROOT tree scopes to the four markdown classes only
 - [Phase 344]: The layer gate is fail-closed unconditionally with no --strict opt-out, a deliberate deviation from check-shape-declaration.cjs's advisory posture
+- [Phase 344-05]: seeds/ omitted from data/icm-parts.json per WD-4, omission recorded in _doc.omissions rather than silently forgotten
+- [Phase 344-05]: Plan's rule-8 fix_supported citation (tests/test-298-contract-parity.cjs) is stale; the actual gate is tests/test-doctor-module-contract-parity.cjs. Ran both.
 
 ### Pending Todos
 
@@ -7227,8 +7229,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T13:00:47.952Z
-Stopped at: Completed 344-02-PLAN.md
+Last session: 2026-09-14T13:23:36.427Z
+Stopped at: Completed 344-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
