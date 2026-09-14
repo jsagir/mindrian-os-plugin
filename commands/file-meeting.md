@@ -3,8 +3,8 @@ name: file-meeting
 description: File a meeting transcript into the Data Room
 help_jtbd: "Turn a meeting recording into structured room intelligence."
 body_shape: E
-layer: "loop"
-layer_why: "Captures a transcript and files the resulting intelligence into room sections in one filing cycle to completion, the same shape as a methodology command that produces an artifact."
+layer: "graph"
+layer_why: "Step 3 is a five-perspective fan-out with shared state: five workers dispatched in one message, each perspective's rows persisted as a chain_state record before the merge, and the orchestrator reading them back through navigation.cjs rather than from its own context window (Phase 347-11). Multi-agent coordination with a shared graph state is the GRAPH rung, not the single-agent filing-cycle LOOP rung this command declared before that migration landed."
 hitl_shape: "F.8"
 hitl_why: "Extracted nuggets are routed as an independent set the navigator files in any order."
 argument-hint: "[--latest|--paste|<file>]"
@@ -442,6 +442,16 @@ Dynamics and Working Models.
   `allowed-tools: Read` only -- no Write, no Bash, no Glob, no external web
   reach, no MCP tool.
 
+**What per-node context scoping does and does not apply to here.** Phase 347's
+per-node context scoping applies to the DOWNSTREAM READER -- the orchestrator,
+which can now read one perspective's record at a time with a focused
+`context_assemble` call instead of holding five full worker outputs in its own
+context window. It does NOT apply to the extractors: each extractor still
+receives the FULL transcript, per the FULL transcript bullet above, because
+the fan-out is bought for recall and a lens that cannot see the whole meeting
+cannot notice the thing only it would notice. A plan that budgeted the
+extractors' input would destroy the reason the fan-out exists.
+
 **Returns:** the uniform array from `extraction-perspectives.md`'s return
 schema, with `perspective` set to the worker's assigned lens name.
 
@@ -535,6 +545,57 @@ Step 4, because target-section decisions are section-mapping.md's job and
 this worker never sees that matrix. Transparency is mandatory -- even when it
 makes the flow longer. The user needs to trust Larry's classifications.
 
+#### Persist each perspective before the merge
+
+Once all five workers have returned, and BEFORE Step 3b's consolidation reads
+any of their rows, the orchestrator persists each perspective's returned rows
+as its own `chain_state` record, from the single main-thread db handle it
+already holds. For each perspective (index 0 through 4, in dispatch order):
+
+```
+navigation.writeChainStateRecord(db, {
+  run_id: 'meeting:' + sessionId,
+  step_index: <0..4, the perspective's dispatch index>,
+  command: 'file-meeting',
+  kind: 'notes',
+  body: <that worker's returned row array, verbatim>,
+  quality: null,
+  tier: 'host_dispatch',
+  produced_by: 'worker',
+  subject_node_id: 'room:' + roomId,
+})
+```
+
+`subject_node_id` anchors to the room root node (`room:` + roomId, the same
+node `room-birth.cjs` mints at the room's own creation, and the same
+fallback the chain executor's own per-step writer resolves to when no more
+specific subject is declared). No meeting-specific graph node exists yet at
+this point in the pipeline: the `meeting` node the Step 4 date-sync gate
+reasons about is a filing-time construct keyed by `MEETING_ID`, and the
+confirmed `meeting_id` itself is not settled until Step 5's naming step. The
+room root is the one anchor that is already real before any of that exists.
+
+Three constraints, stated here in the command's own voice:
+
+1. **This is a WRITE the orchestrator does, never a worker.** The no-write,
+   no-gate, no-user-interaction contract above already forbids the worker
+   from writing anything ever, and that contract is unchanged.
+2. **The record body is the worker's returned rows exactly as returned** --
+   the full array from the uniform return schema -- never a summary and
+   never a re-typed version. A summarized record would defeat the
+   reconstructibility this phase exists for.
+3. **An unanchorable record is refused and reported, never silently
+   dropped.** When `writeChainStateRecord` returns
+   `{ok:false, reason:'missing_structural_anchor'}`, say which perspective
+   could not be persisted, and let the merge proceed without that
+   perspective's durable record rather than losing the whole batch in
+   silence.
+
+Five records land, one per lens, each anchored by its own `SOURCED_FROM` edge
+to the room root node, and chained in perspective order by `FEEDS_INTO` (the
+writer auto-links each record to the one written immediately before it for
+the same `run_id`).
+
 ---
 
 ### Step 3b: Consolidation (orchestrator only, after all five workers return)
@@ -547,12 +608,21 @@ or ownable by, a single perspective worker holding only its own output. The
 orchestrator (the main conversation thread) owns every one of these seven
 ordered sub-steps:
 
-1. **Merge and deduplicate across perspectives.** Two lenses seeing the same
-   segment is the EXPECTED case, not the edge case: a decision that is also a
-   causal claim will surface twice. Merge on `segment_id`. Step 3 has NO
-   claim-level dedup today (`CLAIM_NODE_ID` gives idempotency for the same
-   segment in the same session, which is a different property), so this step
-   is genuinely new and exists because the fan-out created the duplicate.
+1. **Merge and deduplicate across perspectives.** Read the five perspectives'
+   row arrays back through `navigation.readChainState(db, 'meeting:' +
+   sessionId)` rather than from the orchestrator's own context window -- each
+   returned record's `body` is one perspective's full row array, exactly as
+   persisted in Step 3a's "Persist each perspective before the merge"
+   sub-step, ordered by the `FEEDS_INTO` walk. The merge logic itself is
+   unchanged: two lenses seeing the same segment is the EXPECTED case, not
+   the edge case -- a decision that is also a causal claim will surface
+   twice. Merge on `segment_id`. Step 3 has NO claim-level dedup today
+   (`CLAIM_NODE_ID` gives idempotency for the same segment in the same
+   session, which is a different property), so this step is genuinely new
+   and exists because the fan-out created the duplicate. The readback
+   matters because the orchestrator now merges from a durable typed source,
+   so the merge is reproducible after the fact and a later reader can see
+   what each lens said before consolidation.
 2. **Reconcile `knowledge_type` disagreement.** When two perspectives assign
    different types to the same `segment_id`, do NOT average and do NOT pick
    by confidence alone. Apply the existing rule from `knowledge-typing.md`: a

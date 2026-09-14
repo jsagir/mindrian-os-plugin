@@ -737,7 +737,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": "loop",
+      "layer": "graph",
       "serves_jtbd": [
         "file-meeting"
       ],

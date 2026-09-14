@@ -7,7 +7,7 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "6de9d2d93ebae606c6eddf44966eb1579f496f39be20631e8e6baee8ad393df3",
+      "digest": "43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8",
       "source_count": 113
     },
     {
@@ -27,7 +27,7 @@
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "ed0593828237f70c1c24f39a84ce04c9bf83c4c34b4216df56b273550ce018a6"
+      "digest": "9ac825581663e48c1b903637b9b16e54dd031228b97633207815f370561d2532"
     },
     {
       "role": "decide_engine",
