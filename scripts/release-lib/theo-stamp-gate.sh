@@ -84,12 +84,27 @@
 _theo_stamp_read() {
   local plugin_dir="${1:-}"
   local default_reader
-  default_reader="node -e \"const bc=require('${plugin_dir}/lib/core/brain-client.cjs'); bc.callTool('command_neighborhood',{command:'/mos:act'}).then(function(r){var rows=(r&&r.rows)||[]; var row=rows[0]||{}; process.stdout.write(row.mappedBy||'');}).catch(function(){process.stdout.write('');});\""
+  # WR-01 (343 review): plugin_dir travels through the environment
+  # (MINDRIAN_STAMP_PLUGIN_DIR), never string-concatenated into this JS
+  # source. default_reader itself is now a fixed literal with nothing
+  # dynamic interpolated into it, so a checkout path containing a single
+  # quote (an apostrophe in a username or a parent directory name) can
+  # never break out of the JS string literal or inject code into the
+  # `node -e` process this function execs.
+  default_reader="node -e \"const bc=require(process.env.MINDRIAN_STAMP_PLUGIN_DIR + '/lib/core/brain-client.cjs'); bc.callTool('command_neighborhood',{command:'/mos:act'}).then(function(r){var rows=(r&&r.rows)||[]; var row=rows[0]||{}; process.stdout.write(row.mappedBy||'');}).catch(function(){process.stdout.write('');});\""
   local reader_cmd="${MINDRIAN_THEO_STAMP_CMD:-$default_reader}"
+  # WR-02 (343 review): the 8s hang guard must be enforced even when the
+  # `timeout` binary is not on PATH (stock macOS ships no GNU `timeout`).
+  # Falling back to an unbounded call would let a hung reader hang the
+  # whole release train, contradicting this function's own docblock. Fail
+  # closed instead: treat "no timeout binary" as a READ FAILURE (empty
+  # stdout), the same outcome callers already treat a failed/unreachable
+  # reader as.
   if command -v timeout >/dev/null 2>&1; then
-    timeout 8 bash -c "$reader_cmd" 2>/dev/null || true
+    MINDRIAN_STAMP_PLUGIN_DIR="$plugin_dir" timeout 8 bash -c "$reader_cmd" 2>/dev/null || true
   else
-    bash -c "$reader_cmd" 2>/dev/null || true
+    echo "  ! theo-stamp-gate: no 'timeout' binary on PATH -- refusing to run the reader unbounded (fail closed)." >&2
+    true
   fi
 }
 

@@ -26,6 +26,8 @@
  */
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const cp = require('node:child_process');
 
@@ -109,6 +111,101 @@ function runGate({ stampCmd, dryRun, noTheoCheck }) {
   assert.match(r.stdout, /SKIPPED/, 'the skip must be visible in the log');
   assert.match(r.stdout, /no-theo-check/, 'the skip must name the flag');
   ok('arm 5 (bonus): --no-theo-check is audited -- visible, names the flag, and never touches the reader');
+}
+
+// ---------------------------------------------------------------------------
+// Arm 6 (WR-01): a plugin_dir containing a single quote AND a space must not
+// break the DEFAULT reader's generated JS (the seam this arm deliberately
+// bypasses is MINDRIAN_THEO_STAMP_CMD -- every other arm above uses it so
+// the default `node -e` reader is never exercised; this arm targets exactly
+// that default reader, since that is where plugin_dir used to be
+// interpolated unescaped into a JS string literal).
+// ---------------------------------------------------------------------------
+{
+  const quoteVersion = '9.9.9-quote-test';
+  const fakePluginDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), "mos-theo-gate-it's a room ")
+  );
+  try {
+    const libCoreDir = path.join(fakePluginDir, 'lib', 'core');
+    fs.mkdirSync(libCoreDir, { recursive: true });
+
+    // Minimal stand-in for lib/core/repo-version.cjs's CLI mode (the gate
+    // shells `node "$plugin_dir/lib/core/repo-version.cjs"` and reads
+    // stdout as the bare version string).
+    fs.writeFileSync(
+      path.join(libCoreDir, 'repo-version.cjs'),
+      'process.stdout.write(' + JSON.stringify(quoteVersion) + ');\n'
+    );
+
+    // Minimal stand-in for lib/core/brain-client.cjs's callTool shape,
+    // exercised by the DEFAULT reader's own generated JS (never by
+    // MINDRIAN_THEO_STAMP_CMD, which is intentionally left unset below).
+    fs.writeFileSync(
+      path.join(libCoreDir, 'brain-client.cjs'),
+      'module.exports = { callTool: function () { return Promise.resolve('
+        + '{ rows: [ { mappedBy: ' + JSON.stringify('command-registry@' + quoteVersion) + ' } ] }'
+        + '); } };\n'
+    );
+
+    const env = Object.assign({}, process.env);
+    delete env.MINDRIAN_THEO_STAMP_CMD;
+    const script = '. "' + GATE_LIB + '"; mos_theo_stamp_gate "' + fakePluginDir + '" "0" "0"';
+    const r = cp.spawnSync('bash', ['-c', script], { encoding: 'utf8', env: env, timeout: 15000 });
+
+    assert.strictEqual(
+      r.status, 0,
+      'a plugin_dir with a quote and a space must still PASS via the default reader; got '
+        + r.status + ' stdout=' + r.stdout + ' stderr=' + r.stderr
+    );
+    assert.match(r.stdout, /PASS/, 'the default reader must still print a pass line');
+    assert.match(
+      r.stdout, new RegExp(quoteVersion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      'the pass line must name the matching version, proving the JS was not corrupted'
+    );
+    ok('arm 6 (WR-01): a plugin_dir with a single quote and a space does not break the default reader');
+  } finally {
+    fs.rmSync(fakePluginDir, { recursive: true, force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Arm 7 (WR-02): the hang guard must be enforced (fail closed) even when the
+// `timeout` binary is not on PATH. Exercised hermetically by restricting the
+// CHILD process's PATH to node's own bin directory only (no coreutils
+// `timeout` there), while resolving `bash` itself via an absolute path so
+// spawnSync does not need PATH to find the shell it launches.
+// ---------------------------------------------------------------------------
+{
+  const nodeBinDir = path.dirname(process.execPath);
+  const bashPath = (function () {
+    for (const candidate of ['/usr/bin/bash', '/bin/bash']) {
+      if (fs.existsSync(candidate)) return candidate;
+    }
+    return 'bash';
+  })();
+
+  const env = Object.assign({}, process.env, { PATH: nodeBinDir });
+  delete env.MINDRIAN_THEO_STAMP_CMD;
+  const script = '. "' + GATE_LIB + '"; mos_theo_stamp_gate "' + REPO + '" "0" "0"';
+  const start = Date.now();
+  const r = cp.spawnSync(bashPath, ['-c', script], { encoding: 'utf8', env: env, timeout: 15000 });
+  const elapsedMs = Date.now() - start;
+
+  assert.notStrictEqual(
+    r.status, 0,
+    'with no timeout binary on PATH the gate must fail closed (READ FAILURE), never silently pass; got '
+      + r.status + ' stdout=' + r.stdout + ' stderr=' + r.stderr
+  );
+  assert.match(
+    r.stdout, /READ FAILURE/,
+    'a missing timeout binary must be reported as a READ FAILURE, the same class as any other unreadable stamp'
+  );
+  assert.ok(
+    elapsedMs < 5000,
+    'a missing timeout binary must return promptly (fail closed), not attempt an unbounded call; took ' + elapsedMs + 'ms'
+  );
+  ok('arm 7 (WR-02): a missing timeout binary fails closed as a READ FAILURE instead of running unbounded');
 }
 
 console.log('');
