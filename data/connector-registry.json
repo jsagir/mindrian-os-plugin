@@ -2908,7 +2908,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Files a markdown artifact and mints a memory_event node through navigation.cjs, plus a typed claim node with SOURCED_FROM provenance edges -- a material room-content write, not a pure read."
+      "hitl_why": "Files a markdown artifact and mints a memory_event node through navigation.cjs, plus a typed claim node with SOURCED_FROM provenance edges -- a material room-content write, not a pure read.",
+      "layer": "harness",
+      "layer_why": "Files a markdown artifact and mints a memory_event plus a provenance-linked claim node; a room-content/graph-infrastructure write, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:chain_resolve",
@@ -2925,7 +2927,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: resolves a framework chain via composeWorkflow, no execution, no fork."
+      "hitl_why": "Pure read: resolves a framework chain via composeWorkflow, no execution, no fork.",
+      "layer": "graph",
+      "layer_why": "Resolves a framework chain across candidate methodologies before any execution; the chain-resolution coordination step, the rubric's own step 1 signal."
     },
     {
       "surface": "mcp:chain_run",
@@ -2942,7 +2946,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Executes the autonomous_safe prefix server-side (wrapping the shipped runChain) and halts at the first material step, rendering a genuine Decision-Gate fork through the SAME gate-render.cjs ladder gate_render uses, instead of executing it unattended."
+      "hitl_why": "Executes the autonomous_safe prefix server-side (wrapping the shipped runChain) and halts at the first material step, rendering a genuine Decision-Gate fork through the SAME gate-render.cjs ladder gate_render uses, instead of executing it unattended.",
+      "layer": "graph",
+      "layer_why": "Executes a multi-step chain prefix and halts at the first material step; multi-step coordination over shared state, the rubric's own step 1 signal verbatim."
     },
     {
       "surface": "mcp:claim_write",
@@ -2959,7 +2965,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Writes a proposed DIKW claim node through the node-insert.cjs chokepoint, a material graph write (not a pure read), the same F.1 shape graph_write/memory_event/artifact_file already carry. The write itself renders no fork; the genuine Decision-Gate fork it later passes through is gate_answer, which already declares F.1 and promotes this node to confirmed."
+      "hitl_why": "Writes a proposed DIKW claim node through the node-insert.cjs chokepoint, a material graph write (not a pure read), the same F.1 shape graph_write/memory_event/artifact_file already carry. The write itself renders no fork; the genuine Decision-Gate fork it later passes through is gate_answer, which already declares F.1 and promotes this node to confirmed.",
+      "layer": "harness",
+      "layer_why": "Writes a proposed DIKW claim node through the node-insert.cjs chokepoint; a graph/memory infrastructure write, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:context_assemble",
@@ -2976,7 +2984,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "A pure read across four local legs (room state, session fragments, graph neighborhood, projected cortex) through the navigation.cjs chokepoint -- no graph mutation, no node minted, no fork. Contrast with memory_event's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves."
+      "hitl_why": "A pure read across four local legs (room state, session fragments, graph neighborhood, projected cortex) through the navigation.cjs chokepoint -- no graph mutation, no node minted, no fork. Contrast with memory_event's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves.",
+      "layer": "context",
+      "layer_why": "Assembles room state, session fragments, graph neighborhood and projected cortex into one turn's context; changing what the model can see this turn, the rubric's own step 4 signal verbatim."
     },
     {
       "surface": "mcp:contract_version",
@@ -2993,7 +3003,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read of a pinned version constant and a static trust-boundary enum; no fork, no side effects."
+      "hitl_why": "Pure read of a pinned version constant and a static trust-boundary enum; no fork, no side effects.",
+      "layer": "none",
+      "layer_why": "A pure read of a pinned version constant and a static trust-boundary enum; no rung engineered, the honest none."
     },
     {
       "surface": "mcp:contradiction_check",
@@ -3010,7 +3022,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: navigation.cjs findContradictions through the chokepoint, no fork."
+      "hitl_why": "Pure read: navigation.cjs findContradictions through the chokepoint, no fork.",
+      "layer": "harness",
+      "layer_why": "Pure graph read (findContradictions) through the navigation.cjs chokepoint; a graph-infrastructure query, not a dispatch decision."
     },
     {
       "surface": "mcp:detect_dual_path",
@@ -3027,7 +3041,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure classification over a string (5-feature additive score), no side effects, no graph write, no fork. Returns booleans-only telemetry-safe features (Canon Part 8), exactly what the tool description already claims."
+      "hitl_why": "Pure classification over a string (5-feature additive score), no side effects, no graph write, no fork. Returns booleans-only telemetry-safe features (Canon Part 8), exactly what the tool description already claims.",
+      "layer": "harness",
+      "layer_why": "Scores a message across five additive features to classify it as upload-shaped or conversation-shaped; a measurement pass over the input, the rubric's own step 3 verb, with the actual path dispatch performed by the calling agent rather than this tool (WD-6 own-rung)."
     },
     {
       "surface": "mcp:extract_shallow",
@@ -3044,7 +3060,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Verified against lib/core/shallow-doc-parser.cjs rather than assumed from its own description: the description claims it \"routes graph writes through navigation.cjs setFocus + memory_event\", but as this tool actually calls it (extractShallow(text, sessionId), no third opts argument), setFocus is skipped (it only fires when opts.db is supplied, extractShallow:191) and the memory_event write is ALSO inert -- navigation.cjs does not export recordMemoryEvent at all today (the module-level comment at shallow-doc-parser.cjs:138-140 names it \"the proposed 14th re-export\", never landed), so safeRecords typeof check is always false in production. As actually wired, this call performs zero graph writes; it computes and returns an in-memory {user, venture, claims} object only. hitl_shape reflects real behaviour, not the description prose."
+      "hitl_why": "Verified against lib/core/shallow-doc-parser.cjs rather than assumed from its own description: the description claims it \"routes graph writes through navigation.cjs setFocus + memory_event\", but as this tool actually calls it (extractShallow(text, sessionId), no third opts argument), setFocus is skipped (it only fires when opts.db is supplied, extractShallow:191) and the memory_event write is ALSO inert -- navigation.cjs does not export recordMemoryEvent at all today (the module-level comment at shallow-doc-parser.cjs:138-140 names it \"the proposed 14th re-export\", never landed), so safeRecords typeof check is always false in production. As actually wired, this call performs zero graph writes; it computes and returns an in-memory {user, venture, claims} object only. hitl_shape reflects real behaviour, not the description prose.",
+      "layer": "loop",
+      "layer_why": "Runs one bounded extraction pass over a pasted document into a structured {user, venture, claims} object and returns it; a single worker cycle to a stopping condition, not a graph write today (verified inert against the actual wiring)."
     },
     {
       "surface": "mcp:framework_run",
@@ -3061,7 +3079,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Resolves a framework chain via composeWorkflow; a material (non-autonomous_safe) step is a genuine Decision-Gate fork -- it halts and renders a gate rather than executing unattended."
+      "hitl_why": "Resolves a framework chain via composeWorkflow; a material (non-autonomous_safe) step is a genuine Decision-Gate fork -- it halts and renders a gate rather than executing unattended.",
+      "layer": "loop",
+      "layer_why": "Resolves and runs one framework's chain to its material step; a single framework's own cycle to a stopping condition, the rubric's own single hitl_shape fork signal."
     },
     {
       "surface": "mcp:gate_answer",
@@ -3078,7 +3098,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Ratifies a gate decision; an approve verdict routes a material write through navigation.cjs (Part 9) -- the fork the human already resolved via gate_render -- and now also writes a typed decision node with SOURCED_FROM/USES_FRAMEWORK provenance edges, promoted to confirmed via confirmNode."
+      "hitl_why": "Ratifies a gate decision; an approve verdict routes a material write through navigation.cjs (Part 9) -- the fork the human already resolved via gate_render -- and now also writes a typed decision node with SOURCED_FROM/USES_FRAMEWORK provenance edges, promoted to confirmed via confirmNode.",
+      "layer": "harness",
+      "layer_why": "Ratifies a gate decision and writes a typed decision node with provenance edges through the gate ledger; a gate-ledger tool."
     },
     {
       "surface": "mcp:gate_render",
@@ -3095,7 +3117,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Renders the Mindrian gate superset card via the 3-rung renderer ladder for a genuine Decision-Gate fork; the F.8/F.9 shipped renderers it composes from are the same binding/reconcile HITL shapes."
+      "hitl_why": "Renders the Mindrian gate superset card via the 3-rung renderer ladder for a genuine Decision-Gate fork; the F.8/F.9 shipped renderers it composes from are the same binding/reconcile HITL shapes.",
+      "layer": "harness",
+      "layer_why": "Renders a Decision-Gate card through the gate-ledger rendering ladder; a gate-ledger tool, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:graph_query",
@@ -3112,7 +3136,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: graph neighborhood retrieval through the navigation.cjs chokepoint, no fork."
+      "hitl_why": "Pure read: graph neighborhood retrieval through the navigation.cjs chokepoint, no fork.",
+      "layer": "harness",
+      "layer_why": "Graph neighborhood retrieval through the navigation.cjs chokepoint; a graph-infrastructure read, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:graph_reason",
@@ -3129,7 +3155,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Every mode is a pure read through the navigation.cjs chokepoint: no node minted, no edge written, and specifically NO cross-room edge materialized (edges.cjs:45, \"Cross-room aggregation forbidden\"). Contrast with graph_write's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves."
+      "hitl_why": "Every mode is a pure read through the navigation.cjs chokepoint: no node minted, no edge written, and specifically NO cross-room edge materialized (edges.cjs:45, \"Cross-room aggregation forbidden\"). Contrast with graph_write's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves.",
+      "layer": "harness",
+      "layer_why": "Pure graph-neighborhood reasoning through the navigation.cjs chokepoint; a graph-infrastructure read, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:graph_write",
@@ -3146,7 +3174,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Mints a typed graph edge (a cascade decision, the same DEFERRED/REJECTED F.1 vocabulary navigation.cjs already writes) -- a material graph mutation, not a pure read."
+      "hitl_why": "Mints a typed graph edge (a cascade decision, the same DEFERRED/REJECTED F.1 vocabulary navigation.cjs already writes) -- a material graph mutation, not a pure read.",
+      "layer": "harness",
+      "layer_why": "Mints a typed graph edge through the navigation.cjs chokepoint; a graph-infrastructure write, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:identity_write",
@@ -3163,7 +3193,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Writes a durable, cross-room claim about the user's identity to a file every room reads -- a material commitment the user should confirm rather than have inferred. Contrast with graph_write's F.1 (a typed graph edge): this is the same shape (a material write with a declared fork) applied to a different, cross-room-identity surface."
+      "hitl_why": "Writes a durable, cross-room claim about the user's identity to a file every room reads -- a material commitment the user should confirm rather than have inferred. Contrast with graph_write's F.1 (a typed graph edge): this is the same shape (a material write with a declared fork) applied to a different, cross-room-identity surface.",
+      "layer": "harness",
+      "layer_why": "Writes a durable cross-room identity claim to a file every room reads; a registry-like infrastructure write, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:memory_event",
@@ -3180,7 +3212,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Mints an append-only memory_event node recording an external observation -- a material graph write, not a pure read."
+      "hitl_why": "Mints an append-only memory_event node recording an external observation -- a material graph write, not a pure read.",
+      "layer": "harness",
+      "layer_why": "Mints an append-only memory_event node; a memory-infrastructure write, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:reach_candidates",
@@ -3197,7 +3231,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pulls the full candidate-reach set through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot."
+      "hitl_why": "Pulls the full candidate-reach set through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot.",
+      "layer": "graph",
+      "layer_why": "Pulls the full candidate-reach set through the dispatchSensors path; the same reach-dispatch coordination as suggest_next."
     },
     {
       "surface": "mcp:room_bind",
@@ -3214,7 +3250,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.8",
-      "hitl_why": "A session with no explicit room and no cwd auto-bind is genuinely ambiguous; room_bind returns needs_binding_card:true instead of guessing, and the F.8 card asks the human which room this session writes to (fires once per session, D-03/D-05)."
+      "hitl_why": "A session with no explicit room and no cwd auto-bind is genuinely ambiguous; room_bind returns needs_binding_card:true instead of guessing, and the F.8 card asks the human which room this session writes to (fires once per session, D-03/D-05).",
+      "layer": "context",
+      "layer_why": "Binds the session to a room via an F.8 human choice before any write; establishes which room's context the rest of the session reads and writes, a session-binding fact, not new methodology or scaffolding."
     },
     {
       "surface": "mcp:room_list",
@@ -3231,7 +3269,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork."
+      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork.",
+      "layer": "context",
+      "layer_why": "Enumerates room directories to let the navigator choose which room's context to bind; a room-context reader."
     },
     {
       "surface": "mcp:room_search",
@@ -3248,7 +3288,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: bounded substring search over the session-bound room, no fork."
+      "hitl_why": "Pure read: bounded substring search over the session-bound room, no fork.",
+      "layer": "context",
+      "layer_why": "Bounded substring search over the session-bound room's own content; a room-context reader."
     },
     {
       "surface": "mcp:room_state_bound",
@@ -3265,7 +3307,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: returns the session-bound room's STATE.md, no fork. Named room_state_bound (not the bare room_state) to avoid colliding with the live Phase 52 grouped router tool of that name."
+      "hitl_why": "Pure read: returns the session-bound room's STATE.md, no fork. Named room_state_bound (not the bare room_state) to avoid colliding with the live Phase 52 grouped router tool of that name.",
+      "layer": "context",
+      "layer_why": "Reads the session-bound room's STATE.md; a room-context reader, the rubric's own step 4 signal verbatim."
     },
     {
       "surface": "mcp:status_read",
@@ -3282,7 +3326,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: composes this session's navigator status segments (including the day-one spend/cap segment) and publishes to the SSE bus, no fork."
+      "hitl_why": "Pure read: composes this session's navigator status segments (including the day-one spend/cap segment) and publishes to the SSE bus, no fork.",
+      "layer": "context",
+      "layer_why": "Composes this session's status segments and publishes a session injection to the SSE bus; changes what the navigator sees this turn, the rubric's own step 4 signal."
     },
     {
       "surface": "mcp:stop_gate_check",
@@ -3299,7 +3345,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "The moved Stop-gate enforcement: on a genuine unanswered/relevant/novel gate it composes and returns a gate_render payload for the calling adapter to surface; a do-not-fire verdict composes nothing."
+      "hitl_why": "The moved Stop-gate enforcement: on a genuine unanswered/relevant/novel gate it composes and returns a gate_render payload for the calling adapter to surface; a do-not-fire verdict composes nothing.",
+      "layer": "harness",
+      "layer_why": "Composes a gate_render payload on a genuine unanswered/relevant/novel verdict; a gate-ledger tool, the rubric's own step 3 signal."
     },
     {
       "surface": "mcp:suggest_next",
@@ -3316,7 +3364,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pulls the top candidate reach through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot. Quick 260819-c8j: it may now make ONE optional read-only Brain call (chainRecommender.chainOfferForReach) when the top reach carries a brain_framework_chain companion; it passes no db handle into that call, so it still performs no write of any kind, and a Brain absence degrades to a grounded:false disclosure rather than an error."
+      "hitl_why": "Pulls the top candidate reach through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot. Quick 260819-c8j: it may now make ONE optional read-only Brain call (chainRecommender.chainOfferForReach) when the top reach carries a brain_framework_chain companion; it passes no db handle into that call, so it still performs no write of any kind, and a Brain absence degrades to a grounded:false disclosure rather than an error.",
+      "layer": "graph",
+      "layer_why": "Pulls the top candidate reach through the dispatchSensors path; a reach-dispatch coordination decision, the rubric's own step 1 signal."
     },
     {
       "surface": "mcp:view_compile",
@@ -3333,7 +3383,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: compiles a registered view (wiki today; others degrade honestly) for the bound room, no fork."
+      "hitl_why": "Pure read: compiles a registered view (wiki today; others degrade honestly) for the bound room, no fork.",
+      "layer": "none",
+      "layer_why": "Compiles a registered view (wiki) for the bound room; a render/export of existing content, engineering no new rung, mirroring commands/vault.md's own none."
     },
     {
       "surface": "mcp:whitespace_scan",
@@ -3350,7 +3402,9 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: navigation.cjs findOpenQuestions + findUnsupportedClaims through the chokepoint, no fork."
+      "hitl_why": "Pure read: navigation.cjs findOpenQuestions + findUnsupportedClaims through the chokepoint, no fork.",
+      "layer": "harness",
+      "layer_why": "Pure graph read (findOpenQuestions/findUnsupportedClaims) through the navigation.cjs chokepoint; a graph-infrastructure query."
     }
   ],
   "sensor_index": {

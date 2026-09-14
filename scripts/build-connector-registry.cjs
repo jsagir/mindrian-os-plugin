@@ -467,10 +467,13 @@ function listMcpToolFileHealth(claimedSources) {
 // the SAME entry shape buildRegistry() emits for commands/skills/agents (a
 // superset: it carries reach_id/posture/framework as null -- the MCP-tool
 // governance dial is hitl_shape/hitl_why, not reach/posture -- plus the two
-// additive keys). source:'mcp_tool' is the discriminator validateConnectors()
+// additive HITL keys). source:'mcp_tool' is the discriminator validateConnectors()
 // uses to skip the frozen-6/frozen-3 reach/posture checks for these entries
 // (they are validated separately, advisory, by scripts/check-shape-
-// declaration.cjs's MCP-tool enumeration).
+// declaration.cjs's MCP-tool enumeration). Phase 344-04 (LAYER-07): layer/
+// layer_why ride the same lift as hitl_shape/hitl_why -- the generator LIFTS
+// whatever the descriptor declares, it never judges validity itself
+// (scripts/check-layer-declaration.cjs is the single judge).
 function normalizeMcpToolEntry(raw) {
   const r = raw && typeof raw === 'object' ? raw : {};
   const tool = typeof r.tool === 'string' && r.tool
@@ -492,6 +495,8 @@ function normalizeMcpToolEntry(raw) {
     decision_surface: null,
     hitl_shape: typeof r.hitl_shape === 'string' ? r.hitl_shape : null,
     hitl_why: typeof r.hitl_why === 'string' ? r.hitl_why : null,
+    layer: typeof r.layer === 'string' ? r.layer : null,
+    layer_why: typeof r.layer_why === 'string' ? r.layer_why : null,
   };
 }
 
