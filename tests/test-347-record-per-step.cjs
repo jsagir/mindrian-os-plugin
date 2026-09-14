@@ -10,7 +10,7 @@
  * failure-mode contracts: no room.db reachable degrades to a silent no-op
  * (byte-identical trace), and a refused write (missing structural anchor)
  * never halts the chain and is counted on the additive
- * chain_state_write_failures field.
+ * record_write_failures field.
  *
  * Plain node:assert CJS script. Hyphens only, no em-dashes (CLAUDE.md HARD
  * RULE).
@@ -186,7 +186,7 @@ async function main() {
       assert.strictEqual(result.trace.length, 3, variant + ': its trace is unaffected (3 entries)');
       assert.strictEqual(result.haltedAt, null, variant + ': haltedAt is unaffected (null on a clean completion)');
       assert.strictEqual(typeof result.run_id, 'string', variant + ': run_id is still minted even with no database');
-      assert.strictEqual(result.chain_state_write_failures, 0, variant + ': no database means no write attempt, so no failure is counted');
+      assert.strictEqual(result.record_write_failures, 0, variant + ': no database means no write attempt, so no failure is counted');
       ok(variant + ': with no room.db reachable, runChain writes nothing and its trace/completed/haltedAt are unaffected');
     }
 
@@ -209,8 +209,8 @@ async function main() {
       assert.strictEqual(result.completed, true, variant + ': a refused record write must never halt the chain');
       assert.strictEqual(result.trace.length, 3, variant + ': the trace still records every step despite the refusal');
       assert.ok(result.trace.every((t) => t.quality === 'high'), variant + ': quality is unaffected by a refused write');
-      assert.strictEqual(typeof result.chain_state_write_failures, 'number', variant + ': chain_state_write_failures is an additive numeric field');
-      assert.strictEqual(result.chain_state_write_failures, 3, variant + ': all 3 steps were refused (bogus subject anchor)');
+      assert.strictEqual(typeof result.record_write_failures, 'number', variant + ': record_write_failures is an additive numeric field');
+      assert.strictEqual(result.record_write_failures, 3, variant + ': all 3 steps were refused (bogus subject anchor)');
 
       const records = chainState.readChainState(fixture.db, result.run_id);
       assert.strictEqual(records.length, 0, variant + ': a refused write mints no chain_state row at all');
