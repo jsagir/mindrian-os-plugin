@@ -42,6 +42,10 @@ const SURFACES = [
   'lib/core/recipe-maps.cjs',
   'lib/mcp/pipeline-state.cjs',
   'scripts/act-command.cjs',
+  // Phase 347-03: the chain-state writer persists a chain step's real output
+  // as a room-graph node body. Same tier as the surfaces above -- the full
+  // forbidden-token sweep plus raw-fetch and external-http checks.
+  'lib/core/navigation/chain-state.cjs',
   // command / skill / agent markdown surfaces (DOC: Brain-write + pre-gate fetch).
   'commands/act.md',
   'commands/pipeline.md',
@@ -59,6 +63,7 @@ const CODE_SURFACES = new Set([
   'lib/core/recipe-maps.cjs',
   'lib/mcp/pipeline-state.cjs',
   'scripts/act-command.cjs',
+  'lib/core/navigation/chain-state.cjs',
 ]);
 
 // The canonical Part 8 breach: a Brain-WRITE MCP call or a brain-write helper.
