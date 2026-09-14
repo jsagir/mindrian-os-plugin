@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 343-06 registered SENS-19 (CENSUS-10, CENSUS-11): the room-graph integrity sensor"
-stopped_at: Completed 343-06-PLAN.md
-last_updated: "2026-09-14T19:18:34.792Z"
-last_activity: "2026-09-14 -- 343-06 completed (SENS-19 registered in all six places plus the ctx producer block, proved through decide() end to end)"
+status: "Plan 343-07 shipped the Theo stamp gate (CENSUS-12, CENSUS-13): release lockstep single home plus a lagging release-preflight gate"
+stopped_at: Completed 343-07-PLAN.md
+last_updated: "2026-09-14T19:52:25.984Z"
+last_activity: "2026-09-14 -- 343-07 completed (RULE 5 single home for the release lockstep count, scripts/release-lib/theo-stamp-gate.sh wired into release.sh's preamble, tests/test-343-theo-stamp-gate.cjs, WD-13/WD-20 RULED)"
 progress:
   total_phases: 98
   completed_phases: 28
   total_plans: 274
-  completed_plans: 237
-  percent: 86
+  completed_plans: 238
+  percent: 87
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4354,9 +4354,33 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-05, 343-06, 343-08 complete (7/9 plans; 343-07, 343-09 remain, executed out of wave
+Plan: 343-05, 343-06, 343-07, 343-08 complete (8/9 plans; 343-09 remains, executed out of wave
   order per the plan's own recorded WD-11/WD-17 dependency inversion on 344-03)
-Status: Plan 343-06 registered SENS-19 (CENSUS-10, CENSUS-11), the room-graph integrity sensor:
+Status: Plan 343-07 shipped the Theo stamp gate (CENSUS-12, CENSUS-13). Task 1 (prior session,
+  commit 982c4deb) made docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 5 the single home of the
+  release-cut lockstep count (7 numbered places at the time), replacing four disagreeing counts
+  (CLAUDE.md's "five-gate", RULE 5's own prior 5-place-plus-tail, release.sh's retired-minisite
+  "HARD 7-place", and the premortem's "7 shrinking to 6"), and probed the Theo route live: a key
+  resolves, the wire is reachable (bc.stats()), and command_neighborhood returns rows[0].mappedBy
+  / .registryHash. This session (commits 1474bee2, 886e9854): ratified the navigator's checkpoint
+  (WD-13/WD-20 WORKING to RULED, ship-as-designed) into docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md,
+  then shipped scripts/release-lib/theo-stamp-gate.sh -- a LAGGING preflight gate sourced into
+  scripts/release.sh's preamble (new Step 0.6, before Step 1's semver.inc) that asserts Theo's
+  command-registry stamp equals the CURRENT plugin version, fails closed on a mismatch or an
+  unreadable stamp, opts out only via an audited --no-theo-check, and reports without aborting
+  under --dry-run (WD-20). Confirmed live against the real tree: `release.sh patch --dry-run`
+  (no override) correctly reports the real drift -- Theo's stamp is command-registry@2.0.0-beta.12
+  against repo version 2.0.0-beta.40 -- and does not abort. RULE 5 gained place 8 (the Theo
+  re-emit); the stale "HARD 7-place lockstep" comment in release.sh was corrected, closing the
+  last of the four competing counts. tests/test-343-theo-stamp-gate.cjs: five hermetic arms
+  (pass, mismatch, read-failure, dry-run-reports, audited-skip), zero network calls, all green.
+  node scripts/doctor.cjs --acceptance: 20/20 after commit. One documented deviation (Rule 1, not
+  a code defect): the plan's own literal verify-script for gate placement matched "semver.inc" in
+  release.sh's pre-existing top-of-file usage comment (present before this plan touched the file),
+  making the literal check unsatisfiable regardless of correctness; verified the actual functional
+  intent directly instead (the real function call precedes the real semver.inc(cur invocation).
+  Full detail in 343-07-SUMMARY.md.
+Previously: Plan 343-06 registered SENS-19 (CENSUS-10, CENSUS-11), the room-graph integrity sensor:
   lib/core/sensors/sensor-graph-integrity.cjs fires the frozen contradiction reach at posture hold
   when edge_rows_missing_endpoint plus claim_nodes_no_anchor_new crosses
   INTEGRITY_DEFECT_THRESHOLD (25, WD-19); registered in all six lockstep places in
@@ -5839,6 +5863,7 @@ Progress: [█████████░] 92%
 | Phase 343 P08 | 25min | 3 tasks | 5 files |
 | Phase 343 P05 | 65min | 2 tasks | 4 files |
 | Phase 343 P06 | 80min | 3 tasks | 7 files |
+| Phase 343 P07 | continuation | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7416,6 +7441,7 @@ Progress: [█████████░] 92%
 - [Phase 343]: docs/COUNTER-METRIC-DOCTRINE.md ships with the counting rule quoted verbatim and the first pair's 2026-09-14 reading (7,794 filed, 0 contradicted, 7,791 never cited) - prevents 0 contradicted from reading as a perfect score; sets no threshold and produces no score per SEED-074
 - [Phase 343]: 343-08: scoped the help.md vocabulary/count acceptance scan to prose body only (frontmatter excluded), since the plan's literal whole-file check false-positives against 344-03's own pre-existing frontmatter plus the mandatory LOOP-VERSUS-GRAPH-SIGNALS.md filename citation
 - [Phase 343]: The divergence boolean's null-vs-0 split between legacy (null) and unreadable (0) schema variants is deliberate: computeDivergence reacts only to whether claims_filed_past_citation_lag is a number, per the plan's own behavior list
+- [Phase 343]: WD-13/WD-20 RULED ship-as-designed: lagging Theo stamp gate in release.sh, audited --no-theo-check opt-out, dry-run reports without aborting - Closes CENSUS-13's release-lockstep seam; five betas shipped with zero Theo command-registry re-syncs because nothing could fail
 
 ### Pending Todos
 
@@ -7555,8 +7581,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T18:57:15.960Z
-Stopped at: Completed 343-05-PLAN.md
+Last session: 2026-09-14T19:52:25.872Z
+Stopped at: Completed 343-07-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

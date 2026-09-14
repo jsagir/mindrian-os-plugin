@@ -1705,10 +1705,10 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       reach, fires on a PER-ROOM threshold crossing, and never reaches `decide()` or writes
       `routing_source`.
 
-- [ ] **CENSUS-12**: the release lockstep count has exactly one home; `CLAUDE.md` carries a
+- [x] **CENSUS-12**: the release lockstep count has exactly one home; `CLAUDE.md` carries a
       pointer with no number and the other stated counts are corrected or annotated.
 
-- [ ] **CENSUS-13**: `scripts/release.sh` verifies Theo's command-layer stamp for the CURRENT
+- [x] **CENSUS-13**: `scripts/release.sh` verifies Theo's command-layer stamp for the CURRENT
       version before any mutation and fails closed on a mismatch and on a network error.
 
 - [x] **CENSUS-14**: the help family map labels every command by its `layer:` value read
