@@ -338,6 +338,11 @@ function buildRegistry() {
         : null;
     const autonomousSafe = fm.autonomous_safe === true || fm.autonomous_safe === 'true';
     const bodyShape = fm.body_shape ? fm.body_shape : null;
+    // Phase 344-02 (LAYER-06): lift the layer declaration frontmatter carries
+    // (data/layer-declaration-schema.json's closed vocabulary) at the same
+    // site body_shape uses. The generator LIFTS; scripts/check-layer-declaration
+    // .cjs JUDGES. One gate, one question -- no validity check belongs here.
+    const layer = typeof fm.layer === 'string' && fm.layer ? fm.layer : null;
     const servesJtbd = Array.isArray(fm.serves_jtbd) ? fm.serves_jtbd.slice() : [];
 
     // Phase 104.1: extract `teaching` (Larry-voice 1-2 sentence explanation of
@@ -383,6 +388,7 @@ function buildRegistry() {
       inputs,
       autonomous_safe: autonomousSafe,
       body_shape: bodyShape,
+      layer,
       serves_jtbd: servesJtbd,
       teaching,
       jtbd_label: jtbdLabel,
