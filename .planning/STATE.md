@@ -6132,6 +6132,7 @@ Progress: [█████████░] 92%
 - Phase 345 added (2026-09-14, via /gsd-phase): the strategy node (transcript learning 3b, blind upward movement): a slower scheduled reach that climbs the taxonomy ladder and proposes a rewritten JTBD at a gate
 - Phase 346 added (2026-09-14, via /gsd-phase): the arbitration node (transcript learning 3c, conflicting loops): one logged arbiter for teach/deliver, guided/autonomous, enforce/judge; closes the 07-02 'less like Larry' WATCH
 - Phase 347 added (2026-09-14, via /gsd-phase): the shared-state contract for chains (transcript learning 5): typed room-graph state on every chain edge, scoped context per node, explicit readable routing, reviewer never the worker
+- Phase 344 PLANNED 2026-09-14: 9 plans / 6 waves / 26 tasks, plan-checker VERIFICATION PASSED first round; LAYER-01..16 minted by 344-01; one checkpoint (344-03) before the command-file backfill; twelve working decisions ledgered in docs/LAYER-DECLARATION-CONTRACT.md (plan files are gitignored here). Research + langtalks consult + validation map on disk in the phase dir. Next: /gsd-execute-phase 344
 
 
 ### Decisions
