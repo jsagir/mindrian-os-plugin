@@ -3,15 +3,16 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 343-02-PLAN.md
-last_updated: "2026-09-14T17:23:05.679Z"
-last_activity: "2026-09-14 -- 343-02 completed (room-graph integrity doctor organ, statement home
-  plus doctor module, registered in data/doctor-modules.json)"
+stopped_at: Completed 343-03-PLAN.md
+last_updated: "2026-09-14T17:52:32.393Z"
+last_activity: "2026-09-14 -- 343-03 completed (navigation folder contract lib/core/navigation/CONTEXT.md
+  replacing stale ROOM.md, one routing row in .claude/includes/architecture.md, corrected
+  docs/lazygraph-schema.md path, five annotated .room-graph skip-list sites, tests/test-343-path-hygiene.cjs)"
 progress:
   total_phases: 97
   completed_phases: 29
   total_plans: 274
-  completed_plans: 233
+  completed_plans: 234
   percent: 85
 ---
 
@@ -4355,8 +4356,27 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-02 complete (2/9 plans)
-Status: Plan 343-02 shipped the counts-only room-graph integrity organ:
+Plan: 343-03 complete (3/9 plans)
+Status: Plan 343-03 shipped the navigation folder contract and path hygiene:
+  lib/core/navigation/CONTEXT.md (72 lines, replacing the stale 15-line ROOM.md) answering both
+  ICM walk-test questions - the two write chokepoints (node-insert.cjs:202 vs edges.cjs
+  writeEdge), a claim's actual provenance (typed-claim.cjs:121 is the dominant zero-edge
+  producer, reasoning-write.cjs:185 is the only SOURCED_FROM writer and is zero-rowed by an
+  honest never-fabricate floor), and why a dangling edge endpoint is legal (D-169-11) - plus one
+  routing row in .claude/includes/architecture.md (not the CLAUDE.md GSD sentinel block, which
+  regenerates from a gitignored source), a corrected docs/lazygraph-schema.md path, five
+  annotated (never removed, per WD-16) .room-graph skip-list sites, and
+  tests/test-343-path-hygiene.cjs (27 assertions, 5 arms). Three commits: 453211f0 (contract +
+  routing row), 73e380d8 (path correction + annotations), 30638fd5 (test). bash
+  tests/run-all-343.sh confirmed PASS=6 FAIL=0 SKIP=5 on a clean tree; git diff --stat CLAUDE.md
+  confirmed empty. Three deviations, all Rule 1, all wording/proximity corrections found while
+  verifying the plan's own acceptance criteria: the correction-notice sentence was reworded so it
+  did not re-introduce the wrong-path literal it was fixing; the test's em-dash search constant
+  was built from a code point instead of a literal character so the test file did not trip its
+  own guard; three of the five annotation comments were condensed from 3-5 lines to 2 lines so
+  the required phrase sat within the two-line proximity window the test asserts. Full detail in
+  343-03-SUMMARY.md.
+Previously: Plan 343-02 shipped the counts-only room-graph integrity organ:
   lib/core/navigation/graph-integrity-counts.cjs (the single statement home: schemaVariant,
   countGraphIntegrity, NOT_MEASURABLE, WRITER_NOTE, over a caller-supplied handle),
   lib/core/doctor/room-graph-integrity-module.cjs (the doctor organ, active-room by default,
@@ -5740,6 +5760,7 @@ Progress: [█████████░] 92%
 | Phase 344 P09 | ~20min | 3 tasks | 5 files |
 | Phase 343 P01 | 55min | 3 tasks | 3 files |
 | Phase 343 P02 | 95min | 3 tasks | 8 files |
+| Phase 343 P03 | 55min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -7311,6 +7332,8 @@ Progress: [█████████░] 92%
 - [Phase 344]: 344-07: docs/ICM-NESTED-PART-CONTRACT.md ships with one subsection per data/icm-parts.json row (Reads/Does/Writes/Human check/Change-impact plus IS today/NEEDS TO BE/Gap), six owned cross-cutting gaps, and a counts-only measurement pointer, locked bidirectionally to its declaration file by a mutation-proven drift test. - Task 3's TDD gate landed as a single test commit rather than RED-then-GREEN, since the document under test was already built by Tasks 1-2 (344-06 precedent for the same schema-derived structural-pin test shape); the mutation proof (fake declared id, fake document subsection, both flipping the test red then reverted) stands in for RED.
 - [Phase 344]: Single-canonical ICM map test disqualifies a file from full-mapping status when it also names the canonical file (docs/MINDRIAN-CANON.md) - Lets two files legitimately retain raw Layer 0-4 content (docs/ARCHITECTURE-DEEP-DIVE.md's provenance table, templates/icm/CLAUDE.md's fleet-level list) without breaking the exactly-one-canonical assertion
 - [Phase 343]: CENSUS-01..17 minted; WD-1..21 recorded WORKING in docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md (tracked, since .planning/ is gitignored); tests/run-all-343.sh stood up with seven run_if-guarded legs for later waves
+- [Phase 343]: 343-03: routing row lands in .claude/includes/architecture.md, not the CLAUDE.md GSD sentinel block, because that block regenerates from a gitignored source and would silently drop a hand-added row
+- [Phase 343]: 343-03: five stale .room-graph skip-list entries are annotated, never removed, per WD-16, since every skip-list already carries .mindrian and removing an inert entry still changes traversal
 
 ### Pending Todos
 
@@ -7450,7 +7473,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T17:23:05.679Z
+Last session: 2026-09-14T17:52:12.799Z
 Stopped at: Completed 343-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last

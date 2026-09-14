@@ -1674,12 +1674,12 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       the cause of the unanchored count, reports the count as two columns (legacy cohort and
       new writes), and states that the fix is Phase 273 territory.
 
-- [ ] **CENSUS-06**: `lib/core/navigation/CONTEXT.md` replaces the stale `ROOM.md` and states
+- [x] **CENSUS-06**: `lib/core/navigation/CONTEXT.md` replaces the stale `ROOM.md` and states
       the two write chokepoints and their split, the two named exclusions, the four
       claim-producing paths, the provenance-edge ghost, the D-169-11 no-FK decision and the
       three schema variants; one routing row in `CLAUDE.md` points at it.
 
-- [ ] **CENSUS-07**: the `.room-graph` name collision is stated once in a tracked file,
+- [x] **CENSUS-07**: the `.room-graph` name collision is stated once in a tracked file,
       `docs/lazygraph-schema.md`'s correction notice names `<roomDir>/.mindrian/room.db`, and
       every stale in-code site carries the collision note.
 
