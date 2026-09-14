@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: "Plan 343-09 closed Phase 343 (CENSUS-16): all 17 CENSUS rows measured-closed, decision ledger settled RULED/STANDING, validation map filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated in docs/OPEN-HANDOFFS.md"
-stopped_at: Completed 343-09-PLAN.md
+stopped_at: Phase 347 wave 4 complete; 347-05 checkpoint pending
 last_updated: "2026-09-15T00:52:00.000Z"
 last_activity: "2026-09-15 - 343-09 completed (phase close-out: ten-command gate sweep run, all 17 CENSUS rows measured-closed, decision ledger settled, 343-VALIDATION.md filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated)"
 progress:
@@ -4353,7 +4353,15 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
+Phase: 347 (the-shared-state-contract-for-chains-graph-engineering-learn) - IN PROGRESS
+Plan: 6/12 complete (347-01, 02, 03, 04, 06, 11); wave 4 closed 2026-09-15
+Status: writer lib/core/navigation/chain-state.cjs shipped (347-03); one chain_state record per step on
+  both runChain paths, pipeline-state demoted to a projection (347-04); focus_node_id on
+  context_assemble and chain_state excluded from ranked neighborhoods (347-06); the five-perspective
+  meeting fan-out migrated as the first consumer, file-meeting at layer graph (347-11).
+  Gates at wave close: bash tests/run-all-347.sh PASS=25 FAIL=0 SKIP=9 EXPECTED-RED=0;
+  doctor --acceptance 20/20. Next: 347-05 navigator checkpoint (live-path read), 347-07 routing.
+Previously: Phase 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
 Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
 Verified: 2026-09-15 gsd-verifier passed (17/17 CENSUS, 5/5 goal truths re-run live; run-all-343
   PASS=11 FAIL=0 SKIP=0, doctor --acceptance 20/20). Code review 343-REVIEW.md: 1 Critical + 6

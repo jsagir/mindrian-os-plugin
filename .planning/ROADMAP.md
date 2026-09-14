@@ -766,7 +766,7 @@ Plans:
 **Goal:** What flows between chain steps is a typed room-graph record rather than conversation prose, each node gets its own scoped context, routing is declared and readable including halts and the reviewer node, and the reviewer is provably never the worker.
 **Requirements**: SHARED-01 .. SHARED-13 (minted 2026-09-14 in docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md, scoped to Phase 347 only, registered in .planning/REQUIREMENTS.md at phase close by 347-12-PLAN.md per the ICML / TOOLHON / CANON precedent)
 **Depends on:** Phase 346. Six of the twelve plans additionally carry a hard dependency on Phase 344 closing (344-09), because Phase 344 claims commands/*.md, agents/*.md, lib/mcp/tools/*.cjs, lib/mcp/tool-router.cjs, .planning/REQUIREMENTS.md, .planning/ROADMAP.md and docs/OPEN-HANDOFFS.md in its own files_modified, and because 347-06 amends Phase 344 working decision WD-5.
-**Plans:** 3/12 plans executed
+**Plans:** 6/12 plans executed
 
 Plans:
 
@@ -784,7 +784,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 347-04-PLAN.md - one record per step on both runChain paths as a PROJECTION, with the precedence rule written into pipeline-state.cjs's own sole-truth header
+- [x] 347-04-PLAN.md - one record per step on both runChain paths as a PROJECTION, with the precedence rule written into pipeline-state.cjs's own sole-truth header
 
 **Wave 5**
 
@@ -792,7 +792,7 @@ Plans:
 
 **Wave 6**
 
-- [ ] 347-06-PLAN.md - the per-node focus knob on getRoomContext and context_assemble, plus the chain_state exclusion from the ranked neighborhood (blocked on 344)
+- [x] 347-06-PLAN.md - the per-node focus knob on getRoomContext and context_assemble, plus the chain_state exclusion from the ranked neighborhood (blocked on 344)
 - [ ] 347-07-PLAN.md - routing declared on the resolved chain, one named resolveSuccessor, the bounded back-edge, and fan-out delegated to cell-fanout.cjs with D-164-S2 unreversed
 
 **Wave 7**
@@ -803,7 +803,7 @@ Plans:
 **Wave 8**
 
 - [ ] 347-09-PLAN.md - visualize-chain rewired to the real recorded run with halts, conditional arrows, the fan-out subgraph and the reviewer node; the hardcoded six-step literal deleted (blocked on 344)
-- [ ] 347-11-PLAN.md - the five-perspective meeting fan-out migrated as the first consumer, with the extractors' full-transcript recall protected (blocked on 344)
+- [x] 347-11-PLAN.md - the five-perspective meeting fan-out migrated as the first consumer, with the extractors' full-transcript recall protected (blocked on 344)
 
 **Wave 9**
 
@@ -1224,7 +1224,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 279 to break down)
 
-### Phase 280: SEED-008: Close the Loop — Wire Local Graph + Artifact Cascade + Memory Into Active Triggering
+### Phase 280: SEED-008: Close the Loop - Wire Local Graph + Artifact Cascade + Memory Into Active Triggering
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1235,7 +1235,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 280 to break down)
 
-### Phase 281: SEED-010: Neo4j Investigator Skill — Schema-Aware Brain Diagnostician
+### Phase 281: SEED-010: Neo4j Investigator Skill - Schema-Aware Brain Diagnostician
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1246,7 +1246,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 281 to break down)
 
-### Phase 282: SEED-012: mos feynman-engine — Room-Integrated Story Command With Mom-Test Panel
+### Phase 282: SEED-012: mos feynman-engine - Room-Integrated Story Command With Mom-Test Panel
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1290,7 +1290,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 285 to break down)
 
-### Phase 286: SEED-016: Mindrian AgentShield — Plugin-Wide Security Scanner
+### Phase 286: SEED-016: Mindrian AgentShield - Plugin-Wide Security Scanner
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1301,7 +1301,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 286 to break down)
 
-### Phase 287: SEED-017: Hosted MindrianOS Pro Tier — Stripe Billing + Quota
+### Phase 287: SEED-017: Hosted MindrianOS Pro Tier - Stripe Billing + Quota
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1334,7 +1334,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 289 to break down)
 
-### Phase 290: SEED-022: ICM Fractal Memory Contract — Multi-Level Sub-Room Inheritance
+### Phase 290: SEED-022: ICM Fractal Memory Contract - Multi-Level Sub-Room Inheritance
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1345,7 +1345,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 290 to break down)
 
-### Phase 291: SEED-023: Meeting DIKW Filing Engine — Insight Layer, ACTA Reanalyze, Causal Timeline post-150.8 remainder
+### Phase 291: SEED-023: Meeting DIKW Filing Engine - Insight Layer, ACTA Reanalyze, Causal Timeline post-150.8 remainder
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1445,7 +1445,7 @@ Local working requirement IDs (minted at planning time; `.planning/REQUIREMENTS.
 Supersedes Phase 228, which registered this same seed in the closed v1.15.0 milestone and never
 received a CONTEXT, RESEARCH, PLAN or SUMMARY (its directory holds only a `.gitkeep`).
 
-### Phase 297: SEED-031: Regulation Layer — Larry as User-Facing Connector, metacognition cost guardrail
+### Phase 297: SEED-031: Regulation Layer - Larry as User-Facing Connector, metacognition cost guardrail
 
 **Goal:** ABSORBED BY PHASE 298. The SEED-031/042 regulation policy ships as the harness manifest's declared routing policy (navigator decision D7, 2026-09-07). No separate plans.
 **Requirements**: absorbed into 298 R-02, R-03, R-07
@@ -1456,7 +1456,7 @@ Plans:
 
 - [x] Absorbed by Phase 298 (see 298-CONTEXT.md, decision D7)
 
-### Phase 298: SEED-032: Harness-as-Code — Declare and Machine-Enforce the MindrianOS Agent Harness
+### Phase 298: SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness
 
 **Goal:** Declare and machine-enforce the agent harness MindrianOS already runs: harness manifest v2 (three additive keys, maps stays three), a closed policy directory with an enforcement rung per policy, one idempotent policy runner, the SEED-037 4d derive-health gate, and the Larry persona as the manifest's first declared consumer. Absorbs Phase 297's regulation policy (D7).
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
@@ -1540,7 +1540,7 @@ Plans:
 
 - [x] Absorbed by Phase 225 (see the archived milestone entry, and SEED-039's own frontmatter)
 
-### Phase 303: SEED-040: HITL Memory Governance — What How Who the Room Remembers
+### Phase 303: SEED-040: HITL Memory Governance - What How Who the Room Remembers
 
 **Goal:** [To be planned] Depends on Phase 188 (F.8 multi-select, COMPLETE 2026-07-01), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile, Phase 302), and Phase 109 (navigation.cjs Part-9 chokepoint). SEED-040's own framing: F.8 + F.9 ARE the memory-governance HITL surface, not just generic selectors -- the realization that room memory writes are today largely implicit, and the navigator has no structured say over WHAT gets remembered, HOW it is stored, or WHO it is attributed to.
 **In scope, added 2026-09-08 (Phase 298 wave 1-2 review session):** SEED-092 (grounding-grader harness policy -- promote the Sourced Claims rule from a stated rung to a logged one) is folded into this phase's scope rather than left as an independent future phase. SEED-092's own text names why: this phase already owns the F.8 basket surface a grounding grader would feed, and Phase 298 plan 04 already made that basket's rows readable, which is the precondition a human confirmation needs to be informed rather than a rubber stamp. Plan this phase's scope to include SEED-092's rung-2 detector alongside the base HITL memory-governance work, not as a separate follow-on.
@@ -1563,7 +1563,7 @@ Plans:
 
 - [x] Absorbed by Phase 192 (see the archived milestone entry, and SEED-042's own frontmatter)
 
-### Phase 305: SEED-043: Brain Command Recommendation — Brain Proposes, Human Triggers
+### Phase 305: SEED-043: Brain Command Recommendation - Brain Proposes, Human Triggers
 
 **Goal:** ABSORBED BY PHASE 191. Phase 191 ("Brain Orchestration Advisor", COMPLETE 2026-07-02) is built directly against the seed's own "Brain RECOMMENDS, navigator TRIGGERS, spine EXECUTES" reframe -- its own text states "The Brain ADVISES orchestration, never controls it" and its net-new wire 2 is a `decide()` command-recommendation candidate returning `{command_slug, hitl_shape, confidence}` from the local command subgraph, feeding the F.7 dial. No separate plans.
 **Requirements**: absorbed into 191's own scope
@@ -1574,7 +1574,7 @@ Plans:
 
 - [x] Absorbed by Phase 191 (see the archived milestone entry, and SEED-043's own frontmatter (which the Phase 191 CONTEXT.md cites directly))
 
-### Phase 306: SEED-044: Cross-Room Umbilical Cord — F-Shape Gate Connecting Relevant Items Across Rooms
+### Phase 306: SEED-044: Cross-Room Umbilical Cord - F-Shape Gate Connecting Relevant Items Across Rooms
 
 **Goal:** ABSORBED BY PHASE 195. Phase 195 ("Fractal + Cross-Room Memory", COMPLETE 2026-07-01, 6/6 plans) explicitly scoped "full SEED-022 + SEED-044" in one phase (its own CONTEXT.md: "SEED-044's UMBILICAL_TO edge lives in a REGISTRY-LEVEL cross-room store"); the shipped code carries the seed's own vocabulary directly (`lib/workflow/cross-room-umbilical-closer.cjs`, `lib/core/doctor/umbilical-module.cjs`, `lib/core/resolve-umbilical-target.cjs`). No separate plans.
 **Requirements**: absorbed into 195's own scope
@@ -1585,7 +1585,7 @@ Plans:
 
 - [x] Absorbed by Phase 195 (see the archived milestone entry, and SEED-044's own frontmatter and Phase 195's CONTEXT.md)
 
-### Phase 307: SEED-046: Artifact Is Not Conversation — Enforce Clean Deliverable Voice on Filed Artifacts
+### Phase 307: SEED-046: Artifact Is Not Conversation - Enforce Clean Deliverable Voice on Filed Artifacts
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1607,7 +1607,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 308 to break down)
 
-### Phase 309: SEED-048: Portfolio-Scale FUSION — Batch-Score N Technologies, Surface the Hidden Gem
+### Phase 309: SEED-048: Portfolio-Scale FUSION - Batch-Score N Technologies, Surface the Hidden Gem
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1640,7 +1640,7 @@ Plans:
 
 - [x] 311-01-PLAN.md -- registry visibility field, fail-closed opts.isAdmin filter in the D4 ranker, and isAdmin wiring at the 3 navigator-facing call sites
 
-### Phase 312: SEED-053: run_chain MCP Tool — Methodology Chaining With Handoffs, Halting at Material Gates
+### Phase 312: SEED-053: run_chain MCP Tool - Methodology Chaining With Handoffs, Halting at Material Gates
 
 **Goal:** ABSORBED BY PHASE 198. `chain_resolve` and `chain_run` are live, registered MCP tools today. `lib/mcp/tools/chain.cjs`'s own header names the exact seed acceptance criteria: `chain_resolve` wraps `command-resolver.cjs::composeWorkflow` (never a slug from memory, executes nothing), `chain_run` wraps the shipped `chain-executor.cjs::runChain` (Phase 166), runs the `autonomous_safe` prefix, and HALTS at the first material step through the shared `gate-render.cjs` ladder. Shipped by plan 198-07 (commit `198d87d6`, 2026-07-10) even though the archived Phase 198 roadmap entry itself reads NAVIGATOR-PARKED at the phase-summary level -- the capability is unambiguously live in the code regardless of that stale summary label. No separate plans.
 **Requirements**: absorbed into 198-07's own shipped scope
@@ -1684,7 +1684,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 315 to break down)
 
-### Phase 316: SEED-057: Synthesis as a Votable Expert — Graph-Native Game Theory Over Whats Next
+### Phase 316: SEED-057: Synthesis as a Votable Expert - Graph-Native Game Theory Over Whats Next
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1695,7 +1695,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 316 to break down)
 
-### Phase 317: SEED-059: Fallback-Disclosure Convention — Close the Gate-Firing False-Success Gap
+### Phase 317: SEED-059: Fallback-Disclosure Convention - Close the Gate-Firing False-Success Gap
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1717,7 +1717,7 @@ Plans:
 
 - [x] 318-01-PLAN.md - Deterministic null-negative reconciliation in skillopt-funnel.cjs, offline unit + end-to-end proving-case tests, `--reconcile-audit` reporting mode, wired into the Phase 230 harness gate
 
-### Phase 319: Host Runtime Decision Record — SEED-062+063+064+065+067 Consolidation
+### Phase 319: Host Runtime Decision Record - SEED-062+063+064+065+067 Consolidation
 
 **Goal:** Record, in one phase, the 2026-07-18 host-runtime research session's finding and its answer, rather than five separate phase stubs whose own seed files already cross-reference each other as one investigation. SEED-062 is the finding (no agentic runtime exists in this codebase -- `lib/workflow/command-resolver.cjs::composeWorkflow` self-documents as "Read-only: executes nothing", `lib/core/chain-executor.cjs::runChain` requires a caller-supplied `onStep`). SEED-063 is the answer -- its own `related:` field names it "the answer to it": OpenCode as the host-runtime fork target, license-verified MIT with no CLA/DCO, capability-verified against source at commit b8142c7. SEED-064 is explicitly "held in reserve" (severity low, documentation-only) -- Grok Build, the runner-up OpenCode's Stop-hook resolution displaced. SEED-065 is a supporting constraint on the same decision: the MCP ceiling (unsolicited server-to-client requests MUST NOT per SEP-2260, `includeContext` dead three ways, sampling supported by roughly two production coding hosts) -- why a host-side runtime is needed at all rather than shipping persona/proactivity over MCP alone. SEED-067 is a second supporting constraint: subscription passthrough is contractually forbidden by Anthropic's terms, not a general limitation, so a host-runtime fork does not widen the addressable market via BYO-subscription.
 This phase's job: plan the actual decision record -- confirm each finding still holds against the current repo state (all four were verified 2026-07-18, over a year of development ago in this fast-moving repo), record the OpenCode-fork decision formally (or supersede it if circumstances changed), and close out SEED-064/065/067 as supporting documentation rather than independent phases.
@@ -1751,7 +1751,7 @@ Plans:
 
 - [x] Absorbed by Phase 319 (see SEED-064's own `related:` field and 319's consolidated goal text)
 
-### Phase 322: SEED-065: Resolve the MCP Ceiling — Persona Proactivity Cannot Ship Over MCP
+### Phase 322: SEED-065: Resolve the MCP Ceiling - Persona Proactivity Cannot Ship Over MCP
 
 **Goal:** ABSORBED BY PHASE 319. SEED-065 is part of the 2026-07-18 host-runtime research session; consolidated into Phase 319's Host Runtime Decision Record rather than planned as an independent phase. No separate plans.
 **Requirements**: absorbed into 319
@@ -1828,7 +1828,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 328 to break down)
 
-### Phase 329: SEED-073: Filesystem SQLite Stays Canonical — Yjs RxDB Are Disposable Projections
+### Phase 329: SEED-073: Filesystem SQLite Stays Canonical - Yjs RxDB Are Disposable Projections
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1850,7 +1850,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 330 to break down)
 
-### Phase 331: SEED-075a: Grading-Framework Grounding Check — Distinguish Reworded From Empty Before Firing a Contradiction
+### Phase 331: SEED-075a: Grading-Framework Grounding Check - Distinguish Reworded From Empty Before Firing a Contradiction
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1872,7 +1872,7 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 332 to break down)
 
-### Phase 333: Room-as-GraphRAG: Walk-Test Then Build — SEED-076a+076b Consolidation
+### Phase 333: Room-as-GraphRAG: Walk-Test Then Build - SEED-076a+076b Consolidation
 
 **Goal:** Sequence SEED-076b before SEED-076a, in one phase, per SEED-076b's own text ("building either mechanism is gated on Task 1's finding"). Task 1 first: walk-test MindrianOS's existing room structure against a real community-validated ICM reference implementation (Record library + Context map) to confirm which of the two candidate mechanisms SEED-076a needs already exists versus genuinely needs building -- SEED-076b's own framing is "two adoptable mechanisms named, one may already exist," so building 076a's Room-as-GraphRAG conversational component (BYOAPI, Larry-voiced, provenance-aware) without that check risks re-implementing something the room's own structure already provides. This phase's job: run the walk-test (autonomous_safe, no gate required per SEED-076b's own frontmatter), then plan and build only the mechanism(s) the walk-test finds genuinely missing.
 **Requirements**: TBD (mint at plan time; SEED-076a for the target-state design, SEED-076b for the walk-test method and gating)
@@ -1894,7 +1894,7 @@ Plans:
 
 - [x] Absorbed by Phase 333 (see SEED-076b's own gating text and 333's consolidated goal text)
 
-### Phase 335: SEED-077: Feynman-MINTO Wired Into the Graph — Per-Artifact Queryable Explanation
+### Phase 335: SEED-077: Feynman-MINTO Wired Into the Graph - Per-Artifact Queryable Explanation
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -2376,7 +2376,7 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 
 **Goal:** Promote `.planning/seeds/SEED-084-enlarge-room-schema-layered-icm-structure-plus-notion-gap-close.md` (proposed 2026-08-28) to a numbered phase. Three independent sources, four months apart, converged on the same structural gaps in every room this plugin scaffolds: a 2026-04-14 diff against a third-party Notion "Problem Worth Solving" template (`PROJECT.md`'s "Notion Template Gap Close"), the `icm-architect` skill's live audit of `launchpad-02` (SEED-076), and this repo's own Phase 270 OQ-7 (`funding/` has no real identity; `team-execution`'s `SECTION_METADATA` is thin unstructured prose against real Mentor-Profiles usage). Three occurrences of the same class of finding from three different methods is the "pattern, not gripe" bar for promoting a signal, per this repo's own `forms.md` Context-map form.
 
-**The proposal (full detail in SEED-084, do not re-derive here):** enlarge the room schema **by LAYER**, not by flat item list. `MindrianRooms/CLAUDE.md` already claims the icm-architect L0-L4 hierarchy (identity / routing / contracts / reference / artifacts) but no room implements it past L0/L1. This phase builds the claimed layers for real: L1 gets a per-section `STATEMENT` (the one sentence always true, always visible) plus a stable room-root pointer for the self-guiding-room gap; L2 gets the missing per-section `CONTEXT.md` contract (what the section reads/does/writes, populated with SEED-075's Feynman-Minto Human-check, using the PWS 22-task workbook's task shape as template); L3 gets a genuinely new `references/`/`_shared/` folder per room (taxonomy, brand/voice, section schema) that today only exists claimed at the fleet root; L4 gets SEED-076's inline-content drift fixed. The Notion-diff section-set changes (`marketing-sales/` split from `market-analysis/`, `funding/` promoted to first-class, `value-proposition/` as its own top-level section) are the L4/L0 consequence of doing the layering properly, not a separate ask — do them in the same pass.
+**The proposal (full detail in SEED-084, do not re-derive here):** enlarge the room schema **by LAYER**, not by flat item list. `MindrianRooms/CLAUDE.md` already claims the icm-architect L0-L4 hierarchy (identity / routing / contracts / reference / artifacts) but no room implements it past L0/L1. This phase builds the claimed layers for real: L1 gets a per-section `STATEMENT` (the one sentence always true, always visible) plus a stable room-root pointer for the self-guiding-room gap; L2 gets the missing per-section `CONTEXT.md` contract (what the section reads/does/writes, populated with SEED-075's Feynman-Minto Human-check, using the PWS 22-task workbook's task shape as template); L3 gets a genuinely new `references/`/`_shared/` folder per room (taxonomy, brand/voice, section schema) that today only exists claimed at the fleet root; L4 gets SEED-076's inline-content drift fixed. The Notion-diff section-set changes (`marketing-sales/` split from `market-analysis/`, `funding/` promoted to first-class, `value-proposition/` as its own top-level section) are the L4/L0 consequence of doing the layering properly, not a separate ask - do them in the same pass.
 
 **Gated, not ready to plan yet.** Two conditions from SEED-084 itself, one now cleared:
 
@@ -2390,35 +2390,35 @@ Rule, not a silent omission, since no automation harness exists for either surfa
    `InnovationStage` has zero runtime consumers in this repo today. Full ruling, grounding, and
    research trail: SEED-084's `## ADDENDUM 2026-09-02` section.
 
-2. **Phase 270's OQ-7 — PARTIALLY RESOLVED 2026-09-04.** OQ-7 has two sub-points; they resolved
+2. **Phase 270's OQ-7 - PARTIALLY RESOLVED 2026-09-04.** OQ-7 has two sub-points; they resolved
    differently:
 
    - The SCHEMA half is now CLOSED, no navigator sign-off needed to plan against it: SEED-084's
      `## ADDENDUM 2026-09-04` found `SECTION_METADATA`'s `default_methodologies` array
      (`lib/core/room-skeleton-scaffold.cjs:47-55`) is the same kind of L3 fact as
-     `stage_relevance` — promote both in the same pass, at both the section grain and the
+     `stage_relevance` - promote both in the same pass, at both the section grain and the
      `data/room-blueprints.json` family grain. Grounding this also found a real, verified defect
      in scope for this phase's own work: 2 of the 10 `default_methodologies` slugs
      (`domain-explorer`, `scenario-analysis`) match zero command in the live
-     `data/command-registry.json` — dead references from an upstream rename never propagated
+     `data/command-registry.json` - dead references from an upstream rename never propagated
      (the propagation-gap shape Phase 273/276 already named), fix in the same L3 pass.
 
-   - The SECTION-ADOPTION half — which of the 5 Notion-diff candidate sections (Meetings, Value
+   - The SECTION-ADOPTION half - which of the 5 Notion-diff candidate sections (Meetings, Value
      Proposition, Marketing and Sales, Funding Options, Research Documents) actually get added to
      the frozen 8-entry `SECTION_NAMES`, plus the `team-execution` Mentor-Profiles schema
-     thickening — is STILL OPEN. This changes what every future room is scaffolded with (a Canon
+     thickening - is STILL OPEN. This changes what every future room is scaffolded with (a Canon
      Part 3 Tri-Context-Gate-weight call), so it stays a navigator Decision Gate rather than
      something this addendum settles unilaterally. A grounded recommendation is on record
-     (favor `funding-options` as the highest-evidence single addition — three independent sources
+     (favor `funding-options` as the highest-evidence single addition - three independent sources
      converge on it, live-audited as a bare empty shell today; weigh the other four
      individually, not as a bundle).
 
-**MANDATORY (navigator ruling, 2026-08-31): langtalks-graph-expert must be consulted CONTINUOUSLY throughout every stage of this phase's lifecycle** — discuss, research, plan, and execute — not as a one-time check at research time. This phase is memory/context-engineering/agent-architecture work (layered context hierarchy, per-section contracts, a reference/factory layer) squarely inside `langtalks-graph-expert`'s corpus (memory, RAG, knowledge graphs, context engineering, agent protocols). Every plan this phase produces, and every task within those plans that touches the layer design, must show a live `mcp__langtalks-graph-expert__*` consult in its `<read_first>` or task notes, not just a passing citation. This is IN ADDITION TO, not instead of, the existing standing `icm-architect` consult (`feedback_mindrianos_dev_consult_icm_architect.md`) — both apply, langtalks for the memory/context-engineering literature grounding, icm-architect for the concrete room-structure validation (ten invariants, six-forms taxonomy, walk test).
+**MANDATORY (navigator ruling, 2026-08-31): langtalks-graph-expert must be consulted CONTINUOUSLY throughout every stage of this phase's lifecycle** - discuss, research, plan, and execute - not as a one-time check at research time. This phase is memory/context-engineering/agent-architecture work (layered context hierarchy, per-section contracts, a reference/factory layer) squarely inside `langtalks-graph-expert`'s corpus (memory, RAG, knowledge graphs, context engineering, agent protocols). Every plan this phase produces, and every task within those plans that touches the layer design, must show a live `mcp__langtalks-graph-expert__*` consult in its `<read_first>` or task notes, not just a passing citation. This is IN ADDITION TO, not instead of, the existing standing `icm-architect` consult (`feedback_mindrianos_dev_consult_icm_architect.md`) - both apply, langtalks for the memory/context-engineering literature grounding, icm-architect for the concrete room-structure validation (ten invariants, six-forms taxonomy, walk test).
 
-**What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding — this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
+**What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding - this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
 
 **Requirements**: ICML-01 .. ICML-16 (minted at plan time 2026-09-04; written into `.planning/REQUIREMENTS.md` by plan 275-08, the phase-close plan)
-**Depends on:** none remaining — Phase 270's OQ-7 is FULLY RESOLVED 2026-09-04 (both the schema half and the section-adoption half; see SEED-084's `## RULING 2026-09-04`, `## ADDENDUM 2026-09-04g`, and `## ADDENDUM 2026-09-04j`). Navigator decision, all sourced against Brain + Theo + the actual 2026-04-14 Notion primary source: adopt `opportunity-bank`, `funding`, and `strategy` into `SECTION_NAMES` (8 → 11); `value-proposition` stays sub-structure inside `business-model`; `meetings` needs no change (already correctly modeled as a structural dir, not a section); `marketing-sales` and `research-documents` deferred (real intended content per the primary source, just never built — worth re-raising at planning time, not yet evidenced in code). `/gsd-plan-phase 275` is UNBLOCKED and can run.
+**Depends on:** none remaining - Phase 270's OQ-7 is FULLY RESOLVED 2026-09-04 (both the schema half and the section-adoption half; see SEED-084's `## RULING 2026-09-04`, `## ADDENDUM 2026-09-04g`, and `## ADDENDUM 2026-09-04j`). Navigator decision, all sourced against Brain + Theo + the actual 2026-04-14 Notion primary source: adopt `opportunity-bank`, `funding`, and `strategy` into `SECTION_NAMES` (8 → 11); `value-proposition` stays sub-structure inside `business-model`; `meetings` needs no change (already correctly modeled as a structural dir, not a section); `marketing-sales` and `research-documents` deferred (real intended content per the primary source, just never built - worth re-raising at planning time, not yet evidenced in code). `/gsd-plan-phase 275` is UNBLOCKED and can run.
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
 taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
