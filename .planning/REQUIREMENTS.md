@@ -1570,11 +1570,11 @@ constitutionally.
       `data/icm-parts.json` with IS today, NEEDS TO BE and the gap, using Phase 275 as the
       baseline and the Reads / Does / Writes / Human check / Change-impact shape.
 
-- [ ] **LAYER-13**: Exactly one of the four ICM L0-L4 statements carries the full mapping and the
+- [x] **LAYER-13**: Exactly one of the four ICM L0-L4 statements carries the full mapping and the
       other three carry a pointer naming it; the `ROUTING.md` ghost is marked as never built
       rather than deleted.
 
-- [ ] **LAYER-14**: The proposed Canon Appendix B wording is drafted in a tracked file and handed
+- [x] **LAYER-14**: The proposed Canon Appendix B wording is drafted in a tracked file and handed
       to Phase 340 as a named input, and Phase 344 lands zero bytes in `docs/MINDRIAN-CANON.md`.
 
 - [x] **LAYER-15**: `docs/LAYER-CONTRACT.md` names `data/command-registry.json`'s `layer` field

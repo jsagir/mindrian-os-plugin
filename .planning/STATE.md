@@ -3,15 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-07-PLAN.md
-last_updated: "2026-09-14T15:09:06.457Z"
-last_activity: 2026-09-14 -- 344-06 completed (docs/LAYER-CONTRACT.md ships as the pinned five-rung
+stopped_at: Completed 344-08-PLAN.md
+last_updated: "2026-09-14T15:27:15.716Z"
+last_activity: 2026-09-14 -- 344-08 completed (one canonical ICM L0-L4 statement, docs/MINDRIAN-CANON.md
+  Appendix B, with three pointers; ROUTING.md ghost marked in both mentions; Canon Appendix B L0/L4
+  wording drafted and handed to Phase 340 with zero Canon bytes landed; single-canonical test
+  mutation-proven; bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0)
 progress:
   total_phases: 97
   completed_phases: 27
   total_plans: 274
-  completed_plans: 228
-  percent: 83
+  completed_plans: 229
+  percent: 84
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4289,19 +4292,40 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 344-01/02/03/04/05/06/07 complete (non-linear wave execution); 344-08/09 pending
-Status: Ready to execute (344-08 is the next unblocked plan in wave order)
-Last activity: 2026-09-14 -- 344-07 completed (docs/ICM-NESTED-PART-CONTRACT.md ships one
-  subsection per data/icm-parts.json row, in id order, each with the in-repo L2 contract shape
-  (Reads, Does, Writes, Human check, Change-impact) plus IS today / NEEDS TO BE / Gap; carries
-  WD-2's RULED status into section-reasoning's Gap line without editing data/icm-parts.json's own
-  null icm_layer; names seeds/ as WD-4 RULED, not open; six numbered cross-cutting gap entries with
-  owners, gap 3 stating precisely what 344-05's icm-part-wiring-module.cjs closed (a READ that
-  validates, adds no assembly path) and gap 4 naming 344-08 as owner; both baseline corrections
-  (84-of-command-files firing block, three-not-two .room-graph skip-list constants) carried with
-  citations; tests/test-344-icm-parts-contract.cjs locks the document and data/icm-parts.json to
-  each other bidirectionally, mutation-proven both directions; bash tests/run-all-344.sh
-  PASS=12 FAIL=0 SKIP=1, one fewer SKIP than baseline)
+Plan: 344-01 through 344-08 complete (non-linear wave execution); 344-09 pending
+Status: Ready to execute (344-09 is the next and final plan in the phase, the phase close-out)
+Last activity: 2026-09-14 -- 344-08 completed (one canonical ICM L0-L4 statement,
+  docs/MINDRIAN-CANON.md Appendix B per WD-1, with three pointers: .claude/includes/architecture.md
+  (a two-line delegation replacing the five-row table, 844 to 708 bytes), docs/ARCHITECTURE-DEEP-DIVE.md
+  (dated superseded banner, table retained, both ROUTING.md mentions marked ghost/never built),
+  templates/icm/CLAUDE.md (FLEET-scope sentence, room-level pointer, INDEX.md/registry.json drift
+  named not fixed); docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md drafts the literal L0/L4
+  wording for Phase 340, states the two-phases-cannot-both-own-a-Canon-edit rule, bundles the WD-8
+  Part 11 born-clause question, lands zero bytes in docs/MINDRIAN-CANON.md (verified); commits every
+  ROUTING.md ghost mention within the four declared files; six-assertion single-canonical test
+  mutation-proven both directions, bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0, doctor
+  --acceptance 20/20 unregressed; LAYER-13 and LAYER-14 marked complete)
+
+<!-- NOTE (344-08 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans
+     in Phase from STATE.md"), skipped -- the Plan/Status/Last-activity lines above were
+     hand-corrected instead. `state.update-progress` correctly computed `percent: 84`
+     (completed_plans 229 / total_plans 274) in its own returned JSON but persisted the stale
+     `percent: 28` into the frontmatter -- hand-corrected to 84. `state.record-metric --phase 344
+     --plan 08` did not disturb frontmatter `percent` this run. `state.add-decision --phase 344`
+     again embedded a literal em-dash between the summary and rationale clauses (same house-rule
+     violation documented at every prior 344 note below) -- hand-corrected the one line to a
+     hyphen; did not re-clobber `percent`. `state.record-session --stopped-at "Completed
+     344-08-PLAN.md" --resume-file "344-09-PLAN.md"` correctly updated `stopped_at`/`Last session`
+     and did not re-clobber `percent`. `roadmap.update-plan-progress 344` and
+     `requirements.mark-complete LAYER-13 LAYER-14` both landed cleanly with no em-dash and no
+     percent clobber. Same root cause as every other note in this file, not re-investigated
+     further here. Separately observed (not caused by this run): two commits from a concurrent
+     process on this shared working tree (`2fd4d216` release: v2.0.0-beta.39, `333f198b` chore:
+     bump to v2.0.0-beta.40) landed on `main` between this plan's Task 1 and Task 3 commits,
+     touching only `.claude-plugin/plugin.json`, `package.json`, `CHANGELOG.md`,
+     `npm-shrinkwrap.json` -- none of this plan's declared files, left untouched per the
+     destructive-git-prohibition and incident-context rules governing this session. -->
 
 <!-- NOTE (344-06 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in
@@ -5603,6 +5627,7 @@ Progress: [█████████░] 92%
 | Phase 344 P04 | ~55min | 3 tasks | 44 files |
 | Phase 344 P06 | 10min | 3 tasks | 2 files |
 | Phase 344 P07 | 20min | 3 tasks | 2 files |
+| Phase 344 P08 | 45min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7158,6 +7183,7 @@ Progress: [█████████░] 92%
 - [Phase 344]: Non-command surfaces inherit their 1-to-1 mirrored command's already-ratified layer verbatim (30 skills), rather than re-guessing - a skill that mirrors a command byte-for-byte engineers the identical own-rung layer by construction (WD-6); zero mismatches confirmed against the 55 mechanically pre-resolved mirrors before applying
 - [Phase 344]: 344-06: docs/LAYER-CONTRACT.md ships as the pinned five-rung architecture contract, superseding docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md for architecture claims - Corpus-grounded by hop count and source, WD-3 and WD-5 owner-surface markers ruled beneath their kept NAVIGATOR DECISION cells, help-map interface named for Phase 343 item 4, amendment ledger seeded
 - [Phase 344]: 344-07: docs/ICM-NESTED-PART-CONTRACT.md ships with one subsection per data/icm-parts.json row (Reads/Does/Writes/Human check/Change-impact plus IS today/NEEDS TO BE/Gap), six owned cross-cutting gaps, and a counts-only measurement pointer, locked bidirectionally to its declaration file by a mutation-proven drift test. - Task 3's TDD gate landed as a single test commit rather than RED-then-GREEN, since the document under test was already built by Tasks 1-2 (344-06 precedent for the same schema-derived structural-pin test shape); the mutation proof (fake declared id, fake document subsection, both flipping the test red then reverted) stands in for RED.
+- [Phase 344]: Single-canonical ICM map test disqualifies a file from full-mapping status when it also names the canonical file (docs/MINDRIAN-CANON.md) - Lets two files legitimately retain raw Layer 0-4 content (docs/ARCHITECTURE-DEEP-DIVE.md's provenance table, templates/icm/CLAUDE.md's fleet-level list) without breaking the exactly-one-canonical assertion
 
 ### Pending Todos
 
@@ -7297,8 +7323,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T15:09:06.347Z
-Stopped at: Completed 344-07-PLAN.md
+Last session: 2026-09-14T15:27:15.648Z
+Stopped at: Completed 344-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

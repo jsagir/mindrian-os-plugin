@@ -715,7 +715,7 @@ Plans:
 **Goal:** Every engineering layer of MindrianOS and every ICM nested part of a room is named, contracted, declared in machine-readable form on the surface that owns it, and measured by a counts-only organ, with one canonical ICM L0-L4 statement and three pointers to it.
 **Requirements**: LAYER-01 .. LAYER-16
 **Depends on:** Phase 343
-**Plans:** 7/9 plans executed
+**Plans:** 8/9 plans executed
 
 Plans:
 
@@ -726,7 +726,7 @@ Plans:
 - [x] 344-05-PLAN.md - data/icm-parts.json plus the counts-only doctor organ that gives the per-section CONTEXT.md contract its first code consumer
 - [x] 344-06-PLAN.md - docs/LAYER-CONTRACT.md: five rungs, corpus grounding with hop counts, one owner surface each, the help-map interface and an amendment ledger
 - [x] 344-07-PLAN.md - docs/ICM-NESTED-PART-CONTRACT.md: IS / NEEDS TO BE / gap per part, in the repo's own L2 contract shape, locked to the declaration file in both directions
-- [ ] 344-08-PLAN.md - one canonical ICM L0-L4 statement and three pointers, the ROUTING.md ghost marked, and the Canon Appendix B wording drafted and handed to Phase 340
+- [x] 344-08-PLAN.md - one canonical ICM L0-L4 statement and three pointers, the ROUTING.md ghost marked, and the Canon Appendix B wording drafted and handed to Phase 340
 - [ ] 344-09-PLAN.md - phase close: full gate sweep, requirements closed with measured proof, validation map filled, close-out record in docs/ and the rethinking-mindrianos room
 
 ### Phase 345: The strategy node (graph-engineering learning 3b, blind upward movement, 2026-09-14): a loop cannot question its own goal, it can only hit it. In MindrianOS the goal of every execution reach is the room's JTBD and its problem-type rung, and nothing re-examines either on a slower cadence than the reaches that execute against them, so a room can hit its stated goal for weeks while the goal itself has gone stale (the transcript's sales agent hitting 500 emails a day at a 0.11 percent response rate until a slower strategy node rewrote the target to five real conversations a week). Deliverables. (1) A scheduled strategy reach, registered in SENSOR_REGISTRY with its own cadence (every N sessions of a room, or on a stall signal such as repeated reaches with no new claim, no filed artifact, or a contradiction left unresolved), that climbs the taxonomy ladder through Theo's classify_problem_type and taxonomy_ladder with generic handles only (Part 8), re-reads the room's JTBD against what the room graph now holds, and proposes a rewritten JTBD or a different rung at a Decision Gate; it never rewrites silently, and the navigator's choice is written as a typed decision node with SOURCED_FROM provenance. (2) A goal-hierarchy record in the room: the JTBD carries its parent question (the rung above) so the ladder can be climbed mechanically, and every execution reach logs which goal version it ran under. (3) Doctrine, written into the larry-personality skill: the reframe is the strategy node's move; when circling, climb, do not ask another clarifying question. Consults icm-architect and langtalks-graph-expert (loop and harness engineering nodes present; the graph-engineering note cites the structured source directly until its extraction lands).
