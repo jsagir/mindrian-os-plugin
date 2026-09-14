@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 343-07 shipped the Theo stamp gate (CENSUS-12, CENSUS-13): release lockstep single home plus a lagging release-preflight gate"
-stopped_at: Completed 343-07-PLAN.md
-last_updated: "2026-09-14T19:52:25.984Z"
-last_activity: "2026-09-14 -- 343-07 completed (RULE 5 single home for the release lockstep count, scripts/release-lib/theo-stamp-gate.sh wired into release.sh's preamble, tests/test-343-theo-stamp-gate.cjs, WD-13/WD-20 RULED)"
+status: "Plan 343-09 closed Phase 343 (CENSUS-16): all 17 CENSUS rows measured-closed, decision ledger settled RULED/STANDING, validation map filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated in docs/OPEN-HANDOFFS.md"
+stopped_at: Completed 343-09-PLAN.md
+last_updated: "2026-09-15T00:52:00.000Z"
+last_activity: "2026-09-15 - 343-09 completed (phase close-out: ten-command gate sweep run, all 17 CENSUS rows measured-closed, decision ledger settled, 343-VALIDATION.md filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated)"
 progress:
   total_phases: 98
-  completed_phases: 28
+  completed_phases: 30
   total_plans: 274
-  completed_plans: 238
+  completed_plans: 239
   percent: 87
 ---
 
@@ -4353,10 +4353,38 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-05, 343-06, 343-07, 343-08 complete (8/9 plans; 343-09 remains, executed out of wave
-  order per the plan's own recorded WD-11/WD-17 dependency inversion on 344-03)
-Status: Plan 343-07 shipped the Theo stamp gate (CENSUS-12, CENSUS-13). Task 1 (prior session,
+Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
+Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
+Status: Plan 343-09 closed the phase (CENSUS-16): ran the full gate sweep (bash tests/run-all-343.sh
+  PASS=11 FAIL=0 SKIP=0; build-connector-registry/orchestration-projection/render-coverage/
+  substrate/help-coverage checks all clean; test-298-contract-parity 20/20; test-245-priority-
+  complete 8/8; doctor --acceptance 20/20, unregressed) and closed all seventeen CENSUS-01..17
+  requirement rows in .planning/REQUIREMENTS.md with a Measured: clause naming a command and its
+  observed output, none copied from the 2026-09-14 research snapshot. Settled
+  docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md's Section 2: all 21 WD rows flip from bare WORKING to
+  RULED (2: WD-13, WD-20, the navigator's ship-as-designed checkpoint) or STANDING (19, shipped
+  unchallenged); resolved 2 of Section 6's 4 open navigator questions (--no-theo-check's
+  existence, the release-environment credential question), leaving 2 genuinely open (the
+  divergence-ratio threshold, contradiction vs context_block as SENS-19's reach id). Filled
+  343-VALIDATION.md (26 task rows across all nine plans, nyquist_compliant: true, the 343-07-02
+  navigator checkpoint recorded as the phase's one manual verification). Wrote
+  docs/343-CLOSE-OUT.md (208 lines): four defect statements re-measured live today (edge_rows_
+  missing_endpoint 2657, claim_nodes_no_anchor_total 7836, proposed_nodes_past_window 10219,
+  edge_rows_type_outside_allowlist 1822 across 7 types, up from 1294/3-types one day earlier),
+  what shipped (nine deliverables across eight plans), and the two structural gaps handed to
+  Phase 273 with a pre-mapped blast radius: the claim-anchor writer gap (typed-claim.cjs:121
+  writeClaimNode writes zero edges; one writer contract, eight call sites of which five break,
+  two MCP schema changes, one root-node exemption, a three-tier migration) and the edge-
+  chokepoint bypass (graph-ops.cjs:196,250,262 and six sites in build-ecosystem-graph.cjs write
+  outside ALLOWED_EDGE_TYPES). Named a third, smaller, separately-owned gap (not Phase 273's):
+  cascade-rooms-module.cjs:52-56 reads info.path only, silently skipping any room registered
+  with abs_path alone (zero live victims measured today). Added one dated row to
+  docs/OPEN-HANDOFFS.md. Filed the research trail to mindrianOS/research/2026-09-15-room-graph-
+  census-phase-343-close-out.md (source-of-record mirror); the rethinking-mindrianos room-side
+  copy did NOT land -- Claude Code's write-scope-check hook denied the write because this
+  session's active room is idem-room, the identical blocker the 2026-09-14 Phase 344 close-out
+  already named for its own room-mirror attempt. Full detail in 343-09-SUMMARY.md.
+Previously: Plan 343-07 shipped the Theo stamp gate (CENSUS-12, CENSUS-13). Task 1 (prior session,
   commit 982c4deb) made docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 5 the single home of the
   release-cut lockstep count (7 numbered places at the time), replacing four disagreeing counts
   (CLAUDE.md's "five-gate", RULE 5's own prior 5-place-plus-tail, release.sh's retired-minisite
@@ -5864,6 +5892,7 @@ Progress: [█████████░] 92%
 | Phase 343 P05 | 65min | 2 tasks | 4 files |
 | Phase 343 P06 | 80min | 3 tasks | 7 files |
 | Phase 343 P07 | continuation | 2 tasks | 6 files |
+| Phase 343 P09 | 95min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7442,6 +7471,8 @@ Progress: [█████████░] 92%
 - [Phase 343]: 343-08: scoped the help.md vocabulary/count acceptance scan to prose body only (frontmatter excluded), since the plan's literal whole-file check false-positives against 344-03's own pre-existing frontmatter plus the mandatory LOOP-VERSUS-GRAPH-SIGNALS.md filename citation
 - [Phase 343]: The divergence boolean's null-vs-0 split between legacy (null) and unreadable (0) schema variants is deliberate: computeDivergence reacts only to whether claims_filed_past_citation_lag is a number, per the plan's own behavior list
 - [Phase 343]: WD-13/WD-20 RULED ship-as-designed: lagging Theo stamp gate in release.sh, audited --no-theo-check opt-out, dry-run reports without aborting - Closes CENSUS-13's release-lockstep seam; five betas shipped with zero Theo command-registry re-syncs because nothing could fail
+- [Phase 343]: Phase 343 closed: all 21 WD decisions settled to RULED (2, navigator checkpoint) or STANDING (19, shipped unchallenged); zero rows left bare WORKING
+- [Phase 343]: Phase 343 close-out hands Phase 273 two structural gaps with pre-mapped blast radius: the claim-anchor writer gap (typed-claim.cjs:121) and the edge-chokepoint bypass (graph-ops.cjs, build-ecosystem-graph.cjs)
 
 ### Pending Todos
 
@@ -7581,8 +7612,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T19:52:25.872Z
-Stopped at: Completed 343-07-PLAN.md
+Last session: 2026-09-14T21:43:15.840Z
+Stopped at: Completed 343-09-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
