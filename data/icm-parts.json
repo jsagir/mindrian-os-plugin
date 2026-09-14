@@ -1,0 +1,197 @@
+{
+  "_doc": {
+    "purpose": "This file declares which ICM nested part of a room is produced by what and read by what, hand-authored on purpose.",
+    "authorship_rule": "A declaration is hand-authored and diffable, because a grep-derived consumer list is a heuristic that will later be read as a fact, and a missing declaration must be visible as an absence rather than invented.",
+    "baseline": "Phase 275's ICM audit and docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md section 4 (the IS / NEEDS TO BE / gap table), cited by name; row-for-row this file is the same baseline turned into data.",
+    "field_contract": "Each parts[] row carries exactly: id (kebab-case stable identifier), path_pattern (the path shape inside a room), icm_layer (one of L0..L4, or null with a notes sentence when the part sits outside the layer model), engineering_layer (one member of data/layer-declaration-schema.json's layer_vocabulary), producers (an array of /mos:<command> names or repo-relative module paths that write the part), consumers (an array of repo-relative module paths that read it; an empty array is a legitimate, expected value), exists_in_room (boolean), notes (one sentence, no em-dashes).",
+    "part_count_principle": "The row count is whatever this array holds. No consumer of this file hardcodes it; lib/core/doctor/icm-part-wiring-module.cjs enumerates parts.length at check time.",
+    "omissions": [
+      {
+        "id": "seeds",
+        "reason": "seeds/ exists only in the dev repo (this repository), never inside a scaffolded room. Phase 344's own input spec lists it as item 2 with the room-part question marked [NAVIGATOR DECISION] (does a room carry seeds/ at all), per docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md section 4 row 'seeds/' and section 7. WD-4 declines to prejudge that open question by inventing a row for a part that has zero implementation in a room today; omitting it here records the decision as an absence rather than silently forgetting it."
+      }
+    ]
+  },
+  "parts": [
+    {
+      "id": "room-md",
+      "path_pattern": "<room>/<section>/ROOM.md",
+      "icm_layer": "L0",
+      "engineering_layer": "context",
+      "producers": ["lib/core/room-skeleton-scaffold.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Per-directory identity frontmatter; ICM invariant 1 (one folder, one job, stated inside itself); doc section 4 finds inline-content drift in 5 of 12 sections of the audited dogfood room, a violation the contract calls out but does not gate."
+    },
+    {
+      "id": "section-context-md",
+      "path_pattern": "<room>/<section>/CONTEXT.md",
+      "icm_layer": "L2",
+      "engineering_layer": "context",
+      "producers": ["lib/core/room-skeleton-scaffold.cjs"],
+      "consumers": ["lib/core/doctor/icm-part-wiring-module.cjs"],
+      "exists_in_room": true,
+      "notes": "The fixed heading order (Statement, One job, Inputs, Process, Outputs, Human check, Commands that write here) is the best-realized ICM artifact in the repo; before this phase's doctor organ it had zero code consumer, per doc section 4 and gap 5.3."
+    },
+    {
+      "id": "state-md",
+      "path_pattern": "<room>/STATE.md",
+      "icm_layer": "L0",
+      "engineering_layer": "context",
+      "producers": ["lib/core/room-skeleton-scaffold.cjs", "scripts/compute-state"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Also nests inside opportunity-bank/ and funding/, each a second state machine per doc section 4; half generated half authored, with an isHumanAuthored skip on auto_created fields."
+    },
+    {
+      "id": "user-md",
+      "path_pattern": "<room>/USER.md",
+      "icm_layer": "L3",
+      "engineering_layer": "context",
+      "producers": ["lib/core/user-md-ops.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Per-room identity and working style today; doc section 4 states it NEEDS TO BE per-user factory material at L3, one home, since every room currently writes its own copy of one cross-room fact."
+    },
+    {
+      "id": "feynman-md",
+      "path_pattern": "<room>/<section>/FEYNMAN.md",
+      "icm_layer": null,
+      "engineering_layer": "context",
+      "producers": ["lib/core/feynman/feynman-seed-writer.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Doc section 4's L0-L4 hierarchy (CLAUDE.md/root CONTEXT.md/stage CONTEXT.md/references/output) does not assign FEYNMAN.md an explicit rung, so icm_layer is left null rather than guessed; two writers touch one file (timeline-runner, dial-memory-runner) and it is healed by graph-self-heal.cjs."
+    },
+    {
+      "id": "brain-md",
+      "path_pattern": "<room>/<section>/BRAIN.md",
+      "icm_layer": "L3",
+      "engineering_layer": "context",
+      "producers": ["/mos:brain-derive"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Flat-scalar frontmatter, author frozen to 'brain', read only through readQuadruple's Part 8 fence; doc section 4 marks filing:memory_event_only, meaning the derivation writes no claim node."
+    },
+    {
+      "id": "section-reasoning",
+      "path_pattern": "<room>/<section>/.reasoning/REASONING.md",
+      "icm_layer": null,
+      "engineering_layer": "context",
+      "producers": ["/mos:mos-reason", "lib/core/reasoning-ops.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Bundles the per-section MINTO.md sentinel-bounded governing thought and the .reasoning/<section>/REASONING.md Minto/MECE artifact; doc section 7 lists whether MINTO.md IS the L2 contract or a reasoning product under it as an open [NAVIGATOR DECISION], so icm_layer stays null rather than picking a side; doc section 4 also names three paths writing one idea (mos-reason declares room/**/reasoning/*, writes per-section MINTO.md, and reasoning-ops.cjs writes .reasoning/<section>/REASONING.md separately)."
+    },
+    {
+      "id": "room-db",
+      "path_pattern": "<room>/.mindrian/room.db",
+      "icm_layer": null,
+      "engineering_layer": "harness",
+      "producers": ["lib/core/room-db.cjs", "lib/core/node-insert.cjs"],
+      "consumers": ["lib/core/navigation.cjs"],
+      "exists_in_room": true,
+      "notes": "SQLite nodes and edges with provenance and bitemporal review_status; a data store, not itself a numbered ICM document, so icm_layer is null. The stale name '.room-graph' survives in three live skip-list constants (lib/core/rs-engine.cjs:87, lib/core/cross-room-aggregator.cjs:127, lib/core/eureka/reasoning-mode.cjs:72) while this is the real path; documented here, not fixed, since editing a skip list changes what three walkers traverse."
+    },
+    {
+      "id": "snapshots",
+      "path_pattern": "<room>/.snapshots/",
+      "icm_layer": null,
+      "engineering_layer": "harness",
+      "producers": ["scripts/generate-snapshot.cjs"],
+      "consumers": [],
+      "exists_in_room": true,
+      "notes": "Dated STATE.md copies; doc section 4 says it NEEDS TO BE an underscore-prefixed meta folder with a change index, neither of which exists today, so icm_layer stays null as a meta scaffolding folder outside the L0-L4 model."
+    },
+    {
+      "id": "context-dir",
+      "path_pattern": "<room>/.context/",
+      "icm_layer": null,
+      "engineering_layer": "context",
+      "producers": ["scripts/sessionstart-coordinator.cjs"],
+      "consumers": ["lib/sessionstart/precedence-ladder.cjs"],
+      "exists_in_room": true,
+      "notes": "Holds last-session, methodology-history, rejection-log and weekly-digest; doc section 4 says it NEEDS TO BE its own CONTEXT.md with declared producers and consumers, which does not exist today (gap 5.1's cousin), so icm_layer is null rather than borrowing the L2 number of a contract it does not yet have."
+    },
+    {
+      "id": "intelligence-dir",
+      "path_pattern": "<room>/.intelligence/",
+      "icm_layer": "L4",
+      "engineering_layer": "none",
+      "producers": ["/mos:scout"],
+      "consumers": [],
+      "exists_in_room": true,
+      "notes": "Sentinel alerts and digests; a pure diagnostic output with no code consumer today, which is why engineering_layer is the honest none rather than a guessed rung; doc section 4 says it NEEDS TO BE a product (L4) folder rather than sitting beside dot-prefixed meta dirs."
+    },
+    {
+      "id": "memory-layers",
+      "path_pattern": "<room>/.mindrian/jtbd-state.json",
+      "icm_layer": null,
+      "engineering_layer": "context",
+      "producers": ["lib/hmi/jtbd-state.cjs"],
+      "consumers": ["lib/hmi/jtbd-state.cjs"],
+      "exists_in_room": true,
+      "notes": "Three memory layers: within-session .mindrian/jtbd-state.json, across-session ~/MindrianRooms/.memory/jtbd-history.json, and cross-room Brain Mode A plus filesystem Mode B; the langtalks-graph-expert corpus places memory as a sub-part of context engineering (1 hop, EXTRACTED), not a numbered ICM rung, so icm_layer is null; doc section 4 states only layer 1 lives in the room today and /mos:memory files nothing back."
+    },
+    {
+      "id": "opportunity-bank",
+      "path_pattern": "<room>/opportunity-bank/",
+      "icm_layer": "L4",
+      "engineering_layer": "context",
+      "producers": ["lib/core/opportunity-ops.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "A real section since Phase 275 with its own sub-schemas in references/SUB-SCHEMAS.md; doc section 4 says it NEEDS TO BE one sequential pipeline covering both non-dilutive and dilutive directions in both L2 contracts, and today covers the non-dilutive half only, with a nested STATE.md."
+    },
+    {
+      "id": "funding",
+      "path_pattern": "<room>/funding/",
+      "icm_layer": "L4",
+      "engineering_layer": "context",
+      "producers": ["lib/core/opportunity-ops.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Sibling section to opportunity-bank/, real since Phase 275; shares the same gap (covers the non-dilutive half only and carries a nested STATE.md)."
+    },
+    {
+      "id": "personas",
+      "path_pattern": "room/team/ai-personas/*",
+      "icm_layer": "L4",
+      "engineering_layer": "context",
+      "producers": ["/mos:persona"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Known path drift, declared rather than fixed here per plan instruction: the section declares room/team/ai-personas/* as its NEEDS-TO-BE path but the live code actually reads room/personas/, one fact with two homes."
+    },
+    {
+      "id": "references-dir",
+      "path_pattern": "<room>/references/",
+      "icm_layer": "L3",
+      "engineering_layer": "context",
+      "producers": ["lib/core/room-skeleton-scaffold.cjs"],
+      "consumers": ["lib/core/folder-memory.cjs"],
+      "exists_in_room": true,
+      "notes": "Frozen 2-item allowlist (SECTION-SCHEMA.md, SUB-SCHEMAS.md) shipped today; doc section 4 says it NEEDS TO BE 500-2k tokens of voice, brand, schema and taxonomy rules read every run, while the plugin root holds 22 subdirectories of exactly this material that never reaches a room."
+    },
+    {
+      "id": "vault-manifest",
+      "path_pattern": "<room>/MANIFEST.json",
+      "icm_layer": null,
+      "engineering_layer": "harness",
+      "producers": ["scripts/generate-snapshot.cjs"],
+      "consumers": [],
+      "exists_in_room": false,
+      "notes": "Today the manifest is export-time JSON generated inline inside the snapshot generator only; no MANIFEST file exists in a live room, so exists_in_room is false and icm_layer stays null pending the generated-room-index doc section 4 describes as the target."
+    },
+    {
+      "id": "fleet-index",
+      "path_pattern": "<fleet>/CLAUDE.md, <fleet>/INDEX.md, <fleet>/.rooms/registry.json",
+      "icm_layer": null,
+      "engineering_layer": "harness",
+      "producers": ["templates/icm/CLAUDE.md"],
+      "consumers": [],
+      "exists_in_room": true,
+      "notes": "Doc section 4 calls templates/icm/CLAUDE.md 'correct L0' while naming INDEX.md and .rooms/registry.json as duplicated entry files that drift into a third incompatible L0-L4 mapping; icm_layer stays null here because the row bundles an already-L0 file with a hand-maintained INDEX.md whose NEEDS-TO-BE target is L1 generated, never hand-edited, and picking one number would hide that split."
+    }
+  ]
+}
