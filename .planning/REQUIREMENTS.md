@@ -1653,24 +1653,24 @@ only: a per-room counts-only census organ, the same measurement registered as an
 sensor, a counter-metric declaration on every sensor, the help family map's layer labels, and
 a seventh release-lockstep place verifying Theo's command-layer stamp.
 
-- [ ] **CENSUS-01**: `lib/core/doctor/room-graph-integrity-module.cjs` reports exactly three
+- [x] **CENSUS-01**: `lib/core/doctor/room-graph-integrity-module.cjs` reports exactly three
       measurable defect statements plus self-loop and unresolved-CONTRADICTS counts, per room
       and fleet-wide, counts only, `status` never `warn`, and exports no `fix` of any kind.
 
-- [ ] **CENSUS-02**: every room is reached through `openRoomDbReadOnlyForCaller`;
+- [x] **CENSUS-02**: every room is reached through `openRoomDbReadOnlyForCaller`;
       `sqlite_master` (name, sql) and file `mtimeMs` are byte-identical after a sweep; the
       payload carries room NAMES and integers only, never a node id and never a filesystem
       path.
 
-- [ ] **CENSUS-03**: every column-dependent statement gates on `PRAGMA table_info(nodes)`; a
+- [x] **CENSUS-03**: every column-dependent statement gates on `PRAGMA table_info(nodes)`; a
       column absent in a legacy schema reports `null` plus a `schema_variant` marker, never
       `0`.
 
-- [ ] **CENSUS-04**: "stub or placeholder node" and "memory-event provenance edge" ship as
+- [x] **CENSUS-04**: "stub or placeholder node" and "memory-event provenance edge" ship as
       `not_measurable` records carrying their reason in the module's own output, never as
       defect statements that structurally cannot fire.
 
-- [ ] **CENSUS-05**: the module's output names `lib/core/navigation/typed-claim.cjs:121` as
+- [x] **CENSUS-05**: the module's output names `lib/core/navigation/typed-claim.cjs:121` as
       the cause of the unanchored count, reports the count as two columns (legacy cohort and
       new writes), and states that the fix is Phase 273 territory.
 
@@ -1718,7 +1718,7 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
 - [ ] **CENSUS-16**: every CENSUS id closes with a `Measured:` clause citing a command and
       its observed output, and the phase validation map is filled.
 
-- [ ] **CENSUS-17**: `lib/core/doctor/room-graph-integrity-module.cjs` counts edge rows
+- [x] **CENSUS-17**: `lib/core/doctor/room-graph-integrity-module.cjs` counts edge rows
       whose `type` is outside the exported `ALLOWED_EDGE_TYPES`, per room and fleet-wide,
       names the offending types, and names the writers that bypass the chokepoint without
       fixing them.

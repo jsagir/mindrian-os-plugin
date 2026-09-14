@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 343-01-PLAN.md
-last_updated: "2026-09-14T16:51:00.000Z"
-last_activity: 2026-09-14 -- 343-01 completed (phase foundation: CENSUS-01..17 minted,
-  docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md landed, tests/run-all-343.sh stood up)
+stopped_at: Completed 343-02-PLAN.md
+last_updated: "2026-09-14T17:23:05.679Z"
+last_activity: "2026-09-14 -- 343-02 completed (room-graph integrity doctor organ, statement home
+  plus doctor module, registered in data/doctor-modules.json)"
 progress:
   total_phases: 97
   completed_phases: 29
   total_plans: 274
-  completed_plans: 232
+  completed_plans: 233
   percent: 85
 ---
 
@@ -4355,19 +4355,26 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-01 complete (1/9 plans)
-Status: Plan 343-01 shipped the phase foundation: CENSUS-01..17 minted as open rows in
-  .planning/REQUIREMENTS.md (CENSUS-15 closed with Measured: proof, the other sixteen stay
-  open to close by 343-09-PLAN.md); docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md landed as the
-  single tracked home for WD-1..WD-21, the measured 2026-09-14 fleet baseline, the two
-  not_measurable records, the .room-graph name collision, and the Phase 273 anchor-ownership
-  non-goal; tests/run-all-343.sh stood up with seven run_if-guarded legs for 343-02..343-08
-  plus the three existing suites this phase extends. bash tests/run-all-343.sh confirmed
-  PASS=3 FAIL=0 SKIP=7 immediately after this plan's own final tracking commit landed (a
-  transient FAIL on test-298-contract-parity's clean-tree leg during the plan, caused by a
-  peer session's already-finished but not-yet-committed Phase 348 STATE.md/ROADMAP.md
-  addition, cleared once that addition was committed here). Phase 344 (the layer contract)
-  remains COMPLETE, 9/9 plans, unaffected by this plan.
+Plan: 343-02 complete (2/9 plans)
+Status: Plan 343-02 shipped the counts-only room-graph integrity organ:
+  lib/core/navigation/graph-integrity-counts.cjs (the single statement home: schemaVariant,
+  countGraphIntegrity, NOT_MEASURABLE, WRITER_NOTE, over a caller-supplied handle),
+  lib/core/doctor/room-graph-integrity-module.cjs (the doctor organ, active-room by default,
+  fleet scope + totals under --cascade-rooms per WD-3), one row in data/doctor-modules.json
+  (introduced_version 2.0.0-beta.40, cadence always, flag null, fix_supported false), a matching
+  prose row in commands/doctor.md and all three skill mirrors, and
+  tests/test-343-room-graph-integrity.cjs (21 scenarios, all passing). Three commits:
+  5897ee21 (statement home), 4aa4a815 (doctor organ), 987c179e (registry + mirrors).
+  bash tests/run-all-343.sh confirmed PASS=5 FAIL=0 SKIP=6 and
+  node scripts/doctor.cjs --acceptance confirmed 20/20 after the final Task 3 commit landed
+  on a clean tree. Two deviations: a docblock phrase describing the mutating door's table-creation
+  statements tripped scripts/check-schema-aliases.cjs's pre-commit false-positive (reworded,
+  matching the Phase 344 sibling organ's own phrasing); build-skill-mirrors.cjs does not
+  regenerate dist/, so
+  the plan's stated dist-mirror step was corrected to a hand-applied single-line addition to the
+  two doctor dist/ mirrors rather than the full 235-file dist/ regeneration running
+  scripts/build-dist-bundles.cjs would have produced. Full detail in 343-02-SUMMARY.md.
+  Phase 344 (the layer contract) remains COMPLETE, 9/9 plans, unaffected by this plan.
 Previously: Phase 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - COMPLETE
 Plan: 344-01 through 344-09 complete (9/9 plans)
 Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0,
@@ -5732,6 +5739,7 @@ Progress: [█████████░] 92%
 | Phase 344 P08 | 45min | 3 tasks | 6 files |
 | Phase 344 P09 | ~20min | 3 tasks | 5 files |
 | Phase 343 P01 | 55min | 3 tasks | 3 files |
+| Phase 343 P02 | 95min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -7442,8 +7450,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T16:50:44.811Z
-Stopped at: Completed 343-01-PLAN.md
+Last session: 2026-09-14T17:23:05.679Z
+Stopped at: Completed 343-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
