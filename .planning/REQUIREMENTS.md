@@ -1974,7 +1974,7 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 - [ ] **STRAT-09**: The stall count is exposed as a named null-default input for the Phase 346
       arbiter. Measured: pending, intended check: `node tests/test-345-cadence.cjs`.
 
-- [ ] **STRAT-10**: The climb composes local rung inference plus the optional `taxonomy_ladder`
+- [x] **STRAT-10**: The climb composes local rung inference plus the optional `taxonomy_ladder`
       render through `brainClient.callTool`, with a local one-line fallback. Measured: pending,
       intended check: `node tests/test-345-climb.cjs`.
 
@@ -1982,7 +1982,7 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
       tests/run-all-345.sh` Tripwire A (`grep -rl 'mcp__theo__' lib/`) reports PASSED
       (2026-09-15).
 
-- [ ] **STRAT-12**: The idempotent payload-free `goal:<room-slug>` anchor node is minted before
+- [x] **STRAT-12**: The idempotent payload-free `goal:<room-slug>` anchor node is minted before
       the card. Measured: pending, intended check: `node tests/test-345-gate-anchor.cjs`.
 
 - [ ] **STRAT-13**: The strategy proposal is a Decision Gate whose approve branch writes a typed

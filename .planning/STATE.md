@@ -2,17 +2,32 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 345-05 registered SENS-20 across all seven lockstep places (navigator ratify-all ruling on WD-1/WD-4/WD-9), pinned the un-gated ctx producer block with a decide()-level test and a confirmed negative check; the strategy sensor is now live inside dispatchSensors on every turn, all three surfaces"
-stopped_at: Completed 345-05-PLAN.md
-last_updated: "2026-09-15T12:42:31.807Z"
-last_activity: "2026-09-15 - 345-05 completed (SENS-20 lockstep places 2-7 registered, navigator ratify-all ruling recorded, circular-require bug found and fixed in goal-cadence.cjs, ctx producer block landed with deliberate negative check confirmed, run-all-345.sh PASS=14 FAIL=0 SKIP=5)"
+status: "Plan 345-06 minted the payload-free goal anchor, the local rung climb + optional Brain-decorated ladder render, and the four-option strategy_goal proposal card with a real subject_node_id and filtered evidence_node_ids -- ready for plan 07's gate_render call"
+stopped_at: Completed 345-06-PLAN.md
+last_updated: "2026-09-15T13:03:21.523Z"
+last_activity: "2026-09-15 - 345-06 completed (goal-anchor.cjs mintGoalAnchor, taxonomy-climb.cjs climb/renderLadder/localLadderLine, strategy-card.cjs buildStrategyCard; a live MCP-error-leak bug found and fixed via Brain smoke testing; taxonomy_ladder wire-vocabulary mismatch surfaced for Plan 08; run-all-345.sh PASS=16 FAIL=0 SKIP=3)"
 progress:
   total_phases: 98
   completed_phases: 31
   total_plans: 274
-  completed_plans: 256
-  percent: 93
+  completed_plans: 257
+  percent: 94
 ---
+
+<!-- NOTE (345-06 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"); the body's own "## Current Position" section was hand-corrected instead
+     (345-05 -> 345-06 summary, per the established precedent this note stack documents).
+     `state.update-progress` correctly computed `percent: 94` (completed_plans 257 / total_plans
+     274) in its own JSON response but persisted a stale, unrelated snapshot into the frontmatter
+     (status/stopped_at/last_activity regressed to a 344-09 narrative that was never this plan's
+     own; total_phases/completed_phases swapped to 99/30; percent written as 30, not the 94 the
+     same call just computed) -- hand-corrected all six frontmatter fields to the correct values:
+     status/stopped_at/last_activity describing 345-06's actual work, total_phases/completed_phases
+     back to 98/31 (unchanged -- Phase 345 has not closed, only 6 of 9 plans done), and percent to
+     94 (matching the command's own correctly-computed JSON response). Same root cause as every
+     other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (345-05 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4372,19 +4387,27 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 5/9 complete (345-01, 02, 03, 04, 05). 345-05 CLOSED 2026-09-15: navigator ratified all
-  three working decisions on the blocking Task 1 checkpoint (ratify-all: WD-1 cadence 40/12/20,
-  WD-4 reach id contradiction + pull_back, WD-9 Group A). SENS-20 registered across all seven
-  lockstep places (places 2-6 in one commit 4b22cb74, place 7 -- the un-gated ctx producer block
-  in navigation-engine.cjs -- pinned by tests/test-345-producer-fires.cjs which calls decide()
-  end-to-end, commits e882fa15 RED / 6e620bfe GREEN). A real circular-require bug was found and
-  fixed in the same pass (goal-cadence.cjs's top-level require of navigation.cjs closed a cycle
-  back onto insight-sensors.cjs, silently breaking dispatchSensors for all 22 sensors under one
-  require order; fixed by making the require lazy). Deliberate negative check performed and
-  reverted: disabling the producer block makes the pinning test fail closed (0 !== 1), confirmed
-  the pin works. SENS-20 is now live inside dispatchSensors on every turn, all three surfaces --
-  the material step this plan's own checkpoint_rationale names. bash tests/run-all-345.sh
-  PASS=14 FAIL=0 SKIP=5 (5 skips are tests not yet written for 345-06..09, expected). Next: 345-06.
+Plan: 6/9 complete (345-01, 02, 03, 04, 05, 06). 345-06 CLOSED 2026-09-15: the payload-free,
+  idempotent goal:<room-slug> anchor (lib/core/navigation/goal-anchor.cjs::mintGoalAnchor,
+  re-exported on navigation.cjs), the local zero-network rung climb plus an optional
+  Brain-decorated ladder render that always degrades to a Tier 0 one-liner
+  (lib/core/strategy/taxonomy-climb.cjs), and the four-option strategy_goal proposal card
+  (lib/core/strategy/strategy-card.cjs::buildStrategyCard) carrying a real subject_node_id
+  (mint-before-assembly, null on a failed mint) and a filtered/capped evidence_node_ids list --
+  ready for plan 07's gate_render call with git diff --stat lib/mcp/ empty. All three tasks
+  followed real RED/GREEN commits (test SKIPs on a not-yet-existing module, confirmed by moving
+  the file aside and re-running). One live bug found and fixed via manual Brain smoke-testing
+  (Rule 1): _resolveLadderText would have leaked a raw MCP JSON-RPC validation-error string into
+  a navigator-facing card option, since brain-client.cjs wraps both a genuine non-JSON response
+  and a raw wire error into the identical { text } shape; fixed to trust only the live-verified
+  `.ladder` field. Also surfaced (not fixed, handed to Plan 08 / 345-ICM-CONSULT R6): the
+  deployed taxonomy_ladder tool's rung argument is actually Theo-cased, not the lowercase
+  ladder-vocabulary form rung-vocabulary.cjs (345-01) maps to and this plan's own acceptance
+  criteria mandate sending -- the render safely degrades to localLadderLine either way. WD-3
+  liveness probe run 2026-09-15T12:49:33Z, exit 0 (scope caveat: covers the 6 stdio-shim Brain
+  tools, not taxonomy_ladder itself; the manual smoke test above is the real empirical answer for
+  that tool). bash tests/run-all-345.sh PASS=16 FAIL=0 SKIP=3 (3 skips are tests not yet written
+  for 345-07..09, expected). Next: 345-07.
 Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
   vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
   strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
@@ -5947,6 +5970,7 @@ Progress: [█████████░] 92%
 | Phase 343 P07 | continuation | 2 tasks | 6 files |
 | Phase 343 P09 | 95min | 3 tasks | 6 files |
 | Phase 345 P05 | 130min | 3 tasks | 8 files |
+| Phase 345 P06 | 50min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7538,6 +7562,8 @@ Progress: [█████████░] 92%
 - [Phase 343]: Phase 343 closed: all 21 WD decisions settled to RULED (2, navigator checkpoint) or STANDING (19, shipped unchallenged); zero rows left bare WORKING
 - [Phase 343]: Phase 343 close-out hands Phase 273 two structural gaps with pre-mapped blast radius: the claim-anchor writer gap (typed-claim.cjs:121) and the edge-chokepoint bypass (graph-ops.cjs, build-ecosystem-graph.cjs)
 - [Phase 345]: 345-05: navigator ratified WD-1/WD-4/WD-9 as written (ratify-all): cadence 40/12/20, reach id contradiction + posture pull_back, SENS_PRIORITY Group A; SENS-20 registered across all seven lockstep places and is now live inside dispatchSensors on every turn
+- [Phase 345]: goal:<room-slug> anchor typed 'goal' never 'claim' at epistemic_type assumption, review_status proposed; promotion to confirmed is plan 07's job
+- [Phase 345]: _resolveLadderText trusts only the live-verified .ladder field, never a bare .text, since brain-client.cjs wraps a genuine response and a raw JSON-RPC error into the identical { text } shape
 
 ### Pending Todos
 
@@ -7677,8 +7703,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T12:42:31.735Z
-Stopped at: Completed 345-05-PLAN.md
+Last session: 2026-09-15T13:03:21.454Z
+Stopped at: Completed 345-06-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
