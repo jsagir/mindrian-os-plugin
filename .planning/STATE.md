@@ -3,16 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 346-02-PLAN.md - Wave 2 of 6
-last_updated: "2026-09-15T19:16:26.830Z"
-last_activity: 2026-09-15 -- Phase 346 execution, plan 02 complete
+stopped_at: Completed 346-03-PLAN.md - Wave 2 of 6
+last_updated: "2026-09-15T19:36:44.677Z"
+last_activity: 2026-09-15 -- Phase 346 execution, plan 03 complete
 progress:
   total_phases: 99
   completed_phases: 31
   total_plans: 274
-  completed_plans: 263
+  completed_plans: 264
   percent: 96
 ---
+
+<!-- NOTE (346-03 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` returned
+     `{percent: 96, completed: 263, total: 274}` in its own JSON but re-persisted a stale
+     263/31/percent-31-with-garbled-status frontmatter snapshot rather than incrementing for this
+     plan's own newly-written 346-03-SUMMARY.md. `state.record-metric` correctly wrote its own
+     Performance Metrics row and `state.record-session` correctly wrote the Last session/Stopped
+     At body lines, but neither call touched the frontmatter's own drift (the `status` field had
+     already been clobbered to a raw truncated slice of Current Position body text by the prior
+     346-02 session's `state.record-metric` call, and `update-progress` had reverted
+     stopped_at/completed_plans/percent to the stale 346-02 snapshot). Hand-corrected once, after
+     all calls landed: status -> planning, stopped_at -> this plan's completion line,
+     completed_plans 263 -> 264 (adding this plan), percent -> 96 (264/274, rounded); left
+     total_phases/completed_phases at 99/31 unchanged since Phase 346 has not closed (3 of 8
+     plans done). Same root cause as every other note in this file, not re-investigated further
+     here. -->
 
 <!-- NOTE (346-02 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6082,6 +6100,7 @@ Progress: [█████████░] 92%
 | Phase 345 P09 | 150min | 3 tasks | 6 files |
 | Phase 346 P01 | 11min | 3 tasks | 5 files |
 | Phase 346 P02 | 12min | 2 tasks | 2 files |
+| Phase 346 P03 | 35min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7679,6 +7698,8 @@ Progress: [█████████░] 92%
 - [Phase 345]: 345-08: larry-personality is WD-7-exempt (connector.excluded:true), so a bare layer: count of 0 is the correct post-344-04 state; layer: prompt was deliberately not added - Adding layer: prompt would have contradicted 344-04's own shipped WD-7 ruling that removes exempt skills from the layer-backfill map entirely
 - [Phase 345]: Phase 345 CLOSED: all eighteen STRAT-01..18 requirements closed with measured proof, headline SOURCED_FROM number stated fixture-vs-fleet honestly - the taxonomy_ladder rung-casing mismatch is recorded as a named, owned, deferred item in three tracked places rather than dropped at the last plan
 - [Phase 346]: Used the live active-requirement count (247 to 263), not the plan's stale 199 to 215 literal - SHARED-01..13 and STRAT-01..18 were minted by intervening phases after 346-01-PLAN.md was authored, so the plan's baseline had gone stale by execute time
+- [Phase ?]: 346-03: binding-gate-injection mechanism uses the literal hooks.json dispatch path (hooks/run-hook.cmd intent-classifier), not scripts/intent-classifier.cjs, to keep the enumerate-from-disk partition honest about what actually dispatches — The actual chain is run-hook.cmd -> bash wrapper -> the .cjs file; the specific file and emitBindingGate are still named in the row's reason text
+- [Phase ?]: 346-03: hmi-compliance-poll classified floor:none arbiter_input:true (not plan's literal false), resolving a contradiction between the plan's universal floor-discipline rule and its row-9 guidance — arbiter_input:true is read as structural (weighted-input side of the dichotomy), independent of current nonzero weight; the row's own reason states the practical impact is inert
 
 ### Pending Todos
 
@@ -7818,7 +7839,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T19:16:26.759Z
+Last session: 2026-09-15T19:35:35.898Z
 Stopped at: Completed 346-02-PLAN.md - Wave 2 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
