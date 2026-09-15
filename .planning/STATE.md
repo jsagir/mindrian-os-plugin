@@ -2,17 +2,34 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 346-01 minted ARB-01..16, wrote docs/ARBITRATION-CONTRACT.md (naming fence, Tri-Polar table, layer: graph declaration, thirteen-row working-decision ledger), closed ARB-01/ARB-14/ARB-15 with measured proof, and stood up tests/run-all-346.sh (9 guarded legs, 2 green regression legs)"
-stopped_at: Completed 346-01-PLAN.md - Wave 1 of 6
-last_updated: "2026-09-15T19:02:58.629Z"
-last_activity: 2026-09-15 -- 346-01 completed (ARB-01..16 minted in .planning/REQUIREMENTS.md; docs/ARBITRATION-CONTRACT.md written and TDD-proven via tests/test-346-contract-doc.cjs; ARB-01/ARB-14/ARB-15 closed with Measured: proof; tests/run-all-346.sh green PASS=4 FAIL=0 SKIP=8; data/harness-manifest.json regenerated to close a pre-existing Phase 345 drift; doctor --acceptance 19/20 with the one non-green point being expected mid-execution tracked-file drift)
+status: planning
+stopped_at: Completed 346-02-PLAN.md - Wave 2 of 6
+last_updated: "2026-09-15T19:16:26.830Z"
+last_activity: 2026-09-15 -- Phase 346 execution, plan 02 complete
 progress:
   total_phases: 99
   completed_phases: 31
   total_plans: 274
-  completed_plans: 261
-  percent: 95
+  completed_plans: 263
+  percent: 96
 ---
+
+<!-- NOTE (346-02 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` returned
+     `{percent: 96, completed: 262, total: 274}` in its own JSON but re-persisted the identical
+     262/31 stale frontmatter snapshot rather than incrementing for this plan's own newly-written
+     346-02-SUMMARY.md. `state.record-metric` and `state.record-session` each correctly wrote
+     their own body-level content (the Performance Metrics row below and the Last session/
+     Stopped At lines) but `state.record-metric` additionally clobbered the `status` frontmatter
+     field with a raw, truncated slice of the Current Position body text (breaking the field's
+     semantics, though not its YAML syntax) and re-reverted stopped_at/completed_plans/percent to
+     the same stale snapshot a second time. Hand-corrected once, after all four calls landed:
+     status -> planning, stopped_at -> this plan's completion line, completed_plans 262 -> 263
+     (adding this plan), percent -> 96 (263/274, rounded); left total_phases/completed_phases at
+     99/31 unchanged since Phase 346 has not closed (2 of 8 plans done). Same root cause as every
+     other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (345-09 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4454,23 +4471,30 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 346 (the-arbitration-node-graph-engineering-learning-3c-conflict-) - EXECUTING
-Plan: 346-01 complete (1/8 plans)
-Status: Plan 346-01 minted ARB-01..16 in .planning/REQUIREMENTS.md (LAYER-family row style,
-  traceability paragraph extended, active count corrected 247 -> 263 using the live measured
-  baseline rather than the plan's stale 215 assumption), wrote docs/ARBITRATION-CONTRACT.md (the
-  naming fence naming POSTURE_IDS/postureForCommand/STANCES with the prose-may/code-may-not
-  ruling, the three axis vocabularies, the result struct, the ranking, the floors, a Tri-Polar
-  table sourced live from CAPABILITY_MAP with not-applicable on desktop/cowork, the layer: graph
-  declaration against the live Phase 344 vocabulary, and the thirteen-row working-decision
-  ledger), TDD-proven by tests/test-346-contract-doc.cjs (RED then GREEN), and closed
-  ARB-01/ARB-14/ARB-15 with Measured: proof. Stood up tests/run-all-346.sh (9 run_if guarded
-  legs, one per planned test file in wave order, plus 2 always-on regression legs and the
-  em-dash guard); runs green today (PASS=4 FAIL=0 SKIP=8). Rule 3 deviation: regenerated
-  data/harness-manifest.json to close a pre-existing Phase 345-08 drift (SKILL.md edited, digest
-  never regenerated) so this plan's own harness-manifest-fresh regression leg is green from day
-  one. doctor --acceptance 19/20 mid-execution (the one non-green point, verify-release-clean-
-  tree, is expected tracked-file drift that clears once these files are committed). Full detail
-  in 346-01-SUMMARY.md.
+Plan: 346-02 complete (2/8 plans)
+Status: Plan 346-02 shipped lib/core/arbitration.cjs's naming fence, detectEscapeHatch (the
+  missing producer for selectMode's highest-precedence rule on Claude Code, keys byte-identical
+  to directive-envelope.cjs:42), and resolveEnforcement (a nine-rule first-match ladder over
+  ENFORCEMENT_VALUES enforce|judge|not-applicable, each judge rationale traced to a dated WATCH
+  incident, floor_engaged proven structurally unreachable-by-judge via a 128-case power-set
+  sweep, hookless surfaces degrading to not-applicable never a fabricated value per WD-4). Two
+  TDD RED/GREEN task pairs, 4 commits (222a7479/b7468d27 Task 1, 97f598f8/c94d2c14 Task 2).
+  tests/test-346-enforcement-axis.cjs: 24 assertions. bash tests/run-all-346.sh PASS=5 FAIL=0
+  SKIP=7 (two 346 legs now green: contract doc + enforcement axis). git diff hooks/hooks.json
+  empty (assumption A8 held). doctor --acceptance 20/20. Zero deviations, zero em-dashes. Full
+  detail in 346-02-SUMMARY.md.
+Previously: Plan 346-01 complete -- minted ARB-01..16 in .planning/REQUIREMENTS.md (LAYER-family
+  row style, traceability paragraph extended, active count corrected 247 -> 263 using the live
+  measured baseline rather than the plan's stale 215 assumption), wrote
+  docs/ARBITRATION-CONTRACT.md (the naming fence naming POSTURE_IDS/postureForCommand/STANCES
+  with the prose-may/code-may-not ruling, the three axis vocabularies, the result struct, the
+  ranking, the floors, a Tri-Polar table sourced live from CAPABILITY_MAP with not-applicable on
+  desktop/cowork, the layer: graph declaration against the live Phase 344 vocabulary, and the
+  thirteen-row working-decision ledger), TDD-proven by tests/test-346-contract-doc.cjs (RED then
+  GREEN), and closed ARB-01/ARB-14/ARB-15 with Measured: proof. Stood up tests/run-all-346.sh (9
+  run_if guarded legs, one per planned test file in wave order, plus 2 always-on regression legs
+  and the em-dash guard). Rule 3 deviation: regenerated data/harness-manifest.json to close a
+  pre-existing Phase 345-08 drift. Full detail in 346-01-SUMMARY.md.
 Previously: Phase 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - CLOSED
 Plan: 345-09 complete (9/9 plans) - PHASE 345 CLOSED, 2026-09-15
 Status: Plan 345-09 closed the phase (STRAT-18): ran the full twelve-check gate sweep (bash
@@ -6057,6 +6081,7 @@ Progress: [█████████░] 92%
 | Phase 345 P08 | 40min | 3 tasks | 6 files |
 | Phase 345 P09 | 150min | 3 tasks | 6 files |
 | Phase 346 P01 | 11min | 3 tasks | 5 files |
+| Phase 346 P02 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -7793,8 +7818,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T19:02:58.566Z
-Stopped at: Completed 346-01-PLAN.md - Wave 1 of 6
+Last session: 2026-09-15T19:16:26.759Z
+Stopped at: Completed 346-02-PLAN.md - Wave 2 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

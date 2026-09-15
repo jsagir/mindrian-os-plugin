@@ -1659,7 +1659,10 @@ constitutionally.
 
 - [ ] **ARB-02**: The `enforcement` axis exists as new pure code with the closed vocabulary
       `enforce | judge | not-applicable`, resolved by an ordered first-match ladder, and `judge`
-      is structurally unreachable on a turn where a constitutional floor is engaged.
+      is structurally unreachable on a turn where a constitutional floor is engaged. Landed by
+      346-02 (`lib/core/arbitration.cjs` `resolveEnforcement`, 128-case power-set proof); left
+      unchecked here per the LAYER/STRAT/SHARED precedent (346-01-SUMMARY.md), closed with its
+      own Measured: clause by 346-08 (phase close).
 
 - [ ] **ARB-03**: `lib/core/arbitration.cjs` composes the three axes into ONE ranked result, is
       pure (zero I/O, zero network, zero require of `insight-sensors.cjs` or
@@ -1668,7 +1671,10 @@ constitutionally.
 
 - [ ] **ARB-04**: A LOCAL escape-hatch detector ships in `lib/core/arbitration.cjs` and matches
       the two phrases already doctrine in `skills/larry-personality/SKILL.md`, so `selectMode`'s
-      highest-precedence rule stops being fed by nothing on the Claude Code path.
+      highest-precedence rule stops being fed by nothing on the Claude Code path. Landed by 346-02
+      (`detectEscapeHatch`, keys byte-identical to `directive-envelope.cjs:42`); left unchecked
+      here per the LAYER/STRAT/SHARED precedent (346-01-SUMMARY.md), closed with its own
+      Measured: clause by 346-08 (phase close).
 
 - [ ] **ARB-05**: The cold-start floor holds. No combination of role_blend, problem-type rung,
       surface or escape-hatch flips turn 1 out of GUIDED and ask-first, and the result object
