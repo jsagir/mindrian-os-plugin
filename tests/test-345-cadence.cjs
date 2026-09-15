@@ -307,7 +307,10 @@ if (!sqliteAvailable) {
 console.log('--- Leg 7: source discipline ---');
 
 const cadenceSource = fs.readFileSync(CADENCE_PATH, 'utf8');
-ok('goal-cadence.cjs never requires better-sqlite3 or node:sqlite', !/better-sqlite3|node:sqlite/.test(cadenceSource));
+ok(
+  'goal-cadence.cjs never requires better-sqlite3 or node:sqlite',
+  !/require\(['"](?:better-sqlite3|node:sqlite)['"]\)/.test(cadenceSource)
+);
 ok('goal-cadence.cjs issues no raw SQL prepare() call', !/\.prepare\(/.test(cadenceSource));
 ok('goal-cadence.cjs threads READ_LIMIT into every findRecentChanges call', /findRecentChanges\([^)]*READ_LIMIT/.test(cadenceSource) || /limit:\s*READ_LIMIT/.test(cadenceSource));
 ok('goal-cadence.cjs states which source artifacts_since derives from', /artifacts_since/.test(cadenceSource));
