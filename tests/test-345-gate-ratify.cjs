@@ -374,6 +374,188 @@ async function main() {
     roomDbMod.closeRoomDb(db);
     cleanup(roomDir);
   }
+
+  // ===========================================================================
+  // Task 2: the MCP round trip through the ACTUAL registered tool handlers.
+  // SAFETY: every handler call threads an explicit, obviously-fake
+  // sessionId (see this file's own header) so gate_answer's room resolver
+  // can never fall through to this real process's live CLAUDE_CODE_SESSION_ID.
+  // ===========================================================================
+
+  const FAKE_SESSION_ID = 'test-345-07-gate-ratify-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+  // ---------------------------------------------------------------------
+  // Task 2 leg A: approve -- the fleet-wide-zero-moves-to-one proof.
+  // ---------------------------------------------------------------------
+  {
+    const roomDir = makeRoomDir('345-07-mcp-approve-');
+    const db = openFixtureDb(roomDir);
+    jtbdState.setGoal(roomDir, { jtbd: 'decide-pursue', rung: 'IllDefined', parent_question: 'should we pursue this now' });
+    nodeInsertMod.insertNode(db, '345-07:evidence-1', 'Artifact', '{}', { source_path: 'test:345-07', created_by: 'system', epistemic_type: 'observation' });
+    const reach = { evidence: { current_jtbd: 'find-problem', reaches_since: 41, unresolved_contradictions: 3 } };
+    const card = await strategyCard.buildStrategyCard({
+      db: db, roomDir: roomDir, roomSlug: 'mcp-approve-room', reach: reach, candidates: ['345-07:evidence-1'],
+    });
+    assert.ok(card);
+    roomDbMod.closeRoomDb(db);
+
+    const server = makeFakeServer();
+    gateTool.register(server, { fallbackRoomDir: roomDir });
+    const gateRenderTool = server._registered.find((r) => r.name === 'gate_render');
+    const gateAnswerTool = server._registered.find((r) => r.name === 'gate_answer');
+    assert.ok(gateRenderTool && gateAnswerTool, 'gate_render and gate_answer must both be registered');
+
+    const rendered = await callTool(gateRenderTool, {
+      header: card.header, kind: card.kind, select_mode: 'single',
+      options: card.options, subject_node_id: card.subject_node_id, evidence_node_ids: card.evidence_node_ids,
+    }, FAKE_SESSION_ID);
+    assert.equal(rendered.body.ok, true);
+    const gateId = rendered.body.gate_id;
+    ok('gate_render (approve leg): mints a gate_id, carrying the card\'s subject_node_id/evidence_node_ids');
+
+    const answered = await callTool(gateAnswerTool, { gate_id: gateId, chosen: ['keep'], verdict: 'approve' }, FAKE_SESSION_ID);
+    assert.equal(answered.body.ok, true);
+    ok('gate_answer (approve leg): response.ok is true');
+    assert.ok(answered.body.strategy_ratification, 'the response must carry a strategy_ratification key for a strategy card');
+    assert.equal(answered.body.strategy_ratification.ok, true);
+    assert.equal(answered.body.strategy_ratification.anchor_confirmed, true);
+    ok('gate_answer (approve leg): strategy_ratification.ok is true, anchor_confirmed is true');
+
+    const verifyDb = openFixtureDb(roomDir);
+    const sourcedFromToAnchor = sourcedFromEdgeCountTo(verifyDb, card.subject_node_id);
+    assert.ok(sourcedFromToAnchor >= 1, 'at least one SOURCED_FROM edge must point at the goal anchor');
+    ok('MEASURED (approve): >= 1 SOURCED_FROM edge targets the goal anchor node');
+
+    const confirmedDecisions = confirmedDecisionGateCount(verifyDb);
+    assert.equal(confirmedDecisions, 1);
+    ok('MEASURED (approve): exactly 1 confirmed decision:gate:* node exists');
+
+    const anchorRow = nodeRow(verifyDb, card.subject_node_id);
+    assert.equal(anchorRow.review_status, 'confirmed');
+    ok('MEASURED (approve): the goal anchor node review_status is confirmed');
+
+    const decisionRow = verifyDb.prepare("SELECT id, review_status FROM nodes WHERE id = ?").get('decision:gate:' + gateId);
+    assert.ok(decisionRow, 'the exact decision:gate:<gate_id> node must exist');
+    assert.equal(decisionRow.review_status, 'confirmed');
+    ok('MEASURED (approve): the exact decision:gate:<gate_id> node exists and is confirmed');
+
+    console.log('MEASURED: sourced_from_edges_to_anchor=' + sourcedFromToAnchor + ' confirmed_decision_gate_nodes=' + confirmedDecisions);
+
+    roomDbMod.closeRoomDb(verifyDb);
+    cleanup(roomDir);
+  }
+
+  // ---------------------------------------------------------------------
+  // Task 2 leg B: reject -- both counts stay at 0.
+  // ---------------------------------------------------------------------
+  {
+    const roomDir = makeRoomDir('345-07-mcp-reject-');
+    const db = openFixtureDb(roomDir);
+    jtbdState.setGoal(roomDir, { jtbd: 'decide-pursue', rung: 'IllDefined', parent_question: 'should we pursue this now' });
+    const card = await strategyCard.buildStrategyCard({ db: db, roomDir: roomDir, roomSlug: 'mcp-reject-room', candidates: [] });
+    assert.ok(card);
+    roomDbMod.closeRoomDb(db);
+
+    const server = makeFakeServer();
+    gateTool.register(server, { fallbackRoomDir: roomDir });
+    const gateRenderTool = server._registered.find((r) => r.name === 'gate_render');
+    const gateAnswerTool = server._registered.find((r) => r.name === 'gate_answer');
+
+    const rendered = await callTool(gateRenderTool, {
+      header: card.header, kind: card.kind, select_mode: 'single',
+      options: card.options, subject_node_id: card.subject_node_id, evidence_node_ids: card.evidence_node_ids,
+    }, FAKE_SESSION_ID);
+    assert.equal(rendered.body.ok, true);
+
+    const answered = await callTool(gateAnswerTool, { gate_id: rendered.body.gate_id, chosen: ['keep'], verdict: 'reject' }, FAKE_SESSION_ID);
+    assert.equal(answered.body.ok, true);
+    assert.equal(answered.body.ratified, false);
+    assert.equal('strategy_ratification' in answered.body, false);
+    ok('gate_answer (reject leg): ratified is false, no strategy_ratification key on the response (the approve-only branch never runs)');
+
+    const verifyDb = openFixtureDb(roomDir);
+    assert.equal(sourcedFromEdgeCountAll(verifyDb), 0);
+    assert.equal(decisionGateCountAll(verifyDb), 0);
+    ok('MEASURED (reject): 0 SOURCED_FROM edges, 0 decision:gate:* nodes');
+    const anchorRow = nodeRow(verifyDb, card.subject_node_id);
+    assert.equal(anchorRow.review_status, 'proposed');
+    ok('MEASURED (reject): the goal anchor stays at review_status=proposed');
+
+    roomDbMod.closeRoomDb(verifyDb);
+    cleanup(roomDir);
+  }
+
+  // ---------------------------------------------------------------------
+  // Task 2 leg C: a non-strategy card's gate_answer response is unchanged
+  // -- no strategy_ratification key, byte-identical shape to pre-plan.
+  // ---------------------------------------------------------------------
+  {
+    const roomDir = makeRoomDir('345-07-mcp-nonstrategy-');
+    const db = openFixtureDb(roomDir);
+    roomDbMod.closeRoomDb(db);
+
+    const server = makeFakeServer();
+    gateTool.register(server, { fallbackRoomDir: roomDir });
+    const gateRenderTool = server._registered.find((r) => r.name === 'gate_render');
+    const gateAnswerTool = server._registered.find((r) => r.name === 'gate_answer');
+
+    const rendered = await callTool(gateRenderTool, {
+      header: 'A generic decision', kind: 'general', select_mode: 'single',
+      options: [{ id: 'opt-a', label: 'Option A' }],
+    }, FAKE_SESSION_ID);
+    assert.equal(rendered.body.ok, true);
+
+    const answered = await callTool(gateAnswerTool, { gate_id: rendered.body.gate_id, chosen: ['opt-a'], verdict: 'approve' }, FAKE_SESSION_ID);
+    assert.equal(answered.body.ok, true);
+    assert.equal('strategy_ratification' in answered.body, false);
+    assert.ok('reasoning_node' in answered.body, 'a non-strategy approve still carries reasoning_node, unchanged from before this plan');
+    ok('gate_answer on a non-strategy card: no strategy_ratification key; reasoning_node still present, response shape unchanged');
+
+    cleanup(roomDir);
+  }
+
+  // ---------------------------------------------------------------------
+  // Task 2 leg D: a thrown ratifyGoalProposal never flips response.ok.
+  // ---------------------------------------------------------------------
+  {
+    const roomDir = makeRoomDir('345-07-mcp-throw-');
+    const db = openFixtureDb(roomDir);
+    jtbdState.setGoal(roomDir, { jtbd: 'decide-pursue', rung: 'IllDefined', parent_question: 'should we pursue this now' });
+    const card = await strategyCard.buildStrategyCard({ db: db, roomDir: roomDir, roomSlug: 'mcp-throw-room', candidates: [] });
+    assert.ok(card);
+    roomDbMod.closeRoomDb(db);
+
+    const server = makeFakeServer();
+    gateTool.register(server, { fallbackRoomDir: roomDir });
+    const gateRenderTool = server._registered.find((r) => r.name === 'gate_render');
+    const gateAnswerTool = server._registered.find((r) => r.name === 'gate_answer');
+
+    const rendered = await callTool(gateRenderTool, {
+      header: card.header, kind: card.kind, select_mode: 'single',
+      options: card.options, subject_node_id: card.subject_node_id, evidence_node_ids: card.evidence_node_ids,
+    }, FAKE_SESSION_ID);
+    assert.equal(rendered.body.ok, true);
+
+    // Mutate the SAME cached module object gate.cjs itself required (Node's
+    // module cache is keyed by resolved path -- goalGate here IS the object
+    // lib/mcp/tools/gate.cjs holds a reference to), restored in a finally.
+    const originalRatify = goalGate.ratifyGoalProposal;
+    goalGate.ratifyGoalProposal = () => { throw new Error('deliberate test fault'); };
+    let answered;
+    try {
+      answered = await callTool(gateAnswerTool, { gate_id: rendered.body.gate_id, chosen: ['keep'], verdict: 'approve' }, FAKE_SESSION_ID);
+    } finally {
+      goalGate.ratifyGoalProposal = originalRatify;
+    }
+    assert.equal(answered.body.ok, true, 'response.ok must stay true even when ratifyGoalProposal throws');
+    assert.ok(answered.body.strategy_ratification, 'a strategy_ratification key must still be present, recording the fault');
+    assert.equal(answered.body.strategy_ratification.ok, false);
+    assert.equal(answered.body.strategy_ratification.reason, 'goal_ratification_threw');
+    ok('gate_answer: a thrown ratifyGoalProposal is caught, response.ok stays true, strategy_ratification records the fault');
+
+    cleanup(roomDir);
+  }
+
   console.log('');
   console.log('Checks: ' + checks + '  Skipped: ' + skipped);
   console.log('PASS test-345-gate-ratify.cjs');
