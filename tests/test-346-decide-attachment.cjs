@@ -273,7 +273,7 @@ ok('applyArbitration re-ranks no sensor reach: its own signature carries no reac
 
 ok('exactly two applyArbitration(decision, trace, arbitrationResult) call sites, and exactly one function definition (source scan)', function () {
   const src = fs.readFileSync(ENGINE_PATH, 'utf8');
-  const callSites = src.match(/applyArbitration\(decision, trace, arbitrationResult\)/g) || [];
+  const callSites = src.match(/applyArbitration\(decision, trace, arbitrationResult\);/g) || [];
   assert.equal(callSites.length, 2);
   const fnDefs = src.match(/^function applyArbitration/gm) || [];
   assert.equal(fnDefs.length, 1);
