@@ -1792,21 +1792,151 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       1,032, `WHITESPACE_DETECTED` 215, `HSI_CONNECTION` 47); the fleet has drifted since
       2026-09-14 exactly as `docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` Section 3 warns it would.
 
+### Phase 347 - The shared-state contract for chains (SHARED family)
+
+These thirteen IDs were minted in `docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md`'s Section 7
+table (2026-09-14), scoped to Phase 347 only: the typed `chain_state` room-graph record that
+flows along every chain edge, the per-node context focus knob, declared routing (on_pass/on_fail/
+fan_out/fan_in), the id-based resume successor, and the reviewer-is-never-the-worker rule.
+Registered here at phase close by `347-12-PLAN.md`, per the Phase 254/257/265/267.2/267.3/270/
+272/274/276/339/275/340/344 precedent.
+
+- [x] **SHARED-01**: A `chain_state` node kind is written exclusively through
+      `lib/core/navigation/chain-state.cjs`, which calls `node-insert.cjs::insertNode` and writes
+      its anchor through `edges.cjs::writeEdge`; a record with no resolvable subject node returns
+      `{ok:false, reason:'missing_structural_anchor'}` and mints no node, and the module issues no
+      raw SQL against `nodes` or `edges`. Measured: `node tests/test-347-chain-state-writer.cjs`
+      exits 0 (18 checks passed, 2026-09-15) across all three live schema variants; `node
+      tests/test-347-chokepoint-fence.cjs` exits 0 (PASS), confirming zero raw SQL and both
+      chokepoints required; `bash tests/run-all-347.sh` reports `PASS=34 FAIL=0 SKIP=0
+      EXPECTED-RED=0` (2026-09-15).
+
+- [x] **SHARED-02**: A test reconstructs each chain step's input from `room.db` alone, with no
+      trace object and no closure, and deep-equals it against the trace `runChain` returned; a
+      deleted mid-chain record makes reconstruction report `unreconstructible` with the missing
+      step index, never an empty success. Measured: `node tests/test-347-reconstructible.cjs`
+      exits 0 (6 checks passed, 2026-09-15), including the deleted-mid-chain-record negative leg
+      naming the missing step index and the dangling-`FEEDS_INTO`-endpoint leg, both against the
+      real production `runChain` wiring, not a stub `onStep`.
+
+- [x] **SHARED-03**: Every `runChain` step's `chain_output` is persisted as a `chain_state`
+      record on both the synchronous and the asynchronous path before it folds into the next
+      step's `previousOutput`, as a PROJECTION of `pipeline-state.json`, which remains the
+      declared sole chain-state truth for resume position. Measured: `node
+      tests/test-347-record-per-step.cjs` exits 0 (15 checks passed, 2026-09-15) across
+      wide/mid/legacy schema variants on both `runChain` paths; `grep -n "PROJECTION"
+      lib/mcp/pipeline-state.cjs` confirms the WD-347-2 paragraph is present under the SOLE
+      CHAIN-STATE SOURCE OF TRUTH header; `node tests/test-347-projection-precedence.cjs` exits 0
+      (3 checks passed), the store winning even when the graph runs ahead.
+
+- [x] **SHARED-04**: On the live MCP path `dispatchStep` reads the predecessor step's
+      `chain_state` record through `navigation.cjs` and carries it into its returned
+      `chain_output`, so step N+1 receives step N's typed record rather than conversation prose.
+      Measured: `node tests/test-347-dispatcher-reads-projection.cjs` exits 0 (35 checks passed
+      per `347-05-SUMMARY.md`, re-confirmed exiting 0 on 2026-09-15), proving both dispatch tiers
+      carry `shared_state` with `content_is_data:true` and that a stored-prompt-injection sentinel
+      never leaks outside `shared_state.body`; `347-05-DECISION.md` records the navigator's
+      `approve-as-scoped` ruling that both tiers, not tier 2 only, carry the field.
+
+- [x] **SHARED-05**: `getRoomContext` accepts `options.focusNodeId` and `context_assemble`
+      exposes it as `focus_node_id`; when supplied, `_meta.seedNodeId` echoes it and
+      `resolveSeedNode` is not called, and a call omitting it returns a byte-identical body to the
+      pre-change path. Measured: `node tests/test-347-context-focus.cjs` exits 0 (6 checks passed,
+      2026-09-15), including the wire-level zod empty-string rejection and the byte-identical
+      omission leg.
+
+- [x] **SHARED-06**: The resolved chain step object accepts optional `on_pass`, `on_fail`,
+      `fan_out`, `fan_in`, `reviewer` and `context` keys, `runChain` resolves its successor
+      through one named `resolveSuccessor` function rather than the `i + 1` literal, and a step
+      carrying none of the keys produces a trace byte-identical to today's. Measured: `node
+      tests/test-347-routing-floor.cjs` exits 0 (5 checks passed) and `node
+      tests/test-347-routing-shapes.cjs` exits 0 (5 checks passed), both 2026-09-15, including the
+      additive-floor proof (no `routing_warnings` property on an undeclared chain) and the
+      phantom-successor-completes-cleanly leg.
+
+- [x] **SHARED-07**: `chain_run`'s resume path resolves the remainder by step id through the same
+      `resolveSuccessor`, never through `list.slice(idx + 1)`, and a halt inside a non-linear
+      route resumes on the declared successor. Measured: `node tests/test-347-resume-nonlinear.cjs`
+      exits 0 (8 checks passed, 2026-09-15); `grep -c "slice(idx + 1)" lib/mcp/tools/chain.cjs`
+      returns 0; `grep -c "resolveSuccessor" lib/mcp/tools/chain.cjs` returns 8.
+
+- [x] **SHARED-08**: Fan-out and fan-in are DECLARED by the chain executor and EXECUTED by
+      `lib/core/bono/cell-fanout.cjs` through a lazy require, so D-164-S2 stays unreversed and
+      exactly one fan-out engine ships; a conditional back-edge is bounded by the EXEC-06
+      `maxSteps` brake and the module header states that a bounded back-edge is not a
+      re-litigation of decision 166 B3. Measured: `node tests/test-347-backedge-bound.cjs` exits 0
+      (1 check passed) and `node tests/test-347-fanout-delegation.cjs` exits 0 (8 checks passed),
+      both 2026-09-15, including the two-directional D-164-S2 source scan and the no-cap-authority
+      grep; `git diff --numstat lib/core/bono/cell-fanout.cjs` against the phase's start commit is
+      empty (byte-unchanged).
+
+- [x] **SHARED-09**: `visualize-chain` renders the real resolved chain and the real recorded run,
+      including halt nodes, conditional arrows, the fan-out subgraph and the reviewer node; the
+      hardcoded six-step literal is deleted from `lib/mcp/tool-router.cjs`, and a room with no
+      recorded run gets an honest empty statement rather than a fabricated pending list. Measured:
+      `node tests/test-347-visualize-real-chain.cjs` exits 0 (14 checks passed, 2026-09-15),
+      covering both the renderer extension and the router's real-run data source, plus the
+      source-scan proof the hardcoded `Diagnose/Framework/Apply/File/Cross-ref/Graph Update`
+      literal is gone.
+
+- [x] **SHARED-10**: The reviewer is never the worker. A material step is reviewed by the
+      navigator at the gate on all three surfaces; an `autonomous_safe` step may declare an
+      independent reviewer subagent, dispatched host-side on the Claude Code CLI only, and on
+      Claude Desktop and Cowork the same request returns an honest `requires_host_dispatch`
+      directive with `quality: null`, never a fabricated verdict. Measured: `node
+      tests/test-347-reviewer-not-worker.cjs` exits 0 (9/9 checks passed) and `node
+      tests/test-347-reviewer-honesty.cjs` exits 0 (5/5 checks passed), both 2026-09-15, including
+      the same-identity-or-unattributed-verdict refusal and the null-verdict directive on both
+      dispatch tiers; `node tests/test-chain-executor-fable-mode.cjs` exits 0 (7/7, unregressed).
+
+- [x] **SHARED-11**: The five-perspective meeting fan-out writes each worker's returned rows as
+      `chain_state` records of kind `notes` before consolidation, and the orchestrator reads them
+      back through `navigation.cjs` rather than from its own context window, with each extractor
+      still receiving the FULL transcript. Measured: `node tests/test-347-meeting-fanout-records.cjs`
+      exits 0 (16 checks passed, 2026-09-15) across wide/mid/legacy schema variants, including the
+      negation-aware full-transcript recall guard and the single-writer proof that
+      `writeClaimNode` still fires exactly once per consolidated claim.
+
+- [x] **SHARED-12**: Every surface Phase 347 authors or modifies that carries frontmatter
+      declares `layer: graph` from the Phase 344 closed vocabulary, proven by
+      `tests/test-347-layer-graph-declaration.cjs`. Measured: `node
+      tests/test-347-layer-graph-declaration.cjs` reports `checked=2 skipped=0` (2026-09-15): both
+      `agents/chain-step-reviewer.md` (347-10) and `commands/file-meeting.md` (347-11) declare
+      `layer: graph`.
+
+- [x] **SHARED-13**: `bash tests/run-all-347.sh` runs green with zero FAIL, `node
+      scripts/doctor.cjs --acceptance` and `node scripts/run-harness.cjs --check` are unregressed,
+      every SHARED id is registered in `.planning/REQUIREMENTS.md` with measured proof, and the
+      phase record lands in `docs/OPEN-HANDOFFS.md` and in the rethinking-mindrianos research
+      room. Measured (this session, 2026-09-15): `bash tests/run-all-347.sh` reports `PASS=34
+      FAIL=0 SKIP=0 EXPECTED-RED=0`; `node scripts/doctor.cjs --acceptance` reports "Acceptance
+      full: 20/20 points passed"; `node scripts/run-harness.cjs --check` reports "Totals: 9 pass,
+      0 fail, 3 ghost, 2 declared, 14 total" (both unregressed against the Phase 343/344
+      baselines); `node scripts/check-substrate.cjs`, `node scripts/build-connector-registry.cjs
+      --check`, `node scripts/build-orchestration-projection.cjs --check`, `node
+      scripts/build-command-registry.cjs --check` and `node scripts/check-render-coverage.cjs` all
+      exit 0. One pre-existing, out-of-scope staleness noted honestly rather than fixed: `node
+      scripts/backfill-layer.cjs --check` reports 2 surfaces (`commands/file-meeting.md`,
+      `skills/file-meeting/SKILL.md`) would change, because 347-11's own layer flip (`loop` ->
+      `graph`, closing SHARED-12) postdates Phase 344's ratified `data/layer-backfill.json` map;
+      this is Phase 344's own generated-artifact staleness, not a SHARED-13 regression, and is
+      named as a follow-on in `docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md`.
+
 ## Traceability
 
-216 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+229 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
-(Phase 343). All minted
+(Phase 343), plus SHARED-01..13 (Phase 347). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
 (all minted 2026-09-03), ICML-01..16 (minted 2026-09-04), CANON-01..10 (minted 2026-09-05), and
-LAYER-01..16 (minted 2026-09-14):
+LAYER-01..16 and SHARED-01..13 (both minted 2026-09-14):
 RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -1845,10 +1975,14 @@ with measured proof at phase close by `344-09-PLAN.md`.
 CENSUS-01..17 were minted in the Phase 343 plan set (2026-09-14), scoped to Phase 343 only, and
 are registered here at plan time as `- [ ]` rows to be closed with measured proof by
 `343-09-PLAN.md`, per the Phase 254/257/339 precedent.
-Roadmap phases must map all 216 active requirements with no orphans.
+SHARED-01..13 were minted in `docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md`'s Section 7 table
+(2026-09-14), ratifying `347-RESEARCH.md`'s proposed `SHARED-` family, scoped to Phase 347 only,
+and are registered here at phase close by `347-12-PLAN.md` per the Phase 254/257/265/267.2/267.3/
+270/272/274/276/339/275/340/344 precedent.
+Roadmap phases must map all 229 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP and CANON
+FLIP, CANON and SHARED
 families
 alike (the
 Phase 266 and 269
