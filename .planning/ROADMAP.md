@@ -736,14 +736,14 @@ Plans:
 **Goal:** The room's goal carries its parent question and its problem-type rung, a slower GRAPH-layer watcher proposes a re-aim at a Decision Gate on a throttled cadence rather than nagging, the navigator's choice is written as a typed decision node with SOURCED_FROM provenance to a real payload-free anchor, every execution reach records the goal version it ran under, and the reframe has a named owner in doctrine.
 **Requirements**: STRAT-01 .. STRAT-18
 **Depends on:** Phase 344
-**Plans:** 3/9 plans executed
+**Plans:** 4/9 plans executed
 
 Plans:
 
 - [x] 345-01-PLAN.md - mint STRAT-01..18 with nine reversible working decisions, the single home for the persisted rung vocabulary, and the phase test aggregator with the mcp__theo__ and em-dash tripwires
 - [x] 345-02-PLAN.md - the goal record: a top-level goal key on jtbd-state.json carried through every writer, with setGoal as the only writer and SCHEMA_VERSION unchanged
 - [x] 345-03-PLAN.md - the cadence and stall counters over memory_event, the three-mechanism cool-down, two net-new event types, and the null-default stall input named for Phase 346
-- [ ] 345-04-PLAN.md - sensorStrategyReach written, pure, synchronous and registered nowhere, with one named test per refusal branch
+- [x] 345-04-PLAN.md - sensorStrategyReach written, pure, synchronous and registered nowhere, with one named test per refusal branch
 - [ ] 345-05-PLAN.md - the material step: one blocking navigator checkpoint, then the seven-place SENS-19 lockstep with place 7 pinned from the far end through decide()
 - [ ] 345-06-PLAN.md - the idempotent payload-free goal anchor minted before the card, the local climb with an optional Theo ladder render, and the four-option proposal card
 - [ ] 345-07-PLAN.md - the gate ratification on both surfaces: the single writer of a ratified goal, and the fixture proof that the fleet-wide zero SOURCED_FROM edges moves to one

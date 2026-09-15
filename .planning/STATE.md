@@ -4354,7 +4354,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 3/9 complete (345-01, 02, 03); 345-04 running; 345-05 navigator checkpoint next
+Plan: 4/9 complete (345-01, 02, 03, 04); 345-05 running under the navigator's ratify-all
+  ruling (2026-09-15: WD-1 cadence 40/12/20, WD-4 reach id contradiction + pull_back, WD-9
+  Group A); the strategy sensor is SENS-20 (345-04, 19/19 + Part 8 14/14; run-all-345
+  PASS=12 FAIL=0 SKIP=7), registered nowhere until 345-05.
 Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
   vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
   strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
