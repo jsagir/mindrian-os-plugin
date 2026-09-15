@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 343-09 closed Phase 343 (CENSUS-16): all 17 CENSUS rows measured-closed, decision ledger settled RULED/STANDING, validation map filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated in docs/OPEN-HANDOFFS.md"
-stopped_at: Phase 347 plans 01-11 complete; 347-12 pending
-last_updated: "2026-09-15T00:52:00.000Z"
-last_activity: "2026-09-15 - 343-09 completed (phase close-out: ten-command gate sweep run, all 17 CENSUS rows measured-closed, decision ledger settled, 343-VALIDATION.md filled, docs/343-CLOSE-OUT.md filed, Phase 273 handoff dated)"
+status: "Plan 347-12 closed Phase 347 (SHARED-13): all 13 SHARED rows measured-closed, decision ledger settled STANDING, validation map filled, docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md filed, Phase 348 handoff dated in docs/OPEN-HANDOFFS.md"
+stopped_at: Completed 347-12-PLAN.md
+last_updated: "2026-09-15T08:58:30.953Z"
+last_activity: "2026-09-15 - 347-12 completed (phase close-out: full gate sweep run, all 13 SHARED rows measured-closed, decision ledger settled STANDING, 347-VALIDATION.md filled, docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md filed, Phase 348 handoff dated)"
 progress:
   total_phases: 98
-  completed_phases: 30
+  completed_phases: 31
   total_plans: 274
-  completed_plans: 239
-  percent: 87
+  completed_plans: 251
+  percent: 92
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4353,17 +4353,25 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 347 (the-shared-state-contract-for-chains-graph-engineering-learn) - IN PROGRESS
-Plan: 11/12 complete (347-01..11); waves 5-7 closed 2026-09-15; 347-12 (phase close) next
-Status: navigator ruled approve-as-scoped at the 347-05 checkpoint (347-05-DECISION.md): the
-  dispatcher reads the predecessor chain_state record onto shared_state on both tiers, framed as
-  data (347-05). Six routing keys through composeWorkflow, resolveSuccessor, bounded back-edge,
-  fan-out declared on the chain and run by the shipped engine (347-07). Resume after a gate by
-  step id via resolveSuccessor, no slice (347-08). visualize_chain renders the newest recorded
-  run; hardcoded literal deleted (347-09). Read-only chain-step-reviewer agent, identity guard
-  refusing same-identity verdicts, honest three-surface directive (347-10). Generated files
-  re-emitted after the wave (48294b80). Gates: bash tests/run-all-347.sh PASS=34 FAIL=0 SKIP=0;
-  test-298-contract-parity 20/20; doctor --acceptance 20/20.
+Phase: 347 (the-shared-state-contract-for-chains-graph-engineering-learn) - CLOSED
+Plan: 12/12 complete (347-01..12) - PHASE 347 CLOSED, 2026-09-15
+Status: Plan 347-12 closed the phase (SHARED-13): ran the full gate sweep (bash tests/run-all-347.sh
+  PASS=34 FAIL=0 SKIP=0 EXPECTED-RED=0; doctor --acceptance 20/20; run-harness --check 9 pass/0
+  fail/3 ghost/2 declared; test-298-contract-parity 20/20, unregressed) and closed all thirteen
+  SHARED-01..13 requirement rows in .planning/REQUIREMENTS.md with a Measured: clause naming a
+  command and its observed output. Settled docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md's
+  Section 7 ledger: all 5 WD-347 rows flip from bare WORKING to STANDING (shipped unchallenged;
+  the phase's only checkpoint, 347-05 approve-as-scoped, ruled on the dispatcher's own tier scope
+  and explicitly left WD-347-1/2 unchanged, so zero rows are RULED). Filled 347-VALIDATION.md
+  (28 task rows, nyquist_compliant: true) and filed docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md
+  plus a dated Phase 347 entry in docs/OPEN-HANDOFFS.md naming what Phase 348 inherits. One
+  pre-existing, out-of-scope gap named honestly, not fixed: node scripts/backfill-layer.cjs --check
+  reports commands/file-meeting.md / skills/file-meeting/SKILL.md stale against Phase 344's own
+  ratified data/layer-backfill.json map (347-11's legitimate layer flip postdates that map);
+  logged in .planning/phases/347-.../deferred-items.md. The rethinking-mindrianos room write was
+  correctly refused by write-scope-check (active room idem-room, same refusal Phase 344 hit) and
+  not routed around; the plugin-side mirror landed at
+  ~/MindrianOS/research/2026-09-15-phase-347-shared-state-contract.md instead.
 Previously: Phase 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
 Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
 Verified: 2026-09-15 gsd-verifier passed (17/17 CENSUS, 5/5 goal truths re-run live; run-all-343
