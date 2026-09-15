@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 346-03-PLAN.md - Wave 2 of 6
-last_updated: "2026-09-15T19:36:44.677Z"
-last_activity: 2026-09-15 -- Phase 346 execution, plan 03 complete
+stopped_at: Completed 346-04-PLAN.md - Wave 3 of 6
+last_updated: "2026-09-15T19:55:40.093Z"
+last_activity: 2026-09-15 -- Phase 346 execution, plan 04 complete
 progress:
   total_phases: 99
   completed_phases: 31
@@ -13,6 +13,28 @@ progress:
   completed_plans: 264
   percent: 96
 ---
+
+<!-- NOTE (346-04 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` correctly
+     computed `completed: 264` once 346-04-SUMMARY.md existed on disk, but `state.record-metric`
+     (invoked after, with the required `--phase/--plan/--duration` flag syntax rather than
+     positional args) re-persisted a stale 346-02-era frontmatter snapshot in the same write that
+     landed its own correct Performance Metrics row: `status` was clobbered to a raw truncated
+     slice of a 346-02 Current Position body sentence, and `stopped_at`/`percent` were reverted to
+     the 346-02 snapshot (stopped_at -> "Completed 346-02-PLAN.md", percent -> 31, the
+     phase-31-of-99 raw phase count rather than the plan-completion percentage). `completed_plans`
+     itself stayed correct at 264 throughout. Hand-corrected once, after all calls landed: status
+     -> planning, stopped_at -> this plan's completion line, percent -> 96 (264/274, rounded);
+     left total_phases/completed_phases at 99/31 unchanged since Phase 346 has not closed (4 of 8
+     plans done). A second, independent clobber then fired on `state.add-decision` (status ->
+     completed, percent -> 31 again, same stale 346-02-era snapshot), plus that same call also
+     wrote its own decision-log entry with an unfilled `[Phase ?]` placeholder and a literal
+     em-dash separator instead of the requested rationale hyphen; hand-corrected the frontmatter a
+     second time and fixed the decision-log line in place ([Phase 346], hyphen not em-dash) rather
+     than re-running the command. Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (346-03 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4489,8 +4511,32 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 346 (the-arbitration-node-graph-engineering-learning-3c-conflict-) - EXECUTING
-Plan: 346-02 complete (2/8 plans)
-Status: Plan 346-02 shipped lib/core/arbitration.cjs's naming fence, detectEscapeHatch (the
+Plan: 346-04 complete (4/8 plans)
+Status: Plan 346-04 completed lib/core/arbitration.cjs with resolveArbitration: one call
+  now returns one ranked result carrying all three axes (enforcement, delivery, autonomy),
+  reusing decision-axes.resolveDecisionMode and directive-envelope.selectMode verbatim per
+  Canon Part 7, composing them with the 346-02 enforcement ladder. Censuses the six roadmap
+  inputs by shape (never presence alone), computes floors_applied (the two unconditional
+  floors plus cold_start_guided plus a validated floor_kind), and clamps persona to
+  ROLE_LEVELS so free prose can never reach a rationale string. A guarded safeGet accessor
+  keeps a single hostile census key local to inputs_missing instead of collapsing the whole
+  result. Three TDD/auto task commits, 4 commits total (023946d8/2d8f28f5 Task 1,
+  7eb2267e Task 2, f3dcc096 Task 3). tests/test-346-arbitration-resolver.cjs (27
+  assertions, incl. a 120-case cold-start sweep and a hostile-input matrix),
+  tests/test-346-part8-enum-only.cjs (1080-case closed-vocabulary scan, zero prose leaks),
+  tests/test-346-no-second-brain.cjs (comment-stripped source scan, three-module require
+  set). bash tests/run-all-346.sh PASS=9 FAIL=0 SKIP=3. git diff hooks/hooks.json +
+  navigation-engine.cjs + navigation.cjs empty (still a leaf). doctor --acceptance 20/20.
+  Two Rule-1 deviations: both stale-arithmetic literals in the plan's own text (a
+  cold-start sweep count of 160 vs the measured 120; "five passing legs" vs the measured
+  nine), neither a behavior gap. Full detail in 346-04-SUMMARY.md.
+Previously: Plan 346-03 complete -- classified twelve conversation-time rules and six
+  prose mandates in data/arbitration-rule-catalogue.json, read hmi-compliance-poll.cjs and
+  mva-detect.cjs from source (both observe-only, neither blocks), and gave the arbiter its
+  own honest-ghost harness policy (data/harness-policies/gate-arbitration-decision.json,
+  rung declared, runner null). Two Rule-1 deviations resolving internal plan-text
+  contradictions. Full detail in 346-03-SUMMARY.md.
+Previously: Plan 346-02 shipped lib/core/arbitration.cjs's naming fence, detectEscapeHatch (the
   missing producer for selectMode's highest-precedence rule on Claude Code, keys byte-identical
   to directive-envelope.cjs:42), and resolveEnforcement (a nine-rule first-match ladder over
   ENFORCEMENT_VALUES enforce|judge|not-applicable, each judge rationale traced to a dated WATCH
@@ -6101,6 +6147,7 @@ Progress: [█████████░] 92%
 | Phase 346 P01 | 11min | 3 tasks | 5 files |
 | Phase 346 P02 | 12min | 2 tasks | 2 files |
 | Phase 346 P03 | 35min | 3 tasks | 4 files |
+| Phase 346 P04 | ~40min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7700,6 +7747,7 @@ Progress: [█████████░] 92%
 - [Phase 346]: Used the live active-requirement count (247 to 263), not the plan's stale 199 to 215 literal - SHARED-01..13 and STRAT-01..18 were minted by intervening phases after 346-01-PLAN.md was authored, so the plan's baseline had gone stale by execute time
 - [Phase ?]: 346-03: binding-gate-injection mechanism uses the literal hooks.json dispatch path (hooks/run-hook.cmd intent-classifier), not scripts/intent-classifier.cjs, to keep the enumerate-from-disk partition honest about what actually dispatches — The actual chain is run-hook.cmd -> bash wrapper -> the .cjs file; the specific file and emitBindingGate are still named in the row's reason text
 - [Phase ?]: 346-03: hmi-compliance-poll classified floor:none arbiter_input:true (not plan's literal false), resolving a contradiction between the plan's universal floor-discipline rule and its row-9 guidance — arbiter_input:true is read as structural (weighted-input side of the dichotomy), independent of current nonzero weight; the row's own reason states the practical impact is inert
+- [Phase 346]: 346-04: cold-start sweep count is the live-computed 3x5x4x2=120, not the plan's hand-typed 160; used the measured value per WD-11 precedent - the four sweep dimensions the plan's own behavior block specifies multiply to 120; the acceptance-criteria script's 160 literal is an arithmetic error, verified by running it directly
 
 ### Pending Todos
 
@@ -7839,8 +7887,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T19:35:35.898Z
-Stopped at: Completed 346-02-PLAN.md - Wave 2 of 6
+Last session: 2026-09-15T19:54:03.057Z
+Stopped at: Completed 346-04-PLAN.md - Wave 3 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
