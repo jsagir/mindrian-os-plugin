@@ -3,16 +3,37 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 346-07-PLAN.md - Wave 5 of 6
-last_updated: "2026-09-15T21:04:31.109Z"
-last_activity: 2026-09-16 -- Phase 346 execution, plan 07 complete
+stopped_at: Completed 346-08-PLAN.md - Phase 346 CLOSED (8/8 plans)
+last_updated: "2026-09-16T01:30:00.000Z"
+last_activity: 2026-09-16 -- Phase 346 CLOSED (8/8 plans complete, all ARB-01..16 requirements finalized with Measured proof); next is planning Phase 348 from scratch
 progress:
   total_phases: 99
-  completed_phases: 31
+  completed_phases: 32
   total_plans: 274
-  completed_plans: 267
-  percent: 97
+  completed_plans: 268
+  percent: 98
 ---
+
+<!-- NOTE (346-08 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright, same as every prior plan this session. `state.
+     update-progress` correctly computed `completed: 268` (98%). `state.record-metric` (flag
+     syntax) landed its own correct Performance Metrics row but ALSO re-persisted a stale
+     346-05-era frontmatter snapshot in the same write: `status` clobbered to `completed`,
+     `stopped_at`/`last_activity` reverted to the "Completed 346-07-PLAN.md" / "Phase 346
+     execution started" strings, and `percent` reverted to `32` (a raw phase-count reading, not
+     the plan-completion percentage) -- `completed_phases` happened to land on the correct
+     value (32) by coincidence of the stale snapshot's own arithmetic, not by the tool
+     computing this phase's actual close. `state.add-decision` (with `--summary`) repeated the
+     documented `[Phase ?]` placeholder bug, fixed in place to `[Phase 346]`. `state.
+     record-session` updated only `Last session`, correctly, leaving the frontmatter clobber
+     from `record-metric` in place. Hand-corrected once, after all calls landed: status ->
+     planning (Phase 346 is now CLOSED, but the milestone itself is mid-flight and the next
+     step is planning Phase 348), stopped_at -> "Completed 346-08-PLAN.md - Phase 346 CLOSED
+     (8/8 plans)", last_activity -> this plan's completion line, percent -> 98 (268/274,
+     matching `state.update-progress`'s own correct computation), completed_phases -> 32 (31
+     prior + Phase 346 now closing). Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (346-07 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6213,6 +6234,7 @@ Progress: [█████████░] 92%
 | Phase 346 P05 | 25min | 3 tasks | 4 files |
 | Phase 346 P06 | 30min | 3 tasks | 2 files |
 | Phase 346 P07 | 35min | 3 tasks | 4 files |
+| Phase 346 P08 | 50min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7816,6 +7838,7 @@ Progress: [█████████░] 92%
 - [Phase 346]: 346-05: fixed a real circular-require (navigation.cjs -> arbitration-log.cjs -> arbitration.cjs -> decision-axes.cjs -> navigation-engine.cjs -> navigation.cjs) via a lazy Object.defineProperty getter re-export, preserving strict reference equality - a top-level require as the plan literally suggested would have permanently bound a stale empty module.exports object in one require order
 - [Phase 346]: 346-06: measured misfire count is 8 (not the planning brief's stated 9), recorded with derivation in the fixture file rather than padded
 - [Phase 346]: Phase 346 Plan 07: applyArbitration wired on both decide() return paths using the shipped applyProjectionLift additive-trace convention verbatim; a null result is a full no-op, proven byte-identical to pre-346 via a 60-case non-interference sweep plus a mechanical determinism proof under a stubbed resolver fault.
+- [Phase 346]: Phase 346 closed: all sixteen ARB requirements finalized with Measured proof; the arbiter is live on decide() behind a ratified navigator checkpoint
 
 ### Pending Todos
 
@@ -7955,7 +7978,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T21:04:31.050Z
+Last session: 2026-09-15T21:32:26.943Z
 Stopped at: Completed 346-07-PLAN.md - Wave 5 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
