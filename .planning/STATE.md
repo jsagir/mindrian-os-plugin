@@ -2,17 +2,37 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 345-07 wired gate_answer's approve branch to goal-gate ratification, measuring the fleet-wide SOURCED_FROM/decision-node zero moving to one on a fixture room, and stamped every execution reach with the goal version it ran under on both surfaces"
-stopped_at: Completed 345-07-PLAN.md
-last_updated: "2026-09-15T13:30:44.341Z"
-last_activity: "2026-09-15 - 345-07 completed (goal-gate.cjs ratifyGoalProposal, one additive gate.cjs approve branch, strategy_ratification response key, intent-classifier.cjs goal_version/anchor_node_id/strategy_proposed stamps; MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1; run-all-345.sh PASS=18 FAIL=0 SKIP=1)"
+status: "Plan 345-08 amended the anti-circular rule in place to name the strategy node as the room-level reframe owner (observing voice, no reach count), shipped byte-identical across both dist/ skill mirrors, corrected the two section contracts that read the JTBD to point at the persisted goal record, and fixed the R6-BLOCKING rung-vocabulary contradiction in problem-definition.md before this phase's first ratified goal can land"
+stopped_at: Completed 345-08-PLAN.md
+last_updated: "2026-09-15T13:44:04.152Z"
+last_activity: "2026-09-15 - 345-08 completed (SKILL.md anti-circular rule amended in place naming the strategy node, both dist/ mirrors hand-copied byte-identical, problem-definition.md/strategy.md gained goal.rung/goal.parent_question Inputs pointers, problem-definition.md Process step 2 corrected to the persisted flat four-rung vocabulary; tests/test-345-doctrine.cjs 11/11, run-all-345.sh PASS=19 FAIL=0 SKIP=0, doctor.cjs --acceptance 20/20)"
 progress:
   total_phases: 98
   completed_phases: 31
   total_plans: 274
-  completed_plans: 258
-  percent: 94
+  completed_plans: 259
+  percent: 95
 ---
+
+<!-- NOTE (345-08 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"); the body's own "## Current Position" section was hand-corrected instead
+     (345-07 -> 345-08 summary). `state.update-progress` correctly computed `percent: 95`
+     (completed_plans 259 / total_plans 274) in its own returned JSON but persisted a stale,
+     unrelated 344-09-era snapshot into the frontmatter (status/stopped_at/last_activity
+     regressed, total_phases/completed_phases swapped to 99/30, percent written as 30, not the
+     95 the same call just computed) -- hand-corrected all six frontmatter fields. The SAME
+     clobber recurred independently after `state.record-metric`, after `state.add-decision`, and
+     after `state.record-session`, each one re-persisting the identical stale 344-09 snapshot in
+     the same write that landed its own correct body/decision content -- hand-corrected a total
+     of four times this session, each time restoring status/stopped_at/last_activity to describe
+     345-08's actual work and total_phases/completed_phases/percent to 98/31/95 (Phase 345 has
+     not closed, only 8 of 9 plans done). Separately, `state.add-decision` embedded a literal
+     em-dash between the summary and rationale clauses of the decision line it wrote (the same
+     house-rule violation 344-04's own note already documented) -- hand-corrected the one line to
+     a hyphen immediately after the write. Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (345-07 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4410,29 +4430,31 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 7/9 complete (345-01, 02, 03, 04, 05, 06, 07). 345-07 CLOSED 2026-09-15: the strategy
-  proposal is now a real Decision Gate. lib/core/strategy/goal-gate.cjs::ratifyGoalProposal is
-  the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate
-  answer; lib/mcp/tools/gate.cjs's existing approve branch gained one additive call to it
-  (guarded on isStrategyCard), attaching a new strategy_ratification response key. The
-  fleet-wide zero (0 SOURCED_FROM edges, 0 decision:gate:* nodes across 30 live rooms) was
-  measured moving to one on a fixture room through the ACTUAL registered gate_render/gate_answer
-  handlers (MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1). The CLI
-  surface (scripts/intent-classifier.cjs) now stamps every reach_presented row with goal_version
-  and carries anchor_node_id + one strategy_proposed event on gate_reached when a strategy reach
-  fires, correlatable with the MCP surface without merging the two write paths (345-ICM-CONSULT
-  AP-G6). All three tasks followed real RED/GREEN commits, RED confirmed each time by reverting
-  the target production file to its pre-edit HEAD content and re-running the suite, then
-  restoring byte-identical before committing. Three deviations: strategy-card.cjs (345-06, out
-  of this plan's declared files_modified) gained a `preview` JSON payload on its rewrite-jtbd/
-  change-rung options -- a Rule 2 fix, since no other field survives the gate_render -> ledger ->
-  gate_answer round trip unchanged and the plan explicitly forbids re-deriving the job/rung at
-  answer time; the CLI-surface strategy-reach detector uses reach.dispatch, not the plan's own
-  stale evidence.sensor_id === 'SENS-19' text (the field does not exist; the id was already
-  corrected to SENS-20 in 345-05); and the fixture test's SQL uses the edges table's real column
-  names (type, target), not the plan's own edge_type/target_id text. bash tests/run-all-345.sh
-  PASS=18 FAIL=0 SKIP=1 (the 1 skip is test-345-doctrine.cjs, plan 08's deliverable). Next:
-  345-08.
+Plan: 8/9 complete (345-01, 02, 03, 04, 05, 06, 07, 08). 345-08 CLOSED 2026-09-15: the doctrine,
+  amended in place. skills/larry-personality/SKILL.md's anti-circular rule now names the
+  strategy node (a GRAPH-layer watcher) as the owner of the room-level reframe, phrased in the
+  observing voice ("when the engine surfaces the strategy reach, Larry's move is the climb, not
+  another clarifying question"), no reach count named, single-hunk in-place amendment (never a
+  second section), shipped byte-identical across both dist/ mirrors (hand-copied, since neither
+  shipped generator covers this file -- build-skill-mirrors.cjs mirrors commands/*.md and
+  larry-personality has no command counterpart; build-dist-bundles.cjs is the real skills/->dist/
+  generator but was already 4 versions stale and out of this plan's scope to regenerate
+  wholesale). problem-definition.md and strategy.md each gained one Inputs pointer to
+  <roomDir>/.mindrian/jtbd-state.json (goal.rung, goal.parent_question); problem-definition.md's
+  Process step 2 corrected from a three-rung-plus-escalation model that contradicted all three
+  code vocabularies to the actual persisted flat four-rung set named in
+  lib/core/strategy/rung-vocabulary.cjs (345-ICM-CONSULT R6, BLOCKING, closed), keeping the
+  Wicked-as-escalation insight as a teaching note. tests/test-345-doctrine.cjs (11 assertions,
+  content-addressed paragraph extraction, no hardcoded line numbers) passed bare on first run
+  (Tasks 1-2 already shipped the state it pins, same class as 344-04's own Task 3 precedent);
+  the plan's deliberate negative check (duplicate the paragraph, confirm non-zero exit, revert)
+  was run by hand and confirmed. Two Rule-1 deviations against stale plan text: did NOT add
+  layer: prompt when grep -c '^layer:' returned 0, since larry-personality is WD-7-exempt
+  (connector.excluded:true, 344-04's own ruling) and the count of 0 is the correct post-344-04
+  state, not a gap; and the plan's read_first misnamed build-skill-mirrors.cjs as the dist/
+  generator. bash tests/run-all-345.sh PASS=19 FAIL=0 SKIP=0. doctor.cjs --acceptance 20/20.
+  The taxonomy_ladder rung-casing live finding (345-06) remains unresolved, out of scope for
+  every remaining 345 plan, handed forward explicitly to 345-09's close-out record. Next: 345-09.
 Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
   vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
   strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
@@ -5997,6 +6019,7 @@ Progress: [█████████░] 92%
 | Phase 345 P05 | 130min | 3 tasks | 8 files |
 | Phase 345 P06 | 50min | 3 tasks | 6 files |
 | Phase 345 P07 | 70min | 3 tasks | 6 files |
+| Phase 345 P08 | 40min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7591,6 +7614,7 @@ Progress: [█████████░] 92%
 - [Phase 345]: goal:<room-slug> anchor typed 'goal' never 'claim' at epistemic_type assumption, review_status proposed; promotion to confirmed is plan 07's job
 - [Phase 345]: _resolveLadderText trusts only the live-verified .ladder field, never a bare .text, since brain-client.cjs wraps a genuine response and a raw JSON-RPC error into the identical { text } shape
 - [Phase 345]: goal-gate.cjs is the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate answer; ratifyGoalProposal writes no decision node and no provenance edges itself, feeding the existing writeReasoningNode chokepoint instead of duplicating it.
+- [Phase 345]: 345-08: larry-personality is WD-7-exempt (connector.excluded:true), so a bare layer: count of 0 is the correct post-344-04 state; layer: prompt was deliberately not added - Adding layer: prompt would have contradicted 344-04's own shipped WD-7 ruling that removes exempt skills from the layer-backfill map entirely
 
 ### Pending Todos
 
@@ -7730,8 +7754,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T13:30:44.276Z
-Stopped at: Completed 345-07-PLAN.md
+Last session: 2026-09-15T13:44:04.086Z
+Stopped at: Completed 345-08-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

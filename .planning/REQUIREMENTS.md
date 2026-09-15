@@ -1992,11 +1992,11 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 - [x] **STRAT-14**: Every `reach_presented` payload carries the `goal_version` it ran under.
       Measured: pending, intended check: `node tests/test-345-goal-version-stamp.cjs`.
 
-- [ ] **STRAT-15**: The two L2 contract Inputs pointer lines land, plus the
+- [x] **STRAT-15**: The two L2 contract Inputs pointer lines land, plus the
       `problem-definition.md` rung-vocabulary correction. Measured: pending, intended check: `node
       tests/test-345-doctrine.cjs`.
 
-- [ ] **STRAT-16**: The SKILL.md doctrine amendment lands at the anti-circular rule, plus the dist
+- [x] **STRAT-16**: The SKILL.md doctrine amendment lands at the anti-circular rule, plus the dist
       mirrors. Measured: pending, intended check: `node tests/test-345-doctrine.cjs`.
 
 - [ ] **STRAT-17**: Every declaring surface this phase adds carries `layer: graph`. Measured:
