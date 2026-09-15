@@ -109,6 +109,124 @@ ok('detectEscapeHatch keys are byte-identical to what selectMode reads', functio
   assert.ok(Object.prototype.hasOwnProperty.call(r, m[2]), 'must expose key: ' + m[2]);
 });
 
-console.log(n + ' assertions passed (Task 1)');
+// ---------------------------------------------------------------------------
+// Task 2: resolveEnforcement -- the ordered ladder, the structural floor,
+// and not-applicable on hookless surfaces
+// ---------------------------------------------------------------------------
+
+ok('ENFORCEMENT_VALUES is a frozen array of exactly three members, in order', function () {
+  assert.deepEqual(a.ENFORCEMENT_VALUES, ['enforce', 'judge', 'not-applicable']);
+  assert.ok(Object.isFrozen(a.ENFORCEMENT_VALUES), 'ENFORCEMENT_VALUES must be frozen');
+});
+
+ok('ENFORCEMENT_RATIONALES is a frozen non-empty array', function () {
+  assert.ok(Array.isArray(a.ENFORCEMENT_RATIONALES));
+  assert.ok(Object.isFrozen(a.ENFORCEMENT_RATIONALES));
+  assert.ok(a.ENFORCEMENT_RATIONALES.length > 0);
+});
+
+ok('rule 1: floor_engaged wins over every judge-producing signal', function () {
+  const r = a.resolveEnforcement({
+    floor_engaged: true,
+    capabilities: { hooks: false },
+    escape_hatch: true,
+    is_cold_start: true,
+    gate_reached: false,
+  });
+  assert.deepEqual(r, { value: 'enforce', rationale: 'constitutional_floor' });
+});
+
+ok('rule 2: hookless surface (or missing capabilities) is not-applicable', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: false } }),
+    { value: 'not-applicable', rationale: 'no_enforcement_loop_on_surface' }
+  );
+});
+
+ok('rule 3: escape hatch on a hooks surface is judge / user_override_escape_hatch', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: true }, escape_hatch: true }),
+    { value: 'judge', rationale: 'user_override_escape_hatch' }
+  );
+});
+
+ok('rule 4: cold start is judge / cold_start_reward_before_investment', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: true }, is_cold_start: true }),
+    { value: 'judge', rationale: 'cold_start_reward_before_investment' }
+  );
+});
+
+ok('rule 5: no fork reached is judge / no_fork_reached', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: true }, gate_reached: false }),
+    { value: 'judge', rationale: 'no_fork_reached' }
+  );
+});
+
+ok('rule 6: gate subject unconnected is judge / gate_subject_unconnected', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: true }, gate_reached: true, gate_subject_connected: false }),
+    { value: 'judge', rationale: 'gate_subject_unconnected' }
+  );
+});
+
+ok('rule 7: question already answered is judge / question_already_answered', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({
+      capabilities: { hooks: true }, gate_reached: true, gate_subject_connected: true,
+      question_already_answered: true,
+    }),
+    { value: 'judge', rationale: 'question_already_answered' }
+  );
+});
+
+ok('rule 8: card already fired is judge / card_already_fired', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({
+      capabilities: { hooks: true }, gate_reached: true, gate_subject_connected: true,
+      card_fired_this_turn: true,
+    }),
+    { value: 'judge', rationale: 'card_already_fired' }
+  );
+});
+
+ok('rule 9 (default): live unanswered fork is enforce / live_unanswered_fork', function () {
+  assert.deepEqual(
+    a.resolveEnforcement({ capabilities: { hooks: true }, gate_reached: true, gate_subject_connected: true }),
+    { value: 'enforce', rationale: 'live_unanswered_fork' }
+  );
+});
+
+ok('resolveEnforcement never throws on malformed input; unknown surface is not-applicable', function () {
+  for (const v of [null, undefined, 'x', []]) {
+    const r = a.resolveEnforcement(v);
+    assert.ok(a.ENFORCEMENT_VALUES.indexOf(r.value) !== -1, 'value must be a member of ENFORCEMENT_VALUES: ' + String(v));
+    assert.ok(a.ENFORCEMENT_RATIONALES.indexOf(r.rationale) !== -1, 'rationale must be a member of ENFORCEMENT_RATIONALES: ' + String(v));
+    assert.deepEqual(r, { value: 'not-applicable', rationale: 'no_enforcement_loop_on_surface' }, 'no capabilities object means unknown surface: ' + String(v));
+  }
+});
+
+ok('every rationale token is lowercase snake_case with no spaces or uppercase letters', function () {
+  for (const r of a.ENFORCEMENT_RATIONALES) {
+    assert.ok(!/[A-Z ]/.test(r), 'rationale token must not contain a space or uppercase letter: ' + r);
+  }
+});
+
+ok('structural impossibility: floor_engaged true reaches enforce across the full power set of judge-producing inputs', function () {
+  const keys = [
+    'escape_hatch', 'is_cold_start', 'is_first_material', 'gate_reached',
+    'gate_subject_connected', 'question_already_answered', 'card_fired_this_turn',
+  ];
+  for (let m = 0; m < 128; m++) {
+    const input = { floor_engaged: true, capabilities: { hooks: (m % 2 === 0) } };
+    keys.forEach(function (k, b) { input[k] = Boolean(m & (1 << b)); });
+    const r = a.resolveEnforcement(input);
+    assert.equal(r.value, 'enforce', 'floor_engaged must always win, case m=' + m + ': ' + JSON.stringify(input));
+    assert.equal(r.rationale, 'constitutional_floor');
+  }
+});
+
+console.log(n + ' assertions passed');
 console.log('>>> test-346-enforcement-axis.cjs: PASSED');
 process.exit(0);
