@@ -3,16 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 346-05-PLAN.md - Wave 4 of 6
-last_updated: "2026-09-15T20:16:47.690Z"
-last_activity: 2026-09-15 -- Phase 346 execution, plan 05 complete
+stopped_at: Completed 346-06-PLAN.md - Wave 4 of 6
+last_updated: "2026-09-15T20:30:11.013Z"
+last_activity: 2026-09-15 -- Phase 346 execution, plan 06 complete
 progress:
   total_phases: 99
   completed_phases: 31
   total_plans: 274
-  completed_plans: 265
+  completed_plans: 266
   percent: 97
 ---
+
+<!-- NOTE (346-06 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` correctly
+     computed `completed: 266` (97%) once 346-06-SUMMARY.md existed on disk, but
+     `state.record-metric` (flag syntax `--phase/--plan/--duration/--tasks/--files`) landed its
+     own correct Performance Metrics row without a repeat clobber this time. `state.add-decision`
+     DID repeat the documented `[Phase ?]` placeholder bug (fixed in place to `[Phase 346]` rather
+     than re-running the command), and the frontmatter had already been clobbered by an earlier
+     call in this same sequence (`status` -> `completed`, `percent` -> `31`, the phase-31-of-99
+     raw phase count rather than the plan-completion percentage, `last_activity` reverted to a
+     stale "Phase 346 execution started" string). Hand-corrected once, after all calls landed:
+     status -> planning (Phase 346 has not closed; 2 of 8 plans remain: 346-07, 346-08),
+     percent -> 97 (266/274, rounded), stopped_at -> this plan's completion line,
+     last_activity -> this plan's completion line; left total_phases/completed_phases at 99/31
+     unchanged since Phase 346 has not closed. Same root cause as every other note in this file,
+     not re-investigated further here. -->
 
 <!-- NOTE (346-05 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6171,6 +6189,7 @@ Progress: [█████████░] 92%
 | Phase 346 P03 | 35min | 3 tasks | 4 files |
 | Phase 346 P04 | ~40min | 3 tasks | 4 files |
 | Phase 346 P05 | 25min | 3 tasks | 4 files |
+| Phase 346 P06 | 30min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -7772,6 +7791,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 346-03: hmi-compliance-poll classified floor:none arbiter_input:true (not plan's literal false), resolving a contradiction between the plan's universal floor-discipline rule and its row-9 guidance — arbiter_input:true is read as structural (weighted-input side of the dichotomy), independent of current nonzero weight; the row's own reason states the practical impact is inert
 - [Phase 346]: 346-04: cold-start sweep count is the live-computed 3x5x4x2=120, not the plan's hand-typed 160; used the measured value per WD-11 precedent - the four sweep dimensions the plan's own behavior block specifies multiply to 120; the acceptance-criteria script's 160 literal is an arithmetic error, verified by running it directly
 - [Phase 346]: 346-05: fixed a real circular-require (navigation.cjs -> arbitration-log.cjs -> arbitration.cjs -> decision-axes.cjs -> navigation-engine.cjs -> navigation.cjs) via a lazy Object.defineProperty getter re-export, preserving strict reference equality - a top-level require as the plan literally suggested would have permanently bound a stale empty module.exports object in one require order
+- [Phase 346]: 346-06: measured misfire count is 8 (not the planning brief's stated 9), recorded with derivation in the fixture file rather than padded
 
 ### Pending Todos
 
@@ -7911,7 +7931,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T20:16:16.433Z
+Last session: 2026-09-15T20:30:10.949Z
 Stopped at: Completed 346-05-PLAN.md - Wave 4 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
