@@ -321,9 +321,19 @@ ok('byte-identity proof: a decide() call with the arbiter faulted, arbitration k
   const second = withStubbedArbitrationFault(function () { return decide(turn, ctx); });
   delete first.decision_trace.arbitration;
   delete second.decision_trace.arbitration;
-  // _meta carries wall-clock latency; strip it, it is expected to vary.
+  // _meta (top-level latency) and projection_offer._meta.read_ms (the
+  // Phase-184 reader's own wall-clock read timer) both carry timing values
+  // that are expected to vary run to run; strip both before comparing. This
+  // is timing noise unrelated to the arbitration attachment (which computes
+  // and applies nothing on this stubbed-fault path), not a byte-identity gap.
   delete first.decision_trace._meta;
   delete second.decision_trace._meta;
+  if (first.decision_trace.projection_offer && first.decision_trace.projection_offer._meta) {
+    delete first.decision_trace.projection_offer._meta.read_ms;
+  }
+  if (second.decision_trace.projection_offer && second.decision_trace.projection_offer._meta) {
+    delete second.decision_trace.projection_offer._meta.read_ms;
+  }
   assert.equal(JSON.stringify(first), JSON.stringify(second));
 });
 
