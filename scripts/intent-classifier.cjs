@@ -1955,6 +1955,85 @@ function deriveConversationSeed(navMod, db) {
     .catch(function () { return withCurrentTurn(''); });
 }
 
+// Phase 345-07 (STRAT-13/STRAT-14) -- the reach-emit payload helpers, pure
+// and side-effect-free, extracted from runNavigationEngine's own reach-emit
+// try/catch so tests/test-345-goal-version-stamp.cjs can assert on them
+// directly. No other seam exists in this file for that region (the emit
+// itself sits inside a large best-effort try/catch mid-function, never
+// exported); per this task's own instruction, extracted and exported rather
+// than left untestable, and NOT a new export added purely for the test's
+// convenience -- these are the exact functions runNavigationEngine calls,
+// not a reimplementation (245-RESEARCH.md Pitfall 1 discipline).
+
+// goalVersionFromRecord(goalRec) -> the monotone integer this turn ran
+// under, or 0 when goalRec carries no goal_version. Never throws.
+function goalVersionFromRecord(goalRec) {
+  return (goalRec && typeof goalRec === 'object' && typeof goalRec.goal_version === 'number')
+    ? goalRec.goal_version : 0;
+}
+
+// isStrategyReach(reach) -> true only for the SENS-20 sensorStrategyReach
+// candidate. reach_id: 'contradiction' ALONE is not a safe discriminator:
+// sensor-graph-integrity.cjs (SENS-19, a different sensor) emits a reach
+// with the SAME reach_id. dispatch: 'strategy-reach (jtbd re-aim)' is the
+// one field unique to sensor-strategy-reach.cjs's own makeReach() call.
+function isStrategyReach(reach) {
+  return !!(reach && reach.reach_id === 'contradiction'
+    && reach.dispatch === 'strategy-reach (jtbd re-aim)');
+}
+
+// buildReachPresentedPayload(reach, goalVersion) -> the reach_presented
+// memory_event payload, STRAT-14's own deliverable: goal_version rides every
+// row from this arm, a monotone integer, no prose, no id.
+function buildReachPresentedPayload(reach, goalVersion) {
+  return {
+    reach_id: reach.reach_id,
+    source_path: 'dial:presented:' + reach.reach_id,
+    created_by: 'system',
+    goal_version: goalVersion,
+  };
+}
+
+// buildGateReachedPayload(offeredCount, startedAt, anchorId) -> the
+// gate_reached memory_event payload. anchor_node_id rides ONLY when anchorId
+// is truthy (a strategy reach was among the offered set); omitted otherwise,
+// per this task's own behavior contract.
+function buildGateReachedPayload(offeredCount, startedAt, anchorId) {
+  const payload = {
+    reach_count: offeredCount,
+    routing_source: 'engine',
+    source_path: 'gate:reached',
+    created_by: 'system',
+    dedupe_key: 'gate:' + startedAt,
+  };
+  if (anchorId) payload.anchor_node_id = anchorId;
+  return payload;
+}
+
+// buildStrategyProposedPayload(strategyReach, goalVersion, anchorId,
+// startedAt) -> the strategy-proposed memory_event payload (345-03's own
+// closed shape: goal_version, rung, jtbd, reaches_since, claims_since,
+// anchor_node_id, source_path, created_by, dedupe_key). Reads scalars ONLY
+// from strategyReach.evidence (sensor-strategy-reach.cjs's own bag); never
+// reads goal.parent_question or any other LOCAL venture prose (Canon Part
+// 8). Deduped on 'strategy:' + startedAt, the SAME turn-start handle
+// gate_reached uses, so a re-entrant arm cannot double-count one gate.
+function buildStrategyProposedPayload(strategyReach, goalVersion, anchorId, startedAt) {
+  const ev = (strategyReach && strategyReach.evidence && typeof strategyReach.evidence === 'object')
+    ? strategyReach.evidence : {};
+  return {
+    goal_version: (typeof ev.goal_version === 'number') ? ev.goal_version : goalVersion,
+    rung: (typeof ev.rung === 'string') ? ev.rung : null,
+    jtbd: (typeof ev.jtbd === 'string') ? ev.jtbd : null,
+    reaches_since: (typeof ev.reaches_since === 'number') ? ev.reaches_since : 0,
+    claims_since: (typeof ev.claims_since === 'number') ? ev.claims_since : 0,
+    anchor_node_id: anchorId,
+    source_path: 'gate:reached',
+    created_by: 'system',
+    dedupe_key: 'strategy:' + startedAt,
+  };
+}
+
 function runNavigationEngine(roomDir, sessionId) {
   // Returns Promise<{decision, elapsed_ms} | null>. Never throws.
   return new Promise(function (resolve) {
@@ -2374,13 +2453,31 @@ function runNavigationEngine(roomDir, sessionId) {
                   && Array.isArray(reachList.reaches)
                   && Number.isInteger(reachList.offered_count)) {
                 const offered = reachList.reaches.slice(0, reachList.offered_count);
+                // Phase 345-07 (STRAT-14): one goal read per turn, not one per
+                // reach. Best-effort, inside this same try/catch (never widened,
+                // never narrowed) -- a fault reading the goal degrades to
+                // goal_version: 0 and never blocks the reach_presented loop below.
+                // This arm RECORDS which goal version the turn ran under; it does
+                // NOT write the decision node (that write lives in the MCP
+                // gate_answer tool, lib/mcp/tools/gate.cjs, wired in this same
+                // plan) -- the CLI and MCP surfaces are correlatable via
+                // anchor_node_id below, never merged into one write path here
+                // (345-ICM-CONSULT AP-G6).
+                let goalVersion = 0;
+                try {
+                  const jtbdStateMod = require(
+                    path.join(__dirname, '..', 'lib', 'hmi', 'jtbd-state.cjs')
+                  );
+                  goalVersion = goalVersionFromRecord(jtbdStateMod.getGoal(roomDir));
+                } catch (_goalReadErr) {
+                  goalVersion = 0;
+                }
                 for (const reach of offered) {
                   if (reach && typeof reach.reach_id === 'string' && reach.reach_id.length > 0) {
-                    navigationMod.logMemoryEvent(roomDb, 'reach_presented', {
-                      reach_id: reach.reach_id,
-                      source_path: 'dial:presented:' + reach.reach_id,
-                      created_by: 'system',
-                    });
+                    // STRAT-14: a monotone integer, no prose, no id -- the
+                    // whole of "every execution reach logs which goal
+                    // version it ran under".
+                    navigationMod.logMemoryEvent(roomDb, 'reach_presented', buildReachPresentedPayload(reach, goalVersion));
                   }
                 }
                 // Phase 183-01 METER-01 (gate_reached): one OBSERVATION per gate
@@ -2398,13 +2495,50 @@ function runNavigationEngine(roomDir, sessionId) {
                 // framework_invoked fires at ~0 production sites today, so the Gauge-1
                 // density basis leans on reach_presented + gate_reached.
                 if (offered.length > 0) {
-                  navigationMod.logMemoryEvent(roomDb, 'gate_reached', {
-                    reach_count: offered.length,
-                    routing_source: 'engine',
-                    source_path: 'gate:reached',
-                    created_by: 'system',
-                    dedupe_key: 'gate:' + startedAt,
-                  });
+                  // Phase 345-07 (STRAT-13 CLI-surface half, 345-ICM-CONSULT
+                  // AP-G6): a strategy reach among the offered set carries the
+                  // room's goal anchor id on gate_reached and fires exactly one
+                  // strategy-proposed memory event row, so the CLI surface is correlatable
+                  // against the MCP surface's gate_answer write even though the
+                  // two surfaces do not otherwise connect (the node write lives
+                  // only in lib/mcp/tools/gate.cjs's gate_answer approve branch).
+                  // Detection note: the plan's own text named this condition on
+                  // `evidence.sensor_id === 'SENS-19'`, a field
+                  // lib/core/sensors/sensor-strategy-reach.cjs's evidence bag
+                  // does not carry (verified by reading the sensor's own
+                  // makeReach() call, this task's read_first). SENS-19 was also
+                  // already corrected to SENS-20 for this sensor in 345-05
+                  // (that plan's own Deviation 1). reach_id: 'contradiction'
+                  // ALONE is not a safe discriminator either --
+                  // sensor-graph-integrity.cjs (SENS-19, a different sensor)
+                  // emits a reach with the SAME reach_id. The one field that IS
+                  // on the reach and IS unique to sensorStrategyReach is its own
+                  // `dispatch` string, `'strategy-reach (jtbd re-aim)'`
+                  // (sensor-strategy-reach.cjs's own makeReach call) -- used
+                  // here instead, a Rule 1 correction of stale/impossible plan
+                  // text, same class as the 345-04/345-05 SENS-19 corrections.
+                  const strategyReach = offered.find(isStrategyReach);
+                  let anchorId = null;
+                  if (strategyReach) {
+                    try {
+                      anchorId = (navigationMod && typeof navigationMod.GOAL_ANCHOR_ID === 'function')
+                        ? navigationMod.GOAL_ANCHOR_ID(path.basename(roomDir))
+                        : null;
+                    } catch (_anchorErr) {
+                      anchorId = null;
+                    }
+                    if (anchorId) {
+                      try {
+                        navigationMod.logMemoryEvent(
+                          roomDb, 'strategy_proposed',
+                          buildStrategyProposedPayload(strategyReach, goalVersion, anchorId, startedAt)
+                        );
+                      } catch (_strategyProposedErr) {
+                        // best-effort: never blocks the gate_reached emit below
+                      }
+                    }
+                  }
+                  navigationMod.logMemoryEvent(roomDb, 'gate_reached', buildGateReachedPayload(offered.length, startedAt, anchorId));
                 }
               }
             }
@@ -3234,6 +3368,16 @@ module.exports = {
   // room_bind write UUID), not the sha256 hash fallback.
   extractSessionId: extractSessionId,
   resolveSessionId: resolveSessionId,
+  // Phase 345-07 (STRAT-13/STRAT-14): the reach-emit payload helpers,
+  // exported so tests/test-345-goal-version-stamp.cjs can assert on the
+  // EXACT functions runNavigationEngine's reach-emit region calls (no other
+  // seam exists for that region; see the helpers' own header comment above
+  // runNavigationEngine).
+  goalVersionFromRecord: goalVersionFromRecord,
+  isStrategyReach: isStrategyReach,
+  buildReachPresentedPayload: buildReachPresentedPayload,
+  buildGateReachedPayload: buildGateReachedPayload,
+  buildStrategyProposedPayload: buildStrategyProposedPayload,
 };
 
 if (require.main === module) {
