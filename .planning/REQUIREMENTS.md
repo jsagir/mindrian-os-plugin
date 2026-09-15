@@ -1648,11 +1648,14 @@ constitutionally.
 
 ### Phase 346 - The arbitration node
 
-- [ ] **ARB-01**: The code identifier `arbitration` is bound and fenced.
+- [x] **ARB-01**: The code identifier `arbitration` is bound and fenced.
       `docs/ARBITRATION-CONTRACT.md` names all three prior bindings (`sensor-types.POSTURE_IDS`,
       `recipe-maps.postureForCommand`, `stance-state.STANCES`), states that prose may still say
       "posture decision" and code may not, and `node tests/test-posture-ids-drift.cjs` stays
-      green for the whole phase.
+      green for the whole phase. Measured: `node tests/test-346-contract-doc.cjs` 8/8 assertions
+      pass (346-01), asserting all three bindings and the prose/code ruling are named verbatim;
+      `node tests/test-posture-ids-drift.cjs` exits 0 as of 346-01 and is re-run as a standing
+      regression leg in `tests/run-all-346.sh` for the rest of the phase.
 
 - [ ] **ARB-02**: The `enforcement` axis exists as new pure code with the closed vocabulary
       `enforce | judge | not-applicable`, resolved by an ordered first-match ladder, and `judge`
@@ -1710,13 +1713,22 @@ constitutionally.
       the count enumerated from the WATCH record and stated with its derivation, never a number
       borrowed from a brief), and the two positive controls are not suppressed.
 
-- [ ] **ARB-14**: The Tri-Polar statement is written: what the arbiter does on Claude Code,
+- [x] **ARB-14**: The Tri-Polar statement is written: what the arbiter does on Claude Code,
       Claude Desktop and Cowork, with `not-applicable` on the enforcement axis wherever
-      `CAPABILITY_MAP` reports `hooks: false`, and never a fabricated value.
+      `CAPABILITY_MAP` reports `hooks: false`, and never a fabricated value. Measured:
+      `docs/ARBITRATION-CONTRACT.md`'s Tri-Polar table carries one row per live
+      `CAPABILITY_MAP` key (`lib/mcp/surface-detect.cjs`), asserted by
+      `node tests/test-346-contract-doc.cjs` (346-01), which reads the surface list from the
+      module rather than a hand-typed set and confirms `not-applicable` on `desktop` and
+      `cowork` (both `hooks: false`).
 
-- [ ] **ARB-15**: `docs/ARBITRATION-CONTRACT.md` declares `layer: graph` against the closed
+- [x] **ARB-15**: `docs/ARBITRATION-CONTRACT.md` declares `layer: graph` against the closed
       vocabulary Phase 344-01 ships, states the single rung it engineers per WD-6 of the layer
-      contract, and answers the once-per-turn-cadence counter-argument in writing.
+      contract, and answers the once-per-turn-cadence counter-argument in writing. Measured:
+      `node tests/test-346-contract-doc.cjs` (346-01) asserts `layer: graph` in frontmatter and
+      that `graph` is a live member of `data/layer-declaration-schema.json`'s
+      `_doc.layer_vocabulary`; the document's "The layer declaration (ARB-15)" section states
+      the WD-6 one-value rule and answers the cadence-versus-scope counter-argument in writing.
 
 - [ ] **ARB-16**: `bash tests/run-all-346.sh` runs green, `node scripts/doctor.cjs
       --acceptance` and `node scripts/run-harness.cjs --check` are unregressed, every ARB id is
