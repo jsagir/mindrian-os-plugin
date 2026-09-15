@@ -140,7 +140,7 @@ function test7Palette() {
     { name: 'Retry' }
   ];
   const out = generateMermaidChain(steps);
-  assert.strictEqual(out.indexOf('—'), -1, 'no label contains an em-dash');
+  assert.strictEqual(out.indexOf('\u2014'), -1, 'no label contains an em-dash');
   const hexLiterals = out.match(/#[0-9a-fA-F]{6}/g) || [];
   const dsHexValues = new Set(Object.values(DS_HEX).filter((v) => typeof v === 'string'));
   for (const hex of hexLiterals) {
