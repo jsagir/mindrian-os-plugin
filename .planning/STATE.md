@@ -2,17 +2,35 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 347-12 closed Phase 347 (SHARED-13): all 13 SHARED rows measured-closed, decision ledger settled STANDING, validation map filled, docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md filed, Phase 348 handoff dated in docs/OPEN-HANDOFFS.md"
-stopped_at: Completed 347-12-PLAN.md
-last_updated: "2026-09-15T08:58:30.953Z"
-last_activity: "2026-09-15 - 347-12 completed (phase close-out: full gate sweep run, all 13 SHARED rows measured-closed, decision ledger settled STANDING, 347-VALIDATION.md filled, docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md filed, Phase 348 handoff dated)"
+status: "Plan 345-05 registered SENS-20 across all seven lockstep places (navigator ratify-all ruling on WD-1/WD-4/WD-9), pinned the un-gated ctx producer block with a decide()-level test and a confirmed negative check; the strategy sensor is now live inside dispatchSensors on every turn, all three surfaces"
+stopped_at: Completed 345-05-PLAN.md
+last_updated: "2026-09-15T12:42:31.807Z"
+last_activity: "2026-09-15 - 345-05 completed (SENS-20 lockstep places 2-7 registered, navigator ratify-all ruling recorded, circular-require bug found and fixed in goal-cadence.cjs, ctx producer block landed with deliberate negative check confirmed, run-all-345.sh PASS=14 FAIL=0 SKIP=5)"
 progress:
   total_phases: 98
   completed_phases: 31
   total_plans: 274
-  completed_plans: 251
-  percent: 92
+  completed_plans: 256
+  percent: 93
 ---
+
+<!-- NOTE (345-05 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     a stray, already-corrupted STATE.md diff was found staged in the working tree at dispatch
+     start (stopped_at regressed to "Completed 343-09-PLAN.md", progress reset to 99/30/255/30%,
+     em-dashes introduced) -- discarded via `git checkout --` before any of this plan's own edits.
+     During this plan's own bookkeeping, `state.advance-plan` errored outright
+     ("Cannot parse Current Plan or Total Plans in Phase from STATE.md") yet still wrote the
+     identical garbage frontmatter (stopped_at -> 343-09, total_phases/completed_phases -> 99/30);
+     reverted and the body's own "Current Position" section hand-corrected instead, per the
+     344-03 note's own precedent. `state.update-progress` correctly computed
+     `percent: 93` (completed_plans 256 / total_plans 274, confirmed correct after this plan's own
+     SUMMARY.md was written) in its own JSON response but persisted the same clobbered
+     stopped_at/status/last_activity/total_phases/completed_phases alongside a stale `percent: 30`
+     -- hand-corrected the frontmatter's narrative fields, the total_phases/completed_phases pair
+     (98/31, unchanged -- Phase 345 has not closed, only 5 of 9 plans done), and percent (93,
+     matching the command's own correctly-computed JSON response). Same root cause as every other
+     note in this file, not re-investigated further here. -->
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` returned {"previous_plan":4,"current_plan":5,"total_plans":9}
@@ -4354,16 +4372,26 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 4/9 complete (345-01, 02, 03, 04); 345-05 running under the navigator's ratify-all
-  ruling (2026-09-15: WD-1 cadence 40/12/20, WD-4 reach id contradiction + pull_back, WD-9
-  Group A); the strategy sensor is SENS-20 (345-04, 19/19 + Part 8 14/14; run-all-345
-  PASS=12 FAIL=0 SKIP=7), registered nowhere until 345-05.
+Plan: 5/9 complete (345-01, 02, 03, 04, 05). 345-05 CLOSED 2026-09-15: navigator ratified all
+  three working decisions on the blocking Task 1 checkpoint (ratify-all: WD-1 cadence 40/12/20,
+  WD-4 reach id contradiction + pull_back, WD-9 Group A). SENS-20 registered across all seven
+  lockstep places (places 2-6 in one commit 4b22cb74, place 7 -- the un-gated ctx producer block
+  in navigation-engine.cjs -- pinned by tests/test-345-producer-fires.cjs which calls decide()
+  end-to-end, commits e882fa15 RED / 6e620bfe GREEN). A real circular-require bug was found and
+  fixed in the same pass (goal-cadence.cjs's top-level require of navigation.cjs closed a cycle
+  back onto insight-sensors.cjs, silently breaking dispatchSensors for all 22 sensors under one
+  require order; fixed by making the require lazy). Deliberate negative check performed and
+  reverted: disabling the producer block makes the pinning test fail closed (0 !== 1), confirmed
+  the pin works. SENS-20 is now live inside dispatchSensors on every turn, all three surfaces --
+  the material step this plan's own checkpoint_rationale names. bash tests/run-all-345.sh
+  PASS=14 FAIL=0 SKIP=5 (5 skips are tests not yet written for 345-06..09, expected). Next: 345-06.
 Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
   vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
   strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
   destruction tests (345-02). Two memory_event types, cadence and stall counters with the
-  null-default stall signal, three-mechanism cool-down, floor-first (345-03).
-  Gates: bash tests/run-all-345.sh PASS=10 FAIL=0 SKIP=9. Phase 347 CLOSED 12/12 and
+  null-default stall signal, three-mechanism cool-down, floor-first (345-03). SENS-20 fully
+  registered and live inside dispatchSensors on every turn, all three surfaces (345-05).
+  Gates: bash tests/run-all-345.sh PASS=14 FAIL=0 SKIP=5. Phase 347 CLOSED 12/12 and
   verified (passed); its review fix pass (2 Critical on the live chain_run path, 2 Warning,
   1 Info) LANDED at merge abd07464: run_id threaded chain_run -> dispatcher -> executor,
   halt/resume share one run with contiguous indices and the approved gate step recorded,
@@ -5918,6 +5946,7 @@ Progress: [█████████░] 92%
 | Phase 343 P06 | 80min | 3 tasks | 7 files |
 | Phase 343 P07 | continuation | 2 tasks | 6 files |
 | Phase 343 P09 | 95min | 3 tasks | 6 files |
+| Phase 345 P05 | 130min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -6151,6 +6180,7 @@ Progress: [█████████░] 92%
   bootstrap restamps Theo against the current version so the next cut needs no opt-out.
   Grounded live via langtalks query_relationship (Measurement decay part_of single-loop
   failure modes; Audit node; Synchronous Update). Depends on Phase 343. Not yet planned.
+
 - Phase 348 added (2026-09-14, `/gsd-phase`), continuing the "graph-engineering learning
   N" series (345/346/347): "The supersession node" -- automatic supersession of a
   CONTRADICTS-linked confirmed claim as the consequence of a human-approved gate answer,
@@ -7507,6 +7537,7 @@ Progress: [█████████░] 92%
 - [Phase 343]: WD-13/WD-20 RULED ship-as-designed: lagging Theo stamp gate in release.sh, audited --no-theo-check opt-out, dry-run reports without aborting - Closes CENSUS-13's release-lockstep seam; five betas shipped with zero Theo command-registry re-syncs because nothing could fail
 - [Phase 343]: Phase 343 closed: all 21 WD decisions settled to RULED (2, navigator checkpoint) or STANDING (19, shipped unchallenged); zero rows left bare WORKING
 - [Phase 343]: Phase 343 close-out hands Phase 273 two structural gaps with pre-mapped blast radius: the claim-anchor writer gap (typed-claim.cjs:121) and the edge-chokepoint bypass (graph-ops.cjs, build-ecosystem-graph.cjs)
+- [Phase 345]: 345-05: navigator ratified WD-1/WD-4/WD-9 as written (ratify-all): cadence 40/12/20, reach id contradiction + posture pull_back, SENS_PRIORITY Group A; SENS-20 registered across all seven lockstep places and is now live inside dispatchSensors on every turn
 
 ### Pending Todos
 
@@ -7646,8 +7677,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T21:43:15.840Z
-Stopped at: Completed 343-09-PLAN.md
+Last session: 2026-09-15T12:42:31.735Z
+Stopped at: Completed 345-05-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

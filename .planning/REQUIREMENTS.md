@@ -1957,14 +1957,19 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 - [ ] **STRAT-06**: `sensorStrategyReach` is pure, sync, zero I/O, and returns `null` on every
       refusal branch. Measured: pending, intended check: `node tests/test-345-strategy-sensor.cjs`.
 
-- [ ] **STRAT-07**: The strategy-reach sensor is registered across lockstep places 2 through 6
+- [x] **STRAT-07**: The strategy-reach sensor is registered across lockstep places 2 through 6
       with `SENS_PRIORITY` in Group A. Note (see decisions record Section 6): the id reserved by
       research was `SENS-19`, which Phase 343 claimed first on this tree for `sensorGraphIntegrity`;
       the correct id at registration time is the next free id (`SENS-20` as of this session).
-      Measured: pending, intended check: `node tests/test-345-lockstep.cjs`.
+      Measured: 2026-09-15 (345-05), `node tests/test-345-lockstep.cjs` PASS (9/9 checks): index
+      parity, export reachability, Group A membership pinned positionally between SENS-11 and
+      SENS-14.
 
-- [ ] **STRAT-08**: The ctx producer block (lockstep place 7) is pinned from the far end through
-      `decide()`. Measured: pending, intended check: `node tests/test-345-producer-fires.cjs`.
+- [x] **STRAT-08**: The ctx producer block (lockstep place 7) is pinned from the far end through
+      `decide()`. Measured: 2026-09-15 (345-05), `node tests/test-345-producer-fires.cjs` PASS
+      (11/11 checks), calling `decide()` end-to-end, never `sensorStrategyReach` directly.
+      Deliberate negative check confirmed: disabling the producer block makes the test fail
+      closed (`0 !== 1`), reverted after confirming.
 
 - [ ] **STRAT-09**: The stall count is exposed as a named null-default input for the Phase 346
       arbiter. Measured: pending, intended check: `node tests/test-345-cadence.cjs`.
