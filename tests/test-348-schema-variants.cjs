@@ -191,7 +191,7 @@ ok('a call with NO bitemporal opts on the legacy fixture is UNTOUCHED by this ga
   const fx = buildSupersessionFixtureRoom({ variant: 'legacy' });
   try {
     assert.throws(function () {
-      promoteNodeStatus(fx.db, fx.claimAId, 'confirmed', 'rejected', 'system', 't');
+      promoteNodeStatus(fx.db, fx.claimAId, 'proposed', 'rejected', 'system', 't');
     }, /no such column: review_status/, 'the legacy row-lookup limitation predates this phase and is out of this gate\'s scope');
   } finally { closeSupersessionFixtureRoom(fx); }
 });
