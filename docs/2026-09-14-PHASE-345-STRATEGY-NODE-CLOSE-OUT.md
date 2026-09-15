@@ -209,3 +209,34 @@ The one call site is `lib/core/strategy/goal-gate.cjs:192`, inside `ratifyGoalPr
 **Checks 1 through 7 all exit 0. Check 9 returns 0 for every file. Check 10 produces empty
 output. Check 11 returns exactly 1. Check 12 returns 0. Every gate this phase touched is green in
 this one recorded sweep.**
+
+---
+
+## Requirements closed
+
+All eighteen `STRAT-01..18` rows are `- [x]` in `.planning/REQUIREMENTS.md` with a `Measured:`
+clause naming a real command and its real output. Repeated here so a reader without
+`.planning/` (gitignored) still has the evidence.
+
+| Id | Deliverable | Measured |
+|---|---|---|
+| STRAT-01 | Top-level `goal` key, carried through `writeStateAtomic` and all three writers | `node tests/test-345-goal-record.cjs` exits 0 (40/40, 2026-09-15) |
+| STRAT-02 | `goal_version` monotone, `goal_history` bounded ring, absent reads as 0 | same suite, version-monotonicity + 51-write bound legs |
+| STRAT-03 | One declared persisted rung vocabulary, tested mapping to the egress-guard ladder enum | `node tests/test-345-rung-mapping.cjs` exits 0 (40/40, 2026-09-15) |
+| STRAT-04 | Cadence/stall counters through the navigation chokepoint, named constants, injection seam | `node tests/test-345-cadence.cjs` exits 0 (41/41, 2026-09-15) |
+| STRAT-05 | Cool-down: hard interval, dismissal-rate throttle, REJECT-only suppression, `strategy_throttled` event | `node tests/test-345-cooldown.cjs` exits 0 (30/30, 2026-09-15) |
+| STRAT-06 | `sensorStrategyReach` pure, sync, zero I/O, `null` on every refusal branch | `node tests/test-345-strategy-sensor.cjs` exits 0 (19/19) + `node tests/test-345-part8.cjs` exits 0 (14/14) |
+| STRAT-07 | SENS-20 registered lockstep places 2-6, `SENS_PRIORITY` Group A | `node tests/test-345-lockstep.cjs` PASS (9/9), 2026-09-15 (345-05) |
+| STRAT-08 | Ctx producer block (place 7) pinned from the far end through `decide()` | `node tests/test-345-producer-fires.cjs` PASS (11/11), deliberate negative check confirmed (345-05) |
+| STRAT-09 | Stall count exposed as a named null-default input for Phase 346 | `node tests/test-345-cadence.cjs` exits 0 (41/41); `readStallSignal` defaults `null`, never `0` |
+| STRAT-10 | The climb: local inference plus optional `taxonomy_ladder` render, local fallback | `node tests/test-345-climb.cjs` exits 0 (13/13, 2026-09-15) |
+| STRAT-11 | No file under `lib/` contains the literal `mcp__theo__` | `grep -rl "mcp__theo__" lib/ \| wc -l` returns `0` (re-measured 2026-09-15) |
+| STRAT-12 | Idempotent payload-free `goal:<room-slug>` anchor node, minted before the card | `node tests/test-345-gate-anchor.cjs` exits 0 (29/29, 2026-09-15), real `SELECT COUNT(*)` idempotency |
+| STRAT-13 | Strategy proposal is a Decision Gate; approve writes a typed decision node with a `SOURCED_FROM` edge, both surfaces | `node tests/test-345-gate-ratify.cjs` exits 0 (33/33), `MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1` -- see "The number this phase existed to move" below |
+| STRAT-14 | Every `reach_presented` payload carries the `goal_version` it ran under | `node tests/test-345-goal-version-stamp.cjs` exits 0 (19/19, 2026-09-15) |
+| STRAT-15 | Two L2 contract Inputs pointer lines, plus the `problem-definition.md` rung-vocabulary correction | `node tests/test-345-doctrine.cjs` exits 0 (11/11, 2026-09-15) |
+| STRAT-16 | SKILL.md doctrine amendment at the anti-circular rule, plus the dist mirrors | same suite, byte-identical three-copy parity leg |
+| STRAT-17 | Every declaring surface this phase adds carries `layer: graph` | `node scripts/check-layer-declaration.cjs` exits 0: `OK: 285 surfaces enumerated, 248 declared, 37 exempt` |
+| STRAT-18 | Phase close: aggregator green, every STRAT id closed with measured proof | `bash tests/run-all-345.sh` exits 0 (`PASS=19 FAIL=0 SKIP=0`, re-run 2026-09-15 at close) |
+
+Eighteen rows, matching `.planning/REQUIREMENTS.md`'s eighteen `- [x] **STRAT-NN**` rows exactly.

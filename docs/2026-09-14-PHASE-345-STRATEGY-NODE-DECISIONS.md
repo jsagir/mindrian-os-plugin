@@ -52,20 +52,22 @@ neither `SENS-` nor `LAYER-`).
 
 ## Section 2: Working decisions, reversible by the navigator
 
-The navigator may reverse any row below. Reversing a WORKING decision is a documented amendment
-to this table, dated and reasoned, never a silent edit made only in code. Status is WORKING for
-every row; the navigator ratifies or overturns at the plan-05 checkpoint.
+The navigator may reverse any row below. Reversing an already-ratified decision is a documented
+amendment to this table, dated and reasoned, never a silent edit made only in code. Every row
+below started at the not-yet-ratified status this section's own name describes, and closes this
+phase at either RULED (the navigator answered directly at the plan-05 checkpoint) or HELD
+(adopted as planned, unchallenged, confirmed shipped at phase close).
 
 | id | decision | rationale with citation | status | reversal cost |
 |---|---|---|---|---|
 | WD-1 | The cadence is a named constant with a conservative default and the dismissal-rate throttle ships in the SAME plan | Cite 345-RESEARCH Pitfall 3 and `canary.cjs:85-124` | RULED 2026-09-15 -- navigator selected `ratify-all` on the orchestrator's card: `STRATEGY_CADENCE_REACHES=40`, `STRATEGY_STALL_MIN_SAMPLE=12`, `STRATEGY_MIN_INTERVAL_REACHES=20` ratified as written | One constant edit, no data change |
-| WD-2 | The goal record is a TOP-LEVEL `goal` key on `jtbd-state.json`, sibling to `current` and `history`, never nested in `current` | Cite 345-ICM-CONSULT R1 BLOCKING and `jtbd-state.cjs:132-152` (`setCurrent` is a fixed 7-key whitelist constructor with no merge) and `:228-231` (`clear` nulls the container) | WORKING | One carry-through line in `writeStateAtomic`; no live room has the key on day one so there is nothing to migrate |
-| WD-3 | `taxonomy_ladder` liveness is discharged by ONE probe through `scripts/check-brain-tool-liveness.cjs`, and the card falls back to a local one-line ladder render | Cite 345-RESEARCH A6 and Open Question 6 | WORKING | Delete one call site; the fallback is already the Tier 0 path |
+| WD-2 | The goal record is a TOP-LEVEL `goal` key on `jtbd-state.json`, sibling to `current` and `history`, never nested in `current` | Cite 345-ICM-CONSULT R1 BLOCKING and `jtbd-state.cjs:132-152` (`setCurrent` is a fixed 7-key whitelist constructor with no merge) and `:228-231` (`clear` nulls the container) | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 02: `goal`/`goal_history` landed as top-level sibling keys, threaded through `setCurrent`, `bumpTurnCount`, and `clear`, proven with three whole-object preservation legs in `tests/test-345-goal-record.cjs`. | One carry-through line in `writeStateAtomic`; no live room has the key on day one so there is nothing to migrate |
+| WD-3 | `taxonomy_ladder` liveness is discharged by ONE probe through `scripts/check-brain-tool-liveness.cjs`, and the card falls back to a local one-line ladder render | Cite 345-RESEARCH A6 and Open Question 6 | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 06: the liveness probe ran (2026-09-15T12:49:33Z, exit 0), and `_resolveLadderText` degrades safely to `localLadderLine` on any non-`.ladder` shape -- the probe's own honest scope caveat (it does not itself exercise `taxonomy_ladder`) is why the plan 06 manual smoke test discovered the live rung-casing mismatch this record's own Section 6-adjacent carried-forward item now tracks. | Delete one call site; the fallback is already the Tier 0 path |
 | WD-4 | The reach id is `contradiction` and the posture is `pull_back` | Cite 345-RESEARCH A1 and A2 and the reject of minting a seventh reach id | RULED 2026-09-15 -- navigator selected `ratify-all` on the orchestrator's card: reach id `contradiction`, posture `pull_back` ratified as written | Cheap before ship, expensive after, because the six reach ids are a UI contract (343-ICM OBJ-7). This is the row most worth the navigator's attention at the plan-05 checkpoint |
-| WD-5 | The requirement prefix is STRAT | Cite the measured prefix census in 345-RESEARCH "Phase Requirements" | WORKING | A rename across this phase's files |
-| WD-6 | The PERSISTED rung vocabulary is Theo's four ids (Wicked, UnDefined, WellDefined, IllDefined), because `brainClient._inferRungFromQuestion` is the only classifier in the repo and those are the only values it returns (`brain-client.cjs:1170-1175`, `:1184`). The egress-guard ladder enum (`part8-egress-guard.cjs:328`) is the WIRE vocabulary and is reached only through the mapper | Cite 345-ICM-CONSULT R6 BLOCKING | WORKING | One module plus one stored-field rewrite across however many rooms have ratified a goal by then, which is zero at ship |
-| WD-7 | The anchor node is typed `node.type` `'goal'` and `epistemic_type` `'assumption'` at `review_status` `'proposed'`, promoted by `confirmNode` on approve; never `node.type` `'claim'` | Cite 345-ICM-CONSULT R5 and OBJ-G5 | WORKING | A node-type rewrite; no edges change because `SOURCED_FROM` is already legal (`edges.cjs:854`) |
-| WD-8 | The `SOURCED_FROM` deliverable is MEASURED on the MCP `gate_answer` surface. The CLI `gate_reached` surface (`scripts/intent-classifier.cjs:2401`, 4,680 live rows) is wired in plan 07 to carry the anchor id on its payload and to route a strategy ratification through the same module, so the two surfaces stop being disconnected for this one card kind | Cite 345-ICM-CONSULT AP-G6 and R4 | WORKING | The CLI arm is additive and can be removed without touching the MCP path |
+| WD-5 | The requirement prefix is STRAT | Cite the measured prefix census in 345-RESEARCH "Phase Requirements" | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 01: the eighteen-id `STRAT` family minted and now closed with measured proof in `.planning/REQUIREMENTS.md`. | A rename across this phase's files |
+| WD-6 | The PERSISTED rung vocabulary is Theo's four ids (Wicked, UnDefined, WellDefined, IllDefined), because `brainClient._inferRungFromQuestion` is the only classifier in the repo and those are the only values it returns (`brain-client.cjs:1170-1175`, `:1184`). The egress-guard ladder enum (`part8-egress-guard.cjs:328`) is the WIRE vocabulary and is reached only through the mapper | Cite 345-ICM-CONSULT R6 BLOCKING | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 01: `lib/core/strategy/rung-vocabulary.cjs` is the sole home, `toLadderRung` the sole fail-closed conversion point. The live rung-CASING mismatch discovered in plan 06 (deployed `taxonomy_ladder` wants Theo-cased input, `toLadderRung` produces the lowercase egress-guard form) is a SEPARATE, unresolved finding -- it does not contradict this ruling (the PERSISTED-vs-WIRE split still holds), it names a live tool schema drift on the WIRE side; carried forward as a named deferred item below. | One module plus one stored-field rewrite across however many rooms have ratified a goal by then, which is zero at ship |
+| WD-7 | The anchor node is typed `node.type` `'goal'` and `epistemic_type` `'assumption'` at `review_status` `'proposed'`, promoted by `confirmNode` on approve; never `node.type` `'claim'` | Cite 345-ICM-CONSULT R5 and OBJ-G5 | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 06 (mint) and plan 07 (promotion): `mintGoalAnchor` types the node `'goal'`/`'assumption'`/`'proposed'`; `ratifyGoalProposal`'s approve branch promotes it to `'confirmed'` via the existing `confirmNode` on the same fixture that proves the `SOURCED_FROM` edge. | A node-type rewrite; no edges change because `SOURCED_FROM` is already legal (`edges.cjs:854`) |
+| WD-8 | The `SOURCED_FROM` deliverable is MEASURED on the MCP `gate_answer` surface. The CLI `gate_reached` surface (`scripts/intent-classifier.cjs:2401`, 4,680 live rows) is wired in plan 07 to carry the anchor id on its payload and to route a strategy ratification through the same module, so the two surfaces stop being disconnected for this one card kind | Cite 345-ICM-CONSULT AP-G6 and R4 | HELD 2026-09-15 -- adopted as planned, unchallenged. Shipped in plan 07: the MCP surface writes the decision node and edge (measured `sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1` on a fixture room); the CLI surface stamps `anchor_node_id` on `gate_reached` and emits one `strategy_proposed` memory event, but deliberately does not itself write the decision node -- named explicitly in 345-07-SUMMARY.md's "Next Phase Readiness" rather than smuggled together. | The CLI arm is additive and can be removed without touching the MCP path |
 | WD-9 | SENS-19 ranks in `SENS_PRIORITY` **Group A**, not Group D. A measured count over the persisted `memory_event` log is a confirmed room-state fact, not a derived intent; Group D would rank a structural fact below bm25 lexical relevance, which Canon Part 11 R3 forbids | Cite `sensor-priority.cjs:100-133` and 345-ICM-CONSULT R8 | RULED 2026-09-15 -- navigator selected `ratify-all` on the orchestrator's card: Group A ratified as written (read as SENS-20, the corrected id per Section 6, since SENS-19 was claimed by Phase 343 first) | Moving one string in one frozen array, plus the header prose row beside it |
 
 ---
@@ -88,6 +90,26 @@ item 1, AP-G4).
 (d) The two-column goal-drift doctor statement (R9). Deferred because `data/doctor-modules.json`
 is inside 344-05's `files_modified` and this phase does not touch a file Phase 344 was mid-flight
 on at the time this phase was researched. Hand it to Phase 346 with this citation.
+
+(e) **The `taxonomy_ladder` rung-casing mismatch** (discovered in plan 06, carried forward again
+by name in plan 08, closed out here rather than dropped). The deployed Theo `taxonomy_ladder`
+tool's `rung` argument schema is Theo-cased (`'IllDefined'`, `'WellDefined'`, `'UnDefined'`,
+`'Wicked'`), not the lowercase ladder-vocabulary form `rung-vocabulary.cjs::toLadderRung` produces
+and that `taxonomy-climb.cjs::renderLadder` sends (`'ill-defined'`), per the plan-06 acceptance
+criterion that pins the lowercase wire value as a literal requirement. Measured live against the
+deployed origin (2026-09-15): sending the lowercase form is REJECTED (`MCP error -32602: ...
+expected one of "UnDefined"|"IllDefined"|"WellDefined"|"Wicked" at rung`); sending the Theo-cased
+form SUCCEEDS and returns a real `ladder` string plus a structured `rungs` array. Functionally
+harmless in production today -- `_resolveLadderText` trusts only a live `.ladder` field and
+degrades safely to `localLadderLine` on any other shape, so the strategy card always renders,
+just never with the Brain-decorated ladder. Full reproduction:
+`lib/core/strategy/strategy-card.cjs`'s own header comment, `345-06-SUMMARY.md` ("Live Finding for
+Plan 08"), `345-08-SUMMARY.md` ("Live Finding Carried Forward to 345-09"). Not fixed in this phase
+because the lowercase send is a literal, already-ratified acceptance criterion from an earlier
+plan (345-06 Task 2), not a bug introduced by drift -- reconciling it is a scoped fix to
+`rung-vocabulary.cjs` and/or `taxonomy-climb.cjs::renderLadder`, owned by a dedicated quick task
+(see `docs/2026-09-14-PHASE-345-STRATEGY-NODE-CLOSE-OUT.md`, "What stayed open," item (g), and
+`docs/OPEN-HANDOFFS.md`'s Phase 345 row) rather than a drive-by edit inside this close-out plan.
 
 ---
 

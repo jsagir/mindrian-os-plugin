@@ -1933,29 +1933,37 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 `- [ ]` rows, to be closed with measured proof by the phase's own close-out plan, per the Phase
 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347 precedent.
 
-- [ ] **STRAT-01**: The top-level `goal` key on `jtbd-state.json` carries `parent_question`,
+- [x] **STRAT-01**: The top-level `goal` key on `jtbd-state.json` carries `parent_question`,
       `rung`, `goal_version`, `set_at`, `set_by`, is carried through `writeStateAtomic`, and is
-      preserved by all three writers. Measured: pending, intended check: `node
-      tests/test-345-goal-record.cjs`.
+      preserved by all three writers. Measured: `node tests/test-345-goal-record.cjs` exits 0
+      (40/40 assertions, 2026-09-15), including the three whole-object preservation legs
+      (`setCurrent`, `bumpTurnCount`, `clear`) and the on-disk key-order assertion.
 
-- [ ] **STRAT-02**: `goal_version` is monotone and `goal_history` is a bounded ring; absent reads
-      as 0. Measured: pending, intended check: `node tests/test-345-goal-record.cjs`.
+- [x] **STRAT-02**: `goal_version` is monotone and `goal_history` is a bounded ring; absent reads
+      as 0. Measured: `node tests/test-345-goal-record.cjs` exits 0 (40/40 assertions,
+      2026-09-15), including the version-monotonicity leg across two `setGoal` calls and the
+      `GOAL_HISTORY_MAX` bound proven with 51 consecutive writes.
 
-- [ ] **STRAT-03**: One declared persisted rung vocabulary exists with a tested mapping to the
+- [x] **STRAT-03**: One declared persisted rung vocabulary exists with a tested mapping to the
       egress-guard ladder enum. Measured: `node tests/test-345-rung-mapping.cjs` exits 0
       (2026-09-15); `grep -c "layer: graph" lib/core/strategy/rung-vocabulary.cjs` returns at
       least 1; `grep -c "require(.*brain-client" lib/core/strategy/rung-vocabulary.cjs` returns 0.
 
-- [ ] **STRAT-04**: The cadence and stall counters read through the navigation chokepoint over
-      `memory_event`, with named constants and an injection seam. Measured: pending, intended
-      check: `node tests/test-345-cadence.cjs`.
+- [x] **STRAT-04**: The cadence and stall counters read through the navigation chokepoint over
+      `memory_event`, with named constants and an injection seam. Measured: `node
+      tests/test-345-cadence.cjs` exits 0 (41/41 assertions, 2026-09-15), including the
+      `MAX_CANDIDATES` cap fixture and the `readStallSignal` null-default-unless-injected leg.
 
-- [ ] **STRAT-05**: The cool-down ships a hard minimum interval, a dismissal-rate throttle,
-      REJECT-only suppression, and a `strategy_throttled` memory_event. Measured: pending,
-      intended check: `node tests/test-345-cooldown.cjs`.
+- [x] **STRAT-05**: The cool-down ships a hard minimum interval, a dismissal-rate throttle,
+      REJECT-only suppression, and a `strategy_throttled` memory_event. Measured: `node
+      tests/test-345-cooldown.cjs` exits 0 (30/30 assertions, 2026-09-15), including the
+      one-row-per-call `emitThrottleEvent` fixture leg across two consecutive calls.
 
-- [ ] **STRAT-06**: `sensorStrategyReach` is pure, sync, zero I/O, and returns `null` on every
-      refusal branch. Measured: pending, intended check: `node tests/test-345-strategy-sensor.cjs`.
+- [x] **STRAT-06**: `sensorStrategyReach` is pure, sync, zero I/O, and returns `null` on every
+      refusal branch. Measured: `node tests/test-345-strategy-sensor.cjs` exits 0 (19/19
+      assertions, 2026-09-15), one named leg per refusal branch plus both fire branches; `node
+      tests/test-345-part8.cjs` exits 0 (14/14 assertions) confirming the runtime evidence bag is
+      frozen and primitives-only.
 
 - [x] **STRAT-07**: The strategy-reach sensor is registered across lockstep places 2 through 6
       with `SENS_PRIORITY` in Group A. Note (see decisions record Section 6): the id reserved by
@@ -1971,39 +1979,71 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
       Deliberate negative check confirmed: disabling the producer block makes the test fail
       closed (`0 !== 1`), reverted after confirming.
 
-- [ ] **STRAT-09**: The stall count is exposed as a named null-default input for the Phase 346
-      arbiter. Measured: pending, intended check: `node tests/test-345-cadence.cjs`.
+- [x] **STRAT-09**: The stall count is exposed as a named null-default input for the Phase 346
+      arbiter. Measured: `node tests/test-345-cadence.cjs` exits 0 (41/41 assertions, 2026-09-15);
+      `readStallSignal`'s `stall_count` defaults to `null` (never a falsely-measured `0`) on every
+      path except an injected `roomState.strategyStallCount`.
 
 - [x] **STRAT-10**: The climb composes local rung inference plus the optional `taxonomy_ladder`
-      render through `brainClient.callTool`, with a local one-line fallback. Measured: pending,
-      intended check: `node tests/test-345-climb.cjs`.
+      render through `brainClient.callTool`, with a local one-line fallback. Measured: `node
+      tests/test-345-climb.cjs` exits 0 (13/13 assertions, 2026-09-15), including the
+      Brain-unreachable degrade-to-`localLadderLine` leg and the `mcp__theo__`/`parent_question`
+      tripwire greps both pinned at 0.
 
-- [ ] **STRAT-11**: No file under `lib/` contains the literal `mcp__theo__`. Measured: `bash
+- [x] **STRAT-11**: No file under `lib/` contains the literal `mcp__theo__`. Measured: `bash
       tests/run-all-345.sh` Tripwire A (`grep -rl 'mcp__theo__' lib/`) reports PASSED
-      (2026-09-15).
+      (2026-09-15); re-measured at phase close (345-09, 2026-09-15): `grep -rl "mcp__theo__"
+      lib/ | wc -l` returns `0`.
 
 - [x] **STRAT-12**: The idempotent payload-free `goal:<room-slug>` anchor node is minted before
-      the card. Measured: pending, intended check: `node tests/test-345-gate-anchor.cjs`.
+      the card. Measured: `node tests/test-345-gate-anchor.cjs` exits 0 (29/29 assertions,
+      2026-09-15), idempotency pinned on a real `SELECT COUNT(*)` row count, mint-before-assembly
+      ordering proven with a zero-`SOURCED_FROM`-edges check on a failed mint.
 
 - [x] **STRAT-13**: The strategy proposal is a Decision Gate whose approve branch writes a typed
-      decision node with at least one `SOURCED_FROM` edge, wired on both surfaces. Measured:
-      pending, intended check: `node tests/test-345-gate-ratify.cjs`.
+      decision node with at least one `SOURCED_FROM` edge, wired on both surfaces. Measured: `node
+      tests/test-345-gate-ratify.cjs` exits 0 (33/33 assertions, 2026-09-15), through the actual
+      registered `gate_render`/`gate_answer` MCP tool handlers on a fixture room, printing
+      `MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1` (verbatim,
+      2026-09-15) against a fleet-wide before of 0 `SOURCED_FROM` edges and 0 `decision:gate:*`
+      nodes across 30 live rooms against 4,680 `gate_reached` events (345-ICM-CONSULT's census,
+      cited in the decisions record WD-8, measured 2026-09-14). The after count is a FIXTURE
+      measurement on a single scratch room driven through the real tool handlers, not a fleet
+      measurement -- no live room has yet answered a strategy gate as of this close-out.
 
 - [x] **STRAT-14**: Every `reach_presented` payload carries the `goal_version` it ran under.
-      Measured: pending, intended check: `node tests/test-345-goal-version-stamp.cjs`.
+      Measured: `node tests/test-345-goal-version-stamp.cjs` exits 0 (19/19 assertions,
+      2026-09-15), including the `goal_version: 0` (no goal set) leg and the `anchor_node_id`
+      omitted-not-null leg on `gate_reached`.
 
 - [x] **STRAT-15**: The two L2 contract Inputs pointer lines land, plus the
-      `problem-definition.md` rung-vocabulary correction. Measured: pending, intended check: `node
-      tests/test-345-doctrine.cjs`.
+      `problem-definition.md` rung-vocabulary correction. Measured: `node
+      tests/test-345-doctrine.cjs` exits 0 (11/11 assertions, 2026-09-15): `problem-definition.md`
+      carries exactly one `jtbd-state.json` pointer and no longer contains the stale "not a fourth,
+      co-equal rung" sentence; `strategy.md` carries exactly one `jtbd-state.json` pointer.
 
 - [x] **STRAT-16**: The SKILL.md doctrine amendment lands at the anti-circular rule, plus the dist
-      mirrors. Measured: pending, intended check: `node tests/test-345-doctrine.cjs`.
+      mirrors. Measured: `node tests/test-345-doctrine.cjs` exits 0 (11/11 assertions,
+      2026-09-15): the anti-circular rule appears exactly once, names the strategy node as the
+      room-level reframe owner in the observing voice, cites the graph-engineering source at
+      4645:4703, and the extracted paragraph is byte-identical across the source file and both
+      `dist/` mirrors (content-addressed, not by line number).
 
-- [ ] **STRAT-17**: Every declaring surface this phase adds carries `layer: graph`. Measured:
-      pending, intended check: `node scripts/check-layer-declaration.cjs`.
+- [x] **STRAT-17**: Every declaring surface this phase adds carries `layer: graph`. Measured:
+      `node scripts/check-layer-declaration.cjs` exits 0 (2026-09-15): `OK: 285 surfaces
+      enumerated, 248 declared, 37 exempt`. Header-comment grep confirms `layer: graph` on all six
+      `lib/core/strategy/*.cjs` files, `lib/core/sensors/sensor-strategy-reach.cjs`, and
+      `lib/core/navigation/goal-anchor.cjs`; `layer: context` on `lib/hmi/jtbd-state.cjs`;
+      `skills/larry-personality/SKILL.md` correctly carries no `layer:` key because it is
+      `connector.excluded:true` with a stated reason (Phase 344's own WD-7 exemption, 345-08's
+      Deviation 1 -- adding `layer: prompt` there would have contradicted 344-04's already-shipped
+      ruling).
 
-- [ ] **STRAT-18**: Phase close: `bash tests/run-all-345.sh` runs green, every STRAT id closed
-      with a measured proof. Measured: pending, intended check: `bash tests/run-all-345.sh`.
+- [x] **STRAT-18**: Phase close: `bash tests/run-all-345.sh` runs green, every STRAT id closed
+      with a measured proof. Measured: `bash tests/run-all-345.sh` exits 0 (`PASS=19 FAIL=0
+      SKIP=0`, 2026-09-15, re-run at phase close); every STRAT-01..18 row above carries its own
+      `Measured:` clause; the full twelve-check gate sweep (345-09 Task 1) is recorded in
+      `docs/2026-09-14-PHASE-345-STRATEGY-NODE-CLOSE-OUT.md`.
 
 ## Traceability
 
