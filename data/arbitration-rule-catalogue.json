@@ -1,0 +1,238 @@
+{
+  "_doc": {
+    "purpose": "The record of every rule in this system that can short-circuit Larry's conversational judgment while a conversation is happening, classified on the rungs data/harness-policies/_schema.json already ships. Read by tests/test-346-catalogue-schema.cjs and by any future promotion review; the classification is DATA in a tracked path, not prose in a gitignored plan file.",
+    "rung_vocabulary_source": "data/harness-policies/_schema.json _doc.rung_vocabulary, read live, never re-typed. The mapping to this phase's language: blocking is a hard floor (a non-zero exit fails the tier); logged is a weighted input with an evidence log (spawns, appends, never fails); declared is a weighted input observed only (nothing spawned, report only). Minting a second floor-versus-input vocabulary beside the shipped one would be the reuse-before-build violation this phase exists to cure.",
+    "census_method": "The denominator is enumerated from hooks/hooks.json at check time by tests/test-346-catalogue-schema.cjs, never frozen in this file or in the test. A future hook addition is either catalogued here or named in _doc.not_a_judgment_rule with a reason; there is no third state.",
+    "census_command": "node tests/test-346-catalogue-schema.cjs",
+    "stop_hook_gates": ["scripts/check-card-fire.cjs", "scripts/check-voice-style.cjs"],
+    "build_time_gates_out_of_scope": "Every other scripts/check-*.cjs gate runs at pre-commit, scripts/verify-release, or doctor --acceptance, never at conversation time, so it cannot short-circuit conversational judgment because there is no conversation for it to interrupt; the exact live count is produced by the census command above, never recorded here as a literal. One historically relevant footnote: scripts/check-shape-declaration.cjs is the demotion precedent, softened from HARD-FAIL to advisory by Phase 210 (Canon Appendix D entry 37, v1.23 to v1.24); the declaration mandate is unchanged, every violation is still enumerated by name, and nothing is ever silenced.",
+    "floor_vocabulary": ["enforced", "doctrinal", "none"],
+    "floor_meaning": [
+      { "floor": "enforced", "meaning": "code blocks it today; a non-zero exit fails the tier." },
+      { "floor": "doctrinal", "meaning": "canon or a doctrine file requires it, but no code blocks it; the rung stays honest about that gap rather than pretending enforcement exists." },
+      { "floor": "none", "meaning": "not a floor at all; a weighted input the arbiter is free to read, even when its practical weight today is zero." }
+    ],
+    "hook_event_vocabulary": ["Stop", "UserPromptSubmit", "PreToolUse"],
+    "hook_event_vocabulary_reason": "Only a rule that runs while a conversation is happening can short-circuit conversational judgment. SessionStart, PreCompact, PostCompact, SessionEnd, PostToolUse, FileChanged, CwdChanged, SubagentStop and TaskCompleted are all outside a live conversational turn in the sense this catalogue cares about and are out of scope by the same logic as the build-time gates.",
+    "not_a_judgment_rule": {
+      "operator-update.cjs": "Writes the operator-classification state file (lib/conversation/operator.cjs) other rules read; it observes and records, it never judges or blocks a turn itself.",
+      "jtbd-update.cjs": "Writes the room JTBD state file (lib/hmi/jtbd-state.cjs) other rules and the arbiter's own JTBD input read; a state writer, not a gate.",
+      "gsd-graph-derive-sweep.cjs": "Drains the GSD graph-derivation queue in the background; bookkeeping over already-decided artifact writes, not a judgment over the current turn.",
+      "brain-derivation-drain.cjs": "Drains queued Brain-derivation writes in the background; bookkeeping, not a live judgment call.",
+      "auto-explore-drain.cjs": "Drains the auto-explore fingerprint queue in the background; bookkeeping over prior tool-use telemetry, not a judgment over the current turn.",
+      "run-hook.cmd on-stop": "The generic Stop-hook dispatcher for room-context persistence (session save state, room binding refresh); a routing indirection to per-room bookkeeping, not itself a rule that judges or blocks."
+    },
+    "named_assumption": "The langtalks consult's own flag, quoted: the floor-versus-weighted-input classification is an engineering decision with no corpus backing, so every row below is arguable and each carries its own reason so the navigator can overrule it row by row."
+  },
+  "conversation_time_rules": [
+    {
+      "id": "part8-egress-guard",
+      "rule": "LOCAL data never egresses to the Brain; only generic methodology handles cross the wire.",
+      "mechanism": "scripts/part8-egress-guard-hook.cjs",
+      "hook_event": "PreToolUse",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "blocking",
+      "floor": "enforced",
+      "floor_source": "Canon Part 8 (docs/MINDRIAN-CANON.md); CLAUDE.md:51",
+      "arbiter_input": false,
+      "reason": "Constitutional. Never an input, always a floor. Named a floor by the standing langtalks consult. The 2026-07-02 WATCH file's own bucket analysis places this class of guard in the should-not-be-touched bucket: it is a data-boundary control, not a persona or teaching decision, and the arbiter must never read it as a weighted signal."
+    },
+    {
+      "id": "write-scope-check",
+      "rule": "A write lands only in the session's bound room; cross-room writes are rejected.",
+      "mechanism": "hooks/run-hook.cmd write-scope-check",
+      "hook_event": "PreToolUse",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "blocking",
+      "floor": "enforced",
+      "floor_source": "Canon Part 9 (Memory Locality); the per-session room-binding write-scope gate",
+      "arbiter_input": false,
+      "reason": "Same should-not-be-touched bucket as the Part 8 egress guard. It protects which room a write lands in, which is a data-boundary and security concern, not a persona decision about how Larry teaches. Never an arbiter input."
+    },
+    {
+      "id": "gate-card-fire",
+      "rule": "A genuine Decision-Gate fork must render as a real AskUserQuestion card, never as prose describing the options.",
+      "mechanism": "scripts/check-card-fire.cjs",
+      "hook_event": "Stop",
+      "policy_file": "data/harness-policies/gate-card-fire.json",
+      "rung_today": "logged",
+      "rung_proposed": "logged",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "The primary offender named by the 2026-07-02 WATCH item. Its own policy notes, its source at scripts/check-card-fire.cjs, and 298-09-SUMMARY.md each independently record an 86 percent false-positive history against the now-retired bare numbered-prose alternative. It stays at rung logged and becomes a weighted input to the enforcement axis; it must feed the arbiter's decision, never make it alone."
+    },
+    {
+      "id": "voice-glyph-present",
+      "rule": "Every Larry turn opens with exactly one valid De Stijl voice glyph.",
+      "mechanism": "scripts/check-voice-style.cjs",
+      "hook_event": "Stop",
+      "policy_file": "data/harness-policies/voice-glyph-present.json",
+      "rung_today": "declared",
+      "rung_proposed": "declared",
+      "floor": "doctrinal",
+      "floor_source": "Canon Part 12 (Pedagogy, Invisibility); CLAUDE.md:57",
+      "arbiter_input": true,
+      "reason": "This is the SPLIT, stated in one sentence: the glyph is a doctrinal floor (Larry always wears one) and, separately, an observational declared rung (scripts/check-voice-style.cjs lines 15-18 state the hook NEVER blocks and NEVER fails a turn; every code path emits {continue:true} and exits 0). Promotion from declared to a higher rung is out of scope here, is a one-line human edit to voice-glyph-present.json's rung key, and requires reading evaluatePromotion's verdict against a reviewed evidence window first. The arbiter must never emit a value that licenses dropping the glyph."
+    },
+    {
+      "id": "voice-hyphens-only",
+      "rule": "No em-dashes anywhere in a Larry turn; hyphens only.",
+      "mechanism": "scripts/check-voice-style.cjs",
+      "hook_event": "Stop",
+      "policy_file": "data/harness-policies/voice-hyphens-only.json",
+      "rung_today": "declared",
+      "rung_proposed": "declared",
+      "floor": "doctrinal",
+      "floor_source": "CLAUDE.md:140",
+      "arbiter_input": true,
+      "reason": "Same shape as the glyph: a doctrinal floor in prose and an observational declared rung in code (scripts/check-voice-style.cjs never blocks, only logs a JSONL row per hit). Nothing is promoted in this phase."
+    },
+    {
+      "id": "voice-backend-noun-free",
+      "rule": "Larry never names backend implementation nouns (graph internals, table names, model names) in a turn to the user.",
+      "mechanism": null,
+      "hook_event": "Stop",
+      "policy_file": "data/harness-policies/voice-backend-noun-free.json",
+      "rung_today": "declared",
+      "rung_proposed": "declared",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "An honest declared ghost: voice-backend-noun-free.json's own runner is null, so nothing runs today and there is no live mechanism to name. Left exactly as it is; it is also the precedent this plan's own arbiter policy file (data/harness-policies/gate-arbitration-decision.json, Task 3) follows."
+    },
+    {
+      "id": "voice-fork-as-card",
+      "rule": "A fork rendered as a card, not as prose, must actually be a genuine fork (not a forced card over a non-decision).",
+      "mechanism": "scripts/check-card-fire.cjs",
+      "hook_event": "Stop",
+      "policy_file": "data/harness-policies/voice-fork-as-card.json",
+      "rung_today": "logged",
+      "rung_proposed": "logged",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "Rides the card-fire runner (voice-fork-as-card.json's own runner field names scripts/check-card-fire.cjs), so it inherits the same 86 percent false-positive exposure as gate-card-fire and must be weighed, not trusted outright."
+    },
+    {
+      "id": "binding-gate-injection",
+      "rule": "A [BINDING: call the AskUserQuestion tool ...] marker is injected into the model's context on a UserPromptSubmit turn.",
+      "mechanism": "hooks/run-hook.cmd intent-classifier",
+      "hook_event": "UserPromptSubmit",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "logged",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "scripts/intent-classifier.cjs's emitBindingGate (F.8) is the live proof-of-mechanism named in the WATCH file: a [BINDING: call the AskUserQuestion tool ...] marker fired on the 'less like Larry' complaint itself, again on the rollback question, and on six consecutive turns of an unrelated command-inventory conversation (incidents 1, 2, 3, 4 and 4b). Proposed logged rather than declared because it already has real observable fires worth an evidence log, not just a report line. hooks/hooks.json dispatches this rule through the run-hook.cmd intent-classifier verb, which execs the thin bash wrapper scripts/intent-classifier that in turn execs scripts/intent-classifier.cjs; the mechanism field above names the literal dispatch path."
+    },
+    {
+      "id": "hmi-compliance-poll",
+      "rule": "A passive Stop-hook poll scans command surfaces for UI Ruling System drift.",
+      "mechanism": "scripts/hmi-compliance-poll.cjs",
+      "hook_event": "Stop",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "declared",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "Read in full for this task, answering assumption A9. hookMain() (scripts/hmi-compliance-poll.cjs lines 382-401) only fires pollOnce() when the event is Stop, wraps the call in a try/catch that swallows every error (lines 393-398), and unconditionally returns silentHookSuccess() (line 400), which emits {continue:true, suppressOutput:true} through an allowlisted envelope filter (lines 348-370) that carries no BINDING marker and no systemMessage. It never gates a turn and never surfaces model-visible text; it only writes a side-channel JSON file (<room>/.mindrian/last-hmi-poll.json) that no conversation-time consumer reads back. Classified as an available-but-currently-zero-weight arbiter input rather than a floor, since nothing here is constitutional or doctrinal; its practical judgment impact today is inert."
+    },
+    {
+      "id": "mva-detect",
+      "rule": "A UserPromptSubmit classifier detects venture-shaped first sentences and seeds the 30-Second MVA pipeline.",
+      "mechanism": "scripts/mva-detect.cjs",
+      "hook_event": "UserPromptSubmit",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "logged",
+      "floor": "none",
+      "floor_source": null,
+      "arbiter_input": true,
+      "reason": "Read in full for this task, answering assumption A9 alongside hmi-compliance-poll.cjs. main() (scripts/mva-detect.cjs lines 121-223) never blocks a turn: every branch, including a classifier error, ends in emitEmpty() -> {continue:true}. But on a venture-positive classification (line 162) it writes a pending record via mvaState.writePending() (lines 163-169) that scripts/first-install-router.cjs reads several turns later (first-install-router.cjs line 345, its own comment: 'lib/core/mva-state.cjs's pending record at fire time, several turns later') to fire the 30-Second MVA Instant Brief, and it also fires a memory_event through the navigation chokepoint (navigation.logSpineRead, lines 178-194) carrying only closed-enum tokens and a sentence hash, never raw prompt text. This is the hooked-model first-step concern in miniature: the detector itself never gates, but its write is the seed of a later first-turn reward surface. Classified as a weighted input, not a floor, at rung logged, matching the binding-gate-injection precedent of a rule with real observable fires worth an evidence trail."
+    },
+    {
+      "id": "admin-command-gate",
+      "rule": "An admin-only slash command is rejected on a UserPromptSubmit turn from a non-admin identity.",
+      "mechanism": "scripts/admin-command-gate.cjs",
+      "hook_event": "UserPromptSubmit",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "blocking",
+      "floor": "enforced",
+      "floor_source": "Canon Part 11 (Invocation Constitution)",
+      "arbiter_input": false,
+      "reason": "Access control, not persona. It runs first in the UserPromptSubmit chain for exactly that reason. Never a weighted input to the arbiter."
+    },
+    {
+      "id": "first-install-router",
+      "rule": "The first user sentence on a fresh install is classified locally and, on a match, fires the 30-Second MVA Instant Brief as the first reward, strictly before any investment ask.",
+      "mechanism": "scripts/first-install-router.cjs",
+      "hook_event": "UserPromptSubmit",
+      "policy_file": null,
+      "rung_today": null,
+      "rung_proposed": "blocking",
+      "floor": "enforced",
+      "floor_source": "docs/reward-before-investment-rule.md",
+      "arbiter_input": false,
+      "reason": "A floor on the first turn only. The hooked-model first-step rule owns turn 1 end to end; the arbiter's contribution to turn 1 is to stay invisible and to not fire a compliance card over the room's variable reward, never to override which reward fires or when."
+    }
+  ],
+  "prose_mandates": [
+    {
+      "id": "p1-decision-gate-fire-mandate",
+      "rule": "A card-forcing mandate injected into larry-extended.md instructs the model to fire a Decision Gate under stated conditions.",
+      "where": "agents/larry-extended.md",
+      "floor": "none",
+      "arbiter_input": true,
+      "reason": "Named by .planning/SESSION-HANDOFF-2026-07-05-commands-bisect-eureka-registration.md as the 6th suspect, injected by quick(gate-native-fire-w1), never covered by Phase 210's revert because it is not phase-numbered. Classified as a weighted input here; the rewrite that makes the text defer to the arbiter is NOT in this phase's scope, because agents/*.md is owned by a different execution window's plan."
+    },
+    {
+      "id": "p3-shape-f-fire-mandate",
+      "rule": "A card-forcing mandate in the auto-loaded Shape-F skill instructs the model to fire a Decision Gate under stated conditions.",
+      "where": "skills/ui-system/SKILL.md",
+      "floor": "none",
+      "arbiter_input": true,
+      "reason": "Same shape and same exclusion as p1-decision-gate-fire-mandate: a real fire mandate the WATCH file's audit missed because it is not phase-numbered, classified as a weighted input, rewrite out of this phase's scope."
+    },
+    {
+      "id": "stance-toggle-footer",
+      "rule": "The stance-toggle footer is offered when genuinely relevant to the conversation, never forced on every turn.",
+      "where": "skills/larry-personality/SKILL.md",
+      "floor": "none",
+      "arbiter_input": true,
+      "reason": "Already softened by Phase 210 item B from an every-turn footer to 'offered when genuinely relevant, never forced'. Left alone; it is the template every other softening in this catalogue should follow, and this plan's own WD-3 disclosure rule (flip-only surfacing) mirrors it directly."
+    },
+    {
+      "id": "arbitration-rule-7",
+      "rule": "Reach precedes push; the user is the only helm. Never change posture or filing silently.",
+      "where": "skills/larry-personality/SKILL.md",
+      "floor": "doctrinal",
+      "floor_source": "skills/larry-personality/SKILL.md rule 7",
+      "arbiter_input": false,
+      "reason": "This is the arbiter's own constitution. Fixed order: the capability dial evaluates first, the reach result sets posture, Ask-Tell sets intensity within it; the reading is advisory and the navigator holds the sole helm. Not a weighted input because the arbiter cannot weigh its own governing rule against other inputs; it obeys it."
+    },
+    {
+      "id": "two-pass-turn-ordering",
+      "rule": "You observe; the engine decides. Larry never computes his own arbitration.",
+      "where": "skills/larry-personality/SKILL.md",
+      "floor": "doctrinal",
+      "floor_source": "skills/larry-personality/SKILL.md, the two-pass turn-ordering section",
+      "arbiter_input": false,
+      "reason": "The arbiter is engine-side by construction (lib/core/arbitration.cjs, a pure resolver attached to decide()). Larry must never compute his own arbitration in-persona; this floor is what makes that structurally true rather than aspirational."
+    },
+    {
+      "id": "no-fabricated-numbers",
+      "rule": "No fabricated numbers: every quantitative claim traces to a real source.",
+      "where": "docs/MINDRIAN-CANON.md",
+      "floor": "doctrinal",
+      "floor_source": "Canon Part 5 (the evidence bar)",
+      "arbiter_input": false,
+      "reason": "Named a floor by the standing langtalks consult. Partly enforced today by check-card-fire Gate 1 (fabricated-quantity), per tests/test-226-rejection-replay.cjs's own class-1 exemplar (the encoder-free gate that kills a fabricated-quantity claim before any prompt exists). Never a weighted input; the arbiter must never emit a value that licenses a fabricated number."
+    }
+  ]
+}
