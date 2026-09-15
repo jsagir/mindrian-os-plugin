@@ -6141,6 +6141,15 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 349 added (2026-09-15, `/gsd-phase`): "Release-to-Theo leading edge", the
+  synchronous-update half of the pair whose lagging half is the 343-07 Theo stamp gate.
+  Navigator ruling 2026-09-15: every plugin version update makes Theo aware immediately,
+  with Theo consulting langtalks and doing a full-stack pass. release.sh emits a signal
+  after the tag (candidate carrier: repository_dispatch to jsagir/theo, confirmed with
+  jsagi-58 before planning); audited, dry-run-reports-only, fails closed; one-time
+  bootstrap restamps Theo against the current version so the next cut needs no opt-out.
+  Grounded live via langtalks query_relationship (Measurement decay part_of single-loop
+  failure modes; Audit node; Synchronous Update). Depends on Phase 343. Not yet planned.
 - Phase 348 added (2026-09-14, `/gsd-phase`), continuing the "graph-engineering learning
   N" series (345/346/347): "The supersession node" -- automatic supersession of a
   CONTRADICTS-linked confirmed claim as the consequence of a human-approved gate answer,
