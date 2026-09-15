@@ -1646,6 +1646,83 @@ constitutionally.
       stays open per this document's own rule: a row that cannot be closed with a measurement
       stays open with a stated reason rather than closed on an assertion.
 
+### Phase 346 - The arbitration node
+
+- [ ] **ARB-01**: The code identifier `arbitration` is bound and fenced.
+      `docs/ARBITRATION-CONTRACT.md` names all three prior bindings (`sensor-types.POSTURE_IDS`,
+      `recipe-maps.postureForCommand`, `stance-state.STANCES`), states that prose may still say
+      "posture decision" and code may not, and `node tests/test-posture-ids-drift.cjs` stays
+      green for the whole phase.
+
+- [ ] **ARB-02**: The `enforcement` axis exists as new pure code with the closed vocabulary
+      `enforce | judge | not-applicable`, resolved by an ordered first-match ladder, and `judge`
+      is structurally unreachable on a turn where a constitutional floor is engaged.
+
+- [ ] **ARB-03**: `lib/core/arbitration.cjs` composes the three axes into ONE ranked result, is
+      pure (zero I/O, zero network, zero require of `insight-sensors.cjs` or
+      `f-selector-ranker.cjs`), never throws on malformed input, and reports absent inputs in
+      `inputs_missing` rather than defaulting silently.
+
+- [ ] **ARB-04**: A LOCAL escape-hatch detector ships in `lib/core/arbitration.cjs` and matches
+      the two phrases already doctrine in `skills/larry-personality/SKILL.md`, so `selectMode`'s
+      highest-precedence rule stops being fed by nothing on the Claude Code path.
+
+- [ ] **ARB-05**: The cold-start floor holds. No combination of role_blend, problem-type rung,
+      surface or escape-hatch flips turn 1 out of GUIDED and ask-first, and the result object
+      contains no string outside the declared closed enums.
+
+- [ ] **ARB-06**: The arbiter attaches to `decide()` through the `applyProjectionLift` additive
+      convention: a `null` default field in `emptyDecisionTrace()`, one pre-declared trace field
+      written, one rationale clause appended, called on the tier_0 early-return path and the main
+      path, a full no-op on null, and no assignment to `fire_skill`, `offer_next_step` or
+      `suppress_skills`.
+
+- [ ] **ARB-07**: Exactly one arbitration decision per turn is written through the
+      `navigation.cjs` chokepoint as a `memory_event` of type `arbitration_decided`, carrying
+      closed-enum tokens and numbers only, deduped on a session-plus-turn key inside the shipped
+      60-second window.
+
+- [ ] **ARB-08**: A posture flip is disclosed and a hold is silent. The logged row records
+      whether the turn flipped and which axes flipped, compared against the previous logged
+      decision in the same session.
+
+- [ ] **ARB-09**: `data/arbitration-rule-catalogue.json` classifies every conversation-time rule
+      on the shipped `declared | logged | blocking` rungs with a reason per row, names the two
+      Stop-hook gates explicitly, and states in one sentence that the remaining build-time
+      `scripts/check-*.cjs` gates are out of scope, with the count enumerated from disk rather
+      than frozen.
+
+- [ ] **ARB-10**: `scripts/hmi-compliance-poll.cjs` and `scripts/mva-detect.cjs` are read and
+      classified into the catalogue with a rung and a reason, even if the rung is inert.
+
+- [ ] **ARB-11**: The arbiter carries its own harness policy file at rung `declared` with
+      `runner: null` and a `promotion_rule` authored before any evidence exists, `node
+      scripts/build-harness-manifest.cjs --check` is green, and `node scripts/run-harness.cjs
+      --check` counts it as a ghost, never as passing.
+
+- [ ] **ARB-12**: `tests/fixtures/346-watch-incidents.json` carries the nine catalogued misfires
+      plus two positive controls, each with its verbatim `source_quote` from the WATCH memory
+      file, so provenance survives even though the memory file is outside the repo.
+
+- [ ] **ARB-13**: `node tests/test-346-watch-replay.cjs` prints both numbers: the sourced
+      before-number (86 percent false positives for `check-card-fire.cjs`, cited to its three
+      independent sources) and the measured after-number (N of M misfires suppressed, where M is
+      the count enumerated from the WATCH record and stated with its derivation, never a number
+      borrowed from a brief), and the two positive controls are not suppressed.
+
+- [ ] **ARB-14**: The Tri-Polar statement is written: what the arbiter does on Claude Code,
+      Claude Desktop and Cowork, with `not-applicable` on the enforcement axis wherever
+      `CAPABILITY_MAP` reports `hooks: false`, and never a fabricated value.
+
+- [ ] **ARB-15**: `docs/ARBITRATION-CONTRACT.md` declares `layer: graph` against the closed
+      vocabulary Phase 344-01 ships, states the single rung it engineers per WD-6 of the layer
+      contract, and answers the once-per-turn-cadence counter-argument in writing.
+
+- [ ] **ARB-16**: `bash tests/run-all-346.sh` runs green, `node scripts/doctor.cjs
+      --acceptance` and `node scripts/run-harness.cjs --check` are unregressed, every ARB id is
+      finalized with measured proof, `346-VALIDATION.md` is filled, and the phase record lands in
+      `docs/`.
+
 ### Phase 343 - The room-graph census and the counter-metric rule (CENSUS)
 
 These seventeen IDs were minted in the Phase 343 plan set (2026-09-14), scoped to Phase 343
@@ -2047,14 +2124,15 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 
 ## Traceability
 
-247 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+263 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
-(Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345). All minted
+(Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
+(Phase 346). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -2107,10 +2185,13 @@ STRAT-01..18 were minted in
 `345-RESEARCH.md`'s proposed `STRAT` prefix, scoped to Phase 345 only, and are registered here at
 plan time (345-01) as `- [ ]` rows to be closed with measured proof by the phase's own close-out
 plan, per the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347 precedent.
-Roadmap phases must map all 247 active requirements with no orphans.
+ARB-01..16 were minted in the Phase 346 plan set (2026-09-14), ratifying `346-RESEARCH.md`'s
+proposed `ARB-` family, and are registered here at plan time as `- [ ]` rows to be finalized with
+measured proof at phase close by `346-08-PLAN.md`.
+Roadmap phases must map all 263 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED and STRAT
+FLIP, CANON, SHARED, STRAT and ARB
 families
 alike (the
 Phase 266 and 269
