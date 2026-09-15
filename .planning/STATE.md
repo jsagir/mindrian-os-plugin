@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 348-02-PLAN.md - Wave 2 of 10
-last_updated: "2026-09-16T01:14:00+03:00"
-last_activity: 2026-09-16 -- Phase 348 Plan 02 complete (fixture-room-348.cjs, test-348-supersession-e2e.cjs RED tripwire, test-348-one-supersession-door.cjs SUPER-01 source scan green); Phase 348 has 8 waves remaining
+stopped_at: Completed 348-03-PLAN.md - Wave 3 of 10
+last_updated: "2026-09-16T02:45:00+03:00"
+last_activity: 2026-09-16 -- Phase 348 Plan 03 complete (setsSuperseded human-attribution guard for SUPER-02, PRAGMA-probed bitemporal-close schema gate for SUPER-13, three pre-existing regression suites fixed for guard-widening fallout); Phase 348 has 7 waves remaining
 progress:
   total_phases: 99
   completed_phases: 32
   total_plans: 284
-  completed_plans: 270
+  completed_plans: 271
   percent: 95
 ---
+
+<!-- NOTE (348-03 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` succeeded (current_plan 3 -> 4 of 10). `state.update-progress` correctly
+     computed `completed: 271, percent: 95` (271/284). `state.record-metric` (flag syntax
+     `--phase --plan --duration --tasks --files`) landed its own correct Performance Metrics row
+     WITHOUT a frontmatter clobber this time. `state.add-decision` (with `--summary`) DID repeat
+     the documented `[Phase ?]` placeholder-prefix bug (it prepended `[Phase ?]: ` ahead of this
+     plan's own already-prefixed `[Phase 348]` text, producing a double prefix), fixed in place to
+     a single `[Phase 348]: 348-03: ...` line. `state.record-session` updated only `Last session`,
+     correctly, leaving the frontmatter clobber from an EARLIER call in this same session (a stale
+     348-01-era snapshot: `stopped_at` "Completed 348-01-PLAN.md", `last_updated` reverted to the
+     348-01 timestamp, `last_activity` reverted to "Phase 348 execution started", `percent`
+     reverted to `32`, a raw phase-count reading, not the plan-completion percentage) in place.
+     Hand-corrected once, after all calls landed: `stopped_at` -> "Completed 348-03-PLAN.md - Wave
+     3 of 10", `last_updated` -> this plan's completion timestamp, `last_activity` -> this plan's
+     completion line, `percent` -> 95 (271/284, matching `state.update-progress`'s own correct
+     computation); left `total_phases`/`completed_phases` at 99/32 unchanged since Phase 348 has
+     not closed (7 of 10 plans remain). Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (348-02 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4631,7 +4651,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -6288,6 +6308,7 @@ Progress: [█████████░] 92%
 | Phase 346 P08 | 50min | 3 tasks | 4 files |
 | Phase 348 P01 | 12min | 3 tasks | 4 files |
 | Phase 348 P02 | 24min | 3 tasks | 3 files |
+| Phase 348 P03 | 55min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -7895,6 +7916,7 @@ Progress: [█████████░] 92%
 - [Phase 348]: SUPER-01..20 minted verbatim from the 348-01 plan body into REQUIREMENTS.md; docs/SUPERSESSION-CONTRACT.md is the tracked durable home for D-01..D-09 navigator locks and WD-348-1..12 working decisions
 - [Phase 348]: 348-02: e2e Step 10 negative leg redesigned around gate_not_approved (verdict), not identity refusal -- resolveByUser already coerces poisoned identities to 'navigator' before any write, so an approved verdict on a poisoned-identity room legitimately succeeds; the closed refusal-reason set has no identity-specific member.
 - [Phase 348]: 348-02: SUPER-01 source tripwire scopes assertions to the literal 'superseded' value (not a general review_status audit) and adds lib/core/temporal/supersession.cjs to the allow-list, matching docs/SUPERSESSION-CONTRACT.md's own wording; excludes colocated *.test.cjs files from the production-tree scan.
+- [Phase 348]: 348-03: setsSuperseded is a separate predicate OR'd into the human-attribution guard (WD-348-5); the bitemporal-close schema probe runs before the row lookup, scoped to wantsBitemporalClose (WD-348-7); three pre-existing regression suites fixed to attribute a human byUser under the widened guard.
 
 ### Pending Todos
 
@@ -8034,7 +8056,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T23:13:38.313Z
+Last session: 2026-09-15T23:53:58.749Z
 Stopped at: Completed 348-01-PLAN.md - Wave 1 of 10
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
