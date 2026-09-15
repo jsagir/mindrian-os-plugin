@@ -4362,7 +4362,11 @@ Status: STRAT family minted, nine working decisions recorded with reversal cost,
   null-default stall signal, three-mechanism cool-down, floor-first (345-03).
   Gates: bash tests/run-all-345.sh PASS=10 FAIL=0 SKIP=9. Phase 347 CLOSED 12/12 and
   verified (passed); its review fix pass (2 Critical on the live chain_run path, 2 Warning,
-  1 Info) is in flight; completion commit follows it. Plugin main pushed to origin at
+  1 Info) LANDED at merge abd07464: run_id threaded chain_run -> dispatcher -> executor,
+  halt/resume share one run with contiguous indices and the approved gate step recorded,
+  proven by tests/test-347-review-cr01-cr02-live-path.cjs (25/25) driving chain_run and
+  gate_answer end to end; run-all-347 PASS=34 FAIL=0; handoff-seam 6/6. Phase 347 COMPLETE
+  (verified, reviewed, fixed). Plugin main pushed to origin at
   d203a6f7 (2026-09-15); release cut HELD on the 343-07 Theo stamp gate (beta.12 vs
   beta.40) pending Theo re-emission (jsagi-58 asked) or the navigator's --no-theo-check.
   Phase 349 added (release-to-Theo leading edge), not yet planned.
