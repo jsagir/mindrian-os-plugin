@@ -165,7 +165,7 @@ ok('working-decision ledger has exactly 12 rows with a valid Status and a revers
 // ---------------------------------------------------------------------------
 
 ok('contains zero em-dashes', function () {
-  assert.equal(doc.indexOf('—'), -1, 'docs/SUPERSESSION-CONTRACT.md must contain zero em-dashes');
+  assert.equal(doc.indexOf(String.fromCharCode(8212)), -1, 'docs/SUPERSESSION-CONTRACT.md must contain zero em-dashes');
 });
 
 console.log(n + ' assertions passed');
