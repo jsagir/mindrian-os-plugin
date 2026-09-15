@@ -3523,6 +3523,12 @@
       }
     },
     {
+      "id": "agent:chain-step-reviewer",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "chain-step-reviewer"
+    },
+    {
       "id": "agent:competitor-watch-fetcher",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",

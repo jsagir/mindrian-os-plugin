@@ -19,15 +19,15 @@
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "71e496f203e45bf934634e1801ca85758145a072d3967af452c4efea9573b82f",
-      "source_count": 384
+      "digest": "3164eaf799d6c882607b0ba61b272e6358b449d149dad5f1f20647596739a485",
+      "source_count": 385
     }
   ],
   "runtime_surfaces": [
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "9ac825581663e48c1b903637b9b16e54dd031228b97633207815f370561d2532"
+      "digest": "85e548dbfc1dca035cf210fef720b42617a0cd714f391cd251a59c706c0a3218"
     },
     {
       "role": "decide_engine",
