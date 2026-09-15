@@ -2,17 +2,40 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 345-06 minted the payload-free goal anchor, the local rung climb + optional Brain-decorated ladder render, and the four-option strategy_goal proposal card with a real subject_node_id and filtered evidence_node_ids -- ready for plan 07's gate_render call"
-stopped_at: Completed 345-06-PLAN.md
-last_updated: "2026-09-15T13:03:21.523Z"
-last_activity: "2026-09-15 - 345-06 completed (goal-anchor.cjs mintGoalAnchor, taxonomy-climb.cjs climb/renderLadder/localLadderLine, strategy-card.cjs buildStrategyCard; a live MCP-error-leak bug found and fixed via Brain smoke testing; taxonomy_ladder wire-vocabulary mismatch surfaced for Plan 08; run-all-345.sh PASS=16 FAIL=0 SKIP=3)"
+status: "Plan 345-07 wired gate_answer's approve branch to goal-gate ratification, measuring the fleet-wide SOURCED_FROM/decision-node zero moving to one on a fixture room, and stamped every execution reach with the goal version it ran under on both surfaces"
+stopped_at: Completed 345-07-PLAN.md
+last_updated: "2026-09-15T13:30:44.341Z"
+last_activity: "2026-09-15 - 345-07 completed (goal-gate.cjs ratifyGoalProposal, one additive gate.cjs approve branch, strategy_ratification response key, intent-classifier.cjs goal_version/anchor_node_id/strategy_proposed stamps; MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1; run-all-345.sh PASS=18 FAIL=0 SKIP=1)"
 progress:
   total_phases: 98
   completed_phases: 31
   total_plans: 274
-  completed_plans: 257
+  completed_plans: 258
   percent: 94
 ---
+
+<!-- NOTE (345-07 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"); the body's own "## Current Position" section was hand-corrected instead
+     (345-06 -> 345-07 summary, per the established precedent this note stack documents). A
+     stray, already-clobbered frontmatter diff was found in the working tree even BEFORE this
+     plan's own body edit was made (status truncated mid-sentence, stopped_at regressed to
+     "Completed 345-06-PLAN.md", last_activity regressed to a 344-09 narrative, total_phases/
+     completed_phases/percent swapped to 99/30/30) -- root cause not further investigated, same
+     class as every note in this file. `state.update-progress` correctly computed `percent: 94`
+     (completed_plans 258 / total_plans 274) in its own JSON response, and `state.record-metric`,
+     `state.add-decision`, and `state.record-session` each correctly wrote their own body-level
+     content (the Performance Metrics row, the Decisions entry, and the Last-session/Stopped-at
+     body lines respectively) -- but EVERY ONE of these four calls also independently re-clobbered
+     the frontmatter's status/stopped_at/last_activity/total_phases/completed_phases/percent back
+     to the same stale 344-09-era snapshot in the SAME write that landed its own correct body
+     content. Hand-corrected the frontmatter a total of four times this session (once before each
+     call's clobber, plus the initial stray-diff correction), each time restoring
+     status/stopped_at/last_activity to describe 345-07's actual work and
+     total_phases/completed_phases/percent to 98/31/94 (unchanged from 345-06's own correct
+     committed baseline -- Phase 345 has not closed, only 7 of 9 plans done). Same root cause as
+     every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (345-06 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4387,27 +4410,29 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 6/9 complete (345-01, 02, 03, 04, 05, 06). 345-06 CLOSED 2026-09-15: the payload-free,
-  idempotent goal:<room-slug> anchor (lib/core/navigation/goal-anchor.cjs::mintGoalAnchor,
-  re-exported on navigation.cjs), the local zero-network rung climb plus an optional
-  Brain-decorated ladder render that always degrades to a Tier 0 one-liner
-  (lib/core/strategy/taxonomy-climb.cjs), and the four-option strategy_goal proposal card
-  (lib/core/strategy/strategy-card.cjs::buildStrategyCard) carrying a real subject_node_id
-  (mint-before-assembly, null on a failed mint) and a filtered/capped evidence_node_ids list --
-  ready for plan 07's gate_render call with git diff --stat lib/mcp/ empty. All three tasks
-  followed real RED/GREEN commits (test SKIPs on a not-yet-existing module, confirmed by moving
-  the file aside and re-running). One live bug found and fixed via manual Brain smoke-testing
-  (Rule 1): _resolveLadderText would have leaked a raw MCP JSON-RPC validation-error string into
-  a navigator-facing card option, since brain-client.cjs wraps both a genuine non-JSON response
-  and a raw wire error into the identical { text } shape; fixed to trust only the live-verified
-  `.ladder` field. Also surfaced (not fixed, handed to Plan 08 / 345-ICM-CONSULT R6): the
-  deployed taxonomy_ladder tool's rung argument is actually Theo-cased, not the lowercase
-  ladder-vocabulary form rung-vocabulary.cjs (345-01) maps to and this plan's own acceptance
-  criteria mandate sending -- the render safely degrades to localLadderLine either way. WD-3
-  liveness probe run 2026-09-15T12:49:33Z, exit 0 (scope caveat: covers the 6 stdio-shim Brain
-  tools, not taxonomy_ladder itself; the manual smoke test above is the real empirical answer for
-  that tool). bash tests/run-all-345.sh PASS=16 FAIL=0 SKIP=3 (3 skips are tests not yet written
-  for 345-07..09, expected). Next: 345-07.
+Plan: 7/9 complete (345-01, 02, 03, 04, 05, 06, 07). 345-07 CLOSED 2026-09-15: the strategy
+  proposal is now a real Decision Gate. lib/core/strategy/goal-gate.cjs::ratifyGoalProposal is
+  the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate
+  answer; lib/mcp/tools/gate.cjs's existing approve branch gained one additive call to it
+  (guarded on isStrategyCard), attaching a new strategy_ratification response key. The
+  fleet-wide zero (0 SOURCED_FROM edges, 0 decision:gate:* nodes across 30 live rooms) was
+  measured moving to one on a fixture room through the ACTUAL registered gate_render/gate_answer
+  handlers (MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1). The CLI
+  surface (scripts/intent-classifier.cjs) now stamps every reach_presented row with goal_version
+  and carries anchor_node_id + one strategy_proposed event on gate_reached when a strategy reach
+  fires, correlatable with the MCP surface without merging the two write paths (345-ICM-CONSULT
+  AP-G6). All three tasks followed real RED/GREEN commits, RED confirmed each time by reverting
+  the target production file to its pre-edit HEAD content and re-running the suite, then
+  restoring byte-identical before committing. Three deviations: strategy-card.cjs (345-06, out
+  of this plan's declared files_modified) gained a `preview` JSON payload on its rewrite-jtbd/
+  change-rung options -- a Rule 2 fix, since no other field survives the gate_render -> ledger ->
+  gate_answer round trip unchanged and the plan explicitly forbids re-deriving the job/rung at
+  answer time; the CLI-surface strategy-reach detector uses reach.dispatch, not the plan's own
+  stale evidence.sensor_id === 'SENS-19' text (the field does not exist; the id was already
+  corrected to SENS-20 in 345-05); and the fixture test's SQL uses the edges table's real column
+  names (type, target), not the plan's own edge_type/target_id text. bash tests/run-all-345.sh
+  PASS=18 FAIL=0 SKIP=1 (the 1 skip is test-345-doctrine.cjs, plan 08's deliverable). Next:
+  345-08.
 Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
   vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
   strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
@@ -5971,6 +5996,7 @@ Progress: [█████████░] 92%
 | Phase 343 P09 | 95min | 3 tasks | 6 files |
 | Phase 345 P05 | 130min | 3 tasks | 8 files |
 | Phase 345 P06 | 50min | 3 tasks | 6 files |
+| Phase 345 P07 | 70min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7564,6 +7590,7 @@ Progress: [█████████░] 92%
 - [Phase 345]: 345-05: navigator ratified WD-1/WD-4/WD-9 as written (ratify-all): cadence 40/12/20, reach id contradiction + posture pull_back, SENS_PRIORITY Group A; SENS-20 registered across all seven lockstep places and is now live inside dispatchSensors on every turn
 - [Phase 345]: goal:<room-slug> anchor typed 'goal' never 'claim' at epistemic_type assumption, review_status proposed; promotion to confirmed is plan 07's job
 - [Phase 345]: _resolveLadderText trusts only the live-verified .ladder field, never a bare .text, since brain-client.cjs wraps a genuine response and a raw JSON-RPC error into the identical { text } shape
+- [Phase 345]: goal-gate.cjs is the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate answer; ratifyGoalProposal writes no decision node and no provenance edges itself, feeding the existing writeReasoningNode chokepoint instead of duplicating it.
 
 ### Pending Todos
 
@@ -7703,8 +7730,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T13:03:21.454Z
-Stopped at: Completed 345-06-PLAN.md
+Last session: 2026-09-15T13:30:44.276Z
+Stopped at: Completed 345-07-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

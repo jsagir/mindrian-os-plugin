@@ -1985,11 +1985,11 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 - [x] **STRAT-12**: The idempotent payload-free `goal:<room-slug>` anchor node is minted before
       the card. Measured: pending, intended check: `node tests/test-345-gate-anchor.cjs`.
 
-- [ ] **STRAT-13**: The strategy proposal is a Decision Gate whose approve branch writes a typed
+- [x] **STRAT-13**: The strategy proposal is a Decision Gate whose approve branch writes a typed
       decision node with at least one `SOURCED_FROM` edge, wired on both surfaces. Measured:
       pending, intended check: `node tests/test-345-gate-ratify.cjs`.
 
-- [ ] **STRAT-14**: Every `reach_presented` payload carries the `goal_version` it ran under.
+- [x] **STRAT-14**: Every `reach_presented` payload carries the `goal_version` it ran under.
       Measured: pending, intended check: `node tests/test-345-goal-version-stamp.cjs`.
 
 - [ ] **STRAT-15**: The two L2 contract Inputs pointer lines land, plus the
