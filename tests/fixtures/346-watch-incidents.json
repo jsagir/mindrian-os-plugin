@@ -1,0 +1,176 @@
+{
+  "_doc": {
+    "purpose": "The recorded misfire shapes plus two positive controls, used to prove lib/core/arbitration.cjs's resolveArbitration suppresses the enforcement misfires the 2026-07-02 WATCH item documented, without ever licensing a constitutional floor to be dropped.",
+    "source_file": "/home/jsagi/.claude/projects/-home-jsagi/memory/feedback_1_15_enforcement_regression_watch.md -- this file lives outside this repository, under the navigator's own Claude Code project memory directory, not the repo tree. It can be edited, moved or absent on another machine, which is exactly why every fixture below carries a verbatim source_quote rather than a paraphrase: the quote embedded here cannot drift even if the source file does.",
+    "provenance_rule": "Every fixture's source_quote is copied verbatim, byte-for-byte, from source_file. Never paraphrased, never summarized, never re-worded.",
+    "reconstruction_limitation": "These fixtures are shapes reconstructed from a prose incident log (the WATCH memory file), not captured conversation transcripts; no 2026-07 transcripts exist anywhere in this repo or its memory directory, and the sessions are two months past. They prove the arbiter's logic holds against the recorded failure modes described in that log. They do not prove the persona regression itself closed in live use. The only honest close on that second claim is a fresh WATCH window observed after this phase ships, not a replay against fixtures derived from the original complaint.",
+    "measured_misfire_count": 8,
+    "count_derivation": "Enumerated by one fixture per distinct (date, mechanism, turn-context) triple, reading the WATCH file directly rather than the research summary's own transcription table. The WATCH file's 4th-instance paragraph names two distinct misfires (the F.1 stale-artifact gate firing on 6+ consecutive turns of one command-inventory conversation, and a separate room-binding F.8 gate firing on an unrelated Desktop-upload question); both are kept as two rows because their turn-context differs, but the 6+ consecutive F.1 fires WITHIN that same conversation are collapsed into ONE row, one shape, not six, since they share date, mechanism and context. No incident was split beyond what the source text itself already separates, and none was padded to reach any target count.",
+    "count_discrepancy_note": "The planning brief states '7 incidents / 9 misfires'. Enumerating the WATCH file directly under the rule above yields 8 distinct fixtures (three from the first live-proof-of-mechanism session, two from the 4th-instance paragraph, and one each from the 5th instance, the 2026-07-08 instance and the 2026-07-12 instance), one fewer than the brief's stated 9. This is recorded as the finding rather than padded to match: the likeliest source of the brief's higher count is treating the 4th instance's 6+ consecutive F.1 fires as more than one shape, which the count-honesty rule above forbids.",
+    "before_number_sources": [
+      "data/harness-policies/gate-card-fire.json",
+      "scripts/check-card-fire.cjs",
+      ".planning/phases/298-seed-032-harness-as-code-declare-and-machine-enforce-the-min/298-09-SUMMARY.md"
+    ]
+  },
+  "misfires": [
+    {
+      "id": "watch-1-stale-artifact-on-complaint",
+      "date": "2026-07-02",
+      "mechanism": "binding-gate-injection",
+      "turn_context": "Jonathan's own \"less like Larry\" complaint triggered a stale F.1 Decision Gate pointing at an unrelated 2026-05-07 memory artifact.",
+      "source_quote": "The UserPromptSubmit engine fired a Decision Gate card on Jonathan's very \"less like Larry\" complaint, pointing at an unrelated, stale room artifact from 2026-05-07, and marked it `[BINDING: call the AskUserQuestion tool ... do not reproduce this block as text (SEED-021)]`.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "gate_subject_unconnected",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-2-stale-artifact-on-rollback-question",
+      "date": "2026-07-02",
+      "mechanism": "binding-gate-injection",
+      "turn_context": "The same stale F.1 artifact gate fired again on Jonathan's rollback question.",
+      "source_quote": "Live misfire count so far, same session: 3 -- the original stale-artifact Decision Gate on the \"less like Larry\" complaint itself, a repeat of the same stale-artifact gate on the rollback question, and a room-binding F.8 gate that fired mid-conversation with zero rooms even relevant to the ask.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "gate_subject_unconnected",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-3-room-binding-zero-relevant-rooms",
+      "date": "2026-07-02",
+      "mechanism": "binding-gate-injection",
+      "turn_context": "A room-binding F.8 gate fired mid-conversation with zero rooms relevant to the ask.",
+      "source_quote": "Live misfire count so far, same session: 3 -- the original stale-artifact Decision Gate on the \"less like Larry\" complaint itself, a repeat of the same stale-artifact gate on the rollback question, and a room-binding F.8 gate that fired mid-conversation with zero rooms even relevant to the ask.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "gate_subject_unconnected",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-4-stale-artifact-six-consecutive-command-inventory",
+      "date": "2026-07-02",
+      "mechanism": "binding-gate-injection",
+      "turn_context": "The stale F.1 artifact gate fired on every turn (6+ consecutive) of an unrelated command-inventory conversation about commands, skills and the rooms folder.",
+      "source_quote": "the stale-artifact F.1 gate (same 2026-05-07 memory_artifact, \"top-3 of 6\") fired on every single turn of an unrelated command-inventory conversation (how many commands/skills exist, where the rooms folder lives, rs-fetch family, Desktop upload requirements) -- 6+ consecutive misfires, never once relevant.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "gate_subject_unconnected",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-4b-room-binding-desktop-upload-question",
+      "date": "2026-07-02",
+      "mechanism": "binding-gate-injection",
+      "turn_context": "A room-binding F.8 gate fired on a plain informational question about what Desktop Mindrian needs for an upload, involving no room writes.",
+      "source_quote": "Separately, a room-binding F.8 gate (\"session unbound -- choose which room(s) this session writes to\", 4-of-12-pages room picker) fired on a plain informational question (\"what do I need to give Desktop Mindrian to upload the plugin\") that involved no room writes at all.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "gate_subject_unconnected",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-5-backstop-block-already-answered-yes",
+      "date": "2026-07-02",
+      "mechanism": "gate-card-fire",
+      "turn_context": "The check-card-fire.cjs Stop-hook backstop blocked a turn where the user had already answered a plain prose follow-up with \"yes\".",
+      "source_quote": "The `check-card-fire.cjs` Stop hook (ascii-box-backstop-no-card) BLOCKED that turn, demanding an AskUserQuestion card be fired for a question that was already answered in plain text.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": true,
+        "question_already_answered": true
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "question_already_answered",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-6-backstop-block-no-gate-drawn",
+      "date": "2026-07-08",
+      "mechanism": "gate-card-fire",
+      "turn_context": "The check-card-fire.cjs Stop-hook backstop blocked a turn that launched a Workflow and ended in a status report, with no gate drawn and no ASCII box rendered.",
+      "source_quote": "Stop hook `check-card-fire.cjs` blocked with `ascii-box-backstop-no-card` on a turn that launched a Workflow and ended with a status report - no gate was drawn, no ASCII box rendered.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": false
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "no_fork_reached",
+      "kind": "misfire"
+    },
+    {
+      "id": "watch-7-backstop-block-card-already-fired",
+      "date": "2026-07-12",
+      "mechanism": "gate-card-fire",
+      "turn_context": "The check-card-fire.cjs Stop-hook backstop blocked a turn where the real AskUserQuestion card WAS fired, confused by a parallel background task-notification arriving the same turn.",
+      "source_quote": "mid-turn, the Stop hook fired `ascii-box-backstop-no-card` with feedback \"This turn REACHED a Decision Gate but did NOT fire the interactive card... Re-emit this turn with the AskUserQuestion tool call\" -- on a turn where the AskUserQuestion card for the actual pending fork (phase-scope: fold vs. split find-connections/find-analogies rewiring) WAS fired in that same response, alongside an unrelated background task-notification (a fork agent completing) arriving in parallel.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": true,
+        "card_fired_this_turn": true
+      },
+      "expected_enforcement": "judge",
+      "expected_reason": "card_already_fired",
+      "kind": "misfire"
+    }
+  ],
+  "positive_controls": [
+    {
+      "id": "pc-genuine-fork",
+      "date": "2026-07-02",
+      "mechanism": "gate-card-fire",
+      "turn_context": "A genuine three-way fork (dist-tag rewind vs proper revert-and-release vs hold off) correctly fired a real AskUserQuestion card, which the user answered.",
+      "source_quote": "I fired a genuine AskUserQuestion (real fork: dist-tag rewind vs. proper revert+release vs. hold off) -- he picked \"do it properly.\"",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "gate_reached": true,
+        "gate_subject_connected": true
+      },
+      "expected_enforcement": "enforce",
+      "expected_reason": "live_unanswered_fork",
+      "kind": "positive_control"
+    },
+    {
+      "id": "pc-part8-floor",
+      "date": "2026-07-02",
+      "mechanism": "part8-egress-guard",
+      "turn_context": "A turn with a Part 8 Brain-egress decision in flight, with every other judge-producing signal also set at once against it.",
+      "source_quote": "**~13% (46 commits)** = a different enforcement flavor that should NOT be touched: Phase 194 (per-session-room-binding write-scope gate), Phase 196 (Part-8 Brain-egress PreToolUse guardrail), Phase 200 (Reverse-Salient semantic-floor gate). Data-boundary/security, not persona.",
+      "ctx": {
+        "capabilities": { "hooks": true },
+        "floor_engaged": true,
+        "floor_kind": "part8_egress",
+        "gate_reached": false,
+        "gate_subject_connected": false,
+        "question_already_answered": true,
+        "card_fired_this_turn": true,
+        "escape_hatch": { "user_said_just_tell_me": true, "user_said_bottom_line": true }
+      },
+      "expected_enforcement": "enforce",
+      "expected_reason": "constitutional_floor",
+      "kind": "positive_control"
+    }
+  ]
+}
