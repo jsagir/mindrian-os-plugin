@@ -6,6 +6,7 @@ One job: hold the problem this venture is actually trying to solve, stated so a 
 
 ## Inputs
 - Working (this room): meeting notes and uploads in `meetings/`, and this room's own `STATE.md` venture stage.
+- Working (this room): the room's persisted ladder position, once a strategy gate has ratified one, at `<roomDir>/.mindrian/jtbd-state.json` under `goal.rung` (Phase 345).
 - Reference (every run): ../references/SECTION-SCHEMA.md
 - Reference (when relevant): ../references/SUB-SCHEMAS.md
 
@@ -13,7 +14,7 @@ Do NOT load: the solution. That is `solution-design/`'s job. Pulling solution co
 
 ## Process
 1. State the problem in one sentence, the way it would be said to a stranger with no context.
-2. Place it on the PWS ladder: Un-Defined, Ill-Defined, or Well-Defined. Wicked is not a fourth, co-equal rung; it is a score-triggered escalation off any of the three, for a problem that resists decomposition.
+2. Place it on the PWS ladder. The persisted vocabulary is a flat four-rung set, Un-Defined, Ill-Defined, Well-Defined, Wicked, declared in exactly one place: `lib/core/strategy/rung-vocabulary.cjs`. Teaching note, not the schema: Wicked often behaves like a score-triggered escalation off one of the other three in practice, for a problem that resists decomposition, but the stored value treats it as a fourth, co-equal rung, never a derived state.
 3. Decompose the stated problem into its parts only after it is placed on the ladder. Do not decompose before placing it, and do not let the decomposition quietly restate the solution instead of the problem.
 
 ## Outputs

@@ -6,6 +6,7 @@ One job: work the futures and the bottlenecks. Where could this venture go, and 
 
 ## Inputs
 - Working (this room): `problem-definition/`'s ladder position (Scenario Planning addresses Un-Defined, Ill-Defined AND Wicked problems, so it is broadly applicable rather than narrow); `market-analysis/`'s trends; `solution-design/`'s current architecture (a reverse salient is usually a technical or organisational bottleneck inside it).
+- Working (this room): the room's ratified parent question, once a strategy gate has ratified one, at `<roomDir>/.mindrian/jtbd-state.json` under `goal.parent_question` (Phase 345).
 - Reference (every run): ../references/SECTION-SCHEMA.md
 - Reference (when relevant): ../references/SUB-SCHEMAS.md
 
