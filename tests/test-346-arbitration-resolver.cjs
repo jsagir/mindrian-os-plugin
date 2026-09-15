@@ -189,6 +189,94 @@ ok('tests/test-346-enforcement-axis.cjs stays green (346-02 unaffected)', functi
   execFileSync(process.execPath, [path.join(REPO, 'tests', 'test-346-enforcement-axis.cjs')], { stdio: 'ignore' });
 });
 
+// ---------------------------------------------------------------------------
+// Task 2: the cold-start floor sweep and total fault-safety
+// ---------------------------------------------------------------------------
+
+ok('cold-start sweep: no combination of role_blend, rung, surface or jtbd flips turn 1 out of GUIDED and ask-first', function () {
+  const rb = [undefined, { founder: 0.9 }, { student: 0.9 }];
+  const ru = [undefined, 'UDP', 'IDP', 'WDP', 'unknown'];
+  const su = [undefined, 'cli', 'desktop', 'cowork'];
+  const jt = [undefined, { jtbd: 'x', confidence: 0.9 }];
+  let count = 0;
+  rb.forEach(function (b) {
+    ru.forEach(function (g) {
+      su.forEach(function (s) {
+        jt.forEach(function (j) {
+          const r = a.resolveArbitration({ is_cold_start: true, role_blend: b, rung: g, surface: s, jtbd: j });
+          count += 1;
+          assert.equal(r.autonomy.value, 'GUIDED', 'case ' + count + ': ' + JSON.stringify({ b: b, g: g, s: s, j: j }));
+          assert.equal(r.delivery.value, 'ask_and_hedged', 'case ' + count + ': ' + JSON.stringify({ b: b, g: g, s: s, j: j }));
+        });
+      });
+    });
+  });
+  console.log('  cold-start sweep case count: ' + count);
+  assert.equal(count, rb.length * ru.length * su.length * jt.length);
+});
+
+ok('the same sweep with is_first_material instead of is_cold_start gives the same result', function () {
+  const rb = [undefined, { founder: 0.9 }, { student: 0.9 }];
+  const ru = [undefined, 'UDP', 'IDP', 'WDP', 'unknown'];
+  const su = [undefined, 'cli', 'desktop', 'cowork'];
+  const jt = [undefined, { jtbd: 'x', confidence: 0.9 }];
+  rb.forEach(function (b) {
+    ru.forEach(function (g) {
+      su.forEach(function (s) {
+        jt.forEach(function (j) {
+          const r = a.resolveArbitration({ is_first_material: true, role_blend: b, rung: g, surface: s, jtbd: j });
+          assert.equal(r.autonomy.value, 'GUIDED');
+          assert.equal(r.delivery.value, 'ask_and_hedged');
+        });
+      });
+    });
+  });
+});
+
+ok('a stall signal (0, 3, or 99) never flips turn 1', function () {
+  [0, 3, 99].forEach(function (sc) {
+    const r = a.resolveArbitration({ is_cold_start: true, stall_count: sc });
+    assert.equal(r.autonomy.value, 'GUIDED');
+    assert.equal(r.delivery.value, 'ask_and_hedged');
+  });
+});
+
+ok('the one documented override: cold start plus the explicit escape hatch yields AUTONOMOUS', function () {
+  const r = a.resolveArbitration({
+    is_cold_start: true,
+    escape_hatch: { user_said_just_tell_me: true, user_said_bottom_line: false },
+  });
+  assert.equal(r.autonomy.value, 'AUTONOMOUS');
+  assert.equal(r.autonomy.rationale, 'explicit_user_invitation');
+});
+
+ok('resolveArbitration never throws across a hostile input matrix', function () {
+  const cases = [null, undefined, NaN, Infinity, -0, '', [], {}, { a: { b: { c: { d: 1 } } } }];
+  cases.forEach(function (v) {
+    assert.doesNotThrow(function () { a.resolveArbitration(v); }, 'threw for: ' + String(v));
+  });
+
+  const withToJSON = { toJSON: function () { throw new Error('boom'); } };
+  assert.doesNotThrow(function () { a.resolveArbitration(withToJSON); });
+
+  const nullProto = Object.create(null);
+  assert.doesNotThrow(function () { a.resolveArbitration(nullProto); });
+
+  const keys = ['role_blend', 'jtbd', 'rung', 'escape_hatch', 'stall_count', 'surface'];
+  const throwing = Object.create(null);
+  keys.forEach(function (k) {
+    Object.defineProperty(throwing, k, { get: function () { throw new Error('boom'); }, enumerable: true });
+  });
+  let result;
+  assert.doesNotThrow(function () { result = a.resolveArbitration(throwing); });
+  assert.ok(result.floors_applied.indexOf('part12_glyph') !== -1);
+  assert.ok(result.floors_applied.indexOf('no_fabricated_numbers') !== -1);
+  assert.deepEqual(result.inputs_read.concat(result.inputs_missing).sort(), a.ARBITRATION_INPUTS.slice().sort());
+  assert.ok(decisionAxes.SAFE_MODES.indexOf(result.delivery.value) !== -1);
+  assert.ok(['GUIDED', 'HYBRID', 'AUTONOMOUS'].indexOf(result.autonomy.value) !== -1);
+  assert.ok(a.ENFORCEMENT_VALUES.indexOf(result.enforcement.value) !== -1);
+});
+
 console.log(n + ' assertions passed');
 console.log('>>> test-346-arbitration-resolver.cjs: PASSED');
 process.exit(0);
