@@ -4353,25 +4353,19 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 347 (the-shared-state-contract-for-chains-graph-engineering-learn) - CLOSED
-Plan: 12/12 complete (347-01..12) - PHASE 347 CLOSED, 2026-09-15
-Status: Plan 347-12 closed the phase (SHARED-13): ran the full gate sweep (bash tests/run-all-347.sh
-  PASS=34 FAIL=0 SKIP=0 EXPECTED-RED=0; doctor --acceptance 20/20; run-harness --check 9 pass/0
-  fail/3 ghost/2 declared; test-298-contract-parity 20/20, unregressed) and closed all thirteen
-  SHARED-01..13 requirement rows in .planning/REQUIREMENTS.md with a Measured: clause naming a
-  command and its observed output. Settled docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md's
-  Section 7 ledger: all 5 WD-347 rows flip from bare WORKING to STANDING (shipped unchallenged;
-  the phase's only checkpoint, 347-05 approve-as-scoped, ruled on the dispatcher's own tier scope
-  and explicitly left WD-347-1/2 unchanged, so zero rows are RULED). Filled 347-VALIDATION.md
-  (28 task rows, nyquist_compliant: true) and filed docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md
-  plus a dated Phase 347 entry in docs/OPEN-HANDOFFS.md naming what Phase 348 inherits. One
-  pre-existing, out-of-scope gap named honestly, not fixed: node scripts/backfill-layer.cjs --check
-  reports commands/file-meeting.md / skills/file-meeting/SKILL.md stale against Phase 344's own
-  ratified data/layer-backfill.json map (347-11's legitimate layer flip postdates that map);
-  logged in .planning/phases/347-.../deferred-items.md. The rethinking-mindrianos room write was
-  correctly refused by write-scope-check (active room idem-room, same refusal Phase 344 hit) and
-  not routed around; the plugin-side mirror landed at
-  ~/MindrianOS/research/2026-09-15-phase-347-shared-state-contract.md instead.
+Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
+Plan: 3/9 complete (345-01, 02, 03); 345-04 running; 345-05 navigator checkpoint next
+Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
+  vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
+  strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
+  destruction tests (345-02). Two memory_event types, cadence and stall counters with the
+  null-default stall signal, three-mechanism cool-down, floor-first (345-03).
+  Gates: bash tests/run-all-345.sh PASS=10 FAIL=0 SKIP=9. Phase 347 CLOSED 12/12 and
+  verified (passed); its review fix pass (2 Critical on the live chain_run path, 2 Warning,
+  1 Info) is in flight; completion commit follows it. Plugin main pushed to origin at
+  d203a6f7 (2026-09-15); release cut HELD on the 343-07 Theo stamp gate (beta.12 vs
+  beta.40) pending Theo re-emission (jsagi-58 asked) or the navigator's --no-theo-check.
+  Phase 349 added (release-to-Theo leading edge), not yet planned.
 Previously: Phase 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
 Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
 Verified: 2026-09-15 gsd-verifier passed (17/17 CENSUS, 5/5 goal truths re-run live; run-all-343
