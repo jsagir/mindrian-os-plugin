@@ -2,17 +2,41 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 345-08 amended the anti-circular rule in place to name the strategy node as the room-level reframe owner (observing voice, no reach count), shipped byte-identical across both dist/ skill mirrors, corrected the two section contracts that read the JTBD to point at the persisted goal record, and fixed the R6-BLOCKING rung-vocabulary contradiction in problem-definition.md before this phase's first ratified goal can land"
-stopped_at: Completed 345-08-PLAN.md
-last_updated: "2026-09-15T13:44:04.152Z"
-last_activity: "2026-09-15 - 345-08 completed (SKILL.md anti-circular rule amended in place naming the strategy node, both dist/ mirrors hand-copied byte-identical, problem-definition.md/strategy.md gained goal.rung/goal.parent_question Inputs pointers, problem-definition.md Process step 2 corrected to the persisted flat four-rung vocabulary; tests/test-345-doctrine.cjs 11/11, run-all-345.sh PASS=19 FAIL=0 SKIP=0, doctor.cjs --acceptance 20/20)"
+status: "Plan 345-09 closed Phase 345 (the strategy node): full twelve-check gate sweep green, all eighteen STRAT-01..18 requirements closed with measured proof, the headline fleet-before-vs-fixture-after SOURCED_FROM number stated honestly, nine working decisions finalized, and the taxonomy_ladder rung-casing mismatch recorded as a named, owned, deferred item rather than dropped"
+stopped_at: Completed 345-09-PLAN.md - Phase 345 CLOSED
+last_updated: "2026-09-15T15:00:00.000Z"
+last_activity: "2026-09-15 - 345-09 completed, PHASE 345 CLOSED (twelve-check gate sweep recorded in docs/2026-09-14-PHASE-345-STRATEGY-NODE-CLOSE-OUT.md; STRAT-01..18 closed with Measured: proof in .planning/REQUIREMENTS.md; docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md finalized, zero WORKING rows; 345-VALIDATION.md filled, nyquist_compliant: true; ROADMAP.md Phase 345 shows 9/9 plans executed; one dated row added to docs/OPEN-HANDOFFS.md; run-all-345.sh PASS=19 FAIL=0 SKIP=0, doctor.cjs --acceptance 20/20)"
 progress:
   total_phases: 98
-  completed_phases: 31
+  completed_phases: 32
   total_plans: 274
-  completed_plans: 259
+  completed_plans: 260
   percent: 95
 ---
+
+<!-- NOTE (345-09 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` correctly
+     computed `completed: 260` (once 345-09-SUMMARY.md existed on disk -- before that it
+     correctly reported 259, since the SUMMARY had not yet been written; both were the tool's own
+     correct answer for the tree state at the time) but re-persisted a stale, unrelated 344-09-era
+     frontmatter snapshot in the same write that landed its own correct JSON response.
+     `state.record-metric`, `state.add-decision`, and `state.record-session` each correctly wrote
+     their own body-level content (the Performance Metrics row, the Decisions entry, and the Last
+     session/Stopped At body lines) but every one of the four calls also independently re-clobbered
+     the frontmatter back to the identical stale 344-09-era snapshot. Hand-corrected the
+     frontmatter five times this session (once after each of the four calls, plus the initial
+     Current Position body edit), each time restoring status/stopped_at/last_updated/
+     last_activity to describe 345-09's actual work and total_phases/completed_phases/
+     total_plans/completed_plans/percent to 98/32/274/260/95 (Phase 345 is now fully CLOSED,
+     9 of 9 plans done -- the first plan in this phase's own session-note stack to report a
+     phase-close progress delta rather than a same-phase plan increment). Separately,
+     `state.add-decision` again embedded a literal em-dash between the summary and rationale
+     clauses (the same house-rule violation every prior 345 plan's own note in this file already
+     documented) -- hand-corrected the one line to a hyphen immediately after the write, and
+     corrected the tool's own literal `[Phase ?]` placeholder to `[Phase 345]`. Same root cause as
+     every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (345-08 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4429,48 +4453,41 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - IN PROGRESS
-Plan: 8/9 complete (345-01, 02, 03, 04, 05, 06, 07, 08). 345-08 CLOSED 2026-09-15: the doctrine,
-  amended in place. skills/larry-personality/SKILL.md's anti-circular rule now names the
-  strategy node (a GRAPH-layer watcher) as the owner of the room-level reframe, phrased in the
-  observing voice ("when the engine surfaces the strategy reach, Larry's move is the climb, not
-  another clarifying question"), no reach count named, single-hunk in-place amendment (never a
-  second section), shipped byte-identical across both dist/ mirrors (hand-copied, since neither
-  shipped generator covers this file -- build-skill-mirrors.cjs mirrors commands/*.md and
-  larry-personality has no command counterpart; build-dist-bundles.cjs is the real skills/->dist/
-  generator but was already 4 versions stale and out of this plan's scope to regenerate
-  wholesale). problem-definition.md and strategy.md each gained one Inputs pointer to
-  <roomDir>/.mindrian/jtbd-state.json (goal.rung, goal.parent_question); problem-definition.md's
-  Process step 2 corrected from a three-rung-plus-escalation model that contradicted all three
-  code vocabularies to the actual persisted flat four-rung set named in
-  lib/core/strategy/rung-vocabulary.cjs (345-ICM-CONSULT R6, BLOCKING, closed), keeping the
-  Wicked-as-escalation insight as a teaching note. tests/test-345-doctrine.cjs (11 assertions,
-  content-addressed paragraph extraction, no hardcoded line numbers) passed bare on first run
-  (Tasks 1-2 already shipped the state it pins, same class as 344-04's own Task 3 precedent);
-  the plan's deliberate negative check (duplicate the paragraph, confirm non-zero exit, revert)
-  was run by hand and confirmed. Two Rule-1 deviations against stale plan text: did NOT add
-  layer: prompt when grep -c '^layer:' returned 0, since larry-personality is WD-7-exempt
-  (connector.excluded:true, 344-04's own ruling) and the count of 0 is the correct post-344-04
-  state, not a gap; and the plan's read_first misnamed build-skill-mirrors.cjs as the dist/
-  generator. bash tests/run-all-345.sh PASS=19 FAIL=0 SKIP=0. doctor.cjs --acceptance 20/20.
-  The taxonomy_ladder rung-casing live finding (345-06) remains unresolved, out of scope for
-  every remaining 345 plan, handed forward explicitly to 345-09's close-out record. Next: 345-09.
-Status: STRAT family minted, nine working decisions recorded with reversal cost, rung
-  vocabulary as the one home, aggregator stood up (345-01; SENS-19 collision found: the
-  strategy sensor is SENS-20). Durable goal on jtbd-state.json with one writer and
-  destruction tests (345-02). Two memory_event types, cadence and stall counters with the
-  null-default stall signal, three-mechanism cool-down, floor-first (345-03). SENS-20 fully
-  registered and live inside dispatchSensors on every turn, all three surfaces (345-05).
-  Gates: bash tests/run-all-345.sh PASS=14 FAIL=0 SKIP=5. Phase 347 CLOSED 12/12 and
-  verified (passed); its review fix pass (2 Critical on the live chain_run path, 2 Warning,
-  1 Info) LANDED at merge abd07464: run_id threaded chain_run -> dispatcher -> executor,
-  halt/resume share one run with contiguous indices and the approved gate step recorded,
-  proven by tests/test-347-review-cr01-cr02-live-path.cjs (25/25) driving chain_run and
-  gate_answer end to end; run-all-347 PASS=34 FAIL=0; handoff-seam 6/6. Phase 347 COMPLETE
-  (verified, reviewed, fixed). Plugin main pushed to origin at
-  d203a6f7 (2026-09-15); release cut HELD on the 343-07 Theo stamp gate (beta.12 vs
-  beta.40) pending Theo re-emission (jsagi-58 asked) or the navigator's --no-theo-check.
-  Phase 349 added (release-to-Theo leading edge), not yet planned.
+Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - CLOSED
+Plan: 345-09 complete (9/9 plans) - PHASE 345 CLOSED, 2026-09-15
+Status: Plan 345-09 closed the phase (STRAT-18): ran the full twelve-check gate sweep (bash
+  tests/run-all-345.sh PASS=19 FAIL=0 SKIP=0; test-sensors-part8-sweep/routing-fence,
+  test-245-priority-complete, build-connector-registry --check all clean; doctor --acceptance
+  20/20 unregressed; check-render-coverage and check-layer-declaration.cjs both clean; em-dash
+  guard 0 over 39 phase-owned files; package.json diff empty; setGoal single-writer grep exactly
+  1; mcp__theo__ grep 0) and closed all eighteen STRAT-01..18 requirement rows in
+  .planning/REQUIREMENTS.md with a Measured: clause naming a command and its observed output.
+  Settled docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md: all nine WD rows flip from
+  WORKING to RULED (3: WD-1, WD-4, WD-9, navigator ratify-all at the 345-05 checkpoint) or HELD
+  (6, shipped unchallenged); added Section 3 item (e), the taxonomy_ladder rung-casing mismatch,
+  as a named non-goal with a full reproduction. Filled 345-VALIDATION.md (25 task rows across
+  all nine plans, nyquist_compliant: true, ~8.3s measured full-suite runtime). Wrote
+  docs/2026-09-14-PHASE-345-STRATEGY-NODE-CLOSE-OUT.md (395 lines): the headline number (fleet
+  before 0 SOURCED_FROM edges / 0 decision:gate:* nodes across 30 live rooms against 4,680
+  gate_reached events, 2026-09-14 census, versus fixture after MEASURED:
+  sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1, explicitly stated as a fixture
+  measurement, not a fleet one), what shipped across four of five engineering rungs (PROMPT,
+  CONTEXT, HARNESS, GRAPH -- not LOOP), and seven carried-forward items (the plan's own six plus
+  a seventh, the taxonomy_ladder rung-casing mismatch, owner named). Added one dated row to
+  docs/OPEN-HANDOFFS.md. The rethinking-mindrianos room-side mirror did NOT land -- Claude
+  Code's write-scope-check hook denied the write (active room idem-room), the same blocker
+  Phase 343's, 344's and 347's own close-outs already hit; full drafted content preserved in the
+  close-out record itself. Full detail in 345-09-SUMMARY.md.
+  Also still current: Phase 347 CLOSED 12/12 and verified (passed); its review fix pass (2
+  Critical on the live chain_run path, 2 Warning, 1 Info) LANDED at merge abd07464: run_id
+  threaded chain_run -> dispatcher -> executor, halt/resume share one run with contiguous
+  indices and the approved gate step recorded, proven by
+  tests/test-347-review-cr01-cr02-live-path.cjs (25/25) driving chain_run and gate_answer end to
+  end; run-all-347 PASS=34 FAIL=0; handoff-seam 6/6. Phase 347 COMPLETE (verified, reviewed,
+  fixed). Plugin main pushed to origin at d203a6f7 (2026-09-15); release cut HELD on the 343-07
+  Theo stamp gate (beta.12 vs beta.40) pending Theo re-emission (jsagi-58 asked) or the
+  navigator's --no-theo-check. Phase 349 added (release-to-Theo leading edge), not yet planned.
+  Next: /gsd-plan-phase 346 (the arbitration node), TBD.
 Previously: Phase 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
 Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
 Verified: 2026-09-15 gsd-verifier passed (17/17 CENSUS, 5/5 goal truths re-run live; run-all-343
@@ -6020,6 +6037,7 @@ Progress: [█████████░] 92%
 | Phase 345 P06 | 50min | 3 tasks | 6 files |
 | Phase 345 P07 | 70min | 3 tasks | 6 files |
 | Phase 345 P08 | 40min | 3 tasks | 6 files |
+| Phase 345 P09 | 150min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -7615,6 +7633,7 @@ Progress: [█████████░] 92%
 - [Phase 345]: _resolveLadderText trusts only the live-verified .ladder field, never a bare .text, since brain-client.cjs wraps a genuine response and a raw JSON-RPC error into the identical { text } shape
 - [Phase 345]: goal-gate.cjs is the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate answer; ratifyGoalProposal writes no decision node and no provenance edges itself, feeding the existing writeReasoningNode chokepoint instead of duplicating it.
 - [Phase 345]: 345-08: larry-personality is WD-7-exempt (connector.excluded:true), so a bare layer: count of 0 is the correct post-344-04 state; layer: prompt was deliberately not added - Adding layer: prompt would have contradicted 344-04's own shipped WD-7 ruling that removes exempt skills from the layer-backfill map entirely
+- [Phase 345]: Phase 345 CLOSED: all eighteen STRAT-01..18 requirements closed with measured proof, headline SOURCED_FROM number stated fixture-vs-fleet honestly - the taxonomy_ladder rung-casing mismatch is recorded as a named, owned, deferred item in three tracked places rather than dropped at the last plan
 
 ### Pending Todos
 
@@ -7754,8 +7773,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T13:44:04.086Z
-Stopped at: Completed 345-08-PLAN.md
+Last session: 2026-09-15T14:04:27.245Z
+Stopped at: Completed 345-09-PLAN.md - Phase 345 CLOSED
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

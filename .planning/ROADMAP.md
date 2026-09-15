@@ -736,7 +736,7 @@ Plans:
 **Goal:** The room's goal carries its parent question and its problem-type rung, a slower GRAPH-layer watcher proposes a re-aim at a Decision Gate on a throttled cadence rather than nagging, the navigator's choice is written as a typed decision node with SOURCED_FROM provenance to a real payload-free anchor, every execution reach records the goal version it ran under, and the reframe has a named owner in doctrine.
 **Requirements**: STRAT-01 .. STRAT-18
 **Depends on:** Phase 344
-**Plans:** 9/9 plans executed
+**Plans:** 9/9 plans complete
 
 Plans:
 
