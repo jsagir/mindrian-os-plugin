@@ -766,7 +766,7 @@ Plans:
 **Goal:** What flows between chain steps is a typed room-graph record rather than conversation prose, each node gets its own scoped context, routing is declared and readable including halts and the reviewer node, and the reviewer is provably never the worker.
 **Requirements**: SHARED-01 .. SHARED-13 (minted 2026-09-14 in docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md, scoped to Phase 347 only, registered in .planning/REQUIREMENTS.md at phase close by 347-12-PLAN.md per the ICML / TOOLHON / CANON precedent)
 **Depends on:** Phase 346. Six of the twelve plans additionally carry a hard dependency on Phase 344 closing (344-09), because Phase 344 claims commands/*.md, agents/*.md, lib/mcp/tools/*.cjs, lib/mcp/tool-router.cjs, .planning/REQUIREMENTS.md, .planning/ROADMAP.md and docs/OPEN-HANDOFFS.md in its own files_modified, and because 347-06 amends Phase 344 working decision WD-5.
-**Plans:** 6/12 plans executed
+**Plans:** 11/12 plans executed
 
 Plans:
 
@@ -788,21 +788,21 @@ Plans:
 
 **Wave 5**
 
-- [ ] 347-05-PLAN.md - the live-path change: one blocking navigator checkpoint, then the dispatcher reads the predecessor record onto a content_is_data shared_state field
+- [x] 347-05-PLAN.md - the live-path change: one blocking navigator checkpoint, then the dispatcher reads the predecessor record onto a content_is_data shared_state field
 
 **Wave 6**
 
 - [x] 347-06-PLAN.md - the per-node focus knob on getRoomContext and context_assemble, plus the chain_state exclusion from the ranked neighborhood (blocked on 344)
-- [ ] 347-07-PLAN.md - routing declared on the resolved chain, one named resolveSuccessor, the bounded back-edge, and fan-out delegated to cell-fanout.cjs with D-164-S2 unreversed
+- [x] 347-07-PLAN.md - routing declared on the resolved chain, one named resolveSuccessor, the bounded back-edge, and fan-out delegated to cell-fanout.cjs with D-164-S2 unreversed
 
 **Wave 7**
 
-- [ ] 347-08-PLAN.md - the resume remainder resolved by step id through the shared successor authority, killing slice(idx + 1) (blocked on 344)
-- [ ] 347-10-PLAN.md - the reviewer rule: a new read-only sibling reviewer agent, the never-the-worker identity guard, and the honest requires_host_dispatch directive with the Tri-Polar call stated (blocked on 344)
+- [x] 347-08-PLAN.md - the resume remainder resolved by step id through the shared successor authority, killing slice(idx + 1) (blocked on 344)
+- [x] 347-10-PLAN.md - the reviewer rule: a new read-only sibling reviewer agent, the never-the-worker identity guard, and the honest requires_host_dispatch directive with the Tri-Polar call stated (blocked on 344)
 
 **Wave 8**
 
-- [ ] 347-09-PLAN.md - visualize-chain rewired to the real recorded run with halts, conditional arrows, the fan-out subgraph and the reviewer node; the hardcoded six-step literal deleted (blocked on 344)
+- [x] 347-09-PLAN.md - visualize-chain rewired to the real recorded run with halts, conditional arrows, the fan-out subgraph and the reviewer node; the hardcoded six-step literal deleted (blocked on 344)
 - [x] 347-11-PLAN.md - the five-perspective meeting fan-out migrated as the first consumer, with the extractors' full-transcript recall protected (blocked on 344)
 
 **Wave 9**
