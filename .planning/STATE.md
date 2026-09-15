@@ -3,16 +3,37 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 348-01-PLAN.md - Wave 1 of 10
-last_updated: "2026-09-16T01:49:14+03:00"
-last_activity: 2026-09-16 -- Phase 348 Plan 01 complete (SUPER-01..20 minted, docs/SUPERSESSION-CONTRACT.md written, tests/run-all-348.sh standing up); Phase 348 has 9 waves remaining
+stopped_at: Completed 348-02-PLAN.md - Wave 2 of 10
+last_updated: "2026-09-16T01:14:00+03:00"
+last_activity: 2026-09-16 -- Phase 348 Plan 02 complete (fixture-room-348.cjs, test-348-supersession-e2e.cjs RED tripwire, test-348-one-supersession-door.cjs SUPER-01 source scan green); Phase 348 has 8 waves remaining
 progress:
   total_phases: 99
   completed_phases: 32
   total_plans: 284
-  completed_plans: 269
+  completed_plans: 270
   percent: 95
 ---
+
+<!-- NOTE (348-02 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` succeeded (current_plan 2 -> 3 of 10). `state.update-progress` correctly
+     computed `completed: 270, percent: 95` (270/284) BEFORE the SUMMARY existed (269) and AFTER
+     (270), confirming the tool reads SUMMARY.md files live off disk. `state.record-metric` (flag
+     syntax `--phase --plan --duration --tasks --files`) landed its own correct Performance
+     Metrics row but ALSO re-persisted a stale pre-348 frontmatter snapshot in the SAME write:
+     `last_updated`/`last_activity` reverted to "Phase 348 execution started" and `percent`
+     reverted to `32` (a raw phase-count reading, not the plan-completion percentage) --
+     `completed_plans` happened to land on the CORRECT value (270) this time, unlike some prior
+     occurrences where even that field clobbered. `state.add-decision` (x2, with `--summary`)
+     repeated the documented `[Phase ?]` placeholder bug both times, fixed in place to
+     `[Phase 348]`. `state.record-session` updated only `Last session`, correctly, leaving the
+     frontmatter clobber from `record-metric` in place. Hand-corrected once, after all calls
+     landed: `stopped_at` -> "Completed 348-02-PLAN.md - Wave 2 of 10", `last_updated` -> this
+     plan's completion timestamp, `last_activity` -> this plan's completion line, `percent` -> 95
+     (270/284, matching `state.update-progress`'s own correct computation); left
+     `total_phases`/`completed_phases` at 99/32 unchanged since Phase 348 has not closed (8 of 10
+     plans remain). Same root cause as every other note in this file, not re-investigated further
+     here. -->
 
 <!-- NOTE (348-01 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -29,7 +50,6 @@ progress:
      `total_phases`/`completed_phases` at 99/32 unchanged since Phase 348 has not closed (9 of 10
      plans remain). Same root cause as every other note in this file, not re-investigated further
      here. -->
-
 
 <!-- NOTE (346-08 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4611,9 +4631,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
-  now returns one ranked result carrying all three axes (enforcement, delivery, autonomy),
+Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
+  schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
+  raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
+  three negative legs, RED today -- unguarded require of the not-yet-landed
+  lib/core/temporal/supersession-gate.cjs fixes that module's contract for 348-07), and shipped
+  tests/test-348-one-supersession-door.cjs (the SUPER-01 comment-stripped source tripwire, 5/5
+  assertions green today: one supersede() writer by path equality, the 'superseded' literal
+  confined to a 4-member allow-list, zero hardcoded second UPDATE, zero DELETE on the 13 named
+  PHASE_348_SURFACES, close-loop-writer.cjs named as the one live caller). bash
+  tests/run-all-348.sh now measures PASS=12 FAIL=0 SKIP=13 EXPECTED-RED=1 (up from 348-01's
+  PASS=11 SKIP=14). git diff -- lib/ commands/ agents/ skills/ data/ hooks/ empty (zero
+  production bytes shipped, per plan). One deviation: excluded colocated *.test.cjs files from
+  the source scan (224 such files exist under lib/ in this repo) to avoid false positives.
+  Full detail in 348-02-SUMMARY.md.
+Previously (346-04): now returns one ranked result carrying all three axes (enforcement, delivery, autonomy),
   reusing decision-axes.resolveDecisionMode and directive-envelope.selectMode verbatim per
   Canon Part 7, composing them with the 346-02 enforcement ladder. Censuses the six roadmap
   inputs by shape (never presence alone), computes floors_applied (the two unconditional
@@ -6253,6 +6287,7 @@ Progress: [█████████░] 92%
 | Phase 346 P07 | 35min | 3 tasks | 4 files |
 | Phase 346 P08 | 50min | 3 tasks | 4 files |
 | Phase 348 P01 | 12min | 3 tasks | 4 files |
+| Phase 348 P02 | 24min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -7858,6 +7893,8 @@ Progress: [█████████░] 92%
 - [Phase 346]: Phase 346 Plan 07: applyArbitration wired on both decide() return paths using the shipped applyProjectionLift additive-trace convention verbatim; a null result is a full no-op, proven byte-identical to pre-346 via a 60-case non-interference sweep plus a mechanical determinism proof under a stubbed resolver fault.
 - [Phase 346]: Phase 346 closed: all sixteen ARB requirements finalized with Measured proof; the arbiter is live on decide() behind a ratified navigator checkpoint
 - [Phase 348]: SUPER-01..20 minted verbatim from the 348-01 plan body into REQUIREMENTS.md; docs/SUPERSESSION-CONTRACT.md is the tracked durable home for D-01..D-09 navigator locks and WD-348-1..12 working decisions
+- [Phase 348]: 348-02: e2e Step 10 negative leg redesigned around gate_not_approved (verdict), not identity refusal -- resolveByUser already coerces poisoned identities to 'navigator' before any write, so an approved verdict on a poisoned-identity room legitimately succeeds; the closed refusal-reason set has no identity-specific member.
+- [Phase 348]: 348-02: SUPER-01 source tripwire scopes assertions to the literal 'superseded' value (not a general review_status audit) and adds lib/core/temporal/supersession.cjs to the allow-list, matching docs/SUPERSESSION-CONTRACT.md's own wording; excludes colocated *.test.cjs files from the production-tree scan.
 
 ### Pending Todos
 
@@ -7997,7 +8034,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T22:51:50.493Z
+Last session: 2026-09-15T23:13:38.313Z
 Stopped at: Completed 348-01-PLAN.md - Wave 1 of 10
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
