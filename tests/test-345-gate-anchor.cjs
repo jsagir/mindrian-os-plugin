@@ -35,10 +35,18 @@ const REPO = path.resolve(__dirname, '..');
 let roomDbMod;
 let goalAnchor;
 let navigation;
+let jtbdState;
+let nodeInsertMod;
+let strategyCard;
+let brainClient;
 try {
   roomDbMod = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
   goalAnchor = require(path.join(REPO, 'lib', 'core', 'navigation', 'goal-anchor.cjs'));
   navigation = require(path.join(REPO, 'lib', 'core', 'navigation.cjs'));
+  jtbdState = require(path.join(REPO, 'lib', 'hmi', 'jtbd-state.cjs'));
+  nodeInsertMod = require(path.join(REPO, 'lib', 'core', 'node-insert.cjs'));
+  strategyCard = require(path.join(REPO, 'lib', 'core', 'strategy', 'strategy-card.cjs'));
+  brainClient = require(path.join(REPO, 'lib', 'core', 'brain-client.cjs'));
 } catch (e) {
   console.log('SKIP: test-345-gate-anchor -- node:sqlite or a required module is unavailable. ' + (e.code || e.message));
   process.exit(0);
@@ -75,7 +83,18 @@ function nodeCount(db, id) {
   return row ? row.c : 0;
 }
 
-function main() {
+function edgeCount(db, type) {
+  const row = db.prepare('SELECT COUNT(*) AS c FROM edges WHERE type = ?').get(type);
+  return row ? row.c : 0;
+}
+
+function insertRealNode(db, id) {
+  nodeInsertMod.insertNode(db, id, 'Artifact', '{}', {
+    source_path: 'test:345-06', created_by: 'system', epistemic_type: 'observation',
+  });
+}
+
+async function main() {
   // ===========================================================================
   // Task 1: GOAL_ANCHOR_ID + mintGoalAnchor
   // ===========================================================================
@@ -163,6 +182,160 @@ function main() {
       assert.equal(row.review_status, 'proposed');
       ok("the minted row's review_status is exactly 'proposed'");
     }
+
+    // =========================================================================
+    // Task 3: lib/core/strategy/strategy-card.cjs -- buildStrategyCard legs
+    // =========================================================================
+
+    assert.equal(strategyCard.STRATEGY_CARD_KIND, 'strategy_goal');
+    ok("STRATEGY_CARD_KIND === 'strategy_goal'");
+
+    assert.deepEqual(strategyCard.STRATEGY_OPTION_IDS.slice(), ['keep', 'rewrite-jtbd', 'change-rung', 'defer']);
+    ok('STRATEGY_OPTION_IDS is the frozen four-member array in order');
+
+    {
+      // No goal record at all -> null.
+      const noGoalDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-nogoal-'));
+      const noGoalHandle = roomDbMod.openRoomDb(noGoalDir);
+      const card = await strategyCard.buildStrategyCard({
+        db: noGoalHandle, roomDir: noGoalDir, roomSlug: 'no-goal-room', candidates: [],
+      });
+      assert.equal(card, null);
+      ok('buildStrategyCard returns null when the room has no ratified goal record');
+      roomDbMod.closeRoomDb(noGoalHandle);
+      fs.rmSync(noGoalDir, { recursive: true, force: true });
+    }
+
+    {
+      // Mint-before-assembly + null-on-mint-failure: an invalid roomSlug
+      // makes GOAL_ANCHOR_ID return null, so mintGoalAnchor fails with
+      // invalid_slug, so the card builder must return null rather than a
+      // card whose subject_node_id points at nothing. Zero SOURCED_FROM
+      // edges must exist afterward (the builder never writes edges itself).
+      const cardDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-mintfail-'));
+      const cardDb = roomDbMod.openRoomDb(cardDir);
+      jtbdState.setGoal(cardDir, { jtbd: 'decide-pursue', rung: 'IllDefined', parent_question: 'should we pursue this' });
+      const card = await strategyCard.buildStrategyCard({
+        db: cardDb, roomDir: cardDir, roomSlug: '', candidates: [],
+      });
+      assert.equal(card, null);
+      ok('buildStrategyCard returns null when mintGoalAnchor fails (invalid roomSlug)');
+      assert.equal(edgeCount(cardDb, 'SOURCED_FROM'), 0);
+      ok('zero SOURCED_FROM edges exist after a forced mint failure');
+      roomDbMod.closeRoomDb(cardDb);
+      fs.rmSync(cardDir, { recursive: true, force: true });
+    }
+
+    {
+      // Full happy path: mint-before-assembly ordering (the anchor node
+      // really exists on disk), the four-option shape, and header hygiene.
+      const cardDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-card-'));
+      const cardDb = roomDbMod.openRoomDb(cardDir);
+      jtbdState.setGoal(cardDir, {
+        jtbd: 'decide-pursue', rung: 'IllDefined', parent_question: 'a secret venture-prose question that must never egress',
+      });
+      const reach = { evidence: { current_jtbd: 'find-problem', reaches_since: 22, unresolved_contradictions: 3 } };
+      const card = await strategyCard.buildStrategyCard({
+        db: cardDb, roomDir: cardDir, roomSlug: 'card-room', reach: reach, candidates: [],
+      });
+      assert.ok(card, 'a valid goal + a successful mint must produce a card');
+
+      assert.equal(card.kind, 'strategy_goal');
+      ok('card.kind is the literal strategy_goal value');
+
+      assert.equal(card.subject_node_id, 'goal:card-room');
+      ok('card.subject_node_id equals the minted anchor id');
+      assert.equal(nodeCount(cardDb, 'goal:card-room'), 1);
+      ok('the anchor node was actually minted on disk (mint-before-assembly ordering)');
+
+      assert.equal(card.options.length, 4);
+      const optionIds = card.options.map((o) => o.id);
+      assert.deepEqual(optionIds, ['keep', 'rewrite-jtbd', 'change-rung', 'defer']);
+      for (const o of card.options) {
+        assert.equal(typeof o.label, 'string');
+        assert.ok(o.label.length > 0, 'every option label must be non-empty');
+      }
+      ok('card.options has exactly 4 entries, ids in order, every label non-empty');
+
+      assert.equal(typeof card.header, 'string');
+      assert.ok(card.header.length < 300, 'header must be under 300 chars, got ' + card.header.length);
+      assert.equal(card.header.indexOf('\n'), -1, 'header must be a single line');
+      assert.equal(card.header.indexOf('\u2014'), -1, 'header must contain no em-dash');
+      assert.equal(card.header.indexOf('secret venture-prose question'), -1, 'header must never contain goal.parent_question');
+      ok('header is a single line, under 300 chars, no em-dash, no goal.parent_question content');
+
+      assert.deepEqual(card.evidence_node_ids, []);
+      ok('card.evidence_node_ids is empty when candidates is empty');
+
+      roomDbMod.closeRoomDb(cardDb);
+      fs.rmSync(cardDir, { recursive: true, force: true });
+    }
+
+    {
+      // Stale-candidate filtering: one real node id, one id with no row.
+      const cardDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-stale-'));
+      const cardDb = roomDbMod.openRoomDb(cardDir);
+      jtbdState.setGoal(cardDir, { jtbd: 'decide-pursue', rung: 'IllDefined' });
+      insertRealNode(cardDb, '345-06:real-node-1');
+      const card = await strategyCard.buildStrategyCard({
+        db: cardDb, roomDir: cardDir, roomSlug: 'stale-room',
+        candidates: ['345-06:real-node-1', '345-06:stale-does-not-exist'],
+      });
+      assert.ok(card);
+      assert.deepEqual(card.evidence_node_ids, ['345-06:real-node-1']);
+      ok('a stale candidate id (no matching node row) is filtered out; the real id survives');
+      roomDbMod.closeRoomDb(cardDb);
+      fs.rmSync(cardDir, { recursive: true, force: true });
+    }
+
+    {
+      // Truncation: 70 real candidate ids -> exactly 64 survive.
+      const cardDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-trunc-'));
+      const cardDb = roomDbMod.openRoomDb(cardDir);
+      jtbdState.setGoal(cardDir, { jtbd: 'decide-pursue', rung: 'IllDefined' });
+      const seventy = [];
+      for (let i = 0; i < 70; i += 1) {
+        const id = '345-06:trunc-node-' + i;
+        insertRealNode(cardDb, id);
+        seventy.push(id);
+      }
+      const card = await strategyCard.buildStrategyCard({
+        db: cardDb, roomDir: cardDir, roomSlug: 'trunc-room', candidates: seventy,
+      });
+      assert.ok(card);
+      assert.equal(card.evidence_node_ids.length, 64);
+      ok('70 real candidate ids truncate to exactly 64 in evidence_node_ids');
+      roomDbMod.closeRoomDb(cardDb);
+      fs.rmSync(cardDir, { recursive: true, force: true });
+    }
+
+    {
+      // Brain-unreachable fallback: stub callTool to simulate no Brain
+      // reachable; the card must still be complete and its change-rung
+      // option description must come from localLadderLine.
+      const taxonomyClimb = require(path.join(REPO, 'lib', 'core', 'strategy', 'taxonomy-climb.cjs'));
+      const cardDir = fs.mkdtempSync(path.join(os.tmpdir(), '345-06-unreachable-'));
+      const cardDb = roomDbMod.openRoomDb(cardDir);
+      jtbdState.setGoal(cardDir, { jtbd: 'decide-pursue', rung: 'IllDefined' });
+
+      const originalCallTool = brainClient.callTool;
+      brainClient.callTool = async () => null;
+      let card;
+      try {
+        card = await strategyCard.buildStrategyCard({
+          db: cardDb, roomDir: cardDir, roomSlug: 'unreachable-room', candidates: [],
+        });
+      } finally {
+        brainClient.callTool = originalCallTool;
+      }
+      assert.ok(card, 'the card must still be complete when the Brain is unreachable');
+      const changeRungOption = card.options.find((o) => o.id === 'change-rung');
+      assert.equal(changeRungOption.description, taxonomyClimb.localLadderLine('IllDefined'));
+      ok('with the Brain unreachable, the card is complete and the change-rung description comes from localLadderLine');
+
+      roomDbMod.closeRoomDb(cardDb);
+      fs.rmSync(cardDir, { recursive: true, force: true });
+    }
   } finally {
     cleanupFixtureRoom(fixture);
   }
@@ -172,4 +345,8 @@ function main() {
   console.log('PASS test-345-gate-anchor.cjs');
 }
 
-main();
+main().catch((e) => {
+  console.error('FAIL: test-345-gate-anchor');
+  console.error(e && e.stack ? e.stack : e);
+  process.exit(1);
+});
