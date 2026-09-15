@@ -1,0 +1,13 @@
+{
+  "id": "gate-arbitration-decision",
+  "kind": "memory",
+  "runner": null,
+  "args": [],
+  "rung": "declared",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 200, "max_false_positive_rate": 0.15, "min_true_positives": 20 },
+  "owner": "hooks",
+  "pinned_by": ["tests/test-346-arbitration-event.cjs", "tests/test-346-watch-replay.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "This policy sits at rung declared with runner null, an honest declared ghost following the voice-backend-noun-free.json precedent - the runner must never count it as passing, since nothing is spawned. kind is memory rather than gate or voice: this policy declares a WRITE policy (what channel, what verb, what confirmation gate the arbitration decision passes through), matching _doc.kind_meaning's own definition of memory; it is not a scanner over repo state, so it is not a gate, and it is not a rule over Larry's turn text, so it is not a voice. evidence_log is null because arbitration decisions land as memory_event rows in the room's own room.db through the navigation chokepoint, not as a JSONL file under MINDRIAN_HOME, so there is no evidence-log path to declare today. applies_to names stop-hook as the closest member of the shipped applies_to_vocabulary, with the honest caveat that the decision is actually computed on the prompt path inside decide() and evaluated at turn boundaries; the shipped vocabulary has no per-turn-prompt member, and adding one is a schema edit deliberately out of scope for this phase. promotion_rule is authored now, before any evidence exists, and is never loosened afterward: promotion to logged happens only after a human has read a window of arbitration_decided rows and labeled them, and it is a one-line human edit to this file's rung key, reviewed in a diff, never a runner action."
+}
