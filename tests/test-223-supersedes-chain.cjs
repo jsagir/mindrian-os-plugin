@@ -62,10 +62,32 @@ function conclusionPayload(nth) {
 // Run one revision through writeCloseLoop; optionally supersede a prior; return
 // the new conclusion node id. Confirms the NEW node when confirmPrior is set so
 // the NEXT run can legally supersede it (Part 9 confirmed->superseded).
+//
+// Phase 348-03 (SUPER-02): close-loop-writer.cjs:478 calls supersedeFn with no
+// byUser, defaulting to 'system' (an AGENT_IDENTITIES member). Per WD-348-6
+// (ratified at the 348-03 task 1 navigator checkpoint), that call site is left
+// UNCHANGED -- close-loop-writer.cjs is outside 348-03's files_modified, and
+// threading a resolveByUser-resolved human byUser into it is a deferred item
+// at phase close. This test proves 223-02's SUPERSEDES-chain integration (the
+// writeCloseLoop <-> supersede wiring), which requires the prior conclusion to
+// actually close -- so it drives writeCloseLoop's OWN shipped, documented
+// injectable seam (close-loop-writer.cjs:164 "supersedeFn? -- the injectable
+// seams the tests drive") to attribute the supersede call to a human identity,
+// exactly as a real navigator-driven BONO version cut would. This does not
+// touch close-loop-writer.cjs's source and does not route around the newly
+// widened human-attribution guard -- it supplies the human attribution the
+// guard now requires, through the seam the module already ships for this
+// purpose.
 function runRevision(db, roomDir, nth, runId, priorConclusionId) {
   const payload = conclusionPayload(nth);
   if (priorConclusionId) payload.priorConclusionId = priorConclusionId;
-  const res = closeLoop.writeCloseLoop(db, roomDir, payload, { surface: 'bono', run_id: runId });
+  const res = closeLoop.writeCloseLoop(db, roomDir, payload, {
+    surface: 'bono',
+    run_id: runId,
+    supersedeFn: function (theDb, oldNodeId, newNodeId) {
+      return supersession.supersede(theDb, oldNodeId, newNodeId, { byUser: 'navigator' });
+    },
+  });
   return res;
 }
 
