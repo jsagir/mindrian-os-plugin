@@ -1922,21 +1922,99 @@ Registered here at phase close by `347-12-PLAN.md`, per the Phase 254/257/265/26
       this is Phase 344's own generated-artifact staleness, not a SHARED-13 regression, and is
       named as a follow-on in `docs/2026-09-14-PHASE-347-SHARED-STATE-CLOSE-OUT.md`.
 
+### Phase 345 - The strategy node (STRAT family)
+
+These eighteen IDs were minted in
+`docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md`'s Section 1 table (2026-09-14), ratifying
+`345-RESEARCH.md`'s proposed `STRAT` prefix, scoped to Phase 345 only: the goal record on the
+per-room JTBD state file, the one declared persisted rung vocabulary, the cadence/cool-down
+counters, the strategy-reach sensor, the taxonomy climb, the goal anchor node, the Decision Gate
+ratification path, and the doctrine/contract corrections. Registered here at plan time (345-01) as
+`- [ ]` rows, to be closed with measured proof by the phase's own close-out plan, per the Phase
+254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347 precedent.
+
+- [ ] **STRAT-01**: The top-level `goal` key on `jtbd-state.json` carries `parent_question`,
+      `rung`, `goal_version`, `set_at`, `set_by`, is carried through `writeStateAtomic`, and is
+      preserved by all three writers. Measured: pending, intended check: `node
+      tests/test-345-goal-record.cjs`.
+
+- [ ] **STRAT-02**: `goal_version` is monotone and `goal_history` is a bounded ring; absent reads
+      as 0. Measured: pending, intended check: `node tests/test-345-goal-record.cjs`.
+
+- [ ] **STRAT-03**: One declared persisted rung vocabulary exists with a tested mapping to the
+      egress-guard ladder enum. Measured: `node tests/test-345-rung-mapping.cjs` exits 0
+      (2026-09-15); `grep -c "layer: graph" lib/core/strategy/rung-vocabulary.cjs` returns at
+      least 1; `grep -c "require(.*brain-client" lib/core/strategy/rung-vocabulary.cjs` returns 0.
+
+- [ ] **STRAT-04**: The cadence and stall counters read through the navigation chokepoint over
+      `memory_event`, with named constants and an injection seam. Measured: pending, intended
+      check: `node tests/test-345-cadence.cjs`.
+
+- [ ] **STRAT-05**: The cool-down ships a hard minimum interval, a dismissal-rate throttle,
+      REJECT-only suppression, and a `strategy_throttled` memory_event. Measured: pending,
+      intended check: `node tests/test-345-cooldown.cjs`.
+
+- [ ] **STRAT-06**: `sensorStrategyReach` is pure, sync, zero I/O, and returns `null` on every
+      refusal branch. Measured: pending, intended check: `node tests/test-345-strategy-sensor.cjs`.
+
+- [ ] **STRAT-07**: The strategy-reach sensor is registered across lockstep places 2 through 6
+      with `SENS_PRIORITY` in Group A. Note (see decisions record Section 6): the id reserved by
+      research was `SENS-19`, which Phase 343 claimed first on this tree for `sensorGraphIntegrity`;
+      the correct id at registration time is the next free id (`SENS-20` as of this session).
+      Measured: pending, intended check: `node tests/test-345-lockstep.cjs`.
+
+- [ ] **STRAT-08**: The ctx producer block (lockstep place 7) is pinned from the far end through
+      `decide()`. Measured: pending, intended check: `node tests/test-345-producer-fires.cjs`.
+
+- [ ] **STRAT-09**: The stall count is exposed as a named null-default input for the Phase 346
+      arbiter. Measured: pending, intended check: `node tests/test-345-cadence.cjs`.
+
+- [ ] **STRAT-10**: The climb composes local rung inference plus the optional `taxonomy_ladder`
+      render through `brainClient.callTool`, with a local one-line fallback. Measured: pending,
+      intended check: `node tests/test-345-climb.cjs`.
+
+- [ ] **STRAT-11**: No file under `lib/` contains the literal `mcp__theo__`. Measured: `bash
+      tests/run-all-345.sh` Tripwire A (`grep -rl 'mcp__theo__' lib/`) reports PASSED
+      (2026-09-15).
+
+- [ ] **STRAT-12**: The idempotent payload-free `goal:<room-slug>` anchor node is minted before
+      the card. Measured: pending, intended check: `node tests/test-345-gate-anchor.cjs`.
+
+- [ ] **STRAT-13**: The strategy proposal is a Decision Gate whose approve branch writes a typed
+      decision node with at least one `SOURCED_FROM` edge, wired on both surfaces. Measured:
+      pending, intended check: `node tests/test-345-gate-ratify.cjs`.
+
+- [ ] **STRAT-14**: Every `reach_presented` payload carries the `goal_version` it ran under.
+      Measured: pending, intended check: `node tests/test-345-goal-version-stamp.cjs`.
+
+- [ ] **STRAT-15**: The two L2 contract Inputs pointer lines land, plus the
+      `problem-definition.md` rung-vocabulary correction. Measured: pending, intended check: `node
+      tests/test-345-doctrine.cjs`.
+
+- [ ] **STRAT-16**: The SKILL.md doctrine amendment lands at the anti-circular rule, plus the dist
+      mirrors. Measured: pending, intended check: `node tests/test-345-doctrine.cjs`.
+
+- [ ] **STRAT-17**: Every declaring surface this phase adds carries `layer: graph`. Measured:
+      pending, intended check: `node scripts/check-layer-declaration.cjs`.
+
+- [ ] **STRAT-18**: Phase close: `bash tests/run-all-345.sh` runs green, every STRAT id closed
+      with a measured proof. Measured: pending, intended check: `bash tests/run-all-345.sh`.
+
 ## Traceability
 
-229 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+247 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
-(Phase 343), plus SHARED-01..13 (Phase 347). All minted
+(Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
 (all minted 2026-09-03), ICML-01..16 (minted 2026-09-04), CANON-01..10 (minted 2026-09-05), and
-LAYER-01..16 and SHARED-01..13 (both minted 2026-09-14):
+LAYER-01..16, SHARED-01..13 and STRAT-01..18 (all minted 2026-09-14):
 RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -1979,10 +2057,15 @@ SHARED-01..13 were minted in `docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md`'s 
 (2026-09-14), ratifying `347-RESEARCH.md`'s proposed `SHARED-` family, scoped to Phase 347 only,
 and are registered here at phase close by `347-12-PLAN.md` per the Phase 254/257/265/267.2/267.3/
 270/272/274/276/339/275/340/344 precedent.
-Roadmap phases must map all 229 active requirements with no orphans.
+STRAT-01..18 were minted in
+`docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md`'s Section 1 table (2026-09-14), ratifying
+`345-RESEARCH.md`'s proposed `STRAT` prefix, scoped to Phase 345 only, and are registered here at
+plan time (345-01) as `- [ ]` rows to be closed with measured proof by the phase's own close-out
+plan, per the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347 precedent.
+Roadmap phases must map all 247 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON and SHARED
+FLIP, CANON, SHARED and STRAT
 families
 alike (the
 Phase 266 and 269
