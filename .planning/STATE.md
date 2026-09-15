@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 345-09 closed Phase 345 (the strategy node): full twelve-check gate sweep green, all eighteen STRAT-01..18 requirements closed with measured proof, the headline fleet-before-vs-fixture-after SOURCED_FROM number stated honestly, nine working decisions finalized, and the taxonomy_ladder rung-casing mismatch recorded as a named, owned, deferred item rather than dropped"
-stopped_at: Completed 345-09-PLAN.md - Phase 345 CLOSED
-last_updated: "2026-09-15T15:00:00.000Z"
-last_activity: "2026-09-15 - 345-09 completed, PHASE 345 CLOSED (twelve-check gate sweep recorded in docs/2026-09-14-PHASE-345-STRATEGY-NODE-CLOSE-OUT.md; STRAT-01..18 closed with Measured: proof in .planning/REQUIREMENTS.md; docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md finalized, zero WORKING rows; 345-VALIDATION.md filled, nyquist_compliant: true; ROADMAP.md Phase 345 shows 9/9 plans executed; one dated row added to docs/OPEN-HANDOFFS.md; run-all-345.sh PASS=19 FAIL=0 SKIP=0, doctor.cjs --acceptance 20/20)"
+status: "Plan 346-01 minted ARB-01..16, wrote docs/ARBITRATION-CONTRACT.md (naming fence, Tri-Polar table, layer: graph declaration, thirteen-row working-decision ledger), closed ARB-01/ARB-14/ARB-15 with measured proof, and stood up tests/run-all-346.sh (9 guarded legs, 2 green regression legs)"
+stopped_at: Completed 346-01-PLAN.md - Wave 1 of 6
+last_updated: "2026-09-15T19:02:58.629Z"
+last_activity: 2026-09-15 -- 346-01 completed (ARB-01..16 minted in .planning/REQUIREMENTS.md; docs/ARBITRATION-CONTRACT.md written and TDD-proven via tests/test-346-contract-doc.cjs; ARB-01/ARB-14/ARB-15 closed with Measured: proof; tests/run-all-346.sh green PASS=4 FAIL=0 SKIP=8; data/harness-manifest.json regenerated to close a pre-existing Phase 345 drift; doctor --acceptance 19/20 with the one non-green point being expected mid-execution tracked-file drift)
 progress:
-  total_phases: 98
-  completed_phases: 32
+  total_phases: 99
+  completed_phases: 31
   total_plans: 274
-  completed_plans: 260
+  completed_plans: 261
   percent: 95
 ---
 
@@ -4408,7 +4408,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 344 - the-layer-contract-name-describe-and-pin-every-engineering-l
+**Current focus:** Phase 346 - the-arbitration-node-graph-engineering-learning-3c-conflict-
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4453,7 +4453,25 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - CLOSED
+Phase: 346 (the-arbitration-node-graph-engineering-learning-3c-conflict-) - EXECUTING
+Plan: 346-01 complete (1/8 plans)
+Status: Plan 346-01 minted ARB-01..16 in .planning/REQUIREMENTS.md (LAYER-family row style,
+  traceability paragraph extended, active count corrected 247 -> 263 using the live measured
+  baseline rather than the plan's stale 215 assumption), wrote docs/ARBITRATION-CONTRACT.md (the
+  naming fence naming POSTURE_IDS/postureForCommand/STANCES with the prose-may/code-may-not
+  ruling, the three axis vocabularies, the result struct, the ranking, the floors, a Tri-Polar
+  table sourced live from CAPABILITY_MAP with not-applicable on desktop/cowork, the layer: graph
+  declaration against the live Phase 344 vocabulary, and the thirteen-row working-decision
+  ledger), TDD-proven by tests/test-346-contract-doc.cjs (RED then GREEN), and closed
+  ARB-01/ARB-14/ARB-15 with Measured: proof. Stood up tests/run-all-346.sh (9 run_if guarded
+  legs, one per planned test file in wave order, plus 2 always-on regression legs and the
+  em-dash guard); runs green today (PASS=4 FAIL=0 SKIP=8). Rule 3 deviation: regenerated
+  data/harness-manifest.json to close a pre-existing Phase 345-08 drift (SKILL.md edited, digest
+  never regenerated) so this plan's own harness-manifest-fresh regression leg is green from day
+  one. doctor --acceptance 19/20 mid-execution (the one non-green point, verify-release-clean-
+  tree, is expected tracked-file drift that clears once these files are committed). Full detail
+  in 346-01-SUMMARY.md.
+Previously: Phase 345 (the-strategy-node-graph-engineering-learning-3b-blind-upward) - CLOSED
 Plan: 345-09 complete (9/9 plans) - PHASE 345 CLOSED, 2026-09-15
 Status: Plan 345-09 closed the phase (STRAT-18): ran the full twelve-check gate sweep (bash
   tests/run-all-345.sh PASS=19 FAIL=0 SKIP=0; test-sensors-part8-sweep/routing-fence,
@@ -4672,7 +4690,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-14 -- 344-09 completed (phase close: thirteen-command gate sweep run
+Last activity: 2026-09-15 -- Phase 346 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -6038,6 +6056,7 @@ Progress: [█████████░] 92%
 | Phase 345 P07 | 70min | 3 tasks | 6 files |
 | Phase 345 P08 | 40min | 3 tasks | 6 files |
 | Phase 345 P09 | 150min | 3 tasks | 6 files |
+| Phase 346 P01 | 11min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -7634,6 +7653,7 @@ Progress: [█████████░] 92%
 - [Phase 345]: goal-gate.cjs is the ONLY caller of jtbdState.setGoal in the repository, reached only from an approved gate answer; ratifyGoalProposal writes no decision node and no provenance edges itself, feeding the existing writeReasoningNode chokepoint instead of duplicating it.
 - [Phase 345]: 345-08: larry-personality is WD-7-exempt (connector.excluded:true), so a bare layer: count of 0 is the correct post-344-04 state; layer: prompt was deliberately not added - Adding layer: prompt would have contradicted 344-04's own shipped WD-7 ruling that removes exempt skills from the layer-backfill map entirely
 - [Phase 345]: Phase 345 CLOSED: all eighteen STRAT-01..18 requirements closed with measured proof, headline SOURCED_FROM number stated fixture-vs-fleet honestly - the taxonomy_ladder rung-casing mismatch is recorded as a named, owned, deferred item in three tracked places rather than dropped at the last plan
+- [Phase 346]: Used the live active-requirement count (247 to 263), not the plan's stale 199 to 215 literal - SHARED-01..13 and STRAT-01..18 were minted by intervening phases after 346-01-PLAN.md was authored, so the plan's baseline had gone stale by execute time
 
 ### Pending Todos
 
@@ -7773,8 +7793,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T14:04:27.245Z
-Stopped at: Completed 345-09-PLAN.md - Phase 345 CLOSED
+Last session: 2026-09-15T19:02:58.566Z
+Stopped at: Completed 346-01-PLAN.md - Wave 1 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
