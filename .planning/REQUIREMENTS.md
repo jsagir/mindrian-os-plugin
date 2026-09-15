@@ -1657,67 +1657,137 @@ constitutionally.
       `node tests/test-posture-ids-drift.cjs` exits 0 as of 346-01 and is re-run as a standing
       regression leg in `tests/run-all-346.sh` for the rest of the phase.
 
-- [ ] **ARB-02**: The `enforcement` axis exists as new pure code with the closed vocabulary
+- [x] **ARB-02**: The `enforcement` axis exists as new pure code with the closed vocabulary
       `enforce | judge | not-applicable`, resolved by an ordered first-match ladder, and `judge`
       is structurally unreachable on a turn where a constitutional floor is engaged. Landed by
-      346-02 (`lib/core/arbitration.cjs` `resolveEnforcement`, 128-case power-set proof); left
-      unchecked here per the LAYER/STRAT/SHARED precedent (346-01-SUMMARY.md), closed with its
-      own Measured: clause by 346-08 (phase close).
+      346-02 (`lib/core/arbitration.cjs` `resolveEnforcement`). Measured: (346-08 phase close, 2026-09-16)
+      `node tests/test-346-enforcement-axis.cjs` exit 0, 24 assertions pass, including the
+      128-case power-set sweep over every combination of the seven judge-producing input keys
+      with `floor_engaged: true`, all 128 resolving `enforce`.
 
-- [ ] **ARB-03**: `lib/core/arbitration.cjs` composes the three axes into ONE ranked result, is
+- [x] **ARB-03**: `lib/core/arbitration.cjs` composes the three axes into ONE ranked result, is
       pure (zero I/O, zero network, zero require of `insight-sensors.cjs` or
       `f-selector-ranker.cjs`), never throws on malformed input, and reports absent inputs in
-      `inputs_missing` rather than defaulting silently.
+      `inputs_missing` rather than defaulting silently. Measured: (346-08 phase close, 2026-09-16) `node
+      tests/test-346-arbitration-resolver.cjs` exit 0, 27 assertions pass, including the
+      hostile-input matrix (null/undefined/NaN/Infinity/-0/`toJSON`-throws/null-prototype/six
+      throwing getters); `grep -n "^const.*require(" lib/core/arbitration.cjs` shows the require
+      set is exactly 3 sibling modules (`decision-axes.cjs`, `directive-envelope.cjs`,
+      `persona-taxonomy.cjs`), with no `insight-sensors.cjs` or `f-selector-ranker.cjs` present.
 
-- [ ] **ARB-04**: A LOCAL escape-hatch detector ships in `lib/core/arbitration.cjs` and matches
+- [x] **ARB-04**: A LOCAL escape-hatch detector ships in `lib/core/arbitration.cjs` and matches
       the two phrases already doctrine in `skills/larry-personality/SKILL.md`, so `selectMode`'s
       highest-precedence rule stops being fed by nothing on the Claude Code path. Landed by 346-02
-      (`detectEscapeHatch`, keys byte-identical to `directive-envelope.cjs:42`); left unchecked
-      here per the LAYER/STRAT/SHARED precedent (346-01-SUMMARY.md), closed with its own
-      Measured: clause by 346-08 (phase close).
+      (`detectEscapeHatch`, keys byte-identical to `directive-envelope.cjs:42`). Measured: (346-08
+      phase close, 2026-09-16) `node tests/test-346-enforcement-axis.cjs` exit 0, 24 assertions pass,
+      including the `detectEscapeHatch` match/non-string-coercion/no-echo/key-name-parity legs
+      against `directive-envelope.cjs`.
 
-- [ ] **ARB-05**: The cold-start floor holds. No combination of role_blend, problem-type rung,
+- [x] **ARB-05**: The cold-start floor holds. No combination of role_blend, problem-type rung,
       surface or escape-hatch flips turn 1 out of GUIDED and ask-first, and the result object
-      contains no string outside the declared closed enums.
+      contains no string outside the declared closed enums. Measured: (346-08 phase close, 2026-09-16) `node
+      tests/test-346-arbitration-resolver.cjs` prints `cold-start sweep case count: 120` (3
+      role_blend x 5 rung x 4 surface x 2 jtbd), every one of the 120 generated cases resolving
+      GUIDED/`ask_and_hedged`, plus the same sweep repeated with `is_first_material`; `node
+      tests/test-346-part8-enum-only.cjs` scans 1080 generated results (the cold-start sweep
+      crossed with the enforcement ladder's nine branches) with zero strings outside the closed
+      vocabularies.
 
-- [ ] **ARB-06**: The arbiter attaches to `decide()` through the `applyProjectionLift` additive
+- [x] **ARB-06**: The arbiter attaches to `decide()` through the `applyProjectionLift` additive
       convention: a `null` default field in `emptyDecisionTrace()`, one pre-declared trace field
       written, one rationale clause appended, called on the tier_0 early-return path and the main
       path, a full no-op on null, and no assignment to `fire_skill`, `offer_next_step` or
-      `suppress_skills`.
+      `suppress_skills`. Measured: (346-08 phase close, 2026-09-16) `node tests/test-346-decide-attachment.cjs`
+      exit 0, 19 assertions pass, including the populated `trace.arbitration` on both real return
+      paths, `null` (not `undefined`) on the fault path, the full no-op on null/non-object/array,
+      the 60-case `fire_skill`/`offer_next_step`/`suppress_skills` non-interference sweep, and the
+      byte-identity mechanical proof; `grep -c "applyArbitration(decision, trace,
+      arbitrationResult);" lib/core/navigation-engine.cjs` returns `2`; `grep -c "^function
+      applyArbitration" lib/core/navigation-engine.cjs` returns `1`. Navigator ratified the
+      spine attachment at the 346-07 Task 1 blocking checkpoint ("Approve as specified").
 
-- [ ] **ARB-07**: Exactly one arbitration decision per turn is written through the
+- [x] **ARB-07**: Exactly one arbitration decision per turn is written through the
       `navigation.cjs` chokepoint as a `memory_event` of type `arbitration_decided`, carrying
       closed-enum tokens and numbers only, deduped on a session-plus-turn key inside the shipped
-      60-second window.
+      60-second window. Measured: (346-08 phase close, 2026-09-16) `node tests/test-346-arbitration-event.cjs`
+      exit 0, 22 assertions pass, including the accept/dedupe/flip/hold/session-scope/fault-safety
+      legs against a real hermetic room.db, the forbidden-key-name scan, and the chokepoint
+      reference-identity proof (`navigation.logArbitrationDecision ===`
+      `arbitration-log.cjs`'s own export).
 
-- [ ] **ARB-08**: A posture flip is disclosed and a hold is silent. The logged row records
+- [x] **ARB-08**: A posture flip is disclosed and a hold is silent. The logged row records
       whether the turn flipped and which axes flipped, compared against the previous logged
-      decision in the same session.
+      decision in the same session. Measured: (346-08 phase close, 2026-09-16) `node
+      tests/test-346-arbitration-event.cjs` exit 0, 22 assertions pass, including the flip
+      (`flipped_axes` walked in `RANKED_ORDER` order) and hold (silent, `flip: false`) legs, and
+      the `no_prior_decision`/`prior_read_failed` distinction so a first turn and a faulted read
+      are never fabricated as a hold.
 
-- [ ] **ARB-09**: `data/arbitration-rule-catalogue.json` classifies every conversation-time rule
+- [x] **ARB-09**: `data/arbitration-rule-catalogue.json` classifies every conversation-time rule
       on the shipped `declared | logged | blocking` rungs with a reason per row, names the two
       Stop-hook gates explicitly, and states in one sentence that the remaining build-time
       `scripts/check-*.cjs` gates are out of scope, with the count enumerated from disk rather
-      than frozen.
+      than frozen. Measured: (346-08 phase close, 2026-09-16) `node tests/test-346-catalogue-schema.cjs` exit
+      0, 19/19 assertions pass; 12 `conversation_time_rules` plus 6 `prose_mandates`;
+      `_doc.stop_hook_gates` names exactly `scripts/check-card-fire.cjs` and
+      `scripts/check-voice-style.cjs`; the live build-time-gate census (printed by the test
+      itself) reports `40 total scripts/check-*.cjs gates, 2 run at Stop, 38 are build-time (out
+      of scope)`, with no hardcoded count in `_doc.build_time_gates_out_of_scope`.
 
-- [ ] **ARB-10**: `scripts/hmi-compliance-poll.cjs` and `scripts/mva-detect.cjs` are read and
-      classified into the catalogue with a rung and a reason, even if the rung is inert.
+- [x] **ARB-10**: `scripts/hmi-compliance-poll.cjs` and `scripts/mva-detect.cjs` are read and
+      classified into the catalogue with a rung and a reason, even if the rung is inert. Measured:
+      (346-08 phase close, 2026-09-16) both files appear as rows in
+      `data/arbitration-rule-catalogue.json`'s `conversation_time_rules` (confirmed via `node -e
+      "require('./data/arbitration-rule-catalogue.json').conversation_time_rules.map(r=>r.id)"`,
+      which lists `hmi-compliance-poll` at `floor: none, arbiter_input: true, rung_proposed:
+      declared` with its `reason` stating the practical judgment impact is inert (it only writes
+      an unread side-channel file), and `mva-detect` at `floor: none, arbiter_input: true,
+      rung_proposed: logged`, its `reason` naming `scripts/first-install-router.cjs` as the later
+      consumer of its pending-state write); `node tests/test-346-catalogue-schema.cjs` exit 0,
+      19/19 assertions pass, including the floor-discipline assertion that every `floor: none`
+      row carries `arbiter_input: true`.
 
-- [ ] **ARB-11**: The arbiter carries its own harness policy file at rung `declared` with
+- [x] **ARB-11**: The arbiter carries its own harness policy file at rung `declared` with
       `runner: null` and a `promotion_rule` authored before any evidence exists, `node
       scripts/build-harness-manifest.cjs --check` is green, and `node scripts/run-harness.cjs
-      --check` counts it as a ghost, never as passing.
+      --check` counts it as a ghost, never as passing. Measured: (346-08 phase close, 2026-09-16) `node
+      scripts/build-harness-manifest.cjs --check` prints `harness-manifest: OK`, exit 0; `node
+      scripts/run-harness.cjs --check` prints `gate-arbitration-decision  declared  ghost  runner
+      is null (declared ghost, honest by design -- nothing to spawn)` and reports totals `9 pass,
+      0 fail, 4 ghost, 2 declared, 15 total`, exit 0 -- the policy counted as a ghost, never as a
+      pass.
 
-- [ ] **ARB-12**: `tests/fixtures/346-watch-incidents.json` carries the nine catalogued misfires
-      plus two positive controls, each with its verbatim `source_quote` from the WATCH memory
-      file, so provenance survives even though the memory file is outside the repo.
+- [x] **ARB-12**: `tests/fixtures/346-watch-incidents.json` carries the measured catalogued
+      misfires plus two positive controls, each with its verbatim `source_quote` from the WATCH
+      memory file, so provenance survives even though the memory file is outside the repo.
+      Measured: (346-08 phase close, 2026-09-16) the count is **8**, not the nine this row's original wording
+      names -- enumerating the WATCH memory file directly (one fixture per distinct
+      date-mechanism-turn-context triple, a run of consecutive same-shape fires collapsed to one
+      row) under the phase's own count-honesty rule yields 8 distinct misfires, recorded with its
+      full derivation in the fixture's own `_doc.count_derivation` and
+      `_doc.count_discrepancy_note` (346-06); every one of the 8 misfires plus the 2 positive
+      controls carries a `source_quote` field over the 20-character floor, verified live:
+      `node -e "const f=require('./tests/fixtures/346-watch-incidents.json'); console.log(f.misfires.length, f.positive_controls.length, f.misfires.every(m=>m.source_quote && m.source_quote.length>20))"`
+      prints `8 2 true`.
 
-- [ ] **ARB-13**: `node tests/test-346-watch-replay.cjs` prints both numbers: the sourced
+- [x] **ARB-13**: `node tests/test-346-watch-replay.cjs` prints both numbers: the sourced
       before-number (86 percent false positives for `check-card-fire.cjs`, cited to its three
       independent sources) and the measured after-number (N of M misfires suppressed, where M is
       the count enumerated from the WATCH record and stated with its derivation, never a number
-      borrowed from a brief), and the two positive controls are not suppressed.
+      borrowed from a brief), and the two positive controls are not suppressed. Measured: (346-08
+      phase close, 2026-09-16), printed verbatim by `node tests/test-346-watch-replay.cjs` (exit
+      0, 11 assertions pass): `BEFORE: 86 percent false-positive rate for scripts/check-card-fire.cjs,
+      corroborated by 3 independent sources: data/harness-policies/gate-card-fire.json,
+      scripts/check-card-fire.cjs, .planning/phases/298-.../298-09-SUMMARY.md`; `BEFORE-NUMBER
+      CAVEAT: 86 percent measures check-card-fire.cjs specifically, not the persona regression as
+      a whole. It is the strongest sourced figure in the repo and it is still a proxy.`; `AFTER: 8
+      of 8 recorded misfires are suppressed by the arbiter (by mechanism: binding-gate-injection:
+      5/5, gate-card-fire: 3/3)`; both positive controls (`pc-genuine-fork`, `pc-part8-floor`)
+      confirmed still resolving `enforce`, not suppressed (the anti-vacuous-success check);
+      `LIMITATION: These fixtures are shapes reconstructed from a prose incident log ... They do
+      not prove the persona regression itself closed in live use. The only honest close on that
+      second claim is a fresh WATCH window observed after this phase ships, not a replay against
+      fixtures derived from the original complaint.`
 
 - [x] **ARB-14**: The Tri-Polar statement is written: what the arbiter does on Claude Code,
       Claude Desktop and Cowork, with `not-applicable` on the enforcement axis wherever
@@ -1736,10 +1806,19 @@ constitutionally.
       `_doc.layer_vocabulary`; the document's "The layer declaration (ARB-15)" section states
       the WD-6 one-value rule and answers the cadence-versus-scope counter-argument in writing.
 
-- [ ] **ARB-16**: `bash tests/run-all-346.sh` runs green, `node scripts/doctor.cjs
+- [x] **ARB-16**: `bash tests/run-all-346.sh` runs green, `node scripts/doctor.cjs
       --acceptance` and `node scripts/run-harness.cjs --check` are unregressed, every ARB id is
       finalized with measured proof, `346-VALIDATION.md` is filled, and the phase record lands in
-      `docs/`.
+      `docs/`. Measured: (346-08 phase close, 2026-09-16) `bash tests/run-all-346.sh` reports `PASS=12 FAIL=0
+      SKIP=0`, exit 0; `node scripts/doctor.cjs --acceptance` reports `Acceptance full: 20/20
+      points passed`, exit 0; `node scripts/run-harness.cjs --check` reports `Totals: 9 pass, 0
+      fail, 4 ghost, 2 declared, 15 total`, exit 0, unregressed since 346-03 first landed this
+      count (`gate-arbitration-decision` counted as a ghost, never a pass); `node
+      tests/test-198-chokepoint-guard.test.cjs` exit 0 (18 assertions); `git diff --name-only
+      hooks/hooks.json` is empty; every `- [x] **ARB-01..16**` row above carries its own
+      `Measured:` clause; `.planning/phases/346-.../346-VALIDATION.md` is filled with
+      `nyquist_compliant: true` (this plan's Task 2); the phase record lands at
+      `docs/2026-09-14-PHASE-346-ARBITRATION-CLOSE-OUT.md` (this plan's Task 3).
 
 ### Phase 343 - The room-graph census and the counter-metric rule (CENSUS)
 
@@ -2204,8 +2283,8 @@ STRAT-01..18 were minted in
 plan time (345-01) as `- [ ]` rows to be closed with measured proof by the phase's own close-out
 plan, per the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347 precedent.
 ARB-01..16 were minted in the Phase 346 plan set (2026-09-14), ratifying `346-RESEARCH.md`'s
-proposed `ARB-` family, and are registered here at plan time as `- [ ]` rows to be finalized with
-measured proof at phase close by `346-08-PLAN.md`.
+proposed `ARB-` family, and were registered here at plan time as `- [ ]` rows, finalized with
+measured proof at phase close by `346-08-PLAN.md` (2026-09-16). All sixteen rows are now `- [x]`.
 Roadmap phases must map all 263 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
