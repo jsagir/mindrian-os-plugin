@@ -2,17 +2,34 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 346-08-PLAN.md - Phase 346 CLOSED (8/8 plans)
-last_updated: "2026-09-16T01:30:00.000Z"
-last_activity: 2026-09-16 -- Phase 346 CLOSED (8/8 plans complete, all ARB-01..16 requirements finalized with Measured proof); next is planning Phase 348 from scratch
+status: executing
+stopped_at: Completed 348-01-PLAN.md - Wave 1 of 10
+last_updated: "2026-09-16T01:49:14+03:00"
+last_activity: 2026-09-16 -- Phase 348 Plan 01 complete (SUPER-01..20 minted, docs/SUPERSESSION-CONTRACT.md written, tests/run-all-348.sh standing up); Phase 348 has 9 waves remaining
 progress:
   total_phases: 99
   completed_phases: 32
-  total_plans: 274
-  completed_plans: 268
-  percent: 98
+  total_plans: 284
+  completed_plans: 269
+  percent: 95
 ---
+
+<!-- NOTE (348-01 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` succeeded this time (current_plan 1 -> 2 of 10). `state.update-progress`
+     correctly computed `completed: 269, percent: 95` (269/284). `state.record-metric` (flag
+     syntax) landed its own correct Performance Metrics row without a frontmatter clobber this
+     time. `state.add-decision` (with `--summary`) DID repeat the documented `[Phase ?]`
+     placeholder bug, fixed in place to `[Phase 348]`. `state.record-session --stopped-at`
+     correctly updated `stopped_at`, but left `last_activity`/`percent` unset to this plan's own
+     values (still the stale "Phase 348 execution started" / `32` phase-count reading from an
+     earlier session's frontmatter). Hand-corrected once, after all calls landed: `last_updated`
+     -> this plan's completion timestamp, `last_activity` -> this plan's completion line,
+     `percent` -> 95 (269/284, matching `state.update-progress`'s own correct computation); left
+     `total_phases`/`completed_phases` at 99/32 unchanged since Phase 348 has not closed (9 of 10
+     plans remain). Same root cause as every other note in this file, not re-investigated further
+     here. -->
+
 
 <!-- NOTE (346-08 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4548,7 +4565,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 346 - the-arbitration-node-graph-engineering-learning-3c-conflict-
+**Current focus:** Phase 348 — the-supersession-node-graph-engineering-learning-6-fact-inva
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4593,9 +4610,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 346 (the-arbitration-node-graph-engineering-learning-3c-conflict-) - EXECUTING
-Plan: 346-04 complete (4/8 plans)
-Status: Plan 346-04 completed lib/core/arbitration.cjs with resolveArbitration: one call
+Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
   now returns one ranked result carrying all three axes (enforcement, delivery, autonomy),
   reusing decision-axes.resolveDecisionMode and directive-envelope.selectMode verbatim per
   Canon Part 7, composing them with the 346-02 enforcement ladder. Censuses the six roadmap
@@ -4861,7 +4878,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-15 -- Phase 346 execution started
+Last activity: 2026-09-15 -- Phase 348 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -6235,6 +6252,7 @@ Progress: [█████████░] 92%
 | Phase 346 P06 | 30min | 3 tasks | 2 files |
 | Phase 346 P07 | 35min | 3 tasks | 4 files |
 | Phase 346 P08 | 50min | 3 tasks | 4 files |
+| Phase 348 P01 | 12min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7839,6 +7857,7 @@ Progress: [█████████░] 92%
 - [Phase 346]: 346-06: measured misfire count is 8 (not the planning brief's stated 9), recorded with derivation in the fixture file rather than padded
 - [Phase 346]: Phase 346 Plan 07: applyArbitration wired on both decide() return paths using the shipped applyProjectionLift additive-trace convention verbatim; a null result is a full no-op, proven byte-identical to pre-346 via a 60-case non-interference sweep plus a mechanical determinism proof under a stubbed resolver fault.
 - [Phase 346]: Phase 346 closed: all sixteen ARB requirements finalized with Measured proof; the arbiter is live on decide() behind a ratified navigator checkpoint
+- [Phase 348]: SUPER-01..20 minted verbatim from the 348-01 plan body into REQUIREMENTS.md; docs/SUPERSESSION-CONTRACT.md is the tracked durable home for D-01..D-09 navigator locks and WD-348-1..12 working decisions
 
 ### Pending Todos
 
@@ -7978,8 +7997,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T21:32:26.943Z
-Stopped at: Completed 346-07-PLAN.md - Wave 5 of 6
+Last session: 2026-09-15T22:51:50.493Z
+Stopped at: Completed 348-01-PLAN.md - Wave 1 of 10
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
