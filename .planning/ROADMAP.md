@@ -736,7 +736,7 @@ Plans:
 **Goal:** The room's goal carries its parent question and its problem-type rung, a slower GRAPH-layer watcher proposes a re-aim at a Decision Gate on a throttled cadence rather than nagging, the navigator's choice is written as a typed decision node with SOURCED_FROM provenance to a real payload-free anchor, every execution reach records the goal version it ran under, and the reframe has a named owner in doctrine.
 **Requirements**: STRAT-01 .. STRAT-18
 **Depends on:** Phase 344
-**Plans:** 8/9 plans executed
+**Plans:** 9/9 plans executed
 
 Plans:
 
@@ -748,7 +748,7 @@ Plans:
 - [x] 345-06-PLAN.md - the idempotent payload-free goal anchor minted before the card, the local climb with an optional Theo ladder render, and the four-option proposal card
 - [x] 345-07-PLAN.md - the gate ratification on both surfaces: the single writer of a ratified goal, and the fixture proof that the fleet-wide zero SOURCED_FROM edges moves to one
 - [x] 345-08-PLAN.md - the doctrine amended in place in three agreeing copies, two L2 contract Inputs pointers, and the rung-vocabulary correction before a rung is stored
-- [ ] 345-09-PLAN.md - phase close: full gate sweep, eighteen requirements closed with measured proof, validation map filled, close-out record and six carried-forward items
+- [x] 345-09-PLAN.md - phase close: full gate sweep, eighteen requirements closed with measured proof, validation map filled, close-out record and seven carried-forward items
 
 ### Phase 346: The arbitration node (graph-engineering learning 3c, conflict between loops, 2026-09-14): when two independent loops optimize different metrics inside one system they fight like two thermostats in one room, and each looks healthy on its own dashboard. MindrianOS has this failure live: the enforcement loop (hard-fail checks, render-coverage gates, mandatory card dispatch) and the judgment loop (Larry's reframe, the Ask-Tell dial, GUIDED-first teaching) pull against each other, recorded as the 2026-07-02 WATCH item "Larry feels less like Larry since v1.15.beta.x, hard-fail checks may have replaced judgment". Deliverables. (1) One explicit arbiter, a single ranked decision per turn, that resolves teach-versus-deliver, guided-versus-autonomous, and enforce-versus-judge from context rather than from whichever rule fired last: inputs are the role_blend axis, the room JTBD, the problem-type rung, escape-hatch phrases ("just tell me", "bottom line"), stall count, and surface capability; output is a logged posture decision with its reasons, written through memory_event so it can be audited later. (2) Every hard rule that currently short-circuits judgment is catalogued and classified: keep as a hard floor (Canon Part 8 egress, Part 12 voice glyph, no fabricated numbers), or demote to an arbiter input with a weight. (3) An eval that replays the WATCH item's transcript set through the arbiter and measures whether the persona regression closes, with the 07-02 grading trend as the before-number. Consults langtalks-graph-expert (Agent Factory agent-evaluation note, verification-loops source) and the hooked-model skill for the first-step surface.
 

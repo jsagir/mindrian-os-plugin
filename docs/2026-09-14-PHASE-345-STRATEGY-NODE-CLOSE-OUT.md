@@ -240,3 +240,156 @@ clause naming a real command and its real output. Repeated here so a reader with
 | STRAT-18 | Phase close: aggregator green, every STRAT id closed with measured proof | `bash tests/run-all-345.sh` exits 0 (`PASS=19 FAIL=0 SKIP=0`, re-run 2026-09-15 at close) |
 
 Eighteen rows, matching `.planning/REQUIREMENTS.md`'s eighteen `- [x] **STRAT-NN**` rows exactly.
+
+---
+
+## The number this phase existed to move
+
+This phase's headline deliverable was a number: `SOURCED_FROM` edges and `decision:gate:*` nodes
+produced by an approved strategy gate.
+
+**Before (measured 2026-09-14, 345-ICM-CONSULT's census, cited verbatim in the decisions record
+WD-8):** 0 `SOURCED_FROM` edges, 0 `decision:gate:*` nodes, across 30 live rooms, against 4,680
+`gate_reached` events on the CLI surface (`scripts/intent-classifier.cjs:2401`). A strategy
+proposal had no anchor to point a provenance edge at, and the gate's own decision-node/edge writer
+(`gate_answer`'s approve branch, shipped 2026-09-03, quick 260903-i2x) had never once been
+exercised with a real `subject_node_id`/`evidence_node_ids` pair for this card kind.
+
+**After (measured 2026-09-15, `node tests/test-345-gate-ratify.cjs`, printed verbatim):**
+```
+MEASURED: sourced_from_edges_to_anchor=1 confirmed_decision_gate_nodes=1
+```
+Through the ACTUAL registered `gate_render`/`gate_answer` MCP tool handlers, on a fixture room
+built under `os.tmpdir()`, driving a real `strategy_goal` card end to end: approve produces
+exactly one `SOURCED_FROM` edge whose `target` resolves to a real `goal:<slug>` anchor node row,
+and exactly one `decision:gate:<gate_id>` node at `review_status='confirmed'`. Reject and defer
+both produce 0 edges and 0 nodes (the negative leg, also measured, not assumed).
+
+**Honest caveat, stated explicitly per this phase's own must-have:** the after count is a FIXTURE
+measurement on one scratch room driven through the real tool handlers. It is NOT a fleet
+measurement. As of this close-out (2026-09-15), no live room has yet answered a strategy gate,
+because SENS-20 only began firing in production with plan 05's landing earlier the same day, and
+the cadence floor (`STRATEGY_MIN_INTERVAL_REACHES=20`, `STRATEGY_CADENCE_REACHES=40`) means the
+earliest a real room could see its first proposal is measured in tens of reaches, not immediately.
+The mechanism is proven correct end to end through the real code path; the fleet number itself
+remains 0/0 until a live room crosses the threshold and a navigator approves.
+
+---
+
+## Decisions ruled
+
+Nine working decisions from `docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md` Section 2, all
+finalized at this close (zero rows remain `WORKING`):
+
+| Id | Decision | Final status | What shipped |
+|---|---|---|---|
+| WD-1 | Cadence constants ship in the same plan as the throttle | RULED 2026-09-15 (navigator `ratify-all`) | `STRATEGY_CADENCE_REACHES=40`, `STRATEGY_STALL_MIN_SAMPLE=12`, `STRATEGY_MIN_INTERVAL_REACHES=20` (plan 03/05) |
+| WD-2 | Goal record is a top-level sibling key, never nested | HELD 2026-09-15 | `goal`/`goal_history` top-level, threaded through all three writers (plan 02) |
+| WD-3 | `taxonomy_ladder` liveness discharged by one probe, card falls back safely | HELD 2026-09-15 | Probe ran (exit 0, 2026-09-15T12:49:33Z); `_resolveLadderText` degrades to `localLadderLine` on any non-`.ladder` shape (plan 06) |
+| WD-4 | Reach id `contradiction`, posture `pull_back` | RULED 2026-09-15 (navigator `ratify-all`) | `sensorStrategyReach` fires exactly this reach id/posture pair (plan 04/05) |
+| WD-5 | Requirement prefix `STRAT` | HELD 2026-09-15 | Eighteen-id family minted and closed in `.planning/REQUIREMENTS.md` (plan 01/09) |
+| WD-6 | Persisted vocabulary is Theo's four ids; wire vocabulary is the lowercase ladder enum | HELD 2026-09-15 | `rung-vocabulary.cjs` is the sole home (plan 01). A separate, unresolved live rung-CASING mismatch on the wire side is carried forward below, not a contradiction of this ruling. |
+| WD-7 | Anchor node typed `'goal'`/`'assumption'`/`'proposed'`, never `'claim'` | HELD 2026-09-15 | `mintGoalAnchor` mints, `confirmNode` promotes on approve (plan 06/07) |
+| WD-8 | `SOURCED_FROM` measured on the MCP surface; CLI surface wired additively | HELD 2026-09-15 | MCP writes the decision node and edge; CLI stamps `anchor_node_id` and emits `strategy_proposed` (plan 07) |
+| WD-9 | SENS_PRIORITY Group A, not Group D | RULED 2026-09-15 (navigator `ratify-all`) | Registered Group A, positionally between SENS-11 and SENS-14, as **SENS-20** (id corrected from the research-time `SENS-19`, which Phase 343 claimed first -- decisions record Section 6, fully closed, not deferred) |
+
+---
+
+## What stayed open
+
+Seven rows, each with its citation, so the next phase inherits a map rather than an audit.
+
+**(a) The three dead readers of `jtbd.current.id`.** `lib/core/navigation/packet.cjs:318-320`
+(throws `ERR_INVALID_ARG_TYPE` on `getCurrent(null)`), `lib/core/navigation/insights.cjs:368-373`,
+`lib/core/navigation/focus.cjs:123-129`. None is in this phase's `files_modified`, so the Rule-1
+correction did not apply. A separate quick task (345-ICM-CONSULT R10 item 1, AP-G4).
+
+**(b) Seeding `jtbd:<slug>` to revive `focus.cjs` Rule 1.** A different fact, a different phase
+(345-ICM-CONSULT R10 item 2).
+
+**(c) The mandatory-anchor fix on `typed-claim.cjs::writeClaimNode`.** Phase 273 territory; blast
+radius already mapped at `343-ICM-CONSULT.md` and restated in `docs/343-CLOSE-OUT.md`'s own
+structural-gap section (7,824 of 7,836 fleet claims carry no structural anchor as of 2026-09-15).
+
+**(d) The two-column goal-drift doctor statement (345-ICM-CONSULT R9).** Rooms with a `goal` key
+and no `goal:<room-slug>` node (drift) versus rooms with the node and no key (a rejected or
+deferred proposal, legitimate). Deferred because `data/doctor-modules.json` was inside Phase
+344-05's `files_modified` while 344 was mid-flight at research time. Hand to Phase 346.
+
+**(e) The `data/icm-parts.json` `jtbd-state` row.** It must record that the file now holds two
+facts with two lifetimes and two producers (the JTBD classifier's `current`/`history` versus the
+strategy node's `goal`/`goal_history`), and name SENS-20 and the `gate_answer` handler as
+consumers, or the part row asserts a single job the file no longer has (345-ICM-CONSULT Pitfall 7
+and AP-G8). Deferred for the same 344-05 mid-flight reason as (d). Hand to Phase 346.
+
+**(f) The one line Phase 345 owes to `lib/core/navigation/CONTEXT.md` when Phase 343 R12 lands,
+naming the goal's home and its anchor.** Not minted here as a second routing surface; a soft
+dependency this plan set carries but does not resolve, since Phase 343 R12 has not landed in this
+tree as of this close.
+
+**(g) The `taxonomy_ladder` rung-casing mismatch** (discovered plan 06, carried forward by name
+in plan 08, closed out here with a full reproduction and a named home rather than silently
+dropped). The deployed Theo `taxonomy_ladder` tool's `rung` argument schema is Theo-cased
+(`'IllDefined'`, `'WellDefined'`, `'UnDefined'`, `'Wicked'`); `rung-vocabulary.cjs::toLadderRung`
+produces, and `taxonomy-climb.cjs::renderLadder` sends, the lowercase ladder-vocabulary form
+(`'ill-defined'`), per a literal, already-ratified plan-06 acceptance criterion. Measured live
+against the deployed origin (2026-09-15): the lowercase send is REJECTED (`MCP error -32602: ...
+expected one of "UnDefined"|"IllDefined"|"WellDefined"|"Wicked" at rung`); the Theo-cased send
+SUCCEEDS, returning a real `ladder` string and a structured `rungs` array. Functionally harmless
+in production today: `_resolveLadderText` trusts only a live `.ladder` field and degrades safely
+to `localLadderLine` on any other shape, so the strategy card always renders -- it just never
+actually renders the Brain-decorated ladder, silently. Full reproduction:
+`lib/core/strategy/strategy-card.cjs`'s own header comment; `345-06-SUMMARY.md` ("Live Finding
+for Plan 08"); `345-08-SUMMARY.md` ("Live Finding Carried Forward to 345-09");
+`docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md` Section 3 item (e). **Owner:** a dedicated
+quick task against `lib/core/strategy/rung-vocabulary.cjs` and/or
+`lib/core/strategy/taxonomy-climb.cjs::renderLadder`, reconciling which casing the wire actually
+wants versus what `toLadderRung` emits -- not a drive-by edit inside this close-out plan, and not
+Phase 346's to inherit silently (named explicitly in `docs/OPEN-HANDOFFS.md`'s Phase 345 row,
+below).
+
+---
+
+## Grounding
+
+Two langtalks source offsets, cited verbatim per `345-LANGTALKS-CONSULT.md`: **4645:4703** (blind
+upward movement -- a loop cannot question its own goal) and **4810:4853** (the strategy node -- a
+slower node that runs on its own cadence, analyzes outcome rates, and rewrites the goals of the
+downstream execution loops). Scheduled JTBD or rung re-evaluation and stall-signal triggers are
+NAMED ASSUMPTIONS with no corpus source, per `345-LANGTALKS-CONSULT.md`; they are MindrianOS
+engineering doctrine, not a corpus finding.
+
+Corrected research assumptions from `345-RESEARCH.md`:
+- **A5** discharged by the ICM consult's eleven-reader enumeration (345-ICM-CONSULT, the full
+  `jtbd.current`/`jtbd.history` reader walk that grounded the top-level `goal` key's placement,
+  WD-2).
+- **A7** ruled at R5 (345-ICM-CONSULT R5, the anchor node's type/epistemic_type/review_status
+  triple, WD-7).
+- **A9 WRONG.** `345-RESEARCH.md` assumed at most one `dist/` mirror needed regeneration; both
+  `dist/` mirrors (`dist/generic-claude-dir/.claude/skills/larry-personality/SKILL.md` and
+  `dist/zed/.agents/skills/larry-personality/SKILL.md`) exist and were regenerated (hand-copied,
+  byte-identical) in plan 08, because `larry-personality` ships to both surfaces independently.
+- **A6** discharged by the plan-06 liveness probe (`scripts/check-brain-tool-liveness.cjs`,
+  2026-09-15T12:49:33Z, exit 0, `RESULT: OK`), with the probe's own honest scope caveat recorded
+  (it enumerates the six stdio-shim Brain tools, not `taxonomy_ladder` itself) -- the probe's OK
+  result did not, by itself, discharge whether `taxonomy_ladder` answers live; the plan-06 manual
+  smoke test against the real deployed tool is what actually discharged A6, and it is also what
+  surfaced the rung-casing mismatch named in "What stayed open" item (g).
+
+**The research-room mirror did NOT land this session.** Per the Dev-Research Compositing rule
+(`CLAUDE.md`), this reasoning trail should mirror into
+`~/MindrianRooms/rethinking-mindrianos/research/2026-09-15-phase-345-strategy-node-close-out.md`.
+Attempted this session and refused by Claude Code's own `write-scope-check` PreToolUse hook
+(identical class of refusal Phase 344's and Phase 347's own close-outs both hit and recorded):
+the active room is `idem-room`, not `rethinking-mindrianos`
+(`~/MindrianRooms/.rooms/registry.json`). The full drafted mirror content (what shipped, the
+`taxonomy_ladder` casing finding restated for a room-side reader, and the cross-domain lesson --
+two independent vocabulary-collision bugs in one phase, an id collision at plan-04/05 time and a
+casing collision at plan-06 time, both worth naming as one pattern: a locally-declared enum
+mirroring a remote tool's schema needs a live schema-correctness probe, not just a reachability
+probe) is preserved in full in this close-out record's own "What stayed open" item (g) and this
+Grounding section above, so no content is lost even though the second home does not yet exist.
+**Owner:** the user, or a future session with `rethinking-mindrianos` set active
+(`/mos:rooms switch rethinking-mindrianos`), then filing
+`~/MindrianRooms/rethinking-mindrianos/research/2026-09-15-phase-345-strategy-node-close-out.md`
+with this record's own content and cross-linking it back here.
