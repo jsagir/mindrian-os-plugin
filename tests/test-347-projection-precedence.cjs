@@ -126,8 +126,19 @@ function leg2BehavioralDisagreement() {
 // pre-existing, out-of-scope, non-violating co-occurrence: assert against a
 // named ALLOWED set, never a bare count, so the guarantee still fails on
 // any UNEXPECTED new file.
+//
+// Phase 347-09 adds a second legitimate exception: lib/mcp/tool-router.cjs.
+// The visualize-chain sub-case reads chain_state records to RENDER a
+// Mermaid diagram of a past run (read-only, display-only, no resume
+// decision anywhere near it); the file's unrelated /mos:pipeline handling,
+// ~1300 lines away, already read pipeline-state's own
+// updatedState.chain_position for a "Pipeline step N of M" progress string
+// (pre-existing, unrelated to the chain_state graph). The two literals
+// share a file only by coincidence of the file being a large multi-command
+// router; neither reads the other's data to compute a resume position.
 const ALLOWED_COOCCURRENCE = new Set([
   'lib/core/chain-executor.cjs',
+  'lib/mcp/tool-router.cjs',
 ]);
 
 function stripComments(text) {
