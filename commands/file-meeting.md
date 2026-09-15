@@ -550,11 +550,24 @@ makes the flow longer. The user needs to trust Larry's classifications.
 Once all five workers have returned, and BEFORE Step 3b's consolidation reads
 any of their rows, the orchestrator persists each perspective's returned rows
 as its own `chain_state` record, from the single main-thread db handle it
-already holds. For each perspective (index 0 through 4, in dispatch order):
+already holds. Mint ONE `meetingRunId` for this filing before persisting the
+first perspective, and reuse that SAME value for every perspective's write
+below and for Step 3b's readback -- WR-01 (347 code review): `run_id` scoped
+only to the session (`'meeting:' + sessionId`) collides across two meetings
+filed in the same session (an ordinary workflow), and the second filing's
+five upsert-semantics rows silently overwrite the first filing's persisted
+records under the identical five node ids. Scoping to the invocation instead
+of the session, mirroring `chain-executor.cjs`'s own `_mintChainRunId` shape:
+
+```
+const meetingRunId = 'meeting:' + sessionId + ':' + Date.now();
+```
+
+For each perspective (index 0 through 4, in dispatch order):
 
 ```
 navigation.writeChainStateRecord(db, {
-  run_id: 'meeting:' + sessionId,
+  run_id: meetingRunId,
   step_index: <0..4, the perspective's dispatch index>,
   command: 'file-meeting',
   kind: 'notes',
@@ -609,8 +622,9 @@ orchestrator (the main conversation thread) owns every one of these seven
 ordered sub-steps:
 
 1. **Merge and deduplicate across perspectives.** Read the five perspectives'
-   row arrays back through `navigation.readChainState(db, 'meeting:' +
-   sessionId)` rather than from the orchestrator's own context window -- each
+   row arrays back through `navigation.readChainState(db, meetingRunId)` (the
+   SAME per-filing id minted in Step 3a, never re-derived from `sessionId`
+   alone) rather than from the orchestrator's own context window -- each
    returned record's `body` is one perspective's full row array, exactly as
    persisted in Step 3a's "Persist each perspective before the merge"
    sub-step, ordered by the `FEEDS_INTO` walk. The merge logic itself is

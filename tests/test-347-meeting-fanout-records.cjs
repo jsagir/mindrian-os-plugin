@@ -107,6 +107,22 @@ function assertTest1PreMergeWriteAndReadback(text, label) {
     label + ': must name readChainState (the merge readback)');
   assert.ok(/'meeting:'\s*\+\s*sessionId/.test(text),
     label + ": must name the meeting run-id prefix ('meeting:' + sessionId)");
+  // WR-01 (347 code review): a run_id scoped ONLY to the session collides
+  // across two meetings filed in the same session (an ordinary workflow) --
+  // the second filing's five upsert-semantics rows silently overwrite the
+  // first filing's persisted records under the identical five node ids.
+  // These three checks pin the per-filing fix in place: a future edit that
+  // reverts to the bare session-only `run_id: 'meeting:' + sessionId,` (no
+  // per-filing component) turns this red, even though the weaker prefix
+  // check above would still pass (the fixed expression still CONTAINS that
+  // prefix as its own leading substring).
+  assert.ok(/const meetingRunId\s*=\s*'meeting:'\s*\+\s*sessionId\s*\+\s*':'\s*\+\s*Date\.now\(\)/.test(text),
+    label + ": must mint a per-filing meetingRunId ('meeting:' + sessionId + ':' + Date.now()), "
+    + 'not a session-only run_id (WR-01, 347 code review)');
+  assert.ok(/run_id:\s*meetingRunId/.test(text),
+    label + ': the per-perspective write must key on the per-filing meetingRunId, not a session-only run_id');
+  assert.ok(/readChainState\(db,\s*meetingRunId\)/.test(text),
+    label + ': the merge readback must read back the SAME per-filing meetingRunId the write used');
 }
 
 /*
