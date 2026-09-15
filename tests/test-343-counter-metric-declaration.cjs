@@ -4,6 +4,12 @@
  *
  * Phase 343 Plan 04 Task 2 (CENSUS-08, WD-8) -- test-343-counter-metric-declaration.
  *
+ * PHASE 345-05 UPDATE: the rank-contract `want` literal below gained
+ * 'SENS-20' (docs/2026-09-14-PHASE-345-STRATEGY-NODE-DECISIONS.md WD-9),
+ * inserted in Group A immediately after 'SENS-19', the same stale-literal
+ * correction 343-06-SUMMARY.md's own deviation 1 made for 'SENS-19's own
+ * insertion. No assertion logic changed.
+ *
  * WHAT THIS PINS: the fourth arm of scripts/build-connector-registry.cjs's
  * `sensorPriorityCompletenessErrors` -- every SENS_PRIORITY record must carry an
  * `optimizes` and a `watched_by` key, each either `null` or a non-empty string,
@@ -60,7 +66,7 @@ function run(records) {
 {
   const errs = run(cloneRecords());
   assert.strictEqual(errs.length, 0, 'the intact table must produce zero errors: ' + errs.join(' | '));
-  ok('the intact table (all twenty-one records) produces zero completeness/pairing errors');
+  ok('the intact table (all twenty-two records) produces zero completeness/pairing errors');
 }
 
 // ---------------------------------------------------------------------------
@@ -70,7 +76,7 @@ function run(records) {
 // ---------------------------------------------------------------------------
 {
   const want = [
-    'SENS-08', 'SENS-17', 'SENS-10', 'SENS-11', 'SENS-19', 'SENS-14', 'SENS-02', 'SENS-RECENCY',
+    'SENS-08', 'SENS-17', 'SENS-10', 'SENS-11', 'SENS-19', 'SENS-20', 'SENS-14', 'SENS-02', 'SENS-RECENCY',
     'SENS-01', 'SENS-06', 'SENS-13', 'SENS-15', 'SENS-12', 'SENS-07', 'SENS-03',
     'SENS-05', 'SENS-04', 'SENS-09', 'SENS-SHOW', 'SENS-18',
     'SENS-16',
