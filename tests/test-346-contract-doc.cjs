@@ -119,7 +119,13 @@ ok('working-decision ledger has exactly 13 rows with a valid Status and a revers
   assert.equal(wdLines.length, 13, 'expected exactly 13 WD-N ledger rows, found ' + wdLines.length);
 
   for (const line of wdLines) {
-    const cells = line.split('|').map(function (c) { return c.trim(); }).filter(function (c) { return c.length > 0; });
+    // Split on unescaped pipes only: a markdown cell may contain a literal
+    // backtick-escaped `\|` (e.g. a grep alternation pattern) that must NOT
+    // count as a column boundary.
+    const cells = line
+      .split(/(?<!\\)\|/)
+      .map(function (c) { return c.replace(/\\\|/g, '|').trim(); })
+      .filter(function (c) { return c.length > 0; });
     // cells: [WD-N, Decision, Why, Source, Status, Reverses by]
     assert.ok(cells.length >= 6, 'each WD row must have at least 6 cells: ' + line);
     const status = cells[4];
@@ -134,7 +140,7 @@ ok('working-decision ledger has exactly 13 rows with a valid Status and a revers
 // ---------------------------------------------------------------------------
 
 ok('contains zero em-dashes', function () {
-  assert.equal(doc.indexOf('—'), -1, 'docs/ARBITRATION-CONTRACT.md must contain zero em-dashes');
+  assert.equal(doc.indexOf('\u2014'), -1, 'docs/ARBITRATION-CONTRACT.md must contain zero em-dashes');
 });
 
 console.log(n + ' assertions passed');
