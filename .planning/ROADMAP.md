@@ -752,14 +752,26 @@ Plans:
 
 ### Phase 346: The arbitration node (graph-engineering learning 3c, conflict between loops, 2026-09-14): when two independent loops optimize different metrics inside one system they fight like two thermostats in one room, and each looks healthy on its own dashboard. MindrianOS has this failure live: the enforcement loop (hard-fail checks, render-coverage gates, mandatory card dispatch) and the judgment loop (Larry's reframe, the Ask-Tell dial, GUIDED-first teaching) pull against each other, recorded as the 2026-07-02 WATCH item "Larry feels less like Larry since v1.15.beta.x, hard-fail checks may have replaced judgment". Deliverables. (1) One explicit arbiter, a single ranked decision per turn, that resolves teach-versus-deliver, guided-versus-autonomous, and enforce-versus-judge from context rather than from whichever rule fired last: inputs are the role_blend axis, the room JTBD, the problem-type rung, escape-hatch phrases ("just tell me", "bottom line"), stall count, and surface capability; output is a logged posture decision with its reasons, written through memory_event so it can be audited later. (2) Every hard rule that currently short-circuits judgment is catalogued and classified: keep as a hard floor (Canon Part 8 egress, Part 12 voice glyph, no fabricated numbers), or demote to an arbiter input with a weight. (3) An eval that replays the WATCH item's transcript set through the arbiter and measures whether the persona regression closes, with the 07-02 grading trend as the before-number. Consults langtalks-graph-expert (Agent Factory agent-evaluation note, verification-loops source) and the hooked-model skill for the first-step surface.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** One explicit arbitration per turn resolving teach-versus-deliver,
+guided-versus-autonomous and enforce-versus-judge from context, logged and auditable, with every
+conversation-time hard rule classified on the shipped rungs and every recorded misfire replayed
+against it.
+**Requirements**: ARB-01 .. ARB-16 (minted 2026-09-14 in the Phase 346 plan set, ratifying
+346-RESEARCH.md's proposed `ARB-` family, registered in .planning/REQUIREMENTS.md at phase close
+by 346-08-PLAN.md per the ICML / TOOLHON / CANON / SHARED / STRAT precedent)
 **Depends on:** Phase 345
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 346 to break down)
+- [x] 346-01-PLAN.md - mint ARB-01..16, ship the durable contract (docs/ARBITRATION-CONTRACT.md: naming fence, three axes, Tri-Polar, thirteen-row working-decision ledger), and stand up the phase test aggregator
+- [x] 346-02-PLAN.md - the enforcement axis (resolveEnforcement, judge structurally unreachable on a floor turn) and the LOCAL escape-hatch detector
+- [x] 346-03-PLAN.md - the conversation-time rule catalogue (twelve rules, six prose mandates) and the arbiter's own honest-ghost harness policy
+- [x] 346-04-PLAN.md - compose the three axes into one ranked resolveArbitration result, with the cold-start floor and total fault-safety proven by a hostile-input sweep
+- [x] 346-05-PLAN.md - make the arbitration decision auditable: one deduped memory_event per turn with flip-only disclosure
+- [x] 346-06-PLAN.md - replay every recorded WATCH misfire through the arbiter and measure what it suppresses (8 of 8, two positive controls not suppressed)
+- [x] 346-07-PLAN.md - attach the arbiter to decide() behind a blocking navigator checkpoint; ratified "Approve as specified"
+- [x] 346-08-PLAN.md - phase close: full gate sweep, ARB-01..16 closed with measured proof, validation map filled, close-out record in docs/
 
 ### Phase 347: The shared-state contract for chains (graph-engineering learning 5, node / edge / shared state, 2026-09-14): state is what turns a set of agents into a system rather than a flock of birds that forgets everything, and it is essentially memory. Three building blocks, each with a MindrianOS counterpart that is not yet a contract. Deliverables. (1) Shared state: the object that flows along every chain edge (chain_run, /mos:pipeline, act-chain, act-swarm, the five-perspective meeting fan-out, the Workflow harness-as-code) is a typed room-graph record (task description, current draft, notes, judgment results, gate decisions) read and written through navigation.cjs, never conversation prose handed between subagents; a test proves each step's input is reconstructible from the room graph alone. (2) Nodes: every node gets clean, scoped, independent context assembled for that node (context_assemble with the node's own focus and budget), not the parent's transcript, so a writer node sees the researcher's structured notes and not the raw sources; the fan-out and fan-in shapes (coordinator distributes, collects, aggregates) are named primitives in the chain executor rather than ad hoc Agent calls. (3) Edges: routing is explicit and readable; conditional edges (review passes goes forward, fails goes back), fan-out and fan-in are declared in the resolved chain, and visualize_chain renders the real routing including halts and the reviewer node, so a navigator can read the control-flow path of any run after the fact. (4) The reviewer node is always the navigator at the gate for material steps and may be an independent reviewer subagent for autonomous_safe steps, never the same node that did the work; true self-review means a different node. Builds on Phase 273 (chokepoint hardening) and the langtalks corpus edges (Memory part_of context engineering; orchestration layer via agent harness to multi-agent systems, ep33 LangGraph). Consults icm-architect and langtalks-graph-expert.
 
