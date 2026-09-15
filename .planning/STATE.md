@@ -3,16 +3,38 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 346-06-PLAN.md - Wave 4 of 6
-last_updated: "2026-09-15T20:30:11.013Z"
-last_activity: 2026-09-15 -- Phase 346 execution, plan 06 complete
+stopped_at: Completed 346-07-PLAN.md - Wave 5 of 6
+last_updated: "2026-09-15T21:04:31.109Z"
+last_activity: 2026-09-16 -- Phase 346 execution, plan 07 complete
 progress:
   total_phases: 99
   completed_phases: 31
   total_plans: 274
-  completed_plans: 266
+  completed_plans: 267
   percent: 97
 ---
+
+<!-- NOTE (346-07 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in Phase
+     from STATE.md"), same as every prior plan this session. `state.update-progress` correctly
+     computed `completed: 267` (97%) once 346-07-SUMMARY.md existed on disk. `state.record-metric`
+     required the `--phase/--plan/--duration/--tasks/--files` flag syntax (positional args errored
+     "phase, plan, and duration required"); once corrected to flags, it landed its own correct
+     Performance Metrics row but ALSO re-persisted a stale 346-05-era frontmatter snapshot in the
+     same write: `status` was clobbered to `completed`, `stopped_at`/`last_activity` reverted to
+     "Completed 346-05-PLAN.md" / "Phase 346 execution started", and `percent` reverted to `31`
+     (the phase-31-of-99 raw phase count rather than the plan-completion percentage).
+     `completed_plans` itself stayed correct at 267 throughout. `state.add-decision` (with
+     `--summary`, since the positional form errored "summary required") DID repeat the documented
+     `[Phase ?]` placeholder bug (fixed in place to `[Phase 346]` rather than re-running the
+     command). `state.record-session --stopped-at "Completed 346-07-PLAN.md - Wave 5 of 6"`
+     correctly updated `stopped_at`, but left `status`/`percent`/`last_activity` at the stale
+     346-05-era snapshot `state.record-metric` had just re-clobbered. Hand-corrected once, after
+     all calls landed: status -> planning (Phase 346 has not closed; 1 of 8 plans remains,
+     346-08), percent -> 97 (267/274, rounded), last_activity -> this plan's completion line; left
+     total_phases/completed_phases at 99/31 unchanged since Phase 346 has not closed. Same root
+     cause as every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (346-06 execute-plan, 2026-09-15, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6190,6 +6212,7 @@ Progress: [█████████░] 92%
 | Phase 346 P04 | ~40min | 3 tasks | 4 files |
 | Phase 346 P05 | 25min | 3 tasks | 4 files |
 | Phase 346 P06 | 30min | 3 tasks | 2 files |
+| Phase 346 P07 | 35min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7792,6 +7815,7 @@ Progress: [█████████░] 92%
 - [Phase 346]: 346-04: cold-start sweep count is the live-computed 3x5x4x2=120, not the plan's hand-typed 160; used the measured value per WD-11 precedent - the four sweep dimensions the plan's own behavior block specifies multiply to 120; the acceptance-criteria script's 160 literal is an arithmetic error, verified by running it directly
 - [Phase 346]: 346-05: fixed a real circular-require (navigation.cjs -> arbitration-log.cjs -> arbitration.cjs -> decision-axes.cjs -> navigation-engine.cjs -> navigation.cjs) via a lazy Object.defineProperty getter re-export, preserving strict reference equality - a top-level require as the plan literally suggested would have permanently bound a stale empty module.exports object in one require order
 - [Phase 346]: 346-06: measured misfire count is 8 (not the planning brief's stated 9), recorded with derivation in the fixture file rather than padded
+- [Phase 346]: Phase 346 Plan 07: applyArbitration wired on both decide() return paths using the shipped applyProjectionLift additive-trace convention verbatim; a null result is a full no-op, proven byte-identical to pre-346 via a 60-case non-interference sweep plus a mechanical determinism proof under a stubbed resolver fault.
 
 ### Pending Todos
 
@@ -7931,8 +7955,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-15T20:30:10.949Z
-Stopped at: Completed 346-05-PLAN.md - Wave 4 of 6
+Last session: 2026-09-15T21:04:31.050Z
+Stopped at: Completed 346-07-PLAN.md - Wave 5 of 6
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
