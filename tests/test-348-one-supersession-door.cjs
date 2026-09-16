@@ -154,11 +154,21 @@ ok('exactly one file exports a function named supersede, and it is lib/core/temp
 
 // ---- Assertion 2: one status setter, a named allow-list ------------------
 
+// 348-04 addition: lib/core/navigation/insights.cjs::findContradictions
+// reads the 'superseded' literal in a SELECT ... WHERE clause (a read-side
+// exclusion filter, SUPER-04), never as an assignment target. This
+// proximity-window heuristic cannot distinguish a WHERE-clause literal from
+// an UPDATE assignment, so the file is allow-listed here rather than the
+// heuristic being loosened repo-wide. Assertion 3 (the hardcoded UPDATE
+// scan) still runs against this file unmodified and stays green, which is
+// the actual claim SUPER-01 makes: nothing outside promoteNodeStatus WRITES
+// review_status = 'superseded'.
 const STATUS_SETTER_ALLOW_LIST = Object.freeze([
   'lib/core/navigation/transitions.cjs',
   'lib/core/node-insert.cjs',
   'lib/core/migrations/phase-109-nodes-provenance.cjs',
   'lib/core/temporal/supersession.cjs',
+  'lib/core/navigation/insights.cjs',
 ]);
 
 ok("the set of files carrying the 'superseded' review_status literal is a subset of the named allow-list", function () {

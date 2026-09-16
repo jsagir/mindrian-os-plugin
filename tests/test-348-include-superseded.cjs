@@ -11,11 +11,81 @@
  */
 
 const assert = require('node:assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { DatabaseSync } = require('node:sqlite');
 const {
   buildSupersessionFixtureRoom,
   closeSupersessionFixtureRoom,
 } = require('./helpers/fixture-room-348.cjs');
 const navigation = require('../lib/core/navigation.cjs');
+const { writeEdge } = require('../lib/core/navigation/edges.cjs');
+
+// The fixture's own 'wide' schema pins review_status NOT NULL + CHECK'd
+// (the real production shape), so it cannot express a NULL review_status
+// row. A partially migrated room (Phase 109 columns present, review_status
+// column NULLABLE, no CHECK) is legal per T-348-21; build that shape
+// directly here, mirroring 348-03's own local 'mid' schema precedent
+// (tests/test-348-schema-variants.cjs), but WITHOUT the NOT NULL/CHECK
+// constraint on review_status specifically, since that constraint is the
+// one thing this test needs to NOT hold.
+const NODES_DDL_NULLABLE_STATUS =
+  'CREATE TABLE nodes (' +
+  '  id TEXT PRIMARY KEY, ' +
+  '  type TEXT NOT NULL, ' +
+  "  properties TEXT DEFAULT '{}', " +
+  '  source_path TEXT NOT NULL, ' +
+  "  created_by TEXT NOT NULL CHECK(created_by IN ('user','larry','import','brain','system')), " +
+  '  confidence REAL, ' +
+  '  review_status TEXT, ' +
+  '  created_at INTEGER NOT NULL, ' +
+  '  last_seen_at INTEGER NOT NULL, ' +
+  '  source_section TEXT, ' +
+  '  confirmed_by TEXT, ' +
+  '  confirmed_at INTEGER' +
+  ')';
+
+const EDGES_DDL =
+  'CREATE TABLE edges (' +
+  '  source TEXT NOT NULL, ' +
+  '  target TEXT NOT NULL, ' +
+  '  type TEXT NOT NULL, ' +
+  "  properties TEXT DEFAULT '{}', " +
+  '  review_status TEXT DEFAULT NULL, ' +
+  '  PRIMARY KEY (source, target, type)' +
+  ')';
+
+function buildNullableStatusFixture() {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fixture-348-nullstatus-'));
+  const dbPath = path.join(tmpDir, 'room.db');
+  const db = new DatabaseSync(dbPath);
+  db.exec(NODES_DDL_NULLABLE_STATUS);
+  db.exec(EDGES_DDL);
+  const now = Date.now();
+  const claimAId = 'claim:348-nullstatus:a';
+  const claimBId = 'claim:348-nullstatus:b';
+  db.prepare(
+    'INSERT INTO nodes (id, type, properties, source_path, created_by, review_status, created_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(claimAId, 'claim', '{}', 'fixture', 'user', 'confirmed', now, now);
+  db.prepare(
+    'INSERT INTO nodes (id, type, properties, source_path, created_by, review_status, created_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(claimBId, 'claim', '{}', 'fixture', 'user', null, now, now);
+  const edgeRes = writeEdge(db, {
+    source_id: claimAId,
+    target_id: claimBId,
+    edge_type: 'CONTRADICTS',
+    properties: { relation: 'contradicts' },
+  });
+  if (!edgeRes.ok) throw new Error('buildNullableStatusFixture: CONTRADICTS writeEdge failed: ' + edgeRes.reason);
+  return { db, dbPath, tmpDir, claimAId, claimBId };
+}
+
+function closeNullableStatusFixture(fx) {
+  if (!fx) return;
+  try { fx.db.close(); } catch (_e) { /* best-effort */ }
+  try { fs.rmSync(fx.tmpDir, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+}
 
 let assertions = 0;
 function check(cond, msg) {
@@ -63,13 +133,12 @@ function check(cond, msg) {
 // --- 3. NULL review_status is KEPT, never dropped (null-safe IS NOT) -----
 
 (function testNullStatusKept() {
-  const fx = buildSupersessionFixtureRoom({ variant: 'wide' });
+  const fx = buildNullableStatusFixture();
   try {
-    fx.db.prepare('UPDATE nodes SET review_status = NULL WHERE id = ?').run(fx.claimBId);
     const result = navigation.findContradictions(fx.db, fx.claimAId);
     check(result.length === 1, 'a NULL review_status row must be KEPT by the default filter, not dropped');
   } finally {
-    closeSupersessionFixtureRoom(fx);
+    closeNullableStatusFixture(fx);
   }
 })();
 
