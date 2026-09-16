@@ -2,17 +2,37 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: ready_for_verification
-stopped_at: Completed 348-10-PLAN.md - Phase 348 CLOSED (10/10 plans)
-last_updated: "2026-09-16T02:18:24.586Z"
-last_activity: 2026-09-16 -- Phase 348 (the supersession node) CLOSED: all twenty SUPER-01..20 requirements closed with Measured proof, fleet census re-measured (60 rooms, all supersession counts still zero), 348-VALIDATION.md filled, close-out record filed, ROADMAP.md Phase 348 entry closed (10/10 plans) plus a new Phase 350 card registered for the deferred live-CONTRADICTS-writer work
+status: executing
+stopped_at: Completed 349-01-PLAN.md - Wave 1 of 6
+last_updated: "2026-09-16T03:05:10.528Z"
+last_activity: 2026-09-16 -- Completed 349-01-PLAN.md (NOTIFY-01..14 minted, docs/THEO-NOTIFY-CONTRACT.md, tests/run-all-349.sh)
 progress:
   total_phases: 100
   completed_phases: 33
-  total_plans: 284
-  completed_plans: 278
-  percent: 98
+  total_plans: 290
+  completed_plans: 279
+  percent: 96
 ---
+
+<!-- NOTE (349-01 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported current_plan 1 -> 2 of 6. `state.update-progress`
+     correctly computed `completed: 279, percent: 96` (279/290). `state.record-metric`
+     (flag syntax `--phase --plan --duration --tasks --files`) landed its own correct
+     Performance Metrics row. `state.add-decision` (with `--summary`) repeated the documented
+     `[Phase ?]` placeholder-prefix bug (prepended `[Phase ?]: ` ahead of this plan's own
+     already-prefixed `[Phase 349]` text), fixed in place to a single `[Phase 349] 349-01: ...`
+     line. `state.record-session` updated only `Last session`, correctly, leaving the
+     frontmatter clobber from an EARLIER call in this same session (a stale 348-07-era snapshot:
+     `stopped_at` "Completed 348-07-PLAN.md" with no wave suffix, `last_activity` reverted to
+     "Phase 349 execution started", `percent` reverted to `33`, a phases-ratio reading, not the
+     plan-completion percentage) in place. Hand-corrected once, after all calls landed:
+     `stopped_at` -> "Completed 349-01-PLAN.md - Wave 1 of 6", `last_activity` -> this plan's
+     completion line, `percent` -> 96 (279/290, matching `state.update-progress`'s own correct
+     computation); left `total_phases`/`completed_phases` at 100/33 unchanged since Phase 349
+     has not closed (5 of 6 plans remain: 349-02..349-06). `last_updated` left at the tool's own
+     timestamp, not re-investigated further. Same root cause as every other note in this file. -->
+
 
 <!-- NOTE (348-10 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4743,7 +4763,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 348 — the-supersession-node-graph-engineering-learning-6-fact-inva
+**Current focus:** Phase 349 — release-to-theo-leading-edge-graph-engineering-learning-sync
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4788,9 +4808,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
-Plan: 10 of 10
-Status: Phase complete — ready for verification
+Phase: 349 (release-to-theo-leading-edge-graph-engineering-learning-sync) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -5070,7 +5090,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-15 -- Phase 348 execution started
+Last activity: 2026-09-16 -- Phase 349 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -6454,6 +6474,7 @@ Progress: [█████████░] 92%
 | Phase 348 P08 | 45min | 2 tasks | 3 files |
 | Phase 348 P09 | 55min | 3 tasks | 13 files |
 | Phase 348 P10 | 95min | 3 tasks | 7 files |
+| Phase 349 P01 | 35min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -8069,6 +8090,7 @@ Progress: [█████████░] 92%
 - [Phase 348]: 348-08: Task 1 checkpoint ratified live in the orchestrator session (approved as specified, WD-348-10 full atomic lockstep, version 1.28, entry-31 released); ratified canon narrowing prose composed and recorded in docs/SUPERSESSION-CONTRACT.md for 348-09 to transcribe verbatim.
 - [Phase 348]: 348-09: Canon Part 9 narrowed for superseded on truth-claim nodes (entry 41, v1.27->v1.28), transcribed verbatim from the 348-08 ratified wording; two additional live version anchors discovered by grep re-derivation and moved alongside the six named ones; WD-348-10 flipped to RULED.
 - [Phase 348]: 348-10: closed all twenty SUPER-01..20 requirements with Measured: proof, re-measured the fleet census read-only (60 rooms, all supersession counts still zero), filled the validation map, wrote the close-out record, and registered the real numbered Phase 350 card for the deferred live-CONTRADICTS-writer work -- Phase 348 CLOSED
+- [Phase 349] 349-01: minted NOTIFY-01..14, measured the pre-phase Theo emission census live (0 call sites vs Theo's own contradicting counters), shipped docs/THEO-NOTIFY-CONTRACT.md and tests/run-all-349.sh
 
 ### Pending Todos
 
@@ -8208,7 +8230,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T02:18:24.403Z
+Last session: 2026-09-16T03:05:10.460Z
 Stopped at: Completed 348-07-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
