@@ -2223,123 +2223,205 @@ ratification path, and the doctrine/contract corrections. Registered here at pla
 
 These twenty ids were minted in the Phase 348 plan set (2026-09-16), ratifying
 `348-RESEARCH.md`'s proposed `SUPER-` family and amended for the navigator's D-01..D-09 locks in
-`348-CONTEXT.md`, scoped to Phase 348 only, registered here at plan time as `- [ ]` rows to be
-finalized with measured proof at phase close by `348-10-PLAN.md`, per the Phase
-254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347/345/346 precedent.
+`348-CONTEXT.md`, scoped to Phase 348 only, registered here at plan time as `- [ ]` rows and
+finalized with measured proof at phase close by `348-10-PLAN.md` (2026-09-16), per the Phase
+254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347/345/346 precedent. All twenty
+rows are now `- [x]`.
 
-- [ ] **SUPER-01**: one supersession door. Every supersession in the repo routes through
+- [x] **SUPER-01**: one supersession door. Every supersession in the repo routes through
       `lib/core/temporal/supersession.cjs::supersede`, which is reused UNMODIFIED. A source
       tripwire asserts no second supersession writer exists, that no code outside
       `lib/core/navigation/transitions.cjs::promoteNodeStatus` sets `review_status` to
       `'superseded'`, and that no surface this phase ships issues a `DELETE` against `nodes` or
       `edges`.
+      **Measured (2026-09-16):** `node tests/test-348-one-supersession-door.cjs` exit 0, 5
+      assertions passed: exactly 1 exporting file (`lib/core/temporal/supersession.cjs`); 0
+      hardcoded `UPDATE nodes SET review_status = 'superseded'` outside `transitions.cjs`; 0
+      `DELETE FROM nodes`/`edges` across the 13 files named in `PHASE_348_SURFACES`.
 
-- [ ] **SUPER-02**: a supersession of a truth-claim node attributed to an agent identity
+- [x] **SUPER-02**: a supersession of a truth-claim node attributed to an agent identity
       (`larry` / `brain` / `system` / `assistant`) is REFUSED with `agent_attribution_forbidden`.
       This closes the live gap at `lib/core/navigation/transitions.cjs:174-186`, where the
       human-attribution guard fires only for `confirmed` / `validated` targets, leaving
       `confirmed->superseded` completely unguarded today.
+      **Measured (2026-09-16):** `node tests/test-348-agent-supersede-refused.cjs` exit 0, 9
+      assertions passed, covering 4 `AGENT_IDENTITIES` members x 6 `TRUTH_CLAIM_TYPES` members
+      iterated live from the exported sets (assertions 2-3), plus the memory_event audit-node
+      carve-out, the human-succeeds leg, and the byte-identical `TRANSITIONS`/UPDATE-branch pins.
 
-- [ ] **SUPER-03**: the human identity on the supersession gate path is resolved through the
+- [x] **SUPER-03**: the human identity on the supersession gate path is resolved through the
       shipped `resolveByUser` door (`lib/core/navigation/confirm-node.cjs:46`) and never read from
       a caller-supplied string, so a poisoned `USER.md` cannot smuggle an agent identity into a
       supersession. A source scan proves the gate module never reads a caller-supplied `byUser`.
+      **Measured (2026-09-16):** `node tests/test-348-traceability.cjs` exit 0, 37 assertions
+      passed, including "the identity is resolveByUser(roomDir); the status_superseded event
+      carries it literally" and "params.byUser is never read; passing byUser:'system' changes
+      nothing".
 
-- [ ] **SUPER-04**: `findContradictions` accepts a third `opts` parameter carrying
+- [x] **SUPER-04**: `findContradictions` accepts a third `opts` parameter carrying
       `includeSuperseded` (default `false`) and excludes any pair whose endpoint carries
       `review_status = 'superseded'` from the default result. A call omitting the bag is
       otherwise byte-identical to today, including on a legacy `nodes` table that has no
       `review_status` column at all.
+      **Measured (2026-09-16):** `node tests/test-348-contradictions-floor.cjs` exit 0, 21
+      assertions passed (the additive floor on both the wide and legacy schema variants).
 
-- [ ] **SUPER-05**: all five `findContradictions` callers are enumerated at their call sites with
+- [x] **SUPER-05**: all five `findContradictions` callers are enumerated at their call sites with
       a one-line declaration of which behavior they take: `lib/mcp/tools/sensors.cjs:281`,
       `lib/core/navigation/packet.cjs:340`, `lib/core/navigation/room-home.cjs:112`,
       `lib/agents/reverse-salient-agent.cjs:106` and the `lib/core/navigation.cjs:82` re-export. A
       caller-matrix test asserts each declaration against measured behavior, with the Canon Part 8
       Brain-packet caller asserted explicitly.
+      **Measured (2026-09-16):** `node tests/test-348-caller-matrix.cjs` exit 0, 22 assertions
+      passed; the printed five-row matrix shows `packet.cjs`/`room-home.cjs`/
+      `reverse-salient-agent.cjs` at DEFAULT (each driven `1 -> 0` across a real supersession
+      through its own exported function), `sensors.cjs` at OPT-IN, and `navigation.cjs` forwarding
+      `includeSuperseded` unchanged through its re-export.
 
-- [ ] **SUPER-06**: `contradiction_check` exposes `include_superseded` as an optional boolean,
+- [x] **SUPER-06**: `contradiction_check` exposes `include_superseded` as an optional boolean,
       remains a pure read with no fork, keeps its declared `hitl_shape` and `layer`
       byte-unchanged, and `data/connector-registry.json` plus `data/mcp-tool-connectors.json` are
       REGENERATED by their build scripts, never hand-edited.
+      **Measured (2026-09-16):** `node tests/test-348-mcp-flag.cjs` exit 0, 15 assertions passed
+      (Group 1, SUPER-06: the flag round-trip on a real superseded pair, the omission floor, the
+      zod wire rejection, the snake-to-camel mapping); `node scripts/build-connector-registry.cjs`
+      regenerated all three data files byte-identical (`git diff` empty).
 
-- [ ] **SUPER-07**: no supersession ACTION lands on `contradiction_check`. The gate-consequence
+- [x] **SUPER-07**: no supersession ACTION lands on `contradiction_check`. The gate-consequence
       path ships as a pure `lib/core/` function with no new invocable surface in this phase
       (WD-348-3), a source tripwire proves `contradiction_check` still performs no write, and the
       surface registration is named in the Phase 350 sibling card rather than silently dropped.
+      **Measured (2026-09-16):** `node tests/test-348-mcp-flag.cjs` exit 0, Group 2 (SUPER-07,
+      assertions 12-15): declaration-unchanged registry proof, zero registered surface names
+      containing `supersede`/`supersession`, the standalone no-write re-scan, and a live
+      `build-connector-registry.cjs --check` spawn, all passed. Phase 350 card registered in
+      `.planning/ROADMAP.md` (this plan, Task 3).
 
-- [ ] **SUPER-08**: direct claim-to-claim is the ruled contradiction shape (D-03). Under it,
+- [x] **SUPER-08**: direct claim-to-claim is the ruled contradiction shape (D-03). Under it,
       `findContradictions`'s `claimA` / `claimB` endpoint projection is proven correct, and a
       reified `ContradictionEvent --CONTRADICTS--> rivalClaim` edge is SKIPPED with the named
       reason `reified_shape_out_of_scope` rather than fabricating a claim identity from an event
       node (D-04).
+      **Measured (2026-09-16):** `node tests/test-348-contradiction-shape.cjs` exit 0, 22
+      assertions passed.
 
-- [ ] **SUPER-09**: a `proposed` claim cannot be superseded. The chokepoint's `invalid_transition`
+- [x] **SUPER-09**: a `proposed` claim cannot be superseded. The chokepoint's `invalid_transition`
       reason surfaces verbatim, the gate path names the already-legal `proposed->rejected` route
       as the alternative, and `TRANSITIONS` (`lib/core/navigation/transitions.cjs:60-69`) stays
       BYTE-UNCHANGED, asserted by named membership rather than by an exact `.size`.
+      **Measured (2026-09-16):** `node tests/test-348-proposed-not-supersedable.cjs` exit 0, 10
+      assertions passed: all eight `TRANSITIONS` members pinned by name, the verbatim side-effect-
+      free `proposed->superseded` refusal, and the `proposed->rejected` alternative proven for both
+      a human and an agent identity.
 
-- [ ] **SUPER-10**: the two validity-window representations are reconciled by an explicit ruling:
+- [x] **SUPER-10**: the two validity-window representations are reconciled by an explicit ruling:
       the integer columns `nodes.valid_from` / `nodes.valid_to` are authoritative because they are
       what `supersede()` and `queryAsOf` actually read, and `typed-claim.cjs`'s string
       `properties.valid_from` / `valid_until` are marked DISPLAY-ONLY at their write site. No
       third representation is added, and a test proves `supersede()` reads the authoritative one.
+      **Measured (2026-09-16):** `node tests/test-348-validity-window.cjs` exit 0, 7 assertions
+      passed: the column-authoritative close boundary, the measured zero-UNEXPECTED-consumers
+      scan (one named existence-only exception, `leverage-scan.cjs`), and the no-fifth-name scan.
 
-- [ ] **SUPER-11**: superseded claims stay traceable. After a gate-driven supersession,
+- [x] **SUPER-11**: superseded claims stay traceable. After a gate-driven supersession,
       `walkSupersedesChain` returns the full chain from either end and `queryAsOf` at a
       pre-supersession timestamp still returns the closed claim as live.
+      **Measured (2026-09-16):** `node tests/test-348-traceability.cjs` exit 0 (37 assertions,
+      including the gate-driven three-link chain read back from all three nodes and the as-of
+      legs); `node lib/core/temporal/point-in-time.test.cjs` exit 0, 4/4; `node
+      tests/test-223-supersedes-chain.cjs` exit 0, 21/21 (`passed=21 failed=0`).
 
-- [ ] **SUPER-12**: every supersession logs a `status_superseded` memory event carrying the
+- [x] **SUPER-12**: every supersession logs a `status_superseded` memory event carrying the
       literal human identity in `confirmed_by` while the audit row's `created_by` maps to
       `'user'` per the CHECK constraint, and the event write and the status write commit or roll
       back together.
+      **Measured (2026-09-16):** `node tests/test-348-audit-event.cjs` exit 0, 2 assertions
+      passed: the literal `confirmed_by`/mapped `created_by`/`status_superseded` event_type, and a
+      forced audit-event-write failure rolling back the whole transaction (review_status and the
+      bitemporal close both unchanged).
 
-- [ ] **SUPER-13**: `promoteNodeStatus`'s bitemporal-close UPDATE is guarded against the legacy
+- [x] **SUPER-13**: `promoteNodeStatus`'s bitemporal-close UPDATE is guarded against the legacy
       schema variant. On a `nodes` table lacking `invalidated_at` / `valid_to` it returns the
       named reason `bitemporal_close_unsupported_schema` rather than throwing, and it never
       degrades to a plain status UPDATE that would leave a superseded node with no close.
+      **Measured (2026-09-16):** `node tests/test-348-schema-variants.cjs` exit 0, 8 assertions
+      passed; the legacy variant returns `bitemporal_close_unsupported_schema` and a subsequent
+      `BEGIN`/`ROLLBACK` succeeds, with no module-level schema cache (assertion 8, two handles
+      opened back-to-back).
 
-- [ ] **SUPER-14**: the doctrine subsection lands in `skills/larry-personality/SKILL.md` as a new
+- [x] **SUPER-14**: the doctrine subsection lands in `skills/larry-personality/SKILL.md` as a new
       `### Superseded is not deleted` under `## Honesty about memory`, placed after `### When
       memory is real (v1.10.8 and later)` and before `### Honest about thin grounding`; it states
       that superseded is not deleted, names the include-superseded read, and states that the
       mechanism has never fired in any live room.
+      **Measured (2026-09-16):** `node tests/test-348-doctrine-present.cjs` exit 0, 12 assertions
+      passed: byte-offset placement between the two named neighbours, frontmatter byte-unchanged,
+      the honest no-live-supersession state by distinctive token, the filed-trail citation.
 
-- [ ] **SUPER-15**: `docs/MINDRIAN-CANON.md` Part 9 cross-references the mechanism at "Truth
+- [x] **SUPER-15**: `docs/MINDRIAN-CANON.md` Part 9 cross-references the mechanism at "Truth
       states (canonical)", written as an explicit NARROWING of canon's existing "user
       confirmation **or system rules** can *promote* a status" to human-gated-only for the
       `superseded` target, landed through the full amendment lockstep (Appendix D entry, version
       bump, CANON-PHASE-MAP row, a FLOOR test, the `CLAUDE.md` sibling edit in the same commit).
+      **Measured (2026-09-16):** `node tests/test-canon-entry-41-supersession-narrowing-floor.cjs`
+      exit 0, 71 assertions passed, registered as a real (non-skipping) leg in
+      `tests/run-all-340.sh`. Canon at Version 1.28, Appendix D entry 41 landed, `CANON-PHASE-MAP.md`
+      and `CLAUDE.md` in lockstep, eight prior canon FLOOR tests' version anchors moved 1.27 -> 1.28
+      in the same wave (landed by 348-09, ratified at the 348-08 blocking checkpoint).
 
-- [ ] **SUPER-16**: both doctrine surfaces cite the filed research trail at
+- [x] **SUPER-16**: both doctrine surfaces cite the filed research trail at
       `~/MindrianRooms/rethinking-mindrianos/research/2026-09-14-mindrianos-classification-and-zep-graphiti-supersession-gap.md`,
       never a live langtalks corpus entry, and the `add_source`
       Gemini-403 blocker carries a dated `docs/OPEN-HANDOFFS.md` row with its precise diagnosis
       (the GCP project is denied generation access; the read endpoint returns 200 with the same
       key) and a named owner.
+      **Measured (2026-09-16):** `node tests/test-348-doctrine-present.cjs` assertion "no line in
+      the file claims a live corpus entry for Zep, Graphiti or bi-temporal" passed; the filed trail
+      is confirmed present and non-empty on disk. `docs/OPEN-HANDOFFS.md` gained the dated blocker
+      row with the precise diagnosis and a named owner (this plan, Task 2).
 
-- [ ] **SUPER-17**: an end-to-end fixture proof of the whole loop: two confirmed claims, a
+- [x] **SUPER-17**: an end-to-end fixture proof of the whole loop: two confirmed claims, a
       `CONTRADICTS` edge written through `writeEdge`, `findContradictions` surfaces the pair, a
       human-attributed gate answer supersedes B, the default read no longer returns B,
       `includeSuperseded` does return it, and B's node row plus every edge incident to B still
       exists, counted before and after. The negative leg proves an agent-attributed gate answer is
       refused, B stays `confirmed`, and no `SUPERSEDES` edge is written.
+      **Measured (2026-09-16):** `node tests/test-348-supersession-e2e.cjs` exit 0, 12 assertions
+      passed: the ten steps (confirmed A/B, CONTRADICTS edge, contradiction surfaced, gate approve,
+      non-lossy close, default-excludes-B, include-superseded-returns-B, edge count before/after
+      unchanged-or-plus-one, as-of-before-still-live, non-approved-verdict-refused) plus the three
+      negative legs (non-approved verdict, direct agent-attributed `supersede()`, a proposed old
+      node).
 
-- [ ] **SUPER-18**: the deferred live-`CONTRADICTS`-writer work exists as a real, numbered, scoped
+- [x] **SUPER-18**: the deferred live-`CONTRADICTS`-writer work exists as a real, numbered, scoped
       `.planning/ROADMAP.md` card (Phase 350), whose own text states that it is what makes 348's
       mechanism fleet-observable rather than fixture-only. Phase 348's own goal text states
       plainly that the measured fleet census (0 `CONTRADICTS` edges, 0 `SUPERSEDES` edges, 0
       superseded nodes across 47 rooms) stays zero after this phase ships.
+      **Measured (2026-09-16):** fleet census re-run 2026-09-16 across 60 rooms (up from 47 at
+      348-01's own census, four days apart on the same day of execution -- the fleet grew, the
+      mechanism did not fire): `CONTRADICTS 0, SUPERSEDES 0, superseded 0, invalidated_at 0,
+      valid_to 0`. `.planning/ROADMAP.md` carries a real `### Phase 350:` card naming
+      `lib/core/intel-pipeline.cjs:144`'s `void wirer;` as the concrete site it un-neuters (this
+      plan, Task 3).
 
-- [ ] **SUPER-19**: every assertion this phase makes is scoped to edges reachable through
+- [x] **SUPER-19**: every assertion this phase makes is scoped to edges reachable through
       `writeEdge`. The supersession gate path runs a defensive endpoint-existence check so an edge
       that bypassed edge validation cannot drive a supersession, and it does so without attempting
       to close the Phase 347 bypass itself.
+      **Measured (2026-09-16):** `node tests/test-348-traceability.cjs` exit 0: the D-08 refusal
+      matrix passed (`unknown_node` x2, `missing_contradicts_edge`, `unvalidated_edge_endpoints`,
+      `reified_shape_out_of_scope` x2, each with three-counter-unchanged assertions); `git diff
+      --name-only lib/core/graph-ops.cjs scripts/build-ecosystem-graph.cjs` empty, confirming the
+      Phase 347 bypass was not reopened.
 
-- [ ] **SUPER-20**: `docs/SUPERSESSION-CONTRACT.md` states explicitly that Phase 347's WD-347-2
+- [x] **SUPER-20**: `docs/SUPERSESSION-CONTRACT.md` states explicitly that Phase 347's WD-347-2
       projection-versus-primary-truth ruling does NOT transfer to `review_status`, because
       `review_status` has no competing store to be a projection of, and carries forward only the
       narrower transferable lesson: be explicit about precedence whenever two stores exist.
+      **Measured (2026-09-16):** `node tests/test-348-contract-doc.cjs` exit 0, 9/9 assertions
+      passed, including "names the four rulings as literal tokens" (Ruling 4 quotes WD-347-2
+      verbatim and states the non-transfer in `docs/SUPERSESSION-CONTRACT.md`'s own text).
 
 ## Traceability
 
@@ -2409,8 +2491,8 @@ proposed `ARB-` family, and were registered here at plan time as `- [ ]` rows, f
 measured proof at phase close by `346-08-PLAN.md` (2026-09-16). All sixteen rows are now `- [x]`.
 SUPER-01..20 were minted in the Phase 348 plan set (2026-09-16), ratifying `348-RESEARCH.md`'s
 proposed `SUPER-` family as amended by `348-CONTEXT.md`'s D-01..D-09 locks, scoped to Phase 348
-only, and are registered here at plan time as `- [ ]` rows to be finalized with measured proof at
-phase close by `348-10-PLAN.md`.
+only, and were registered here at plan time as `- [ ]` rows, finalized with measured proof at
+phase close by `348-10-PLAN.md` (2026-09-16). All twenty rows are now `- [x]`.
 Roadmap phases must map all 283 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
