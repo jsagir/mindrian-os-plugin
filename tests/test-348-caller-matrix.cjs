@@ -5,7 +5,7 @@
  * Every real caller of findContradictions gets a declared, measured
  * behavior: the re-export forwards the options bag unchanged, the three
  * lib/core + lib/agents consumers take the new DEFAULT (superseded
- * excluded), and the one MCP surface (sensors.cjs) is PENDING (348-06).
+ * excluded), and the one MCP surface (sensors.cjs) is OPT-IN (348-06).
  *
  * The caller set is DERIVED from the repo at run time (grep for
  * findContradictions( or findContradictions:, excluding the defining file
@@ -228,15 +228,27 @@ function testDeclarationsPresent() {
   }
 }
 
-// ---- sensors.cjs is PENDING, 348-06's to declare --------------------------
+// ---- sensors.cjs is OPT-IN, declared by 348-06 ----------------------------
+//
+// 348-06 flips this row from PENDING to OPT-IN: contradiction_check now
+// carries the include_superseded MCP parameter, mapped to includeSuperseded
+// and threaded as the third argument. The behavioral round trip (a fixture
+// holding a real superseded pair, driven through the REAL registered
+// handler in both directions) is proven in tests/test-348-mcp-flag.cjs
+// rather than re-driven here (Canon Part 7: reuse before build) -- this
+// assertion proves the DECLARATION landed, not the behavior a second time.
 
-function testSensorsCallerPending() {
+function testSensorsCallerOptIn() {
   const rel = 'lib/mcp/tools/sensors.cjs';
   const abs = path.join(REPO, rel);
   check(fs.existsSync(abs), rel + ' must exist (the fifth caller)');
   const src = fs.readFileSync(abs, 'utf8');
-  check(src.indexOf('SUPER-05') === -1, rel + ' is 348-06\'s to declare; must carry zero SUPER-05 comments yet');
-  MATRIX.set(rel, { declaration: 'PENDING (348-06)', measured: 'not driven this plan; 348-06 flips it to OPT-IN via include_superseded' });
+  const i = src.indexOf('SUPER-05');
+  check(i !== -1, rel + ' must carry the literal token SUPER-05 (348-06 declares this row)');
+  const line = src.slice(src.lastIndexOf('\n', i) + 1, src.indexOf('\n', i));
+  check(line.indexOf('OPT-IN') !== -1, rel + ' the SUPER-05 line must also carry the literal token OPT-IN. Measured: ' + line);
+  check(src.indexOf('includeSuperseded') !== -1, rel + ' must map include_superseded to includeSuperseded');
+  MATRIX.set(rel, { declaration: 'OPT-IN', measured: 'behavioral round trip driven through the real registered handler in tests/test-348-mcp-flag.cjs' });
 }
 
 // ---- Run: synchronous assertions first, then the one async caller -------
@@ -246,7 +258,7 @@ testReExportForwardsOptionsBag();
 testRoomHomeCallerDefault();
 testReverseSalientAgentCallerDefault();
 testDeclarationsPresent();
-testSensorsCallerPending();
+testSensorsCallerOptIn();
 
 testPacketCallerDefault()
   .then(() => {

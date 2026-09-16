@@ -89,11 +89,33 @@ function contradictionCheckBody(src) {
     .replace(/^\s*\/\/.*$/gm, '');
 }
 
-const NO_WRITE_TOKENS = ['INSERT', 'UPDATE ', 'DELETE', 'logEvent', 'writeEdge', 'promoteNodeStatus', 'supersede'];
+// Precise, word-bounded patterns rather than the plan's own illustrative
+// bare-substring list (['INSERT','UPDATE ','DELETE','logEvent','writeEdge',
+// 'promoteNodeStatus','supersede']). A bare substring scan for 'supersede'
+// false-positives on this SAME task's own required schema key
+// (include_superseded, which contains lowercase 'supersede' as a substring:
+// include_[supersede]d) and its describe() string -- both landed by this
+// very task inside the exact body window the scan reads. This mirrors the
+// 348-05 precedent (docs comment in tests/test-348-validity-window.cjs):
+// when a plan's own illustrative scan produces a false positive against the
+// plan's own required addition, replace it with a precise pattern and name
+// the substitution here rather than gaming the test or weakening the claim.
+// A real write call is still caught: \bsupersede\s*\( matches the imported
+// function's CALL syntax (supersede(db, ...)), which 'include_superseded'
+// (an identifier, never followed by '(') cannot produce.
+const NO_WRITE_PATTERNS = [
+  { label: 'INSERT', re: /\bINSERT\b/ },
+  { label: 'UPDATE ', re: /\bUPDATE\s/ },
+  { label: 'DELETE', re: /\bDELETE\b/ },
+  { label: 'logEvent', re: /\blogEvent\s*\(/ },
+  { label: 'writeEdge', re: /\bwriteEdge\s*\(/ },
+  { label: 'promoteNodeStatus', re: /\bpromoteNodeStatus\s*\(/ },
+  { label: 'supersede(', re: /\bsupersede\s*\(/ },
+];
 
 function assertNoWrite(body, label) {
-  for (const bad of NO_WRITE_TOKENS) {
-    assert.ok(body.indexOf(bad) === -1, label + ': must not contain ' + JSON.stringify(bad));
+  for (const bad of NO_WRITE_PATTERNS) {
+    assert.ok(!bad.re.test(body), label + ': must not contain ' + bad.label);
   }
   assert.ok(
     body.indexOf("require('../../core/temporal/") === -1 && body.indexOf('require("../../core/temporal/') === -1,
