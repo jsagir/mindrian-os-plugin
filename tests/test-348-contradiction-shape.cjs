@@ -73,8 +73,13 @@ function check(cond, msg) {
 (function testSkipSinkReceivesEntry() {
   const fx = buildSupersessionFixtureRoom({ variant: 'wide', reified: true });
   try {
+    // Focus on eventId: getNeighborhood walks OUTGOING edges only, and the
+    // reified edge (eventId -CONTRADICTS-> claimBId) is only reachable
+    // walking outgoing from the event node itself (claimA's own outgoing
+    // walk never reaches the event node, which only points AT claimA via
+    // CONCERNS, an incoming edge from claimA's perspective).
     const skipped = [];
-    navigation.findContradictions(fx.db, fx.claimAId, { skipped });
+    navigation.findContradictions(fx.db, fx.eventId, { skipped });
     check(skipped.length === 1, 'expected exactly one skipped entry for the reified edge, got ' + skipped.length);
     check(skipped[0].reason === 'reified_shape_out_of_scope', 'skip reason must be the named token reified_shape_out_of_scope');
     check(typeof skipped[0].source === 'string' && typeof skipped[0].target === 'string', 'skip entry must carry the edge endpoints');
@@ -88,9 +93,9 @@ function check(cond, msg) {
 (function testWithoutSinkDeepEqualToWithSink() {
   const fx = buildSupersessionFixtureRoom({ variant: 'wide', reified: true });
   try {
-    const without = navigation.findContradictions(fx.db, fx.claimAId);
+    const without = navigation.findContradictions(fx.db, fx.eventId);
     const skipped = [];
-    const withSink = navigation.findContradictions(fx.db, fx.claimAId, { skipped });
+    const withSink = navigation.findContradictions(fx.db, fx.eventId, { skipped });
     check(JSON.stringify(without) === JSON.stringify(withSink), 'result must be identical with or without the skipped sink');
   } finally {
     closeSupersessionFixtureRoom(fx);
@@ -106,7 +111,7 @@ function check(cond, msg) {
       let threw = false;
       let result;
       try {
-        result = navigation.findContradictions(fx.db, fx.claimAId, { skipped: bad });
+        result = navigation.findContradictions(fx.db, fx.eventId, { skipped: bad });
       } catch (_e) {
         threw = true;
       }
