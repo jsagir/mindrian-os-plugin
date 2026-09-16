@@ -83,6 +83,15 @@ run_if "CANON-05/06/07/08 entry-40 corpus-figures FLOOR" \
   node tests/test-canon-entry-40-corpus-figures-floor.cjs
 
 # ---------------------------------------------------------------------------
+# SUPER-15: entry-41 supersession-narrowing FLOOR (Part 9 narrowed for the
+# `superseded` target on truth-claim nodes; Phase 348-09). Landed in this
+# wave, so this leg runs real rather than SKIPping.
+# ---------------------------------------------------------------------------
+run_if "SUPER-15 entry-41 supersession-narrowing FLOOR" \
+  tests/test-canon-entry-41-supersession-narrowing-floor.cjs \
+  node tests/test-canon-entry-41-supersession-narrowing-floor.cjs
+
+# ---------------------------------------------------------------------------
 # Regression legs, required GREEN on every wave -- these must never go red as
 # the three amendment waves land.
 # ---------------------------------------------------------------------------
