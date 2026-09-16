@@ -7,9 +7,9 @@
 
   A thinking partner that sits above your AI. You talk through a problem worth solving. Larry finds the real problem before you solve the wrong one, brings the right method at the moment you need it, pushes back when your confidence outruns your evidence, and turns the conversation into a structured room that remembers every decision and catches what you missed.
 
-  Concretely: you install a plugin into Claude, you talk to it like you normally would, it consults a methodology graph built from 20 years of teaching, and it files the conversation into a folder on your own machine that is still there next time you open it.
+  Concretely: you install a plugin into Claude, you talk to it like you normally would, it consults a methodology graph built from accumulated academic teaching experience, and it files the conversation into a folder on your own machine that is still there next time you open it.
 
-  Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching.
+  Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through accumulated academic teaching experience and pedagogical rigor.
   Engineered by Jonathan Sagir.
 
   [![Version](https://img.shields.io/badge/version-2.0.0--beta.41-1E3A6E)](CHANGELOG.md)
@@ -34,7 +34,7 @@ That is the job MindrianOS is hired for. Not "take my notes" and not "chat with 
 This is the whole mental model. You do not need more than this to use MindrianOS well.
 
 1. **You talk.** Whatever is in your room right now, the venture, the decision, the meeting you just filed, becomes context.
-2. **Your context triggers a question to the Brain**, running today on Theo, the methodology graph: 27,951 nodes and 452 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
+2. **Your context triggers a question to the Brain**, running today on Theo, the methodology graph: 27,951 nodes and 452 frameworks built from accumulated academic teaching expertise, holding WHEN to use WHICH method and in WHAT sequence.
 3. **Larry joins the answer to your situation.** Not a lecture pulled from a textbook. Your problem, run through real methodology.
 4. **You ratify what matters.** Approve it, reject it with a reason, or defer it. Your call becomes part of the room.
 5. **The room remembers.** Next time, it is already there, checking today's input against it.
@@ -99,7 +99,7 @@ That is a feature, not an outage. A tool that quietly guesses when it does not k
 | Layer | What | Who owns it |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
-| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP (the standard way Claude reaches an outside service) | Served remotely, never distributed |
+| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, accumulated teaching expertise, served over MCP (the standard way Claude reaches an outside service) | Served remotely, never distributed |
 | **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
@@ -126,7 +126,7 @@ Read more: what the Brain holds and its six tools ([`docs/THE-BRAIN.md`](docs/TH
 
 You can. MindrianOS is not instead of them, it is the layer that makes one of them remember, judge, and hold you to your own reasoning. A raw AI is brilliant for one turn and forgets the next. It knows every framework but not which one you need right now. And it is agreeable: it will help you build a beautiful deck on a false premise, because it optimizes for a helpful answer, not a true one.
 
-MindrianOS adds what a raw model structurally cannot be: it remembers (your room persists across every session), it knows when (decades of teaching calibrate which method fits which stage), it pushes back (a co-founder tells you when you are wrong, a chatbot tells you that you are brilliant), and it keeps your data yours (only generic methodology crosses to the Brain, never your specifics).
+MindrianOS adds what a raw model structurally cannot be: it remembers (your room persists across every session), it knows when (accumulated teaching experience calibrates which method fits which stage), it pushes back (a co-founder tells you when you are wrong, a chatbot tells you that you are brilliant), and it keeps your data yours (only generic methodology crosses to the Brain, never your specifics).
 
 ---
 

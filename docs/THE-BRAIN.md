@@ -38,7 +38,7 @@ Critical relationship types (the moat):
 - CO_OCCURS: (0 in the graph as of Phase 3 -- statistical co-occurrence is kept in a sidecar JSONL, never a Brain edge; see BRAIN-SCHEMA.md section 2a)
 - 28 canonical relationship types total (see BRAIN-SCHEMA.md section 2)
 
-Why unreplicable: Built from 30+ years of teaching. Relationships DISCOVERED through watching 100+ students apply frameworks. Chaining rules come from real classroom observation, not theory.
+Why unreplicable: Built from accumulated academic teaching expertise and pedagogical rigor. Relationships DISCOVERED through watching 100+ students apply frameworks. Chaining rules come from real classroom observation, not theory.
 
 ### Layer 2: The Semantic Embeddings (Pinecone pws-brain -- 12,485 vectors, 1024-dim + Neo4j framework index)
 
