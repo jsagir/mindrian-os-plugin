@@ -241,6 +241,28 @@ function buildSupersessionFixtureRoom(opts) {
     if (!confB.ok) throw new Error('fixture-room-348: confirmNode B failed: ' + confB.reason);
     const confA = confirmNode(db, claimAId, byUser);
     if (!confA.ok) throw new Error('fixture-room-348: confirmNode A failed: ' + confA.reason);
+
+    // 348-07 Task 3 fix (Rule 1 - bug, documented as a deviation in
+    // 348-07-SUMMARY.md): writeClaimNode -> insertNode never populates the
+    // nodes.valid_from COLUMN (it only writes a display-only string into
+    // properties.valid_from, per Ruling 2 / D-06). Without this backfill
+    // every claim this fixture mints carries valid_from=NULL forever, which
+    // fails queryAsOf's own WHERE clause unconditionally (NULL <= T_v is
+    // NULL, never true) -- so a node written by this fixture could NEVER
+    // round-trip through queryAsOf, on ANY as-of timestamp, not just the
+    // one this phase's e2e proof (SUPER-17 step 9) exercises. Backfilling
+    // valid_from = created_at here reuses the EXACT semantics
+    // lib/core/migrations/phase-160-nodes-bitemporal.cjs::backfillValidFrom
+    // already defines for "an existing row whose valid_from was never set"
+    // (verbatim comment there: "valid_from = created_at for every existing
+    // row that has not been set") -- this fixture builds a fresh wide-DDL
+    // table directly (bypassing the migration path entirely, Canon Part 7
+    // reuse), so its own two claim rows are exactly that case. Runs AFTER
+    // both confirms so it never races confirmNode's own writes, and BEFORE
+    // any caller-side override (test-348-supersession-e2e.cjs step 9 pins
+    // claimA's valid_from to its own FIXED clock afterward, which correctly
+    // overwrites this backfilled value).
+    db.exec("UPDATE nodes SET valid_from = created_at WHERE valid_from IS NULL AND created_at IS NOT NULL");
   } else {
     // legacy: no review_status column exists at all, so promoteNodeStatus's
     // own SELECT would throw against this schema (it names the column
