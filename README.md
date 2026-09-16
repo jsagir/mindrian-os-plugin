@@ -10,7 +10,7 @@
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching.
   Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/version-2.0.0--beta.1-1E3A6E)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/version-2.0.0--beta.41-1E3A6E)](CHANGELOG.md)
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
@@ -32,7 +32,7 @@ That is the job MindrianOS is hired for. Not "take my notes" and not "chat with 
 This is the whole mental model. You do not need more than this to use MindrianOS well.
 
 1. **You talk.** Whatever is in your room right now, the venture, the decision, the meeting you just filed, becomes context.
-2. **Your context triggers a question to the Brain**, the methodology graph: 28,325 nodes and 181 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
+2. **Your context triggers a question to the Brain**, the methodology graph: 27,951 nodes and 452 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
 3. **Larry joins the answer to your situation.** Not a lecture pulled from a textbook. Your problem, run through real methodology.
 4. **You ratify what matters.** Approve it, reject it with a reason, or defer it. Your call becomes part of the room.
 5. **The room remembers.** Next time, it is already there, checking today's input against it.
@@ -76,7 +76,7 @@ A note on install prompts: Claude Code asks you to approve each shell command. 1
 
 ## What talking to Larry feels like
 
-Most of the time it feels like a sharp colleague who happens to know 181 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from:
+Most of the time it feels like a sharp colleague who happens to know 452 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from:
 
 > ■ BRAIN: Jobs to Be Done · framework · readiness 4/4
 
@@ -95,7 +95,7 @@ That is a feature, not an outage. A tool that quietly guesses when it does not k
 | Layer | What | Who owns it |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
-| **Brain** | The methodology graph: 28,325 nodes, 181 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
+| **Brain** | The methodology graph: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
 | **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
