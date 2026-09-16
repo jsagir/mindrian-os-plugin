@@ -2423,9 +2423,106 @@ rows are now `- [x]`.
       passed, including "names the four rulings as literal tokens" (Ruling 4 quotes WD-347-2
       verbatim and states the non-transfer in `docs/SUPERSESSION-CONTRACT.md`'s own text).
 
+### Phase 349 - Release-to-Theo leading edge (NOTIFY family)
+
+These fourteen ids were minted in the Phase 349 plan set (2026-09-16), ratifying and amending
+`349-RESEARCH.md`'s proposed `NOTIFY-` family, scoped to Phase 349 only, registered here at plan
+time as `- [ ]` rows to be finalized with measured proof at phase close by `349-06-PLAN.md`, per
+the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347/345/346/348 precedent.
+This phase had no discuss pass (`workflow.skip_discuss` is true) and therefore carries no
+navigator D-locks, so the roadmap card's own five deliverables R1..R5 are the scope contract.
+
+- [ ] **NOTIFY-01**: a new sourced library `scripts/release-lib/theo-notify-gate.sh` defines
+      `mos_theo_notify_gate`, mirroring `scripts/release-lib/theo-stamp-gate.sh`'s house rules
+      exactly: no `set -e`, no top-level side effects, no global assignment outside a function
+      body, every `${VAR:-}` guarded so it is safe to source under `set -u`, safe to source
+      twice, and it never prints a resolved GitHub token or any response body verbatim.
+
+- [ ] **NOTIFY-02**: `release.sh` calls the gate exactly once, at Step 5.6, after the Step 5.5
+      `SKIP_TAG_VERIFY` block closes and before Step 9.8 begins, passing `$NEW_VERSION` and the
+      release commit sha as explicit arguments. A source tripwire proves the call site never
+      re-reads `.claude-plugin/plugin.json` or `lib/core/repo-version.cjs` at or after that
+      point, because Step 7.5 has already rewritten that file to the `$NEXT_VERSION` dev
+      placeholder.
+
+- [ ] **NOTIFY-03**: the payload sent is exactly the four top-level `client_payload` keys
+      `version`, `commit`, `registryHash` and `command_registry_path`, and no others.
+      `registryHash` is a plugin-computed SHA-256 hex digest of `git show
+      <release_sha>:data/command-registry.json`, the tagged commit's bytes, never the working
+      tree's.
+
+- [ ] **NOTIFY-04**: `--no-theo-notify` is parsed beside `--no-theo-check`, `--no-minisite` and
+      `--no-website`, is a SEPARATE flag from `--no-theo-check`, and an engaged skip prints the
+      flag name, the version, and the operator-visible consequence in one line, matching
+      `theo-stamp-gate.sh`'s own audited skip shape. The skip is never silent and appears in
+      `--help`'s usage block.
+
+- [ ] **NOTIFY-05**: under `--dry-run` the real dispatch command is NEVER invoked. The step is
+      represented by one additional preview `echo` line inside the existing dry-run block
+      (`release.sh:229-320`), and `Step 5.6` is added to `scripts/doctor.cjs`'s
+      `release-dry-run-output` `expectedSteps` array in the SAME commit as the preview line, so
+      the preview itself is gated and the blocker never goes red against a half-landed pair.
+
+- [ ] **NOTIFY-06**: a failing dispatch on a real release is a named `SEND FAILURE` that fails
+      the step closed, distinct from a named `SKIPPED`, and the two are never conflated in
+      output. A missing `timeout` binary on PATH is also a `SEND FAILURE` that returns promptly
+      rather than sending unbounded, mirroring `theo-stamp-gate.sh`'s WR-02 precedent.
+
+- [ ] **NOTIFY-07**: a hermetic test `tests/test-349-theo-notify-gate.cjs` proves real-mode
+      success, real-mode send failure, dry-run-never-sends, the audited `--no-theo-notify` skip,
+      the failure-class distinction, the missing-`timeout` fail-closed path, shell-metacharacter
+      safety on every interpolated value, the local audit-log write, and token non-disclosure.
+      Zero network calls, driven entirely through an injectable `MINDRIAN_THEO_NOTIFY_CMD` seam
+      mirroring `MINDRIAN_THEO_STAMP_CMD`.
+
+- [ ] **NOTIFY-08**: a hermetic test `tests/test-349-payload-boundary.cjs` proves the payload is
+      exactly four keys and well under GitHub's ten-top-level-property `client_payload` cap,
+      that `registryHash` matches an independently computed digest of the same bytes, that the
+      digest comes from the TAGGED commit even when the working tree's registry differs, that
+      the sent version is the released version and provably not the next-bump placeholder, and
+      that no payload value carries a room path or any user-specific byte (Canon Part 8).
+
+- [ ] **NOTIFY-09**: `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8's existing bullet is
+      amended IN PLACE to describe BOTH halves as ONE place: the shipped lagging
+      verify-retroactively half and the new leading push-immediately half. RULE 5's numbered
+      list still has exactly eight items after this phase; no ninth place is created.
+
+- [ ] **NOTIFY-10**: `.claude/includes/release-process.md` names the new step in its Version
+      Consistency Rule section. The `docs/VERSION-BUMP-CHECKLIST.md` question raised by the
+      roadmap's deliverable 4 wording is resolved by an explicit recorded ruling against Phase
+      343's WD-14 (STANDING: that file is NOT created in this repo), never by silently creating
+      the file and never by silently skipping the roadmap line.
+
+- [ ] **NOTIFY-11**: the per-release local audit record is an append to the untracked
+      `~/.mindrian/theo-notify-log.txt`, written on every real release regardless of whether the
+      dispatch itself succeeded, overridable in tests through `MINDRIAN_THEO_NOTIFY_LOG` so no
+      test ever writes to a real HOME. No tracked file is written after Step 9's push, because a
+      post-push tracked write leaves the tree dirty and reds the NEXT cut's Step 2.5 clean-tree
+      gate.
+
+- [ ] **NOTIFY-12**: `docs/OPEN-HANDOFFS.md` gains a dated Theo-side row naming exactly what
+      Theo's own consuming CI must do on receipt of a `theo-resync` event (re-emit the command
+      layer, restamp `mappedBy`, consult langtalks, run the full-stack pass), with a named owner,
+      and stating plainly that this repo's contribution ends at a successfully delivered
+      `repository_dispatch`.
+
+- [ ] **NOTIFY-13**: the pre-phase emission census is measured, not assumed. A source scan
+      across the tracked tree records how many `repository_dispatch` and `theo-resync` call
+      sites existed before this phase (measured 0 on 2026-09-16, outside `.planning/` documents),
+      stated in `docs/THEO-NOTIFY-CONTRACT.md` beside Theo's own live
+      `payloads_emitted_since: 2` / `payloads_applied_since: 0` reading of 2026-09-15, with the
+      contradiction recorded as an open finding with a named owner rather than explained away.
+      After this phase exactly one call site exists.
+
+- [ ] **NOTIFY-14**: the deliverable R5 bootstrap disposition is ruled at a blocking navigator
+      checkpoint and recorded. Either Theo has restamped and `bash scripts/release.sh patch
+      --dry-run 2>&1 | grep theo-stamp-gate` prints `PASS`, or the bootstrap is registered as a
+      real, numbered `.planning/ROADMAP.md` card for the Theo-side consuming phase with a named
+      owner and a concrete acceptance number. A silent drop fails this requirement.
+
 ## Traceability
 
-283 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+297 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -2433,7 +2530,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
-(Phase 346), plus SUPER-01..20 (Phase 348). All minted
+(Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -2493,10 +2590,14 @@ SUPER-01..20 were minted in the Phase 348 plan set (2026-09-16), ratifying `348-
 proposed `SUPER-` family as amended by `348-CONTEXT.md`'s D-01..D-09 locks, scoped to Phase 348
 only, and were registered here at plan time as `- [ ]` rows, finalized with measured proof at
 phase close by `348-10-PLAN.md` (2026-09-16). All twenty rows are now `- [x]`.
-Roadmap phases must map all 283 active requirements with no orphans.
+NOTIFY-01..14 were minted in the Phase 349 plan set (2026-09-16), ratifying and amending
+`349-RESEARCH.md`'s proposed `NOTIFY-` family, scoped to Phase 349 only, and are registered here
+at plan time as `- [ ]` rows to be finalized with measured proof at phase close by
+`349-06-PLAN.md`.
+Roadmap phases must map all 297 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB and SUPER
+FLIP, CANON, SHARED, STRAT, ARB, SUPER and NOTIFY
 families
 alike (the
 Phase 266 and 269
