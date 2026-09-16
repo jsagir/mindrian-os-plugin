@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 348-05-PLAN.md - Wave 5 of 10
-last_updated: "2026-09-16T04:20:00+03:00"
-last_activity: 2026-09-16 -- Phase 348 Plan 05 complete (typed-claim.cjs valid_from/valid_until marked display-only with a proven column-authoritative close boundary, SUPER-10/D-06; TRANSITIONS pinned byte-unchanged with a verbatim side-effect-free proposed-refusal proof and its proposed->rejected alternative, SUPER-09/D-05); Phase 348 has 5 waves remaining
+stopped_at: Completed 348-06-PLAN.md - Wave 6 of 10
+last_updated: "2026-09-16T05:10:00+03:00"
+last_activity: 2026-09-16 -- Phase 348 Plan 06 complete (contradiction_check's include_superseded MCP flag, SUPER-06; SUPER-07 tripwire pinned; Phase 348 has 4 waves remaining)
 progress:
   total_phases: 99
   completed_phases: 32
   total_plans: 284
-  completed_plans: 273
+  completed_plans: 274
   percent: 96
 ---
+
+<!-- NOTE (348-06 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` succeeded (current_plan 6 -> 7 of 10). `state.update-progress` correctly
+     computed `completed: 274, percent: 96` (274/284). `state.record-metric` (flag syntax
+     `--phase --plan --duration --tasks --files`) landed its own correct Performance Metrics row.
+     `state.add-decision` (with `--summary`) DID repeat the documented `[Phase ?]`
+     placeholder-prefix bug (it prepended `[Phase ?]: ` ahead of this plan's own already-prefixed
+     `[Phase 348]` text, producing a double prefix), fixed in place to a single `[Phase 348]:
+     348-06: ...` line. `state.record-session` updated only `Last session`, correctly, leaving the
+     frontmatter clobber from an EARLIER call in this same session (a stale 348-01-era snapshot:
+     `stopped_at` "Completed 348-01-PLAN.md", `last_updated` reverted to the 348-01 timestamp,
+     `last_activity` reverted to "Phase 348 execution started", `percent` reverted to `32`, a raw
+     phase-count reading, not the plan-completion percentage) in place. Hand-corrected once, after
+     all calls landed: `stopped_at` -> "Completed 348-06-PLAN.md - Wave 6 of 10", `last_updated` ->
+     this plan's completion timestamp, `last_activity` -> this plan's completion line, `percent` ->
+     96 (274/284, matching `state.update-progress`'s own correct computation); left
+     `total_phases`/`completed_phases` at 99/32 unchanged since Phase 348 has not closed (4 of 10
+     plans remain). Same root cause as every other note in this file, not re-investigated further
+     here. -->
 
 <!-- NOTE (348-05 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4691,7 +4711,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -6351,6 +6371,7 @@ Progress: [█████████░] 92%
 | Phase 348 P03 | 55min | 3 tasks | 7 files |
 | Phase 348 P04 | 62min | 3 tasks | 10 files |
 | Phase 348 P05 | 48min | 2 tasks | 3 files |
+| Phase 348 P06 | 55min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -7961,6 +7982,7 @@ Progress: [█████████░] 92%
 - [Phase 348]: 348-03: setsSuperseded is a separate predicate OR'd into the human-attribution guard (WD-348-5); the bitemporal-close schema probe runs before the row lookup, scoped to wantsBitemporalClose (WD-348-7); three pre-existing regression suites fixed to attribute a human byUser under the widened guard.
 - [Phase 348]: 348-04: findContradictions reshaped with an options bag, review_status exclusion filter (both endpoints, null-safe), a legacy-schema fall-through, and the D-04 reified-shape guard; all five callers declared (four DEFAULT, sensors.cjs PENDING 348-06).
 - [Phase 348]: 348-05: Marked typed-claim.cjs's valid_from/valid_until display-only (SUPER-10/D-06) and pinned TRANSITIONS byte-unchanged with a proven proposed-refusal + proposed->rejected alternative (SUPER-09/D-05); named lib/core/leverage-scan.cjs as a real, pre-existing existence-only exception the plan's own zero-consumers framing had not measured, logged to deferred-items.md rather than silently fixed out of scope.
+- [Phase 348]: 348-06: sensors.cjs's no-write scan needed a precise call-syntax pattern (not bare substring) since include_superseded itself contains 'supersede'; test-348-caller-matrix.cjs flipped PENDING to OPT-IN per the plan's own acceptance criteria.
 
 ### Pending Todos
 
@@ -8100,7 +8122,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T00:32:50.095Z
+Last session: 2026-09-16T00:49:56.656Z
 Stopped at: Completed 348-01-PLAN.md - Wave 1 of 10
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
