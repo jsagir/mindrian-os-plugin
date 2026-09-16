@@ -109,11 +109,22 @@ fi
 # way and for the same reason -- a missing library discovered at its call
 # site would fail after mutation has already started. Function definitions
 # only; the gate itself is CALLED below, at Step 0.6, after flags are parsed.
+# Phase 349 Plan 04 (NOTIFY-02): the Theo NOTIFY gate (the LEADING half of
+# RULE 5 place 8, called at Step 5.6) is sourced here too, for the same
+# reason -- both libraries are sourced in the preamble so a missing file
+# fails before any mutation starts, never at the worse of the two call
+# sites (Step 0.6 pre-mutation, Step 5.6 post-push).
 if [ ! -f "$RELEASE_LIB_DIR/theo-stamp-gate.sh" ]; then
   echo -e "${RED}scripts/release-lib/theo-stamp-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
   exit 1
 fi
 . "$RELEASE_LIB_DIR/theo-stamp-gate.sh"
+
+if [ ! -f "$RELEASE_LIB_DIR/theo-notify-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/theo-notify-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/theo-notify-gate.sh"
 
 # --- Step 0: Parse bump type + flags ---
 BUMP_MODE=""
@@ -124,7 +135,8 @@ NO_MINISITE=1   # install-minisite RETIRED 2026-06-09 (navigator: official site 
 NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by default; --no-website opts out
 STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by default; --strict-shape restores the pre-210 hard-fail
 NO_THEO_CHECK=0 # Phase 343 Plan 07 (WD-13/T-343-06): Theo stamp gate is ON by default; --no-theo-check is the audited opt-out (--no-minisite / --no-website precedent), never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--dry-run]"
+NO_THEO_NOTIFY=0 # Phase 349 Plan 04 (NOTIFY-04): the Theo NOTIFY gate (LEADING half of place 8) is ON by default; --no-theo-notify is the audited opt-out, following the --no-theo-check / --no-minisite / --no-website precedent, never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -141,6 +153,7 @@ for arg in "$@"; do
     --no-website)        NO_WEBSITE=1 ;;
     --strict-shape)      STRICT_SHAPE=1 ;;
     --no-theo-check)     NO_THEO_CHECK=1 ;;
+    --no-theo-notify)    NO_THEO_NOTIFY=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -287,6 +300,11 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
   echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass) ; warns instead of aborting when origin/main already matches local HEAD"
+  echo "  Step 5.6  : fire a repository_dispatch (event theo-resync) at jsagir/theo telling Theo that v$NEW_VERSION shipped, payload {version, commit, registryHash, command_registry_path}"
+  echo "              NOTHING IS SENT under --dry-run."
+  if [ "$NO_THEO_NOTIFY" = "1" ]; then
+    echo "              ${YELLOW}--no-theo-notify opt-out engaged (audit-logged; Theo will NOT be told v$NEW_VERSION shipped)${NC}"
+  fi
   echo "  Step 9.6a : install minisite RETIRED 2026-06-09 (off by default; --minisite re-enables)"
   if [ "$NO_MINISITE" != "1" ]; then
     echo "              ${YELLOW}--minisite engaged: would sync install minisite to v$NEW_VERSION (vercel-CLI deploy)${NC}"
@@ -1413,6 +1431,37 @@ else
     echo "    Recovery: git push origin v$NEW_VERSION (push the tag explicitly)"
     exit 1
   fi
+fi
+
+# --- Step 5.6: Notify Theo of the new version (repository_dispatch) ---
+# Phase 349 Plan 04 (NOTIFY-02/04/05): the LEADING half of RULE 5 place 8,
+# the mirror of Step 0.6's LAGGING gate. Sits HERE, and nowhere else, for
+# two reasons: (1) it runs AFTER Step 5.5 has proven the tag is at origin,
+# so the artifact provably exists in public before Theo is ever told about
+# it; (2) it runs BEFORE Step 9.8's hard-abort acceptance gate, so a notify
+# is never withheld exactly when a release most needs Theo to know it
+# shipped. The placeholder-version trap, stated once more so a future
+# editor does not reintroduce it: $NEW_VERSION is used, never a disk read,
+# because Step 7.5 has already rewritten plugin.json to $NEXT_VERSION on
+# disk by this point. See docs/THEO-NOTIFY-CONTRACT.md.
+echo ""
+echo "=== Step 5.6: Notify Theo of v$NEW_VERSION (repository_dispatch) ==="
+
+# The TAG's commit, not HEAD -- HEAD is Commit B (the next-bump) by this
+# point in the script, not the release commit. Re-derived from the tag
+# rather than reusing the Step 7 $RELEASE_SHA value on purpose: Step 5.5
+# (immediately above) has JUST independently verified the pushed tag
+# exists at origin, so re-resolving the sha from that tag here re-confirms
+# Theo is about to be told about the exact bytes Step 5.5 proved are now
+# public. The Step 7 value, by contrast, was captured locally before the
+# push ever happened and was never itself re-checked against origin. If
+# the tag cannot be resolved, pass the empty string and let the gate's own
+# argument guard turn it into a named failure rather than inventing a
+# fallback here.
+RELEASE_SHA="$(cd "$PLUGIN_DIR" && git rev-parse "v$NEW_VERSION^{commit}" 2>/dev/null || true)"
+
+if ! mos_theo_notify_gate "$PLUGIN_DIR" "$RELEASE_SHA" "$NEW_VERSION" "$DRY_RUN" "$NO_THEO_NOTIFY"; then
+  exit 1
 fi
 
 # --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
