@@ -22,7 +22,7 @@
  *           additive rule, e.g. R16, moves N further and must not false-fail this
  *           floor -- discovered live at N=16 on 2026-09-07, unrelated to this plan's
  *           scope) and the stale "R1-R14" bound is gone from the enumerating
- *           references; the header/footer carry Version 1.27 (the anchor tracks the
+ *           references; the header/footer carry Version 1.28 (the anchor tracks the
  *           live canon forward; the R15 invariant this test guards is unchanged).
  *   Test 4: the render gate's covered/excluded/gap counting contract is BYTE-STABLE
  *           (a class-blind recount of the registry entries equals the reported
@@ -75,14 +75,14 @@ for (let n = 1; n <= 14; n++) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 3: the closed-set BOUND moved R1-R14 -> R1-R15; Version is 1.27.
+// Test 3: the closed-set BOUND moved R1-R14 -> R1-R15; Version is 1.28.
 // ---------------------------------------------------------------------------
 const mustSatisfyBound = canonFlat.match(/MUST satisfy R1-R(\d+)/);
 ok('the closed-set bound is enumerated as "R1-R<N>" with N >= 15 (the frozen-set move R1-R14 -> R1-R15 landed and holds as a floor for later additive rules)',
   !!mustSatisfyBound && Number(mustSatisfyBound[1]) >= 15);
 ok('the stale "MUST satisfy R1-R14" bound is gone', !/MUST satisfy R1-R14\b/.test(canonFlat));
-ok('header carries Version: 1.27', /^Version: 1\.27$/m.test(canon));
-ok('footer carries Mindrian Canon v1.27', /_Mindrian Canon v1\.27 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.28', /^Version: 1\.28$/m.test(canon));
+ok('footer carries Mindrian Canon v1.28', /_Mindrian Canon v1\.28 - MindrianOS Plugin_/.test(canon));
 ok('Appendix D entry 27 (Part 11 R15) is present',
   /^27\.\s+\*\*Part 11 R15 \(Render Coverage\) minted/m.test(canon));
 

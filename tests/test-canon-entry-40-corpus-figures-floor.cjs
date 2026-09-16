@@ -69,9 +69,9 @@
  *           count.
  *   Test 9 (frozen scalars byte-present): `MAX_K=3`, `DIAL_REACH_K=6`,
  *           `0.70/0.15`.
- *   Test 10 (version bump): header `/^Version: 1\.27$/m` and footer
- *           `/_Mindrian Canon v1\.27 - MindrianOS Plugin_/`.
- *   Test 11 (map row, light): docs/CANON-PHASE-MAP.md carries a `v1.27`
+ *   Test 10 (version bump): header `/^Version: 1\.28$/m` and footer
+ *           `/_Mindrian Canon v1\.28 - MindrianOS Plugin_/`.
+ *   Test 11 (map row, light): docs/CANON-PHASE-MAP.md carries a `v1.28`
  *           token, an `entry 40` reference, and the phase slug.
  *
  * NEVER asserts a raw count of Appendix D entries.
@@ -227,16 +227,16 @@ ok('frozen scalar DIAL_REACH_K=6 is byte-present', /DIAL_REACH_K=6/.test(canon))
 ok('the frozen 0.70/0.15 gate is byte-present', /0\.70\/0\.15/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 10: the header + footer version bump to 1.27.
+// Test 10: the header + footer version bump to 1.28 (anchor tracks forward through Phase 348 entry 41).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.27', /^Version: 1\.27$/m.test(canon));
-ok('footer carries Mindrian Canon v1.27', /_Mindrian Canon v1\.27 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.28', /^Version: 1\.28$/m.test(canon));
+ok('footer carries Mindrian Canon v1.28', /_Mindrian Canon v1\.28 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 11: the CANON-PHASE-MAP carries a v1.27 token + an entry-40 reference +
+// Test 11: the CANON-PHASE-MAP carries a v1.28 token + an entry-40 reference +
 // the phase slug.
 // ---------------------------------------------------------------------------
-ok('CANON-PHASE-MAP carries a "v1.27" token', /v1\.27/.test(map));
+ok('CANON-PHASE-MAP carries a "v1.28" token', /v1\.28/.test(map));
 ok('CANON-PHASE-MAP references entry 40', /entry 40/.test(map));
 ok('CANON-PHASE-MAP names the phase slug',
   /340-canon-currency-audit-and-amendment-v1-24-to-next-close-the-d/.test(map));

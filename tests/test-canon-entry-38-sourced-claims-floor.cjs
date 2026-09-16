@@ -36,8 +36,9 @@
  *   Test 6 (frozen scalars byte-present): `MAX_K=3`, `DIAL_REACH_K=6`, and
  *           `0.70/0.15` are byte-present in the canon (the doctrine mints no scalar).
  *   Test 7 (version bump): header `/^Version: 1\.26$/m` AND footer
- *           `/_Mindrian Canon v1\.27 - MindrianOS Plugin_/` (anchor moved 1.25 -> 1.26 -> 1.27 by
- *           Phase 340 Wave B's Appendix D entry 39; entry 38's own invariants unchanged).
+ *           `/_Mindrian Canon v1\.28 - MindrianOS Plugin_/` (anchor moved forward each wave,
+ *           now at 1.28 after Phase 348's entry 41 supersession narrowing; entry 38's own
+ *           invariants unchanged).
  *   Test 8 (map row, light): `docs/CANON-PHASE-MAP.md` carries a "v1.26" token, an
  *           "entry 38" reference, and the phase slug
  *           `340-canon-currency-audit-and-amendment-v1-24-to-next-close-the-d`.
@@ -151,10 +152,10 @@ ok('frozen scalar DIAL_REACH_K=6 is byte-present', /DIAL_REACH_K=6/.test(canon))
 ok('the frozen 0.70/0.15 gate is byte-present', /0\.70\/0\.15/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 7: the header + footer version bump to 1.27 (anchor tracks forward through Wave B entry 39 and Wave C entry 40).
+// Test 7: the header + footer version bump to 1.28 (anchor tracks forward through Wave B entry 39, Wave C entry 40, and Phase 348 entry 41).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.27', /^Version: 1\.27$/m.test(canon));
-ok('footer carries Mindrian Canon v1.27', /_Mindrian Canon v1\.27 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.28', /^Version: 1\.28$/m.test(canon));
+ok('footer carries Mindrian Canon v1.28', /_Mindrian Canon v1\.28 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
 // Test 8: the CANON-PHASE-MAP carries a v1.26 token + an entry-38 ref + the

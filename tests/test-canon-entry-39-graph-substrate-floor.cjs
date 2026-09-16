@@ -217,10 +217,10 @@ ok('frozen scalar DIAL_REACH_K=6 is byte-present', /DIAL_REACH_K=6/.test(canon))
 ok('the frozen 0.70/0.15 gate is byte-present', /0\.70\/0\.15/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 9: the header + footer version bump to 1.27 (anchor tracks forward through Wave C entry 40).
+// Test 9: the header + footer version bump to 1.28 (anchor tracks forward through Wave C entry 40 and Phase 348 entry 41).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.27', /^Version: 1\.27$/m.test(canon));
-ok('footer carries Mindrian Canon v1.27', /_Mindrian Canon v1\.27 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.28', /^Version: 1\.28$/m.test(canon));
+ok('footer carries Mindrian Canon v1.28', /_Mindrian Canon v1\.28 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
 // Test 10: the CANON-PHASE-MAP carries a v1.26 token + an entry-39 reference +

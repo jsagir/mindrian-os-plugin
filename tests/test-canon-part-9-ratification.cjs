@@ -116,7 +116,7 @@ function t7_mapPart9RowsShipped() {
 
 function t8_mapCanonReferenceTracksLiveCanon() {
   // The old assertion pinned the map's "Canon reference" header to the exact
-  // version Part 9 landed at (v1.4); the live map header now reads (v1.27), the
+  // version Part 9 landed at (v1.4); the live map header now reads (v1.28), the
   // same doomed pattern one document over. The durable, STRICTER replacement:
   // the map's reference token must LOCKSTEP the canon's own header version. A
   // future amendment that bumps the canon and forgets the map now goes red
