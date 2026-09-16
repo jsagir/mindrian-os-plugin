@@ -84,7 +84,11 @@ forward alongside the live CONTRADICTS writer.
 
 Two representations of a validity window exist in the repo today. `typed-claim.cjs:144-145`
 writes `properties.valid_from` / `valid_until` as strings, on the additive JSON props bag, read
-by nothing. The Phase 160 migration writes `nodes.valid_from` / `valid_to` /
+by nothing that acts on the VALUE (one existence-only exception, `lib/core/leverage-scan.cjs`'s
+Meadows Level-9 "Delays" signature, which checks `IS NOT NULL` and never compares or parses the
+extracted scalar -- named explicitly in `typed-claim.cjs`'s own display-only comment and proven
+scoped in `tests/test-348-validity-window.cjs`, 348-05). The Phase 160 migration writes
+`nodes.valid_from` / `valid_to` /
 `invalidated_at` as integer columns, read by `supersede()` and by `queryAsOf`. The two pairs
 disagree on more than type: the props pair is named `valid_until`, the column pair is named
 `valid_to`, a naming mismatch layered on top of the type mismatch.
