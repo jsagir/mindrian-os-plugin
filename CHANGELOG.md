@@ -1,3 +1,8 @@
+## [Unreleased] -- v2.0.0-beta.42 (in progress)
+
+### Added
+- 
+
 ## [2.0.0-beta.41] - 2026-09-16
 
 ### Added - the graph-engineering-learning cluster (Phases 343-349): seven structural fixes to how MindrianOS runs itself, each one closing a gap a real langtalks/graph-engineering audit found
