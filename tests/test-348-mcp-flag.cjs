@@ -279,6 +279,58 @@ async function main() {
     assert.ok(sensorsSrc.indexOf(emdash) === -1, 'sensors.cjs must contain zero em-dashes');
   });
 
+  // =========================================================================
+  // Group 2 (Task 2, SUPER-07): the tripwire that keeps a supersession
+  // ACTION off this declared-pure-read tool.
+  //
+  // hitl_why declares "Pure read ... no fork" and layer_why declares "a
+  // graph-infrastructure query, not a dispatch decision" -- both are
+  // REGISTERED FACTS (data/connector-registry.json), not prose. A
+  // supersession action landing on contradiction_check would falsify both;
+  // this group proves it mechanically, not by reading the description
+  // string.
+  // =========================================================================
+
+  // Snapshot of the CHECKED-IN pre-plan values (data/connector-registry.json
+  // and data/mcp-tool-connectors.json, identical at every 348-01..348-05
+  // commit, confirmed by direct read before this plan's Task 2 regenerated
+  // either file). Compared against the freshly regenerated registry below,
+  // never re-typed as a bare guess after the fact.
+  const PRE_PLAN_HITL_SHAPE = 'none';
+  const PRE_PLAN_LAYER = 'harness';
+
+  await ok('SUPER-07: the regenerated registry proves the declaration is still true (hitl_shape/layer byte-unchanged)', async function () {
+    delete require.cache[path.join(REPO, 'data', 'connector-registry.json')];
+    const registry = require(path.join(REPO, 'data', 'connector-registry.json'));
+    const entry = (registry.connectors || []).find((c) => c.surface === 'mcp:contradiction_check');
+    assert.ok(entry, 'data/connector-registry.json must carry a mcp:contradiction_check entry');
+    assert.equal(entry.hitl_shape, PRE_PLAN_HITL_SHAPE, 'hitl_shape must be byte-unchanged from its pre-plan value');
+    assert.equal(entry.layer, PRE_PLAN_LAYER, 'layer must be byte-unchanged from its pre-plan value');
+  });
+
+  await ok('SUPER-07: no surface name in either registry contains supersede or supersession', async function () {
+    delete require.cache[path.join(REPO, 'data', 'connector-registry.json')];
+    delete require.cache[path.join(REPO, 'data', 'mcp-tool-connectors.json')];
+    const registry = require(path.join(REPO, 'data', 'connector-registry.json'));
+    const mcpConnectors = require(path.join(REPO, 'data', 'mcp-tool-connectors.json'));
+    const names = []
+      .concat((registry.connectors || []).map((c) => c.surface || ''))
+      .concat((mcpConnectors.connectors || []).map((c) => c.surface || ''));
+    for (const name of names) {
+      assert.ok(!/supersed/i.test(name), 'no registered surface name may contain "supersed". Found: ' + name);
+    }
+  });
+
+  await ok('SUPER-07: the no-write scan is re-run standalone (self-contained tripwire)', async function () {
+    const src = fs.readFileSync(SENSORS_ABS, 'utf8');
+    const body = contradictionCheckBody(src);
+    assertNoWrite(body, 'SUPER-07 standalone no-write scan');
+  });
+
+  await ok('SUPER-07: both registries are fresh (a hand-edit fails this test, not the release train)', async function () {
+    execFileSync('node', [path.join(REPO, 'scripts', 'build-connector-registry.cjs'), '--check'], { cwd: REPO, stdio: 'pipe' });
+  });
+
   console.log('');
   console.log(n + ' assertions passed.');
   console.log('>>> test-348-mcp-flag.cjs: PASSED');
