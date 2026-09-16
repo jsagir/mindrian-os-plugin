@@ -2432,93 +2432,189 @@ the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347/345/34
 This phase had no discuss pass (`workflow.skip_discuss` is true) and therefore carries no
 navigator D-locks, so the roadmap card's own five deliverables R1..R5 are the scope contract.
 
-- [ ] **NOTIFY-01**: a new sourced library `scripts/release-lib/theo-notify-gate.sh` defines
+- [x] **NOTIFY-01**: a new sourced library `scripts/release-lib/theo-notify-gate.sh` defines
       `mos_theo_notify_gate`, mirroring `scripts/release-lib/theo-stamp-gate.sh`'s house rules
       exactly: no `set -e`, no top-level side effects, no global assignment outside a function
       body, every `${VAR:-}` guarded so it is safe to source under `set -u`, safe to source
       twice, and it never prints a resolved GitHub token or any response body verbatim.
+      **Measured:** (2026-09-16) `bash -n scripts/release-lib/theo-notify-gate.sh` exit 0;
+      `bash -c 'set -u; source scripts/release-lib/theo-notify-gate.sh; source
+      scripts/release-lib/theo-notify-gate.sh; echo ok'` prints exactly `ok`; `grep -c "set -e"
+      scripts/release-lib/theo-notify-gate.sh` returns `0`; a comment-stripped source scan
+      (`grep -vE '^\s*#' ... | grep -cE "repo-version\.cjs|plugin\.json|brain-client|
+      MindrianRooms|room\.db"`) returns `0` occurrences in non-comment lines.
 
-- [ ] **NOTIFY-02**: `release.sh` calls the gate exactly once, at Step 5.6, after the Step 5.5
+- [x] **NOTIFY-02**: `release.sh` calls the gate exactly once, at Step 5.6, after the Step 5.5
       `SKIP_TAG_VERIFY` block closes and before Step 9.8 begins, passing `$NEW_VERSION` and the
       release commit sha as explicit arguments. A source tripwire proves the call site never
       re-reads `.claude-plugin/plugin.json` or `lib/core/repo-version.cjs` at or after that
       point, because Step 7.5 has already rewritten that file to the `$NEXT_VERSION` dev
       placeholder.
+      **Measured:** (2026-09-16) `node tests/test-349-release-wiring.cjs` exit 0, 17/17 checks
+      passed, including "call-site position: Step 5.5 < mos_theo_notify_gate < Step 9.8, by byte
+      offset" and "no disk version read (repo-version.cjs / plugin.json) at or after the Step 5.5
+      offset"; exactly 1 `mos_theo_notify_gate` call site in `scripts/release.sh`; its byte offset
+      falls strictly between the Step 5.5 echo's offset and the Step 9.8 comment's offset.
 
-- [ ] **NOTIFY-03**: the payload sent is exactly the four top-level `client_payload` keys
+- [x] **NOTIFY-03**: the payload sent is exactly the four top-level `client_payload` keys
       `version`, `commit`, `registryHash` and `command_registry_path`, and no others.
       `registryHash` is a plugin-computed SHA-256 hex digest of `git show
       <release_sha>:data/command-registry.json`, the tagged commit's bytes, never the working
       tree's.
+      **Measured:** (2026-09-16) `node tests/test-349-payload-boundary.cjs` exit 0, 7/7 checks
+      passed, including "the recorded payload carries exactly the four client_payload key names
+      and no others" (`deepStrictEqual` on a sorted key array) and "registryHash comes from the
+      tagged commit and provably not from a deliberately-differing working tree"; `registryHash`
+      is 64 lowercase hex characters and matches an independently computed SHA-256 digest of the
+      tagged bytes.
 
-- [ ] **NOTIFY-04**: `--no-theo-notify` is parsed beside `--no-theo-check`, `--no-minisite` and
+- [x] **NOTIFY-04**: `--no-theo-notify` is parsed beside `--no-theo-check`, `--no-minisite` and
       `--no-website`, is a SEPARATE flag from `--no-theo-check`, and an engaged skip prints the
       flag name, the version, and the operator-visible consequence in one line, matching
       `theo-stamp-gate.sh`'s own audited skip shape. The skip is never silent and appears in
       `--help`'s usage block.
+      **Measured:** (2026-09-16) `node tests/test-349-release-wiring.cjs` checks "flag:
+      NO_THEO_NOTIFY=0 initialized", "flag: --no-theo-notify) NO_THEO_NOTIFY=1 ;; present in arg
+      loop", "flag: --no-theo-notify present in USAGE_BLOCK" and "flag: --no-theo-check sibling
+      unchanged in all three locations" all PASS; `node tests/test-349-theo-notify-gate.cjs` arm 4
+      ("the audited --no-theo-notify opt-out exits 0, names the flag, the version and a
+      consequence, and never sends") PASSES.
 
-- [ ] **NOTIFY-05**: under `--dry-run` the real dispatch command is NEVER invoked. The step is
+- [x] **NOTIFY-05**: under `--dry-run` the real dispatch command is NEVER invoked. The step is
       represented by one additional preview `echo` line inside the existing dry-run block
       (`release.sh:229-320`), and `Step 5.6` is added to `scripts/doctor.cjs`'s
       `release-dry-run-output` `expectedSteps` array in the SAME commit as the preview line, so
       the preview itself is gated and the blocker never goes red against a half-landed pair.
+      **Measured:** (2026-09-16, re-run live in this task) `bash scripts/release.sh patch
+      --dry-run` exit 0 with `Step 5.6` appearing 4 times in stdout; a sentinel-creating
+      `MINDRIAN_THEO_NOTIFY_CMD` and a `MINDRIAN_THEO_NOTIFY_LOG` temp path were both injected;
+      the dispatch sentinel file does NOT exist afterward; the audit log does NOT exist
+      afterward; `git status --porcelain` is byte-identical before and after
+      (`S=$(git status --porcelain)` before, compared equal after); `node
+      tests/test-349-dry-run-never-sends.cjs` exit 0, 8/8 checks passed, confirming
+      `scripts/doctor.cjs`'s `expectedSteps` array contains the literal string `Step 5.6`.
 
-- [ ] **NOTIFY-06**: a failing dispatch on a real release is a named `SEND FAILURE` that fails
+- [x] **NOTIFY-06**: a failing dispatch on a real release is a named `SEND FAILURE` that fails
       the step closed, distinct from a named `SKIPPED`, and the two are never conflated in
       output. A missing `timeout` binary on PATH is also a `SEND FAILURE` that returns promptly
       rather than sending unbounded, mirroring `theo-stamp-gate.sh`'s WR-02 precedent.
+      **Measured:** (2026-09-16) `node tests/test-349-theo-notify-gate.cjs` arm 2 ("real-mode send
+      failure exits non-zero and names SEND FAILURE, a recovery instruction, and
+      --no-theo-notify"), arm 5 ("SEND FAILURE and SKIPPED are proven distinct in both directions,
+      never appearing in each other's output") and arm 6 ("a missing timeout binary fails closed
+      as a SEND FAILURE, never sends, and returns promptly") all PASS, 9/9 total checks.
 
-- [ ] **NOTIFY-07**: a hermetic test `tests/test-349-theo-notify-gate.cjs` proves real-mode
+- [x] **NOTIFY-07**: a hermetic test `tests/test-349-theo-notify-gate.cjs` proves real-mode
       success, real-mode send failure, dry-run-never-sends, the audited `--no-theo-notify` skip,
       the failure-class distinction, the missing-`timeout` fail-closed path, shell-metacharacter
       safety on every interpolated value, the local audit-log write, and token non-disclosure.
       Zero network calls, driven entirely through an injectable `MINDRIAN_THEO_NOTIFY_CMD` seam
       mirroring `MINDRIAN_THEO_STAMP_CMD`.
+      **Measured:** (2026-09-16) `node tests/test-349-theo-notify-gate.cjs` exit 0, 9/9 arms
+      passed; zero live `gh api` calls made (every arm sets `MINDRIAN_THEO_NOTIFY_CMD` to a
+      fake); `grep -c "MINDRIAN_THEO_NOTIFY_CMD" tests/test-349-theo-notify-gate.cjs` confirms the
+      injectable seam is exercised throughout.
 
-- [ ] **NOTIFY-08**: a hermetic test `tests/test-349-payload-boundary.cjs` proves the payload is
+- [x] **NOTIFY-08**: a hermetic test `tests/test-349-payload-boundary.cjs` proves the payload is
       exactly four keys and well under GitHub's ten-top-level-property `client_payload` cap,
       that `registryHash` matches an independently computed digest of the same bytes, that the
       digest comes from the TAGGED commit even when the working tree's registry differs, that
       the sent version is the released version and provably not the next-bump placeholder, and
       that no payload value carries a room path or any user-specific byte (Canon Part 8).
+      **Measured:** (2026-09-16) `node tests/test-349-payload-boundary.cjs` exit 0, 7/7 arms
+      passed, including arm 2 ("the payload top-level property count stays under the named,
+      sourced GitHub cap"), arm 5 ("the recorded version is always the argument, never the
+      on-disk placeholder, even as disk mutates between calls") and arm 6 ("every payload value
+      matches its declared Canon Part 8 shape, with no room path and no user byte on the wire").
 
-- [ ] **NOTIFY-09**: `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8's existing bullet is
+- [x] **NOTIFY-09**: `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8's existing bullet is
       amended IN PLACE to describe BOTH halves as ONE place: the shipped lagging
       verify-retroactively half and the new leading push-immediately half. RULE 5's numbered
       list still has exactly eight items after this phase; no ninth place is created.
+      **Measured:** (2026-09-16) `sed -n '/^## RULE 5/,/^## RULE 6/p'
+      docs/RELEASE-CEREMONY-RULING-SYSTEM.md | grep -c '^[0-9]\+\. '` returns `8`; item 8's own
+      extracted text contains `Step 0.6`, `Step 5.6`, `theo-stamp-gate.sh`,
+      `theo-notify-gate.sh`, `--no-theo-check`, `--no-theo-notify`, `theo-resync` and `mappedBy`;
+      `node tests/test-349-docs-lockstep.cjs` exit 0, 12/12 checks passed, including "RULE 5
+      still has exactly eight numbered places" and "the lagging half's existing facts survive
+      inside item 8 (extended, not replaced)".
 
-- [ ] **NOTIFY-10**: `.claude/includes/release-process.md` names the new step in its Version
+- [x] **NOTIFY-10**: `.claude/includes/release-process.md` names the new step in its Version
       Consistency Rule section. The `docs/VERSION-BUMP-CHECKLIST.md` question raised by the
       roadmap's deliverable 4 wording is resolved by an explicit recorded ruling against Phase
       343's WD-14 (STANDING: that file is NOT created in this repo), never by silently creating
       the file and never by silently skipping the roadmap line.
+      **Measured:** (2026-09-16) `node tests/test-349-docs-lockstep.cjs` checks "the include names
+      theo-resync and Step 5.6", "the include points at RULE 5 as the single home" and "the
+      VERSION-BUMP-CHECKLIST.md / WD-14 reconciliation is cited in a tracked file" (satisfied by
+      `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`) all PASS; `test -f docs/VERSION-BUMP-CHECKLIST.md`
+      returns non-zero (the file does not exist, WD-14 stands); the reconciliation, ruled option
+      (a) at 349-03's checkpoint, is recorded verbatim in
+      `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`'s RULE 5 section and in
+      `docs/THEO-NOTIFY-CONTRACT.md`'s Navigator Ratification section.
 
-- [ ] **NOTIFY-11**: the per-release local audit record is an append to the untracked
+- [x] **NOTIFY-11**: the per-release local audit record is an append to the untracked
       `~/.mindrian/theo-notify-log.txt`, written on every real release regardless of whether the
       dispatch itself succeeded, overridable in tests through `MINDRIAN_THEO_NOTIFY_LOG` so no
       test ever writes to a real HOME. No tracked file is written after Step 9's push, because a
       post-push tracked write leaves the tree dirty and reds the NEXT cut's Step 2.5 clean-tree
       gate.
+      **Measured:** (2026-09-16) `node tests/test-349-theo-notify-gate.cjs` arm 8 ("the local
+      audit log is appended on success and on send failure, naming version/sha/outcome, and is
+      never created under dry-run") PASSES; the live dry-run safety proof re-run this task with
+      `MINDRIAN_THEO_NOTIFY_LOG` pointed at a temp path confirms the log file does NOT exist after
+      a `--dry-run` invocation; `grep -c "process.env.HOME"
+      tests/test-349-theo-notify-gate.cjs` returns `0`.
 
-- [ ] **NOTIFY-12**: `docs/OPEN-HANDOFFS.md` gains a dated Theo-side row naming exactly what
+- [x] **NOTIFY-12**: `docs/OPEN-HANDOFFS.md` gains a dated Theo-side row naming exactly what
       Theo's own consuming CI must do on receipt of a `theo-resync` event (re-emit the command
       layer, restamp `mappedBy`, consult langtalks, run the full-stack pass), with a named owner,
       and stating plainly that this repo's contribution ends at a successfully delivered
       `repository_dispatch`.
+      **Measured:** (2026-09-16) `grep -c "Theo-side consuming CI, dated 2026-09-16, Phase 349"
+      docs/OPEN-HANDOFFS.md` returns `1`; the row names all five receipt actions, the acceptance
+      number (`theo-stamp-gate` reading `PASS` instead of `MISMATCH`), and states "the plugin's
+      contribution is a successfully delivered `repository_dispatch`"; the row names the owner as
+      "the Theo repo's own next phase ... registered as a numbered `.planning/ROADMAP.md` card by
+      `349-06`", which this same plan's Task 2/3 satisfy with the new Phase 351 card below.
 
-- [ ] **NOTIFY-13**: the pre-phase emission census is measured, not assumed. A source scan
+- [x] **NOTIFY-13**: the pre-phase emission census is measured, not assumed. A source scan
       across the tracked tree records how many `repository_dispatch` and `theo-resync` call
       sites existed before this phase (measured 0 on 2026-09-16, outside `.planning/` documents),
       stated in `docs/THEO-NOTIFY-CONTRACT.md` beside Theo's own live
       `payloads_emitted_since: 2` / `payloads_applied_since: 0` reading of 2026-09-15, with the
       contradiction recorded as an open finding with a named owner rather than explained away.
       After this phase exactly one call site exists.
+      **Measured:** (2026-09-16, post-phase emission census, re-run in this task) the pre-phase
+      count (recorded in `docs/THEO-NOTIFY-CONTRACT.md`, measured 2026-09-16 at the phase's own
+      start) was `0` code call sites. Post-phase: `grep -rln "gh api repos/jsagir/theo/dispatches"
+      --include='*.sh' --include='*.cjs' . | grep -v '^\./\.planning/'` returns exactly `1` file
+      (`./scripts/release-lib/theo-notify-gate.sh`), the real dispatch invocation. A broader
+      keyword scan for the literal tokens `repository_dispatch`/`theo-resync` across `.sh`/`.cjs`
+      also matches `scripts/release.sh` (the dry-run preview echo line and the Step 5.6 header
+      comment) and `scripts/doctor.cjs` (a maintenance-note comment) -- 3 files total, 2 of which
+      are descriptive text this phase deliberately added, not additional invocations; the doc
+      count is 4 files (`.claude/includes/release-process.md`, `docs/THEO-NOTIFY-CONTRACT.md`,
+      `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`, `docs/OPEN-HANDOFFS.md`), all deliberate
+      documentation references named in NOTIFY-09/10/12. The pre-phase count of 0 and Theo's own
+      `payloads_emitted_since: 2` / `payloads_applied_since: 0` reading of 2026-09-15 are both
+      recorded in `docs/THEO-NOTIFY-CONTRACT.md` as an open finding, owner: the Theo repo's own
+      consuming phase (Phase 351, registered below), since only that side can name what produced
+      the two emissions this repo's own source scan never accounts for.
 
-- [ ] **NOTIFY-14**: the deliverable R5 bootstrap disposition is ruled at a blocking navigator
+- [x] **NOTIFY-14**: the deliverable R5 bootstrap disposition is ruled at a blocking navigator
       checkpoint and recorded. Either Theo has restamped and `bash scripts/release.sh patch
       --dry-run 2>&1 | grep theo-stamp-gate` prints `PASS`, or the bootstrap is registered as a
       real, numbered `.planning/ROADMAP.md` card for the Theo-side consuming phase with a named
       owner and a concrete acceptance number. A silent drop fails this requirement.
+      **Measured:** (2026-09-16) ruled at 349-03's blocking navigator checkpoint: disposition
+      (ii), out of scope, registered as a card. `bash scripts/release.sh patch --dry-run 2>&1 |
+      grep theo-stamp-gate` prints `[DRY RUN] theo-stamp-gate: MISMATCH -- Theo's stamp is
+      command-registry@2.0.0-beta.12, expected command-registry@2.0.0-beta.40` -- this is the
+      EXPECTED and recorded state under disposition (ii), closed against the card rather than
+      against the probe. `.planning/ROADMAP.md` carries the new `### Phase 351:` card (this
+      plan's Task 2/3), naming the Theo repo as owner and `theo-stamp-gate` reading `PASS` as the
+      plugin-side acceptance number.
 
 ## Traceability
 
@@ -2591,9 +2687,9 @@ proposed `SUPER-` family as amended by `348-CONTEXT.md`'s D-01..D-09 locks, scop
 only, and were registered here at plan time as `- [ ]` rows, finalized with measured proof at
 phase close by `348-10-PLAN.md` (2026-09-16). All twenty rows are now `- [x]`.
 NOTIFY-01..14 were minted in the Phase 349 plan set (2026-09-16), ratifying and amending
-`349-RESEARCH.md`'s proposed `NOTIFY-` family, scoped to Phase 349 only, and are registered here
-at plan time as `- [ ]` rows to be finalized with measured proof at phase close by
-`349-06-PLAN.md`.
+`349-RESEARCH.md`'s proposed `NOTIFY-` family, scoped to Phase 349 only, and were registered here
+at plan time as `- [ ]` rows, finalized with measured proof at phase close by `349-06-PLAN.md`
+(2026-09-16). All fourteen rows are now `- [x]`.
 Roadmap phases must map all 297 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
