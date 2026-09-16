@@ -2,17 +2,39 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 348-09-PLAN.md - Wave 9 of 10
-last_updated: "2026-09-16T01:51:55.081Z"
-last_activity: 2026-09-16 -- Phase 348 Plan 09 complete (Canon Part 9 narrowed for superseded on truth-claim nodes, entry 41, v1.27->v1.28, atomic lockstep across docs/MINDRIAN-CANON.md, docs/CANON-PHASE-MAP.md, CLAUDE.md and eight FLOOR test version anchors; WD-348-10 flipped to RULED; run-all-348.sh PASS=26 FAIL=0 SKIP=0 EXPECTED-RED=0)
+status: ready_for_verification
+stopped_at: Completed 348-10-PLAN.md - Phase 348 CLOSED (10/10 plans)
+last_updated: "2026-09-16T02:18:24.586Z"
+last_activity: 2026-09-16 -- Phase 348 (the supersession node) CLOSED: all twenty SUPER-01..20 requirements closed with Measured proof, fleet census re-measured (60 rooms, all supersession counts still zero), 348-VALIDATION.md filled, close-out record filed, ROADMAP.md Phase 348 entry closed (10/10 plans) plus a new Phase 350 card registered for the deferred live-CONTRADICTS-writer work
 progress:
-  total_phases: 99
-  completed_phases: 32
+  total_phases: 100
+  completed_phases: 33
   total_plans: 284
-  completed_plans: 277
+  completed_plans: 278
   percent: 98
 ---
+
+<!-- NOTE (348-10 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported last_plan (current_plan 10 of 10, status
+     ready_for_verification). `state.update-progress` correctly computed `completed: 278,
+     percent: 98` (278/284) and `total_phases: 100, completed_phases: 33` (Phase 350 was just
+     registered in ROADMAP.md this plan, and Phase 348 itself closed, both correctly reflected).
+     `state.record-metric` (flag syntax `--phase --plan --duration --tasks --files`) landed its
+     own correct Performance Metrics row. `state.add-decision` (with `--summary`) repeated the
+     documented `[Phase ?]` placeholder-prefix bug (prepended `[Phase ?]: ` ahead of this plan's
+     own already-prefixed `[Phase 348]` text), fixed in place to a single `[Phase 348]: 348-10:
+     ...` line. `state.record-session` updated only `Last session`, correctly, leaving the
+     frontmatter clobber from an EARLIER call in this same session (a stale 348-07-era snapshot:
+     `stopped_at` "Completed 348-07-PLAN.md" with no close-out suffix, `last_activity` reverted to
+     "Phase 348 execution started", `percent` reverted to `33`, a phases-ratio reading, not the
+     plan-completion percentage) in place. Hand-corrected once, after all calls landed:
+     `status` -> "ready_for_verification", `stopped_at` -> "Completed 348-10-PLAN.md - Phase 348
+     CLOSED (10/10 plans)", `last_activity` -> this plan's completion line, `percent` -> 98
+     (278/284, matching `state.update-progress`'s own correct computation); left
+     `total_phases`/`completed_phases` at 100/33 unchanged since both were already correct.
+     `last_updated` left at the tool's own timestamp, not re-investigated further. Same root
+     cause as every other note in this file. -->
 
 <!-- NOTE (348-09 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4768,7 +4790,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 348 (the-supersession-node-graph-engineering-learning-6-fact-inva) — EXECUTING
 Plan: 10 of 10
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -6431,6 +6453,7 @@ Progress: [█████████░] 92%
 | Phase 348 P07 | 15min | 3 tasks | 3 files |
 | Phase 348 P08 | 45min | 2 tasks | 3 files |
 | Phase 348 P09 | 55min | 3 tasks | 13 files |
+| Phase 348 P10 | 95min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -8045,6 +8068,7 @@ Progress: [█████████░] 92%
 - [Phase 348]: 348-07: proposed pre-check runs before D-08 shape check (e2e test's own proposed leg requires it); reified_shape_out_of_scope kept as a duplicated test-verified literal, not exported from insights.cjs (stays inside declared files_modified); fixture-room-348.cjs backfills nodes.valid_from (Rule 1 bug fix, blocking queryAsOf round-trips).
 - [Phase 348]: 348-08: Task 1 checkpoint ratified live in the orchestrator session (approved as specified, WD-348-10 full atomic lockstep, version 1.28, entry-31 released); ratified canon narrowing prose composed and recorded in docs/SUPERSESSION-CONTRACT.md for 348-09 to transcribe verbatim.
 - [Phase 348]: 348-09: Canon Part 9 narrowed for superseded on truth-claim nodes (entry 41, v1.27->v1.28), transcribed verbatim from the 348-08 ratified wording; two additional live version anchors discovered by grep re-derivation and moved alongside the six named ones; WD-348-10 flipped to RULED.
+- [Phase 348]: 348-10: closed all twenty SUPER-01..20 requirements with Measured: proof, re-measured the fleet census read-only (60 rooms, all supersession counts still zero), filled the validation map, wrote the close-out record, and registered the real numbered Phase 350 card for the deferred live-CONTRADICTS-writer work -- Phase 348 CLOSED
 
 ### Pending Todos
 
@@ -8184,7 +8208,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T01:51:55.007Z
+Last session: 2026-09-16T02:18:24.403Z
 Stopped at: Completed 348-07-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
