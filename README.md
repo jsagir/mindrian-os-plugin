@@ -100,6 +100,8 @@ That is a feature, not an outage. A tool that quietly guesses when it does not k
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
 
+Node and framework counts are from a live [census of the Theo graph](docs/BRAIN-GRAPH-CENSUS.generated.md) dated 2026-09-11.
+
 ---
 
 ## What Theo is
@@ -175,6 +177,7 @@ For zero permission prompts during a session: `claude --dangerously-skip-permiss
 - **Marketplace**: [github.com/jsagir/mindrian-marketplace](https://github.com/jsagir/mindrian-marketplace)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 - **Brain key (override path)**: [Request one](https://mindrian-os.com/brain-access)
+- **How Theo works**: [docs/THE-BRAIN.md](docs/THE-BRAIN.md), [docs/install/BRAIN-SETUP.md](docs/install/BRAIN-SETUP.md), [docs/THEO-INSTALL-ID.md](docs/THEO-INSTALL-ID.md)
 
 ---
 
