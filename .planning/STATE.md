@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 349-02-PLAN.md - Wave 2 of 6
-last_updated: "2026-09-16T03:19:11.877Z"
-last_activity: 2026-09-16 -- Completed 349-02-PLAN.md (tests/test-349-theo-notify-gate.cjs, tests/test-349-payload-boundary.cjs authored RED, both run-all-349.sh tripwires now EXPECTED-RED)
+stopped_at: Completed 349-03-PLAN.md - Wave 3 of 6
+last_updated: "2026-09-16T04:24:33.998Z"
+last_activity: 2026-09-16 -- Completed 349-03-PLAN.md (scripts/release-lib/theo-notify-gate.sh written and proven, both run-all-349.sh tripwires now PASSED)
 progress:
   total_phases: 100
   completed_phases: 33
   total_plans: 290
-  completed_plans: 280
+  completed_plans: 281
   percent: 97
 ---
+
+<!-- NOTE (349-03 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported current_plan 3 -> 4 of 6. `state.update-progress`
+     (re-run AFTER writing 349-03-SUMMARY.md, per the workflow's own required order) correctly
+     computed `completed: 281, percent: 97` (281/290). `state.record-metric` (flag syntax
+     `--phase --plan --duration --tasks --files`) landed its own correct Performance Metrics
+     row. `state.add-decision` (with `--summary`) repeated the documented `[Phase ?]`
+     placeholder-prefix bug (prepended `[Phase ?]: ` ahead of this plan's own already-prefixed
+     `[Phase 349]` text), fixed in place to a single `[Phase 349] 349-03: ...` line.
+     `state.record-session` updated only `Last session`, correctly, leaving the frontmatter
+     clobber from an EARLIER call in this same session (a stale 348-07-era snapshot: `stopped_at`
+     "Completed 348-07-PLAN.md" with no wave suffix, `last_activity` reverted to "Phase 349
+     execution started", `percent` reverted to `33`, a phases-ratio reading, not the
+     plan-completion percentage) in place. Hand-corrected once, after all calls landed:
+     `stopped_at` -> "Completed 349-03-PLAN.md - Wave 3 of 6", `last_activity` -> this plan's
+     completion line, `percent` -> 97 (281/290, matching `state.update-progress`'s own correct
+     computation); left `total_phases`/`completed_phases` at 100/33 unchanged since Phase 349
+     has not closed (3 of 6 plans remain: 349-04..349-06). `last_updated` left at the tool's own
+     timestamp, not re-investigated further. Same root cause as every other note in this file. -->
 
 <!-- NOTE (349-02 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4827,7 +4847,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 349 (release-to-theo-leading-edge-graph-engineering-learning-sync) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -6494,6 +6514,7 @@ Progress: [█████████░] 92%
 | Phase 348 P10 | 95min | 3 tasks | 7 files |
 | Phase 349 P01 | 35min | 3 tasks | 4 files |
 | Phase 349 P02 | 50min | 2 tasks | 2 files |
+| Phase 349 P03 | 70min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -8111,6 +8132,7 @@ Progress: [█████████░] 92%
 - [Phase 348]: 348-10: closed all twenty SUPER-01..20 requirements with Measured: proof, re-measured the fleet census read-only (60 rooms, all supersession counts still zero), filled the validation map, wrote the close-out record, and registered the real numbered Phase 350 card for the deferred live-CONTRADICTS-writer work -- Phase 348 CLOSED
 - [Phase 349] 349-01: minted NOTIFY-01..14, measured the pre-phase Theo emission census live (0 call sites vs Theo's own contradicting counters), shipped docs/THEO-NOTIFY-CONTRACT.md and tests/run-all-349.sh
 - [Phase 349] 349-02: dispatch seam's positional argv fixed as key=value pairs (version=, commit=, registryHash=, command_registry_path=) so a hermetic test can recover the payload's key set; no shared argv-recorder helper extracted since per-file acceptance criteria grep each test file individually for literal seam tokens
+- [Phase 349] 349-03: Ratified WD-349-2/3/4/9 to RULED (Step 5.6, separate --no-theo-notify flag, plugin-computed live SHA-256 registryHash, R5 disposition (ii) out of scope registered as a card owned by 349-06); WD-14 stands (fork 4, option a).
 
 ### Pending Todos
 
@@ -8250,7 +8272,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T03:19:11.806Z
+Last session: 2026-09-16T04:24:33.823Z
 Stopped at: Completed 348-07-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
