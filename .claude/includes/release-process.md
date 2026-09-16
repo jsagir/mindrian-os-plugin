@@ -12,6 +12,14 @@ A release is only a release when all FIVE are in sync (any drift = silent versio
 4. `git tag v<version>` points at the release commit
 5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` updated, `source.version` pinned to the exact release version (npm source, no `v` prefix; `ref`/`url` deleted -- D-01/D-06)
 
+## Telling Theo
+
+A real release also tells Theo. `release.sh` Step 5.6 fires a `repository_dispatch` at `jsagir/theo` (event `theo-resync`) immediately after the tag is verified at origin, so Theo can re-emit its command layer against the version that just shipped instead of discovering the drift on the next cut.
+
+- `--no-theo-notify` is the audited opt-out, a SEPARATE flag from `--no-theo-check`; the release log names the flag and the consequence when engaged.
+- `--dry-run` prints the step and sends nothing.
+- The release lockstep count lives in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8; this line carries no number of its own. See `docs/THEO-NOTIFY-CONTRACT.md` for the rulings and the working-decision ledger.
+
 ## Entry Point
 
 Run `scripts/release.sh <version>` to enforce all five gates. Never bump versions by hand.
