@@ -1370,7 +1370,11 @@ function buildAcceptanceChecklist(ctx) {
           // this list, make sure release.sh --dry-run output still matches in
           // order. Phase 126.1 hotfix (2026-05-15) added Step 2.5 (the new
           // --pre-flight clean-tree gate that runs BEFORE Step 3 mutates).
-          const expectedSteps = ['Step 2', 'Step 2.5', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
+          // Phase 349 Plan 04 (NOTIFY-05) added Step 5.6 (the Theo leading-
+          // edge repository_dispatch notify) in the SAME commit as the
+          // release.sh --dry-run preview line that emits it -- adding either
+          // half alone makes this blocker red or makes the new step ungated.
+          const expectedSteps = ['Step 2', 'Step 2.5', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 5.6', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
           const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
           const ok = missing.length === 0;
           return {
