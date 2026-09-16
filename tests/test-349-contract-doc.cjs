@@ -79,11 +79,19 @@ ok('scope table has exactly 5 rows, R1 through R5, each with an owning plan', fu
   }
 });
 
-ok('R5 is marked UNRESOLVED with a pointer to the 349-03 checkpoint', function () {
+ok('R5 is RULED at the 349-03 checkpoint with a named disposition and owner', function () {
+  // Updated 349-03: the navigator ruled R5 at the blocking checkpoint (disposition
+  // (ii), out of scope, registered as a card, owner 349-06). UNRESOLVED was the
+  // honest pre-ratification state (349-01/349-02); asserting it after the ruling
+  // would falsely claim the disposition is still open. This assertion moves to
+  // proving the RULED state instead, per 349-03's own acceptance criteria that
+  // this test still exits 0 after the contract's ratification edits.
   const r5Line = doc.split('\n').find(function (l) { return /^\|\s*R5\s*\|/.test(l); });
   assert.ok(r5Line, 'R5 row must exist');
-  assert.ok(r5Line.indexOf('UNRESOLVED') !== -1, 'R5 row must contain the literal token UNRESOLVED');
+  assert.ok(r5Line.indexOf('RULED') !== -1, 'R5 row must contain the literal token RULED');
   assert.ok(r5Line.indexOf('349-03') !== -1, 'R5 row must point at the 349-03 checkpoint');
+  assert.ok(r5Line.indexOf('349-06') !== -1, 'R5 row must name 349-06 as the owner of the registered card');
+  assert.ok(r5Line.indexOf('UNRESOLVED') === -1, 'R5 row must no longer contain UNRESOLVED once ruled');
 });
 
 // ---------------------------------------------------------------------------
