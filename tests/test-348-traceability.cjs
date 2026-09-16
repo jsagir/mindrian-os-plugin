@@ -483,6 +483,125 @@ ok('the reified_shape_out_of_scope token is shared by construction, not coincide
   }
 }());
 
+// ==========================================================================
+// Task 3: traceability after the close. A three-link chain built through
+// the GATE (not through direct supersede() calls -- the point of this
+// file is that the GATE path produces a chain the shipped readers can
+// walk; a chain built by calling supersede() directly would only prove
+// what 223-02 already proved), read back from either end, plus the as-of
+// legs.
+// ==========================================================================
+
+(function taskThreeChainAndAsOf() {
+  const fx = buildSupersessionFixtureRoom({ variant: 'wide' });
+  try {
+    // Distinct increasing FIXED clocks, one per link, per the plan's own
+    // instruction: a wall-clock comparison would eventually go red for the
+    // wrong reason.
+    const FIXED1 = Date.now() + 30 * 60 * 1000;
+    const FIXED2 = FIXED1 + 60 * 1000;
+
+    // Link 1 (through the gate): A supersedes B.
+    fx.db.prepare('UPDATE nodes SET valid_from = ? WHERE id = ?').run(FIXED1, fx.claimAId);
+    const link1 = supersedeOnGateAnswer(fx.db, {
+      oldNodeId: fx.claimBId, newNodeId: fx.claimAId, roomDir: fx.roomDir,
+      verdict: GATE_VERDICT_APPROVE, now: () => FIXED1,
+    });
+    assert.equal(link1.ok, true, 'link 1 setup failed: ' + JSON.stringify(link1));
+
+    // A third claim, C, contradicting A -- so C can supersede A through the
+    // gate too (the gate requires a CONTRADICTS edge to act on).
+    const cRes = writeClaimNode(fx.db, {
+      knowledge_type: 'fact', text: 'Claim C, the newest fact, contradicts and supersedes A.',
+      sessionId: 'traceability-348-chain', sourceSegment: 'claim-c-chain',
+    });
+    assert.equal(cRes.ok, true);
+    const claimCId = cRes.node_id;
+    const confC = confirmNode(fx.db, claimCId, fx.byUser);
+    assert.equal(confC.ok, true);
+    const cEdge = writeEdge(fx.db, {
+      source_id: claimCId, target_id: fx.claimAId, edge_type: 'CONTRADICTS', properties: { relation: 'contradicts' },
+    });
+    assert.equal(cEdge.ok, true);
+
+    const nodeCountBeforeLink2 = nodeCount(fx.db);
+    const claimTypeCountBeforeLink2 = fx.db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE type = 'claim'").get().c;
+    const edgeCountForABeforeLink2 = edgeCountForNode(fx.db, fx.claimAId);
+
+    // Link 2 (through the gate): C supersedes A.
+    fx.db.prepare('UPDATE nodes SET valid_from = ? WHERE id = ?').run(FIXED2, claimCId);
+    const link2 = supersedeOnGateAnswer(fx.db, {
+      oldNodeId: fx.claimAId, newNodeId: claimCId, roomDir: fx.roomDir,
+      verdict: GATE_VERDICT_APPROVE, now: () => FIXED2,
+    });
+    assert.equal(link2.ok, true, 'link 2 setup failed: ' + JSON.stringify(link2));
+
+    ok('the non-lossy leg: total node count grows by exactly one (the audit event), claim-type count unchanged', function () {
+      assert.equal(nodeCount(fx.db), nodeCountBeforeLink2 + 1, 'exactly one new node (the status_superseded memory_event)');
+      const claimTypeCountAfter = fx.db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE type = 'claim'").get().c;
+      assert.equal(claimTypeCountAfter, claimTypeCountBeforeLink2, 'zero claim nodes erased by a supersession');
+    });
+
+    ok('the non-lossy leg: edges incident to A grow by exactly one (the new SUPERSEDES edge), never fewer', function () {
+      assert.equal(edgeCountForNode(fx.db, fx.claimAId), edgeCountForABeforeLink2 + 1);
+    });
+
+    ok('the chain still reads back when both superseded nodes carry review_status=superseded', function () {
+      assert.equal(reviewStatusOf(fx.db, fx.claimBId), 'superseded');
+      assert.equal(reviewStatusOf(fx.db, fx.claimAId), 'superseded');
+      assert.equal(reviewStatusOf(fx.db, claimCId), 'confirmed');
+    });
+
+    function assertChainShape(chainResult, fromLabel) {
+      assert.equal(chainResult.ok, true, fromLabel + ': ' + JSON.stringify(chainResult));
+      const ids = chainResult.chain.map(function (e) { return e.node_id; });
+      assert.deepEqual(ids, [claimCId, fx.claimAId, fx.claimBId], fromLabel + ' chain order (newest first)');
+      const byId = {};
+      for (const entry of chainResult.chain) byId[entry.node_id] = entry.superseded_at;
+      assert.equal(byId[claimCId], null, fromLabel + ": C (the survivor) has no superseded_at");
+      assert.equal(byId[fx.claimAId], FIXED2, fromLabel + ": A's superseded_at must equal the gate-written invalidated_at");
+      assert.equal(byId[fx.claimBId], FIXED1, fromLabel + ": B's superseded_at must equal the gate-written invalidated_at");
+    }
+
+    ok('walkSupersedesChain(db, B) returns the full 3-link chain, newest first', function () {
+      assertChainShape(walkSupersedesChain(fx.db, fx.claimBId), 'from B (the oldest)');
+    });
+    ok('walkSupersedesChain(db, A) returns the SAME chain (the walk finds the head from the middle)', function () {
+      assertChainShape(walkSupersedesChain(fx.db, fx.claimAId), 'from A (the middle)');
+    });
+    ok('walkSupersedesChain(db, C) returns the SAME chain (the walk finds the head from either end)', function () {
+      assertChainShape(walkSupersedesChain(fx.db, claimCId), 'from C (the newest)');
+    });
+
+    // Print the chain as a table (id, superseded_at, review_status) so a
+    // reader of a CI log can see the shape rather than infer it from a
+    // pass count.
+    console.log('');
+    console.log('  chain (newest -> oldest):');
+    console.log('  id'.padEnd(40) + 'superseded_at'.padEnd(20) + 'review_status');
+    const finalChain = walkSupersedesChain(fx.db, fx.claimBId).chain;
+    for (const entry of finalChain) {
+      const rs = reviewStatusOf(fx.db, entry.node_id);
+      console.log('  ' + String(entry.node_id).padEnd(38) + String(entry.superseded_at).padEnd(20) + rs);
+    }
+    console.log('');
+
+    ok('queryAsOf strictly before link 1 still returns B as live', function () {
+      const bRow = fx.db.prepare('SELECT source_path FROM nodes WHERE id = ?').get(fx.claimBId);
+      const asOf = queryAsOf(fx.db, bRow.source_path, FIXED1 - 1, FIXED1 - 1);
+      assert.ok(asOf, 'queryAsOf returned nothing for B as-of a moment before link 1');
+      assert.equal(asOf.id, fx.claimBId);
+    });
+    ok('queryAsOf strictly after link 1 no longer returns B', function () {
+      const bRow = fx.db.prepare('SELECT source_path FROM nodes WHERE id = ?').get(fx.claimBId);
+      const asOf = queryAsOf(fx.db, bRow.source_path, FIXED1 + 1, FIXED1 + 1);
+      assert.equal(asOf, null, 'B must no longer be the as-of answer once closed');
+    });
+  } finally {
+    closeSupersessionFixtureRoom(fx);
+  }
+}());
+
 console.log('');
 console.log(n + ' assertions passed');
 console.log('>>> test-348-traceability.cjs: PASSED');
