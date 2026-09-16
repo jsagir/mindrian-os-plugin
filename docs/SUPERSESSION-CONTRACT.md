@@ -234,6 +234,98 @@ stopping for a ruling; each is a bounded edit to overturn.
 | WD-348-11 | The phase goal text states plainly that the fleet census stays at zero after this phase ships, and that every proof is fixture-driven. | `348-RESEARCH.md` Risk (a): this phase can ship fully green and change nothing observable, because nothing writes the input edge. Saying so in the goal is the difference between an honest phase and a green dashboard. | WORKING | taking the sibling phase's writer into this phase, which D-01 explicitly rejected |
 | WD-348-12 | All four `lib/core` callers of `findContradictions` take the new DEFAULT (superseded excluded). Only the MCP surface opts in, through `include_superseded`. Each call site carries a one-line declaration comment. | `348-RESEARCH.md` Risk (b): the exclusion is a default-behavior change on five callers, one of which (`packet.cjs:340`) is a Canon Part 8 wire surface. Excluding a closed claim from the Brain packet is strictly safer, and a surfaced contradiction against a claim nobody believes any more is noise on the other three. | WORKING | flipping any one caller's declaration to `includeSuperseded: true` |
 
+## Ratified wording for 348-09 (recorded at the 348-08 checkpoint)
+
+The 348-08 blocking checkpoint (Task 1) ratified two texts in one sitting, alongside the
+version target (v1.27 -> v1.28), the entry-31 self-binding release, and WD-348-10 (full atomic
+lockstep). Provenance: the orchestrator ran `bash tests/run-all-348.sh` (PASS=24 FAIL=0 SKIP=2
+EXPECTED-RED=0) and `node scripts/doctor.cjs --acceptance` (20/20) live in the session, confirmed
+`git diff --name-only skills/larry-personality/SKILL.md docs/MINDRIAN-CANON.md` was empty,
+quoted the current Part 9 sentence verbatim, and presented both content specs to the navigator
+honestly labeled as specs, not pre-written prose. The navigator's real answer, recorded in the
+conversation transcript: **"Approved as specified"** - land both texts as scoped, full atomic
+lockstep (WD-348-10), version to 1.28, entry-31 released the same way entries 32-40 recorded it.
+Zero wording changes were requested. The skill half of this ratification landed at 348-08 Task 2
+(`skills/larry-personality/SKILL.md`, commit `7fb0030dc`). The canon half below is what 348-09
+must transcribe verbatim, per its own instruction: "Land THAT wording. Do not re-derive it, do
+not improve it, and do not paraphrase it."
+
+### The Part 9 narrowing paragraph (for `docs/MINDRIAN-CANON.md`, Part 9, "Truth states (canonical)")
+
+Insert immediately after the existing sentence "Every node in `room.db` carries a
+`review_status` from a closed set: `proposed | confirmed | rejected | stale | superseded |
+needs_evidence | validated | invalidated`. Brain may *propose* a status; only user confirmation
+or system rules can *promote* a status. Status transitions are events in the memory log, never
+silent overwrites." Land this paragraph verbatim, as its own paragraph in the same subsection:
+
+> **Narrowing for `superseded` (Phase 348, Appendix D entry 41).** For the `superseded` target
+> specifically, on a truth-claim node, the "or system rules" clause above does not hold: only a
+> human-attributed gate answer may *promote* a truth-claim node's status to `superseded`. Closing
+> a believed fact is itself an assertion about the venture's world, and it carries the same human
+> bar role 5 already places on promoting a node to `confirmed`. This narrows nothing else:
+> `rejected` and `stale` remain agent-reachable, and the audit-node carve-out below is untouched -
+> system-bookkeeping nodes stay exempt, as they already are. The chokepoint that enforces this
+> narrowing: `lib/core/navigation/transitions.cjs::promoteNodeStatus` refuses an agent-attributed
+> transition into `superseded` for a truth-claim node as of Phase 348. Full contract:
+> `docs/SUPERSESSION-CONTRACT.md`.
+
+### Appendix D entry 41 (for `docs/MINDRIAN-CANON.md`, appended after entry 40)
+
+Land this entry verbatim, numbered `41.`, in the shape entries 39 and 40 established:
+
+> 41. **Part 9 narrowed: only a human-attributed gate answer may close a truth-claim node as
+> `superseded` (Phase 348, 2026-09-16).** Phase 348 (the-supersession-node) narrows Part 9's Truth
+> states (canonical) subsection for one target status. As written, that subsection permitted
+> "user confirmation or system rules" to promote any status, including `superseded`; the roadmap
+> card that opened Phase 348 forbids a system rule from closing a believed fact with no human, and
+> this entry brings the Canon's own text into agreement with the code Phase 348-03 already
+> shipped. The narrowing: for the `superseded` target specifically, on a truth-claim node, the "or
+> system rules" clause no longer applies; only a human-attributed gate answer may promote a
+> truth-claim node's status to `superseded`. The reason, in one clause: closing a believed fact is
+> itself an assertion about the venture's world, carrying the same human bar role 5 already places
+> on promoting a node to `confirmed`. What is NOT narrowed, stated so the narrowing cannot be
+> over-read: `rejected` and `stale` remain agent-reachable, and the audit-node carve-out
+> (system-bookkeeping nodes exempt) is untouched. This entry RATIFIES already-shipped code rather
+> than minting a new mechanism: `lib/core/navigation/transitions.cjs::promoteNodeStatus`, the
+> truth-state chokepoint, has refused an agent-attributed transition into `superseded` for a
+> truth-claim node since Phase 348-03, so canon and code are consistent the instant this entry
+> lands. This was navigator-APPROVED at a blocking checkpoint on 2026-09-16 BEFORE any canon byte
+> was written (the navigator confirmed the version target v1.27 -> v1.28). Entry 31's
+> self-binding clause (no further Appendix D entry until entry 31 returns a live two-gauge
+> reading) was RELEASED for this amendment by the Part-10 navigator-authority override (entry
+> 20), recorded truthfully - no two-gauge reading was taken or fabricated, the release rests on
+> navigator authority, the deferred reading stays a named debt, mirroring entries
+> 32/33/34/35/36/37/38/39/40. Applied via the Part 6 dog-fooding canon-amendment-on-itself
+> mechanism, mirroring entries 14/15/25/26/27/36/37/38/39/40. The amendment mints NO new reach, NO
+> new edge type, NO new node type, and opens NO Brain wire. The frozen Part 3 scalars are
+> byte-identical: MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate are UNCHANGED. Requirement id:
+> SUPER-15. Implementing phase: 348 (the 348-03 guard); this Phase 348 Plan 09 is the canon
+> ratification. Landed as ONE atomic lockstep wave so CI never went RED: the Part 9 narrowing
+> paragraph + this Appendix D entry 41 + the header/footer Version 1.27 -> 1.28 + the
+> CANON-PHASE-MAP v1.28 version-history row + the new canonical FLOOR test
+> (`tests/test-canon-entry-41-supersession-narrowing-floor.cjs`, registered in
+> `tests/run-all-340.sh` - slice-scoped presence-and-absence assertions inside Part 9, entry 41
+> body isolation, prior entries 1-40 preserved, frozen scalars byte-present, version 1.28, never a
+> raw count of Appendix D entries) + the parallel `CLAUDE.md` Part 9 Canon Compliance Core bullet
+> carrying the identical narrowing in the SAME commit (closing 340-RESEARCH.md Pitfall 3) + six
+> existing canon FLOOR tests' version anchors moved 1.27 -> 1.28
+> (`tests/test-canon-entry-31-two-gauge-floor.cjs`,
+> `tests/test-canon-entry-36-shape-declaration-floor.cjs`,
+> `tests/test-canon-entry-38-sourced-claims-floor.cjs`,
+> `tests/test-canon-entry-39-graph-substrate-floor.cjs`,
+> `tests/test-canon-entry-40-corpus-figures-floor.cjs`, `tests/test-canon-part-9-ratification.cjs`,
+> each with its prior-entry loop and frozen-scalar assertions unweakened) + the frozen-scalar
+> FLOOR test (`tests/test-canon-frozen-scalars-floor.cjs`) kept GREEN, all moving together.
+> Header/footer Version 1.27 -> 1.28. Canon version bumped to 1.28.
+
+### The CLAUDE.md Part 9 bullet extension (for `CLAUDE.md`, Canon Compliance Core, Part 9 bullet)
+
+The bullet currently ends "...only a human confirms a truth-claim node. Deep dive:
+docs/MINDRIAN-CANON.md (Part 9)." Extend it with one clause, landing this sentence verbatim:
+
+> ...only a human confirms a truth-claim node, and only a human closes one as superseded
+> (Appendix D entry 41). Deep dive: docs/MINDRIAN-CANON.md (Part 9).
+
 ## What later plans in this phase land
 
 This document is authored by `348-01-PLAN.md` alongside `.planning/REQUIREMENTS.md`
