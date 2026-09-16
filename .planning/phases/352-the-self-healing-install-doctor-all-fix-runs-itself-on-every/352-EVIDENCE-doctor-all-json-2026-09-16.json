@@ -1,0 +1,3229 @@
+{
+  "install": {
+    "status": "ok",
+    "version": "2.0.0-beta.37",
+    "parsed": {
+      "major": 2,
+      "minor": 0,
+      "patch": 0,
+      "prerelease": "beta.37",
+      "raw": "2.0.0-beta.37"
+    },
+    "topology": "marketplace-cache",
+    "activeRoot": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37",
+    "legacyDirPresent": false,
+    "recoverable": true
+  },
+  "cache": {
+    "status": "ok",
+    "versions": [
+      "2.0.0-beta.27",
+      "2.0.0-beta.31",
+      "2.0.0-beta.37"
+    ],
+    "latest": "2.0.0-beta.37",
+    "latestParsed": {
+      "major": 2,
+      "minor": 0,
+      "patch": 0,
+      "prerelease": "beta.37",
+      "raw": "2.0.0-beta.37"
+    }
+  },
+  "dev": {
+    "status": "skip",
+    "detail": "dev source not found at ~/MindrianOS-Plugin (acceptable for end users)"
+  },
+  "drift": {
+    "detected": false,
+    "compare": 0
+  },
+  "fixRequested": false,
+  "classARecovered": null,
+  "recoveryError": null,
+  "recoverySkipped": null,
+  "checks": {
+    "capability-ledger": {
+      "status": "ok",
+      "detail": "capability-ledger: installed 2.1.273 is within 27 patch version(s) of ledger_covers.to (2.1.246)"
+    },
+    "mcp-surface": {
+      "status": "warn",
+      "detail": "mcp-surface: mindrian-os=40 tools, mindrian-brain=6 tools, combined=46 tools, estimated combined surface ~11049 tokens (budget 8000) -- combined surface exceeds TOTAL_SURFACE_TOKEN_BUDGET; this is a measurement warning, not a tool-count cap (the Brain's 10-15 figure does not transfer to a 36-tool server; see this module's header comment and 265-RESEARCH-mcp-layer-audit.md R-7/R-8)"
+    },
+    "card-fire-health": {
+      "status": "ok",
+      "detail": "card-fire-health: instrument healthy (14 intercept(s), seams + store intact)"
+    },
+    "voice-style-log": {
+      "status": "ok",
+      "detail": "voice-style-log: 2114 row(s) total, 125 since 2.0.0-beta.37 -- gate-shape-declaration: 336 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (10): an unreviewed log cannot auto-qualify for promotion); gate-tool-honesty: 336 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (10): an unreviewed log cannot auto-qualify for promotion); gate-card-fire: 301 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (20): an unreviewed log cannot auto-qualify for promotion); gate-graph-derive-health: 301 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (10): an unreviewed log cannot auto-qualify for promotion); voice-fork-as-card: 301 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (50): an unreviewed log cannot auto-qualify for promotion); registry-drift: 278 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (3): an unreviewed log cannot auto-qualify for promotion); voice-glyph-present: 25 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (50): an unreviewed log cannot auto-qualify for promotion); voice-hyphens-only: 88 fire(s) since window start, rate unreviewed, not met (labeled rows (0) below min_true_positives (50): an unreviewed log cannot auto-qualify for promotion); gate-layer-declaration: 148 fire(s) since window start, rate unreviewed, not met (promotion_rule missing or malformed: window_runs, max_false_positive_rate and min_true_positives must all be finite numbers)"
+    },
+    "mode-select-checkpoint": {
+      "status": "ok",
+      "detail": "mode-select-checkpoint: no user turn has occurred yet this session"
+    },
+    "ui-compliance": {
+      "status": "warn",
+      "detail": "155 violation(s) across commands/ and scripts/",
+      "violations": [
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/agentshield-scan-cli.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/agentshield-scan-cli.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/auto-explore-drain.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/auto-explore-drain.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/backfill-hitl-shape.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/backfill-hitl-shape.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/brain-derive-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/brain-derive-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-brain-census.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-brain-census.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-dist-bundles.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-dist-bundles.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-new-surface.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-new-surface.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/check-dual-graph-health.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/check-dual-graph-health.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/check-flagship-floor.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/check-flagship-floor.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/derive-verb-reach-affinity.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/derive-verb-reach-affinity.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/dial-memory-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/dial-memory-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/discovery-cycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/discovery-cycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/dogfood-derive.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/dogfood-derive.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/explain-decision-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/explain-decision-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/feynman-timeline-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/feynman-timeline-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 31,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 70,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 116,
+          "char": "─",
+          "snippet": "// ── Build HTML ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 19,
+          "char": "─",
+          "snippet": "// ── Constants ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 46,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 82,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 100,
+          "char": "─",
+          "snippet": "// ── 1. Read STATE.md ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 124,
+          "char": "─",
+          "snippet": "// ── 2. Discover sections ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 187,
+          "char": "─",
+          "snippet": "// ── 3. Read markdown content for embedding ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 203,
+          "char": "─",
+          "snippet": "// ── 4. Run analyze-room for intelligence ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 213,
+          "char": "─",
+          "snippet": "// ── 5. Run build-graph for graph data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 228,
+          "char": "─",
+          "snippet": "// ── 6. Query LazyGraph (SQLite) for richer relationship data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 235,
+          "char": "─",
+          "snippet": "// ── 7. Compute stats ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 262,
+          "char": "─",
+          "snippet": "// ── 8. Build ROOM_DATA ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 275,
+          "char": "─",
+          "snippet": "// ── 9. Read template ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 282,
+          "char": "─",
+          "snippet": "// ── 10. Inject data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 308,
+          "char": "─",
+          "snippet": "// ── 11. Write output ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 328,
+          "char": "─",
+          "snippet": "// ── Intelligence parser ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 368,
+          "char": "─",
+          "snippet": "// ── LazyGraph (SQLite) query ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 23,
+          "char": "─",
+          "snippet": "// ── Constants ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 143,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 381,
+          "char": "─",
+          "snippet": "// ── Badge Builder ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 420,
+          "char": "─",
+          "snippet": "// ── Smart Content Detection ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 567,
+          "char": "─",
+          "snippet": "// ── Grade Parser ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 614,
+          "char": "─",
+          "snippet": "// ── Room Scanner ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 775,
+          "char": "─",
+          "snippet": "// ── CSS Generation ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2194,
+          "char": "─",
+          "snippet": "// ── Mindrian SVG Logo ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2218,
+          "char": "─",
+          "snippet": "// ── HTML Generation ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2475,
+          "char": "─",
+          "snippet": "// ── CLI Entry Point ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 36,
+          "char": "─",
+          "snippet": "// ── Theme (shared with generate-hub.cjs v1.9.8 palette) ──────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Escape ────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 59,
+          "char": "─",
+          "snippet": "// ── Parse frontmatter ─────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 71,
+          "char": "─",
+          "snippet": "// ── Read STATE.md ─────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 94,
+          "char": "─",
+          "snippet": "// ── Resolve tagline (STATE.md field OR fallback to problem statement) ────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 144,
+          "char": "─",
+          "snippet": "// ── Detect deliverables in the room ──────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 191,
+          "char": "─",
+          "snippet": "// ── Door catalog: priority-ordered, with copy + destinations ─────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 270,
+          "char": "─",
+          "snippet": "// ── Select the three doors ────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 320,
+          "char": "─",
+          "snippet": "// ── Mindrian SVG logo (top-right, v1.9.8 brand lockup) ───────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 331,
+          "char": "─",
+          "snippet": "// ── CSS ───────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 356,
+          "char": "─",
+          "snippet": "/* ── HEADER (black, full-bleed, editorial) ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 418,
+          "char": "─",
+          "snippet": "/* ── Yellow section break ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 424,
+          "char": "─",
+          "snippet": "/* ── Doors grid ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 540,
+          "char": "─",
+          "snippet": "/* ── FOOTER ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 591,
+          "char": "─",
+          "snippet": "/* ── Responsive ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 601,
+          "char": "─",
+          "snippet": "// ── Render a single door ──────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 613,
+          "char": "─",
+          "snippet": "// ── Main generator ────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 709,
+          "char": "─",
+          "snippet": "// ── CLI ───────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Constants ────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 67,
+          "char": "─",
+          "snippet": "// ── Argument parsing ─────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 104,
+          "char": "─",
+          "snippet": "// ── Frontmatter templates (D-03 hand-rolled) ─────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 156,
+          "char": "─",
+          "snippet": "// ── Atomic write (Phase 95-02 invariant) ─────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 179,
+          "char": "─",
+          "snippet": "// ── Per-directory generation ─────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 231,
+          "char": "─",
+          "snippet": "// ── Recursive walk ───────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 268,
+          "char": "─",
+          "snippet": "// ── Main ─────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/help-renderer.cjs",
+          "line": 195,
+          "char": "─",
+          "snippet": "col('muted') + '  ' + '─'.repeat(ruleLen) + R +"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/hooked-rescore-117.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/hooked-rescore-117.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-batch.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-batch.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-intake.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-intake.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-pin-smoketest.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-pin-smoketest.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-run-one.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-run-one.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/intent-classifier.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/intent-classifier.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 132,
+          "char": "─",
+          "snippet": "branch:          '├─',"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 133,
+          "char": "└",
+          "snippet": "lastBranch:      '└─',"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/memory-command.cjs",
+          "line": 100,
+          "char": "─",
+          "snippet": "branch:          '├─', // ├─ not-last sibling"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/memory-command.cjs",
+          "line": 101,
+          "char": "└",
+          "snippet": "lastBranch:      '└─', // └─ last sibling"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/memory-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/memory-lifecycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/memory-lifecycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/mos-status.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/mos-status.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/post-update-activation.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/preflight-auto-explore.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/preflight-auto-explore.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/preflight-release-drift.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/preflight-release-drift.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/recompile-room-references.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/recompile-room-references.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/room-naming-selector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/room-naming-selector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/scout-cadence-runner.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/scout-cadence-runner.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/scout-telemetry-aggregator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/scout-telemetry-aggregator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 26,
+          "char": "─",
+          "snippet": "// ── JTBD mappings: command -> when/want/so ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 228,
+          "char": "─",
+          "snippet": "// ── Generate Cypher ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 283,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/sessionstart-post-update-preflight.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/sessionstart-post-update-preflight.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/skillopt-genqueries.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/skillopt-genqueries.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/skillopt-triggerloop.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/skillopt-triggerloop.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/stamp-artifact-write.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/stamp-artifact-write.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/suggest-next-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/suggest-next-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 33,
+          "char": "─",
+          "snippet": "// ── Test harness ────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-glyph",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 43,
+          "char": "✗",
+          "snippet": "console.log(`  ✗ ${name}`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Test environment builder ────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 103,
+          "char": "─",
+          "snippet": "// ── Test cases ──────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 202,
+          "char": "─",
+          "snippet": "// ── Main ────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 222,
+          "char": "─",
+          "snippet": "console.log(`────────────────────────────────────────────`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 224,
+          "char": "─",
+          "snippet": "console.log(`────────────────────────────────────────────`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/vault-content-reformatter.cjs",
+          "line": 407,
+          "char": "┌",
+          "snippet": "// Convert full lines of box-drawing into nothing (a line of `┌──────┐` becomes "
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-import.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-import.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-regenerate-all.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-regenerate-all.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-section-minto-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-section-minto-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-welcome-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-welcome-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-wikilink-injector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-wikilink-injector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/verify-phase-132.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/verify-phase-132.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/write-whitespace-sections.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/write-whitespace-sections.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        }
+      ],
+      "counts": {
+        "missingBodyShape": 0,
+        "unauthorizedBoxChar": 69,
+        "unauthorizedGlyph": 1,
+        "rendererMissingZone1": 41,
+        "rendererMissingZone4": 44
+      },
+      "fixable": false,
+      "fixDeferredTo": "95.2 or human review",
+      "scannedDirs": {
+        "commands": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/commands",
+        "scripts": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/scripts"
+      }
+    },
+    "stale-first-touch-copy": {
+      "class": "K",
+      "status": "ok",
+      "detail": "all first-touch surfaces stamp the running version + pass em-dash check",
+      "violations": [],
+      "scanned_count": 6,
+      "current_version": "2.0.0-beta.37"
+    },
+    "deprecated-usage": {
+      "class": "L",
+      "status": "warn",
+      "legacy_status": "DEPRECATED_USAGE",
+      "detail": "deprecated-usage: 6 deprecated command(s) used in the last 7 days",
+      "action": "you used 6 deprecated command(s) recently; consider migrating to the canonical names listed",
+      "deprecated_uses": [
+        {
+          "deprecated": "/mos:diagnostics",
+          "replacement": "/mos:fingerprint",
+          "recent_uses": 466
+        },
+        {
+          "deprecated": "/mos:heal",
+          "replacement": "/mos:doctor --heal-room",
+          "recent_uses": 24
+        },
+        {
+          "deprecated": "/mos:hmi-status",
+          "replacement": "/mos:doctor --ui-compliance",
+          "recent_uses": 101
+        },
+        {
+          "deprecated": "/mos:organize",
+          "replacement": "/mos:rooms organize",
+          "recent_uses": 33
+        },
+        {
+          "deprecated": "/mos:query",
+          "replacement": "/mos:graph",
+          "recent_uses": 115
+        },
+        {
+          "deprecated": "/mos:visualize",
+          "replacement": "/mos:dashboard --mermaid",
+          "recent_uses": 30
+        }
+      ],
+      "scanned_files": 1724,
+      "transcripts_dir": "/home/jsagi/.claude/projects",
+      "action_lines": [
+        "/mos:diagnostics used 466x -> use /mos:fingerprint",
+        "/mos:heal used 24x -> use /mos:doctor --heal-room",
+        "/mos:hmi-status used 101x -> use /mos:doctor --ui-compliance",
+        "/mos:organize used 33x -> use /mos:rooms organize",
+        "/mos:query used 115x -> use /mos:graph",
+        "/mos:visualize used 30x -> use /mos:dashboard --mermaid"
+      ]
+    },
+    "plugin-enabled-state": {
+      "class": "N",
+      "status": "ok",
+      "detail": "plugin is enabled (enabledPlugins[\"mos@mindrian-marketplace\"] = true)",
+      "installed": true,
+      "enabled": true,
+      "key": "mos@mindrian-marketplace",
+      "settings_path": "/home/jsagi/.claude/settings.json"
+    },
+    "cascade-rooms": {
+      "status": "warn",
+      "missingSentinels": [
+        "my-room",
+        "idem-room"
+      ],
+      "okCount": 53,
+      "detail": "2 room(s) missing .room-root sentinel"
+    },
+    "cascade-rooms-active": {
+      "status": "warn",
+      "activeRoom": "idem-room",
+      "writeRoom": "mindrianOS",
+      "activeMismatch": true,
+      "detail": "writes to mindrianOS would be silenced (active=idem-room)"
+    },
+    "room-md": {
+      "status": "skip",
+      "detail": "active room missing .room-root sentinel (class B finding)",
+      "missing": [],
+      "roomPath": "/tmp/birth-idem-uHV49r/idem-room"
+    },
+    "statusline-visibility": {
+      "status": "ok",
+      "detail": "statusline rendering correctly",
+      "evidence": [
+        "plugin statusLine.command resolved to /home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/scripts/statusline-mos",
+        "statusline-mos produced expected brand prefix"
+      ],
+      "recoverable": false
+    },
+    "install-incomplete": {
+      "status": "ok",
+      "detail": "marketplace-cache install complete (active root resolved; this topology needs neither a legacy .install-receipt.json nor a user-level statusLine override)",
+      "evidence": [
+        "active root: /home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37",
+        "topology=marketplace-cache"
+      ],
+      "recoverable": false,
+      "action": "writes the canonical MindrianOS statusLine block (bash \"<install-dir>/scripts/statusline-mos\") into ~/.claude/settings.json"
+    },
+    "verify-surface": {
+      "status": "skip",
+      "detail": "class D test runner not found at tests/test-cascade-surface-e2e.cjs",
+      "runner": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/tests/test-cascade-surface-e2e.cjs"
+    },
+    "install-state": {
+      "status": "ok",
+      "topology": "marketplace-cache",
+      "record": {
+        "active_version": "2.0.0-beta.37",
+        "active_root": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37",
+        "topology": "marketplace-cache",
+        "resolved_at": "2026-09-16T05:57:03.939Z",
+        "surfaces": [
+          {
+            "id": "statusline-dispatch-shim",
+            "path": "/home/jsagi/.claude/statusline-mos",
+            "check_kind": "marker",
+            "expected": "MINDRIAN-STATUSLINE-DISPATCH",
+            "observed": "MINDRIAN-STATUSLINE-DISPATCH",
+            "ok": true
+          },
+          {
+            "id": "settings-statusline-command",
+            "path": "/home/jsagi/.claude/settings.json",
+            "check_kind": "exact-value",
+            "expected": "bash \"$HOME/.claude/statusline-mos\"",
+            "observed": "{\n  \"permissions\": {\n    \"allow\": [\n      \"WebFetch(domain:docs.npmjs.com)\"\n    ]\n  },\n  \"model\": \"sonnet\",\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-check-update.js\\\"\"\n          }\n        ]\n      },\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"bash \\\"/home/jsagi/.claude/hooks/gsd-session-state.sh\\\"\"\n          }\n        ]\n      }\n    ],\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Bash|Edit|Write|MultiEdit|Agent|Task\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-context-monitor.js\\\"\",\n            \"timeout\": 10\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Read\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-read-injection-scanner.js\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"bash \\\"/home/jsagi/.claude/hooks/gsd-phase-boundary.sh\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"bash \\\"/home/jsagi/.claude/hooks/gsd-graphify-update.sh\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      }\n    ],\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-prompt-guard.js\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-read-guard.js\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Bash|Edit|Write|MultiEdit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-workflow-guard.js\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"bash \\\"/home/jsagi/.claude/hooks/gsd-validate-commit.sh\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Write|Edit|MultiEdit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"/home/jsagi/.nvm/versions/node/v22.22.2/bin/node\\\" \\\"/home/jsagi/.claude/hooks/gsd-worktree-path-guard.js\\\"\",\n            \"timeout\": 5\n          }\n        ]\n      }\n    ]\n  },\n  \"statusLine\": {\n    \"type\": \"command\",\n    \"command\": \"bash \\\"/home/jsagi/.claude/statusline-mos\\\"\"\n  },\n  \"enabledPlugins\": {\n    \"context7@claude-plugins-official\": true,\n    \"superpowers@claude-plugins-official\": true,\n    \"supabase@claude-plugins-official\": true,\n    \"elevenlabs-tts@elevenlabs\": true,\n    \"playwright@claude-plugins-official\": true,\n    \"frontend-design@claude-plugins-official\": true,\n    \"vercel@claude-plugins-official\": true,\n    \"evals@plurai-plugins\": true,\n    \"frontend-slides@frontend-slides\": true,\n    \"fullstack-dev-skills@fullstack-dev-skills\": true,\n    \"gsap-skills@gsap-skills\": true,\n    \"agentblog@agentblog\": true,\n    \"lej-output-fixer@lej\": true,\n    \"codex@openai-codex\": true,\n    \"mos@mindrian-marketplace\": true\n  },\n  \"extraKnownMarketplaces\": {\n    \"elevenlabs\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"elevenlabs/claude-plugins\"\n      }\n    },\n    \"mindrian-marketplace\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"jsagir/mindrian-marketplace\"\n      }\n    },\n    \"plurai-plugins\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"plurai-ai/plurai-plugins\"\n      }\n    },\n    \"frontend-slides\": {\n      \"source\": {\n        \"source\": \"git\",\n        \"url\": \"https://github.com/zarazhangrui/frontend-slides.git\"\n      }\n    },\n    \"fullstack-dev-skills\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"jeffallan/claude-skills\"\n      }\n    },\n    \"gsap-skills\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"greensock/gsap-skills\"\n      }\n    },\n    \"agentblog\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"goldk3y/agentblog\"\n      }\n    },\n    \"lej\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"justfinethanku/LEJ-output-fixer\"\n      }\n    },\n    \"openai-codex\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"openai/codex-plugin-cc\"\n      }\n    }\n  },\n  \"outputStyle\": \"lej-output-fixer:Scannable\",\n  \"feedbackDrafts\": \"off\",\n  \"effortLevel\": \"xhigh\",\n  \"agent\": \"larry-extended\",\n  \"tui\": \"fullscreen\",\n  \"voice\": {\n    \"enabled\": true,\n    \"mode\": \"hold\"\n  },\n  \"skipWorkflowUsageWarning\": true,\n  \"inputNeededNotifEnabled\": true,\n  \"agentPushNotifEnabled\": true,\n  \"autoMode\": {\n    \"soft_deny\": [\n      \"$defaults\",\n      \"Bash(vercel deploy:*) — scope to production/prod-flagged Vercel deployments from this repo pending confirmation\",\n      \"Bash(vercel remove:*)\"\n    ],\n    \"environment\": [\n      \"### Org-wide\",\n      \"**Organization**: None configured\",\n      \"**Cloud provider(s)**: Google Cloud (Gemini/AI Platform), Pinecone (vector DB), Supabase (referenced via api.supabase.com / ulmymxxmvsehjiyymqoi.supabase.co) — as used by this repo (mindrian-agno-backend)\",\n      \"**Repository visibility**: not queryable via gh in this session; assume private per shipped default (github.com/jsagir/mindrian-agno-backend)\",\n      \"**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary\",\n      \"**Secrets management**: .env-based (see .env.example: GOOGLE_AI_API_KEY, PINECONE_API_KEY, TAVILY_API_KEY, optional NEO4J_*, ANTHROPIC_API_KEY, OPENAI_API_KEY); .gitignore excludes .env, .env.local, .env.production, .secrets/\",\n      \"**Default / protected branches**: not queryable via gh in this session (origin/HEAD unset) — treat default branch as unverified; no protection data available\",\n      \"**CI/CD deploy targets**: None configured\",\n      \"**Network posture**: None configured\",\n      \"**Source control**: The trusted repo (github.com/jsagir/mindrian-agno-backend) and its remote only — no additional orgs configured\",\n      \"**Trusted internal domains**: None configured\",\n      \"**Trusted cloud buckets**: None configured — the repo-wide bucket name scan surfaced only generic/placeholder names (bucket, bucket-name, my-bucket, mybucket, etc.) and one org-flavored cluster, \\\"diagon-prod-data\\\" / \\\"diagon-prod-data-bucket\\\" (config-derived — not a confirmed upload destination; uploads of local data still require confirmation)\",\n      \"**Key internal services**: pws-brain-mcp.onrender.com, living-book.onrender.com (hosts contacted from this project's transcripts)\",\n      \"**Internal package registry**: None configured\",\n      \"**Sensitive data locations & audiences**: .env, .env.local, .env.production, and .secrets/ (git-ignored) — any file or store holding API keys (Google AI, Pinecone, Tavily, Neo4j, Anthropic, OpenAI) or other credentials; share only with audiences cleared at the [named+specifics] bar\",\n      \"**Data retention / declassification**: None configured\",\n      \"**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or segment — note ENVIRONMENT=production in .env.example and the diagon-prod-data bucket cluster (config-derived, see Trusted cloud buckets note) fall under this heuristic\",\n      \"**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic\",\n      \"**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment\",\n      \"### User-specific\",\n      \"**Primary use of Claude Code**: software development (Mindrian AgentOS — Agno-framework AI platform, GSD workflow tooling)\",\n      \"**Trusted repo**: github.com/jsagir/mindrian-agno-backend (working directory ~ and its origin remote)\",\n      \"**Org-specific CLIs**: vercel, claude (gsd-tools), npx ctx7 (Context7 CLI fallback) — routine within this repo\",\n      \"routine under jsagir/ prefix: other jsagir-owned repos found under home (e.g. living-book, langtalks-graph-expert, mindrian-brain-local, mindrian-website, mindrian-marketplace, MindrianV3, mindrian-v2, mindrian-pws-navigator) are separate checkouts, not part of this project's trust boundary per Q2 scope\"\n    ]\n  },\n  \"voiceEnabled\": true\n}",
+            "ok": false
+          },
+          {
+            "id": "mindrian-last-version",
+            "path": "/home/jsagi/.mindrian-last-version",
+            "check_kind": "exact-value",
+            "expected": "<active_version>",
+            "observed": "2.0.0-beta.37",
+            "ok": true
+          },
+          {
+            "id": "install-state-record",
+            "path": "/home/jsagi/.mindrian/install-state.json",
+            "check_kind": "observed-only",
+            "expected": null,
+            "observed": "self-excluded",
+            "ok": null
+          },
+          {
+            "id": "plugin-bin-path-entry",
+            "path": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/bin",
+            "check_kind": "observed-only",
+            "expected": null,
+            "observed": "present",
+            "ok": null
+          },
+          {
+            "id": "dev-clone-pre-commit-hook",
+            "path": null,
+            "check_kind": "marker",
+            "expected": "check-schema-aliases.cjs",
+            "observed": "skipped-non-dev-clone",
+            "ok": null
+          }
+        ],
+        "installed_plugins_version": "2.0.0-beta.5",
+        "statusline_renders_version": "unknown",
+        "last_version_file_value": "2.0.0-beta.37",
+        "path_bin_version": "unknown",
+        "schema_version": 2,
+        "topology_class": "healthy",
+        "last_acceptance_run": {
+          "timestamp": "2026-09-16T06:13:27.527Z",
+          "passed": 17,
+          "failed": 0
+        },
+        "renderer_contract_version": "unknown"
+      },
+      "record_present": true,
+      "versions": {
+        "IP": "2.0.0-beta.37",
+        "AV": "2.0.0-beta.37",
+        "SR": "unknown",
+        "LV": "2.0.0-beta.37",
+        "PB": "unknown"
+      },
+      "findings": [],
+      "resolver": {
+        "root": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37",
+        "source": "installed_plugins.json",
+        "topology": "marketplace-cache"
+      },
+      "recoverable": false,
+      "detail": "install-state healthy (topology marketplace-cache)"
+    },
+    "deployment-surfaces": {
+      "status": "ok",
+      "surfaces": [
+        {
+          "id": "statusline-dispatch-shim",
+          "path": "/home/jsagi/.claude/statusline-mos",
+          "check_kind": "marker",
+          "expected": "MINDRIAN-STATUSLINE-DISPATCH",
+          "observed": "MINDRIAN-STATUSLINE-DISPATCH",
+          "ok": true,
+          "owner": "session-start",
+          "remediation": "scripts/session-start Step A re-stamps the dispatcher shim on version change; if it stays stale, an antivirus or sync agent may be quarantining the file -- restart Claude Code or run `mindrian-os doctor --fix`."
+        },
+        {
+          "id": "settings-statusline-command",
+          "path": "/home/jsagi/.claude/settings.json",
+          "check_kind": "exact-value",
+          "expected": "bash \"$HOME/.claude/statusline-mos\"",
+          "observed": "bash \"/home/jsagi/.claude/statusline-mos\"",
+          "ok": true,
+          "owner": "session-start",
+          "remediation": "scripts/session-start Step B rewrites statusLine.command when it points at the legacy context-monitor wrapper; if a managed-settings layer overrides it, that is expected and the override wins. Plan 123-03 schema extension: `path_within_file` (dot-path) tells the check_kind=='exact-value' reader to JSON-parse `path` and compare `path_within_file` against `expected` rather than substring-matching the whole file.",
+          "path_within_file": "statusLine.command"
+        },
+        {
+          "id": "mindrian-last-version",
+          "path": "/home/jsagi/.mindrian-last-version",
+          "check_kind": "exact-value",
+          "expected": "<active_version>",
+          "observed": "2.0.0-beta.37",
+          "ok": true,
+          "owner": "session-start",
+          "remediation": "scripts/session-start rewrites it to match active_version on every session (single writer, EARLY -- per Phase 123 D-03 + RESEARCH Override 4). Pitfall 7: the old line-419 write only fired on cold start; the new EARLY write fires unconditionally."
+        },
+        {
+          "id": "install-state-record",
+          "path": "/home/jsagi/.mindrian/install-state.json",
+          "check_kind": "observed-only",
+          "expected": null,
+          "observed": "self-excluded",
+          "ok": null,
+          "owner": "session-start",
+          "remediation": "Self -- this surface IS the record. The manifest walker excludes it from its own consistency check. If absent at doctor time: 'run `mindrian-os doctor --fix`' (Plan-03 class I auto-recovers by invoking session-start's record-write path)."
+        },
+        {
+          "id": "plugin-bin-path-entry",
+          "path": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/bin",
+          "check_kind": "observed-only",
+          "expected": null,
+          "observed": "self-excluded-dir",
+          "ok": null,
+          "owner": "claude-code",
+          "remediation": "Claude Code's plugin loader owns the $PATH entry for `<active_root>/bin`; the manifest records it for the version-of-record cross-check but NEVER writes it. A wrong/vanished entry -> restart Claude Code (its plugin loader re-injects the entry on next launch)."
+        },
+        {
+          "id": "dev-clone-pre-commit-hook",
+          "status": "skipped",
+          "reason": "topology_scope=dev-clone, this is a marketplace-cache box",
+          "ok": null,
+          "check_kind": "marker",
+          "owner": "session-start"
+        }
+      ],
+      "recoverable": false,
+      "detail": "all 6 deployment surface(s) reconciled"
+    },
+    "room-graph-density": {
+      "status": "ok",
+      "detail": "55 room(s) measured: 40000 node row(s), 12463 edge row(s)",
+      "rooms": [
+        {
+          "room": "polygon",
+          "node_count": 31,
+          "edge_count": 22,
+          "has_db": true
+        },
+        {
+          "room": "pws-website",
+          "node_count": 668,
+          "edge_count": 120,
+          "has_db": true
+        },
+        {
+          "room": "mindrianOS",
+          "node_count": 5258,
+          "edge_count": 1929,
+          "has_db": true
+        },
+        {
+          "room": "mindrianOS-website-audit",
+          "node_count": 34,
+          "edge_count": 24,
+          "has_db": true
+        },
+        {
+          "room": "align-ecosystem",
+          "node_count": 1925,
+          "edge_count": 3661,
+          "has_db": true
+        },
+        {
+          "room": "mindrianos-conversion-fix",
+          "node_count": 40,
+          "edge_count": 30,
+          "has_db": true
+        },
+        {
+          "room": "mindrianos-venture",
+          "node_count": 152,
+          "edge_count": 56,
+          "has_db": true
+        },
+        {
+          "room": "iia-deeptech-centers",
+          "node_count": 517,
+          "edge_count": 55,
+          "has_db": true
+        },
+        {
+          "room": "mindrian-gtm",
+          "node_count": 61,
+          "edge_count": 45,
+          "has_db": true
+        },
+        {
+          "room": "doe-genesis",
+          "node_count": 69,
+          "edge_count": 129,
+          "has_db": true
+        },
+        {
+          "room": "ador-ip-test",
+          "node_count": 1019,
+          "edge_count": 1720,
+          "has_db": true
+        },
+        {
+          "room": "mos-qa-quantum-v1.11.0",
+          "node_count": 30,
+          "edge_count": 19,
+          "has_db": true
+        },
+        {
+          "room": "tester-feedback",
+          "node_count": 33,
+          "edge_count": 19,
+          "has_db": true
+        },
+        {
+          "room": "overlook-motj",
+          "node_count": 29,
+          "edge_count": 19,
+          "has_db": true
+        },
+        {
+          "room": "motj-ecosystem",
+          "node_count": 2127,
+          "edge_count": 116,
+          "has_db": true
+        },
+        {
+          "room": "sanhedrin",
+          "node_count": 608,
+          "edge_count": 31,
+          "has_db": true
+        },
+        {
+          "room": "rambam-dashboard",
+          "node_count": 23,
+          "edge_count": 14,
+          "has_db": true
+        },
+        {
+          "room": "motj-canon",
+          "node_count": 21,
+          "edge_count": 12,
+          "has_db": true
+        },
+        {
+          "room": "motj-wiki",
+          "node_count": 21,
+          "edge_count": 12,
+          "has_db": true
+        },
+        {
+          "room": "motj-screen-architecture",
+          "node_count": 21,
+          "edge_count": 12,
+          "has_db": true
+        },
+        {
+          "room": "social-lab",
+          "node_count": 22,
+          "edge_count": 13,
+          "has_db": true
+        },
+        {
+          "room": "mindrian-opportunities",
+          "node_count": 30,
+          "edge_count": 20,
+          "has_db": true
+        },
+        {
+          "room": "mof-procurement-workshop",
+          "node_count": 64,
+          "edge_count": 46,
+          "has_db": true
+        },
+        {
+          "room": "jonathan-contractor-motj",
+          "node_count": 2226,
+          "edge_count": 219,
+          "has_db": true
+        },
+        {
+          "room": "dhi-prolonged-field-care",
+          "node_count": 16,
+          "edge_count": 8,
+          "has_db": true
+        },
+        {
+          "room": "untitled-2026-06-01-1702",
+          "node_count": 3,
+          "edge_count": 0,
+          "has_db": true
+        },
+        {
+          "room": "rambam",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "rambam-guide",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "iris2026",
+          "node_count": 4152,
+          "edge_count": 88,
+          "has_db": true
+        },
+        {
+          "room": "cohort-testers",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "shamir-nir-opportunity",
+          "node_count": 23,
+          "edge_count": 2,
+          "has_db": true
+        },
+        {
+          "room": "orly-abramovitz",
+          "node_count": 191,
+          "edge_count": 2,
+          "has_db": true
+        },
+        {
+          "room": "mosaic-ai-labor-commentary",
+          "node_count": 6,
+          "edge_count": 2,
+          "has_db": true
+        },
+        {
+          "room": "formation",
+          "node_count": 32,
+          "edge_count": 30,
+          "has_db": true
+        },
+        {
+          "room": "align-tech",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "align-project-studio",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "aion-eureka-synergy",
+          "node_count": 798,
+          "edge_count": 264,
+          "has_db": true
+        },
+        {
+          "room": "haim-battlefield-intake",
+          "node_count": 25,
+          "edge_count": 0,
+          "has_db": true
+        },
+        {
+          "room": "jonathan-sagir",
+          "node_count": 2505,
+          "edge_count": 29,
+          "has_db": true
+        },
+        {
+          "room": "rethinking-mindrianos",
+          "node_count": 8469,
+          "edge_count": 2761,
+          "has_db": true
+        },
+        {
+          "room": "jhtv-oliver-kuntz",
+          "node_count": 2372,
+          "edge_count": 1,
+          "has_db": true
+        },
+        {
+          "room": "cellyrix",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "prophet",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "aion-labs-eir",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": true
+        },
+        {
+          "room": "peekup",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": true
+        },
+        {
+          "room": "tailings-dam-ip",
+          "node_count": 145,
+          "edge_count": 90,
+          "has_db": true
+        },
+        {
+          "room": "capless-marker-innovator-lab",
+          "node_count": 1,
+          "edge_count": 0,
+          "has_db": true
+        },
+        {
+          "room": "capless-innovation",
+          "node_count": 787,
+          "edge_count": 158,
+          "has_db": true
+        },
+        {
+          "room": "iris-lev-joint-venture",
+          "node_count": 277,
+          "edge_count": 4,
+          "has_db": true
+        },
+        {
+          "room": "lunar-water-site",
+          "node_count": 72,
+          "edge_count": 29,
+          "has_db": true
+        },
+        {
+          "room": "bina-weizmann",
+          "node_count": 2804,
+          "edge_count": 553,
+          "has_db": true
+        },
+        {
+          "room": "noga-mventures",
+          "node_count": 305,
+          "edge_count": 9,
+          "has_db": true
+        },
+        {
+          "room": "launchpad-02",
+          "node_count": 1988,
+          "edge_count": 90,
+          "has_db": true
+        },
+        {
+          "room": "my-room",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        },
+        {
+          "room": "idem-room",
+          "node_count": 0,
+          "edge_count": 0,
+          "has_db": false
+        }
+      ],
+      "totals": {
+        "rooms": 55,
+        "nodes": 40000,
+        "edges": 12463
+      }
+    },
+    "graph-derive-health": {
+      "status": "warn",
+      "detail": "35 of 55 room(s) need a derive re-enqueue (20 with zero semantic cascade edges); run /mos:doctor --heal-room",
+      "scope": "all",
+      "rooms": [
+        {
+          "room": "polygon",
+          "roomPath": "/home/jsagi/MindrianRooms/align-ecosystem/sub-rooms/polygon",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 22,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 22 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "pws-website",
+          "roomPath": "/home/jsagi/MindrianRooms/pws-website",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 31,
+          "cascadeEdgeCount": 67,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "mindrianOS",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 378,
+          "cascadeEdgeCount": 1267,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "mindrianOS-website-audit",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/communications/website-audit",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 24,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 24 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "align-ecosystem",
+          "roomPath": "/home/jsagi/MindrianRooms/align-ecosystem",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 264,
+          "cascadeEdgeCount": 3333,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "mindrianos-conversion-fix",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/communications/conversion-fix",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 30,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 30 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "mindrianos-venture",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/venture/fundraising",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 34,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 34 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "iia-deeptech-centers",
+          "roomPath": "/home/jsagi/MindrianRooms/iia-deeptech-centers",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 15,
+          "cascadeEdgeCount": 2,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "2 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "mindrian-gtm",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/venture/gtm",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 45,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 45 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "doe-genesis",
+          "roomPath": "/home/jsagi/MindrianRooms/doe-genesis",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 58,
+          "cascadeEdgeCount": 71,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "71 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "ador-ip-test",
+          "roomPath": "/home/jsagi/MindrianRooms/ador-ip-test",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 57,
+          "cascadeEdgeCount": 2,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "mos-qa-quantum-v1.11.0",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/qa/v1.11.0-quantum",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 19,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 19 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "tester-feedback",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/feedback/testers",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 19,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 19 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "overlook-motj",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/overlook-motj",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 19,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 19 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "motj-ecosystem",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 33,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 33 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)",
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "sanhedrin",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/sanhedrin",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 14,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 14 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)",
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "rambam-dashboard",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/rambam/rambam-dashboard",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 14,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 14 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "motj-canon",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/motj-canon",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 12,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 12 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "motj-wiki",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/motj-wiki",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 12,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 12 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "motj-screen-architecture",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/motj-screen-architecture",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 12,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 12 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "social-lab",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/social-lab",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 13,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 13 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "mindrian-opportunities",
+          "roomPath": "/home/jsagi/MindrianRooms/mindrianOS/sub-rooms/venture/opportunities",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 20,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 20 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "mof-procurement-workshop",
+          "roomPath": "/home/jsagi/MindrianRooms/mof-procurement-workshop",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 46,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 46 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "jonathan-contractor-motj",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/jonathan-contractor-motj",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 140,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 140 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)",
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "dhi-prolonged-field-care",
+          "roomPath": "/home/jsagi/MindrianRooms/dhi-prolonged-field-care",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 8,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 8 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "untitled-2026-06-01-1702",
+          "roomPath": "/home/jsagi/MindrianRooms/untitled-2026-06-01-1702",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "rambam",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/rambam",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "rambam-guide",
+          "roomPath": "/home/jsagi/MindrianRooms/motj-ecosystem/sub-rooms/rambam/rambam-guide",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "iris2026",
+          "roomPath": "/home/jsagi/MindrianRooms/iris2026",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 1,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": true,
+          "status": "fail",
+          "reasons": [
+            "derivation never succeeded: 1 structural BELONGS_TO edge(s) but 0 semantic cascade edge(s)"
+          ]
+        },
+        {
+          "room": "cohort-testers",
+          "roomPath": "/home/jsagi/MindrianRooms/iris2026/sub-rooms/cohort-testers",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "shamir-nir-opportunity",
+          "roomPath": "/home/jsagi/MindrianRooms/shamir-nir-opportunity",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "orly-abramovitz",
+          "roomPath": "/home/jsagi/MindrianRooms/orly-abramovitz",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "mosaic-ai-labor-commentary",
+          "roomPath": "/home/jsagi/MindrianRooms/mosaic-ai-labor-commentary",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "formation",
+          "roomPath": "/home/jsagi/MindrianRooms/formation",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 21,
+          "cascadeEdgeCount": 4,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "4 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "align-tech",
+          "roomPath": "/home/jsagi/MindrianRooms/align-ecosystem/sub-rooms/align-tech",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "align-project-studio",
+          "roomPath": "/home/jsagi/MindrianRooms/align-ecosystem/sub-rooms/align-project-studio",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "aion-eureka-synergy",
+          "roomPath": "/home/jsagi/MindrianRooms/aion-eureka-synergy",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 91,
+          "cascadeEdgeCount": 75,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "haim-battlefield-intake",
+          "roomPath": "/home/jsagi/MindrianRooms/haim-battlefield-intake",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "jonathan-sagir",
+          "roomPath": "/home/jsagi/MindrianRooms/jonathan-sagir",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 1,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "1 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "rethinking-mindrianos",
+          "roomPath": "/home/jsagi/MindrianRooms/rethinking-mindrianos",
+          "hasDb": true,
+          "hasBelongsTo": true,
+          "belongsToCount": 29,
+          "cascadeEdgeCount": 2476,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "jhtv-oliver-kuntz",
+          "roomPath": "/home/jsagi/MindrianRooms/jhtv-oliver-kuntz",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "cellyrix",
+          "roomPath": "/home/jsagi/MindrianRooms/aion-eureka-synergy/sub-rooms/cellyrix",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "prophet",
+          "roomPath": "/home/jsagi/MindrianRooms/aion-eureka-synergy/sub-rooms/prophet",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "aion-labs-eir",
+          "roomPath": "/home/jsagi/MindrianRooms/aion-eureka-synergy/sub-rooms/aion-labs-eir",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "peekup",
+          "roomPath": "/home/jsagi/MindrianRooms/peekup",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "tailings-dam-ip",
+          "roomPath": "/home/jsagi/MindrianRooms/tailings-dam-ip",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 73,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "capless-marker-innovator-lab",
+          "roomPath": "/home/jsagi/MindrianRooms/capless-marker-innovator-lab",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "capless-innovation",
+          "roomPath": "/home/jsagi/MindrianRooms/capless-innovation",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 82,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "82 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "iris-lev-joint-venture",
+          "roomPath": "/home/jsagi/MindrianRooms/iris-lev-joint-venture",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "ok",
+          "reasons": [
+            "0 semantic cascade edge(s) present; derivation has run"
+          ]
+        },
+        {
+          "room": "lunar-water-site",
+          "roomPath": "/home/jsagi/MindrianRooms/lunar-water-site",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "bina-weizmann",
+          "roomPath": "/home/jsagi/MindrianRooms/bina-weizmann",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "noga-mventures",
+          "roomPath": "/home/jsagi/MindrianRooms/noga-mventures",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "launchpad-02",
+          "roomPath": "/home/jsagi/MindrianRooms/launchpad-02",
+          "hasDb": true,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 4,
+          "queueCount": 1,
+          "queueStuckCount": 1,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "warn",
+          "reasons": [
+            "1 derive queue entry(ies) stuck for more than 3 day(s)"
+          ]
+        },
+        {
+          "room": "my-room",
+          "roomPath": "/tmp/birth-KrYFhV/my-room",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        },
+        {
+          "room": "idem-room",
+          "roomPath": "/tmp/birth-idem-uHV49r/idem-room",
+          "hasDb": false,
+          "hasBelongsTo": false,
+          "belongsToCount": 0,
+          "cascadeEdgeCount": 0,
+          "queueCount": 0,
+          "queueStuckCount": 0,
+          "failureLogCount": 0,
+          "needsHeal": false,
+          "status": "skip",
+          "reasons": [
+            "no room.db yet (Tier 0 room, nothing to derive)"
+          ]
+        }
+      ]
+    },
+    "eureka-fts-health": {
+      "status": "ok",
+      "detail": "55 room(s) measured: 10 with a built index, 45 absent (Tier 0 default, not a defect), 0 empty, 0 stale",
+      "rooms": [
+        {
+          "room": "polygon",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 31,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "pws-website",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 668,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrianOS",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 5258,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrianOS-website-audit",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 34,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "align-ecosystem",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 1925,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrianos-conversion-fix",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 40,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrianos-venture",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 152,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "iia-deeptech-centers",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 180,
+          "node_rows": 517,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrian-gtm",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 61,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "doe-genesis",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 69,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "ador-ip-test",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 988,
+          "node_rows": 1019,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "mos-qa-quantum-v1.11.0",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 30,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "tester-feedback",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 33,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "overlook-motj",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 29,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "motj-ecosystem",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 2127,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "sanhedrin",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 608,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "rambam-dashboard",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 23,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "motj-canon",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 21,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "motj-wiki",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 21,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "motj-screen-architecture",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 21,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "social-lab",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 22,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mindrian-opportunities",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 30,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mof-procurement-workshop",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 64,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "jonathan-contractor-motj",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 245,
+          "node_rows": 2226,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "dhi-prolonged-field-care",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 16,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "untitled-2026-06-01-1702",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 3,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "rambam",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "rambam-guide",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "iris2026",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 4152,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "cohort-testers",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "shamir-nir-opportunity",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 14,
+          "node_rows": 23,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "orly-abramovitz",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 191,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "mosaic-ai-labor-commentary",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 6,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "formation",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 32,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "align-tech",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "align-project-studio",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "aion-eureka-synergy",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 189,
+          "node_rows": 798,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "haim-battlefield-intake",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 25,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "jonathan-sagir",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 39,
+          "node_rows": 2505,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "rethinking-mindrianos",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 8469,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "jhtv-oliver-kuntz",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 2130,
+          "node_rows": 2372,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "cellyrix",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "prophet",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "aion-labs-eir",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "peekup",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "tailings-dam-ip",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 145,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "capless-marker-innovator-lab",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 1,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "capless-innovation",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 16,
+          "node_rows": 787,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "iris-lev-joint-venture",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 277,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "lunar-water-site",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 72,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "bina-weizmann",
+          "has_db": true,
+          "present": true,
+          "fts_rows": 40,
+          "node_rows": 2804,
+          "orphan_rows": 0,
+          "state": "ok",
+          "failure_count": 0
+        },
+        {
+          "room": "noga-mventures",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 305,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "launchpad-02",
+          "has_db": true,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 1988,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "my-room",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        },
+        {
+          "room": "idem-room",
+          "has_db": false,
+          "present": false,
+          "fts_rows": 0,
+          "node_rows": 0,
+          "orphan_rows": 0,
+          "state": "index_absent",
+          "failure_count": 0
+        }
+      ],
+      "totals": {
+        "rooms": 55,
+        "with_index": 10,
+        "absent": 45,
+        "empty": 0,
+        "stale": 0
+      }
+    },
+    "accumulative-engine": {
+      "status": "ok",
+      "running": "2.0.0-beta.37",
+      "applied_through": "2.0.0-beta.37",
+      "selected": [],
+      "deferred": [],
+      "findings": [],
+      "advanced": true
+    },
+    "brain-smoke": {
+      "class": "M",
+      "ok": true,
+      "layers": [
+        {
+          "id": "origin_shadow",
+          "name": "L0 origin and shadow connector",
+          "ok": true,
+          "reason": "no shadowing mindrian-brain entry found; resolved origin=https://theo-mcp.onrender.com is_theo=true. this check reads Claude Code's ~/.claude.json only; Claude Desktop and Cowork keep the mindrian-brain connector by design (docs/339-NOTE-theo-desktop-connector-key.md), so a Desktop config is never read and never flagged.",
+          "ms": 556,
+          "payload": {
+            "resolved_origin": "https://theo-mcp.onrender.com",
+            "is_theo": true,
+            "override": false,
+            "shadows": [],
+            "install_id_present": true,
+            "theo_health": {
+              "mode": "ok",
+              "build_sha": "3dca41ffe6031e615d758d2ec6cdf97fc4396eaa"
+            }
+          }
+        },
+        {
+          "id": "plugin_root",
+          "name": "L1 plugin-root-resolver",
+          "ok": true,
+          "reason": "resolved (source=installed_plugins.json, topology=marketplace-cache)",
+          "ms": 1
+        },
+        {
+          "id": "key_resolver",
+          "name": "L2 brain-key-resolver",
+          "ok": true,
+          "reason": "key resolved (source=env)",
+          "ms": 0
+        },
+        {
+          "id": "https_schema",
+          "name": "L3 HTTPS schema probe",
+          "ok": true,
+          "reason": "schema probe returned non-null payload",
+          "ms": 5669
+        },
+        {
+          "id": "stdio_handshake",
+          "name": "L4 MCP stdio handshake",
+          "ok": true,
+          "reason": "handshake succeeded, server=mindrian-brain v2.0.0-beta.37",
+          "ms": 155
+        },
+        {
+          "id": "e2e_brain_schema",
+          "name": "L5 e2e brain_schema via shim",
+          "ok": true,
+          "reason": "e2e brain_schema returned a payload",
+          "ms": 2286
+        },
+        {
+          "id": "store_identity",
+          "name": "L6 store identity",
+          "ok": true,
+          "reason": "node_count=27951 at or above floor=27000, endpoint=https://theo-mcp.onrender.com",
+          "ms": 1727,
+          "payload": {
+            "endpoint": "https://theo-mcp.onrender.com",
+            "node_count": 27951,
+            "canon": true,
+            "override": false
+          }
+        }
+      ],
+      "overall_ms": 10394
+    }
+  },
+  "recovered": []
+}

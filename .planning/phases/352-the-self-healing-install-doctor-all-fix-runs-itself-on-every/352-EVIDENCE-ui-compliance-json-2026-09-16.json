@@ -1,0 +1,1067 @@
+{
+  "install": {
+    "status": "ok",
+    "version": "2.0.0-beta.37",
+    "parsed": {
+      "major": 2,
+      "minor": 0,
+      "patch": 0,
+      "prerelease": "beta.37",
+      "raw": "2.0.0-beta.37"
+    },
+    "topology": "marketplace-cache",
+    "activeRoot": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37",
+    "legacyDirPresent": false,
+    "recoverable": true
+  },
+  "cache": {
+    "status": "ok",
+    "versions": [
+      "2.0.0-beta.27",
+      "2.0.0-beta.31",
+      "2.0.0-beta.37"
+    ],
+    "latest": "2.0.0-beta.37",
+    "latestParsed": {
+      "major": 2,
+      "minor": 0,
+      "patch": 0,
+      "prerelease": "beta.37",
+      "raw": "2.0.0-beta.37"
+    }
+  },
+  "dev": {
+    "status": "skip",
+    "detail": "dev source not found at ~/MindrianOS-Plugin (acceptable for end users)"
+  },
+  "drift": {
+    "detected": false,
+    "compare": 0
+  },
+  "fixRequested": false,
+  "classARecovered": null,
+  "recoveryError": null,
+  "recoverySkipped": null,
+  "checks": {
+    "ui-compliance": {
+      "status": "warn",
+      "detail": "155 violation(s) across commands/ and scripts/",
+      "violations": [
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/agentshield-scan-cli.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/agentshield-scan-cli.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/auto-explore-drain.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/auto-explore-drain.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/backfill-hitl-shape.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/backfill-hitl-shape.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/brain-derive-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/brain-derive-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-brain-census.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-brain-census.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-dist-bundles.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-dist-bundles.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/build-new-surface.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/build-new-surface.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/check-dual-graph-health.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/check-dual-graph-health.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/check-flagship-floor.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/check-flagship-floor.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/derive-verb-reach-affinity.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/derive-verb-reach-affinity.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/dial-memory-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/dial-memory-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/discovery-cycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/discovery-cycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/dogfood-derive.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/dogfood-derive.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/explain-decision-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/explain-decision-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/feynman-timeline-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/feynman-timeline-refresh-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 31,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 70,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-deck.cjs",
+          "line": 116,
+          "char": "─",
+          "snippet": "// ── Build HTML ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 19,
+          "char": "─",
+          "snippet": "// ── Constants ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 46,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 82,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 100,
+          "char": "─",
+          "snippet": "// ── 1. Read STATE.md ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 124,
+          "char": "─",
+          "snippet": "// ── 2. Discover sections ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 187,
+          "char": "─",
+          "snippet": "// ── 3. Read markdown content for embedding ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 203,
+          "char": "─",
+          "snippet": "// ── 4. Run analyze-room for intelligence ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 213,
+          "char": "─",
+          "snippet": "// ── 5. Run build-graph for graph data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 228,
+          "char": "─",
+          "snippet": "// ── 6. Query LazyGraph (SQLite) for richer relationship data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 235,
+          "char": "─",
+          "snippet": "// ── 7. Compute stats ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 262,
+          "char": "─",
+          "snippet": "// ── 8. Build ROOM_DATA ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 275,
+          "char": "─",
+          "snippet": "// ── 9. Read template ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 282,
+          "char": "─",
+          "snippet": "// ── 10. Inject data ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 308,
+          "char": "─",
+          "snippet": "// ── 11. Write output ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 328,
+          "char": "─",
+          "snippet": "// ── Intelligence parser ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-export.cjs",
+          "line": 368,
+          "char": "─",
+          "snippet": "// ── LazyGraph (SQLite) query ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 23,
+          "char": "─",
+          "snippet": "// ── Constants ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 143,
+          "char": "─",
+          "snippet": "// ── Helpers ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 381,
+          "char": "─",
+          "snippet": "// ── Badge Builder ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 420,
+          "char": "─",
+          "snippet": "// ── Smart Content Detection ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 567,
+          "char": "─",
+          "snippet": "// ── Grade Parser ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 614,
+          "char": "─",
+          "snippet": "// ── Room Scanner ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 775,
+          "char": "─",
+          "snippet": "// ── CSS Generation ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2194,
+          "char": "─",
+          "snippet": "// ── Mindrian SVG Logo ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2218,
+          "char": "─",
+          "snippet": "// ── HTML Generation ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-hub.cjs",
+          "line": 2475,
+          "char": "─",
+          "snippet": "// ── CLI Entry Point ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 36,
+          "char": "─",
+          "snippet": "// ── Theme (shared with generate-hub.cjs v1.9.8 palette) ──────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Escape ────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 59,
+          "char": "─",
+          "snippet": "// ── Parse frontmatter ─────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 71,
+          "char": "─",
+          "snippet": "// ── Read STATE.md ─────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 94,
+          "char": "─",
+          "snippet": "// ── Resolve tagline (STATE.md field OR fallback to problem statement) ────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 144,
+          "char": "─",
+          "snippet": "// ── Detect deliverables in the room ──────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 191,
+          "char": "─",
+          "snippet": "// ── Door catalog: priority-ordered, with copy + destinations ─────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 270,
+          "char": "─",
+          "snippet": "// ── Select the three doors ────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 320,
+          "char": "─",
+          "snippet": "// ── Mindrian SVG logo (top-right, v1.9.8 brand lockup) ───────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 331,
+          "char": "─",
+          "snippet": "// ── CSS ───────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 356,
+          "char": "─",
+          "snippet": "/* ── HEADER (black, full-bleed, editorial) ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 418,
+          "char": "─",
+          "snippet": "/* ── Yellow section break ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 424,
+          "char": "─",
+          "snippet": "/* ── Doors grid ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 540,
+          "char": "─",
+          "snippet": "/* ── FOOTER ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 591,
+          "char": "─",
+          "snippet": "/* ── Responsive ── */"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 601,
+          "char": "─",
+          "snippet": "// ── Render a single door ──────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 613,
+          "char": "─",
+          "snippet": "// ── Main generator ────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-lobby.cjs",
+          "line": 709,
+          "char": "─",
+          "snippet": "// ── CLI ───────────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Constants ────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 67,
+          "char": "─",
+          "snippet": "// ── Argument parsing ─────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 104,
+          "char": "─",
+          "snippet": "// ── Frontmatter templates (D-03 hand-rolled) ─────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 156,
+          "char": "─",
+          "snippet": "// ── Atomic write (Phase 95-02 invariant) ─────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 179,
+          "char": "─",
+          "snippet": "// ── Per-directory generation ─────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 231,
+          "char": "─",
+          "snippet": "// ── Recursive walk ───────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/generate-section-intelligence.cjs",
+          "line": 268,
+          "char": "─",
+          "snippet": "// ── Main ─────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/help-renderer.cjs",
+          "line": 195,
+          "char": "─",
+          "snippet": "col('muted') + '  ' + '─'.repeat(ruleLen) + R +"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/hooked-rescore-117.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/hooked-rescore-117.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-batch.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-batch.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-intake.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-intake.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-pin-smoketest.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-pin-smoketest.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/huji-run-one.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/huji-run-one.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/intent-classifier.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/intent-classifier.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 132,
+          "char": "─",
+          "snippet": "branch:          '├─',"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 133,
+          "char": "└",
+          "snippet": "lastBranch:      '└─',"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/jtbd-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/memory-command.cjs",
+          "line": 100,
+          "char": "─",
+          "snippet": "branch:          '├─', // ├─ not-last sibling"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/memory-command.cjs",
+          "line": 101,
+          "char": "└",
+          "snippet": "lastBranch:      '└─', // └─ last sibling"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/memory-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/memory-lifecycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/memory-lifecycle.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/mos-status.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/mos-status.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/post-update-activation.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/preflight-auto-explore.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/preflight-auto-explore.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/preflight-release-drift.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/preflight-release-drift.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/recompile-room-references.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/recompile-room-references.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/room-naming-selector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/room-naming-selector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/scout-cadence-runner.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/scout-cadence-runner.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/scout-telemetry-aggregator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/scout-telemetry-aggregator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 26,
+          "char": "─",
+          "snippet": "// ── JTBD mappings: command -> when/want/so ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 228,
+          "char": "─",
+          "snippet": "// ── Generate Cypher ──"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/seed-brain-commands.cjs",
+          "line": 283,
+          "char": "─",
+          "snippet": "// ── Main ──"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/sessionstart-post-update-preflight.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/sessionstart-post-update-preflight.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/skillopt-genqueries.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/skillopt-genqueries.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/skillopt-triggerloop.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/skillopt-triggerloop.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/stamp-artifact-write.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/stamp-artifact-write.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/suggest-next-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/suggest-next-command.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 33,
+          "char": "─",
+          "snippet": "// ── Test harness ────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-glyph",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 43,
+          "char": "✗",
+          "snippet": "console.log(`  ✗ ${name}`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 49,
+          "char": "─",
+          "snippet": "// ── Test environment builder ────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 103,
+          "char": "─",
+          "snippet": "// ── Test cases ──────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 202,
+          "char": "─",
+          "snippet": "// ── Main ────────────────────────────────────────────────────────────"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 222,
+          "char": "─",
+          "snippet": "console.log(`────────────────────────────────────────────`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/test-doctor-recovery.cjs",
+          "line": 224,
+          "char": "─",
+          "snippet": "console.log(`────────────────────────────────────────────`);"
+        },
+        {
+          "kind": "unauthorized-box-char",
+          "file": "scripts/vault-content-reformatter.cjs",
+          "line": 407,
+          "char": "┌",
+          "snippet": "// Convert full lines of box-drawing into nothing (a line of `┌──────┐` becomes "
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-import.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-import.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-regenerate-all.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-regenerate-all.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-section-minto-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-section-minto-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-welcome-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-welcome-generator.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/vault-wikilink-injector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/vault-wikilink-injector.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/verify-phase-132.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/verify-phase-132.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        },
+        {
+          "kind": "renderer-missing-zone1",
+          "file": "scripts/write-whitespace-sections.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 1 header pattern (-- X -- Y --)"
+        },
+        {
+          "kind": "renderer-missing-zone4",
+          "file": "scripts/write-whitespace-sections.cjs",
+          "line": 0,
+          "detail": "renderer file lacks Zone 4 action footer pattern (>/mos: marker)"
+        }
+      ],
+      "counts": {
+        "missingBodyShape": 0,
+        "unauthorizedBoxChar": 69,
+        "unauthorizedGlyph": 1,
+        "rendererMissingZone1": 41,
+        "rendererMissingZone4": 44
+      },
+      "fixable": false,
+      "fixDeferredTo": "95.2 or human review",
+      "scannedDirs": {
+        "commands": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/commands",
+        "scripts": "/home/jsagi/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.37/scripts"
+      }
+    }
+  },
+  "recovered": []
+}

@@ -6804,6 +6804,16 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 352 added (2026-09-16, `/gsd-phase`): "The self-healing install" - every install and
+  update runs `doctor --all --fix` by itself once on the first run of a new version, the doctor
+  renders truthfully (no `undefined`, every row, JSON summary), and the UI contract is met
+  (`--ui-compliance` at 0 on a comment-aware, Shape-B-aware scanner; 44 renderers swept).
+  Navigator rulings R1-R5 locked in `352-CONTEXT.md`; 14 findings with lines in
+  `.planning/debug/doctor-auto-heal-qa-sweep-2026-09-16.md`; grounding (claude-code-guide:
+  no install/update hook exists, SessionStart is the trigger; langtalks: verify must re-measure
+  from disk) in `352-RESEARCH-GROUNDING.md`. Room entry deferred until close (navigator bound
+  this session to no room). beta.41 was cut by a peer session while the card was registered;
+  Phase 352 ships in the next beta.
 - Phase 349 added (2026-09-15, `/gsd-phase`): "Release-to-Theo leading edge", the
   synchronous-update half of the pair whose lagging half is the 343-07 Theo stamp gate.
   Navigator ruling 2026-09-15: every plugin version update makes Theo aware immediately,
