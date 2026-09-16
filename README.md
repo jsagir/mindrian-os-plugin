@@ -32,7 +32,7 @@ That is the job MindrianOS is hired for. Not "take my notes" and not "chat with 
 This is the whole mental model. You do not need more than this to use MindrianOS well.
 
 1. **You talk.** Whatever is in your room right now, the venture, the decision, the meeting you just filed, becomes context.
-2. **Your context triggers a question to the Brain**, the methodology graph: 27,951 nodes and 452 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
+2. **Your context triggers a question to the Brain**, running today on Theo, the methodology graph: 27,951 nodes and 452 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
 3. **Larry joins the answer to your situation.** Not a lecture pulled from a textbook. Your problem, run through real methodology.
 4. **You ratify what matters.** Approve it, reject it with a reason, or defer it. Your call becomes part of the room.
 5. **The room remembers.** Next time, it is already there, checking today's input against it.
@@ -95,10 +95,24 @@ That is a feature, not an outage. A tool that quietly guesses when it does not k
 | Layer | What | Who owns it |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
-| **Brain** | The methodology graph: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
+| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
 | **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
+
+---
+
+## What Theo is
+
+"The Brain" is the role: the thinking partner behind every graph-grounded answer Larry gives you. Theo is the thing doing that job today, not a rename of it. Theo took over on 2026-09-03, replacing the graph database the Brain ran on before.
+
+Theo runs as a remote MCP server at `theo-mcp.onrender.com` (MCP is the standard way Claude connects to an outside service). You never talk to it directly; Larry does, on your behalf.
+
+The rule Theo lives inside is the one the whole project holds itself to: a generic methodology question crosses the wire (a framework name, a problem type), and your room, your notes, your decisions, and your meetings never do. That boundary is written down in [`docs/MINDRIAN-CANON.md`](docs/MINDRIAN-CANON.md).
+
+Semantic search stays home too: e5 (multilingual-e5-large, 1024-dim), embedded locally on your machine, no network egress.
+
+Read more: what the Brain holds and its six tools ([`docs/THE-BRAIN.md`](docs/THE-BRAIN.md)), Desktop and Cowork connector setup ([`docs/install/BRAIN-SETUP.md`](docs/install/BRAIN-SETUP.md)), and the opaque per-install identifier ([`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md)).
 
 ---
 
@@ -148,6 +162,8 @@ Free plugin. It requires a paid Claude plan (Claude Pro, $20/mo, or higher) beca
 ## The privacy line
 
 MindrianOS reads your workspace and writes only to your rooms (default: `~/MindrianRooms/`) and to session state (`./.mindrian/`). It does not push anything to the Brain beyond a generic methodology question: never your notes, never your decisions, never your meetings.
+
+The only per-install thing Theo receives is `x-theo-install-id`, a 32-character random hex string minted once and stored on your machine. It lets Theo tell one install from another; it does not tell Theo who you are. See [`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md).
 
 For zero permission prompts during a session: `claude --dangerously-skip-permissions`. The read/write surface is bounded to your workspace and your rooms. For granular control, copy the matcher set from [`docs/settings-template.json`](docs/settings-template.json) into `~/.claude/settings.json`.
 
