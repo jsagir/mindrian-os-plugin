@@ -7,6 +7,8 @@
 
   A thinking partner that sits above your AI. You talk through a problem worth solving. Larry finds the real problem before you solve the wrong one, brings the right method at the moment you need it, pushes back when your confidence outruns your evidence, and turns the conversation into a structured room that remembers every decision and catches what you missed.
 
+  Concretely: you install a plugin into Claude, you talk to it like you normally would, it consults a methodology graph built from 20 years of teaching, and it files the conversation into a folder on your own machine that is still there next time you open it.
+
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching.
   Engineered by Jonathan Sagir.
 
@@ -43,40 +45,42 @@ When the graph genuinely has nothing structured for what you asked, Larry says s
 
 ## Install
 
-Three commands. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
+One command. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
 
 ```bash
 npx @mindrian_os/cli
 ```
 
-Or, from inside Claude Code:
+Already inside Claude Code? These two do the same job:
 
 ```bash
 claude plugin marketplace add jsagir/mindrian-marketplace
 claude plugin install mos@mindrian-marketplace
 ```
 
-Restart Claude Code. Larry starts talking, and your install quietly registers its own Brain identity in the background: no API key to paste, no account to create first. If you already have a Brain key, it wins and nothing changes.
+Restart Claude Code and Larry starts talking. Your install registers its own Brain identity quietly in the background while you talk: no key to paste, no account to create first. If you already have a Brain key, it wins and nothing changes.
 
-Two things the field taught us, worth checking before you start:
+Two things worth knowing before you start:
 
-- You need Claude Pro or Max on your own personal account. A company-managed (SSO or Okta) Claude plan blocks the in-app upgrade prompt; a personal account does not.
+- Use Claude Pro or Max on your own personal account. A company-managed (SSO or Okta) Claude plan blocks the in-app upgrade prompt; a personal account does not.
 - On Windows, the Node.js installer offers an optional "Tools for Native Modules" checkbox. Leave it unchecked. MindrianOS ships no native modules, and checking it triggers a long, unrelated Visual Studio Build Tools install.
 
-Update or repair an install:
+Claude Code will ask you to approve each shell command as it runs, 10+ prompts is normal. Pick "always allow" the first time you see one you are happy with, and the rest will not re-prompt.
+
+Once you are in, the first thing to try is `/mos:ignite`: it starts or resumes a room, and from there Larry takes it from you.
+
+Update or repair an install anytime:
 
 ```bash
 mindrian-os update           # marketplace + plugin update
 mindrian-os doctor --all     # diagnose drift, suggest fixes
 ```
 
-A note on install prompts: Claude Code asks you to approve each shell command. 10+ prompts is normal. Pick "always allow" the first time you see one you are happy with; the rest will not re-prompt.
-
 ---
 
 ## What talking to Larry feels like
 
-Most of the time it feels like a sharp colleague who happens to know 452 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from:
+Most of the time it feels like a sharp colleague who happens to know 452 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from, including a readiness score (how complete the graph's material on this topic is, out of 4):
 
 > ■ BRAIN: Jobs to Be Done · framework · readiness 4/4
 
@@ -95,7 +99,7 @@ That is a feature, not an outage. A tool that quietly guesses when it does not k
 | Layer | What | Who owns it |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
-| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
+| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, 20 years of teaching, served over MCP (the standard way Claude reaches an outside service) | Served remotely, never distributed |
 | **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
@@ -133,7 +137,7 @@ MindrianOS works wherever Claude works. Same Larry, same room, every surface.
 | Surface | What it gives you |
 |---------|-------------------|
 | **Claude Code CLI** | Full power. Hooks fire, scripts run, the room is on disk, Larry teaches with visible structure. |
-| **Claude Desktop** | Same Larry, conversational. The Data Room shows up as inline panels (dashboard, wiki, knowledge graph). |
+| **Claude Desktop** | Same Larry, conversational. Your Data Room (the structured folder on your machine where the room lives) shows up as inline panels (dashboard, wiki, knowledge graph). |
 | **Cowork** | Same plugin, shared room. Daily briefings, persistent perspectives, multi-user. |
 
 ---
