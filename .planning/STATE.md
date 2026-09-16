@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 349-04-PLAN.md - Wave 4 of 6
-last_updated: "2026-09-16T04:47:48.610Z"
-last_activity: 2026-09-16 -- Completed 349-04-PLAN.md (scripts/release.sh wired to Step 5.6, scripts/doctor.cjs expectedSteps taught, both proof files green, live shelled dry-run proves the dispatch is never invoked)
+stopped_at: Completed 349-05-PLAN.md - Wave 5 of 6
+last_updated: "2026-09-16T05:07:24.972Z"
+last_activity: 2026-09-16 -- Phase 349 plan 05 complete (RULE 5 place 8 leading half, release-process include, OPEN-HANDOFFS Theo row)
 progress:
   total_phases: 100
   completed_phases: 33
   total_plans: 290
-  completed_plans: 282
-  percent: 97
+  completed_plans: 283
+  percent: 98
 ---
+
+<!-- NOTE (349-05 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported current_plan 5 -> 6 of 6. `state.update-progress`
+     correctly computed `completed: 283, percent: 98` (283/290). `state.record-metric` (flag
+     syntax `--phase --plan --duration --tasks --files`) landed its own correct Performance
+     Metrics row. `state.add-decision` (with `--summary`) repeated the em-dash-in-summary
+     variant of the documented bug this time (no `[Phase ?]` placeholder-prefix this run, but the
+     tool's own summary/rationale join used a literal em-dash character between them), fixed in
+     place to a single `[Phase 349] 349-05: ...` line using a comma instead, per house rule
+     (hyphens only). `state.record-session` updated only `Last session` and `Stopped At`, leaving
+     the frontmatter clobber from an EARLIER call in this same session (`percent` reverted to
+     `33`, a phases-ratio reading, not the plan-completion percentage; `last_activity` reverted to
+     the stale "Phase 349 execution started" line) in place. Hand-corrected once, after all calls
+     landed: `stopped_at` -> "Completed 349-05-PLAN.md - Wave 5 of 6", `last_activity` -> this
+     plan's completion line, `percent` -> 98 (283/290, matching `state.update-progress`'s own
+     correct computation); left `total_phases`/`completed_phases` at 100/33 unchanged since Phase
+     349 has not closed (1 of 6 plans remains: 349-06). `last_updated` left at the tool's own
+     timestamp, not re-investigated further. Same root cause as every other note in this file. -->
 
 <!-- NOTE (349-04 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -32,7 +51,6 @@ progress:
      computation); left `total_phases`/`completed_phases` at 100/33 unchanged since Phase 349
      has not closed (2 of 6 plans remain: 349-05..349-06). `last_updated` left at the tool's own
      timestamp, not re-investigated further. Same root cause as every other note in this file. -->
-
 
 <!-- NOTE (349-03 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4867,7 +4885,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 349 (release-to-theo-leading-edge-graph-engineering-learning-sync) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -6536,6 +6554,7 @@ Progress: [█████████░] 92%
 | Phase 349 P02 | 50min | 2 tasks | 2 files |
 | Phase 349 P03 | 70min | 2 tasks | 3 files |
 | Phase 349 P04 | 45min | 2 tasks | 4 files |
+| Phase 349-release-to-theo-leading-edge P05 | 40min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -8155,6 +8174,7 @@ Progress: [█████████░] 92%
 - [Phase 349] 349-02: dispatch seam's positional argv fixed as key=value pairs (version=, commit=, registryHash=, command_registry_path=) so a hermetic test can recover the payload's key set; no shared argv-recorder helper extracted since per-file acceptance criteria grep each test file individually for literal seam tokens
 - [Phase 349] 349-03: Ratified WD-349-2/3/4/9 to RULED (Step 5.6, separate --no-theo-notify flag, plugin-computed live SHA-256 registryHash, R5 disposition (ii) out of scope registered as a card owned by 349-06); WD-14 stands (fork 4, option a).
 - [Phase 349] 349-04: RELEASE_SHA at Step 5.6 is deliberately re-derived from the pushed tag (git rev-parse v$NEW_VERSION^{commit}), never reused from the Step 7 value, since Step 7's value predates the push and was never re-checked against origin.
+- [Phase 349] 349-05: RULE 5 place 8 amended in place with the leading half; VERSION-BUMP-CHECKLIST.md/WD-14 reconciled without creating the file, per 349-03's ratified option (a): WD-14 stands, deliverable 4 satisfied via RULE 5 place 8 plus the release-process include.
 
 ### Pending Todos
 
@@ -8294,8 +8314,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T04:47:48.482Z
-Stopped at: Completed 348-07-PLAN.md
+Last session: 2026-09-16T05:07:24.858Z
+Stopped at: Completed 349-05-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
