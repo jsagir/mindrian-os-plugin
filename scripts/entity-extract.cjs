@@ -776,36 +776,6 @@ function applyFrameworkTerms(db, artifactId, terms) {
 
 async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   const options = opts || {};
-  // RCA eureka-entity-extraction-boilerplate-candidates (navigator ruling
-  // 2026-09-17): rooms scanned before the scaffold-input and source_path fixes
-  // keep their machine-authored template entities (self-referential
-  // source_path 'entity:sid:name'). Purge exactly that signature, and its edges,
-  // through the navigation door before this run writes anything, so a room
-  // self-heals on its next scan. Counts are threaded to status.json below and
-  // recorded as a memory event (best-effort); never silent.
-  let legacyEntitiesPurged = 0;
-  let legacyEdgesPurged = 0;
-  try {
-    const purge = navigation.purgeLegacySelfReferentialEntities(db);
-    if (purge && purge.ok) {
-      legacyEntitiesPurged = purge.purgedNodes || 0;
-      legacyEdgesPurged = purge.purgedEdges || 0;
-    } else {
-      process.stderr.write('entity-extract: legacy entity purge skipped: ' + ((purge && purge.reason) || 'unknown') + '\n');
-    }
-  } catch (e) {
-    process.stderr.write('entity-extract: legacy entity purge failed: ' + String(e && e.message).split('\n')[0] + '\n');
-  }
-  if (legacyEntitiesPurged > 0) {
-    try {
-      navigation.logMemoryEvent(db, 'legacy_entity_purge', {
-        purged_nodes: legacyEntitiesPurged,
-        purged_edges: legacyEdgesPurged,
-        signature: 'entity id + self-referential source_path',
-        dedupe_key: 'legacy_entity_purge:' + String(sessionId),
-      });
-    } catch (_e) { /* best-effort telemetry, never blocks the run */ }
-  }
   // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
   // Absent -> full-room collection, byte-identical to the 218 behavior.
   const artifacts = collectArtifacts(db, roomDir, options.paths);
@@ -1007,10 +977,69 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
       if (outcome === 'applied') frameworkApplied += 1;
       else if (outcome === 'skipped') frameworkSkipped += 1;
     }
+    // Quick task 260917-ild, leg 9 (ordering proof): test-only failure seam.
+    // Thrown AFTER every entity and edge write above and BEFORE COMMIT, so the
+    // existing ROLLBACK path below runs and the error propagates out of
+    // runExtraction. This is the leg that proves the purge (now called only
+    // AFTER this COMMIT succeeds, below) never runs when the replacement
+    // writes did not land.
+    if (options._failWriteLoop === true) {
+      throw new Error('entity-extract: _failWriteLoop test seam fired');
+    }
     db.exec('COMMIT');
   } catch (err) {
     db.exec('ROLLBACK');
     throw err;
+  }
+
+  // RCA eureka-entity-extraction-boilerplate-candidates (navigator ruling
+  // 2026-09-17), narrowed by quick task 260917-ild (Codex F2, F3): rooms
+  // scanned before the scaffold-input and source_path fixes keep their
+  // machine-authored template entities (self-referential source_path
+  // 'entity:sid:name'). Purge exactly that signature, bounded by PROVEN
+  // scaffold-only provenance (see typed-entity.cjs's docblock), through the
+  // navigation door -- but only AFTER the COMMIT above succeeds (T-ild-03,
+  // leg 9: a mid-batch failure must leave every legacy row in place, and a
+  // deletion that ran before the replacement writes committed could delete a
+  // row with no replacement yet written) and only on a FULL-ROOM run
+  // (options.paths absent -- T-ild-03, leg 8: a scoped caller such as
+  // research-filing must never trigger a room-wide deletion). scaffoldKinds
+  // is sourced from the one in-file vocabulary, SCAFFOLD_KIND_BASENAME's
+  // keys, so Task 3 can re-source that map without touching this call site.
+  // Counts are threaded to status.json below and recorded as a memory event
+  // (best-effort); never silent.
+  let legacyEntitiesPurged = 0;
+  let legacyEdgesPurged = 0;
+  let legacyEntitiesKept = 0;
+  let legacyPurgeSkipped = null;
+  if (options.paths) {
+    legacyPurgeSkipped = 'scoped_run';
+  } else {
+    try {
+      const purge = navigation.purgeLegacySelfReferentialEntities(db, {
+        scaffoldKinds: Object.keys(SCAFFOLD_KIND_BASENAME),
+      });
+      if (purge && purge.ok) {
+        legacyEntitiesPurged = purge.purgedNodes || 0;
+        legacyEdgesPurged = purge.purgedEdges || 0;
+        legacyEntitiesKept = purge.keptNodes || 0;
+      } else {
+        process.stderr.write('entity-extract: legacy entity purge skipped: ' + ((purge && purge.reason) || 'unknown') + '\n');
+      }
+    } catch (e) {
+      process.stderr.write('entity-extract: legacy entity purge failed: ' + String(e && e.message).split('\n')[0] + '\n');
+    }
+    if (legacyEntitiesPurged > 0) {
+      try {
+        navigation.logMemoryEvent(db, 'legacy_entity_purge', {
+          purged_nodes: legacyEntitiesPurged,
+          purged_edges: legacyEdgesPurged,
+          kept_nodes: legacyEntitiesKept,
+          signature: 'entity id + self-referential source_path, proven scaffold-only DESCRIBES provenance',
+          dedupe_key: 'legacy_entity_purge:' + String(sessionId),
+        });
+      } catch (_e) { /* best-effort telemetry, never blocks the run */ }
+    }
   }
 
   // Route-a best-effort re-embed (REQ-3, Open Q2). AFTER commit, in its OWN
@@ -1039,6 +1068,11 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     scaffoldFilesSkipped: scaffoldFilesSkipped,
     legacyEntitiesPurged: legacyEntitiesPurged,
     legacyEdgesPurged: legacyEdgesPurged,
+    // Quick task 260917-ild (Codex F2, F3): honest disclosure of the narrowed
+    // purge's kept count and, on a scoped run, the reason the three counts
+    // above stay at 0 (never a silent skip).
+    legacyEntitiesKept: legacyEntitiesKept,
+    legacyPurgeSkipped: legacyPurgeSkipped,
   };
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
@@ -1110,10 +1144,15 @@ async function cmdRun(opts) {
       // scaffold (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded from
       // extraction input this run (never silent).
       scaffold_files_skipped: result.scaffoldFilesSkipped,
-      // Legacy self-referential entity rows (and their edges) removed at the
-      // start of this run (RCA eureka-entity-extraction-boilerplate-candidates).
+      // Legacy self-referential entity rows (and their edges) removed AFTER
+      // this run's replacement writes committed (RCA eureka-entity-
+      // extraction-boilerplate-candidates, narrowed by quick task 260917-ild).
       legacy_entities_purged: result.legacyEntitiesPurged,
       legacy_edges_purged: result.legacyEdgesPurged,
+      // Quick task 260917-ild (Codex F2, F3): the honest kept count, and the
+      // reason on a scoped run (the three counts above stay 0, never silent).
+      legacy_entities_kept: result.legacyEntitiesKept,
+      legacy_purge_skipped: result.legacyPurgeSkipped,
       session: opts.session,
     });
     return 0;

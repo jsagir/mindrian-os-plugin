@@ -317,6 +317,210 @@ async function main() {
       }
     });
 
+    // -----------------------------------------------------------------------
+    // Leg 6 (mixed-edge legacy row, Codex F2/F3, quick task 260917-ild): a
+    // self-referential row with ONE DESCRIBES edge to a scaffold anchor and
+    // ONE DESCRIBES edge to a non-scaffold memory_artifact survives a full
+    // run (proof is "every target", not "any target"), and status.json
+    // legacy_entities_kept counts it.
+    // -----------------------------------------------------------------------
+    await checkAsync('leg 6: a legacy row with a mixed scaffold/non-scaffold DESCRIBES edge survives and is counted kept', async function () {
+      const room = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(room);
+        const scaffoldAnchor = 'memory_artifact:business-model:ROOM';
+        // A non-scaffold memory_artifact node for a real content file: no
+        // 'kind' key at all, source_path a real room-relative path.
+        const nonScaffoldId = 'memory_artifact:business-model:pricing-notes';
+        const db0 = openRoomDb(room, { allowExtension: true });
+        try {
+          insertNode(db0, nonScaffoldId, 'memory_artifact', JSON.stringify({
+            section: 'business-model', path: 'business-model/pricing-notes.md',
+          }), {
+            source_path: 'business-model/pricing-notes.md', created_by: 'system', epistemic_type: 'observation',
+          });
+          const legacyId = 'entity:legacy-sid:Mixed Edge Co';
+          insertNode(db0, legacyId, 'company', JSON.stringify({ name: 'Mixed Edge Co', entityType: 'company' }), {
+            source_path: legacyId, created_by: 'system', epistemic_type: 'observation',
+          });
+          const r1 = navigation.writeEdge(db0, { source_id: legacyId, target_id: scaffoldAnchor, edge_type: 'DESCRIBES' });
+          const r2 = navigation.writeEdge(db0, { source_id: legacyId, target_id: nonScaffoldId, edge_type: 'DESCRIBES' });
+          assert.ok(r1 && r1.ok && r2 && r2.ok, 'both DESCRIBES edges must seed: ' + JSON.stringify([r1, r2]));
+        } finally {
+          closeRoomDb(db0);
+        }
+
+        const rc = await entityExtract.main([room, 'run']);
+        assert.equal(rc, 0, 'entity-extract run should exit 0');
+        const statusPath = path.join(room, '.mindrian', 'entity-extract', 'status.json');
+        const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+        assert.ok(status.legacy_entities_kept >= 1,
+          'status.json legacy_entities_kept must count the mixed-edge row, got ' + JSON.stringify(status.legacy_entities_kept));
+
+        const db1 = openRoomDb(room, { allowExtension: true });
+        try {
+          const row = db1.prepare("SELECT id FROM nodes WHERE id = ?").get('entity:legacy-sid:Mixed Edge Co');
+          assert.ok(row, 'the mixed-edge legacy row must survive the run');
+        } finally {
+          closeRoomDb(db1);
+        }
+      } finally {
+        try { fs.rmSync(room, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Leg 7 (rejected row, Codex F3, Canon Part 9): a self-referential row
+    // with review_status 'rejected' survives a full run, its review_status
+    // unchanged, even when its name also appears in an extraction input.
+    // -----------------------------------------------------------------------
+    await checkAsync('leg 7: a rejected legacy row survives a full run with review_status unchanged', async function () {
+      const room = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(room);
+        const scaffoldAnchor = 'memory_artifact:business-model:ROOM';
+        const legacyId = 'entity:legacy-sid:Rejected Corp';
+        const db0 = openRoomDb(room, { allowExtension: true });
+        try {
+          insertNode(db0, legacyId, 'company', JSON.stringify({ name: 'Rejected Corp', entityType: 'company' }), {
+            source_path: legacyId, created_by: 'system', epistemic_type: 'observation', review_status: 'rejected',
+          });
+          const r = navigation.writeEdge(db0, { source_id: legacyId, target_id: scaffoldAnchor, edge_type: 'DESCRIBES' });
+          assert.ok(r && r.ok, 'seed DESCRIBES edge must write: ' + JSON.stringify(r));
+        } finally {
+          closeRoomDb(db0);
+        }
+        // The row's name also appears in a content artifact this run reads
+        // (proves survival is not an accident of nothing else naming it).
+        fs.writeFileSync(path.join(room, 'business-model', 'rejected-mention.md'),
+          '# Rejected Mention\n\nRejected Corp is mentioned here for context only.\n', 'utf8');
+
+        const rc = await entityExtract.main([room, 'run']);
+        assert.equal(rc, 0, 'entity-extract run should exit 0');
+
+        const db1 = openRoomDb(room, { allowExtension: true });
+        try {
+          // Note: the freshly extracted "Rejected Corp" entity lands under a
+          // DIFFERENT node id, minted from this run's own sessionId (not
+          // 'legacy-sid'), so survival of the ORIGINAL row id below is not an
+          // artifact of an UPSERT collision with the newly extracted entity.
+          const row = db1.prepare('SELECT id, review_status FROM nodes WHERE id = ?').get(legacyId);
+          assert.ok(row, 'the rejected legacy row must survive the run');
+          assert.equal(row.review_status, 'rejected', 'review_status must stay rejected, got ' + JSON.stringify(row && row.review_status));
+        } finally {
+          closeRoomDb(db1);
+        }
+      } finally {
+        try { fs.rmSync(room, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Leg 8 (scoped run, Codex F2, T-ild-03): a scoped run (options.paths
+    // present) purges nothing, even on a room holding template-only legacy
+    // rows. This is the leg that proves research-filing's scoped caller can
+    // never trigger a room-wide deletion.
+    // -----------------------------------------------------------------------
+    await checkAsync('leg 8: a scoped run (options.paths) purges nothing and leaves every legacy row in place', async function () {
+      const room = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(room);
+        const scaffoldAnchor = 'memory_artifact:business-model:ROOM';
+        const legacyNames = ['Scoped Seeded', 'Scoped Working'];
+        const db0 = openRoomDb(room, { allowExtension: true });
+        try {
+          for (const name of legacyNames) {
+            const id = 'entity:legacy-sid:' + name;
+            insertNode(db0, id, 'company', JSON.stringify({ name: name, entityType: 'company' }), {
+              source_path: id, created_by: 'system', epistemic_type: 'observation',
+            });
+            const r = navigation.writeEdge(db0, { source_id: id, target_id: scaffoldAnchor, edge_type: 'DESCRIBES' });
+            assert.ok(r && r.ok, 'seed DESCRIBES edge must write for ' + name);
+          }
+        } finally {
+          closeRoomDb(db0);
+        }
+
+        const db1 = openRoomDb(room, { allowExtension: true });
+        let result;
+        try {
+          result = await runExtraction(db1, room, 'entity-extract', 25, {
+            paths: ['business-model/pricing-notes.md'],
+            _forceNoLlm: true,
+            embedClassifyImpl: forceEmbedFail,
+          });
+        } finally {
+          closeRoomDb(db1);
+        }
+        assert.equal(result.legacyEntitiesPurged, 0, 'a scoped run must purge nothing, got ' + JSON.stringify(result.legacyEntitiesPurged));
+
+        const db2 = openRoomDb(room, { allowExtension: true });
+        try {
+          for (const name of legacyNames) {
+            const row = db2.prepare('SELECT id FROM nodes WHERE id = ?').get('entity:legacy-sid:' + name);
+            assert.ok(row, 'legacy row ' + name + ' must remain after a scoped run');
+          }
+        } finally {
+          closeRoomDb(db2);
+        }
+      } finally {
+        try { fs.rmSync(room, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Leg 9 (ordering proof, Codex F2): a full run with the injected
+    // write-loop failure seam rejects, and every legacy row is still present
+    // afterwards -- the purge runs only after the replacement writes commit.
+    // -----------------------------------------------------------------------
+    await checkAsync('leg 9: a write-loop failure leaves every legacy row in place (purge runs only after the writes commit)', async function () {
+      const room = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(room);
+        const scaffoldAnchor = 'memory_artifact:business-model:ROOM';
+        const legacyNames = ['Ordering Seeded', 'Ordering Working'];
+        const db0 = openRoomDb(room, { allowExtension: true });
+        try {
+          for (const name of legacyNames) {
+            const id = 'entity:legacy-sid:' + name;
+            insertNode(db0, id, 'company', JSON.stringify({ name: name, entityType: 'company' }), {
+              source_path: id, created_by: 'system', epistemic_type: 'observation',
+            });
+            const r = navigation.writeEdge(db0, { source_id: id, target_id: scaffoldAnchor, edge_type: 'DESCRIBES' });
+            assert.ok(r && r.ok, 'seed DESCRIBES edge must write for ' + name);
+          }
+        } finally {
+          closeRoomDb(db0);
+        }
+
+        const db1 = openRoomDb(room, { allowExtension: true });
+        try {
+          await assert.rejects(
+            runExtraction(db1, room, 'entity-extract', 25, {
+              _forceNoLlm: true,
+              embedClassifyImpl: forceEmbedFail,
+              _failWriteLoop: true,
+            }),
+            'runExtraction must reject when the write-loop failure seam fires'
+          );
+        } finally {
+          closeRoomDb(db1);
+        }
+
+        const db2 = openRoomDb(room, { allowExtension: true });
+        try {
+          for (const name of legacyNames) {
+            const row = db2.prepare('SELECT id FROM nodes WHERE id = ?').get('entity:legacy-sid:' + name);
+            assert.ok(row, 'legacy row ' + name + ' must remain after a rejected run');
+          }
+        } finally {
+          closeRoomDb(db2);
+        }
+      } finally {
+        try { fs.rmSync(room, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
+    });
+
     console.log('\n' + pass + '/' + total + ' scaffold-entity-noise checks passed');
     if (pass !== total) process.exit(1);
   } finally {
