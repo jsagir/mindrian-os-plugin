@@ -1,0 +1,20 @@
+{
+  "_note": "Phase 353 Plan 02 Task 2: a small, hand-authored recorded Jev response fixture covering two job ids, so the ledger scoring path is deterministic in tests with zero network. Shapes match the jev-1.13.0 score-question contract (score/confidence per candidate).",
+  "model": "jev-1.13.0",
+  "usage": {
+    "input_tokens_per_call": 512,
+    "output_tokens_per_call": 96
+  },
+  "rows": {
+    "find-problem": [
+      { "command": "/mos:beautiful-question", "framework": "Beautiful Questions", "score": 2, "confidence": 0.82 },
+      { "command": "/mos:diagnose", "framework": "Diagnosis", "score": 2, "confidence": 0.71 },
+      { "command": "/mos:root-cause", "framework": "Root Cause Analysis", "score": 1, "confidence": 0.55 }
+    ],
+    "model-business": [
+      { "command": "/mos:lean-canvas", "framework": "Lean Canvas", "score": 2, "confidence": 0.75 },
+      { "command": "/mos:validate-proposition", "framework": "Value Proposition Canvas", "score": 2, "confidence": 0.68 },
+      { "command": "/mos:mullins", "framework": "7-Domains Model", "score": 1, "confidence": 0.42 }
+    ]
+  }
+}
