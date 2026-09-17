@@ -414,7 +414,28 @@ when the local encoder is unavailable, the derivation layer scores nothing,
 writes a single scalar-only `derivation_skipped` disclosure marker, and moves
 on. There is NO lexical-only degrade -- a symmetric keyword score cannot
 honestly type an edge, so unavailability is a DISCLOSED skip, never a silent
-lexical guess. The floors only ever gate a real encoder score.
+lexical guess. The floors only ever gate a real encoder score. Quick 260917-o1e:
+a pass that finishes WITH the encoder available now writes the matching
+`derivation_completed` disclosure, so the skip marker is no longer the only
+memory the derive layer keeps and a stale skip cannot outlive live evidence.
+
+### MOS_NO_DETACHED_DERIVE
+
+**What:** A test seam and an operator escape hatch, not a user knob (matching
+how this file treats other seams, for example `MOS_NO_DETACHED_FTS_BUILD`
+above). Setting it to `1` suppresses the detached `--worker` re-spawn
+`scripts/gsd-graph-derive-drain.cjs` otherwise fires on its bare SessionStart
+entry point, so the drain runs in-process and the caller owns the timing.
+**Default:** unset (the detached spawn fires normally).
+**Why:** the SessionStart hook budget cannot cover a cold encoder load plus a
+room-scoped scoring pass, so the hook entry point detaches. A human or a test
+that needs to SEE the drain run must suppress that detach, and the script
+never reads stdin, so there is no piping alternative -- the manual,
+in-process run is:
+
+```bash
+MOS_NO_DETACHED_DERIVE=1 node scripts/gsd-graph-derive-drain.cjs --room <dir> [--dry-run]
+```
 
 ## Zero-Score No-Match Gate Floor (Phase 225, room-local, zero egress)
 

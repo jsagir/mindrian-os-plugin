@@ -54,6 +54,17 @@
  *                                                         (used by the round-trip test).
  *   node scripts/gsd-graph-derive-drain.cjs --dry-run  -- report the drain plan, do not run.
  *
+ * Quick 260917-o1e (R5a), two facts that cost a session to rediscover:
+ *   - this script NEVER reads stdin. Piping a room path or a JSON payload into
+ *     it does nothing; the invocation simply drains the resolved room's queue.
+ *   - the bare entry point (main(), below) RE-SPAWNS itself detached with
+ *     --worker and exits immediately, so a foreground run that appears to do
+ *     nothing is behaving correctly -- the real drain is running in the
+ *     background with no hook budget over it. The manual, in-process run that
+ *     actually shows the drain working is:
+ *
+ *     MOS_NO_DETACHED_DERIVE=1 node scripts/gsd-graph-derive-drain.cjs --room <dir> [--dry-run]
+ *
  * Pure CJS, node built-ins only, zero npm deps. No em-dashes (CLAUDE.md).
  */
 

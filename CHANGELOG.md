@@ -1,10 +1,18 @@
 ## [Unreleased] -- v2.0.0-beta.46 (in progress)
 
-### Added
-- 
-
 ### Fixed
 
+- **A stale encoder-skip event locked a room's doctor verdict forever, even after
+  the encoder was installed.** The only counter-evidence `graph-derive-health-module.cjs`
+  accepted against a `derivation_skipped(encoder_unavailable)` event was a
+  heal-attempt marker file, and `fix()` refused to write that marker for exactly
+  the rooms carrying the skip -- so installing the encoder changed no input a
+  stale room could ever see. Room `cle-europe` reported this live on 2026-09-17.
+  The derive layer now records its successes (`derivation_completed`) as well as
+  its failures, the detector weighs the newer of the two, and `--heal-room` runs
+  a live presence probe before warning. The hand-written
+  `.mindrian/graph-derive-heal-attempts.json` workaround is no longer needed.
+  Quick task 260917-o1e.
 - **Step 9.7's registry-propagation poll aborted the ceremony on the first 404 under
   `set -euo pipefail`.** An npm E404 (the registry still processing an asynchronous publish)
   made the poll's command substitution's exit status inherit `npm view`'s exit 1 under
