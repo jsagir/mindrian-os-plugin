@@ -1,0 +1,1242 @@
+{
+  "started": "2026-09-17T06:37:50.721Z",
+  "expected_distribution": {
+    "pseudoscience": 48,
+    "restatement": 8,
+    "general_shallow": 7,
+    "transferable": 1
+  },
+  "variants": {
+    "R_rule_stated": {
+      "agreement": 1,
+      "agree": 64,
+      "n": 64,
+      "per_verdict": {
+        "transferable": {
+          "n": 1,
+          "agree": 1
+        },
+        "restatement": {
+          "n": 8,
+          "agree": 8
+        },
+        "pseudoscience": {
+          "n": 48,
+          "agree": 48
+        },
+        "general_shallow": {
+          "n": 7,
+          "agree": 7
+        }
+      },
+      "confusion": {
+        "pseudoscience->pseudoscience": 48,
+        "restatement->restatement": 8,
+        "general_shallow->general_shallow": 7,
+        "transferable->transferable": 1
+      },
+      "conf_when_agree": 0.9037499999999999,
+      "conf_when_disagree": null,
+      "usage": {
+        "input_tokens": 52736,
+        "output_tokens": 3991
+      },
+      "ms_p50": 310,
+      "rows": [
+        {
+          "pattern": "000000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 895,
+          "status": 200
+        },
+        {
+          "pattern": "000001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.98,
+          "ms": 831,
+          "status": 200
+        },
+        {
+          "pattern": "000010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 805,
+          "status": 200
+        },
+        {
+          "pattern": "000011",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.93,
+          "p_expected": 0.95,
+          "ms": 802,
+          "status": 200
+        },
+        {
+          "pattern": "000100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 804,
+          "status": 200
+        },
+        {
+          "pattern": "000101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.95,
+          "p_expected": 0.96,
+          "ms": 826,
+          "status": 200
+        },
+        {
+          "pattern": "000110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 861,
+          "status": 200
+        },
+        {
+          "pattern": "000111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.98,
+          "ms": 361,
+          "status": 200
+        },
+        {
+          "pattern": "001000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.93,
+          "p_expected": 0.95,
+          "ms": 773,
+          "status": 200
+        },
+        {
+          "pattern": "001001",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.77,
+          "p_expected": 0.83,
+          "ms": 380,
+          "status": 200
+        },
+        {
+          "pattern": "001010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.95,
+          "p_expected": 0.96,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "001011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 437,
+          "status": 200
+        },
+        {
+          "pattern": "001100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.94,
+          "p_expected": 0.96,
+          "ms": 315,
+          "status": 200
+        },
+        {
+          "pattern": "001101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.68,
+          "p_expected": 0.76,
+          "ms": 341,
+          "status": 200
+        },
+        {
+          "pattern": "001110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 0.99,
+          "ms": 301,
+          "status": 200
+        },
+        {
+          "pattern": "001111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.99,
+          "p_expected": 0.99,
+          "ms": 292,
+          "status": 200
+        },
+        {
+          "pattern": "010000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 264,
+          "status": 200
+        },
+        {
+          "pattern": "010001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 298,
+          "status": 200
+        },
+        {
+          "pattern": "010010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 281,
+          "status": 200
+        },
+        {
+          "pattern": "010011",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "010100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 291,
+          "status": 200
+        },
+        {
+          "pattern": "010101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.96,
+          "p_expected": 0.97,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "010110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 409,
+          "status": 200
+        },
+        {
+          "pattern": "010111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 303,
+          "status": 200
+        },
+        {
+          "pattern": "011000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.79,
+          "p_expected": 0.84,
+          "ms": 346,
+          "status": 200
+        },
+        {
+          "pattern": "011001",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.69,
+          "p_expected": 0.77,
+          "ms": 362,
+          "status": 200
+        },
+        {
+          "pattern": "011010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.92,
+          "p_expected": 0.94,
+          "ms": 302,
+          "status": 200
+        },
+        {
+          "pattern": "011011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.92,
+          "p_expected": 0.95,
+          "ms": 323,
+          "status": 200
+        },
+        {
+          "pattern": "011100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.9,
+          "p_expected": 0.93,
+          "ms": 283,
+          "status": 200
+        },
+        {
+          "pattern": "011101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.8,
+          "p_expected": 0.85,
+          "ms": 314,
+          "status": 200
+        },
+        {
+          "pattern": "011110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.97,
+          "p_expected": 0.97,
+          "ms": 342,
+          "status": 200
+        },
+        {
+          "pattern": "011111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.8,
+          "p_expected": 0.85,
+          "ms": 333,
+          "status": 200
+        },
+        {
+          "pattern": "100000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 303,
+          "status": 200
+        },
+        {
+          "pattern": "100001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.97,
+          "p_expected": 0.98,
+          "ms": 310,
+          "status": 200
+        },
+        {
+          "pattern": "100010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 313,
+          "status": 200
+        },
+        {
+          "pattern": "100011",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.97,
+          "p_expected": 0.98,
+          "ms": 278,
+          "status": 200
+        },
+        {
+          "pattern": "100100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 294,
+          "status": 200
+        },
+        {
+          "pattern": "100101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.98,
+          "ms": 316,
+          "status": 200
+        },
+        {
+          "pattern": "100110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 298,
+          "status": 200
+        },
+        {
+          "pattern": "100111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 286,
+          "status": 200
+        },
+        {
+          "pattern": "101000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.92,
+          "p_expected": 0.94,
+          "ms": 319,
+          "status": 200
+        },
+        {
+          "pattern": "101001",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.49,
+          "p_expected": 0.62,
+          "ms": 289,
+          "status": 200
+        },
+        {
+          "pattern": "101010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.96,
+          "p_expected": 0.97,
+          "ms": 341,
+          "status": 200
+        },
+        {
+          "pattern": "101011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.99,
+          "p_expected": 0.99,
+          "ms": 407,
+          "status": 200
+        },
+        {
+          "pattern": "101100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.95,
+          "p_expected": 0.96,
+          "ms": 284,
+          "status": 200
+        },
+        {
+          "pattern": "101101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.46,
+          "p_expected": 0.6,
+          "ms": 334,
+          "status": 200
+        },
+        {
+          "pattern": "101110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.97,
+          "p_expected": 0.98,
+          "ms": 296,
+          "status": 200
+        },
+        {
+          "pattern": "101111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.98,
+          "p_expected": 0.98,
+          "ms": 310,
+          "status": 200
+        },
+        {
+          "pattern": "110000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "110001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.98,
+          "p_expected": 0.99,
+          "ms": 277,
+          "status": 200
+        },
+        {
+          "pattern": "110010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 284,
+          "status": 200
+        },
+        {
+          "pattern": "110011",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 1615,
+          "status": 200
+        },
+        {
+          "pattern": "110100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 323,
+          "status": 200
+        },
+        {
+          "pattern": "110101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 0.99,
+          "ms": 306,
+          "status": 200
+        },
+        {
+          "pattern": "110110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 1,
+          "p_expected": 1,
+          "ms": 296,
+          "status": 200
+        },
+        {
+          "pattern": "110111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.99,
+          "p_expected": 1,
+          "ms": 301,
+          "status": 200
+        },
+        {
+          "pattern": "111000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.73,
+          "p_expected": 0.8,
+          "ms": 296,
+          "status": 200
+        },
+        {
+          "pattern": "111001",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.43,
+          "p_expected": 0.5599999999999999,
+          "ms": 272,
+          "status": 200
+        },
+        {
+          "pattern": "111010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.92,
+          "p_expected": 0.94,
+          "ms": 280,
+          "status": 200
+        },
+        {
+          "pattern": "111011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.55,
+          "p_expected": 0.66,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "111100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.74,
+          "p_expected": 0.81,
+          "ms": 422,
+          "status": 200
+        },
+        {
+          "pattern": "111101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.58,
+          "p_expected": 0.68,
+          "ms": 321,
+          "status": 200
+        },
+        {
+          "pattern": "111110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.96,
+          "p_expected": 0.98,
+          "ms": 296,
+          "status": 200
+        },
+        {
+          "pattern": "111111",
+          "expected": "transferable",
+          "got": "transferable",
+          "confidence": 0.65,
+          "p_expected": 0.73,
+          "ms": 292,
+          "status": 200
+        }
+      ]
+    },
+    "N_no_rule": {
+      "agreement": 0.625,
+      "agree": 40,
+      "n": 64,
+      "per_verdict": {
+        "transferable": {
+          "n": 1,
+          "agree": 1
+        },
+        "restatement": {
+          "n": 8,
+          "agree": 2
+        },
+        "pseudoscience": {
+          "n": 48,
+          "agree": 30
+        },
+        "general_shallow": {
+          "n": 7,
+          "agree": 7
+        }
+      },
+      "confusion": {
+        "pseudoscience->general_shallow": 18,
+        "pseudoscience->pseudoscience": 30,
+        "restatement->general_shallow": 6,
+        "general_shallow->general_shallow": 7,
+        "restatement->restatement": 2,
+        "transferable->transferable": 1
+      },
+      "conf_when_agree": 0.6092500000000001,
+      "conf_when_disagree": 0.5070833333333333,
+      "usage": {
+        "input_tokens": 47808,
+        "output_tokens": 3961
+      },
+      "ms_p50": 303,
+      "rows": [
+        {
+          "pattern": "000000",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.31,
+          "p_expected": 0.39,
+          "ms": 328,
+          "status": 200
+        },
+        {
+          "pattern": "000001",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.57,
+          "p_expected": 0.21,
+          "ms": 283,
+          "status": 200
+        },
+        {
+          "pattern": "000010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.51,
+          "p_expected": 0.62,
+          "ms": 371,
+          "status": 200
+        },
+        {
+          "pattern": "000011",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.64,
+          "p_expected": 0.19,
+          "ms": 329,
+          "status": 200
+        },
+        {
+          "pattern": "000100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.47,
+          "p_expected": 0.59,
+          "ms": 264,
+          "status": 200
+        },
+        {
+          "pattern": "000101",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.48,
+          "p_expected": 0.23,
+          "ms": 286,
+          "status": 200
+        },
+        {
+          "pattern": "000110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.81,
+          "p_expected": 0.85,
+          "ms": 1026,
+          "status": 200
+        },
+        {
+          "pattern": "000111",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.46,
+          "p_expected": 0.35,
+          "ms": 347,
+          "status": 200
+        },
+        {
+          "pattern": "001000",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.59,
+          "p_expected": 0.17,
+          "ms": 314,
+          "status": 200
+        },
+        {
+          "pattern": "001001",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.8,
+          "p_expected": 0.13,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "001010",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.39,
+          "p_expected": 0.41,
+          "ms": 303,
+          "status": 200
+        },
+        {
+          "pattern": "001011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.94,
+          "p_expected": 0.95,
+          "ms": 313,
+          "status": 200
+        },
+        {
+          "pattern": "001100",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.23,
+          "p_expected": 0.42,
+          "ms": 316,
+          "status": 200
+        },
+        {
+          "pattern": "001101",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.71,
+          "p_expected": 0.19,
+          "ms": 345,
+          "status": 200
+        },
+        {
+          "pattern": "001110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.64,
+          "p_expected": 0.72,
+          "ms": 302,
+          "status": 200
+        },
+        {
+          "pattern": "001111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.9,
+          "p_expected": 0.92,
+          "ms": 272,
+          "status": 200
+        },
+        {
+          "pattern": "010000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.56,
+          "p_expected": 0.67,
+          "ms": 297,
+          "status": 200
+        },
+        {
+          "pattern": "010001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.2,
+          "p_expected": 0.4,
+          "ms": 263,
+          "status": 200
+        },
+        {
+          "pattern": "010010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.69,
+          "p_expected": 0.76,
+          "ms": 271,
+          "status": 200
+        },
+        {
+          "pattern": "010011",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.31,
+          "p_expected": 0.43,
+          "ms": 285,
+          "status": 200
+        },
+        {
+          "pattern": "010100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.65,
+          "p_expected": 0.74,
+          "ms": 301,
+          "status": 200
+        },
+        {
+          "pattern": "010101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.26,
+          "p_expected": 0.45,
+          "ms": 280,
+          "status": 200
+        },
+        {
+          "pattern": "010110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.91,
+          "p_expected": 0.92,
+          "ms": 338,
+          "status": 200
+        },
+        {
+          "pattern": "010111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.61,
+          "p_expected": 0.71,
+          "ms": 286,
+          "status": 200
+        },
+        {
+          "pattern": "011000",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.17,
+          "p_expected": 0.26,
+          "ms": 308,
+          "status": 200
+        },
+        {
+          "pattern": "011001",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.39,
+          "p_expected": 0.42,
+          "ms": 292,
+          "status": 200
+        },
+        {
+          "pattern": "011010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.36,
+          "p_expected": 0.52,
+          "ms": 297,
+          "status": 200
+        },
+        {
+          "pattern": "011011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.72,
+          "p_expected": 0.79,
+          "ms": 267,
+          "status": 200
+        },
+        {
+          "pattern": "011100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.38,
+          "p_expected": 0.53,
+          "ms": 330,
+          "status": 200
+        },
+        {
+          "pattern": "011101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.3,
+          "p_expected": 0.48,
+          "ms": 349,
+          "status": 200
+        },
+        {
+          "pattern": "011110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.81,
+          "p_expected": 0.86,
+          "ms": 312,
+          "status": 200
+        },
+        {
+          "pattern": "011111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.35,
+          "p_expected": 0.51,
+          "ms": 262,
+          "status": 200
+        },
+        {
+          "pattern": "100000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.36,
+          "p_expected": 0.52,
+          "ms": 291,
+          "status": 200
+        },
+        {
+          "pattern": "100001",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.61,
+          "p_expected": 0.2,
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "pattern": "100010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.5,
+          "p_expected": 0.62,
+          "ms": 301,
+          "status": 200
+        },
+        {
+          "pattern": "100011",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.73,
+          "p_expected": 0.18,
+          "ms": 345,
+          "status": 200
+        },
+        {
+          "pattern": "100100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.56,
+          "p_expected": 0.67,
+          "ms": 338,
+          "status": 200
+        },
+        {
+          "pattern": "100101",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.48,
+          "p_expected": 0.27,
+          "ms": 299,
+          "status": 200
+        },
+        {
+          "pattern": "100110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.76,
+          "p_expected": 0.8099999999999999,
+          "ms": 299,
+          "status": 200
+        },
+        {
+          "pattern": "100111",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.53,
+          "p_expected": 0.33,
+          "ms": 307,
+          "status": 200
+        },
+        {
+          "pattern": "101000",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.57,
+          "p_expected": 0.19,
+          "ms": 317,
+          "status": 200
+        },
+        {
+          "pattern": "101001",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.89,
+          "p_expected": 0.07,
+          "ms": 284,
+          "status": 200
+        },
+        {
+          "pattern": "101010",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.58,
+          "p_expected": 0.28,
+          "ms": 342,
+          "status": 200
+        },
+        {
+          "pattern": "101011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.98,
+          "p_expected": 0.98,
+          "ms": 295,
+          "status": 200
+        },
+        {
+          "pattern": "101100",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.36,
+          "p_expected": 0.33,
+          "ms": 331,
+          "status": 200
+        },
+        {
+          "pattern": "101101",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.8,
+          "p_expected": 0.14,
+          "ms": 437,
+          "status": 200
+        },
+        {
+          "pattern": "101110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.45,
+          "p_expected": 0.6,
+          "ms": 322,
+          "status": 200
+        },
+        {
+          "pattern": "101111",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.94,
+          "p_expected": 0.96,
+          "ms": 321,
+          "status": 200
+        },
+        {
+          "pattern": "110000",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.69,
+          "p_expected": 0.77,
+          "ms": 292,
+          "status": 200
+        },
+        {
+          "pattern": "110001",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.43,
+          "p_expected": 0.57,
+          "ms": 267,
+          "status": 200
+        },
+        {
+          "pattern": "110010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.84,
+          "p_expected": 0.89,
+          "ms": 274,
+          "status": 200
+        },
+        {
+          "pattern": "110011",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.42,
+          "p_expected": 0.56,
+          "ms": 323,
+          "status": 200
+        },
+        {
+          "pattern": "110100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.86,
+          "p_expected": 0.89,
+          "ms": 303,
+          "status": 200
+        },
+        {
+          "pattern": "110101",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.59,
+          "p_expected": 0.69,
+          "ms": 299,
+          "status": 200
+        },
+        {
+          "pattern": "110110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.95,
+          "p_expected": 0.97,
+          "ms": 318,
+          "status": 200
+        },
+        {
+          "pattern": "110111",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.84,
+          "p_expected": 0.88,
+          "ms": 337,
+          "status": 200
+        },
+        {
+          "pattern": "111000",
+          "expected": "pseudoscience",
+          "got": "general_shallow",
+          "confidence": 0.19,
+          "p_expected": 0.22,
+          "ms": 288,
+          "status": 200
+        },
+        {
+          "pattern": "111001",
+          "expected": "restatement",
+          "got": "general_shallow",
+          "confidence": 0.38,
+          "p_expected": 0.34,
+          "ms": 366,
+          "status": 200
+        },
+        {
+          "pattern": "111010",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.47,
+          "p_expected": 0.6,
+          "ms": 302,
+          "status": 200
+        },
+        {
+          "pattern": "111011",
+          "expected": "general_shallow",
+          "got": "general_shallow",
+          "confidence": 0.51,
+          "p_expected": 0.64,
+          "ms": 583,
+          "status": 200
+        },
+        {
+          "pattern": "111100",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.26,
+          "p_expected": 0.45,
+          "ms": 311,
+          "status": 200
+        },
+        {
+          "pattern": "111101",
+          "expected": "restatement",
+          "got": "restatement",
+          "confidence": 0.43,
+          "p_expected": 0.57,
+          "ms": 329,
+          "status": 200
+        },
+        {
+          "pattern": "111110",
+          "expected": "pseudoscience",
+          "got": "pseudoscience",
+          "confidence": 0.91,
+          "p_expected": 0.93,
+          "ms": 275,
+          "status": 200
+        },
+        {
+          "pattern": "111111",
+          "expected": "transferable",
+          "got": "transferable",
+          "confidence": 0.55,
+          "p_expected": 0.67,
+          "ms": 309,
+          "status": 200
+        }
+      ]
+    }
+  },
+  "finished": "2026-09-17T06:37:59.222Z"
+}
