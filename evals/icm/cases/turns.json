@@ -1,0 +1,113 @@
+{
+  "_labeling_note": "Hand-labeled 2026-09-17, in wave 1 of Phase 353, BEFORE data/section-command-ledger.json or any Jev-scored ranking exists. Success criterion 4's paired top-3 hit-rate run (sensor order versus ledger-fed candidates, Plan 03) is only honest if these labels predate the thing being measured. Each expected_commands list was hand-picked by reading the candidate command's own produces glob and serves_jtbd array in data/command-registry.json (113 commands, 16 distinct serves_jtbd values at HEAD), never inferred from a ranking the labeler had already seen. Slugs drop the leading slash (command 'mos:explore-domains' for the registry's '/mos:explore-domains').",
+  "turns": [
+    {
+      "id": "icm-turn-01",
+      "turn_text": "We do not actually know who has this problem or how many of them there are.",
+      "room": "alpha-room",
+      "section": "market-analysis",
+      "problem_type": "UnDefined",
+      "stage": "Discovery",
+      "expected_commands": ["mos:analyze-needs", "mos:user-needs", "mos:explore-domains"]
+    },
+    {
+      "id": "icm-turn-02",
+      "turn_text": "State the problem this venture is actually trying to solve, so a stranger could restate it back to us.",
+      "room": "alpha-room",
+      "section": "problem-definition",
+      "problem_type": "UnDefined",
+      "stage": "Pre-Opportunity",
+      "expected_commands": ["mos:beautiful-question", "mos:explore-domains", "mos:root-cause"]
+    },
+    {
+      "id": "icm-turn-03",
+      "turn_text": "What breaks our claim that customers will actually pay for this.",
+      "room": "alpha-room",
+      "section": "business-model",
+      "problem_type": "IllDefined",
+      "stage": "Design",
+      "expected_commands": ["mos:validate-proposition", "mos:lean-canvas", "mos:challenge-assumptions"]
+    },
+    {
+      "id": "icm-turn-04",
+      "turn_text": "Who else is solving this, and what would still be true if a competitor copied us.",
+      "room": "alpha-room",
+      "section": "competitive-analysis",
+      "problem_type": "IllDefined",
+      "stage": "Discovery",
+      "expected_commands": ["mos:compare-ventures", "mos:challenge-assumptions"]
+    },
+    {
+      "id": "icm-turn-05",
+      "turn_text": "Where is this venture stuck, and what is the single thing holding the whole system back.",
+      "room": "alpha-room",
+      "section": "strategy",
+      "problem_type": "Wicked",
+      "stage": "Discovery",
+      "expected_commands": ["mos:find-bottlenecks", "mos:systems-thinking", "mos:causal"]
+    },
+    {
+      "id": "icm-turn-06",
+      "turn_text": "Lay out the next 90 days: milestones, owners, dates.",
+      "room": "alpha-room",
+      "section": "team-execution",
+      "problem_type": "WellDefined",
+      "stage": "Validation",
+      "expected_commands": ["mos:act", "mos:scenario-plan", "mos:suggest-next"]
+    },
+    {
+      "id": "icm-turn-07",
+      "turn_text": "Is this idea worth pursuing at all, or should we walk away now.",
+      "room": "alpha-room",
+      "section": "opportunity-bank",
+      "problem_type": "IllDefined",
+      "stage": "Pre-Opportunity",
+      "expected_commands": ["mos:diagnose", "mos:build-thesis", "mos:bono"]
+    },
+    {
+      "id": "icm-turn-08",
+      "turn_text": "How big is this market really, and is it growing or shrinking.",
+      "room": "gamma-room",
+      "section": "market-analysis",
+      "problem_type": "UnDefined",
+      "stage": "Discovery",
+      "expected_commands": ["mos:macro-trends", "mos:analyze-timing", "mos:explore-trends"]
+    },
+    {
+      "id": "icm-turn-09",
+      "turn_text": "Design the actual solution and the technical choices behind it, and why each choice was made.",
+      "room": "gamma-room",
+      "section": "solution-design",
+      "problem_type": "WellDefined",
+      "stage": "Design",
+      "expected_commands": ["mos:bono", "mos:structure-argument", "mos:think-hats"]
+    },
+    {
+      "id": "icm-turn-10",
+      "turn_text": "Compare the two funding paths and tell me which one to submit against first.",
+      "room": "alpha-room",
+      "section": "funding",
+      "problem_type": "WellDefined",
+      "stage": "Investment",
+      "expected_commands": ["mos:funding", "mos:grade-grant", "mos:compare-ventures"]
+    },
+    {
+      "id": "icm-turn-11",
+      "turn_text": "What is the legal structure and what is actually protected right now.",
+      "room": "alpha-room",
+      "section": "legal-ip",
+      "problem_type": "WellDefined",
+      "stage": "Design",
+      "expected_commands": ["mos:structure-argument", "mos:challenge-assumptions"]
+    },
+    {
+      "id": "icm-turn-12",
+      "turn_text": "Score this innovation against the alternatives we already ruled out.",
+      "room": "gamma-room",
+      "section": "opportunity-bank",
+      "problem_type": "IllDefined",
+      "stage": "Discovery",
+      "expected_commands": ["mos:score-innovation", "mos:compare-ventures", "mos:models"]
+    }
+  ]
+}
