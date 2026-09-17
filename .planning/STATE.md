@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 353-01-PLAN.md - Wave 1 of 3
-last_updated: "2026-09-17T17:59:03.656Z"
-last_activity: 2026-09-17 -- Phase 353 Plan 01 (Room Map self-location) complete; 2 plans remain (353-02, 353-03)
+stopped_at: Completed 353-02-PLAN.md - Wave 2 of 3
+last_updated: "2026-09-17T18:56:33.348Z"
+last_activity: 2026-09-17 -- Phase 353 Plan 02 (Section Ruling System) complete; 1 plan remains (353-03)
 progress:
   total_phases: 103
   completed_phases: 34
   total_plans: 293
-  completed_plans: 285
-  percent: 97
+  completed_plans: 286
+  percent: 98
 ---
+
+<!-- NOTE (353-02 execute-plan, 2026-09-17, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported current_plan 2 -> 3 of 3. `state.update-progress`
+     correctly computed `completed: 286, percent: 98` (286/293). `state.record-metric` (flag
+     syntax `--phase --plan --duration --tasks --files`) landed its own correct Performance
+     Metrics row. `state.add-decision` (with `--summary`) repeated the documented `[Phase ?]`
+     placeholder-prefix bug (prepended `[Phase ?]: ` ahead of this plan's own already-prefixed
+     `[Phase 353]` text), fixed in place to a single `[Phase 353] 353-02: ...` line.
+     `state.record-session` updated only `Last session`, correctly, leaving the frontmatter
+     clobber from an EARLIER call in this same session (`stopped_at` reverted to a stale
+     "Completed 349-05-PLAN.md" snapshot with no wave suffix, `last_activity` reverted to the
+     stale "Phase 353 execution started" line, `percent` reverted to `33`, a phases-ratio
+     reading, not the plan-completion percentage) in place. Hand-corrected once, after all
+     calls landed: `stopped_at` -> "Completed 353-02-PLAN.md - Wave 2 of 3", `last_activity` ->
+     this plan's completion line, `percent` -> 98 (286/293, matching `state.update-progress`'s
+     own correct computation); left `total_phases`/`completed_phases` at 103/34 unchanged since
+     Phase 353 has not closed (1 of 3 plans remains: 353-03). `last_updated` left at the
+     tool's own timestamp, not re-investigated further. Same root cause as every other note in
+     this file. -->
 
 <!-- NOTE (353-01 execute-plan, 2026-09-17, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -33,7 +53,6 @@ progress:
      Phase 353 has not closed (2 of 3 plans remain: 353-02..353-03). `last_updated` left at the
      tool's own timestamp, not re-investigated further. Same root cause as every other note in
      this file. -->
-
 
 <!-- NOTE (349-06 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4930,7 +4949,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 353 (icm-section-ruling-system-self-locating-room-map-jtbd-rooted) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -6602,6 +6621,7 @@ Progress: [█████████░] 92%
 | Phase 349-release-to-theo-leading-edge P05 | 40min | 2 tasks | 4 files |
 | Phase 349 P06 | 90min | 3 tasks | 5 files |
 | Phase 353 P01 | 180min | 8 tasks | 20 files |
+| Phase 353 P02 | ~5h | 10 tasks | 33 files |
 
 ## Accumulated Context
 
@@ -8243,6 +8263,7 @@ Progress: [█████████░] 92%
 - [Phase 349] 349-05: RULE 5 place 8 amended in place with the leading half; VERSION-BUMP-CHECKLIST.md/WD-14 reconciled without creating the file, per 349-03's ratified option (a): WD-14 stands, deliverable 4 satisfied via RULE 5 place 8 plus the release-process include.
 - [Phase 349] 349-06: closed NOTIFY-01..14 with measured proof, registered Phase 351 for the R5 disposition, wrote the phase close-out record
 - [Phase 353] 353-01: gamma-room fixture ships with a root ROOM.md (not without) because the repo's pre-commit Data Room invariant refuses a .room-root dir missing ROOM.md/MINTO.md; missing-root and artifact-no-ROOM.md scenarios are exercised via tmpdir copies at test runtime instead.
+- [Phase 353] 353-02: governance-dial field corrected to decision_surface (not hitl_shape, which is the MCP-tool-class dial only); the four vocabulary-extension jobs declared honestly rather than mislabeled
 
 ### Pending Todos
 
@@ -8390,7 +8411,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-17T17:59:03.585Z
+Last session: 2026-09-17T18:56:33.280Z
 Stopped at: Completed 349-05-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair

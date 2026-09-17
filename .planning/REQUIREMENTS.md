@@ -2698,7 +2698,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
 
 **Plan 353-02 (section ruling system, ledger, filing gate, runtime filter)**
 
-- [ ] **RULE-10**: `data/section-job-canon.json` is the single home of the section job canon,
+- [x] **RULE-10**: `data/section-job-canon.json` is the single home of the section job canon,
       covering all 11 `CORE_SECTIONS` slugs plus `personas`, each with `job_id`,
       `secondary_job_id`, `vocabulary_extension`, `source` and `probe_confidence`, matching the
       measured Jev probe of 2026-09-17. It carries `ratification.ratified_by: null` and
@@ -2706,13 +2706,13 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `getSectionJob(slug)` returning `job_id: null` for an unknown slug, and the `job_id` values
       are NOT copied into `CORE_SECTIONS` or `SECTION_METADATA` (one home per fact).
 
-- [ ] **RULE-11**: the four vocabulary-extension members `model-business`, `model-finances`,
+- [x] **RULE-11**: the four vocabulary-extension members `model-business`, `model-finances`,
       `protect-assets` and `design-solution` exist as section-canon values only. No command
       markdown frontmatter is edited, so `node scripts/build-command-registry.cjs --check` and
       `lib/memory/per-command-jtbd-derivation.test.cjs` both stay green and the four are taxonomy
       orphans of the same class as the three already shipped.
 
-- [ ] **RULE-12**: `scripts/build-section-command-ledger.cjs` ports the Spike 002 Theo puller
+- [x] **RULE-12**: `scripts/build-section-command-ledger.cjs` ports the Spike 002 Theo puller
       verbatim (two FIXED Cypher texts, every variation in `$params`, `ROW_CAP` 100 with 36 alnum
       buckets plus a catch-all and a recursive split, the canonical filter), reads the result as
       `(res && (res.rows || res.records)) || []`, treats `brain_query_unrecognized_shape` as a
@@ -2720,13 +2720,13 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       with `400 * 2 ** attempt` backoff, and writes the six cost keys from the VENDOR-RETURNED
       usage with `cost_basis` labeled vendor-claimed.
 
-- [ ] **RULE-13**: `--check` performs zero network calls and asserts only what is verifiable
+- [x] **RULE-13**: `--check` performs zero network calls and asserts only what is verifiable
       offline (parse, `plugin_version`, `built_at` age, `theo_frameworks`, `jev_model`, and every
       `rows` key parsing as `<job_id>|<problem_type>|<stage>` with a canon-known `job_id`). It
       prints `section-command-ledger: OK` and exits 0, or names the drift and exits non-zero. The
       divergence from the eleven `build-*.cjs --check` siblings is stated in the script header.
 
-- [ ] **RULE-14**: `data/section-command-ledger.json` ships. Every canon `job_id` has at least one
+- [x] **RULE-14**: `data/section-command-ledger.json` ships. Every canon `job_id` has at least one
       row, because the join is the UNION of (`produces` names this section, seeded from the
       eleven hand-authored `## Commands that write here` tables) and (`serves_jtbd` includes the
       section's `job_id` or its secondary) per R-353-C, so the four vocabulary-extension sections
@@ -2734,21 +2734,21 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `build_mode: "offline-seed"`, `jev_model: null` and `confidence_floor: null` rather than
       claiming a vendor score it does not have.
 
-- [ ] **RULE-15**: each section's `CONTEXT.md` is generated: frontmatter `icm_layer`, `job_id`,
+- [x] **RULE-15**: each section's `CONTEXT.md` is generated: frontmatter `icm_layer`, `job_id`,
       `ruling_fingerprint`, `generated_at`, then six numbered parts inside a
       `mos:ruling:begin`/`mos:ruling:end` region, above authored prose that stays byte-identical.
       A missing document is CREATED (R-353-M). A second generation is byte-identical. The document
       stays at or under 500 chars-over-4 tokens (the icm-architect L2 band). `renderTemplate`
       substitution never runs over contract prose (T-275-13).
 
-- [ ] **RULE-16**: `tests/test-275-section-schema.cjs` is amended deliberately with phase-cited
+- [x] **RULE-16**: `tests/test-275-section-schema.cjs` is amended deliberately with phase-cited
       comments (R-353-L). The line 330 assertion STAYS green with a comment explaining that
       frontmatter is composed at write time and never added to a template; the line 366
       byte-identity assertion is REPLACED by two assertions pinning the new invariant (the marked,
       fingerprinted block is present, and every byte below the end marker matches the template).
       `node tests/test-275-section-schema.cjs` exits 0.
 
-- [ ] **RULE-17**: `lib/core/navigation/jtbd-anchor.cjs` mints `jtbd:<job_id>` with node type
+- [x] **RULE-17**: `lib/core/navigation/jtbd-anchor.cjs` mints `jtbd:<job_id>` with node type
       `'jtbd'` and NEVER `'claim'` (R-353-I; a claim-typed anchor would manufacture up to about 500
       new unanchored claims fleet-wide while criterion 3 claims to close that gap), through
       `insertNode` with `epistemic_type: 'observation'`, `created_by: 'system'`,
@@ -2756,7 +2756,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       to `ALLOWED_EPISTEMIC_TYPES` (exactly 10, asserted exactly). Re-exported from
       `lib/core/navigation.cjs`.
 
-- [ ] **RULE-18**: the filing gate runs on `artifact_file` (its existing `section` parameter) and
+- [x] **RULE-18**: the filing gate runs on `artifact_file` (its existing `section` parameter) and
       on `claim_write` (through `getActiveFocus`, with NO schema widening, R-353-D). `flag` is the
       default and lands the write with a `job_mismatch` disclosure riding the existing
       `mcp_client_event_logged` event as added properties (R-353-K, no new `EVENT_TYPES` member);
@@ -2765,7 +2765,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       failed mint means no edge and never a refused write (Canon Part 9), and N of N claims filed
       on a fixture room carry the edge (criterion 3).
 
-- [ ] **RULE-19**: `lib/core/section-ruling-candidates.cjs` is a pure, synchronous producer feeding
+- [x] **RULE-19**: `lib/core/section-ruling-candidates.cjs` is a pure, synchronous producer feeding
       `rankForSelector`'s EXISTING `tierCandidates` input (R-353-H, R-353-N). Eligibility filters
       on `produces` glob, stage gate, `autonomous_safe`, a 5-turn recency window, and a declared
       HITL shape read from `data/connector-registry.json` (the command registry has no such key).
@@ -2775,14 +2775,14 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `RECOMMEND_FLOOR` and `MARGIN_THRESHOLD` are all byte-unchanged, and `decide()` stays inside
       1200 ms with the producer on, measured through `_meta.latencies_ms`.
 
-- [ ] **RULE-20**: doctor module `section-ruling` is registered with the same seven-key shape and
+- [x] **RULE-20**: doctor module `section-ruling` is registered with the same seven-key shape and
       no `auto_heal` (R-353-A, proposed FALSE), is synchronous, carries a non-empty `detail` on
       every path, reports `ruling_fingerprint_drift`, `sections_without_job_id`,
       `subrooms_without_job_id` (parent fallback, reported not errored) and `claims_without_anchor`
       scoped to claims created after `introduced_version`, and sets `recoverable: false` outside
       the fixture prefix.
 
-- [ ] **RULE-21**: `scripts/release.sh` Step 2.4 gains ONLY the offline
+- [x] **RULE-21**: `scripts/release.sh` Step 2.4 gains ONLY the offline
       `build-section-command-ledger.cjs --check`, with `--no-ledger-check` as the audited opt-out
       in the `--no-theo-check` family, declared in `USAGE_BLOCK` and named in the release log with
       its consequence (R-353-G). No rebuild, no Theo call, no Jev call, no key on the release path.
