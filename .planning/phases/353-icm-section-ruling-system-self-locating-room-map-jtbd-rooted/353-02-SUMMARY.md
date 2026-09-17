@@ -202,6 +202,7 @@ See frontmatter `key-decisions`. Most consequential: the eligibility filter's "d
 
 - `bash tests/run-all-310.sh` leg 9 ("scoped working-tree diff") flagged this task's own uncommitted files as "unexpected" mid-session; resolved itself once Task 10's changes were committed (the leg SKIPs on a clean tree, its designed behavior).
 - `doctor --acceptance`'s `install-state` and `verify-release-clean-tree` points fail throughout the session (a stale session-state record, and mid-task uncommitted files respectively), neither caused by this plan's code -- the same pre-existing/environmental class Plan 01 documented. They clear once this plan's own final state-update commit lands.
+- `.planning/phases/353-icm-section-ruling-system-self-locating-room-map-jtbd-rooted/353-FLEET-REPORT.json` was already dirty (its `measured_at` timestamp field) at the start of this session, per the conversation's own initial git-status snapshot, and remains dirty at the end of it (some automated process re-touches the timestamp; no other field changes). Not authored or committed by this plan per the sequential-executor rule (never revert or commit a diff you did not write); left as found.
 
 ## User Setup Required
 
