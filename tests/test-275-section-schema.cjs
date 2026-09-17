@@ -338,6 +338,17 @@ console.log('Section 4: L2 contracts -- structural shape, live citations, cross-
   }
 
   assert(allHaveMarkers, 'every contract template has all structural markers (H1, Statement, One job, Inputs, Process, Outputs, Human check, Commands that write here)');
+  // Phase 353 Plan 02 Task 5 (R-353-L): this assertion STAYS and stays
+  // green, deliberately, with this comment naming why. Phase 353 adds
+  // frontmatter to the LANDED CONTEXT.md document at write time
+  // (lib/core/room-skeleton-scaffold.cjs::writeSectionContracts, the
+  // ruling document generator, D-353-7) and NEVER to the template ON DISK
+  // under templates/room-skeleton/section-contracts/. A future reader must
+  // not conclude this invariant was quietly narrowed: the templates remain
+  // frontmatter-free by design (T-275-13's reasoning is unchanged -- a
+  // template is static authored prose, substitution-free); the landed
+  // file's frontmatter is composed separately by the generator and spliced
+  // in, never baked into the template source this loop reads.
   assert(noFrontmatter, 'no contract template has YAML frontmatter');
   assert(noEmDashes, 'no contract template contains an em-dash');
   assert(allHaveNeverInline, 'every contract template carries the "Never inline content into ROOM.md" Outputs clause');
@@ -368,13 +379,43 @@ console.log('Section 4: L2 contracts -- structural shape, live citations, cross-
     const missingWarnings = result.warnings.filter((w) => w.startsWith('contract_template_missing:'));
     assert(missingWarnings.length === 0, 'zero contract_template_missing: warnings on a fresh scaffold');
 
-    let allByteIdentical = true;
+    // Phase 353 Plan 02 Task 5 (R-353-L): the whole-document byte-identity
+    // assertion that used to sit here is now FALSE BY DESIGN and is
+    // replaced, not deleted (the exact before/after text is recorded
+    // verbatim in this task's commit message, not restated here so the old
+    // literal string cannot itself be mistaken for a live assertion by a
+    // future grep). The ruling document generator (D-353-7) now stamps
+    // frontmatter plus a marked, fingerprinted ruling block onto every
+    // landed CONTEXT.md, so identity to the raw template no longer holds
+    // NOR should it. The replacement pins the NEW invariant in two parts,
+    // both asserted, over the SAME scaffold.SECTION_NAMES loop the original
+    // iterated: (a) every landed CONTEXT.md carries the
+    // mos:ruling:begin/mos:ruling:end markers and a ruling_fingerprint in
+    // its frontmatter; (b) every byte BELOW the end marker matches the
+    // corresponding region of its template (the authored prose this phase
+    // preserves, never touches).
+    let allCarryRulingMarkers = true;
+    let allTailsByteIdentical = true;
+    const RULING_END = 'mos:ruling:end -->';
     for (const slug of scaffold.SECTION_NAMES) {
       const landed = fs.readFileSync(path.join(tmpDir, slug, 'CONTEXT.md'), 'utf8');
       const template = fs.readFileSync(path.join(CONTRACTS_DIR, slug + '.md'), 'utf8');
-      if (landed !== template) allByteIdentical = false;
+      const parsed = grayMatter(landed);
+      if (
+        landed.indexOf('mos:ruling:begin') === -1 ||
+        landed.indexOf(RULING_END) === -1 ||
+        typeof parsed.data.ruling_fingerprint !== 'string' ||
+        parsed.data.ruling_fingerprint.length === 0
+      ) {
+        allCarryRulingMarkers = false;
+      }
+      const landedEndIdx = landed.indexOf(RULING_END);
+      const landedTail = landedEndIdx === -1 ? null : landed.slice(landedEndIdx + RULING_END.length).replace(/^\n+/, '\n');
+      const templateTail = '\n' + template.replace(/^\n+/, '');
+      if (landedTail !== templateTail) allTailsByteIdentical = false;
     }
-    assert(allByteIdentical, 'every landed CONTEXT.md is byte-identical to its template');
+    assert(allCarryRulingMarkers, 'every landed CONTEXT.md carries the mos:ruling:begin/end markers and a ruling_fingerprint (Phase 353)');
+    assert(allTailsByteIdentical, 'every byte below mos:ruling:end is byte-identical to the corresponding region of its template (Phase 353)');
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
