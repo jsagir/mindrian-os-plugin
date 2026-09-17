@@ -1,5 +1,5 @@
 ---
-status: gathering
+status: investigating
 kind: rca
 trigger: "eureka-entity-extraction-boilerplate-candidates"
 issue_id: ""
@@ -11,9 +11,11 @@ canon_parts: [8, 9]
 
 ## Current Focus
 
-Relayed finding, not yet reproduced by this session. Next step: reproduce the embedded-mode
-scan on a populated room and inspect the entity-extraction output BEFORE the AHP scorer, to
-confirm that frontmatter and stub-file tokens dominate the candidate entity set.
+Hypothesis CONFIRMED by the reporter's direct test (2026-09-17, DESCRIBES-edge provenance on
+the axiom room) and the input-selection code read below. Root cause is in what
+`scripts/entity-extract.cjs` feeds the extractor, not in the extractor's token heuristic and
+not in the scorer or critic. Next step: `/gsd-debug eureka-entity-extraction-boilerplate-candidates`
+to implement the changes under Required Code Changes, test-first on a fixture room.
 
 ## Meta
 
@@ -70,31 +72,99 @@ the room's real artifacts, so every critiqued candidate fails `entity_nonspecifi
 
 - 2026-09-17: relayed observation (jsagi-5e via jsagi-40). Top-25 entity list and the
   all-fail critic outcome as listed under Symptoms. Not yet reproduced here.
+- 2026-09-17 (direct test, jsagi-5e, room `axiom`, plugin 2.0.0-beta.41): `source_path` on
+  every entity node is self-referential (`entity:entity-extract:{Name}`), so provenance was
+  traced through DESCRIBES edges instead. Every top-ranked entity connects to 9-20 DIFFERENT
+  ROOM.md / FEYNMAN.md / MINTO.md scaffold artifacts spread across nearly every section
+  (business-model, competitive-analysis, financial-model, funding, legal-ip, market-analysis,
+  opportunity-bank, problem-definition, solution-design, strategy, team-execution). The 11
+  unique entities in the top-25 pairs, with DESCRIBES degree and source kinds: "Larry" (13,
+  MINTO/ROOM), "Seeded" (20, FEYNMAN/MINTO), "Working" (13, MINTO/ROOM), "Key Decision"
+  (12, MINTO/ROOM), "Five" (12, MINTO/ROOM), "Current" (12, FEYNMAN/ROOM), "BRAIN" (12,
+  MINTO/ROOM), "First Proof" (9, MINTO/ROOM), "Available" (11, FEYNMAN), "Brain-gated" (11,
+  FEYNMAN), "Recent" (11, FEYNMAN). Sample DESCRIBES targets for "Larry":
+  `memory_artifact:_root:MINTO`, `memory_artifact:business-model:ROOM`,
+  `memory_artifact:competitive-analysis:ROOM` (+10 more, one per section). Room-wide: 528
+  `entity:entity-extract:*` nodes vs 65 real content artifacts (about 8x).
+- 2026-09-17 (code read, this session, `origin/main` @ 417e07657): `scripts/entity-extract.cjs`
+  lines 217-235 document the walk as (a) memory_artifact-backed files with kind in
+  ROOM / STATE / MINTO / BRAIN / FEYNMAN plus (b) every other `.md` in a section directory;
+  the scaffold kinds are INCLUDED as extraction inputs, not only as DESCRIBES anchors.
+  `lib/core/eureka/entity-extractor.cjs` is a capitalized-term heuristic with STOPWORDS
+  (line 52), a FRAMEWORK_TERMS stoplist, a "filename is never an entity" rule (line 196)
+  and heading / code-block / table skips (lines 275-301); it carries no template-body
+  vocabulary, so scaffold sentence words ("Seeded", "Working", "First Proof", "Brain-gated")
+  pass. `lib/core/eureka/room-native-substrate.cjs` `sectionFor` (lines 129-152) drops any
+  `source_path` containing ':' to 'unknown' BY DESIGN (system-authored rows), which is why
+  the entity rows' self-referential `source_path` yields no section.
 
 ## Technical Root Cause
 
-Hypothesis, unverified: the entity extractor tokenizes whole markdown files including YAML
-frontmatter and the shipped stub templates, and either (a) does not strip frontmatter keys
-and values (`status: Working`, `Seeded`, persona name) or (b) samples per-section files
-without weighting by artifact substance, so empty BRAIN.md stubs contribute as much as a
-competitor analysis. Candidate location: the entity-extraction and sampler stages of the
-Eureka pipeline (`lib/eureka/` or `scripts/eureka-*`); exact file and function to be
-named after reading.
+Three defects compound; the first is the cause, the other two amplify and hide it.
+
+1. INPUT SELECTION (cause). Because `scripts/entity-extract.cjs` (walk documented at lines
+   217-235, implemented from line ~283) feeds the ICM scaffold files (kinds ROOM, STATE,
+   MINTO, BRAIN, FEYNMAN) to the extractor as content, and every section of a room carries
+   a near-identical copy of each scaffold (Decision 15: every directory gets a ROOM.md; the
+   FEYNMAN and MINTO stubs follow the same template), the same capitalized template words
+   are extracted once per section and merged into one entity node with one DESCRIBES edge
+   per section. Real artifacts (65 in axiom) mention their concepts in 1-2 files each.
+2. DEGREE AMPLIFICATION (ranking). Because the candidate-pair sampler and the AHP scorer
+   weight an entity by its graph neighborhood (DESCRIBES degree 9-20 for template words vs
+   1-2 for content concepts), template entities occupy the entire top 25 and the
+   attention / growth scores collapse to the two values a uniform stub profile produces
+   (the reporter's `suspect_noise` tail).
+3. PROVENANCE BLINDNESS (hiding). Because entity rows are minted with a self-referential
+   `source_path` (`entity:entity-extract:{Name}`) and `room-native-substrate.cjs`
+   `sectionFor` maps any ':'-bearing `source_path` to 'unknown' by design, no report can
+   show WHERE an entity came from; the boilerplate origin was invisible until the reporter
+   walked DESCRIBES edges by hand.
+
+Not the cause: the extractor's token heuristic (it did what it does), the encoder, the
+scorer math, the critic (Spike 004 and the reporter agree it ruled correctly on the input).
 
 ## Required Code Changes
 
-To be filled after root cause is verified. Expected shape: strip frontmatter and the known
-stub-template strings before extraction; exclude files under a substance floor (or
-identical to the shipped stub) from sampling; add a stop-list for persona and status
-vocabulary; surface an `entity_source_share` diagnostic in `status.json` so boilerplate
-dominance is visible.
+Short-term patch (closes the symptom, one file):
+- `scripts/entity-extract.cjs`, the artifact walk (lines ~283-310): scaffold kinds (ROOM,
+  STATE, MINTO, BRAIN, FEYNMAN) remain DESCRIBES ANCHORS for their section but are
+  EXCLUDED as extraction INPUTS. Only files under (b), the section's real `.md` artifacts,
+  are read for entities. Count the exclusions and write them to `status.json` as
+  `scaffold_files_skipped`.
+
+Long-term fix (makes the class of bug impossible):
+- `lib/core/eureka/entity-extractor.cjs`: add a TEMPLATE_VOCAB stoplist DERIVED at load
+  time from the shipped scaffold templates (the same source the room scaffolder writes
+  from), never hand-listed, so template sentence words cannot become entities from any
+  file. Keep the existing STOPWORDS / FRAMEWORK_TERMS untouched.
+- Entity minting in `scripts/entity-extract.cjs` (DESCRIBES write loop, lines ~854-880):
+  set the entity row's `source_path` to the room-relative path of the FIRST artifact it
+  was extracted from (a real path, no ':'), so `sectionFor` derives a section and reports
+  can show origin. The DESCRIBES edges stay the full provenance.
+- Ranking / sampler (`lib/core/eureka/eureka-portfolio-report.cjs` or wherever degree
+  enters the AHP weights): cap or zero the degree contribution of DESCRIBES edges whose
+  target artifact kind is a scaffold, so a residual template entity cannot outrank content.
+- Diagnostics: `status.json` gains `entity_source_share: { content: n, scaffold: m }` and
+  the report prints a WARN when `scaffold / (content + scaffold) > 0.5`.
+
+Gates before done: Canon Part 8 (no change to what crosses to the Brain; all local), Tri-Polar
+(the extractor runs identically on CLI, Desktop and Cowork), no em-dashes, reuse-before-build
+(the stoplist derives from the existing scaffold templates; no new template source).
 
 ## Tests to Add or Update
 
-- A fixture room with N real artifacts plus M empty BRAIN.md stubs: the top-K entity list
-  must contain zero frontmatter/status tokens and at least one concept from each real
-  artifact class.
-- A regression that feeds the extractor a stub file and asserts an empty entity set.
+- Fixture room: N=6 content artifacts across 3 sections plus the full scaffold set
+  (ROOM / STATE / MINTO / BRAIN / FEYNMAN per section, byte-identical to the shipped
+  templates). After `entity-extract run`: the top-K entity list contains zero tokens from
+  the template vocabulary and at least one concept per content artifact; every entity
+  row's `source_path` is a real room-relative path; `status.json.scaffold_files_skipped`
+  equals the number of scaffold files.
+- Extractor unit: feeding a bare shipped template yields an empty entity set (regression
+  for the TEMPLATE_VOCAB derivation).
+- Ranking unit: an entity with 20 scaffold-only DESCRIBES edges ranks below an entity with
+  2 content DESCRIBES edges.
+- Existing suites to keep green: the Eureka / 212 / 213 / 216 / 218 test families
+  (`tests/run-all-212.sh`, `tests/test-213-sensor-eureka.cjs`, `tests/test-213-part8-boundary.cjs`).
 
 ## Non-Code Follow-ups
 
