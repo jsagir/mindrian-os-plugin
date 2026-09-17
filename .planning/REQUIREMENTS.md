@@ -2616,9 +2616,231 @@ navigator D-locks, so the roadmap card's own five deliverables R1..R5 are the sc
       plan's Task 2/3), naming the Theo repo as owner and `theo-stamp-gate` reading `PASS` as the
       plugin-side acceptance number.
 
+### Phase 353 - ICM Section Ruling System (RULE family)
+
+These twenty-nine ids were minted in the Phase 353 plan set (2026-09-17), ratifying
+`353-RESEARCH.md`'s Open Question 6 recommendation and `353-CONTEXT.md` R-353-F (prefix `RULE-`;
+`ICML-` is taken by Phase 275 and the roadmap card's `ICM-353-0N` labels are working labels, not
+register-shaped ids). Scoped to Phase 353 only, registered here at plan time as `- [ ]` rows to be
+closed with measured proof at phase close by `353-03-PLAN.md` Task 7, per the Phase
+254/257/265/267.2/267.3/270/272/274/276/339/275/340/344/343/347/345/346/348/349 precedent. The
+navigator's D-353-1..10 locks and the orchestrator's R-353-A..N rulings are the scope contract;
+where a ruling and a roadmap sentence disagree, the ruling wins and the row says so.
+
+**Plan 353-01 (room map, self-location, doctor room-map, fixtures)**
+
+- [ ] **RULE-01**: `lib/core/room-map.cjs` exists and exports `buildRoomMap`, `writeRoomMap`,
+      `readRoomMap`, `renderSelfBlock`, `writeSelfBlocks`, `mapFingerprint` and `SELF_BLOCK_KINDS`,
+      every one synchronous (no `async`, no `await`, no `.then(`), because the doctor engine's
+      ALWAYS pass calls `check()` with no `await` and would misreport a Promise as a row with no
+      status. Artifact folders are mapped with `kind: 'artifact'` and never receive a block
+      (R-353-B), with the exclusion rule stated in the module header.
+
+- [ ] **RULE-02**: `.mindrian/room-map.json` is rebuildable from disk at any time. Two builds of an
+      unchanged tree return the same `fingerprint` (sha256 over the sorted
+      `(path, kind, job_id, parent, children)` tuples); a change to any tracked tuple changes it;
+      an untracked change (an artifact body edit) does not. The walk refuses to leave the room
+      directory and never follows a symlinked directory.
+
+- [ ] **RULE-03**: every root, section, structural and sub-room ROOM.md carries a derived
+      `icm_self` block with exactly `room`, `path`, `parent`, `depth`, `children`,
+      `artifact_count`, `fingerprint`; every string value is escaped through
+      `escapeYamlDoubleQuoted`; a second write is byte-identical; every byte outside the block is
+      preserved; and a missing root ROOM.md is created from
+      `templates/room-skeleton/ROOM.md.identity.tmpl`. `estimateTokens(block)` is at most 120
+      (D-353-2's 60-120 band).
+
+- [ ] **RULE-04**: `icm_self` and `job_id` are in the `ROOM.md` schema's `optional` allow-list in
+      `lib/core/frontmatter-schemas.cjs`, so `validate()` returns zero `unknown` violations for a
+      generated block and the PostToolUse hook stays quiet (Pitfall 11).
+
+- [ ] **RULE-05**: doctor module `room-map` is registered in `data/doctor-modules.json` with
+      exactly the seven keys the other rows carry and NO `auto_heal` key (R-353-A; Phase 352
+      classifies it when it lands, proposed TRUE). `check`/`fix` are synchronous, every return path
+      including `skip` and `ok` carries a non-empty `detail` (D-03 rule 9), six drift classes are
+      reported, and `recoverable: false` is set outside the resolved `tests/fixtures/icm-rooms`
+      prefix so `--fix` cannot auto-heal a real fleet room.
+
+- [ ] **RULE-06**: sub-room birth writes both maps as side effect six, child first then parent, as
+      the last statement inside the existing FINALIZE `try`; `allWired` includes `se.s6`;
+      `_faultInject` accepts `s1` through `s6`; and `_bornWiredRollback` re-runs the parent map
+      rebuild after `fs.rmSync` (R-353-E), proven by a `_faultInject: 's6'` unwind test.
+
+- [ ] **RULE-07**: `getRoomContext` gains a purely additive `legE` self-location leg.
+      `_meta.legTimingsMs`, `_meta.legCostChars` and `_meta.legCostTokensApprox` each gain `legE`;
+      every pre-existing `_meta` key stays byte-stable; and `legCostTokensApprox.legE` is under 400
+      on every fixture room, measured with `estimateOnly: true` and reported as the repo's
+      chars-over-4 approximation rather than as tokens unqualified (criterion 2).
+
+- [ ] **RULE-08**: the fleet walk runs in REPORT MODE ONLY over the registry's rooms, calls no
+      `fix`, writes nothing under any room path, records no file name and no file content, and
+      emits per-kind counts as committed evidence. Success criterion 1 is restated per R-353-B:
+      0 root/section/structural/sub-room directories without ROOM.md, not 0 of the 2,024 non-dot
+      directories the fleet actually carries.
+
+- [ ] **RULE-09**: `tests/run-all-353.sh` is written once in 353-01 and edited by no later plan; it
+      pre-declares a `run_if` leg per phase test file, names which RULE id each leg gates, and
+      carries its own targeted em-dash glob. `tests/fixtures/icm-rooms/` is a NEW sibling of
+      `195-nested-room-tree`, so `tests/test-195-recursive-reconcile.cjs`'s 16-file assertion stays
+      green. `evals/icm/cases/turns.json` is authored here, before any ledger exists, because
+      criterion 4 is only honest if the labels predate the thing measured.
+
+- [ ] **RULE-29**: A sub-room declares its job_id through one F.8 card at birth; the declared value
+      is written to the child ROOM.md before side effect six; undeclared or custom leaves job_id
+      absent (parent fallback, doctor-flagged). The card rides the existing `options.birthGate`
+      contract shape as `options.jobGate` and its answer is filed through the existing
+      `drainBirthGateAnswers` as a `SUBROOM_JOB` entry (no second gate path, no new event type, no
+      new edge type). Every answer is validated against `lib/core/section-registry.cjs`'s
+      `JOB_VOCABULARY` (the command registry's distinct `serves_jtbd` values plus the four
+      section-canon members in `VOCABULARY_EXTENSION_JOBS`, enumerated from disk, never a frozen
+      count) through `isDeclaredJob` BEFORE any byte is written, and the born-wired
+      contract comment declares `hitl_shape: F.8` with its `hitl_why` (D-353-5).
+
+**Plan 353-02 (section ruling system, ledger, filing gate, runtime filter)**
+
+- [ ] **RULE-10**: `data/section-job-canon.json` is the single home of the section job canon,
+      covering all 11 `CORE_SECTIONS` slugs plus `personas`, each with `job_id`,
+      `secondary_job_id`, `vocabulary_extension`, `source` and `probe_confidence`, matching the
+      measured Jev probe of 2026-09-17. It carries `ratification.ratified_by: null` and
+      `ratification.ratified_at: null` for the navigator's one act. `section-registry.cjs` exposes
+      `getSectionJob(slug)` returning `job_id: null` for an unknown slug, and the `job_id` values
+      are NOT copied into `CORE_SECTIONS` or `SECTION_METADATA` (one home per fact).
+
+- [ ] **RULE-11**: the four vocabulary-extension members `model-business`, `model-finances`,
+      `protect-assets` and `design-solution` exist as section-canon values only. No command
+      markdown frontmatter is edited, so `node scripts/build-command-registry.cjs --check` and
+      `lib/memory/per-command-jtbd-derivation.test.cjs` both stay green and the four are taxonomy
+      orphans of the same class as the three already shipped.
+
+- [ ] **RULE-12**: `scripts/build-section-command-ledger.cjs` ports the Spike 002 Theo puller
+      verbatim (two FIXED Cypher texts, every variation in `$params`, `ROW_CAP` 100 with 36 alnum
+      buckets plus a catch-all and a recursive split, the canonical filter), reads the result as
+      `(res && (res.rows || res.records)) || []`, treats `brain_query_unrecognized_shape` as a
+      named abort rather than an empty ledger, scores with Jev in batches of 20 at concurrency 4
+      with `400 * 2 ** attempt` backoff, and writes the six cost keys from the VENDOR-RETURNED
+      usage with `cost_basis` labeled vendor-claimed.
+
+- [ ] **RULE-13**: `--check` performs zero network calls and asserts only what is verifiable
+      offline (parse, `plugin_version`, `built_at` age, `theo_frameworks`, `jev_model`, and every
+      `rows` key parsing as `<job_id>|<problem_type>|<stage>` with a canon-known `job_id`). It
+      prints `section-command-ledger: OK` and exits 0, or names the drift and exits non-zero. The
+      divergence from the eleven `build-*.cjs --check` siblings is stated in the script header.
+
+- [ ] **RULE-14**: `data/section-command-ledger.json` ships. Every canon `job_id` has at least one
+      row, because the join is the UNION of (`produces` names this section, seeded from the
+      eleven hand-authored `## Commands that write here` tables) and (`serves_jtbd` includes the
+      section's `job_id` or its secondary) per R-353-C, so the four vocabulary-extension sections
+      are never empty. Every candidate carries `source`, and the shipped seed declares
+      `build_mode: "offline-seed"`, `jev_model: null` and `confidence_floor: null` rather than
+      claiming a vendor score it does not have.
+
+- [ ] **RULE-15**: each section's `CONTEXT.md` is generated: frontmatter `icm_layer`, `job_id`,
+      `ruling_fingerprint`, `generated_at`, then six numbered parts inside a
+      `mos:ruling:begin`/`mos:ruling:end` region, above authored prose that stays byte-identical.
+      A missing document is CREATED (R-353-M). A second generation is byte-identical. The document
+      stays at or under 500 chars-over-4 tokens (the icm-architect L2 band). `renderTemplate`
+      substitution never runs over contract prose (T-275-13).
+
+- [ ] **RULE-16**: `tests/test-275-section-schema.cjs` is amended deliberately with phase-cited
+      comments (R-353-L). The line 330 assertion STAYS green with a comment explaining that
+      frontmatter is composed at write time and never added to a template; the line 366
+      byte-identity assertion is REPLACED by two assertions pinning the new invariant (the marked,
+      fingerprinted block is present, and every byte below the end marker matches the template).
+      `node tests/test-275-section-schema.cjs` exits 0.
+
+- [ ] **RULE-17**: `lib/core/navigation/jtbd-anchor.cjs` mints `jtbd:<job_id>` with node type
+      `'jtbd'` and NEVER `'claim'` (R-353-I; a claim-typed anchor would manufacture up to about 500
+      new unanchored claims fleet-wide while criterion 3 claims to close that gap), through
+      `insertNode` with `epistemic_type: 'observation'`, `created_by: 'system'`,
+      `review_status: 'proposed'`, `on_conflict: 'nothing'`. No raw `INSERT INTO`. No member added
+      to `ALLOWED_EPISTEMIC_TYPES` (exactly 10, asserted exactly). Re-exported from
+      `lib/core/navigation.cjs`.
+
+- [ ] **RULE-18**: the filing gate runs on `artifact_file` (its existing `section` parameter) and
+      on `claim_write` (through `getActiveFocus`, with NO schema widening, R-353-D). `flag` is the
+      default and lands the write with a `job_mismatch` disclosure riding the existing
+      `mcp_client_event_logged` event as added properties (R-353-K, no new `EVENT_TYPES` member);
+      `strict` refuses; `unresolved` is a distinct verdict from `mismatch`. The anchor is minted
+      and confirmed `ok: true` BEFORE any `SOURCED_FROM` edge names it (R-353-J, Pitfall 4), a
+      failed mint means no edge and never a refused write (Canon Part 9), and N of N claims filed
+      on a fixture room carry the edge (criterion 3).
+
+- [ ] **RULE-19**: `lib/core/section-ruling-candidates.cjs` is a pure, synchronous producer feeding
+      `rankForSelector`'s EXISTING `tierCandidates` input (R-353-H, R-353-N). Eligibility filters
+      on `produces` glob, stage gate, `autonomous_safe`, a 5-turn recency window, and a declared
+      HITL shape read from `data/connector-registry.json` (the command registry has no such key).
+      The ledger is cached at module level, never read per turn. With no row, no survivor or an
+      unparsable ledger it returns null and `decide()` behaves exactly as today.
+      `lib/hmi/dial-reach-orchestrator.cjs`, `SENSOR_REGISTRY`, `MAX_K`, `DIAL_REACH_K`,
+      `RECOMMEND_FLOOR` and `MARGIN_THRESHOLD` are all byte-unchanged, and `decide()` stays inside
+      1200 ms with the producer on, measured through `_meta.latencies_ms`.
+
+- [ ] **RULE-20**: doctor module `section-ruling` is registered with the same seven-key shape and
+      no `auto_heal` (R-353-A, proposed FALSE), is synchronous, carries a non-empty `detail` on
+      every path, reports `ruling_fingerprint_drift`, `sections_without_job_id`,
+      `subrooms_without_job_id` (parent fallback, reported not errored) and `claims_without_anchor`
+      scoped to claims created after `introduced_version`, and sets `recoverable: false` outside
+      the fixture prefix.
+
+- [ ] **RULE-21**: `scripts/release.sh` Step 2.4 gains ONLY the offline
+      `build-section-command-ledger.cjs --check`, with `--no-ledger-check` as the audited opt-out
+      in the `--no-theo-check` family, declared in `USAGE_BLOCK` and named in the release log with
+      its consequence (R-353-G). No rebuild, no Theo call, no Jev call, no key on the release path.
+      `tests/fixtures/310-release-step-block-hashes.txt` is re-pinned for exactly the two blocks
+      this phase edits, the header count stays 30, and the pre-existing staleness of
+      `tests/fixtures/341-release-step-block-hashes.txt` (two blocks missing, `STEP_BLOCK_COUNT`
+      still 28) is reported and left as found.
+
+**Plan 353-03 (fixture grading, acceptance wiring, close-out)**
+
+- [ ] **RULE-22**: `evals/icm/` ships a README, five per-writer checklists derived from each
+      writer's own shipped contract with each item marked `code` or `jev` and each `jev` item
+      naming exactly what crosses the wire, a `cases/` directory, a once-authored
+      `claude-judge-baseline.json` the runner never writes, and a `last-run.json`.
+
+- [ ] **RULE-23**: `scripts/eval-icm-writers.cjs` refuses any `--room` that does not resolve under
+      `tests/fixtures/icm-rooms` (resolved-prefix containment, not substring match), contains no
+      `~/MindrianRooms` path and no `os.homedir()` room resolution, reads the dev-time key only
+      from `~/.secrets/typesafe.env`, never prints or persists it, escapes every string
+      interpolated into the De Stijl report, and completes the code half with no key at all
+      (D-353-4).
+
+- [ ] **RULE-24**: criterion 4 is measured as a PAIRED run over the same labeled turns, once with
+      `tierCandidates` absent and once with the ledger candidates. Both top-3 hit rates and the
+      delta are printed and quoted in the SUMMARY; the assertion is `withLedger >= baseline`; a
+      regression is reported as a finding and never tuned away by loosening the assertion or
+      re-labeling a turn; and `evals/icm/cases/turns.json` is provably unchanged by this plan.
+
+- [ ] **RULE-25**: criterion 6's metric is EXACT AGREEMENT (the fraction of graded items whose
+      runner verdict equals the baseline verdict), named in the README, in the baseline file and in
+      the test output, with Spearman named as the rejected alternative and why. `agreement >= 0.8`
+      is asserted. With no key the leg skips loudly with a named detail and never reports a number
+      it does not have.
+
+- [ ] **RULE-26**: the `icm-ruling-eval-fresh` acceptance point reads `evals/icm/last-run.json`
+      in-process, asserts freshness and the 0.8 threshold, and NEVER calls Jev, calls Theo, spawns
+      the runner or reads a key. A missing file or a null agreement degrades to `ok: true` with a
+      named detail, so `tests/test-doctor-acceptance-self-coverage.cjs` stays green across its five
+      fixtures. It honors `DOCTOR_TEST_FAIL_POINT` and `DOCTOR_SKIP_ICM_EVAL=1`.
+
+- [ ] **RULE-27**: three tripwires ship and pass, each printing a non-zero scanned-file count and
+      each excluding comment lines so header prose cannot self-invalidate the gate: no non-comment
+      line under `lib/` contains `api.typesafe.ai`; no non-comment line under `hooks/` references
+      `eval-icm-writers` or `build-section-command-ledger`; and the eval runner refuses a room
+      outside the fixture prefix. Leg 1 carries a recorded negative control.
+
+- [ ] **RULE-28**: the phase closes honestly. Every RULE row is `- [x]` with a `**Measured:**`
+      block quoting the command and its output, or stays `- [ ]` with a stated reason.
+      `353-VALIDATION.md`'s per-task map is filled and `nyquist_compliant` is set true only if
+      every named `<automated>` command actually ran and exited 0. The CHANGELOG gains one
+      `### Added` bullet under `## [Unreleased] -- v2.0.0-beta.48 (in progress)`. The two
+      pre-existing RED `EVENT_TYPES` exact-size assertions
+      (`tests/test-auto-explore-telemetry.cjs:432`, `tests/test-131-substrate.cjs:98`) and the
+      pre-existing 341 step-hash staleness are re-run, reported unchanged, and never edited.
+
 ## Traceability
 
-297 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+326 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -2626,7 +2848,8 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
-(Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349). All minted
+(Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
+(Phase 353). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -2690,10 +2913,16 @@ NOTIFY-01..14 were minted in the Phase 349 plan set (2026-09-16), ratifying and 
 `349-RESEARCH.md`'s proposed `NOTIFY-` family, scoped to Phase 349 only, and were registered here
 at plan time as `- [ ]` rows, finalized with measured proof at phase close by `349-06-PLAN.md`
 (2026-09-16). All fourteen rows are now `- [x]`.
-Roadmap phases must map all 297 active requirements with no orphans.
+RULE-01..29 were minted in the Phase 353 plan set (2026-09-17), ratifying
+`353-RESEARCH.md`'s Open Question 6 recommendation and `353-CONTEXT.md` R-353-F, scoped to
+Phase 353 only, and are registered here at plan time as `- [ ]` rows to be closed with
+measured proof at phase close by `353-03-PLAN.md` Task 7, per the same precedent. The
+roadmap card's `ICM-353-01..03` labels are working labels that map onto these ids and are not
+register rows of their own.
+Roadmap phases must map all 326 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER and NOTIFY
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY and RULE
 families
 alike (the
 Phase 266 and 269

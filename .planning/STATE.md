@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 349-06-PLAN.md - Phase 349 CLOSED (6/6 plans)
-last_updated: "2026-09-16T05:57:54.848Z"
-last_activity: 2026-09-16 -- Phase 349 CLOSED (plan 06 complete: NOTIFY-01..14 closed with measured proof, Phase 351 registered for the R5 disposition, close-out record written)
+status: executing
+stopped_at: Completed 349-05-PLAN.md
+last_updated: "2026-09-17T17:07:52.985Z"
+last_activity: "2026-09-17 - Completed quick task 260917-o1e: graph-derive-health stale encoder skip self-lock broken (derivation_completed symmetry + live presence probe on heal)"
 progress:
   total_phases: 100
   completed_phases: 34
@@ -4910,7 +4910,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 349 (release-to-theo-leading-edge-graph-engineering-learning-sync) — EXECUTING
 Plan: 6 of 6
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -6811,6 +6811,7 @@ Progress: [█████████░] 92%
   at release and grades writers on fixture rooms only. Spec docs/superpowers/specs/
   2026-09-17-icm-section-ruling-system-design.md (ed2a06ba9); rulings locked in 353-CONTEXT.md;
   three plans (room map, ruling system + ledger, fixture grading). Depends on 275, 345, 352.
+
 - Phase 352 added (2026-09-16, `/gsd-phase`): "The self-healing install" - every install and
   update runs `doctor --all --fix` by itself once on the first run of a new version, the doctor
   renders truthfully (no `undefined`, every row, JSON summary), and the UI contract is met
@@ -6821,6 +6822,7 @@ Progress: [█████████░] 92%
   from disk) in `352-RESEARCH-GROUNDING.md`. Room entry deferred until close (navigator bound
   this session to no room). beta.41 was cut by a peer session while the card was registered;
   Phase 352 ships in the next beta.
+
 - Phase 349 added (2026-09-15, `/gsd-phase`): "Release-to-Theo leading edge", the
   synchronous-update half of the pair whose lagging half is the 343-07 Theo stamp gate.
   Navigator ruling 2026-09-15: every plugin version update makes Theo aware immediately,

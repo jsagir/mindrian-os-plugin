@@ -911,11 +911,19 @@ Plans:
 **Depends on:** Phase 275 (section CONTEXT.md contracts, writeSectionContracts), Phase 345 (gate decision nodes + SOURCED_FROM provenance), Phase 352 (doctor auto_heal classification), SEED-001 sub-room ACID block, Spike 002 (Theo puller + Jev rubric). Theo-side Section-node emission is a registered dependency this phase does not wait on.
 **Plans:** 3 plans
 
-Plans:
+Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/REQUIREMENTS.md at plan time per R-353-F)
 
-- [ ] 353-01: Room Map (self-location): lib/core/room-map.cjs, icm_self blocks, root ROOM.md creation, sub-room side effect six, doctor room-map, fixture rooms, fleet report
-- [ ] 353-02: Section Ruling System: section JTBD canon, ledger build script + shipped ledger, ruling document generator, filing gate + anchor edges, doctor section-ruling, decide() filter
-- [ ] 353-03: Fixture grading: per-writer checklists, scripts/eval-icm-writers.cjs, De Stijl report, dev acceptance wiring
+**Wave 1**
+
+- [ ] 353-01-PLAN.md -- RULE-01..09, RULE-29: Room Map (self-location). lib/core/room-map.cjs (walk, four blocked kinds plus artifact, sha256 fingerprint), icm_self blocks, root ROOM.md creation from the identity template, scaffolder wiring, sub-room birth side effect six with the s6 fault seam, doctor room-map, the additive legE turn-budget leg, tests/run-all-353.sh and tests/fixtures/icm-rooms/ (written once here), report-mode-only fleet evidence
+
+**Wave 2** *(depends on 353-01)*
+
+- [ ] 353-02-PLAN.md -- RULE-10..21: Section Ruling System. data/section-job-canon.json with the four vocabulary-extension jobs, scripts/build-section-command-ledger.cjs (Theo pull, union join, Jev scoring, offline --check) and the shipped ledger, the generated six-part ruling CONTEXT.md, the named Phase 275 assertion amendment, the jtbd: anchor and the filing gate with SOURCED_FROM edges, the decide() eligibility filter through rankForSelector's existing tierCandidates, doctor section-ruling, release.sh Step 2.4 offline check with --no-ledger-check
+
+**Wave 3** *(depends on 353-02)*
+
+- [ ] 353-03-PLAN.md -- RULE-22..28: Fixture grading. evals/icm/ with five per-writer checklists and a once-authored Claude-judge baseline, scripts/eval-icm-writers.cjs (fixture-only, dev-time key, De Stijl report), the paired top-3 hit-rate run, exact-agreement grading, the icm-ruling-eval-fresh acceptance point, three tripwires, and the phase close-out
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
