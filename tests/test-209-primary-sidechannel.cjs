@@ -82,6 +82,16 @@ ok('Behavior 4: the pickShape door writes ONLY when payload.emitTelemetry===true
 
   const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
   process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  // stop-hook-fires-card-on-option-shaped-prose-sentence (2026-09-17, second pass):
+  // the trailer door now threads process.env.CLAUDE_CODE_SESSION_ID into its mint when
+  // present (see selector-dispatcher.cjs). This behavior test is about the fs_scope
+  // emitTelemetry gate specifically, not session identity, so CLAUDE_CODE_SESSION_ID is
+  // cleared for its duration (this ambient dev/CI process DOES carry a real one -- a live
+  // Claude Code Bash-tool subprocess inherits it, confirmed directly) so the mint falls
+  // through to NO_SESSION_KEY exactly like the pre-fix contract this test still checks.
+  // The NEW session-threading behavior gets its own dedicated tests below (Behavior 17).
+  const origSessionEnv = process.env.CLAUDE_CODE_SESSION_ID;
+  delete process.env.CLAUDE_CODE_SESSION_ID;
   try {
     // Without emitTelemetry: no write at all (file never created).
     dispatcher.pickShape({
@@ -105,6 +115,8 @@ ok('Behavior 4: the pickShape door writes ONLY when payload.emitTelemetry===true
   } finally {
     if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
     else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (origSessionEnv === undefined) delete process.env.CLAUDE_CODE_SESSION_ID;
+    else process.env.CLAUDE_CODE_SESSION_ID = origSessionEnv;
     if (fs.existsSync(f)) fs.unlinkSync(f);
   }
 });
@@ -305,13 +317,20 @@ ok('Behavior 9: the false-positive regression proof (the literal 2026-07-05 inci
 
 // ---------------------------------------------------------------------------
 // Task 4: card-fire-over-enforcement (2026-07-20) -- the stale/cross-session
-// bleed fix. Fix (A): the NO_SESSION_KEY union is freshness-scoped so a
-// sessionless mint cannot leak across sessions past the turn window. Fix (B):
-// the consumer judges a side-channel gate FRESH vs STALE (mostRecentReachedTs
-// vs TURN_FRESH_MS) and threads staleness into the low-signal relevance branch.
+// bleed fix. Fix (A), ORIGINAL SHAPE (superseded 2026-09-17, see Behavior 10
+// below): the NO_SESSION_KEY union was freshness-scoped so a sessionless mint
+// could not leak across sessions past a time window. stop-hook-fires-card-on-
+// option-shaped-prose-sentence (2026-09-17, SECOND pass) proved live that a
+// time window narrows, but never closes, this leak -- there is no window width
+// where "the second session's read is NEVER affected" is actually true except
+// zero. Fix (A) is now "no union, ever" (see scopedRecords' own doc comment);
+// Behavior 10 below is rewritten to match. Fix (B) is unaffected by this
+// revision: the consumer still judges a side-channel gate FRESH vs STALE
+// (mostRecentReachedTs vs TURN_FRESH_MS) within a session's OWN exact-match
+// bucket, and threads staleness into the low-signal relevance branch.
 // ---------------------------------------------------------------------------
 
-ok('Behavior 10 (fix A): a STALE no-session mint does NOT union into another session read; a FRESH one still does', function () {
+ok('Behavior 10 (fix A, revised 2026-09-17): a no-session mint NEVER unions into another session read, regardless of age -- fresh or stale, it is invisible to a real session', function () {
   const f = tmpFile();
   const now = Date.now();
   // Just past the turn window but still well inside the 10-minute file TTL.
@@ -326,16 +345,26 @@ ok('Behavior 10 (fix A): a STALE no-session mint does NOT union into another ses
     [],
     'a no-session mint older than TURN_FRESH_MS must not bleed into another session (cross-session leak closed)'
   );
-  // A FRESH sessionless mint still unions -- the trailer-door same-turn detection is preserved.
+  // 2026-09-17 (second pass, live-disconfirmation of the first pass): a
+  // GENUINELY FRESH sessionless mint must ALSO stay invisible to an unrelated
+  // session -- there is no way to distinguish "my own same-turn read-back" from
+  // "a concurrent peer session's mint" once the record carries no session
+  // identity, so ANY union (however freshness-gated) is unsafe. This is the
+  // exact scenario that live-disconfirmed the first pass's 20-second window.
   fs.writeFileSync(f, JSON.stringify({
     'no-session': [
       { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: now, subject: 'fresh sessionless reach' },
     ],
   }));
+  assert.deepStrictEqual(
+    readReachedGates('some-other-live-session', { filePath: f }),
+    [],
+    'a genuinely fresh (0ms-old) no-session mint must ALSO never union into an unrelated session -- freshness cannot substitute for identity'
+  );
   assert.equal(
-    readReachedGates('some-other-live-session', { filePath: f }).indexOf('lib/hmi/selector-dispatcher.cjs') !== -1,
-    true,
-    'a fresh no-session mint must still union (same-turn trailer-door detection preserved)'
+    sidechannel.mostRecentReachedTs('some-other-live-session', { filePath: f }),
+    0,
+    'freshness for the unrelated session sees nothing from the sessionless bucket at any age'
   );
   fs.unlinkSync(f);
 });
@@ -827,6 +856,411 @@ ok('Behavior 15: the consumption wire is present in BOTH enforcement paths (CLI 
   const mcpSrc = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'stop-gate-handler.cjs'), 'utf8');
   assert.equal(mcpSrc.indexOf('consumeReachedGatesForVerdict') !== -1, true,
     'the MCP stop-gate handler must WRAP the same lifecycle wire (Part 7), never fork a second one');
+});
+
+// ---------------------------------------------------------------------------
+// Behavior 16 -- stop-hook-fires-card-on-option-shaped-prose-sentence /
+// card-fire-stale-f1-reach-suggestion-forces-block-regardless-of-relevance
+// (2026-09-17, SECOND pass -- the FIRST pass's SESSIONLESS_UNION_WINDOW_MS
+// (20s) window narrowing was live-disconfirmed: it fired again with the fix
+// already on disk, because a union gated on TIME ALONE cannot distinguish a
+// legitimate same-turn read-back from a concurrent PEER session's mint -- both
+// are, structurally, a fresh no-session record. The corrected fix removes the
+// union entirely (scopedRecords now reads ONLY the exact-match session
+// bucket) and instead gives the ONE producer that used to need the sessionless
+// bucket (lib/hmi/selector-dispatcher.cjs's pickShape trailer door) a REAL
+// session id: process.env.CLAUDE_CODE_SESSION_ID, thread through at the mint
+// call site. Behavior 16/16b below re-prove the end-to-end false-positive is
+// closed under the CORRECTED mechanism (no union, any age); Behavior 17 proves
+// the true-positive same-turn detection is preserved via the new session-id
+// threading, not via a window.
+// ---------------------------------------------------------------------------
+
+ok('Behavior 16 (fix C, revised): a sessionless mint NEVER bleeds into an unrelated session -- neither aged past the old window NOR genuinely fresh (0ms old)', function () {
+  const f = tmpFile();
+  const now = Date.now();
+  const midAgeTs = now - (sidechannel.TURN_FRESH_MS + 30000);
+  fs.writeFileSync(f, JSON.stringify({
+    'no-session': [
+      { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: midAgeTs, subject: 'choose your next reach - unrelated candidate' },
+    ],
+  }));
+  assert.deepStrictEqual(
+    readReachedGates('completely-unrelated-session', { filePath: f }),
+    [],
+    'an aged sessionless mint must not bleed into an unrelated session'
+  );
+  // 2026-09-17 second pass: this is the EXACT scenario that live-disconfirmed
+  // the first pass -- a fresh (this instant) sessionless mint, read from a
+  // DIFFERENT session. There is no way to tell this apart from a legitimate
+  // same-turn read-back once the record carries no session identity, so it
+  // must ALSO stay invisible to the unrelated session, at ANY age.
+  fs.writeFileSync(f, JSON.stringify({
+    'no-session': [
+      { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: now, subject: 'choose your next reach - unrelated candidate' },
+    ],
+  }));
+  assert.deepStrictEqual(
+    readReachedGates('completely-unrelated-session', { filePath: f }),
+    [],
+    'a genuinely fresh (0ms-old) sessionless mint must ALSO never bleed into an unrelated session -- this is the exact live-disconfirmation scenario'
+  );
+  fs.unlinkSync(f);
+});
+
+ok('Behavior 16b (fix C, end to end): a status turn with NO fork, whose only connection to a reached gate is a sessionless bleed, no longer force-fires -- at ANY age of the sessionless mint, and regardless of whether its closing sentence names options in prose', function () {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-238-optprose-'));
+  const sidechannelPath = path.join(tmpDir, 'card-fire-reached.json');
+  const origSC = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = sidechannelPath;
+  try {
+    // Two ages: a stale mint (as the first-pass test already covered) AND a
+    // GENUINELY FRESH one (0ms old) -- the second is the live-disconfirmation
+    // scenario (a peer session's real, this-instant card render must still
+    // never force an unrelated session's status turn).
+    [Date.now() - (sidechannel.TURN_FRESH_MS + 30000), Date.now()].forEach(function (mintTs, idx) {
+      fs.writeFileSync(sidechannelPath, JSON.stringify({
+        'no-session': [
+          { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: mintTs, subject: 'choose your next reach - eureka-213-215 prior-art-validation' },
+        ],
+      }));
+
+      const optionProseTurn = simulateStopTurn({
+        session_id: 'sess-status-holding-' + idx,
+        output_text: "Status: research is still running in the background. I'll hold here until it lands -- next up we can cut the beta, capture the seed, or wrap up.",
+        preceding_user_text: '',
+        preceding_user_text_source: 'none',
+        askuserquestion_fired: false,
+      });
+      assert.equal(optionProseTurn.intercept, false,
+        'a sessionless bleed (age index ' + idx + ') must not force-fire a status turn, regardless of its own closing-sentence shape');
+
+      const plainTurn = simulateStopTurn({
+        session_id: 'sess-status-holding-plain-' + idx,
+        output_text: "Status: research is still running in the background. I'll hold here until it lands and report back once it does.",
+        preceding_user_text: '',
+        preceding_user_text_source: 'none',
+        askuserquestion_fired: false,
+      });
+      assert.equal(plainTurn.intercept, false,
+        'the no-option control turn (age index ' + idx + ') must behave identically -- the closing-sentence shape was never the cause');
+    });
+  } finally {
+    if (origSC === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origSC;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Behavior 17 -- the CORRECTED mechanism: lib/hmi/selector-dispatcher.cjs's
+// pickShape trailer door threads process.env.CLAUDE_CODE_SESSION_ID (when
+// present) into its recordReachedGate call, so its mints land in a REAL
+// session's own bucket directly -- found by an EXACT match, not a time
+// window. This preserves the true-positive "same-turn read-back" detection
+// the old union existed for WITHOUT reintroducing any cross-session ambiguity.
+// ---------------------------------------------------------------------------
+
+ok('Behavior 17a: with CLAUDE_CODE_SESSION_ID set, the pickShape trailer door mints under that REAL session id, not NO_SESSION_KEY', function () {
+  const f = tmpFile();
+  const dispatcher = require(path.join(REPO, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+  const origSC = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  const origSessionEnv = process.env.CLAUDE_CODE_SESSION_ID;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  process.env.CLAUDE_CODE_SESSION_ID = 'real-live-session-abc123';
+  try {
+    dispatcher.pickShape({
+      requestedShape: 'F.1',
+      roomDir: null,
+      operator: null,
+      payload: { verbs: ['A', 'B'], header: 'h', emitTelemetry: true },
+    });
+    const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+    assert.equal(Array.isArray(raw['real-live-session-abc123']) && raw['real-live-session-abc123'].length === 1, true,
+      'the mint must land under the REAL CLAUDE_CODE_SESSION_ID value, not a degenerate bucket');
+    assert.equal(raw[sidechannel.NO_SESSION_KEY] === undefined, true,
+      'NO_SESSION_KEY must stay empty entirely when a real session id resolves');
+    assert.equal(
+      readReachedGates('real-live-session-abc123', { filePath: f }).indexOf('lib/hmi/selector-dispatcher.cjs') !== -1,
+      true,
+      'the Stop hook of the SAME session (real session id, exact match) sees the mint -- true-positive preserved'
+    );
+    assert.deepStrictEqual(
+      readReachedGates('a-totally-different-session', { filePath: f }),
+      [],
+      'a DIFFERENT session id sees nothing -- no union, no leak, exact match only'
+    );
+  } finally {
+    if (origSC === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origSC;
+    if (origSessionEnv === undefined) delete process.env.CLAUDE_CODE_SESSION_ID;
+    else process.env.CLAUDE_CODE_SESSION_ID = origSessionEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 17b: with CLAUDE_CODE_SESSION_ID absent, the pickShape trailer door falls back to NO_SESSION_KEY exactly as before (the documented safe-default residual)', function () {
+  const f = tmpFile();
+  const dispatcher = require(path.join(REPO, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+  const origSC = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  const origSessionEnv = process.env.CLAUDE_CODE_SESSION_ID;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  delete process.env.CLAUDE_CODE_SESSION_ID;
+  try {
+    dispatcher.pickShape({
+      requestedShape: 'F.1',
+      roomDir: null,
+      operator: null,
+      payload: { verbs: ['A', 'B'], header: 'h', emitTelemetry: true },
+    });
+    const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+    assert.equal(Array.isArray(raw[sidechannel.NO_SESSION_KEY]) && raw[sidechannel.NO_SESSION_KEY].length === 1, true,
+      'with no resolvable session id, the mint still degrades to NO_SESSION_KEY rather than being dropped');
+    assert.deepStrictEqual(
+      readReachedGates('any-other-live-session', { filePath: f }),
+      [],
+      'and per the corrected scopedRecords, that degenerate bucket is now invisible to every real session -- safe default, not a leak'
+    );
+  } finally {
+    if (origSC === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origSC;
+    if (origSessionEnv === undefined) delete process.env.CLAUDE_CODE_SESSION_ID;
+    else process.env.CLAUDE_CODE_SESSION_ID = origSessionEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 17c: an explicit payload.sessionId (a future/other caller with a real MCP extra.sessionId) takes precedence over CLAUDE_CODE_SESSION_ID', function () {
+  const f = tmpFile();
+  const dispatcher = require(path.join(REPO, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+  const origSC = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  const origSessionEnv = process.env.CLAUDE_CODE_SESSION_ID;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  process.env.CLAUDE_CODE_SESSION_ID = 'env-session-should-lose';
+  try {
+    dispatcher.pickShape({
+      requestedShape: 'F.1',
+      roomDir: null,
+      operator: null,
+      payload: { verbs: ['A', 'B'], header: 'h', emitTelemetry: true, sessionId: 'explicit-session-should-win' },
+    });
+    const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+    assert.equal(Array.isArray(raw['explicit-session-should-win']), true,
+      'an explicit payload.sessionId must win over the env var, mirroring resolveEffectiveSessionId precedence');
+    assert.equal(raw['env-session-should-lose'], undefined, 'the env var value must not also be used when an explicit id is supplied');
+  } finally {
+    if (origSC === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origSC;
+    if (origSessionEnv === undefined) delete process.env.CLAUDE_CODE_SESSION_ID;
+    else process.env.CLAUDE_CODE_SESSION_ID = origSessionEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Behavior 18 -- the TWO-CONCURRENT-SESSION-SAME-ROOM scenario the FIRST
+// pass's tests never covered (it only tested single-session timing, not
+// actual cross-session identity collision). Session A mints a genuine
+// Shape-F card (with a REAL, resolved session id); session B, a DIFFERENT
+// real session id, reads moments later at every delay from 0ms to well past
+// the old 2-minute TURN_FRESH_MS window. Session B's read must be UNAFFECTED
+// at every single delay -- not just outside a timing window.
+// ---------------------------------------------------------------------------
+
+ok("Behavior 18: two concurrent sessions, same room, same side-channel file -- session B never sees session A's mint, at ANY delay", function () {
+  const f = tmpFile();
+  const SESSION_A = 'concurrent-session-A-11111111';
+  const SESSION_B = 'concurrent-session-B-22222222';
+  // Delays spanning: same-instant, well inside the old 20s window, well inside
+  // the old 2-minute TURN_FRESH_MS window, and well past both.
+  const delaysMs = [0, 1000, 19000, 30000, 90000, 180000];
+  delaysMs.forEach(function (delayMs) {
+    const mintTs = Date.now() - delayMs;
+    // Session A mints with its OWN real session id (the corrected producer
+    // behavior -- see Behavior 17a). Written directly here to control the
+    // exact age deterministically instead of racing a live setTimeout.
+    fs.writeFileSync(f, JSON.stringify({
+      [SESSION_A]: [
+        { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: mintTs, subject: 'session A genuine Shape-F card' },
+      ],
+    }));
+    // Session A's OWN read still sees its own mint (sanity: the fix must not
+    // have broken the legitimate same-session case while closing the
+    // cross-session one). TTL_MS-bounded only, same as always.
+    assert.equal(
+      readReachedGates(SESSION_A, { filePath: f }).indexOf('lib/hmi/selector-dispatcher.cjs') !== -1,
+      true,
+      'session A must still see its OWN mint at delay ' + delayMs + 'ms (same-session read unaffected)'
+    );
+    // Session B, a DIFFERENT real, concurrently-active session, must NEVER
+    // see session A's mint, regardless of delay.
+    assert.deepStrictEqual(
+      readReachedGates(SESSION_B, { filePath: f }),
+      [],
+      "session B must NEVER see session A's mint at delay " + delayMs + 'ms'
+    );
+    assert.equal(
+      sidechannel.mostRecentReachedTs(SESSION_B, { filePath: f }),
+      0,
+      "session B's freshness verdict must also see nothing from session A at delay " + delayMs + 'ms'
+    );
+    assert.deepStrictEqual(
+      readReachedGateSubjects(SESSION_B, { filePath: f }),
+      [],
+      "session B must not see session A's subject text either, at delay " + delayMs + 'ms'
+    );
+  });
+  fs.unlinkSync(f);
+});
+
+// ---------------------------------------------------------------------------
+// Behaviors 19a-19e -- stop-hook-fires-card-on-option-shaped-prose-sentence
+// (2026-09-17, "RECLASSIFICATION: Third Block Is NOT a Disconfirmation"
+// section) / card-fire-stale-f1-reach-suggestion-forces-block-regardless-
+// of-relevance.md (the sibling PRIMARY-arm RCA, "Fold note update, THIRD
+// report"). This is a DIFFERENT mechanism from Behaviors 9/10/16 above (the
+// sessionless-bucket cross-session leak, already fixed): here the reach
+// record is a REAL, own-session, correctly-never-fired F.8 gate (not a
+// leaked or stale one), and the false positive comes from
+// gateTopicallyRelevant's bag-of-tokens overlap matching the gate's own
+// BOILERPLATE/structural wording ("bind", "session", "room"/"rooms",
+// "select", "start", "talk", "new" -- present in EVERY F.8 render
+// regardless of which candidate rooms are on offer) rather than its
+// genuinely distinguishing content (the actual candidate room names). A
+// meta-conversation about sessions/rooms/gates -- exactly what a debugging
+// session investigating THIS bug naturally talks about -- satisfied that
+// overlap purely on the boilerplate, with zero relation to the actual
+// options on offer. The fix: lib/core/gate-relevance.cjs's
+// GATE_BOILERPLATE_TOKENS + gateSubjectTokens() strip the gate side of the
+// comparison down to its distinguishing content before the overlap check.
+// ---------------------------------------------------------------------------
+
+// The F.8 room-binding gate's realistic subject text (mirrors F8_ROOM_BIND_
+// SUBJECT above and the debug file's own confirmed minimal repro): fixed
+// chrome ("bind session select rooms") plus the reserved standing options
+// ("Just talk (no room)", "Start a new room") plus ONE real candidate room
+// name ("ALIGN") -- the only part of this string that actually varies
+// between renders of this gate.
+const F8_BOILERPLATE_SUBJECT =
+  '-- mindrianOS -- bind session -- select rooms -- ALIGN Just talk (no room) Start a new room';
+
+ok('Behavior 19a: a meta status turn about sessions/rooms/gates, with NO reference to the actual candidate room, does NOT force-fire a genuinely-reached F.8 gate (boilerplate-only overlap)', function () {
+  withSideFile(function () {
+    recordReachedGate({
+      sessionId: 'sess-19a-boilerplate-meta',
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: F8_BOILERPLATE_SUBJECT,
+    });
+    const v = simulateStopTurn({
+      session_id: 'sess-19a-boilerplate-meta',
+      output_text: 'Noted, continuing with the dev-repo work.',
+      preceding_user_text: 'Every turn my session binds to rooms via this gate and I never fire it since it is irrelevant to my repo work.',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(v.intercept, false,
+      'a turn whose ONLY connection to the gate is shared boilerplate vocabulary ("session", "rooms", "gate") must NOT force-fire');
+    assert.equal(v.reason, 'gate-irrelevant-to-turn',
+      'the verdict must name the irrelevance reason, not reached-registry-gate-no-card');
+  });
+});
+
+ok('Behavior 19b: control -- a turn with ZERO session/room vocabulary against the SAME F.8 gate also does not force-fire', function () {
+  withSideFile(function () {
+    recordReachedGate({
+      sessionId: 'sess-19b-control',
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: F8_BOILERPLATE_SUBJECT,
+    });
+    const v = simulateStopTurn({
+      session_id: 'sess-19b-control',
+      output_text: 'Noted, continuing with the dev-repo work.',
+      preceding_user_text: 'The oncology paper biomarker survival curve looked promising for the cohort.',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(v.intercept, false, 'a turn with no overlap at all must also not force-fire');
+    assert.equal(v.reason, 'gate-irrelevant-to-turn');
+  });
+});
+
+ok('Behavior 19c: PRESERVE FLOOR -- a turn that genuinely names the actual candidate room (ALIGN) still force-fires the SAME F.8 gate', function () {
+  withSideFile(function () {
+    recordReachedGate({
+      sessionId: 'sess-19c-genuine',
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: F8_BOILERPLATE_SUBJECT,
+    });
+    const v = simulateStopTurn({
+      session_id: 'sess-19c-genuine',
+      output_text: 'Noted, continuing with the dev-repo work.',
+      preceding_user_text: 'Should I bind this session to the ALIGN room, or start fresh?',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(v.intercept, true,
+      'a turn that genuinely names the specific candidate room MUST still force-fire (the boilerplate strip must not swallow real content)');
+    assert.equal(v.reason, 'reached-registry-gate-no-card');
+  });
+});
+
+ok("Behavior 19d: the fix generalizes across BOTH shared mint sites -- an F.8 card minted via the OTHER producer (lib/hmi/selector-dispatcher.cjs's pickShape trailer door) exhibits the same boilerplate-vs-content distinction", function () {
+  const f = tmpFile();
+  const dispatcher = require(path.join(REPO, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+  const origSC = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  const origSessionEnv = process.env.CLAUDE_CODE_SESSION_ID;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  process.env.CLAUDE_CODE_SESSION_ID = 'sess-19d-pickshape-f8';
+  try {
+    dispatcher.pickShape({
+      requestedShape: 'F.8',
+      roomDir: null,
+      operator: null,
+      payload: {
+        header: '-- mindrianOS -- bind session -- select rooms --',
+        options: ['ALIGN', 'dev repo / no room'],
+        emitTelemetry: true,
+      },
+    });
+    const mintedSubject = readReachedGateSubjects('sess-19d-pickshape-f8', { filePath: f })[0];
+    assert.equal(typeof mintedSubject === 'string' && mintedSubject.length > 0, true,
+      'the pickShape trailer door must have minted a real subject for this session');
+
+    const boilerplateOnly = checkCardFire.classifyCardFire(
+      checkCardFire.deriveTurnSignals({
+        session_id: 'sess-19d-pickshape-f8',
+        output_text: 'Noted, continuing.',
+        preceding_user_text: 'This whole session keeps binding to rooms via a gate I never select.',
+        preceding_user_text_source: 'typed',
+        askuserquestion_fired: false,
+      }),
+      checkCardFire.loadRegistry()
+    );
+    assert.equal(boilerplateOnly.intercept, false,
+      'boilerplate-only overlap must not force-fire regardless of which producer minted the record');
+    assert.equal(boilerplateOnly.reason, 'gate-irrelevant-to-turn');
+  } finally {
+    if (origSC === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origSC;
+    if (origSessionEnv === undefined) delete process.env.CLAUDE_CODE_SESSION_ID;
+    else process.env.CLAUDE_CODE_SESSION_ID = origSessionEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 19e (unit): gateSubjectTokens strips GATE_BOILERPLATE_TOKENS from the gate side only, preserving distinguishing content', function () {
+  const stripped = gateRelevance.gateSubjectTokens(F8_BOILERPLATE_SUBJECT);
+  assert.equal(stripped.has('bind'), false, '"bind" is boilerplate and must be stripped');
+  assert.equal(stripped.has('session'), false, '"session" is boilerplate and must be stripped');
+  assert.equal(stripped.has('room'), false, '"room" is boilerplate and must be stripped');
+  assert.equal(stripped.has('select'), false, '"select" is boilerplate and must be stripped');
+  assert.equal(stripped.has('start'), false, '"start" is boilerplate and must be stripped');
+  assert.equal(stripped.has('talk'), false, '"talk" is boilerplate and must be stripped');
+  assert.equal(stripped.has('new'), false, '"new" is boilerplate and must be stripped');
+  assert.equal(stripped.has('align'), true, 'the genuine candidate room name must survive the strip');
 });
 
 ok('Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12', function () {
