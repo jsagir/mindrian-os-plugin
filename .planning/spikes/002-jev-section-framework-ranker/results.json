@@ -1,5 +1,5 @@
 {
-  "started": "2026-09-17T06:21:50.405Z",
+  "started": "2026-09-17T06:34:40.798Z",
   "model": "jev-1.13.0",
   "desc_mode": "ruling",
   "frameworks": 410,
@@ -8,218 +8,218 @@
   "scenarios": {
     "S1": {
       "variant": "A batched 20 / B per-pair",
-      "wall_ms": 2724,
-      "wall_ms_B": 1887,
+      "wall_ms": 3733,
+      "wall_ms_B": 2093,
       "usage": {
         "input_tokens": 93784,
         "output_tokens": 6024
       },
       "metrics": {
         "n_labeled": 26,
-        "spearman_jev": 0.5893445855789001,
-        "spearman_jev_B": 0.6297519668597221,
+        "spearman_jev": 0.5853181794750757,
+        "spearman_jev_B": 0.6480881485260988,
         "spearman_degree": 0.05944055944055944,
-        "spearman_A_vs_B": 0.8424833371034837,
+        "spearman_A_vs_B": 0.8331336764150804,
         "top5_jev": 2,
         "top5_jev_B": 2,
         "top5_degree": 1,
-        "conf_clear": 0.45117647058823523,
-        "conf_unclear": 0.21555555555555558,
-        "conf_stub_desc": 0.45121311475409864,
-        "conf_with_desc": 0.49190476190476184,
-        "score_stub_desc": 0.5300327868852455,
-        "score_with_desc": 0.5386666666666666
+        "conf_clear": 0.42294117647058826,
+        "conf_unclear": 0.21333333333333335,
+        "conf_stub_desc": 0.4511475409836067,
+        "conf_with_desc": 0.4925714285714287,
+        "score_stub_desc": 0.5287868852459018,
+        "score_with_desc": 0.5375238095238094
       },
       "ranked": [
         {
-          "framework": "Problem Definition Transformation Framework",
-          "score": 1.72,
-          "confidence": 0.59,
+          "framework": "Beautiful Question Framework",
+          "score": 1.7,
+          "confidence": 0.55,
           "score_B": 1.45,
           "label": 2,
           "degree": 1
         },
         {
-          "framework": "Beautiful Question Framework",
-          "score": 1.71,
-          "confidence": 0.56,
+          "framework": "Problem Definition Transformation Framework",
+          "score": 1.61,
+          "confidence": 0.41,
           "score_B": 1.46,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "Systems Thinking",
-          "score": 1.53,
-          "confidence": 0.3,
-          "score_B": 1.36,
-          "label": 1,
-          "degree": 2
-        },
-        {
-          "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 1.43,
-          "confidence": 0.14,
+          "score": 1.51,
+          "confidence": 0.27,
           "score_B": 1.32,
-          "label": 1,
-          "degree": 1
-        },
-        {
-          "framework": "Domain Selection",
-          "score": 1.39,
-          "confidence": 0.09,
-          "score_B": 1.64,
           "label": 1,
           "degree": 2
         },
         {
           "framework": "Six Thinking Hats",
-          "score": 1.39,
-          "confidence": 0.09,
-          "score_B": 1.17,
+          "score": 1.51,
+          "confidence": 0.26,
+          "score_B": 1.15,
           "label": 1,
           "degree": 4
         },
         {
-          "framework": "Ackoff Pyramid",
-          "score": 1.11,
-          "confidence": 0.31,
-          "score_B": 0.9,
+          "framework": "Domain Selection",
+          "score": 1.43,
+          "confidence": 0.14,
+          "score_B": 1.69,
+          "label": 1,
+          "degree": 2
+        },
+        {
+          "framework": "Knowns and Unknowns Matrix Framework",
+          "score": 1.31,
+          "confidence": 0,
+          "score_B": 1.29,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Four Lenses of Innovation",
-          "score": 0.99,
-          "confidence": 0.03,
-          "score_B": 1.64,
+          "framework": "Ackoff Pyramid",
+          "score": 1.19,
+          "confidence": 0.23,
+          "score_B": 0.96,
           "label": 1,
           "degree": 1
         },
         {
           "framework": "Adaptive Leadership",
-          "score": 0.99,
-          "confidence": 0.34,
-          "score_B": 1.14,
+          "score": 1.02,
+          "confidence": 0.35,
+          "score_B": 1.11,
           "label": 0,
+          "degree": 1
+        },
+        {
+          "framework": "Four Lenses of Innovation",
+          "score": 0.99,
+          "confidence": 0,
+          "score_B": 1.65,
+          "label": 1,
           "degree": 1
         },
         {
           "framework": "Jobs to Be Done (JTBD)",
-          "score": 0.88,
-          "confidence": 0.07,
-          "score_B": 1.15,
+          "score": 0.92,
+          "confidence": 0.11,
+          "score_B": 1.16,
           "label": 2,
           "degree": 5
         },
         {
-          "framework": "Futures Wheel",
-          "score": 0.84,
-          "confidence": 0.12,
-          "score_B": 0.48,
-          "label": 0,
-          "degree": 1
-        },
-        {
           "framework": "Scenario Planning",
-          "score": 0.82,
+          "score": 0.84,
           "confidence": 0,
-          "score_B": 0.15,
+          "score_B": 0.14,
           "label": 0,
           "degree": 2
         },
         {
-          "framework": "HSI Semantic Surprise Analysis Assistant",
-          "score": 0.77,
+          "framework": "Futures Wheel",
+          "score": 0.76,
           "confidence": 0,
-          "score_B": 0.72,
+          "score_B": 0.52,
           "label": 0,
-          "degree": 3
+          "degree": 1
         },
         {
           "framework": "PEST Analysis",
-          "score": 0.75,
+          "score": 0.76,
           "confidence": 0.34,
-          "score_B": 0.82,
+          "score_B": 0.77,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Red Teaming",
-          "score": 0.66,
-          "confidence": 0.24,
-          "score_B": 0.49,
+          "score": 0.69,
+          "confidence": 0.28,
+          "score_B": 0.48,
           "label": 1,
           "degree": 1
         },
         {
+          "framework": "HSI Semantic Surprise Analysis Assistant",
+          "score": 0.63,
+          "confidence": 0.06,
+          "score_B": 0.72,
+          "label": 0,
+          "degree": 3
+        },
+        {
           "framework": "S-Curve Analysis",
-          "score": 0.57,
-          "confidence": 0.14,
-          "score_B": 0.3,
+          "score": 0.59,
+          "confidence": 0.11,
+          "score_B": 0.26,
           "label": 0,
           "degree": 3
         },
         {
           "framework": "Hypothesis-Driven Problem Solving",
-          "score": 0.45,
-          "confidence": 0.32,
-          "score_B": 0.6,
+          "score": 0.47,
+          "confidence": 0.3,
+          "score_B": 0.64,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Reverse Salient Analysis",
-          "score": 0.39,
-          "confidence": 0.42,
-          "score_B": 0.41,
-          "label": 1,
-          "degree": 6
-        },
-        {
           "framework": "Usher's Model of Cumulative Synthesis",
-          "score": 0.38,
-          "confidence": 0.43,
-          "score_B": 0.29,
+          "score": 0.45,
+          "confidence": 0.32,
+          "score_B": 0.3,
           "label": 0,
           "degree": 1
         },
         {
+          "framework": "Reverse Salient Analysis",
+          "score": 0.37,
+          "confidence": 0.44,
+          "score_B": 0.43,
+          "label": 1,
+          "degree": 6
+        },
+        {
           "framework": "Root Cause Analysis",
-          "score": 0.3,
-          "confidence": 0.55,
+          "score": 0.34,
+          "confidence": 0.49,
           "score_B": 0.4,
           "label": 2,
           "degree": 2
         },
         {
           "framework": "PWS Triple Validation Compass",
-          "score": 0.26,
+          "score": 0.27,
           "confidence": 0.6,
-          "score_B": 0.59,
+          "score_B": 0.57,
           "label": 0,
           "degree": 3
         },
         {
           "framework": "The Pyramid Principle",
-          "score": 0.25,
-          "confidence": 0.62,
-          "score_B": 0.28,
+          "score": 0.27,
+          "confidence": 0.59,
+          "score_B": 0.26,
           "label": 0,
           "degree": 2
         },
         {
           "framework": "PWS Value Proposition",
-          "score": 0.24,
-          "confidence": 0.65,
-          "score_B": 0.42,
+          "score": 0.25,
+          "confidence": 0.62,
+          "score_B": 0.33,
           "label": 0,
           "degree": 2
         },
         {
           "framework": "Dominant Design",
-          "score": 0.11,
-          "confidence": 0.84,
-          "score_B": 0.16,
+          "score": 0.12,
+          "confidence": 0.82,
+          "score_B": 0.13,
           "label": 0,
           "degree": 1
         },
@@ -227,7 +227,7 @@
           "framework": "Lean Canvas",
           "score": 0.09,
           "confidence": 0.87,
-          "score_B": 0.27,
+          "score_B": 0.26,
           "label": 0,
           "degree": 1
         },
@@ -235,7 +235,7 @@
           "framework": "Adoption-Capacity Theory",
           "score": 0.03,
           "confidence": 0.95,
-          "score_B": 0.23,
+          "score_B": 0.25,
           "label": 0,
           "degree": 1
         }
@@ -243,407 +243,407 @@
       "top_full": [
         {
           "framework": "The Why What If and How of Innovative Questioning",
-          "score": 1.77,
-          "confidence": 0.66,
+          "score": 1.79,
+          "confidence": 0.69,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Contextual Inquiry",
-          "score": 1.77,
-          "confidence": 0.65,
+          "score": 1.76,
+          "confidence": 0.64,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "Problem Definition Transformation Framework",
-          "score": 1.72,
-          "confidence": 0.59,
-          "in_index": true,
-          "stub": false
-        },
-        {
           "framework": "PWS-JTBD Innovation Discovery Framework",
-          "score": 1.72,
-          "confidence": 0.58,
+          "score": 1.75,
+          "confidence": 0.63,
           "in_index": false,
           "stub": false
         },
         {
           "framework": "Beautiful Question Framework",
-          "score": 1.71,
-          "confidence": 0.56,
+          "score": 1.7,
+          "confidence": 0.55,
           "in_index": true,
           "stub": false
         },
         {
           "framework": "Beautiful-Questions technique",
           "score": 1.69,
-          "confidence": 0.53,
+          "confidence": 0.54,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Advanced Discovery and Early Framing",
-          "score": 1.62,
-          "confidence": 0.42,
+          "score": 1.66,
+          "confidence": 0.49,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Problem Definition Transformation Framework",
+          "score": 1.61,
+          "confidence": 0.41,
+          "in_index": true,
+          "stub": false
+        },
+        {
+          "framework": "Soft systems methodology",
+          "score": 1.6,
+          "confidence": 0.4,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "The Power of Inquiry",
-          "score": 1.61,
-          "confidence": 0.41,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Analogies as discovery tool",
           "score": 1.59,
           "confidence": 0.39,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Five W's Framework",
-          "score": 1.59,
-          "confidence": 0.39,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Soft systems methodology",
-          "score": 1.58,
-          "confidence": 0.37,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Understanding Needs Method",
-          "score": 1.58,
-          "confidence": 0.37,
+          "score": 1.56,
+          "confidence": 0.34,
           "in_index": false,
           "stub": true
+        },
+        {
+          "framework": "Analogies as discovery tool",
+          "score": 1.55,
+          "confidence": 0.33,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Cynefin Framework",
+          "score": 1.53,
+          "confidence": 0.3,
+          "in_index": false,
+          "stub": false
         }
       ],
       "scored": 410
     },
     "S2": {
       "variant": "A batched 20 / B per-pair",
-      "wall_ms": 2726,
-      "wall_ms_B": 1572,
+      "wall_ms": 2256,
+      "wall_ms_B": 1511,
       "usage": {
         "input_tokens": 187610,
         "output_tokens": 12048
       },
       "metrics": {
         "n_labeled": 26,
-        "spearman_jev": 0.630127733886005,
-        "spearman_jev_B": 0.344304133016599,
+        "spearman_jev": 0.6257416939749655,
+        "spearman_jev_B": 0.39108855873435344,
         "spearman_degree": 0.050507757080454796,
-        "spearman_A_vs_B": 0.7778727770177839,
+        "spearman_A_vs_B": 0.7821477428180574,
         "top5_jev": 3,
         "top5_jev_B": 2,
         "top5_degree": 0,
-        "conf_clear": 0.3775,
-        "conf_unclear": 0.2839999999999999,
-        "conf_stub_desc": 0.43052459016393463,
-        "conf_with_desc": 0.4583809523809523,
-        "score_stub_desc": 0.5118032786885249,
-        "score_with_desc": 0.5475238095238095
+        "conf_clear": 0.355,
+        "conf_unclear": 0.28800000000000003,
+        "conf_stub_desc": 0.4295737704918031,
+        "conf_with_desc": 0.4535238095238095,
+        "score_stub_desc": 0.5154754098360658,
+        "score_with_desc": 0.5512380952380954
       },
       "ranked": [
         {
           "framework": "Problem Definition Transformation Framework",
-          "score": 1.65,
-          "confidence": 0.47,
-          "score_B": 1.72,
+          "score": 1.67,
+          "confidence": 0.5,
+          "score_B": 1.7,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Domain Selection",
-          "score": 1.48,
-          "confidence": 0.23,
-          "score_B": 1.6,
-          "label": 2,
-          "degree": 2
-        },
-        {
           "framework": "Beautiful Question Framework",
-          "score": 1.44,
-          "confidence": 0.16,
-          "score_B": 1,
+          "score": 1.43,
+          "confidence": 0.15,
+          "score_B": 1.03,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "Four Lenses of Innovation",
-          "score": 1.39,
-          "confidence": 0.08,
-          "score_B": 1.64,
+          "score": 1.41,
+          "confidence": 0.11,
+          "score_B": 1.68,
           "label": 2,
           "degree": 1
         },
         {
+          "framework": "Domain Selection",
+          "score": 1.34,
+          "confidence": 0.01,
+          "score_B": 1.6,
+          "label": 2,
+          "degree": 2
+        },
+        {
+          "framework": "Systems Thinking",
+          "score": 1.16,
+          "confidence": 0.33,
+          "score_B": 0.99,
+          "label": 1,
+          "degree": 2
+        },
+        {
           "framework": "Six Thinking Hats",
-          "score": 1.12,
-          "confidence": 0.25,
+          "score": 1.14,
+          "confidence": 0.26,
           "score_B": 0.96,
           "label": 1,
           "degree": 4
         },
         {
-          "framework": "Systems Thinking",
-          "score": 1.1,
-          "confidence": 0.37,
-          "score_B": 1.1,
-          "label": 1,
-          "degree": 2
-        },
-        {
-          "framework": "Futures Wheel",
-          "score": 1.06,
-          "confidence": 0.27,
-          "score_B": 0.77,
-          "label": 2,
-          "degree": 1
-        },
-        {
-          "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 1,
-          "confidence": 0.3,
-          "score_B": 1.25,
-          "label": 1,
-          "degree": 1
-        },
-        {
           "framework": "Jobs to Be Done (JTBD)",
-          "score": 0.94,
+          "score": 1.06,
           "confidence": 0,
-          "score_B": 1.13,
+          "score_B": 1.18,
           "label": 1,
           "degree": 5
         },
         {
+          "framework": "Knowns and Unknowns Matrix Framework",
+          "score": 1.03,
+          "confidence": 0.28,
+          "score_B": 1.23,
+          "label": 1,
+          "degree": 1
+        },
+        {
+          "framework": "Futures Wheel",
+          "score": 0.98,
+          "confidence": 0.27,
+          "score_B": 0.81,
+          "label": 2,
+          "degree": 1
+        },
+        {
           "framework": "Ackoff Pyramid",
-          "score": 0.91,
+          "score": 0.96,
           "confidence": 0.46,
-          "score_B": 0.76,
+          "score_B": 0.79,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Scenario Planning",
-          "score": 0.82,
-          "confidence": 0,
+          "score": 0.87,
+          "confidence": 0.06,
           "score_B": 0.13,
           "label": 1,
           "degree": 2
         },
         {
-          "framework": "S-Curve Analysis",
-          "score": 0.8,
+          "framework": "HSI Semantic Surprise Analysis Assistant",
+          "score": 0.84,
           "confidence": 0,
-          "score_B": 0.47,
-          "label": 1,
+          "score_B": 0.69,
+          "label": 2,
           "degree": 3
         },
         {
-          "framework": "HSI Semantic Surprise Analysis Assistant",
-          "score": 0.77,
-          "confidence": 0,
-          "score_B": 0.56,
-          "label": 2,
+          "framework": "S-Curve Analysis",
+          "score": 0.82,
+          "confidence": 0.1,
+          "score_B": 0.44,
+          "label": 1,
           "degree": 3
         },
         {
           "framework": "PEST Analysis",
-          "score": 0.65,
+          "score": 0.62,
           "confidence": 0.31,
-          "score_B": 0.49,
+          "score_B": 0.56,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Adaptive Leadership",
-          "score": 0.59,
-          "confidence": 0.3,
-          "score_B": 0.51,
-          "label": 0,
-          "degree": 1
-        },
-        {
-          "framework": "Red Teaming",
-          "score": 0.58,
-          "confidence": 0.22,
-          "score_B": 0.37,
-          "label": 0,
-          "degree": 1
-        },
-        {
           "framework": "Root Cause Analysis",
-          "score": 0.47,
-          "confidence": 0.29,
-          "score_B": 0.48,
+          "score": 0.58,
+          "confidence": 0.13,
+          "score_B": 0.41,
           "label": 0,
           "degree": 2
         },
         {
-          "framework": "Usher's Model of Cumulative Synthesis",
-          "score": 0.43,
-          "confidence": 0.35,
-          "score_B": 0.27,
-          "label": 2,
+          "framework": "Red Teaming",
+          "score": 0.58,
+          "confidence": 0.23,
+          "score_B": 0.36,
+          "label": 0,
           "degree": 1
         },
         {
-          "framework": "Hypothesis-Driven Problem Solving",
-          "score": 0.41,
-          "confidence": 0.39,
-          "score_B": 0.72,
+          "framework": "Adaptive Leadership",
+          "score": 0.55,
+          "confidence": 0.26,
+          "score_B": 0.58,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Reverse Salient Analysis",
-          "score": 0.4,
-          "confidence": 0.4,
-          "score_B": 0.43,
+          "score": 0.47,
+          "confidence": 0.3,
+          "score_B": 0.49,
           "label": 1,
           "degree": 6
         },
         {
+          "framework": "Usher's Model of Cumulative Synthesis",
+          "score": 0.46,
+          "confidence": 0.31,
+          "score_B": 0.28,
+          "label": 2,
+          "degree": 1
+        },
+        {
+          "framework": "Hypothesis-Driven Problem Solving",
+          "score": 0.39,
+          "confidence": 0.42,
+          "score_B": 0.73,
+          "label": 0,
+          "degree": 1
+        },
+        {
           "framework": "PWS Triple Validation Compass",
-          "score": 0.28,
-          "confidence": 0.58,
-          "score_B": 0.8,
+          "score": 0.3,
+          "confidence": 0.55,
+          "score_B": 0.71,
           "label": 0,
           "degree": 3
         },
         {
-          "framework": "The Pyramid Principle",
-          "score": 0.28,
-          "confidence": 0.57,
-          "score_B": 0.47,
+          "framework": "PWS Value Proposition",
+          "score": 0.29,
+          "confidence": 0.56,
+          "score_B": 0.49,
           "label": 0,
           "degree": 2
         },
         {
-          "framework": "PWS Value Proposition",
-          "score": 0.27,
-          "confidence": 0.59,
-          "score_B": 0.46,
+          "framework": "The Pyramid Principle",
+          "score": 0.28,
+          "confidence": 0.58,
+          "score_B": 0.48,
           "label": 0,
           "degree": 2
         },
         {
           "framework": "Dominant Design",
-          "score": 0.17,
+          "score": 0.18,
           "confidence": 0.74,
-          "score_B": 0.15,
+          "score_B": 0.16,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Adoption-Capacity Theory",
-          "score": 0.16,
-          "confidence": 0.76,
-          "score_B": 0.3,
+          "framework": "Lean Canvas",
+          "score": 0.13,
+          "confidence": 0.8,
+          "score_B": 0.4,
           "label": 0,
           "degree": 1
         },
         {
-          "framework": "Lean Canvas",
-          "score": 0.14,
-          "confidence": 0.79,
-          "score_B": 0.36,
+          "framework": "Adoption-Capacity Theory",
+          "score": 0.11,
+          "confidence": 0.84,
+          "score_B": 0.27,
           "label": 0,
           "degree": 1
         }
       ],
       "top_full": [
         {
-          "framework": "Well-Defined Problem Framework",
-          "score": 1.82,
-          "confidence": 0.73,
-          "in_index": false,
-          "stub": false
-        },
-        {
           "framework": "PWS-JTBD Innovation Discovery Framework",
-          "score": 1.69,
-          "confidence": 0.54,
+          "score": 1.74,
+          "confidence": 0.61,
           "in_index": false,
           "stub": false
         },
         {
-          "framework": "Problem Definition Transformation Framework",
-          "score": 1.65,
-          "confidence": 0.47,
-          "in_index": true,
+          "framework": "Well-Defined Problem Framework",
+          "score": 1.74,
+          "confidence": 0.61,
+          "in_index": false,
           "stub": false
         },
         {
           "framework": "Customer Development",
-          "score": 1.63,
-          "confidence": 0.45,
+          "score": 1.68,
+          "confidence": 0.52,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Problem Definition Transformation Framework",
+          "score": 1.67,
+          "confidence": 0.5,
+          "in_index": true,
+          "stub": false
+        },
+        {
+          "framework": "The Mom Test",
+          "score": 1.62,
+          "confidence": 0.43,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Contextual Inquiry",
-          "score": 1.57,
-          "confidence": 0.36,
+          "score": 1.53,
+          "confidence": 0.29,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "The Mom Test",
-          "score": 1.57,
-          "confidence": 0.35,
+          "framework": "Is it Real / Problem Validation Framework",
+          "score": 1.52,
+          "confidence": 0.28,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "The Why What If and How of Innovative Questioning",
+          "score": 1.51,
+          "confidence": 0.26,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Understanding Needs Method",
-          "score": 1.49,
-          "confidence": 0.23,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Domain Selection",
-          "score": 1.48,
-          "confidence": 0.23,
-          "in_index": true,
-          "stub": false
-        },
-        {
-          "framework": "The Why What If and How of Innovative Questioning",
           "score": 1.48,
           "confidence": 0.22,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "Beautiful Question Framework",
-          "score": 1.44,
-          "confidence": 0.16,
-          "in_index": true,
-          "stub": false
-        },
-        {
-          "framework": "Is it Real / Problem Validation Framework",
-          "score": 1.43,
-          "confidence": 0.15,
+          "framework": "The Power of Inquiry",
+          "score": 1.48,
+          "confidence": 0.21,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "Advanced Discovery and Early Framing",
-          "score": 1.42,
-          "confidence": 0.13,
+          "framework": "Beautiful Question Framework",
+          "score": 1.43,
+          "confidence": 0.15,
+          "in_index": true,
+          "stub": false
+        },
+        {
+          "framework": "Beautiful-Questions technique",
+          "score": 1.41,
+          "confidence": 0.11,
           "in_index": false,
           "stub": true
         }
@@ -652,130 +652,130 @@
     },
     "S3": {
       "variant": "A batched 20 / B per-pair",
-      "wall_ms": 2232,
-      "wall_ms_B": 1632,
+      "wall_ms": 2204,
+      "wall_ms_B": 1591,
       "usage": {
         "input_tokens": 281394,
         "output_tokens": 18072
       },
       "metrics": {
         "n_labeled": 26,
-        "spearman_jev": 0.8011526525613318,
-        "spearman_jev_B": 0.7083091827086135,
+        "spearman_jev": 0.8219086534623281,
+        "spearman_jev_B": 0.7359784970303596,
         "spearman_degree": 0.11478881729266818,
-        "spearman_A_vs_B": 0.8184152096583638,
-        "top5_jev": 2,
-        "top5_jev_B": 2,
+        "spearman_A_vs_B": 0.7893744760310786,
+        "top5_jev": 3,
+        "top5_jev_B": 1,
         "top5_degree": 1,
-        "conf_clear": 0.6059999999999999,
-        "conf_unclear": 0.17166666666666666,
-        "conf_stub_desc": 0.6237704918032789,
-        "conf_with_desc": 0.511428571428571,
-        "score_stub_desc": 0.2654098360655738,
-        "score_with_desc": 0.3725714285714285
+        "conf_clear": 0.6220000000000001,
+        "conf_unclear": 0.17333333333333334,
+        "conf_stub_desc": 0.6190163934426229,
+        "conf_with_desc": 0.5170476190476194,
+        "score_stub_desc": 0.2684590163934427,
+        "score_with_desc": 0.3710476190476191
       },
       "ranked": [
         {
-          "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 0.97,
-          "confidence": 0.12,
-          "score_B": 0.79,
-          "label": 1,
-          "degree": 1
-        },
-        {
           "framework": "Reverse Salient Analysis",
-          "score": 0.9,
+          "score": 0.95,
           "confidence": 0.07,
           "score_B": 0.7,
           "label": 2,
           "degree": 6
         },
         {
+          "framework": "Knowns and Unknowns Matrix Framework",
+          "score": 0.92,
+          "confidence": 0.13,
+          "score_B": 0.73,
+          "label": 1,
+          "degree": 1
+        },
+        {
           "framework": "Hypothesis-Driven Problem Solving",
-          "score": 0.81,
-          "confidence": 0,
-          "score_B": 0.54,
+          "score": 0.82,
+          "confidence": 0.14,
+          "score_B": 0.43,
+          "label": 2,
+          "degree": 1
+        },
+        {
+          "framework": "Six Thinking Hats",
+          "score": 0.6,
+          "confidence": 0.1,
+          "score_B": 0.53,
+          "label": 1,
+          "degree": 4
+        },
+        {
+          "framework": "Adaptive Leadership",
+          "score": 0.56,
+          "confidence": 0.16,
+          "score_B": 0.19,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "Red Teaming",
-          "score": 0.59,
-          "confidence": 0.11,
-          "score_B": 0.38,
+          "score": 0.55,
+          "confidence": 0.17,
+          "score_B": 0.41,
           "label": 1,
           "degree": 1
         },
         {
-          "framework": "Six Thinking Hats",
-          "score": 0.57,
-          "confidence": 0.15,
-          "score_B": 0.51,
-          "label": 1,
-          "degree": 4
-        },
-        {
           "framework": "The Pyramid Principle",
-          "score": 0.56,
-          "confidence": 0.16,
+          "score": 0.55,
+          "confidence": 0.17,
           "score_B": 0.46,
           "label": 1,
           "degree": 2
         },
         {
-          "framework": "Adaptive Leadership",
+          "framework": "Root Cause Analysis",
           "score": 0.54,
           "confidence": 0.19,
-          "score_B": 0.15,
-          "label": 2,
-          "degree": 1
-        },
-        {
-          "framework": "PWS Triple Validation Compass",
-          "score": 0.53,
-          "confidence": 0.2,
-          "score_B": 0.25,
-          "label": 0,
-          "degree": 3
-        },
-        {
-          "framework": "Root Cause Analysis",
-          "score": 0.51,
-          "confidence": 0.24,
-          "score_B": 0.26,
+          "score_B": 0.24,
           "label": 1,
           "degree": 2
         },
         {
+          "framework": "PWS Triple Validation Compass",
+          "score": 0.51,
+          "confidence": 0.23,
+          "score_B": 0.24,
+          "label": 0,
+          "degree": 3
+        },
+        {
           "framework": "Systems Thinking",
-          "score": 0.5,
-          "confidence": 0.25,
-          "score_B": 0.57,
+          "score": 0.48,
+          "confidence": 0.28,
+          "score_B": 0.56,
           "label": 1,
           "degree": 2
         },
         {
           "framework": "PWS Value Proposition",
-          "score": 0.39,
-          "confidence": 0.42,
+          "score": 0.38,
+          "confidence": 0.43,
           "score_B": 0.2,
           "label": 0,
           "degree": 2
         },
         {
           "framework": "Beautiful Question Framework",
-          "score": 0.36,
-          "confidence": 0.46,
-          "score_B": 0.16,
+          "score": 0.33,
+          "confidence": 0.51,
+          "score_B": 0.14,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "S-Curve Analysis",
-          "score": 0.28,
-          "confidence": 0.58,
-          "score_B": 0.23,
+          "score": 0.25,
+          "confidence": 0.63,
+          "score_B": 0.2,
           "label": 0,
           "degree": 3
         },
@@ -783,190 +783,190 @@
           "framework": "Jobs to Be Done (JTBD)",
           "score": 0.24,
           "confidence": 0.64,
-          "score_B": 0.08,
+          "score_B": 0.09,
           "label": 0,
           "degree": 5
         },
         {
           "framework": "Ackoff Pyramid",
-          "score": 0.22,
-          "confidence": 0.67,
-          "score_B": 0.36,
+          "score": 0.2,
+          "confidence": 0.7,
+          "score_B": 0.31,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Lean Canvas",
-          "score": 0.2,
-          "confidence": 0.69,
-          "score_B": 0.16,
+          "score": 0.19,
+          "confidence": 0.71,
+          "score_B": 0.14,
           "label": 0,
           "degree": 1
-        },
-        {
-          "framework": "Scenario Planning",
-          "score": 0.17,
-          "confidence": 0.75,
-          "score_B": 0.05,
-          "label": 0,
-          "degree": 2
         },
         {
           "framework": "Futures Wheel",
-          "score": 0.16,
-          "confidence": 0.76,
-          "score_B": 0.06,
-          "label": 0,
-          "degree": 1
-        },
-        {
-          "framework": "Four Lenses of Innovation",
-          "score": 0.15,
-          "confidence": 0.78,
-          "score_B": 0.06,
+          "score": 0.18,
+          "confidence": 0.73,
+          "score_B": 0.05,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Problem Definition Transformation Framework",
-          "score": 0.14,
-          "confidence": 0.8,
+          "score": 0.15,
+          "confidence": 0.78,
           "score_B": 0.03,
           "label": 0,
           "degree": 1
         },
         {
-          "framework": "HSI Semantic Surprise Analysis Assistant",
-          "score": 0.12,
-          "confidence": 0.83,
-          "score_B": 0.18,
+          "framework": "Scenario Planning",
+          "score": 0.14,
+          "confidence": 0.79,
+          "score_B": 0.05,
           "label": 0,
-          "degree": 3
-        },
-        {
-          "framework": "Adoption-Capacity Theory",
-          "score": 0.11,
-          "confidence": 0.84,
-          "score_B": 0.13,
-          "label": 0,
-          "degree": 1
+          "degree": 2
         },
         {
           "framework": "Dominant Design",
-          "score": 0.11,
-          "confidence": 0.84,
+          "score": 0.12,
+          "confidence": 0.82,
           "score_B": 0.04,
           "label": 0,
           "degree": 1
         },
         {
+          "framework": "Four Lenses of Innovation",
+          "score": 0.12,
+          "confidence": 0.82,
+          "score_B": 0.06,
+          "label": 0,
+          "degree": 1
+        },
+        {
           "framework": "PEST Analysis",
-          "score": 0.11,
-          "confidence": 0.83,
+          "score": 0.12,
+          "confidence": 0.82,
           "score_B": 0.02,
           "label": 0,
           "degree": 1
         },
         {
+          "framework": "HSI Semantic Surprise Analysis Assistant",
+          "score": 0.1,
+          "confidence": 0.86,
+          "score_B": 0.18,
+          "label": 0,
+          "degree": 3
+        },
+        {
           "framework": "Usher's Model of Cumulative Synthesis",
-          "score": 0.08,
-          "confidence": 0.87,
-          "score_B": 0.1,
+          "score": 0.1,
+          "confidence": 0.85,
+          "score_B": 0.09,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Domain Selection",
-          "score": 0.07,
-          "confidence": 0.9,
-          "score_B": 0.1,
+          "score": 0.08,
+          "confidence": 0.87,
+          "score_B": 0.09,
           "label": 0,
           "degree": 2
+        },
+        {
+          "framework": "Adoption-Capacity Theory",
+          "score": 0.08,
+          "confidence": 0.88,
+          "score_B": 0.15,
+          "label": 0,
+          "degree": 1
         }
       ],
       "top_full": [
         {
-          "framework": "Dailies",
-          "score": 1.21,
-          "confidence": 0,
-          "in_index": false,
-          "stub": true
-        },
-        {
           "framework": "Process Mapping",
-          "score": 1.2,
+          "score": 1.22,
           "confidence": 0,
           "in_index": false,
           "stub": false
         },
         {
           "framework": "Surgical Team Model",
-          "score": 1.1,
+          "score": 1.17,
+          "confidence": 0,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Agile Development",
+          "score": 1.16,
+          "confidence": 0.17,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Commander's Intent",
+          "score": 1.15,
+          "confidence": 0,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "Dailies",
+          "score": 1.09,
           "confidence": 0,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Five-Step Implementation Process",
-          "score": 1.09,
-          "confidence": 0,
-          "in_index": false,
-          "stub": false
-        },
-        {
-          "framework": "Agile Development",
-          "score": 1.05,
-          "confidence": 0.17,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Entrepreneurial Method",
           "score": 1.05,
           "confidence": 0,
           "in_index": false,
           "stub": false
-        },
-        {
-          "framework": "Commander's Intent",
-          "score": 1.04,
-          "confidence": 0.12,
-          "in_index": false,
-          "stub": true
         },
         {
           "framework": "Adaptive Role Assignment",
-          "score": 1.01,
-          "confidence": 0.28,
+          "score": 1.03,
+          "confidence": 0.23,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "High-Performing Teams",
-          "score": 1,
+          "score": 1.01,
           "confidence": 0.1,
           "in_index": false,
           "stub": false
         },
         {
-          "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 0.97,
-          "confidence": 0.12,
-          "in_index": true,
-          "stub": false
-        },
-        {
-          "framework": "Five Practices of Effective Executives",
-          "score": 0.96,
-          "confidence": 0.33,
+          "framework": "Entrepreneurial Method",
+          "score": 1,
+          "confidence": 0,
           "in_index": false,
           "stub": false
         },
         {
           "framework": "Reverse Salient Analysis",
-          "score": 0.9,
+          "score": 0.95,
           "confidence": 0.07,
           "in_index": true,
+          "stub": false
+        },
+        {
+          "framework": "Knowns and Unknowns Matrix Framework",
+          "score": 0.92,
+          "confidence": 0.13,
+          "in_index": true,
+          "stub": false
+        },
+        {
+          "framework": "Five Practices of Effective Executives",
+          "score": 0.89,
+          "confidence": 0.32,
+          "in_index": false,
           "stub": false
         }
       ],
@@ -974,234 +974,234 @@
     },
     "S4": {
       "variant": "A batched 20 / B per-pair",
-      "wall_ms": 2512,
-      "wall_ms_B": 1438,
+      "wall_ms": 2778,
+      "wall_ms_B": 1449,
       "usage": {
         "input_tokens": 375136,
         "output_tokens": 24096
       },
       "metrics": {
         "n_labeled": 26,
-        "spearman_jev": 0.20794839484455624,
-        "spearman_jev_B": -0.04875780386556524,
+        "spearman_jev": 0.192517100246894,
+        "spearman_jev_B": -0.029473000844110333,
         "spearman_degree": 0.12747708630468912,
-        "spearman_A_vs_B": 0.7822442695860418,
+        "spearman_A_vs_B": 0.8167664790194727,
         "top5_jev": 2,
         "top5_jev_B": 0,
         "top5_degree": 2,
-        "conf_clear": 0.24749999999999997,
-        "conf_unclear": 0.28500000000000003,
-        "conf_stub_desc": 0.42039344262295053,
-        "conf_with_desc": 0.42323809523809514,
-        "score_stub_desc": 0.5435081967213115,
-        "score_with_desc": 0.5400952380952382
+        "conf_clear": 0.2525,
+        "conf_unclear": 0.299,
+        "conf_stub_desc": 0.41606557377049197,
+        "conf_with_desc": 0.4282857142857143,
+        "score_stub_desc": 0.5494754098360654,
+        "score_with_desc": 0.5416190476190478
       },
       "ranked": [
         {
           "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 1.35,
-          "confidence": 0.2,
-          "score_B": 1.52,
+          "score": 1.38,
+          "confidence": 0.07,
+          "score_B": 1.51,
           "label": 1,
           "degree": 1
         },
         {
           "framework": "Futures Wheel",
-          "score": 1.25,
-          "confidence": 0.33,
-          "score_B": 0.82,
+          "score": 1.26,
+          "confidence": 0.28,
+          "score_B": 0.88,
           "label": 1,
           "degree": 1
         },
         {
           "framework": "PEST Analysis",
-          "score": 1.18,
-          "confidence": 0.39,
-          "score_B": 1.05,
+          "score": 1.21,
+          "confidence": 0.35,
+          "score_B": 1.08,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "Systems Thinking",
-          "score": 1.15,
-          "confidence": 0.39,
+          "score": 1.14,
+          "confidence": 0.42,
           "score_B": 1.2,
           "label": 1,
           "degree": 2
         },
         {
           "framework": "PWS Triple Validation Compass",
-          "score": 1.11,
-          "confidence": 0.09,
-          "score_B": 1.04,
+          "score": 1.09,
+          "confidence": 0.11,
+          "score_B": 1.05,
           "label": 2,
           "degree": 3
         },
         {
           "framework": "Six Thinking Hats",
-          "score": 1.06,
-          "confidence": 0.42,
-          "score_B": 1.08,
+          "score": 1.04,
+          "confidence": 0.44,
+          "score_B": 1.13,
           "label": 1,
           "degree": 4
         },
         {
+          "framework": "Hypothesis-Driven Problem Solving",
+          "score": 1,
+          "confidence": 0.5,
+          "score_B": 1.05,
+          "label": 1,
+          "degree": 1
+        },
+        {
+          "framework": "Problem Definition Transformation Framework",
+          "score": 0.98,
+          "confidence": 0,
+          "score_B": 1.62,
+          "label": 0,
+          "degree": 1
+        },
+        {
           "framework": "Beautiful Question Framework",
-          "score": 1.04,
-          "confidence": 0.22,
-          "score_B": 1.34,
+          "score": 0.97,
+          "confidence": 0.24,
+          "score_B": 1.33,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "S-Curve Analysis",
-          "score": 0.97,
-          "confidence": 0.24,
-          "score_B": 0.78,
+          "score": 0.94,
+          "confidence": 0.19,
+          "score_B": 0.77,
           "label": 2,
           "degree": 3
         },
         {
-          "framework": "Hypothesis-Driven Problem Solving",
-          "score": 0.97,
-          "confidence": 0.45,
-          "score_B": 1.07,
-          "label": 1,
-          "degree": 1
-        },
-        {
           "framework": "Scenario Planning",
-          "score": 0.93,
-          "confidence": 0.3,
+          "score": 0.91,
+          "confidence": 0.31,
           "score_B": 0.72,
           "label": 2,
           "degree": 2
         },
         {
-          "framework": "Problem Definition Transformation Framework",
-          "score": 0.92,
-          "confidence": 0,
-          "score_B": 1.61,
-          "label": 0,
-          "degree": 1
-        },
-        {
           "framework": "Ackoff Pyramid",
           "score": 0.84,
-          "confidence": 0.45,
-          "score_B": 0.8,
+          "confidence": 0.44,
+          "score_B": 0.82,
           "label": 0,
           "degree": 1
-        },
-        {
-          "framework": "Domain Selection",
-          "score": 0.83,
-          "confidence": 0,
-          "score_B": 1.25,
-          "label": 0,
-          "degree": 2
         },
         {
           "framework": "PWS Value Proposition",
-          "score": 0.71,
-          "confidence": 0.18,
-          "score_B": 0.56,
+          "score": 0.76,
+          "confidence": 0.19,
+          "score_B": 0.57,
           "label": 1,
           "degree": 2
         },
         {
           "framework": "Jobs to Be Done (JTBD)",
-          "score": 0.65,
-          "confidence": 0.26,
-          "score_B": 0.8,
+          "score": 0.75,
+          "confidence": 0.32,
+          "score_B": 0.75,
           "label": 1,
           "degree": 5
         },
         {
+          "framework": "Domain Selection",
+          "score": 0.75,
+          "confidence": 0,
+          "score_B": 1.22,
+          "label": 0,
+          "degree": 2
+        },
+        {
           "framework": "Four Lenses of Innovation",
-          "score": 0.64,
-          "confidence": 0.03,
-          "score_B": 0.95,
+          "score": 0.69,
+          "confidence": 0.2,
+          "score_B": 0.87,
           "label": 0,
           "degree": 1
         },
         {
           "framework": "Red Teaming",
-          "score": 0.61,
-          "confidence": 0.31,
+          "score": 0.63,
+          "confidence": 0.32,
           "score_B": 0.65,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "HSI Semantic Surprise Analysis Assistant",
-          "score": 0.59,
-          "confidence": 0.11,
-          "score_B": 0.58,
+          "score": 0.56,
+          "confidence": 0.16,
+          "score_B": 0.56,
           "label": 0,
           "degree": 3
         },
         {
-          "framework": "Reverse Salient Analysis",
-          "score": 0.56,
-          "confidence": 0.16,
-          "score_B": 0.6,
-          "label": 1,
-          "degree": 6
-        },
-        {
           "framework": "Adaptive Leadership",
-          "score": 0.54,
-          "confidence": 0.19,
-          "score_B": 0.64,
+          "score": 0.52,
+          "confidence": 0.22,
+          "score_B": 0.61,
           "label": 0,
           "degree": 1
         },
         {
-          "framework": "Lean Canvas",
-          "score": 0.53,
-          "confidence": 0.2,
-          "score_B": 0.65,
-          "label": 1,
-          "degree": 1
-        },
-        {
           "framework": "The Pyramid Principle",
-          "score": 0.53,
-          "confidence": 0.26,
+          "score": 0.52,
+          "confidence": 0.25,
           "score_B": 0.61,
           "label": 1,
           "degree": 2
         },
         {
-          "framework": "Adoption-Capacity Theory",
-          "score": 0.42,
-          "confidence": 0.38,
-          "score_B": 0.46,
-          "label": 2,
+          "framework": "Reverse Salient Analysis",
+          "score": 0.49,
+          "confidence": 0.26,
+          "score_B": 0.59,
+          "label": 1,
+          "degree": 6
+        },
+        {
+          "framework": "Lean Canvas",
+          "score": 0.49,
+          "confidence": 0.26,
+          "score_B": 0.63,
+          "label": 1,
           "degree": 1
         },
         {
           "framework": "Dominant Design",
-          "score": 0.41,
-          "confidence": 0.38,
-          "score_B": 0.77,
+          "score": 0.47,
+          "confidence": 0.3,
+          "score_B": 0.74,
+          "label": 2,
+          "degree": 1
+        },
+        {
+          "framework": "Adoption-Capacity Theory",
+          "score": 0.42,
+          "confidence": 0.37,
+          "score_B": 0.4,
           "label": 2,
           "degree": 1
         },
         {
           "framework": "Root Cause Analysis",
-          "score": 0.4,
-          "confidence": 0.41,
-          "score_B": 0.38,
+          "score": 0.41,
+          "confidence": 0.38,
+          "score_B": 0.44,
           "label": 0,
           "degree": 2
         },
         {
           "framework": "Usher's Model of Cumulative Synthesis",
-          "score": 0.36,
-          "confidence": 0.46,
-          "score_B": 0.43,
+          "score": 0.37,
+          "confidence": 0.45,
+          "score_B": 0.36,
           "label": 0,
           "degree": 1
         }
@@ -1209,20 +1209,20 @@
       "top_full": [
         {
           "framework": "Well-Defined Problem Framework",
-          "score": 1.49,
-          "confidence": 0.24,
+          "score": 1.52,
+          "confidence": 0.27,
           "in_index": false,
           "stub": false
         },
         {
           "framework": "Knowns and Unknowns Matrix Framework",
-          "score": 1.35,
-          "confidence": 0.2,
+          "score": 1.38,
+          "confidence": 0.07,
           "in_index": true,
           "stub": false
         },
         {
-          "framework": "Domain and Trend Analysis",
+          "framework": "Research, Validation, and Early Business Framing",
           "score": 1.33,
           "confidence": 0,
           "in_index": false,
@@ -1230,66 +1230,66 @@
         },
         {
           "framework": "Near-Term Trend Analysis",
-          "score": 1.29,
-          "confidence": 0.25,
+          "score": 1.31,
+          "confidence": 0.23,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "gauge the trend's progression over different horizons",
-          "score": 1.27,
-          "confidence": 0.26,
-          "in_index": false,
-          "stub": true
-        },
-        {
-          "framework": "Research, Validation, and Early Business Framing",
-          "score": 1.27,
-          "confidence": 0,
+          "framework": "Domain and Trend Analysis",
+          "score": 1.31,
+          "confidence": 0.15,
           "in_index": false,
           "stub": true
         },
         {
           "framework": "Futures Wheel",
-          "score": 1.25,
-          "confidence": 0.33,
+          "score": 1.26,
+          "confidence": 0.28,
           "in_index": true,
           "stub": false
         },
         {
-          "framework": "Harnessing Trends Method / Four Lenses",
-          "score": 1.23,
-          "confidence": 0.19,
+          "framework": "Knowns and Unknowns Matrix",
+          "score": 1.22,
+          "confidence": 0.36,
           "in_index": false,
           "stub": true
         },
         {
-          "framework": "Knowns and Unknowns Matrix",
+          "framework": "gauge the trend's progression over different horizons",
           "score": 1.22,
-          "confidence": 0.37,
+          "confidence": 0.3,
           "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "CAF Consider All Factors",
+          "score": 1.22,
+          "confidence": 0.27,
+          "in_index": false,
+          "stub": true
+        },
+        {
+          "framework": "PEST Analysis",
+          "score": 1.21,
+          "confidence": 0.35,
+          "in_index": true,
           "stub": true
         },
         {
           "framework": "Cynefin Framework",
-          "score": 1.22,
+          "score": 1.21,
           "confidence": 0,
           "in_index": false,
           "stub": false
         },
         {
-          "framework": "Scenario Analysis Framework",
+          "framework": "The Innovation Landscape",
           "score": 1.21,
-          "confidence": 0.14,
+          "confidence": 0,
           "in_index": false,
           "stub": false
-        },
-        {
-          "framework": "Market Dynamics",
-          "score": 1.2,
-          "confidence": 0.36,
-          "in_index": false,
-          "stub": true
         }
       ],
       "scored": 410
@@ -1309,18 +1309,18 @@
   },
   "latency": {
     "calls": 192,
-    "p50_ms": 318,
-    "p95_ms": 713,
-    "max_ms": 1070
+    "p50_ms": 320,
+    "p95_ms": 892,
+    "max_ms": 1569
   },
   "cost_vendor_claimed_usd_input": 0.01808604,
   "events": [
     {
-      "ts": "2026-09-17T06:22:39.409Z",
+      "ts": "2026-09-17T06:35:27.642Z",
       "cat": "response",
       "label": "S1_A_b3",
       "status": 200,
-      "ms": 1033,
+      "ms": 1045,
       "usage": {
         "input_tokens": 4502,
         "output_tokens": 294
@@ -1328,7 +1328,19 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:39.425Z",
+      "ts": "2026-09-17T06:35:27.644Z",
+      "cat": "response",
+      "label": "S1_A_b2",
+      "status": 200,
+      "ms": 1048,
+      "usage": {
+        "input_tokens": 4573,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:27.647Z",
       "cat": "response",
       "label": "S1_A_b0",
       "status": 200,
@@ -1340,11 +1352,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:39.426Z",
+      "ts": "2026-09-17T06:35:27.671Z",
       "cat": "response",
       "label": "S1_A_b1",
       "status": 200,
-      "ms": 1051,
+      "ms": 1072,
       "usage": {
         "input_tokens": 4571,
         "output_tokens": 294
@@ -1352,23 +1364,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:39.445Z",
-      "cat": "response",
-      "label": "S1_A_b2",
-      "status": 200,
-      "ms": 1070,
-      "usage": {
-        "input_tokens": 4573,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:39.711Z",
+      "ts": "2026-09-17T06:35:27.947Z",
       "cat": "response",
       "label": "S1_A_b5",
       "status": 200,
-      "ms": 286,
+      "ms": 303,
       "usage": {
         "input_tokens": 4552,
         "output_tokens": 294
@@ -1376,11 +1376,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:39.728Z",
+      "ts": "2026-09-17T06:35:27.952Z",
       "cat": "response",
       "label": "S1_A_b6",
       "status": 200,
-      "ms": 301,
+      "ms": 305,
       "usage": {
         "input_tokens": 4639,
         "output_tokens": 294
@@ -1388,11 +1388,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:39.747Z",
+      "ts": "2026-09-17T06:35:27.990Z",
       "cat": "response",
       "label": "S1_A_b7",
       "status": 200,
-      "ms": 302,
+      "ms": 319,
       "usage": {
         "input_tokens": 4572,
         "output_tokens": 294
@@ -1400,11 +1400,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.030Z",
+      "ts": "2026-09-17T06:35:28.301Z",
       "cat": "response",
       "label": "S1_A_b9",
       "status": 200,
-      "ms": 302,
+      "ms": 349,
       "usage": {
         "input_tokens": 4533,
         "output_tokens": 294
@@ -1412,11 +1412,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.060Z",
+      "ts": "2026-09-17T06:35:28.313Z",
       "cat": "response",
       "label": "S1_A_b10",
       "status": 200,
-      "ms": 313,
+      "ms": 323,
       "usage": {
         "input_tokens": 4578,
         "output_tokens": 294
@@ -1424,11 +1424,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.255Z",
+      "ts": "2026-09-17T06:35:28.489Z",
       "cat": "response",
       "label": "S1_A_b8",
       "status": 200,
-      "ms": 543,
+      "ms": 541,
       "usage": {
         "input_tokens": 4596,
         "output_tokens": 294
@@ -1436,11 +1436,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.342Z",
+      "ts": "2026-09-17T06:35:28.757Z",
       "cat": "response",
       "label": "S1_A_b11",
       "status": 200,
-      "ms": 312,
+      "ms": 455,
       "usage": {
         "input_tokens": 4506,
         "output_tokens": 294
@@ -1448,23 +1448,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.368Z",
-      "cat": "response",
-      "label": "S1_A_b12",
-      "status": 200,
-      "ms": 308,
-      "usage": {
-        "input_tokens": 4578,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:40.440Z",
+      "ts": "2026-09-17T06:35:28.757Z",
       "cat": "response",
       "label": "S1_A_b4",
       "status": 200,
-      "ms": 1031,
+      "ms": 1115,
       "usage": {
         "input_tokens": 4513,
         "output_tokens": 294
@@ -1472,11 +1460,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.616Z",
+      "ts": "2026-09-17T06:35:28.758Z",
+      "cat": "response",
+      "label": "S1_A_b12",
+      "status": 200,
+      "ms": 445,
+      "usage": {
+        "input_tokens": 4578,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:28.849Z",
       "cat": "response",
       "label": "S1_A_b13",
       "status": 200,
-      "ms": 361,
+      "ms": 360,
       "usage": {
         "input_tokens": 4598,
         "output_tokens": 294
@@ -1484,35 +1484,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.661Z",
-      "cat": "response",
-      "label": "S1_A_b15",
-      "status": 200,
-      "ms": 293,
-      "usage": {
-        "input_tokens": 4560,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:40.674Z",
-      "cat": "response",
-      "label": "S1_A_b14",
-      "status": 200,
-      "ms": 331,
-      "usage": {
-        "input_tokens": 4564,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:40.739Z",
+      "ts": "2026-09-17T06:35:29.106Z",
       "cat": "response",
       "label": "S1_A_b16",
       "status": 200,
-      "ms": 299,
+      "ms": 347,
       "usage": {
         "input_tokens": 4599,
         "output_tokens": 294
@@ -1520,19 +1496,31 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.982Z",
+      "ts": "2026-09-17T06:35:29.154Z",
       "cat": "response",
-      "label": "S1_A_b19",
+      "label": "S1_A_b17",
       "status": 200,
-      "ms": 306,
+      "ms": 305,
       "usage": {
-        "input_tokens": 4617,
+        "input_tokens": 4529,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:40.993Z",
+      "ts": "2026-09-17T06:35:29.310Z",
+      "cat": "response",
+      "label": "S1_A_b14",
+      "status": 200,
+      "ms": 553,
+      "usage": {
+        "input_tokens": 4564,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:29.438Z",
       "cat": "response",
       "label": "S1_A_b18",
       "status": 200,
@@ -1544,23 +1532,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.066Z",
+      "ts": "2026-09-17T06:35:29.538Z",
       "cat": "response",
-      "label": "S1_A_b17",
+      "label": "S1_A_b19",
       "status": 200,
-      "ms": 450,
+      "ms": 383,
       "usage": {
-        "input_tokens": 4529,
+        "input_tokens": 4617,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.097Z",
+      "ts": "2026-09-17T06:35:30.189Z",
       "cat": "response",
       "label": "S1_A_b20",
       "status": 200,
-      "ms": 357,
+      "ms": 879,
       "usage": {
         "input_tokens": 2411,
         "output_tokens": 144
@@ -1568,11 +1556,47 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.429Z",
+      "ts": "2026-09-17T06:35:30.326Z",
+      "cat": "response",
+      "label": "S1_A_b15",
+      "status": 200,
+      "ms": 1569,
+      "usage": {
+        "input_tokens": 4560,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:30.618Z",
+      "cat": "response",
+      "label": "S1_B_Systems Thin",
+      "status": 200,
+      "ms": 291,
+      "usage": {
+        "input_tokens": 505,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:30.622Z",
+      "cat": "response",
+      "label": "S1_B_Beautiful Qu",
+      "status": 200,
+      "ms": 295,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:30.622Z",
       "cat": "response",
       "label": "S1_B_S-Curve Anal",
       "status": 200,
-      "ms": 332,
+      "ms": 295,
       "usage": {
         "input_tokens": 507,
         "output_tokens": 18
@@ -1580,23 +1604,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.443Z",
-      "cat": "response",
-      "label": "S1_B_Domain Selec",
-      "status": 200,
-      "ms": 345,
-      "usage": {
-        "input_tokens": 505,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:41.448Z",
+      "ts": "2026-09-17T06:35:30.675Z",
       "cat": "response",
       "label": "S1_B_Jobs to Be D",
       "status": 200,
-      "ms": 351,
+      "ms": 347,
       "usage": {
         "input_tokens": 524,
         "output_tokens": 18
@@ -1604,11 +1616,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.461Z",
+      "ts": "2026-09-17T06:35:30.699Z",
       "cat": "response",
-      "label": "S1_B_Systems Thin",
+      "label": "S1_B_Domain Selec",
       "status": 200,
-      "ms": 364,
+      "ms": 371,
       "usage": {
         "input_tokens": 505,
         "output_tokens": 18
@@ -1616,11 +1628,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.747Z",
+      "ts": "2026-09-17T06:35:31.006Z",
       "cat": "response",
       "label": "S1_B_Ackoff Pyram",
       "status": 200,
-      "ms": 318,
+      "ms": 388,
       "usage": {
         "input_tokens": 511,
         "output_tokens": 18
@@ -1628,11 +1640,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.862Z",
+      "ts": "2026-09-17T06:35:31.146Z",
       "cat": "response",
       "label": "S1_B_PWS Value Pr",
       "status": 200,
-      "ms": 419,
+      "ms": 524,
       "usage": {
         "input_tokens": 508,
         "output_tokens": 18
@@ -1640,11 +1652,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.864Z",
+      "ts": "2026-09-17T06:35:31.147Z",
       "cat": "response",
       "label": "S1_B_Red Teaming",
       "status": 200,
-      "ms": 402,
+      "ms": 472,
       "usage": {
         "input_tokens": 502,
         "output_tokens": 18
@@ -1652,11 +1664,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.864Z",
+      "ts": "2026-09-17T06:35:31.148Z",
+      "cat": "response",
+      "label": "S1_B_PWS Triple V",
+      "status": 200,
+      "ms": 449,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:31.149Z",
       "cat": "response",
       "label": "S1_B_Root Cause A",
       "status": 200,
-      "ms": 416,
+      "ms": 527,
       "usage": {
         "input_tokens": 502,
         "output_tokens": 18
@@ -1664,11 +1688,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:41.987Z",
+      "ts": "2026-09-17T06:35:31.155Z",
       "cat": "response",
       "label": "S1_B_Six Thinking",
       "status": 200,
-      "ms": 890,
+      "ms": 828,
       "usage": {
         "input_tokens": 518,
         "output_tokens": 18
@@ -1676,35 +1700,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.015Z",
-      "cat": "response",
-      "label": "S1_B_Beautiful Qu",
-      "status": 200,
-      "ms": 918,
-      "usage": {
-        "input_tokens": 508,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.032Z",
-      "cat": "response",
-      "label": "S1_B_PWS Triple V",
-      "status": 200,
-      "ms": 285,
-      "usage": {
-        "input_tokens": 515,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.214Z",
+      "ts": "2026-09-17T06:35:31.344Z",
       "cat": "response",
       "label": "S1_B_Problem Defi",
       "status": 200,
-      "ms": 352,
+      "ms": 338,
       "usage": {
         "input_tokens": 515,
         "output_tokens": 18
@@ -1712,23 +1712,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.287Z",
-      "cat": "response",
-      "label": "S1_B_Adoption-Cap",
-      "status": 200,
-      "ms": 300,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.315Z",
+      "ts": "2026-09-17T06:35:31.449Z",
       "cat": "response",
       "label": "S1_B_HSI Semantic",
       "status": 200,
-      "ms": 451,
+      "ms": 303,
       "usage": {
         "input_tokens": 520,
         "output_tokens": 18
@@ -1736,11 +1724,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.336Z",
+      "ts": "2026-09-17T06:35:31.456Z",
+      "cat": "response",
+      "label": "S1_B_Adoption-Cap",
+      "status": 200,
+      "ms": 308,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:31.472Z",
       "cat": "response",
       "label": "S1_B_Dominant Des",
       "status": 200,
-      "ms": 321,
+      "ms": 322,
       "usage": {
         "input_tokens": 531,
         "output_tokens": 18
@@ -1748,11 +1748,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.350Z",
+      "ts": "2026-09-17T06:35:31.497Z",
       "cat": "response",
       "label": "S1_B_Four Lenses ",
       "status": 200,
-      "ms": 318,
+      "ms": 342,
       "usage": {
         "input_tokens": 504,
         "output_tokens": 18
@@ -1760,11 +1760,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.542Z",
+      "ts": "2026-09-17T06:35:31.637Z",
       "cat": "response",
       "label": "S1_B_Usher's Mode",
       "status": 200,
-      "ms": 327,
+      "ms": 293,
       "usage": {
         "input_tokens": 530,
         "output_tokens": 18
@@ -1772,47 +1772,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.577Z",
-      "cat": "response",
-      "label": "S1_B_Reverse Sali",
-      "status": 200,
-      "ms": 713,
-      "usage": {
-        "input_tokens": 511,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.585Z",
-      "cat": "response",
-      "label": "S1_B_Futures Whee",
-      "status": 200,
-      "ms": 298,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.638Z",
-      "cat": "response",
-      "label": "S1_B_Adaptive Lea",
-      "status": 200,
-      "ms": 323,
-      "usage": {
-        "input_tokens": 518,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:42.638Z",
+      "ts": "2026-09-17T06:35:31.762Z",
       "cat": "response",
       "label": "S1_B_Lean Canvas",
       "status": 200,
-      "ms": 302,
+      "ms": 289,
       "usage": {
         "input_tokens": 519,
         "output_tokens": 18
@@ -1820,11 +1784,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.657Z",
+      "ts": "2026-09-17T06:35:31.764Z",
+      "cat": "response",
+      "label": "S1_B_Futures Whee",
+      "status": 200,
+      "ms": 315,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:31.817Z",
       "cat": "response",
       "label": "S1_B_PEST Analysi",
       "status": 200,
-      "ms": 307,
+      "ms": 320,
       "usage": {
         "input_tokens": 502,
         "output_tokens": 18
@@ -1832,11 +1808,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.864Z",
+      "ts": "2026-09-17T06:35:31.852Z",
+      "cat": "response",
+      "label": "S1_B_Adaptive Lea",
+      "status": 200,
+      "ms": 396,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:31.921Z",
       "cat": "response",
       "label": "S1_B_Knowns and U",
       "status": 200,
-      "ms": 322,
+      "ms": 283,
       "usage": {
         "input_tokens": 520,
         "output_tokens": 18
@@ -1844,11 +1832,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.888Z",
+      "ts": "2026-09-17T06:35:32.039Z",
+      "cat": "response",
+      "label": "S1_B_Reverse Sali",
+      "status": 200,
+      "ms": 892,
+      "usage": {
+        "input_tokens": 511,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:32.044Z",
       "cat": "response",
       "label": "S1_B_Hypothesis-D",
       "status": 200,
-      "ms": 303,
+      "ms": 280,
       "usage": {
         "input_tokens": 516,
         "output_tokens": 18
@@ -1856,11 +1856,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.922Z",
+      "ts": "2026-09-17T06:35:32.058Z",
       "cat": "response",
       "label": "S1_B_Mullins Mode",
       "status": 200,
-      "ms": 345,
+      "ms": 295,
       "usage": {
         "input_tokens": 503,
         "output_tokens": 18
@@ -1868,11 +1868,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.946Z",
+      "ts": "2026-09-17T06:35:32.419Z",
       "cat": "response",
       "label": "S1_B_The Pyramid ",
       "status": 200,
-      "ms": 308,
+      "ms": 567,
       "usage": {
         "input_tokens": 517,
         "output_tokens": 18
@@ -1880,11 +1880,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:42.984Z",
+      "ts": "2026-09-17T06:35:32.419Z",
       "cat": "response",
       "label": "S1_B_Scenario Pla",
       "status": 200,
-      "ms": 346,
+      "ms": 602,
       "usage": {
         "input_tokens": 516,
         "output_tokens": 18
@@ -1892,47 +1892,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:43.696Z",
-      "cat": "response",
-      "label": "S2_A_b2",
-      "status": 200,
-      "ms": 708,
-      "usage": {
-        "input_tokens": 4575,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:43.697Z",
-      "cat": "response",
-      "label": "S2_A_b1",
-      "status": 200,
-      "ms": 710,
-      "usage": {
-        "input_tokens": 4573,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:43.697Z",
-      "cat": "response",
-      "label": "S2_A_b0",
-      "status": 200,
-      "ms": 710,
-      "usage": {
-        "input_tokens": 4592,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:43.732Z",
+      "ts": "2026-09-17T06:35:32.961Z",
       "cat": "response",
       "label": "S2_A_b3",
       "status": 200,
-      "ms": 744,
+      "ms": 539,
       "usage": {
         "input_tokens": 4504,
         "output_tokens": 294
@@ -1940,563 +1904,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:44.117Z",
+      "ts": "2026-09-17T06:35:32.961Z",
       "cat": "response",
-      "label": "S2_A_b6",
+      "label": "S2_A_b0",
       "status": 200,
-      "ms": 420,
+      "ms": 539,
       "usage": {
-        "input_tokens": 4641,
+        "input_tokens": 4592,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:44.179Z",
+      "ts": "2026-09-17T06:35:32.962Z",
       "cat": "response",
-      "label": "S2_A_b7",
+      "label": "S2_A_b1",
       "status": 200,
-      "ms": 446,
-      "usage": {
-        "input_tokens": 4574,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.294Z",
-      "cat": "response",
-      "label": "S2_A_b5",
-      "status": 200,
-      "ms": 597,
-      "usage": {
-        "input_tokens": 4554,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.308Z",
-      "cat": "response",
-      "label": "S2_A_b4",
-      "status": 200,
-      "ms": 612,
-      "usage": {
-        "input_tokens": 4515,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.489Z",
-      "cat": "response",
-      "label": "S2_A_b9",
-      "status": 200,
-      "ms": 310,
-      "usage": {
-        "input_tokens": 4535,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.600Z",
-      "cat": "response",
-      "label": "S2_A_b10",
-      "status": 200,
-      "ms": 306,
-      "usage": {
-        "input_tokens": 4580,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.767Z",
-      "cat": "response",
-      "label": "S2_A_b8",
-      "status": 200,
-      "ms": 650,
-      "usage": {
-        "input_tokens": 4598,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.884Z",
-      "cat": "response",
-      "label": "S2_A_b11",
-      "status": 200,
-      "ms": 576,
-      "usage": {
-        "input_tokens": 4508,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.914Z",
-      "cat": "response",
-      "label": "S2_A_b13",
-      "status": 200,
-      "ms": 314,
-      "usage": {
-        "input_tokens": 4600,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:44.997Z",
-      "cat": "response",
-      "label": "S2_A_b12",
-      "status": 200,
-      "ms": 508,
-      "usage": {
-        "input_tokens": 4580,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.095Z",
-      "cat": "response",
-      "label": "S2_A_b14",
-      "status": 200,
-      "ms": 328,
-      "usage": {
-        "input_tokens": 4566,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.226Z",
-      "cat": "response",
-      "label": "S2_A_b15",
-      "status": 200,
-      "ms": 342,
-      "usage": {
-        "input_tokens": 4562,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.388Z",
-      "cat": "response",
-      "label": "S2_A_b17",
-      "status": 200,
-      "ms": 391,
-      "usage": {
-        "input_tokens": 4531,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.427Z",
-      "cat": "response",
-      "label": "S2_A_b18",
-      "status": 200,
-      "ms": 331,
-      "usage": {
-        "input_tokens": 4605,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.530Z",
-      "cat": "response",
-      "label": "S2_A_b16",
-      "status": 200,
-      "ms": 616,
-      "usage": {
-        "input_tokens": 4601,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.533Z",
-      "cat": "response",
-      "label": "S2_A_b19",
-      "status": 200,
-      "ms": 307,
-      "usage": {
-        "input_tokens": 4619,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.713Z",
-      "cat": "response",
-      "label": "S2_A_b20",
-      "status": 200,
-      "ms": 324,
-      "usage": {
-        "input_tokens": 2413,
-        "output_tokens": 144
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.990Z",
-      "cat": "response",
-      "label": "S2_B_Systems Thin",
-      "status": 200,
-      "ms": 277,
-      "usage": {
-        "input_tokens": 507,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.990Z",
-      "cat": "response",
-      "label": "S2_B_Beautiful Qu",
-      "status": 200,
-      "ms": 276,
-      "usage": {
-        "input_tokens": 510,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.996Z",
-      "cat": "response",
-      "label": "S2_B_Domain Selec",
-      "status": 200,
-      "ms": 282,
-      "usage": {
-        "input_tokens": 507,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:45.996Z",
-      "cat": "response",
-      "label": "S2_B_Six Thinking",
-      "status": 200,
-      "ms": 282,
-      "usage": {
-        "input_tokens": 520,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.000Z",
-      "cat": "response",
-      "label": "S2_B_Jobs to Be D",
-      "status": 200,
-      "ms": 287,
-      "usage": {
-        "input_tokens": 526,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.102Z",
-      "cat": "response",
-      "label": "S2_B_S-Curve Anal",
-      "status": 200,
-      "ms": 389,
-      "usage": {
-        "input_tokens": 509,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.273Z",
-      "cat": "response",
-      "label": "S2_B_PWS Value Pr",
-      "status": 200,
-      "ms": 283,
-      "usage": {
-        "input_tokens": 510,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.278Z",
-      "cat": "response",
-      "label": "S2_B_Red Teaming",
-      "status": 200,
-      "ms": 282,
-      "usage": {
-        "input_tokens": 504,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.303Z",
-      "cat": "response",
-      "label": "S2_B_Ackoff Pyram",
-      "status": 200,
-      "ms": 313,
-      "usage": {
-        "input_tokens": 513,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.304Z",
-      "cat": "response",
-      "label": "S2_B_PWS Triple V",
-      "status": 200,
-      "ms": 304,
-      "usage": {
-        "input_tokens": 517,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.313Z",
-      "cat": "response",
-      "label": "S2_B_Root Cause A",
-      "status": 200,
-      "ms": 317,
-      "usage": {
-        "input_tokens": 504,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.424Z",
-      "cat": "response",
-      "label": "S2_B_Problem Defi",
-      "status": 200,
-      "ms": 322,
-      "usage": {
-        "input_tokens": 517,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.550Z",
-      "cat": "response",
-      "label": "S2_B_Reverse Sali",
-      "status": 200,
-      "ms": 272,
-      "usage": {
-        "input_tokens": 513,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.577Z",
-      "cat": "response",
-      "label": "S2_B_HSI Semantic",
-      "status": 200,
-      "ms": 304,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.578Z",
-      "cat": "response",
-      "label": "S2_B_Dominant Des",
-      "status": 200,
-      "ms": 274,
-      "usage": {
-        "input_tokens": 533,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.584Z",
-      "cat": "response",
-      "label": "S2_B_Four Lenses ",
-      "status": 200,
-      "ms": 270,
-      "usage": {
-        "input_tokens": 506,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.596Z",
-      "cat": "response",
-      "label": "S2_B_Adoption-Cap",
-      "status": 200,
-      "ms": 293,
-      "usage": {
-        "input_tokens": 524,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.809Z",
-      "cat": "response",
-      "label": "S2_B_Usher's Mode",
-      "status": 200,
-      "ms": 385,
-      "usage": {
-        "input_tokens": 532,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.883Z",
-      "cat": "response",
-      "label": "S2_B_Knowns and U",
-      "status": 200,
-      "ms": 287,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.884Z",
-      "cat": "response",
-      "label": "S2_B_Futures Whee",
-      "status": 200,
-      "ms": 334,
-      "usage": {
-        "input_tokens": 524,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.906Z",
-      "cat": "response",
-      "label": "S2_B_PEST Analysi",
-      "status": 200,
-      "ms": 321,
-      "usage": {
-        "input_tokens": 504,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.949Z",
-      "cat": "response",
-      "label": "S2_B_Adaptive Lea",
-      "status": 200,
-      "ms": 372,
-      "usage": {
-        "input_tokens": 520,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:46.960Z",
-      "cat": "response",
-      "label": "S2_B_Lean Canvas",
-      "status": 200,
-      "ms": 382,
-      "usage": {
-        "input_tokens": 521,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.085Z",
-      "cat": "response",
-      "label": "S2_B_Mullins Mode",
-      "status": 200,
-      "ms": 276,
-      "usage": {
-        "input_tokens": 505,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.215Z",
-      "cat": "response",
-      "label": "S2_B_Scenario Pla",
-      "status": 200,
-      "ms": 331,
-      "usage": {
-        "input_tokens": 518,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.285Z",
-      "cat": "response",
-      "label": "S2_B_The Pyramid ",
-      "status": 200,
-      "ms": 379,
-      "usage": {
-        "input_tokens": 519,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.285Z",
-      "cat": "response",
-      "label": "S2_B_Hypothesis-D",
-      "status": 200,
-      "ms": 402,
-      "usage": {
-        "input_tokens": 518,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.810Z",
-      "cat": "response",
-      "label": "S3_A_b0",
-      "status": 200,
-      "ms": 523,
-      "usage": {
-        "input_tokens": 4590,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.821Z",
-      "cat": "response",
-      "label": "S3_A_b3",
-      "status": 200,
-      "ms": 534,
-      "usage": {
-        "input_tokens": 4502,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:47.822Z",
-      "cat": "response",
-      "label": "S3_A_b2",
-      "status": 200,
-      "ms": 535,
+      "ms": 540,
       "usage": {
         "input_tokens": 4573,
         "output_tokens": 294
@@ -2504,119 +1928,107 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:47.845Z",
+      "ts": "2026-09-17T06:35:32.963Z",
       "cat": "response",
-      "label": "S3_A_b1",
+      "label": "S2_A_b2",
       "status": 200,
-      "ms": 558,
+      "ms": 541,
       "usage": {
-        "input_tokens": 4571,
+        "input_tokens": 4575,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.114Z",
+      "ts": "2026-09-17T06:35:33.282Z",
       "cat": "response",
-      "label": "S3_A_b6",
+      "label": "S2_A_b6",
       "status": 200,
-      "ms": 292,
+      "ms": 320,
       "usage": {
-        "input_tokens": 4639,
+        "input_tokens": 4641,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.221Z",
+      "ts": "2026-09-17T06:35:33.294Z",
       "cat": "response",
-      "label": "S3_A_b7",
+      "label": "S2_A_b5",
       "status": 200,
-      "ms": 376,
+      "ms": 332,
       "usage": {
-        "input_tokens": 4572,
+        "input_tokens": 4554,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.327Z",
+      "ts": "2026-09-17T06:35:33.394Z",
       "cat": "response",
-      "label": "S3_A_b5",
+      "label": "S2_A_b7",
       "status": 200,
-      "ms": 505,
+      "ms": 431,
       "usage": {
-        "input_tokens": 4552,
+        "input_tokens": 4574,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.356Z",
+      "ts": "2026-09-17T06:35:33.508Z",
       "cat": "response",
-      "label": "S3_A_b4",
+      "label": "S2_A_b4",
       "status": 200,
-      "ms": 546,
+      "ms": 547,
       "usage": {
-        "input_tokens": 4513,
+        "input_tokens": 4515,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.573Z",
+      "ts": "2026-09-17T06:35:33.617Z",
       "cat": "response",
-      "label": "S3_A_b9",
+      "label": "S2_A_b9",
       "status": 200,
-      "ms": 352,
+      "ms": 323,
       "usage": {
-        "input_tokens": 4533,
+        "input_tokens": 4535,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.617Z",
+      "ts": "2026-09-17T06:35:33.689Z",
       "cat": "response",
-      "label": "S3_A_b8",
+      "label": "S2_A_b10",
       "status": 200,
-      "ms": 503,
+      "ms": 294,
       "usage": {
-        "input_tokens": 4596,
+        "input_tokens": 4580,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.638Z",
+      "ts": "2026-09-17T06:35:33.867Z",
       "cat": "response",
-      "label": "S3_A_b10",
+      "label": "S2_A_b11",
       "status": 200,
-      "ms": 311,
+      "ms": 359,
       "usage": {
-        "input_tokens": 4578,
+        "input_tokens": 4508,
         "output_tokens": 294
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.668Z",
+      "ts": "2026-09-17T06:35:33.871Z",
       "cat": "response",
-      "label": "S3_A_b11",
+      "label": "S2_A_b8",
       "status": 200,
-      "ms": 311,
-      "usage": {
-        "input_tokens": 4506,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:48.918Z",
-      "cat": "response",
-      "label": "S3_A_b13",
-      "status": 200,
-      "ms": 301,
+      "ms": 589,
       "usage": {
         "input_tokens": 4598,
         "output_tokens": 294
@@ -2624,7 +2036,607 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:48.980Z",
+      "ts": "2026-09-17T06:35:33.919Z",
+      "cat": "response",
+      "label": "S2_A_b12",
+      "status": 200,
+      "ms": 302,
+      "usage": {
+        "input_tokens": 4580,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.029Z",
+      "cat": "response",
+      "label": "S2_A_b13",
+      "status": 200,
+      "ms": 340,
+      "usage": {
+        "input_tokens": 4600,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.191Z",
+      "cat": "response",
+      "label": "S2_A_b14",
+      "status": 200,
+      "ms": 324,
+      "usage": {
+        "input_tokens": 4566,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.200Z",
+      "cat": "response",
+      "label": "S2_A_b15",
+      "status": 200,
+      "ms": 328,
+      "usage": {
+        "input_tokens": 4562,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.335Z",
+      "cat": "response",
+      "label": "S2_A_b17",
+      "status": 200,
+      "ms": 306,
+      "usage": {
+        "input_tokens": 4531,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.492Z",
+      "cat": "response",
+      "label": "S2_A_b16",
+      "status": 200,
+      "ms": 573,
+      "usage": {
+        "input_tokens": 4601,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.502Z",
+      "cat": "response",
+      "label": "S2_A_b19",
+      "status": 200,
+      "ms": 302,
+      "usage": {
+        "input_tokens": 4619,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.613Z",
+      "cat": "response",
+      "label": "S2_A_b18",
+      "status": 200,
+      "ms": 422,
+      "usage": {
+        "input_tokens": 4605,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.678Z",
+      "cat": "response",
+      "label": "S2_A_b20",
+      "status": 200,
+      "ms": 343,
+      "usage": {
+        "input_tokens": 2413,
+        "output_tokens": 144
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.961Z",
+      "cat": "response",
+      "label": "S2_B_Beautiful Qu",
+      "status": 200,
+      "ms": 282,
+      "usage": {
+        "input_tokens": 510,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.975Z",
+      "cat": "response",
+      "label": "S2_B_Domain Selec",
+      "status": 200,
+      "ms": 296,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.979Z",
+      "cat": "response",
+      "label": "S2_B_Jobs to Be D",
+      "status": 200,
+      "ms": 301,
+      "usage": {
+        "input_tokens": 526,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.987Z",
+      "cat": "response",
+      "label": "S2_B_Systems Thin",
+      "status": 200,
+      "ms": 308,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:34.996Z",
+      "cat": "response",
+      "label": "S2_B_Six Thinking",
+      "status": 200,
+      "ms": 317,
+      "usage": {
+        "input_tokens": 520,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.000Z",
+      "cat": "response",
+      "label": "S2_B_S-Curve Anal",
+      "status": 200,
+      "ms": 321,
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.237Z",
+      "cat": "response",
+      "label": "S2_B_Ackoff Pyram",
+      "status": 200,
+      "ms": 276,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.261Z",
+      "cat": "response",
+      "label": "S2_B_Root Cause A",
+      "status": 200,
+      "ms": 282,
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.261Z",
+      "cat": "response",
+      "label": "S2_B_PWS Triple V",
+      "status": 200,
+      "ms": 265,
+      "usage": {
+        "input_tokens": 517,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.289Z",
+      "cat": "response",
+      "label": "S2_B_PWS Value Pr",
+      "status": 200,
+      "ms": 314,
+      "usage": {
+        "input_tokens": 510,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.291Z",
+      "cat": "response",
+      "label": "S2_B_Red Teaming",
+      "status": 200,
+      "ms": 304,
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.363Z",
+      "cat": "response",
+      "label": "S2_B_Problem Defi",
+      "status": 200,
+      "ms": 363,
+      "usage": {
+        "input_tokens": 517,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.532Z",
+      "cat": "response",
+      "label": "S2_B_HSI Semantic",
+      "status": 200,
+      "ms": 295,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.547Z",
+      "cat": "response",
+      "label": "S2_B_Reverse Sali",
+      "status": 200,
+      "ms": 285,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.562Z",
+      "cat": "response",
+      "label": "S2_B_Adoption-Cap",
+      "status": 200,
+      "ms": 301,
+      "usage": {
+        "input_tokens": 524,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.591Z",
+      "cat": "response",
+      "label": "S2_B_Dominant Des",
+      "status": 200,
+      "ms": 302,
+      "usage": {
+        "input_tokens": 533,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.596Z",
+      "cat": "response",
+      "label": "S2_B_Four Lenses ",
+      "status": 200,
+      "ms": 304,
+      "usage": {
+        "input_tokens": 506,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.661Z",
+      "cat": "response",
+      "label": "S2_B_Usher's Mode",
+      "status": 200,
+      "ms": 298,
+      "usage": {
+        "input_tokens": 532,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.811Z",
+      "cat": "response",
+      "label": "S2_B_Futures Whee",
+      "status": 200,
+      "ms": 279,
+      "usage": {
+        "input_tokens": 524,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.849Z",
+      "cat": "response",
+      "label": "S2_B_Adaptive Lea",
+      "status": 200,
+      "ms": 302,
+      "usage": {
+        "input_tokens": 520,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.899Z",
+      "cat": "response",
+      "label": "S2_B_Knowns and U",
+      "status": 200,
+      "ms": 302,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.911Z",
+      "cat": "response",
+      "label": "S2_B_Lean Canvas",
+      "status": 200,
+      "ms": 349,
+      "usage": {
+        "input_tokens": 521,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.936Z",
+      "cat": "response",
+      "label": "S2_B_PEST Analysi",
+      "status": 200,
+      "ms": 345,
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:35.945Z",
+      "cat": "response",
+      "label": "S2_B_Mullins Mode",
+      "status": 200,
+      "ms": 284,
+      "usage": {
+        "input_tokens": 505,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.070Z",
+      "cat": "response",
+      "label": "S2_B_Hypothesis-D",
+      "status": 200,
+      "ms": 259,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.186Z",
+      "cat": "response",
+      "label": "S2_B_Scenario Pla",
+      "status": 200,
+      "ms": 337,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.189Z",
+      "cat": "response",
+      "label": "S2_B_The Pyramid ",
+      "status": 200,
+      "ms": 290,
+      "usage": {
+        "input_tokens": 519,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.686Z",
+      "cat": "response",
+      "label": "S3_A_b3",
+      "status": 200,
+      "ms": 495,
+      "usage": {
+        "input_tokens": 4502,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.690Z",
+      "cat": "response",
+      "label": "S3_A_b0",
+      "status": 200,
+      "ms": 498,
+      "usage": {
+        "input_tokens": 4590,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.714Z",
+      "cat": "response",
+      "label": "S3_A_b2",
+      "status": 200,
+      "ms": 523,
+      "usage": {
+        "input_tokens": 4573,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:36.725Z",
+      "cat": "response",
+      "label": "S3_A_b1",
+      "status": 200,
+      "ms": 534,
+      "usage": {
+        "input_tokens": 4571,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.013Z",
+      "cat": "response",
+      "label": "S3_A_b7",
+      "status": 200,
+      "ms": 287,
+      "usage": {
+        "input_tokens": 4572,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.024Z",
+      "cat": "response",
+      "label": "S3_A_b5",
+      "status": 200,
+      "ms": 334,
+      "usage": {
+        "input_tokens": 4552,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.034Z",
+      "cat": "response",
+      "label": "S3_A_b6",
+      "status": 200,
+      "ms": 320,
+      "usage": {
+        "input_tokens": 4639,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.193Z",
+      "cat": "response",
+      "label": "S3_A_b4",
+      "status": 200,
+      "ms": 507,
+      "usage": {
+        "input_tokens": 4513,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.350Z",
+      "cat": "response",
+      "label": "S3_A_b9",
+      "status": 200,
+      "ms": 326,
+      "usage": {
+        "input_tokens": 4533,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.353Z",
+      "cat": "response",
+      "label": "S3_A_b10",
+      "status": 200,
+      "ms": 319,
+      "usage": {
+        "input_tokens": 4578,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.484Z",
+      "cat": "response",
+      "label": "S3_A_b11",
+      "status": 200,
+      "ms": 290,
+      "usage": {
+        "input_tokens": 4506,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.530Z",
+      "cat": "response",
+      "label": "S3_A_b8",
+      "status": 200,
+      "ms": 516,
+      "usage": {
+        "input_tokens": 4596,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.642Z",
+      "cat": "response",
+      "label": "S3_A_b13",
+      "status": 200,
+      "ms": 289,
+      "usage": {
+        "input_tokens": 4598,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.774Z",
+      "cat": "response",
+      "label": "S3_A_b14",
+      "status": 200,
+      "ms": 290,
+      "usage": {
+        "input_tokens": 4564,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:37.842Z",
       "cat": "response",
       "label": "S3_A_b15",
       "status": 200,
@@ -2636,23 +2648,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.068Z",
-      "cat": "response",
-      "label": "S3_A_b14",
-      "status": 200,
-      "ms": 429,
-      "usage": {
-        "input_tokens": 4564,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.117Z",
+      "ts": "2026-09-17T06:35:37.859Z",
       "cat": "response",
       "label": "S3_A_b12",
       "status": 200,
-      "ms": 544,
+      "ms": 508,
       "usage": {
         "input_tokens": 4578,
         "output_tokens": 294
@@ -2660,23 +2660,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.202Z",
-      "cat": "response",
-      "label": "S3_A_b16",
-      "status": 200,
-      "ms": 284,
-      "usage": {
-        "input_tokens": 4599,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.318Z",
+      "ts": "2026-09-17T06:35:38.055Z",
       "cat": "response",
       "label": "S3_A_b17",
       "status": 200,
-      "ms": 338,
+      "ms": 280,
       "usage": {
         "input_tokens": 4529,
         "output_tokens": 294
@@ -2684,11 +2672,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.381Z",
+      "ts": "2026-09-17T06:35:38.131Z",
       "cat": "response",
       "label": "S3_A_b18",
       "status": 200,
-      "ms": 313,
+      "ms": 289,
       "usage": {
         "input_tokens": 4603,
         "output_tokens": 294
@@ -2696,11 +2684,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.424Z",
+      "ts": "2026-09-17T06:35:38.153Z",
+      "cat": "response",
+      "label": "S3_A_b16",
+      "status": 200,
+      "ms": 510,
+      "usage": {
+        "input_tokens": 4599,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:38.158Z",
       "cat": "response",
       "label": "S3_A_b19",
       "status": 200,
-      "ms": 307,
+      "ms": 299,
       "usage": {
         "input_tokens": 4617,
         "output_tokens": 294
@@ -2708,11 +2708,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.519Z",
+      "ts": "2026-09-17T06:35:38.395Z",
       "cat": "response",
       "label": "S3_A_b20",
       "status": 200,
-      "ms": 317,
+      "ms": 340,
       "usage": {
         "input_tokens": 2411,
         "output_tokens": 144
@@ -2720,59 +2720,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.779Z",
-      "cat": "response",
-      "label": "S3_B_Beautiful Qu",
-      "status": 200,
-      "ms": 259,
-      "usage": {
-        "input_tokens": 508,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.803Z",
-      "cat": "response",
-      "label": "S3_B_Systems Thin",
-      "status": 200,
-      "ms": 283,
-      "usage": {
-        "input_tokens": 505,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.803Z",
-      "cat": "response",
-      "label": "S3_B_Domain Selec",
-      "status": 200,
-      "ms": 283,
-      "usage": {
-        "input_tokens": 505,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.804Z",
-      "cat": "response",
-      "label": "S3_B_Six Thinking",
-      "status": 200,
-      "ms": 284,
-      "usage": {
-        "input_tokens": 518,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:49.804Z",
+      "ts": "2026-09-17T06:35:38.655Z",
       "cat": "response",
       "label": "S3_B_Jobs to Be D",
       "status": 200,
-      "ms": 285,
+      "ms": 260,
       "usage": {
         "input_tokens": 524,
         "output_tokens": 18
@@ -2780,551 +2732,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:49.831Z",
+      "ts": "2026-09-17T06:35:38.667Z",
       "cat": "response",
-      "label": "S3_B_S-Curve Anal",
-      "status": 200,
-      "ms": 310,
-      "usage": {
-        "input_tokens": 507,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.052Z",
-      "cat": "response",
-      "label": "S3_B_Ackoff Pyram",
-      "status": 200,
-      "ms": 273,
-      "usage": {
-        "input_tokens": 511,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.088Z",
-      "cat": "response",
-      "label": "S3_B_Problem Defi",
-      "status": 200,
-      "ms": 257,
-      "usage": {
-        "input_tokens": 515,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.104Z",
-      "cat": "response",
-      "label": "S3_B_Root Cause A",
-      "status": 200,
-      "ms": 301,
-      "usage": {
-        "input_tokens": 502,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.104Z",
-      "cat": "response",
-      "label": "S3_B_PWS Value Pr",
-      "status": 200,
-      "ms": 301,
-      "usage": {
-        "input_tokens": 508,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.174Z",
-      "cat": "response",
-      "label": "S3_B_Red Teaming",
-      "status": 200,
-      "ms": 370,
-      "usage": {
-        "input_tokens": 502,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.331Z",
-      "cat": "response",
-      "label": "S3_B_HSI Semantic",
-      "status": 200,
-      "ms": 279,
-      "usage": {
-        "input_tokens": 520,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.376Z",
-      "cat": "response",
-      "label": "S3_B_Adoption-Cap",
+      "label": "S3_B_Systems Thin",
       "status": 200,
       "ms": 271,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.540Z",
-      "cat": "response",
-      "label": "S3_B_Dominant Des",
-      "status": 200,
-      "ms": 435,
-      "usage": {
-        "input_tokens": 531,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.541Z",
-      "cat": "response",
-      "label": "S3_B_Reverse Sali",
-      "status": 200,
-      "ms": 453,
-      "usage": {
-        "input_tokens": 511,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.571Z",
-      "cat": "response",
-      "label": "S3_B_PWS Triple V",
-      "status": 200,
-      "ms": 767,
-      "usage": {
-        "input_tokens": 515,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.625Z",
-      "cat": "response",
-      "label": "S3_B_Usher's Mode",
-      "status": 200,
-      "ms": 294,
-      "usage": {
-        "input_tokens": 530,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.651Z",
-      "cat": "response",
-      "label": "S3_B_Futures Whee",
-      "status": 200,
-      "ms": 275,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.741Z",
-      "cat": "response",
-      "label": "S3_B_Four Lenses ",
-      "status": 200,
-      "ms": 567,
-      "usage": {
-        "input_tokens": 504,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.828Z",
-      "cat": "response",
-      "label": "S3_B_Lean Canvas",
-      "status": 200,
-      "ms": 287,
-      "usage": {
-        "input_tokens": 519,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.829Z",
-      "cat": "response",
-      "label": "S3_B_Adaptive Lea",
-      "status": 200,
-      "ms": 289,
-      "usage": {
-        "input_tokens": 518,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.845Z",
-      "cat": "response",
-      "label": "S3_B_PEST Analysi",
-      "status": 200,
-      "ms": 274,
-      "usage": {
-        "input_tokens": 502,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.930Z",
-      "cat": "response",
-      "label": "S3_B_Knowns and U",
-      "status": 200,
-      "ms": 304,
-      "usage": {
-        "input_tokens": 520,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:50.948Z",
-      "cat": "response",
-      "label": "S3_B_Mullins Mode",
-      "status": 200,
-      "ms": 296,
-      "usage": {
-        "input_tokens": 503,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.149Z",
-      "cat": "response",
-      "label": "S3_B_Scenario Pla",
-      "status": 200,
-      "ms": 321,
-      "usage": {
-        "input_tokens": 516,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.150Z",
-      "cat": "response",
-      "label": "S3_B_Hypothesis-D",
-      "status": 200,
-      "ms": 409,
-      "usage": {
-        "input_tokens": 516,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.151Z",
-      "cat": "response",
-      "label": "S3_B_The Pyramid ",
-      "status": 200,
-      "ms": 322,
-      "usage": {
-        "input_tokens": 517,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.520Z",
-      "cat": "response",
-      "label": "S4_A_b3",
-      "status": 200,
-      "ms": 368,
-      "usage": {
-        "input_tokens": 4500,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.647Z",
-      "cat": "response",
-      "label": "S4_A_b1",
-      "status": 200,
-      "ms": 495,
-      "usage": {
-        "input_tokens": 4569,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.683Z",
-      "cat": "response",
-      "label": "S4_A_b2",
-      "status": 200,
-      "ms": 531,
-      "usage": {
-        "input_tokens": 4571,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.740Z",
-      "cat": "response",
-      "label": "S4_A_b0",
-      "status": 200,
-      "ms": 588,
-      "usage": {
-        "input_tokens": 4588,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:51.965Z",
-      "cat": "response",
-      "label": "S4_A_b5",
-      "status": 200,
-      "ms": 318,
-      "usage": {
-        "input_tokens": 4550,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.021Z",
-      "cat": "response",
-      "label": "S4_A_b6",
-      "status": 200,
-      "ms": 337,
-      "usage": {
-        "input_tokens": 4637,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.053Z",
-      "cat": "response",
-      "label": "S4_A_b7",
-      "status": 200,
-      "ms": 313,
-      "usage": {
-        "input_tokens": 4570,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.060Z",
-      "cat": "response",
-      "label": "S4_A_b4",
-      "status": 200,
-      "ms": 540,
-      "usage": {
-        "input_tokens": 4511,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.338Z",
-      "cat": "response",
-      "label": "S4_A_b9",
-      "status": 200,
-      "ms": 317,
-      "usage": {
-        "input_tokens": 4531,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.348Z",
-      "cat": "response",
-      "label": "S4_A_b10",
-      "status": 200,
-      "ms": 295,
-      "usage": {
-        "input_tokens": 4576,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.360Z",
-      "cat": "response",
-      "label": "S4_A_b11",
-      "status": 200,
-      "ms": 299,
-      "usage": {
-        "input_tokens": 4504,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.464Z",
-      "cat": "response",
-      "label": "S4_A_b8",
-      "status": 200,
-      "ms": 499,
-      "usage": {
-        "input_tokens": 4594,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.725Z",
-      "cat": "response",
-      "label": "S4_A_b14",
-      "status": 200,
-      "ms": 365,
-      "usage": {
-        "input_tokens": 4562,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.751Z",
-      "cat": "response",
-      "label": "S4_A_b13",
-      "status": 200,
-      "ms": 403,
-      "usage": {
-        "input_tokens": 4596,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:52.872Z",
-      "cat": "response",
-      "label": "S4_A_b12",
-      "status": 200,
-      "ms": 534,
-      "usage": {
-        "input_tokens": 4576,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.063Z",
-      "cat": "response",
-      "label": "S4_A_b15",
-      "status": 200,
-      "ms": 598,
-      "usage": {
-        "input_tokens": 4558,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.130Z",
-      "cat": "response",
-      "label": "S4_A_b17",
-      "status": 200,
-      "ms": 379,
-      "usage": {
-        "input_tokens": 4527,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.225Z",
-      "cat": "response",
-      "label": "S4_A_b18",
-      "status": 200,
-      "ms": 353,
-      "usage": {
-        "input_tokens": 4601,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.265Z",
-      "cat": "response",
-      "label": "S4_A_b16",
-      "status": 200,
-      "ms": 540,
-      "usage": {
-        "input_tokens": 4597,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.531Z",
-      "cat": "response",
-      "label": "S4_A_b20",
-      "status": 200,
-      "ms": 400,
-      "usage": {
-        "input_tokens": 2409,
-        "output_tokens": 144
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.664Z",
-      "cat": "response",
-      "label": "S4_A_b19",
-      "status": 200,
-      "ms": 601,
-      "usage": {
-        "input_tokens": 4615,
-        "output_tokens": 294
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.933Z",
-      "cat": "response",
-      "label": "S4_B_Systems Thin",
-      "status": 200,
-      "ms": 269,
-      "usage": {
-        "input_tokens": 503,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.949Z",
-      "cat": "response",
-      "label": "S4_B_Domain Selec",
-      "status": 200,
-      "ms": 284,
-      "usage": {
-        "input_tokens": 503,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.949Z",
-      "cat": "response",
-      "label": "S4_B_S-Curve Anal",
-      "status": 200,
-      "ms": 285,
       "usage": {
         "input_tokens": 505,
         "output_tokens": 18
@@ -3332,119 +2744,23 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:53.955Z",
+      "ts": "2026-09-17T06:35:38.684Z",
       "cat": "response",
-      "label": "S4_B_Six Thinking",
+      "label": "S3_B_Domain Selec",
       "status": 200,
-      "ms": 291,
+      "ms": 287,
       "usage": {
-        "input_tokens": 516,
+        "input_tokens": 505,
         "output_tokens": 18
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:53.966Z",
+      "ts": "2026-09-17T06:35:38.692Z",
       "cat": "response",
-      "label": "S4_B_Beautiful Qu",
-      "status": 200,
-      "ms": 302,
-      "usage": {
-        "input_tokens": 506,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:53.982Z",
-      "cat": "response",
-      "label": "S4_B_Jobs to Be D",
-      "status": 200,
-      "ms": 318,
-      "usage": {
-        "input_tokens": 522,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.207Z",
-      "cat": "response",
-      "label": "S4_B_Root Cause A",
-      "status": 200,
-      "ms": 258,
-      "usage": {
-        "input_tokens": 500,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.233Z",
-      "cat": "response",
-      "label": "S4_B_PWS Value Pr",
-      "status": 200,
-      "ms": 284,
-      "usage": {
-        "input_tokens": 506,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.251Z",
-      "cat": "response",
-      "label": "S4_B_Red Teaming",
+      "label": "S3_B_Six Thinking",
       "status": 200,
       "ms": 296,
-      "usage": {
-        "input_tokens": 500,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.253Z",
-      "cat": "response",
-      "label": "S4_B_Ackoff Pyram",
-      "status": 200,
-      "ms": 320,
-      "usage": {
-        "input_tokens": 509,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.283Z",
-      "cat": "response",
-      "label": "S4_B_PWS Triple V",
-      "status": 200,
-      "ms": 317,
-      "usage": {
-        "input_tokens": 513,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.317Z",
-      "cat": "response",
-      "label": "S4_B_Problem Defi",
-      "status": 200,
-      "ms": 335,
-      "usage": {
-        "input_tokens": 513,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.500Z",
-      "cat": "response",
-      "label": "S4_B_HSI Semantic",
-      "status": 200,
-      "ms": 293,
       "usage": {
         "input_tokens": 518,
         "output_tokens": 18
@@ -3452,35 +2768,35 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.506Z",
+      "ts": "2026-09-17T06:35:38.699Z",
       "cat": "response",
-      "label": "S4_B_Reverse Sali",
+      "label": "S3_B_S-Curve Anal",
       "status": 200,
-      "ms": 273,
+      "ms": 303,
       "usage": {
-        "input_tokens": 509,
+        "input_tokens": 507,
         "output_tokens": 18
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.553Z",
+      "ts": "2026-09-17T06:35:38.715Z",
       "cat": "response",
-      "label": "S4_B_Dominant Des",
+      "label": "S3_B_Beautiful Qu",
       "status": 200,
-      "ms": 300,
+      "ms": 319,
       "usage": {
-        "input_tokens": 529,
+        "input_tokens": 508,
         "output_tokens": 18
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.564Z",
+      "ts": "2026-09-17T06:35:38.976Z",
       "cat": "response",
-      "label": "S4_B_Four Lenses ",
+      "label": "S3_B_Root Cause A",
       "status": 200,
-      "ms": 281,
+      "ms": 292,
       "usage": {
         "input_tokens": 502,
         "output_tokens": 18
@@ -3488,23 +2804,71 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.604Z",
+      "ts": "2026-09-17T06:35:38.977Z",
       "cat": "response",
-      "label": "S4_B_Usher's Mode",
+      "label": "S3_B_Ackoff Pyram",
       "status": 200,
-      "ms": 287,
+      "ms": 320,
       "usage": {
-        "input_tokens": 528,
+        "input_tokens": 511,
         "output_tokens": 18
       },
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.672Z",
+      "ts": "2026-09-17T06:35:38.983Z",
       "cat": "response",
-      "label": "S4_B_Adoption-Cap",
+      "label": "S3_B_PWS Value Pr",
       "status": 200,
-      "ms": 421,
+      "ms": 315,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.035Z",
+      "cat": "response",
+      "label": "S3_B_Problem Defi",
+      "status": 200,
+      "ms": 320,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.036Z",
+      "cat": "response",
+      "label": "S3_B_PWS Triple V",
+      "status": 200,
+      "ms": 337,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.036Z",
+      "cat": "response",
+      "label": "S3_B_Red Teaming",
+      "status": 200,
+      "ms": 344,
+      "usage": {
+        "input_tokens": 502,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.237Z",
+      "cat": "response",
+      "label": "S3_B_HSI Semantic",
+      "status": 200,
+      "ms": 260,
       "usage": {
         "input_tokens": 520,
         "output_tokens": 18
@@ -3512,59 +2876,71 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.767Z",
+      "ts": "2026-09-17T06:35:39.253Z",
       "cat": "response",
-      "label": "S4_B_Futures Whee",
+      "label": "S3_B_Adoption-Cap",
+      "status": 200,
+      "ms": 270,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.309Z",
+      "cat": "response",
+      "label": "S3_B_Four Lenses ",
+      "status": 200,
+      "ms": 273,
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.330Z",
+      "cat": "response",
+      "label": "S3_B_Dominant Des",
+      "status": 200,
+      "ms": 294,
+      "usage": {
+        "input_tokens": 531,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.336Z",
+      "cat": "response",
+      "label": "S3_B_Usher's Mode",
+      "status": 200,
+      "ms": 300,
+      "usage": {
+        "input_tokens": 530,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.497Z",
+      "cat": "response",
+      "label": "S3_B_Futures Whee",
+      "status": 200,
+      "ms": 260,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.520Z",
+      "cat": "response",
+      "label": "S3_B_Adaptive Lea",
       "status": 200,
       "ms": 267,
-      "usage": {
-        "input_tokens": 520,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.795Z",
-      "cat": "response",
-      "label": "S4_B_Adaptive Lea",
-      "status": 200,
-      "ms": 289,
-      "usage": {
-        "input_tokens": 516,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.815Z",
-      "cat": "response",
-      "label": "S4_B_Lean Canvas",
-      "status": 200,
-      "ms": 262,
-      "usage": {
-        "input_tokens": 517,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.856Z",
-      "cat": "response",
-      "label": "S4_B_PEST Analysi",
-      "status": 200,
-      "ms": 291,
-      "usage": {
-        "input_tokens": 500,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:54.906Z",
-      "cat": "response",
-      "label": "S4_B_Knowns and U",
-      "status": 200,
-      "ms": 302,
       "usage": {
         "input_tokens": 518,
         "output_tokens": 18
@@ -3572,11 +2948,647 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:54.984Z",
+      "ts": "2026-09-17T06:35:39.595Z",
+      "cat": "response",
+      "label": "S3_B_Lean Canvas",
+      "status": 200,
+      "ms": 286,
+      "usage": {
+        "input_tokens": 519,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.656Z",
+      "cat": "response",
+      "label": "S3_B_Knowns and U",
+      "status": 200,
+      "ms": 320,
+      "usage": {
+        "input_tokens": 520,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.656Z",
+      "cat": "response",
+      "label": "S3_B_PEST Analysi",
+      "status": 200,
+      "ms": 325,
+      "usage": {
+        "input_tokens": 502,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.755Z",
+      "cat": "response",
+      "label": "S3_B_Mullins Mode",
+      "status": 200,
+      "ms": 257,
+      "usage": {
+        "input_tokens": 503,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.764Z",
+      "cat": "response",
+      "label": "S3_B_Hypothesis-D",
+      "status": 200,
+      "ms": 244,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.905Z",
+      "cat": "response",
+      "label": "S3_B_Reverse Sali",
+      "status": 200,
+      "ms": 928,
+      "usage": {
+        "input_tokens": 511,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.906Z",
+      "cat": "response",
+      "label": "S3_B_Scenario Pla",
+      "status": 200,
+      "ms": 311,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:39.986Z",
+      "cat": "response",
+      "label": "S3_B_The Pyramid ",
+      "status": 200,
+      "ms": 330,
+      "usage": {
+        "input_tokens": 517,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:40.508Z",
+      "cat": "response",
+      "label": "S4_A_b3",
+      "status": 200,
+      "ms": 521,
+      "usage": {
+        "input_tokens": 4500,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:40.509Z",
+      "cat": "response",
+      "label": "S4_A_b0",
+      "status": 200,
+      "ms": 522,
+      "usage": {
+        "input_tokens": 4588,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:40.509Z",
+      "cat": "response",
+      "label": "S4_A_b1",
+      "status": 200,
+      "ms": 522,
+      "usage": {
+        "input_tokens": 4569,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:40.526Z",
+      "cat": "response",
+      "label": "S4_A_b2",
+      "status": 200,
+      "ms": 538,
+      "usage": {
+        "input_tokens": 4571,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:40.879Z",
+      "cat": "response",
+      "label": "S4_A_b7",
+      "status": 200,
+      "ms": 353,
+      "usage": {
+        "input_tokens": 4570,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.025Z",
+      "cat": "response",
+      "label": "S4_A_b4",
+      "status": 200,
+      "ms": 516,
+      "usage": {
+        "input_tokens": 4511,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.422Z",
+      "cat": "response",
+      "label": "S4_A_b5",
+      "status": 200,
+      "ms": 913,
+      "usage": {
+        "input_tokens": 4550,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.423Z",
+      "cat": "response",
+      "label": "S4_A_b6",
+      "status": 200,
+      "ms": 914,
+      "usage": {
+        "input_tokens": 4637,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.424Z",
+      "cat": "response",
+      "label": "S4_A_b9",
+      "status": 200,
+      "ms": 399,
+      "usage": {
+        "input_tokens": 4531,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.623Z",
+      "cat": "response",
+      "label": "S4_A_b8",
+      "status": 200,
+      "ms": 744,
+      "usage": {
+        "input_tokens": 4594,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.932Z",
+      "cat": "response",
+      "label": "S4_A_b13",
+      "status": 200,
+      "ms": 309,
+      "usage": {
+        "input_tokens": 4596,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.939Z",
+      "cat": "response",
+      "label": "S4_A_b12",
+      "status": 200,
+      "ms": 515,
+      "usage": {
+        "input_tokens": 4576,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:41.993Z",
+      "cat": "response",
+      "label": "S4_A_b10",
+      "status": 200,
+      "ms": 571,
+      "usage": {
+        "input_tokens": 4576,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.044Z",
+      "cat": "response",
+      "label": "S4_A_b11",
+      "status": 200,
+      "ms": 621,
+      "usage": {
+        "input_tokens": 4504,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.239Z",
+      "cat": "response",
+      "label": "S4_A_b14",
+      "status": 200,
+      "ms": 307,
+      "usage": {
+        "input_tokens": 4562,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.242Z",
+      "cat": "response",
+      "label": "S4_A_b15",
+      "status": 200,
+      "ms": 303,
+      "usage": {
+        "input_tokens": 4558,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.277Z",
+      "cat": "response",
+      "label": "S4_A_b16",
+      "status": 200,
+      "ms": 284,
+      "usage": {
+        "input_tokens": 4597,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.582Z",
+      "cat": "response",
+      "label": "S4_A_b17",
+      "status": 200,
+      "ms": 538,
+      "usage": {
+        "input_tokens": 4527,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.583Z",
+      "cat": "response",
+      "label": "S4_A_b20",
+      "status": 200,
+      "ms": 306,
+      "usage": {
+        "input_tokens": 2409,
+        "output_tokens": 144
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.595Z",
+      "cat": "response",
+      "label": "S4_A_b19",
+      "status": 200,
+      "ms": 353,
+      "usage": {
+        "input_tokens": 4615,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:42.765Z",
+      "cat": "response",
+      "label": "S4_A_b18",
+      "status": 200,
+      "ms": 526,
+      "usage": {
+        "input_tokens": 4601,
+        "output_tokens": 294
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.048Z",
+      "cat": "response",
+      "label": "S4_B_Systems Thin",
+      "status": 200,
+      "ms": 282,
+      "usage": {
+        "input_tokens": 503,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.049Z",
+      "cat": "response",
+      "label": "S4_B_Jobs to Be D",
+      "status": 200,
+      "ms": 284,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.105Z",
+      "cat": "response",
+      "label": "S4_B_Six Thinking",
+      "status": 200,
+      "ms": 339,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.106Z",
+      "cat": "response",
+      "label": "S4_B_Domain Selec",
+      "status": 200,
+      "ms": 340,
+      "usage": {
+        "input_tokens": 503,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.121Z",
+      "cat": "response",
+      "label": "S4_B_Beautiful Qu",
+      "status": 200,
+      "ms": 354,
+      "usage": {
+        "input_tokens": 506,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.202Z",
+      "cat": "response",
+      "label": "S4_B_S-Curve Anal",
+      "status": 200,
+      "ms": 436,
+      "usage": {
+        "input_tokens": 505,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.333Z",
+      "cat": "response",
+      "label": "S4_B_PWS Value Pr",
+      "status": 200,
+      "ms": 283,
+      "usage": {
+        "input_tokens": 506,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.351Z",
+      "cat": "response",
+      "label": "S4_B_Ackoff Pyram",
+      "status": 200,
+      "ms": 303,
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.385Z",
+      "cat": "response",
+      "label": "S4_B_Root Cause A",
+      "status": 200,
+      "ms": 280,
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.405Z",
+      "cat": "response",
+      "label": "S4_B_PWS Triple V",
+      "status": 200,
+      "ms": 284,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.405Z",
+      "cat": "response",
+      "label": "S4_B_Red Teaming",
+      "status": 200,
+      "ms": 299,
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.510Z",
+      "cat": "response",
+      "label": "S4_B_Problem Defi",
+      "status": 200,
+      "ms": 306,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.626Z",
+      "cat": "response",
+      "label": "S4_B_Reverse Sali",
+      "status": 200,
+      "ms": 275,
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.628Z",
+      "cat": "response",
+      "label": "S4_B_HSI Semantic",
+      "status": 200,
+      "ms": 295,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.659Z",
+      "cat": "response",
+      "label": "S4_B_Adoption-Cap",
+      "status": 200,
+      "ms": 274,
+      "usage": {
+        "input_tokens": 520,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.688Z",
+      "cat": "response",
+      "label": "S4_B_Four Lenses ",
+      "status": 200,
+      "ms": 283,
+      "usage": {
+        "input_tokens": 502,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.692Z",
+      "cat": "response",
+      "label": "S4_B_Dominant Des",
+      "status": 200,
+      "ms": 287,
+      "usage": {
+        "input_tokens": 529,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.911Z",
+      "cat": "response",
+      "label": "S4_B_Adaptive Lea",
+      "status": 200,
+      "ms": 283,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.912Z",
+      "cat": "response",
+      "label": "S4_B_Usher's Mode",
+      "status": 200,
+      "ms": 402,
+      "usage": {
+        "input_tokens": 528,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.912Z",
+      "cat": "response",
+      "label": "S4_B_Futures Whee",
+      "status": 200,
+      "ms": 286,
+      "usage": {
+        "input_tokens": 520,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.945Z",
+      "cat": "response",
+      "label": "S4_B_Lean Canvas",
+      "status": 200,
+      "ms": 286,
+      "usage": {
+        "input_tokens": 517,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:43.990Z",
+      "cat": "response",
+      "label": "S4_B_Knowns and U",
+      "status": 200,
+      "ms": 298,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:44.029Z",
+      "cat": "response",
+      "label": "S4_B_PEST Analysi",
+      "status": 200,
+      "ms": 341,
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:44.193Z",
+      "cat": "response",
+      "label": "S4_B_Hypothesis-D",
+      "status": 200,
+      "ms": 281,
+      "usage": {
+        "input_tokens": 514,
+        "output_tokens": 18
+      },
+      "attempt": 0
+    },
+    {
+      "ts": "2026-09-17T06:35:44.195Z",
       "cat": "response",
       "label": "S4_B_Mullins Mode",
       "status": 200,
-      "ms": 312,
+      "ms": 284,
       "usage": {
         "input_tokens": 501,
         "output_tokens": 18
@@ -3584,23 +3596,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:55.059Z",
-      "cat": "response",
-      "label": "S4_B_Hypothesis-D",
-      "status": 200,
-      "ms": 291,
-      "usage": {
-        "input_tokens": 514,
-        "output_tokens": 18
-      },
-      "attempt": 0
-    },
-    {
-      "ts": "2026-09-17T06:22:55.079Z",
+      "ts": "2026-09-17T06:35:44.212Z",
       "cat": "response",
       "label": "S4_B_Scenario Pla",
       "status": 200,
-      "ms": 284,
+      "ms": 300,
       "usage": {
         "input_tokens": 514,
         "output_tokens": 18
@@ -3608,11 +3608,11 @@
       "attempt": 0
     },
     {
-      "ts": "2026-09-17T06:22:55.102Z",
+      "ts": "2026-09-17T06:35:44.214Z",
       "cat": "response",
       "label": "S4_B_The Pyramid ",
       "status": 200,
-      "ms": 287,
+      "ms": 269,
       "usage": {
         "input_tokens": 515,
         "output_tokens": 18
@@ -3620,5 +3620,5 @@
       "attempt": 0
     }
   ],
-  "finished": "2026-09-17T06:22:55.103Z"
+  "finished": "2026-09-17T06:35:44.216Z"
 }

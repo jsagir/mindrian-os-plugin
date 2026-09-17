@@ -80,6 +80,12 @@ working set with `stub`, `jtbd_anchor`, `definition`.
    sentence. "Mullins Model" is not canonical under that name (alias "John Mullins
    Framework"), so 26 of 27 labels were usable.
 6. Run: 84 batched + 108 per-pair calls, 0 failures, 0 retries.
+7. Substrate check refused the first commit: the puller assembled Cypher by string
+   concatenation (rule m4). Rewritten as two fixed query texts with `$n`, `$prefix`,
+   `$alnum` parameters; Theo accepts parameterized queries through the client.
+8. Repeat run (full, unintended, via a `require` in a syntax check): Spearman S1 0.59,
+   S2 0.63, S3 0.82, S4 0.19; A vs B 0.78-0.83; p50 320 ms, p95 892 ms, max 1569 ms.
+   The ranking is stable run to run; the tail latency is not.
 
 ## Results
 
