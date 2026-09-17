@@ -33,17 +33,48 @@
  *       each extracted candidate with the REAL artifact path it came from
  *       and passes it through.
  *
- * FIXTURE SHAPE (matches the RCA's Tests-to-Add fixture-room spec): 3
- * sections, each carrying the FULL scaffold set (ROOM/STATE/MINTO/BRAIN/
- * FEYNMAN, 15 files total, byte-identical per kind across sections -- the
- * real-world Decision-15 shape) plus 2 real content artifacts per section (6
- * total), each naming one unique, unambiguous two-word concept.
+ * QUICK TASK 260917-ild (2026-09-17 Codex adversarial review, findings
+ * F2/F3/F4) NARROWED both fixes above:
+ *   F4 -- the (1) exclusion above was kind+basename SHAPE only, which
+ *   dropped a scaffold file's entire body even when a human had authored
+ *   real content into it (a real MINTO governing thought, say), and skipped
+ *   its frontmatter metadata pass too. Now a scaffold CANDIDATE (still
+ *   kind+basename) is excluded only when its body matches its shipped
+ *   templates/room-skeleton/*.tmpl template byte-for-byte
+ *   (post-normalization) via lib/core/eureka/scaffold-template-index.cjs;
+ *   a body that differs has its authored remainder extracted instead
+ *   (scaffold_files_extracted) and the metadata pass runs for BOTH branches.
+ *   Legs 1, 2, 5 pin this.
+ *   F2/F3 -- lib/core/navigation/typed-entity.cjs
+ *   purgeLegacySelfReferentialEntities(db, opts) now requires
+ *   opts.scaffoldKinds and deletes a candidate row only when EVERY DESCRIBES
+ *   edge resolves to a scaffold-kind memory_artifact (proof, not pattern),
+ *   the review_status filter narrowed to proposed-or-NULL only (a rejection
+ *   survives unchanged), the purge call site moved to AFTER the batch
+ *   COMMIT, and guarded to full-room runs only. Legs 4, 6, 7, 8, 9 pin this.
+ *
+ * FIXTURE SHAPE (matches the RCA's Tests-to-Add fixture-room spec, updated by
+ * quick task 260917-ild to be CONTENT-based): 3 sections, each carrying the
+ * FULL scaffold set (ROOM/STATE/MINTO/BRAIN/FEYNMAN, 15 files total) plus 2
+ * real content artifacts per section (6 total), each naming one unique,
+ * unambiguous two-word concept. Scaffold bodies are RENDERED from the
+ * shipped sources (templates/room-skeleton/*.tmpl via renderTemplate, plus
+ * the BRAIN/FEYNMAN in-code seed constants), never hand-typed prose standing
+ * in for a real scaffold file -- STATE/MINTO/BRAIN carry no per-section
+ * token in this fixture's substitutions and render byte-identical across
+ * sections (the real-world Decision-15 shape); ROOM/FEYNMAN carry a
+ * per-section token and legitimately differ across sections while staying
+ * template-identical to the shipped template individually. SCAFFOLD_VOCAB is
+ * likewise RE-DERIVED by running the real tier-1 extractor over every
+ * rendered scaffold body, never a hand-picked word list.
  *
  * TDD note (this session): this test was run against a `git stash` of both
  * fix commits to confirm it fails in the exact way the RCA predicts (scaffold
  * vocabulary present as entities, self-referential source_path) BEFORE the
  * fix landed, then confirmed green after `git stash pop`. See the debug
  * session file's Resolution.verification for the recorded RED/GREEN run.
+ * Quick task 260917-ild re-ran the same discipline: legs 5-9 written first,
+ * RED run recorded in the plan's execution summary, then confirmed green.
  *
  * NO em-dashes anywhere (CLAUDE.md HARD RULE).
  */
@@ -60,6 +91,14 @@ const { insertNode } = require('../lib/core/node-insert.cjs');
 const entityExtract = require('../scripts/entity-extract.cjs');
 const navigation = require('../lib/core/navigation.cjs');
 const { runExtraction, collectArtifacts } = entityExtract;
+// Quick task 260917-ild (Codex F4): the fixture's scaffold bodies are now
+// RENDERED from the shipped sources (never hand-typed prose), so this test
+// proves the content-based exclusion against the SAME templates a real room
+// gets, not an approximation of them.
+const { renderTemplate } = require('../lib/core/room-skeleton-scaffold.cjs');
+const roomBirth = require('../lib/core/navigation/room-birth.cjs');
+const feynmanSeedWriter = require('../lib/core/feynman/feynman-seed-writer.cjs');
+const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
 
 let pass = 0;
 let total = 0;
@@ -82,23 +121,97 @@ async function checkAsync(label, fn) {
 
 const SECTIONS = ['business-model', 'competitive-analysis', 'market-analysis'];
 
-// Byte-identical per kind across every section (the real Decision-15 shape:
-// every directory gets the SAME template body). Each carries exactly one
-// isolated Title-Case marker word (never sentence-initial-only vocabulary
-// beyond a STOPWORD, so the ONLY surviving tier-1 candidate per file is the
-// marker itself).
-const SCAFFOLD_BODY = {
-  ROOM: ['# Room Identity', '', 'This directory identity file is marked Seeded until real content lands.'].join('\n'),
-  STATE: ['# Room State', '', 'The section status reads Current across the whole room today.'].join('\n'),
-  MINTO: ['# Minto Pyramid', '', 'The governing thought stays Working until methodology fires.'].join('\n'),
-  BRAIN: ['# Brain Status', '', 'The gate status is Available only after the next pass.'].join('\n'),
-  FEYNMAN: ['# Feynman Simplification', '', 'The simplification pass was Recent but not yet reviewed.'].join('\n'),
-};
 const SCAFFOLD_KIND_BASENAME = {
   ROOM: 'ROOM.md', STATE: 'STATE.md', MINTO: 'MINTO.md', BRAIN: 'BRAIN.md', FEYNMAN: 'FEYNMAN.md',
 };
-// The template vocabulary a correct fix must NEVER surface as an entity name.
-const SCAFFOLD_VOCAB = ['Seeded', 'Current', 'Working', 'Available', 'Recent'];
+
+// Quick task 260917-ild (Codex F4): scaffold bodies RENDERED from the shipped
+// sources -- templates/room-skeleton/*.tmpl via renderTemplate, plus the
+// BRAIN and FEYNMAN in-code seed constants -- instead of hand-written prose
+// standing in for a real scaffold file. This is what makes the fixture a
+// faithful test of the CONTENT-based exclusion: a hand-typed approximation
+// could accidentally diverge from the real template shape and prove nothing.
+const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'room-skeleton');
+function readTmpl(name) { return fs.readFileSync(path.join(TEMPLATES_DIR, name), 'utf8'); }
+const ROOM_SECTION_TMPL = readTmpl('ROOM.md.section.tmpl');
+const STATE_TMPL = readTmpl('STATE.md.tmpl');
+const MINTO_TMPL = readTmpl('MINTO.md.tmpl');
+
+const FIXTURE_SLUG = 'axiom-fixture';
+
+function titleCase(slug) {
+  return slug.split('-').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+}
+
+// ROOM.md varies per section (SECTION_NAME and friends are per-section
+// tokens) -- NOT byte-identical across sections, exactly as a real room's
+// per-section ROOM.md legitimately differs while still being
+// template-identical to the shipped template individually.
+function renderRoomMd(section) {
+  return renderTemplate(ROOM_SECTION_TMPL, {
+    SECTION_NAME: section,
+    STATEMENT_YAML: 'Fixture statement for ' + section,
+    SECTION_PURPOSE_YAML: 'Fixture purpose for ' + section,
+    STAGE_RELEVANCE_LIST: '  - scoping',
+    DEFAULT_METHODOLOGIES_LIST: '  - JTBD',
+    SECTION_NAME_TITLE_CASE: titleCase(section),
+    STATEMENT: 'Fixture statement for ' + section,
+    SECTION_PURPOSE: 'Fixture purpose for ' + section,
+  });
+}
+
+// STATE.md, MINTO.md and BRAIN.md carry no per-section token in this
+// fixture's substitutions, so they render byte-identical across every
+// section -- the Decision-15 shape the RCA modeled (every directory gets the
+// SAME template body for these kinds).
+function renderStateMd() {
+  return renderTemplate(STATE_TMPL, {
+    AUTO_CREATED_AT_ISO: '2026-09-17T00:00:00.000Z',
+    PLACEHOLDER_SLUG: FIXTURE_SLUG,
+    SOURCE_MATERIAL_ID: 'fixture-material',
+  });
+}
+function renderMintoMd() {
+  return renderTemplate(MINTO_TMPL, {});
+}
+function renderBrainMd() {
+  return renderTemplate(roomBirth.BRAIN_STUB_TEMPLATE, { SLUG: FIXTURE_SLUG });
+}
+// FEYNMAN.md's H1 carries the section slug (a per-section token, matching
+// the real seedSection() composition), so it is NOT byte-identical across
+// sections, same caveat as ROOM.md above.
+function renderFeynmanMd(section) {
+  return '# ' + section + '\n\n' + feynmanSeedWriter.FEYNMAN_DEFAULT_SEED + '\n';
+}
+
+function scaffoldBodyFor(section, kind) {
+  switch (kind) {
+    case 'ROOM': return renderRoomMd(section);
+    case 'STATE': return renderStateMd();
+    case 'MINTO': return renderMintoMd();
+    case 'BRAIN': return renderBrainMd();
+    case 'FEYNMAN': return renderFeynmanMd(section);
+    default: return '';
+  }
+}
+
+// The template vocabulary a correct fix must NEVER surface as an entity
+// name. RE-DERIVED from the rendered shipped bodies (never hand-written
+// prose): run the SAME tier-1 extractor over each rendered scaffold body and
+// collect every candidate name it would mint. A correctly excluded scaffold
+// file's content never reaches extractEntities at all, so none of these
+// names may appear in the final extracted entity list.
+const SCAFFOLD_VOCAB = (function deriveScaffoldVocab() {
+  const names = new Set();
+  for (const section of SECTIONS) {
+    for (const kind of Object.keys(SCAFFOLD_KIND_BASENAME)) {
+      const body = scaffoldBodyFor(section, kind);
+      const res = extractEntities(body, { sourceArtifactId: 'scaffold-vocab-probe' });
+      for (const e of res.entities) names.add(e.name);
+    }
+  }
+  return Array.from(names);
+})();
 
 // Two real content artifacts per section, each naming one unique two-word
 // concept the fix MUST surface as an entity (Part 8 figure-guard idiom: no
@@ -125,8 +238,8 @@ function mkFixtureRoom() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-scaffold-noise-'));
   for (const section of SECTIONS) {
     fs.mkdirSync(path.join(dir, section), { recursive: true });
-    for (const kind of Object.keys(SCAFFOLD_BODY)) {
-      fs.writeFileSync(path.join(dir, section, SCAFFOLD_KIND_BASENAME[kind]), SCAFFOLD_BODY[kind] + '\n', 'utf8');
+    for (const kind of Object.keys(SCAFFOLD_KIND_BASENAME)) {
+      fs.writeFileSync(path.join(dir, section, SCAFFOLD_KIND_BASENAME[kind]), scaffoldBodyFor(section, kind), 'utf8');
     }
     for (const cf of CONTENT_FILES[section]) {
       fs.writeFileSync(path.join(dir, cf.rel), cf.body, 'utf8');
@@ -138,7 +251,7 @@ function mkFixtureRoom() {
 function seedScaffoldNodes(roomDir) {
   const db = openRoomDb(roomDir, { allowExtension: true });
   for (const section of SECTIONS) {
-    for (const kind of Object.keys(SCAFFOLD_BODY)) {
+    for (const kind of Object.keys(SCAFFOLD_KIND_BASENAME)) {
       const id = 'memory_artifact:' + section + ':' + kind;
       const props = JSON.stringify({
         section: section, kind: kind, path: section + '/' + SCAFFOLD_KIND_BASENAME[kind], hash: '',
@@ -314,6 +427,80 @@ async function main() {
         }
       } finally {
         try { fs.rmSync(legacyRoom, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Leg 5 (authored scaffold, Codex F4, quick task 260917-ild): a MINTO.md
+    // carrying the shipped template body PLUS an authored governing thought
+    // naming a two-word concept (no figures anywhere, Part 8 figure guard)
+    // yields that concept as an entity after a full run, status.json
+    // scaffold_files_extracted is at least 1, and the metadata pass ran for
+    // that file (its memory_artifact node carries the frontmatter scalar the
+    // fixture put there) AND for a template-identical scaffold file in the
+    // same section (proving the metadata pass runs for both branches).
+    // -----------------------------------------------------------------------
+    await checkAsync('leg 5: an authored scaffold file extracts its authored concept; metadata pass proven for both branches', async function () {
+      const room = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(room);
+
+        const section = 'business-model';
+        const mintoPath = path.join(room, section, 'MINTO.md');
+        const statePath = path.join(room, section, 'STATE.md');
+
+        // Authored MINTO: a frontmatter scalar (confidence) the metadata pass
+        // can lift, plus the shipped template body with its governing-thought
+        // placeholder replaced by real authored content naming a two-word
+        // concept.
+        const templateMinto = renderMintoMd();
+        const authoredThought = 'Meridian Capital anchors the investment thesis this cycle.';
+        const placeholderLine = '*(empty; will be populated when the first /mos:* methodology fires or when Larry synthesizes from the auto-explore finding)*';
+        assert.ok(templateMinto.indexOf(placeholderLine) !== -1, 'fixture assumption: MINTO template must still carry the placeholder line');
+        const authoredMinto = '---\nconfidence: 0.87\n---\n\n' + templateMinto.replace(placeholderLine, authoredThought);
+        fs.writeFileSync(mintoPath, authoredMinto, 'utf8');
+
+        // A template-identical file in the SAME section also gets a
+        // frontmatter scalar injected, proving the metadata pass runs for
+        // the OTHER branch too (metadataOnly, never touching extraction).
+        const stateWithScalar = renderStateMd().replace(/^---\n/, '---\nconfidence: 0.42\n');
+        fs.writeFileSync(statePath, stateWithScalar, 'utf8');
+
+        const rc = await entityExtract.main([room, 'run']);
+        assert.equal(rc, 0, 'entity-extract run should exit 0');
+
+        const statusPath = path.join(room, '.mindrian', 'entity-extract', 'status.json');
+        const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+        assert.ok(status.scaffold_files_extracted >= 1,
+          'status.json scaffold_files_extracted must be at least 1, got ' + JSON.stringify(status.scaffold_files_extracted));
+
+        const db = openRoomDb(room, { allowExtension: true });
+        let names;
+        let mintoRow;
+        let stateRow;
+        try {
+          const rows = db.prepare("SELECT id, properties FROM nodes WHERE type IN ('company','technology','market')").all();
+          names = rows.map(function (r) { try { return JSON.parse(r.properties).name; } catch (_e) { return null; } });
+          mintoRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:' + section + ':MINTO');
+          stateRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:' + section + ':STATE');
+        } finally {
+          closeRoomDb(db);
+        }
+
+        assert.ok(names.includes('Meridian Capital'),
+          'the authored governing-thought concept must surface as an entity: ' + JSON.stringify(names));
+
+        assert.ok(mintoRow, 'the MINTO memory_artifact node must exist');
+        const mintoProps = JSON.parse(mintoRow.properties);
+        assert.equal(mintoProps.confidence, 0.87,
+          'the authored MINTO node must carry the frontmatter scalar the metadata pass lifted, got ' + JSON.stringify(mintoProps.confidence));
+
+        assert.ok(stateRow, 'the STATE memory_artifact node must exist');
+        const stateProps = JSON.parse(stateRow.properties);
+        assert.equal(stateProps.confidence, 0.42,
+          'a template-identical scaffold file node must ALSO carry its own frontmatter scalar (metadata pass proven for both branches), got ' + JSON.stringify(stateProps.confidence));
+      } finally {
+        try { fs.rmSync(room, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
       }
     });
 

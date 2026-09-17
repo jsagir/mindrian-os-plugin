@@ -129,6 +129,12 @@ const { resolveAnthropicKey } = require('../lib/core/mva-classifier.cjs');
 // Part 7 reuse-before-build -- never a new YAML parser). Deterministic,
 // zero-LLM, zero network.
 const { parseFrontmatter } = require('../lib/core/opportunity-ops.cjs');
+// Quick task 260917-ild (Codex F4): the content-based scaffold-template index
+// (SCAFFOLD_KINDS derived from templates/room-skeleton/*.tmpl + the BRAIN/
+// FEYNMAN in-code sources, isTemplateIdentical + stripTemplate). Replaces the
+// prior kind-plus-basename exclusion below, which dropped a scaffold file's
+// body wholesale even when a human had authored real content into it.
+const scaffoldTemplateIndex = require('../lib/core/eureka/scaffold-template-index.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here. The subdir is
@@ -246,35 +252,51 @@ function parseArgs(argv) {
 //     DIFFERENT file; writing another file's frontmatter onto it would lie).
 //
 // RCA eureka-entity-extraction-boilerplate-candidates (2026-09-17, short-term
-// patch): the five per-directory identity/status scaffold kinds (ROOM / STATE
-// / MINTO / BRAIN / FEYNMAN) carry a near-identical template body PER SECTION
-// (Decision 15: every directory gets a ROOM.md; STATE/MINTO/BRAIN/FEYNMAN
-// follow the same house style), so the SAME capitalized template words were
-// extracted once per section and merged into one entity node whose DESCRIBES
-// degree (9-20 on the reporter's axiom room) crowded out real content (65
-// real artifacts vs 528 entity nodes observed). These five kinds STAY valid
-// DESCRIBES anchors below (sectionAnchor is unchanged) -- only their OWN body
-// text stops being read as extraction input.
+// patch, narrowed by quick task 260917-ild / Codex finding F4 to a
+// CONTENT-based test): the per-directory identity/status scaffold kinds
+// (ROOM / STATE / MINTO / BRAIN / FEYNMAN, plus USER wherever a shipped
+// template covers it -- see lib/core/eureka/scaffold-template-index.cjs,
+// SCAFFOLD_KINDS) carry a near-identical template body PER SECTION
+// (Decision 15: every directory gets a ROOM.md; STATE/MINTO/BRAIN/FEYNMAN/
+// USER follow the same house style), so the SAME capitalized template words
+// were extracted once per section and merged into one entity node whose
+// DESCRIBES degree (9-20 on the reporter's axiom room) crowded out real
+// content (65 real artifacts vs 528 entity nodes observed). These kinds STAY
+// valid DESCRIBES anchors below (sectionAnchor is unchanged). The short-term
+// patch excluded a scaffold file's ENTIRE body on kind+basename shape alone,
+// which also dropped any AUTHORED content a human had actually written into
+// one (a real MINTO governing thought, say) and skipped its frontmatter
+// metadata pass too. Codex F4's fix: only a body that matches its shipped
+// template byte-for-byte (post-normalization) is excluded; a body that
+// differs has its authored remainder extracted and its frontmatter still
+// lifted via the metadata pass either way.
 //
 // Matched by kind AND basename together, NEVER kind alone:
 // lib/core/memory/reconcile-memory-runner.cjs's BASENAME_TO_KIND is the ONLY
-// place a real room ever assigns these five kinds, and it is an EXACT
-// basename match ('ROOM.md' -> 'ROOM', etc.), so a genuine scaffold file's
-// kind and basename always agree. Requiring both here protects a synthetic
+// place a real room ever assigns these kinds, and it is an EXACT basename
+// match ('ROOM.md' -> 'ROOM', etc.), so a genuine scaffold file's kind and
+// basename always agree. Requiring both here protects a synthetic
 // memory_artifact node some existing test fixtures build with a scaffold-kind
 // label on an arbitrary filename (tests/test-219-metadata.cjs and
 // tests/test-219-low-confidence-disclosure.cjs both seed kind:'ROOM' on a
 // non-ROOM.md path to test the frontmatter/classifier pipeline, not the
 // scaffold-body walk) from being silently swept into this exclusion.
-const SCAFFOLD_KIND_BASENAME = Object.freeze({
-  ROOM: 'ROOM.md',
-  STATE: 'STATE.md',
-  MINTO: 'MINTO.md',
-  BRAIN: 'BRAIN.md',
-  FEYNMAN: 'FEYNMAN.md',
-});
+//
+// Quick task 260917-ild (Codex F4): SCAFFOLD_KIND_BASENAME is now DERIVED
+// from the shipped scaffold-template index (never a hand-typed list): every
+// kind the index found a template for (disk templates + the BRAIN/FEYNMAN
+// in-code sources), mapped to kind + '.md' via its kindBasename() accessor.
+// The purge call site further below keeps reading
+// Object.keys(SCAFFOLD_KIND_BASENAME) with NO edit to that line; only WHAT
+// this identifier maps to changed (the same binding, re-sourced).
+const SCAFFOLD_KIND_BASENAME = Object.freeze(
+  Array.from(scaffoldTemplateIndex.SCAFFOLD_KINDS).reduce(function (acc, kind) {
+    acc[kind] = scaffoldTemplateIndex.kindBasename(kind);
+    return acc;
+  }, {})
+);
 
-function isScaffoldArtifact(kind, rel) {
+function isScaffoldCandidate(kind, rel) {
   const expected = kind ? SCAFFOLD_KIND_BASENAME[kind] : null;
   return typeof expected === 'string' && path.basename(String(rel)) === expected;
 }
@@ -289,9 +311,16 @@ function collectArtifacts(db, roomDir, allowPaths) {
 
   const rows = db.prepare("SELECT id, properties FROM nodes WHERE type = 'memory_artifact'").all();
   const artifacts = [];
+  // Quick task 260917-ild (Codex F4): template-identical scaffold files never
+  // enter `artifacts` (that array is the extraction-input contract leg 1
+  // pins) but STILL need the metadata pass, so they ride this additive
+  // sibling list instead. runExtraction's metadata loop iterates `artifacts`
+  // (the exact entries) followed by this list.
+  const metadataOnly = [];
   const coveredPaths = new Set();  // roomDir-relative paths already read via memory_artifact
   const sectionAnchor = new Map(); // section name ("_root" included) -> a valid memory_artifact node id
   let scaffoldFilesSkipped = 0;    // RCA eureka-entity-extraction-boilerplate-candidates
+  let scaffoldFilesExtracted = 0;  // Quick task 260917-ild (Codex F4)
 
   for (const row of rows) {
     let props = {};
@@ -300,13 +329,43 @@ function collectArtifacts(db, roomDir, allowPaths) {
     const kind = props && typeof props.kind === 'string' ? props.kind : null;
     if (rel) {
       if (isAllowed(rel)) {
-        if (isScaffoldArtifact(kind, rel)) {
-          // Excluded as extraction input (never read off disk); still marks
-          // the path covered so tier (b) never re-reads it as ordinary
-          // content under the section anchor, and still counted so
-          // status.json discloses the exclusion honestly (never silent).
+        if (isScaffoldCandidate(kind, rel)) {
+          // Quick task 260917-ild (Codex F4): a scaffold CANDIDATE is no
+          // longer excluded on kind+basename shape alone. Read the file and
+          // branch on CONTENT: template-identical means excluded from
+          // extraction input (scaffoldFilesSkipped) but still metadata-
+          // passed via the metadataOnly sibling list; different means the
+          // authored remainder (stripTemplate) becomes the extraction input
+          // (scaffoldFilesExtracted), carrying the ORIGINAL full text
+          // (frontmatterSource) so the metadata pass still lifts frontmatter
+          // scalars off the real file, never the stripped remainder.
+          const abs = path.join(roomDir, rel);
+          let text = null;
+          try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
           coveredPaths.add(path.normalize(rel));
-          scaffoldFilesSkipped += 1;
+          if (text !== null) {
+            if (scaffoldTemplateIndex.isTemplateIdentical(kind, text)) {
+              scaffoldFilesSkipped += 1;
+              metadataOnly.push({ artifactId: row.id, text: text, relPath: rel, exact: true });
+            } else {
+              const remainder = scaffoldTemplateIndex.stripTemplate(kind, text);
+              if (remainder && remainder.trim().length > 0) {
+                artifacts.push({
+                  artifactId: row.id, text: remainder, relPath: rel, exact: true,
+                  frontmatterSource: text,
+                });
+                scaffoldFilesExtracted += 1;
+              } else {
+                // An empty authored remainder counts as template-identical.
+                scaffoldFilesSkipped += 1;
+                metadataOnly.push({ artifactId: row.id, text: text, relPath: rel, exact: true });
+              }
+            }
+          } else {
+            // Unreadable file: count as skipped (never silent), no
+            // extraction input, no metadata pass (nothing to read).
+            scaffoldFilesSkipped += 1;
+          }
         } else {
           const abs = path.join(roomDir, rel);
           let text = null;
@@ -357,11 +416,15 @@ function collectArtifacts(db, roomDir, allowPaths) {
     }
   }
 
-  // Additive, non-enumerable-safe count riding the returned array (arrays are
-  // objects): existing callers that treat the return as a plain artifact list
-  // (iteration, .length, .map) are byte-compatible; runExtraction reads this
-  // one extra property to disclose the exclusion in status.json.
+  // Additive, non-enumerable-safe counts/lists riding the returned array
+  // (arrays are objects): existing callers that treat the return as a plain
+  // artifact list (iteration, .length, .map) are byte-compatible;
+  // runExtraction reads these extra properties to disclose the exclusion in
+  // status.json and to route template-identical scaffold files through the
+  // metadata pass (Quick task 260917-ild, Codex F4).
   artifacts.scaffoldFilesSkipped = scaffoldFilesSkipped;
+  artifacts.scaffoldFilesExtracted = scaffoldFilesExtracted;
+  artifacts.metadataOnly = metadataOnly;
   return artifacts;
 }
 
@@ -384,7 +447,17 @@ const METADATA_FM_KEYS = ['methodology', 'created', 'date', 'status', 'section',
 function applyArtifactMetadata(db, art) {
   try {
     let fm = null;
-    try { fm = parseFrontmatter(art.text); } catch (_e) { return 'skipped'; }
+    // Quick task 260917-ild (Codex F4): an authored (non-template-identical)
+    // scaffold candidate carries frontmatterSource, the ORIGINAL full file
+    // text (frontmatter intact); art.text on that entry is the STRIPPED
+    // authored remainder (extraction input only, frontmatter already
+    // dropped by stripTemplate's stripLeadingFrontmatter pass), so the
+    // metadata pass must read frontmatterSource when present or it would
+    // silently find no frontmatter at all. Every other artifact shape
+    // (ordinary content files, metadataOnly template-identical scaffold
+    // entries) carries no frontmatterSource, so this stays byte-identical
+    // to the prior art.text-only read for them.
+    try { fm = parseFrontmatter(art.frontmatterSource || art.text); } catch (_e) { return 'skipped'; }
     if (!fm || typeof fm !== 'object') return 'none';
 
     const row = db.prepare('SELECT id, type, properties FROM nodes WHERE id = ?').get(art.artifactId);
@@ -779,10 +852,16 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
   // Absent -> full-room collection, byte-identical to the 218 behavior.
   const artifacts = collectArtifacts(db, roomDir, options.paths);
-  // RCA eureka-entity-extraction-boilerplate-candidates: the count of scaffold
-  // (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded as extraction input this
-  // run, threaded to status.json below (never silent).
+  // RCA eureka-entity-extraction-boilerplate-candidates, narrowed by quick
+  // task 260917-ild (Codex F4) to a CONTENT-based test: the count of
+  // template-identical scaffold files excluded as extraction input this run
+  // (scaffoldFilesSkipped), and the count of scaffold files that DIFFERED
+  // from their shipped template and had their authored remainder extracted
+  // instead (scaffoldFilesExtracted). Both threaded to status.json below
+  // (never silent).
   const scaffoldFilesSkipped = artifacts.scaffoldFilesSkipped || 0;
+  const scaffoldFilesExtracted = artifacts.scaffoldFilesExtracted || 0;
+  const metadataOnlyArtifacts = Array.isArray(artifacts.metadataOnly) ? artifacts.metadataOnly : [];
 
   // Aggregate all candidates first (pure, no writes yet). Tier-1 now also yields
   // a structural WHY seed (frameworkTerms) at zero model cost -- these never go to
@@ -958,9 +1037,18 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     //    receive metadata -- a tier-b section anchor stands for a different
     //    file, so writing another file's frontmatter onto it would lie.
     //    Deterministic, zero-LLM, zero network; a skip is counted, never a
-    //    throw (the batch survives, T-219-05).
+    //    throw (the batch survives, T-219-05). Quick task 260917-ild
+    //    (Codex F4): the exact artifacts are followed by metadataOnlyArtifacts
+    //    (template-identical scaffold files, excluded from extraction input
+    //    but still artifact-backed files that deserve their frontmatter
+    //    lifted), so applyArtifactMetadata runs for BOTH branches.
     for (const art of artifacts) {
       if (!art.exact) continue;
+      const outcome = applyArtifactMetadata(db, art);
+      if (outcome === 'applied') metadataApplied += 1;
+      else if (outcome === 'skipped') metadataSkipped += 1;
+    }
+    for (const art of metadataOnlyArtifacts) {
       const outcome = applyArtifactMetadata(db, art);
       if (outcome === 'applied') metadataApplied += 1;
       else if (outcome === 'skipped') metadataSkipped += 1;
@@ -1063,9 +1151,12 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     tier2Escalated: tier2.escalated,
     tier2Model: tier2.modelResolved,
     tier2LowConfidence: tier2.lowConfidence,
-    // RCA eureka-entity-extraction-boilerplate-candidates: honest disclosure
-    // of the short-term patch's exclusion count (never silent).
+    // RCA eureka-entity-extraction-boilerplate-candidates, narrowed by quick
+    // task 260917-ild (Codex F4) to a content-based test: honest disclosure
+    // of both the exclusion count (template-identical) and the extraction
+    // count (authored remainder), never silent.
     scaffoldFilesSkipped: scaffoldFilesSkipped,
+    scaffoldFilesExtracted: scaffoldFilesExtracted,
     legacyEntitiesPurged: legacyEntitiesPurged,
     legacyEdgesPurged: legacyEdgesPurged,
     // Quick task 260917-ild (Codex F2, F3): honest disclosure of the narrowed
@@ -1140,10 +1231,13 @@ async function cmdRun(opts) {
       tier2_escalated: result.tier2Escalated,
       tier2_model: result.tier2Model,
       tier2_low_confidence: result.tier2LowConfidence,
-      // RCA eureka-entity-extraction-boilerplate-candidates: the count of
-      // scaffold (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded from
-      // extraction input this run (never silent).
+      // RCA eureka-entity-extraction-boilerplate-candidates, narrowed by
+      // quick task 260917-ild (Codex F4) to a content-based test: the count
+      // of template-identical scaffold files excluded from extraction input
+      // this run, and the count whose authored remainder was extracted
+      // instead (never silent).
       scaffold_files_skipped: result.scaffoldFilesSkipped,
+      scaffold_files_extracted: result.scaffoldFilesExtracted,
       // Legacy self-referential entity rows (and their edges) removed AFTER
       // this run's replacement writes committed (RCA eureka-entity-
       // extraction-boilerplate-candidates, narrowed by quick task 260917-ild).

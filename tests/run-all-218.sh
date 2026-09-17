@@ -170,16 +170,26 @@ run "RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offl
 run "CR-01 duplicate entity name reconciliation (highest-trust wins, offline)" \
   node tests/test-218-duplicate-entity-reconciliation.cjs
 
-# (f.4) RCA eureka-entity-extraction-boilerplate-candidates (2026-09-17): the
-#       scaffold-boilerplate entity-noise fix. Proves the five per-directory
-#       scaffold kinds (ROOM/STATE/MINTO/BRAIN/FEYNMAN) are excluded as
-#       extraction input (kind AND basename together, never kind alone --
-#       protects existing kind:'ROOM'-tagged non-scaffold-path fixtures) while
-#       staying valid DESCRIBES anchors, that the exclusion count reaches
-#       status.json as scaffold_files_skipped, and that every entity's
-#       source_path is now a real room-relative path instead of the prior
+# (f.4) RCA eureka-entity-extraction-boilerplate-candidates (2026-09-17),
+#       narrowed by quick task 260917-ild (Codex findings F2/F3/F4): the
+#       scaffold-boilerplate entity-noise fix, now CONTENT-based end to end.
+#       A memory_artifact row is a scaffold CANDIDATE on kind+basename (kind
+#       AND basename together, never kind alone -- protects existing
+#       kind:'ROOM'-tagged non-scaffold-path fixtures), but exclusion itself
+#       is decided by comparing the file's body against the shipped
+#       templates/room-skeleton/*.tmpl template (plus the BRAIN/FEYNMAN
+#       in-code sources) via lib/core/eureka/scaffold-template-index.cjs:
+#       template-identical is excluded (scaffold_files_skipped) while staying
+#       a valid DESCRIBES anchor; a body that DIFFERS has its authored
+#       remainder extracted instead (scaffold_files_extracted) and the
+#       frontmatter metadata pass runs for BOTH branches. The legacy purge
+#       (typed-entity.cjs purgeLegacySelfReferentialEntities) is bounded by
+#       PROVEN scaffold-only DESCRIBES provenance, a proposed-or-NULL review
+#       state, full-room scope only, and runs after the replacement writes
+#       commit (legacy_entities_kept, legacy_purge_skipped). Every entity's
+#       source_path is a real room-relative path instead of the prior
 #       self-referential 'entity:sid:name' handle. Offline/hermetic.
-run "RCA-260917 scaffold entity-noise exclusion (input-selection + source_path, offline)" \
+run "RCA-260917 scaffold entity-noise exclusion (content-based + bounded purge, offline)" \
   node tests/test-eureka-scaffold-entity-noise.cjs
 
 # (g) 211 engine no-regression: Plan 02's openRoomDb D-05 edit is GLOBAL to every
