@@ -1,0 +1,154 @@
+{
+  "run_at": "2026-09-17T19:17:48.707Z",
+  "plugin_version": "2.0.0-beta.48",
+  "rooms": [
+    {
+      "room": "alpha-room",
+      "path": "tests/fixtures/icm-rooms/alpha-room"
+    }
+  ],
+  "items": [
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-1-block-presence",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "every blocked-kind dir carries icm_self; no artifact dir does",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-2-fingerprint",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "every block fingerprint recomputes to the same value",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-3-missing-root-recreated",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "root ROOM.md recreated from the identity template",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-1-six-parts",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "all six parts present",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-2-frontmatter-keys",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "frontmatter carries all four generated keys",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-3-fingerprint-recomputes",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "ruling_fingerprint recomputes to the same value",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-4-authored-prose-preserved",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "authored prose below the end marker is byte-preserved",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-5-sequence-fits-job",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "minto-refresher",
+      "item_id": "item-1-governing-thought-present",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "every governing thought is present and non-template",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "minto-refresher",
+      "item_id": "item-2-summarizes-artifacts",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-1-anchor-edge",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "SOURCED_FROM edge minted to a jtbd: anchor",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-2-serves-jtbd-honored",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "gate verdict: match",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-3-epistemic-type-plausible",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "entity-extractor",
+      "item_id": "item-1-no-template-words",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "detail": "extracted slug carries no template word: \"situation----complication----question----answer--fixture--phase-\"",
+      "room": "alpha-room"
+    },
+    {
+      "checklist": "entity-extractor",
+      "item_id": "item-2-names-a-concept",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "room": "alpha-room"
+    }
+  ],
+  "code_pass": 11,
+  "code_total": 11,
+  "jev_pass": 0,
+  "jev_total": 4,
+  "agreement": null,
+  "jev_model": null,
+  "key_present": false
+}
