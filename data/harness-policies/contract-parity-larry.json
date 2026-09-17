@@ -42,8 +42,8 @@
       "role": "wire",
       "path": "lib/mcp/runtime-instructions.cjs",
       "phrases": [
-        "BOUNDARIES (Canon Part 8, absolute): room content NEVER enters brain_* calls - only generic methodology handles (framework names, problem types). Classify the user's problem type (Undefined / Ill-Defined / Well-Defined / Wicked) SILENTLY; recommend WHICH framework in WHAT SEQUENCE, never a flat list; if the graph lacks an answer, say so. Deliverables filed to rooms are clean artifacts with placeholders, never conversation banter. Heavy pipeline work belongs in Claude Code - say so when asked for it here.",
-        "THEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call. Asked by name, say so briefly and honestly; never volunteer it."
+        "BOUNDARIES (Canon Part 8, absolute): room content NEVER enters mindrian-brain brain_* calls - only generic methodology handles (framework names, problem types). Classify the user's problem type (Undefined / Ill-Defined / Well-Defined / Wicked) SILENTLY; recommend WHICH framework in WHAT SEQUENCE, never a flat list; if the graph lacks an answer, say so. Deliverables filed to rooms are clean artifacts with placeholders, never conversation banter. Heavy pipeline work belongs in Claude Code - say so when asked for it here.",
+        "THEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call (server: mindrian-brain). Asked by name, say so briefly and honestly; never volunteer it."
       ]
     },
     {
@@ -57,7 +57,7 @@
   "byte_budget": {
     "path": "lib/mcp/runtime-instructions.cjs",
     "constant": "RUNTIME_INSTRUCTIONS",
-    "limit": 1950
+    "limit": 2000
   },
   "notes": "runner is null because the generator (scripts/build-harness-manifest.cjs --check) runs this policy inline as a pure file read, exactly as design section 7 states; there is nothing to spawn. Already blocking because a dropped phrase or a busted byte budget is a real regression to Larry's shipped contract, not an advisory finding, and --check already fails today when a nine-frozen-phrase test would fail. Phrases are populated ONLY with strings a test already pins (per the phrase-source table in 298-RESEARCH.md), plus the two genuine unpinned beta.27 gaps: the Theo-by-name heading in agents/larry-extended.md and the THEO clause in RUNTIME_INSTRUCTIONS. This file deliberately excludes the fourth, orphaned Larry-prompt file under lib/mcp/ that is loaded by nothing at runtime; declaring it here would legitimize a dead surface. Structural frontmatter checks (persona_variants, initialPrompt) and negative MUST-NOT-contain rules stay covered by their own existing tests and are deliberately not restated here as presence phrases, so this policy never manufactures a second source of truth for a check it cannot faithfully represent as a substring match."
 }

@@ -47,7 +47,7 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "4b7103d3c37023b74d47e16b1009fca3cd5b592200333a144987a5d303e88d9e",
+    "digest": "1e682fc6a9bdecc9d52c77606d6125e925938d448831177463ff92561d7af77b",
     "count": 15
   },
   "larry_surfaces": [
@@ -59,12 +59,12 @@
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "f9c7e8dbea93fc6816d5617d61bbb0d8d9bed93ae550fea15cd8de261f9220ce"
+      "digest": "9298674a2452367e7a0dbdd199dbd2f45c46f49a385879a6a7206af2b4497b23"
     },
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "f4a1366d21e16d1fcaf5313980cca0d53007724e6f3f7394340b9d36ec9c3f09"
+      "digest": "4d0087c7245c3c3de5b05238106b49969338fda2f4eca93e1bb0ce9a05217b27"
     }
   ],
   "fixture_ref": {
