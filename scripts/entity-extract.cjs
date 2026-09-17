@@ -776,6 +776,36 @@ function applyFrameworkTerms(db, artifactId, terms) {
 
 async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   const options = opts || {};
+  // RCA eureka-entity-extraction-boilerplate-candidates (navigator ruling
+  // 2026-09-17): rooms scanned before the scaffold-input and source_path fixes
+  // keep their machine-authored template entities (self-referential
+  // source_path 'entity:sid:name'). Purge exactly that signature, and its edges,
+  // through the navigation door before this run writes anything, so a room
+  // self-heals on its next scan. Counts are threaded to status.json below and
+  // recorded as a memory event (best-effort); never silent.
+  let legacyEntitiesPurged = 0;
+  let legacyEdgesPurged = 0;
+  try {
+    const purge = navigation.purgeLegacySelfReferentialEntities(db);
+    if (purge && purge.ok) {
+      legacyEntitiesPurged = purge.purgedNodes || 0;
+      legacyEdgesPurged = purge.purgedEdges || 0;
+    } else {
+      process.stderr.write('entity-extract: legacy entity purge skipped: ' + ((purge && purge.reason) || 'unknown') + '\n');
+    }
+  } catch (e) {
+    process.stderr.write('entity-extract: legacy entity purge failed: ' + String(e && e.message).split('\n')[0] + '\n');
+  }
+  if (legacyEntitiesPurged > 0) {
+    try {
+      navigation.logMemoryEvent(db, 'legacy_entity_purge', {
+        purged_nodes: legacyEntitiesPurged,
+        purged_edges: legacyEdgesPurged,
+        signature: 'entity id + self-referential source_path',
+        dedupe_key: 'legacy_entity_purge:' + String(sessionId),
+      });
+    } catch (_e) { /* best-effort telemetry, never blocks the run */ }
+  }
   // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
   // Absent -> full-room collection, byte-identical to the 218 behavior.
   const artifacts = collectArtifacts(db, roomDir, options.paths);
@@ -1007,6 +1037,8 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     // RCA eureka-entity-extraction-boilerplate-candidates: honest disclosure
     // of the short-term patch's exclusion count (never silent).
     scaffoldFilesSkipped: scaffoldFilesSkipped,
+    legacyEntitiesPurged: legacyEntitiesPurged,
+    legacyEdgesPurged: legacyEdgesPurged,
   };
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
@@ -1078,6 +1110,10 @@ async function cmdRun(opts) {
       // scaffold (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded from
       // extraction input this run (never silent).
       scaffold_files_skipped: result.scaffoldFilesSkipped,
+      // Legacy self-referential entity rows (and their edges) removed at the
+      // start of this run (RCA eureka-entity-extraction-boilerplate-candidates).
+      legacy_entities_purged: result.legacyEntitiesPurged,
+      legacy_edges_purged: result.legacyEdgesPurged,
       session: opts.session,
     });
     return 0;
