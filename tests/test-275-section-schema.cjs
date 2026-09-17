@@ -80,6 +80,17 @@ function snapshot(dir) {
     for (const ent of entries) {
       const childRel = rel ? path.join(rel, ent.name) : ent.name;
       if (ent.isDirectory()) {
+        // Phase 353 Plan 01: scaffoldRoomSkeleton now also builds and writes
+        // .mindrian/room-map.json (D-353-2) as its last step. That file
+        // carries a `built_at` wall-clock timestamp by design (the map is
+        // rebuildable from disk at any time, and "when was this rebuilt" is
+        // exactly the fact that field records) -- deliberately volatile
+        // across two runs, unlike every other byte this snapshot compares.
+        // Excluded here, narrowly, so the pre-existing "second run is
+        // byte-identical" invariant keeps meaning what it always meant (the
+        // section/contract/reference surface is unchanged), rather than
+        // this test failing on a timestamp Phase 353 is supposed to change.
+        if (ent.name === '.mindrian') continue;
         stack.push(childRel);
       } else if (ent.isFile()) {
         out[childRel] = fs.readFileSync(path.join(dir, childRel), 'utf8');
