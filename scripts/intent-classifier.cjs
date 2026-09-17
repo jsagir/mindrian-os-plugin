@@ -664,7 +664,28 @@ function main() {
       const machineWideDir = resolveActiveRoomDir();
       const sessionId = resolveSessionId(machineWideDir);
       const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
-      if (emitBindingGate({ best: best, scored: scored, sealedRooms: sealedRooms, roomDir: roomDir, sessionId: sessionId })) {
+      // 260917-dia (Task B, root cause): bindingGate.fire is true for BOTH an
+      // unbound session AND an off-scope mismatch on an already-bound session --
+      // it is a set-membership test, not an unbound test. Resolve THIS session's
+      // real bound primary (same call the zero-score path already uses) so the
+      // gate can tell the two cases apart instead of mislabeling an off-scope
+      // match as "session unbound".
+      const bindingForGate = require(
+        path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
+      ).readSessionBinding(sessionId, { home: root });
+      const boundPrimary = (bindingForGate && typeof bindingForGate.primary === 'string'
+          && bindingForGate.primary.length > 0 && bindingForGate.primary !== NO_ROOM_SLUG)
+        ? bindingForGate.primary
+        : null;
+      // T-dia-02: per-(session, off-scope room) dedupe so an already-bound
+      // session sees this gate at most once per off-scope room, never re-fired
+      // on every turn of the same mismatch. Scoped to boundPrimary != null so a
+      // genuinely UNBOUND session keeps today's fire-every-turn behavior
+      // (unchanged, matches the pre-existing 194/209 suites).
+      if (boundPrimary && bindingGateAlreadyOffered(roomDir, sessionId, best.name)) {
+        return 0;
+      }
+      if (emitBindingGate({ best: best, scored: scored, sealedRooms: sealedRooms, roomDir: roomDir, sessionId: sessionId, boundPrimary: boundPrimary })) {
         return 0;
       }
       // emitBindingGate returned false (renderer unavailable) -> fall through to legacy.
@@ -2814,6 +2835,12 @@ function emitBindingGate(args) {
   const sealedRooms = Array.isArray(a.sealedRooms) ? a.sealedRooms : [];
   const roomDir = a.roomDir;
   const sessionId = a.sessionId;
+  // 260917-dia (Task B): the off-scope bound primary, when the caller resolved
+  // one. Read defensively so an old-shaped call site (no boundPrimary arg)
+  // degrades to null rather than throwing.
+  const boundPrimary = (typeof a.boundPrimary === 'string' && a.boundPrimary.length > 0)
+    ? a.boundPrimary
+    : null;
   if (!best || typeof best.name !== 'string') return false;
 
   // Compose the shipped F.8 renderer (lazy require; a load fault degrades to the
@@ -2850,11 +2877,20 @@ function emitBindingGate(args) {
   labelToSlug[NO_ROOM_LABEL] = NO_ROOM_SLUG;
   options.push({ label: NO_ROOM_LABEL, confidence: (preCheckLabel === NO_ROOM_LABEL) ? 0.71 : 0.10 });
 
+  // 260917-dia (Task B): when this session already has a bound primary, the
+  // fire is an OFF-SCOPE mismatch, not an unbound session -- name both rooms in
+  // the header instead of the generic bind-session header. tests/test-209-
+  // primary-sidechannel.cjs:668 pins the unbound-case header literal, so that
+  // branch stays BYTE-IDENTICAL.
+  const gateHeader = boundPrimary
+    ? '-- mindrianOS -- bound to ' + boundPrimary + ' -- also matches ' + best.name + ' -- switch or stay? --'
+    : '-- mindrianOS -- bind session -- select rooms --';
+
   let rendered = null;
   try {
     rendered = renderer.renderShapeF8({
       options: options,
-      header: '-- mindrianOS -- bind session -- select rooms --',
+      header: gateHeader,
     });
   } catch (_e) {
     return false;
@@ -2927,7 +2963,12 @@ function emitBindingGate(args) {
   const additionalContext = bodyLines.join('\n') + '\n\n' + guidance
     + (trailerLines.length > 0 ? '\n\n' + trailerLines.join('\n') : '');
 
-  const systemMessage = 'session unbound: choose which room(s) this session writes to';
+  // 260917-dia (Task B): when this session already has a bound primary, the
+  // fire is an OFF-SCOPE mismatch -- say so and name it. When null (genuinely
+  // unbound), keep TODAY'S string byte-identically.
+  const systemMessage = boundPrimary
+    ? 'this session is bound to ' + boundPrimary + '; this message also matches ' + best.name + ' - switch or stay?'
+    : 'session unbound: choose which room(s) this session writes to';
 
   // Persist the offered gate payload on the decision trace so the next turn's consumer
   // can capture the answer (the SAME sink f1_closer_payload rides -- no new file family).
@@ -2958,6 +2999,16 @@ function emitBindingGate(args) {
     // Last-resort fallback: raw text (never throws back into the hook).
     try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
   }
+  // T-dia-02: stamp the dedicated, never-rotated per-(session, off-scope room)
+  // marker so bindingGateAlreadyOffered's suppression survives arbitrarily many
+  // further trace-writing turns in this session (mirrors markZeroScoreGateOffered
+  // / emitNoMatchGate above). Guarded in its own try/catch: fire-and-forget,
+  // never blocks or crashes the gate.
+  try {
+    if (roomDir && sessionId) {
+      markBindingGateOffered(roomDir, sessionId, best.name);
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
   return true;
 }
 
@@ -3007,6 +3058,64 @@ function markZeroScoreGateOffered(roomDir, sessionId) {
     const rnd = Math.random().toString(36).slice(2, 10);
     const tmpPath = markerPath + '.tmp.' + process.pid + '.' + rnd;
     fs.writeFileSync(tmpPath, JSON.stringify({ offered: true, ts: new Date().toISOString() }, null, 2));
+    try {
+      fs.renameSync(tmpPath, markerPath);
+    } catch (_e) {
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
+}
+
+// 260917-dia (Task B, T-dia-01/T-dia-02): the F.8 OFF-SCOPE binding gate's own
+// PD-1 analog. Mirrors the zeroScoreGateMarkerPath / zeroScoreGateAlreadyOffered /
+// markZeroScoreGateOffered trio directly above in shape (dedicated, never-rotated
+// marker file; fail-open reads; fire-and-forget atomic writes), but with a
+// PARALLEL key so the two gates never share or clobber state: the filename
+// differs (.binding-gate-offered.json, not .zero-score-gate-offered.json) and the
+// marker holds a `rooms` ARRAY, because this gate's dedupe key is
+// (sessionId, off-scope room) -- a session bound to X that later mismatches a
+// DIFFERENT off-scope room Z must still see one prompt for Z, not inherit Y's
+// suppression. The sibling zero-score gate's dedupe key is the session alone (a
+// single `offered` boolean), which is correct there because that gate never
+// names a specific off-scope room (REQ-2: it never presents corpus[0]).
+function bindingGateMarkerPath(roomDir, sessionId) {
+  return path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.binding-gate-offered.json');
+}
+
+// Fail-open to false (T-dia-02): a missing / corrupt marker file NEVER
+// suppresses a genuinely due gate. Whole body in try/catch, mirroring the
+// never-block contract.
+function bindingGateAlreadyOffered(roomDir, sessionId, roomName) {
+  try {
+    if (!roomDir || !sessionId || typeof roomName !== 'string' || roomName.length === 0) return false;
+    const raw = fs.readFileSync(bindingGateMarkerPath(roomDir, sessionId), 'utf8');
+    const parsed = JSON.parse(raw);
+    const rooms = (parsed && Array.isArray(parsed.rooms)) ? parsed.rooms : [];
+    return rooms.indexOf(roomName) !== -1;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// Companion writer: appends roomName to the marker's rooms array (dedupe on
+// append, so a repeat mark for the same room is a no-op) via the same atomic
+// tmp + rename idiom persistDecisionTrace / writeSessionBinding / the zero-score
+// marker already use. Fire-and-forget: a write fault never blocks or crashes
+// the gate.
+function markBindingGateOffered(roomDir, sessionId, roomName) {
+  try {
+    if (!roomDir || !sessionId || typeof roomName !== 'string' || roomName.length === 0) return;
+    const markerPath = bindingGateMarkerPath(roomDir, sessionId);
+    let rooms = [];
+    try {
+      const parsed = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+      if (parsed && Array.isArray(parsed.rooms)) rooms = parsed.rooms;
+    } catch (_e) { /* missing or corrupt marker -> start fresh */ }
+    if (rooms.indexOf(roomName) === -1) rooms.push(roomName);
+    try { fs.mkdirSync(path.dirname(markerPath), { recursive: true }); } catch (_) {}
+    const rnd = Math.random().toString(36).slice(2, 10);
+    const tmpPath = markerPath + '.tmp.' + process.pid + '.' + rnd;
+    fs.writeFileSync(tmpPath, JSON.stringify({ rooms: rooms, ts: new Date().toISOString() }, null, 2));
     try {
       fs.renameSync(tmpPath, markerPath);
     } catch (_e) {
@@ -3359,6 +3468,11 @@ module.exports = {
   formatEngineDecisionBlock: formatEngineDecisionBlock,
   consumePriorF1Pick: consumePriorF1Pick,
   emitBindingGate: emitBindingGate,
+  // 260917-dia (Task B): the F.8 off-scope binding gate's per-(session, room)
+  // dedupe pair, exported next to emitBindingGate (same pattern as the
+  // zero-score gate's own marker helpers).
+  bindingGateAlreadyOffered: bindingGateAlreadyOffered,
+  markBindingGateOffered: markBindingGateOffered,
   consumePriorBindingAnswer: consumePriorBindingAnswer,
   // reach-gate-stale-turn-input: exported so the regression can assert the CURRENT
   // turn (STDIN_MESSAGE) is threaded into the LOCAL routing seed (never the Brain).
