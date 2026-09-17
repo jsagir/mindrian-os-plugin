@@ -170,6 +170,18 @@ run "RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offl
 run "CR-01 duplicate entity name reconciliation (highest-trust wins, offline)" \
   node tests/test-218-duplicate-entity-reconciliation.cjs
 
+# (f.4) RCA eureka-entity-extraction-boilerplate-candidates (2026-09-17): the
+#       scaffold-boilerplate entity-noise fix. Proves the five per-directory
+#       scaffold kinds (ROOM/STATE/MINTO/BRAIN/FEYNMAN) are excluded as
+#       extraction input (kind AND basename together, never kind alone --
+#       protects existing kind:'ROOM'-tagged non-scaffold-path fixtures) while
+#       staying valid DESCRIBES anchors, that the exclusion count reaches
+#       status.json as scaffold_files_skipped, and that every entity's
+#       source_path is now a real room-relative path instead of the prior
+#       self-referential 'entity:sid:name' handle. Offline/hermetic.
+run "RCA-260917 scaffold entity-noise exclusion (input-selection + source_path, offline)" \
+  node tests/test-eureka-scaffold-entity-noise.cjs
+
 # (g) 211 engine no-regression: Plan 02's openRoomDb D-05 edit is GLOBAL to every
 #     caller, so the 211 acceptance path must stay green. Guarded on the 211
 #     aggregator so a partial tree SKIPs cleanly.
