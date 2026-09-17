@@ -38,7 +38,7 @@ hook on a user's machine and never runs against a real room (D-353-4, R-353-G).
 
 ## The metric for criterion 6
 
-Criterion 6's metric is EXACT AGREEMENT: the fraction of graded `jev` items on which
+Criterion 6's metric is EXACT AGREEMENT (exact agreement): the fraction of graded `jev` items on which
 `scripts/eval-icm-writers.cjs`'s verdict equals the once-authored `evals/icm/claude-judge-baseline.json`
 verdict for that same item. Spearman rank correlation is explicitly NOT used here, because a
 checklist verdict is categorical (a pass/fail or an enum choice), not a ranked list, and Spearman
