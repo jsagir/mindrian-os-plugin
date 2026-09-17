@@ -1946,6 +1946,97 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 353 Plan 03 Task 5 (RULE-26, T-353-25): reads
+      // evals/icm/last-run.json IN-PROCESS -- one local JSON file, nothing
+      // else. NEVER calls Jev, NEVER calls Theo, NEVER spawns
+      // scripts/eval-icm-writers.cjs, NEVER reads a vendor key. Mirrors
+      // capability-ledger-fresh's shape above (a require + a bounded local
+      // read, a DOCTOR_TEST_FAIL_POINT arm, a DOCTOR_SKIP_<NAME>=1 escape).
+      //
+      // DEGRADE RULES (both required so the five doctor-acceptance-self-
+      // coverage fixtures stay green): a MISSING last-run.json returns
+      // ok:true with a named detail (the eval has never run on this
+      // machine); an `agreement` of null (the no-key run) ALSO returns
+      // ok:true with a named detail (criterion 6 was unmeasured this run).
+      // Neither degrade reports a number it does not have.
+      id: 'icm-ruling-eval-fresh',
+      label: 'ICM ruling eval freshness: evals/icm/last-run.json tracks the shipped plugin version and the 0.8 exact-agreement floor',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'icm-ruling-eval-fresh') {
+          return { ok: false, finding: 'icm-ruling-eval-fresh synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_ICM_EVAL === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_ICM_EVAL=1' } };
+        }
+        const lastRunPath = path.join(__dirname, '..', 'evals', 'icm', 'last-run.json');
+        if (!fs.existsSync(lastRunPath)) {
+          return {
+            ok: true,
+            finding: null,
+            detail: { status: 'not_run', reason: 'evals/icm/last-run.json is absent: the fixture-only writer eval has not been run on this machine' },
+          };
+        }
+        let lastRun;
+        try {
+          lastRun = JSON.parse(fs.readFileSync(lastRunPath, 'utf8'));
+        } catch (e) {
+          return { ok: false, finding: 'icm-ruling-eval-fresh: last-run.json failed to parse: ' + e.message, detail: {} };
+        }
+
+        let currentVersion = null;
+        try {
+          const rv = require(path.join(__dirname, '..', 'lib', 'core', 'repo-version.cjs'));
+          currentVersion = rv.readRepoVersion(__dirname).version;
+        } catch (_e) { currentVersion = null; }
+        const releasedVersion = (typeof lastRun.plugin_version === 'string') ? lastRun.plugin_version : null;
+
+        // "not more than one release behind": when both versions share the
+        // same X.Y.Z and both carry the shipped -beta.N suffix, compare the
+        // beta ordinal directly. Any other shape (a stable cut, or a
+        // mismatched X.Y.Z this point cannot compare like-for-like) is
+        // treated as fresh -- this point measures ICM-eval staleness, not
+        // the release process itself.
+        let freshEnough = true;
+        let versionDetail = 'plugin_version ' + releasedVersion + ' vs running ' + currentVersion;
+        if (releasedVersion && currentVersion) {
+          const betaRe = /^(.*)-beta\.(\d+)$/;
+          const rm = betaRe.exec(releasedVersion);
+          const cm = betaRe.exec(currentVersion);
+          if (rm && cm && rm[1] === cm[1]) {
+            const lag = Number(cm[2]) - Number(rm[2]);
+            freshEnough = lag <= 1;
+            versionDetail = 'beta lag ' + lag + ' (' + releasedVersion + ' -> ' + currentVersion + ')';
+          }
+        }
+        if (!freshEnough) {
+          return {
+            ok: false,
+            finding: 'icm-ruling-eval-fresh: last-run.json plugin_version has fallen more than one release behind (' + versionDetail + ')',
+            detail: { plugin_version: releasedVersion, running_version: currentVersion },
+          };
+        }
+
+        const agreement = lastRun.agreement;
+        if (agreement === null || agreement === undefined) {
+          return {
+            ok: true,
+            finding: null,
+            detail: { status: 'unmeasured', reason: 'criterion 6 agreement was unmeasured on this run (no vendor key resolved)', plugin_version: releasedVersion },
+          };
+        }
+        if (typeof agreement !== 'number' || agreement < 0.8) {
+          return {
+            ok: false,
+            finding: 'icm-ruling-eval-fresh: agreement ' + agreement + ' is below the 0.8 floor',
+            detail: { agreement: agreement },
+          };
+        }
+        return { ok: true, finding: null, detail: { status: 'fresh', agreement: agreement, plugin_version: releasedVersion } };
+      },
+    },
   ];
 }
 
