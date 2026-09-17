@@ -6804,6 +6804,13 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 353 added (2026-09-17, `/gsd-phase`): "ICM Section Ruling System" - every section of every
+  room (main or sub-room) gets a generated, Theo-rooted, JTBD-anchored ruling document (Layer 2
+  CONTEXT.md: job, methodology sequence, writing rules, gates, checks); every folder gets a
+  self-location block from one .mindrian/room-map.json; Jev scores the shipped relevance ledger
+  at release and grades writers on fixture rooms only. Spec docs/superpowers/specs/
+  2026-09-17-icm-section-ruling-system-design.md (ed2a06ba9); rulings locked in 353-CONTEXT.md;
+  three plans (room map, ruling system + ledger, fixture grading). Depends on 275, 345, 352.
 - Phase 352 added (2026-09-16, `/gsd-phase`): "The self-healing install" - every install and
   update runs `doctor --all --fix` by itself once on the first run of a new version, the doctor
   renders truthfully (no `undefined`, every row, JSON summary), and the UI contract is met

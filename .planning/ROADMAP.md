@@ -902,6 +902,21 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 352 to break down)
 
+### Phase 353: ICM Section Ruling System: self-locating room map, JTBD-rooted section ruling documents, Theo-scored relevance ledger, Jev fixture grading
+
+**Goal:** Every section of every room, main or sub-room, gets a ruling system: a generated Layer 2 document (its CONTEXT.md) that states the job the section exists to do (its JTBD), the Theo-rooted methodology sequence that serves that job, the writing rules for what may be filed there, the human gates that make a claim true, and the checks that fail when any of that is violated. Underneath it, every folder, root included, gets a generated self-location block from a single .mindrian/room-map.json so a cold reader answers "which room, what part, what is under me" from the folder itself. Jev enters twice and only over structure: it scores the shipped section relevance ledger once per release and grades the writers on fixture rooms. No vendor call at room birth or in the turn path; no room content ever reaches Jev. Approved design: docs/superpowers/specs/2026-09-17-icm-section-ruling-system-design.md (ed2a06ba9). Navigator rulings and the D/WD/OQ ledger: 353-CONTEXT.md. Navigator framing (2026-09-17): "each ICM section has a system of ruling, and writing, that is rooted in Theo and in the JTBD of that section."
+**Requirements**: ICM-353-01 room map + icm_self blocks + doctor room-map + sub-room side effect six; ICM-353-02 section JTBD canon (16-job vocabulary) + shipped data/section-command-ledger.json built by scripts/build-section-command-ledger.cjs (Theo pull, Jev score, dev-time key) + generated six-part ruling CONTEXT.md + filing gate serves_jtbd with anchor edge to jtbd:<job_id> + doctor section-ruling + decide() eligibility filter under the 1200 ms budget; ICM-353-03 fixture rooms + per-writer checklists + scripts/eval-icm-writers.cjs + De Stijl report + dev acceptance wiring. Phase-local working IDs; registered in .planning/REQUIREMENTS.md at plan time.
+**Success criteria:** doctor room-map and section-ruling green on all 31 fleet rooms after --fix (0 directories without ROOM.md, 7 today; 0 drift); per-turn self-location plus ruling read under 400 tokens; 100 percent of new claims on fixture rooms carry an anchor edge (fleet today 12 of 7,836); reach top-3 hit rate on a labeled fixture turn set at least equal to today's sensor order, both numbers reported; ledger build cost and wall time recorded per release; grader agreement with the Claude-judge baseline at least 0.8.
+**Canon parts:** 7, 8, 9, 11.
+**Depends on:** Phase 275 (section CONTEXT.md contracts, writeSectionContracts), Phase 345 (gate decision nodes + SOURCED_FROM provenance), Phase 352 (doctor auto_heal classification), SEED-001 sub-room ACID block, Spike 002 (Theo puller + Jev rubric). Theo-side Section-node emission is a registered dependency this phase does not wait on.
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 353-01: Room Map (self-location): lib/core/room-map.cjs, icm_self blocks, root ROOM.md creation, sub-room side effect six, doctor room-map, fixture rooms, fleet report
+- [ ] 353-02: Section Ruling System: section JTBD canon, ledger build script + shipped ledger, ruling document generator, filing gate + anchor edges, doctor section-ruling, decide() filter
+- [ ] 353-03: Fixture grading: per-writer checklists, scripts/eval-icm-writers.cjs, De Stijl report, dev acceptance wiring
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
