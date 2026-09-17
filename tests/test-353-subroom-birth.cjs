@@ -37,6 +37,9 @@ try { require('node:sqlite'); } catch (_e) {
 
 const { birthRoom } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'room-birth.cjs'));
 const roomMap = require(path.join(REPO_ROOT, 'lib', 'core', 'room-map.cjs'));
+const sectionRegistry = require(path.join(REPO_ROOT, 'lib', 'core', 'section-registry.cjs'));
+const roomDbMod = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+const matter = require('gray-matter');
 
 let checks = 0;
 let passed = 0;
@@ -185,6 +188,171 @@ try {
   check('an out-of-range fault key (s7) is never applied to any side effect',
     !rC || !rC.side_effects || rC.side_effects.s6 !== undefined || rC.ok === false,
     JSON.stringify(rC));
+
+  // ===== Section D: job declared at birth (Task 6, D-353-5) =====
+  process.stdout.write('\nSection D: job declared at birth\n');
+  const declaredJob = sectionRegistry.JOB_VOCABULARY[0];
+  const parentD = birthParent('353-parent-d');
+  check('parent-d born', parentD.result && parentD.result.ok === true);
+  const childSlugD = '353-child-d';
+  const childDirD = path.join(parentD.dir, 'sub-rooms', childSlugD);
+  const rD = birthRoom({
+    slug: childSlugD,
+    roomDir: childDirD,
+    approvedBy: 'test-user',
+    parent: '353-parent-d',
+    parentRoomDir: parentD.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    jobGate: { job_id: declaredJob },
+    vname: childSlugD,
+  });
+  check('job declared at birth: birth succeeds', rD && rD.ok === true, JSON.stringify(rD));
+  const childRoomMdD = fs.readFileSync(path.join(childDirD, 'ROOM.md'), 'utf8');
+  const parsedD = matter(childRoomMdD);
+  check('declared job_id on disk before side effect six',
+    parsedD.data.job_id === declaredJob && parsedD.data.job_source === 'declared',
+    JSON.stringify(parsedD.data.job_id) + ' / ' + JSON.stringify(parsedD.data.job_source));
+  const childMapD = JSON.parse(fs.readFileSync(path.join(childDirD, '.mindrian', 'room-map.json'), 'utf8'));
+  const childRootNodeD = childMapD.nodes.find((n) => n.path === '.');
+  check('child map root node carries the declared job_id on its FIRST build (no second pass)',
+    childRootNodeD && childRootNodeD.job_id === declaredJob, JSON.stringify(childRootNodeD));
+
+  let dbD = null;
+  try {
+    dbD = roomDbMod.openRoomDb(childDirD);
+    const eventRow = dbD.prepare(
+      "SELECT id FROM nodes WHERE type='memory_event' AND json_extract(properties,'$.event_type')='birth_gate_answered' AND json_extract(properties,'$.gate_id')='SUBROOM_JOB'"
+    ).get();
+    check('SUBROOM_JOB filed through drainBirthGateAnswers: one birth_gate_answered event', !!eventRow);
+    const edgeRow = dbD.prepare(
+      "SELECT source FROM edges WHERE type='FILED_AS_DECISION' AND target=?"
+    ).get('birth_gate:SUBROOM_JOB:' + declaredJob);
+    check('one FILED_AS_DECISION edge into birth_gate:SUBROOM_JOB:<declared job>', !!edgeRow);
+  } finally {
+    if (dbD) { try { dbD.close(); } catch (_e) {} }
+  }
+
+  // ===== Section E: undeclared birth (no jobGate) leaves job_id absent =====
+  process.stdout.write('\nSection E: undeclared birth leaves job_id absent\n');
+  const parentE = birthParent('353-parent-e');
+  check('parent-e born', parentE.result && parentE.result.ok === true);
+  const childSlugE = '353-child-e';
+  const childDirE = path.join(parentE.dir, 'sub-rooms', childSlugE);
+  const rE = birthRoom({
+    slug: childSlugE,
+    roomDir: childDirE,
+    approvedBy: 'test-user',
+    parent: '353-parent-e',
+    parentRoomDir: parentE.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    // no jobGate at all
+    vname: childSlugE,
+  });
+  check('undeclared birth still returns ok:true', rE && rE.ok === true, JSON.stringify(rE));
+  const parsedE = matter(fs.readFileSync(path.join(childDirE, 'ROOM.md'), 'utf8'));
+  check('undeclared birth leaves job_id absent',
+    parsedE.data.job_id === undefined && parsedE.data.job_source === undefined,
+    JSON.stringify({ job_id: parsedE.data.job_id, job_source: parsedE.data.job_source }));
+  const childMapE = JSON.parse(fs.readFileSync(path.join(childDirE, '.mindrian', 'room-map.json'), 'utf8'));
+  const childRootNodeE = childMapE.nodes.find((n) => n.path === '.');
+  check('child map root node carries job_id:null when undeclared',
+    childRootNodeE && childRootNodeE.job_id === null, JSON.stringify(childRootNodeE));
+
+  // ===== Section F: out-of-vocabulary / custom answers reject before write =====
+  process.stdout.write('\nSection F: out-of-vocabulary answer rejected before write\n');
+  const parentF = birthParent('353-parent-f');
+  check('parent-f born', parentF.result && parentF.result.ok === true);
+  const childSlugF = '353-child-f';
+  const childDirF = path.join(parentF.dir, 'sub-rooms', childSlugF);
+  const rF = birthRoom({
+    slug: childSlugF,
+    roomDir: childDirF,
+    approvedBy: 'test-user',
+    parent: '353-parent-f',
+    parentRoomDir: parentF.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    jobGate: { job_id: 'totally-not-a-real-job' },
+    vname: childSlugF,
+  });
+  check('out-of-vocabulary answer rejected before write: birth still succeeds', rF && rF.ok === true);
+  const parsedF = matter(fs.readFileSync(path.join(childDirF, 'ROOM.md'), 'utf8'));
+  check('out-of-vocabulary answer rejected before write: no job_id written',
+    parsedF.data.job_id === undefined, JSON.stringify(parsedF.data.job_id));
+
+  const childSlugF2 = '353-child-f2';
+  const childDirF2 = path.join(parentF.dir, 'sub-rooms', childSlugF2);
+  const rF2 = birthRoom({
+    slug: childSlugF2,
+    roomDir: childDirF2,
+    approvedBy: 'test-user',
+    parent: '353-parent-f',
+    parentRoomDir: parentF.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    jobGate: { job_id: 'custom' },
+    vname: childSlugF2,
+  });
+  check('the literal custom answer also leaves job_id absent', rF2 && rF2.ok === true);
+  const parsedF2 = matter(fs.readFileSync(path.join(childDirF2, 'ROOM.md'), 'utf8'));
+  check('custom leaves job_id absent', parsedF2.data.job_id === undefined, JSON.stringify(parsedF2.data.job_id));
+
+  const childSlugF3 = '353-child-f3';
+  const childDirF3 = path.join(parentF.dir, 'sub-rooms', childSlugF3);
+  const rF3 = birthRoom({
+    slug: childSlugF3,
+    roomDir: childDirF3,
+    approvedBy: 'test-user',
+    parent: '353-parent-f',
+    parentRoomDir: parentF.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    jobGate: function jobGateThrows() { throw new Error('forced gate failure'); },
+    vname: childSlugF3,
+  });
+  check('a throwing jobGate also leaves job_id absent, birth still succeeds', rF3 && rF3.ok === true);
+  const parsedF3 = matter(fs.readFileSync(path.join(childDirF3, 'ROOM.md'), 'utf8'));
+  check('a throwing jobGate leaves job_id absent', parsedF3.data.job_id === undefined, JSON.stringify(parsedF3.data.job_id));
+
+  // s6 fault on a DECLARED birth unwinds exactly as Section B proved.
+  const childSlugF4 = '353-child-f4';
+  const childDirF4 = path.join(parentF.dir, 'sub-rooms', childSlugF4);
+  const rF4 = birthRoom({
+    slug: childSlugF4,
+    roomDir: childDirF4,
+    approvedBy: 'test-user',
+    parent: '353-parent-f',
+    parentRoomDir: parentF.dir,
+    bornWired: true,
+    birthGate: { approved: true },
+    jobGate: { job_id: declaredJob },
+    _faultInject: 's6',
+    vname: childSlugF4,
+  });
+  check('s6 fault on a DECLARED birth unwinds: reports born_wired_incomplete',
+    rF4 && rF4.ok === false && rF4.reason === 'born_wired_incomplete', JSON.stringify(rF4));
+  check('s6 fault on a DECLARED birth unwinds: no partial child left behind, declared job_id or not',
+    !fs.existsSync(childDirF4));
+
+  // ===== Section G: a top-level (non-born-wired) birth is byte-unchanged =====
+  process.stdout.write('\nSection G: top-level birth is byte-unchanged\n');
+  const topLevel = birthParent('353-top-level-g');
+  check('top-level birth succeeds', topLevel.result && topLevel.result.ok === true);
+  const parsedTop = matter(fs.readFileSync(path.join(topLevel.dir, 'ROOM.md'), 'utf8'));
+  check('a top-level birth never fires the job card: no job_id key appears',
+    parsedTop.data.job_id === undefined, JSON.stringify(parsedTop.data.job_id));
+  let dbTop = null;
+  try {
+    dbTop = roomDbMod.openRoomDb(topLevel.dir);
+    const subroomJobRow = dbTop.prepare(
+      "SELECT id FROM nodes WHERE type='memory_event' AND json_extract(properties,'$.gate_id')='SUBROOM_JOB'"
+    ).get();
+    check('a top-level birth drains no SUBROOM_JOB answer', !subroomJobRow);
+  } finally {
+    if (dbTop) { try { dbTop.close(); } catch (_e) {} }
+  }
 } finally {
   if (origHome !== undefined) process.env.MINDRIAN_ROOMS_HOME = origHome;
   else delete process.env.MINDRIAN_ROOMS_HOME;
