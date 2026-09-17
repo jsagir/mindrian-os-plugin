@@ -1,0 +1,174 @@
+{
+  "started": "2026-09-17T06:06:18.982Z",
+  "cases": {
+    "A_mixed": {
+      "status": 200,
+      "ms": 893,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 105
+      },
+      "model": "jev-1.13.0",
+      "answers": {
+        "first_move": {
+          "type": "choice",
+          "choice": "jobs-to-be-done",
+          "confidence": 0.81,
+          "probabilities": {
+            "red-teaming": 0.01,
+            "lean-canvas": 0,
+            "no-match": 0.13,
+            "scenario-planning": 0.01,
+            "jobs-to-be-done": 0.85
+          }
+        },
+        "is_well_defined": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "fit_red_teaming": {
+          "type": "score",
+          "score": 0.11,
+          "confidence": 0.83,
+          "legend": {
+            "0": "poor fit: premature, nothing to stress-test yet",
+            "1": "partial fit: useful later",
+            "2": "strong fit: the right first move"
+          },
+          "probabilities": {
+            "0": 0.91,
+            "1": 0.07,
+            "2": 0.02
+          }
+        }
+      }
+    },
+    "B_repeat": {
+      "choices": [
+        "jobs-to-be-done",
+        "jobs-to-be-done",
+        "jobs-to-be-done"
+      ],
+      "max_abs_prob_drift": 0.010000000000000009,
+      "ms": [
+        731,
+        305,
+        290
+      ],
+      "statuses": [
+        200,
+        200,
+        200
+      ]
+    },
+    "C_bad_key": {
+      "status": 401,
+      "ms": 266,
+      "body": "{\"detail\":{\"error_type\":\"authentication_error\",\"message\":\"Cannot authenticate with the server. Please check your API key and try again.\"}}"
+    },
+    "D_invalid": {
+      "status": 400,
+      "ms": 233,
+      "body": "{\"detail\":\"Choice question must have at least one choice: broken\"}"
+    },
+    "E_no_fit": {
+      "status": 200,
+      "ms": 268,
+      "answer": {
+        "type": "choice",
+        "choice": "no-match",
+        "confidence": 0.93,
+        "probabilities": {
+          "no-match": 0.95,
+          "lean-canvas": 0,
+          "jobs-to-be-done": 0,
+          "red-teaming": 0.05,
+          "scenario-planning": 0
+        }
+      }
+    }
+  },
+  "finished": "2026-09-17T06:06:21.971Z",
+  "events": [
+    {
+      "ts": "2026-09-17T06:06:19.876Z",
+      "cat": "response",
+      "label": "A_mixed",
+      "status": 200,
+      "ms": 893,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 105
+      },
+      "model": "jev-1.13.0"
+    },
+    {
+      "ts": "2026-09-17T06:06:20.607Z",
+      "cat": "response",
+      "label": "B_rep0",
+      "status": 200,
+      "ms": 731,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 105
+      },
+      "model": "jev-1.13.0"
+    },
+    {
+      "ts": "2026-09-17T06:06:20.912Z",
+      "cat": "response",
+      "label": "B_rep1",
+      "status": 200,
+      "ms": 305,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 105
+      },
+      "model": "jev-1.13.0"
+    },
+    {
+      "ts": "2026-09-17T06:06:21.202Z",
+      "cat": "response",
+      "label": "B_rep2",
+      "status": 200,
+      "ms": 290,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 105
+      },
+      "model": "jev-1.13.0"
+    },
+    {
+      "ts": "2026-09-17T06:06:21.468Z",
+      "cat": "response",
+      "label": "C_bad_key",
+      "status": 401,
+      "ms": 266
+    },
+    {
+      "ts": "2026-09-17T06:06:21.702Z",
+      "cat": "response",
+      "label": "D_invalid",
+      "status": 400,
+      "ms": 233
+    },
+    {
+      "ts": "2026-09-17T06:06:21.970Z",
+      "cat": "response",
+      "label": "E_no_fit",
+      "status": 200,
+      "ms": 268,
+      "usage": {
+        "input_tokens": 417,
+        "output_tokens": 66
+      },
+      "model": "jev-1.13.0"
+    }
+  ],
+  "summary": {
+    "calls": 7,
+    "min_ms": 233,
+    "median_ms": 290,
+    "max_ms": 893
+  }
+}
