@@ -41,12 +41,40 @@
 # baked into this same fresh baseline (both blocks are ordinary hash-matched entries now;
 # no code-level normalization is needed since this whole fixture is current-state, not
 # pre-310 pinned).
+#
+# Quick task 260917-o1y REBASELINE (2026-09-17): this task's OWN authorized region is the
+# "# --- Step 9.7: ..." body (the npm-propagation-poll extraction, R1-R3 of the Step 9.7
+# fix). While reproducing the "confirm EXACTLY ONE line differs" check this task's own
+# context prescribed, the current release.sh was found to already carry THREE further,
+# unrelated regions of drift against this fixture's 2026-09-10 Phase 341 rebaseline, none
+# caused by this task and none touched by it: the top-of-file PREAMBLE hash (lines 1-79), the "# --- Step 0:
+# ..." block, and the "# --- Step 1: ..." block all changed, and two new blocks
+# ("# --- Step 0.6: ..." and "# --- Step 5.6: ...") were never added to this fixture. Both
+# are already-merged, pre-existing history: Step 0.6 (the Theo command-registry stamp gate)
+# landed in commit 886e9854d (Phase 343 Plan 07, WD-13); Step 5.6 (the Theo notify gate)
+# landed in commit 2dde2ecc1 (Phase 349 Plan 04, NOTIFY-02) -- both after the 2026-09-10
+# rebaseline and neither one rebaselined this fixture at the time. Leaving that drift
+# unaddressed would leave leg 2 and leg 3 permanently red regardless of this task's own
+# change, so this task's fixture edit (already an authorized file for this task) absorbs
+# all four pre-existing regions into a fresh wholesale regeneration using the exact
+# generating command above, the same mechanism and precedent the Phase 341 REBASELINE note
+# above already established -- alongside this task's own Step 9.7 line. The gate-count
+# baseline below is left untouched at its existing value (a floor check, still valid: the
+# current non-comment `exit 1` count is 54, above the pinned 49 baseline).
+#
+# NOTE on the two literal marker labels used as data-line keys below (the top-of-file
+# PREAMBLE hash label and the gate-count baseline label): leg 2 and leg 4 of
+# tests/run-all-310.sh find their data line with a plain `grep` on the exact label text, so
+# this comment block deliberately never spells either label verbatim -- doing so would give
+# grep a second matching line and corrupt both legs' `awk '{print $1}'` read, exactly the
+# failure this note exists to prevent recurring.
 
-16c188a4da7649e33b7f7787db343f436c4d690fbb1912b31c812199b26f0946  PREAMBLE(1-79)
+92da4abfaa63fdabcafc4b4e2055c940b797d208095e8202bc5e0c90ce17e389  PREAMBLE(1-79)
 49  EXIT1_NONCOMMENT_COUNT
-dcce124483c6419295cb13ae5d56718a3a37a28fe4687d2d9bd5b5caa7838a51  # --- Step 0: Parse bump type + flags ---
+1c4a36c56801a6e653b95fa1fad408e324ff0b1080a46c45343796f039a4b0f8  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
-38459c14075ddbc148682221d28e4ef03a96e8d71417a3a41954e034e1fdbff4  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
+77fd77595fba5ff1fbb071331cdb8c22c7803296bcf7b58a0cc7eb1a098a90f2  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 a72814f62aadde917d4206a9a6cd10837fe29b185ea50d0c724494c1516d1a8a  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
@@ -64,11 +92,12 @@ d249466f5de96ee2c0658e82d32465cbaa699e0d81edf5b715a40195a2327b5c  # --- Step 7: 
 8ca05b5251db5f818c87af1f42af16e32ff08a42337e528fff75d7b35a260cd2  # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 20370c7537cc97536740af536aee61007557cac94883a1bba4087e0461e50f12  # --- Step 9.6a: Sync install minisite to NEW_VERSION (HARD lockstep, vercel-CLI deploy) ---
 17ec90feebcd1dd9aee35588898e00a46c52d34c09228f51969264704a802697  # --- Step 9.6b: Sync Mindrian website FALLBACK_VERSION to NEW_VERSION ---
-27d1a9732c53f856857498f7c79930550bb5a09f948cba077dd19f940fc0467a  # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
+084b326171a9014ff86e73999bb8d4a878c6cc742d76828c90291bec6225d126  # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
 e8cf01a8843222d55618df9d132bd9c4f4ca9b82522a8bc3a79055eb8fc33530  # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
 d8ebd65d1682a2653b13b4e403cc693c3be0f563002fd4f27a30fd4ecbc59e44  # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---
 a6be87ffa237c13d06dee29a95f119b0d12e1a0e97b67c82a403afe4f9209376  # --- Step 9: Push both ---
 bd5ce06ecf71b31a29c94414cad83c56683d5a043a5c59190cf5be360704ac41  # --- Step 5.5 (tag-push verification): runs AFTER Step 9 push. ---
+ca7f8c12b5c3d907be81ea79fd5fe25f6eb38f63e9d09ba2455285ee8a411b0f  # --- Step 5.6: Notify Theo of the new version (repository_dispatch) ---
 cfdacfc8f16ca724187da17ceb865b3e55b6b75985669b26656377efa7b957d1  # --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
 ed8f1ecb5d8064ea90719a8784429fe5336d3676e1a03ac3668738df0988bda5  # --- Step 10: Update local cache ---
 e031d5a5bc7695fdc1673a6f417a5752120f037107d7b340da6e84d9bcc77891  # --- Step 11: Post-release verification ---

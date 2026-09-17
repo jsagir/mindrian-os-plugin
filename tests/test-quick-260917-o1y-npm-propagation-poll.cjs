@@ -209,6 +209,89 @@ run('Case 5 (non-numeric retries -> rc=1, 0 npm calls, arithmetic guard proven u
   } finally { fs.rmSync(stubDir, { recursive: true, force: true }); }
 });
 
+// --------------------- Case 6: release.sh wiring (Task 2) -----------------
+//
+// Reads scripts/release.sh directly (no bash driver -- these are static
+// wiring assertions) and proves the Step 9.7 call site was actually
+// rewired, not just that the library works in isolation.
+
+const RELEASE_SH = path.join(REPO_ROOT, 'scripts', 'release.sh');
+
+function readReleaseSh() {
+  return fs.readFileSync(RELEASE_SH, 'utf8');
+}
+
+// Splits on `^# --- Step` headers (multiline mode) and returns the text of
+// the Step 9.7 block, header through the line before the next header.
+function extractStep97Block(src) {
+  const lines = src.split('\n');
+  let start = -1;
+  let end = lines.length;
+  for (let i = 0; i < lines.length; i++) {
+    if (start === -1 && /^# --- Step 9\.7/.test(lines[i])) {
+      start = i;
+      continue;
+    }
+    if (start !== -1 && i > start && /^# --- Step/.test(lines[i])) {
+      end = i;
+      break;
+    }
+  }
+  if (start === -1) throw new Error('Step 9.7 header not found in scripts/release.sh');
+  return lines.slice(start, end).join('\n');
+}
+
+run('Case 6a (release.sh sources npm-propagation-poll.sh behind a missing-file guard)', function () {
+  const src = readReleaseSh();
+  const guardRe = /if \[ ! -f "\$RELEASE_LIB_DIR\/npm-propagation-poll\.sh" \]; then[\s\S]*?exit 1[\s\S]*?fi\n\. "\$RELEASE_LIB_DIR\/npm-propagation-poll\.sh"/;
+  if (!guardRe.test(src)) throw new Error('expected a missing-file guard + dot-source for npm-propagation-poll.sh, matching the shape of the other release-lib guards');
+});
+
+run('Case 6b (the source line sits BEFORE the first "# --- Step" header)', function () {
+  const src = readReleaseSh();
+  const sourceIdx = src.indexOf('. "$RELEASE_LIB_DIR/npm-propagation-poll.sh"');
+  const firstStepIdx = src.indexOf('\n# --- Step');
+  if (sourceIdx === -1) throw new Error('source line not found');
+  if (firstStepIdx === -1) throw new Error('no "# --- Step" header found');
+  if (!(sourceIdx < firstStepIdx)) {
+    throw new Error('source line must precede the first Step header; sourceIdx=' + sourceIdx + ' firstStepIdx=' + firstStepIdx);
+  }
+});
+
+run('Case 6c (Step 9.7 block calls mos_wait_for_npm_propagation with the package + $NEW_VERSION)', function () {
+  const block = extractStep97Block(readReleaseSh());
+  if (block.indexOf('mos_wait_for_npm_propagation "@mindrian_os/cli" "$NEW_VERSION"') === -1) {
+    throw new Error('expected the call literal in the Step 9.7 block, got:\n' + block);
+  }
+});
+
+run('Case 6d (Step 9.7 block defaults NPX_PROP_RETRIES to 48)', function () {
+  const block = extractStep97Block(readReleaseSh());
+  if (block.indexOf('NPX_PROP_RETRIES:-48') === -1) throw new Error('expected NPX_PROP_RETRIES:-48 in the block, got:\n' + block);
+});
+
+run('Case 6e (Step 9.7 block defaults NPX_PROP_BACKOFF_S to 15)', function () {
+  const block = extractStep97Block(readReleaseSh());
+  if (block.indexOf('NPX_PROP_BACKOFF_S:-15') === -1) throw new Error('expected NPX_PROP_BACKOFF_S:-15 in the block, got:\n' + block);
+});
+
+run('Case 6f (Step 9.7 block no longer contains the old unguarded "npm view" literal)', function () {
+  const block = extractStep97Block(readReleaseSh());
+  if (block.indexOf('npm view') !== -1) throw new Error('the Step 9.7 block must no longer call npm view directly, got:\n' + block);
+});
+
+run('Case 6g (the dry-run preview literal "npx --yes @mindrian_os/cli@" survives)', function () {
+  const src = readReleaseSh();
+  if (src.indexOf('npx --yes @mindrian_os/cli@') === -1) {
+    throw new Error('expected the npx --yes @mindrian_os/cli@ literal to survive somewhere in release.sh');
+  }
+});
+
+run('Case 6h (at least one exit 1 gate remains inside the Step 9.7 block)', function () {
+  const block = extractStep97Block(readReleaseSh());
+  if (!/exit 1/.test(block)) throw new Error('expected at least one exit 1 gate inside the Step 9.7 block, got:\n' + block);
+});
+
 // ------------------------ Summary ----------------------------------------
 
 process.on('exit', function () {

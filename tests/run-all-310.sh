@@ -138,14 +138,20 @@ leg3_step_block_tripwire() {
     fi
   done
 
-  if [[ "${#cur_headers[@]}" -ne 28 ]]; then
-    echo "expected 28 step-block headers, found ${#cur_headers[@]}"
+  # Quick task 260917-o1y (2026-09-17): this count was 28 at the 2026-09-10 Phase 341
+  # rebaseline. Two step blocks landed since, on already-merged main, neither ever
+  # rebaselined here: Step 0.6 (commit 886e9854d, Phase 343 Plan 07) and Step 5.6 (commit
+  # 2dde2ecc1, Phase 349 Plan 04). This task's own fixture rebaseline absorbed both
+  # (tests/fixtures/310-release-step-block-hashes.txt), so the count check is raised to 30
+  # to match; the tripwire logic itself is unchanged.
+  if [[ "${#cur_headers[@]}" -ne 30 ]]; then
+    echo "expected 30 step-block headers, found ${#cur_headers[@]}"
     mismatch=1
   fi
 
   return "$mismatch"
 }
-run "310 leg 3: exhaustive step-block scope tripwire (28 blocks, uniform hash match against the Phase 341 rebaseline)" leg3_step_block_tripwire
+run "310 leg 3: exhaustive step-block scope tripwire (30 blocks, uniform hash match against the quick-260917-o1y rebaseline)" leg3_step_block_tripwire
 
 # --- Leg 4: gate-count tripwire ---------------------------------------------
 

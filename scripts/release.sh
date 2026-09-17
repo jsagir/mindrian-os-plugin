@@ -126,6 +126,16 @@ if [ ! -f "$RELEASE_LIB_DIR/theo-notify-gate.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/theo-notify-gate.sh"
 
+# Quick task 260917-o1y (2026-09-17): source the Step 9.7 propagation-poll
+# library here too, in the preamble -- a library missing at its Step 9.7
+# call site would fail AFTER npm publish has already happened, the worst
+# possible abort point (same reasoning as the two guards above).
+if [ ! -f "$RELEASE_LIB_DIR/npm-propagation-poll.sh" ]; then
+  echo -e "${RED}scripts/release-lib/npm-propagation-poll.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/npm-propagation-poll.sh"
+
 # --- Step 0: Parse bump type + flags ---
 BUMP_MODE=""
 ALLOW_AHEAD=0
@@ -1197,26 +1207,33 @@ else
 
   mkdir -p "$NPX_TEST_DIR"
 
-  # Registry-propagation wait (2026-05-31 flake fix): Step 9.5 publishes the
-  # tarball, but the npm registry CDN can lag a few seconds before `npx` can
-  # resolve the new version on a fresh metadata fetch. Running npx too soon
-  # resolved a stale/partial state and surfaced as a spurious self-test abort
-  # (`mindrian-os: not found`) on the v1.13.0-beta.36 cut. Poll `npm view
-  # <pkg>@<version> version` until the new version is resolvable before the
-  # self-test runs. Bounded; on timeout we proceed (the test still gates).
-  NPX_PROP_RETRIES="${NPX_PROP_RETRIES:-12}"
-  NPX_PROP_BACKOFF_S="${NPX_PROP_BACKOFF_S:-5}"
-  PROP_ATTEMPT=0
-  while [ "$PROP_ATTEMPT" -lt "$NPX_PROP_RETRIES" ]; do
-    PROP_SEEN="$(npm view "@mindrian_os/cli@$NEW_VERSION" version 2>/dev/null | tr -d '[:space:]')"
-    if [ "$PROP_SEEN" = "$NEW_VERSION" ]; then
-      echo "  -> registry propagated @mindrian_os/cli@$NEW_VERSION (attempt $((PROP_ATTEMPT+1)))"
-      break
-    fi
-    PROP_ATTEMPT=$((PROP_ATTEMPT+1))
-    echo "  ... waiting for npm registry to propagate @$NEW_VERSION; retry $PROP_ATTEMPT/$NPX_PROP_RETRIES in ${NPX_PROP_BACKOFF_S}s"
-    sleep "$NPX_PROP_BACKOFF_S"
-  done
+  # Registry-propagation wait (quick task 260917-o1y, 2026-09-17 fix): the
+  # old inline poll read the registry package document via a bare npm
+  # sub-command, piped and assigned in one line, directly under this
+  # script's own `set -euo pipefail` (line 86). An npm E404 (the registry
+  # still processing an asynchronous publish) made that pipeline exit 1;
+  # pipefail carried that status onto the assignment;
+  # errexit then killed the whole ceremony BEFORE the loop printed its first
+  # "waiting for npm registry" line. Proven on two 2026-09-17 cuts:
+  # v2.0.0-beta.43 (09:58:03 UTC, publish-to-visible about 10 minutes) and
+  # v2.0.0-beta.45 (14:09:24 UTC, about 8 minutes) both ended one line after
+  # `-> sandbox: ...` with zero waiting lines; the NPX_PROP_RETRIES /
+  # NPX_PROP_BACKOFF_S overrides set for beta.45 were inert because the loop
+  # never iterated once. Fix: the poll now lives in
+  # scripts/release-lib/npm-propagation-poll.sh's mos_wait_for_npm_propagation,
+  # whose version-read command substitution ends in `|| true` so an E404 is a
+  # miss, not an abort. Budget raised to 48 x 15s (720s, about 12 minutes) to
+  # cover both observed latencies; still overridable via NPX_PROP_RETRIES /
+  # NPX_PROP_BACKOFF_S. On timeout we proceed (the install self-test below
+  # still gates) -- this behavior is unchanged from before this fix.
+  NPX_PROP_RETRIES="${NPX_PROP_RETRIES:-48}"
+  NPX_PROP_BACKOFF_S="${NPX_PROP_BACKOFF_S:-15}"
+  PROP_RC=0
+  mos_wait_for_npm_propagation "@mindrian_os/cli" "$NEW_VERSION" "$NPX_PROP_RETRIES" "$NPX_PROP_BACKOFF_S" || PROP_RC=$?
+  PROP_SEEN="${MOS_NPM_PROP_SEEN:-}"
+  if [ "$PROP_RC" -ne 0 ] && [ "$PROP_RC" -ne 10 ]; then
+    echo -e "${YELLOW}  ! mos_wait_for_npm_propagation returned an unexpected code ($PROP_RC) -- a library-contract violation, not a registry timeout; proceeding, the install self-test below still gates${NC}"
+  fi
 
   # RCA fix (release-step-9.7-npx-self-test-false-alarm, recommendation A, 2026-06-02):
   # Do NOT assert cli.js's PATH-sensitive npx-by-name RUNTIME exit. The launcher
