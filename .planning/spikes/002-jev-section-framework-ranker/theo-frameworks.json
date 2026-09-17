@@ -1,0 +1,2872 @@
+[
+ {
+  "name": "10-10-10 Decision Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "12 Leverage Points",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "5 Whys Technique",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "8-Step Model for Building a Breakthrough",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "ABET Accreditation Outcomes",
+  "description": "Engineering design, communication, ethics, teamwork, experimentation, lifelong learning — outcome-based engineering education standards",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "AGO Aims/Goals/Objectives",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "AI-Powered Pattern Synthesis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "AIM Aims/Interests/Motives",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Abductive Reasoning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Ackoff Pyramid",
+  "description": "Ackoff DIKW hierarchy: Data -> Information -> Knowledge -> Wisdom. Used to assess what level of understanding a room or neighborhood has reached and what climb is needed next.",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Adaptive Leadership",
+  "description": "Mobilizing people to tackle tough challenges by distinguishing technical problems from adaptive ones (Heifetz & Linsky)",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Adaptive Role Assignment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Adoption-Capacity Theory",
+  "description": "Supply-side theory of how major military innovations (MMIs) diffuse. The interaction of the financial intensity (FI) and organizational capital (OC) required to adopt an innovation, against an actor capacity to absorb those demands, predicts both whether adoption is attempted and whether it succeeds.",
+  "stub": false,
+  "jtbd_anchor": "Will this innovation diffuse, who adopts first, and what is our adoption path?",
+  "definition": ""
+ },
+ {
+  "name": "Advanced Discovery and Early Framing",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Adversarial Research Protocol",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Agent Refinement path",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Agile Development",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Alberto Savoia The Right It",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Algorithmic Generation of Reverse Salient Solutions",
+  "description": "A framework for discovering innovation opportunities by finding unusual pairings between research papers using dual similarity measures",
+  "stub": false,
+  "jtbd_anchor": "suggest_next_move",
+  "definition": ""
+ },
+ {
+  "name": "Algorithmic-Audit",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Analogical Reasoning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Analogies as discovery tool",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Ansoff Matrix",
+  "description": "Igor Ansoff 1957: 2x2 of existing/new markets and existing/new products yielding market penetration, market development, product development, and diversification. Used to choose growth strategy.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Artefact-Activity Couple",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Ash Maurya Running Lean",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Assumption Challenging",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Authentic Leadership",
+  "description": "Leading from genuine values, self-awareness, and moral courage rather than positional authority",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Avoiding Bad Data",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "BERT-based Semantic Similarity",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "BONO-Innovation Framework",
+  "description": "A comprehensive innovation framework integrating Edward de Bono's Six Thinking Hats, Lateral Thinking, Parallel Thinking, CoRT Program, and modern problem classification systems",
+  "stub": false,
+  "jtbd_anchor": "suggest_next_move",
+  "definition": ""
+ },
+ {
+  "name": "Base-Rate-Check",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Beachhead Strategy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Beautiful Question Framework",
+  "description": "A systematic methodology for innovative thinking and problem-solving through questioning",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Beautiful Questions Bias Detection",
+  "description": "Comprehensive bias detection framework integrating Warren Berger Beautiful Questions methodology with 99 cognitive biases for HSI semantic analysis",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Beautiful-Questions technique",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Behavioral Economics",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Bias Pattern Matching",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Black Hat Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "Black Hat Thinking",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Blind-Review",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Blue Hat Thinking",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Bootstrap Philosophy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Bowling Alley Strategy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Breakthrough Recognition System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Brooks's Law",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Build-Measure-Learn Cycle",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Bulletproof Seven-Step Problem-Solving Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Business Communication Logic Assessment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Business Model Canvas",
+  "description": "A 9-block visual template for designing or analyzing a business model: Customer Segments, Value Propositions, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure.",
+  "stub": false,
+  "jtbd_anchor": "prepare_investor_brief",
+  "definition": ""
+ },
+ {
+  "name": "Business Model Generation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "CAF Consider All Factors",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "CIAs approach to challenging analytical assumptions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Can we Win / Competitive Advantage Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Causal Loop Diagramming",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Causal Loop Diagrams",
+  "description": "Visual tool for mapping feedback loops and circular causation in complex systems. Identifies reinforcing and balancing loops.",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Cause-Effect Clarity Assessment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Challenge Plot Stories",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Challenging Orthodoxies",
+  "description": "Surface the unquestioned assumptions (\"orthodoxies\") that frame a domain. Treat each as a falsifiable claim; map where they contradict observed data or each other.",
+  "stub": false,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": "The practice of questioning deeply entrenched beliefs, assumptions, and dominant designs within systems, industries, and organizations to uncover breakthrough innovation opportunities"
+ },
+ {
+  "name": "Challenging Orthodoxies Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Changing Terms of Competition",
+  "description": "Strategic framework for redefining competitive dynamics by shifting the basis of competition from traditional metrics to new value dimensions",
+  "stub": false,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": ""
+ },
+ {
+  "name": "Chaotic Domain Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Christian Brose The Kill Chain",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Clear Domain Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cognitive Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Collaborative Thinking",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Commander's Intent",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Commitment and Advancement",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Communication for Leaders",
+  "description": "Verbal presence, written clarity, visual storytelling, cross-audience adaptation — the leader's primary tool",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Competitive Advantage",
+  "description": "PWS methodology framework: Competitive Advantage",
+  "stub": true,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": ""
+ },
+ {
+  "name": "Competitive Landscape Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Complex Domain Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Complicated Domain Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Concept Extraction",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Conceptual Integrity Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Conflict Resolution Framework",
+  "description": "Five styles: competing, collaborating, compromising, avoiding, accommodating (Thomas-Kilmann)",
+  "stub": false,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "Confused Domain Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Connection Plot Stories",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Consider-The-Opposite",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Constraint Removal",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Contemporary Practice",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Contextual Inquiry",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Continuous Discovery",
+  "description": "Teresa Torres methodology: weekly customer interviews + opportunity solution trees; build the habit of constant evidence collection rather than one-off discovery sprints.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Controlled Chaos Introduction",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Core Technology Extension / Jobs-To-Be-Done",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Corporate Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Counterfactual Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Cognition",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Confidence",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Destruction",
+  "description": "How innovation destroys old industries while creating new ones",
+  "stub": false,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": "Process where innovation destroys old industries while creating new ones"
+ },
+ {
+  "name": "Creative Destruction and the Capitalist Engine",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Disruption Toolkit",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Ideation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creative Problem Solving",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Creativity Plot Stories",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Critical Systems Heuristics",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cross Industry Pattern Transfer",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cross-Cultural Logic Patterns",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cross-Disciplinary Thinking",
+  "description": "PWS methodology framework: Cross-Disciplinary Thinking",
+  "stub": true,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Cross-Domain Synthesis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cross-Scenario Pattern Recognition",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Customer Development",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Customer Funded Business",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cyclical Model of Technological Change",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Cynefin Framework",
+  "description": "Sense-making framework that classifies problems into Clear, Complicated, Complex, and Chaotic domains",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy",
+  "description": "A sequential thinking methodology for innovation discovery that integrates Cynefin framework domains with beautiful question pedagogy and semantic decomposition to move fluidly across domains and their dynamics",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "DCF Discounted Cash Flow",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Dailies",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Decision Trees",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Deductive Relationship",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Deep Complex Questions",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Defense Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Define the Focal Component (Level 1)",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Delphi Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Design Methods",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Design Thinking",
+  "description": "A human-centered approach to innovation that integrates the needs of people, the possibilities of technology, and the requirements for business success",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Design Thinking Process",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Devils Advocacy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Differential Similarity Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Diffusion Theory",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Diffusion of Innovations (Rogers)",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Dilemmas in a General Theory of Planning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Discovery-Driven Planning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Disruptive Innovation",
+  "description": "PWS methodology framework: Disruptive Innovation",
+  "stub": true,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": "An innovation that creates a new market and value network, eventually disrupting existing markets and displacing established market-leading firms, products, and alliances"
+ },
+ {
+  "name": "Disruptive Innovation Analysis Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Distributed Leadership",
+  "description": "Leadership as emergent property of a group — authority shared across team members based on expertise and context",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Diverge-Converge Model",
+  "description": "The two-beat innovation rhythm: diverge (generate options, expand the problem space) then converge (filter, decide, commit). Underlies design thinking, double diamond, ideation-to-execution.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Domain Classification Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Domain Selection",
+  "description": "A systematic methodology for choosing where to look before what to find. Domain selection is the foundation of innovation — it answers the fundamental question: Where should I look before I decide what to find? Uses three criteria: Interest, Knowledge, and Research Accessibility.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Domain and Trend Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Dominant Design",
+  "description": "Utterback-Abernathy (1975; Mastering the Dynamics of Innovation, 1994): the point where competing product architectures converge into one accepted standard configuration. Before it (era of ferment): many competing architectures, high product-innovation rate, firms compete on features. After it emerges: product innovation collapses, process innovation rises sharply, competition shifts to cost/efficiency/scale, entry barriers rise. The dominant design is rarely the technically best option -- it wins via network effects/installed base (QWERTY, VHS over Betamax), standards-body lock-in, control of complementary assets, or being first credible-enough solution. Diagnostic use: is this market still in ferment or has a design already won; what would make a design durable regardless of merit; is the team competing on the right axis (features pre-convergence vs cost/scale post-convergence is a common fatal misread).",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Dominant Design Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Dual-Use Technology",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "ECE",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "ESG Due Diligence Framework",
+  "description": "VentureESG 9-part assessment for venture-backed companies. Includes materiality assessment to focus resources on highest-impact ESG factors per business type.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "ESG Materiality Assessment",
+  "description": "Determines which ESG factors are material for a specific business type. A SaaS company focuses on data privacy and governance; a hardware company adds supply chain and materials.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Effectuation",
+  "description": "Saras Sarasvathy entrepreneurship theory: expert entrepreneurs use means-based logic (bird in hand, affordable loss, lemonade, crazy quilt, pilot in the plane) rather than goal-based prediction.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Emerging Technology Mapping",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Emotional Intelligence in Leadership",
+  "description": "Five components: self-awareness, self-regulation, motivation, empathy, social skills (Goleman)",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Engineering Ethics in Leadership",
+  "description": "Public health, safety, welfare considerations — ABET-aligned ethical reasoning in technical contexts",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Entrepreneurial Alertness Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Entrepreneurial Method",
+  "description": "The disciplined founder process: customer development + lean startup + effectuation woven into the act-learn-pivot loop. Distinguishes founder reasoning from corporate-strategy reasoning.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Entrepreneurial Opportunity Assessment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Era of Ferment Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Evolution as adaptation model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Feedback Loop Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Feedback loops",
+  "description": "PWS methodology framework: Feedback loops",
+  "stub": true,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Financial Due Diligence Framework",
+  "description": "Quality of Earnings (QoE) methodology — goes beyond GAAP compliance to assess sustainability and quality of reported earnings. Gold standard for buy-side and sell-side financial DD.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "First Who Then What",
+  "description": "Get right people on bus before deciding direction -- talent selection before strategy",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Fishbone Diagrams",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Five Conditions of Collective Impact",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Five Practices of Effective Executives",
+  "description": "Know time, focus on contribution, build on strengths, first things first, effective decisions",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Five W's Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Five-Step Implementation Process",
+  "description": "Systematic approach for organizations to adopt the Beautiful Question Framework",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Fogg Behavior Model",
+  "description": "A behavior occurs when motivation, ability, and a prompt converge at the same moment. Ability (friction) is usually the real lever, not motivation.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Forecast Combination Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Four Actions Framework / Blue Ocean Strategy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Four Lenses Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Four Lenses of Innovation",
+  "description": "A framework by Rowan Gibson for seeing innovation opportunities through four distinct perspectives: challenging orthodoxies, harnessing trends, leveraging resources, and understanding needs",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": "Rowan Gibson's framework for systematic opportunity discovery"
+ },
+ {
+  "name": "Four-Box Business Model Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Framework for Question and Answer Clarification",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "strengthen_minto",
+  "definition": ""
+ },
+ {
+  "name": "Futures Wheel",
+  "description": "Diverge-first foresight tool: maps first, second, and third-order consequences radiating out from a single change or trend.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "George Church Regenesis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Good Money vs Bad Money",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Graph-Based Logic Visualization",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Green Hat Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "Guerrilla Tactics",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Guided Mastery",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "gauge the trend's progression over different horizons",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "HEART Framework",
+  "description": "Ben Wiener pitch-narrative framework (Hook, Engage, Acknowledge, Reframe, Target). Used to structure investor decks and founder narratives before quantitative artifacts (Lean Canvas, BMC, Value Proposition).",
+  "stub": false,
+  "jtbd_anchor": "prepare_investor_brief",
+  "definition": ""
+ },
+ {
+  "name": "HSI Semantic Surprise Analysis Assistant",
+  "description": "Neo4j-powered discovery engine that transforms unstructured content into structured semantic surprise insights using Hybrid Similarity Index computational analysis with integrated research enhancement",
+  "stub": false,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": ""
+ },
+ {
+  "name": "Harnessing Trends Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Harnessing Trends Method / Four Lenses",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Hedgehog Concept",
+  "description": "Strategic focus at intersection of: best in world at, economic engine, deep passion",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Herbert Simon The Sciences of the Artificial",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Hierarchy Mapping",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "High-Performing Teams",
+  "description": "Clear purpose, complementary skills, mutual accountability, productive conflict, results-oriented",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Hooked Model",
+  "description": "A 4-stage habit-formation framework: Trigger → Action → Variable Reward → Investment. Used to design products that form user habits and create engagement loops.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Hot Groups",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Human-Centered Design",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Hypothesis-Driven Problem Solving",
+  "description": "Form a hypothesis and then test whether it is right or wrong about the initial hypothesis",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "higher education transformation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "I Like I Wish",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "IBIS Issue-Based Information System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "IDEO Deep Dive / Structured Brainstorming Techniques",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "IP Due Diligence Framework",
+  "description": "Systematic prior art search, patentability assessment, and freedom-to-operate analysis following USPTO/MPEP guidelines.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Idealized Design",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Inductive Relationship",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Culture",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Finance",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Management Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Metrics",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Portfolio Now/New/Next",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation Process",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Innovation of Meaning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Insight Psychology",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Interactive Planning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Invention Disclosure Strategic Framework",
+  "description": "A generic, operable disclosure instrument that captures an invention and simultaneously drives the four strategic decisions that determine whether -- and how broadly -- it can be protected. Every section is framed as a decision, not a data field. A disclosure form asks \"what is it?\"; this asks \"what decision does each answer drive, and what does a strong answer unlock?\"",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Is it Real / Problem Validation Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Is it Worth It / Value Assessment Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Issue Trees",
+  "description": "PWS methodology framework: Issue trees",
+  "stub": true,
+  "jtbd_anchor": "strengthen_minto",
+  "definition": ""
+ },
+ {
+  "name": "Jobs to Be Done (JTBD)",
+  "description": "A framework for understanding what progress people are trying to make in their lives, focusing on functional, emotional, and social dimensions rather than product features",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Jobs to Be Done / JTBD",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Jobs-to-be-Done Statements",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Jobs-to-be-Done for Business Models",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Judgmental Bias Control System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Klein's Five C's",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Klein's Triple Path Model",
+  "description": "Gary Klein's account of how insight arrives: an unexpected shift to a better story. Three paths, each altering the anchors that frame a situation. Connections add a new anchor (intersectional innovation, e.g. telephone plus computer). Contradictions replace an old anchor when an anomaly cannot be dismissed. Creative Desperation overturns a fixed assumption when stuck (the Mann Gulch fire, 1949).",
+  "stub": false,
+  "jtbd_anchor": "generate_insight",
+  "definition": ""
+ },
+ {
+  "name": "Knowns and Unknowns Matrix",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Knowns and Unknowns Matrix Framework",
+  "description": "A systematic knowledge categorization and uncertainty analysis framework that transforms blind spot discovery into a structured process. Uses a 2x2 matrix to categorize information based on awareness and knowledge dimensions, enabling systematic identification of known knowns, known unknowns, unknown knowns, and unknown unknowns.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Lateral Thinking",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Law of Diffusion of Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Lean Canvas",
+  "description": "One-page business model: 9 boxes covering problem, solution, channels, revenue, costs, metrics, advantages",
+  "stub": false,
+  "jtbd_anchor": "prepare_investor_brief",
+  "definition": ""
+ },
+ {
+  "name": "Lean Principles",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Lean Startup",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Lean Startup (Build-Measure-Learn)",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Legal Due Diligence Framework",
+  "description": "Risk-tiered legal review methodology covering corporate, IP, contracts, litigation, and regulatory compliance. Based on Debevoise & Plimpton best practices.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Level 5 Leadership",
+  "description": "Five-level hierarchy: personal humility + professional will at the apex. Ambition for organization, not self.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Leveraging Resources Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Life Cycle Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Logic Assessment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+  "description": "A principle for organizing information with no overlaps and no gaps",
+  "stub": false,
+  "jtbd_anchor": "strengthen_minto",
+  "definition": ""
+ },
+ {
+  "name": "MECE Mutually Exclusive Collectively Exhaustive",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Macro Trends",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Macro Trends/Macro Trending",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Macro-Changes",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Management innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mariana Mazzucato Mission Economy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Market Dynamics",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Market Process Theory Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Master Calendar",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "McKinsey Three Horizons",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Megatrends",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mental Time Travel",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Method Selection Charter",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Military Application",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mind Mapping",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mind Mapping Da Vinci Style",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Minimum Viable Product / MVP",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mission Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Mullins Model for the Business Case / Mullins Model Validation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Multi-Framework Integration",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "National Academy of Engineering Grand Challenges",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Near-Term Trend Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Nested Hierarchies",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Nested Hierarchy Mapping",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Notes Day",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Now, New, Next",
+  "description": "Mehrdad Baghai temporal framing: split innovation portfolio across Now (defend core), New (build emerging), Next (seed disruptive). Allocates time + capital across horizons.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "OECD Oslo Manual",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "OODA Loop",
+  "description": "John Boyd's decision cycle: Observe, Orient, Decide, Act, repeated continuously. Whoever cycles through the loop faster and with better orientation than an opponent operates inside the opponent's decision cycle, creating confusion and advantage. Orient is the pivotal phase, shaped by experience, culture, analysis and synthesis, and new information.",
+  "stub": false,
+  "jtbd_anchor": "When I face a fast-changing or adversarial situation, I want to cycle through observation, orientation, decision, and action faster than conditions change, so I can stay ahead of events and opponents.",
+  "definition": ""
+ },
+ {
+  "name": "Open Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Opportunity Bank Framework/Creation Process",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Opportunity Recognition Pattern Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Opportunity Recognition as Pattern Recognition",
+  "description": "Entrepreneurs identify opportunities by using cognitive frameworks to perceive connections between seemingly unrelated events or trends",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Opportunity Scoring System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Opportunity Windows",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Opposite Plan",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "Oracle Foresight Engine",
+  "description": "Research-powered prediction market agent for Mindrian. Transforms ideas into structured forecasts, builds intelligence briefs from web/Neo4j/HSI, tracks calibration quality via Brier scoring, and extracts reusable forecast patterns.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_reflect",
+  "definition": ""
+ },
+ {
+  "name": "Outcome Fielding Skill vs Luck",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "PEST Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "PWS Applied Innovation Workshop Program",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS Methodology",
+  "description": "A structured, repeatable approach to innovation, strategy, and problem discovery. Built on the foundational belief that innovation does not begin with solutions - it begins with identifying problems worth solving.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS Pitch-Craft Distillation",
+  "description": "Distilled, project-agnostic pitch-craft and problem-framing principles taught in a PWS mentoring session.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "PWS Triple Validation Compass",
+  "description": "Three-question validation framework ensuring solutions are real, winnable, and worth investment",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS Value Proposition",
+  "description": "Three-gate scoring framework: Is it Real? Can we Win? Is it Worth it? Quantifies value proposition strength (VPS) through 15 weighted dimensions, Value Canvas (Jobs/Gains/Pains), and BTC statement generation.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS Value Proposition Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "PWS system",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "PWS-Bias Devil's Advocate Agent",
+  "description": "An intelligent contrarian agent that challenges ideas using PWS methodology, cognitive bias detection, and research capabilities to stress-test claims and uncover hidden assumptions",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS-JTBD Innovation Discovery Framework",
+  "description": "A framework that combines People With Solutions perspective with Jobs To Be Done for systematic innovation discovery",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "PWS-Scenario Planning Integration Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Pain Points",
+  "description": "PWS methodology framework: Pain Points",
+  "stub": true,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Pattern Matching System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Pattern Recognition",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": "Process of perceiving connections between unrelated events"
+ },
+ {
+  "name": "Photonic Interconnect Multi-Agent System",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Platform Thinking",
+  "description": "Treat the product as a substrate that third parties build ON, not as a finished tool. Platforms create value by enabling others; surface APIs, network effects, two-sided market dynamics. (Sangeet Choudary, Geoffrey Parker, Marshall Van Alstyne.)",
+  "stub": false,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Portfolio Approach",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": ""
+ },
+ {
+  "name": "Poverty",
+  "description": "PWS methodology framework: Poverty",
+  "stub": true,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Pre-mortem Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Problem Definition Transformation Framework",
+  "description": "A comprehensive methodology for transforming undefined problems into well-defined, actionable problem statements through systematic analysis and validation",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Problem Taxonomy (Search Gradient)",
+  "description": "A temporal and strategic taxonomy of where you are in the innovation search, not a classification of problem structure. Undefined asks what is the future of X and can only be explored for opportunities. Ill-defined asks what is the next big thing for us here and yields a list of opportunities. Well-defined asks how to solve this specific problem and is the only kind that can actually be solved. Each type carries a different time frame and degree of uncertainty.",
+  "stub": false,
+  "jtbd_anchor": "classify_search_stage",
+  "definition": ""
+ },
+ {
+  "name": "Problem Theory",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Problem Typology Framework / The Taxonomy of Problems",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Problem Worth Solving methodology",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Process Mapping",
+  "description": "A technique for creating visual representations of processes to uncover hidden inefficiencies, identify opportunities for improvement, and make the invisible visible",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Psychological Safety",
+  "description": "Team climate where members feel safe to take interpersonal risks without fear of punishment (Edmondson)",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": "A belief that one won't be punished or humiliated for speaking up with ideas, questions, concerns, or mistakes"
+ },
+ {
+  "name": "Q and A Framework Core Expertise",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Questioning for Life",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Questioning in Business",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Rapid Prototyping",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Real Options Reasoning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Red Hat Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Red Teaming",
+  "description": "Adversarial validation methodology. Used at two PWS stages: stress-testing Ill-Defined Problems before committing to Well-Defined, and adversarial validation of Well-Defined Problems before investment. The Black Hat made permanent.",
+  "stub": false,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "Research Validation and Early Business Framing",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Research, Validation, and Early Business Framing",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Resource Constraints",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Resources Processes and Values / RPV Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Resulting",
+  "description": "Cognitive error of judging decision quality by outcome rather than reasoning process at time of decision",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": "The tendency to judge a decision based on its outcome rather than the quality of the decision-making process at the time it was made"
+ },
+ {
+  "name": "Reverse Salient Analysis",
+  "description": "Innovation framework for identifying system bottlenecks that hold back overall progress",
+  "stub": false,
+  "jtbd_anchor": "suggest_next_move",
+  "definition": ""
+ },
+ {
+  "name": "Reverse Salient Analysis / Reverse Salience",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Risk Assessment",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Root Cause Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Rubric for Grading Each Phase",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "S-Curve Analysis",
+  "description": "PWS methodology framework: S-Curve Analysis",
+  "stub": true,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "SUCCESs Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Safe Fail Culture",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Scenario Analysis Framework",
+  "description": "A structured methodology for exploring multiple plausible futures to uncover hidden problems worth solving. Transforms uncertainty into opportunity by systematically analyzing driving forces, critical uncertainties, and potential scenarios to identify innovation opportunities in undefined problem spaces.",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Scenario Logic",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Scenario Planning",
+  "description": "Strategic planning method that organizations use to create flexible long-term plans based on multiple possible futures",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": "A strategic planning method that organizations use to create flexible long-term plans based on multiple possible future scenarios"
+ },
+ {
+  "name": "Schumpeterian Entrepreneurship",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Schumpeterian Theory of Democracy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Scientific Method",
+  "description": "Falsifiable hypothesis -> controlled experiment -> observation -> revision. The substrate for evidence-based reasoning under uncertainty.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Second-System Effect Prevention",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Seeing Around Corners",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Selecting Opportunities and Team Formation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Self-Selling Loop",
+  "description": "A product-design and go-to-market principle: instead of a human presenter creating interest, the tool manufactures one genuine insight on the prospect own live problem, so the prospect sells himself. Proof in the pudding replaces the pitch.",
+  "stub": false,
+  "jtbd_anchor": "Make the tool create the interest so the prospect sells himself.",
+  "definition": ""
+ },
+ {
+  "name": "Semantic Network Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Serendipity",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Servant Leadership",
+  "description": "Leaders serve first — prioritizing team needs, growth, and well-being over personal authority (Greenleaf)",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Seven Da Vinci Principles",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Seven Learning Disabilities",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Shell Scenario Planning Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Shell's Two-Scenario Approach",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Situation-Complication-Question-Answer",
+  "description": "The narrative flow structure for introducing pyramid-structured documents",
+  "stub": false,
+  "jtbd_anchor": "strengthen_minto",
+  "definition": ""
+ },
+ {
+  "name": "Situational Leadership",
+  "description": "Adjusting leadership style (directing, coaching, supporting, delegating) based on follower readiness (Hersey & Blanchard)",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Six Thinking Hats",
+  "description": "A parallel thinking method by Edward de Bono that uses six colored hats to represent different modes of thinking, enabling systematic exploration of ideas from multiple perspectives",
+  "stub": false,
+  "jtbd_anchor": "suggest_next_move",
+  "definition": ""
+ },
+ {
+  "name": "Social network theory of innovation opportunities",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Soft systems methodology",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Split Happens",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Startup Theory",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Stock and Flow Diagrams",
+  "description": "Visualize accumulations and rates of change",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Stockdale Paradox",
+  "description": "Confront brutal facts while maintaining unwavering faith in eventual success",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Strategic Decision Making for Leaders",
+  "description": "How leaders develop and execute strategic decisions under uncertainty using frameworks and real-world judgment",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Strategic Foresight",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Strategic Inflection Point",
+  "description": "10X force makes existing competitive strategy obsolete -- detect early and pivot or die",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": "Time when fundamental change alters business dynamics permanently"
+ },
+ {
+  "name": "Strategic Management",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Strategic thinking through adversarial",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Structured Trend Extrapolation Process",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_react",
+  "definition": ""
+ },
+ {
+  "name": "Surgical Team Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Sustaining vs Disruptive Innovation",
+  "description": "Clayton Christensen's framework for understanding two types of innovation: sustaining (improving existing products) and disruptive (creating new markets)",
+  "stub": false,
+  "jtbd_anchor": "opportunity_rank",
+  "definition": ""
+ },
+ {
+  "name": "System Archetypes",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Systematic approach to competitive innovation analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Systems Leadership",
+  "description": "Leading within complex adaptive systems — seeing patterns, enabling emergence, bridging boundaries",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Systems Mapping Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Systems Thinking",
+  "description": "Understanding interdependencies and system dynamics",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Systems Thinking and Wicked Problems combined",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Systems lens",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "TAM/SAM/SOM",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "TRIZ / Genrich Altshuller Innovation Algorithm",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Technology Adoption Lifecycle",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Technology Complex",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Technology brokering",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Braintrust",
+  "description": "Peer review body giving candid non-binding feedback -- authority stays with creator",
+  "stub": false,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "The Celery Test",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Chasm Framework / Crossing the Chasm",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Feynman Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Five Disciplines",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Flywheel",
+  "description": "Slow consistent compounding momentum vs Doom Loop of reactive direction changes",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "The Golden Circle",
+  "description": "Why > How > What -- communicate from purpose outward to inspire action",
+  "stub": false,
+  "jtbd_anchor": "prepare_investor_brief",
+  "definition": ""
+ },
+ {
+  "name": "The HEART Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Iceberg Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Innovation Landscape",
+  "description": "A two by two of uncertainty against risk used to choose where to play. Risk has statistics and probabilities (the insurance industry); uncertainty has neither (no statistic predicted Russia invading Ukraine). The entrepreneur's quadrant is low risk, high uncertainty: uncertainty is the entrepreneur's friend because if it were certain, incumbents would already be there. High uncertainty plus high risk belongs to governments. Uncertainty splits into technological (will it work) and market (will the market still be there).",
+  "stub": false,
+  "jtbd_anchor": "select_opportunity",
+  "definition": ""
+ },
+ {
+  "name": "The Innovators Dilemma",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Mom Test",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Perfect Brainstorm",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Power of Inquiry",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Pyramid Principle",
+  "description": "A framework for clear writing and thinking that structures ideas hierarchically with vertical and horizontal relationships",
+  "stub": false,
+  "jtbd_anchor": "strengthen_minto",
+  "definition": ""
+ },
+ {
+  "name": "The Scenario Matrix Tool / 2x2 Scenario Matrix",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Signals Are Talking",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Three Box Solution",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "The Why What If and How of Innovative Questioning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Theory of Change",
+  "description": "Forward causal reasoning: articulate the causal pathway from activities to outcomes. Maps assumptions about how change happens.",
+  "stub": false,
+  "jtbd_anchor": "prepare_investor_brief",
+  "definition": ""
+ },
+ {
+  "name": "Theory of Constraints",
+  "description": "A management framework: any system has at least one constraint that limits throughput. Identify, exploit, subordinate, elevate, repeat. Used for process optimization and bottleneck analysis.",
+  "stub": false,
+  "jtbd_anchor": "rank_assumptions",
+  "definition": ""
+ },
+ {
+  "name": "Thiel's Monopoly Strategy",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Thinking in Bets",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Three Approaches for Solving Problems",
+  "description": "Abbie Gibson's taxonomy (built on Usher) of three approaches by which the Act of Insight is reached, selected by problem type: Brute Force, Targeted Development, and Eureka Moment.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Three Components of Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Three Lenses of Innovation",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Three-Horizon Framework",
+  "description": "McKinsey / Baghai 3 Horizons: Horizon 1 (core defense), Horizon 2 (emerging growth), Horizon 3 (disruptive seeding). Balances exploit vs explore.",
+  "stub": false,
+  "jtbd_anchor": "select_methodology",
+  "definition": ""
+ },
+ {
+  "name": "Three-Part Industry Prediction Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Tools vs Platforms Innovation",
+  "description": "A framework for understanding the evolution from single-purpose tools to flexible platforms that enable ecosystems of possibility",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Top-Down Approach",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Transformational Leadership",
+  "description": "Inspiring followers to exceed expectations through vision, intellectual stimulation, and individualized consideration",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Trend Correlation Engine",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Trend Detection Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Trending to the Absurd",
+  "description": "A strategic foresight framework that pushes current trends to their extreme logical conclusions to uncover hidden opportunities and disruptive innovations. Integrates with Six Thinking Hats, Cynefin, Scenario Planning and other frameworks for comprehensive analysis.",
+  "stub": false,
+  "jtbd_anchor": "opportunity_reflect",
+  "definition": "Innovation technique of extending current trends to extreme conclusions to explore future possibilities"
+ },
+ {
+  "name": "Trending to the Absurd / Scenario Absurdity Testing",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Triple Path Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Truth-Seeking Groups / Decision Pods",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Tuckman Team Stages",
+  "description": "Forming, Storming, Norming, Performing, Adjourning — the predictable arc of team development",
+  "stub": false,
+  "jtbd_anchor": "REVIEW_REQUIRED",
+  "definition": ""
+ },
+ {
+  "name": "Uncertainty-Risk Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Understanding Needs Method",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "User Experience Mapping",
+  "description": "Map a user process step by step; rate each step on importance and current satisfaction; sweet spot = high importance + low satisfaction.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "User Journey Mapping",
+  "description": "A method for visualizing the complete end-to-end experience of users, revealing emotional landscapes, hidden connections, and opportunities in the spaces between touchpoints",
+  "stub": false,
+  "jtbd_anchor": "summarize_neighborhood",
+  "definition": ""
+ },
+ {
+  "name": "Usher's Model of Cumulative Synthesis",
+  "description": "Abbott Payson Usher's four-stage model of innovation through cumulative synthesis, demonstrating how breakthrough innovations follow systematic patterns",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Value Migration",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Value Proposition Canvas",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Value Proposition Design",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Venture Methodology",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Visionary Innovation Companion",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "opportunity_reflect",
+  "definition": ""
+ },
+ {
+  "name": "Wallas Four-Stage Model of the Creative Process",
+  "description": "Graham Wallas's model of the creative process from The Art of Thought (1926). Popularly rendered as four stages (Preparation, Incubation, Illumination, Verification) but actually five: Wallas described Intimation, the fringe-consciousness feeling that an illumination is imminent, between Incubation and Illumination. The model operates across three levels of consciousness and the stages overlap rather than running in a strict line.",
+  "stub": false,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Week 7 Combining Tools for Deep Opportunity Exploration",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Well-Defined Problem Framework",
+  "description": "A comprehensive methodology for transforming undefined problems into well-defined, actionable problem statements through systematic analysis and validation",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "White Hat Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ },
+ {
+  "name": "White Space Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Whole Product Model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Why We Stop Questioning",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Why-What If-How model",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Wicked Problem Detection Framework",
+  "description": "A systematic approach to identifying wicked problems, mapping their systems, and finding innovation leverage points",
+  "stub": false,
+  "jtbd_anchor": "classify_room_budding",
+  "definition": ""
+ },
+ {
+  "name": "Wicked Problems Framework",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Wired to Care",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "",
+  "definition": ""
+ },
+ {
+  "name": "Yellow Hat Analysis",
+  "description": "",
+  "stub": true,
+  "jtbd_anchor": "detect_contradiction",
+  "definition": ""
+ }
+]

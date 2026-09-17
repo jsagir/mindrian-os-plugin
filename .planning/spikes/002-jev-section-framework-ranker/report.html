@@ -1,0 +1,685 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spike 002 - Jev section ranker</title><style>
+:root{--red:#D40920;--blue:#1356A2;--yellow:#F7D842;--black:#111;--white:#FAFAF7;--gray:#8a8a8a;--line:#111}
+*{box-sizing:border-box}body{margin:0;background:var(--white);color:var(--black);font:15px/1.45 "IBM Plex Sans","Helvetica Neue",Arial,sans-serif}
+header{border-bottom:6px solid var(--black);padding:20px 24px;display:flex;gap:16px;align-items:center}
+.sq{width:22px;height:22px;display:inline-block;border:2px solid var(--black)}.sq.r{background:var(--red)}.sq.b{background:var(--blue)}.sq.y{background:var(--yellow)}
+h1{font-size:22px;margin:0;letter-spacing:.02em}h2{font-size:16px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.08em}
+main{padding:20px 24px;max-width:1180px;margin:0 auto}
+.tabs{display:flex;gap:0;border:3px solid var(--black);margin:12px 0 18px;width:max-content}
+.tabs button{border:0;border-right:3px solid var(--black);background:#fff;padding:8px 14px;font:inherit;cursor:pointer}
+.tabs button:last-child{border-right:0}.tabs button.on{background:var(--yellow);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{border:3px solid var(--black);background:#fff}.card .hd{padding:8px 12px;border-bottom:3px solid var(--black);display:flex;justify-content:space-between;align-items:center}
+.card .bd{padding:10px 12px}
+.row{display:grid;grid-template-columns:34px 1fr 90px 64px;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid #e6e6e0}
+.row:last-child{border-bottom:0}.bar{height:14px;border:2px solid var(--black);background:#fff;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--blue)}.bar i.hit{background:var(--red)}
+.lab{font-size:12px;color:var(--gray)}.tag{display:inline-block;padding:1px 6px;border:2px solid var(--black);font-size:11px;margin-left:6px}
+.tag.l2{background:var(--red);color:#fff}.tag.l1{background:var(--yellow)}.tag.l0{background:#fff}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:3px solid var(--black);margin-bottom:18px}
+.kpi div{padding:10px 12px;border-right:3px solid var(--black)}.kpi div:last-child{border-right:0}.kpi b{display:block;font-size:22px}
+.foot{margin-top:18px;font-size:12px;color:var(--gray)}
+</style></head>
+<body><header><span class="sq r"></span><span class="sq b"></span><span class="sq y"></span><h1>Spike 002 - Jev as the section framework ranker</h1><span class="lab">jev-1.13.0 - 2026-09-17T06:21:50.405Z</span></header>
+<main><div class="tabs"><button class="on" data-s="S1">S1 problem-definition</button><button class="" data-s="S2">S2 opportunity-bank</button><button class="" data-s="S3">S3 team-execution</button><button class="" data-s="S4">S4 market-analysis</button></div><section class="scn" id="scn-S1" style="display:none">
+    <div class="kpi">
+      <div><span class="lab">Spearman: Jev vs hand label</span><b>0.59</b></div>
+      <div><span class="lab">Spearman: graph degree vs hand label</span><b>0.06</b></div>
+      <div><span class="lab">Top-5 hits on label-2 (Jev / degree)</span><b>2 / 1</b></div>
+      <div><span class="lab">Mean confidence: clear (0,2) vs unclear (1)</span><b>0.45 / 0.22</b></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="hd"><h2>S1 - Jev ranking</h2><span class="lab">problem-definition / ill-defined / discovery</span></div><div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Problem Definition Transformation Framework<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:86%"></i></span>
+      <span class="lab">1.72 / c0.59</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Beautiful Question Framework<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:86%"></i></span>
+      <span class="lab">1.71 / c0.56</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Systems Thinking<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:77%"></i></span>
+      <span class="lab">1.53 / c0.30</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Knowns and Unknowns Matrix Framework<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:72%"></i></span>
+      <span class="lab">1.43 / c0.14</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Domain Selection<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:70%"></i></span>
+      <span class="lab">1.39 / c0.09</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Six Thinking Hats<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:70%"></i></span>
+      <span class="lab">1.39 / c0.09</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Ackoff Pyramid<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:56%"></i></span>
+      <span class="lab">1.11 / c0.31</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>Four Lenses of Innovation<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:50%"></i></span>
+      <span class="lab">0.99 / c0.03</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Adaptive Leadership<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:50%"></i></span>
+      <span class="lab">0.99 / c0.34</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Jobs to Be Done (JTBD)<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:44%"></i></span>
+      <span class="lab">0.88 / c0.07</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Futures Wheel<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:42%"></i></span>
+      <span class="lab">0.84 / c0.12</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Scenario Planning<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:41%"></i></span>
+      <span class="lab">0.82 / c0.00</span></div>
+    <div class="row"><span class="lab">13</span>
+      <span>HSI Semantic Surprise Analysis Assistant<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:39%"></i></span>
+      <span class="lab">0.77 / c0.00</span></div>
+    <div class="row"><span class="lab">14</span>
+      <span>PEST Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:38%"></i></span>
+      <span class="lab">0.75 / c0.34</span></div>
+    <div class="row"><span class="lab">15</span>
+      <span>Red Teaming<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:33%"></i></span>
+      <span class="lab">0.66 / c0.24</span></div>
+    <div class="row"><span class="lab">16</span>
+      <span>S-Curve Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:28%"></i></span>
+      <span class="lab">0.57 / c0.14</span></div>
+    <div class="row"><span class="lab">17</span>
+      <span>Hypothesis-Driven Problem Solving<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:23%"></i></span>
+      <span class="lab">0.45 / c0.32</span></div>
+    <div class="row"><span class="lab">18</span>
+      <span>Reverse Salient Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:20%"></i></span>
+      <span class="lab">0.39 / c0.42</span></div>
+    <div class="row"><span class="lab">19</span>
+      <span>Usher's Model of Cumulative Synthesis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:19%"></i></span>
+      <span class="lab">0.38 / c0.43</span></div>
+    <div class="row"><span class="lab">20</span>
+      <span>Root Cause Analysis<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:15%"></i></span>
+      <span class="lab">0.30 / c0.55</span></div>
+    <div class="row"><span class="lab">21</span>
+      <span>PWS Triple Validation Compass<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:13%"></i></span>
+      <span class="lab">0.26 / c0.60</span></div>
+    <div class="row"><span class="lab">22</span>
+      <span>The Pyramid Principle<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:13%"></i></span>
+      <span class="lab">0.25 / c0.62</span></div>
+    <div class="row"><span class="lab">23</span>
+      <span>PWS Value Proposition<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:12%"></i></span>
+      <span class="lab">0.24 / c0.65</span></div>
+    <div class="row"><span class="lab">24</span>
+      <span>Dominant Design<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:6%"></i></span>
+      <span class="lab">0.11 / c0.84</span></div>
+    <div class="row"><span class="lab">25</span>
+      <span>Lean Canvas<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:5%"></i></span>
+      <span class="lab">0.09 / c0.87</span></div>
+    <div class="row"><span class="lab">26</span>
+      <span>Adoption-Capacity Theory<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:2%"></i></span>
+      <span class="lab">0.03 / c0.95</span></div></div></div>
+      <div class="card"><div class="hd"><h2>Full Theo set - top 12</h2><span class="lab">A batched 20 / B per-pair / 2724 ms / 410 scored</span></div>
+        <div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>The Why What If and How of Innovative Questioning<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:89%"></i></span>
+      <span class="lab">1.77 / c0.66</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Contextual Inquiry<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:89%"></i></span>
+      <span class="lab">1.77 / c0.65</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Problem Definition Transformation Framework</span>
+      <span class="bar"><i class="" style="width:86%"></i></span>
+      <span class="lab">1.72 / c0.59</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>PWS-JTBD Innovation Discovery Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:86%"></i></span>
+      <span class="lab">1.72 / c0.58</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Beautiful Question Framework</span>
+      <span class="bar"><i class="" style="width:86%"></i></span>
+      <span class="lab">1.71 / c0.56</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Beautiful-Questions technique<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:85%"></i></span>
+      <span class="lab">1.69 / c0.53</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Advanced Discovery and Early Framing<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:81%"></i></span>
+      <span class="lab">1.62 / c0.42</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>The Power of Inquiry<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:81%"></i></span>
+      <span class="lab">1.61 / c0.41</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Analogies as discovery tool<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:80%"></i></span>
+      <span class="lab">1.59 / c0.39</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Five W's Framework<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:80%"></i></span>
+      <span class="lab">1.59 / c0.39</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Soft systems methodology<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:79%"></i></span>
+      <span class="lab">1.58 / c0.37</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Understanding Needs Method<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:79%"></i></span>
+      <span class="lab">1.58 / c0.37</span></div>
+        <p class="lab" style="margin-top:10px">the founder has a solution looking for a problem; the job is to find the real problem</p><p class="lab">Left: the 27 hand-labeled frameworks ranked by Jev; red bar = label 2. Right: Jev's top picks over every Theo framework; red bar = a framework the current 27-name index cannot offer at all. c = confidence. Degree baseline = number of /mos: commands declaring the framework, the signal Lawrence called out as wrong.</p></div></div>
+    </div></section><section class="scn" id="scn-S2" style="display:none">
+    <div class="kpi">
+      <div><span class="lab">Spearman: Jev vs hand label</span><b>0.63</b></div>
+      <div><span class="lab">Spearman: graph degree vs hand label</span><b>0.05</b></div>
+      <div><span class="lab">Top-5 hits on label-2 (Jev / degree)</span><b>3 / 0</b></div>
+      <div><span class="lab">Mean confidence: clear (0,2) vs unclear (1)</span><b>0.38 / 0.28</b></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="hd"><h2>S2 - Jev ranking</h2><span class="lab">opportunity-bank / undefined / discovery</span></div><div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Problem Definition Transformation Framework<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:83%"></i></span>
+      <span class="lab">1.65 / c0.47</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Domain Selection<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:74%"></i></span>
+      <span class="lab">1.48 / c0.23</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Beautiful Question Framework<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:72%"></i></span>
+      <span class="lab">1.44 / c0.16</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Four Lenses of Innovation<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:70%"></i></span>
+      <span class="lab">1.39 / c0.08</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Six Thinking Hats<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:56%"></i></span>
+      <span class="lab">1.12 / c0.25</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Systems Thinking<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:55%"></i></span>
+      <span class="lab">1.10 / c0.37</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Futures Wheel<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:53%"></i></span>
+      <span class="lab">1.06 / c0.27</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>Knowns and Unknowns Matrix Framework<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:50%"></i></span>
+      <span class="lab">1.00 / c0.30</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Jobs to Be Done (JTBD)<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:47%"></i></span>
+      <span class="lab">0.94 / c0.00</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Ackoff Pyramid<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:46%"></i></span>
+      <span class="lab">0.91 / c0.46</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Scenario Planning<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:41%"></i></span>
+      <span class="lab">0.82 / c0.00</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>S-Curve Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:40%"></i></span>
+      <span class="lab">0.80 / c0.00</span></div>
+    <div class="row"><span class="lab">13</span>
+      <span>HSI Semantic Surprise Analysis Assistant<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:39%"></i></span>
+      <span class="lab">0.77 / c0.00</span></div>
+    <div class="row"><span class="lab">14</span>
+      <span>PEST Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:33%"></i></span>
+      <span class="lab">0.65 / c0.31</span></div>
+    <div class="row"><span class="lab">15</span>
+      <span>Adaptive Leadership<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:30%"></i></span>
+      <span class="lab">0.59 / c0.30</span></div>
+    <div class="row"><span class="lab">16</span>
+      <span>Red Teaming<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:29%"></i></span>
+      <span class="lab">0.58 / c0.22</span></div>
+    <div class="row"><span class="lab">17</span>
+      <span>Root Cause Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:24%"></i></span>
+      <span class="lab">0.47 / c0.29</span></div>
+    <div class="row"><span class="lab">18</span>
+      <span>Usher's Model of Cumulative Synthesis<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:22%"></i></span>
+      <span class="lab">0.43 / c0.35</span></div>
+    <div class="row"><span class="lab">19</span>
+      <span>Hypothesis-Driven Problem Solving<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:21%"></i></span>
+      <span class="lab">0.41 / c0.39</span></div>
+    <div class="row"><span class="lab">20</span>
+      <span>Reverse Salient Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:20%"></i></span>
+      <span class="lab">0.40 / c0.40</span></div>
+    <div class="row"><span class="lab">21</span>
+      <span>PWS Triple Validation Compass<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:14%"></i></span>
+      <span class="lab">0.28 / c0.58</span></div>
+    <div class="row"><span class="lab">22</span>
+      <span>The Pyramid Principle<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:14%"></i></span>
+      <span class="lab">0.28 / c0.57</span></div>
+    <div class="row"><span class="lab">23</span>
+      <span>PWS Value Proposition<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:14%"></i></span>
+      <span class="lab">0.27 / c0.59</span></div>
+    <div class="row"><span class="lab">24</span>
+      <span>Dominant Design<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:9%"></i></span>
+      <span class="lab">0.17 / c0.74</span></div>
+    <div class="row"><span class="lab">25</span>
+      <span>Adoption-Capacity Theory<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:8%"></i></span>
+      <span class="lab">0.16 / c0.76</span></div>
+    <div class="row"><span class="lab">26</span>
+      <span>Lean Canvas<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:7%"></i></span>
+      <span class="lab">0.14 / c0.79</span></div></div></div>
+      <div class="card"><div class="hd"><h2>Full Theo set - top 12</h2><span class="lab">A batched 20 / B per-pair / 2726 ms / 410 scored</span></div>
+        <div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Well-Defined Problem Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:91%"></i></span>
+      <span class="lab">1.82 / c0.73</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>PWS-JTBD Innovation Discovery Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:85%"></i></span>
+      <span class="lab">1.69 / c0.54</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Problem Definition Transformation Framework</span>
+      <span class="bar"><i class="" style="width:83%"></i></span>
+      <span class="lab">1.65 / c0.47</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Customer Development<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:82%"></i></span>
+      <span class="lab">1.63 / c0.45</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Contextual Inquiry<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:79%"></i></span>
+      <span class="lab">1.57 / c0.36</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>The Mom Test<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:79%"></i></span>
+      <span class="lab">1.57 / c0.35</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Understanding Needs Method<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:75%"></i></span>
+      <span class="lab">1.49 / c0.23</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>Domain Selection</span>
+      <span class="bar"><i class="" style="width:74%"></i></span>
+      <span class="lab">1.48 / c0.23</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>The Why What If and How of Innovative Questioning<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:74%"></i></span>
+      <span class="lab">1.48 / c0.22</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Beautiful Question Framework</span>
+      <span class="bar"><i class="" style="width:72%"></i></span>
+      <span class="lab">1.44 / c0.16</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Is it Real / Problem Validation Framework<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:72%"></i></span>
+      <span class="lab">1.43 / c0.15</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Advanced Discovery and Early Framing<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:71%"></i></span>
+      <span class="lab">1.42 / c0.13</span></div>
+        <p class="lab" style="margin-top:10px">no bounded problem yet; the job is to open the space and surface surprising openings</p><p class="lab">Left: the 27 hand-labeled frameworks ranked by Jev; red bar = label 2. Right: Jev's top picks over every Theo framework; red bar = a framework the current 27-name index cannot offer at all. c = confidence. Degree baseline = number of /mos: commands declaring the framework, the signal Lawrence called out as wrong.</p></div></div>
+    </div></section><section class="scn" id="scn-S3" style="display:none">
+    <div class="kpi">
+      <div><span class="lab">Spearman: Jev vs hand label</span><b>0.80</b></div>
+      <div><span class="lab">Spearman: graph degree vs hand label</span><b>0.11</b></div>
+      <div><span class="lab">Top-5 hits on label-2 (Jev / degree)</span><b>2 / 1</b></div>
+      <div><span class="lab">Mean confidence: clear (0,2) vs unclear (1)</span><b>0.61 / 0.17</b></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="hd"><h2>S3 - Jev ranking</h2><span class="lab">team-execution / well-defined / execution</span></div><div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Knowns and Unknowns Matrix Framework<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:49%"></i></span>
+      <span class="lab">0.97 / c0.12</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Reverse Salient Analysis<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:45%"></i></span>
+      <span class="lab">0.90 / c0.07</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Hypothesis-Driven Problem Solving<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:41%"></i></span>
+      <span class="lab">0.81 / c0.00</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Red Teaming<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:30%"></i></span>
+      <span class="lab">0.59 / c0.11</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Six Thinking Hats<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:28%"></i></span>
+      <span class="lab">0.57 / c0.15</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>The Pyramid Principle<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:28%"></i></span>
+      <span class="lab">0.56 / c0.16</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Adaptive Leadership<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:27%"></i></span>
+      <span class="lab">0.54 / c0.19</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>PWS Triple Validation Compass<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:27%"></i></span>
+      <span class="lab">0.53 / c0.20</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Root Cause Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:26%"></i></span>
+      <span class="lab">0.51 / c0.24</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Systems Thinking<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:25%"></i></span>
+      <span class="lab">0.50 / c0.25</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>PWS Value Proposition<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:20%"></i></span>
+      <span class="lab">0.39 / c0.42</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Beautiful Question Framework<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:18%"></i></span>
+      <span class="lab">0.36 / c0.46</span></div>
+    <div class="row"><span class="lab">13</span>
+      <span>S-Curve Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:14%"></i></span>
+      <span class="lab">0.28 / c0.58</span></div>
+    <div class="row"><span class="lab">14</span>
+      <span>Jobs to Be Done (JTBD)<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:12%"></i></span>
+      <span class="lab">0.24 / c0.64</span></div>
+    <div class="row"><span class="lab">15</span>
+      <span>Ackoff Pyramid<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:11%"></i></span>
+      <span class="lab">0.22 / c0.67</span></div>
+    <div class="row"><span class="lab">16</span>
+      <span>Lean Canvas<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:10%"></i></span>
+      <span class="lab">0.20 / c0.69</span></div>
+    <div class="row"><span class="lab">17</span>
+      <span>Scenario Planning<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:9%"></i></span>
+      <span class="lab">0.17 / c0.75</span></div>
+    <div class="row"><span class="lab">18</span>
+      <span>Futures Wheel<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:8%"></i></span>
+      <span class="lab">0.16 / c0.76</span></div>
+    <div class="row"><span class="lab">19</span>
+      <span>Four Lenses of Innovation<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:8%"></i></span>
+      <span class="lab">0.15 / c0.78</span></div>
+    <div class="row"><span class="lab">20</span>
+      <span>Problem Definition Transformation Framework<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:7%"></i></span>
+      <span class="lab">0.14 / c0.80</span></div>
+    <div class="row"><span class="lab">21</span>
+      <span>HSI Semantic Surprise Analysis Assistant<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:6%"></i></span>
+      <span class="lab">0.12 / c0.83</span></div>
+    <div class="row"><span class="lab">22</span>
+      <span>Adoption-Capacity Theory<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:6%"></i></span>
+      <span class="lab">0.11 / c0.84</span></div>
+    <div class="row"><span class="lab">23</span>
+      <span>Dominant Design<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:6%"></i></span>
+      <span class="lab">0.11 / c0.84</span></div>
+    <div class="row"><span class="lab">24</span>
+      <span>PEST Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:6%"></i></span>
+      <span class="lab">0.11 / c0.83</span></div>
+    <div class="row"><span class="lab">25</span>
+      <span>Usher's Model of Cumulative Synthesis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:4%"></i></span>
+      <span class="lab">0.08 / c0.87</span></div>
+    <div class="row"><span class="lab">26</span>
+      <span>Domain Selection<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:4%"></i></span>
+      <span class="lab">0.07 / c0.90</span></div></div></div>
+      <div class="card"><div class="hd"><h2>Full Theo set - top 12</h2><span class="lab">A batched 20 / B per-pair / 2232 ms / 410 scored</span></div>
+        <div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Dailies<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:61%"></i></span>
+      <span class="lab">1.21 / c0.00</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Process Mapping<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:60%"></i></span>
+      <span class="lab">1.20 / c0.00</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Surgical Team Model<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:55%"></i></span>
+      <span class="lab">1.10 / c0.00</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Five-Step Implementation Process<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:55%"></i></span>
+      <span class="lab">1.09 / c0.00</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>Agile Development<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:53%"></i></span>
+      <span class="lab">1.05 / c0.17</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Entrepreneurial Method<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:53%"></i></span>
+      <span class="lab">1.05 / c0.00</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Commander's Intent<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:52%"></i></span>
+      <span class="lab">1.04 / c0.12</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>Adaptive Role Assignment<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:51%"></i></span>
+      <span class="lab">1.01 / c0.28</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>High-Performing Teams<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:50%"></i></span>
+      <span class="lab">1.00 / c0.10</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Knowns and Unknowns Matrix Framework</span>
+      <span class="bar"><i class="" style="width:49%"></i></span>
+      <span class="lab">0.97 / c0.12</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Five Practices of Effective Executives<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:48%"></i></span>
+      <span class="lab">0.96 / c0.33</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Reverse Salient Analysis</span>
+      <span class="bar"><i class="" style="width:45%"></i></span>
+      <span class="lab">0.90 / c0.07</span></div>
+        <p class="lab" style="margin-top:10px">the spec is known; the job is leading people through delivery</p><p class="lab">Left: the 27 hand-labeled frameworks ranked by Jev; red bar = label 2. Right: Jev's top picks over every Theo framework; red bar = a framework the current 27-name index cannot offer at all. c = confidence. Degree baseline = number of /mos: commands declaring the framework, the signal Lawrence called out as wrong.</p></div></div>
+    </div></section><section class="scn" id="scn-S4" style="display:none">
+    <div class="kpi">
+      <div><span class="lab">Spearman: Jev vs hand label</span><b>0.21</b></div>
+      <div><span class="lab">Spearman: graph degree vs hand label</span><b>0.13</b></div>
+      <div><span class="lab">Top-5 hits on label-2 (Jev / degree)</span><b>2 / 2</b></div>
+      <div><span class="lab">Mean confidence: clear (0,2) vs unclear (1)</span><b>0.25 / 0.29</b></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="hd"><h2>S4 - Jev ranking</h2><span class="lab">market-analysis / ill-defined / investment</span></div><div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Knowns and Unknowns Matrix Framework<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:68%"></i></span>
+      <span class="lab">1.35 / c0.20</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Futures Wheel<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:63%"></i></span>
+      <span class="lab">1.25 / c0.33</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>PEST Analysis<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:59%"></i></span>
+      <span class="lab">1.18 / c0.39</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Systems Thinking<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:57%"></i></span>
+      <span class="lab">1.15 / c0.39</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>PWS Triple Validation Compass<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:56%"></i></span>
+      <span class="lab">1.11 / c0.09</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Six Thinking Hats<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:53%"></i></span>
+      <span class="lab">1.06 / c0.42</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Beautiful Question Framework<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:52%"></i></span>
+      <span class="lab">1.04 / c0.22</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>S-Curve Analysis<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:49%"></i></span>
+      <span class="lab">0.97 / c0.24</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Hypothesis-Driven Problem Solving<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:49%"></i></span>
+      <span class="lab">0.97 / c0.45</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Scenario Planning<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:47%"></i></span>
+      <span class="lab">0.93 / c0.30</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Problem Definition Transformation Framework<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:46%"></i></span>
+      <span class="lab">0.92 / c0.00</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Ackoff Pyramid<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:42%"></i></span>
+      <span class="lab">0.84 / c0.45</span></div>
+    <div class="row"><span class="lab">13</span>
+      <span>Domain Selection<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:42%"></i></span>
+      <span class="lab">0.83 / c0.00</span></div>
+    <div class="row"><span class="lab">14</span>
+      <span>PWS Value Proposition<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:36%"></i></span>
+      <span class="lab">0.71 / c0.18</span></div>
+    <div class="row"><span class="lab">15</span>
+      <span>Jobs to Be Done (JTBD)<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:33%"></i></span>
+      <span class="lab">0.65 / c0.26</span></div>
+    <div class="row"><span class="lab">16</span>
+      <span>Four Lenses of Innovation<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:32%"></i></span>
+      <span class="lab">0.64 / c0.03</span></div>
+    <div class="row"><span class="lab">17</span>
+      <span>Red Teaming<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:31%"></i></span>
+      <span class="lab">0.61 / c0.31</span></div>
+    <div class="row"><span class="lab">18</span>
+      <span>HSI Semantic Surprise Analysis Assistant<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:30%"></i></span>
+      <span class="lab">0.59 / c0.11</span></div>
+    <div class="row"><span class="lab">19</span>
+      <span>Reverse Salient Analysis<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:28%"></i></span>
+      <span class="lab">0.56 / c0.16</span></div>
+    <div class="row"><span class="lab">20</span>
+      <span>Adaptive Leadership<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:27%"></i></span>
+      <span class="lab">0.54 / c0.19</span></div>
+    <div class="row"><span class="lab">21</span>
+      <span>Lean Canvas<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:27%"></i></span>
+      <span class="lab">0.53 / c0.20</span></div>
+    <div class="row"><span class="lab">22</span>
+      <span>The Pyramid Principle<span class="tag l1">label 1</span></span>
+      <span class="bar"><i class="" style="width:27%"></i></span>
+      <span class="lab">0.53 / c0.26</span></div>
+    <div class="row"><span class="lab">23</span>
+      <span>Adoption-Capacity Theory<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:21%"></i></span>
+      <span class="lab">0.42 / c0.38</span></div>
+    <div class="row"><span class="lab">24</span>
+      <span>Dominant Design<span class="tag l2">label 2</span></span>
+      <span class="bar"><i class="hit" style="width:21%"></i></span>
+      <span class="lab">0.41 / c0.38</span></div>
+    <div class="row"><span class="lab">25</span>
+      <span>Root Cause Analysis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:20%"></i></span>
+      <span class="lab">0.40 / c0.41</span></div>
+    <div class="row"><span class="lab">26</span>
+      <span>Usher's Model of Cumulative Synthesis<span class="tag l0">label 0</span></span>
+      <span class="bar"><i class="" style="width:18%"></i></span>
+      <span class="lab">0.36 / c0.46</span></div></div></div>
+      <div class="card"><div class="hd"><h2>Full Theo set - top 12</h2><span class="lab">A batched 20 / B per-pair / 2512 ms / 410 scored</span></div>
+        <div class="bd">
+    <div class="row"><span class="lab">1</span>
+      <span>Well-Defined Problem Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:75%"></i></span>
+      <span class="lab">1.49 / c0.24</span></div>
+    <div class="row"><span class="lab">2</span>
+      <span>Knowns and Unknowns Matrix Framework</span>
+      <span class="bar"><i class="" style="width:68%"></i></span>
+      <span class="lab">1.35 / c0.20</span></div>
+    <div class="row"><span class="lab">3</span>
+      <span>Domain and Trend Analysis<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:67%"></i></span>
+      <span class="lab">1.33 / c0.00</span></div>
+    <div class="row"><span class="lab">4</span>
+      <span>Near-Term Trend Analysis<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:65%"></i></span>
+      <span class="lab">1.29 / c0.25</span></div>
+    <div class="row"><span class="lab">5</span>
+      <span>gauge the trend's progression over different horizons<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:64%"></i></span>
+      <span class="lab">1.27 / c0.26</span></div>
+    <div class="row"><span class="lab">6</span>
+      <span>Research, Validation, and Early Business Framing<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:64%"></i></span>
+      <span class="lab">1.27 / c0.00</span></div>
+    <div class="row"><span class="lab">7</span>
+      <span>Futures Wheel</span>
+      <span class="bar"><i class="" style="width:63%"></i></span>
+      <span class="lab">1.25 / c0.33</span></div>
+    <div class="row"><span class="lab">8</span>
+      <span>Harnessing Trends Method / Four Lenses<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:62%"></i></span>
+      <span class="lab">1.23 / c0.19</span></div>
+    <div class="row"><span class="lab">9</span>
+      <span>Knowns and Unknowns Matrix<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:61%"></i></span>
+      <span class="lab">1.22 / c0.37</span></div>
+    <div class="row"><span class="lab">10</span>
+      <span>Cynefin Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:61%"></i></span>
+      <span class="lab">1.22 / c0.00</span></div>
+    <div class="row"><span class="lab">11</span>
+      <span>Scenario Analysis Framework<span class="tag l1">outside index</span></span>
+      <span class="bar"><i class="hit" style="width:61%"></i></span>
+      <span class="lab">1.21 / c0.14</span></div>
+    <div class="row"><span class="lab">12</span>
+      <span>Market Dynamics<span class="tag l1">outside index</span><span class="tag l0">stub description</span></span>
+      <span class="bar"><i class="hit" style="width:60%"></i></span>
+      <span class="lab">1.20 / c0.36</span></div>
+        <p class="lab" style="margin-top:10px">the venture is being sized and timed for a funding decision</p><p class="lab">Left: the 27 hand-labeled frameworks ranked by Jev; red bar = label 2. Right: Jev's top picks over every Theo framework; red bar = a framework the current 27-name index cannot offer at all. c = confidence. Degree baseline = number of /mos: commands declaring the framework, the signal Lawrence called out as wrong.</p></div></div>
+    </div></section>
+<div class="foot">Generic handles only (Canon Part 8): section slug, problem type, stage, framework names and their Theo descriptions. Hand labels were written before any call. Variant A = one call per scenario with one Score per framework; Variant B = one call per pair (the rerank cookbook shape).</div></main>
+<script>
+const btns=[...document.querySelectorAll('.tabs button')];const show=s=>{document.querySelectorAll('.scn').forEach(x=>x.style.display=x.id==='scn-'+s?'':'none');btns.forEach(b=>b.classList.toggle('on',b.dataset.s===s));};
+btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.s)));show('S1');
+</script></body></html>

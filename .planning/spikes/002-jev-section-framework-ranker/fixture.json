@@ -1,0 +1,38 @@
+{
+  "_note": "Hand-labeled first-move fit, 0 = poor (premature or off-section), 1 = partial (useful later or as a supporting move), 2 = strong (a right first move). Labels are the navigator-side PWS judgment written 2026-09-17 BEFORE any Jev call, so the model cannot be graded against itself. Generic handles only (Canon Part 8).",
+  "scenarios": {
+    "S1": { "section": "problem-definition", "problem_type": "ill-defined", "stage": "discovery", "why": "the founder has a solution looking for a problem; the job is to find the real problem" },
+    "S2": { "section": "opportunity-bank", "problem_type": "undefined", "stage": "discovery", "why": "no bounded problem yet; the job is to open the space and surface surprising openings" },
+    "S3": { "section": "team-execution", "problem_type": "well-defined", "stage": "execution", "why": "the spec is known; the job is leading people through delivery" },
+    "S4": { "section": "market-analysis", "problem_type": "ill-defined", "stage": "investment", "why": "the venture is being sized and timed for a funding decision" }
+  },
+  "labels": {
+    "Jobs to Be Done (JTBD)":                      { "S1": 2, "S2": 1, "S3": 0, "S4": 1 },
+    "Systems Thinking":                            { "S1": 1, "S2": 1, "S3": 1, "S4": 1 },
+    "S-Curve Analysis":                            { "S1": 0, "S2": 1, "S3": 0, "S4": 2 },
+    "Domain Selection":                            { "S1": 1, "S2": 2, "S3": 0, "S4": 0 },
+    "Beautiful Question Framework":                { "S1": 2, "S2": 2, "S3": 0, "S4": 0 },
+    "Six Thinking Hats":                           { "S1": 1, "S2": 1, "S3": 1, "S4": 1 },
+    "Ackoff Pyramid":                              { "S1": 1, "S2": 0, "S3": 0, "S4": 0 },
+    "PWS Value Proposition":                       { "S1": 0, "S2": 0, "S3": 0, "S4": 1 },
+    "Root Cause Analysis":                         { "S1": 2, "S2": 0, "S3": 1, "S4": 0 },
+    "Red Teaming":                                 { "S1": 1, "S2": 0, "S3": 1, "S4": 2 },
+    "PWS Triple Validation Compass":               { "S1": 0, "S2": 0, "S3": 0, "S4": 2 },
+    "Problem Definition Transformation Framework": { "S1": 2, "S2": 1, "S3": 0, "S4": 0 },
+    "HSI Semantic Surprise Analysis Assistant":    { "S1": 0, "S2": 2, "S3": 0, "S4": 0 },
+    "Reverse Salient Analysis":                    { "S1": 1, "S2": 1, "S3": 2, "S4": 1 },
+    "Adoption-Capacity Theory":                    { "S1": 0, "S2": 0, "S3": 0, "S4": 2 },
+    "Dominant Design":                             { "S1": 0, "S2": 1, "S3": 0, "S4": 2 },
+    "Four Lenses of Innovation":                   { "S1": 1, "S2": 2, "S3": 0, "S4": 0 },
+    "Usher's Model of Cumulative Synthesis":       { "S1": 0, "S2": 2, "S3": 0, "S4": 0 },
+    "Futures Wheel":                               { "S1": 0, "S2": 2, "S3": 0, "S4": 1 },
+    "Adaptive Leadership":                         { "S1": 0, "S2": 0, "S3": 2, "S4": 0 },
+    "Lean Canvas":                                 { "S1": 0, "S2": 0, "S3": 0, "S4": 1 },
+    "PEST Analysis":                               { "S1": 0, "S2": 1, "S3": 0, "S4": 2 },
+    "Knowns and Unknowns Matrix Framework":        { "S1": 1, "S2": 1, "S3": 1, "S4": 1 },
+    "Mullins Model":                               { "S1": 0, "S2": 0, "S3": 0, "S4": 2 },
+    "Hypothesis-Driven Problem Solving":           { "S1": 1, "S2": 0, "S3": 2, "S4": 1 },
+    "Scenario Planning":                           { "S1": 0, "S2": 1, "S3": 0, "S4": 2 },
+    "The Pyramid Principle":                       { "S1": 0, "S2": 0, "S3": 1, "S4": 1 }
+  }
+}
