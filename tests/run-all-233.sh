@@ -95,6 +95,10 @@ for t in tests/test-233-*.sh; do
 done
 shopt -u nullglob
 
+# Quick 260917-o1e: the filename does not match tests/test-233-* so the glob
+# above will not discover it (verified fact 8) -- an explicit line is required.
+run "test-graph-derive-health-stale-skip.cjs" node tests/test-graph-derive-health-stale-skip.cjs
+
 if [ "$found" -eq 0 ]; then
   echo "!!! no tests/test-233-* files discovered"
   exit 1
