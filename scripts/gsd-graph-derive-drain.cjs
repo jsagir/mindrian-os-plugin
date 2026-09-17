@@ -344,6 +344,42 @@ function discloseSkip(target, entry, pairsSkippedOverride) {
   }
 }
 
+// Quick 260917-o1e (R1b): the SUCCESS-side mirror of discloseSkip above. Marks
+// completion at the point of occurrence when a derive pass finishes WITH the
+// encoder available: same lazy require pair, same openRoomDb/finally
+// closeRoomDb, same try/catch that swallows every error (advisory, never
+// blocking), same trigger computation. `reason` is deliberately NOT part of
+// this payload -- there is nothing to explain about a success.
+function discloseCompletion(target, entry, pairsScored, edgesWritten) {
+  let openRoomDb;
+  let closeRoomDb;
+  let navigation;
+  try {
+    ({ openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs'));
+    navigation = require('../lib/core/navigation.cjs');
+  } catch (_e) {
+    return;
+  }
+  let db = null;
+  try {
+    db = openRoomDb(target);
+    const hasFile = entry && typeof entry.filePath === 'string' && entry.filePath.length > 0;
+    const trigger = hasFile ? path.basename(entry.filePath) : 'room-sweep';
+    navigation.logMemoryEvent(db, 'derivation_completed', {
+      pairs_scored: pairsScored,
+      edges_written: edgesWritten,
+      trigger: trigger,
+      dedupe_key: 'derivation_completed:' + path.resolve(target),
+      source_path: 'derivation:complete',
+      created_by: 'system',
+    });
+  } catch (_e) {
+    /* advisory: never block the write path (Phase 210 caution). */
+  } finally {
+    if (db) { try { closeRoomDb(db); } catch (_ce) { /* ignore */ } }
+  }
+}
+
 // The DEFAULT (score-based) worker path. ASYNC because the score-based producer
 // is async and runDerivation's synchronous loop treats a Promise return as [] (the
 // Wave-1 note): candidates are PRE-RESOLVED per pair, then fed to runDerivation via
@@ -371,6 +407,8 @@ async function drainScoreBased(resolved, entries, options, result) {
     // D-04: probe the encoder ONCE before touching any pair. Unavailable means skip
     // EVERY entry, disclose per entry, clear the queue, and return ok:true. There is
     // NO similarity-only degrade path (a symmetric score cannot honestly type edges).
+    // Quick 260917-o1e (R1b): this IS the skip path -- it must never also write a
+    // derivation_completed disclosure, since the encoder was never available here.
     const probe = await probeEncoder(options.probeOpts);
     if (!probe.available) {
       for (const entry of entries) {
@@ -420,11 +458,23 @@ async function drainScoreBased(resolved, entries, options, result) {
           candidatesByPair.set(pair, Array.isArray(cands) ? cands : []);
         }
         const syncDeriveFn = (step) => candidatesByPair.get(step && step.artifactPair) || [];
+        let runRes = null;
         if (typeof runDerivation === 'function') {
-          runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
+          runRes = runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
         }
         if (encoderFailedPairs > 0) {
           discloseSkip(target, entry, encoderFailedPairs);
+        } else {
+          // Quick 260917-o1e (R1b): the `else` arm, not a second independent
+          // `if` -- a pass that degraded mid-run (encoderFailedPairs > 0) is a
+          // skip, never a completion, and the two must never both fire for one
+          // pass (T-o1e-05).
+          discloseCompletion(
+            target,
+            entry,
+            artifactPairs.length,
+            (runRes && Array.isArray(runRes.edges)) ? runRes.edges.length : 0
+          );
         }
         result.drained.push(target);
         succeeded.push(entry);
@@ -479,6 +529,8 @@ function drainDerive(roomDir, opts) {
   if (entries.length === 0) { return result; }
 
   if (options.dryRun) {
+    // Quick 260917-o1e (R1b): nothing was derived, so this must never write a
+    // derivation_completed disclosure -- a dry-run reports a plan, not a result.
     result.remaining = entries.length;
     result.plan = entries.map((e) => e && e.roomDir).filter(Boolean);
     return result;
@@ -486,7 +538,11 @@ function drainDerive(roomDir, opts) {
 
   // LEGACY seam: deriveRunner injected -> byte-compatible Phase-169 path (sync,
   // legacy call shape, NO encoder probe). This is the ONLY path the Phase-169
-  // round-trip test (tests/test-graph-derive-sweep.cjs) exercises.
+  // round-trip test (tests/test-graph-derive-sweep.cjs) exercises. Quick
+  // 260917-o1e (R1b): this seam deliberately skips the encoder probe entirely,
+  // so it has no basis for claiming the encoder was available -- it must never
+  // write a derivation_completed disclosure. The Phase-169 round-trip test owns
+  // this path byte-for-byte.
   if (typeof options.deriveRunner === 'function') {
     // Defect 4a: SUCCEEDED entries clear; a THROWN entry is kept + logged.
     const succeeded = [];

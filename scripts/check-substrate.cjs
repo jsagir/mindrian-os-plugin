@@ -143,6 +143,18 @@ const ALLOWED_DIRECT_IMPORT = [
   // (Canon Part 9: rebuildable projections, not graph state). Allow-listed
   // alongside the other substrate-adjacent room-db.cjs consumers above.
   /^scripts\/rs-vector-bridge\.cjs$/,
+  // Quick 260917-o1e (R1b): scripts/gsd-graph-derive-drain.cjs's discloseSkip
+  // (Phase 224-02, pre-existing) and its new success-side mirror
+  // discloseCompletion each require room-db.cjs ONLY to open the caller-owned
+  // write handle they pass to navigation.logMemoryEvent -- the actual WRITE
+  // routes through the navigation chokepoint, exactly the pattern already
+  // allow-listed above for lib/core/graph-derivation.cjs and
+  // lib/core/graph-self-heal.cjs. discloseSkip's own identical require was a
+  // baseline (pre-diff-gate) violation that never tripped --diff because it
+  // predates this task; discloseCompletion mirrors it byte-for-byte per this
+  // quick task's own action spec, so the file is allow-listed rather than
+  // leaving one twin exempt and the other blocked.
+  /^scripts\/gsd-graph-derive-drain\.cjs$/,
 ];
 
 function isAllowedPath(p) {
