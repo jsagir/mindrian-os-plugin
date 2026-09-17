@@ -1,7 +1,76 @@
 ## [Unreleased] -- v2.0.0-beta.42 (in progress)
 
+### Fixed - the Theo-relationship reports (two tester reports, 2026-09-17)
+
+- **Theo was unreachable on Claude Code for any framework-name or plain-English query.**
+  The Part 8 egress guard's PreToolUse hook turned every `ambiguous` verdict into a hard
+  block, so `brain_search "effectuation"`, `brain_search "dual-use"`, a `brain_query` on
+  chapter ids and a plain-English `brain_ask` all failed with "part 8 -- this may leak
+  freeform_unmatched", while the same calls on Claude Desktop went through with a
+  disclosure. Root cause: the hook and the shim (`brain-client.cjs`) disposed of the same
+  verdict differently, and the hook is the one surface that cannot render the gate card it
+  meant to show. The hook now aligns with the shim on trusted Brain scopes: a free-form
+  query that clears the content scan proceeds and carries the shim's `egress_disclosure`;
+  a content-carrying payload still blocks; a foreign connector key (`mcp__theo__*`) still
+  blocks because it never reaches the shim. The vocabulary list was not widened and the
+  classifier is byte-unchanged. Test-first with the reporter's exact payloads
+  (quick task 260917-dgf).
+- **The room-binding card fired every turn on a bound session, labelled "session
+  unbound".** The F.8 gate fires whenever a message's best lexical match is a room outside
+  the session's bound set, and it reused the unbound wording; a bound session doing work
+  that resembled another room was nagged on every turn with a list of unrelated rooms. The
+  off-scope case is now worded as such and deduplicated per room per session. Separately,
+  the CLI hooks honoured only `MINDRIAN_ROOMS_ROOT` while the MCP writer honoured
+  `MINDRIAN_ROOMS_HOME`, so a user with the documented variable set had bindings written to
+  one path and read from another; one resolver now honours HOME then ROOT across all
+  eleven sites (quick task 260917-dia).
+- **The MCP runtime instructions named `brain_*` tools without naming their server**, so a
+  model tried `mcp__plugin_mos_mindrian-os__brain_ask` and got "No such tool". They now name
+  `plugin_mos_mindrian-brain` as the home of `brain_*` (quick task 260917-dia).
+- **Reach suggestions showed raw claim ids** ("Bring back what we worked out on
+  claim:984a59d2-...") instead of the claim's text. The label now resolves to
+  `properties.text` (jsagi-40, 87bb0eb89).
+
+### Fixed - the Stop-hook card-fire false positives (jsagi-40, RCA card-fire-stale-f1-reach-suggestion-forces-block-regardless-of-relevance)
+
+- The Stop-hook card-fire backstop's sessionless (`no-session`) reach record could bleed into an UNRELATED session's turn, force-firing an ordinary status/holding turn that had no fork in it at all -- the assistant's own closing-sentence wording (e.g. naming next steps in prose) had no bearing on the mechanism, it was purely a timing/session-scope leak. A first attempt (2026-09-17, since superseded) narrowed the leak's exposure window from 2 minutes to 20 seconds; live re-fire with that fix already deployed proved a time window only lowers the probability of a concurrent peer session's mint colliding with an unrelated session's read, it cannot make the collision impossible. The corrected fix: `lib/hmi/selector-dispatcher.cjs`'s pickShape trailer door -- the one producer that always recorded under the sessionless bucket because no session id ever reached its mint point -- now threads `process.env.CLAUDE_CODE_SESSION_ID` (a real, verified session id, already relied on elsewhere in this codebase for the same stdio-transport gap) into its side-channel record, so its mints land in a real, exact-match session bucket instead. `lib/core/card-fire-sidechannel.cjs`'s `scopedRecords` no longer unions the sessionless bucket into any other session's read at all, at any age -- a mint with no resolvable session id now degrades to invisible-to-every-other-session rather than leaking into it.
+- A DIFFERENT, unrelated Stop-hook false-positive on the same error string: a genuinely reached, correctly-never-fired Decision Gate (own session, no cross-session leak involved) could still force-fire on an ordinary turn whose text happened to share vocabulary with the gate's own fixed BOILERPLATE wording ("bind", "session", "room", "select", "start", "talk", "new" -- present in every render of that gate shape regardless of which specific options are on offer), rather than the gate's actual candidate content. A meta-conversation about sessions/rooms/gates -- exactly what a debugging session investigating the sessionless-bucket issue above naturally talks about -- satisfied the relevance check's token-overlap test purely on that shared chrome. `lib/core/gate-relevance.cjs::gateTopicallyRelevant` (the shared relevance predicate consulted from both the F.1 and F.8 mint sites) now strips a new `GATE_BOILERPLATE_TOKENS` set from the GATE side of the comparison only via `gateSubjectTokens()`, so a turn's incidental use of a gate's own structural wording no longer counts as relevance -- while a turn that genuinely names the gate's actual offered content (a specific candidate room name, for example) still force-fires exactly as before.
+
+### Fixed - Eureka entity extraction on populated rooms (RCA eureka-entity-extraction-boilerplate-candidates)
+
+- **Every Eureka candidate on a real room was boilerplate.** On a 69-artifact room the top
+  entities were "Larry", "Seeded", "Working", "Key Decision", "BRAIN": `entity-extract`
+  fed the per-section ICM scaffold files (ROOM.md, STATE.md, MINTO.md, BRAIN.md,
+  FEYNMAN.md) to the extractor as content, every section carries a near-identical copy, so
+  template words merged into entities with 9-20 DESCRIBES edges each and out-ranked every
+  real concept; 528 entity nodes against 65 real artifacts. Scaffold files stay DESCRIBES
+  anchors but are no longer extraction input (`scaffold_files_skipped` in `status.json`).
+- **Entity provenance was unreadable.** Entity rows were minted with a self-referential
+  `source_path` (`entity:sid:name`), so no report could show where an entity came from.
+  Entities now carry the real room-relative path of the artifact they were extracted from.
+- **Already-scanned rooms self-heal.** The fix above is additive, so a room scanned before
+  it kept its legacy template entities. `entity-extract run` now purges exactly that
+  signature (self-referential `source_path`, machine-authored, never a human-confirmed row)
+  plus its edges, through the navigation chokepoint, and reports
+  `legacy_entities_purged` / `legacy_edges_purged`. Verified on a copy of the reporting
+  room: 5 real entities, zero template words, 42 scaffolds skipped, 528 legacy rows purged.
+
 ### Added
-- 
+
+- **Jev (TypeSafe) spike findings** as a project skill (`.claude/skills/spike-findings-MindrianOS-Plugin/`,
+  dev repo only, not shipped): four spikes measuring a typed-decision model as a ranker for
+  decisions made over structure, never over room content. Headline: it ranks Theo's
+  frameworks by section fit at Spearman 0.6-0.8 against a graph-degree baseline of 0.1,
+  and it is only as good as Theo's descriptions, 305 of 410 of which are stubs. Two seeds
+  planted (SEED-095 section framework ledger, SEED-096 Theo content backfill).
+
+### Known, not fixed in this cut
+
+- Theo's command-layer `mappedBy` stamp reads `command-registry@2.0.0-beta.12`; this cut
+  ran with the audited `--no-theo-check` opt-out and still fires the `theo-resync`
+  dispatch. The consuming job on the Theo side has not acted since beta.12.
+- 9 older Phase 218/219 fixtures fail on the 2026-09-03 `epistemic_type` requirement
+  (pre-existing, unrelated to any change in this cut).
 
 ## [2.0.0-beta.41] - 2026-09-16
 
