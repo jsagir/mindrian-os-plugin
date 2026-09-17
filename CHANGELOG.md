@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.44 (in progress)
+## [2.0.0-beta.45] - 2026-09-17
 
 ### Fixed - the beta.43 adversarial review hotfix (quick task 260917-ild)
 
