@@ -58,6 +58,7 @@ const path = require('node:path');
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
 const entityExtract = require('../scripts/entity-extract.cjs');
+const navigation = require('../lib/core/navigation.cjs');
 const { runExtraction, collectArtifacts } = entityExtract;
 
 let pass = 0;
@@ -249,6 +250,71 @@ async function main() {
       const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
       assert.equal(status.scaffold_files_skipped, 15,
         'status.json scaffold_files_skipped must equal 15, got ' + JSON.stringify(status.scaffold_files_skipped));
+    });
+
+    // -----------------------------------------------------------------------
+    // Leg 4 (legacy purge, RCA eureka-entity-extraction-boilerplate-candidates,
+    // navigator ruling 2026-09-17 "purge in the extractor run"): the fix above
+    // is additive, so rooms scanned before it keep their machine-authored
+    // template entities (self-referential source_path 'entity:sid:name'). A run
+    // must purge exactly that signature plus its edges, and must NOT touch an
+    // entity with a real source_path or one a human has confirmed.
+    // -----------------------------------------------------------------------
+    await checkAsync('run purges legacy self-referential entity rows and their edges, keeps real-path and confirmed rows, reports legacy_entities_purged', async function () {
+      const legacyRoom = mkFixtureRoom();
+      try {
+        seedScaffoldNodes(legacyRoom);
+        const anchor = 'memory_artifact:business-model:ROOM';
+        const legacyNames = ['Seeded', 'Working', 'Current'];
+        const db = openRoomDb(legacyRoom, { allowExtension: true });
+        try {
+          for (const name of legacyNames) {
+            const id = 'entity:legacy-sid:' + name;
+            insertNode(db, id, 'company', JSON.stringify({ name: name, entityType: 'company' }), {
+              source_path: 'entity:legacy-sid:' + name, created_by: 'system', epistemic_type: 'observation',
+            });
+            const r = navigation.writeEdge(db, { source_id: id, target_id: anchor, edge_type: 'DESCRIBES' });
+            assert.ok(r && r.ok, 'seed DESCRIBES edge must write for ' + name + ': ' + JSON.stringify(r));
+          }
+          // Survivor 1: a real room-relative source_path (post-fix minting shape).
+          insertNode(db, 'entity:legacy-sid:Keeper Corp', 'company', JSON.stringify({ name: 'Keeper Corp', entityType: 'company' }), {
+            source_path: 'business-model/pricing-notes.md', created_by: 'system', epistemic_type: 'observation',
+          });
+          // Survivor 2: legacy signature, but a human confirmed it (Canon Part 9:
+          // only a human closes a confirmed node; code never deletes one).
+          insertNode(db, 'entity:legacy-sid:Confirmed Co', 'company', JSON.stringify({ name: 'Confirmed Co', entityType: 'company' }), {
+            source_path: 'entity:legacy-sid:Confirmed Co', created_by: 'system', epistemic_type: 'observation', review_status: 'confirmed',
+          });
+          const seeded = db.prepare("SELECT count(*) AS c FROM nodes WHERE id LIKE 'entity:legacy-sid:%'").get().c;
+          assert.equal(seeded, 5, 'fixture must seed 5 entity rows, got ' + seeded);
+        } finally {
+          closeRoomDb(db);
+        }
+
+        const rc = await entityExtract.main([legacyRoom, 'run']);
+        assert.equal(rc, 0, 'entity-extract run should exit 0');
+
+        const statusPath = path.join(legacyRoom, '.mindrian', 'entity-extract', 'status.json');
+        const status = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+        assert.equal(status.legacy_entities_purged, 3,
+          'status.json legacy_entities_purged must equal 3, got ' + JSON.stringify(status.legacy_entities_purged));
+        assert.equal(status.legacy_edges_purged, 3,
+          'status.json legacy_edges_purged must equal 3, got ' + JSON.stringify(status.legacy_edges_purged));
+
+        const db2 = openRoomDb(legacyRoom, { allowExtension: true });
+        try {
+          const remaining = db2.prepare("SELECT id FROM nodes WHERE id LIKE 'entity:legacy-sid:%'").all()
+            .map(function (r) { return r.id; }).sort();
+          assert.deepEqual(remaining, ['entity:legacy-sid:Confirmed Co', 'entity:legacy-sid:Keeper Corp'],
+            'only the real-path and the human-confirmed rows may survive, got ' + JSON.stringify(remaining));
+          const danglingEdges = db2.prepare("SELECT count(*) AS c FROM edges WHERE source LIKE 'entity:legacy-sid:%' OR target LIKE 'entity:legacy-sid:%'").get().c;
+          assert.equal(danglingEdges, 0, 'edges of purged rows must be gone, got ' + danglingEdges);
+        } finally {
+          closeRoomDb(db2);
+        }
+      } finally {
+        try { fs.rmSync(legacyRoom, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      }
     });
 
     console.log('\n' + pass + '/' + total + ' scaffold-entity-noise checks passed');
