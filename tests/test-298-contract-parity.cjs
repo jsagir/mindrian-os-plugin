@@ -145,12 +145,13 @@ function main() {
   tamperSurfaceCase('skill surface', skillSurface);
 
   // ---------------------------------------------------------------------
-  // Case 3: the byte budget. The declared limit (asserted 1950) and the
-  // Desktop wire's EVALUATED constant are read at run time; the constant is
-  // measured with Buffer.byteLength, never a file-size read.
+  // Case 3: the byte budget. The declared limit (asserted 2000, raised from
+  // 1950 by 260917-dia to fit naming mindrian-brain as the brain_* host) and
+  // the Desktop wire's EVALUATED constant are read at run time; the constant
+  // is measured with Buffer.byteLength, never a file-size read.
   // ---------------------------------------------------------------------
-  record('byte budget: declared limit is 1950', () => {
-    assertEqual(policy.byte_budget.limit, 1950, 'byte_budget.limit drifted from 1950');
+  record('byte budget: declared limit is 2000', () => {
+    assertEqual(policy.byte_budget.limit, 2000, 'byte_budget.limit drifted from 2000');
   });
 
   let measuredBudgetBytes;
