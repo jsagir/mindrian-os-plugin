@@ -20,8 +20,10 @@ confirm that frontmatter and stub-file tokens dominate the candidate entity set.
 - Filed: 2026-09-17 by the Jev spike session, relaying jsagi-5e (Larry, working the `axiom` room) via jsagi-40.
 - Source-of-Truth Preamble:
   - CODE claims read against: not yet read; relayed observation only. Re-verify against `origin/main` HEAD before any finding lands (tag `needs-source-reverify`).
-  - WIRE claims probe against: local Eureka engine in embedded mode (MongoDB/mdbr-leaf-ir encoder, sqlite-vec backend), plugin version on the reporter's machine not captured; assume 2.0.0-beta.41/42.
+  - WIRE claims probe against: local Eureka engine in embedded mode (MongoDB/mdbr-leaf-ir encoder, sqlite-vec backend) on plugin `2.0.0-beta.41` (reporter-confirmed 2026-09-17 via jsagi-40).
   - Date of audit: 2026-09-17.
+  - Reporter's `status.json` (embedded run): `state: done`, `started_at: 2026-09-17T06:44:02.700Z`, `finished_at: 2026-09-17T06:44:40.766Z` (38 s for 176,871 scored pairs), `pid: 1706125`, `out: ~/MindrianRooms/axiom/.mindrian/eureka/portfolio-report.md`, `json: ~/MindrianRooms/axiom/.mindrian/eureka/portfolio-report.json`.
+  - Reporter (jsagi-5e) offers `portfolio-report.json` and the reasoning-mode `pairs/mappings/answers.json` on request; ask for the top-25 entity rows with their source file paths first, since that is the direct test of the frontmatter/stub hypothesis.
 - Classification: NEW FAILURE (not in the two 2026-09-17 mentor reports; adjacent to Spike 004, which tested the critic on clean packets and found the critic itself correct).
 
 ## Problem Statement
