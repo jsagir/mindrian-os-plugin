@@ -46,15 +46,78 @@ function nonCommentContains(fileAbs, literalOrTest) {
   try { raw = fs.readFileSync(fileAbs, 'utf8'); } catch (_e) { return false; }
   for (const line of raw.split(/\r?\n/)) {
     if (isPureLineComment(line)) continue;
-    const code = line.replace(/\/\/.*$/, '');
+    // Strip a trailing `//` line comment WITHOUT treating a URL's `://` as
+    // one (a naive `/\/\/.*$/` strip would chop `https://api.typesafe.ai...`
+    // off a real violation line entirely -- the exact false-negative this
+    // gate exists to avoid). A `//` immediately preceded by `:` is left
+    // alone; only a genuine standalone `//` starts a stripped comment.
+    const code = line.replace(/(^|[^:])\/\/.*$/, '$1');
     if (typeof literalOrTest === 'string' ? code.indexOf(literalOrTest) !== -1 : literalOrTest.test(code)) return true;
   }
   return false;
 }
 
+function listFilesRecursive(dirAbs) {
+  const out = [];
+  let entries;
+  try { entries = fs.readdirSync(dirAbs, { withFileTypes: true }); } catch (_e) { return out; }
+  for (const e of entries) {
+    const abs = path.join(dirAbs, e.name);
+    if (e.isDirectory()) out.push(...listFilesRecursive(abs));
+    else if (e.isFile()) out.push(abs);
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
-// Leg 3: eval-icm-writers.cjs never reaches a real room (lands in Task 2;
-// legs 1 and 2 below land in Task 6, per 353-VALIDATION.md's per-task map).
+// Leg 1 (Task 6): no non-comment line under lib/ contains the literal
+// api.typesafe.ai (the vendor is dev-time only, never in the turn path).
+// ---------------------------------------------------------------------------
+function leg1() {
+  console.log('--- leg 1: no api.typesafe.ai literal under lib/ (non-comment lines) ---');
+  const libFiles = listFilesRecursive(path.join(REPO, 'lib'));
+  console.log('files scanned: ' + libFiles.length);
+  const hit = libFiles.find((f) => nonCommentContains(f, 'api.typesafe.ai'));
+  check('no non-comment lib/ line contains api.typesafe.ai', !hit);
+  if (hit) console.log('  hit: ' + path.relative(REPO, hit));
+
+  // Negative control (T-353-19/20 proof the gate actually scans, not a
+  // vacuous zero-file pass): write a scratch file under lib/core/ carrying
+  // the literal on a non-comment line, confirm the SAME scan logic catches
+  // it, then remove the scratch file before this leg returns -- in the same
+  // task, never left behind.
+  const scratchPath = path.join(REPO, 'lib', 'core', '__scratch-353-tripwire-negctl.cjs');
+  fs.writeFileSync(scratchPath, "'use strict';\nconst ENDPOINT = 'https://api.typesafe.ai/v1/systemone';\nmodule.exports = { ENDPOINT };\n");
+  let negControlCaught = false;
+  try {
+    negControlCaught = nonCommentContains(scratchPath, 'api.typesafe.ai');
+  } finally {
+    try { fs.unlinkSync(scratchPath); } catch (_e) { /* tolerant */ }
+  }
+  check('negative control: a scratch lib/ file carrying the literal on a non-comment line is caught by the same scan', negControlCaught);
+  console.log('  negative control recorded: scratch file written under lib/core/, scanned, caught=' + negControlCaught + ', removed in this same task');
+
+  return !hit && negControlCaught;
+}
+
+// ---------------------------------------------------------------------------
+// Leg 2 (Task 6): no non-comment line under hooks/ references
+// eval-icm-writers or build-section-command-ledger (a vendor-touching
+// script must never reach a user machine's hook budget).
+// ---------------------------------------------------------------------------
+function leg2() {
+  console.log('--- leg 2: no hooks/ reference to eval-icm-writers or build-section-command-ledger ---');
+  const hooksFiles = listFilesRecursive(path.join(REPO, 'hooks'));
+  console.log('files scanned: ' + hooksFiles.length);
+  const bannedRe = /eval-icm-writers|build-section-command-ledger/;
+  const hit = hooksFiles.find((f) => nonCommentContains(f, bannedRe));
+  check('no non-comment hooks/ line references eval-icm-writers or build-section-command-ledger', !hit);
+  if (hit) console.log('  hit: ' + path.relative(REPO, hit));
+  return !hit;
+}
+
+// ---------------------------------------------------------------------------
+// Leg 3 (Task 2): eval-icm-writers.cjs never reaches a real room.
 // ---------------------------------------------------------------------------
 function leg3() {
   console.log('--- leg 3: eval-icm-writers.cjs never reaches a real room ---');
@@ -74,6 +137,10 @@ function leg3() {
   return noLiteral && refused;
 }
 
+leg1();
+console.log('');
+leg2();
+console.log('');
 leg3();
 
 console.log('');
