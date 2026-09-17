@@ -1,0 +1,939 @@
+{
+  "measured_at": "2026-09-17T17:53:31.235Z",
+  "rooms_scanned": 54,
+  "per_room": [
+    {
+      "slug": "polygon",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "pws-website",
+      "kinds": {
+        "root": 1,
+        "section": 23,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 13
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mindrianOS",
+      "kinds": {
+        "root": 1,
+        "section": 17,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 51
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 4,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mindrianOS-website-audit",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "align-ecosystem",
+      "kinds": {
+        "root": 1,
+        "section": 16,
+        "structural": 3,
+        "sub-room": 3,
+        "artifact": 18
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 5,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 1
+    },
+    {
+      "slug": "mindrianos-conversion-fix",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mindrianos-venture",
+      "kinds": {
+        "root": 1,
+        "section": 16,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 10
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "iia-deeptech-centers",
+      "kinds": {
+        "root": 1,
+        "section": 13,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 4
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 5,
+        "structural": 2,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mindrian-gtm",
+      "kinds": {
+        "root": 1,
+        "section": 16,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "doe-genesis",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "ador-ip-test",
+      "kinds": {
+        "root": 1,
+        "section": 12,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 12
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mos-qa-quantum-v1.11.0",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "tester-feedback",
+      "kinds": {
+        "root": 1,
+        "section": 15,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 4,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "overlook-motj",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 4
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "motj-ecosystem",
+      "kinds": {
+        "root": 1,
+        "section": 14,
+        "structural": 1,
+        "sub-room": 9,
+        "artifact": 6
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 3,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "sanhedrin",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 4
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 2,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "rambam-dashboard",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "motj-canon",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "motj-wiki",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "motj-screen-architecture",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "social-lab",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 1
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mindrian-opportunities",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 3
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mof-procurement-workshop",
+      "kinds": {
+        "root": 1,
+        "section": 19,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 47
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "jonathan-contractor-motj",
+      "kinds": {
+        "root": 1,
+        "section": 18,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 12
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "dhi-prolonged-field-care",
+      "kinds": {
+        "root": 1,
+        "section": 8,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "untitled-2026-06-01-1702",
+      "kinds": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "rambam",
+      "kinds": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 2,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "rambam-guide",
+      "kinds": {
+        "root": 1,
+        "section": 5,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 5,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "iris2026",
+      "kinds": {
+        "root": 1,
+        "section": 14,
+        "structural": 1,
+        "sub-room": 2,
+        "artifact": 60
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "cohort-testers",
+      "kinds": {
+        "root": 1,
+        "section": 5,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "shamir-nir-opportunity",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "orly-abramovitz",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 7
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "mosaic-ai-labor-commentary",
+      "kinds": {
+        "root": 1,
+        "section": 6,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 6,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "formation",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 1
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "align-tech",
+      "kinds": {
+        "root": 1,
+        "section": 13,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 4,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "align-project-studio",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "aion-eureka-synergy",
+      "kinds": {
+        "root": 1,
+        "section": 15,
+        "structural": 1,
+        "sub-room": 3,
+        "artifact": 27
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 4,
+        "structural": 0,
+        "sub-room": 3
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "haim-battlefield-intake",
+      "kinds": {
+        "root": 1,
+        "section": 3,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "jonathan-sagir",
+      "kinds": {
+        "root": 1,
+        "section": 13,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 2
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "rethinking-mindrianos",
+      "kinds": {
+        "root": 1,
+        "section": 4,
+        "structural": 0,
+        "sub-room": 0,
+        "artifact": 104
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "jhtv-oliver-kuntz",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 4
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "cellyrix",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "prophet",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "aion-labs-eir",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "peekup",
+      "kinds": {
+        "root": 1,
+        "section": 8,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "tailings-dam-ip",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 1
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 3,
+        "structural": 2,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "capless-marker-innovator-lab",
+      "kinds": {
+        "root": 1,
+        "section": 8,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "capless-innovation",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 3
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "iris-lev-joint-venture",
+      "kinds": {
+        "root": 1,
+        "section": 9,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 7
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "lunar-water-site",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "bina-weizmann",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 1,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "noga-mventures",
+      "kinds": {
+        "root": 1,
+        "section": 10,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 2,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "launchpad-02",
+      "kinds": {
+        "root": 1,
+        "section": 11,
+        "structural": 1,
+        "sub-room": 0,
+        "artifact": 2
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 3,
+        "structural": 1,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "axiom",
+      "kinds": {
+        "root": 1,
+        "section": 12,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 2
+      },
+      "missing_room_md_by_kind": {
+        "root": 1,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    }
+  ],
+  "totals": {
+    "root": 54,
+    "section": 571,
+    "structural": 58,
+    "sub-room": 19,
+    "artifact": 405,
+    "missing_room_md": {
+      "root": 9,
+      "section": 69,
+      "structural": 21,
+      "sub-room": 3
+    },
+    "registry_drift": 1
+  },
+  "scope_note": "missing_room_md counts are scoped to root/section/structural/sub-room only (R-353-B); artifact folders are excluded by rule and never counted here."
+}
