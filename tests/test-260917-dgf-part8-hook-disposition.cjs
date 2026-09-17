@@ -15,6 +15,22 @@
  * bytes gets refused with a card nobody can read. `lib/core/brain-client.cjs`
  * `callTool` is the second enforcement point this hook is being aligned with.
  *
+ * Quick task 260917-ild (Codex finding F1). The 260917-dgf fix above keyed
+ * the ambiguous allow on `isBrainTool`, which ALSO trusts
+ * `mcp__pws-brain-mcp__*` -- a direct HTTPS connector with no local plugin
+ * code in its path (`.mcp.json` registers exactly one Brain server key,
+ * `mindrian-brain`, whose command is `bin/mindrian-brain-mcp-client.cjs`,
+ * which requires `lib/core/brain-client.cjs`; every handler delegates to
+ * `callTool`). `mcp__pws-brain-mcp__*` never touches that shim, so the second
+ * classification and its `egress_disclosure` this quick task's own argument
+ * depends on NEVER RUNS on that route, and the allow was unearned there.
+ * Case G and case H below pin the fix: `isBrainTool` stays the byte-unchanged
+ * trust predicate for OTHER consumers, and a new narrower predicate,
+ * `isShimBackedBrainTool`, answers the route question -- does this scope
+ * provably reach `bin/mindrian-brain-mcp-client.cjs` -- for the ambiguous
+ * branch specifically. Only `mcp__mindrian-brain__*` (project scope) and
+ * `mcp__plugin_mos_mindrian-brain__*` (plugin scope) are shim-backed.
+ *
  * LEG 0 (classifier unchanged, the mutation guard). Calls
  * `lib/core/part8-egress-guard.cjs::classify()` DIRECTLY on the four A-payloads
  * and asserts each still returns ambiguous / freeform_unmatched. This leg must
@@ -80,6 +96,12 @@ const TRUSTED_SEARCH = 'mcp__plugin_mos_mindrian-brain__brain_search';
 const TRUSTED_QUERY = 'mcp__plugin_mos_mindrian-brain__brain_query';
 const TRUSTED_ASK = 'mcp__plugin_mos_mindrian-brain__brain_ask';
 const UNTRUSTED_SEARCH = 'mcp__theo__brain_search';
+// Quick task 260917-ild (F1): DIRECT_SEARCH is the direct HTTPS connector
+// registered under its own custom key (lib/mcp/brain-composition-census.cjs
+// rules it has no local plugin code in its path); PROJECT_SEARCH is the
+// project-scope shim-backed name (.mcp.json's single "mindrian-brain" key).
+const DIRECT_SEARCH = 'mcp__pws-brain-mcp__brain_search';
+const PROJECT_SEARCH = 'mcp__mindrian-brain__brain_search';
 
 // ---------------------------------------------------------------------------
 // LEG 0: classifier unchanged (mutation guard). Runs BOTH before and after
@@ -92,6 +114,11 @@ function leg0ClassifierUnchanged() {
     ['A2', { query: 'dual-use' }, TRUSTED_SEARCH],
     ['A3', { cypher: 'MATCH (c:Chapter) WHERE c.id IN ["ch-12","ch-27"] RETURN c.id, c.title' }, TRUSTED_QUERY],
     ['A4', { question: 'what comes after customer interviews when the market is unproven' }, TRUSTED_ASK],
+    // Quick task 260917-ild: both new tool names still classify as verdict
+    // ambiguous, class freeform_unmatched, so case G's exit 2 is proven to
+    // come from the disposition and not from a different classification.
+    ['G', { query: 'effectuation' }, DIRECT_SEARCH],
+    ['H', { query: 'effectuation' }, PROJECT_SEARCH],
   ];
   cases.forEach(function (c) {
     const id = 'LEG0-' + c[0];
@@ -180,6 +207,31 @@ function leg1HookDisposition() {
     );
     check('F', r.status === 0, 'F: a proven MOVE-SET payload must stay exit 0, got ' + r.status);
   })();
+
+  // G (exit 2, Codex F1): the direct HTTPS connector (mcp__pws-brain-mcp__*)
+  // has no local plugin code in its path, so brain-client.cjs::callTool's
+  // second classification never runs there. RED today (exits 0): the
+  // pre-260917-ild hook keys the ambiguous allow on isBrainTool, which also
+  // trusts this scope.
+  (function caseG() {
+    const r = runHook(
+      envelope(DIRECT_SEARCH, { query: 'effectuation' }, 'p260917-g'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('G', r.status === 2, 'G: an ambiguous payload on the direct connector (no second classification behind it) must exit 2, got ' + r.status);
+    check('G', r.stderr && r.stderr.trim().length > 0, 'G: block must carry non-empty stderr, got ' + JSON.stringify(r.stderr));
+  })();
+
+  // H (exit 0, Codex F1 non-overshoot pin): the project-scope shim-backed
+  // name keeps the allow the shim's own egress_disclosure already justifies.
+  (function caseH() {
+    const r = runHook(
+      envelope(PROJECT_SEARCH, { query: 'effectuation' }, 'p260917-h'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('H', r.status === 0, 'H: an ambiguous payload on the project-scope shim-backed name must proceed to the shim, got ' + r.status + ' stderr=' + JSON.stringify(r.stderr));
+    check('H', !/part 8/i.test(r.stderr), 'H: expected no Part 8 text on stderr, got ' + JSON.stringify(r.stderr));
+  })();
 }
 
 // ---------------------------------------------------------------------------
@@ -191,6 +243,16 @@ function leg2PredicateSelfValidation() {
   check('LEG2-1', sanitizer.isBrainTool(TRUSTED_SEARCH) === true, 'LEG2-1: isBrainTool(' + TRUSTED_SEARCH + ') must be true');
   check('LEG2-2', sanitizer.isBrainTool(UNTRUSTED_SEARCH) === false, 'LEG2-2: isBrainTool(' + UNTRUSTED_SEARCH + ') must be false');
   check('LEG2-3', sanitizer.isBrainShapedTool(UNTRUSTED_SEARCH) === true, 'LEG2-3: isBrainShapedTool(' + UNTRUSTED_SEARCH + ') must be true');
+
+  // Quick task 260917-ild (F1): isBrainTool on the direct connector stays
+  // true (the trust predicate is unchanged); isShimBackedBrainTool is false
+  // on the direct connector and on mcp__theo__brain_search, and true on both
+  // the plugin scope and the project scope.
+  check('LEG2-4', sanitizer.isBrainTool(DIRECT_SEARCH) === true, 'LEG2-4: isBrainTool(' + DIRECT_SEARCH + ') must stay true (trust predicate unchanged)');
+  check('LEG2-5', sanitizer.isShimBackedBrainTool(DIRECT_SEARCH) === false, 'LEG2-5: isShimBackedBrainTool(' + DIRECT_SEARCH + ') must be false');
+  check('LEG2-6', sanitizer.isShimBackedBrainTool(UNTRUSTED_SEARCH) === false, 'LEG2-6: isShimBackedBrainTool(' + UNTRUSTED_SEARCH + ') must be false');
+  check('LEG2-7', sanitizer.isShimBackedBrainTool(TRUSTED_SEARCH) === true, 'LEG2-7: isShimBackedBrainTool(' + TRUSTED_SEARCH + ') must be true (plugin scope)');
+  check('LEG2-8', sanitizer.isShimBackedBrainTool(PROJECT_SEARCH) === true, 'LEG2-8: isShimBackedBrainTool(' + PROJECT_SEARCH + ') must be true (project scope)');
 }
 
 function main() {

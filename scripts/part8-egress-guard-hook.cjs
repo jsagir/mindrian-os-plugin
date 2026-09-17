@@ -27,18 +27,38 @@
  * the Shape F.1 card in the first place (the card JSON was landing on stderr
  * as an unreadable error string).
  *
+ * Quick task 260917-ild (Codex finding F1, narrows the allow above): the
+ * ambiguous branch's allow used `isBrainTool()`, which ALSO trusts
+ * `mcp__pws-brain-mcp__*` -- a direct HTTPS connector with no local plugin
+ * code anywhere in its path (`lib/mcp/brain-composition-census.cjs`'s
+ * ruling). That route never reaches `bin/mindrian-brain-mcp-client.cjs`, so
+ * `brain-client.cjs::callTool`'s second classification -- the one the
+ * paragraph above depends on to keep nothing silent -- NEVER RUNS there, and
+ * the allow was unearned. The ambiguous branch now consults
+ * `isShimBackedBrainTool()` instead: only `mcp__mindrian-brain__*` (project
+ * scope) and `mcp__plugin_mos_mindrian-brain__*` (plugin scope) provably
+ * route through that single shim (`.mcp.json` registers exactly one Brain
+ * server key, "mindrian-brain"). `isBrainTool` itself, `BRAIN_TOOL_MATCHER`,
+ * `BRAIN_SHAPED_TOOL_MATCHER` and this file's step-1 default-deny scan are
+ * byte-unchanged: this quick task NARROWS an allow and widens nothing. Every
+ * scope that blocked before this quick task keeps blocking; the two
+ * shim-backed scopes keep the allow the shim's own egress_disclosure already
+ * justifies; `mcp__pws-brain-mcp__*` and `mcp__theo__*` return to exit 2 on
+ * ambiguity.
+ *
  * Fail posture (A3 accepted risk, matches write-scope-check):
  *   - fail-OPEN (exit 0) on a parse / resolution error -- a false block is worse
  *     than a false allow for a safety hook.
  *   - fail-CLOSED (exit 2) ONLY on a real content hit.
- *   - As of 260917-dgf: the hook no longer converts a proven-harmless
- *     ambiguity into a block on a TRUSTED scope. It still does for UNTRUSTED
- *     Brain-shaped keys (`mcp__theo__brain_ask` and friends): those bypass
- *     the shim entirely, so there is no second enforcement point behind
- *     them, and the hook's block stays exactly as strict as before. Fail-
- *     CLOSED is unchanged for: `content_set` on any scope, `unproven_packet`
- *     on any scope, and any ambiguous verdict on an untrusted Brain-shaped
- *     key.
+ *   - As of 260917-ild: the hook no longer converts a proven-harmless
+ *     ambiguity into a block on a SHIM-BACKED scope. It still does for every
+ *     other Brain-shaped key, including the direct connector
+ *     (`mcp__pws-brain-mcp__*`) and untrusted keys (`mcp__theo__brain_ask`
+ *     and friends): none of those has a second enforcement point behind it,
+ *     so the hook's block stays exactly as strict as before this quick task.
+ *     Fail-CLOSED is unchanged for: `content_set` on any scope,
+ *     `unproven_packet` on any scope, and any ambiguous verdict on a
+ *     non-shim-backed Brain-shaped key.
  *
  * Part 8 (D-01): the hook opens NO Brain wire and makes NO network call at
  * classify time. The block is a harness exit code, not a dispatch protocol.
@@ -46,17 +66,22 @@
  * logs the ambiguous decision, and allows (exit 0) -- with no wire, nothing can
  * leak.
  *
- * The canon argument (260917-dgf), compressed: step 1's default-deny scan is
- * byte-unchanged -- nothing here touches lib/core/part8-egress-guard.cjs, and
- * a CONTENT-SET payload still blocks on every scope. Step 3's methodology-
- * vocabulary test protects nothing on its own -- a trailing `// framework`
- * comment already defeats it (documented at
- * lib/core/part8-egress-guard.cjs::_isFreeFormTool). The shim still
- * classifies every call that reaches it, so allowing the hook's exit does
- * not make the call silent. Untrusted keys keep the block, because they
- * never reach the shim's second classification. Tri-Polar note: Claude
- * Desktop already behaves this way -- no PreToolUse hook fires there, every
- * plugin-scoped brain_* call goes straight to the shim, and the shim
+ * The canon argument (260917-dgf, narrowed by 260917-ild / Codex F1),
+ * compressed: step 1's default-deny scan is byte-unchanged -- nothing here
+ * touches lib/core/part8-egress-guard.cjs, and a CONTENT-SET payload still
+ * blocks on every scope. Step 3's methodology-vocabulary test protects
+ * nothing on its own -- a trailing `// framework` comment already defeats it
+ * (documented at lib/core/part8-egress-guard.cjs::_isFreeFormTool). The
+ * allow now covers only scopes with a second enforcement point behind them
+ * (the two shim-backed scopes; `isShimBackedBrainTool`), so allowing the
+ * hook's exit does not make the call silent -- the shim still classifies
+ * every call that reaches it. Every other Brain-shaped name, including
+ * `mcp__pws-brain-mcp__*` (the direct HTTPS connector, no second
+ * classification behind it) and `mcp__theo__*`, keeps exit 2 on ambiguity,
+ * because none of them ever reaches the shim's second classification.
+ * Tri-Polar note: Claude Desktop resolves the plugin scope through that same
+ * shim -- no PreToolUse hook fires there, every plugin-scoped brain_* call
+ * goes straight to `bin/mindrian-brain-mcp-client.cjs`, and the shim
  * discloses and proceeds -- so this change aligns the CLI to shipped Desktop
  * behavior instead of inventing a third policy. Cowork follows the CLI hook
  * path and is aligned by the same edit.
@@ -84,15 +109,18 @@ const NAVIGATION_PATH = path.join(LIB_CORE, 'navigation.cjs');
 const GATE_PATH = path.join(__dirname, '..', 'lib', 'hmi', 'part8-egress-gate.cjs');
 
 // ---------------------------------------------------------------------------
-// Quick task 260917-dgf -- the classes an ambiguous verdict is allowed to
-// carry through on a TRUSTED Brain scope (isBrainTool() true: plugin scope,
-// project scope, canonical custom connector). `unproven_packet` is
-// DELIBERATELY excluded: a typed packet that failed proof is a structure,
-// not a free-form string, and widening to it would be a different decision
-// with a different argument than the one this quick task makes. Both classes
-// are minted at lib/core/part8-egress-guard.cjs::classify().
+// Quick task 260917-dgf, narrowed by 260917-ild (Codex F1) -- the classes an
+// ambiguous verdict is allowed to carry through on a SHIM-BACKED Brain scope
+// (isShimBackedBrainTool() true: project scope, plugin scope -- the two
+// tool-name shapes that provably route through
+// bin/mindrian-brain-mcp-client.cjs into brain-client.cjs::callTool).
+// `unproven_packet` is DELIBERATELY excluded: a typed packet that failed
+// proof is a structure, not a free-form string, and widening to it would be
+// a different decision with a different argument than the one this quick
+// task makes. Both classes are minted at
+// lib/core/part8-egress-guard.cjs::classify().
 // ---------------------------------------------------------------------------
-const TRUSTED_AMBIGUOUS_ALLOW_CLASSES = Object.freeze(new Set(['freeform_unmatched', 'unknown']));
+const SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES = Object.freeze(new Set(['freeform_unmatched', 'unknown']));
 
 // ---------------------------------------------------------------------------
 // stdin read + exit signaling (clone write-scope-check.cjs:144-150, 174-179).
@@ -236,25 +264,28 @@ function main() {
   }
 
   if (verdict === 'ambiguous') {
-    // Quick task 260917-dgf. Placement is load-bearing: this sits BEFORE the
-    // brainAvailable() test below so the policy reads as "trusted scope,
-    // free-form ambiguity, hand it to the shim" -- not as an accident of the
-    // Brain-less branch -- and it sits AFTER bestEffortRecord above, which
-    // stays exactly where it is so telemetry still records every verdict,
-    // including the newly-allowed ones. Everything below this block is
-    // byte-unchanged: the block branch, the F.1 gate render attempt, the
-    // minimal-notice fallback, the Brain-less allow, the final allow, the
-    // fail-OPEN wraps.
+    // Quick task 260917-dgf, narrowed by 260917-ild (Codex F1). Placement is
+    // load-bearing: this sits BEFORE the brainAvailable() test below so the
+    // policy reads as "shim-backed scope, free-form ambiguity, hand it to
+    // the shim" -- not as an accident of the Brain-less branch -- and it
+    // sits AFTER bestEffortRecord above, which stays exactly where it is so
+    // telemetry still records every verdict, including the allowed ones.
+    // Everything below this block is byte-unchanged: the block branch, the
+    // F.1 gate render attempt, the minimal-notice fallback, the Brain-less
+    // allow, the final allow, the fail-OPEN wraps.
     //
-    // The trust bit is computed defensively: a predicate throw degrades to
-    // UNTRUSTED, which keeps the block, never the allow (T-dgf-04).
-    let trusted = false;
+    // The route bit is computed defensively: a predicate throw degrades to
+    // NOT-shim-backed, which keeps the block, never the allow (T-dgf-04,
+    // T-ild-01). isShimBackedBrainTool is the ROUTE predicate (does this
+    // scope provably reach bin/mindrian-brain-mcp-client.cjs), narrower than
+    // isBrainTool (the TRUST predicate, unchanged, still used elsewhere).
+    let shimBacked = false;
     try {
-      trusted = !!(sanitizer && sanitizer.isBrainTool(toolName));
+      shimBacked = !!(sanitizer && sanitizer.isShimBackedBrainTool(toolName));
     } catch (_) {
-      trusted = false;
+      shimBacked = false;
     }
-    if (trusted && TRUSTED_AMBIGUOUS_ALLOW_CLASSES.has(klass)) {
+    if (shimBacked && SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES.has(klass)) {
       return allow();
     }
 
