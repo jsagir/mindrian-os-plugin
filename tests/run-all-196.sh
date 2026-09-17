@@ -75,6 +75,19 @@ run_if "PB8-04/05/07/08 hook + F.1 gate + degrade" \
   node tests/part8-egress-guard-hook.test.cjs
 
 # ---------------------------------------------------------------------------
+# Quick task 260917-dgf: the hook's disposition of an AMBIGUOUS verdict, split
+# by the TRUST predicate (isBrainTool). Pins that freeform_unmatched / unknown
+# on a TRUSTED Brain scope now exits 0 and proceeds to the shim, while the
+# same verdict on an untrusted Brain-shaped key (mcp__theo__brain_*) still
+# blocks, and that content_set / unproven_packet stay exit 2 on every scope.
+# Lives in this 196 suite because 196 owns scripts/part8-egress-guard-hook.cjs.
+# run_if-guarded on the RUNTIME module, not the test file (Wave 0 contract).
+# ---------------------------------------------------------------------------
+run_if "260917-dgf hook ambiguous disposition (trusted scope allows, untrusted blocks)" \
+  scripts/part8-egress-guard-hook.cjs \
+  node tests/test-260917-dgf-part8-hook-disposition.cjs
+
+# ---------------------------------------------------------------------------
 # PB8-02: no private FORBIDDEN_PATTERNS copy. The classifier MUST import the
 # pattern set from rs-egress-prompts (re-exported byte-for-byte from
 # cross-room-aggregator); a private local copy silently drifts and defeats the
