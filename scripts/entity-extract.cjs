@@ -244,6 +244,41 @@ function parseArgs(argv) {
 //     (tier a); exact=false for the tier-b section-anchor fallback. The
 //     metadata pass writes ONLY to exact nodes (a section anchor represents a
 //     DIFFERENT file; writing another file's frontmatter onto it would lie).
+//
+// RCA eureka-entity-extraction-boilerplate-candidates (2026-09-17, short-term
+// patch): the five per-directory identity/status scaffold kinds (ROOM / STATE
+// / MINTO / BRAIN / FEYNMAN) carry a near-identical template body PER SECTION
+// (Decision 15: every directory gets a ROOM.md; STATE/MINTO/BRAIN/FEYNMAN
+// follow the same house style), so the SAME capitalized template words were
+// extracted once per section and merged into one entity node whose DESCRIBES
+// degree (9-20 on the reporter's axiom room) crowded out real content (65
+// real artifacts vs 528 entity nodes observed). These five kinds STAY valid
+// DESCRIBES anchors below (sectionAnchor is unchanged) -- only their OWN body
+// text stops being read as extraction input.
+//
+// Matched by kind AND basename together, NEVER kind alone:
+// lib/core/memory/reconcile-memory-runner.cjs's BASENAME_TO_KIND is the ONLY
+// place a real room ever assigns these five kinds, and it is an EXACT
+// basename match ('ROOM.md' -> 'ROOM', etc.), so a genuine scaffold file's
+// kind and basename always agree. Requiring both here protects a synthetic
+// memory_artifact node some existing test fixtures build with a scaffold-kind
+// label on an arbitrary filename (tests/test-219-metadata.cjs and
+// tests/test-219-low-confidence-disclosure.cjs both seed kind:'ROOM' on a
+// non-ROOM.md path to test the frontmatter/classifier pipeline, not the
+// scaffold-body walk) from being silently swept into this exclusion.
+const SCAFFOLD_KIND_BASENAME = Object.freeze({
+  ROOM: 'ROOM.md',
+  STATE: 'STATE.md',
+  MINTO: 'MINTO.md',
+  BRAIN: 'BRAIN.md',
+  FEYNMAN: 'FEYNMAN.md',
+});
+
+function isScaffoldArtifact(kind, rel) {
+  const expected = kind ? SCAFFOLD_KIND_BASENAME[kind] : null;
+  return typeof expected === 'string' && path.basename(String(rel)) === expected;
+}
+
 function collectArtifacts(db, roomDir, allowPaths) {
   const allowSet = (Array.isArray(allowPaths) && allowPaths.length > 0)
     ? new Set(allowPaths.map(function (p) { return path.normalize(String(p)); }))
@@ -256,19 +291,30 @@ function collectArtifacts(db, roomDir, allowPaths) {
   const artifacts = [];
   const coveredPaths = new Set();  // roomDir-relative paths already read via memory_artifact
   const sectionAnchor = new Map(); // section name ("_root" included) -> a valid memory_artifact node id
+  let scaffoldFilesSkipped = 0;    // RCA eureka-entity-extraction-boilerplate-candidates
 
   for (const row of rows) {
     let props = {};
     try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
     const rel = props && typeof props.path === 'string' ? props.path : null;
+    const kind = props && typeof props.kind === 'string' ? props.kind : null;
     if (rel) {
       if (isAllowed(rel)) {
-        const abs = path.join(roomDir, rel);
-        let text = null;
-        try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
-        if (text) {
-          artifacts.push({ artifactId: row.id, text: text, relPath: rel, exact: true });
+        if (isScaffoldArtifact(kind, rel)) {
+          // Excluded as extraction input (never read off disk); still marks
+          // the path covered so tier (b) never re-reads it as ordinary
+          // content under the section anchor, and still counted so
+          // status.json discloses the exclusion honestly (never silent).
           coveredPaths.add(path.normalize(rel));
+          scaffoldFilesSkipped += 1;
+        } else {
+          const abs = path.join(roomDir, rel);
+          let text = null;
+          try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
+          if (text) {
+            artifacts.push({ artifactId: row.id, text: text, relPath: rel, exact: true });
+            coveredPaths.add(path.normalize(rel));
+          }
         }
       } else {
         // Scoped run only: mark the filtered-out memory_artifact-backed path
@@ -311,6 +357,11 @@ function collectArtifacts(db, roomDir, allowPaths) {
     }
   }
 
+  // Additive, non-enumerable-safe count riding the returned array (arrays are
+  // objects): existing callers that treat the return as a plain artifact list
+  // (iteration, .length, .map) are byte-compatible; runExtraction reads this
+  // one extra property to disclose the exclusion in status.json.
+  artifacts.scaffoldFilesSkipped = scaffoldFilesSkipped;
   return artifacts;
 }
 
@@ -728,6 +779,10 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
   // Absent -> full-room collection, byte-identical to the 218 behavior.
   const artifacts = collectArtifacts(db, roomDir, options.paths);
+  // RCA eureka-entity-extraction-boilerplate-candidates: the count of scaffold
+  // (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded as extraction input this
+  // run, threaded to status.json below (never silent).
+  const scaffoldFilesSkipped = artifacts.scaffoldFilesSkipped || 0;
 
   // Aggregate all candidates first (pure, no writes yet). Tier-1 now also yields
   // a structural WHY seed (frameworkTerms) at zero model cost -- these never go to
@@ -737,7 +792,16 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   const tier1WhyTerms = []; // { name, sourceArtifactId }
   for (const art of artifacts) {
     const res = extractEntities(art.text, { sourceArtifactId: art.artifactId, maxPerArtifact: maxPerArtifact });
-    for (const e of res.entities) rawEntities.push(e);
+    for (const e of res.entities) {
+      // RCA eureka-entity-extraction-boilerplate-candidates (source_path
+      // minting fix): tag the entity with the REAL room-relative path of the
+      // artifact it was extracted from (never the anchor id), so the write
+      // loop below can mint a real, honest source_path instead of the prior
+      // self-referential 'entity:sid:name' handle. Additive field; unrelated
+      // readers of the entity object are unaffected.
+      e.sourceRelPath = art.relPath;
+      rawEntities.push(e);
+    }
     for (const r of res.relations) relations.push(r);
     if (Array.isArray(res.frameworkTerms)) {
       for (const t of res.frameworkTerms) tier1WhyTerms.push(t);
@@ -848,6 +912,15 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
         // prior write). A low_confidence / fallback WHAT lands stamped so the eureka
         // pairing pass excludes an unverified regex hit.
         evidenceTier: e.evidenceTier,
+        // RCA eureka-entity-extraction-boilerplate-candidates (source_path
+        // minting fix): the real room-relative path of the artifact this
+        // entity was extracted from (tagged above). writeEntityNode only
+        // honors this on the FIRST insert for a given (sessionId, name) --
+        // the UPSERT never touches source_path on conflict -- so this is the
+        // FIRST artifact's path, matching the RCA's required contract. A
+        // caller-side rejection (missing, or containing ':') falls back to
+        // the prior self-referential handle inside writeEntityNode itself.
+        sourcePath: e.sourceRelPath,
       });
       if (r && r.ok) entitiesWritten += 1;
     }
@@ -931,6 +1004,9 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     tier2Escalated: tier2.escalated,
     tier2Model: tier2.modelResolved,
     tier2LowConfidence: tier2.lowConfidence,
+    // RCA eureka-entity-extraction-boilerplate-candidates: honest disclosure
+    // of the short-term patch's exclusion count (never silent).
+    scaffoldFilesSkipped: scaffoldFilesSkipped,
   };
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
@@ -998,6 +1074,10 @@ async function cmdRun(opts) {
       tier2_escalated: result.tier2Escalated,
       tier2_model: result.tier2Model,
       tier2_low_confidence: result.tier2LowConfidence,
+      // RCA eureka-entity-extraction-boilerplate-candidates: the count of
+      // scaffold (ROOM/STATE/MINTO/BRAIN/FEYNMAN) files excluded from
+      // extraction input this run (never silent).
+      scaffold_files_skipped: result.scaffoldFilesSkipped,
       session: opts.session,
     });
     return 0;
