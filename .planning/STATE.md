@@ -5190,7 +5190,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-17 - Completed quick task 260917-dia: 3 tester-reported fixes (mindrian-brain server naming, F.8 binding-gate off-scope wording + dedupe, MINDRIAN_ROOMS_HOME/ROOT precedence unification)
+Last activity: 2026-09-17 - Resolved two card-fire RCAs (stop-hook-fires-card-on-option-shaped-prose-sentence + the July card-fire-stale-f1 sibling): sessionless cross-session leak closed at the source (real session id threaded through selector-dispatcher.cjs's pickShape door, no time-window union left in card-fire-sidechannel.cjs), plus a separate gate-boilerplate-vs-content relevance fix in gate-relevance.cjs. Live confirmation still pending, recorded explicitly, not silently declared done.
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
