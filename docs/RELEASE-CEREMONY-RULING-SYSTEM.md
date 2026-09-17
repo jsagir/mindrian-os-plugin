@@ -67,6 +67,7 @@ The install minisite (formerly Step 9.6a) is NOT counted as a place here: it was
 - REVERSIBLE before push: version bumps (rolled back on a pre-tag abort), local Commit A/B, local tag. A pre-tag abort (Step 2.5 / 6.6) leaves NO public residue.
 - IRREVERSIBLE once done: `npm publish`, the website git push, the minisite vercel deploy. If a gate AFTER publish aborts, you have a SPLIT-BRAIN (npm `@next` + websites at NEW_VERSION; plugin origin + tag + marketplace at the prior version). Recovery: either complete the push (`git push origin main --tags` + marketplace push) if the publish was healthy, OR `npm deprecate` the broken version and cut a successor. NEVER leave `@latest` pointing at a broken version -- betas live on `@next` (opt-in), `@latest` stays on the last good final.
 - Broken published betas MUST be `npm deprecate`d with a message pointing at the successor.
+- Step 9.7 now waits up to the propagation budget (`NPX_PROP_RETRIES` x `NPX_PROP_BACKOFF_S`, default 48 x 15s = 12 minutes, env-overridable) for an asynchronous npm publish to become visible before the install self-test runs, and proceeds on timeout because the self-test still gates (quick task 260917-o1y).
 
 ## RULE 8 -- Clean-tree + ahead guard
 

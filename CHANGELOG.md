@@ -3,6 +3,19 @@
 ### Added
 - 
 
+### Fixed
+
+- **Step 9.7's registry-propagation poll aborted the ceremony on the first 404 under
+  `set -euo pipefail`.** An npm E404 (the registry still processing an asynchronous publish)
+  made the poll's command substitution's exit status inherit `npm view`'s exit 1 under
+  pipefail; errexit then killed the whole release ceremony before the loop printed even its
+  first "waiting for npm registry" line, on both the v2.0.0-beta.43 and v2.0.0-beta.45 cuts
+  (2026-09-17). Every asynchronous npm publish therefore dropped the ceremony into the RULE 7
+  split-brain state. Fixed by extracting the poll into an errexit-safe
+  `scripts/release-lib/npm-propagation-poll.sh` (version-read ends in `|| true`) and raising
+  the default budget to 48 x 15s (about 12 minutes), still overridable via
+  `NPX_PROP_RETRIES` / `NPX_PROP_BACKOFF_S`. Quick task 260917-o1y.
+
 ## [2.0.0-beta.45] - 2026-09-17
 
 ### Fixed - the beta.43 adversarial review hotfix (quick task 260917-ild)
