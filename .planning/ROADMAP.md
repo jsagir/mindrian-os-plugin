@@ -909,7 +909,7 @@ Plans:
 **Success criteria:** doctor room-map and section-ruling green on all 31 fleet rooms after --fix (0 directories without ROOM.md, 7 today; 0 drift); per-turn self-location plus ruling read under 400 tokens; 100 percent of new claims on fixture rooms carry an anchor edge (fleet today 12 of 7,836); reach top-3 hit rate on a labeled fixture turn set at least equal to today's sensor order, both numbers reported; ledger build cost and wall time recorded per release; grader agreement with the Claude-judge baseline at least 0.8.
 **Canon parts:** 7, 8, 9, 11.
 **Depends on:** Phase 275 (section CONTEXT.md contracts, writeSectionContracts), Phase 345 (gate decision nodes + SOURCED_FROM provenance), Phase 352 (doctor auto_heal classification), SEED-001 sub-room ACID block, Spike 002 (Theo puller + Jev rubric). Theo-side Section-node emission is a registered dependency this phase does not wait on.
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/REQUIREMENTS.md at plan time per R-353-F)
 
@@ -923,7 +923,7 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 
 **Wave 3** *(depends on 353-02)*
 
-- [ ] 353-03-PLAN.md -- RULE-22..28: Fixture grading. evals/icm/ with five per-writer checklists and a once-authored Claude-judge baseline, scripts/eval-icm-writers.cjs (fixture-only, dev-time key, De Stijl report), the paired top-3 hit-rate run, exact-agreement grading, the icm-ruling-eval-fresh acceptance point, three tripwires, and the phase close-out
+- [x] 353-03-PLAN.md -- RULE-22..28: Fixture grading. evals/icm/ with five per-writer checklists and a once-authored Claude-judge baseline, scripts/eval-icm-writers.cjs (fixture-only, dev-time key, De Stijl report), the paired top-3 hit-rate run, exact-agreement grading, the icm-ruling-eval-fresh acceptance point, three tripwires, and the phase close-out
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
