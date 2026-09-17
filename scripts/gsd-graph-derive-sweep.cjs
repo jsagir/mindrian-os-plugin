@@ -39,6 +39,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 const QUEUE_RELATIVE = path.join('.mindrian', 'graph-derive-queue.json');
 
@@ -48,7 +51,7 @@ const QUEUE_RELATIVE = path.join('.mindrian', 'graph-derive-queue.json');
 // ---------------------------------------------------------------------------
 
 function resolveMindrianRoomsRoot() {
-  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  const envRoot = roomsHomeEnv();
   if (envRoot && fs.existsSync(envRoot)) return envRoot;
   const home = process.env.HOME || os.homedir();
   if (!home) return null;

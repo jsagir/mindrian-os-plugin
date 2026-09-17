@@ -39,6 +39,9 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const runner = require(path.join(REPO_ROOT, 'lib', 'core', 'feynman', 'timeline-runner.cjs'));
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(REPO_ROOT, 'lib', 'core', 'rooms-home-env.cjs'));
 
 // ---------- argv parser ----------
 
@@ -81,8 +84,7 @@ function safeIsDir(p)  { try { return fs.statSync(p).isDirectory(); } catch (_) 
  */
 function resolveActiveRoom(rootsOverride) {
   const roomsRoot = rootsOverride
-    || process.env.MINDRIAN_ROOMS_ROOT
-    || process.env.MINDRIAN_ROOMS_HOME
+    || roomsHomeEnv()
     || path.join(os.homedir(), 'MindrianRooms');
   const registryPath = path.join(roomsRoot, '.rooms', 'registry.json');
   if (!safeIsFile(registryPath)) return null;

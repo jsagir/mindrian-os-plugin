@@ -79,6 +79,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 const ROOM_DB_MODULE = path.join(__dirname, '..', 'lib', 'core', 'room-db.cjs');
 
@@ -87,8 +90,11 @@ const ROOM_DB_MODULE = path.join(__dirname, '..', 'lib', 'core', 'room-db.cjs');
 // ---------------------------------------------------------------------------
 
 function resolveRoomsRoot() {
-  if (process.env.MINDRIAN_ROOMS_ROOT && process.env.MINDRIAN_ROOMS_ROOT.trim()) {
-    return process.env.MINDRIAN_ROOMS_ROOT.trim();
+  // 260917-dia: roomsHomeEnv() already trims, so the local .trim() this site
+  // used to apply to MINDRIAN_ROOMS_ROOT is redundant and dropped.
+  const envValue = roomsHomeEnv();
+  if (envValue) {
+    return envValue;
   }
   const home = process.env.HOME || '';
   if (home) {

@@ -51,6 +51,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 // The six per-folder memory basenames. The gate is an exact-basename match
 // (case-exact: state.md does NOT match STATE.md), cross-platform normalized for
@@ -90,8 +93,7 @@ function resolveRoomDir() {
   if (envRoom && fs.existsSync(envRoom)) return envRoom;
 
   try {
-    const roomsRoot = process.env.MINDRIAN_ROOMS_ROOT ||
-                      process.env.MINDRIAN_ROOMS_HOME ||
+    const roomsRoot = roomsHomeEnv() ||
                       path.join(os.homedir(), 'MindrianRooms');
     const regPath = path.join(roomsRoot, '.rooms', 'registry.json');
     if (!fs.existsSync(regPath)) return '';

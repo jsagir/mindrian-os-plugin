@@ -71,6 +71,9 @@ const brainDerivation = require('../lib/core/brain-derivation.cjs');
 // below (exit code 0 kept, this is not an error) renders rail copy instead
 // of ad-hoc prose; 250 renders, 252 routes -- no new refusal prose drafted.
 const refusalMessaging = require('../lib/core/refusal-messaging.cjs');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require('../lib/core/rooms-home-env.cjs');
 
 // ---------- Frozen constants ----------
 
@@ -289,8 +292,7 @@ async function dispatchCrossLabelDups(roomSlug) {
  */
 function resolveActiveRoom(rootsOverride) {
   const roomsRoot = rootsOverride
-    || process.env.MINDRIAN_ROOMS_ROOT
-    || process.env.MINDRIAN_ROOMS_HOME
+    || roomsHomeEnv()
     || path.join(os.homedir(), 'MindrianRooms');
   const registryPath = path.join(roomsRoot, '.rooms', 'registry.json');
   if (!safeIsFile(registryPath)) return null;

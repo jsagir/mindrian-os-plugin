@@ -50,6 +50,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PARENT_BUDGET_MS = 100;
@@ -72,7 +75,7 @@ function parentBudgetMs() {
 // ---------------------------------------------------------------------------
 
 function resolveMindrianRoomsRoot() {
-  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  const envRoot = roomsHomeEnv();
   if (envRoot && fs.existsSync(envRoot)) return envRoot;
   const home = process.env.HOME || os.homedir();
   if (!home) return null;

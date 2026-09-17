@@ -30,6 +30,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 const BUDGET_MS = 200;
 
@@ -68,7 +71,7 @@ const BRAND_STOP_SET = new Set([
 // ---------------------------------------------------------------------------
 
 function resolveMindrianRoomsRoot() {
-  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  const envRoot = roomsHomeEnv();
   if (envRoot && fs.existsSync(envRoot)) return envRoot;
   const home = process.env.HOME || os.homedir();
   if (!home) return null;
@@ -922,15 +925,15 @@ function resolveActiveSectionPathForRoom(roomDir) {
 }
 
 function resolveRoomsRootForNav() {
-  // Wider env-var acceptance than Phase 83 resolveMindrianRoomsRoot.
-  // Phase 83 uses MINDRIAN_ROOMS_ROOT; resolve-room (the bash sibling)
-  // uses MINDRIAN_ROOMS_HOME. The Phase 91 hot path accepts either so
-  // tests + bash + node converge on the same fixture without divergent
-  // env conventions.
-  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
-  if (envRoot && fs.existsSync(envRoot)) return envRoot;
-  const envHome = process.env.MINDRIAN_ROOMS_HOME;
-  if (envHome && fs.existsSync(envHome)) return envHome;
+  // Wider env-var acceptance than Phase 83 resolveMindrianRoomsRoot. The Phase
+  // 91 hot path accepts either MINDRIAN_ROOMS_HOME or MINDRIAN_ROOMS_ROOT so
+  // tests + bash + node converge on the same fixture without divergent env
+  // conventions. 260917-dia (Task C): the shared roomsHomeEnv() resolver
+  // already applies the HOME-then-ROOT precedence; this collapses the prior
+  // two separate existsSync checks (ROOT then HOME) into one existsSync check
+  // on whichever value roomsHomeEnv() picks.
+  const envValue = roomsHomeEnv();
+  if (envValue && fs.existsSync(envValue)) return envValue;
   return resolveMindrianRoomsRoot();
 }
 

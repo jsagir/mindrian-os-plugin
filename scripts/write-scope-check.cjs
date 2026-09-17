@@ -21,6 +21,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
+// 260917-dia (Task C): the ONE shared MINDRIAN_ROOMS_HOME-then-ROOT env
+// precedence resolver (HOME is the intended primary name per docs).
+const { roomsHomeEnv } = require(path.join(__dirname, '..', 'lib', 'core', 'rooms-home-env.cjs'));
 
 // The reserved dev-repo/no-room sentinel (mirrors intent-classifier NO_ROOM_SLUG).
 // A write whose session-aware resolution yields this (or yields no room at all)
@@ -57,7 +60,7 @@ function resolveSessionId(payload, root) {
 // ---------------------------------------------------------------------------
 
 function resolveMindrianRoomsRoot() {
-  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  const envRoot = roomsHomeEnv();
   if (envRoot && fs.existsSync(envRoot)) {
     return envRoot;
   }
