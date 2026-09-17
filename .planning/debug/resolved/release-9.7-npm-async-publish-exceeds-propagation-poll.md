@@ -20,7 +20,7 @@ beta.43 or the beta.45 cut. The earlier "the poll ran and timed out" hypothesis 
 (see the RETRACTED subsection under Technical Root Cause). Fixed by extracting the poll into
 an errexit-safe `scripts/release-lib/npm-propagation-poll.sh` (quick task 260917-o1y), raising
 the budget to 48 x 15s, and rebaselining the affected test fixtures. Ships beta-first in
-v2.0.0-beta.46 (RULE 6).
+v2.0.0-beta.47 (RULE 6).
 
 ## Meta
 
@@ -216,10 +216,10 @@ Implemented, quick task 260917-o1y (three commits, all beta-first per RULE 6, al
   nine minutes before npm exposed beta.43, so the rendered version stayed beta.41 until the
   next ISR revalidation. Still open as a general observation about ISR lag versus npm
   publish-to-visible latency; re-verify mindrian-os.com after any cut with a slow publish.
-- CHANGELOG.md: `### Fixed` entry added under `## [Unreleased] -- v2.0.0-beta.46 (in progress)`
+- CHANGELOG.md: `### Fixed` entry added under `## [Unreleased] -- v2.0.0-beta.47 (in progress)`
   in this same close-out commit.
 - knowledge-base.md: summary block added as the newest entry in this same close-out commit.
-- Release lockstep: this fix ships in v2.0.0-beta.46, the next beta cut; no version bump
+- Release lockstep: this fix ships in v2.0.0-beta.47, the next beta cut; no version bump
   performed by this RCA close-out itself (RULE 6, beta-first for release infrastructure).
 
 ## Resolution
@@ -265,6 +265,6 @@ files_changed:
     file, moved from .planning/debug/)
   - .planning/debug/knowledge-base.md (summary block added)
   - docs/RELEASE-CEREMONY-RULING-SYSTEM.md (RULE 7 propagation-budget sentence)
-  - CHANGELOG.md (beta.46 Fixed entry)
+  - CHANGELOG.md (beta.47 Fixed entry)
 
 commits: quick task 260917-o1y, three commits (see CHANGELOG.md and git log for hashes).
