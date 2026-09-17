@@ -228,6 +228,15 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/room-map-module.cjs",
       "description": "Rebuilds a room's .mindrian/room-map.json from disk and compares it against six drift classes: missing map, stale map fingerprint, a blocked-kind (root/section/structural/sub-room) directory missing ROOM.md, a stale per-node icm_self.fingerprint, an artifact folder wrongly carrying an icm_self block, and a sub-room registry lineage disagreement (report-only, disk wins). No auto_heal key yet (R-353-A; Phase 352 classifies this row and section-ruling together when it lands, proposed TRUE here since a rebuild-from-disk is mechanical and reversible). --fix refuses (recoverable:false) on any room path outside tests/fixtures/icm-rooms/, so a real fleet room is only ever rebuilt as the navigator's explicit act (D-353-9)."
+    },
+    {
+      "id": "section-ruling",
+      "introduced_version": "2.0.0-beta.48",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": true,
+      "runner": "lib/core/doctor/section-ruling-module.cjs",
+      "description": "Reports four drift classes over a room's section ruling documents: a landed CONTEXT.md ruling_fingerprint disagreeing with a fresh recomputation from data/section-job-canon.json plus the shipped section-command-ledger; a section slug with no canon row (sections_without_job_id); a sub-room node with no declared job_id (subrooms_without_job_id, the parent-fallback case, report-only); and claim nodes filed since this module's introduced date with no SOURCED_FROM edge to a jtbd:* anchor (claims_without_anchor, legacy claims out of scope). No auto_heal key yet (R-353-A; Phase 352 classifies this row alongside room-map, proposed FALSE here since regenerating a ruling document can rewrite a file a human authored prose into, a judgment fix). --fix refuses (recoverable:false) on any room path outside tests/fixtures/icm-rooms/, so a real fleet room's ruling documents are only ever regenerated as the navigator's explicit act (D-353-9)."
     }
   ]
 }
