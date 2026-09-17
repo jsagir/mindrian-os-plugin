@@ -2629,20 +2629,20 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
 
 **Plan 353-01 (room map, self-location, doctor room-map, fixtures)**
 
-- [ ] **RULE-01**: `lib/core/room-map.cjs` exists and exports `buildRoomMap`, `writeRoomMap`,
+- [x] **RULE-01**: `lib/core/room-map.cjs` exists and exports `buildRoomMap`, `writeRoomMap`,
       `readRoomMap`, `renderSelfBlock`, `writeSelfBlocks`, `mapFingerprint` and `SELF_BLOCK_KINDS`,
       every one synchronous (no `async`, no `await`, no `.then(`), because the doctor engine's
       ALWAYS pass calls `check()` with no `await` and would misreport a Promise as a row with no
       status. Artifact folders are mapped with `kind: 'artifact'` and never receive a block
       (R-353-B), with the exclusion rule stated in the module header.
 
-- [ ] **RULE-02**: `.mindrian/room-map.json` is rebuildable from disk at any time. Two builds of an
+- [x] **RULE-02**: `.mindrian/room-map.json` is rebuildable from disk at any time. Two builds of an
       unchanged tree return the same `fingerprint` (sha256 over the sorted
       `(path, kind, job_id, parent, children)` tuples); a change to any tracked tuple changes it;
       an untracked change (an artifact body edit) does not. The walk refuses to leave the room
       directory and never follows a symlinked directory.
 
-- [ ] **RULE-03**: every root, section, structural and sub-room ROOM.md carries a derived
+- [x] **RULE-03**: every root, section, structural and sub-room ROOM.md carries a derived
       `icm_self` block with exactly `room`, `path`, `parent`, `depth`, `children`,
       `artifact_count`, `fingerprint`; every string value is escaped through
       `escapeYamlDoubleQuoted`; a second write is byte-identical; every byte outside the block is
@@ -2650,42 +2650,42 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `templates/room-skeleton/ROOM.md.identity.tmpl`. `estimateTokens(block)` is at most 120
       (D-353-2's 60-120 band).
 
-- [ ] **RULE-04**: `icm_self` and `job_id` are in the `ROOM.md` schema's `optional` allow-list in
+- [x] **RULE-04**: `icm_self` and `job_id` are in the `ROOM.md` schema's `optional` allow-list in
       `lib/core/frontmatter-schemas.cjs`, so `validate()` returns zero `unknown` violations for a
       generated block and the PostToolUse hook stays quiet (Pitfall 11).
 
-- [ ] **RULE-05**: doctor module `room-map` is registered in `data/doctor-modules.json` with
+- [x] **RULE-05**: doctor module `room-map` is registered in `data/doctor-modules.json` with
       exactly the seven keys the other rows carry and NO `auto_heal` key (R-353-A; Phase 352
       classifies it when it lands, proposed TRUE). `check`/`fix` are synchronous, every return path
       including `skip` and `ok` carries a non-empty `detail` (D-03 rule 9), six drift classes are
       reported, and `recoverable: false` is set outside the resolved `tests/fixtures/icm-rooms`
       prefix so `--fix` cannot auto-heal a real fleet room.
 
-- [ ] **RULE-06**: sub-room birth writes both maps as side effect six, child first then parent, as
+- [x] **RULE-06**: sub-room birth writes both maps as side effect six, child first then parent, as
       the last statement inside the existing FINALIZE `try`; `allWired` includes `se.s6`;
       `_faultInject` accepts `s1` through `s6`; and `_bornWiredRollback` re-runs the parent map
       rebuild after `fs.rmSync` (R-353-E), proven by a `_faultInject: 's6'` unwind test.
 
-- [ ] **RULE-07**: `getRoomContext` gains a purely additive `legE` self-location leg.
+- [x] **RULE-07**: `getRoomContext` gains a purely additive `legE` self-location leg.
       `_meta.legTimingsMs`, `_meta.legCostChars` and `_meta.legCostTokensApprox` each gain `legE`;
       every pre-existing `_meta` key stays byte-stable; and `legCostTokensApprox.legE` is under 400
       on every fixture room, measured with `estimateOnly: true` and reported as the repo's
       chars-over-4 approximation rather than as tokens unqualified (criterion 2).
 
-- [ ] **RULE-08**: the fleet walk runs in REPORT MODE ONLY over the registry's rooms, calls no
+- [x] **RULE-08**: the fleet walk runs in REPORT MODE ONLY over the registry's rooms, calls no
       `fix`, writes nothing under any room path, records no file name and no file content, and
       emits per-kind counts as committed evidence. Success criterion 1 is restated per R-353-B:
       0 root/section/structural/sub-room directories without ROOM.md, not 0 of the 2,024 non-dot
       directories the fleet actually carries.
 
-- [ ] **RULE-09**: `tests/run-all-353.sh` is written once in 353-01 and edited by no later plan; it
+- [x] **RULE-09**: `tests/run-all-353.sh` is written once in 353-01 and edited by no later plan; it
       pre-declares a `run_if` leg per phase test file, names which RULE id each leg gates, and
       carries its own targeted em-dash glob. `tests/fixtures/icm-rooms/` is a NEW sibling of
       `195-nested-room-tree`, so `tests/test-195-recursive-reconcile.cjs`'s 16-file assertion stays
       green. `evals/icm/cases/turns.json` is authored here, before any ledger exists, because
       criterion 4 is only honest if the labels predate the thing measured.
 
-- [ ] **RULE-29**: A sub-room declares its job_id through one F.8 card at birth; the declared value
+- [x] **RULE-29**: A sub-room declares its job_id through one F.8 card at birth; the declared value
       is written to the child ROOM.md before side effect six; undeclared or custom leaves job_id
       absent (parent fallback, doctor-flagged). The card rides the existing `options.birthGate`
       contract shape as `options.jobGate` and its answer is filed through the existing

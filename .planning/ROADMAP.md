@@ -909,13 +909,13 @@ Plans:
 **Success criteria:** doctor room-map and section-ruling green on all 31 fleet rooms after --fix (0 directories without ROOM.md, 7 today; 0 drift); per-turn self-location plus ruling read under 400 tokens; 100 percent of new claims on fixture rooms carry an anchor edge (fleet today 12 of 7,836); reach top-3 hit rate on a labeled fixture turn set at least equal to today's sensor order, both numbers reported; ledger build cost and wall time recorded per release; grader agreement with the Claude-judge baseline at least 0.8.
 **Canon parts:** 7, 8, 9, 11.
 **Depends on:** Phase 275 (section CONTEXT.md contracts, writeSectionContracts), Phase 345 (gate decision nodes + SOURCED_FROM provenance), Phase 352 (doctor auto_heal classification), SEED-001 sub-room ACID block, Spike 002 (Theo puller + Jev rubric). Theo-side Section-node emission is a registered dependency this phase does not wait on.
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/REQUIREMENTS.md at plan time per R-353-F)
 
 **Wave 1**
 
-- [ ] 353-01-PLAN.md -- RULE-01..09, RULE-29: Room Map (self-location). lib/core/room-map.cjs (walk, four blocked kinds plus artifact, sha256 fingerprint), icm_self blocks, root ROOM.md creation from the identity template, scaffolder wiring, sub-room birth side effect six with the s6 fault seam, doctor room-map, the additive legE turn-budget leg, tests/run-all-353.sh and tests/fixtures/icm-rooms/ (written once here), report-mode-only fleet evidence
+- [x] 353-01-PLAN.md -- RULE-01..09, RULE-29: Room Map (self-location). lib/core/room-map.cjs (walk, four blocked kinds plus artifact, sha256 fingerprint), icm_self blocks, root ROOM.md creation from the identity template, scaffolder wiring, sub-room birth side effect six with the s6 fault seam, doctor room-map, the additive legE turn-budget leg, tests/run-all-353.sh and tests/fixtures/icm-rooms/ (written once here), report-mode-only fleet evidence
 
 **Wave 2** *(depends on 353-01)*
 

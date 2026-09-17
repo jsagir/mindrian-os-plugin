@@ -3,16 +3,37 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 349-05-PLAN.md
-last_updated: "2026-09-17T17:07:52.985Z"
-last_activity: "2026-09-17 - Completed quick task 260917-o1e: graph-derive-health stale encoder skip self-lock broken (derivation_completed symmetry + live presence probe on heal)"
+stopped_at: Completed 353-01-PLAN.md - Wave 1 of 3
+last_updated: "2026-09-17T17:59:03.656Z"
+last_activity: 2026-09-17 -- Phase 353 Plan 01 (Room Map self-location) complete; 2 plans remain (353-02, 353-03)
 progress:
-  total_phases: 100
+  total_phases: 103
   completed_phases: 34
-  total_plans: 290
-  completed_plans: 284
-  percent: 98
+  total_plans: 293
+  completed_plans: 285
+  percent: 97
 ---
+
+<!-- NOTE (353-01 execute-plan, 2026-09-17, resync-clobber pattern, same class as every note in
+     this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly reported current_plan 1 -> 2 of 3. `state.update-progress`
+     correctly computed `completed: 285, percent: 97` (285/293). `state.record-metric` (flag
+     syntax `--phase --plan --duration --tasks --files`) landed its own correct Performance
+     Metrics row. `state.add-decision` (with `--summary`) repeated the documented `[Phase ?]`
+     placeholder-prefix bug (prepended `[Phase ?]: ` ahead of this plan's own already-prefixed
+     `[Phase 353]` text), fixed in place to a single `[Phase 353] 353-01: ...` line.
+     `state.record-session` updated only `Last session`, correctly, leaving the frontmatter
+     clobber from an EARLIER call in this same session (`stopped_at` reverted to a stale
+     "Completed 349-05-PLAN.md" snapshot with no wave suffix, `last_activity` reverted to the
+     stale "Phase 353 execution started" line, `percent` reverted to `33`, a phases-ratio
+     reading, not the plan-completion percentage) in place. Hand-corrected once, after all
+     calls landed: `stopped_at` -> "Completed 353-01-PLAN.md - Wave 1 of 3", `last_activity` ->
+     this plan's completion line, `percent` -> 97 (285/293, matching `state.update-progress`'s
+     own correct computation); left `total_phases`/`completed_phases` at 103/34 unchanged since
+     Phase 353 has not closed (2 of 3 plans remain: 353-02..353-03). `last_updated` left at the
+     tool's own timestamp, not re-investigated further. Same root cause as every other note in
+     this file. -->
+
 
 <!-- NOTE (349-06 execute-plan, 2026-09-16, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -4863,7 +4884,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 349 — release-to-theo-leading-edge-graph-engineering-learning-sync
+**Current focus:** Phase 353 — icm-section-ruling-system-self-locating-room-map-jtbd-rooted
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4908,8 +4929,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 349 (release-to-theo-leading-edge-graph-engineering-learning-sync) — EXECUTING
-Plan: 6 of 6
+Phase: 353 (icm-section-ruling-system-self-locating-room-map-jtbd-rooted) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
@@ -5190,7 +5211,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-17 - Completed quick task 260917-o1e: graph-derive-health stale encoder skip self-lock broken (derivation_completed symmetry + live presence probe on heal)
+Last activity: 2026-09-17 -- Phase 353 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -6580,6 +6601,7 @@ Progress: [█████████░] 92%
 | Phase 349 P04 | 45min | 2 tasks | 4 files |
 | Phase 349-release-to-theo-leading-edge P05 | 40min | 2 tasks | 4 files |
 | Phase 349 P06 | 90min | 3 tasks | 5 files |
+| Phase 353 P01 | 180min | 8 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -8220,6 +8242,7 @@ Progress: [█████████░] 92%
 - [Phase 349] 349-04: RELEASE_SHA at Step 5.6 is deliberately re-derived from the pushed tag (git rev-parse v$NEW_VERSION^{commit}), never reused from the Step 7 value, since Step 7's value predates the push and was never re-checked against origin.
 - [Phase 349] 349-05: RULE 5 place 8 amended in place with the leading half; VERSION-BUMP-CHECKLIST.md/WD-14 reconciled without creating the file, per 349-03's ratified option (a): WD-14 stands, deliverable 4 satisfied via RULE 5 place 8 plus the release-process include.
 - [Phase 349] 349-06: closed NOTIFY-01..14 with measured proof, registered Phase 351 for the R5 disposition, wrote the phase close-out record
+- [Phase 353] 353-01: gamma-room fixture ships with a root ROOM.md (not without) because the repo's pre-commit Data Room invariant refuses a .room-root dir missing ROOM.md/MINTO.md; missing-root and artifact-no-ROOM.md scenarios are exercised via tmpdir copies at test runtime instead.
 
 ### Pending Todos
 
@@ -8367,7 +8390,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-16T05:57:41.218Z
+Last session: 2026-09-17T17:59:03.585Z
 Stopped at: Completed 349-05-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
