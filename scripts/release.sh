@@ -146,7 +146,8 @@ NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by defaul
 STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by default; --strict-shape restores the pre-210 hard-fail
 NO_THEO_CHECK=0 # Phase 343 Plan 07 (WD-13/T-343-06): Theo stamp gate is ON by default; --no-theo-check is the audited opt-out (--no-minisite / --no-website precedent), never silent
 NO_THEO_NOTIFY=0 # Phase 349 Plan 04 (NOTIFY-04): the Theo NOTIFY gate (LEADING half of place 8) is ON by default; --no-theo-notify is the audited opt-out, following the --no-theo-check / --no-minisite / --no-website precedent, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--dry-run]"
+NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-ledger offline staleness check (Step 2.4) is ON by default; --no-ledger-check is the audited opt-out, following the --no-theo-check precedent, never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--no-ledger-check] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -164,6 +165,7 @@ for arg in "$@"; do
     --strict-shape)      STRICT_SHAPE=1 ;;
     --no-theo-check)     NO_THEO_CHECK=1 ;;
     --no-theo-notify)    NO_THEO_NOTIFY=1 ;;
+    --no-ledger-check)   NO_LEDGER_CHECK=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -399,6 +401,21 @@ fi
 if ! node "$PLUGIN_DIR"/scripts/build-corpus-stats.cjs --check; then
   echo -e "${RED}ABORT: corpus-stats gate failed -- a stale corpus literal on a live surface.${NC}"
   echo "  Recovery: repoint the live surface to the three live magnitudes, or run: node scripts/build-corpus-stats.cjs"
+  exit 1
+fi
+# Phase 353 Plan 02 Task 10 (R-353-G): the offline section-command-ledger
+# staleness check, the SAME `--no-theo-check` shape as Step 0.6's Theo stamp
+# gate. This asserts the SHIPPED ledger's plugin_version/built_at/row-shape
+# is not stale, offline, with ZERO network call -- the Jev-scored rebuild
+# stays a navigator-invoked pre-release act (never a release.sh step, never
+# a hook), so the release path stays key-free. NO_LEDGER_CHECK is the
+# audited opt-out; engaging it ships a deliberately stale ledger and this
+# log names that consequence.
+if [ "$NO_LEDGER_CHECK" = "1" ]; then
+  echo "  note: section-command-ledger staleness check skipped (--no-ledger-check): a deliberately stale ledger ships this release."
+elif ! node "$PLUGIN_DIR/scripts/build-section-command-ledger.cjs" --check; then
+  echo -e "${RED}ABORT: section-command-ledger staleness check failed -- the shipped ledger is stale or malformed.${NC}"
+  echo "  Recovery: node scripts/build-section-command-ledger.cjs (the navigator's pre-release Jev-scored rebuild, dev-time key required), or node scripts/build-section-command-ledger.cjs --offline-seed for a key-free rebuild."
   exit 1
 fi
 # Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16), softened by Phase 210 (item 210-A,

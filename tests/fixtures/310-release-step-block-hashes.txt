@@ -68,15 +68,27 @@
 # this comment block deliberately never spells either label verbatim -- doing so would give
 # grep a second matching line and corrupt both legs' `awk '{print $1}'` read, exactly the
 # failure this note exists to prevent recurring.
+#
+# Phase 353 Plan 02 Task 10 (2026-09-17, R-353-G): this task's OWN authorized
+# region is exactly two blocks, re-pinned below and nowhere else: the
+# "# --- Step 0: ..." block (NO_LEDGER_CHECK=0 flag var + the --no-ledger-check
+# case arm + USAGE_BLOCK addition) and the "# --- Step 2.4: ..." block (the
+# offline section-command-ledger --check staleness gate, gated on
+# NO_LEDGER_CHECK, added after the corpus-stats gate and before the
+# SHAPE-GATE-BEGIN sentinel). No other block's hash changed; the top-of-file
+# preamble hash and every other Step header below are untouched from the
+# quick 260917-o1y rebaseline above (this note deliberately never spells
+# that label verbatim, same reason the note below states). The header count
+# stays 30; no block was added or renamed.
 
 92da4abfaa63fdabcafc4b4e2055c940b797d208095e8202bc5e0c90ce17e389  PREAMBLE(1-79)
 49  EXIT1_NONCOMMENT_COUNT
-1c4a36c56801a6e653b95fa1fad408e324ff0b1080a46c45343796f039a4b0f8  # --- Step 0: Parse bump type + flags ---
+1c036be81ee9272602d48a4379a72b71b760a5851adaaf890f534b67b5c4e66b  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 77fd77595fba5ff1fbb071331cdb8c22c7803296bcf7b58a0cc7eb1a098a90f2  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
-a72814f62aadde917d4206a9a6cd10837fe29b185ea50d0c724494c1516d1a8a  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
+41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
 4c2555d9f406b7b7a740ae475711c174efdcea1463e04638db88fa378d025a30  # --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
 03b1c1b59397babb7315279a0ca9b7b24b2edc485cd92829091332851c975d75  # --- Step 4: Bump marketplace.json (version + npm source pinned to the exact version) ---
