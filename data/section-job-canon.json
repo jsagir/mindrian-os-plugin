@@ -1,0 +1,109 @@
+{
+  "$schema_note": "Phase 353 Plan 02 Task 1 (OQ-353-1, R-353-C). Four members (model-business, model-finances, protect-assets, design-solution) were added to the job vocabulary rather than forcing a wrong job onto business-model, financial-model, legal-ip and solution-design: the Jev probe measured 19-32 percent confidence with flat distributions on those four against the 16 command-derived jobs, because that vocabulary was built for commands, not sections. These four are section-canon values ONLY in this phase; no command adopts them yet, and adoption is a separate, later decision. secondary_job_id, when declared, is carried into the ruling document's generated Part 2 (methodology sequence) as the second block of the sequence, never dropped.",
+  "schema_version": 1,
+  "phase": "353-icm-section-ruling-system",
+  "canon_parts": [7, 9],
+  "probe": {
+    "vendor": "jev",
+    "model": "jev-1.13.0",
+    "probed_at": "2026-09-17",
+    "what_crossed": "section slug, the shipped One job sentence, and the 16 job ids with one-line glosses; no room content"
+  },
+  "ratification": {
+    "ratified_by": null,
+    "ratified_at": null
+  },
+  "ratification_note": "This object is the frontmatter equivalent for a JSON file (JSON carries no YAML frontmatter). The navigator ratifies this canon once, as a truth about the sections rather than about any venture (OQ-353-1), by filling ratified_by and ratified_at through a future navigator act; this plan leaves both null on purpose.",
+  "vocabulary_extension_jobs": [
+    "design-solution",
+    "model-business",
+    "model-finances",
+    "protect-assets"
+  ],
+  "sections": {
+    "problem-definition": {
+      "job_id": "find-problem",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.99
+    },
+    "market-analysis": {
+      "job_id": "understand-market",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 1.0
+    },
+    "solution-design": {
+      "job_id": "design-solution",
+      "secondary_job_id": null,
+      "vocabulary_extension": true,
+      "source": "vocabulary-extension",
+      "probe_confidence": null
+    },
+    "business-model": {
+      "job_id": "model-business",
+      "secondary_job_id": null,
+      "vocabulary_extension": true,
+      "source": "vocabulary-extension",
+      "probe_confidence": null
+    },
+    "competitive-analysis": {
+      "job_id": "understand-market",
+      "secondary_job_id": "validate-idea",
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.58
+    },
+    "team-execution": {
+      "job_id": "plan-execution",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.97
+    },
+    "legal-ip": {
+      "job_id": "protect-assets",
+      "secondary_job_id": null,
+      "vocabulary_extension": true,
+      "source": "vocabulary-extension",
+      "probe_confidence": null
+    },
+    "financial-model": {
+      "job_id": "model-finances",
+      "secondary_job_id": null,
+      "vocabulary_extension": true,
+      "source": "vocabulary-extension",
+      "probe_confidence": null
+    },
+    "opportunity-bank": {
+      "job_id": "explore",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.39
+    },
+    "funding": {
+      "job_id": "plan-execution",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.50
+    },
+    "strategy": {
+      "job_id": "find-bottleneck",
+      "secondary_job_id": "explore",
+      "vocabulary_extension": false,
+      "source": "jev-probe",
+      "probe_confidence": 0.64
+    },
+    "personas": {
+      "job_id": "understand-market",
+      "secondary_job_id": null,
+      "vocabulary_extension": false,
+      "source": "jev-probe-draft-gloss",
+      "probe_confidence": 0.93
+    }
+  }
+}
