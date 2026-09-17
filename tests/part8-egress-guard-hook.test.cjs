@@ -18,7 +18,10 @@
 //   - verdict block (CONTENT-SET)    -> exit 2 + Part 8 stderr message (PB8-04)
 //   - clean MOVE-SET                 -> exit 0 (PB8-04)
 //   - malformed/garbage stdin        -> exit 0 fail-OPEN (A3 accepted risk)
-//   - ambiguous + Brain available    -> exit 2 after rendering the F.1 gate (PB8-07)
+//   - ambiguous (freeform_unmatched/unknown) + TRUSTED scope -> exit 0, proceeds
+//     to the shim (quick task 260917-dgf; was exit 2 after rendering the F.1
+//     gate, PB8-07). A PreToolUse hook cannot render the card anyway; the
+//     disclosure now lives at lib/core/brain-client.cjs::callTool.
 //   - ambiguous + Brain-less         -> exit 0, LOCAL-log only, no gate (PB8-08, D-08a)
 //
 // Test seam for the isAvailable branch: the hook honors PART8_FORCE_BRAIN_AVAILABLE
@@ -210,10 +213,15 @@ async function main() {
   // the PART8_FORCE_BRAIN_AVAILABLE test seam.
   // -------------------------------------------------------------------------
   if (fs.existsSync(GATE)) {
-    // PB8-07: ambiguous + Brain available -> exit 2 after rendering the F.1 gate.
-    (function pb8_07_gate() {
+    // Quick task 260917-dgf: an ambiguous freeform_unmatched verdict on a
+    // TRUSTED plugin scope now proceeds to the shim (exit 0) instead of
+    // rendering the F.1 gate at the hook. The gate-render contract itself
+    // (Reformulate/Cancel, no send-anyway verb) is still asserted below by
+    // pb8_07_verbs, directly against the renderer; only this hook-leg
+    // disposition moved.
+    (function pb8_07_trusted_scope_proceeds() {
       const r = runHook(AMBIGUOUS, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
-      assert.strictEqual(r.status, 2, 'PB8-07: ambiguous + Brain available must exit 2 (gate rendered)');
+      assert.strictEqual(r.status, 0, '260917-dgf: ambiguous freeform_unmatched on a TRUSTED scope must exit 0 (proceeds to the shim)');
     })();
 
     // PB8-08: ambiguous + Brain-less -> exit 0, LOCAL-log only, no gate (D-08a).

@@ -233,9 +233,13 @@ async function hookLeg() {
 
   // Case C: the AMBIGUOUS branch, which is the one a pre-fix contentless
   // brain_stats fell into. Driving it with a payload that carries a key (so
-  // the new recognizer cannot claim it) reproduces the exact card the live
-  // session saw, and its verbatim text settles A1: gate render vs the minimal
-  // Part 8 notice vs a hook timeout (a timeout emits neither).
+  // the new recognizer cannot claim it) still reaches the SAME classifier
+  // catch-all (step 4 still returns ambiguous / unknown -- "catch-all
+  // untouched" is still true at the classifier). What changed (quick task
+  // 260917-dgf) is the hook's DISPOSITION of that verdict: statsScoped is a
+  // TRUSTED plugin scope, so an ambiguous/unknown verdict now proceeds to
+  // the shim (exit 0) instead of blocking. The stderr print is guarded so it
+  // does not crash on the now-empty stderr of an allow.
   const ambiguous = JSON.stringify({
     tool_name: statsScoped,
     tool_input: { a: 1 },
@@ -243,12 +247,12 @@ async function hookLeg() {
   });
   const c = runHook(ambiguous, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
   ok(
-    c.status === 2,
-    'HOOK C: an ambiguous payload with Brain available must still exit 2 (catch-all untouched), got ' +
+    c.status === 0,
+    '260917-dgf: an ambiguous/unknown payload on a TRUSTED scope must exit 0 (proceeds to the shim; classifier catch-all still untouched), got ' +
       c.status
   );
-  const ambigLine = (c.stderr.split('\n')[0] || '').trim();
-  console.log('A1 EVIDENCE (ambiguous block, stderr line 1): ' + ambigLine);
+  const ambigLine = ((c.stderr || '').split('\n')[0] || '').trim();
+  console.log('A1 EVIDENCE (ambiguous disposition, stderr line 1): ' + (ambigLine || '(empty -- allowed, no stderr)'));
 
   // Case D: the same contentless call with Brain UNAVAILABLE stays exit 0.
   const d = runHook(contentless, { PART8_FORCE_BRAIN_AVAILABLE: '0' });

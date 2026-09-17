@@ -296,7 +296,15 @@ async function hookLeg() {
   const firstLine = (b.stderr.split('\n')[0] || '').trim();
   console.log('A1 EVIDENCE (CONTENT-SET block, stderr line 1): ' + firstLine);
 
-  // Case C: same shape, wrong tool name, must not travel across.
+  // Case C: same shape, wrong tool name. This claim ("the shape must not
+  // travel across tool names") is really a CLASSIFIER claim, and it still
+  // lives at LEG 1 above (Arm A/B's expectNotAllow assertions: verdict is
+  // not allow, class is not known_tool_shape for a mismatched tool name).
+  // At the HOOK leg, queryScoped is a TRUSTED plugin scope, so a mismatched
+  // shape now falls to the classifier's ambiguous/unknown catch-all and
+  // proceeds to the shim (exit 0) instead of blocking -- quick task
+  // 260917-dgf. Only the hook-leg exit code moves; the classifier-leg
+  // "shape does not travel" assertions are untouched.
   if (queryScoped) {
     const wrongTool = JSON.stringify({
       tool_name: queryScoped,
@@ -304,7 +312,7 @@ async function hookLeg() {
       session_id: 'p260906-fda-c',
     });
     const c = runHook(wrongTool, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
-    ok(c.status === 2, 'HOOK C: the shape must not travel across tool names at the hook either, got ' + c.status);
+    ok(c.status === 0, '260917-dgf: a mismatched-shape ambiguous payload on a TRUSTED scope must exit 0 (proceeds to the shim), got ' + c.status);
   }
 
   // Case D: Brain-less, the clean call must stay exit 0 too.
