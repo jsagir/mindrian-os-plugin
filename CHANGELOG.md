@@ -1,7 +1,19 @@
 ## [Unreleased] -- v2.0.0-beta.48 (in progress)
 
 ### Added
-- 
+- **ICM section ruling system**: every room and sub-room now self-locates (a rebuildable
+  room map plus a derived `icm_self` block on every ROOM.md) and every section declares the
+  job it exists to do from a closed, navigator-ratified job vocabulary extended by four
+  members (`design-solution`, `model-business`, `model-finances`, `protect-assets`); a
+  shipped, Theo-derived relevance ledger orders the commands each section's generated
+  six-part ruling document (CONTEXT.md) recommends and feeds the same ledger into the
+  selector's existing candidate seam with zero vendor calls on the release or turn path;
+  claims and artifacts filed against a section anchor to a non-claim `jtbd:` node through a
+  filing gate that discloses a job mismatch rather than blocking the write; two new doctor
+  modules (`room-map`, `section-ruling`) report drift; and a fixture-only writer eval
+  (`scripts/eval-icm-writers.cjs`) grades all five writers against contract-derived
+  checklists, with a release-gate acceptance point that asserts eval freshness by reading one
+  local file, never a vendor.
 
 ## [2.0.0-beta.47] - 2026-09-17
 

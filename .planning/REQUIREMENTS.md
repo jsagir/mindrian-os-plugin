@@ -2635,12 +2635,14 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       ALWAYS pass calls `check()` with no `await` and would misreport a Promise as a row with no
       status. Artifact folders are mapped with `kind: 'artifact'` and never receive a block
       (R-353-B), with the exclusion rule stated in the module header.
+      **Measured:** (2026-09-17) `node tests/test-353-room-map.cjs` exits `0`, 11/11 checks pass.
 
 - [x] **RULE-02**: `.mindrian/room-map.json` is rebuildable from disk at any time. Two builds of an
       unchanged tree return the same `fingerprint` (sha256 over the sorted
       `(path, kind, job_id, parent, children)` tuples); a change to any tracked tuple changes it;
       an untracked change (an artifact body edit) does not. The walk refuses to leave the room
       directory and never follows a symlinked directory.
+      **Measured:** (2026-09-17) `node tests/test-353-room-map.cjs` exits `0`, 11/11 checks pass, including "two builds of an unchanged tree return the same fingerprint" and "never follows a symlinked directory".
 
 - [x] **RULE-03**: every root, section, structural and sub-room ROOM.md carries a derived
       `icm_self` block with exactly `room`, `path`, `parent`, `depth`, `children`,
@@ -2649,10 +2651,12 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       preserved; and a missing root ROOM.md is created from
       `templates/room-skeleton/ROOM.md.identity.tmpl`. `estimateTokens(block)` is at most 120
       (D-353-2's 60-120 band).
+      **Measured:** (2026-09-17) `node tests/test-353-self-block.cjs` exits `0`, 5/5 checks pass, including "running writeSelfBlocks twice on an unchanged tree leaves every file byte-identical the second time".
 
 - [x] **RULE-04**: `icm_self` and `job_id` are in the `ROOM.md` schema's `optional` allow-list in
       `lib/core/frontmatter-schemas.cjs`, so `validate()` returns zero `unknown` violations for a
       generated block and the PostToolUse hook stays quiet (Pitfall 11).
+      **Measured:** (2026-09-17) `node tests/test-353-self-block.cjs` exits `0`, 5/5 checks pass; `icm_self`/`job_id` present in the `ROOM.md` schema's optional allow-list (`lib/core/frontmatter-schemas.cjs`).
 
 - [x] **RULE-05**: doctor module `room-map` is registered in `data/doctor-modules.json` with
       exactly the seven keys the other rows carry and NO `auto_heal` key (R-353-A; Phase 352
@@ -2660,23 +2664,27 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       including `skip` and `ok` carries a non-empty `detail` (D-03 rule 9), six drift classes are
       reported, and `recoverable: false` is set outside the resolved `tests/fixtures/icm-rooms`
       prefix so `--fix` cannot auto-heal a real fleet room.
+      **Measured:** (2026-09-17) `node tests/test-353-doctor-room-map.cjs` exits `0`, 7/7 checks pass, including "check() sets recoverable:false and fix() refuses outside tests/fixtures/icm-rooms/".
 
 - [x] **RULE-06**: sub-room birth writes both maps as side effect six, child first then parent, as
       the last statement inside the existing FINALIZE `try`; `allWired` includes `se.s6`;
       `_faultInject` accepts `s1` through `s6`; and `_bornWiredRollback` re-runs the parent map
       rebuild after `fs.rmSync` (R-353-E), proven by a `_faultInject: 's6'` unwind test.
+      **Measured:** (2026-09-17) `node tests/test-353-subroom-birth.cjs` exits `0`, 38/38 checks pass.
 
 - [x] **RULE-07**: `getRoomContext` gains a purely additive `legE` self-location leg.
       `_meta.legTimingsMs`, `_meta.legCostChars` and `_meta.legCostTokensApprox` each gain `legE`;
       every pre-existing `_meta` key stays byte-stable; and `legCostTokensApprox.legE` is under 400
       on every fixture room, measured with `estimateOnly: true` and reported as the repo's
       chars-over-4 approximation rather than as tokens unqualified (criterion 2).
+      **Measured:** (2026-09-17) `node tests/test-353-turn-budget.cjs` exits `0`, 9/9 checks pass, including "every blocked-kind node's rendered self-block is <= 120 tokens"; legE measured at 79 tokens (alpha-room) / 62 tokens (gamma-room), both under the 400-token budget (criterion 2).
 
 - [x] **RULE-08**: the fleet walk runs in REPORT MODE ONLY over the registry's rooms, calls no
       `fix`, writes nothing under any room path, records no file name and no file content, and
       emits per-kind counts as committed evidence. Success criterion 1 is restated per R-353-B:
       0 root/section/structural/sub-room directories without ROOM.md, not 0 of the 2,024 non-dot
       directories the fleet actually carries.
+      **Measured:** (2026-09-17) `node tests/test-353-fleet-report.cjs` exits `0`; `353-FLEET-REPORT.json` (re-verified unchanged this session) reports 54 root, 571 section, 58 structural, 19 sub-room, 405 artifact nodes across 54 scanned rooms; missing_room_md 9/69/21/3 across the four blocked kinds; registry_drift 1; zero writes anywhere under the rooms-home directory.
 
 - [x] **RULE-09**: `tests/run-all-353.sh` is written once in 353-01 and edited by no later plan; it
       pre-declares a `run_if` leg per phase test file, names which RULE id each leg gates, and
@@ -2684,6 +2692,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `195-nested-room-tree`, so `tests/test-195-recursive-reconcile.cjs`'s 16-file assertion stays
       green. `evals/icm/cases/turns.json` is authored here, before any ledger exists, because
       criterion 4 is only honest if the labels predate the thing measured.
+      **Measured:** (2026-09-17) `bash tests/run-all-353.sh` exits `0`: `PASS=22 FAIL=0 SKIP=0` (all seventeen planned `tests/test-353-*.cjs` legs now land and pass; the file itself is unedited since 353-01 Task 1, per its own header comment).
 
 - [x] **RULE-29**: A sub-room declares its job_id through one F.8 card at birth; the declared value
       is written to the child ROOM.md before side effect six; undeclared or custom leaves job_id
@@ -2695,6 +2704,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       section-canon members in `VOCABULARY_EXTENSION_JOBS`, enumerated from disk, never a frozen
       count) through `isDeclaredJob` BEFORE any byte is written, and the born-wired
       contract comment declares `hitl_shape: F.8` with its `hitl_why` (D-353-5).
+      **Measured:** (2026-09-17) `node tests/test-353-subroom-birth.cjs` exits `0`, 38/38 checks pass, including "a top-level birth never fires the job card" and the declared/undeclared birth shapes from 353-01-SUMMARY.md Section D/E.
 
 **Plan 353-02 (section ruling system, ledger, filing gate, runtime filter)**
 
@@ -2705,12 +2715,14 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `ratification.ratified_at: null` for the navigator's one act. `section-registry.cjs` exposes
       `getSectionJob(slug)` returning `job_id: null` for an unknown slug, and the `job_id` values
       are NOT copied into `CORE_SECTIONS` or `SECTION_METADATA` (one home per fact).
+      **Measured:** (2026-09-17) `node tests/test-353-section-canon.cjs` exits `0`, 11/11 checks pass, including "getSectionJob is stable across calls".
 
 - [x] **RULE-11**: the four vocabulary-extension members `model-business`, `model-finances`,
       `protect-assets` and `design-solution` exist as section-canon values only. No command
       markdown frontmatter is edited, so `node scripts/build-command-registry.cjs --check` and
       `lib/memory/per-command-jtbd-derivation.test.cjs` both stay green and the four are taxonomy
       orphans of the same class as the three already shipped.
+      **Measured:** (2026-09-17) `node tests/test-353-section-canon.cjs` exits `0`, 11/11 checks pass, including "the four vocabulary-gap sections are declared vocabulary_extension:true".
 
 - [x] **RULE-12**: `scripts/build-section-command-ledger.cjs` ports the Spike 002 Theo puller
       verbatim (two FIXED Cypher texts, every variation in `$params`, `ROW_CAP` 100 with 36 alnum
@@ -2719,12 +2731,14 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       named abort rather than an empty ledger, scores with Jev in batches of 20 at concurrency 4
       with `400 * 2 ** attempt` backoff, and writes the six cost keys from the VENDOR-RETURNED
       usage with `cost_basis` labeled vendor-claimed.
+      **Measured:** (2026-09-17) `node tests/test-353-ledger-shape.cjs` exits `0`, 17/17 checks pass.
 
 - [x] **RULE-13**: `--check` performs zero network calls and asserts only what is verifiable
       offline (parse, `plugin_version`, `built_at` age, `theo_frameworks`, `jev_model`, and every
       `rows` key parsing as `<job_id>|<problem_type>|<stage>` with a canon-known `job_id`). It
       prints `section-command-ledger: OK` and exits 0, or names the drift and exits non-zero. The
       divergence from the eleven `build-*.cjs --check` siblings is stated in the script header.
+      **Measured:** (2026-09-17) `node tests/test-353-ledger-shape.cjs` exits `0`, 17/17 checks pass; `scripts/build-section-command-ledger.cjs --check` makes zero network calls (governed by its own offline contract).
 
 - [x] **RULE-14**: `data/section-command-ledger.json` ships. Every canon `job_id` has at least one
       row, because the join is the UNION of (`produces` names this section, seeded from the
@@ -2733,6 +2747,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       are never empty. Every candidate carries `source`, and the shipped seed declares
       `build_mode: "offline-seed"`, `jev_model: null` and `confidence_floor: null` rather than
       claiming a vendor score it does not have.
+      **Measured:** (2026-09-17) `node tests/test-353-ledger-shape.cjs` exits `0`, 17/17 checks pass, including "every canon job has a shipped ledger row" and "shipped ledger every candidate confidence is null" (`build_mode: "offline-seed"`, `jev_model: null`, honest about not yet being vendor-scored).
 
 - [x] **RULE-15**: each section's `CONTEXT.md` is generated: frontmatter `icm_layer`, `job_id`,
       `ruling_fingerprint`, `generated_at`, then six numbered parts inside a
@@ -2740,6 +2755,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       A missing document is CREATED (R-353-M). A second generation is byte-identical. The document
       stays at or under 500 chars-over-4 tokens (the icm-architect L2 band). `renderTemplate`
       substitution never runs over contract prose (T-275-13).
+      **Measured:** (2026-09-17) `node tests/test-353-ruling-doc.cjs` exits `0`, 17/17 checks pass, including "selectSchemaKey resolves CONTEXT.md" and "CONTEXT.md schema optional carries all four generated keys".
 
 - [x] **RULE-16**: `tests/test-275-section-schema.cjs` is amended deliberately with phase-cited
       comments (R-353-L). The line 330 assertion STAYS green with a comment explaining that
@@ -2747,6 +2763,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       byte-identity assertion is REPLACED by two assertions pinning the new invariant (the marked,
       fingerprinted block is present, and every byte below the end marker matches the template).
       `node tests/test-275-section-schema.cjs` exits 0.
+      **Measured:** (2026-09-17) `node tests/test-275-section-schema.cjs` exits `0`, 66/66 assertions pass (was 65/65 pre-Phase-353; R-353-L's two replacement assertions land alongside the unchanged "no contract template has YAML frontmatter" sibling).
 
 - [x] **RULE-17**: `lib/core/navigation/jtbd-anchor.cjs` mints `jtbd:<job_id>` with node type
       `'jtbd'` and NEVER `'claim'` (R-353-I; a claim-typed anchor would manufacture up to about 500
@@ -2755,6 +2772,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `review_status: 'proposed'`, `on_conflict: 'nothing'`. No raw `INSERT INTO`. No member added
       to `ALLOWED_EPISTEMIC_TYPES` (exactly 10, asserted exactly). Re-exported from
       `lib/core/navigation.cjs`.
+      **Measured:** (2026-09-17) `node tests/test-353-anchor-edge.cjs` exits `0`, 17/17 checks pass, including "mint precedes edge" and "unminted target yields a dangling edge (why the order is blocking)".
 
 - [x] **RULE-18**: the filing gate runs on `artifact_file` (its existing `section` parameter) and
       on `claim_write` (through `getActiveFocus`, with NO schema widening, R-353-D). `flag` is the
@@ -2764,6 +2782,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       and confirmed `ok: true` BEFORE any `SOURCED_FROM` edge names it (R-353-J, Pitfall 4), a
       failed mint means no edge and never a refused write (Canon Part 9), and N of N claims filed
       on a fixture room carry the edge (criterion 3).
+      **Measured:** (2026-09-17) `node tests/test-353-filing-gate.cjs` exits `0`, 24/24 checks pass; "N of N claims carry an anchor edge" measured at 5 of 5 (100%, criterion 3); "strict refuses"; `EVENT_TYPES.size` is 102 (untouched).
 
 - [x] **RULE-19**: `lib/core/section-ruling-candidates.cjs` is a pure, synchronous producer feeding
       `rankForSelector`'s EXISTING `tierCandidates` input (R-353-H, R-353-N). Eligibility filters
@@ -2774,6 +2793,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `lib/hmi/dial-reach-orchestrator.cjs`, `SENSOR_REGISTRY`, `MAX_K`, `DIAL_REACH_K`,
       `RECOMMEND_FLOOR` and `MARGIN_THRESHOLD` are all byte-unchanged, and `decide()` stays inside
       1200 ms with the producer on, measured through `_meta.latencies_ms`.
+      **Measured:** (2026-09-17) `node tests/test-353-decide-budget.cjs` exits `0`, 5/5 checks pass; producer 0.0083ms (avg/200 calls), `decide()` with the producer 1.57ms, without 0.46ms (avg/10 runs each), both far inside the 1200ms budget; `MAX_K` still 3.
 
 - [x] **RULE-20**: doctor module `section-ruling` is registered with the same seven-key shape and
       no `auto_heal` (R-353-A, proposed FALSE), is synchronous, carries a non-empty `detail` on
@@ -2781,6 +2801,7 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       `subrooms_without_job_id` (parent fallback, reported not errored) and `claims_without_anchor`
       scoped to claims created after `introduced_version`, and sets `recoverable: false` outside
       the fixture prefix.
+      **Measured:** (2026-09-17) `node tests/test-353-doctor-section-ruling.cjs` exits `0`, 24/24 checks pass; `data/doctor-modules.json` carries 26 modules total, the `section-ruling` row has exactly 7 keys and no `auto_heal`.
 
 - [x] **RULE-21**: `scripts/release.sh` Step 2.4 gains ONLY the offline
       `build-section-command-ledger.cjs --check`, with `--no-ledger-check` as the audited opt-out
@@ -2790,46 +2811,92 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       this phase edits, the header count stays 30, and the pre-existing staleness of
       `tests/fixtures/341-release-step-block-hashes.txt` (two blocks missing, `STEP_BLOCK_COUNT`
       still 28) is reported and left as found.
+      **Measured:** (2026-09-17) `node tests/test-353-release-wiring.cjs` exits `0`, 8/8 checks pass, including "no TYPESAFE_API_KEY literal in release.sh" and "every build-section-command-ledger.cjs invocation this script RUNS carries --check"; `bash -n scripts/release.sh` exits 0.
 
 **Plan 353-03 (fixture grading, acceptance wiring, close-out)**
 
-- [ ] **RULE-22**: `evals/icm/` ships a README, five per-writer checklists derived from each
+- [x] **RULE-22**: `evals/icm/` ships a README, five per-writer checklists derived from each
       writer's own shipped contract with each item marked `code` or `jev` and each `jev` item
       naming exactly what crosses the wire, a `cases/` directory, a once-authored
       `claude-judge-baseline.json` the runner never writes, and a `last-run.json`.
+      **Measured:** (2026-09-17) `ls evals/icm/checklists/*.md | wc -l` returns `5`;
+      `grep -l "kind: code" evals/icm/checklists/*.md | wc -l` returns `5`; `grep -c "fixture
+      rooms only" evals/icm/README.md` returns `1`; `grep -rn "room content" evals/icm/checklists/*.md
+      | wc -l` returns `5`; `evals/icm/cases/turns.json` (Plan 01), `evals/icm/claude-judge-baseline.json`
+      (Task 4, never written by `scripts/eval-icm-writers.cjs`, confirmed by
+      `grep -cE "writeFileSync\([^)]*claude-judge-baseline" scripts/eval-icm-writers.cjs` returning
+      `0`) and `evals/icm/last-run.json` (Task 2) all present on disk.
 
-- [ ] **RULE-23**: `scripts/eval-icm-writers.cjs` refuses any `--room` that does not resolve under
+- [x] **RULE-23**: `scripts/eval-icm-writers.cjs` refuses any `--room` that does not resolve under
       `tests/fixtures/icm-rooms` (resolved-prefix containment, not substring match), contains no
       `~/MindrianRooms` path and no `os.homedir()` room resolution, reads the dev-time key only
       from `~/.secrets/typesafe.env`, never prints or persists it, escapes every string
       interpolated into the De Stijl report, and completes the code half with no key at all
       (D-353-4).
+      **Measured:** (2026-09-17) `node scripts/eval-icm-writers.cjs --room /tmp --code-only 2>&1 |
+      grep -c refused` returns `1`, non-zero exit; `node scripts/eval-icm-writers.cjs --room
+      tests/fixtures/icm-rooms/alpha-room --code-only` exits `0`, prints `code: 11/11  jev: 0/4
+      (key_present=false)`; `grep -cE "MindrianRooms|os\.homedir\(\)" scripts/eval-icm-writers.cjs`
+      returns `0`; `grep -rn "api.typesafe.ai" lib hooks | wc -l` returns `0`; `node -e "const
+      r=require('./evals/icm/last-run.json'); ..."` (the key-name-leak and shape assertion from the
+      plan) exits `0`. On a live machine where `TYPESAFE_API_KEY` resolves from
+      `~/.secrets/typesafe.env` without `--code-only`, this executor's own first verification pass
+      made 4 real vendor calls before the omission was caught; every payload passed
+      `assertEgressCeiling` (no room content crossed) and every subsequent verification in this
+      session used `--code-only`. Documented as a self-caught deviation in 353-03-SUMMARY.md.
 
-- [ ] **RULE-24**: criterion 4 is measured as a PAIRED run over the same labeled turns, once with
+- [x] **RULE-24**: criterion 4 is measured as a PAIRED run over the same labeled turns, once with
       `tierCandidates` absent and once with the ledger candidates. Both top-3 hit rates and the
       delta are printed and quoted in the SUMMARY; the assertion is `withLedger >= baseline`; a
       regression is reported as a finding and never tuned away by loosening the assertion or
       re-labeling a turn; and `evals/icm/cases/turns.json` is provably unchanged by this plan.
+      **Measured:** (2026-09-17) `node tests/test-353-reach-hitrate.cjs` exits `0`, 4/4 checks
+      pass, prints `baseline top-3 hit rate: 0.167`, `with-ledger top-3 hit rate: 0.333`, `delta:
+      0.167` (offline-seed ledger; a ground-truth-ordering measurement, not vendor-scored);
+      `git diff --stat evals/icm/cases/turns.json` reports no change; `grep -cE "fetch\(|api\.typesafe"
+      tests/test-353-reach-hitrate.cjs` returns `0`.
 
-- [ ] **RULE-25**: criterion 6's metric is EXACT AGREEMENT (the fraction of graded items whose
+- [x] **RULE-25**: criterion 6's metric is EXACT AGREEMENT (the fraction of graded items whose
       runner verdict equals the baseline verdict), named in the README, in the baseline file and in
       the test output, with Spearman named as the rejected alternative and why. `agreement >= 0.8`
       is asserted. With no key the leg skips loudly with a named detail and never reports a number
       it does not have.
+      **Measured:** (2026-09-17) `node tests/test-353-grader-agreement.cjs` exits `0`, 8/8 checks
+      pass, prints `SKIP: grader agreement -- no TYPESAFE_API_KEY (criterion 6 unmeasured this
+      run)`; `grep -c "exact agreement" evals/icm/README.md` returns `1`, `grep -ci "spearman"
+      evals/icm/README.md` returns `2`; `evals/icm/claude-judge-baseline.json` carries
+      `authored_at`, 4 items, each with a `rationale`; agreement is unmeasured (`null`) this run
+      because no vendor key resolved, which is the honest state for this offline execution.
 
-- [ ] **RULE-26**: the `icm-ruling-eval-fresh` acceptance point reads `evals/icm/last-run.json`
+- [x] **RULE-26**: the `icm-ruling-eval-fresh` acceptance point reads `evals/icm/last-run.json`
       in-process, asserts freshness and the 0.8 threshold, and NEVER calls Jev, calls Theo, spawns
       the runner or reads a key. A missing file or a null agreement degrades to `ok: true` with a
       named detail, so `tests/test-doctor-acceptance-self-coverage.cjs` stays green across its five
       fixtures. It honors `DOCTOR_TEST_FAIL_POINT` and `DOCTOR_SKIP_ICM_EVAL=1`.
+      **Measured:** (2026-09-17) `node scripts/doctor.cjs --acceptance 2>&1 | grep -c
+      "icm-ruling-eval-fresh"` returns `1` and the point reads `PASS`; `DOCTOR_SKIP_ICM_EVAL=1
+      node scripts/doctor.cjs --acceptance` still shows the point `PASS`; with
+      `evals/icm/last-run.json` temporarily renamed away the point still `PASS`, naming the
+      missing file; `node tests/test-doctor-acceptance-self-coverage.cjs` exits `0`, 6/6 fixtures
+      passed; `grep -cE "typesafe|eval-icm-writers\.cjs'" scripts/doctor.cjs` returns `0`. The
+      overall acceptance run is 19-20/21 depending on the moment (install-state and, occasionally,
+      verify-release-clean-tree fail); both are the pre-existing/environmental class
+      353-01-SUMMARY.md and 353-02-SUMMARY.md already documented, unrelated to this point.
 
-- [ ] **RULE-27**: three tripwires ship and pass, each printing a non-zero scanned-file count and
+- [x] **RULE-27**: three tripwires ship and pass, each printing a non-zero scanned-file count and
       each excluding comment lines so header prose cannot self-invalidate the gate: no non-comment
       line under `lib/` contains `api.typesafe.ai`; no non-comment line under `hooks/` references
       `eval-icm-writers` or `build-section-command-ledger`; and the eval runner refuses a room
       outside the fixture prefix. Leg 1 carries a recorded negative control.
+      **Measured:** (2026-09-17) `node tests/test-353-tripwires.cjs` exits `0`, 5/5 checks pass:
+      leg 1 `files scanned: 10072`, 0 hits, negative control caught=`true`; leg 2 `files scanned:
+      2`, 0 hits; leg 3 `files scanned: 1`, refused with a non-zero exit. `grep -c "refused"`
+      returns at least `1`. A real bug in the comment-stripper (a naive `//` strip treating a
+      URL's `://` as a comment start, silently erasing the very literal being scanned for) was
+      caught by the negative control itself and fixed in the same task (documented in
+      353-03-SUMMARY.md).
 
-- [ ] **RULE-28**: the phase closes honestly. Every RULE row is `- [x]` with a `**Measured:**`
+- [x] **RULE-28**: the phase closes honestly. Every RULE row is `- [x]` with a `**Measured:**`
       block quoting the command and its output, or stays `- [ ]` with a stated reason.
       `353-VALIDATION.md`'s per-task map is filled and `nyquist_compliant` is set true only if
       every named `<automated>` command actually ran and exited 0. The CHANGELOG gains one
@@ -2837,6 +2904,21 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       pre-existing RED `EVENT_TYPES` exact-size assertions
       (`tests/test-auto-explore-telemetry.cjs:432`, `tests/test-131-substrate.cjs:98`) and the
       pre-existing 341 step-hash staleness are re-run, reported unchanged, and never edited.
+      **Measured:** (2026-09-17) All 29 RULE rows now `- [x]` (`grep -c "^- \[x\] \*\*RULE-"` = 29,
+      `grep -c "^- \[ \] \*\*RULE-"` = 0, sum 29); `353-VALIDATION.md` frontmatter sets
+      `nyquist_compliant: true` after every one of the 25 per-task rows' named `<automated>`
+      command was re-run directly in this session and exited 0 (not inferred from a prior plan's
+      SUMMARY.md); `grep -A 4 "## \[Unreleased\]" CHANGELOG.md | grep -c "ICM section ruling"`
+      returns `1`. Re-run and reported unchanged, never edited: `tests/test-auto-explore-
+      telemetry.cjs` 14 pass / 1 fail (`EVENT_TYPES.size === 32` against 102 real members);
+      `tests/test-131-substrate.cjs` 12 pass / 2 fail (`PRE_131_EVENT_BASELINE + 3`); the pre-
+      existing `tests/fixtures/341-release-step-block-hashes.txt` `STEP_BLOCK_COUNT 28` staleness
+      (line 46, unchanged, this phase touched no release-step block). One acceptance-criterion
+      literalism could not be satisfied and is reported rather than silently fixed: the whole-file
+      `grep -rl "em-dash" CHANGELOG.md .planning/REQUIREMENTS.md` still finds `CHANGELOG.md`,
+      because pre-existing historical entries far below the `## [Unreleased]` section (for
+      example line 2502, line 3153) already carried an em-dash before this phase; this phase's own
+      new bullet (`CHANGELOG.md` lines 1-15) carries zero, verified independently.
 
 ## Traceability
 
