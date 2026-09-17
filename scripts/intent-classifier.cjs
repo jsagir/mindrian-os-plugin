@@ -1240,11 +1240,21 @@ function writeNavBlockHash(roomDir, sessionId, sha256, bytes) {
 // when null so the row degrades to the generic JTBD line rather than 'undefined').
 // Canon Part 8: reads a LOCAL node scalar for a render-time label only; the
 // egress-audited {framework} slot is NEVER sourced here (composer owns it).
+//
+// reach-suggestions-labeled-with-raw-claim-ids (2026-09-17): a `claim` node
+// (lib/core/navigation/typed-claim.cjs writeClaimNode) never writes
+// name/label/title -- its ONLY human-readable field is `properties.text` (the
+// atomic claim sentence). Before this fix, the candidate chain skipped
+// props.text entirely and fell straight to node.id (an opaque
+// 'claim:'+sessionId+':'+hash id), leaking the raw id into reach-suggestion
+// labels (e.g. "Bring back what we worked out on claim:...").  props.text is
+// added here, checked before the node.id terminal fallback, so a claim node's
+// stored content resolves instead of its id.
 function pickNodeDisplayName(node) {
   if (!node || typeof node !== 'object') return null;
   const candidates = [node.name, node.label, node.title];
   const props = (node.properties && typeof node.properties === 'object') ? node.properties : null;
-  if (props) { candidates.push(props.name, props.title, props.label); }
+  if (props) { candidates.push(props.name, props.title, props.label, props.text); }
   candidates.push(node.id);
   for (let i = 0; i < candidates.length; i++) {
     const c = candidates[i];
