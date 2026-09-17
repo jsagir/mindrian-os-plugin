@@ -1,7 +1,30 @@
 ## [Unreleased] -- v2.0.0-beta.44 (in progress)
 
-### Added
-- 
+### Fixed - the beta.43 adversarial review hotfix (quick task 260917-ild)
+
+- **The beta.43 Part 8 allow reached a connector with no shim behind it.** The
+  ambiguous-verdict allow keyed on the trust predicate, which also trusts the direct
+  `pws-brain-mcp` connector; that route has no local shim and therefore no disclosure. The
+  allow is now limited to the two shim-backed scopes (plugin and project `mindrian-brain`);
+  every direct connector keeps the block on ambiguity. Test-first with a direct-connector
+  payload.
+- **The legacy entity purge was too wide.** It deleted every self-referential legacy entity
+  room-wide, before scoped extraction, before replacement writes, including rejected rows
+  (which a rescan then recreated as proposed). It now deletes only rows whose every
+  DESCRIBES edge lands on a scaffold anchor, only `proposed` rows, only on full-room runs,
+  only after the replacement writes succeed; rejected, confirmed and real-provenance rows
+  are kept and counted (`legacy_entities_kept`). On the reporting room, 526 of 528 legacy
+  rows qualify and 2 are kept.
+- **Scaffold exclusion by name dropped authored content.** A section's MINTO.md or FEYNMAN.md
+  is excluded from entity extraction only when its body matches the shipped template;
+  authored scaffold content is extracted (`scaffold_files_extracted`), and every file stays
+  in the metadata pass. The template index derives from the writers that emit the scaffolds,
+  never from a typed list.
+
+### Known, not fixed in this cut
+
+- Theo's command-layer `mappedBy` stamp still reads `command-registry@2.0.0-beta.12`; this
+  cut runs with the audited `--no-theo-check` opt-out and still fires `theo-resync`.
 
 ## [2.0.0-beta.43] - 2026-09-17
 
