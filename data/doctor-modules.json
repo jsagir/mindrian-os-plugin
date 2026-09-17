@@ -219,6 +219,15 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/icm-part-wiring-module.cjs",
       "description": "Declaration counts for ICM nested parts, producers resolved against the command registry, consumers resolved on disk, per-layer declaring-surface counts, and an opt-in per-room section-contract heading census behind --cascade-rooms. Check-only: raw counts and totals, no health or completeness claim, per SEED-074's hard guard on downstream claims."
+    },
+    {
+      "id": "room-map",
+      "introduced_version": "2.0.0-beta.48",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": true,
+      "runner": "lib/core/doctor/room-map-module.cjs",
+      "description": "Rebuilds a room's .mindrian/room-map.json from disk and compares it against six drift classes: missing map, stale map fingerprint, a blocked-kind (root/section/structural/sub-room) directory missing ROOM.md, a stale per-node icm_self.fingerprint, an artifact folder wrongly carrying an icm_self block, and a sub-room registry lineage disagreement (report-only, disk wins). No auto_heal key yet (R-353-A; Phase 352 classifies this row and section-ruling together when it lands, proposed TRUE here since a rebuild-from-disk is mechanical and reversible). --fix refuses (recoverable:false) on any room path outside tests/fixtures/icm-rooms/, so a real fleet room is only ever rebuilt as the navigator's explicit act (D-353-9)."
     }
   ]
 }
