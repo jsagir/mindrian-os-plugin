@@ -33,11 +33,12 @@ run_if() {
 FIXTURE="tests/fixtures/310-release-step-block-hashes.txt"
 RELEASE_SH="scripts/release.sh"
 LIB="scripts/release-lib/verify-tag-push.sh"
+NPM_PROP_LIB="scripts/release-lib/npm-propagation-poll.sh"
 
 # --- Leg 1: syntax --------------------------------------------------------
 
 leg1_syntax() {
-  bash -n "$RELEASE_SH" && bash -n "$LIB"
+  bash -n "$RELEASE_SH" && bash -n "$LIB" && bash -n "$NPM_PROP_LIB"
 }
 run "310 leg 1: syntax (release.sh + verify-tag-push.sh)" leg1_syntax
 
@@ -194,6 +195,9 @@ run_if "310 leg 6: verify-tag-push.sh unit suite (9 cases)" "tests/test-310-veri
 run_if "310 leg 7: Step 5.5 real-block wiring suite (8 cases)" "tests/test-310-release-step55-wiring.cjs" \
   node tests/test-310-release-step55-wiring.cjs
 
+run_if "310 leg 11: npm propagation poll unit suite (quick 260917-o1y)" "tests/test-quick-260917-o1y-npm-propagation-poll.cjs" \
+  node tests/test-quick-260917-o1y-npm-propagation-poll.cjs
+
 # --- Leg 8: pre-existing suite must stay green + zero diff ------------------
 #
 # Test 10/Test 11 in this pre-existing suite fail on a KNOWN, PRE-EXISTING,
@@ -259,7 +263,7 @@ SCOPE_DIFF="$(git diff --stat HEAD -- scripts/ tests/)"
 if [ -z "$SCOPE_DIFF" ]; then
   echo ">>> 310 leg 9: SKIPPED (working tree already clean -- executor committed per task)"; SKIP=$((SKIP+1))
 else
-  ALLOWED_FILES="scripts/release.sh scripts/release-lib/verify-tag-push.sh tests/test-310-verify-tag-push-lib.cjs tests/test-310-release-step55-wiring.cjs tests/fixtures/310-release-step-block-hashes.txt tests/run-all-310.sh"
+  ALLOWED_FILES="scripts/release.sh scripts/release-lib/verify-tag-push.sh tests/test-310-verify-tag-push-lib.cjs tests/test-310-release-step55-wiring.cjs tests/fixtures/310-release-step-block-hashes.txt tests/run-all-310.sh scripts/release-lib/npm-propagation-poll.sh tests/test-quick-260917-o1y-npm-propagation-poll.cjs"
   UNEXPECTED=""
   while IFS= read -r changed; do
     [ -z "$changed" ] && continue
@@ -281,7 +285,7 @@ echo ""
 # --- Leg 10: em-dash guard ---------------------------------------------------
 
 echo "--- 310 leg 10: em-dash guard ---"
-EMDASH_FILES="scripts/release.sh scripts/release-lib/verify-tag-push.sh tests/test-310-verify-tag-push-lib.cjs tests/test-310-release-step55-wiring.cjs tests/fixtures/310-release-step-block-hashes.txt tests/run-all-310.sh"
+EMDASH_FILES="scripts/release.sh scripts/release-lib/verify-tag-push.sh tests/test-310-verify-tag-push-lib.cjs tests/test-310-release-step55-wiring.cjs tests/fixtures/310-release-step-block-hashes.txt tests/run-all-310.sh scripts/release-lib/npm-propagation-poll.sh tests/test-quick-260917-o1y-npm-propagation-poll.cjs"
 EMDASH_HIT=0
 for f in $EMDASH_FILES; do
   if [ -f "$f" ] && grep -qP '\x{2014}' "$f" 2>/dev/null; then
