@@ -1,0 +1,69 @@
+{
+  "room": "/tmp/mos-ui-review-mt27Cw",
+  "head": "1158431838db0d55000c8a57bf965efb1b94b94b",
+  "checkedAt": "2026-09-20T05:36:16.050Z",
+  "serverLog": "(node:21311) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nMindrianOS dashboard (live): http://127.0.0.1:3193/ (active room: mos-ui-review-mt27Cw)\n",
+  "/api/room/status": {
+    "status": 200,
+    "body": {
+      "room_name": "mos-ui-review-mt27Cw",
+      "room_path": "/tmp/mos-ui-review-mt27Cw",
+      "section_count": 2,
+      "entry_count": 1,
+      "stage": "live"
+    }
+  },
+  "/api/room/graph": {
+    "status": 200,
+    "body": {
+      "nodes": [
+        {
+          "data": {
+            "id": "review-claim",
+            "label": "FIXTURE CLAIM",
+            "type": "claim",
+            "properties": {
+              "title": "FIXTURE CLAIM",
+              "knowledge_type": "fact"
+            }
+          }
+        }
+      ],
+      "edges": []
+    }
+  },
+  "unauthenticatedChat": {
+    "status": 403,
+    "body": "Forbidden origin"
+  },
+  "foreignHostGet": {
+    "status": 200
+  },
+  "browser": {
+    "title": "mos-ui-review-mt27Cw - MindrianOS Data Room",
+    "roomData": {},
+    "errors": [],
+    "blockedExternal": [
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap",
+      "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
+      "https://cdn.jsdelivr.net/npm/d3@7"
+    ],
+    "requests": [
+      "http://127.0.0.1:3193/",
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap",
+      "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
+      "https://cdn.jsdelivr.net/npm/d3@7",
+      "http://127.0.0.1:3193/events"
+    ],
+    "requestsAfterChange": [
+      "http://127.0.0.1:3193/",
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap",
+      "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
+      "https://cdn.jsdelivr.net/npm/d3@7",
+      "http://127.0.0.1:3193/events"
+    ],
+    "roomDataAfterChange": {},
+    "mobileOverflow": true
+  },
+  "fileChangeEvent": "event: artifact-changed\ndata: {\"section\":\"problem-definition\",\"file\":\"problem-definition/new-evidence.md\",\"count\":1,\"ts\":1789882578671}\n\n"
+}
