@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {"id":"problem","type":"problem","title":"Manual handoff bottleneck","detail":"Teams lose context between discovery and procurement."},
+    {"id":"pain","type":"evidence","title":"Repeated handoff pain","detail":"Three interviews describe the same manual transfer."},
+    {"id":"urgency","type":"assumption","title":"Urgent trigger","detail":"The budget owner feels the pain this quarter."},
+    {"id":"budget","type":"unknown","title":"Budget owner","detail":"No confirmed budget owner yet."},
+    {"id":"customer","type":"claim","title":"Operations teams are the user","detail":"The strongest signal comes from operations leads."},
+    {"id":"next","type":"decision","title":"Run two budget-owner interviews","detail":"Resolve willingness to pay before building."}
+  ],
+  "edges": [
+    {"source":"pain","target":"problem","type":"SUPPORTS"},
+    {"source":"customer","target":"problem","type":"CONTEXTUALIZES"},
+    {"source":"urgency","target":"budget","type":"DEPENDS_ON"},
+    {"source":"budget","target":"next","type":"INFORMS"},
+    {"source":"pain","target":"urgency","type":"CHALLENGES"}
+  ]
+}
