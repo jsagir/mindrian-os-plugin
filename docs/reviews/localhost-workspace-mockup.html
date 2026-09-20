@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MindrianOS Workspace Mockup</title>
+  <style>
+    :root{--ink:#151515;--paper:#f5f2ea;--panel:#fffdf8;--line:#1b1b1b;--red:#d5442d;--blue:#28558f;--yellow:#e6b638;--muted:#6f706c;--green:#477455}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif}
+    button{font:inherit;border:0;cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:236px 1fr}
+    aside{background:var(--ink);color:#f8f4e9;padding:25px 18px;display:flex;flex-direction:column;gap:28px}.brand{font-weight:800;letter-spacing:.08em;font-size:17px}.brand small{display:block;color:#aaa99f;font-weight:500;letter-spacing:0;font-size:11px;margin-top:3px}
+    .room{border:1px solid #55554f;padding:13px;border-radius:8px}.room b{display:block;color:#fff}.room span{display:block;color:#aaa99f;font-size:12px;margin-top:5px}.nav{display:grid;gap:7px}.nav button{background:transparent;color:#c9c8bf;text-align:left;padding:11px 12px;border-radius:6px}.nav button.active{background:#f6f1e5;color:var(--ink);font-weight:700}.nav button i{font-style:normal;width:22px;display:inline-block}.side-note{margin-top:auto;color:#aaa99f;font-size:11px;border-top:1px solid #44433e;padding-top:16px}.side-note strong{display:block;color:#e6b638;margin-bottom:4px}
+    main{min-width:0}.top{height:72px;border-bottom:2px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:var(--panel)}.crumb{font-size:12px;color:var(--muted)}.crumb b{color:var(--ink);font-size:15px;margin-left:8px}.presence{display:flex;align-items:center;gap:9px;font-size:12px}.dot{width:9px;height:9px;background:var(--green);border-radius:50%;box-shadow:0 0 0 3px #d8e4d8}.avatar{background:var(--blue);color:white;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:700;margin-left:12px}
+    .content{padding:31px 34px 55px;max-width:1380px}.eyebrow{color:var(--red);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.title{font:800 36px/1.08 Georgia,serif;margin:7px 0 8px}.subtitle{color:var(--muted);max-width:700px}.actions{display:flex;gap:9px;margin:23px 0}.primary{background:var(--ink);color:#fff;padding:11px 17px;border-radius:5px;font-weight:700}.secondary{background:transparent;color:var(--ink);border:1px solid #aaa69a;padding:10px 16px;border-radius:5px}
+    .grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(340px,.85fr);gap:18px}.card{background:var(--panel);border:1px solid #c7c2b4;border-radius:8px;overflow:hidden}.card-head{padding:16px 18px;border-bottom:1px solid #d9d4c8;display:flex;align-items:center;justify-content:space-between}.card-head h2{font:700 18px Georgia,serif;margin:0}.tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);font-weight:800}.card-body{padding:18px}.question{font:700 22px/1.18 Georgia,serif;margin:0 0 18px}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini{border:1px solid #d5d0c3;border-radius:6px;padding:13px}.mini h3{font-size:12px;margin:0 0 7px}.mini p{margin:0;color:#55564f;font-size:12px}.bar{height:7px;background:#e7e2d6;border-radius:9px;overflow:hidden;margin-top:11px}.bar i{display:block;width:64%;height:100%;background:var(--yellow)}
+    .activity{display:grid;gap:15px}.event{display:grid;grid-template-columns:9px 1fr auto;gap:10px;align-items:start;font-size:12px}.event .mark{width:9px;height:9px;border-radius:2px;margin-top:5px;background:var(--blue)}.event:nth-child(2) .mark{background:var(--red)}.event:nth-child(3) .mark{background:var(--yellow)}.event b{display:block;font-size:13px}.event span{color:var(--muted)}.event time{color:#98958b;font-size:11px}
+    .decision{margin-top:18px;border:2px solid var(--yellow);background:#fff9e8;border-radius:7px;padding:16px}.decision h3{margin:0 0 7px;font-size:13px}.decision p{margin:0;color:#55564f;font-size:12px}.decision button{margin-top:13px;background:var(--yellow);padding:9px 12px;border-radius:4px;font-weight:700}.evidence{margin-top:18px}.evidence-row{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid #e1dccf}.evidence-row:last-child{border-bottom:0}.file{width:29px;height:34px;border:1px solid #aaa69a;border-radius:3px;display:grid;place-items:center;color:var(--red);font-weight:800;font-size:10px}.evidence-row b{display:block;font-size:13px}.evidence-row span{color:var(--muted);font-size:11px}
+    .chat{background:var(--ink);color:#f8f4e9;border-radius:8px;padding:18px;margin-top:18px}.chat .card-head{padding:0 0 13px;border-color:#47463f}.chat .card-head h2{color:#fff}.chat p{font-size:13px;color:#d3d0c6}.bubble{background:#2a2a26;border-radius:6px;padding:12px;margin:12px 0}.bubble b{color:#fff;display:block;font-size:12px;margin-bottom:5px}.bubble span{color:#cbc8bd;font-size:12px}.composer{display:flex;gap:8px;margin-top:13px}.composer input{min-width:0;flex:1;background:#1c1c1a;border:1px solid #67665d;color:#fff;padding:10px;border-radius:4px}.composer button{background:var(--yellow);padding:0 14px;border-radius:4px;font-weight:700}
+    .footerline{height:5px;background:linear-gradient(90deg,var(--red) 0 25%,var(--blue) 25% 50%,var(--yellow) 50% 75%,var(--ink) 75%)}
+    @media(max-width:900px){.app{grid-template-columns:72px 1fr}aside{padding:20px 10px}.brand{font-size:0}.brand:before{content:'M';font-size:22px;color:var(--yellow)}.brand small,.room span,.room b,.side-note{display:none}.room{height:38px;padding:0;border:0}.nav button{font-size:0;text-align:center}.nav button i{font-size:18px}.content{padding:24px 18px}.top{padding:0 18px}.grid{grid-template-columns:1fr}.title{font-size:30px}.split{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">MINDRIANOS<small>workspace</small></div>
+      <div class="room"><b>Example venture</b><span>Customer need room</span></div>
+      <nav class="nav"><button class="active"><i>▣</i>Work</button><button><i>◫</i>Evidence</button><button><i>◆</i>Decisions</button><button><i>↗</i>Deliverables</button><button><i>⌂</i>Rooms</button></nav>
+      <div class="side-note"><strong>LOCAL SESSION</strong>Claude Code is observing this workspace<br><br>Room writes stay on this machine.</div>
+    </aside>
+    <main>
+      <header class="top"><div class="crumb">ROOM <b>Example venture</b></div><div class="presence"><span class="dot"></span> Observing terminal work <span class="avatar">JS</span></div></header>
+      <section class="content">
+        <div class="eyebrow">Current work</div><h1 class="title">Test the demand assumption</h1><p class="subtitle">What would make this customer problem worth solving? Work here with the evidence, decisions, and deliverable in view.</p>
+        <div class="actions"><button class="primary">Continue with Claude Code</button><button class="secondary">Change task</button></div>
+        <div class="grid">
+          <div>
+            <section class="card"><div class="card-head"><h2>Task frame</h2><span class="tag">In progress</span></div><div class="card-body"><p class="question">Test whether teams will pay to remove this workflow bottleneck.</p><div class="split"><div class="mini"><h3>What we know</h3><p>Three interviews describe the same manual handoff.</p><div class="bar"><i></i></div></div><div class="mini"><h3>What is unresolved</h3><p>We have no evidence of a budget owner or urgent trigger.</p><div class="bar"><i style="width:32%;background:var(--red)"></i></div></div></div></div></section>
+            <section class="card evidence"><div class="card-head"><h2>Evidence in scope</h2><span class="tag">4 sources</span></div><div class="card-body"><div class="evidence-row"><div class="file">MD</div><div><b>Interview synthesis</b><span>3 excerpts · updated 8 min ago</span></div></div><div class="evidence-row"><div class="file">PDF</div><div><b>Procurement notes</b><span>2 contrary signals · updated yesterday</span></div></div><div class="evidence-row"><div class="file">DB</div><div><b>Room graph</b><span>12 related claims · local projection</span></div></div></div></section>
+          </div>
+          <div>
+            <section class="card"><div class="card-head"><h2>Activity</h2><span class="tag">Live</span></div><div class="card-body activity"><div class="event"><i class="mark"></i><div><b>Claude Code filed a new excerpt</b><span>Interview synthesis updated</span></div><time>2m</time></div><div class="event"><i class="mark"></i><div><b>Larry found a contradiction</b><span>Urgency claim lacks a budget signal</span></div><time>8m</time></div><div class="event"><i class="mark"></i><div><b>Task resumed</b><span>Terminal session is the current owner</span></div><time>12m</time></div></div></section>
+            <section class="decision"><h3>REVIEW NEEDED · 1 DECISION</h3><p>Confirm whether “urgent trigger” is an open assumption or a rejected hypothesis. This affects the next interview plan.</p><button>Review decision</button></section>
+            <section class="chat"><div class="card-head"><h2>With Larry</h2><span class="tag" style="color:var(--yellow)">Context-aware</span></div><div class="bubble"><b>Larry</b><span>The room has strong repetition in the pain, but weak evidence for willingness to pay.</span></div><div class="composer"><input placeholder="Direct the current task…"><button>Send</button></div></section>
+          </div>
+        </div>
+      </section><div class="footerline"></div>
+    </main>
+  </div>
+</body>
+</html>
