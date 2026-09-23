@@ -83,3 +83,22 @@ Non-OK ids: debug-intern-w1-prose-fork (known_miss, unaffected by this plan)
 Reply `approved`, or one line per correction: `<id>: block|pass <reason>`.
 For the R-C case: `r-c: block` or `r-c: known_false_block <reason>`.
 
+## Ratified
+
+Date: 2026-09-23
+
+Navigator reply (verbatim):
+
+- approved: all 24 dogfood rows as proposed, so flip label_origin to human.
+- r-c: known_false_block. Reason: "single content-token overlap ('governance') on a short human continuity turn about a prior thread; engagement with the unrelated F.1 reach vs coincidental phrasing is text-dependent, not deterministically separable (R-C)". Exclude it from the 0-false-block bar per the SPEC R4 amendment, and record the follow-on.
+- jev: keep-hand on all 13 disagreements. The Jev dissent is expected: the fixtures have no conversational context, and the anti-vacuity backstop and carve-out fixtures exist on purpose.
+- The 2 uncertain-verdict rows need no action.
+
+Resulting counts:
+
+- Dogfood rows human-confirmed as proposed: 24/24 (23 kept their proposed verdict, 1 corrected: R-C)
+- Dogfood rows corrected: 1 (R-C, block -> pass/known_false_block)
+- R-C outcome: `known_false_block`, `expected_verdict_class: pass`, excluded from the phase 0-false-block bar (SPEC R4 amendment), follow-on phase opened for text-understanding disambiguation
+- Jev rulings applied: 0 (all 13 disagreements ruled keep-hand; no fixture changed)
+- Fixtures touched: `tests/fixtures/card-fire-replay/dogfood.json` only (`debug-cases.json` and `live-2026-09-23.json` unchanged, no accept-jev ruling)
+
