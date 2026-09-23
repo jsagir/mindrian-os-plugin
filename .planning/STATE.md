@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-01-PLAN.md - Wave 1 of 8
-last_updated: "2026-09-23T09:10:14.378Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 01 (disposition ledger + shared test infra) complete; Phase 354 continues (Wave 1 of 8 done, 18 plans total)
+stopped_at: Completed 354-02-PLAN.md - Wave 2 of 8
+last_updated: "2026-09-23T09:25:15.647Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 02 (gate subject promotion, SYS-08) complete; Phase 354 continues (Wave 2 of 8 done, 18 plans total)
 progress:
   total_phases: 107
   completed_phases: 35
   total_plans: 311
-  completed_plans: 288
+  completed_plans: 289
   percent: 93
 ---
+
+<!-- NOTE (354-02 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` reported `last_plan`/current_plan 3 of 3, status ready_for_verification --
+     this is Phase 353's own stale counters, since Phase 354 has no per-phase plan-position
+     tracking in this frontmatter shape; not used. `state.update-progress` correctly computed
+     `completed: 289, percent: 93` (289/311). `state.record-metric` (flag syntax `--phase --plan
+     --duration --tasks --files`) landed its own correct Performance Metrics row. `state.add-
+     decision` (with `--summary`) repeated the documented `[Phase ?]` placeholder-prefix bug
+     (prepended `[Phase ?]: ` ahead of this plan's own already-prefixed `[Phase 354]` text), fixed
+     in place to a single `[Phase 354] 354-02: ...` line. `state.record-session` updated only
+     `Last session` and `Stopped At`, correctly to "Completed 354-02-PLAN.md - Wave 2 of 8"; the
+     frontmatter clobber (`stopped_at` reverted to the stale "Completed 354-01-PLAN.md - Wave 1 of
+     N" snapshot, `last_activity` reverted to a stale 2026-09-17 Phase 353 line, `percent`
+     reverted to `33`, a phases-ratio reading, 35/107, not the plan-completion percentage) was
+     hand-corrected here: `stopped_at` -> "Completed 354-02-PLAN.md - Wave 2 of 8`, `last_activity`
+     -> this plan's own completion line, `percent` -> 93, matching `state.update-progress`'s own
+     correct computation. Left `total_phases`/`completed_phases` at 107/35 unchanged (Phase 354
+     has not closed; correct as reported). -->
 
 <!-- NOTE (354-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6667,6 +6686,7 @@ Progress: [█████████░] 92%
 | Phase 353 P03 | 1.5h | 7 tasks | 17 files |
 | Phase 354 P01 | 26min | 2 tasks | 5 files |
 | Phase 354 P01 | 26min | 2 tasks | 5 files |
+| Phase 354 P02 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -8337,6 +8357,7 @@ Progress: [█████████░] 92%
 - [Phase 353] 353-03: jev_total/jev_pass count every jev-kind item graded (answered or skipped), never just the answered subset, so a fully-skipped run reports 0/4 rather than the misleading 0/0
 - [Phase 353] 353-03: RULE-01..21 and RULE-29 Measured blocks were backfilled in Task 7 (R-353-F), not left unmeasured from Plans 01/02's earlier [x] flip; every command re-run directly in this session
 - [Phase 354] 354-01: Published the pre-implementation disposition ledger (13 IDs, all re-run live) and the shared Phase 354 test aggregator; D-354-SYS05 and D-354-EGR restated with impact, THEO-04 recorded CONFIRMED with remediation pending Plan 354-18
+- [Phase 354] 354-02: gate_answer's approve branch now promotes the card's subject claim (not the newly-minted decision node) through a named-reason eligibility gate; strategy-card and material-step approvals byte-unchanged (strategy_card_owned_by_goal_gate / kind_not_general short-circuits).
 
 ### Pending Todos
 
@@ -8485,7 +8506,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T09:10:13.931Z
+Last session: 2026-09-23T09:25:15.376Z
 Stopped at: Completed 354-01-PLAN.md - Wave 1 of N
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair

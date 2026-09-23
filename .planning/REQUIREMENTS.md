@@ -2939,44 +2939,56 @@ contract.
       artifact_file, room://section/{sectionName}, reasoning://section/{name} and every reasoning-ops
       read/write resolve by realpath inside the room; percent-encoded traversal and sibling prefixes
       stay refused through the SDK URI matcher; valid discovered sections stay readable. Plan 354-05.
+
 - [ ] **SYS-02**: The cross-process write lock is owner-safe: a live owner is never displaced by age,
       a dead owner is recovered by exactly one contender, only the token owner releases, nesting
       holds until the outermost release, graph-ops holds it across its await. Plan 354-04.
+
 - [ ] **SYS-03**: Assistant and tool-component output in lib/chat renders inert in a real browser on
       the whole-message and streamed paths while bold, italic, code and lists still render.
       Plan 354-07.
+
 - [ ] **SYS-04**: A failed tool-module registration keeps siblings working, writes a stderr
       diagnostic (stdout protocol-clean) and is reported by registerCoreTools and status_read
       capability_floor.tool_registration. Plan 354-14.
+
 - [ ] **SYS-05**: extract_shallow's public contract is honest parsing (D-354-SYS05): the handler
       writes nothing to disk or room.db (verified after reopening), its description and response say
       so, and agents/larry-extended.md names claim_write as the persistence step. Plan 354-15.
+
 - [ ] **SYS-06**: The localhost POC saves untouched content byte-identically, refuses cross-origin
       writes and foreign Host reads, detects stale-tab conflicts, files room documents through the
       governed artifact path, and passes the full browser-to-room-to-graph journey (bind,
       edit/save/reopen, governed index, inspect, grounded ask with references, external edit).
       Plans 354-07, 354-08, 354-11.
+
 - [ ] **SYS-07**: The acceptance runner reports per-point timing and progress, bounds every child
       process, and a clean rerun classifies the timeout as WORKING, ENV GAP or NEW FAILURE with an
       orphan check, recorded in `.planning/debug/sys-07-acceptance-timing.md`. Plan 354-13.
-- [ ] **SYS-08**: Gate approval promotes the card's subject claim (the exact claim id reads
+
+- [x] **SYS-08**: Gate approval promotes the card's subject claim (the exact claim id reads
       confirmed after reopening), never evidence nodes, and leaves strategy and material-step cards
       unchanged. Plan 354-02.
+
 - [ ] **SYS-09**: Chain resume uses positional step identity validated against the journal,
       restores the journaled predecessor output reference, halts on a mismatched journal, and never
       reports completion the journal contradicts. Plan 354-03.
+
 - [ ] **THEO-01**: The plugin-to-Theo contract is safe: the classified rung reaches Theo's
       recommend_chain intact, chains contain only registry command ids and are validated before act
       state initialization, provenance claims no unverified FEEDS_INTO, degradation is disclosed,
       the taxonomy ladder sends Theo's enum casing on all four rungs, and a live synthetic run is
       recorded (or live certification stays open). Plans 354-09, 354-10, 354-12.
+
 - [ ] **THEO-02**: Release registry synchronization is dispositioned with plugin-side evidence and a
       read-only provider inspection, coordinated with Phase 351 and never marked complete while the
       Theo-side consumer is absent. Plan 354-12.
+
 - [ ] **THEO-03**: The teaching-to-action loop is proven for healthy, unavailable, invalid-schema and
       thin-result providers with no room byte on the wire and no fallback labelled as Theo, and the
       free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
       354-12.
+
 - [ ] **THEO-04**: The raw `theo` MCP server's bypass of `part8-egress-guard.cjs` is documented where
       a session will read it before calling a Brain-adjacent tool (CLAUDE.md, GROUNDING-SOURCES.md)
       and surfaced by an offline, zero-network, WARN-only `doctor.cjs --acceptance` advisory check;
