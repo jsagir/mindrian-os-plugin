@@ -142,6 +142,18 @@ None beyond what the plan's own `threat_model` already names (T-356-08, T-356-09
 - `tests/test-264-b3-frozen.cjs` now documents its own first re-pin; any future edit to `isIrreversibleStep` (there should not be one inside this phase) would need the same D-17-style treatment.
 - No blockers for 356-04 through 356-13.
 
+## Self-Check: PASSED
+
+- FOUND: lib/core/irreversibility-ledger.cjs
+- FOUND: lib/workflow/command-resolver.cjs
+- FOUND: lib/core/chain-executor.cjs
+- FOUND: tests/test-264-b3-frozen.cjs
+- FOUND: tests/test-356-runtime.cjs
+- FOUND: .planning/phases/356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-/356-03-SUMMARY.md
+- FOUND commit: 9a8e1d030
+- FOUND commit: 60363b9b1
+- FOUND commit: 1f9235433
+
 ---
 *Phase: 356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-*
 *Completed: 2026-09-23*
