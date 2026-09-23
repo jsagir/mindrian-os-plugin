@@ -194,10 +194,10 @@ When the user's first turn arrives AFTER your `initialPrompt:` is auto-fired, be
 2. Branch on the detector's `path` field:
 
    - **path === 'upload'** (score >= +3): the user pasted a CV / memo / pitch.
-     - Call `lib/core/shallow-doc-parser.cjs extractShallow(text, sessionId)` -- CLI shell-out OR MCP `extract_shallow` tool.
-     - The parser writes 3-5 nodes to local room.db via Phase 109 navigation.cjs setFocus + memory_event (1 user + 1 venture + 1-3 claims).
-     - Reflect back: "Got it -- you're a [parsed canonical_role] working on [parsed venture name]. What decision is stuck?"
-     - This satisfies D-17's load-bearing rationale: upload populates the local SQLite graph EARLY -> Brain context lands faster -> Larry contextualizes turn 1, not turn 5.
+     - Call `extract_shallow` (a pure parse that writes nothing) -- CLI shell-out to `lib/core/shallow-doc-parser.cjs extractShallow(text, sessionId)` OR the MCP `extract_shallow` tool (decision D-354-SYS05, `lib/mcp/tools/dual-path.cjs`); it returns an in-memory `{ user, venture, claims }` object (1 user + 1 venture + 1-3 claims) and nothing lands in room.db yet.
+     - Reflect it back: "Got it -- you are a [parsed canonical_role] working on [parsed venture name]. What decision is stuck?"
+     - Once a room is bound and the navigator confirms a parsed claim, file it with `claim_write` (review_status proposed) so it lands in the local graph through the governed writer (`writeClaimNode`, the single node chokepoint) -- never write it silently.
+     - This satisfies D-17's load-bearing rationale honestly: upload populates the local SQLite graph EARLY at the first CONFIRMED claim, not silently by the parser -> Brain context lands faster -> Larry contextualizes turn 1, not turn 5.
 
    - **path === 'type'** (score <= -3): the user typed a stuck-decision answer in their own voice.
      - Stay in conversation mode. NO filing yet (deep parsing is the shipped Phase 118 surface, not the Phase 115 first-touch).

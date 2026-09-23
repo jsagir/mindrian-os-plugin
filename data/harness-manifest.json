@@ -13,8 +13,8 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "7a33c0f428e93a4ce2700add4b14a1cb342ec89665af01955d21588d4aa8e144",
-      "source_count": 209
+      "digest": "5db409a3dc29f77bd7ad11180932138f719693918901b681a676230b51a0612b",
+      "source_count": 210
     },
     {
       "role": "ranked_next_reach",
@@ -27,12 +27,12 @@
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "21d8ce8ac48177e39f323afdf7180d5b00ab2f12c3480e0fb696b968d7afe994"
+      "digest": "827bd7e66c6b69d175204ddcf594c4f3d72369c6c496808a399e31e2f20a16fb"
     },
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "d5682212a9fe1366aa4475b11839fbd26ac0f71fb7cf61767f0a51633a42ffde"
+      "digest": "cab51314b69e355deeb808376db03b6e86d804b3709796020ae100dd131ca33d"
     },
     {
       "role": "cockpit",
@@ -54,7 +54,7 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "6bdbb1f42d815c445c8e6f5a6a242b8cc6fa950cd761d3c73d40e4618202ef00"
+      "digest": "ea0630868360b06396eff9a5f9a05be595cb7e568ac1ee1768e1f8c602520bbd"
     },
     {
       "role": "personality_skill",
