@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 354-16-PLAN.md - Phase 354 CLOSED
-last_updated: "2026-09-23T17:46:30.198Z"
-last_activity: 2026-09-23 -- Phase 355 execution started
+stopped_at: Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module shipped
+last_updated: "2026-09-23T18:02:15.515Z"
+last_activity: 2026-09-23 -- Phase 355 Plan 01 complete (D-57 gate, direction-convention module)
 progress:
   total_phases: 111
   completed_phases: 37
   total_plans: 396
-  completed_plans: 330
-  percent: 83
+  completed_plans: 334
+  percent: 84
 ---
+
+<!-- NOTE (355-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly advanced Current Position to "Plan: 2 of 28". `state.update-progress`
+     correctly computed completed: 334, total: 396, percent: 84 (peers had landed more plans in this
+     tree since the last snapshot). `state.record-metric --phase 355 --plan 01 --duration 45min
+     --tasks 2 --files 6` landed its own correct Performance Metrics row. `state.add-decision`
+     repeated the documented `[Phase ?]` placeholder-prefix bug three times in a row (once per
+     decision this run); fixed in place to `[Phase 355] 355-01: ...` on each of the three lines.
+     `state.record-session` this run updated ONLY the body's own `Last session:` timestamp; frontmatter
+     `stopped_at`/`last_activity`/`percent` were left at the stale 354-16-era snapshot (stopped_at ->
+     "Completed 354-16-PLAN.md - Phase 354 CLOSED", last_activity -> the stale "Phase 355 execution
+     started" line, percent -> 33, a stale phase-count percentage rather than update-progress's
+     just-computed 84) and the body `Stopped at:` line stayed at the stale 354-16 value.
+     Hand-corrected: frontmatter `stopped_at` -> "Completed 355-01-PLAN.md - D-57 gate proven,
+     direction-convention module shipped", `last_activity` -> this plan's own completion line,
+     `percent` -> 84 (matching `state.update-progress`'s just-computed value), body `Stopped at:` line
+     -> the same 355-01 completion line. `completed_plans` (334) was already correct from the
+     update-progress run, not reverted this run. -->
 
 <!-- NOTE (355 planned-phase record, jsagi-d9, 2026-09-23, resync-clobber pattern, same class as
      every other note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -5343,8 +5362,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
-Plan: 1 of 28
-Status: Executing Phase 355
+Plan: 2 of 28
+Status: Ready to execute
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -7036,6 +7055,7 @@ Progress: [█████████░] 92%
 | Phase 354 P15 | 35min | 2 tasks | 6 files |
 | Phase 354 P18 | 5min | 2 tasks | 6 files |
 | Phase 354 P16 | 180min | 3 tasks | 8 files |
+| Phase 355 P01 | 45min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -8725,6 +8745,9 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-15: extract_shallow's public contract settled as honest parsing (D-354-SYS05) -- pure parse, persisted:false, claim_write is the governed persistence step
 - [Phase 354] 354-18: THEO-04 closed as mitigated-documented (no --strict mode on check-theo-mcp-exposure.cjs; WARN output on stdout per plan's own test spec; deliberately re-opened tests/run-all-354.sh to wire in the new leg)
 - [Phase 354] 354-16: closed the phase -- 11 of 13 SYS/THEO IDs FIXED-VERIFIED, THEO-04 MITIGATED-DOCUMENTED (never claimed fixed), THEO-02 stays BLOCKED on Phase 351; concurrency proven live across CLI/MCP-stdio/browser (25/25 checks); no release cut, fixed on main only
+- [Phase 355] 355-01: D-57 gate scoped to the six named shared files; three peer-owned dirty files outside that list left untouched per Phase 356 peer contract
+- [Phase 355] 355-01: direction-convention DIRECTION_MEANING renders the CONTEXT <specifics> wording (same meaning in different words / same words with different meaning), not RESEARCH.md's shorter Code Examples gist
+- [Phase 355] 355-01: three pre-existing tests/run-all-355.sh no-regression-leg failures logged to deferred-items.md, not fixed (out of this plan's scope)
 
 ### Pending Todos
 
@@ -8873,8 +8896,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T16:51:14.847Z
-Stopped at: Completed 354-16-PLAN.md - Phase 354 CLOSED
+Last session: 2026-09-23T18:02:15.444Z
+Stopped at: Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module shipped
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
