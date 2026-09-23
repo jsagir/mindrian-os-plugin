@@ -1,6 +1,14 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
+ * Amended Phase 355 D-03: Convention B retired; classifyDirectionB now
+ * delegates to lib/core/direction-convention.cjs (semantic higher =
+ * structural_transfer). The two pinned classifyDirectionB expectations
+ * below are flipped accordingly; nothing else in this test changes -- the
+ * similarity-algorithm assertions (diagonal, max_features parametrization)
+ * are untouched, since Phase 355 D-03 only moved the label rule, not the
+ * similarity computation.
+ *
  * Phase 272 Wave 0 -- pins compute-hsi.py's Convention B + cosine-on-SVD LSA
  * algorithm, RED by design.
  *
@@ -75,28 +83,28 @@ async function main() {
     'lib/core/hsi-lsa.cjs MUST export a function named computeLsaSimilarity(texts, opts)'
   );
 
-  // Synthetic pair: lsa=0.8, semantic=0.3. Under Convention B (lsa > sem),
-  // this classifies as structural_transfer. Under Convention A (rs-math.cjs,
-  // signed = semantic - lsa = 0.3 - 0.8 = -0.5 <= 0), this SAME pair would
-  // classify as semantic_implementation -- the opposite label. This proves
-  // the test exercises the actual sign convention, not a coincidental match,
-  // so a future accidental swap between rs-math.cjs and hsi-lsa.cjs fails
-  // loudly.
+  // Synthetic pair: lsa=0.8, semantic=0.3. Phase 355 D-03: classifyDirectionB
+  // now delegates to lib/core/direction-convention.cjs's classify(lsa,
+  // semantic), i.e. sign(semantic - lsa) = sign(0.3 - 0.8) = sign(-0.5) <= 0
+  // -> semantic_implementation. This is the SAME label rs-math.cjs's
+  // classifyDirection now assigns to this pair (both delegate to the one
+  // module), the opposite of the old, retired Convention B label.
   const label = hsiLsaModule.classifyDirectionB(0.8, 0.3);
   assert.equal(
     label,
-    'structural_transfer',
-    'Convention B: lsa_sim (0.8) > sem_sim (0.3) must classify as structural_transfer -- ' +
-      'this is the OPPOSITE label Convention A would assign to the same numbers'
+    'semantic_implementation',
+    'Phase 355 D-03: classifyDirectionB(0.8, 0.3) delegates to direction-convention.cjs -- ' +
+      'semantic (0.3) - lsa (0.8) = -0.5 <= 0 -> semantic_implementation'
   );
 
-  // The reverse pairing (lsa < sem) must classify as semantic_implementation
-  // under Convention B.
+  // The reverse pairing (lsa=0.3, semantic=0.8): semantic - lsa = 0.5 > 0
+  // -> structural_transfer under the same delegated rule.
   const reverseLabel = hsiLsaModule.classifyDirectionB(0.3, 0.8);
   assert.equal(
     reverseLabel,
-    'semantic_implementation',
-    'Convention B: lsa_sim (0.3) <= sem_sim (0.8) must classify as semantic_implementation'
+    'structural_transfer',
+    'Phase 355 D-03: classifyDirectionB(0.3, 0.8) delegates to direction-convention.cjs -- ' +
+      'semantic (0.8) - lsa (0.3) = 0.5 > 0 -> structural_transfer'
   );
 
   // Underlying similarity computation must be cosine-on-the-SVD-reduced
