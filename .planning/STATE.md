@@ -3,16 +3,33 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-12-PLAN.md - Wave 5 of 8
-last_updated: "2026-09-23T13:37:34.962Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 12 (Theo journey + live contract certification: hermetic four-case H/U/S/T journey 15/15 checks, live synthetic run against theo-mcp.onrender.com 9/9 records passed, THEO-01/THEO-03 marked complete; THEO-02 dispositioned BLOCKED on Phase 351 with fresh evidence) completed
+stopped_at: Completed 354-17-PLAN.md
+last_updated: "2026-09-23T14:01:11.132Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 17 (framework-command ledger, THEO-01 recall extension) executed
 progress:
   total_phases: 110
   completed_phases: 35
-  total_plans: 342
-  completed_plans: 305
-  percent: 89
+  total_plans: 378
+  completed_plans: 309
+  percent: 82
 ---
+
+<!-- NOTE (354-17 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported stale counters (current_plan 3 of 3, ready_for_verification)
+     -- not used. `state.update-progress` correctly computed completed: 309, total: 377, percent: 82.
+     `state.record-metric` landed its own correct row (Phase 354 P17, 25min, 2 tasks, 8 files).
+     `state.add-decision` repeated the documented `[Phase ?]` placeholder-prefix bug again, fixed in
+     place to a single `[Phase 354] 354-17: ...` line. `state.record-session` this run correctly
+     updated BOTH the frontmatter `stopped_at` and the body `Stopped at:` line to "Completed
+     354-17-PLAN.md" (narrower failure than 354-12 saw); `last_activity`/`percent` in the frontmatter
+     were still left stale (2026-09-17 line, percent 32) and hand-corrected to this plan's own
+     completion line and 82 (matching `state.update-progress`'s freshly computed value).
+     `total_plans`/`completed_plans` (378/309, one higher on total than update-progress's own 377
+     reading a few seconds earlier -- a concurrent peer session landed a plan in between) left as-is,
+     peer-owned. This plan's `requirements: [THEO-01]` frontmatter field is NOT run through
+     `requirements.mark-complete` -- THEO-01 is already closed by 354-09/354-10/354-12; this plan is
+     an additive extension beyond that closed scope, per its own success criteria. -->
 
 <!-- NOTE (354-12 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6906,6 +6923,7 @@ Progress: [█████████░] 92%
 | Phase 354 P10 | ~25min | 2 tasks | 6 files |
 | Phase 354 P11 | ~50min | 3 tasks | 4 files |
 | Phase 354 P12 | ~95min | 3 tasks | 3 files |
+| Phase 354 P17 | 25min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -8587,6 +8605,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-10: Taxonomy ladder rungs mapped to Theo's own PROBLEM_TYPE_IDS casing (identity mapping in rung-vocabulary.cjs, matching TAXONOMY_RUNGS in part8-egress-guard.cjs); recommendChain's origin-specific normalization in brain-client.cjs stays untouched, proven by a scope-pin test.
 - [Phase 354] 354-11: room mode files through fileArtifact into <room>/<section>/workspace-poc.md (governed door); graph()/graphAnswer() enrich claim:artifact nodes with a locally-known source path since getGraphExport's own Part 8 whitelist never emits one; SYS-06 marked complete (354-07/08/11 all landed, full J1-J8 journey passes).
 - [Phase 354] 354-12: hermetic four-case Theo journey proven, live contract run actually executed and passed 9/9 (THEO-01/THEO-03 closed), THEO-02 dispositioned BLOCKED on Phase 351 with fresh six-command evidence
+- [Phase 354] 354-17: committed ledger ships offline-seed (promotes zero candidates by design); lookup consulted only after 354-09's exact-slug safety check fails
 
 ### Pending Todos
 
@@ -8735,8 +8754,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T13:37:34.885Z
-Stopped at: Completed 354-12-PLAN.md - Wave 5 of 8
+Last session: 2026-09-23T14:01:11.052Z
+Stopped at: Completed 354-17-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
