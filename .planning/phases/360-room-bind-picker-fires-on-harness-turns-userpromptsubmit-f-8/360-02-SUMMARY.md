@@ -207,3 +207,7 @@ None -- no external service configuration, no secrets, no network egress. `r8d`'
 *Phase: 360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8*
 *Plan: 02*
 *Completed: 2026-09-23*
+
+## Self-Check: PASSED
+
+All 3 files created this plan verified present on disk (`tests/fixtures/ups-harness-360/cases.json`, `tests/fixtures/ups-harness-360/spawn-kit.cjs`, `tests/test-360-tripwire.cjs`), plus this SUMMARY itself. Both commits (`ad3e806fb`, `415684e7e`) verified present in `git log --oneline --all`. No missing items.
