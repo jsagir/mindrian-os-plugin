@@ -3,16 +3,41 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-10-PLAN.md - Wave 4 of 8
-last_updated: "2026-09-23T12:44:08.246Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 10 (taxonomy ladder casing: rung-vocabulary.cjs and part8-egress-guard.cjs mapped to Theo's own PROBLEM_TYPE_IDS casing, THEO-01 sub-finding CTX-TAXO closed) completed
+stopped_at: Completed 354-11-PLAN.md - Wave 5 of 8
+last_updated: "2026-09-23T13:05:05.852Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 11 (room-mode journey: fileArtifact governed filing, deterministic_graph_lookup answers with references, external-edit polling and conflict banner, full J1-J8 Playwright journey PASS; SYS-06 marked complete) completed
 progress:
-  total_phases: 108
+  total_phases: 110
   completed_phases: 35
   total_plans: 334
-  completed_plans: 302
-  percent: 90
+  completed_plans: 303
+  percent: 91
 ---
+
+<!-- NOTE (354-11 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported Phase 353's stale counters (current_plan 3 of 3,
+     status ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 303, total: 334, percent: 91. `state.record-metric` (flag syntax --phase --plan
+     --duration --tasks --files) landed its own correct Performance Metrics row (Phase 354 P11,
+     ~50min, 3 tasks, 4 files). `state.add-decision` (with --summary) repeated the documented
+     `[Phase ?]` placeholder-prefix bug again, fixed in place to a single `[Phase 354] 354-11: ...`
+     line. `state.record-session` this run updated ONLY the body's own `Last session:` line --
+     narrower than it claimed: the body's "Stopped at:" line was left at the stale "Completed
+     354-10-PLAN.md" value, and `last_activity`/`percent` in the frontmatter were reverted to
+     stale Phase 353 values (`last_activity` to the 2026-09-17 line, `percent` to `32`, a
+     phases-ratio reading); `stopped_at` in the frontmatter also read stale ("Completed
+     354-10-PLAN.md - Wave 4 of 8"). Hand-corrected: frontmatter `stopped_at` -> "Completed
+     354-11-PLAN.md - Wave 5 of 8", `last_activity` -> this plan's own completion line, `percent`
+     -> 91 (matching `state.update-progress`'s own just-computed value); `total_plans`/
+     `completed_plans` (334/303) were already correct, not reverted this run. Body "Stopped at:"
+     line -> "Completed 354-11-PLAN.md - Wave 5 of 8" to match. `total_phases` read 110 this run
+     (was 108 as of 354-10's note) -- a concurrent peer session's own advance, left as-is per the
+     354-10 note's precedent (this note's job is to correct the resync-clobber pattern, not
+     adjudicate a concurrent peer's own phase-count change). Left `completed_phases` at 35
+     unchanged (Phase 354 has not closed; correct as reported). Also ran
+     `requirements.mark-complete SYS-06` this session (354-07 + 354-08 + 354-11 all landed; the
+     full J1-J8 room-mode journey passes) -- REQUIREMENTS.md's SYS-06 row is now `[x]`. -->
 
 <!-- NOTE (354-10 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6854,6 +6879,7 @@ Progress: [█████████░] 92%
 | Phase 354 P08 | 55min | 3 tasks | 8 files |
 | Phase 354 P09 | 45min | 3 tasks | 4 files |
 | Phase 354 P10 | ~25min | 2 tasks | 6 files |
+| Phase 354 P11 | ~50min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -8533,6 +8559,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-08: POC hardened with per-launch capability token, exact-Origin/Host checks, sha256 revisioned atomic saves, and a lossless textarea editor; legacy dashboard now Host-checks every GET route too; SYS-06 left open pending 354-11's journey test
 - [Phase 354] 354-09: Theo classification carried structurally (ask(question, {problem_type})); chain filtered to exact KNOWN_METHODOLOGIES slugs only (safety over recall, 354-17 builds recall on top); provenance states ranked_candidates honestly instead of an unverified feeds_into claim; act/act-chain/act-swarm validate before initializing pipeline state.
 - [Phase 354] 354-10: Taxonomy ladder rungs mapped to Theo's own PROBLEM_TYPE_IDS casing (identity mapping in rung-vocabulary.cjs, matching TAXONOMY_RUNGS in part8-egress-guard.cjs); recommendChain's origin-specific normalization in brain-client.cjs stays untouched, proven by a scope-pin test.
+- [Phase 354] 354-11: room mode files through fileArtifact into <room>/<section>/workspace-poc.md (governed door); graph()/graphAnswer() enrich claim:artifact nodes with a locally-known source path since getGraphExport's own Part 8 whitelist never emits one; SYS-06 marked complete (354-07/08/11 all landed, full J1-J8 journey passes).
 
 ### Pending Todos
 
@@ -8681,8 +8708,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T12:44:08.167Z
-Stopped at: Completed 354-10-PLAN.md - Wave 4 of 8
+Last session: 2026-09-23T13:05:05.771Z
+Stopped at: Completed 354-11-PLAN.md - Wave 5 of 8
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

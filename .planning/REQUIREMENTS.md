@@ -2956,7 +2956,7 @@ contract.
       writes nothing to disk or room.db (verified after reopening), its description and response say
       so, and agents/larry-extended.md names claim_write as the persistence step. Plan 354-15.
 
-- [ ] **SYS-06**: The localhost POC saves untouched content byte-identically, refuses cross-origin
+- [x] **SYS-06**: The localhost POC saves untouched content byte-identically, refuses cross-origin
       writes and foreign Host reads, detects stale-tab conflicts, files room documents through the
       governed artifact path, and passes the full browser-to-room-to-graph journey (bind,
       edit/save/reopen, governed index, inspect, grounded ask with references, external edit).
