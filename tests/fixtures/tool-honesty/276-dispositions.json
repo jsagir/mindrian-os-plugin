@@ -2,13 +2,13 @@
   "schema_version": 1,
   "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
-    "tools": 39,
-    "branches": 133,
+    "tools": 41,
+    "branches": 135,
     "high_risk": 0,
     "medium": 12,
     "low": 0,
     "unknown": 0,
-    "ok": 121
+    "ok": 123
   },
   "dispositions": [
     {
@@ -287,7 +287,7 @@
     }
   ],
   "refrozen_at": {
-    "commit": "bdf77d1ee",
-    "reason": "Re-frozen by plan 358-05 (Phase 358 B1, navigator ruling 2026-09-23 that every test left red by substrate commit 42191a6ae is green at phase end). The 276-15 freeze at e484f4b3 (37 tools / 131 branches) was invalidated by commit 42191a6ae adding claim_verify and by plan 358-04 adding claim_read; the live scan is now 39 tools / 133 branches. claim_verify and claim_read rows are both OK (verdict OK: a write primitive is reachable / no persistence claim found for this command), so no disposition was added for either. Every prior disposition below was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit and still resolves to its recorded expected_final_verdict. HIGH_RISK is 0."
+    "commit": "c50cb7f2e",
+    "reason": "Re-frozen by plan 358-10 (Phase 358 B2, born-wired close-out; the same navigator ruling 358-05 cited applies here to plan 358-09's own substrate commit). The 358-05 freeze at bdf77d1ee (39 tools / 133 branches) was invalidated by plan 358-09 adding question_read and question_set (lib/mcp/tools/question.cjs); the live scan is now 41 tools / 135 branches. question_read and question_set rows are both OK (verdict OK: no persistence claim found for this command / a write primitive is reachable), so no disposition was added for either. Every prior disposition below was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit and still resolves to its recorded expected_final_verdict. HIGH_RISK is 0."
   }
 }

@@ -286,16 +286,41 @@ const AFTER_270_12 = {
  *     17.03 percent, over DRIFT_TOLERANCE_PCT, moved deliberately per the
  *     navigator ruling above, not papered over).
  */
+/*
+ * Plan 358-10 (part of the B2-10 born-wired close-out) -- re-baseline
+ * authorised by the same navigator ruling 358-05 cited (every test left red
+ * by the plan's own substrate commit is green at phase end; here the
+ * substrate commit is 358-09's own GREEN commit for lib/mcp/tools/
+ * question.cjs). Plan 358-09 added the two new question_read / question_set
+ * MCP tools (toolCount 42 -> 44, the entire toolCount delta).
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs, same
+ * listToolsOverStdio + measure() pair, no new arithmetic) after 358-10 Task 1
+ * landed the connector-registry regenerate for question_read/question_set:
+ *   toolCount 42 -> 44 (+2: question_read, question_set).
+ *   totalBytes 45606 -> 48321 (+2715 bytes; signed pctChange(45606, 48321) =
+ *     5.95 percent, under DRIFT_TOLERANCE_PCT, moved anyway per this file's
+ *     own protocol of always recording the measured AFTER on a deliberate
+ *     tool-count change, never silently reusing a stale figure).
+ * Part of this totalBytes delta is NOT B2's: plan 355-05 (commit f2314ec97,
+ * "fix(355-05): scout-hsi and whitespace_scan describe what they do")
+ * lengthened the orchestration tool's scout-hsi sentence (lib/mcp/tool-
+ * router.cjs) and whitespace_scan's description (lib/mcp/tools/sensors.cjs)
+ * between the 358-05 measurement and this one, landing on main before this
+ * plan ran. Both are pre-existing tools counted in both AFTER.toolCount
+ * figures, so that byte growth rides along inside totalBytes here without
+ * moving toolCount.
+ */
 const AFTER = {
   measuredAt: '2026-09-23',
-  plan: '358-05',
-  toolCount: 42,
-  totalDescBytes: 18132,
-  totalSchemaBytes: 27474,
-  totalBytes: 45606,
-  approxTokens: 11402,
+  plan: '358-10',
+  toolCount: 44,
+  totalDescBytes: 19395,
+  totalSchemaBytes: 28926,
+  totalBytes: 48321,
+  approxTokens: 12080,
   routerCount: 9,
-  atomicCount: 33,
+  atomicCount: 35,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget
