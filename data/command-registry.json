@@ -558,7 +558,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it.",
+      "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it. The deep dive can open with a sourced research pass: four evidence lanes, searched only after you approve the queries, every claim with its source.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },

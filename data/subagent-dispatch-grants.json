@@ -145,6 +145,17 @@
       "ratified_date": "2026-08-27",
       "ratified_in": "265-23",
       "evidence": "265-RESEARCH-generative-redesign.md section 5 'find-analogies (--external only) - REDESIGN CANDIDATE, scoped, lower priority', lines 523-551 and 907-921 (dedup risk, Part 8 boundary note); verified shipped shape against 265-21-SUMMARY.md: one analogy-query-fetcher subagent per navigator-approved audited query, each doing its own fetch + SAPPhIRE encoding + structural mapping, clamped through resolveFanoutCap (FUTURES_FANOUT_CAP default 5), matching this row's dispatch_shape and fan_bound as reviewed -- no correction needed"
+    },
+    {
+      "command": "commands/dominant-designs.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one dominant-design-researcher subagent per navigator-approved evidence lane (variant census, convergence signals, S-curve limits, discontinuity signals), spawned in one turn strictly after the query gate card",
+      "fan_bound": "4, one per evidence lane, clamped by resolveFanoutCap / FUTURES_FANOUT_CAP default 5",
+      "reason": "four independent lane searches would otherwise raise up to four permission prompts per deep dive, and each worker is read-only by its tools list (no Write, no Brain), so the parallel grant removes friction without widening what any worker can do",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-09-23",
+      "evidence": "361-CONTEXT.md D-05 and D-11; 361-RESEARCH.md Pitfall 7; 361-07-PLAN.md Task 2"
     }
   ]
 }
