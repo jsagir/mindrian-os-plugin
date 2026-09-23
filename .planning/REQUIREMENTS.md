@@ -3170,9 +3170,88 @@ origin and no isMeta.
       new session asks again, and an explicit room binding restores normal behavior (N-2, SPEC R11).
       Plans 360-05, 360-07.
 
+### Phase 361 - Dominant-design research mode (DDR361 family)
+
+DDR361-01..13 were minted in the Phase 361 plan set (2026-09-23), ratifying `361-RESEARCH.md`'s
+proposed family as amended by the navigator rulings D-11..D-17 in `361-CONTEXT.md`, and are
+registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
+stated reason, at phase close by `361-08-PLAN.md` Task 3.
+
+- [ ] **DDR361-01**: A new read-only agent `agents/dominant-design-researcher.md` answers ONE
+      evidence lane per invocation, runs exactly the gate-approved query string(s) and never
+      composes, rephrases or expands one (D-03, D-04), returns structured JSON only, and is
+      host-restricted by a `tools:` list mirrored byte-identically under `allowed-tools:` (two
+      Tavily search names, WebSearch, Read; no Write, Edit, Bash, Task, Agent or Brain tool), with
+      `connector.excluded: true` plus a reason and no `hitl_shape` (D-17). Plan 361-04.
+
+- [ ] **DDR361-02**: One deterministic composer (`lib/core/dominant-design/lane-queries.cjs`)
+      produces the four lane queries from the navigator's generic domain phrase and audits every
+      string, and every navigator edit, through `auditQueryString` before it can reach the gate
+      card; an audit failure degrades to local-only with no send-anyway path. Plans 361-03, 361-06.
+
+- [ ] **DDR361-03**: No researcher agent is dispatched before the navigator approves the gate card;
+      the navigator can edit or drop lanes; an unattended or chain-driven run always takes the
+      quick pass and never researches (D-03, D-12). Plan 361-07.
+
+- [ ] **DDR361-04**: Approved lanes fan out in parallel, one agent per lane, at most 4 agents and
+      at most 2 approved queries per lane, exactly one `tavily-search` call per query with fixed
+      parameters (`search_depth: basic`, `topic: general`, `max_results: 10`), `WebSearch` with the
+      identical string only as the fallback, no `tavily-extract`; Desktop and Cowork say plainly
+      that the research pass runs in Claude Code (D-05). Plans 361-03, 361-07.
+
+- [ ] **DDR361-05**: Every returned claim row is validated to the D-06 minimum `{claim, source_url,
+      source_title, retrieved_at, quote_or_locator}` plus a named source type (D-13); a row missing
+      any field or carrying a non-http(s) URL is dropped and counted, never hedged; a row carrying
+      a score, confidence, strength, probability or rank key is dropped; a lane whose echoed
+      queries differ from the approved ones is refused as `query_mismatch`. Plans 361-03, 361-06.
+
+- [ ] **DDR361-06**: After the navigator's approval, one evidence artifact per approved lane is
+      written under `competitive-analysis/dominant-designs/`, including an explicit empty-lane
+      artifact whose `## Searched, not found` list names what was searched (D-07); a dropped lane
+      writes nothing and the analysis names it as not run. Plans 361-03, 361-06, 361-07.
+
+- [ ] **DDR361-07**: Each lane's sourced rows file through `navigation.fileEvidenceWithReadback`
+      (one EvidenceClaim per unique URL per lane, a per-lane session suffix, the evidence tier
+      assigned in code per D-13, landing `proposed`), and each lane's readback (landed, or not
+      landed with the reason) is shown to the navigator; an absent room.db is said plainly. Plans
+      361-03, 361-06, 361-07.
+
+- [ ] **DDR361-08**: Larry's six-phase analysis artifact (the reference file's template) cites an
+      evidence row id for every factual statement, states no score or dominance number that no
+      evidence row states, and records `structure_source` and `structure_source_reason` (D-07,
+      D-09). Plan 361-07.
+
+- [ ] **DDR361-09**: The Dominant Design structure is read from Theo (`framework_step`,
+      `framework_techniques`, `case_story`) with ONLY `{framework: "Dominant Design"}` and falls
+      back to the local reference on brain unavailable, egress blocked, not served (detected by the
+      text `Tool X not found`, never by -32602 alone), shape refused, or served with zero steps,
+      naming the source and the reason (D-09, D-15, D-16). Plans 361-05, 361-06, 361-08.
+
+- [ ] **DDR361-10**: `_proveKnownToolShape` gains three separate arms (`framework_step`,
+      `framework_techniques`, `case_story`) after the `recommend_chain` arm, proving exact keys and
+      a canonical framework handle; no 361 commit changes the `find_connections` arm; Theo
+      input-shape parity is tested read-only against the Theo checkout (D-10, D-14, D-15). Plans
+      361-02, 361-08.
+
+- [ ] **DDR361-11**: Frontmatter truth: `connector.web_scope: white`, `Task` pre-approved with an
+      adjacent pre-approval comment and a reviewed grant row in
+      `data/subagent-dispatch-grants.json` (pending until the navigator ratifies), `teaching` names
+      the research mode, `autonomous_safe` stays true; the command registry, connector registry,
+      coverage ledger, skill mirror and orchestration projection regenerate and every `--check` is
+      green; `scripts/build-command-registry.cjs`'s schema is unchanged (D-01, D-11, D-12). Plans
+      361-04, 361-07, 361-08.
+
+- [ ] **DDR361-12**: The `/mos:dominant-designs` command-registry row changes, so `registryHash`
+      moves, and the phase records that the next real release's Step 5.6 `theo-resync` dispatch
+      carries it; the phase sends no notify itself (D-01, D-11). Plans 361-07, 361-08.
+
+- [ ] **DDR361-13**: The quick pass behaves exactly as today: the Setup steps and the quick-pass
+      flow text are byte-identical to the pre-phase command, and the quick pass calls no composer,
+      no Theo tool and no agent. Plans 361-01, 361-07.
+
 ## Traceability
 
-360 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+373 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3182,7 +3261,8 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
-FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360). All minted
+FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361).
+All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3266,10 +3346,14 @@ ratifying `360-RESEARCH.md`'s proposed IDs, and BIND360-10..11 were minted at th
 navigator rulings N-1 and N-2 (SPEC Amendments R10 and R11); all eleven are registered here at plan
 time as `- [ ]` rows to be closed with measured proof, or left open with a stated reason, at phase
 close by `360-08-PLAN.md` Task 1.
-Roadmap phases must map all 360 active requirements with no orphans.
+DDR361-01..13 were minted in the Phase 361 plan set (2026-09-23), ratifying `361-RESEARCH.md`'s
+proposed family as amended by the navigator rulings D-11..D-17 in `361-CONTEXT.md`; all thirteen are
+registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
+stated reason, at phase close by `361-08-PLAN.md` Task 3.
+Roadmap phases must map all 373 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359 and BIND360
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360 and DDR361
 families
 alike (the
 Phase 266 and 269
