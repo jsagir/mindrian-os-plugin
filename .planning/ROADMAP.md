@@ -957,23 +957,26 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [ ] 354-09-PLAN.md -- THEO-01: structural rung round trip, registry-only executable chains validated before act init, ranked-candidate provenance, disclosed degradation
 - [ ] 354-10-PLAN.md -- THEO-01: taxonomy_ladder casing matched to Theo's PROBLEM_TYPE_IDS (recommendChain untouched)
-- [ ] 354-17-PLAN.md -- THEO-01 (navigator-directed TypeSafe/Jev addition, 2026-09-23; depends on 354-09): sibling of the shipped Phase 353 section-command-ledger builder, `scripts/build-framework-command-ledger.cjs` -> `data/framework-command-ledger.json`, dev-time Jev-scored, zero runtime vendor call, recovers recall 354-09's exact-slug safety check costs without weakening it
 
 **Wave 5** *(tier 4, journeys; depends on wave 4)*
 
 - [ ] 354-11-PLAN.md -- SYS-06: browser-to-room-to-graph journey on one temporary room through the governed filing path
 - [ ] 354-12-PLAN.md -- THEO-01, THEO-02, THEO-03: hermetic four-case Theo journey, opt-in live contract run, THEO-02 BLOCKED on Phase 351 with evidence
+- [ ] 354-17-PLAN.md -- THEO-01 (navigator-directed TypeSafe/Jev addition, 2026-09-23; depends on 354-09, moved from wave 4 per plan-checker blocker: both edit brain-router.cjs's brainRoute loop): sibling of the shipped Phase 353 section-command-ledger builder, `scripts/build-framework-command-ledger.cjs` -> `data/framework-command-ledger.json`, dev-time Jev-scored, zero runtime vendor call. HONEST SCOPE (plan-checker blocker 4): this plan ships the lookup LOGIC and proves it against a --jev-fixture build; the COMMITTED ledger is offline-seed (confidence_floor null) and promotes zero candidates by design until a navigator runs the jev-scored build pre-release. Delivers infrastructure, not recall, on its own.
 
 **Wave 6** *(tier 5, diagnostics; depends on wave 5)*
 
 - [ ] 354-13-PLAN.md -- SYS-07: acceptance-runner timing, bounded children, clean rerun and RCA classification
 - [ ] 354-14-PLAN.md -- SYS-04: registration report, stderr diagnostics, status_read tool_registration health
 - [ ] 354-15-PLAN.md -- SYS-05: extract_shallow honest pure-parse contract (D-354-SYS05)
-- [ ] 354-18-PLAN.md -- THEO-04 (newly discovered, navigator-directed document + procedural discipline, 2026-09-23): CLAUDE.md/GROUNDING-SOURCES.md routing rule plus an offline, WARN-only, non-blocking `scripts/check-theo-mcp-exposure.cjs` wired into `doctor.cjs --acceptance`'s advisory registry
 
-**Wave 7** *(close-out; depends on wave 6)*
+**Wave 7** *(depends on wave 6; THEO-04, serialized after 354-13 and 354-17 to avoid two plans editing scripts/doctor.cjs in the same wave)*
 
-- [ ] 354-16-PLAN.md -- all IDs: concurrency and Tri-Polar checks, measured gates, final dispositions, review corrections, requirement rows, handoff entry, rethinking-room filing
+- [ ] 354-18-PLAN.md -- THEO-04 (newly discovered, navigator-directed document + procedural discipline, 2026-09-23; depends on 354-13, 354-17, 354-06): CLAUDE.md/GROUNDING-SOURCES.md routing rule plus an offline, WARN-only, non-blocking `scripts/check-theo-mcp-exposure.cjs` wired into `doctor.cjs --acceptance`'s advisory registry
+
+**Wave 8** *(close-out; depends on wave 7, including 354-17 and 354-18)*
+
+- [ ] 354-16-PLAN.md -- all IDs (SYS-01..09, THEO-01..04): concurrency and Tri-Polar checks, measured gates, final dispositions (THEO-04 closes MITIGATED-DOCUMENTED, not FIXED-VERIFIED), review corrections, requirement rows, handoff entry, rethinking-room filing
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
