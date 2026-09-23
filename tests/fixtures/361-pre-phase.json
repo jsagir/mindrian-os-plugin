@@ -1,0 +1,37 @@
+{
+  "base_sha": "c1c948bf018e3810b9ee077e9e1cd1f191fa6e79",
+  "captured_at": "2026-09-23",
+  "command_registry_sha256": "43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8",
+  "dominant_designs_row": {
+    "command": "/mos:dominant-designs",
+    "kind": "methodology",
+    "surface": "navigator",
+    "visibility": null,
+    "frameworks": [
+      "Dominant Design"
+    ],
+    "produces": "room/**/dominant-designs/*",
+    "executable": null,
+    "inputs": [],
+    "autonomous_safe": true,
+    "body_shape": "methodology",
+    "layer": "loop",
+    "serves_jtbd": [
+      "understand-market"
+    ],
+    "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it.",
+    "jtbd_label": "Understand Market",
+    "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+  },
+  "setup_section": "## Setup\n\n1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/dominant-designs.md` for framework details\n2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice\n3. Read `room/STATE.md` for venture context (if exists)\n\n",
+  "setup_section_sha256": "8618a322f7f3f0d25a20096963abc3000c2758e6eb0afc61b691105228cf540f",
+  "quick_pass_paragraph": "Then follow the framework phases from the reference file, adapting to the user's responses. You are NOT following a rigid script -- the phases are a guide. If the user provides rich context, skip ahead. If they need more exploration, slow down.",
+  "quick_pass_paragraph_sha256": "cfd6ac92a57db1d0a94479c21743a0a7190f56764512992f1279da7d3fd7c6fa",
+  "when_complete_lines": [
+    "Create the artifact using the template from the reference file.",
+    "Ask: \"File this to competitive-analysis?\" before writing."
+  ],
+  "find_connections_slice": "  if (toolName.indexOf('find_connections') !== -1) {\n    if (!_hasExactKeys(payload, ['from', 'to'], ['maxHops'])) return null;\n    if (!_isSafeShortLabel(payload.from)) return null;\n    if (!_isSafeShortLabel(payload.to)) return null;\n    if (Object.prototype.hasOwnProperty.call(payload, 'maxHops')) {\n      if (!Number.isInteger(payload.maxHops) || payload.maxHops < 1) return null;\n    }\n    return { class: 'known_tool_shape', reason: 'find_connections from/to label pair' };\n  }",
+  "find_connections_slice_sha256": "8f4e18fa1dbd3290eadfef1876ca3921d3974a59263121476476bcc46b4983b8",
+  "note": "Pinned before any Phase 361 edit landed (base_sha = the 361-01 REQUIREMENTS-mint commit); every later 361 test reads this fixture as the pre-phase truth, never re-derives it by hand."
+}
