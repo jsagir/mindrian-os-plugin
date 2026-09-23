@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 354-16-PLAN.md - Phase 354 CLOSED
-last_updated: "2026-09-23T16:54:11.660Z"
-last_activity: 2026-09-23 -- Phase 355 recorded as PLANNED (28 plans, 11 waves) after Phase 354 CLOSED; 355 execution starts next session
+last_updated: "2026-09-23T17:46:30.198Z"
+last_activity: 2026-09-23 -- Phase 355 execution started
 progress:
   total_phases: 111
   completed_phases: 37
   total_plans: 396
-  completed_plans: 327
+  completed_plans: 330
   percent: 83
 ---
 
@@ -34,6 +34,7 @@ progress:
      `state.add-decision --summary ...` repeated the documented `[Phase ?]` placeholder-prefix
      bug again, fixed in place to a single `[Phase 354] 354-16: ...` line.
      `state.record-session` this run updated `stopped_at` correctly ("Completed 354-16-PLAN.md
+
      - Phase 354 CLOSED") but reverted `last_activity` to the stale 2026-09-17 Phase 353 line
      and `percent` to the stale `32`. Hand-corrected: `last_activity` -> this plan's own
      completion line, `percent` -> 83 (matching `state.update-progress`'s just-computed value),
@@ -5296,7 +5297,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 353 — icm-section-ruling-system-self-locating-room-map-jtbd-rooted
+**Current focus:** Phase 355 — hidden-in-plain-sight-jev-through-theo-cross-connection-engi
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5341,9 +5342,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) -- PLANNED
-Plan: 0 of 28
-Status: Ready to execute (Phase 354 CLOSED at 973deb329; start with /gsd-execute-phase 355; six human checkpoints: 02, 03, 14, 15, 24, 25)
+Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
+Plan: 1 of 28
+Status: Executing Phase 355
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -5623,7 +5624,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-17 -- Phase 353 execution started
+Last activity: 2026-09-23 -- Phase 355 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
