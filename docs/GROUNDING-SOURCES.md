@@ -53,7 +53,14 @@ is itself a research gap, not rigor.
   shape as `ALIAS_FORK` and refuses honestly instead of guessing -- worth knowing before writing a
   new guard for the old Brain that Theo's design already solved differently. Check Theo's own
   `{phase}-MOS-LEARNING.md` files (one per Theo phase, `## Schema and contract changes for the
-  local room graph` section) before assuming a gap is unaddressed there.
+  local room graph` section) before assuming a gap is unaddressed there. THEO-04 (354-CONTEXT.md
+  Addendum 2026-09-23): any Brain-adjacent question that carries plugin-user or venture-room
+  content MUST go through the guarded `mindrian-brain` MCP shim (`bin/mindrian-brain-mcp-client.cjs`),
+  never mcp__theo__* directly -- the raw `theo` server (`~/.claude.json`,
+  `node /home/jsagi/Theo/dist/index.js`) is for questions about Theo's own repository, schema or
+  code only, and it never passes through `lib/core/part8-egress-guard.cjs`. Verify this yourself
+  rather than take it on faith: `theo-mcp.onrender.com` appears in exactly one place in this repo
+  (`lib/core/brain-client.cjs`), so the raw `theo` server has no code path through that guard at all.
 
 Pick the source(s) that actually cover the claim; use more than one when a finding spans
 domains (e.g. a hook-matcher bug is a Claude Code question AND may also have an agent-pipeline-

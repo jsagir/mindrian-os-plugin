@@ -208,7 +208,7 @@ that reaches a verdict and never lands in a phase/seed, both count as incomplete
 - **claude-api skill + claude-code-guide agent** - Claude Code's own hooks, MCP registration, subagent behavior, Claude API mechanics.
 - **WebSearch/WebFetch** - time-sensitive or external (release notes, a GitHub issue, vendor docs). Check the stack and ask before firing search silently.
 - **icm-architect skill** - room structure, ICM/MWP architecture, local-graph (SQLite) questions. Standing consult, not a one-off.
-- **Theo** (`/home/jsagi/Theo`) - Brain-graph, framework-resolution, or readiness-scoring questions. Standing consult (2026-09-02 ruling); still plan/ship against the CURRENT Brain, but state whether the finding has a Theo-side analog.
+- **Theo** (`/home/jsagi/Theo`) - Brain-graph, framework-resolution, or readiness-scoring questions. Standing consult (2026-09-02 ruling); still plan/ship against the CURRENT Brain, but state whether the finding has a Theo-side analog. Any Brain-adjacent question that carries plugin-user or venture-room content MUST go through the guarded `mindrian-brain` MCP shim (`bin/mindrian-brain-mcp-client.cjs`), never mcp__theo__* directly -- the raw `theo` server (`~/.claude.json`, `node /home/jsagi/Theo/dist/index.js`) is for questions about Theo's own repository, schema or code only, and it never passes through `lib/core/part8-egress-guard.cjs` (THEO-04).
 
 Full per-source routing detail, triggers, and precedent (why each source earned standing-consult status): `docs/GROUNDING-SOURCES.md`.
 
