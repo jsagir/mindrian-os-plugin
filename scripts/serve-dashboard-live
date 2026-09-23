@@ -781,6 +781,20 @@ function requestHandler(req, res) {
   const parsed = url.parse(req.url, true);
   const p = parsed.pathname || '/';
 
+  // 354-08 (SYS-06 recheck of the 2026-09-20 localhost-workspace-review's
+  // "Foreign Host accepted on read endpoint" finding): the DNS-rebinding
+  // guard already covered every POST route (handleAuthSession,
+  // handleRoomChat, gap 2) but never the GET dispatch below, so a forged
+  // Host header could still read room status/graph/section data. Checked
+  // here, before both the POST and GET dispatch, so every route -- reads
+  // included -- gets the same guard the POST routes already had.
+  if (!checkHost(req, BOUND_PORT)) {
+    setSecurityHeaders(res);
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('forbidden host');
+    return;
+  }
+
   // POST endpoints first (Phase 87-09). These short-circuit the GET-only
   // restriction that the rest of the dashboard keeps.
   if (req.method === 'POST' && p === '/api/auth/session') {
