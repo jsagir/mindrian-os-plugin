@@ -6870,6 +6870,22 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 355 added (2026-09-23, `/gsd-phase`): "Hidden in Plain Sight: Jev-through-Theo
+  Cross-Connection Engines" - rethink of RS / HSI / whitespace / Eureka plus the nine
+  algorithm-incorporation-devpkg capabilities under one rule: code finds, Jev judges the
+  type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies.
+  Three homes (room-local engine / Theo seam / external computation) and one wire shape
+  (enums, buckets, ids). Sequencing in the brief: honesty pass first (one sign convention
+  across rs-math / hsi-lsa / Python, floors sourced or labeled unverified, naming fixes),
+  then KG-verification spearhead (Theo find_connections + Jev citation-check Choice via
+  the computeGraphMetric seam), then the HSI thinking-mode Choice as the first Jev
+  question. Brief: 355-BRIEF.md (verbatim copy of the rethinking-mindrianos room entry
+  research/2026-09-23-hidden-in-plain-sight-jev-through-theo-design.md, mirrored to
+  ~/MindrianOS/research/). Route chosen by the navigator: spec-phase / discuss-phase
+  next, not plan-phase. Depends on 354 (Theo integration research). Not planned yet.
+
+- 2026-09-20: Phase 354 added as the user's next requested work: System Integrity and Theo Integration. Research pending; independently validate the review before planning fixes. Tracked direction: `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`. Existing execution status above is preserved; this entry does not claim research or repairs have run.
+
 - Phase 353 added (2026-09-17, `/gsd-phase`): "ICM Section Ruling System" - every section of every
   room (main or sub-room) gets a generated, Theo-rooted, JTBD-anchored ruling document (Layer 2
   CONTEXT.md: job, methodology sequence, writing rules, gates, checks); every folder gets a
