@@ -22,6 +22,10 @@ const fs = require('fs');
 const path = require('path');
 const { openGraph, closeGraph } = require('../lib/core/lazygraph-ops.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
+// Phase 355 D-07: the stored surprise_type string from compute-hsi.py is not
+// trusted -- re-derive it fresh from the pair's own (lsa_sim, semantic_sim)
+// values through the one module every time an edge is written.
+const directionConvention = require('../lib/core/direction-convention.cjs');
 
 async function main() {
   const roomDir = process.argv[2];
@@ -111,7 +115,12 @@ async function main() {
           hsi_score: pair.hsi_score,
           lsa_sim: pair.lsa_sim,
           semantic_sim: pair.semantic_sim,
-          surprise_type: pair.surprise_type || '',
+          // Phase 355 D-07: the stored string from compute-hsi.py is not
+          // trusted -- it may carry the retired convention. Re-derive fresh
+          // from this pair's own (lsa_sim, semantic_sim) pair every time.
+          // A missing/non-finite value yields the module's own 'none'
+          // sentinel, never a fabricated direction.
+          surprise_type: directionConvention.classify(pair.lsa_sim ?? pair.lsa, pair.semantic_sim ?? pair.semantic),
           breakthrough_potential: pair.breakthrough_potential || 0,
           tier,
         });

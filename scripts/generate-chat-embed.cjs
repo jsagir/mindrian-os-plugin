@@ -37,8 +37,8 @@ try {
       { name: 'INVALIDATES', from: 'Artifact', to: 'Artifact', properties: [], description: 'Makes stale' },
       { name: 'BELONGS_TO', from: 'Artifact', to: 'Section', properties: [], description: 'Filed in' },
       { name: 'REASONING_INFORMS', from: 'Section', to: 'Section', properties: ['provides'], description: 'Minto chain' },
-      { name: 'HSI_CONNECTION', from: 'Artifact', to: 'Artifact', properties: ['hsi_score', 'surprise_type', 'breakthrough_potential', 'tier'], description: 'Surprise' },
-      { name: 'REVERSE_SALIENT', from: 'Section', to: 'Section', properties: ['differential_score', 'innovation_thesis'], description: 'Bottleneck' },
+      { name: 'HSI_CONNECTION', from: 'Artifact', to: 'Artifact', properties: ['hsi_score', 'surprise_type', 'breakthrough_potential', 'tier'], description: 'Surprise (Phase 355: structural_transfer = same meaning in different words, semantic_implementation = same words with different meaning; re-derive from lsa_sim / semantic_sim; strings stored before the room\'s next HSI run may use the retired convention)' },
+      { name: 'REVERSE_SALIENT', from: 'Section', to: 'Section', properties: ['differential_score', 'innovation_thesis'], description: 'Bottleneck (Phase 355: structural_transfer = same meaning in different words, semantic_implementation = same words with different meaning; innovation_type is honest only when the edge\'s own source is rs-engine, NULL otherwise)' },
       { name: 'ANALOGOUS_TO', from: 'Artifact', to: 'Artifact', properties: ['analogy_distance', 'source_domain'], description: 'Cross-domain bridge' },
       { name: 'STRUCTURALLY_ISOMORPHIC', from: 'Section', to: 'Section', properties: ['isomorphism_score'], description: 'Structural mirror' },
       { name: 'RESOLVES_VIA', from: 'Artifact', to: 'Artifact', properties: ['resolution_type', 'triz_principle'], description: 'Resolution' }

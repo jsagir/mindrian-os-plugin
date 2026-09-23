@@ -186,9 +186,225 @@ for (const rel of REQUIRING_FILES) {
 }
 
 // ---------------------------------------------------------------------------
-// Summary (Task 2 legs are appended by the second commit of this plan).
+// Task 2: readers re-derive stored labels from the stored pair (D-07)
 // ---------------------------------------------------------------------------
-check('installNetGuard: zero fetch attempts', netGuard.attempts() === 0);
-netGuard.restore();
-console.log('scrubVendorKey found a pre-set TYPESAFE_API_KEY: ' + hadKey);
-process.exit(checker.summary());
+
+const os = require('node:os');
+const { execFileSync } = require('node:child_process');
+const { openGraph, closeGraph } = require(path.join(REPO, 'lib', 'core', 'lazygraph-ops.cjs'));
+const nlGraphQueries = require(path.join(REPO, 'lib', 'core', 'nl-graph-queries.cjs'));
+
+const HSI_TO_GRAPH_SCRIPT = path.join(REPO, 'scripts', 'hsi-to-graph.cjs');
+const AGREEMENT_TEST_SCRIPT = path.join(REPO, 'tests', 'test-355-direction-agreement.cjs');
+
+// mos-355- prefix (never mos-354-, so a leftover from this test is
+// unambiguous in a shared /tmp -- T-355-58: always a copy under mkdtemp,
+// never the committed 272 fixture room itself).
+function makeMos355ScratchRoom(label) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-355-' + label + '-'));
+  const room = path.join(root, 'room');
+  fs.mkdirSync(room, { recursive: true });
+  return {
+    root,
+    room,
+    cleanup() {
+      try {
+        fs.rmSync(root, { recursive: true, force: true });
+      } catch (_e) {
+        // best-effort cleanup
+      }
+    },
+  };
+}
+
+async function seedArtifactNodes(roomDir, ids) {
+  const graph = await openGraph(roomDir);
+  try {
+    const stmt = graph.conn.prepare(
+      "INSERT INTO nodes (id, type, properties) VALUES (?, 'Artifact', ?) ON CONFLICT(id) DO UPDATE SET properties = excluded.properties"
+    );
+    for (const id of ids) {
+      stmt.run(id, JSON.stringify({ title: id }));
+    }
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+async function readEdgesOfType(roomDir, type) {
+  const graph = await openGraph(roomDir);
+  try {
+    const rows = graph.conn.prepare('SELECT source, target, properties FROM edges WHERE type = ?').all(type);
+    return rows.map((r) => Object.assign({ source: r.source, target: r.target }, JSON.parse(r.properties)));
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+async function seedRawEdge(roomDir, source, target, type, properties) {
+  const graph = await openGraph(roomDir);
+  try {
+    graph.conn
+      .prepare(
+        'INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?) ON CONFLICT(source, target, type) DO UPDATE SET properties = excluded.properties'
+      )
+      .run(source, target, type, JSON.stringify(properties));
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+// Leg 2a/2b: running hsi-to-graph.cjs on a scratch room writes
+// HSI_CONNECTION edges whose surprise_type is classify(lsa_sim,
+// semantic_sim) for every pair, including pairs whose stored string says the
+// opposite (the retired convention), and 'none' for a pair with a missing
+// lsa_sim.
+async function runLegHsiToGraphWriteTime() {
+  const scratch = makeMos355ScratchRoom('write');
+  try {
+    const pairs = [
+      // diff = 0.5 - 0.2 = 0.3 > 0 -> structural_transfer. Stored string is
+      // deliberately the WRONG (retired-convention) label.
+      { left_id: 'artifact-a', right_id: 'artifact-b', lsa_sim: 0.2, semantic_sim: 0.5, hsi_score: 0.5, surprise_type: 'semantic_implementation', breakthrough_potential: 0.3 },
+      // diff = 0.3 - 0.6 = -0.3 <= 0 -> semantic_implementation. Stored
+      // string is again deliberately wrong.
+      { left_id: 'artifact-c', right_id: 'artifact-d', lsa_sim: 0.6, semantic_sim: 0.3, hsi_score: 0.4, surprise_type: 'structural_transfer', breakthrough_potential: 0.2 },
+      // Missing lsa_sim -> must write 'none', never a fabricated direction.
+      { left_id: 'artifact-e', right_id: 'artifact-f', lsa_sim: null, semantic_sim: 0.5, hsi_score: 0.4, surprise_type: 'structural_transfer', breakthrough_potential: 0.2 },
+    ];
+    await seedArtifactNodes(scratch.room, ['artifact-a', 'artifact-b', 'artifact-c', 'artifact-d', 'artifact-e', 'artifact-f']);
+    fs.writeFileSync(
+      path.join(scratch.room, '.hsi-results.json'),
+      JSON.stringify({ metadata: { tier: 1 }, hsi_pairs: pairs, reverse_salients: [] })
+    );
+    execFileSync(process.execPath, [HSI_TO_GRAPH_SCRIPT, scratch.room], { stdio: 'pipe' });
+    const edges = await readEdgesOfType(scratch.room, 'HSI_CONNECTION');
+    check('T2 hsi-to-graph writes 3 HSI_CONNECTION edges', edges.length === 3, 'got ' + edges.length);
+    for (const pair of pairs) {
+      const edge = edges.find((e) => e.source === pair.left_id && e.target === pair.right_id);
+      const expected = classify(pair.lsa_sim, pair.semantic_sim);
+      check(
+        'T2 hsi-to-graph re-derives surprise_type for ' + pair.left_id + '->' + pair.right_id +
+          ' (ignores stored "' + pair.surprise_type + '")',
+        !!edge && edge.surprise_type === expected,
+        edge ? 'got ' + edge.surprise_type + ' expected ' + expected : 'edge not found'
+      );
+    }
+  } finally {
+    scratch.cleanup();
+  }
+}
+
+// Leg 2c/2d: the nl-graph-queries HSI query re-derives surprise_type from
+// the stored pair; the REVERSE_SALIENT query returns innovation_type only
+// for an rs-engine-sourced edge, null otherwise.
+async function runLegNlGraphQueries() {
+  const scratch = makeMos355ScratchRoom('query');
+  try {
+    await seedArtifactNodes(scratch.room, ['artifact-x', 'artifact-y']);
+    // diff = 0.5 - 0.2 = 0.3 > 0 -> structural_transfer. Stored string says
+    // the opposite on purpose.
+    await seedRawEdge(scratch.room, 'artifact-x', 'artifact-y', 'HSI_CONNECTION', {
+      hsi_score: 0.5,
+      lsa_sim: 0.2,
+      semantic_sim: 0.5,
+      surprise_type: 'semantic_implementation',
+      breakthrough_potential: 0.3,
+      tier: 'tier1',
+    });
+
+    let graph = await openGraph(scratch.room);
+    try {
+      const result = nlGraphQueries.executeNLQuery(graph.conn, 'hsi_connections', { min_score: 0 });
+      check('T2 nl-graph-queries hsi_connections query executes', !result.error, result.error);
+      const row = result.rows && result.rows[0];
+      check('T2 nl-graph-queries hsi_connections returns exactly one row', !!row);
+      if (row) {
+        check(
+          'T2 nl-graph-queries hsi_connections re-derives surprise_type (ignores stored "semantic_implementation")',
+          row.surprise_type === classify(row.lsa_sim, row.semantic_sim) && row.surprise_type === 'structural_transfer',
+          'got ' + row.surprise_type
+        );
+      }
+    } finally {
+      await closeGraph(graph.db);
+    }
+
+    // The edges table carries no hard FK to nodes (D-169-11), so these
+    // Section-id edges need no Section node rows to be readable.
+    await seedRawEdge(scratch.room, 'section-a', 'section-b', 'REVERSE_SALIENT', {
+      differential_score: 0.4,
+      innovation_type: 'structural_transfer',
+      source: 'rs-engine',
+    });
+    await seedRawEdge(scratch.room, 'section-c', 'section-d', 'REVERSE_SALIENT', {
+      differential_score: 0.3,
+      innovation_type: 'semantic_implementation',
+      // no `source` property -- the legacy Section-level, Python/hsi-to-
+      // graph.cjs-origin edge shape.
+    });
+
+    graph = await openGraph(scratch.room);
+    try {
+      const result = nlGraphQueries.executeNLQuery(graph.conn, 'reverse_salients', {});
+      check('T2 nl-graph-queries reverse_salients query executes', !result.error, result.error);
+      const rows = result.rows || [];
+      const rsEngineRow = rows.find((r) => r.source === 'section-a');
+      const legacyRow = rows.find((r) => r.source === 'section-c');
+      check(
+        'T2 nl-graph-queries reverse_salients keeps innovation_type for an rs-engine-sourced edge',
+        !!rsEngineRow && rsEngineRow.innovation_type === 'structural_transfer',
+        rsEngineRow ? 'got ' + rsEngineRow.innovation_type : 'row not found'
+      );
+      check(
+        'T2 nl-graph-queries reverse_salients suppresses innovation_type for a non-rs-engine edge (null)',
+        !!legacyRow && legacyRow.innovation_type === null,
+        legacyRow ? 'got ' + legacyRow.innovation_type : 'row not found'
+      );
+    } finally {
+      await closeGraph(graph.db);
+    }
+  } finally {
+    scratch.cleanup();
+  }
+}
+
+// Leg 2e: leg H of tests/test-355-direction-agreement.cjs reports no hit in
+// any file this task touched (mirrors the plan's own verify command).
+function runLegHNoNewHitsInTouchedFiles() {
+  const touchedBasenames = ['hsi-to-graph.cjs', 'nl-graph-queries.cjs', 'fabric-chat.cjs', 'generate-chat-embed.cjs'];
+  let out = '';
+  try {
+    out = execFileSync(process.execPath, [AGREEMENT_TEST_SCRIPT], { encoding: 'utf8', stdio: 'pipe' });
+  } catch (e) {
+    // test-355-direction-agreement.cjs currently exits 1 (leg H is still red
+    // on files outside this task's scope); this leg needs its stdout, not
+    // its exit code.
+    out = (e.stdout || '') + (e.stderr || '');
+  }
+  const hFailLines = out.split('\n').filter((line) => line.indexOf('FAIL: H ') === 0);
+  const touchedHit = hFailLines.filter((line) => touchedBasenames.some((b) => line.indexOf(b) !== -1));
+  check(
+    'T2 leg H of test-355-direction-agreement.cjs: no hit in any file this task touched',
+    touchedHit.length === 0,
+    touchedHit.length ? touchedHit.join(' | ') : undefined
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Run the async Task 2 legs, then the sync leg, then summarize. The tmp
+// scratch rooms are always removed (finally blocks above), so a repeated run
+// of this file never grows /tmp's mos-355- population.
+// ---------------------------------------------------------------------------
+(async () => {
+  try {
+    await runLegHsiToGraphWriteTime();
+    await runLegNlGraphQueries();
+    runLegHNoNewHitsInTouchedFiles();
+  } finally {
+    check('installNetGuard: zero fetch attempts', netGuard.attempts() === 0);
+    netGuard.restore();
+    console.log('scrubVendorKey found a pre-set TYPESAFE_API_KEY: ' + hadKey);
+    process.exit(checker.summary());
+  }
+})();
