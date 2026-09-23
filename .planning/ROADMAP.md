@@ -1241,7 +1241,7 @@ Plans:
 **Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 8 plans in 5 waves
-**Progress:** 7/8 plans executed (361-01, 361-02, 361-03, 361-04, 361-05, 361-06, 361-07 done, 2026-09-23)
+**Progress:** 8/8 plans executed (361-01..361-08 done, 2026-09-23). **Phase status: CLOSED 2026-09-23.** All 13 DDR361-01..13 requirement rows closed with measured proof in `.planning/REQUIREMENTS.md`; `bash tests/run-all-361.sh` green (PASSED=27, 2 pre-existing peer failures unowned); navigator ratified the dominant-designs Task grant (D-11); carry-forwards recorded in `docs/OPEN-HANDOFFS.md` and `361-08-SUMMARY.md`.
 
 Plans:
 
@@ -1266,7 +1266,7 @@ Plans:
 
 **Wave 5** *(not autonomous)*
 
-- [ ] 361-08-PLAN.md -- live Theo probe with the generic handle only, full gates, navigator checkpoint:decision ratifying the Task grant, DDR361 rows closed, carry-forwards (theo-resync at next release, 356 ledger rescore, D-17 fetcher quick task, D-15 case_story recheck)
+- [x] 361-08-PLAN.md -- live Theo probe with the generic handle only, full gates, navigator checkpoint:decision ratifying the Task grant, DDR361 rows closed, carry-forwards (theo-resync at next release, 356 ledger rescore, D-17 fetcher quick task, D-15 case_story recheck)
 
 ### Phase 270: Memory and Context Operator MCP
 

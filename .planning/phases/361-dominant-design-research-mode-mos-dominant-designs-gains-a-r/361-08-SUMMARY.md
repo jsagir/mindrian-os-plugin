@@ -132,3 +132,7 @@ Phase 361 (dominant-design research mode) is closed: all 13 DDR361 requirements 
 ---
 *Phase: 361-dominant-design-research-mode-mos-dominant-designs-gains-a-r*
 *Completed: 2026-09-23*
+
+## Self-Check: PASSED
+
+All 5 claimed files found on disk; all 6 claimed commit hashes found in `git log --oneline --all` (9bdcd1132, cdae20400, ab88b03e3, 3213e9d22, b5e9cd36a, 99aa977c1).
