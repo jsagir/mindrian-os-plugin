@@ -1241,7 +1241,7 @@ Plans:
 **Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 8 plans in 5 waves
-**Progress:** 5/8 plans executed (361-01, 361-02, 361-03, 361-04, 361-05 done, 2026-09-23)
+**Progress:** 6/8 plans executed (361-01, 361-02, 361-03, 361-04, 361-05, 361-06 done, 2026-09-23)
 
 Plans:
 
@@ -1258,7 +1258,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 361-06-PLAN.md -- `scripts/dominant-design-research.cjs` CLI (compose-queries, audit-query, theo-structure, validate-lane, file-pack with EvidenceClaim readback and a 4-zone report)
+- [x] 361-06-PLAN.md -- `scripts/dominant-design-research.cjs` CLI (compose-queries, audit-query, theo-structure, validate-lane, file-pack with EvidenceClaim readback and a 4-zone report)
 
 **Wave 4**
 
