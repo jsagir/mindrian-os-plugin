@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 355-02-PLAN.md - PWS author phrase ruling recorded, RED cross-producer direction agreement test committed
-last_updated: "2026-09-23T18:52:37.572Z"
-last_activity: 2026-09-23 -- Phase 355 execution continuing (355-02 complete)
+stopped_at: Completed 355-05-PLAN.md - scout-hsi and whitespace_scan naming honesty fixed, D-25 fixture gate committed
+last_updated: "2026-09-23T19:31:26.538Z"
+last_activity: 2026-09-23 -- Phase 355 execution continuing (355-05 complete)
 progress:
   total_phases: 111
   completed_phases: 38
-  total_plans: 396
-  completed_plans: 339
+  total_plans: 397
+  completed_plans: 342
   percent: 86
 ---
 
@@ -32,7 +32,6 @@ progress:
      `state.update-progress`'s just-computed value), body `Stopped at:` line -> the same 355-02
      completion line. `completed_plans` (339) and `completed_phases` (38) were already correct
      from the update-progress run, not reverted this run. -->
-
 
 <!-- NOTE (355-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -5384,6 +5383,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
 Plan: 3 of 28
 Status: Ready to execute
+Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
+  complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
+  banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
+  (lib/mcp/tool-router.cjs); MCP whitespace_scan's description now leads with "Returns open
+  questions and unsupported claims. This is NOT the `/mos:whitespace` HSI engine; run it in
+  Claude Code." (lib/mcp/tools/sensors.cjs). Neither surface renamed (D-23, D-24, D-26); both
+  still reachable under their exact names. tests/test-355-naming-honesty.cjs ships as the real
+  D-25 gate (18/18 PASS): ground-truth handler invocation for the banner, registered
+  description strings for the wording checks, a source-text pin for the module-private
+  UNIMPLEMENTED_MUTATING_ORCHESTRATION Set, and a check-tool-honesty.cjs --report sweep for a
+  non-[OK] finding naming either surface (none found). data/mcp-tool-connectors.json and
+  data/connector-registry.json untouched (whitespace_scan's hitl_why was already accurate).
+  Theo mirrors neither description (read-only ~/Theo/src grep, clean). All four CIRS gates
+  exit 0: build-connector-registry --check, build-orchestration-projection --check,
+  check-shape-declaration --check, check-render-coverage --check. bash tests/run-all-355.sh:
+  PASS=23 FAIL=3 SKIP=11 (up from 355-04's PASS=20 FAIL=3 SKIP=11; same 3 pre-existing
+  documented failures, no new regression). Full detail in 355-05-SUMMARY.md.
 Previously (355-04, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-02 floor disclosure. Shipped data/floor-ledger.json (35 rows, all
   status:disclosed per D-19: 22 primary rows covering the full D-21 inventory plus the two
@@ -7095,6 +7111,7 @@ Progress: [█████████░] 92%
 | Phase 355 P01 | 45min | 2 tasks | 6 files |
 | Phase 355 P04 | 90min | 2 tasks | 4 files |
 | Phase 355 P02 | 55min | 2 tasks | 5 files |
+| Phase 355 P05 | 40min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -8790,6 +8807,8 @@ Progress: [█████████░] 92%
 - [Phase 355] 355-04: shipped 35-row data/floor-ledger.json (22 D-21/HIPS-02 primary rows + 13 supplementary rows for every other pattern hit across the engine families), scripts/check-floor-ledger.cjs (validateLedger + resolveHits sweep, zero unresolved hits across 73 files / 60 hits), and lib/core/floor-disclosure.cjs (disclosureFor/disclosureLine, no value ever rendered)
 - [Phase 355] 355-02: PWS author confirmed all three direction phrases exactly as shipped by 355-01 (no replacement wording), recorded by role only and hash-pinned via PHRASES_CONFIRMED
 - [Phase 355] 355-02: RED cross-producer agreement test (legs A-H) committed on 35 module-computed fixture pairs; A and B pass now, C-H fail and name the exact plan (355-09/10/11) that turns each green
+- [Phase 355] 355-05: scout-hsi's honest sentence added as a net-new clause to the orchestration description (not a rewrite); the NOT EXECUTED banner gained a scout-hsi-only second line, since it is uniquely compute-shaped among UNIMPLEMENTED_MUTATING_ORCHESTRATION
+- [Phase 355] 355-05: whitespace_scan description kept the accurate findOpenQuestions/findUnsupportedClaims naming, cut only the 'closest to whitespace' framing; data/mcp-tool-connectors.json and data/connector-registry.json left untouched since hitl_why was already accurate
 
 ### Pending Todos
 
