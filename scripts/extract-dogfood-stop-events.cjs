@@ -802,6 +802,13 @@ async function runApplySanitized(rawDir, mapPath) {
       builtEntries.push(entry);
       reportRows.push({
         id: id,
+        // WR-01 (357-REVIEW.md): the real production Stop verdict (from the
+        // navigator's own live session), threaded through so the review
+        // sheet can show it distinctly from the pre-phase replay verdict
+        // (raw_verdict.class) below -- these are two different observations
+        // that can legitimately disagree (that disagreement is exactly what
+        // runScan's envelope_partial computes).
+        live_outcome: candidate.live_outcome,
         raw_verdict: rawVerdict,
         sanitized_cli: { class: sanCli.class, reason: sanCli.reason },
         sanitized_mcp: { class: sanMcp.class },
@@ -848,12 +855,22 @@ async function runWriteReviewSheet(rawDir, withHeadVerdicts) {
   // carries the RATIFIED label (expected_verdict_class), not the raw
   // observation. Fall back to expected_verdict_class when the report is
   // unavailable (e.g. a fresh checkout with no raw dir).
+  //
+  // WR-01 (357-REVIEW.md): these are two DISTINCT sources, not one value
+  // pushed into two columns. `liveOutcomeById` is the real production Stop
+  // verdict the navigator's own live session produced (row.live_outcome,
+  // sourced from candidates.json via runScan's transcript reconstruction).
+  // `rawVerdictById` is the pre-phase REPLAY verdict on the original
+  // candidate (row.raw_verdict.class). Both fall back to
+  // expected_verdict_class only when the report row itself is missing.
   const reportPath = path.join(rawDir, 'sanitize-report.json');
   const rawVerdictById = {};
+  const liveOutcomeById = {};
   if (fs.existsSync(reportPath)) {
     const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
     for (const row of (reportData.rows || [])) {
       rawVerdictById[row.id] = row.raw_verdict && row.raw_verdict.class;
+      liveOutcomeById[row.id] = row.live_outcome;
     }
   }
 
@@ -899,12 +916,14 @@ async function runWriteReviewSheet(rawDir, withHeadVerdicts) {
   for (const entry of entries) {
     if (entry.r_c_case === true) rcEntry = entry;
     const gist = gistById[entry.id] || entry.why || '';
-    const liveOutcome = rawVerdictById[entry.id] || entry.expected_verdict_class;
+    // WR-01: distinct columns, distinct sources -- never the same value twice.
+    const liveOutcome = liveOutcomeById[entry.id] || entry.expected_verdict_class;
+    const prePhaseVerdict = rawVerdictById[entry.id] || entry.expected_verdict_class;
     const cells = [
       entry.id,
       gist.replace(/\|/g, '/'),
       liveOutcome,
-      liveOutcome,
+      prePhaseVerdict,
     ];
     if (withHeadVerdicts) cells.push(headResults[entry.id] || 'unknown');
     cells.push(entry.expected_verdict_class);
