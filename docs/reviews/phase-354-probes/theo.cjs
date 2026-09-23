@@ -41,7 +41,12 @@ global.fetch = async (_url, options) => {
   const observed = [];
   try {
     brain.isAvailable = () => true;
-    brain.ask = async text => brain._test._composeTheoAsk(
+    // 354-09: forwards the second (opts) argument brainRoute() now passes
+    // to ask(question, { problem_type }) through to _composeTheoAsk's own
+    // opts.rung parameter, so this probe observes the FIX (the structurally
+    // carried rung), not the pre-fix text-inference fallback a one-argument
+    // stub would silently force regardless of the fix.
+    brain.ask = async (text, opts) => brain._test._composeTheoAsk(
       { answer_mode: 'structured_rows', rows: [] }, text, {
         recommendChain: async rung => {
           observed.push({ question: text, rung });
@@ -50,7 +55,12 @@ global.fetch = async (_url, options) => {
         query: async () => ({ records: [{
           framework: 'Design Thinking', commands: ['/mos:diagnose', '/mos:build-mvp'],
         }] }),
-      }
+      },
+      // brainRoute() calls ask(question, { problem_type }) -- the real
+      // ask() translates opts.problem_type into _composeTheoAsk's own
+      // opts.rung shape (see lib/core/brain-client.cjs::ask); this stub
+      // bypasses ask() entirely, so it repeats that same translation here.
+      { rung: opts && opts.problem_type }
     );
     const router = fromRepo('lib/mcp/brain-router.cjs');
     const cases = [
