@@ -114,6 +114,20 @@ In short, a harness message was treated as a human turn.
   - Do NOT add a rule of the form "primary arm + 0 option labels -> pass". The primary arm exists precisely
     to catch a model that ignored a reached gate and rendered nothing, so that rule would create new misses.
   - Do NOT touch the backstop regex tuning pinned by the 238 corpus.
+- **D-08a (second live false block, 2026-09-23T09:40:16Z, same session):** verdict `reached-registry-gate-no-card`,
+  empty gate_signature, `ran_entries: [scripts/intent-classifier.cjs]`. The preceding record WAS a real human-typed
+  question, so D-07 does NOT cover it. The output had no options and no question. Class: an F.1 reach minted
+  by intent-classifier about an unrelated room artifact (a `memory_artifact:research/...briefing-mirror` subject),
+  which passed relevance by incidental token overlap with the human turn. This entry is corpus source (c) #2
+  and is therefore a guaranteed remaining false block after D-07, so D-08 WILL fire. The planner must plan one
+  more deterministic fix that cites this entry. Candidate directions (planner or researcher to pick from code
+  evidence, not from meaning-guessing):
+  - reach-subject provenance (a subject naming a room artifact that is not the turn's own subject)
+  - the reach's routing seed vs the current turn
+  - requiring relevance overlap on distinguishing, non-boilerplate subject tokens that come from the human
+    turn itself
+
+  Any change to `gate-relevance.cjs` here is allowed by D-09 because a failing entry is named.
 - **D-09:** The relevance and answered heuristics (`gate-relevance.cjs`) stay as they are unless the replay
   names a failing entry. Jev labels decide what the correct verdict is. They never become runtime code.
 
