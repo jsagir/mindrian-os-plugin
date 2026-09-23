@@ -127,6 +127,48 @@ itself never stated a hit rate; Phase 355 should be the first thing that measure
 Theo recommends next (SAPPhIRE, TRIZ, scenario planning) and, per the review's
 extension list, can seed a funding-opportunity entry in the room's opportunity bank.
 
+## 4. The uniqueness claim (navigator, 2026-09-23, quoting the PWS author's algorithm R&D briefing, June 2026)
+
+"Superforecasting has been applied to geopolitics, economics, and epidemics. Nobody
+has applied it to innovation problem-finding - 'is this problem worth solving?' and
+'where is the puck going in technology?' That intersection is ours."
+
+**Eight Tetlock principles, as the briefing lists them** (source / what it adds /
+priority): supervisor reconciliation (AIA Forecaster; investigate divergence with
+targeted search; High), decomposition engine (Commandment 2 + Halawi; Fermi-ize into
+sub-questions before search; High), base-rate anchoring (Commandment 3; "how often do
+innovations of this type succeed?" before creative analysis; High), update-velocity
+tracking ("perpetual beta"; frozen = hedgehog, shifting = fox; High), triage function
+(Commandment 1; estimate the Goldilocks zone before spending analysis effort; Medium),
+anti-hedging correction (Platt scaling; push confident signals toward natural
+extremes; Medium), diversity-as-feature (Schoenegger/Tetlock; genuinely heterogeneous
+framework approaches, not relabeled; Medium), extremizing logic (Mellers/Tetlock;
+when independent low-overlap signals converge, push the aggregate to the extreme;
+Medium).
+
+**What is unique, as the briefing states it:** three-signal convergence (whitespace
++ connection + novelty) - "the integration IS the product; each signal alone is
+available elsewhere"; embedded methodology - frameworks diagnose problem types and
+prescribe tool sequences, "the Brain's 23K-node teaching graph has no equivalent";
+the teaching loop - "100+ real ventures, real teaching interactions, real outcome
+data; the calibration is earned, not assumed"; bidirectional Ackoff - the diagnostic
+"where does confidence outrun evidence?" combined with construction from data to
+wisdom, "an original PWS contribution".
+
+**Read against Phase 355.** Three of the four uniqueness claims are what the phase
+touches directly: three-signal convergence is the "code finds" half the stamp sits on;
+the bidirectional-Ackoff diagnostic is the exact question the verification stamp
+answers (an unverified finding shown as verified is confidence outrunning evidence);
+the teaching loop's "calibration is earned, not assumed" is why the SPEC records a
+hit rate instead of promising one - the phase is the first calibration point. Of the
+eight principles, three are already devpkg capabilities scheduled after this phase
+(reconciliation, decomposition, update velocity); the other five (base rate, triage,
+anti-hedging, diversity, extremizing) are calibration doctrine for the eval strategy,
+and Platt scaling in particular is the same family as the Eureka critic's confidence
+buckets and TypeSafe's confidence guidance. The 23K-node and 100+-venture figures are
+the briefing's own statements as of June 2026; Theo's September count is ~28k nodes /
+452 Frameworks per its repo, and neither figure is re-verified here.
+
 ## Cross-references
 
 - `research/2026-09-23-origin-concept-algorithmic-generation-of-rs-solutions.md`
