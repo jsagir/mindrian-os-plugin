@@ -24,6 +24,13 @@ const {
   linkWhitespaceToArtifact,
   linkWhitespaceToSection,
 } = require('../lib/core/lazygraph-ops.cjs');
+// Phase 355-16 (HIPS-05, D-08, D-12, D-16): --stamp is opt-in. Without it
+// this script is byte-identical to its pre-355 behavior, so
+// scripts/scout-cadence-runner.cjs's SCHED-02 background call (Theo-free by
+// design) stays exactly as it was.
+const verificationStamp = require('../lib/core/verification-stamp.cjs');
+const directionConvention = require('../lib/core/direction-convention.cjs');
+const { whitespaceEndpoints } = require('./whitespace-command.cjs');
 
 /**
  * Generate a deterministic slug from a framework name.
@@ -46,10 +53,13 @@ function shortHash(input) {
   return crypto.createHash('md5').update(input).digest('hex').slice(0, 8);
 }
 
-async function main() {
-  const roomDir = process.argv[2];
+async function main(argv, deps) {
+  const args = Array.isArray(argv) ? argv : process.argv.slice(2);
+  deps = deps || {};
+  const roomDir = args[0];
+  const stampMode = args.indexOf('--stamp') !== -1;
   if (!roomDir) {
-    process.stderr.write('Usage: node scripts/whitespace-to-graph.cjs /path/to/room\n');
+    process.stderr.write('Usage: node scripts/whitespace-to-graph.cjs /path/to/room [--stamp]\n');
     process.exit(1);
   }
 
@@ -100,6 +110,31 @@ async function main() {
     }
   }
 
+  // Phase 355-16 (D-08, D-12, Pitfall 7): Theo is awaited BEFORE any BEGIN,
+  // and only when --stamp is set. A zone's endpoints are its own
+  // interpretation-enriched framework_chain (falling back to its single
+  // brain_framework when the chain is empty), resolved and stamped once per
+  // distinct pair (stampFindings' own per-run memo, D-12: no cross-run
+  // cache). Without --stamp, stampByFramework stays empty and every branch
+  // below that reads it is a no-op -- background callers (SCHED-02) are
+  // byte-identical.
+  const stampByFramework = new Map();
+  if (stampMode) {
+    const frameworks = [];
+    const zoneFindings = [];
+    for (const gap of gaps) {
+      const framework = gap.brain_framework || 'unknown';
+      const interp = interpGapMap[framework] || {};
+      const chain = Array.isArray(interp.framework_chain) ? interp.framework_chain : [];
+      const nearest = chain.length > 0 ? chain : [framework];
+      const endpoints = whitespaceEndpoints({ nearest_frameworks: nearest }, 'zone');
+      frameworks.push(framework);
+      zoneFindings.push(Object.assign({ direction: directionConvention.NONE }, endpoints));
+    }
+    const stamps = await verificationStamp.stampFindings(zoneFindings, deps);
+    frameworks.forEach((framework, i) => stampByFramework.set(framework, stamps[i]));
+  }
+
   let db;
   try {
     const graph = await openGraph(resolvedRoom);
@@ -128,8 +163,11 @@ async function main() {
         ? JSON.stringify(interp.framework_chain)
         : '[]';
 
-      // Create WhitespaceZone node
-      await addWhitespaceZone(conn, {
+      // Create WhitespaceZone node. Phase 355-16 (D-16): when --stamp is
+      // set, toNodeProps(stamp) rides this SAME addWhitespaceZone call (see
+      // lib/core/lazygraph-ops.cjs's optional stamp-field merge) -- no new
+      // writer, no raw SQL.
+      const zoneProps = {
         id: zoneId,
         brain_framework: framework,
         density_score: gap.density_score || 0.0,
@@ -140,7 +178,11 @@ async function main() {
         problem_type: problemType,
         exploration_status: 'detected',
         created: new Date().toISOString(),
-      });
+      };
+      if (stampMode && stampByFramework.has(framework)) {
+        Object.assign(zoneProps, verificationStamp.toNodeProps(stampByFramework.get(framework)));
+      }
+      await addWhitespaceZone(conn, zoneProps);
       zoneCount++;
 
       // Create WHITESPACE_DETECTED edges to nearest artifacts
@@ -217,4 +259,8 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { main };

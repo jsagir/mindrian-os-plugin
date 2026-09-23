@@ -147,31 +147,53 @@ This ensures embeddings exist (runs compute-whitespace-embeddings.py if needed),
 
 **Zone 2 -- Content Body (Shape A: Mondrian Board):**
 
-Display whitespace zones as a grid sorted by density_score ascending (sparsest = most interesting first).
+Display whitespace zones as a grid sorted by density_score ascending (sparsest = most interesting first). Phase 355-16 (D-29): the dispatcher itself never prints the raw density decimal -- the column and the summary line both show a sparsity RANK (1 = sparsest, an integer, no new threshold) instead. Reproduce whatever `whitespace-command.cjs map` prints verbatim; never compute or restate a decimal of your own.
 
 ```
-  Zone                    Density   Type           Nearest Frameworks
-  ws-gap-001              0.12      Ill-Defined    JTBD, Beautiful Questions
-  ws-gap-002              0.28      Well-Defined   MECE, Issue Trees
-  ws-gap-003              0.45      Un-Defined     Analogical Reasoning
-  ws-gap-004              0.67      Wicked         Systems Thinking, Causal Loop
+  Zone                    Rank    Type           Nearest Frameworks
+  ws-gap-001              1       Ill-Defined    JTBD, Beautiful Questions
+  ws-gap-002              2       Well-Defined   MECE, Issue Trees
+  ws-gap-003              3       Un-Defined     Analogical Reasoning
+  ws-gap-004              4       Wicked         Systems Thinking, Causal Loop
 ```
 
 Each row shows:
 - Zone ID (left-aligned)
-- Density score (0.0-1.0, lower = more sparse = bigger gap)
+- Sparsity rank (1 = sparsest = biggest gap, an integer, never a decimal)
 - Problem type classification
 - Top 1-2 nearest frameworks (truncated to fit 80 cols)
 
 Summary line:
 ```
-  Zones: [N] total  |  [X] validated  |  Sparsest: [zone_id] (density [score])
+  Zones: [N] total  |  [X] validated  |  Sparsest: [zone_id] (rank 1 of [N])
 ```
 
-**Zone 3 -- Intelligence Strip** (conditional):
-Show if any zones have density < 0.2 (severe gaps):
+Every shown zone also prints a verification stamp block (Phase 355-16, HIPS-04/HIPS-05) directly under the grid -- one block per zone, in the same order, reproduced VERBATIM (never summarized, never a number added):
+
 ```
-  &#9888; [N] zones below 0.2 density -- significant knowledge gaps detected
+  <checkmark or bullet or warning glyph> <tier word> &middot; <direction phrase> &middot; <backend word>
+  path   <node -- EDGE -- node ...>
+  tier   <tier word>, <hop word> in the methodology graph
+  judge  none, path check only
+```
+
+or, when unverified:
+
+```
+  <warning glyph> unverified &middot; <direction phrase> &middot; <backend word>
+  reason <plain-language reason>
+  may be novel or hallucinated - verify with a domain expert
+  judge  none, path check only
+```
+
+The render ends with the disclosure line naming `data/floor-ledger.json` -- reproduce it exactly, never paraphrase it into a percent or a confidence score.
+
+On Desktop / Cowork, when a zone has no stored stamp at all (the CLI has not been run there yet), say exactly: "Not yet checked; run the CLI to verify." (D-50). Never invent a tier or a path for it.
+
+**Zone 3 -- Intelligence Strip** (conditional):
+Show if any zones are ranked in the bottom quartile by density (severe gaps):
+```
+  &#9888; [N] zones in the sparsest quartile -- significant knowledge gaps detected
   &#11036; [zone_id] has no nearby artifacts -- isolated void
 ```
 
@@ -209,9 +231,11 @@ x Zone not found: [ZONE_ID]
 
 **Zone 2 -- Content Body (Shape E: Action Report):**
 
+Phase 355-16 (D-29): the Density line is gone -- `analyze` prints the same sparsity rank `map` uses (`sparsity rank n of N`, an integer, never a decimal).
+
 ```
   Zone: [ZONE_ID]
-  Density: [score]
+  Rank: sparsity rank [n] of [N]
   Problem Type: [classification]
   Validated: [Yes/No] ([gates passed]/[total gates])
 
@@ -227,6 +251,8 @@ x Zone not found: [ZONE_ID]
   Hypothesis:
   [Full hypothesis text from interpretation-results.json, or "Not yet generated -- run /mos:whitespace hypothesis ZONE_ID"]
 ```
+
+Directly under the Hypothesis block, `analyze` prints the zone's own verification stamp block (same shape as `map`'s, one block, D-27) followed by the disclosure line naming `data/floor-ledger.json`. Reproduce both verbatim -- never add a number, never summarize the stamp into a confidence score. On Desktop / Cowork with no stored stamp for this zone, say exactly: "Not yet checked; run the CLI to verify." (D-50).
 
 **Zone 3 -- Intelligence Strip** (conditional):
 If zone validation failed gates, show which:
@@ -365,27 +391,31 @@ Reads whitespace-results.json and extracts artifact_novelty_scores.
 
 **Zone 2 -- Content Body (Shape E: Action Report):**
 
+Phase 355-16 (D-29): the Novelty column and the summary line show the BAND WORD (novel / moderate / covered) from the existing 0.8/0.4 cut-offs, never the raw decimal -- the underlying novelty math is unchanged, only the render is.
+
 ```
   Artifact                        Section               Novelty   Nearest Concept
-  customer-jobs-analysis.md       market-analysis/      0.92      JTBD Framework
-  regulatory-landscape.md         legal-ip/             0.87      Regulatory Arbitrage
-  competitive-map.md              competitive-analysis/ 0.34      Porter's Five Forces
-  problem-statement.md            problem-definition/   0.12      Beautiful Questions
+  customer-jobs-analysis.md       market-analysis/      novel     JTBD Framework
+  regulatory-landscape.md         legal-ip/             novel     Regulatory Arbitrage
+  competitive-map.md              competitive-analysis/ covered   Porter's Five Forces
+  problem-statement.md            problem-definition/   covered   Beautiful Questions
 ```
 
 Sorted by novelty_score descending (most novel first).
-- Novelty 0.8+ = highly novel (far from existing knowledge)
-- Novelty 0.4-0.8 = moderately novel
-- Novelty < 0.4 = well-covered territory
+- `novel` = highly novel (far from existing knowledge)
+- `moderate` = moderately novel
+- `covered` = well-covered territory
 
 Summary line:
 ```
-  Artifacts: [N]  |  Novel (>0.8): [X]  |  Moderate: [Y]  |  Covered (<0.4): [Z]
+  Artifacts: [N]  |  Novel: [X]  |  Moderate: [Y]  |  Covered: [Z]
 ```
+
+Every shown row also prints a verification stamp block, same shape as `map`'s, one block per row, reproduced verbatim, ending with the disclosure line naming `data/floor-ledger.json`. An artifact whose carried name resolves to nothing still renders under its own artifact name with the "may be novel or hallucinated" advice line -- never dropped, never silently hidden. On Desktop / Cowork with no stored stamp, say exactly: "Not yet checked; run the CLI to verify." (D-50).
 
 **Zone 3 -- Intelligence Strip** (conditional):
 ```
-  &#9889; [artifact] scores 0.9+ novelty -- genuinely unprecedented insight
+  &#9889; [artifact] scores in the novel band -- genuinely unprecedented insight
 ```
 
 **Zone 4 -- Action Footer:**

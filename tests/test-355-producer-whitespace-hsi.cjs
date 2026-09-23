@@ -33,7 +33,10 @@ const REPO = path.join(__dirname, '..');
 const checker = hygiene.makeChecker('test-355-producer-whitespace-hsi');
 const { check } = checker;
 
+const os = require('node:os');
 const whitespaceCommand = require(path.join(REPO, 'scripts', 'whitespace-command.cjs'));
+const whitespaceToGraph = require(path.join(REPO, 'scripts', 'whitespace-to-graph.cjs'));
+const { openGraph, closeGraph } = require(path.join(REPO, 'lib', 'core', 'lazygraph-ops.cjs'));
 const verificationStamp = require(path.join(REPO, 'lib', 'core', 'verification-stamp.cjs'));
 const verificationStampFormat = require(path.join(REPO, 'lib', 'core', 'verification-stamp-format.cjs'));
 const directionConvention = require(path.join(REPO, 'lib', 'core', 'direction-convention.cjs'));
@@ -203,6 +206,99 @@ async function runNoveltyLeg() {
 }
 
 // ---------------------------------------------------------------------------
+// Leg: whitespace-to-graph.cjs --stamp (D-16 node-prop proof)
+// ---------------------------------------------------------------------------
+
+function makeMos355ScratchRoom(label) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-355-16-' + label + '-'));
+  const room = path.join(root, 'room');
+  fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+  return {
+    root,
+    room,
+    cleanup() {
+      try {
+        fs.rmSync(root, { recursive: true, force: true });
+      } catch (_e) {
+        // best-effort
+      }
+    },
+  };
+}
+
+async function readZoneNodes(roomDir) {
+  const graph = await openGraph(roomDir);
+  try {
+    const rows = graph.conn.prepare("SELECT id, properties FROM nodes WHERE type = 'WhitespaceZone'").all();
+    return rows.map((r) => ({ id: r.id, props: JSON.parse(r.properties) }));
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+async function runWhitespaceToGraphStampLeg() {
+  const resultsData = {
+    gaps: [
+      { brain_framework: 'Reverse Salient Analysis', density_score: 0.1, knn_density: 0.2, strategic_rank: 0.5, problem_type: 'Ill-Defined', nearest_room_artifacts: [] },
+      { brain_framework: 'Not A Real Framework', density_score: 0.2, knn_density: 0.3, strategic_rank: 0.4, problem_type: 'Un-Defined', nearest_room_artifacts: [] },
+    ],
+    novelty_scores: [],
+  };
+  const interpData = {
+    gaps: [
+      { brain_framework: 'Reverse Salient Analysis', framework_chain: ['Reverse Salient Analysis', 'Six Thinking Hats'], problem_type: 'Ill-Defined' },
+    ],
+  };
+
+  // With --stamp: both zones carry a stamp (one strong-verified, one
+  // not_called), re-parsing cleanly through fromNodeProps.
+  {
+    const scratch = makeMos355ScratchRoom('stamp');
+    try {
+      fs.writeFileSync(path.join(scratch.room, '.mindrian', 'whitespace-results.json'), JSON.stringify(resultsData));
+      fs.writeFileSync(path.join(scratch.room, '.mindrian', 'interpretation-results.json'), JSON.stringify(interpData));
+      const callTool = makeReplayCallTool(stubFixture);
+      await whitespaceToGraph.main([scratch.room, '--stamp'], { callTool });
+      const zones = await readZoneNodes(scratch.room);
+      check('whitespace whitespace-to-graph --stamp: writes 2 WhitespaceZone nodes', zones.length === 2, 'got ' + zones.length);
+      for (const zone of zones) {
+        let parsed = null;
+        let threw = false;
+        try {
+          parsed = verificationStamp.fromNodeProps(zone.props);
+        } catch (_e) {
+          threw = true;
+        }
+        check('whitespace whitespace-to-graph --stamp: ' + zone.id + ' props re-parse via fromNodeProps', threw === false && !!parsed);
+      }
+      const strongZone = zones.find((z) => z.props.brain_framework === 'Reverse Salient Analysis');
+      check('whitespace whitespace-to-graph --stamp: the resolvable zone stamps strong/theo', !!strongZone && strongZone.props.verification === 'strong' && strongZone.props.backend === 'theo');
+      const unresolvedZone = zones.find((z) => z.props.brain_framework === 'Not A Real Framework');
+      check('whitespace whitespace-to-graph --stamp: the unresolvable zone stamps unverified/not_called', !!unresolvedZone && unresolvedZone.props.verification === 'unverified' && unresolvedZone.props.backend === 'not_called');
+    } finally {
+      scratch.cleanup();
+    }
+  }
+
+  // Without --stamp: byte-identical behavior -- no zone carries a
+  // verification/backend/direction/judge property at all.
+  {
+    const scratch = makeMos355ScratchRoom('nostamp');
+    try {
+      fs.writeFileSync(path.join(scratch.room, '.mindrian', 'whitespace-results.json'), JSON.stringify(resultsData));
+      fs.writeFileSync(path.join(scratch.room, '.mindrian', 'interpretation-results.json'), JSON.stringify(interpData));
+      await whitespaceToGraph.main([scratch.room], {});
+      const zones = await readZoneNodes(scratch.room);
+      check('whitespace whitespace-to-graph (no --stamp): writes 2 WhitespaceZone nodes', zones.length === 2, 'got ' + zones.length);
+      const anyStamped = zones.some((z) => Object.prototype.hasOwnProperty.call(z.props, 'verification'));
+      check('whitespace whitespace-to-graph (no --stamp): no zone carries a verification property', anyStamped === false);
+    } finally {
+      scratch.cleanup();
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
 
@@ -211,6 +307,7 @@ async function runNoveltyLeg() {
     await runScanLeg();
     await runAnalyzeLeg();
     await runNoveltyLeg();
+    await runWhitespaceToGraphStampLeg();
   } finally {
     check('installNetGuard: zero fetch attempts', netGuard.attempts() === 0);
     netGuard.restore();
