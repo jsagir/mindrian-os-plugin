@@ -1,0 +1,5 @@
+# Pharma cold-chain compliance today
+
+The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.
+
+The compliance lead pointed out, almost as an aside, that the heavier process is not actually expensive to run per shipment, the marginal cost of generating a compliance-grade log is small once the logger hardware already exists in every van regardless of segment; the expense was entirely in building the process the first time, which is already sunk. That detail matters for any conversation about a new segment with its own regulatory profile, since the fixed cost of a second compliance layer would likely be smaller than the first one was.

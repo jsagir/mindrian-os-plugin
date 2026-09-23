@@ -1,0 +1,5 @@
+# Cold-chain breach detection today
+
+Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.
+
+A pattern is visible to anyone who actually opens the spreadsheet, which the operations lead finally did last quarter out of curiosity rather than instruction: breaches cluster heavily on the longest routes, specifically the ones with more than six stops, and almost always happen on the fourth stop or later, well before the route ends. That is consistent with the insulation simply running out of reserve capacity partway through a long run, which is a materials question sitting one document away from the people who could act on it, but the two teams do not currently talk about this data at all.

@@ -1,0 +1,5 @@
+# Adjacent buyers who mentioned the same pain
+
+Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.
+
+The second inquiry came from a florist handling a wedding order that needed same-day refrigerated transport for delicate stock between two towns, a one-off rather than a recurring contract, also turned away. Neither inquiry fits the current sales motion, built entirely around recurring contracts at a minimum volume, but both inquiries describe the identical underlying want the three existing customer segments already have: someone else to own the cold chain for a shipment that would spoil, or wilt, without one. Nobody has yet asked whether a smaller, one-off product sits underneath the existing recurring-contract business.

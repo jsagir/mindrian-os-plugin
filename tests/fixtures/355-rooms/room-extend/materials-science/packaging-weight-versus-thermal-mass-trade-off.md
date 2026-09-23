@@ -1,0 +1,5 @@
+# Packaging weight versus thermal mass trade-off
+
+More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.
+
+Nobody has revisited the spec against the new route mix, which means some vans on the newly longer, denser routes are plausibly under-buffered relative to what a fresh calculation would recommend, and some vans on the newly shorter routes are probably carrying more buffering weight than they need, burning fuel for a safety margin the route no longer requires. This is a small, unglamorous recalculation that nobody owns, sitting in the gap between the operations team, who changed the routes, and the materials team, who set the original spec and was never told the routes had moved under it.

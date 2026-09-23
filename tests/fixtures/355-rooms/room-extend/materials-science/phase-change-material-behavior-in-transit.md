@@ -1,0 +1,5 @@
+# Phase-change material behavior in transit
+
+The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.
+
+That buffering behavior is most effective against a brief, sharp disturbance, like a door opening for ninety seconds, and least effective against a long, sustained one, like an engine failure that leaves the van without active cooling for an hour. The materials engineer has started describing the gel's job less as "keeping things cold" and more as "absorbing a shock the system was not built to prevent outright," which is a framing that generalizes past refrigerated delivery the moment you say it out loud, though nobody in this room has said it out loud yet.

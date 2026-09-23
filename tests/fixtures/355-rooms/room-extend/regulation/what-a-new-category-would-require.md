@@ -1,0 +1,5 @@
+# What a new category would require
+
+Pulling the threads from the compliance lead's comment and the auditor's aside together, the rough shape of what a genuinely new category would need starts to come into focus, though nobody has written it down as a proposal yet. It would need a minimum-volume threshold low enough to accept the kind of one-off or small-batch request the florist and the skincare maker both represent, a pricing model tied to failure cost rather than a flat per-delivery rate, and a compliance layer sized to whatever the actual regulatory category turns out to require, which may be lighter than either of the two categories currently served.
+
+None of those three pieces is a large build individually. What is missing is not capability, all three exist in some form already inside the business somewhere; what is missing is a decision about whether it is worth assembling them into an offer for a market the service was never originally built to serve, and who would own making that case to the rest of the team.
