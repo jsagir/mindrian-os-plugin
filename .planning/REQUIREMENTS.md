@@ -2952,7 +2952,7 @@ contract.
       diagnostic (stdout protocol-clean) and is reported by registerCoreTools and status_read
       capability_floor.tool_registration. Plan 354-14.
 
-- [ ] **SYS-05**: extract_shallow's public contract is honest parsing (D-354-SYS05): the handler
+- [x] **SYS-05**: extract_shallow's public contract is honest parsing (D-354-SYS05): the handler
       writes nothing to disk or room.db (verified after reopening), its description and response say
       so, and agents/larry-extended.md names claim_write as the persistence step. Plan 354-15.
 

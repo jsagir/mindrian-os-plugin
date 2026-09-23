@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-14-PLAN.md
-last_updated: "2026-09-23T15:09:06.279Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 14 (SYS-04 MCP registration diagnostics) executed
+stopped_at: Completed 354-15-PLAN.md
+last_updated: "2026-09-23T15:20:47.313Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 15 (SYS-05 extract_shallow pure-parse contract) executed
 progress:
   total_phases: 111
   completed_phases: 35
-  total_plans: 389
-  completed_plans: 317
-  percent: 81
+  total_plans: 396
+  completed_plans: 318
+  percent: 80
 ---
+
+<!-- NOTE (354-15 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported stale Phase 353 counters (current_plan 3 of 3,
+     ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 318, total: 396, percent: 80. `state.record-metric --phase 354 --plan 15
+     --duration 35min --tasks 2 --files 6` landed its own correct Performance Metrics row.
+     `state.add-decision --summary ...` repeated the documented `[Phase ?]` placeholder-prefix
+     bug again, fixed in place to a single `[Phase 354] 354-15: ...` line. `state.record-session`
+     this run updated ONLY the body's own `Last session:` line; frontmatter `stopped_at`/
+     `last_activity`/`percent` were reverted to stale values (`Completed 354-14-PLAN.md`, the
+     2026-09-17 Phase 353 line, `32`) and the body `Stopped at:` line stayed at the stale
+     `354-14` value. Hand-corrected: frontmatter `stopped_at` -> "Completed 354-15-PLAN.md",
+     `last_activity` -> this plan's own completion line, `percent` -> 80 (matching
+     `state.update-progress`'s just-computed value); body `Stopped at:` line -> "Completed
+     354-15-PLAN.md" to match. `total_plans`/`completed_plans` (396/318) were already correct
+     from `state.update-progress`, not reverted this run. `requirements.mark-complete SYS-05`
+     run this session -- REQUIREMENTS.md's SYS-05 row confirmed to name 354-15 as its sole
+     owning plan before running, now `[x]`. -->
 
 <!-- NOTE (354-14 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6964,6 +6983,7 @@ Progress: [█████████░] 92%
 | Phase 354 P17 | 25min | 2 tasks | 8 files |
 | Phase 354 P13 | 45min | 3 tasks | 3 files |
 | Phase 354 P14 | 35min | 2 tasks | 3 files |
+| Phase 354 P15 | 35min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -8648,6 +8668,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-17: committed ledger ships offline-seed (promotes zero candidates by design); lookup consulted only after 354-09's exact-slug safety check fails
 - [Phase 354] 354-13: SYS-07 acceptance-runner diagnostics landed (runBoundedChild, per-point timing, stderr progress); clean rerun classified WORKING, not a defect
 - [Phase 354] 354-14: registerCoreTools() returns {complete, registered, failed, at}; getRegistrationHealth() exports a clone; status_read exposes capability_floor.tool_registration; H1 checks run before F2 to observe F1's singleton state
+- [Phase 354] 354-15: extract_shallow's public contract settled as honest parsing (D-354-SYS05) -- pure parse, persisted:false, claim_write is the governed persistence step
 
 ### Pending Todos
 
@@ -8796,8 +8817,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T15:09:06.154Z
-Stopped at: Completed 354-14-PLAN.md
+Last session: 2026-09-23T15:20:46.737Z
+Stopped at: Completed 354-15-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
