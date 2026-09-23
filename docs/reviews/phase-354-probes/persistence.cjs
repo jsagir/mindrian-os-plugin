@@ -107,7 +107,18 @@ function gateSession() {
 (async () => {
   await approval();
   await resume();
-  locks();
+  // Phase 354-04 (SYS-02) landed liveness-only lock takeover: this probe's
+  // foreignPid is this process's own alive parent, so acquireLock() now
+  // correctly refuses the takeover instead of printing a replacementPid
+  // (see 354-04-SUMMARY.md) -- direct evidence the finding no longer
+  // reproduces, not a bug in locks() or write-lock.cjs. Caught here (Rule 3,
+  // 354-05 execution) so the SYNCHRONOUS throw does not abort the two
+  // independent probes below it in the same IIFE.
+  try {
+    locks();
+  } catch (e) {
+    emit('live-lock-takeover', { refused: true, error: e.message });
+  }
   artifact();
   gateSession();
 })().catch(error => { console.error(error); process.exitCode = 1; });
