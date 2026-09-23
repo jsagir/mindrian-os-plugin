@@ -1,0 +1,23 @@
+{
+  "note": "Hand-labeled fixture for scripts/build-framework-command-ledger.cjs's calibrateFloor() sweep (Phase 354 Plan 17 Task 1). Each triple states whether `command_id` is the correct executable-step mapping for `framework`, per data/framework-names.json and the live KNOWN_METHODOLOGIES registry (lib/mcp/brain-router.cjs). Used only to sweep a confidence_floor against a ledger already built via --jev-fixture or the live path -- it does not itself carry any vendor score.",
+  "labels": [
+    { "framework": "Lean Canvas", "command_id": "lean-canvas", "correct": true },
+    { "framework": "Lean Canvas", "command_id": "diagnose", "correct": false },
+    { "framework": "Design Thinking", "command_id": "diagnose", "correct": true },
+    { "framework": "Design Thinking", "command_id": "lean-canvas", "correct": false },
+    { "framework": "Cynefin Framework", "command_id": "systems-thinking", "correct": true },
+    { "framework": "Cynefin Framework", "command_id": "grade", "correct": false },
+    { "framework": "Beautiful Question Framework", "command_id": "beautiful-question", "correct": true },
+    { "framework": "Beautiful Question Framework", "command_id": "compare-ventures", "correct": false },
+    { "framework": "Black Hat Analysis", "command_id": "challenge-assumptions", "correct": true },
+    { "framework": "Black Hat Analysis", "command_id": "explore-trends", "correct": false },
+    { "framework": "Causal Loop Diagrams", "command_id": "systems-thinking", "correct": true },
+    { "framework": "Causal Loop Diagrams", "command_id": "research", "correct": false },
+    { "framework": "Adaptive Leadership", "command_id": "leadership", "correct": true },
+    { "framework": "Adaptive Leadership", "command_id": "map-unknowns", "correct": false },
+    { "framework": "Conflict Resolution Framework", "command_id": "structure-argument", "correct": true },
+    { "framework": "Conflict Resolution Framework", "command_id": "score-innovation", "correct": false },
+    { "framework": "Scenario Planning", "command_id": "scenario-plan", "correct": true },
+    { "framework": "Scenario Planning", "command_id": "find-bottlenecks", "correct": false }
+  ]
+}

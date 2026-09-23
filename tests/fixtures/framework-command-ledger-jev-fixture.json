@@ -1,0 +1,19 @@
+{
+  "note": "Recorded/synthetic Jev response fixture for scripts/build-framework-command-ledger.cjs --jev-fixture (Phase 354 Plan 17 Task 1). `score` is the normalized (score / (levels-1)) fit value on a 0..1 scale -- comparable to a swept `confidence_floor` -- not the raw 0/1/2 Jev level index; `confidence` is Jev's own 0..1 calibrated confidence, carried through unchanged.",
+  "model": "jev-latest",
+  "usage": { "input_tokens_per_call": 480, "output_tokens_per_call": 96 },
+  "rows": {
+    "Lean Canvas": [
+      { "command_id": "lean-canvas", "score": 0.95, "confidence": 0.91 },
+      { "command_id": "validate", "score": 0.5, "confidence": 0.55 }
+    ],
+    "Design Thinking": [
+      { "command_id": "diagnose", "score": 0.92, "confidence": 0.88 },
+      { "command_id": "build-knowledge", "score": 0.45, "confidence": 0.5 }
+    ],
+    "Cynefin Framework": [
+      { "command_id": "systems-thinking", "score": 0.9, "confidence": 0.85 },
+      { "command_id": "root-cause", "score": 0.4, "confidence": 0.5 }
+    ]
+  }
+}

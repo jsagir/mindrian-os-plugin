@@ -430,6 +430,22 @@ const EGRESS_PROFILES = Object.freeze({
     question_max_len: 400,
     question_strings_from_file_key: 'policy',
   }),
+  // 354-17 (THEO-01 recall extension, D-06 cross-phase agreement 2026-09-23):
+  // scores every (Theo framework label x KNOWN_METHODOLOGIES-scoped command
+  // id) pair. Its own key set is name/jtbd/glossary ONLY -- unlike 353's
+  // section_command_ledger, `description` is NOT allowed here (refused, not
+  // stripped), since the navigator ruling for this seat is name + JTBD
+  // statement + glossary line only. Never merged with section_command_ledger
+  // or material_step_ledger (D-08: one profile per builder).
+  framework_command_ledger: Object.freeze({
+    id: 'framework_command_ledger',
+    kind: 'candidates_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    state_keys: Object.freeze(['candidates']),
+    candidate_keys: Object.freeze(['name', 'jtbd', 'glossary']),
+    candidate_max_len: 140,
+    message_prefix: 'assertEgressCeiling',
+  }),
 });
 
 module.exports = { DEFAULT_ENDPOINT, loadKey, makeEgressGuard, jev, pool, EGRESS_PROFILES };

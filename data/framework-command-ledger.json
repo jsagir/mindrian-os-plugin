@@ -1,0 +1,122 @@
+{
+  "built_at": "2026-09-23T13:55:00.930Z",
+  "build_mode": "offline-seed",
+  "plugin_version": "2.0.0-beta.48",
+  "theo_frameworks": 0,
+  "jev_model": null,
+  "confidence_floor": null,
+  "floor_basis": "not calibrated: offline-seed build carries no vendor confidence",
+  "floor_hit_rate": null,
+  "wall_ms": 0,
+  "jev_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "estimated_cost_usd": 0,
+  "cost_basis": "vendor-claimed rate, unverified",
+  "rows": {
+    "Adaptive Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Authentic Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Distributed Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Emotional Intelligence in Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Engineering Ethics in Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Level 5 Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "PWS": [
+      {
+        "command_id": "diagnose",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Reverse Salient Analysis": [
+      {
+        "command_id": "find-bottlenecks",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Servant Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Situational Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Systems Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "TTA": [
+      {
+        "command_id": "explore-futures",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ],
+    "Transformational Leadership": [
+      {
+        "command_id": "leadership",
+        "score": 1,
+        "confidence": null,
+        "source": "offline-seed"
+      }
+    ]
+  }
+}
