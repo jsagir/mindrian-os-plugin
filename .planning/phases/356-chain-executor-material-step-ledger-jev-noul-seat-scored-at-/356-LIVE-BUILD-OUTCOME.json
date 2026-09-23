@@ -1,0 +1,51 @@
+{
+  "schema": "356-live-build-outcome/v1",
+  "status": "SUCCESS",
+  "exit_code": 0,
+  "ran_by": "executor",
+  "authorization": {
+    "checkpoint": "Checkpoint D (sitting 3)",
+    "authorized_by": "navigator",
+    "selection_verbatim": "Go, run it (Recommended)",
+    "prompt_verbatim": "113 yes/no questions against your locked policy, using the dev-time key from ~/.secrets/typesafe.env ... Go?",
+    "mechanism": "AskUserQuestion card",
+    "recorded_at": "2026-09-23T14:41:24Z",
+    "note": "Checkpoint D was satisfied by the navigator's explicit authorization earlier in this session, per the orchestrator's objective. The executor did not re-prompt for it."
+  },
+  "started_at": "2026-09-23T14:40:00Z",
+  "finished_at": "2026-09-23T14:40:36.659Z",
+  "raw_scores_path": ".planning/phases/356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-/356-RAW-SCORES.json",
+  "build_log_path": ".planning/phases/356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-/356-LIVE-BUILD-LOG.txt",
+  "ledger_path": "data/command-irreversibility-ledger.json",
+  "jev_model": "jev-1.13.0",
+  "threshold": 0.23,
+  "threshold_set_by": ["/mos:new-surface"],
+  "margin": 0.020000000000000018,
+  "labeled_irreversible": 11,
+  "false_alarm_count": 4,
+  "false_alarms": ["/mos:mva-brief", "/mos:mva-report", "/mos:research", "/mos:setup"],
+  "chain_run_false_alarms": [],
+  "chain_run_false_alarms_accepted": [],
+  "appeal_gate_tripped": false,
+  "appeal_items": [],
+  "flagged_count": 15,
+  "flagged_commands": [
+    "/mos:deck", "/mos:doctor", "/mos:export", "/mos:heal", "/mos:ingest-methodology",
+    "/mos:mva-brief", "/mos:mva-report", "/mos:new-surface", "/mos:present", "/mos:publish",
+    "/mos:research", "/mos:setup", "/mos:show", "/mos:snapshot", "/mos:update"
+  ],
+  "jev_calls": 113,
+  "input_tokens": 302295,
+  "output_tokens": 2486,
+  "estimated_cost_usd": 0.01269639,
+  "cost_basis": "vendor-claimed rate, unverified (42 USD per billion input tokens)",
+  "key_scrub": {
+    "scanned_files": [
+      ".planning/phases/356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-/356-LIVE-BUILD-LOG.txt",
+      ".planning/phases/356-chain-executor-material-step-ledger-jev-noul-seat-scored-at-/356-RAW-SCORES.json",
+      "data/command-irreversibility-ledger.json"
+    ],
+    "key_found": false
+  },
+  "message": "command-irreversibility-ledger: wrote 113 entries, T=0.23, false alarms=4, mode=jev-live, model=jev-1.13.0"
+}

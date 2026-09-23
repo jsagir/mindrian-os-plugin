@@ -1,0 +1,711 @@
+{
+  "schema": "command-irreversibility-ledger/v1",
+  "built_at": "2026-09-23T14:40:36.659Z",
+  "build_mode": "jev-live",
+  "built_from_raw": false,
+  "raw_scored_at": null,
+  "jev_model": "jev-1.13.0",
+  "policy_hash": "2e295b93d9dd03c97a91372c7ea45d5bcb3d948dcdbcd327cec9b1e18d52936f",
+  "answer_key_hash": "6a37b59ec2b4d04e4a393939a335f092a034798ff306226404fac4205922a147",
+  "registry_hash": "43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8",
+  "text_hash_basis": "sha256 hex of UTF-8 JSON.stringify([command, teaching, jtbd_summary]), non-string -> \"\"",
+  "threshold": 0.23,
+  "threshold_set_by": [
+    "/mos:new-surface"
+  ],
+  "margin": 0.020000000000000018,
+  "labeled_irreversible": 11,
+  "false_alarm_count": 4,
+  "false_alarms": [
+    "/mos:mva-brief",
+    "/mos:mva-report",
+    "/mos:research",
+    "/mos:setup"
+  ],
+  "chain_run_false_alarms_accepted": [],
+  "jev_calls": 113,
+  "input_tokens": 302295,
+  "output_tokens": 2486,
+  "estimated_cost_usd": 0.01269639,
+  "cost_basis": "vendor-claimed rate, unverified",
+  "entries": [
+    {
+      "command": "/mos:act",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "d8e5389cd303031d0574f24e1b142ba9069560fabf381d068976d98a7dbeb8a7"
+    },
+    {
+      "command": "/mos:admin",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "d830c19fd5d99b56aa56c0ca9e3112cd0f47d56982d44df5d690841cf95fff6e"
+    },
+    {
+      "command": "/mos:agentshield",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "66805c9ae4a618faa264dd2bd6780e4a1e15cf5f284a7baf165fe4f957c54bb6"
+    },
+    {
+      "command": "/mos:analyze-needs",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "417ce7e19bb6cd31b75895fb64f959ee49a41dbbfa26e533c0557bfed758ea82"
+    },
+    {
+      "command": "/mos:analyze-systems",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "71f72d9b562c1227b4d99bc84b4ead2037f80d9b5b41985fc76e3e37940cad9b"
+    },
+    {
+      "command": "/mos:analyze-timing",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "48d0d6a2bb7c162c096728a76f1a617eb7435fed9620e19c3d6eb08358a5668d"
+    },
+    {
+      "command": "/mos:auto-explore",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "b9ac308a7e1d6b352831858f17d5d3411b6df0919ea4ad184c4b13ad6a84efdc"
+    },
+    {
+      "command": "/mos:beautiful-question",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "ca41179c80f352abaeca8555403e4e27b3dd7970cca0ce3f4589d6768ef97459"
+    },
+    {
+      "command": "/mos:bono",
+      "p_irreversible": 0.17,
+      "flag": false,
+      "text_hash": "8f3b906db68d06d46b5ba8a4501a1881dc17e6acfa7cfc98ee102a59fd6e550d"
+    },
+    {
+      "command": "/mos:brain-derive",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "55fca4486ef9400a793974e5b134320bc833425d1b546f102f33ed1169f868fb"
+    },
+    {
+      "command": "/mos:build-knowledge",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "edd28f74536221903cf0ed0184aca07771a598ba6b57f11e8a5d6581edbb022b"
+    },
+    {
+      "command": "/mos:build-thesis",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "8bebe2832e53f81ef51a09055bbf43114e4f59a50fae851658fa2bddb21e7398"
+    },
+    {
+      "command": "/mos:causal",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "8a2335cce0cc1973826d4abc6f00e9aa087a9d1b4e282ee03bda86e774671d69"
+    },
+    {
+      "command": "/mos:challenge-assumptions",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "e99fc7ef8b8da6ced0627017f9f00e53e46f23a98cb0e60f974aa6d48195ac56"
+    },
+    {
+      "command": "/mos:compare-ventures",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "92192b5716d61e5e189592326b567487e8150b26da725832eeb9360aa0b97cba"
+    },
+    {
+      "command": "/mos:correct-reference-now",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "ca9b20fba9de2b6bab0738de660b1f442465da11acfa730f700433db41778469"
+    },
+    {
+      "command": "/mos:dashboard",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "a482f89fa476580871ddafdc649f18e00a12ffe9710e4d6706890de0bd3c0ae0"
+    },
+    {
+      "command": "/mos:deck",
+      "p_irreversible": 0.44,
+      "flag": true,
+      "text_hash": "60b7665aba8c69c7fa9e957727610b2bfa5208d88eb8840dde956b22d7451905"
+    },
+    {
+      "command": "/mos:deep-grade",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "778a35c0903074e419d8061ad344ed695e003ef78f0eb5f06a4492fe5d9a2e38"
+    },
+    {
+      "command": "/mos:diagnose",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "796536f65cce08572a41ef4eded3d9f57e24f36727b7510c1299448f452daebf"
+    },
+    {
+      "command": "/mos:diagnostics",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "19de7b414be760dd0fa7caa5d02a1adcab1f0dd4b38b04969b46459b69aef69e"
+    },
+    {
+      "command": "/mos:dial-memory-refresh",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "1bd5de69915c9f6d64d078379072bcf08f1621a6fa71773dfab7b01b681c4070"
+    },
+    {
+      "command": "/mos:diffusion",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "723d8a46fc273c5290a04202a86ace4651d6115334b2ee4be8cc61e0dac6ba18"
+    },
+    {
+      "command": "/mos:discover",
+      "p_irreversible": 0.12,
+      "flag": false,
+      "text_hash": "6df55cafd4cd2eb67c6011d480c3defdfcdec605f37bae63000496ecbb008edd"
+    },
+    {
+      "command": "/mos:doctor",
+      "p_irreversible": 0.36,
+      "flag": true,
+      "text_hash": "033ebd53ab72710c2e49b1944093564d63daabe215fa1cceba6fcf556f89fa79"
+    },
+    {
+      "command": "/mos:dogfood-flush",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "7cb9d76c0933943ed2d63e2bc1fdad470e428088f1d4f1bac74b27976ea14514"
+    },
+    {
+      "command": "/mos:dominant-designs",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "7d35d08a3ce2a3ef8c5aa111a425d8bac98d2987e7c8320e8e18b6e1bf735a69"
+    },
+    {
+      "command": "/mos:eureka",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "386b330aa91bb1d2fc6f69c144603bf0f979fc714095d9d86965d81c7ac34ece"
+    },
+    {
+      "command": "/mos:explain-decision",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "84c13d19a06683588244ff91be3b41788842c8f7a5feb04cc210ccbe5b29777f"
+    },
+    {
+      "command": "/mos:explore-domains",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "f1331636d8eb66e0ae28ea7ed3710fb065d016b6545d6823eaf3f34387cca7ac"
+    },
+    {
+      "command": "/mos:explore-futures",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "f7c00d34c184941e8e3b72bee8e40aeece4cd87827eb79d5910d6f7cc0e2ebb3"
+    },
+    {
+      "command": "/mos:explore-opportunity",
+      "p_irreversible": 0.15,
+      "flag": false,
+      "text_hash": "0d0bfa636d7b9258bf5469d7e0c0b169b919733f7ab1e8180d7f70b9f57abc12"
+    },
+    {
+      "command": "/mos:explore-trends",
+      "p_irreversible": 0.13,
+      "flag": false,
+      "text_hash": "3928c322bbbe6434791b60650375ac96ac5a722e93a355a4d6b6b7b37e216961"
+    },
+    {
+      "command": "/mos:export",
+      "p_irreversible": 0.97,
+      "flag": true,
+      "text_hash": "9796d418ca4f3768cecddecd894200f809906073bf05559b43941f5aef9ec68d"
+    },
+    {
+      "command": "/mos:feynman-timeline-refresh",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "3f344fd0df10ea3c0f095d6655303c9d76a18d76fc50897e6cd44b24f6899ec2"
+    },
+    {
+      "command": "/mos:file-meeting",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "31e9b7ac4e2dff23bafd554649538c40ded17934eb0700431fbb6cfdfb031957"
+    },
+    {
+      "command": "/mos:find-analogies",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "a774df924e720a7aa6806b2d9821a084b14ed85b6bac96bf6d5671c88abe05d3"
+    },
+    {
+      "command": "/mos:find-bottlenecks",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "c837eae8a51b949888e4d80970fafd0cac329f26a948414beda6aed10c036bfb"
+    },
+    {
+      "command": "/mos:find-connections",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "3b42d4a8d92e5647e017c00437c47bcd2673deedc222c06033f018b922539405"
+    },
+    {
+      "command": "/mos:funding",
+      "p_irreversible": 0.12,
+      "flag": false,
+      "text_hash": "fa7f0b49e0cc5097c14542fa4eb6788f9c17083608ab7d64b0c653df63db6c83"
+    },
+    {
+      "command": "/mos:futures",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "f2e631c7ce7aff2549ed203d74d1b47cc2753433bddcb8ff0f3f4084c0493d44"
+    },
+    {
+      "command": "/mos:grade",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "df89e74a5a5b54ef2ac4d40535a42d99b0b9dd50157d7c6e9dab2d52bcdc43c9"
+    },
+    {
+      "command": "/mos:grade-grant",
+      "p_irreversible": 0.12,
+      "flag": false,
+      "text_hash": "0e13832529992fe9162b01d9cefbe2d41c4170b402e85bb6eb9d36593d1a1ad7"
+    },
+    {
+      "command": "/mos:graph",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "f95e749aba58d126c40612d1fee2a50956a7209a403ae025defe9fd2bb352829"
+    },
+    {
+      "command": "/mos:hat-briefing",
+      "p_irreversible": 0.14,
+      "flag": false,
+      "text_hash": "aa71a3a4c50455c8ac53a286fb38f554b24c814091a042fc907f6f7ba5020522"
+    },
+    {
+      "command": "/mos:heal",
+      "p_irreversible": 0.47,
+      "flag": true,
+      "text_hash": "d581a44ebd0f908512ae41c3f42a1c17d9febd74344af064fcdc3e0a31db922b"
+    },
+    {
+      "command": "/mos:help",
+      "p_irreversible": 0.05,
+      "flag": false,
+      "text_hash": "1b55de714411a26cbf3f2bd73b2f372d2ba677f9ed8b623c63c2698d8c525154"
+    },
+    {
+      "command": "/mos:hmi-status",
+      "p_irreversible": 0.12,
+      "flag": false,
+      "text_hash": "45c18cb4eccaf726d6153b9339e18610cc43ede8b4be6fb9ddc33a398da174c4"
+    },
+    {
+      "command": "/mos:ignite",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "c5bf53a9c2c39886e5d9103c3d04a39a186c1c4c50f6cadb3bf64d7fd4c6d13f"
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "p_irreversible": 0.36,
+      "flag": true,
+      "text_hash": "b5835be9b0b5ba1cf61ca8c2c76c0dce4ef33be2f923ade9d87390593e924d16"
+    },
+    {
+      "command": "/mos:intel-pipeline",
+      "p_irreversible": 0.14,
+      "flag": false,
+      "text_hash": "d6d52c0b3b6d3ceba9550efde70a56c20fbfe8e0c522524cecfa4b145b1392be"
+    },
+    {
+      "command": "/mos:jtbd",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "f219db3c22ff51266ea632431dd469105fa19348d10e5997ac35cc6d88c347c7"
+    },
+    {
+      "command": "/mos:leadership",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "a953e9c10e81c55da7a81b50ad1824673c3349b2380b6b8b4138ebc98a66bd6e"
+    },
+    {
+      "command": "/mos:lean-canvas",
+      "p_irreversible": 0.21,
+      "flag": false,
+      "text_hash": "3636d3074fa608c3a2567a363eb5df35dc866dbf6e89387bdd1e2b4346f433d5"
+    },
+    {
+      "command": "/mos:macro-trends",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "504ca2b6a4ded1b23ce72849dad62d5f08ad8ea7fddd3e004a4872ab794f58ec"
+    },
+    {
+      "command": "/mos:map-unknowns",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "197be28dc2be30992926ab8e6e4398d3129b3715188ccd5b23d183a8d1f7403c"
+    },
+    {
+      "command": "/mos:memory",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "40078c0278b62d1c4fe567c22ae58793c615b87a025fe21621ff88147b66b28d"
+    },
+    {
+      "command": "/mos:memory-cortex-reach",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "9ea6ccfe9f64f187a4c4883ae887bf195af97bbc611a6bbe90bdf1f766716c35"
+    },
+    {
+      "command": "/mos:models",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "018f676f37172f93db5f162c85757e24a68bb607ba531b3b690679fdaf26c6ce"
+    },
+    {
+      "command": "/mos:mos",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "5e0d6827e8a5743633831f432b63b038dbc58e5c03636cca28a043ef1b1d3b02"
+    },
+    {
+      "command": "/mos:mos-reason",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "89abe25911b8cd47df2b1d632d0bb554fb540ad9076ec5fd6fb1025b154145ac"
+    },
+    {
+      "command": "/mos:mullins",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "174802dc96279d65c9b9b0623e57b9d0833e3f369a6dcdf9c3de2146b80d014f"
+    },
+    {
+      "command": "/mos:mva-brief",
+      "p_irreversible": 0.88,
+      "flag": true,
+      "text_hash": "83a232f7cb4ce173a866c15b47ea9ab72bcdf358cb393c65b5dea41480f4bd82"
+    },
+    {
+      "command": "/mos:mva-option",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "1ad9324e160a655bc6737305458d95f7c1c6fbb4b13e03995c60859446a5cd67"
+    },
+    {
+      "command": "/mos:mva-report",
+      "p_irreversible": 0.25,
+      "flag": true,
+      "text_hash": "63abd5bfbd12176a0e6dfb8de9622f9bc42d2ccd00cfc2ac6c1cb153db5b1c21"
+    },
+    {
+      "command": "/mos:new-project",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "15a80f504a43d6b59389a4aa1d343d002872d7c32368a26a1cb89e23d66a768b"
+    },
+    {
+      "command": "/mos:new-surface",
+      "p_irreversible": 0.23,
+      "flag": true,
+      "text_hash": "ace780d4de420fa5ddb1b8ae285f22dcb41e0dcdf6b1e180a26e70d35c8c2818"
+    },
+    {
+      "command": "/mos:onboard",
+      "p_irreversible": 0.12,
+      "flag": false,
+      "text_hash": "7e1995ad273a81223458444c91895ecae8348d15687b8cf1c40f016986599c79"
+    },
+    {
+      "command": "/mos:operator",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "f6a10d427aa3e3a40b68b74ff453eb166587544c94d91effb50a68e78d59ef73"
+    },
+    {
+      "command": "/mos:opportunities",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "26e9990e4e065576bb040c4761f6e76c65ca0da3877c001651acc518879cc226"
+    },
+    {
+      "command": "/mos:organize",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "bf46b0b827f2dfef466211161edcef923a571f32be3bd54fe36d3d92806b98e8"
+    },
+    {
+      "command": "/mos:persona",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "65f15ef747cf57baa1869487f884323377bbb258bb3d8c6f8632fe8ae2f33b08"
+    },
+    {
+      "command": "/mos:pipeline",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "cf63f9d614f00c85ac39963bb6ba573fc36e6d7eeaf2b352024609bc822e3fb5"
+    },
+    {
+      "command": "/mos:present",
+      "p_irreversible": 0.96,
+      "flag": true,
+      "text_hash": "dddc887db9269e853a39d2bf9c7db93fa5ec029d182d5c4fc33ca162d16a79a0"
+    },
+    {
+      "command": "/mos:publish",
+      "p_irreversible": 0.98,
+      "flag": true,
+      "text_hash": "1a60c8e0c009e9cce1586bc1f2f0e6aba64400d01ed8ec536cb2510521d84a5e"
+    },
+    {
+      "command": "/mos:pws-brain",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "86db9c577a034a575d78852896e1742625d31f9ecbf0b5620ca4c8cd878cda6e"
+    },
+    {
+      "command": "/mos:qualify-opportunity",
+      "p_irreversible": 0.13,
+      "flag": false,
+      "text_hash": "3ac9040ca14e89bf4de07ebe76926f132fe509dcb4d7c9f5c67b99f9031047f1"
+    },
+    {
+      "command": "/mos:query",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "9ccaec417b99ee5e0d0c1b2439a7a81a59ee34eb2cf5c5de0301a1148e46fe20"
+    },
+    {
+      "command": "/mos:radar",
+      "p_irreversible": 0.18,
+      "flag": false,
+      "text_hash": "6368f2356297d6367b0990cfd53f24eb29555e916227cd2a9ce7c2f69e8dd352"
+    },
+    {
+      "command": "/mos:reanalyze",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "1ee2d15afe452c711f6e1ed68f998c84424b72ff9fb8c798235249b36a5686b5"
+    },
+    {
+      "command": "/mos:research",
+      "p_irreversible": 0.3,
+      "flag": true,
+      "text_hash": "5c675d3cc8a3bcae3d5f1732d1ae25ff09e50539ae4798b559ebc52d95f2866f"
+    },
+    {
+      "command": "/mos:room",
+      "p_irreversible": 0.05,
+      "flag": false,
+      "text_hash": "088cb0a92af029c9cc18182f4dd480b2658bf3f0b3453417396383da165d1fed"
+    },
+    {
+      "command": "/mos:rooms",
+      "p_irreversible": 0.13,
+      "flag": false,
+      "text_hash": "a330c09aecfce6fe1f3ddeba957ba830fe46f341769f78e2c4164482e93a5b29"
+    },
+    {
+      "command": "/mos:root-cause",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "39deeb945683d927e0d001d536fb4e06b099e08fcd827af2287619624bfaebbd"
+    },
+    {
+      "command": "/mos:rs-experts",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "6318723126f7084c82cd5400854bccff0f662f4fa446c54170d29565ad58cc74"
+    },
+    {
+      "command": "/mos:rs-explain",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "80ed6010a374b05c1690d41433bcc0688495535ea27a352b171f560d040a858e"
+    },
+    {
+      "command": "/mos:rs-fetch",
+      "p_irreversible": 0.04,
+      "flag": false,
+      "text_hash": "684816aadbf3298748e4fd85a84cd10efe7688d375cd700d1fb60e53e320e6de"
+    },
+    {
+      "command": "/mos:rs-thesis",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "71ca142a38da37489ca8062c339d17b820e8c5d6bd15f196b225f4cc61e406d5"
+    },
+    {
+      "command": "/mos:scenario-plan",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "68255e76bd13f11dc2b8e8795b89a147df667713240adabcdd4f7711d1d5bf42"
+    },
+    {
+      "command": "/mos:scheduled-tasks",
+      "p_irreversible": 0.16,
+      "flag": false,
+      "text_hash": "7eecd1039bf4a4b8d071924016b24d1c40807ce2c7b98765321e69a5de756c22"
+    },
+    {
+      "command": "/mos:score-innovation",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "8d7beec78c3bcdcb1c1a99be057668ca50d6972b1cc8a82a2700f6c524a65321"
+    },
+    {
+      "command": "/mos:scout",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "77dae98d95cc807fdde73d1f6d6510ea4bae7f3d760d2b5bd5a30d90b552ed09"
+    },
+    {
+      "command": "/mos:setup",
+      "p_irreversible": 0.23,
+      "flag": true,
+      "text_hash": "4c264f8481a8f601267f6a025f3e4edec9b14cbafb7b53af4f7bd7fa0a5c43a7"
+    },
+    {
+      "command": "/mos:show",
+      "p_irreversible": 0.25,
+      "flag": true,
+      "text_hash": "c7c3ab90030ceb42a8f2a3254a59ecc01583f25899915cca35f4be952bf750d1"
+    },
+    {
+      "command": "/mos:skill",
+      "p_irreversible": 0.21,
+      "flag": false,
+      "text_hash": "8e23f01f63b8525763a83aaf924dcd6837a1951bcf6c1478ff8c4e37327c5e77"
+    },
+    {
+      "command": "/mos:snapshot",
+      "p_irreversible": 0.97,
+      "flag": true,
+      "text_hash": "164bbccc4029c59613bbbe1ed2733dc7ea6c1c8f6b7d849a05cf516b2857ac2e"
+    },
+    {
+      "command": "/mos:speakers",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "03aa8ec2259409310a6f6f6f0f016cf3cfe6951929f5510e23d2c532bf00b9e3"
+    },
+    {
+      "command": "/mos:splash",
+      "p_irreversible": 0.2,
+      "flag": false,
+      "text_hash": "05805aae72b8e1ff661adfbed4ca093ac88b9813313542511206bb5bc562522d"
+    },
+    {
+      "command": "/mos:stance",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "f1fd532e5c8d6c4360921e69ad58ed645f88076ebb33f9032f24461cdb9346e7"
+    },
+    {
+      "command": "/mos:status",
+      "p_irreversible": 0.05,
+      "flag": false,
+      "text_hash": "79901c77a716072923ecbef886b0d8bb801f07bbf11e9e2719ef26e4d2119fbe"
+    },
+    {
+      "command": "/mos:structure-argument",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "56cfb268d6337898022a9e2e773f56dd151a6e0c5eb816f417ddd80e71b81a47"
+    },
+    {
+      "command": "/mos:suggest-next",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "f573e5a4a1f26f1c3afa2a6dee7b90568848be6b0542cfe9db56eebc6bcaff61"
+    },
+    {
+      "command": "/mos:systems-thinking",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "62a6e16ab7d5c319a582347f0bda2a6ba4e68c9769c3828e2eac4c662098a66e"
+    },
+    {
+      "command": "/mos:think-hats",
+      "p_irreversible": 0.06,
+      "flag": false,
+      "text_hash": "ed804a0a7c7dcca0f11d5b611f48044f77be9722cbe8513a87963ac3ea243196"
+    },
+    {
+      "command": "/mos:trending-to-absurd",
+      "p_irreversible": 0.11,
+      "flag": false,
+      "text_hash": "f20dba99ffb69cfc7a77989cae0355c7e6869c0c9c2447137da88b22f7eceb0e"
+    },
+    {
+      "command": "/mos:update",
+      "p_irreversible": 0.98,
+      "flag": true,
+      "text_hash": "4fc92c6e1262b69ddf47cea0e3ff05961446817ec5bcf84128b00ee107f924db"
+    },
+    {
+      "command": "/mos:user-needs",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "1eaf1627c937a0823230879643126d8de19feaf3d7edce7e839e30127d84d625"
+    },
+    {
+      "command": "/mos:validate",
+      "p_irreversible": 0.09,
+      "flag": false,
+      "text_hash": "66f2e9c13ffd92748fa29692371bf6025e9f11fefced2115c0ed6458d128a770"
+    },
+    {
+      "command": "/mos:validate-proposition",
+      "p_irreversible": 0.07,
+      "flag": false,
+      "text_hash": "a1252e2244f13445b1ffc8e72b853f52e2b77dec95c7e9547918807a29bd4097"
+    },
+    {
+      "command": "/mos:vault",
+      "p_irreversible": 0.05,
+      "flag": false,
+      "text_hash": "acd2964767b2ad3237a48816c12cd92e877a9e23ddfececfef1d998b4daa5189"
+    },
+    {
+      "command": "/mos:visualize",
+      "p_irreversible": 0.1,
+      "flag": false,
+      "text_hash": "ea743ce683fff84f0e66a64bec18f787b0b59ce2ebecb66a5403a60944c0e84e"
+    },
+    {
+      "command": "/mos:whitespace",
+      "p_irreversible": 0.08,
+      "flag": false,
+      "text_hash": "9a9bd66096007f1e1e093c4c5b9c24b6e6758d1dc76c2731f1923a2ea4ca68eb"
+    },
+    {
+      "command": "/mos:wiki",
+      "p_irreversible": 0.04,
+      "flag": false,
+      "text_hash": "85b5a859387ccf3a469f2515097d94b151a417faf950c15788b0b7e8e2cad6a5"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+command-irreversibility-ledger: wrote 113 entries, T=0.23, false alarms=4, mode=jev-live, model=jev-1.13.0
