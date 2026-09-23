@@ -3222,75 +3222,81 @@ proposed family as amended by the navigator rulings D-11..D-17 in `361-CONTEXT.m
 registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
 stated reason, at phase close by `361-08-PLAN.md` Task 3.
 
-- [ ] **DDR361-01**: A new read-only agent `agents/dominant-design-researcher.md` answers ONE
+- [x] **DDR361-01**: A new read-only agent `agents/dominant-design-researcher.md` answers ONE
       evidence lane per invocation, runs exactly the gate-approved query string(s) and never
       composes, rephrases or expands one (D-03, D-04), returns structured JSON only, and is
       host-restricted by a `tools:` list mirrored byte-identically under `allowed-tools:` (two
       Tavily search names, WebSearch, Read; no Write, Edit, Bash, Task, Agent or Brain tool), with
       `connector.excluded: true` plus a reason and no `hitl_shape` (D-17). Plan 361-04.
 
-- [ ] **DDR361-02**: One deterministic composer (`lib/core/dominant-design/lane-queries.cjs`)
+- [x] **DDR361-02**: One deterministic composer (`lib/core/dominant-design/lane-queries.cjs`)
       produces the four lane queries from the navigator's generic domain phrase and audits every
       string, and every navigator edit, through `auditQueryString` before it can reach the gate
       card; an audit failure degrades to local-only with no send-anyway path. Plans 361-03, 361-06.
 
-- [ ] **DDR361-03**: No researcher agent is dispatched before the navigator approves the gate card;
+- [x] **DDR361-03**: No researcher agent is dispatched before the navigator approves the gate card;
       the navigator can edit or drop lanes; an unattended or chain-driven run always takes the
       quick pass and never researches (D-03, D-12). Plan 361-07.
 
-- [ ] **DDR361-04**: Approved lanes fan out in parallel, one agent per lane, at most 4 agents and
+- [x] **DDR361-04**: Approved lanes fan out in parallel, one agent per lane, at most 4 agents and
       at most 2 approved queries per lane, exactly one `tavily-search` call per query with fixed
       parameters (`search_depth: basic`, `topic: general`, `max_results: 10`), `WebSearch` with the
       identical string only as the fallback, no `tavily-extract`; Desktop and Cowork say plainly
       that the research pass runs in Claude Code (D-05). Plans 361-03, 361-07.
 
-- [ ] **DDR361-05**: Every returned claim row is validated to the D-06 minimum `{claim, source_url,
+- [x] **DDR361-05**: Every returned claim row is validated to the D-06 minimum `{claim, source_url,
       source_title, retrieved_at, quote_or_locator}` plus a named source type (D-13); a row missing
       any field or carrying a non-http(s) URL is dropped and counted, never hedged; a row carrying
       a score, confidence, strength, probability or rank key is dropped; a lane whose echoed
       queries differ from the approved ones is refused as `query_mismatch`. Plans 361-03, 361-06.
 
-- [ ] **DDR361-06**: After the navigator's approval, one evidence artifact per approved lane is
+- [x] **DDR361-06**: After the navigator's approval, one evidence artifact per approved lane is
       written under `competitive-analysis/dominant-designs/`, including an explicit empty-lane
       artifact whose `## Searched, not found` list names what was searched (D-07); a dropped lane
       writes nothing and the analysis names it as not run. Plans 361-03, 361-06, 361-07.
 
-- [ ] **DDR361-07**: Each lane's sourced rows file through `navigation.fileEvidenceWithReadback`
+- [x] **DDR361-07**: Each lane's sourced rows file through `navigation.fileEvidenceWithReadback`
       (one EvidenceClaim per unique URL per lane, a per-lane session suffix, the evidence tier
       assigned in code per D-13, landing `proposed`), and each lane's readback (landed, or not
       landed with the reason) is shown to the navigator; an absent room.db is said plainly. Plans
       361-03, 361-06, 361-07.
 
-- [ ] **DDR361-08**: Larry's six-phase analysis artifact (the reference file's template) cites an
+- [x] **DDR361-08**: Larry's six-phase analysis artifact (the reference file's template) cites an
       evidence row id for every factual statement, states no score or dominance number that no
       evidence row states, and records `structure_source` and `structure_source_reason` (D-07,
       D-09). Plan 361-07.
 
-- [ ] **DDR361-09**: The Dominant Design structure is read from Theo (`framework_step`,
+- [x] **DDR361-09**: The Dominant Design structure is read from Theo (`framework_step`,
       `framework_techniques`, `case_story`) with ONLY `{framework: "Dominant Design"}` and falls
       back to the local reference on brain unavailable, egress blocked, not served (detected by the
       text `Tool X not found`, never by -32602 alone), shape refused, or served with zero steps,
       naming the source and the reason (D-09, D-15, D-16). Plans 361-05, 361-06, 361-08.
 
-- [ ] **DDR361-10**: `_proveKnownToolShape` gains three separate arms (`framework_step`,
+- [x] **DDR361-10**: `_proveKnownToolShape` gains three separate arms (`framework_step`,
       `framework_techniques`, `case_story`) after the `recommend_chain` arm, proving exact keys and
       a canonical framework handle; no 361 commit changes the `find_connections` arm; Theo
       input-shape parity is tested read-only against the Theo checkout (D-10, D-14, D-15). Plans
       361-02, 361-08.
 
-- [ ] **DDR361-11**: Frontmatter truth: `connector.web_scope: white`, `Task` pre-approved with an
+- [x] **DDR361-11**: Frontmatter truth: `connector.web_scope: white`, `Task` pre-approved with an
       adjacent pre-approval comment and a reviewed grant row in
       `data/subagent-dispatch-grants.json` (pending until the navigator ratifies), `teaching` names
       the research mode, `autonomous_safe` stays true; the command registry, connector registry,
       coverage ledger, skill mirror and orchestration projection regenerate and every `--check` is
       green; `scripts/build-command-registry.cjs`'s schema is unchanged (D-01, D-11, D-12). Plans
-      361-04, 361-07, 361-08.
+      361-04, 361-07, 361-08. Closed: the navigator ratified the grant on 2026-09-23 (361-08 Task 2,
+      recorded in 361-LIVE-EVIDENCE.md); the row's status moved pending -> granted with
+      `ratified_date: 2026-09-23`, `ratified_in: 361-08`; `tests/test-265-swarm-task-grant.cjs`
+      passes both the default and `TEST_265_GRANTS_STRICT=1` runs.
 
-- [ ] **DDR361-12**: The `/mos:dominant-designs` command-registry row changes, so `registryHash`
+- [x] **DDR361-12**: The `/mos:dominant-designs` command-registry row changes, so `registryHash`
       moves, and the phase records that the next real release's Step 5.6 `theo-resync` dispatch
-      carries it; the phase sends no notify itself (D-01, D-11). Plans 361-07, 361-08.
+      carries it; the phase sends no notify itself (D-01, D-11). Plans 361-07, 361-08. Closed: the
+      hash moved from `43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8` to
+      `c6150a8e09b42d6c2b67b4eef6ce40d780bb7d570d06ccb6bd4b6efaf35ac3bc` (361-07-SUMMARY.md); the
+      notify rides the next real release's Step 5.6 theo-resync; this phase sent none.
 
-- [ ] **DDR361-13**: The quick pass behaves exactly as today: the Setup steps and the quick-pass
+- [x] **DDR361-13**: The quick pass behaves exactly as today: the Setup steps and the quick-pass
       flow text are byte-identical to the pre-phase command, and the quick pass calls no composer,
       no Theo tool and no agent. Plans 361-01, 361-07.
 
