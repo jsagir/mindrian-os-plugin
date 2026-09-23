@@ -314,3 +314,49 @@ In short, a harness message was treated as a human turn.
 
 *Phase: 357-gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re*
 *Context gathered: 2026-09-23*
+
+<post_research_rulings>
+## Navigator rulings after research (2026-09-23; supersede the decisions they name)
+
+- **R-A (amends D-07): the V3 carve-out is APPROVED.**
+  - A preceding record is `'harness'` when it has `isMeta: true`, OR when its `origin.kind` is not `'human'`
+    and it leads with a known harness tag.
+  - EXCEPTION: an `isMeta` record whose immediately previous record is human-typed (a Skill body or image
+    placeholder right after a human prompt) is NOT harness.
+  - Tag list per RESEARCH Finding 4: `<task-notification` gated on origin, plus the observed peer and idle
+    notice framing. Drop `<agent-message`, `<cross-session-message` and `[SYSTEM NOTIFICATION`, which have
+    0 stored occurrences.
+  - Measured: 65 block->pass flips, 0 pass->block flips, 0 human-upstream flips.
+- **R-B (amends D-16 / SPEC R6): SKILL :244 is DROPPED from the shrink set.** It is the Voice Signature
+  residual, pinned by `tests/test-larry-voice-mark-182.cjs`. The 50% target applies to the two real card
+  spans only (larry-extended "## Decision Gates" 1751 B + SKILL :216 479 B = 2230 B -> <=1115 B). These phrases
+  must survive: `## Decision Gates`, `no card, no picture (SEED-021)`, `AskUserQuestion`. Regenerate
+  `data/harness-manifest.json`.
+- **R-C (amends SPEC R4 bar): the 09:20 case (session 0f86dd63) is labeled at the D-06 checkpoint.**
+  - If it is labeled a false block that no deterministic rule can clear, it is recorded as
+    `known_false_block` with a text-dependence reason and excluded from the 0-false-block count.
+  - A follow-on phase is opened for it.
+  - The 0 bar holds for every code-fixable case.
+- **R-D (evidence snapshot, done 2026-09-23):**
+  - Location: `~/.cache/mindrian-dev/357-raw/` (mode 700, outside the repo, local only), with `SHA256SUMS`.
+  - Contents: the intercept log plus sessions 56924067, 0f86dd63, 0208790f and 21829408.
+  - The extractor reads from this snapshot, not from the live paths.
+- **R-E (anchor correction, per RESEARCH Finding 3):** fixture (c)#1 models the F.8 room-bind gate minted on
+  the hand-back turn. It does NOT model the F.1 fleet-census reach, which was already consumed at 08:49.
+- **R-F (D-08a fix direction):** extend the `GATE_BOILERPLATE_TOKENS` precedent (893cee043) with frozen
+  F.1 dial-chrome tokens derived from `lib/hmi/dial-presenter.cjs` static template strings, not from
+  frequency. Add a drift test. Cite `live-2026-09-23-02`.
+- **R-G (shared guard):** agreed with jsagi-a7. Whoever extracts `scripts/jev-devtime-client.cjs` adds two
+  optional profile fields, `max_len_by_key` and `must_equal_file`, keeping refuse-don't-strip and an error
+  that names the key.
+- **R-H (MCP hermeticity):** replay sets `MINDRIAN_ROOMS_HOME` to an empty temp dir and calls `_resetForTest()`
+  per entry. A test asserts `business.room_dir === null`. Parity compares verdict CLASS, since an MCP block
+  carries no reason string.
+- **R-I (envelope modes):** live and dogfood entries use transcript mode, with the transcript and side channel
+  seeded, so the D-07 path is exercised. Direct fields apply only to synthetic entries.
+  `replay-card-fire.cjs --code-root <dir>` runs the corpus against a `git archive` of the pre-phase commit
+  (for R2 and R7).
+- **R-J (standing gate):** R7 asserts on the replay leg's own exit code plus `run-all-357.sh`. Also add the
+  leg to `run-all-238.sh`. Pre-existing reds in 179/209/238/relevance-gate are recorded as known, not
+  fixed in 357.
+</post_research_rulings>

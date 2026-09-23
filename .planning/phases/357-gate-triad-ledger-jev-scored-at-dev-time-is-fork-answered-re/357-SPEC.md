@@ -217,3 +217,11 @@ shrinks only after that bar is met.
 *Spec created: 2026-09-23*
 *Next step: /gsd-discuss-phase 357 - implementation decisions (fixture format, the minimal fix's shape, labeler
 question wording)*
+
+## Amendments (navigator, 2026-09-23, post-research)
+
+- R4 bar: `known_false_block` entries (text-dependent, labeled at the D-06 checkpoint) are excluded from the
+  0-false-block count. See 357-CONTEXT R-C.
+- R6: the shrink set is the two real card spans only (2230 B, 50% target is <=1115 B). SKILL :244 is out.
+  See R-B.
+- R3 labeler, R2 harness, R5 parity: follow 357-CONTEXT R-G, R-H and R-I.
