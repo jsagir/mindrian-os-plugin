@@ -1097,13 +1097,48 @@ Plans:
 ### Phase 359: Missed-fork detection: Larry poses a genuine decision in prose and no card fires (CLI), measured on the 357 replay corpus
 
 **Goal:** When Larry poses a genuine decision in prose ("research first, or build the plan?") with no numbered options, no ASCII box and no hook-reached registry gate, `scripts/check-card-fire.cjs` has no signal and no card fires. SPEC 357 names this class out of scope (known_miss, intern-w1). Measure it first: count missed forks in the 357 replay corpus and the navigator-labeled dogfood set. Then pick a deterministic fix. Leading candidate: Larry emits a structured, machine-readable choice trailer that the Stop hook can check, instead of the hook guessing from text. Part 8 and the 2026-09-17 rulings still hold: no runtime Jev, no user text to Jev. Jev may label synthetic fixtures at dev time (the 357 teacher/student pattern).
-**Requirements**: TBD (minted at spec time)
-**Depends on:** Phase 357 (replay corpus, harness and the D-06 dogfood labels are the measurement instrument)
-**Plans:** 0 plans
+**Goal note:** superseded by `359-SPEC.md` and the navigator rulings N-1..N-6 in `359-CONTEXT.md`: the hook never guesses a fork from free text. Larry declares a prose fork himself on his last line, `Your call: A | B | What if C` (visible; 2 or 3 practical options, then one relevant, radical What-if moonshot), and the Stop hook and the MCP `stop_gate_check` read only that line. Measured three ways: 0 verdict changes on the 357 corpus, 100% declared-variant catch with 0 control false blocks, and a navigator-gated Sonnet 5 forward run (USD 0.40 per run, USD 60 total) that must cut forward missed forks by at least half above a vacuity floor, or the R8 prose is reverted and a follow-on opens.
+**Requirements**: FORK359-01..10 (minted at plan time 2026-09-23; registered in `.planning/REQUIREMENTS.md`; one per SPEC R1-R10)
+**Depends on:** Phase 357 (replay corpus, harness, labeler and card_fire_replay profile, the D-06 dogfood labels, the 357-10 prose shrink); execution HALTS at 359-01 until every 357 SUMMARY (01-10) is on main with R4 MET (D-17)
+**Plans:** 12 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 359 to break down)
+**Wave 1**
+
+- [ ] 359-01-PLAN.md -- FORK359-03, -05: 357 completeness gate and shipped-contract capture, pre-359 anchor and verdict snapshot, the inertness gate, the N-3 declaration parser, normalizeOptionLabel export
+
+**Wave 2** *(depends on 359-01)*
+
+- [ ] 359-02-PLAN.md -- FORK359-01: synthetic prose-fork and control fixture (15/15, N-3 labels), dogfood fork-label overlay and review sheet, opt-in synthetic-359 loader source, labeler source
+- [ ] 359-03-PLAN.md -- FORK359-04, -05, -07: declared arm in classifyCardFire, this-turn declaration source, decl retry key, R5 tripwires, MCP card from declared labels and per-fork dedup
+- [ ] 359-04-PLAN.md -- FORK359-09, -01: fork359_moonshot Score policies and egress profile, dev-only moonshot scorer (synthetic text only)
+- [ ] 359-05-PLAN.md -- FORK359-09: authored forward scenarios, deny-all permission probe, dev-only forward harness proven offline
+
+**Wave 3**
+
+- [ ] 359-06-PLAN.md -- FORK359-01, -09: dev-time is_fork labels and moonshot scores, the single navigator checkpoint (dogfood labels, Jev disagreements, I-1 and I-2 interpretations) *(non-autonomous)*
+- [ ] 359-07-PLAN.md -- FORK359-02, -05, -06, -07: replay fork359 metrics, declared variants, MCP payload parity, git:<sha> code root, write-359 baseline mode, replay test
+
+**Wave 4**
+
+- [ ] 359-08-PLAN.md -- FORK359-02, -05, -06, -10: baseline-359 from the pre-359 commit, M1/M2 mutation legs, dev-only tripwire, run-all-359 and run-all-238 legs, VALIDATION sign-off
+
+**Wave 5**
+
+- [ ] 359-09-PLAN.md -- FORK359-08: R8 declaration rule on the two Larry spans, the doctrine and the MCP instructions (400 B net), prose-budget test, manifest regen, one revertible commit
+
+**Wave 6**
+
+- [ ] 359-10-PLAN.md -- FORK359-09: navigator-gated smoke run, A1-A9 verification, probe or text mode, measured cost projection *(non-autonomous)*
+
+**Wave 7**
+
+- [ ] 359-11-PLAN.md -- FORK359-09, -08: navigator-gated forward batch, floor-guarded verdict, falsification branch (revert R8, open follow-on), forward moonshot scores *(non-autonomous)*
+
+**Wave 8**
+
+- [ ] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
 
 ### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
 

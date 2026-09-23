@@ -3044,6 +3044,67 @@ is superseded by `357-SPEC.md`: there is no runtime ledger.
       with verdict preservation, never sent to Jev, and ratified by the navigator at the single
       human checkpoint (including the R-C 09:20 case). Plans 357-06, 357-08.
 
+### Phase 359 - Missed-fork declaration (FORK359 family)
+
+FORK359-01..10 were minted in the Phase 359 plan set (2026-09-23), one per `359-SPEC.md` requirement
+R1-R10 in the same order, ratifying `359-RESEARCH.md`'s proposed IDs as amended by the navigator
+rulings N-1..N-6 in `359-CONTEXT.md` (N-3: every declaration ends with a `What if` moonshot, so a
+declaration carries 3 to 4 labels). All ten are scoped to Phase 359 only and are registered here at
+plan time as `- [ ]` rows to be closed with measured proof, or left open with a stated reason, at
+phase close by `359-12-PLAN.md` Task 1. Execution is held until Phase 357 is complete on `main`,
+including 357-10 (D-17).
+
+- [ ] **FORK359-01**: The replay corpus carries a prose_fork / fork_labels dimension:
+      `prose-forks-359.json` holds at least 15 synthetic prose forks and at least 15 non-fork
+      controls as an opt-in `synthetic-359` source (357's default load unchanged), every prose fork
+      has at least 2 fork_labels in the N-3 grammar, the synthetic entries are labeled through 357's
+      labeler and card_fire_replay profile, and the 357 dogfood entries carry navigator-ratified
+      prose_fork labels while the labeler still refuses dogfood. Plans 359-02, 359-06.
+
+- [ ] **FORK359-02**: The replay reports `fork359.missed_forks` (prose fork, no card, verdict pass);
+      the pre-359 value, equal to the no-card prose-fork count on pre-359 code, is written to
+      `baseline-359.json` through `--code-root git:<pre-359 sha>` and recorded in the SUMMARY.
+      Plans 359-07, 359-08.
+
+- [ ] **FORK359-03**: `lib/core/fork-declaration.cjs` exports a pure `parseForkDeclaration` that
+      accepts only a last-line `Your call: p1 | p2[ | p3] | What if m` declaration (2 or 3 practical
+      labels plus one final What-if moonshot, at most 80 code points per label, no brackets, no voice
+      glyph, no box literal), makes no network call and never throws. Plan 359-01.
+
+- [ ] **FORK359-04**: `classifyCardFire` gains a declared arm fed by `deriveTurnSignals` from this
+      turn's final text: card-fired first, both ceilings degrade with today's reason strings,
+      yes/no-shaped practical labels pass as `gate-is-simple-binary`, otherwise intercept
+      `declared-fork-no-card`; the retry key includes the declared labels and the calm block envelope
+      is unchanged. Plan 359-03.
+
+- [ ] **FORK359-05**: The arm is inert on the 357 corpus: 0 verdict class or reason changes versus
+      the pre-359 snapshot, false_blocks 0 and new_misses 0, both box regex literals byte-identical,
+      and `classifyCardFire` reads output text only through the pre-359 helpers plus the declaration
+      parser. Plans 359-01, 359-03, 359-07, 359-08.
+
+- [ ] **FORK359-06**: Declared variants of every prose fork are caught at 100% (yes/no practical
+      pairs reported separately as `gate-is-simple-binary`), with `control_false_blocks` 0 and 0
+      missed forks on the declared variants. Plans 359-07, 359-08.
+
+- [ ] **FORK359-07**: CLI and MCP verdict classes match on every R5 and R6 entry (dedup excluded),
+      the MCP card options equal the declared labels with the moonshot last, and two distinct
+      declared forks in one MCP session both fire. Plans 359-03, 359-07.
+
+- [ ] **FORK359-08**: Larry's declaration rule lands on the two Larry card spans, the session-start
+      card-fire doctrine and the MCP server instructions in one revertible commit, at most 400 B net
+      (N-6), with the 357 pinned phrases, the doctrine and MCP byte pins, the voice-mark and handoff
+      tests green and the harness manifest regenerated. Plan 359-09.
+
+- [ ] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 60
+      in total, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
+      pre-change above the vacuity floor with 0 control blocks, or records INCONCLUSIVE, or records
+      the falsification with R8 reverted and a follow-on opened; moonshots are Jev-scored at dev time
+      on synthetic text only (N-3, N-4). Plans 359-04, 359-05, 359-10, 359-11.
+
+- [ ] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
+      declared-variant replay run in `tests/run-all-359.sh` and `tests/run-all-238.sh`, and removing
+      the declared arm or adding a free-text fork regex each fails the suite. Plan 359-08.
+
 ### Phase 360 - Room-bind picker on harness turns and in dev repos (BIND360 family)
 
 BIND360-01..09 were minted in the Phase 360 plan set (2026-09-23), one per `360-SPEC.md` requirement
@@ -3111,7 +3172,7 @@ origin and no isMeta.
 
 ## Traceability
 
-350 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+360 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3121,7 +3182,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
-BIND360-01..11 (Phase 360). All minted
+FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3196,15 +3257,19 @@ minted in the Phase 354 plan set (2026-09-23) for newly discovered findings, and
 minted post-planning (2026-09-23, navigator-directed) for the raw-theo-MCP egress-guard-bypass
 exposure; all thirteen are registered here at plan time as `- [ ]` rows to be closed with measured
 proof, or left open with a stated reason, at phase close by `354-16-PLAN.md` Task 3.
+FORK359-01..10 were minted in the Phase 359 plan set (2026-09-23), one per `359-SPEC.md` requirement,
+ratifying `359-RESEARCH.md`'s proposed IDs as amended by the navigator rulings N-1..N-6 in
+`359-CONTEXT.md`; all ten are registered here at plan time as `- [ ]` rows to be closed with measured
+proof, or left open with a stated reason, at phase close by `359-12-PLAN.md` Task 1.
 BIND360-01..09 were minted in the Phase 360 plan set (2026-09-23), one per `360-SPEC.md` requirement,
 ratifying `360-RESEARCH.md`'s proposed IDs, and BIND360-10..11 were minted at the same time for the
 navigator rulings N-1 and N-2 (SPEC Amendments R10 and R11); all eleven are registered here at plan
 time as `- [ ]` rows to be closed with measured proof, or left open with a stated reason, at phase
 close by `360-08-PLAN.md` Task 1.
-Roadmap phases must map all 350 active requirements with no orphans.
+Roadmap phases must map all 360 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357 and BIND360
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359 and BIND360
 families
 alike (the
 Phase 266 and 269
