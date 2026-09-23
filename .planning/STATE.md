@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
+status: executing
 stopped_at: Completed 354-16-PLAN.md - Phase 354 CLOSED
-last_updated: "2026-09-23T16:51:14.920Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 16 (close-out) execution completed, Phase 354 CLOSED
+last_updated: "2026-09-23T16:54:11.660Z"
+last_activity: 2026-09-23 -- Phase 355 recorded as PLANNED (28 plans, 11 waves) after Phase 354 CLOSED; 355 execution starts next session
 progress:
   total_phases: 111
   completed_phases: 37
@@ -13,6 +13,17 @@ progress:
   completed_plans: 327
   percent: 83
 ---
+
+<!-- NOTE (355 planned-phase record, jsagi-d9, 2026-09-23, resync-clobber pattern, same class as
+     every other note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.planned-phase --phase 355 --name ... --plans 28` reported updated: ["Status"] only.
+     It flipped the Current Position `Status` line to "Ready to execute", set frontmatter
+     `status: executing`, reverted `last_activity` to the stale 2026-09-17 Phase 353 line and
+     inserted a blank line inside the 354-16 note below; it wrote no "355" anywhere. Hand-corrected:
+     `last_activity` -> the 355 planned line, the blank line removed, Current Position -> Phase 355
+     / Plan 0 of 28 / Ready to execute. `status: executing` left as is (Phases 356, 357, 358 and
+     361 are executing in this milestone). This record was deferred until Phase 354 CLOSED
+     (973deb329) per docs/2026-09-23-HANDOFF-phase-355-planned-continue.md step 2. -->
 
 <!-- NOTE (354-16 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -5330,9 +5341,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 353 (icm-section-ruling-system-self-locating-room-map-jtbd-rooted) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) -- PLANNED
+Plan: 0 of 28
+Status: Ready to execute (Phase 354 CLOSED at 973deb329; start with /gsd-execute-phase 355; six human checkpoints: 02, 03, 14, 15, 24, 25)
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
