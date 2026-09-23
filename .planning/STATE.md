@@ -6870,6 +6870,7 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 357 added (2026-09-23, `/gsd-phase`): "Gate-triad ledger" - Jev scores the Stop-hook card gate's three questions (is-fork / answered / relevant) at dev time over a closed local feature vector, shipped as data; then larry-extended gate prose shrinks to "obey the injected verdict". Navigator picked this over all-14-judgments, reopening the egress ruling, or spike-first. Bounded by the 2026-09-17 rulings (zero user text to Jev, no Jev in hooks).
 - Phase 355 added (2026-09-23, `/gsd-phase`): "Hidden in Plain Sight: Jev-through-Theo
   Cross-Connection Engines" - rethink of RS / HSI / whitespace / Eureka plus the nine
   algorithm-incorporation-devpkg capabilities under one rule: code finds, Jev judges the

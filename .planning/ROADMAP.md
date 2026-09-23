@@ -1010,6 +1010,17 @@ Plans:
 
 - [ ] TBD (run /gsd-spec-phase 356, then /gsd-plan-phase 356 to break down)
 
+### Phase 357: Gate-triad ledger: Jev-scored-at-dev-time is-fork/answered/relevant for the Stop-hook card gate, shipped as data, plus larry-extended gate-prose shrink
+
+**Goal:** Replace the regex + token-overlap guesses in the Stop-hook card gate (`scripts/check-card-fire.cjs` classifyCardFire, `lib/core/gate-relevance.cjs`) with a dev-time ledger. A local, network-free extractor quantizes each turn into a closed feature vector (gate shape, turns-since-gate bucket, prior-turn answer match, topical-overlap bucket, output-ends-in-question, option-list form). `scripts/build-gate-triad-ledger.cjs` enumerates that finite space and asks Jev three Noul per cell (is-fork, already-answered, relevant) with the policy stated in the question. The result ships as `data/gate-triad-ledger.json`, the same pattern as the Phase 353 section-command ledger. A missing or bad ledger falls back to today's heuristics byte-identically. Regression set: the 7 resolved card-fire debug files plus the 2026-09-23 no-fork footer false block. Then shrink larry-extended / larry-personality gate prose to "obey the injected gate verdict" and report the byte delta. Locked by the 2026-09-17 rulings: zero user text to Jev, Jev never in a hook, no live call. Brief: `357-BRIEF.md`.
+**Requirements**: TBD
+**Depends on:** Phase 353 (ledger builder pattern). Sequenced after Phase 354 execution to avoid concurrent edits; shares one Jev client with 354-17 and 356.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 357 to break down)
+
 ### Phase 270: Memory and Context Operator MCP
 
 **Goal:** Navigator observation, 2026-08-27: memory and context in this repo are scattered across many discrete MCP tools (`memory_event`, `graph_write`, `artifact_file`, `room_state_bound`, `graph_query`, `whitespace_scan`...) with no single thing owning the memory lifecycle end to end -- surfaced directly by this session's own finding that `~/.mindrian-user.md` (the promised cross-room "who is this user" file) has zero writers anywhere in the repo despite onboarding prose asserting it exists (Phase 267.1's GAP I-1, now Phase 267.2's W2). Theo's own package.json already frames itself as "MindrianOS's *consolidated* MCP server" for the Brain side -- the room side never got the equivalent treatment. Research this phase's actual shape: does consolidating room-side memory operations into one coherent "operator" surface (rather than many small tools) reduce real friction, or is the current fragmentation load-bearing (e.g. each tool's narrow scope is itself a Part 8 safety property, per `lib/mcp/*` tool descriptions -- verify before assuming consolidation is strictly better)? At minimum this phase should determine: (1) whether the cross-room identity write (Phase 267.2 W2's job) should be built as a first tool under this new operator rather than a one-off function, (2) whether Part 8's Brain-boundary enforcement (currently a documented convention, not a schema-level guarantee) can be made structurally enforced by a memory-operator tool's own input/output schema, and (3) how this interacts with Theo eventually becoming the consolidated Brain-side MCP -- does a room-side "memory operator" mirror that architecture, or is the analogy wrong because Brain content and room content have fundamentally different locality guarantees (Part 8: room data never leaves; Brain content is already remote by design).
