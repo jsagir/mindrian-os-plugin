@@ -201,7 +201,79 @@ function _applyOptionalFields(profile, payload, fileCache) {
       }
     }
   }
+  // string_keys (356-07, additive): every named state key must be a string.
+  if (Array.isArray(profile.string_keys)) {
+    for (const k of profile.string_keys) {
+      if (typeof state[k] !== 'string') {
+        _refuse(profile.id, k, 'egress refused (' + profile.id + '): state.' + k + ' must be a string');
+      }
+    }
+  }
+  // question_max_len (356-07, additive): instructions.question of every
+  // question must be a string no longer than this.
+  if (typeof profile.question_max_len === 'number') {
+    const questions = (payload && typeof payload.questions === 'object' && payload.questions) ? payload.questions : {};
+    for (const qid of Object.keys(questions)) {
+      const q = questions[qid] || {};
+      const questionText = q.instructions && q.instructions.question;
+      if (typeof questionText !== 'string' || questionText.length > profile.question_max_len) {
+        _refuse(profile.id, qid + '.instructions.question',
+          'egress refused (' + profile.id + '): question ' + qid + ' instructions.question exceeds ' + profile.question_max_len + ' chars');
+      }
+    }
+  }
+  // question_strings_from_file_key (356-07, additive): every question string
+  // outside the fixed question sentence (instructions.rule, every element of
+  // instructions.boundary_cases, criteria.true, criteria.false) must be one
+  // of the string values found anywhere in the referenced must_equal_file's
+  // parsed JSON, collected ONCE at guard construction (via fileStringsCache).
+  if (typeof profile.question_strings_from_file_key === 'string') {
+    const allowedStrings = fileCache.__stringSets && fileCache.__stringSets[profile.question_strings_from_file_key];
+    const questions = (payload && typeof payload.questions === 'object' && payload.questions) ? payload.questions : {};
+    for (const qid of Object.keys(questions)) {
+      const q = questions[qid] || {};
+      const instructions = (q.instructions && typeof q.instructions === 'object') ? q.instructions : {};
+      const criteria = (q.criteria && typeof q.criteria === 'object') ? q.criteria : {};
+      if (!allowedStrings || typeof instructions.rule !== 'string' || !allowedStrings.has(instructions.rule)) {
+        _refuse(profile.id, qid + '.instructions.rule',
+          'egress refused (' + profile.id + '): question ' + qid + ' instructions.rule is not a string from the policy file');
+      }
+      const boundaryCases = Array.isArray(instructions.boundary_cases) ? instructions.boundary_cases : null;
+      if (!boundaryCases) {
+        _refuse(profile.id, qid + '.instructions.boundary_cases',
+          'egress refused (' + profile.id + '): question ' + qid + ' instructions.boundary_cases must be an array');
+      }
+      boundaryCases.forEach(function (bc, i) {
+        if (typeof bc !== 'string' || !allowedStrings.has(bc)) {
+          _refuse(profile.id, qid + '.instructions.boundary_cases[' + i + ']',
+            'egress refused (' + profile.id + '): question ' + qid + ' instructions.boundary_cases[' + i + '] is not a string from the policy file');
+        }
+      });
+      if (typeof criteria.true !== 'string' || !allowedStrings.has(criteria.true)) {
+        _refuse(profile.id, qid + '.criteria.true',
+          'egress refused (' + profile.id + '): question ' + qid + ' criteria.true is not a string from the policy file');
+      }
+      if (typeof criteria.false !== 'string' || !allowedStrings.has(criteria.false)) {
+        _refuse(profile.id, qid + '.criteria.false',
+          'egress refused (' + profile.id + '): question ' + qid + ' criteria.false is not a string from the policy file');
+      }
+    }
+  }
   return true;
+}
+
+// Collect every string value found anywhere in a parsed JSON value (object,
+// array, or scalar), for question_strings_from_file_key's allow-set. Pure,
+// never throws on a well-formed JSON value.
+function _collectStrings(value, out) {
+  if (typeof value === 'string') {
+    out.add(value);
+  } else if (Array.isArray(value)) {
+    for (const v of value) _collectStrings(v, out);
+  } else if (value && typeof value === 'object') {
+    for (const k of Object.keys(value)) _collectStrings(value[k], out);
+  }
+  return out;
 }
 
 function makeEgressGuard(profile, opts) {
@@ -234,6 +306,28 @@ function makeEgressGuard(profile, opts) {
       }
       fileCache[rel] = fs.readFileSync(abs);
     }
+  }
+
+  // question_strings_from_file_key: parse the referenced must_equal_file's
+  // bytes as JSON ONCE, at construction, and collect every string value
+  // anywhere in it into an allow-set. Construction throws if the file is not
+  // valid JSON, or if the key does not name a must_equal_file entry -- a
+  // misconfigured profile fails loudly at guard-build time, not per call.
+  if (typeof profile.question_strings_from_file_key === 'string') {
+    const fileKey = profile.question_strings_from_file_key;
+    const rel = profile.must_equal_file && profile.must_equal_file[fileKey];
+    if (typeof rel !== 'string') {
+      throw new Error('makeEgressGuard: question_strings_from_file_key "' + fileKey + '" does not name a must_equal_file entry');
+    }
+    const bytes = fileCache[rel];
+    let parsed;
+    try {
+      parsed = JSON.parse(bytes.toString('utf8'));
+    } catch (e) {
+      throw new Error('makeEgressGuard: question_strings_from_file_key file "' + rel + '" is not valid JSON: ' + e.message);
+    }
+    fileCache.__stringSets = fileCache.__stringSets || {};
+    fileCache.__stringSets[fileKey] = _collectStrings(parsed, new Set());
   }
 
   return function guard(payload) {
@@ -312,6 +406,29 @@ const EGRESS_PROFILES = Object.freeze({
     candidate_max_len: 140,
     judge_max_len: 400,
     message_prefix: 'assertEgressCeiling',
+  }),
+  // 356-07 (R356-01, R356-07): scores every registry command with one Jev
+  // Noul carrying the written irreversibility policy. state.policy must be
+  // byte-identical to the policy file (must_equal_file); every question
+  // string outside the fixed question sentence must come from that same
+  // file (question_strings_from_file_key), so no text other than the
+  // registry blurb and the policy itself can cross to Jev.
+  material_step_ledger: Object.freeze({
+    id: 'material_step_ledger',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-latest',
+    state_keys: Object.freeze(['slug', 'teaching', 'jtbd_summary', 'policy']),
+    string_keys: Object.freeze(['slug', 'teaching', 'jtbd_summary', 'policy']),
+    max_len_by_key: Object.freeze({ slug: 64, teaching: 800, jtbd_summary: 200, policy: 8000 }),
+    must_equal_file: Object.freeze({ policy: 'data/jev-policies/command-irreversibility.json' }),
+    question_ids: Object.freeze(['irreversible']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'noul',
+    instructions_keys: Object.freeze(['question', 'rule', 'boundary_cases']),
+    criteria_keys: Object.freeze(['true', 'false']),
+    question_max_len: 400,
+    question_strings_from_file_key: 'policy',
   }),
 });
 

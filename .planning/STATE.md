@@ -3,16 +3,40 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-09-PLAN.md - Wave 4 of 8
-last_updated: "2026-09-23T12:31:03.847Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 09 (Theo router contract safety: classification round trip, executable-chain validation, ranked-candidate provenance) completed
+stopped_at: Completed 354-10-PLAN.md - Wave 4 of 8
+last_updated: "2026-09-23T12:44:08.246Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 10 (taxonomy ladder casing: rung-vocabulary.cjs and part8-egress-guard.cjs mapped to Theo's own PROBLEM_TYPE_IDS casing, THEO-01 sub-finding CTX-TAXO closed) completed
 progress:
-  total_phases: 107
+  total_phases: 108
   completed_phases: 35
   total_plans: 334
-  completed_plans: 301
+  completed_plans: 302
   percent: 90
 ---
+
+<!-- NOTE (354-10 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported Phase 353's stale counters (current_plan 3 of 3,
+     status ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 302, total: 334, percent: 90. `state.record-metric` (flag syntax --phase --plan
+     --duration --tasks --files) landed its own correct Performance Metrics row (Phase 354 P10,
+     ~25min, 2 tasks, 6 files). `state.add-decision` (with --summary) repeated the documented
+     `[Phase ?]` placeholder-prefix bug again, fixed in place to a single `[Phase 354] 354-10: ...`
+     line. `state.record-session` this run updated ONLY the body's own `Last session:` line --
+     narrower than it claimed: the body's "Stopped at:" line was left at the stale "Completed
+     354-09-PLAN.md" value, and `last_activity`/`stopped_at`/`percent` in the frontmatter were
+     reverted to stale Phase 353 values (`last_activity` to the 2026-09-17 line, `percent` to `32`,
+     a phases-ratio reading). Hand-corrected: frontmatter `stopped_at` -> "Completed
+     354-10-PLAN.md - Wave 4 of 8", `last_activity` -> this plan's own completion line, `percent`
+     -> 90 (matching `state.update-progress`'s own just-computed value); `total_plans`/
+     `completed_plans` (334/302) were already correct, not reverted this run. Body "Stopped at:"
+     line -> "Completed 354-10-PLAN.md - Wave 4 of 8" to match. `total_phases` read 108 this run
+     (was 107 as of 354-09's note) -- a concurrent peer session (docs(355) commit observed in git
+     log during this plan's execution) appears to have advanced it independently of this resync
+     bug; left as-is rather than reverted, since 107 would be the stale-in-the-other-direction
+     value and this note's job is to correct the resync-clobber pattern, not adjudicate a
+     concurrent peer's own phase-count change. Left `completed_phases` at 35 unchanged (Phase 354
+     has not closed; correct as reported). -->
 
 <!-- NOTE (354-09 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6829,6 +6853,7 @@ Progress: [█████████░] 92%
 | Phase 354 P07 | 15min | 2 tasks | 3 files |
 | Phase 354 P08 | 55min | 3 tasks | 8 files |
 | Phase 354 P09 | 45min | 3 tasks | 4 files |
+| Phase 354 P10 | ~25min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -8507,6 +8532,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-07: escape-first renderMarkdown (fenced blocks extracted+escaped before transforms) inertizes chat-panel.js on both _renderMessage and streamed innerHTML sites; generative-tools.js gains safeColor hex validation (T-354-15) and single-quote escaping; SYS-03 closed, SYS-06 left open for 354-08/354-11
 - [Phase 354] 354-08: POC hardened with per-launch capability token, exact-Origin/Host checks, sha256 revisioned atomic saves, and a lossless textarea editor; legacy dashboard now Host-checks every GET route too; SYS-06 left open pending 354-11's journey test
 - [Phase 354] 354-09: Theo classification carried structurally (ask(question, {problem_type})); chain filtered to exact KNOWN_METHODOLOGIES slugs only (safety over recall, 354-17 builds recall on top); provenance states ranked_candidates honestly instead of an unverified feeds_into claim; act/act-chain/act-swarm validate before initializing pipeline state.
+- [Phase 354] 354-10: Taxonomy ladder rungs mapped to Theo's own PROBLEM_TYPE_IDS casing (identity mapping in rung-vocabulary.cjs, matching TAXONOMY_RUNGS in part8-egress-guard.cjs); recommendChain's origin-specific normalization in brain-client.cjs stays untouched, proven by a scope-pin test.
 
 ### Pending Todos
 
@@ -8655,8 +8681,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T12:31:03.773Z
-Stopped at: Completed 354-09-PLAN.md - Wave 4 of 8
+Last session: 2026-09-23T12:44:08.167Z
+Stopped at: Completed 354-10-PLAN.md - Wave 4 of 8
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
