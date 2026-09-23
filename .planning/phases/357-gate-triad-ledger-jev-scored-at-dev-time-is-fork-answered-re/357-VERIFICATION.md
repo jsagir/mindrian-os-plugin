@@ -120,7 +120,7 @@ mutation tests, which is the strongest available evidence against a shim/stub im
 
 The 13 Jev/hand-label disagreements listed in `357-JEV-LABEL-REPORT.md` (mostly Jev
 under-reading the deterministic ASCII-box-backstop rule as `pass` when hand labels say `block`)
-are correctly surfaced and never auto-applied — `git diff` on `debug-cases.json` and
+are correctly surfaced and never auto-applied - `git diff` on `debug-cases.json` and
 `live-2026-09-23.json` is empty, confirming the hand labels were not silently overwritten. This
 is the SPEC-intended behavior (Jev is a dev-time teacher, not a runtime or corpus-editing
 authority), not a defect.
@@ -128,7 +128,7 @@ authority), not a defect.
 ### Human Verification Required
 
 None. The phase's single human checkpoint (D-06: navigator ratification of dogfood labels,
-including the R-C 09:20 case) was already completed during execution — confirmed by
+including the R-C 09:20 case) was already completed during execution - confirmed by
 `dogfood.json` showing 24/24 entries at `label_origin: human` with `meta.ratified_at:
 2026-09-23`, and the R-C case correctly recorded as `known_false_block`. No further human
 action is required to declare the phase goal achieved.
@@ -147,7 +147,7 @@ itself and is unrelated to Phase 357's changes. Phase 354 file boundaries (D-15)
 `part8-egress-guard.cjs`, `doctor.cjs`, or `graph-ops.cjs`.
 
 Per the repo's release rule, this work is complete on `main` but not yet live for end users
-until the next `scripts/release.sh` cut — this is expected and not a phase gap.
+until the next `scripts/release.sh` cut - this is expected and not a phase gap.
 
 ---
 
