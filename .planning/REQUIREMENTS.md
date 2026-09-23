@@ -2974,7 +2974,7 @@ contract.
       restores the journaled predecessor output reference, halts on a mismatched journal, and never
       reports completion the journal contradicts. Plan 354-03.
 
-- [ ] **THEO-01**: The plugin-to-Theo contract is safe: the classified rung reaches Theo's
+- [x] **THEO-01**: The plugin-to-Theo contract is safe: the classified rung reaches Theo's
       recommend_chain intact, chains contain only registry command ids and are validated before act
       state initialization, provenance claims no unverified FEEDS_INTO, degradation is disclosed,
       the taxonomy ladder sends Theo's enum casing on all four rungs, and a live synthetic run is
@@ -2984,7 +2984,7 @@ contract.
       read-only provider inspection, coordinated with Phase 351 and never marked complete while the
       Theo-side consumer is absent. Plan 354-12.
 
-- [ ] **THEO-03**: The teaching-to-action loop is proven for healthy, unavailable, invalid-schema and
+- [x] **THEO-03**: The teaching-to-action loop is proven for healthy, unavailable, invalid-schema and
       thin-result providers with no room byte on the wire and no fallback labelled as Theo, and the
       free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
       354-12.
