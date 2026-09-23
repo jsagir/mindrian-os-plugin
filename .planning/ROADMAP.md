@@ -1062,6 +1062,17 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 - [ ] 355-27-PLAN.md -- HIPS-10: close-out - HIPS rows registered in REQUIREMENTS.md, run-all-355.sh green, doctor acceptance no-new-regression, the rethinking-mindrianos research filing, the outbound Theo note
 
+### Phase 355.1: Ambient trigger: the room starts the breakthrough run (SENS-20 room-delta sensor, strategy-not-keywords front end) (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 355
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 355.1 to break down)
+
 ### Phase 356: Chain-executor material-step ledger: Jev Noul seat scored at dev time, shipped as data
 
 **Goal:** Replace the substring-only `IRREVERSIBLE_HINTS` materiality check in `lib/core/chain-executor.cjs` (`_isMaterialStep` / `isIrreversibleStep`) with a dev-time ledger. A build script scores every command in the registry that `recipe-maps.postureForCommand` joins, once, with a Jev Noul carrying an explicitly stated materiality policy. The result ships as static data, the same pattern as `scripts/build-section-command-ledger.cjs` -> `data/section-command-ledger.json`. `runChain` reads the ledger with zero network calls. `IRREVERSIBLE_HINTS` and the explicit `step.material` flag stay authoritative overrides: they can force a step material, and the ledger can never downgrade a hinted step to autonomous_safe. A missing, stale, or unscored entry falls back to them. Locked (navigator ruling 2026-09-23): dev-time only, no live per-step Jev call, no Theo gateway, argument-level materiality stays with the keyword check. Part 8: only generic handles and plugin-authored command text cross to Jev. The key is dev-time only. Noul thresholds are tuned on this phase's own labeled fixture, not borrowed from spike 004's Choice-based 0.90. The runChain GUIDED safe-halt contract is unchanged (`tests/test-larry-handoff-seam.cjs` stays green). Grounding: spike-findings-MindrianOS-Plugin (spikes 001/003/004), 355-BRIEF.md (Jev docs: Noul and Choice are not comparable).
