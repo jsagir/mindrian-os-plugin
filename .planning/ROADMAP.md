@@ -1237,14 +1237,35 @@ Plans:
 ### Phase 361: Dominant-design research mode -- /mos:dominant-designs gains an evidence deep dive backed by a parallel dominant-design-researcher agent
 
 **Scope (as added 2026-09-23, navigator ruling: upgrade the existing command, no duplicate):** /mos:dominant-designs gains a research deep dive backed by a new parallel dominant-design-researcher agent (one evidence question per invocation, structured JSON, every claim sourced or absent): variant census, convergence signals, S-curve limits, discontinuity signals; the quick pass stays conversational. Framework structure from Theo (Dominant Design Framework: framework_step, framework_techniques from Theo Phase 20; case_story from Theo Phase 20.1), evidence from Tavily; Part 8 known-shape entries for every Theo call (separate entries in lib/core/part8-egress-guard.cjs, not editing Phase 355's find_connections entry); filing via fileEvidenceWithReadback with provenance; registry row updated (web_scope, agent) and theo-resync fired. PM: jsagi-ec session.
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** In `/mos:dominant-designs`, the deep dive can open with a navigator-gated, sourced research pass: Larry composes four audited evidence-lane queries (variant census, convergence signals, S-curve limits, discontinuity signals), nothing is searched until the navigator approves them, up to four read-only dominant-design-researcher agents return claim rows that are each sourced or dropped, the lanes are filed with provenance through fileEvidenceWithReadback only after the navigator says yes, and Larry runs the six Utterback-Abernathy phases on top citing row ids, with the framework structure read from Theo by generic handle when served and from the local reference otherwise. The quick pass stays byte-identical to today.
+**Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
-**Plans:** 0 plans
+**Plans:** 8 plans in 5 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 361 to break down)
+**Wave 1**
+
+- [ ] 361-01-PLAN.md -- DDR361 family minted (13 rows); pre-phase baseline fixture (base sha, registry hash, quick-pass text, find_connections slice) plus its test; `tests/run-all-361.sh` written once
+
+**Wave 2** *(parallel, disjoint files)*
+
+- [ ] 361-02-PLAN.md -- Part 8: three separate known-shape arms (framework_step, framework_techniques, case_story) after recommend_chain, canonical-handle helper, find_connections provably untouched, read-only Theo parity test (D-10, D-14, D-15)
+- [ ] 361-03-PLAN.md -- pure `lane-queries.cjs` (four audited lane queries, edit re-audit) and `evidence-pack.cjs` (D-06 validator, D-13 tiers, lane artifact renderer, per-URL filing params)
+- [ ] 361-04-PLAN.md -- `agents/dominant-design-researcher.md`, read-only by a host-enforced `tools:` list mirrored in `allowed-tools:` (D-17), connector-excluded; born-wired ledgers regenerated
+- [ ] 361-05-PLAN.md -- `theo-structure.cjs` (generic handle only; Theo when it has steps, reference otherwise, reason named, D-09/D-16) plus the Research mode note in the reference (Tri-Polar)
+
+**Wave 3**
+
+- [ ] 361-06-PLAN.md -- `scripts/dominant-design-research.cjs` CLI (compose-queries, audit-query, theo-structure, validate-lane, file-pack with EvidenceClaim readback and a 4-zone report)
+
+**Wave 4**
+
+- [ ] 361-07-PLAN.md -- the command upgrade: quick pass byte-preserved, unattended runs take the quick pass (D-12), query gate before any dispatch, parallel lane fan-out, validation, six phases citing rows, file only on approval; `web_scope: white`, Task plus a pending grant row, teaching line (D-11); every registry and ledger regenerated, registry hash moved
+
+**Wave 5** *(not autonomous)*
+
+- [ ] 361-08-PLAN.md -- live Theo probe with the generic handle only, full gates, navigator checkpoint:decision ratifying the Task grant, DDR361 rows closed, carry-forwards (theo-resync at next release, 356 ledger rescore, D-17 fetcher quick task, D-15 case_story recheck)
 
 ### Phase 270: Memory and Context Operator MCP
 
