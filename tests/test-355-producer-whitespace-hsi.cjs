@@ -42,6 +42,7 @@ const verificationStampFormat = require(path.join(REPO, 'lib', 'core', 'verifica
 const directionConvention = require(path.join(REPO, 'lib', 'core', 'direction-convention.cjs'));
 const floorDisclosure = require(path.join(REPO, 'lib', 'core', 'floor-disclosure.cjs'));
 const { makeReplayCallTool, makeNullCallTool } = require(path.join(REPO, 'tests', 'helpers', 'theo-replay-355.cjs'));
+const hsiToGraph = require(path.join(REPO, 'scripts', 'hsi-to-graph.cjs'));
 
 const stubFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'theo-stub-responses.json'), 'utf8'));
 const gapsFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'whitespace-gaps.json'), 'utf8'));
@@ -299,6 +300,176 @@ async function runWhitespaceToGraphStampLeg() {
 }
 
 // ---------------------------------------------------------------------------
+// HSI section (Task 3, HIPS-04, HIPS-05, D-08, D-16, D-48). Every check
+// label starts with the literal "hsi ".
+// ---------------------------------------------------------------------------
+
+const ROOM_272 = path.join(REPO, 'tests', 'fixtures', '272', 'room');
+
+async function readHsiConnectionEdges(roomDir) {
+  const graph = await openGraph(roomDir);
+  try {
+    const rows = graph.conn.prepare("SELECT source, target, properties FROM edges WHERE type = 'HSI_CONNECTION'").all();
+    return rows.map((r) => ({ source: r.source, target: r.target, props: JSON.parse(r.properties) }));
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+/*
+ * A mkdtemp copy of the 272 room (real artifact content, its own
+ * Section/Artifact structure), plus two synthetic artifacts under
+ * synthetic-355/ carrying canon frontmatter (so at least one HSI pair
+ * resolves to a real Theo answer instead of every pair landing on
+ * not_called). Three pairs: two shown (topN=2, both above the existing
+ * hsi_score<=0.3 write floor), one written but not shown (also above the
+ * floor, so its edge exists but carries no stamp).
+ */
+function makeHsiScratchRoom() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-355-16-hsi-'));
+  const room = path.join(root, 'room');
+  fs.cpSync(ROOM_272, room, { recursive: true });
+  fs.mkdirSync(path.join(room, 'synthetic-355'), { recursive: true });
+  fs.writeFileSync(path.join(room, 'synthetic-355', 'hsi-pair-a.md'), '---\nframework: Reverse Salient Analysis\n---\n\n# HSI Pair A\n\nBody text about reverse salience.');
+  fs.writeFileSync(path.join(room, 'synthetic-355', 'hsi-pair-b.md'), '---\nframework: Six Thinking Hats\n---\n\n# HSI Pair B\n\nBody text about the six hats.');
+
+  const pairs = [
+    { left_id: 'synthetic-355/hsi-pair-a', right_id: 'synthetic-355/hsi-pair-b', lsa_sim: 0.2, semantic_sim: 0.5, hsi_score: 0.9, surprise_type: 'x', breakthrough_potential: 0.3 },
+    { left_id: 'assumptions/performance-tuning-03', right_id: 'research/data-pipeline-04', lsa_sim: 0.6, semantic_sim: 0.3, hsi_score: 0.8, surprise_type: 'y', breakthrough_potential: 0.2 },
+    { left_id: 'decisions/data-pipeline-01', right_id: 'research/performance-tuning-02', lsa_sim: 0.5, semantic_sim: 0.5, hsi_score: 0.5, surprise_type: 'z', breakthrough_potential: 0.1 },
+  ];
+  fs.writeFileSync(path.join(room, '.hsi-results.json'), JSON.stringify({ metadata: { tier: 1 }, hsi_pairs: pairs, reverse_salients: [] }));
+
+  const involvedIds = ['synthetic-355/hsi-pair-a', 'synthetic-355/hsi-pair-b', 'assumptions/performance-tuning-03', 'research/data-pipeline-04', 'decisions/data-pipeline-01', 'research/performance-tuning-02'];
+
+  return {
+    root,
+    room,
+    pairs,
+    involvedIds,
+    cleanup() {
+      try {
+        fs.rmSync(root, { recursive: true, force: true });
+      } catch (_e) {
+        // best-effort
+      }
+    },
+  };
+}
+
+async function seedArtifactNodes(roomDir, ids) {
+  const graph = await openGraph(roomDir);
+  try {
+    const stmt = graph.conn.prepare("INSERT INTO nodes (id, type, properties) VALUES (?, 'Artifact', ?) ON CONFLICT(id) DO UPDATE SET properties = excluded.properties");
+    for (const id of ids) stmt.run(id, JSON.stringify({ title: id }));
+  } finally {
+    await closeGraph(graph.db);
+  }
+}
+
+async function runHsiLeg() {
+  // --stamp, replay callTool: 2 shown pairs (top-2 by hsi_score), 1 written
+  // but not shown.
+  {
+    const scratch = makeHsiScratchRoom();
+    try {
+      await seedArtifactNodes(scratch.room, scratch.involvedIds);
+      const callTool = makeReplayCallTool(stubFixture);
+      const rawLines = [];
+      const original = process.stdout.write.bind(process.stdout);
+      process.stdout.write = (chunk) => { rawLines.push(String(chunk)); return true; };
+      try {
+        await hsiToGraph.main([scratch.room, '--stamp', '--top', '2'], { callTool });
+      } finally {
+        process.stdout.write = original;
+      }
+      const lines = rawLines.join('').split('\n').filter((l) => l.length > 0);
+
+      check('hsi --stamp (replay): shown pairs == stamp blocks == min(top, pairs)', countStampBlocks(lines) === 2, 'got ' + countStampBlocks(lines));
+      const result = verificationStampFormat.assertNoScalar(lines);
+      check('hsi --stamp (replay): no decimal or percent token on any stdout line', result.withheld === 0, result.withheld + ' withheld');
+      check('hsi --stamp (replay): disclosureLine(\'hsi\') is the last line', lines[lines.length - 1] === floorDisclosure.disclosureLine('hsi'));
+
+      const edges = await readHsiConnectionEdges(scratch.room);
+      check('hsi --stamp (replay): writes all 3 HSI_CONNECTION edges (the hsi_score<=0.3 write floor is unchanged)', edges.length === 3, 'got ' + edges.length);
+
+      const shownEdge = edges.find((e) => e.source === 'synthetic-355/hsi-pair-a');
+      let parsedShown = null;
+      let threwShown = false;
+      try {
+        parsedShown = verificationStamp.fromNodeProps(shownEdge.props);
+      } catch (_e) {
+        threwShown = true;
+      }
+      check('hsi --stamp (replay): the shown, resolvable pair stamps strong/theo and re-parses via fromNodeProps', threwShown === false && !!parsedShown && shownEdge.props.verification === 'strong' && shownEdge.props.backend === 'theo');
+
+      const nonShownEdge = edges.find((e) => e.source === 'decisions/data-pipeline-01');
+      check('hsi --stamp (replay): the non-shown (3rd) pair carries no stamp properties at all', !!nonShownEdge && !Object.prototype.hasOwnProperty.call(nonShownEdge.props, 'verification'));
+    } finally {
+      scratch.cleanup();
+    }
+  }
+
+  // --stamp, null callTool: the resolvable shown pair reports backend
+  // unavailable instead of strong (Theo down), still 2 stamp blocks, still
+  // no decimal.
+  {
+    const scratch = makeHsiScratchRoom();
+    try {
+      await seedArtifactNodes(scratch.room, scratch.involvedIds);
+      const callTool = makeNullCallTool();
+      const rawLines = [];
+      const original = process.stdout.write.bind(process.stdout);
+      process.stdout.write = (chunk) => { rawLines.push(String(chunk)); return true; };
+      try {
+        await hsiToGraph.main([scratch.room, '--stamp', '--top', '2'], { callTool });
+      } finally {
+        process.stdout.write = original;
+      }
+      const lines = rawLines.join('').split('\n').filter((l) => l.length > 0);
+      check('hsi --stamp (null): shown pairs == stamp blocks', countStampBlocks(lines) === 2, 'got ' + countStampBlocks(lines));
+      const result = verificationStampFormat.assertNoScalar(lines);
+      check('hsi --stamp (null): no decimal or percent token on any stdout line', result.withheld === 0, result.withheld + ' withheld');
+      check('hsi --stamp (null): every unresolved end still renders under its own title with the unverified advice', lines.some((l) => l.indexOf('HSI Pair A') !== -1) && lines.some((l) => l.indexOf(verificationStampFormat.UNVERIFIED_ADVICE) !== -1));
+
+      const edges = await readHsiConnectionEdges(scratch.room);
+      const shownEdge = edges.find((e) => e.source === 'synthetic-355/hsi-pair-a');
+      check('hsi --stamp (null): the resolvable pair reports backend unavailable (Theo down)', !!shownEdge && shownEdge.props.backend === 'unavailable' && shownEdge.props.reason === 'backend_unavailable');
+    } finally {
+      scratch.cleanup();
+    }
+  }
+
+  // Without --stamp: byte-identical -- no HSI_CONNECTION edge carries a
+  // stamp property, and stdout carries nothing.
+  {
+    const scratch = makeHsiScratchRoom();
+    try {
+      await seedArtifactNodes(scratch.room, scratch.involvedIds);
+      const rawLines = [];
+      const original = process.stdout.write.bind(process.stdout);
+      process.stdout.write = (chunk) => { rawLines.push(String(chunk)); return true; };
+      try {
+        await hsiToGraph.main([scratch.room], {});
+      } finally {
+        process.stdout.write = original;
+      }
+      check('hsi (no --stamp): prints nothing to stdout', rawLines.join('').length === 0);
+      const edges = await readHsiConnectionEdges(scratch.room);
+      check('hsi (no --stamp): writes all 3 HSI_CONNECTION edges', edges.length === 3, 'got ' + edges.length);
+      const anyStamped = edges.some((e) => Object.prototype.hasOwnProperty.call(e.props, 'verification'));
+      check('hsi (no --stamp): no edge carries a verification property', anyStamped === false);
+    } finally {
+      scratch.cleanup();
+    }
+  }
+
+  // hsiEndpoints/renderHsiFindings exported directly, per the plan's
+  // artifacts section.
+  check('hsi exports: main, renderHsiFindings, hsiEndpoints are all functions', typeof hsiToGraph.main === 'function' && typeof hsiToGraph.renderHsiFindings === 'function' && typeof hsiToGraph.hsiEndpoints === 'function');
+}
+
+// ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
 
@@ -308,6 +479,7 @@ async function runWhitespaceToGraphStampLeg() {
     await runAnalyzeLeg();
     await runNoveltyLeg();
     await runWhitespaceToGraphStampLeg();
+    await runHsiLeg();
   } finally {
     check('installNetGuard: zero fetch attempts', netGuard.attempts() === 0);
     netGuard.restore();

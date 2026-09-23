@@ -26,11 +26,94 @@ const { insertNode } = require('../lib/core/node-insert.cjs');
 // trusted -- re-derive it fresh from the pair's own (lsa_sim, semantic_sim)
 // values through the one module every time an edge is written.
 const directionConvention = require('../lib/core/direction-convention.cjs');
+// Phase 355-16 (HIPS-04, HIPS-05, D-08, D-12, D-16, D-48): --stamp is
+// opt-in. Without it this script stays byte-identical to its pre-355
+// behavior, so the cascade and cadence background callers never reach Theo.
+const verificationStamp = require('../lib/core/verification-stamp.cjs');
+const verificationStampFormat = require('../lib/core/verification-stamp-format.cjs');
+const floorDisclosure = require('../lib/core/floor-disclosure.cjs');
 
-async function main() {
-  const roomDir = process.argv[2];
+// D-48: the first `# heading` in an artifact's own text, falling back to the
+// artifact id itself -- copied (not required, D-55 forbids requiring
+// scripts/ from lib/ and this is the other direction: a one-line regex, not
+// worth a new cross-file dependency) from lib/core/artifact-id.cjs's own
+// extractTitle.
+function _extractTitle(content, fallback) {
+  const match = typeof content === 'string' ? content.match(/^# (.+)$/m) : null;
+  return match ? match[1].trim() : fallback;
+}
+
+// D-48: read an artifact's raw text locally, given its id (roomDir-relative,
+// no extension, matching compute-hsi.py's own artifact_id convention).
+// Never throws; a missing file resolves to an empty string, which
+// extractCarried/resolveEndpoint already treat as "nothing carried".
+function _readArtifactText(roomDir, artifactId) {
+  if (!artifactId) return '';
+  try {
+    return fs.readFileSync(path.join(roomDir, artifactId + '.md'), 'utf8');
+  } catch (_e) {
+    return '';
+  }
+}
+
+/*
+ * hsiEndpoints(pair, roomDir) -> { fromHandle, toHandle, fromVia, toVia }.
+ * Each side's carried name is read LOCALLY from the artifact's own file
+ * (frontmatter framework:/methodology:, then its first heading), resolved
+ * through the one local snapshot (D-10, D-48). Never guesses, never asks
+ * Theo to resolve a name.
+ */
+function hsiEndpoints(pair, roomDir) {
+  function resolveOne(artifactId) {
+    const raw = _readArtifactText(roomDir, artifactId);
+    const title = _extractTitle(raw, artifactId);
+    const carried = verificationStamp.extractCarried(raw, title);
+    return Object.assign({ title }, verificationStamp.resolveEndpoint(carried));
+  }
+  const from = resolveOne(pair.left_id);
+  const to = resolveOne(pair.right_id);
+  return {
+    fromHandle: from.name,
+    toHandle: to.name,
+    fromVia: from.via,
+    toVia: to.via,
+    fromTitle: from.title,
+    toTitle: to.title,
+  };
+}
+
+/*
+ * renderHsiFindings(pairs, stamps) -> string[]. `pairs` entries carry
+ * left_title/right_title (attached by main() via hsiEndpoints); one line
+ * naming the pair, then formatStampLines(stamp, 'cli') per shown pair, then
+ * one disclosureLine('hsi') at the very end. No hsi_score, no similarity
+ * number, anywhere.
+ */
+function renderHsiFindings(pairs, stamps) {
+  const lines = [];
+  pairs.forEach((pair, i) => {
+    const titleA = pair.left_title || pair.left_id;
+    const titleB = pair.right_title || pair.right_id;
+    lines.push(titleA + ' and ' + titleB);
+    lines.push.apply(lines, verificationStampFormat.formatStampLines(stamps[i], 'cli'));
+  });
+  lines.push(floorDisclosure.disclosureLine('hsi'));
+  return verificationStampFormat.assertNoScalar(lines).lines;
+}
+
+async function main(argv, deps) {
+  const args = Array.isArray(argv) ? argv : process.argv.slice(2);
+  deps = deps || {};
+  const roomDir = args[0];
+  const stampMode = args.indexOf('--stamp') !== -1;
+  let topN = 10;
+  const topIdx = args.indexOf('--top');
+  if (topIdx !== -1 && args[topIdx + 1] !== undefined) {
+    const parsed = parseInt(args[topIdx + 1], 10);
+    if (Number.isFinite(parsed) && parsed > 0) topN = parsed;
+  }
   if (!roomDir) {
-    process.stderr.write('Usage: node scripts/hsi-to-graph.cjs /path/to/room\n');
+    process.stderr.write('Usage: node scripts/hsi-to-graph.cjs /path/to/room [--stamp] [--top n]\n');
     process.exit(1);
   }
 
@@ -59,6 +142,35 @@ async function main() {
   const hsiPairs = data.hsi_pairs || [];
   const reverseSalients = data.reverse_salients || [];
   const tier = data.metadata?.tier ? `tier${data.metadata.tier}` : 'tier1';
+
+  // Phase 355-16 (D-08, D-12, Pitfall 7): choose the shown set = the top-n
+  // pairs by the EXISTING hsi_score order (no new threshold), resolve every
+  // shown pair's endpoints locally, then await Theo once per distinct pair
+  // BEFORE any BEGIN. shownPairs/stampByPairKey stay empty without --stamp,
+  // so every branch below that reads them is a no-op (background callers
+  // stay byte-identical).
+  const shownPairs = stampMode
+    ? hsiPairs.slice().sort((a, b) => (b.hsi_score || 0) - (a.hsi_score || 0)).slice(0, topN)
+    : [];
+  const stampByPairKey = new Map();
+  if (stampMode && shownPairs.length > 0) {
+    const endpointsByIndex = shownPairs.map((pair) => hsiEndpoints(pair, resolvedRoom));
+    const findings = shownPairs.map((pair, i) => Object.assign(
+      { direction: directionConvention.classify(pair.lsa_sim ?? pair.lsa, pair.semantic_sim ?? pair.semantic) },
+      endpointsByIndex[i]
+    ));
+    const stamps = await verificationStamp.stampFindings(findings, deps);
+    for (let i = 0; i < shownPairs.length; i += 1) {
+      // carry the resolved titles onto the shown pair for renderHsiFindings,
+      // without disturbing the ORIGINAL hsiPairs entries the write loop below
+      // still iterates.
+      shownPairs[i] = Object.assign({}, shownPairs[i], {
+        left_title: endpointsByIndex[i].fromTitle,
+        right_title: endpointsByIndex[i].toTitle,
+      });
+      stampByPairKey.set(shownPairs[i].left_id + '\u0000' + shownPairs[i].right_id, stamps[i]);
+    }
+  }
 
   // Test-only seam for MOAT-01's crash-injection gate, consumed by
   // tests/test-242-hsi-to-graph-transaction.cjs. Inert in production: the env
@@ -111,7 +223,7 @@ async function main() {
         const rightExists = findArtifact.get(rightId);
         if (!leftExists || !rightExists) continue;
 
-        const edgeProps = JSON.stringify({
+        const edgePropsObj = {
           hsi_score: pair.hsi_score,
           lsa_sim: pair.lsa_sim,
           semantic_sim: pair.semantic_sim,
@@ -123,7 +235,16 @@ async function main() {
           surprise_type: directionConvention.classify(pair.lsa_sim ?? pair.lsa, pair.semantic_sim ?? pair.semantic),
           breakthrough_potential: pair.breakthrough_potential || 0,
           tier,
-        });
+        };
+        // Phase 355-16 (D-16): a shown pair's stamp rides this SAME edge
+        // write (toNodeProps merged into the same edgeProps object, same
+        // upsertEdge.run call) -- no new writer, no raw SQL. A non-shown
+        // pair's edge carries none of these keys.
+        if (stampMode) {
+          const stampForPair = stampByPairKey.get(leftId + '\u0000' + rightId);
+          if (stampForPair) Object.assign(edgePropsObj, verificationStamp.toNodeProps(stampForPair));
+        }
+        const edgeProps = JSON.stringify(edgePropsObj);
 
         upsertEdge.run(leftId, rightId, 'HSI_CONNECTION', edgeProps);
         connEdges++;
@@ -181,6 +302,16 @@ async function main() {
       process.stderr.write(
         `HSI: wrote ${connEdges} connection edges, ${rsEdges} reverse salient edges\n`
       );
+
+      // Phase 355-16 (D-27): the stamped shown findings print only after the
+      // COMMIT too, to stdout (kept separate from the stderr status line
+      // above so a caller can capture just the stamped render).
+      if (stampMode && shownPairs.length > 0) {
+        const stamps = shownPairs.map((pair) => stampByPairKey.get(pair.left_id + '\u0000' + pair.right_id));
+        for (const line of renderHsiFindings(shownPairs, stamps)) {
+          process.stdout.write(line + '\n');
+        }
+      }
     } catch (err) {
       try { conn.prepare('ROLLBACK').run(); } catch (_rbErr) { /* ignore */ }
       throw err;
@@ -200,4 +331,8 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { main, renderHsiFindings, hsiEndpoints };

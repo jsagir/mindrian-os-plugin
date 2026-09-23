@@ -267,7 +267,11 @@ node -e "require('${PLUGIN_ROOT}/lib/core/rs-engine.cjs').runModeInternal(proces
 # D-03: do NOT swallow the HSI-to-graph stderr/exit. A silent scout is how
 # HARD-02 hid for weeks. stderr surfaces; a non-zero exit prints a visible
 # degraded-step advisory but stays non-fatal to the overall scout run.
-if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR"; then
+# Phase 355-16 (HIPS-04, HIPS-05): --stamp is the interactive path -- it
+# stamps the top shown HSI pairs against the methodology graph before the
+# graph write, and prints them after. Background/scheduled callers (the
+# cadence runner, the cascade) never pass --stamp and stay Theo-free.
+if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR" --stamp; then
   echo "ADVISORY: HSI-to-graph step failed (room graph not updated this run); scout continues in degraded mode" >&2
 fi
 ```
@@ -276,9 +280,11 @@ Phase 355: the Python detector is reference only; direction labels in `.hsi-resu
 
 Report:
 - Number of HSI pairs scored
-- Top 3 highest-scoring connections
+- The stamped lines `hsi-to-graph.cjs --stamp` printed for the top connections -- reproduce them VERBATIM (the glyph line, the path line, the tier line, the judge line, or the unverified reason + advice line), never restate a number from `.hsi-results.json` in their place
+- The disclosure line naming `data/floor-ledger.json` (D-27), reproduced exactly
 - Any new reverse salients detected
 - Whether room graph was updated
+- On Desktop / Cowork, a connection with no stored stamp says exactly: "Not yet checked; run the CLI to verify." (D-50)
 
 ## Step 5b: Query Efficiency Telemetry (SENT-08)
 
