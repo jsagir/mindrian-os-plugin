@@ -766,6 +766,80 @@ These can be documented in settings.json for team awareness:
 }
 ```
 
+## Phase 355 disclosed floors
+
+Every reverse-salient, HSI, whitespace and eureka engine floor, band, weight and
+rubric literal is disclosed this phase, not calibrated (HIPS-02, D-19..D-22).
+"Disclosed" means the literal is recorded in `data/floor-ledger.json` with a
+plain-language sentence naming what it gates; "calibrated" would mean a
+fixture-measured gold set with a real hit rate behind it, like
+`DERIVE_CONVERGES_FLOOR` and `DERIVE_INFORMS_FLOOR` above. None of the entries
+below are calibrated: calibrating on the Phase 355 fixture rooms would tune
+the floors on the same rooms the hit rate is measured against, a circular
+first calibration point (D-19). `lib/core/floor-disclosure.cjs` turns the
+ledger into the one honest line every producer prints:
+`unverified: the cut-offs behind these findings are defaults, not calibrated
+yet (data/floor-ledger.json)`. Run `node scripts/check-floor-ledger.cjs
+--check` to validate the ledger offline (shape, anchor resolution, the
+calibration gate); run `node tests/test-355-floor-sweep.cjs` to sweep the
+engine families for any new literal the ledger does not yet cover.
+
+### EUREKA_DIFF_FLOOR
+
+**What:** The env-tunable differential floor `lib/core/rs-differential-scorer.cjs`'s
+`resolveEurekaDiffFloor()` reads for eureka call sites, in place of the fixed
+module-load `DIFF_FLOOR`.
+**Default:** `0.3` (reuses `DIFF_FLOOR`'s value; see `data/floor-ledger.json` row
+`rs-differential-scorer.EUREKA_DIFF_FLOOR`).
+**Read:** call time -- every call re-reads the env var, so a test or a
+consumer can flip it between calls.
+**Why:** An operator override, not a provenance value. Setting it changes what
+counts as a measured divergence for eureka's differential leg; it does not
+turn the floor into a calibrated one, and it carries no `gold`/`n` evidence.
+
+```bash
+export EUREKA_DIFF_FLOOR=0.3
+```
+
+### Eureka critic Stage A gates
+
+**What:** Four env-tunable Stage A gates `lib/core/eureka-critic.cjs` reads at
+call time: `EUREKA_SWAP_INVARIANCE_FLOOR` (swap-invariance floor, default
+`0.05`), `EUREKA_SWAP_K` (swap K, default `3`), `EUREKA_NN_DELTA_FLOOR`
+(nearest-neighbor delta floor, default `0.10`), `EUREKA_ENTITY_MIN` (minimum
+entity count, default `2`). Ledger row `eureka-critic.stage-a-gates`.
+**Read:** call time (each gate function re-reads its env var on every
+invocation).
+**Why:** All four are disclosed defaults per D-19, not gold-set calibrated;
+overriding one is an operator seam for a specific room's noise profile, never
+a claim that the new value was measured.
+
+```bash
+export EUREKA_SWAP_INVARIANCE_FLOOR=0.05
+export EUREKA_SWAP_K=3
+export EUREKA_NN_DELTA_FLOOR=0.10
+export EUREKA_ENTITY_MIN=2
+```
+
+### Analogy-fitness env names
+
+**What:** Three env-tunable gates `lib/core/eureka/analogy-fitness.cjs` reads
+at call time via `resolveFloat()`: `MINDRIAN_ANALOGY_LAYER_THRESHOLD` (default
+`0.5`), `MINDRIAN_ANALOGY_TEXT_WEIGHT` (default `0.5`), and
+`MINDRIAN_ANALOGY_RESTATEMENT_FLOOR` (default `0.8`). Ledger row
+`analogy-fitness.thresholds`.
+**Read:** call time.
+**Why:** Same disclosed-not-calibrated discipline: an override tunes how the
+analogy-fitness bands (`none`/`surface`/`behavioral`/`structural`/`deep`,
+ledger row `analogy-fitness.bands`) classify a pair for this room, without
+ever becoming provenance for the default.
+
+```bash
+export MINDRIAN_ANALOGY_LAYER_THRESHOLD=0.5
+export MINDRIAN_ANALOGY_TEXT_WEIGHT=0.5
+export MINDRIAN_ANALOGY_RESTATEMENT_FLOOR=0.8
+```
+
 ## Source
 
 Identified via ccleaks.com Claude Code capability audit (2026-03-31). See docs/research/RESEARCH_11_POWERHOUSE_SESSION.md for full analysis.
