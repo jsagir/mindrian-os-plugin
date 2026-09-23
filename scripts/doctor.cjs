@@ -1225,6 +1225,20 @@ function buildAcceptanceChecklist(ctx) {
           // still enumerates every server.tool() registration at run time;
           // no hardcoded tool/branch/command count.
           { id: 'tool-honesty', script: 'check-tool-honesty.cjs' },
+          // Phase 354 Plan 18 (THEO-04, navigator decision 2026-09-23:
+          // document + procedural discipline, not removal, not a code
+          // fix): the raw `theo` MCP server (~/.claude.json) is a live,
+          // ungated second path to the Brain backend that never passes
+          // through part8-egress-guard.cjs. This offline, zero-network,
+          // WARN-only check names a live theo+mindrian-brain
+          // co-registration every acceptance run, matching the SAME
+          // advisory-by-default posture as shape-declaration and
+          // tool-honesty above -- its --check exits 0 by design REGARDLESS
+          // of what it finds, so the r.status === 0 ok test below never
+          // fails the roll-up on this entry. Unlike its two siblings, this
+          // one has NO --strict escalation mode at all (the navigator's
+          // decision was visibility, never enforcement).
+          { id: 'theo-mcp-exposure', script: 'check-theo-mcp-exposure.cjs' },
         ];
         const results = [];
         for (const g of gates) {
