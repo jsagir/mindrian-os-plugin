@@ -17,7 +17,7 @@
  * CANON PART 9 (Memory Locality): file-pack (D-07/D-08) opens room.db ONLY
  * through navigation.openRoomDbForCaller / closeRoomDbForCaller and files
  * evidence ONLY through navigation.fileEvidenceWithReadback -- this script
- * never requires lib/core/room-db.cjs directly. Every filed EvidenceClaim
+ * never requires the room-database substrate module directly. Every filed EvidenceClaim
  * lands review_status 'proposed', never auto-confirmed.
  *
  * Subcommands:
@@ -63,13 +63,17 @@ const evidencePack = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-desig
 const theoStructure = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'theo-structure.cjs'));
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
 
-const { composeLaneQueries, auditEditedQuery, LANE_IDS } = laneQueries;
+const { composeLaneQueries, auditEditedQuery, LANE_IDS, LANES } = laneQueries;
 const { validateLaneResult, renderLaneArtifact, toEvidenceClaimParams, laneArtifactName } = evidencePack;
 const { readDominantDesignStructure } = theoStructure;
 
 const SUBCOMMANDS = Object.freeze(['compose-queries', 'audit-query', 'theo-structure', 'validate-lane', 'file-pack']);
 
 const USAGE = 'usage: dominant-design-research.cjs <' + SUBCOMMANDS.join('|') + '> ...';
+
+const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const VALID_JSON_SUFFIX = '.valid.json';
 
 // ---------------------------------------------------------------------------
 // argv parsing -- a tiny flag parser (the gsd-tools switch-case idiom, no
@@ -218,12 +222,301 @@ function cmdValidateLane(positional, flags) {
 }
 
 // ---------------------------------------------------------------------------
-// file-pack -- filled in by Task 2. Task 1 leaves a stub so the router and
-// the other four legs are fully testable before filing lands.
+// file-pack: lane artifacts, EvidenceClaim filing with readback, 4-zone
+// report (Task 2).
 // ---------------------------------------------------------------------------
 
-function cmdFilePack(_flags) {
-  return { code: 2, err: 'file-pack: not implemented in this task' };
+function isExistingDir(p) {
+  try {
+    return typeof p === 'string' && p.length > 0 && fs.statSync(p).isDirectory();
+  } catch (_e) {
+    return false;
+  }
+}
+
+function laneDisplayLabel(laneId) {
+  const lane = LANES.find(function (l) { return l.id === laneId; });
+  return lane ? lane.label : laneId;
+}
+
+function pad(value, width) {
+  const s = String(value);
+  return s.length >= width ? s + ' ' : s + ' '.repeat(width - s.length);
+}
+
+// fileLane(db, valid, opts) -- writes ONE lane's artifact under
+// <roomDir>/competitive-analysis/dominant-designs/, then (when db is
+// non-null) files each toEvidenceClaimParams entry through
+// navigation.fileEvidenceWithReadback with readback. `valid` is a
+// validateLaneResult({ok:true}) envelope. opts = { roomDir, slug, date,
+// sessionId, retrievedAt }. Never opens or closes db (the caller owns the
+// handle across every lane in a pack); never writes outside roomDir.
+function fileLane(db, valid, opts) {
+  const o = opts || {};
+  const roomDir = o.roomDir;
+  const slug = o.slug;
+  const date = o.date;
+  const sessionId = o.sessionId;
+  const retrievedAt = o.retrievedAt;
+
+  const artifactText = renderLaneArtifact(valid, {
+    domain_slug: slug,
+    date: date,
+    retrieved_at: retrievedAt,
+  });
+
+  const roomAbs = path.resolve(roomDir);
+  const packDirAbs = path.join(roomAbs, 'competitive-analysis', 'dominant-designs');
+  const filename = laneArtifactName(slug, date, valid.lane);
+  const targetAbs = path.resolve(path.join(packDirAbs, filename));
+
+  if (targetAbs !== roomAbs && targetAbs.indexOf(roomAbs + path.sep) !== 0) {
+    throw new Error('fileLane: computed artifact path escapes the room directory: ' + targetAbs);
+  }
+
+  fs.mkdirSync(packDirAbs, { recursive: true });
+  fs.writeFileSync(targetAbs, artifactText, 'utf8');
+
+  const relPath = path.relative(roomAbs, targetAbs).split(path.sep).join('/');
+
+  const result = {
+    lane: valid.lane,
+    ok: true,
+    reason: null,
+    artifact_path: relPath,
+    rows: valid.rows.length,
+    counts: valid.counts,
+    not_found_count: Array.isArray(valid.searched_not_found) ? valid.searched_not_found.length : 0,
+    filed: 0,
+    landed: 0,
+    not_landed: [],
+    message: '',
+  };
+
+  if (!db) {
+    result.message = 'wrote ' + relPath + '; no evidence nodes were filed because room.db was not found';
+    return result;
+  }
+
+  const params = toEvidenceClaimParams(valid, { sessionId: sessionId, artifact_path: relPath });
+  result.filed = params.length;
+
+  params.forEach(function (p) {
+    const res = navigation.fileEvidenceWithReadback(db, p);
+    navigation.surfaceFileEvidenceResult(res);
+    if (res && res.ok === true) {
+      result.landed += 1;
+    } else {
+      result.not_landed.push({ url: p.url, reason: (res && res.reason) || 'unknown' });
+    }
+  });
+
+  if (params.length === 0) {
+    result.message = 'wrote ' + relPath + '; no sourced evidence to file for this lane';
+  } else if (result.not_landed.length === 0) {
+    result.message = 'wrote ' + relPath + '; filed and confirmed ' + result.landed + ' evidence claim(s)';
+  } else {
+    result.message = 'wrote ' + relPath + '; ' + result.landed + ' landed, ' + result.not_landed.length + ' not landed';
+  }
+
+  return result;
+}
+
+// filePack(opts) -- validates flags, reads every *.valid.json in opts.pack
+// (in LANE_IDS order), opens navigation.openRoomDbForCaller(roomDir) ONCE,
+// runs fileLane per lane, and closes the handle in finally. Returns
+// {usageError} on a bad flag (nothing written), otherwise the full pack
+// result {ok, room_db, reason, filed, lanes}.
+function filePack(opts) {
+  const o = opts || {};
+  const packDir = o.pack;
+  const roomDir = o.room;
+  const slug = o.domainSlug;
+  const date = o.date;
+
+  if (typeof slug !== 'string' || slug.length === 0 || slug.length > 60 || !SLUG_RE.test(slug)) {
+    return { usageError: 'file-pack: --domain-slug must be lowercase, hyphenated, at most 60 chars' };
+  }
+  if (typeof date !== 'string' || !DATE_RE.test(date)) {
+    return { usageError: 'file-pack: --date must be YYYY-MM-DD' };
+  }
+  if (!isExistingDir(roomDir)) {
+    return { usageError: 'file-pack: --room must be an existing directory' };
+  }
+  if (!isExistingDir(packDir)) {
+    return { usageError: 'file-pack: --pack must be an existing directory' };
+  }
+
+  const sessionId = (typeof o.sessionId === 'string' && o.sessionId.length > 0)
+    ? o.sessionId
+    : 'dominant-designs:' + slug + ':' + date;
+  const retrievedAt = (typeof o.retrievedAt === 'string' && o.retrievedAt.length > 0) ? o.retrievedAt : date;
+
+  let entries;
+  try {
+    entries = fs.readdirSync(packDir).filter(function (f) { return f.endsWith(VALID_JSON_SUFFIX); });
+  } catch (_e) {
+    return { usageError: 'file-pack: cannot read --pack directory' };
+  }
+
+  const laneFiles = [];
+  entries.forEach(function (f) {
+    const laneId = f.slice(0, -VALID_JSON_SUFFIX.length);
+    if (LANE_IDS.indexOf(laneId) !== -1) {
+      laneFiles.push({ laneId: laneId, file: path.join(packDir, f) });
+    }
+  });
+  laneFiles.sort(function (a, b) { return LANE_IDS.indexOf(a.laneId) - LANE_IDS.indexOf(b.laneId); });
+
+  const db = navigation.openRoomDbForCaller(roomDir);
+  const roomDbPresent = !!db;
+  const lanes = [];
+  let totalFiled = 0;
+
+  try {
+    laneFiles.forEach(function (entry) {
+      let parsed;
+      try {
+        parsed = JSON.parse(fs.readFileSync(entry.file, 'utf8'));
+      } catch (_e) {
+        lanes.push({
+          lane: entry.laneId,
+          ok: false,
+          reason: 'unreadable_valid_json',
+          artifact_path: null,
+          rows: 0,
+          filed: 0,
+          landed: 0,
+          not_landed: [],
+          message: 'lane not run: could not read or parse ' + entry.file,
+        });
+        return;
+      }
+      if (!parsed || parsed.ok !== true) {
+        const reason = (parsed && typeof parsed.reason === 'string') ? parsed.reason : 'invalid';
+        lanes.push({
+          lane: entry.laneId,
+          ok: false,
+          reason: reason,
+          artifact_path: null,
+          rows: 0,
+          filed: 0,
+          landed: 0,
+          not_landed: [],
+          message: 'lane not run: ' + reason,
+        });
+        return;
+      }
+      let laneResult;
+      try {
+        laneResult = fileLane(db, parsed, {
+          roomDir: roomDir,
+          slug: slug,
+          date: date,
+          sessionId: sessionId,
+          retrievedAt: retrievedAt,
+        });
+      } catch (e) {
+        laneResult = {
+          lane: entry.laneId,
+          ok: false,
+          reason: 'file_lane_failed',
+          artifact_path: null,
+          rows: 0,
+          filed: 0,
+          landed: 0,
+          not_landed: [],
+          message: 'lane not run: ' + String(e && e.message ? e.message : e).slice(0, 120),
+        };
+      }
+      totalFiled += laneResult.filed;
+      lanes.push(laneResult);
+    });
+  } finally {
+    navigation.closeRoomDbForCaller(db);
+  }
+
+  return {
+    ok: roomDbPresent,
+    room_db: roomDbPresent,
+    reason: roomDbPresent ? null : 'no_room_db',
+    filed: totalFiled,
+    lanes: lanes,
+  };
+}
+
+// renderFilingReport(packResult, opts) -- the 4-zone text report. Zone 1
+// header, Zone 2 body table, no Zone 3 (methodology session), Zone 4 footer
+// with one primary and two alternative real /mos: commands (skills/ui-system
+// SKILL.md section 1). Plain ASCII, no ANSI color, no em-dashes.
+function renderFilingReport(packResult, opts) {
+  const o = opts || {};
+  const roomLabel = (typeof o.roomLabel === 'string' && o.roomLabel.length > 0)
+    ? o.roomLabel
+    : ((typeof o.roomDirBasename === 'string' && o.roomDirBasename.length > 0) ? o.roomDirBasename : 'no room');
+  const stage = (typeof o.stage === 'string' && o.stage.length > 0) ? o.stage : 'unknown stage';
+
+  const lines = [];
+  lines.push('-- ' + roomLabel + ' -- competitive-analysis -- ' + stage + ' --');
+  lines.push('');
+  lines.push(pad('Lane', 24) + pad('Kept', 6) + pad('Dropped', 9) + pad('NotFound', 10) + 'Result');
+  lines.push(pad('----', 24) + pad('----', 6) + pad('-------', 9) + pad('--------', 10) + '------');
+
+  (packResult.lanes || []).forEach(function (lane) {
+    const label = laneDisplayLabel(lane.lane);
+    const counts = lane.counts || { dropped_unsourced: 0, dropped_scored: 0, dropped_over_cap: 0 };
+    const dropped = (counts.dropped_unsourced || 0) + (counts.dropped_scored || 0) + (counts.dropped_over_cap || 0);
+    const notFound = lane.not_found_count || 0;
+
+    let resultCell;
+    if (lane.ok === false) {
+      resultCell = 'NOT RUN (' + lane.reason + ')';
+    } else if (!packResult.room_db) {
+      resultCell = 'NOT LANDED (room.db not found)';
+    } else if (lane.not_landed && lane.not_landed.length > 0) {
+      resultCell = 'NOT LANDED (' + lane.landed + '/' + lane.filed + ')';
+    } else {
+      resultCell = lane.filed + ' filed';
+    }
+
+    lines.push(pad(label, 24) + pad(String(lane.rows || 0), 6) + pad(String(dropped), 9) + pad(String(notFound), 10) + resultCell);
+  });
+
+  lines.push('');
+  if (!packResult.room_db) {
+    lines.push('The lane files were written; no evidence nodes were filed because room.db was not found.');
+    lines.push('');
+  }
+
+  lines.push('> /mos:find-bottlenecks - surface the gaps and contradictions this evidence pack raises');
+  lines.push('> /mos:macro-trends - zoom out to the macro forces shaping this domain');
+  lines.push('> /mos:explore-trends - branch into an adjacent trend worth tracking');
+
+  return lines.join('\n');
+}
+
+function cmdFilePack(flags) {
+  const opts = {
+    pack: flags.pack,
+    room: flags.room,
+    domainSlug: flags['domain-slug'],
+    date: flags.date,
+    sessionId: flags.session,
+  };
+  const result = filePack(opts);
+  if (result && typeof result.usageError === 'string') {
+    return { code: 2, err: result.usageError };
+  }
+  if (flags.json) {
+    return { code: 0, out: result };
+  }
+  const roomDirBasename = (typeof flags.room === 'string' && flags.room.length > 0) ? path.basename(flags.room) : 'no room';
+  const text = renderFilingReport(result, {
+    roomLabel: flags['room-label'],
+    stage: flags.stage,
+    roomDirBasename: roomDirBasename,
+  });
+  return { code: 0, text: text };
 }
 
 // ---------------------------------------------------------------------------
@@ -288,4 +581,7 @@ module.exports = {
   cmdTheoStructure: cmdTheoStructure,
   cmdValidateLane: cmdValidateLane,
   cmdFilePack: cmdFilePack,
+  fileLane: fileLane,
+  filePack: filePack,
+  renderFilingReport: renderFilingReport,
 };
