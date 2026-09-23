@@ -377,3 +377,12 @@ Downstream agents MUST read `359-SPEC.md` before planning or implementing. Requi
 
 *Phase: 359-missed-fork-detection-larry-poses-a-genuine-decision-in-pros*
 *Context gathered: 2026-09-23*
+
+<navigator_rulings>
+## Navigator rulings (2026-09-23, after discuss)
+- **N-1 (confirms D-01 to D-03):** the declaration form is VISIBLE, `Your call: <label> | <label>`, exactly as specified.
+  The navigator-review flag is cleared.
+- **N-2 (approves D-11/D-12):** forward-run spend is approved with a hard cap of $60 total and $0.40 per run,
+  3 runs per scenario per arm. The script refuses to start if its projected total is over the cap. The model
+  is fixed and is never Fable.
+</navigator_rulings>
