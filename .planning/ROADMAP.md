@@ -1241,7 +1241,7 @@ Plans:
 **Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 8 plans in 5 waves
-**Progress:** 2/8 plans executed (361-01, 361-02 done, 2026-09-23)
+**Progress:** 3/8 plans executed (361-01, 361-02, 361-03 done, 2026-09-23)
 
 Plans:
 
@@ -1252,7 +1252,7 @@ Plans:
 **Wave 2** *(parallel, disjoint files)*
 
 - [x] 361-02-PLAN.md -- Part 8: three separate known-shape arms (framework_step, framework_techniques, case_story) after recommend_chain, canonical-handle helper, find_connections provably untouched, read-only Theo parity test (D-10, D-14, D-15)
-- [ ] 361-03-PLAN.md -- pure `lane-queries.cjs` (four audited lane queries, edit re-audit) and `evidence-pack.cjs` (D-06 validator, D-13 tiers, lane artifact renderer, per-URL filing params)
+- [x] 361-03-PLAN.md -- pure `lane-queries.cjs` (four audited lane queries, edit re-audit) and `evidence-pack.cjs` (D-06 validator, D-13 tiers, lane artifact renderer, per-URL filing params)
 - [ ] 361-04-PLAN.md -- `agents/dominant-design-researcher.md`, read-only by a host-enforced `tools:` list mirrored in `allowed-tools:` (D-17), connector-excluded; born-wired ledgers regenerated
 - [ ] 361-05-PLAN.md -- `theo-structure.cjs` (generic handle only; Theo when it has steps, reference otherwise, reason named, D-09/D-16) plus the Research mode note in the reference (Tri-Polar)
 
