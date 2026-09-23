@@ -8,9 +8,10 @@
 # IMPORTANT: this aggregator is written ONCE, here, in 358-02. NO LATER B1
 # PLAN in this phase edits it. A later plan adds its own test file
 # (tests/test-358-b1-*.cjs); the run_if legs below pick up a landed file
-# automatically because each leg already names its guard file. The B2 plan
-# set (later in this same phase) adds its own legs deliberately, by re-
-# opening this file on purpose, not by silently patching around it.
+# automatically because each leg already names its guard file. 358-07
+# re-opened this file ONCE, deliberately, to add the B2 legs: every B2 test
+# file is named up front below; no later B2 plan in this phase edits this
+# file again.
 #
 # exit 0  -> PASSED
 # exit 77 -> SKIPPED (ENV GAP), never reported as PASSED
@@ -62,6 +63,15 @@ run_if "358: CLI surface (B1-02/B1-04/B1-05)"      tests/test-358-b1-cli.cjs    
 run_if "358: MCP surfaces (B1-02/B1-04/B1-05/B1-06)" tests/test-358-b1-surfaces.cjs   node tests/test-358-b1-surfaces.cjs
 run_if "358: new-session persistence (B1-03)"      tests/test-358-b1-persistence.cjs  node tests/test-358-b1-persistence.cjs
 
+# --- B2 legs (358-07 re-opened this file ONCE to add these, deliberately) ---
+run_if "358: B2 core (B2-01/B2-02/B2-03/B2-07)"       tests/test-358-b2-core.cjs        node tests/test-358-b2-core.cjs
+run_if "358: B2 render and card (B2-04)"              tests/test-358-b2-render.cjs      node tests/test-358-b2-render.cjs
+run_if "358: B2 Part 8 (B2-09)"                       tests/test-358-b2-part8.cjs       node tests/test-358-b2-part8.cjs
+run_if "358: B2 routing spec (Larry reach)"           tests/test-358-b2-routing.cjs     node tests/test-358-b2-routing.cjs
+run_if "358: B2 CLI surface (B2-05)"                  tests/test-358-b2-cli.cjs         node tests/test-358-b2-cli.cjs
+run_if "358: B2 MCP surfaces (B2-06)"                 tests/test-358-b2-surfaces.cjs    node tests/test-358-b2-surfaces.cjs
+run_if "358: B2 close-everything persistence (B2-08)" tests/test-358-b2-persistence.cjs node tests/test-358-b2-persistence.cjs
+
 # --- Existing tests that must stay or turn green (run) ----------------------
 run "358: pre-existing verification unit (run only, never edited by later 358 plans)" node tests/test-b1-verification.cjs
 run "358: host tier (run only, never edited by 358)"                                   node tests/test-234-host-tier.cjs
@@ -74,6 +84,13 @@ run "358: meeting gate wiring (run only, never edited by 358)"                  
 run "358: validity window (run only, never edited by 358)"                              node tests/test-348-validity-window.cjs
 run "358: filing gate (run only, never edited by 358)"                                  node tests/test-353-filing-gate.cjs
 
+# --- B2 existing tests that must stay or turn green (run; 358-07) -----------
+run "358: B2 frame substrate (updated by 358-07)"                                       node tests/test-b2-frame-provenance.cjs
+run "358: frame node (run only, never edited by 358)"                                   node tests/test-205-frame-node.cjs
+run "358: fusion router (run only, never edited by 358)"                                node tests/test-205-fusion-router.cjs
+run "358: one supersession door (run only, never edited by 358)"                        node tests/test-348-one-supersession-door.cjs
+run "358: build command registry --check"                                               node scripts/build-command-registry.cjs --check
+
 # --- Gates (run) -------------------------------------------------------------
 run "358: connector registry --check"          node scripts/build-connector-registry.cjs --check
 run "358: orchestration projection --check"    node scripts/build-orchestration-projection.cjs --check
@@ -85,11 +102,11 @@ run "358: help coverage"                       node scripts/check-help-coverage.
 run "358: tool honesty --check"                node scripts/check-tool-honesty.cjs --check
 
 # --- CIRS leg: only the 358 plan files that actually exist on disk ----------
-echo "--- 358: CIRS declaration (existing 358-0N-PLAN.md files) ---"
+echo "--- 358: CIRS declaration (existing 358-NN-PLAN.md files) ---"
 CIRS_PLANS=()
 while IFS= read -r -d '' f; do
   CIRS_PLANS+=("$f")
-done < <(find .planning/phases/358-*/ -maxdepth 1 -name '358-0[1-6]-PLAN.md' -print0 2>/dev/null)
+done < <(find .planning/phases/358-*/ -maxdepth 1 -name '358-[0-9][0-9]-PLAN.md' -print0 2>/dev/null)
 if [ "${#CIRS_PLANS[@]}" -eq 0 ]; then
   echo ">>> 358: CIRS declaration: SKIPPED (no 358-0N-PLAN.md found)"; SKIP=$((SKIP+1))
 else
@@ -128,11 +145,20 @@ PHASE_358_SURFACES=(
   "tests/test-270-tool-schema-budget.cjs"
   "tests/fixtures/tool-honesty/276-dispositions.json"
   "tests/test-b1-verification.cjs"
+  "lib/core/navigation/typed-frame.cjs"
+  "lib/core/frame-provenance.cjs"
+  "scripts/room-question.cjs"
+  "lib/mcp/tools/question.cjs"
+  "tests/helpers/b2-358-child.cjs"
+  "tests/test-b2-frame-provenance.cjs"
+  "data/mcp-tool-connectors.json"
+  "data/command-registry.json"
+  "docs/2026-10-06-ROME-B2-GO-NO-GO.md"
 )
 EMDASH_FILES=("${PHASE_358_SURFACES[@]}")
 while IFS= read -r -d '' f; do
   EMDASH_FILES+=("$f")
-done < <(find tests -maxdepth 1 -name 'test-358-b1-*.cjs' -print0 2>/dev/null)
+done < <(find tests -maxdepth 1 -name 'test-358-b[12]-*.cjs' -print0 2>/dev/null)
 for f in "${EMDASH_FILES[@]}"; do
   if [ -f "$f" ] && grep -lq "$(printf '\xe2\x80\x94')" "$f" 2>/dev/null; then
     echo "em-dash found in $f"
