@@ -118,6 +118,8 @@ const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
   'irreversibility-answer-key',
   'build-framework-command-ledger',
   'label-card-fire-replay',
+  'jev-question-ceilings',
+  'jev-response-schema',
 ]);
 
 function escapeRe(s) {
