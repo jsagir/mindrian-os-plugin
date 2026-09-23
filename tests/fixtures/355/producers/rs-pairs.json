@@ -1,0 +1,83 @@
+{
+  "_comment": "Phase 355 Plan 17 (HIPS-04, HIPS-05, D-08, D-16, D-48). Recorded rs-engine.cjs pairDicts shape (source/target artifact ids, titles, sections, lsa_score, semantic_score, signed_diff, abs_diff, direction). Titles chosen so some resolve to canon names in data/framework-names.json (and have a matching entry in tests/fixtures/355/theo-stub-responses.json), and some do not resolve at all.",
+  "pairs": [
+    {
+      "source_artifact_id": "problem-definition/rs-bottleneck-a",
+      "source_title": "Reverse Salient Analysis",
+      "source_section": "problem-definition",
+      "target_artifact_id": "solution-design/rs-bottleneck-b",
+      "target_title": "Six Thinking Hats",
+      "target_section": "solution-design",
+      "lsa_score": 0.31,
+      "semantic_score": 0.74,
+      "signed_diff": 0.43,
+      "abs_diff": 0.43,
+      "direction": "structural_transfer"
+    },
+    {
+      "source_artifact_id": "problem-definition/rs-bottleneck-c",
+      "source_title": "Cynefin Framework",
+      "source_section": "problem-definition",
+      "target_artifact_id": "market-analysis/rs-bottleneck-d",
+      "target_title": "Hedgehog Concept",
+      "target_section": "market-analysis",
+      "lsa_score": 0.62,
+      "semantic_score": 0.18,
+      "signed_diff": -0.44,
+      "abs_diff": 0.44,
+      "direction": "semantic_implementation"
+    },
+    {
+      "source_artifact_id": "solution-design/rs-bottleneck-e",
+      "source_title": "Systems Thinking",
+      "source_section": "solution-design",
+      "target_artifact_id": "assumptions/rs-bottleneck-f",
+      "target_title": "Hierarchy Mapping",
+      "target_section": "assumptions",
+      "lsa_score": 0.28,
+      "semantic_score": 0.69,
+      "signed_diff": 0.41,
+      "abs_diff": 0.41,
+      "direction": "structural_transfer"
+    },
+    {
+      "source_artifact_id": "market-analysis/rs-bottleneck-g",
+      "source_title": "A Homegrown Field Note",
+      "source_section": "market-analysis",
+      "target_artifact_id": "solution-design/rs-bottleneck-b",
+      "target_title": "Six Thinking Hats",
+      "target_section": "solution-design",
+      "lsa_score": 0.55,
+      "semantic_score": 0.21,
+      "signed_diff": -0.34,
+      "abs_diff": 0.34,
+      "direction": "semantic_implementation"
+    },
+    {
+      "source_artifact_id": "assumptions/rs-bottleneck-h",
+      "source_title": "Not A Real Framework At All",
+      "source_section": "assumptions",
+      "target_artifact_id": "research/rs-bottleneck-i",
+      "target_title": "Also Not A Real Framework",
+      "target_section": "research",
+      "lsa_score": 0.40,
+      "semantic_score": 0.40,
+      "signed_diff": 0.0,
+      "abs_diff": 0.0,
+      "direction": "semantic_implementation"
+    },
+    {
+      "source_artifact_id": "research/rs-bottleneck-j",
+      "source_title": "Ackoff Pyramid",
+      "source_section": "research",
+      "target_artifact_id": "decisions/rs-bottleneck-k",
+      "target_title": "Dominant Design",
+      "target_section": "decisions",
+      "lsa_score": 0.19,
+      "semantic_score": 0.58,
+      "signed_diff": 0.39,
+      "abs_diff": 0.39,
+      "direction": "structural_transfer"
+    }
+  ]
+}

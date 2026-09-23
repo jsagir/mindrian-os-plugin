@@ -68,6 +68,12 @@ Procedure (CLI / Desktop / Cowork):
    - On DEFER: DEFERRED memory_event records the deferral for Phase 116 unresolved-tension-hook consumption.
 4. If the agent returns `{ ok: false }` OR finds nothing OR is suppressed (tier 0 / JUST_TALK), fall back to the standard Setup + Session Flow below.
 
+### Verification stamp (Phase 355-17, HIPS-04, HIPS-05, D-16, D-27, D-29, D-50)
+
+Every surfaced finding's F.0 body already carries a verification stamp block, appended by the agent itself (`renderBottleneckFinding`, right after the finding text and the framework chain, ending in the disclosure line). Reproduce that block VERBATIM -- never summarize it, never add a number, never restate a differential or similarity score of your own. The finding is lagging relative to another artifact by construction (that is what Reverse Salient found); the stamp says whether the methodology graph can independently verify a path between the two frameworks involved, not how "similar" they are.
+
+On Desktop or Cowork, if a finding's stamp was never computed (the CLI has not run this path there), say exactly: "Not yet checked; run the CLI to verify." (D-50). Never invent a tier or a path for it.
+
 ### Empty-result UX (Phase 127.2 Plan 03 -- Finding F7)
 
 When the agent returns no findings, you MUST distinguish two cases for the user, because "no findings" reads as "your work is clean" -- the worst possible signal if the analyzer crashed:
