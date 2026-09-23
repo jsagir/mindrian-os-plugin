@@ -95,3 +95,22 @@ Blocked or incomplete:
 
 - `node scripts/doctor.cjs --acceptance` did not complete within the review window and requires phase-level diagnosis.
 
+## Corrections (Phase 354, 2026-09-23)
+
+Phase 354 (`docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`) independently
+researched every finding above, published a disposition ledger
+(`docs/reviews/phase-354-disposition-ledger.md`), implemented and verified repairs, and closed
+out with `docs/reviews/phase-354-close-out.md`. The corrections below name each overstatement
+in this review and its corrected finding, with an evidence link. Nothing above this section was
+edited or deleted.
+
+| Overstatement in this review | Corrected finding | Evidence |
+|---|---|---|
+| The subjective 5/10 (plugin) and 6/10 (integration) ratings in the opening summary | Not measurements. Phase 354's handoff itself states this explicitly ("its title overstated coverage... the conversation's 5/10 plugin and 6/10 integration ratings are subjective estimates, not measured acceptance criteria"); the actual measured record is `docs/reviews/phase-354-disposition-ledger.md`'s Final disposition section (11 of 13 IDs FIXED-VERIFIED) and `docs/reviews/phase-354-close-out.md`'s Measured gates table. | `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md` "Mission" section; `docs/reviews/phase-354-disposition-ledger.md` Section 11 |
+| The percent-encoded URI traversal claim (implied raw traversal through `lib/mcp/resources.cjs`) | Did NOT escape through the installed MCP SDK's URI-template matcher (`room://section/..%2Foutside` resolves `inside:false, outside:false`, no disclosure). The real containment gap was a pre-existing room symlink escaping both `room://section/{name}` and `reasoning://section/{name}`, fixed in Plan 354-05. | `docs/reviews/phase-354-disposition-ledger.md` SYS-01 row and Section 4 ("MCP URI percent-encoding traversal"); `docs/reviews/phase-354-probes/resources.cjs` re-run output |
+| The implied "blanket graph-rebuild destruction" concern | REFUTED as current behavior: graph rebuild is scoped and transactional; rebuild-preservation tests passed. No fix was planned or needed for this. | `docs/reviews/phase-354-disposition-ledger.md` Section 4 |
+| An unscoped reading of the taxonomy-vocabulary casing defect as affecting `recommendChain` | Taxonomy casing was limited to the `taxonomy_ladder` path (`lib/core/strategy/rung-vocabulary.cjs`, `taxonomy-climb.cjs`); `recommendChain` already performed correct origin-specific normalization and was NOT touched by the fix. | `docs/reviews/phase-354-disposition-ledger.md` Section 4; Plan 354-10 (`tests/test-354-taxonomy-ladder-casing.cjs`) |
+| `extract_shallow`'s connector metadata implied to promise governed writes | The connector's own `hitl_why` already honestly stated zero graph writes; the actual defect was a description/prose mismatch (the tool description and `agents/larry-extended.md` claimed writes the code never performed), corrected to honest-parsing-only (D-354-SYS05), not by adding write behavior. | `docs/reviews/phase-354-disposition-ledger.md` SYS-05 row and Decision D-354-SYS05; Plan 354-15 |
+| F-07's "the acceptance gate did not terminate in the review environment" implied a runner defect/hang | UNRESOLVED, not a confirmed product defect at research time; instrumented (per-point timing, `runBoundedChild`, stderr progress) and reran clean in Plan 354-13, classified **WORKING**: the symptom was a visibility gap (no per-point progress, 4 unbounded child spawns), not a hang -- both a pre-tag and a full rerun completed within bound with zero timeouts and zero orphan processes. | `.planning/debug/sys-07-acceptance-timing.md` (SYS-07 RCA, Resolution section) |
+| The plugin's release notification (`repository_dispatch: theo-resync`) implied to prove Theo consumes and re-emits the command registry | Sending the event is not proof it is received. Confirmed a tracked cross-repository gap (THEO-02): Theo's own `.github/workflows/` has no `theo-resync` consumer workflow at any commit inspected (`4ae9843` at planning time, `98e337d` at close-out); a live `release.sh --dry-run` shows the registry stamp is currently MISMATCHED (6 betas of drift). Not fixed unilaterally from this repo; coordinated with, not duplicating, Phase 351. Status: BLOCKED, not resolved. | `docs/reviews/phase-354-disposition-ledger.md` THEO-02 row; `.planning/phases/354-system-integrity-and-theo-integration-independent-research-a/354-THEO-EVIDENCE.md` |
+

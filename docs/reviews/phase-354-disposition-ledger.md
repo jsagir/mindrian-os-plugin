@@ -206,3 +206,38 @@ not executed yet when this ledger is first written in wave 1; this row stays exp
 No room content, secrets or keys were pasted into this ledger. Every probe listed above used
 synthetic text only; the brain key the theo probe sets is the literal string
 `synthetic-phase-354-key`, never a real credential.
+
+## 11. Final disposition (Plan 354-16 close-out)
+
+Published by: 354-16 Task 3, closing every ID this ledger opened in wave 1 plus every new
+finding recorded in a 354-NN-SUMMARY.md. Every verification command below was actually run
+during 354-16 (`docs/reviews/phase-354-close-out.md`'s Measured gates table is the source
+record); no exit status here is assumed or carried over from an earlier plan's own report
+without re-checking it landed in `git log`.
+
+| ID | Final disposition | Implementation reference | Verification command | Exit |
+|----|--------------------|---------------------------|------------------------|------|
+| SYS-01 | FIXED-VERIFIED | `lib/core/room-path-containment.cjs`, `lib/mcp/tool-router.cjs`, `lib/mcp/tools/views.cjs`, `lib/mcp/resources.cjs`, `lib/core/reasoning-ops.cjs` (commits `66c0e762c`, `51ec7fca6`, `27f1bd02e`, Plan 354-05) | `node tests/test-354-room-symlink-containment.cjs` | 0 (10/10) |
+| SYS-02 | FIXED-VERIFIED | `lib/core/write-lock.cjs`, `lib/core/graph-ops.cjs` (commits `d245912b2`, `baa5f6b74`, Plan 354-04) | `node tests/test-354-write-lock-ownership.cjs` | 0 (18/18) |
+| SYS-03 | FIXED-VERIFIED | `lib/chat/chat-panel.js`, `lib/chat/generative-tools.js` (commits `ebb81c663`, `0071a5897`, Plan 354-07) | `node tests/test-354-chat-inert-render.cjs` | 0 |
+| SYS-04 | FIXED-VERIFIED | `lib/mcp/register-core-tools.cjs`, `lib/mcp/tools/status.cjs` (commits `0b246f9c3`, `73f42c23b`, Plan 354-14) | `node tests/test-354-registration-diagnostics.cjs`; re-confirmed live via K1 of `tests/test-354-concurrency-surfaces.cjs` (Plan 354-16) | 0 |
+| SYS-05 | FIXED-VERIFIED | `lib/mcp/tools/dual-path.cjs`, `lib/core/shallow-doc-parser.cjs`, `agents/larry-extended.md` (commits `4d1c3117e`, `c08436443`, Plan 354-15) | `node tests/test-354-extract-shallow-contract.cjs` | 0 |
+| SYS-06 | FIXED-VERIFIED | `docs/reviews/localhost-poc/server.cjs`, `app.js`, `scripts/serve-dashboard-live` (commits `439856ebf`, `9175c586d`, `0cdcb11ca` Plan 354-08; `e56e3e0c5`, `887bd0263`, `ba806f088` Plan 354-11) | `node tests/test-354-poc-save-origin.cjs`; `node tests/test-354-poc-room-journey.cjs`; re-confirmed live via K4 of `tests/test-354-concurrency-surfaces.cjs` (Plan 354-16) | 0 (13/13 journey) |
+| SYS-07 | FIXED-VERIFIED | `scripts/doctor.cjs` `runBoundedChild` + `runAcceptance` instrumentation (commits `63a1fbecb`, `d3da69ec3`, Plan 354-13); RCA `.planning/debug/sys-07-acceptance-timing.md` classifies WORKING | `timeout 900 node scripts/doctor.cjs --acceptance --pre-tag --json` | 0 (18/18, 56.1s wall clock this rerun) |
+| SYS-08 | FIXED-VERIFIED | `lib/mcp/tools/gate.cjs` `_promoteCardSubject` (commits `b7ebba171`, `b46aff3ab`, Plan 354-02) | `node tests/test-354-gate-subject-promotion.cjs`; re-confirmed live via K3 of `tests/test-354-concurrency-surfaces.cjs` (Plan 354-16) | 0 (27/27) |
+| SYS-09 | FIXED-VERIFIED | `lib/core/chain-executor.cjs` `_computeResumePlan` (commits `a91837d9d`, `ae595b101`, Plan 354-03) | `node tests/test-354-chain-resume-identity.cjs` | 0 (15/15) |
+| THEO-01 | FIXED-VERIFIED | `lib/core/brain-client.cjs`, `lib/mcp/brain-router.cjs`, `lib/mcp/tool-router.cjs` (commits `91da73441`, `257996f88`, Plan 354-09); `lib/core/strategy/rung-vocabulary.cjs`, `lib/core/part8-egress-guard.cjs` (commit `98b6f7bb9`, Plan 354-10); live certification (Plan 354-12) | `node tests/test-354-theo-router-contract.cjs`; `node tests/test-354-taxonomy-ladder-casing.cjs`; `MINDRIAN_354_LIVE=1 node tests/test-354-theo-live-contract.cjs` | 0 (live: 9/9 records against `theo-mcp.onrender.com`) |
+| THEO-02 | BLOCKED (unchanged) | Plugin-side only: `scripts/release.sh` Step 5.6, `tests/test-343-theo-stamp-gate.cjs` (Plan 354-12, `354-THEO-EVIDENCE.md`). No implementation reference on Theo's own side -- `jsagir/theo` commit `98e337d` at last check has no `theo-resync` consumer workflow. Coordinated with, not duplicating, Phase 351 (still 0 plans). | `bash tests/run-all-349.sh`; `node tests/test-343-theo-stamp-gate.cjs`; `git -C /home/jsagi/Theo log -1`; `grep -rl theo-resync /home/jsagi/Theo/.github` | 0 / 0 / 0 / 1 (zero hits -- the consumer does not exist) |
+| THEO-03 | FIXED-VERIFIED | `lib/core/part8-egress-guard.cjs`, `lib/core/brain-client.cjs`, `scripts/part8-egress-guard-hook.cjs` (commits `8f87980e5`, `255195a9f`, Plan 354-06); live certification (Plan 354-12) | `node tests/test-354-egress-typed-question.cjs`; `node tests/test-354-theo-journey.cjs`; `MINDRIAN_354_LIVE=1 node tests/test-354-theo-live-contract.cjs` | 0 (live: 9/9 records) |
+| THEO-04 | MITIGATED-DOCUMENTED (never FIXED-VERIFIED) | `CLAUDE.md`, `docs/GROUNDING-SOURCES.md` (commit `db68fe06a`); `scripts/check-theo-mcp-exposure.cjs`, `scripts/doctor.cjs` advisory registry entry (commit `c1c948bf0`, Plan 354-18). The underlying two-MCP-server structural exposure (the raw `theo` server bypassing `part8-egress-guard.cjs`) is NOT removed and was never in this phase's code scope; only the documentation rule and the advisory scan are delivered. | `node scripts/check-theo-mcp-exposure.cjs --check`; `node tests/test-354-theo-mcp-exposure.cjs` | 0 / 0 (6/6) |
+
+Also observed (not a probe ID, Section 3 above): `gate-ledger.cjs:100`'s fail-closed single-use
+burn stays unchanged and re-verified working this close-out (Plan 354-16, K3 of
+`tests/test-354-concurrency-surfaces.cjs`) -- a wrong-session `gate_answer` burns the gate
+without confirming anything, and the correct session's later retry is refused
+`unknown_or_expired_gate`. No regression, no defect, disposition unchanged from Section 3.
+
+**Summary:** 11 of 13 IDs FIXED-VERIFIED, 1 MITIGATED-DOCUMENTED (THEO-04, by design, never
+claimed fixed), 1 BLOCKED on an external cross-repository dependency (THEO-02, Phase 351).
+Every disposition above traces to a real commit in `git log` and a command this close-out
+actually ran, recorded in `docs/reviews/phase-354-close-out.md`'s Measured gates table.

@@ -2939,60 +2939,105 @@ contract.
       artifact_file, room://section/{sectionName}, reasoning://section/{name} and every reasoning-ops
       read/write resolve by realpath inside the room; percent-encoded traversal and sibling prefixes
       stay refused through the SDK URI matcher; valid discovered sections stay readable. Plan 354-05.
+      **Measured:** 2026-09-23, `node tests/test-354-room-symlink-containment.cjs`, exit 0, 10/10
+      cases passed (commit `27f1bd02e`).
 
 - [x] **SYS-02**: The cross-process write lock is owner-safe: a live owner is never displaced by age,
       a dead owner is recovered by exactly one contender, only the token owner releases, nesting
       holds until the outermost release, graph-ops holds it across its await. Plan 354-04.
+      **Measured:** 2026-09-23, `node tests/test-354-write-lock-ownership.cjs`, exit 0, 18/18
+      checks passed across cases A-G (commit `baa5f6b74`).
 
 - [x] **SYS-03**: Assistant and tool-component output in lib/chat renders inert in a real browser on
       the whole-message and streamed paths while bold, italic, code and lists still render.
       Plan 354-07.
+      **Measured:** 2026-09-23, `node tests/test-354-chat-inert-render.cjs`, exit 0, P1-P7/F1
+      passed (commit `0071a5897`).
 
 - [x] **SYS-04**: A failed tool-module registration keeps siblings working, writes a stderr
       diagnostic (stdout protocol-clean) and is reported by registerCoreTools and status_read
       capability_floor.tool_registration. Plan 354-14.
+      **Measured:** 2026-09-23, `node tests/test-354-registration-diagnostics.cjs`, exit 0
+      (commit `73f42c23b`); re-confirmed live inside K1 of `tests/test-354-concurrency-surfaces.cjs`
+      (354-16), `status_read` reports `tool_registration.complete: true` on both spawned servers.
 
 - [x] **SYS-05**: extract_shallow's public contract is honest parsing (D-354-SYS05): the handler
       writes nothing to disk or room.db (verified after reopening), its description and response say
       so, and agents/larry-extended.md names claim_write as the persistence step. Plan 354-15.
+      **Measured:** 2026-09-23, `node tests/test-354-extract-shallow-contract.cjs`, exit 0
+      (commit `c08436443`).
 
 - [x] **SYS-06**: The localhost POC saves untouched content byte-identically, refuses cross-origin
       writes and foreign Host reads, detects stale-tab conflicts, files room documents through the
       governed artifact path, and passes the full browser-to-room-to-graph journey (bind,
       edit/save/reopen, governed index, inspect, grounded ask with references, external edit).
       Plans 354-07, 354-08, 354-11.
+      **Measured:** 2026-09-23, `node tests/test-354-poc-save-origin.cjs` (commit `9175c586d`) and
+      `node tests/test-354-poc-room-journey.cjs` (commit `887bd0263`), both exit 0, journey 13/13
+      checks passed; re-confirmed live inside K4 of `tests/test-354-concurrency-surfaces.cjs`
+      (354-16): a real Playwright page shows silent reload on a clean editor and a 409 conflict
+      (no silent overwrite) on a dirty one.
 
 - [x] **SYS-07**: The acceptance runner reports per-point timing and progress, bounds every child
       process, and a clean rerun classifies the timeout as WORKING, ENV GAP or NEW FAILURE with an
       orphan check, recorded in `.planning/debug/sys-07-acceptance-timing.md`. Plan 354-13.
+      **Measured:** 2026-09-23, `timeout 900 node scripts/doctor.cjs --acceptance --pre-tag --json`,
+      exit 0, 18/18 points, 56.1s wall clock (354-16 rerun; RCA's own rerun measured 83.6s the same
+      way), zero timeouts, zero orphan processes -- classification WORKING (commit `d3da69ec3`).
 
 - [x] **SYS-08**: Gate approval promotes the card's subject claim (the exact claim id reads
       confirmed after reopening), never evidence nodes, and leaves strategy and material-step cards
       unchanged. Plan 354-02.
+      **Measured:** 2026-09-23, `node tests/test-354-gate-subject-promotion.cjs`, exit 0, 27/27
+      cases passed (commit `b46aff3ab`); re-confirmed live inside K3 of
+      `tests/test-354-concurrency-surfaces.cjs` (354-16).
 
 - [x] **SYS-09**: Chain resume uses positional step identity validated against the journal,
       restores the journaled predecessor output reference, halts on a mismatched journal, and never
       reports completion the journal contradicts. Plan 354-03.
+      **Measured:** 2026-09-23, `node tests/test-354-chain-resume-identity.cjs`, exit 0, 15/15
+      cases passed (commit `ae595b101`).
 
 - [x] **THEO-01**: The plugin-to-Theo contract is safe: the classified rung reaches Theo's
       recommend_chain intact, chains contain only registry command ids and are validated before act
       state initialization, provenance claims no unverified FEEDS_INTO, degradation is disclosed,
       the taxonomy ladder sends Theo's enum casing on all four rungs, and a live synthetic run is
       recorded (or live certification stays open). Plans 354-09, 354-10, 354-12.
+      **Measured:** 2026-09-23, `node tests/test-354-theo-router-contract.cjs` (commit `91da73441`)
+      and `node tests/test-354-taxonomy-ladder-casing.cjs` (commit `98b6f7bb9`) both exit 0; live
+      certification CLOSED via `MINDRIAN_354_LIVE=1 node tests/test-354-theo-live-contract.cjs`,
+      exit 0, 9/9 records passed against `https://theo-mcp.onrender.com` (`354-THEO-EVIDENCE.md`).
 
 - [ ] **THEO-02**: Release registry synchronization is dispositioned with plugin-side evidence and a
       read-only provider inspection, coordinated with Phase 351 and never marked complete while the
       Theo-side consumer is absent. Plan 354-12.
+      **Status:** BLOCKED on Phase 351 (owner `jsagir/theo`, still registered with 0 plans as of
+      2026-09-23). Plugin side fully proven (`bash tests/run-all-349.sh` 14/14,
+      `node tests/test-343-theo-stamp-gate.cjs` 7/7, live `--dry-run` confirms current MISMATCH
+      drift), but Theo's own `.github/workflows/` (commit `98e337d` at last check) has no
+      `theo-resync` consumer workflow -- see `354-THEO-EVIDENCE.md`. This row is intentionally left
+      `[ ]`; do not flip it until Phase 351 ships the consumer and a real `release.sh --dry-run`
+      prints `theo-stamp-gate: PASS`.
 
 - [x] **THEO-03**: The teaching-to-action loop is proven for healthy, unavailable, invalid-schema and
       thin-result providers with no room byte on the wire and no fallback labelled as Theo, and the
       free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
       354-12.
+      **Measured:** 2026-09-23, `node tests/test-354-egress-typed-question.cjs` (commit `255195a9f`)
+      and `node tests/test-354-theo-journey.cjs` (commit `1b3aa48e2`) both exit 0; live
+      certification CLOSED via the same `MINDRIAN_354_LIVE=1` run cited under THEO-01 above
+      (`354-THEO-EVIDENCE.md`).
 
 - [x] **THEO-04**: The raw `theo` MCP server's bypass of `part8-egress-guard.cjs` is documented where
       a session will read it before calling a Brain-adjacent tool (CLAUDE.md, GROUNDING-SOURCES.md)
       and surfaced by an offline, zero-network, WARN-only `doctor.cjs --acceptance` advisory check;
       not removed, not patched in Theo's own repository (out of scope), never claimed to be blocked.
+      **Measured:** 2026-09-23, documented + advisory check verified (MITIGATED-DOCUMENTED); the
+      raw-theo-MCP exposure itself is not removed, per navigator decision. Evidence:
+      `node scripts/check-theo-mcp-exposure.cjs --check` exit 0 and
+      `node tests/test-354-theo-mcp-exposure.cjs` exit 0, 6/6 passed (commits `db68fe06a`,
+      `c1c948bf0`). Never phrase this line as if the underlying exposure was fixed -- it was not;
+      only documentation and an advisory scan were delivered, exactly as scoped.
       Plan 354-18.
 
 ### Phase 357 - Gate-triad replay harness (GATE357 family)
