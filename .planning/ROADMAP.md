@@ -1065,43 +1065,43 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 **Goal:** Replace the substring-only `IRREVERSIBLE_HINTS` materiality check in `lib/core/chain-executor.cjs` (`_isMaterialStep` / `isIrreversibleStep`) with a dev-time ledger. A build script scores every command in the registry that `recipe-maps.postureForCommand` joins, once, with a Jev Noul carrying an explicitly stated materiality policy. The result ships as static data, the same pattern as `scripts/build-section-command-ledger.cjs` -> `data/section-command-ledger.json`. `runChain` reads the ledger with zero network calls. `IRREVERSIBLE_HINTS` and the explicit `step.material` flag stay authoritative overrides: they can force a step material, and the ledger can never downgrade a hinted step to autonomous_safe. A missing, stale, or unscored entry falls back to them. Locked (navigator ruling 2026-09-23): dev-time only, no live per-step Jev call, no Theo gateway, argument-level materiality stays with the keyword check. Part 8: only generic handles and plugin-authored command text cross to Jev. The key is dev-time only. Noul thresholds are tuned on this phase's own labeled fixture, not borrowed from spike 004's Choice-based 0.90. The runChain GUIDED safe-halt contract is unchanged (`tests/test-larry-handoff-seam.cjs` stays green). Grounding: spike-findings-MindrianOS-Plugin (spikes 001/003/004), 355-BRIEF.md (Jev docs: Noul and Choice are not comparable).
 **Requirements**: R356-01..R356-08 (phase-local, minted in 356-SPEC.md)
 **Depends on:** Phase 353 (shipped section-command-ledger builder, the pattern to reuse); coordinate with 354-17 (sibling framework-command ledger builder) so the two builders share one Jev client, not two
-**Plans:** 13 plans (7 waves; navigator checkpoints batched into 3 sittings: A, then B+C, then D plus the conditional D-14 appeal)
+**Plans:** 13/13 complete, VERIFIED 2026-09-23 (356-VERIFICATION.md passed; 7 waves; navigator checkpoints batched into 3 sittings: A, then B+C, then D plus the conditional D-14 appeal)
 
 Plans:
 
 **Wave 1** *(parallel)*
 
-- [ ] 356-01-PLAN.md -- test scaffolding: run-all-356 aggregator, no-network preload, HOOKS_BANNED_LEDGER_SCRIPTS list (D-19), 356 vendor tripwires, D-12 Larry-contract test
-- [ ] 356-02-PLAN.md -- shared scripts/jev-devtime-client.cjs (extract-if-missing, max_len_by_key + must_equal_file), section parity fixture, 353 builder re-export only if unowned diffs are gone (else deferred)
-- [ ] 356-03-PLAN.md -- runtime: lib/core/irreversibility-ledger.cjs, commandRow accessor, one add-only line in isIrreversibleStep, single D-17 re-pin
-- [ ] 356-04-PLAN.md -- sealed Claude pre-labels for every registry command (D-16)
-- [ ] 356-05-PLAN.md -- zero-network answer-key tooling (blind sheet, review sheet, merge; D-04/D-05)
+- [x] 356-01-PLAN.md -- test scaffolding: run-all-356 aggregator, no-network preload, HOOKS_BANNED_LEDGER_SCRIPTS list (D-19), 356 vendor tripwires, D-12 Larry-contract test
+- [x] 356-02-PLAN.md -- shared scripts/jev-devtime-client.cjs (extract-if-missing, max_len_by_key + must_equal_file), section parity fixture, 353 builder re-export only if unowned diffs are gone (else deferred)
+- [x] 356-03-PLAN.md -- runtime: lib/core/irreversibility-ledger.cjs, commandRow accessor, one add-only line in isIrreversibleStep, single D-17 re-pin
+- [x] 356-04-PLAN.md -- sealed Claude pre-labels for every registry command (D-16)
+- [x] 356-05-PLAN.md -- zero-network answer-key tooling (blind sheet, review sheet, merge; D-04/D-05)
 
 **Wave 2**
 
-- [ ] 356-06-PLAN.md -- SITTING 1 (Checkpoint A): navigator blind labels committed, then policy draft and review sheet
-- [ ] 356-07-PLAN.md -- material_step_ledger egress profile (policy via must_equal_file) and the builder's scoring core in fixture mode
+- [x] 356-06-PLAN.md -- SITTING 1 (Checkpoint A): navigator blind labels committed, then policy draft and review sheet
+- [x] 356-07-PLAN.md -- material_step_ledger egress profile (policy via must_equal_file) and the builder's scoring core in fixture mode
 
 **Wave 3**
 
-- [ ] 356-08-PLAN.md -- SITTING 2 (Checkpoints B + C): policy lock, pre-label review, answer key committed
-- [ ] 356-09-PLAN.md -- zero-miss threshold (D-15), D-14 appeal gate, ledger assembly, build modes
+- [x] 356-08-PLAN.md -- SITTING 2 (Checkpoints B + C): policy lock, pre-label review, answer key committed
+- [x] 356-09-PLAN.md -- zero-miss threshold (D-15), D-14 appeal gate, ledger assembly, build modes
 
 **Wave 4**
 
-- [ ] 356-10-PLAN.md -- key-free zero-network --check (R6) and answer-key integrity / D-16 order tests
+- [x] 356-10-PLAN.md -- key-free zero-network --check (R6) and answer-key integrity / D-16 order tests
 
 **Wave 5**
 
-- [ ] 356-11-PLAN.md -- SITTING 3 (Checkpoint D): navigator-authorized live Jev build, outcome recorded
+- [x] 356-11-PLAN.md -- SITTING 3 (Checkpoint D): navigator-authorized live Jev build, outcome recorded
 
 **Wave 6**
 
-- [ ] 356-12-PLAN.md -- conditional D-14 appeal ruling (replaces the old Checkpoint E), rebuild from raw scores
+- [x] 356-12-PLAN.md -- conditional D-14 appeal ruling (replaces the old Checkpoint E), rebuild from raw scores
 
 **Wave 7**
 
-- [ ] 356-13-PLAN.md -- phase verification (ledger present and absent), data/ROOM.md rows, report + rethinking-mindrianos research trail, peer messages, Theo statement
+- [x] 356-13-PLAN.md -- phase verification (ledger present and absent), data/ROOM.md rows, report + rethinking-mindrianos research trail, peer messages, Theo statement
 
 ### Phase 357: Gate-triad ledger: Jev-scored-at-dev-time is-fork/answered/relevant for the Stop-hook card gate, shipped as data, plus larry-extended gate-prose shrink
 
