@@ -95,8 +95,8 @@ Each task was committed atomically:
 
 ## Decisions Made
 - `PLAN_BASE` and `pre_phase_sha` are the same commit (`973deb329`): the 354-16 close-out commit, since the plan does not create a new commit before recording the anchor and no peer diffs existed on any of the 7 guarded runtime files at plan start.
-- Kept `L4` (mode rule) as a normal, non-vacuously-red check rather than force-failing it: with 0 live/dogfood entries today it has nothing to violate, so it legitimately passes. The plan's acceptance criteria anticipated this ("names L3 or L4 as the only failing legs" — not "both"), so this is plan-conformant, not a shortcut.
-- Built the `EM_DASH` sentinel via `String.fromCharCode(0x2014)` instead of a literal em-dash character in the source file — the literal character would have tripped the loader's own em-dash guard when grepped as part of the phase's em-dash-guard tooling. This was caught by the plan's own acceptance-criteria grep check and fixed before committing (see Deviations).
+- Kept `L4` (mode rule) as a normal, non-vacuously-red check rather than force-failing it: with 0 live/dogfood entries today it has nothing to violate, so it legitimately passes. The plan's acceptance criteria anticipated this ("names L3 or L4 as the only failing legs" - not "both"), so this is plan-conformant, not a shortcut.
+- Built the `EM_DASH` sentinel via `String.fromCharCode(0x2014)` instead of a literal em-dash character in the source file - the literal character would have tripped the loader's own em-dash guard when grepped as part of the phase's em-dash-guard tooling. This was caught by the plan's own acceptance-criteria grep check and fixed before committing (see Deviations).
 
 ## Deviations from Plan
 
@@ -104,7 +104,7 @@ Each task was committed atomically:
 
 **1. [Rule 1 - Bug] Literal em-dash character in the EM_DASH sentinel constant**
 - **Found during:** Task 1, running the acceptance-criteria em-dash grep check (`grep -c "$(printf '\xe2\x80\x94')" scripts/card-fire-replay-corpus.cjs ...`)
-- **Issue:** The initial `const EM_DASH = '—';` line embedded a literal U+2014 character in the source file, which the acceptance check (and the phase's own em-dash-guard doctrine) flags as a violation, even though the character's purpose here is detection, not prose.
+- **Issue:** The initial `const EM_DASH = '-';` line embedded a literal U+2014 character in the source file, which the acceptance check (and the phase's own em-dash-guard doctrine) flags as a violation, even though the character's purpose here is detection, not prose.
 - **Fix:** Changed to `const EM_DASH = String.fromCharCode(0x2014);`, which expresses the same codepoint with zero literal em-dash bytes in the file.
 - **Files modified:** `scripts/card-fire-replay-corpus.cjs`
 - **Verification:** Re-ran `grep -c "$(printf '\xe2\x80\x94')" scripts/card-fire-replay-corpus.cjs` → 0. Re-ran the full verify command (`loadCorpus({})` returns 18 238 entries, 0 errors) → still passes.
@@ -141,12 +141,12 @@ Excluded per R-J (pre-existing reds, not touched): `tests/test-card-fire-relevan
 `node tests/test-357-corpus-loader.cjs` (no flag): 1/11 legs red.
 - L1 structure: PASS
 - L2 238 adapter: PASS
-- **L3 sources and floor (SPEC R1): FAIL** — `debug`, `live`, `dogfood` each have 0 entries (floor >=1); total 18 entries < 45 floor. Expected until plans 04/05/06 land their entries.
-- L4 mode rule (R-I): PASS (vacuous — no live/dogfood entries yet to violate the rule)
+- **L3 sources and floor (SPEC R1): FAIL** - `debug`, `live`, `dogfood` each have 0 entries (floor >=1); total 18 entries < 45 floor. Expected until plans 04/05/06 land their entries.
+- L4 mode rule (R-I): PASS (vacuous - no live/dogfood entries yet to violate the rule)
 - L5 known lists: PASS (`known_miss ids: []`, `known_false_block ids: []`)
 - L6 no em-dash: PASS
 
-`node tests/test-357-corpus-loader.cjs --dogfood-strict`: 2/12 legs red (adds the expected `dogfood-strict (GATE357-09)` red — dogfood has 0 entries, no `verdict_preservation: 'checked'` meta yet — held for the plan-08 human checkpoint).
+`node tests/test-357-corpus-loader.cjs --dogfood-strict`: 2/12 legs red (adds the expected `dogfood-strict (GATE357-09)` red - dogfood has 0 entries, no `verdict_preservation: 'checked'` meta yet - held for the plan-08 human checkpoint).
 
 `bash tests/run-all-357.sh`: PASS=9, FAIL=1 (the corpus-loader leg, expected), SKIP=6 (legs guarded on files that land in later plans). No unexpected failures.
 
@@ -157,7 +157,7 @@ Excluded per R-J (pre-existing reds, not touched): `tests/test-card-fire-relevan
 - **Pre-phase anchor:** `PRE=973deb3296f60c8583fe2ba2eac1ba5d32d62024`. `git status --short` on the 7 guarded runtime files printed nothing (no peer diffs). `git log --format=%s $PRE -- lib/hmi/turn-text.cjs scripts/check-card-fire.cjs lib/core/gate-relevance.cjs | grep -c '357-'` returned 0 (no prior 357 runtime commit). Anchor recorded to `tests/fixtures/card-fire-replay/pre-phase.json`.
 
 ## Next Phase Readiness
-- `scripts/card-fire-replay-corpus.cjs` is the single seam every later 357 plan (02 harness, 03 Jev labeler, 04/05 authored entries, 06 dogfood extractor, 09 baseline/mutation) must consume — no re-parsing of fixture files elsewhere.
+- `scripts/card-fire-replay-corpus.cjs` is the single seam every later 357 plan (02 harness, 03 Jev labeler, 04/05 authored entries, 06 dogfood extractor, 09 baseline/mutation) must consume - no re-parsing of fixture files elsewhere.
 - `tests/run-all-357.sh` is closed for editing per D-14; later plans only need their own `tests/test-357-*.cjs` file to land for the corresponding `run_if` leg to activate.
 - No runtime file (`lib/`, `hooks/`, `scripts/check-card-fire.cjs`) was touched in this plan, consistent with the plan's own "No runtime (lib/, hooks/, check-card-fire) change" objective.
 - Blocker for the next plan (04/05): debug and live entries are still empty; L3 stays red until they land.
