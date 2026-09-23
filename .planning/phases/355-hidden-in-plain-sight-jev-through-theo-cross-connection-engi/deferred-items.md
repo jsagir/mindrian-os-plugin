@@ -43,3 +43,44 @@ correct; the tree it is running against currently carries these three
 external defects. Re-run once Phase 356 closes its own em-dash guard, the
 `@huggingface/transformers` version gap is resolved, and PB8-03 is
 root-caused, to confirm the aggregator goes green on those three legs.
+
+## 355-09 Task 2: four pre-existing `lib/memory/test-rs-*.cjs` failures, unrelated to this plan's files
+
+Task 2's own verify step runs every `lib/memory/test-rs-*.cjs` file. Four of
+them fail; none requires (directly or transitively) any file this plan
+touched (`lib/core/rs-innovation-classifier.cjs`,
+`lib/core/rs-thesis-generator.cjs`, `scripts/rs-discovery-engine.cjs`,
+`lib/memory/test-rs-innovation-classifier.cjs`) -- confirmed by grepping
+each failing test's `require(` lines. `lib/memory/test-rs-discovery-engine.cjs`
+(the one test that DOES require `scripts/rs-discovery-engine.cjs` directly)
+passes cleanly (9/9), as does `lib/memory/test-rs-thesis-generator.cjs`. Not
+fixed here (Scope Boundary rule); re-run stable on a second pass (not
+concurrency flake).
+
+1. **`lib/memory/test-rs-chain-feeder-core.cjs` FAILS (2/10)** - T2 expects
+   `{state: pause}` on "Brain reachable + missing upstream", gets `ready`;
+   T8 expects `brainClient.query` called >=1 time, gets 0. Both look like a
+   Brain-client call-shape drift in `lib/core/rs-chain-feeder.cjs`'s
+   `lookupUpstream`, unrelated to direction/classification.
+2. **`lib/memory/test-rs-fetcher-industry.cjs` FAILS (6 of ~17)** - Tests
+   1/2/4/5/6/7 all throw `ExternalEgressViolation: forbidden pattern in
+   query string for surface industry` from `buildIndustryQuery`
+   (`lib/core/rs-fetcher-industry.cjs:128`), a Canon Part 8 audit rejecting
+   the test's own fixture query text. Unrelated to this plan.
+3. **`lib/memory/test-rs-nl-to-query.cjs` FAILS (2/16)** - T1
+   (`feeds_into_query` intent must produce non-null `brain_query`) and T4
+   (`methodology_chain` must emit a Brain template) both get `null`. Looks
+   like `lib/core/rs-nl-to-query.cjs`'s allow-list intent handling changed
+   underneath this test. Unrelated to this plan.
+4. **`lib/memory/test-rs-sqlite-mirror.cjs` FAILS (3/12)** - Test 1 asserts
+   `room.db must have 3 nodes after happy path`, gets 4 (an extra node is
+   being written by `lib/core/rs-sqlite-mirror.cjs::writeDiscovery` on a
+   freshly created, randomly-named tmp room -- not a shared-tree
+   concurrency artifact, confirmed stable across two consecutive runs);
+   Tests 2 and 3 cascade-fail because they depend on Test 1's `SHARED_ROOM`.
+   Unrelated to this plan (no file this plan touched is in
+   `writeDiscovery`'s call path).
+
+None of the four is caused by, or fixable within, this plan's stated scope
+(D-03/D-04, four flipped producers + two amended consumers + two amended
+tests). Flagged here for the navigator/a future phase to root-cause.

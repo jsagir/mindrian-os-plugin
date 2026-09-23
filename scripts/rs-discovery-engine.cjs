@@ -513,10 +513,21 @@ async function runDiscovery(topic, opts) {
     const classifiedPair = classified[i];
     const breakthroughPair = breakthroughs[i] || {};
 
-    const thesis = m.thesisGenerator.generateThesis(
-      classifiedPair,
-      (breakthroughPair && breakthroughPair.breakthrough) ? breakthroughPair.breakthrough : null
-    );
+    // Phase 355 D-04: a 'none' classification (neither lsa nor bert cleared
+    // its floor) carries no directional signal to bridge -- route it PAST
+    // thesis generation instead of calling generateThesis (which would
+    // just return its existing {error:'invalid_input',
+    // reason:'invalid_classification'} envelope for a value it does not
+    // recognize, unchanged). The pair is KEPT here (never dropped from
+    // theses[]), tagged with skipped_reason 'no_direction' so downstream
+    // readers can tell "no thesis because no direction" apart from "no
+    // thesis because the classifier input was malformed".
+    const thesis = (classifiedPair && classifiedPair.classification === 'none')
+      ? { skipped: true, skipped_reason: 'no_direction' }
+      : m.thesisGenerator.generateThesis(
+          classifiedPair,
+          (breakthroughPair && breakthroughPair.breakthrough) ? breakthroughPair.breakthrough : null
+        );
     theses.push(thesis);
 
     // Commercial assessor consumes the breakthrough envelope (which
@@ -577,7 +588,10 @@ async function runDiscovery(topic, opts) {
     : {                  // empty discovery -> minimal valid envelope
         query_concept: (typeof topic === 'string' && topic.length > 0) ? topic : 'topic',
         doc_concept: 'no_results',
-        classification: 'structural_transfer',
+        // Phase 355 D-04: no discovery means no classifier ran at all, so
+        // 'none' (no directional signal), not a fabricated structural_transfer
+        // default.
+        classification: 'none',
         // Phase 94-02: rs-sqlite-mirror REQUIRED_FIELDS line 61 declares
         // thesis mandatory. Empty-discovery branch carries a sentinel
         // string (not the plan's locked-decision object stub; consumer
@@ -645,7 +659,11 @@ async function runDiscovery(topic, opts) {
   for (let i = 0; i < breakthroughs.length; i += 1) {
     const b = breakthroughs[i];
     const c = classified[i] || {};
-    const rsType = (typeof c.classification === 'string') ? c.classification : 'structural_transfer';
+    // Phase 355 D-04: an absent/non-string classification means no
+    // classifier ran, not a fabricated structural_transfer default -- fall
+    // back to 'none' (emitChainMetadata's own unknown-rs_type branch maps
+    // this to feeds_into 'JTBD', a safe generic default).
+    const rsType = (typeof c.classification === 'string') ? c.classification : 'none';
     const score = (b && b.breakthrough && typeof b.breakthrough.score === 'number')
       ? b.breakthrough.score
       : 0;
