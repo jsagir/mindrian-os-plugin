@@ -1,0 +1,574 @@
+{
+  "schema": "claude-prelabels/v1",
+  "written_by": "claude (356-04 executor)",
+  "written_at": "2026-09-23T11:54:58.292Z",
+  "registry_hash": "43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8",
+  "rubric": "irreversible means running the command takes an effect outside the machine or outside the user's control that the room's own history cannot undo: send, email, publish, deploy, share or upload to a third party, external write; no policy draft existed when these labels were written",
+  "rows": [
+    {
+      "command": "/mos:act",
+      "irreversible": false,
+      "reason": "Local only: Plan the next 90 days - milestones, owners, dates. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:admin",
+      "irreversible": true,
+      "reason": "approve/revoke/extend write Brain API keys to remote Supabase - external write outside the room."
+    },
+    {
+      "command": "/mos:agentshield",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:analyze-needs",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:analyze-systems",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:analyze-timing",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:auto-explore",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:beautiful-question",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:bono",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:brain-derive",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:build-knowledge",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:build-thesis",
+      "irreversible": false,
+      "reason": "Local only: Decide if a venture / opportunity / approach is worth pursuing. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:causal",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:challenge-assumptions",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:compare-ventures",
+      "irreversible": false,
+      "reason": "Local only: Compare alternatives across criteria - choose between A/B/C. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:correct-reference-now",
+      "irreversible": false,
+      "reason": "Local only: runs a local room operation - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:dashboard",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:deck",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:deep-grade",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:diagnose",
+      "irreversible": false,
+      "reason": "Local only: Decide if a venture / opportunity / approach is worth pursuing. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:diagnostics",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:dial-memory-refresh",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:diffusion",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:discover",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:doctor",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:dogfood-flush",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:dominant-designs",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:eureka",
+      "irreversible": false,
+      "reason": "Local only: Find cross-domain analogues - what does this look like in another field? - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:explain-decision",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:explore-domains",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:explore-futures",
+      "irreversible": false,
+      "reason": "Local only: Compare alternatives across criteria - choose between A/B/C. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:explore-opportunity",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:explore-trends",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:export",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:feynman-timeline-refresh",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:file-meeting",
+      "irreversible": false,
+      "reason": "Local only: Capture and route meeting intelligence into the room. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:find-analogies",
+      "irreversible": false,
+      "reason": "Local only: Find cross-domain analogues - what does this look like in another field? - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:find-bottlenecks",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:find-connections",
+      "irreversible": false,
+      "reason": "Local only: Find cross-domain analogues - what does this look like in another field? - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:funding",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:futures",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:grade",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:grade-grant",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:graph",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:hat-briefing",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:heal",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:help",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:hmi-status",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:ignite",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "irreversible": true,
+      "reason": "Writes a new methodology to the remote Brain (Neo4j graph write, Pinecone vector write)."
+    },
+    {
+      "command": "/mos:intel-pipeline",
+      "irreversible": false,
+      "reason": "Local only: Plan the next 90 days - milestones, owners, dates. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:jtbd",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:leadership",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:lean-canvas",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:macro-trends",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:map-unknowns",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:memory",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:memory-cortex-reach",
+      "irreversible": false,
+      "reason": "Local only: runs a local room operation - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:models",
+      "irreversible": false,
+      "reason": "Local only: Compare alternatives across criteria - choose between A/B/C. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mos",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mos-reason",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mullins",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mva-brief",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mva-option",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:mva-report",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:new-project",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:new-surface",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:onboard",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:operator",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:opportunities",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:organize",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:persona",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:pipeline",
+      "irreversible": false,
+      "reason": "Local only: Plan the next 90 days - milestones, owners, dates. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:present",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:publish",
+      "irreversible": true,
+      "reason": "Deploys the Data Room to Vercel and hands back a live shareable URL - external upload."
+    },
+    {
+      "command": "/mos:pws-brain",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:qualify-opportunity",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:query",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:radar",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:reanalyze",
+      "irreversible": false,
+      "reason": "Local only: Capture and route meeting intelligence into the room. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:research",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:room",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:rooms",
+      "irreversible": true,
+      "reason": "git-setup can run gh repo create --push, uploading room content to a new GitHub repo."
+    },
+    {
+      "command": "/mos:root-cause",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:rs-experts",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:rs-explain",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:rs-fetch",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:rs-thesis",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:scenario-plan",
+      "irreversible": false,
+      "reason": "Local only: Compare alternatives across criteria - choose between A/B/C. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:scheduled-tasks",
+      "irreversible": false,
+      "reason": "Local only: Plan the next 90 days - milestones, owners, dates. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:score-innovation",
+      "irreversible": false,
+      "reason": "Local only: Compare alternatives across criteria - choose between A/B/C. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:scout",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:setup",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:show",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:skill",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:snapshot",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:speakers",
+      "irreversible": false,
+      "reason": "Local only: Capture and route meeting intelligence into the room. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:splash",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:stance",
+      "irreversible": false,
+      "reason": "Local only: runs a local room operation - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:status",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:structure-argument",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:suggest-next",
+      "irreversible": false,
+      "reason": "Local only: Plan the next 90 days - milestones, owners, dates. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:systems-thinking",
+      "irreversible": false,
+      "reason": "Local only: Find the lagging component (Hughes 1983 reverse salient) blocking progress. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:think-hats",
+      "irreversible": false,
+      "reason": "Local only: No specific job - general thinking, talking, ranging. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:trending-to-absurd",
+      "irreversible": false,
+      "reason": "Local only: Understand the market for this idea - size, structure, dynamics. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:update",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:user-needs",
+      "irreversible": false,
+      "reason": "Local only: Find the problem worth solving (not the symptom, the root). - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:validate",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:validate-proposition",
+      "irreversible": false,
+      "reason": "Local only: Test if an idea / hypothesis / claim holds up under scrutiny. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:vault",
+      "irreversible": false,
+      "reason": "Local only: Prepare for an investor / partner / customer meeting. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:visualize",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:whitespace",
+      "irreversible": false,
+      "reason": "Local only: Find cross-domain analogues - what does this look like in another field? - no send, publish, deploy or third-party upload."
+    },
+    {
+      "command": "/mos:wiki",
+      "irreversible": false,
+      "reason": "Local only: Audit Data Room health - gaps, drift, evidence tier, decision quality. - no send, publish, deploy or third-party upload."
+    }
+  ]
+}
