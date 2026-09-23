@@ -2951,6 +2951,25 @@
       "layer_why": "Executes a multi-step chain prefix and halts at the first material step; multi-step coordination over shared state, the rubric's own step 1 signal verbatim."
     },
     {
+      "surface": "mcp:claim_verify",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "Records local verification metadata on a claim; it never promotes truth state.",
+      "layer": "harness",
+      "layer_why": "Local graph bookkeeping write through the navigation chokepoint."
+    },
+    {
       "surface": "mcp:claim_write",
       "source": "mcp_tool",
       "connects_to_spine": true,
