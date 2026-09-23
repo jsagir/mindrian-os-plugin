@@ -993,11 +993,72 @@ Plans:
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
 **Requirements**: TBD (minted at spec time)
 **Depends on:** Phase 354 (354-17 Jev ledger, 354-18 THEO-04)
-**Plans:** 0 plans
+**Plans:** 0/28 plans executed
 
-Plans:
+**Next action:** `/gsd-execute-phase 355` only after Phase 354 closes (355-01 Task 1 gates on it and on a clean tree for gate.cjs, tool-router.cjs, brain-client.cjs, part8-egress-guard.cjs, doctor.cjs, scripts/jev-devtime-client.cjs). Spec `355-SPEC.md`, AI contract `355-AI-SPEC.md`, decisions `355-CONTEXT.md` (D-01..D-58), research `355-RESEARCH.md`, patterns `355-PATTERNS.md`, Nyquist `355-VALIDATION.md`. Requirements HIPS-01..HIPS-10 are minted in the plans and registered by 355-27 at close.
 
-- [ ] TBD (run /gsd-spec-phase 355, then /gsd-plan-phase 355 to break down)
+Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 14, 15, 24, 25; six shared files re-read from post-354 anchors)
+
+**Wave 1**
+
+- [ ] 355-01-PLAN.md -- HIPS-01, HIPS-10: the D-57 gate (Phase 354 CLOSED, clean shared files), 355-BASELINE.md with the doctor baseline captured once, tests/run-all-355.sh skeleton, lib/core/direction-convention.cjs (Convention A, none on missing values) with its RED-first test
+
+**Wave 2** *(depends on 355-01)*
+
+- [ ] 355-02-PLAN.md -- HIPS-01: PWS author confirms the two direction phrases (checkpoint), then the failing direction-agreement test committed RED on the legs 09/10/11 turn green [checkpoint]
+- [ ] 355-03-PLAN.md -- HIPS-07, HIPS-08: scripts/label-355-gold.cjs keypress labeling CLI (seeded shuffle, hash-bound, blinding tripwires) and the navigator's blind sentence-gold sitting (checkpoint) [checkpoint]
+- [ ] 355-04-PLAN.md -- HIPS-02: data/floor-ledger.json (one row per floor literal, disclosed) and the floor sweep test with its negative control
+- [ ] 355-05-PLAN.md -- HIPS-03: naming honesty - scout-hsi reference-only banner text, whitespace_scan description, the fixture test that is the real gate
+- [ ] 355-06-PLAN.md -- HIPS-04, HIPS-05: lib/core/verification-stamp.cjs (exact {from, to}, local exact-name resolution, per-run memo, degradation matrix, judge none, anchor-only paths never verify) and the shared per-surface stamp formatter
+- [ ] 355-07-PLAN.md -- HIPS-08, HIPS-09: Jev dev-time profiles on scripts/jev-devtime-client.cjs with per-question egress ceilings, model-version pinning and the response parser
+- [ ] 355-08-PLAN.md -- HIPS-04: data/framework-names.json regenerated from a live Theo read as a dated, hashed snapshot with offline --check
+
+**Wave 3** *(depends on 355-02, 355-03, 355-05, 355-06, 355-07, 355-08)*
+
+- [ ] 355-09-PLAN.md -- HIPS-01: direction flips in hsi-lsa, hsi-engine, rs-innovation-classifier (none fallback) and the fourth producer, all delegating to the module
+- [ ] 355-10-PLAN.md -- HIPS-01: D-47 atomic - rs-differential-scorer scoreMeasured flip plus the portfolio-dimensions feasibility-branch swap, with the ranking pinned first
+- [ ] 355-11-PLAN.md -- HIPS-01: the Python detector removed from all four callers; scripts kept as offline reference
+- [ ] 355-12-PLAN.md -- HIPS-01: stored-label readers re-derive direction through the module; the duplicate SURPRISE_TYPES enums import DIRECTIONS; eureka_critic zod enum pinned
+- [ ] 355-13-PLAN.md -- HIPS-07: three synthetic cross-domain fixture rooms under tests/fixtures/355-rooms/ (ill-defined, extend-the-opportunity, control with planted bridges and false friends) with the path guard
+- [ ] 355-14-PLAN.md -- HIPS-04, HIPS-09: Theo response capture fixtures, templated citation pairs, and the navigator's blind citation-gold sitting (checkpoint) [checkpoint]
+- [ ] 355-15-PLAN.md -- HIPS-08: HSI thinking-mode measurement (regex vs Jev, full set with none, per-mode confusion, 3 repeat runs) and the signed adoption decision (checkpoint) [checkpoint]
+
+**Wave 4** *(depends on 355-04, 355-06, 355-08, 355-09, 355-10, 355-11, 355-12)*
+
+- [ ] 355-16-PLAN.md -- HIPS-02, HIPS-04, HIPS-05: whitespace and HSI stamped at the output layer (opt-in --stamp), decimals replaced by band words, compute untouched
+- [ ] 355-17-PLAN.md -- HIPS-04, HIPS-05: find-bottlenecks and find-connections stamps (thin CJS entry for the prompt-driven path)
+- [ ] 355-18-PLAN.md -- HIPS-04, HIPS-05: eureka renders carry the stamp line and evidence block; Score and lsa columns dropped
+- [ ] 355-19-PLAN.md -- HIPS-06, HIPS-01: D-53 atomic - eureka side-channel SCHEMA_VERSION 1 to 2 across runner, sensor, critic-tags check and fixtures; SENS-13 evidence bag gains the stamp enums
+
+**Wave 5** *(depends on 355-06, 355-07, 355-15, 355-16, 355-17, 355-18, 355-19)*
+
+- [ ] 355-20-PLAN.md -- HIPS-06: filing on the existing opportunity node via writeOpportunityNode extraProps inside bankStatements, SOURCED_FROM edges via writeEdge, born proposed
+- [ ] 355-21-PLAN.md -- HIPS-04, HIPS-08, HIPS-09, HIPS-10: Part 8 egress sweep leg, the CIRS wiring test, and the doctor blocker cross-connection-honesty
+- [ ] 355-28-PLAN.md -- HIPS-08: CONDITIONAL - distill Jev's thinking-mode labels into a data/ rule table from a separate set and re-clear the adoption bar; no-ops with a recorded SKIPPED status if adoption was rejected in 355-15
+
+**Wave 6** *(depends on 355-20)*
+
+- [ ] 355-22-PLAN.md -- HIPS-05, HIPS-06: gate_answer _promoteCardSubject widened to opportunity with its regression test, SENS-13 fire-once dedup ledger, the stamped reach-card variant
+
+**Wave 7** *(depends on 355-04, 355-14, 355-16, 355-17, 355-18, 355-22)*
+
+- [ ] 355-23-PLAN.md -- HIPS-02, HIPS-04, HIPS-05: the Larry Desktop stamp rule (stored stamps only), the no-decimal grep with Theo up and down, Tri-Polar and stamp-coverage tests
+
+**Wave 8** *(depends on 355-03, 355-13, 355-14, 355-23)*
+
+- [ ] 355-24-PLAN.md -- HIPS-07: measure-355-hit-rate.cjs, the unstamped baseline export, and the navigator's blind judging sitting 1 (checkpoint) [checkpoint]
+
+**Wave 9** *(depends on 355-24)*
+
+- [ ] 355-25-PLAN.md -- HIPS-04, HIPS-07: stamped run, judging sitting 2, per-tier rates, unverified rate and hub-inflation share recorded in 355-VERIFICATION.md (checkpoint) [checkpoint]
+
+**Wave 10** *(depends on 355-14, 355-15, 355-25, 355-28)*
+
+- [ ] 355-26-PLAN.md -- HIPS-09: citation-check calibration (rule stated vs withheld, confidence gate) and the D18 usefulness judge measured against the navigator's gold
+
+**Wave 11** *(depends on 355-21, 355-23, 355-25, 355-26, 355-28)*
+
+- [ ] 355-27-PLAN.md -- HIPS-10: close-out - HIPS rows registered in REQUIREMENTS.md, run-all-355.sh green, doctor acceptance no-new-regression, the rethinking-mindrianos research filing, the outbound Theo note
 
 ### Phase 356: Chain-executor material-step ledger: Jev Noul seat scored at dev time, shipped as data
 
