@@ -126,3 +126,30 @@ current task; logged here per the executor's scope-boundary discipline.
   5, 6, 7a, 7b), including Arm 4 (this plan's own rewrite, proving the new
   refuse-before-the-wire behavior for an ambiguous free-form `brain_ask` question) and
   Arm 5 (proving a genuinely typed question still allows and reaches the wire).
+
+## 354-18: pre-existing `connector` coverage-gate staleness (unrelated to THEO-04)
+
+- **Found during:** 354-18 Task 2 verification, spot-checking `doctor.cjs --acceptance`'s
+  `coverage-gate` roll-up (the array this plan adds `theo-mcp-exposure` to).
+- **Symptom:** `node scripts/build-connector-registry.cjs --check` exits 1: "data/connector-registry.json
+  is STALE" and "data/mcp-tool-connectors.json is STALE".
+- **Root cause (not fixed):** `data/connector-registry.json` / `data/mcp-tool-connectors.json`
+  have drifted behind live `commands/`/`agents/`/`pipelines/`/`skills/` state. This repo's
+  working tree is shared by multiple concurrent Claude sessions right now (per this plan's own
+  execution instructions); `git status --short` at the time of this check showed unrelated
+  peer-session changes in flight (`.planning/REQUIREMENTS.md`, `docs/reviews/mindrian-system-explainer.html`,
+  `evals/plurai/211-baseline.json`, `scripts/eval-icm-writers.cjs`, `tests/test-353-*.cjs`, and
+  new untracked files) -- none of them touched by this plan, none of them files
+  `check-theo-mcp-exposure.cjs` scans or classifies.
+- **Confirmed unrelated to 354-18's fix:** this plan's files are `scripts/check-theo-mcp-exposure.cjs`,
+  `scripts/doctor.cjs` (one additive registry-array entry, `{ id: 'theo-mcp-exposure', ... }`),
+  `tests/test-354-theo-mcp-exposure.cjs`, `CLAUDE.md`, and `docs/GROUNDING-SOURCES.md` -- none are
+  `commands/*.md`, `agents/*.md`, `pipelines/*/CHAIN.md`, or `skills/*/SKILL.md` surfaces
+  `build-connector-registry.cjs` enumerates, so this plan's own edits cannot have caused the
+  staleness. `git log -1 -- data/connector-registry.json` predates this plan's commits.
+- **Scope:** whichever concurrent session/plan last touched a declaring surface without
+  regenerating `data/connector-registry.json`, not 354-18 (THEO-04).
+- **Impact on 354-18:** None on this plan's own acceptance criteria -- `theo-mcp-exposure`'s own
+  gate entry (`node scripts/check-theo-mcp-exposure.cjs --check`) exits 0 as required, and the
+  `coverage-gate` roll-up was already going to report `connector` as failed with or without this
+  plan's additive entry (this plan's entry cannot introduce a NEW failure since it always exits 0).

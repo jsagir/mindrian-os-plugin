@@ -2989,7 +2989,7 @@ contract.
       free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
       354-12.
 
-- [ ] **THEO-04**: The raw `theo` MCP server's bypass of `part8-egress-guard.cjs` is documented where
+- [x] **THEO-04**: The raw `theo` MCP server's bypass of `part8-egress-guard.cjs` is documented where
       a session will read it before calling a Brain-adjacent tool (CLAUDE.md, GROUNDING-SOURCES.md)
       and surfaced by an offline, zero-network, WARN-only `doctor.cjs --acceptance` advisory check;
       not removed, not patched in Theo's own repository (out of scope), never claimed to be blocked.
