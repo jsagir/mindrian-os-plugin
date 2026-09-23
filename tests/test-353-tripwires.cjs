@@ -101,17 +101,34 @@ function leg1() {
 }
 
 // ---------------------------------------------------------------------------
-// Leg 2 (Task 6): no non-comment line under hooks/ references
-// eval-icm-writers or build-section-command-ledger (a vendor-touching
-// script must never reach a user machine's hook budget).
+// Leg 2 (Task 6): no non-comment line under hooks/ references any dev-time
+// ledger-builder script (a vendor-touching script must never reach a user
+// machine's hook budget).
+//
+// HOOKS_BANNED_LEDGER_SCRIPTS is an append-only list agreed across 356, 357
+// and 354-17 (D-19): one entry per dev-time Jev ledger script. Never fold it
+// back into a hand-edited regex; a later phase appends its own script name
+// to this list instead.
 // ---------------------------------------------------------------------------
+const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
+  'eval-icm-writers',
+  'build-section-command-ledger',
+  'jev-devtime-client',
+  'build-command-irreversibility-ledger',
+  'irreversibility-answer-key',
+]);
+
+function escapeRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function leg2() {
-  console.log('--- leg 2: no hooks/ reference to eval-icm-writers or build-section-command-ledger ---');
+  console.log('--- leg 2: no hooks/ reference to any HOOKS_BANNED_LEDGER_SCRIPTS entry (' + HOOKS_BANNED_LEDGER_SCRIPTS.length + ' names) ---');
   const hooksFiles = listFilesRecursive(path.join(REPO, 'hooks'));
   console.log('files scanned: ' + hooksFiles.length);
-  const bannedRe = /eval-icm-writers|build-section-command-ledger/;
+  const bannedRe = new RegExp(HOOKS_BANNED_LEDGER_SCRIPTS.map(escapeRe).join('|'));
   const hit = hooksFiles.find((f) => nonCommentContains(f, bannedRe));
-  check('no non-comment hooks/ line references eval-icm-writers or build-section-command-ledger', !hit);
+  check('no non-comment hooks/ line references any HOOKS_BANNED_LEDGER_SCRIPTS entry (' + HOOKS_BANNED_LEDGER_SCRIPTS.length + ' names)', !hit);
   if (hit) console.log('  hit: ' + path.relative(REPO, hit));
   return !hit;
 }
