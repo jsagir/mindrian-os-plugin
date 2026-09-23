@@ -2970,7 +2970,7 @@ contract.
       confirmed after reopening), never evidence nodes, and leaves strategy and material-step cards
       unchanged. Plan 354-02.
 
-- [ ] **SYS-09**: Chain resume uses positional step identity validated against the journal,
+- [x] **SYS-09**: Chain resume uses positional step identity validated against the journal,
       restores the journaled predecessor output reference, halts on a mismatched journal, and never
       reports completion the journal contradicts. Plan 354-03.
 
