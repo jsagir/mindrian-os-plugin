@@ -134,9 +134,9 @@ In short, a harness message was treated as a human turn.
   - The `policy` value must equal the policy file byte for byte.
 - **D-11:** Before it builds any request, the labeler refuses any entry whose `source === 'dogfood'` or which
   lacks `meta.sanitization_statement`. With no key it degrades to `unlabeled`, exit 0.
-  `label-card-fire-replay` is added to the tripwire leg that bans ledger builders from `hooks/`.
+  `label-card-fire-replay` is appended to the tripwire leg that bans ledger builders from `hooks/` - as ONE entry in the named list constant 356 is introducing in `tests/test-353-tripwires.cjs` leg 2 (if 357 touches that file first, 357 introduces the named list constant itself, and 356 appends to it; never edit the regex in place).
 - **D-12:** The policy file is `data/jev-policies/card-fire-replay.json`
-  (`{policy_id, version, instructions, criteria[], boundary_cases[]}`, the 356 shape). The three questions
+  (`{policy_id, version, instructions, criteria: {"true": "...", "false": "..."}, boundary_cases[]}`, the Noul-native shape per docs.typesafe.ai primitives/noul.md; 356 D-01 amended 2026-09-23 - criteria is an OBJECT, never an array; one policy entry per Noul). The three questions
   are:
   - is-fork
   - already-answered
