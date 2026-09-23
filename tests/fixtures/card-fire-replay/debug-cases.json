@@ -5,5 +5,398 @@
     "schema": "D-02 entry shape; see scripts/card-fire-replay-corpus.cjs validateEntry",
     "sanitization_statement": "Every value in this file is authored for this corpus from the structural shape recorded in .planning/debug/resolved/ RCAs. No real person or organization name appears anywhere in this file, and no room or venture content from any live conversation, transcript, or intercept log appears anywhere in this file."
   },
-  "entries": []
+  "entries": [
+    {
+      "id": "debug-backstop-benign-list",
+      "source": "debug",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "Here is what you could try next:\n1. Review the draft outline.\n2. Confirm the timeline with the team.\n3. Send the summary once approved.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs the benign numbered Action Footer shape from backstop-benign-list-defeats-relevance-gate.md: a plain numbered next-steps list with no bracket notation and no choice cue must never force a card, and the retired numbered-prose backstop arm stays retired."
+    },
+    {
+      "id": "debug-answered-gate-refires",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "ROOM_ALPHA, and yes, remember this binding." },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Noted. Continuing with the review now." } ] }
+          }
+        ],
+        "steps": [
+          {
+            "mode": "transcript+sidechannel",
+            "transcript": [
+              {
+                "type": "user",
+                "message": { "role": "user", "content": "which room should this session write to" },
+                "origin": { "kind": "human" }
+              },
+              {
+                "type": "assistant",
+                "message": {
+                  "role": "assistant",
+                  "content": [
+                    { "type": "text", "text": "Here is a decision gate for the room binding." },
+                    { "type": "tool_use", "name": "AskUserQuestion", "id": "toolu_answeredgate01", "input": {} }
+                  ]
+                }
+              }
+            ],
+            "sidechannel_records": [
+              { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 5000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+            ]
+          }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs card-fire-answered-gate-refires-within-ttl-window.md: firing AskUserQuestion consumes the reach record, so the very next turn (the human's plain-prose answer, no new record minted) must not be force-blocked for the same already-resolved gate."
+    },
+    {
+      "id": "debug-block-surface-simple-binary",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "quick check on the sample-library release before we continue" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Publish this release now?\n[1] Yes\n[2] No" } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "F.1 engine arm: choose whether to publish the sample-library release now or hold it for review." }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs card-fire-block-surface.md Finding 2: a plain 2-option yes/no closer is a simple binary, not a genuine multi-option Decision Gate, and stays exempt from the force-fire requirement even when the reached gate is fresh and topically relevant."
+    },
+    {
+      "id": "debug-over-enforcement-stale-terse",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Alright." },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Continuing with the current step." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 300000, "subject": "F.1 engine arm: review the sample-library packaging checklist before the next reach." }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs card-fire-over-enforcement.md fix (B): a stale side-channel reach (bled forward within the TTL) plus a terse low-signal human turn is the dominant over-enforcement class, so a stale gate against a terse turn no longer force-fires."
+    },
+    {
+      "id": "debug-relevance-check-gap-no-subject",
+      "source": "debug",
+      "envelope": {
+        "mode": "direct",
+        "ran_entries": ["scripts/intent-classifier.cjs"],
+        "output_text": "Want me to check that instead?",
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs card-fire-relevance-check-gap.md: a primary-path hit with no confirmed reach-recorded gate subject (no gate_subject_text) must not force a card off a plain closing question; the guard reports primary-gate-existence-unconfirmed instead."
+    },
+    {
+      "id": "debug-stale-f1-irrelevant",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Here is an update on the release timeline: the design team finished mockups yesterday and QA starts tomorrow morning across every browser we support." },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Thanks for the update, noted." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "F.1 engine arm: memory_artifact research sample-briefing-mirror status before the next reach." }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs card-fire-stale-f1-reach-suggestion-forces-block-regardless-of-relevance.md: a reach-recorded F.1 subject about an unrelated artifact has zero token overlap with a substantially different status turn, so the gate is judged irrelevant and does not force."
+    },
+    {
+      "id": "debug-option-shaped-prose-f8-chrome",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "just a quick session update, nothing about any room to start or select right now" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Based on the discussion so far, you could keep working in this room, switch to a different room, or start something new depending on what feels right." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 30000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs stop-hook-fires-card-on-option-shaped-prose-sentence.md alongside the F.8 GATE_BOILERPLATE_TOKENS fix: a human turn that only echoes the gate shape's own fixed chrome (session, room, start, select) has zero overlap on the gate's distinguishing content, and a prose closer that merely names options in a sentence, with no AskUserQuestion and no bracket box, does not force a card."
+    },
+    {
+      "id": "debug-room-bind-tool-result",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": [ { "type": "tool_result", "tool_use_id": "toolu_roombind01", "content": "Background task finished." } ] }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Noted, continuing." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 30000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs room-bind-gate-fires-on-notification-only-turns.md: a preceding transcript record that is a confirmed synthetic tool_result envelope carries no human-authored text field at all, so a fresh F.8 room-bind gate must not force a card off it."
+    },
+    {
+      "id": "debug-room-bind-task-notification",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "<task-notification>Background sync finished; the ALPHA workspace queue is now empty.</task-notification>" },
+            "origin": { "kind": "task-notification" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Sync confirmed, continuing with the current review." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 30000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs room-bind-gate-fires-on-notification-only-turns.md's task-notification variant: a background task-notification record carrying real text classifies as typed on today's code and force-fires on the incidental ALPHA token overlap (a D-07 target); it must classify as harness once D-07 lands, per R-A."
+    },
+    {
+      "id": "debug-intern-w1-labeled-fork",
+      "source": "debug",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "Two honest paths, pick one:\n[1] Run research first\n[2] Build the plan now",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": true
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Reconstructs intern-w1-card-discipline-decay.md: a genuine two-way forced-choice fork rendered as a bracket box with a choice cue carries labels that are not yes/no-shaped, so it is not a simple-binary exemption and must force a card."
+    },
+    {
+      "id": "debug-intern-w1-prose-fork",
+      "source": "debug",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "Which pull is stronger, get hired soon or build toward the venture.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "known_miss": {
+        "reason": "text-dependent: prose fork with 0 extractable option labels and no structural gate signal; needs text understanding (SPEC R4, Deferred)"
+      },
+      "why": "Reconstructs intern-w1-card-discipline-decay.md's structural-shape gap: a genuine fork written as free-flowing prose with no bracket markers matches neither ASCII_BOX_GLYPH_RE nor the retired numbered-prose arm, so it is a known miss until text understanding is in scope."
+    },
+    {
+      "id": "debug-reach-gate-stale-turn-input",
+      "source": "debug",
+      "routed_in": "intent-classifier",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "ignite" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Continuing as directed." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 10000, "subject": "F.1 engine arm: review the sample-project status before choosing the next reach." }
+        ]
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Reconstructs reach-gate-stale-turn-input.md from the card gate's own point of view: intent-classifier minting a stale or repeated F.1 payload is that script's own defect and out of scope for this fix, per SPEC; from the card gate's side, a fresh unrendered gate right after a terse human command must still force per the WR-06 floor, which this entry pins as a routed-in regression control."
+    },
+    {
+      "id": "debug-carveout-skill-meta-after-human",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "let's run that skill on the sample-project now" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Base directory for this skill: /workspace/tools, migration helper scripts live here for reference." },
+            "isMeta": true
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Skill loaded, checking the checklist now." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "F.1 engine arm: review the sample-project migration checklist before the next reach." }
+        ]
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Authored per RESEARCH Pitfall 3 and R-A: a Skill-body isMeta record that sits directly after a human-typed prompt is the V3 carve-out case, so it must stay classified as typed and keep force-firing a fresh relevant gate, both before and after D-07 lands."
+    },
+    {
+      "id": "debug-carveout-image-meta-after-human",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "take a look at this" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "[Image #1]" },
+            "isMeta": true
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Got it, continuing." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "F.1 engine arm: review the sample-project migration checklist before the next reach." }
+        ]
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Authored per RESEARCH Pitfall 3 and R-A: an image-placeholder isMeta record right after a human-typed prompt is the second V3 carve-out case, so it must stay classified as typed and keep force-firing a fresh gate, both before and after D-07 lands."
+    },
+    {
+      "id": "debug-harness-peer-after-tool-result",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": [ { "type": "tool_result", "tool_use_id": "toolu_harnesspeer01", "content": "Background task finished." } ] }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Noted, continuing." } ] }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Handoff complete: ALPHA review finished, returning control now." },
+            "isMeta": true,
+            "origin": { "kind": "peer" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Understood, resuming the review." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 30000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs room-bind-gate-fires-on-notification-only-turns.md's peer hand-back variant, the same shape family R-E anchors: a peer isMeta record whose previous user record is a synthetic tool_result classifies as typed on today's code and force-fires on the incidental ALPHA token overlap (a D-07 target); it must classify as harness once D-07 lands."
+    },
+    {
+      "id": "debug-harness-idle-notice",
+      "source": "debug",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": [ { "type": "tool_result", "tool_use_id": "toolu_harnessidle01", "content": "Background task finished." } ] }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "[Cross-session idle notice] The sample-library workspace has been idle for a while; nothing new to report." },
+            "isMeta": true
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Understood, continuing." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "F.1 engine arm: review the sample-library workspace changes before the next reach." }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Reconstructs the cross-session idle notice leading-tag class from RESEARCH Finding 4: an idle-notice isMeta record whose previous user record is a synthetic tool_result classifies as typed on today's code and force-fires on the shared workspace token overlap (a D-07 target); it must classify as harness once D-07 lands."
+    }
+  ]
 }
