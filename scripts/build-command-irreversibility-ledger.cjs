@@ -830,8 +830,161 @@ async function runBuild(opts) {
 }
 
 // ---------------------------------------------------------------------------
-// CLI. --check is handled by 356-10 as the first branch of main(); this
-// plan lands every other mode.
+// 356-10 (R356-06): runCheck({ ledgerPath, registryPath, root, labelsPath })
+// -> { warnings: [{ code, detail }], summary }. Key-free and zero-network:
+// every read is wrapped, this function never throws, and it never calls
+// client.loadKey or client.jev. `summary` is only populated once the ledger
+// and the registry both parse; every warning still surfaces regardless.
+//
+// LEDGER_MISSING / LEDGER_UNPARSEABLE skip the ledger-dependent checks
+// (STALE, UNSCORED, REMOVED, POLICY_MISSING/POLICY_DRIFT,
+// ANSWER_KEY_DRIFT, FLAG_INCONSISTENT, FALSE_ALARM_COUNT_MISMATCH,
+// BUILD_MODE_FIXTURE) but LABELS_MISSING / LABEL_SET_MISMATCH (the label
+// checks) still run, since neither needs the ledger.
+// ---------------------------------------------------------------------------
+function runCheck(opts) {
+  const o = opts || {};
+  const ledgerPath = o.ledgerPath || DEFAULT_LEDGER_PATH;
+  const registryPath = o.registryPath || path.join(DATA_DIR, 'command-registry.json');
+  const root = o.root || ROOT;
+  const labelsPath = o.labelsPath || DEFAULT_LABELS_PATH;
+
+  const warnings = [];
+
+  // --- registry -----------------------------------------------------------
+  let registryRows = [];
+  let registryOk = false;
+  try {
+    registryRows = readRegistryRows(registryPath);
+    registryOk = true;
+  } catch (e) {
+    warnings.push({ code: 'REGISTRY_MISSING', detail: registryPath + ': ' + ((e && e.message) || String(e)) });
+  }
+  const registrySet = new Set(registryRows.map((r) => r.command));
+
+  // --- labels: raw bytes plus a permissive parse only, never loadInputs's
+  // shape validation (that path is for the live build, not this report) ----
+  let labelsRaw = null;
+  let labelsObj = null;
+  try {
+    labelsRaw = fs.readFileSync(labelsPath);
+    labelsObj = JSON.parse(labelsRaw.toString('utf8'));
+  } catch (e) {
+    warnings.push({ code: 'LABELS_MISSING', detail: labelsPath });
+  }
+  const labelRows = (labelsObj && Array.isArray(labelsObj.rows)) ? labelsObj.rows : [];
+  const labelsByCommand = new Map(labelRows.map((r) => [r.command, r]));
+
+  if (registryOk && labelsObj) {
+    const labelSet = new Set(labelRows.map((r) => r.command));
+    const missing = Array.from(registrySet).filter((c) => !labelSet.has(c)).sort();
+    const extra = Array.from(labelSet).filter((c) => !registrySet.has(c)).sort();
+    if (missing.length > 0 || extra.length > 0) {
+      warnings.push({
+        code: 'LABEL_SET_MISMATCH',
+        detail: 'missing: ' + (missing.join(', ') || 'none') + '; extra: ' + (extra.join(', ') || 'none'),
+      });
+    }
+  }
+
+  // --- ledger ---------------------------------------------------------------
+  let ledgerRaw = null;
+  let ledger = null;
+  try {
+    ledgerRaw = fs.readFileSync(ledgerPath);
+  } catch (e) {
+    warnings.push({ code: 'LEDGER_MISSING', detail: ledgerPath });
+  }
+  if (ledgerRaw) {
+    try {
+      ledger = JSON.parse(ledgerRaw.toString('utf8'));
+    } catch (e) {
+      warnings.push({ code: 'LEDGER_UNPARSEABLE', detail: ledgerPath + ': ' + e.message });
+    }
+  }
+
+  let summary = null;
+
+  if (ledger && registryOk) {
+    if (ledger.build_mode === 'jev-fixture') {
+      warnings.push({ code: 'BUILD_MODE_FIXTURE', detail: 'built with --jev-fixture, not a real Jev score' });
+    }
+
+    const entries = Array.isArray(ledger.entries) ? ledger.entries : [];
+    const entryByCommand = new Map(entries.map((e) => [e.command, e]));
+
+    for (const row of registryRows) {
+      const entry = entryByCommand.get(row.command);
+      if (!entry) {
+        warnings.push({ code: 'UNSCORED', detail: row.command });
+        continue;
+      }
+      const currentHash = commandTextHash(row.command, row.teaching, row.jtbd_summary);
+      if (currentHash !== entry.text_hash) {
+        warnings.push({ code: 'STALE', detail: row.command });
+      }
+    }
+
+    for (const entry of entries) {
+      if (!registrySet.has(entry.command)) {
+        warnings.push({ code: 'REMOVED', detail: entry.command });
+      }
+    }
+
+    // Policy drift: the same bytes readPolicy would hash, read directly
+    // (never through readPolicy's shape validation -- a shape problem is
+    // a live-build refusal, not this report's job).
+    let policyRaw = null;
+    try {
+      policyRaw = fs.readFileSync(path.join(root, POLICY_REL));
+    } catch (e) {
+      warnings.push({ code: 'POLICY_MISSING', detail: POLICY_REL });
+    }
+    if (policyRaw) {
+      const policyHash = sha256Hex(policyRaw);
+      if (policyHash !== ledger.policy_hash) {
+        warnings.push({ code: 'POLICY_DRIFT', detail: 'ledger policy_hash does not match the current policy bytes' });
+      }
+    }
+
+    if (labelsRaw) {
+      const labelsHash = sha256Hex(labelsRaw);
+      if (labelsHash !== ledger.answer_key_hash) {
+        warnings.push({
+          code: 'ANSWER_KEY_DRIFT',
+          detail: 'ledger answer_key_hash does not match the current answer-key bytes',
+        });
+      }
+
+      let recount = 0;
+      for (const entry of entries) {
+        const expectedFlag = entry.p_irreversible >= ledger.threshold;
+        if (entry.flag !== expectedFlag) {
+          warnings.push({ code: 'FLAG_INCONSISTENT', detail: entry.command });
+        }
+        const label = labelsByCommand.get(entry.command);
+        if (label && label.irreversible === false && entry.flag === true) recount += 1;
+      }
+      if (recount !== ledger.false_alarm_count) {
+        warnings.push({
+          code: 'FALSE_ALARM_COUNT_MISMATCH',
+          detail: 'recount=' + recount + ' ledger=' + ledger.false_alarm_count,
+        });
+      }
+    }
+
+    summary = {
+      entryCount: entries.length,
+      threshold: ledger.threshold,
+      buildMode: ledger.build_mode,
+    };
+  }
+
+  return { warnings: warnings, summary: summary };
+}
+
+// ---------------------------------------------------------------------------
+// CLI.
 // ---------------------------------------------------------------------------
 function _getFlagValue(argv, flag) {
   const idx = argv.indexOf(flag);
@@ -841,8 +994,53 @@ function _getFlagValue(argv, flag) {
   return val;
 }
 
+// ---------------------------------------------------------------------------
+// 356-10: --check is the FIRST branch of main(). Key-free and zero-network
+// (it never touches client.loadKey / client.jev); always prints its WARN
+// lines then exits 0 (SPEC R6: never a release blocker).
+// ---------------------------------------------------------------------------
+function runCheckCli(argv) {
+  const rootFlag = _getFlagValue(argv, '--root');
+  const root = rootFlag ? path.resolve(rootFlag) : ROOT;
+
+  const ledgerFlag = _getFlagValue(argv, '--ledger');
+  const envLedger = process.env.MINDRIAN_IRREVERSIBILITY_LEDGER && process.env.MINDRIAN_IRREVERSIBILITY_LEDGER.trim();
+  const ledgerPath = ledgerFlag ? path.resolve(ledgerFlag) : (envLedger || DEFAULT_LEDGER_PATH);
+
+  const registryFlag = _getFlagValue(argv, '--registry');
+  const envRegistry = process.env.MINDRIAN_COMMAND_REGISTRY && process.env.MINDRIAN_COMMAND_REGISTRY.trim();
+  const registryPath = registryFlag
+    ? path.resolve(registryFlag)
+    : (envRegistry || path.join(DATA_DIR, 'command-registry.json'));
+
+  const labelsFlag = _getFlagValue(argv, '--labels');
+  const labelsPath = labelsFlag ? path.resolve(labelsFlag) : DEFAULT_LABELS_PATH;
+
+  const result = runCheck({ ledgerPath: ledgerPath, registryPath: registryPath, root: root, labelsPath: labelsPath });
+
+  for (const w of result.warnings) {
+    console.log('WARN: ' + w.code + (w.detail ? ' ' + w.detail : ''));
+  }
+
+  if (result.warnings.length === 0 && result.summary) {
+    console.log('command-irreversibility-ledger --check: OK (' + result.summary.entryCount + ' entries, T='
+      + result.summary.threshold + ', mode=' + result.summary.buildMode + ')');
+  } else if (result.warnings.length === 0) {
+    console.log('command-irreversibility-ledger --check: OK (0 warnings)');
+  } else {
+    console.log('command-irreversibility-ledger --check: WARN ' + result.warnings.length);
+  }
+
+  process.exit(0);
+}
+
 function main(argv) {
   const args = argv || [];
+
+  if (args.indexOf('--check') !== -1) {
+    runCheckCli(args);
+    return;
+  }
 
   const jevFixture = _getFlagValue(args, '--jev-fixture');
   const fromRaw = _getFlagValue(args, '--from-raw');
@@ -914,5 +1112,6 @@ module.exports = {
   serializeLedger,
   writeFileAtomic,
   runBuild,
+  runCheck,
   main,
 };
