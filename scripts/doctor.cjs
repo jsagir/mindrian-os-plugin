@@ -755,6 +755,28 @@ function safeRename(src, dst) {
 //                                       (asserts the --pre-tag filter works)
 //   DOCTOR_TEST_FAIL_POINT=<point_id>   synthesize a failure of the named point
 //   DOCTOR_VERIFY_RELEASE_PATH=<path>   override scripts/verify-release path
+//   DOCTOR_TEST_ONLY_POINTS=<a,b,...>   Phase 354-13 (SYS-07): filter the
+//                                       tier-filtered checklist down to
+//                                       exactly the named point ids
+//   DOCTOR_TEST_HANG_POINT=<point_id>   Phase 354-13 (SYS-07): replace that
+//                                       point's run() with a genuinely
+//                                       hanging bounded child, so its own
+//                                       timeout-and-fail path is testable
+//                                       without actually hanging the process
+//
+// Diagnostics (Phase 354-13, SYS-07 -- always on, not test-mode gated):
+//   DOCTOR_ACCEPTANCE_CHILD_TIMEOUT_MS  default bound (ms) runBoundedChild
+//                                       applies to every acceptance-point
+//                                       child spawn that does not pass its
+//                                       own explicit timeout (default 120000)
+//   MINDRIAN_ACCEPTANCE_PROGRESS=0      suppress the '[acceptance] <id>
+//                                       start'/'done <ok|FAIL> <ms>ms'
+//                                       stderr progress lines (on by default)
+// Every point's JSON result carries duration_ms; the overall result carries
+// summary.duration_ms and summary.slowest { id, duration_ms }. A point whose
+// child times out reports detail.child { cmd, timed_out, signal, status,
+// duration_ms, pid, timeout_ms } and ok:false, naming the exact child that
+// hung instead of leaving the whole run silent.
 
 // evaluateMarketplaceSourcePin(source, ver) -- pure helper, exported for
 // hermetic tests (Phase 341 D-01/D-06/T-341-17). Compares a marketplace
@@ -810,6 +832,39 @@ function evaluateMarketplaceSourcePin(source, ver) {
   }
 
   return { ok: false, finding: 'marketplace source has neither a version nor a ref key: ' + JSON.stringify(source), detail: { source: source } };
+}
+
+// runBoundedChild(cmd, args, opts) -- Phase 354-13 (SYS-07 instrumentation):
+// a drop-in cp.spawnSync wrapper that GUARANTEES a bounded child process.
+// Field names mirror the raw spawnSync result (status, signal, stdout,
+// stderr) so existing call sites that read r.status / r.stdout / r.stderr
+// keep working unchanged when rerouted; the extra fields (timed_out,
+// error_code, pid, duration_ms, cmd, timeout_ms) are additive and let a
+// point report WHICH child hung and for how long instead of the whole
+// --acceptance run going silent. Default bound is
+// DOCTOR_ACCEPTANCE_CHILD_TIMEOUT_MS or 120000ms; killSignal is always
+// SIGKILL so a stuck child cannot ignore SIGTERM and outlive the run
+// (T-354-26). Every acceptance-point child spawn should route through this.
+function runBoundedChild(cmd, args, opts) {
+  const cp = require('child_process');
+  opts = opts || {};
+  const timeout = opts.timeout || Number(process.env.DOCTOR_ACCEPTANCE_CHILD_TIMEOUT_MS) || 120000;
+  const spawnOpts = Object.assign({ encoding: 'utf8' }, opts, { timeout: timeout, killSignal: 'SIGKILL' });
+  const t0 = Date.now();
+  const r = cp.spawnSync(cmd, args, spawnOpts);
+  const duration_ms = Date.now() - t0;
+  return {
+    status: r.status,
+    signal: r.signal,
+    timed_out: !!(r.error && r.error.code === 'ETIMEDOUT'),
+    error_code: r.error ? r.error.code : null,
+    pid: r.pid,
+    duration_ms: duration_ms,
+    stdout: r.stdout,
+    stderr: r.stderr,
+    cmd: cmd,
+    timeout_ms: timeout,
+  };
 }
 
 function buildAcceptanceChecklist(ctx) {
@@ -932,11 +987,13 @@ function buildAcceptanceChecklist(ctx) {
         const verifyPath = (inTestMode && process.env.DOCTOR_VERIFY_RELEASE_PATH)
           ? process.env.DOCTOR_VERIFY_RELEASE_PATH
           : path.join(pluginRoot, 'scripts', 'verify-release');
-        const cp = require('child_process');
-        const r = cp.spawnSync('bash', [verifyPath], { encoding: 'utf8', timeout: 60000 });
+        const r = runBoundedChild('bash', [verifyPath], { timeout: 60000 });
+        if (r.timed_out) {
+          return { ok: false, finding: 'point verify-release: child bash timed out after ' + r.timeout_ms + ' ms', detail: { child: r } };
+        }
         const ok = r.status === 0;
         const finding = ok ? null : ('verify-release exited ' + r.status);
-        return { ok: ok, finding: finding, detail: { status: r.status, stdoutTail: (r.stdout || '').slice(-500), stderrTail: (r.stderr || '').slice(-500) } };
+        return { ok: ok, finding: finding, detail: { status: r.status, stdoutTail: (r.stdout || '').slice(-500), stderrTail: (r.stderr || '').slice(-500), child: r } };
       },
     },
     {
@@ -960,7 +1017,10 @@ function buildAcceptanceChecklist(ctx) {
           // yet. The gate must verify the LAST SHIPPED version is live
           // across all three records (tag + marketplace source + npm), not
           // the placeholder.
-          const tagProbe = cp.spawnSync('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { encoding: 'utf8' });
+          const tagProbe = runBoundedChild('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { timeout: 10000 });
+          if (tagProbe.timed_out) {
+            return { ok: false, finding: 'point version-of-record-published: child git timed out after ' + tagProbe.timeout_ms + ' ms', detail: { child: tagProbe } };
+          }
           let ver;
           if (tagProbe.status === 0 && tagProbe.stdout && tagProbe.stdout.trim()) {
             ver = tagProbe.stdout.trim().replace(/^v/, '');
@@ -970,8 +1030,11 @@ function buildAcceptanceChecklist(ctx) {
             ver = pj.version;
           }
           // (a) git tag exists, reachable from origin/main.
-          const t = cp.spawnSync('git', ['-C', pluginRoot, 'rev-parse', '--verify', 'refs/tags/v' + ver], { encoding: 'utf8' });
-          if (t.status !== 0) return { ok: false, finding: 'git tag v' + ver + ' not found', detail: { stderr: (t.stderr || '').slice(-200) } };
+          const t = runBoundedChild('git', ['-C', pluginRoot, 'rev-parse', '--verify', 'refs/tags/v' + ver], { timeout: 10000 });
+          if (t.timed_out) {
+            return { ok: false, finding: 'point version-of-record-published: child git timed out after ' + t.timeout_ms + ' ms', detail: { child: t } };
+          }
+          if (t.status !== 0) return { ok: false, finding: 'git tag v' + ver + ' not found', detail: { stderr: (t.stderr || '').slice(-200), child: t } };
           // (b) marketplace source.version pinned to <ver> (D-01/D-06, npm
           // source; no v prefix). During the git-to-npm transition this also
           // accepts the legacy source.ref === 'v'+ver shape (the LIVE
@@ -1012,7 +1075,10 @@ function buildAcceptanceChecklist(ctx) {
         // Phase 127.2 Plan 02 Finding B (mirrored): resolve target version
         // via last shipped tag, not plugin.json placeholder. Same logic as
         // version-of-record-published.
-        const tagProbe = cp.spawnSync('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { encoding: 'utf8' });
+        const tagProbe = runBoundedChild('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { timeout: 10000 });
+        if (tagProbe.timed_out) {
+          return { ok: false, finding: 'point npx-roundtrip: child git timed out after ' + tagProbe.timeout_ms + ' ms', detail: { child: tagProbe } };
+        }
         let ver;
         if (tagProbe.status === 0 && tagProbe.stdout && tagProbe.stdout.trim()) {
           ver = tagProbe.stdout.trim().replace(/^v/, '');
@@ -1051,13 +1117,17 @@ function buildAcceptanceChecklist(ctx) {
           const binFile = path.join(sandbox, 'node_modules', '@mindrian_os', 'cli', 'bin', 'cli.js');
           const binLink = path.join(sandbox, 'node_modules', '.bin', 'mindrian-os');
           const present = fs.existsSync(binFile);
-          const parses = present && cp.spawnSync(process.execPath, ['--check', binFile], { encoding: 'utf8' }).status === 0;
+          const checkChild = present ? runBoundedChild(process.execPath, ['--check', binFile], { timeout: 15000 }) : null;
+          if (checkChild && checkChild.timed_out) {
+            return { ok: false, finding: 'point npx-roundtrip: child ' + process.execPath + ' timed out after ' + checkChild.timeout_ms + ' ms', detail: { child: checkChild } };
+          }
+          const parses = !!checkChild && checkChild.status === 0;
           const linked = fs.existsSync(binLink);
           const ok = present && parses && linked;
           return {
             ok: ok,
             finding: ok ? null : ('published package install verification failed (present=' + present + ' parses=' + parses + ' linked=' + linked + ')'),
-            detail: { present: present, parses: parses, linked: linked },
+            detail: { present: present, parses: parses, linked: linked, child: checkChild },
           };
         } finally {
           try { fs.rmSync(sandbox, { recursive: true, force: true }); } catch (_) { /* best-effort */ }
@@ -2040,6 +2110,23 @@ function buildAcceptanceChecklist(ctx) {
   ];
 }
 
+// Phase 354-13 (SYS-07): test-mode-only acceptance-checklist hooks, honored
+// ONLY when DOCTOR_TEST_MODE=1 (same convention as the existing
+// DOCTOR_TEST_FAIL_POINT hook each checklist point already reads):
+//   DOCTOR_TEST_ONLY_POINTS=<comma list>  filters the tier-filtered checklist
+//                                         down to exactly the named point ids
+//   DOCTOR_TEST_HANG_POINT=<id>           replaces that ONE point's run()
+//                                         with a genuinely hanging child
+//                                         (`node -e 'setInterval(...)'`)
+//                                         bounded by runBoundedChild, so the
+//                                         point fails with detail.child.
+//                                         timed_out === true instead of
+//                                         actually hanging the process
+// Progress lines: unless MINDRIAN_ACCEPTANCE_PROGRESS === '0', every point
+// writes '[acceptance] <id> start' before and '[acceptance] <id> done
+// <ok|FAIL> <ms>ms' after to process.stderr (NEVER stdout -- stdout stays
+// clean JSON for release.sh and harness parsers per the stdout/stderr
+// protocol invariant).
 async function runAcceptance(opts) {
   const home = opts.home;
   const pluginRoot = opts.pluginRoot;
@@ -2051,21 +2138,58 @@ async function runAcceptance(opts) {
   // --pre-tag and --pre-flight are passed; --pre-flight is the strict-subset
   // tier release.sh Step 2.5 uses BEFORE Step 3 mutates the tree.
   const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : 'full');
-  const filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
+  let filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
+
+  const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
+  if (inTestMode && process.env.DOCTOR_TEST_ONLY_POINTS) {
+    const onlyIds = process.env.DOCTOR_TEST_ONLY_POINTS.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    filtered = filtered.filter(function (p) { return onlyIds.indexOf(p.id) !== -1; });
+  }
+  if (inTestMode && process.env.DOCTOR_TEST_HANG_POINT) {
+    const hangId = process.env.DOCTOR_TEST_HANG_POINT;
+    filtered = filtered.map(function (p) {
+      if (p.id !== hangId) return p;
+      return Object.assign({}, p, {
+        run: async function () {
+          const r = runBoundedChild(process.execPath, ['-e', 'setInterval(function(){}, 1 << 30)'], {});
+          if (r.timed_out) {
+            return {
+              ok: false,
+              finding: 'point ' + p.id + ': child ' + r.cmd + ' timed out after ' + r.timeout_ms + ' ms',
+              detail: { child: r },
+            };
+          }
+          return { ok: true, finding: null, detail: { child: r } };
+        },
+      });
+    });
+  }
+
+  const progressOn = process.env.MINDRIAN_ACCEPTANCE_PROGRESS !== '0';
   const results = [];
   const failed = [];
+  const runStart = Date.now();
   for (const p of filtered) {
+    if (progressOn) process.stderr.write('[acceptance] ' + p.id + ' start\n');
+    const t0 = Date.now();
     let r;
     try { r = await p.run(); }
     catch (e) { r = { ok: false, finding: 'point ' + p.id + ' threw: ' + e.message, detail: {} }; }
-    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null });
+    const duration_ms = Date.now() - t0;
+    if (progressOn) process.stderr.write('[acceptance] ' + p.id + ' done ' + (r.ok ? 'ok' : 'FAIL') + ' ' + duration_ms + 'ms\n');
+    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null, duration_ms: duration_ms });
     if (!r.ok) failed.push(p.id);
+  }
+  const totalDuration = Date.now() - runStart;
+  let slowest = null;
+  for (const res of results) {
+    if (!slowest || res.duration_ms > slowest.duration_ms) slowest = { id: res.id, duration_ms: res.duration_ms };
   }
   return {
     mode: mode,
     points: results,
     failed_points: failed,
-    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length },
+    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length, duration_ms: totalDuration, slowest: slowest },
   };
 }
 
@@ -3329,17 +3453,24 @@ function main() {
       flagPreFlight: flags.preFlight,
       flagLightNpx: flags.lightNpx,
     }).then(function (result) {
-      // Per-point status lines (human-readable).
+      // Per-point status lines (human-readable). Phase 354-13 (SYS-07): under
+      // --json, stdout must stay clean, parseable JSON -- route the
+      // human-readable summary to stderr instead so a JSON consumer
+      // (release.sh, the harness, this phase's own regression test) can
+      // JSON.parse(stdout) directly without the indexOf('{') workaround the
+      // pre-existing test fixtures needed. Non-JSON invocations are
+      // unaffected (still print to stdout as before).
+      const out = flags.json ? process.stderr : { write: function (s) { console.log(s.replace(/\n$/, '')); } };
       for (const p of result.points) {
         const tag = p.ok ? 'PASS' : 'FAIL';
         const findingSuffix = p.finding ? '  -- ' + p.finding : '';
-        console.log(tag + '  ' + p.id + ': ' + p.label + findingSuffix);
+        out.write(tag + '  ' + p.id + ': ' + p.label + findingSuffix + '\n');
       }
-      console.log('');
+      out.write('\n');
       const failSuffix = result.failed_points.length
         ? '; failed: ' + result.failed_points.join(', ')
         : '';
-      console.log('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + failSuffix + '.');
+      out.write('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + failSuffix + '.\n');
       // Phase 126 Plan 03: persist last_acceptance_run into install-state v2
       // (additive; best-effort). The write happens BEFORE the final exit so
       // even on failed --acceptance the state captures the run. Failure to
