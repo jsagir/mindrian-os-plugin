@@ -18,6 +18,7 @@ inputs: []
 autonomous_safe: true
 allowed-tools:
   - Read
+  - Bash
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
   - AskUserQuestion
@@ -76,7 +77,7 @@ If neither is available, ask: "What concept or domain do you want to explore? Or
 Call `brain_concept_connect` with:
 - `$concept` = the user's concept or domain
 
-This returns all immediate graph neighbors with relationship types and confidence scores.
+This returns all immediate graph neighbors with relationship types.
 
 ### 3. Cross-Domain Discovery (If Two Domains)
 
@@ -87,6 +88,12 @@ If the user mentions two domains or concepts (e.g., "healthcare and gaming"), ca
 This returns bridging concepts and frameworks that connect the two domains through shared relationships.
 
 If only one domain was provided, pick a surprising second domain from the concept_connect results and run cross-domain to surface unexpected bridges.
+
+### 3a. Verify each surfaced bridge (Phase 355-17, HIPS-04, HIPS-05, D-18, D-49, D-50)
+
+On the CLI, for each framework pair you surface, run `node "${CLAUDE_PLUGIN_ROOT}/scripts/stamp-connections.cjs" --pair "<A>|<B>"` and paste its lines verbatim under that bridge; never add a number, never summarize the stamp into a confidence score. The stamp's direction is always "no wording signal measured" here (this producer has no similarity pair to compare) -- that is expected, not a defect.
+
+On Desktop or Cowork, write exactly: Not yet checked; run the CLI to verify.
 
 ### 4. Surface the Aha Moments
 
