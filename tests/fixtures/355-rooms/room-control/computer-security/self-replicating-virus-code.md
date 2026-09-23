@@ -1,0 +1,5 @@
+# Self-replicating code that spreads between hosts
+
+The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.
+
+Cleanup required manually identifying every infected file, since the code had no independent existence separate from whatever host file it was riding inside; removing the malicious portion without damaging the legitimate program it was attached to took most of the incident response team's time that week. The engineer who wrote the post-mortem noted, half joking, that the analogy to a biological infection is not just a convenient name, the entire propagation strategy depends on hijacking something else's ability to run rather than carrying its own.

@@ -1,0 +1,5 @@
+# A merchandising bank of seasonal display fixtures
+
+The warehouse maintains a bank of pre-built display fixtures, end-cap units, seasonal signage frames, and shelf-edge strips, that get rotated out to retail partners ahead of each seasonal campaign and collected back afterward for reuse the following year. The bank currently holds enough fixtures to outfit about sixty retail locations at once, and utilization runs close to full during the two peak seasons but sits mostly idle the rest of the year.
+
+The warehouse manager flagged the idle months as an obvious inefficiency, storage space and a fixed asset sitting unused for roughly eight months of twelve, but nobody has proposed a workable alternative use for a highly specific, campaign-branded fixture during its off months, since the fixtures are built around a particular seasonal look that would need retrofitting before any other campaign could use them. The bank works well for its intended purpose and poorly as anything else, which the team has accepted rather than solved so far.

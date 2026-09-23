@@ -1,0 +1,5 @@
+# Sales channel mix across the current business
+
+Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.
+
+The wholesale channel is the newest of the three and the hardest to forecast, since the team does not control the independent retailer's own pricing or shelf placement decisions the way it controls its own online store. The marketing lead has proposed shifting more budget toward growing the wholesale channel specifically, on the theory that a wholesale relationship, once established, tends to generate more predictable repeat volume than either of the two direct-to-consumer channels, though nobody has actually tested that theory against this business's own numbers yet, only against a general pattern the marketing lead has seen elsewhere in the industry.

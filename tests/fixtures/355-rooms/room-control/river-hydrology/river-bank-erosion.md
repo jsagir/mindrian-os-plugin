@@ -1,0 +1,5 @@
+# River bank erosion near the old crossing
+
+The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.
+
+The leading theory ties the acceleration to an upstream land-use change: a stretch of natural vegetation was cleared for agriculture about four years ago, which the hydrologist suspects increased both the volume and the speed of runoff reaching this bend during storms, though a direct causal link has not been formally established yet, only a suggestive timing match. If the theory holds, the bank erosion here is less a local problem with a local fix than a downstream symptom of a decision made upstream, which changes who actually needs to be in the room when a fix gets discussed next.

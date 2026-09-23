@@ -1,0 +1,5 @@
+# Ion channels and membrane signaling
+
+A cell's outer membrane is not a simple wall, it is studded with channel proteins, each one a narrow, highly selective pore that lets one specific type of ion, sodium, potassium, or calcium, cross the membrane while blocking almost everything else. The channel does not pump the ion through by spending energy; it opens or closes in response to a trigger, a voltage change or a chemical signal binding nearby, and lets the ion flow down its own existing gradient once the gate is open.
+
+Neurons depend on this almost entirely: a nerve impulse is, mechanically, a wave of channels opening and closing in sequence along the length of the cell, each one triggering the next by shifting the local voltage just enough to open its neighbor. A single malfunctioning channel type, one that fails to close properly, is behind several well-documented disorders, since a channel that will not shut behaves less like a gate and more like a permanently unlocked door, letting the wrong ion balance settle in and stay there.

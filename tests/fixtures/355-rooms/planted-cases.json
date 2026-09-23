@@ -1,5 +1,63 @@
 {
   "_note": "Claude-authored ground truth for the D17 direction-fidelity analysis; joined after judging only; labelers must not open this before judging",
-  "meaning_bridges": [],
-  "false_friends": []
+  "meaning_bridges": [
+    {
+      "a": "cell-biology/immune-memory.md",
+      "b": "computer-security/signature-detection.md",
+      "mechanism": "keep a compact record of a past threat's signature so the next encounter is matched quickly instead of solved from scratch"
+    },
+    {
+      "a": "computer-security/rate-limiting.md",
+      "b": "river-hydrology/spillway-regulation.md",
+      "mechanism": "cap the rate something is allowed to arrive at, independent of total volume, to protect a downstream capacity that cannot absorb a spike"
+    },
+    {
+      "a": "retail-marketing/trip-wire-offer.md",
+      "b": "cell-biology/chemoattractant-gradient.md",
+      "mechanism": "a low-cost, low-value draw that pulls a subject step by step toward a genuinely valuable destination it could not see directly"
+    },
+    {
+      "a": "river-hydrology/watershed-funnel.md",
+      "b": "retail-marketing/attribution-funnel.md",
+      "mechanism": "collect many diffuse, individually uninformative inputs at one point and convert them into a single trackable measurement"
+    }
+  ],
+  "false_friends": [
+    {
+      "a": "cell-biology/virus-replication.md",
+      "b": "computer-security/self-replicating-virus-code.md",
+      "shared_word": "virus",
+      "meanings": [
+        "a biological particle that hijacks a host cell's own machinery to reproduce",
+        "malicious code that hijacks a host program's execution to copy and spread itself"
+      ]
+    },
+    {
+      "a": "retail-marketing/sales-channel-mix.md",
+      "b": "river-hydrology/channel-meander.md",
+      "shared_word": "channel",
+      "meanings": [
+        "a route to market such as an online store, a marketplace, or wholesale",
+        "the physical watercourse a river flows through and erodes over time"
+      ]
+    },
+    {
+      "a": "cell-biology/ion-channel-signaling.md",
+      "b": "computer-security/side-channel-leak.md",
+      "shared_word": "channel",
+      "meanings": [
+        "a selective membrane protein that lets one ion type cross the cell membrane",
+        "an unintended pathway, such as response timing, that leaks information never meant to be exposed"
+      ]
+    },
+    {
+      "a": "river-hydrology/river-bank-erosion.md",
+      "b": "retail-marketing/merchandising-bank-display.md",
+      "shared_word": "bank",
+      "meanings": [
+        "the land bordering a river channel, subject to erosion and deposit",
+        "a stored set of reusable retail display fixtures rotated out to stores"
+      ]
+    }
+  ]
 }

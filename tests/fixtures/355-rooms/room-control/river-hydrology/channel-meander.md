@@ -1,0 +1,5 @@
+# Channel meander migration over decades
+
+Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.
+
+The mechanism is well understood: water moving through a bend runs fastest along the outside of the curve, where it has enough energy to carry sediment away and cut into the bank, and slowest along the inside, where it drops sediment it can no longer carry, building the bank outward. Over enough years, this asymmetric erosion-and-deposit cycle walks the entire channel sideways across the floodplain, which is why any structure built too close to the outer bank of a bend, however solid the ground looks today, is built on borrowed time the hydrology alone will eventually collect on.

@@ -1,0 +1,5 @@
+# Virus replication inside a host cell
+
+A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.
+
+The host cell, in most cases, eventually ruptures and dies once it has been used to produce enough new copies, releasing them to repeat the process on neighboring cells. The whole strategy depends entirely on borrowing a host's existing resources and reproductive machinery rather than carrying any of its own, which is also why a virus outside a living cell is essentially inert, unable to do anything at all until it finds a new host to latch onto and hijack.

@@ -1,0 +1,5 @@
+# A side channel that leaks more than intended
+
+During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct. That timing difference was never an intended output of the system, it was a side effect of how the comparison was written, but it was consistent and measurable enough that an attacker patient enough to run the comparison thousands of times could use the timing alone to guess the correct key one byte at a time, without ever seeing the key itself.
+
+The official, intended channel for information here is a single bit: correct or incorrect. The unofficial channel, the one nobody designed on purpose, was the timing of the response, and it leaked far more than a single bit ever should have. The fix was to make the comparison take exactly the same amount of time regardless of how many bytes matched, closing the unintended pathway without touching the intended one at all.
