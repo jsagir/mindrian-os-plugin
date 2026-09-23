@@ -3044,9 +3044,74 @@ is superseded by `357-SPEC.md`: there is no runtime ledger.
       with verdict preservation, never sent to Jev, and ratified by the navigator at the single
       human checkpoint (including the R-C 09:20 case). Plans 357-06, 357-08.
 
+### Phase 360 - Room-bind picker on harness turns and in dev repos (BIND360 family)
+
+BIND360-01..09 were minted in the Phase 360 plan set (2026-09-23), one per `360-SPEC.md` requirement
+R1-R9 in the same order, ratifying `360-RESEARCH.md`'s proposed IDs. BIND360-10 and BIND360-11 were
+minted at the same time for SPEC Amendments R10 (cwd rule) and R11 ("dev repo / no room" session
+memory), from the navigator rulings N-1 and N-2 in `360-CONTEXT.md`. All eleven are scoped to Phase
+360 only and are registered here at plan time as `- [ ]` rows to be closed with measured proof, or
+left open with a stated reason, at phase close by `360-08-PLAN.md` Task 1. Execution is gated on
+357-07 and 357-09 being on `main` (D-19). CONTEXT D-04 (a transcript tail read) is superseded by
+RESEARCH Finding 4: the harness verdict is lead-only, because the UserPromptSubmit stdin carries no
+origin and no isMeta.
+
+- [ ] **BIND360-01**: On a UserPromptSubmit turn whose prompt classifies as harness,
+      `scripts/intent-classifier.cjs` `main()` emits no room-resolution output (the F.8 unbound and
+      off-scope headers, the zero-score gate, the strict-mode override, the legacy advisory) and makes
+      no side-channel F.8 record, no binding_gate / zero_score_gate trace payload and no offered-marker
+      write; the same prompt on the pre-phase code fires (control). Plans 360-04, 360-07.
+
+- [ ] **BIND360-02**: A harness turn does not invoke the F.8 binding-answer consumer, so a pending
+      binding_gate_payload stays unconsumed, and no session binding and no binding_gate_consumed
+      marker is written; the next human turn carrying an exact label binds as before. Plans 360-04,
+      360-07.
+
+- [ ] **BIND360-03**: Human turns keep today's behavior: human-origin fixtures (cwd absent or inside
+      the rooms home) produce byte-identical stdout on the pre-phase commit and on HEAD, and the six
+      SPEC R3 binding suites plus the wider classifier regression net are no worse than the plan-time
+      baseline. Plans 360-01, 360-04, 360-07.
+
+- [ ] **BIND360-04**: One classifier: the verdict comes from `lib/hmi/turn-text.cjs`
+      `classifyUserPromptText`, which calls the 357 rule body; intent-classifier holds no harness lead
+      literal and reads no isMeta or origin, and the lead list is defined in exactly one file under
+      lib/ and scripts/. Plans 360-02, 360-06, 360-07.
+
+- [ ] **BIND360-05**: The one shared HARNESS_LEADS covers every harness lead seen at
+      UserPromptSubmit (task notification, queued cross-session and agent-message tags, the peer
+      framing stem, the idle notice); a human prompt that quotes a tag mid-text stays non-harness; the
+      357 replay keeps identical per-entry outcomes. Plans 360-03, 360-06.
+
+- [ ] **BIND360-06**: Any classifier or policy fault (throw, missing export, unrecognized input) leaves
+      the human path unchanged and the hook exits 0; only a confirmed 'harness' verdict or a confirmed
+      policy verdict suppresses. Plans 360-04, 360-05, 360-07.
+
+- [ ] **BIND360-07**: The local snapshot replay reports harness-triggered unbound picker fires 33 -> 0
+      and human-triggered 2 -> 2 under the harness verdict, with 0 human runs given a harness verdict;
+      it skips with a stated reason when the snapshot is absent. Plans 360-03, 360-06, 360-08.
+
+- [ ] **BIND360-08**: Committed fixtures are authored placeholders carrying a sanitization statement;
+      no snapshot session id, peer socket path, real peer name or transcript file is committed. Plans
+      360-02, 360-08.
+
+- [ ] **BIND360-09**: Tri-Polar parity: no lib/mcp/ path in 360's own commits, and the four MCP
+      room-bind suites stay green (the defect needs a UserPromptSubmit hook, so it is CLI-only). Plans
+      360-01, 360-02, 360-08.
+
+- [ ] **BIND360-10**: In an unbound session, the room-bind picker, its F.8 mint and its marker writes
+      do not fire when the hook stdin cwd resolves (realpath) outside the rooms home; inside it the
+      behavior is unchanged, and a missing, unreadable, relative or ambiguous (an ancestor of the rooms
+      home) cwd fires as today; the snapshot replay shows 0 human-turn pickers for the dev-repo anchor
+      session (N-1, SPEC R10). Plans 360-03, 360-05, 360-07.
+
+- [ ] **BIND360-11**: After a "dev repo / no room" answer is stored in the existing session binding
+      store (the reserved `__no_room__` sentinel), the picker does not re-fire for that session_id; a
+      new session asks again, and an explicit room binding restores normal behavior (N-2, SPEC R11).
+      Plans 360-05, 360-07.
+
 ## Traceability
 
-339 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+350 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3055,7 +3120,8 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
-(Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357). All minted
+(Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
+BIND360-01..11 (Phase 360). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3130,10 +3196,15 @@ minted in the Phase 354 plan set (2026-09-23) for newly discovered findings, and
 minted post-planning (2026-09-23, navigator-directed) for the raw-theo-MCP egress-guard-bypass
 exposure; all thirteen are registered here at plan time as `- [ ]` rows to be closed with measured
 proof, or left open with a stated reason, at phase close by `354-16-PLAN.md` Task 3.
-Roadmap phases must map all 339 active requirements with no orphans.
+BIND360-01..09 were minted in the Phase 360 plan set (2026-09-23), one per `360-SPEC.md` requirement,
+ratifying `360-RESEARCH.md`'s proposed IDs, and BIND360-10..11 were minted at the same time for the
+navigator rulings N-1 and N-2 (SPEC Amendments R10 and R11); all eleven are registered here at plan
+time as `- [ ]` rows to be closed with measured proof, or left open with a stated reason, at phase
+close by `360-08-PLAN.md` Task 1.
+Roadmap phases must map all 350 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO and GATE357
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357 and BIND360
 families
 alike (the
 Phase 266 and 269

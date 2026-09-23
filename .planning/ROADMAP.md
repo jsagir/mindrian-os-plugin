@@ -930,7 +930,7 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 **Goal:** Independently research the whole plugin and Theo integration, reproduce or refute the review findings, then repair confirmed failures and verify complete user journeys. Research must precede implementation.
 **Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). Newly discovered post-planning, navigator-directed 2026-09-23: THEO-04 (raw `theo` MCP server at `~/.claude.json` bypasses `part8-egress-guard.cjs`; document + procedural discipline, not a code fix). All thirteen registered in `.planning/REQUIREMENTS.md`.
 **Depends on:** Phase 353
-**Plans:** 12/18 plans executed
+**Plans:** 13/18 plans executed
 
 **Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351, 352 AND 355 (355 is titled "Jev-through-Theo Cross-Connection Engines" and depends on 354 -- 354-17 and 354-18 below already cover the TypeSafe/Jev-framework-ledger and raw-theo-MCP-exposure ground; scope 355 to not re-cover them). Uncommitted Sep-20 localhost-poc room-mode diff: committed (`e08c32f05`). Decisions: D-354-EGR APPROVED (navigator, 2026-09-23, unchanged from plan); D-354-SYS05 may still be vetoed (ledger section 9).
 
@@ -962,7 +962,7 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [x] 354-11-PLAN.md -- SYS-06: browser-to-room-to-graph journey on one temporary room through the governed filing path
 - [x] 354-12-PLAN.md -- THEO-01, THEO-02, THEO-03: hermetic four-case Theo journey, opt-in live contract run, THEO-02 BLOCKED on Phase 351 with evidence
-- [ ] 354-17-PLAN.md -- THEO-01 (navigator-directed TypeSafe/Jev addition, 2026-09-23; depends on 354-09, moved from wave 4 per plan-checker blocker: both edit brain-router.cjs's brainRoute loop): sibling of the shipped Phase 353 section-command-ledger builder, `scripts/build-framework-command-ledger.cjs` -> `data/framework-command-ledger.json`, dev-time Jev-scored, zero runtime vendor call. HONEST SCOPE (plan-checker blocker 4): this plan ships the lookup LOGIC and proves it against a --jev-fixture build; the COMMITTED ledger is offline-seed (confidence_floor null) and promotes zero candidates by design until a navigator runs the jev-scored build pre-release. Delivers infrastructure, not recall, on its own.
+- [x] 354-17-PLAN.md -- THEO-01 (navigator-directed TypeSafe/Jev addition, 2026-09-23; depends on 354-09, moved from wave 4 per plan-checker blocker: both edit brain-router.cjs's brainRoute loop): sibling of the shipped Phase 353 section-command-ledger builder, `scripts/build-framework-command-ledger.cjs` -> `data/framework-command-ledger.json`, dev-time Jev-scored, zero runtime vendor call. HONEST SCOPE (plan-checker blocker 4): this plan ships the lookup LOGIC and proves it against a --jev-fixture build; the COMMITTED ledger is offline-seed (confidence_floor null) and promotes zero candidates by design until a navigator runs the jev-scored build pre-release. Delivers infrastructure, not recall, on its own.
 
 **Wave 6** *(tier 5, diagnostics; depends on wave 5)*
 
@@ -1108,13 +1108,35 @@ Plans:
 ### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
 
 **Goal:** The UserPromptSubmit room-bind picker (F.8) is re-injected on turns whose triggering record is a harness message: a subagent hand-back or cross-session peer message (`isMeta: true`), or a task-notification (`origin.kind: task-notification`). Observed all through session 56924067 on 2026-09-23. 357-RESEARCH Finding 3 shows it was the upstream minter of that day's anchor false block: the picker minted a fresh F.8 gate on a hand-back turn, and the Stop hook then force-blocked it. Fix: the bind prompt fires only on a human-originated turn. Reuse 357's `harness` source classifier with the R-A carve-out; do not build a second classifier. Scope is the session-start / UserPromptSubmit hook path only.
-**Requirements**: TBD (minted at spec time)
-**Depends on:** Phase 357 (the `harness` source class in lib/hmi/turn-text.cjs, D-07 / R-A)
-**Plans:** 0 plans
+**Goal note:** navigator rulings N-1 and N-2 (2026-09-23, `360-CONTEXT.md`) fold two picker-policy fixes into this phase: an unbound session gets no picker when the hook stdin cwd resolves outside the rooms home (SPEC Amendment R10), and a "dev repo / no room" answer is remembered for the session in the existing binding store (SPEC Amendment R11). Research ruling: the UserPromptSubmit stdin carries no origin or isMeta, so the harness verdict is lead-only (CONTEXT D-04 transcript read superseded by RESEARCH Finding 4).
+**Requirements**: BIND360-01..11 (minted at plan time 2026-09-23; registered in `.planning/REQUIREMENTS.md`; BIND360-10 and BIND360-11 from N-1 / N-2)
+**Depends on:** Phase 357 (the `harness` source class and HARNESS_LEADS in lib/hmi/turn-text.cjs from 357-07, and `tests/run-all-357.sh` plus the replay baseline from 357-01/-02/-05/-09); execution HALTS at 360-01 until they are on main (D-19)
+**Plans:** 8 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 360 to break down)
+**Wave 1**
+
+- [ ] 360-01-PLAN.md -- BIND360-03, -09: 357 dependency HALT gate, A1 re-check, PLAN_BASE and census (pre-phase.json), R3/MCP/wider suite baseline, run-all-360.sh written once
+
+**Wave 2** *(depends on 360-01)*
+
+- [ ] 360-02-PLAN.md -- BIND360-04, -08, -09: sanitized UPS harness fixtures (cases.json), shared spawn kit, R4/R8/R9 tripwire scoped to 360 commits
+- [ ] 360-03-PLAN.md -- BIND360-05, -07, -10: lead unit legs and the local-only snapshot replay (layer h: 33 -> 0 / 2 -> 2; layer c: dev-repo anchor session 0 human pickers)
+
+**Wave 3**
+
+- [ ] 360-04-PLAN.md -- BIND360-01, -02, -03, -06: harness picker spawn legs (suppression with no side writes, consumer spy, PLAN_BASE byte identity, fault stubs), RED until 360-07
+- [ ] 360-05-PLAN.md -- BIND360-10, -11, -06: cwd rule and no-room session-memory legs plus policy fault stub, RED until 360-07
+- [ ] 360-06-PLAN.md -- BIND360-04, -05, -07: HARNESS_LEADS gains the two queued-peer tags and the 37-char peer stem, classifyUserPromptText entry point, 357 replay per-entry unchanged, R4 one-definition closure
+
+**Wave 4**
+
+- [ ] 360-07-PLAN.md -- BIND360-01..04, -06, -10, -11: intent-classifier harness guard and consumer guard (D-06..D-08), picker-policy module (cwd realpath rule, no-room memory) and its early guard
+
+**Wave 5**
+
+- [ ] 360-08-PLAN.md -- BIND360-01..11: full evidence run, requirement closure with proof, VALIDATION sign-off, dual research filing, follow-on record
 
 ### Phase 270: Memory and Context Operator MCP
 
