@@ -1,0 +1,63 @@
+{
+  "policy_set": "card-fire-replay",
+  "version": "1",
+  "phase": "357",
+  "used_by": "scripts/label-card-fire-replay.cjs (dev time only, never a hook)",
+  "noul_mapping": {
+    "yes_at_or_above": 0.8,
+    "no_at_or_below": 0.2,
+    "otherwise": "uncertain"
+  },
+  "policies": [
+    {
+      "policy_id": "is_fork",
+      "version": "1",
+      "instructions": "This question reads output_text (the assistant's rendered turn) and gate_subject_text (the reached gate's subject), together with gate_shape (one of F.1, F.8, or backstop) and turns_since_gate (0 when the gate was reached this turn, 1+ when it is an older reach). True means the turn genuinely leaves the navigator a structural choice between two or more distinct next moves that the turn itself does not resolve: a real fork written in prose, or a rendered option slate. False means the turn is a status report, a holding message, a numbered step list that only narrates ordered actions, a yes/no confirmation closer, a footnote or citation list, a relayed background-agent report carrying no question, or prose that merely mentions options in passing without asking the navigator to choose one now.",
+      "criteria": {
+        "true": "The turn (output_text) or the reached gate (gate_subject_text) leaves the navigator a genuine structural choice between two or more distinct next moves that this turn does not resolve on its own.",
+        "false": "The turn is a status report, a holding message, a numbered action list, a yes/no confirmation closer, a footnote or citation list, a relayed subagent report with no question, or prose that only mentions options without asking the navigator to pick one now."
+      },
+      "boundary_cases": [
+        "[false] A numbered action footer that only lists steps already taken or about to run, such as '1. Ran the build. 2. Committed. 3. Opened the PR.', is not a fork: nothing is left for the navigator to choose.",
+        "[false] A footnote or citation list at the end of a turn, such as a numbered list of sources referenced in the answer, is not a fork: it supports the prose, it does not ask for a decision.",
+        "[false] A closer that asks 'want me to do X?' with a single yes/no shape is not a fork: it is a confirmation, not a genuine structural choice between distinct next moves.",
+        "[true] A two-way strategic fork in prose, such as 'we could run more research first, or start building the plan now', is a fork: two distinct next moves, unresolved by the turn itself.",
+        "[true] A rendered bracket-box menu offering three named options, such as '[1] Option A [2] Option B [3] Option C', is a fork: a structural choice the navigator must make.",
+        "[false] A relayed background-agent hand-back report, such as a subagent's completion summary pasted into the turn with no question attached, is not a fork: it carries no choice for the navigator to make.",
+        "[false] An output_text that is empty or renders no options and no question, even when the gate_shape is F.1 or F.8, is not a fork: an empty render carries no decision content for the navigator."
+      ]
+    },
+    {
+      "policy_id": "already_answered",
+      "version": "1",
+      "instructions": "This question reads preceding_user_text (the human turn immediately before the assistant's output_text) together with gate_shape (one of F.1, F.8, or backstop) and turns_since_gate (0 when the gate was reached this turn, 1+ when it is an older reach). True means the text at preceding_user_text already picks one of the gate's options, by label, by ordinal, or by an unambiguous paraphrase, so asking the same question again would repeat something already answered. False means the preceding text asks something new, changes topic, or is not a human answer at all, such as a harness-originated message (a task notification, a subagent hand-back, a peer or idle notice) rather than a human reply.",
+      "criteria": {
+        "true": "preceding_user_text already selects one of the gate's options by label, ordinal, or an unambiguous paraphrase, so firing the same question again would repeat an answered question.",
+        "false": "preceding_user_text asks something new, changes topic entirely, or is a harness-originated message rather than a human reply, so the gate has not yet been answered."
+      },
+      "boundary_cases": [
+        "[true] 'option 2 please' against a three-option gate selects the second option by ordinal: already answered.",
+        "[true] 'yes' against a two-option yes/no-shaped gate selects the affirmative option in plain text: already answered.",
+        "[false] A new question about an unrelated topic, with no reference to any of the gate's options, has not answered the gate.",
+        "[false] A background task notification, such as a subagent completion message injected as the preceding record, is not a human reply and cannot answer the gate.",
+        "[true] An unambiguous paraphrase of one listed option's wording, even without using its exact label, counts as picking that option: already answered."
+      ]
+    },
+    {
+      "policy_id": "relevant",
+      "version": "1",
+      "instructions": "This question reads gate_subject_text (what the reached gate is about) and preceding_user_text (what the human is working on), together with gate_shape (one of F.1, F.8, or backstop) and turns_since_gate (0 when the gate was reached this turn, 1+ when it is an older reach). True means the gate is about the same thing the human is currently working on in preceding_user_text. False means the only words the two texts share are the gate's own interface chrome (words like gate, reach, decision, session, room), the gate names an artifact unrelated to the current turn, or the preceding record is a harness message, such as a subagent hand-back, a task notification, or a peer or idle notice, rather than a genuine human turn.",
+      "criteria": {
+        "true": "gate_subject_text is about the same thing the human is currently working on in preceding_user_text, sharing real subject content, not just the gate's own interface wording.",
+        "false": "The only shared words are the gate's own interface chrome, the gate names an artifact unrelated to the current turn, or the preceding record is a harness message rather than a human turn, so the gate is not relevant to what is happening now."
+      },
+      "boundary_cases": [
+        "[false] A human question about the gate code itself, asked against a dial listing an unrelated research artifact, shares no real subject: the dial's own listed reach is not what the human is asking about.",
+        "[false] A subagent hand-back message, treated as the preceding record against a room-bind gate, is not a human turn and cannot make the gate relevant.",
+        "[true] A human asking to resume the room the gate names is relevant: the gate's subject matches what the human is working on.",
+        "[true] A human reply naming one of the dial's listed reaches by name is relevant: the human is engaging with the gate's actual subject, not just its chrome.",
+        "[false] A turn that only reuses the gate's own structural vocabulary, such as 'gate', 'reach', 'decision', 'session', or 'room', without naming any of the gate's actual candidates or subject, is not relevant: shared interface chrome is not shared content."
+      ]
+    }
+  ]
+}
