@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module shipped
-last_updated: "2026-09-23T18:27:07.242Z"
-last_activity: 2026-09-23 -- Phase 355 execution started
+stopped_at: Completed 355-02-PLAN.md - PWS author phrase ruling recorded, RED cross-producer direction agreement test committed
+last_updated: "2026-09-23T18:52:37.572Z"
+last_activity: 2026-09-23 -- Phase 355 execution continuing (355-02 complete)
 progress:
   total_phases: 111
-  completed_phases: 37
+  completed_phases: 38
   total_plans: 396
-  completed_plans: 336
-  percent: 33
+  completed_plans: 339
+  percent: 86
 ---
+
+<!-- NOTE (355-02 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` correctly advanced Current Position to "Plan: 3 of 28". `state.update-progress`
+     correctly computed completed: 339, total: 396, percent: 86. `state.record-metric --phase 355
+     --plan 02 --duration 55min --tasks 2 --files 5` landed its own correct Performance Metrics row.
+     `state.add-decision --summary ...` repeated the documented `[Phase ?]` placeholder-prefix bug
+     twice (once per decision this run); fixed in place to `[Phase 355] 355-02: ...` on each line.
+     `state.record-session` this run updated ONLY the body's own `Last session:` timestamp;
+     frontmatter `stopped_at`/`last_activity`/`percent` were left at the stale 355-01-era snapshot
+     (stopped_at -> "Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module
+     shipped", last_activity -> the stale "Phase 355 execution started" line, percent -> 34, a
+     stale value rather than update-progress's just-computed 86) and the body `Stopped at:` line
+     stayed at the stale 355-01 value. Hand-corrected: frontmatter `stopped_at` -> "Completed
+     355-02-PLAN.md - PWS author phrase ruling recorded, RED cross-producer direction agreement
+     test committed", `last_activity` -> this plan's own completion line, `percent` -> 86 (matching
+     `state.update-progress`'s just-computed value), body `Stopped at:` line -> the same 355-02
+     completion line. `completed_plans` (339) and `completed_phases` (38) were already correct
+     from the update-progress run, not reverted this run. -->
+
 
 <!-- NOTE (355-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -5362,7 +5382,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
-Plan: 2 of 28
+Plan: 3 of 28
 Status: Ready to execute
 Previously (355-04, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-02 floor disclosure. Shipped data/floor-ledger.json (35 rows, all
@@ -7074,6 +7094,7 @@ Progress: [█████████░] 92%
 | Phase 354 P16 | 180min | 3 tasks | 8 files |
 | Phase 355 P01 | 45min | 2 tasks | 6 files |
 | Phase 355 P04 | 90min | 2 tasks | 4 files |
+| Phase 355 P02 | 55min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -8767,6 +8788,8 @@ Progress: [█████████░] 92%
 - [Phase 355] 355-01: direction-convention DIRECTION_MEANING renders the CONTEXT <specifics> wording (same meaning in different words / same words with different meaning), not RESEARCH.md's shorter Code Examples gist
 - [Phase 355] 355-01: three pre-existing tests/run-all-355.sh no-regression-leg failures logged to deferred-items.md, not fixed (out of this plan's scope)
 - [Phase 355] 355-04: shipped 35-row data/floor-ledger.json (22 D-21/HIPS-02 primary rows + 13 supplementary rows for every other pattern hit across the engine families), scripts/check-floor-ledger.cjs (validateLedger + resolveHits sweep, zero unresolved hits across 73 files / 60 hits), and lib/core/floor-disclosure.cjs (disclosureFor/disclosureLine, no value ever rendered)
+- [Phase 355] 355-02: PWS author confirmed all three direction phrases exactly as shipped by 355-01 (no replacement wording), recorded by role only and hash-pinned via PHRASES_CONFIRMED
+- [Phase 355] 355-02: RED cross-producer agreement test (legs A-H) committed on 35 module-computed fixture pairs; A and B pass now, C-H fail and name the exact plan (355-09/10/11) that turns each green
 
 ### Pending Todos
 
@@ -8915,8 +8938,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T18:02:15.444Z
-Stopped at: Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module shipped
+Last session: 2026-09-23T18:52:37.451Z
+Stopped at: Completed 355-02-PLAN.md - PWS author phrase ruling recorded, RED cross-producer direction agreement test committed
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
