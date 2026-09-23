@@ -261,16 +261,41 @@ const AFTER_270_12 = {
  *     16.30% against the stale 270-12 figure before this update, which is
  *     what tripped the drift alarm and authorised this re-baseline).
  */
+/*
+ * Plan 358-05 (B1-07) -- re-baseline authorised by the navigator ruling that
+ * every test left red by substrate commit 42191a6ae is green at phase end
+ * (358-CONTEXT.md, "Navigator rulings after research"). Commit 42191a6ae (the
+ * B1 substrate: lib/core/navigation/verification.cjs, the claim_verify MCP
+ * tool) added claim_verify (toolCount 40 -> 41) directly to the tree without
+ * re-running this file's own measurement, leaving it red at 43115 total
+ * bytes -- a signed 10.64 percent change against the 276-12 AFTER
+ * (pctChange(38970, 43115) = 10.64) computed with this file's own pctChange
+ * rule, over DRIFT_TOLERANCE_PCT which stays 10 and is not relaxed here.
+ * Plan 358-04 then added the new claim_read tool (toolCount 41 -> 42) and
+ * lengthened claim_verify's own description and schema (the required `rung`
+ * field, generated from VERIFICATION_RUNGS, plus the optional
+ * `resolves_dispute` boolean and a longer, honest description clearing the
+ * test-234 120-char floor).
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs, same
+ * listToolsOverStdio + measure() pair, no new arithmetic) after 358-05 Task 1
+ * landed the connector-registry regenerate for claim_read:
+ *   toolCount 40 -> 42 (+2: claim_verify already counted in the substrate
+ *     commit's 41, claim_read is the second +1 from 358-04).
+ *   totalBytes 38970 -> 45606 (+6636 bytes; signed pctChange(38970, 45606) =
+ *     17.03 percent, over DRIFT_TOLERANCE_PCT, moved deliberately per the
+ *     navigator ruling above, not papered over).
+ */
 const AFTER = {
-  measuredAt: '2026-09-03',
-  plan: '276-12',
-  toolCount: 40,
-  totalDescBytes: 15449,
-  totalSchemaBytes: 23521,
-  totalBytes: 38970,
-  approxTokens: 9743,
+  measuredAt: '2026-09-23',
+  plan: '358-05',
+  toolCount: 42,
+  totalDescBytes: 18132,
+  totalSchemaBytes: 27474,
+  totalBytes: 45606,
+  approxTokens: 11402,
   routerCount: 9,
-  atomicCount: 31,
+  atomicCount: 33,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget
