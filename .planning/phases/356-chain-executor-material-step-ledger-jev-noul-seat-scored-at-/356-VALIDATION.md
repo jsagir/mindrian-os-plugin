@@ -2,8 +2,8 @@
 phase: 356
 slug: chain-executor-material-step-ledger-jev-noul-seat-scored-at-
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-09-23
 ---
 
