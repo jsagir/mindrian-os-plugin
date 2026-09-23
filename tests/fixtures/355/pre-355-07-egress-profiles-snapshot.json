@@ -1,0 +1,155 @@
+{
+  "source_commit": "db937d4057c897064130b8ac62ee06dc9dd6b554",
+  "profiles": {
+    "section_command_ledger": {
+      "id": "section_command_ledger",
+      "kind": "candidates_v1",
+      "top_keys": [
+        "model",
+        "state",
+        "questions"
+      ],
+      "state_keys": [
+        "section",
+        "problem_type",
+        "stage",
+        "candidates"
+      ],
+      "candidate_keys": [
+        "name",
+        "jtbd",
+        "glossary",
+        "description"
+      ],
+      "candidate_max_len": 140,
+      "judge_max_len": 400,
+      "message_prefix": "assertEgressCeiling"
+    },
+    "material_step_ledger": {
+      "id": "material_step_ledger",
+      "kind": "exact_state_v1",
+      "top_keys": [
+        "model",
+        "state",
+        "questions"
+      ],
+      "model": "jev-latest",
+      "state_keys": [
+        "slug",
+        "teaching",
+        "jtbd_summary",
+        "policy"
+      ],
+      "string_keys": [
+        "slug",
+        "teaching",
+        "jtbd_summary",
+        "policy"
+      ],
+      "max_len_by_key": {
+        "slug": 64,
+        "teaching": 800,
+        "jtbd_summary": 200,
+        "policy": 8000
+      },
+      "must_equal_file": {
+        "policy": "data/jev-policies/command-irreversibility.json"
+      },
+      "question_ids": [
+        "irreversible"
+      ],
+      "question_keys": [
+        "type",
+        "instructions",
+        "criteria"
+      ],
+      "question_type": "noul",
+      "instructions_keys": [
+        "question",
+        "rule",
+        "boundary_cases"
+      ],
+      "criteria_keys": [
+        "true",
+        "false"
+      ],
+      "question_max_len": 400,
+      "question_strings_from_file_key": "policy"
+    },
+    "framework_command_ledger": {
+      "id": "framework_command_ledger",
+      "kind": "candidates_v1",
+      "top_keys": [
+        "model",
+        "state",
+        "questions"
+      ],
+      "state_keys": [
+        "candidates"
+      ],
+      "candidate_keys": [
+        "name",
+        "jtbd",
+        "glossary"
+      ],
+      "candidate_max_len": 140,
+      "message_prefix": "assertEgressCeiling"
+    },
+    "card_fire_replay": {
+      "id": "card_fire_replay",
+      "kind": "exact_state_v1",
+      "top_keys": [
+        "model",
+        "state",
+        "questions"
+      ],
+      "model": "jev-latest",
+      "state_keys": [
+        "output_text",
+        "preceding_user_text",
+        "gate_subject_text",
+        "gate_shape",
+        "turns_since_gate",
+        "policy"
+      ],
+      "string_keys": [
+        "output_text",
+        "preceding_user_text",
+        "gate_subject_text",
+        "gate_shape",
+        "turns_since_gate",
+        "policy"
+      ],
+      "max_len_by_key": {
+        "output_text": 4000,
+        "preceding_user_text": 2000,
+        "gate_subject_text": 300
+      },
+      "must_equal_file": {
+        "policy": "data/jev-policies/card-fire-replay.json"
+      },
+      "question_ids": [
+        "is_fork",
+        "already_answered",
+        "relevant"
+      ],
+      "question_keys": [
+        "type",
+        "instructions",
+        "criteria"
+      ],
+      "question_type": "noul",
+      "instructions_keys": [
+        "question",
+        "rule",
+        "boundary_cases"
+      ],
+      "criteria_keys": [
+        "true",
+        "false"
+      ],
+      "question_max_len": 400,
+      "question_strings_from_file_key": "policy"
+    }
+  }
+}
