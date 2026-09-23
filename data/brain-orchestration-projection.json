@@ -3535,6 +3535,12 @@
       "name": "competitor-watch-fetcher"
     },
     {
+      "id": "agent:dominant-design-researcher",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "dominant-design-researcher"
+    },
+    {
       "id": "agent:framework-runner",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",
