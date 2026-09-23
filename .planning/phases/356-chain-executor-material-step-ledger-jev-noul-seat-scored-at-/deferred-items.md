@@ -123,3 +123,25 @@ d21-vault: not flagged, "Only if user has obsidian in their systme or asked for 
 - **Impact on 356:** none; these are read-only citations of the navigator's own ruling
   text, carried into `data/jev-labels/command-irreversibility.json`'s `reason` fields
   verbatim. No 356 code change implements any of the three.
+
+## 356-13: connector-registry staleness found during final verification, out of scope
+
+- **Date:** 2026-09-23
+- **Found during:** 356-13 Task 1, `bash tests/run-all-264.sh` re-run with the shipped
+  ledger present (part of the SPEC R5 verification sweep).
+- **Symptom:** `run-all-264.sh` reported `PASS=11 FAIL=3` instead of the 356-03/356-12
+  baseline of `PASS=12 FAIL=2`. The extra failure: `node scripts/build-connector-registry.cjs
+  --check` reports `data/connector-registry.json` and `data/mcp-tool-connectors.json` as
+  STALE.
+- **Root cause:** `git status --short` at verification time shows `lib/mcp/tools/claim-verify.cjs`
+  carries an uncommitted, unowned peer diff. No file in Phase 356's `files_modified` list
+  (across all 13 plans) touches the connector registry, the MCP tool surface, or `lib/mcp/`.
+  This is drift from a concurrent peer session's in-flight work, not a Phase 356 regression.
+- **Impact on 356:** none of the two 356-03/356-12 baseline reds changed (frozen-166
+  passthrough, chain-executor.cjs zero-diff arm both still present, unchanged); the ledger
+  present/absent parity (SPEC R5 c) and every chain-run command's autonomous_safe
+  expectation are unaffected.
+- **Recipe to apply later:** once `lib/mcp/tools/claim-verify.cjs` is committed (by its
+  owning session) or reverted, re-run `node scripts/build-connector-registry.cjs --check`;
+  if still stale, regenerate with `node scripts/build-connector-registry.cjs` and confirm
+  `run-all-264.sh` returns to `PASS=12 FAIL=2`.
