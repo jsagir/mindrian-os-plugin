@@ -410,8 +410,8 @@ leg('D-11/D-12: registry row key set unchanged, autonomous_safe true, teaching m
 // Leg 20: hygiene -- no em-dash/en-dash, no "silent fallback".
 // ============================================================================
 leg('hygiene: no em-dash/en-dash in commands/dominant-designs.md, and no "silent fallback"', () => {
-  assert.ok(raw.indexOf('—') === -1, 'file must carry no em-dash');
-  assert.ok(raw.indexOf('–') === -1, 'file must carry no en-dash');
+  assert.ok(raw.indexOf('\u2014') === -1, 'file must carry no em-dash');
+  assert.ok(raw.indexOf('\u2013') === -1, 'file must carry no en-dash');
   assert.ok(!/silent fallback/i.test(raw), 'file must not say "silent fallback"');
 });
 
