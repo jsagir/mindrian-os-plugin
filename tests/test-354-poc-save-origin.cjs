@@ -59,6 +59,34 @@ function listen(server) {
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)));
 }
 
+// node's built-in fetch (undici) silently ignores an explicit Host header
+// override (it treats Host like a browser forbidden header), so it cannot
+// forge a DNS-rebinding-style request. node:http's request API has no such
+// guard -- it sends whatever Host header is passed, which is exactly what a
+// real rebinding attacker's TCP connection would look like from the
+// server's point of view. Used only where a forged Host is the point (S3);
+// everything else uses plain fetch.
+function rawRequest(targetUrl, options) {
+  const opts = options || {};
+  return new Promise((resolve, reject) => {
+    const u = new URL(targetUrl);
+    const req = http.request({
+      hostname: u.hostname,
+      port: u.port,
+      path: u.pathname + u.search,
+      method: opts.method || 'GET',
+      headers: opts.headers || {},
+    }, (res) => {
+      let body = '';
+      res.on('data', (c) => { body += c; });
+      res.on('end', () => resolve({ status: res.statusCode, body }));
+    });
+    req.on('error', reject);
+    if (opts.body != null) req.write(opts.body);
+    req.end();
+  });
+}
+
 async function reservePort() {
   const s = http.createServer();
   const port = await listen(s);
@@ -191,9 +219,9 @@ async function clickSaveAndWait(page) {
     // ---- S3: foreign Host is refused on every route, reads included ----
     {
       const info = await fetchDocInfo();
-      const getDoc = await fetch(origin + '/api/document', { headers: { Host: 'review.invalid' } });
-      const getGraph = await fetch(origin + '/api/graph', { headers: { Host: 'review.invalid' } });
-      const postDoc = await fetch(origin + '/api/document', {
+      const getDoc = await rawRequest(origin + '/api/document', { headers: { Host: 'review.invalid' } });
+      const getGraph = await rawRequest(origin + '/api/graph', { headers: { Host: 'review.invalid' } });
+      const postDoc = await rawRequest(origin + '/api/document', {
         method: 'POST',
         headers: { Host: 'review.invalid', Origin: origin, 'Content-Type': 'application/json' },
         body: JSON.stringify({ markdown: 'SYNTHETIC_FOREIGN_HOST', base_revision: info.revision || '' }),
