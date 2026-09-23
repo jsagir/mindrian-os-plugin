@@ -191,7 +191,7 @@ const EXPECTED_ORDER = ['variant_census', 'convergence_signals', 's_curve_limits
   assert.ok(!/require\(['"](node:)?https?['"]\)/.test(live), 'Test 10: no require of http/https');
   assert.ok(!/require\(['"](node:)?net['"]\)/.test(live), 'Test 10: no require of net');
   assert.ok(!/fetch\(/.test(live), 'Test 10: no fetch call');
-  assert.ok(!/—/.test(src), 'Test 10: no em-dash in source');
+  assert.ok(!/\u2014/.test(src), 'Test 10: no em-dash in source');
   ok('Test 10: module source has zero fs/network require and no em-dash');
 }
 

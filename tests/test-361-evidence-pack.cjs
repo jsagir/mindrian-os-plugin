@@ -240,7 +240,7 @@ function goodRow(overrides) {
   const dataLine = md.split('\n').find(function (ln) { return ln.indexOf('E-VC-1') !== -1; });
   assert.ok(dataLine, 'Test 9: the E-VC-1 data row is a single line');
   assert.ok(md.includes('A pipe \\| in a claim with a newline'), 'Test 9: pipe escaped and newline collapsed to space');
-  assert.ok(!md.includes('—'), 'Test 9: no em-dash anywhere in the output');
+  assert.ok(!md.includes('\u2014'), 'Test 9: no em-dash anywhere in the output');
   ok('Test 9: renderLaneArtifact produces frontmatter, table, escaped cells for a non-empty lane');
 }
 
@@ -363,7 +363,7 @@ function goodRow(overrides) {
   assert.ok(!/require\(['"](node:)?net['"]\)/.test(live), 'Test 16: no require of net');
   assert.ok(!/fetch\(/.test(live), 'Test 16: no fetch call');
   assert.ok(/stripInjectionSpans/.test(src), 'Test 16: reuses stripInjectionSpans');
-  assert.ok(!/—/.test(src), 'Test 16: no em-dash in source');
+  assert.ok(!/\u2014/.test(src), 'Test 16: no em-dash in source');
   ok('Test 16: module has zero fs/network require, reuses stripInjectionSpans, no em-dash');
 }
 
