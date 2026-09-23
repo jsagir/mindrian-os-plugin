@@ -67,6 +67,17 @@
  * above is UNCHANGED and still the reason the three tools are registered
  * unconditionally in tools/list regardless of host.
  *
+ * Phase 358-02 (Rome B1, navigator ruling 2026-09-23, "Desktop writes: YES"):
+ * Claude Desktop identifies itself as clientInfo.name 'claude-ai' and was
+ * refused the write path by this same gate, exactly like the pre-260819-bql
+ * claude-code case above -- so it gets the identical treatment, added as a
+ * recognized tier0 host (host 'claude-desktop'), not a tier1 promotion (it
+ * has no hook channel of its own). Cowork is intentionally NOT recognized
+ * here: its MCP client name has not been confirmed by a live probe, and the
+ * demo-machine fallback MINDRIAN_MCP_FIRST=desktop,cowork is documented
+ * (358-06) rather than guessed at in code. An anchored regex (^claude-ai$)
+ * keeps look-alike names such as claude-ai-beta on the conservative floor.
+ *
  * Run: node tests/test-234-host-tier.cjs
  * Exit: 0 when every check passes, non-zero otherwise. No em-dashes.
  */
@@ -173,6 +184,21 @@ TIER0_NAMES.forEach((name) => {
     t && t.hostTier === 'tier0' && t.host !== 'unknown');
 });
 
+// 2026-09-23 navigator ruling (Phase 358 B1): Claude Desktop identifies as
+// clientInfo.name 'claude-ai'. Recognized tier0 (not tier1: no hook channel
+// of its own), same anchored-regex discipline as every other tier0 entry so
+// a look-alike name never rides in on a substring match.
+const desktop = detectHostTier({ name: 'claude-ai', version: '0.1.0' });
+check("detectHostTier({name:'claude-ai'}) -> host 'claude-desktop'", desktop && desktop.host === 'claude-desktop');
+check("detectHostTier({name:'claude-ai'}) -> hostTier 'tier0'", desktop && desktop.hostTier === 'tier0');
+check("detectHostTier({name:'Claude-AI'}) (cased variant) -> host 'claude-desktop'",
+  detectHostTier({ name: 'Claude-AI', version: '0.1.0' }).host === 'claude-desktop');
+
+['claude-ai-beta', 'my-claude-ai', 'claude-aix'].forEach((name) => {
+  const t = detectHostTier({ name: name, version: '0.1.0' });
+  check("detectHostTier({name:'" + name + "'}) -> host 'unknown' (look-alike stays refused)", t && t.host === 'unknown');
+});
+
 // ---------------------------------------------------------------------------
 // PART A4 -- detectHostTier: the defensive floor. Unknown and pre-initialize
 // both resolve to the conservative answer and NEVER throw (RESEARCH Assumption
@@ -213,6 +239,16 @@ check("flag unset + claude-code -> write path ON (the three write tools ARE the 
 // default, with no hand-set env var.
 check("flag unset + Cursor -> write path ON (Gap D fix, no env var needed)",
   withFlag(null, () => isWritePathEnabled({ surface: 'desktop', clientVersion: { name: 'Cursor' } })) === true);
+
+// 2026-09-23 navigator ruling (Phase 358 B1): Claude Desktop (claude-ai) gets
+// the write path by default too, on both surfaces it can plausibly report,
+// with no hand-set env var. A look-alike name stays refused.
+check("flag unset + claude-ai on desktop -> write path ON (navigator ruling 2026-09-23, Phase 358 B1)",
+  withFlag(null, () => isWritePathEnabled({ surface: 'desktop', clientVersion: { name: 'claude-ai' } })) === true);
+check("flag unset + claude-ai on cowork -> write path ON (same host, either surface)",
+  withFlag(null, () => isWritePathEnabled({ surface: 'cowork', clientVersion: { name: 'claude-ai' } })) === true);
+check("flag unset + claude-ai-beta on desktop -> write path OFF (look-alike stays refused)",
+  withFlag(null, () => isWritePathEnabled({ surface: 'desktop', clientVersion: { name: 'claude-ai-beta' } })) === false);
 
 ['Visual Studio Code', 'goose', 'Zed', 'Cline'].forEach((name) => {
   check("flag unset + " + name + " -> write path ON by default",
