@@ -351,10 +351,11 @@ async function runWireLeg() {
     const originIds = navigation.FRAME_ORIGINS_ORDERED.map((o) => o.id);
 
     const originField = setReg.schema.origin;
+    const originOptions = originField && typeof originField.unwrap === 'function'
+      ? originField.unwrap().options : (originField && originField.options);
     check('A2: origin enum values equal FRAME_ORIGINS_ORDERED ids in order',
-      !!originField && Array.isArray(originField.options) &&
-      JSON.stringify(originField.options) === JSON.stringify(originIds),
-      JSON.stringify(originField && originField.options));
+      Array.isArray(originOptions) && JSON.stringify(originOptions) === JSON.stringify(originIds),
+      JSON.stringify(originOptions));
 
     const baseSet = { text: Q1, origin: originIds[0] };
     check('A2: schema rejects text of 1001 characters',
