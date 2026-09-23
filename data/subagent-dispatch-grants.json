@@ -149,12 +149,14 @@
     {
       "command": "commands/dominant-designs.md",
       "token": "Task",
-      "status": "pending",
+      "status": "granted",
       "dispatch_shape": "one dominant-design-researcher subagent per navigator-approved evidence lane (variant census, convergence signals, S-curve limits, discontinuity signals), spawned in one turn strictly after the query gate card",
       "fan_bound": "4, one per evidence lane, clamped by resolveFanoutCap / FUTURES_FANOUT_CAP default 5",
       "reason": "four independent lane searches would otherwise raise up to four permission prompts per deep dive, and each worker is read-only by its tools list (no Write, no Brain), so the parallel grant removes friction without widening what any worker can do",
       "reviewed_by": "navigator",
       "reviewed_date": "2026-09-23",
+      "ratified_date": "2026-09-23",
+      "ratified_in": "361-08",
       "evidence": "361-CONTEXT.md D-05 and D-11; 361-RESEARCH.md Pitfall 7; 361-07-PLAN.md Task 2"
     }
   ]
