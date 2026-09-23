@@ -827,6 +827,19 @@ async function runWriteReviewSheet(rawDir, withHeadVerdicts) {
     const mapData = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
     for (const e of (mapData.entries || [])) gistById[e.id] = e.gist;
   }
+  // The real live outcome / raw pre-phase verdict live only in the local
+  // sanitize-report.json (raw dir, never committed) -- dogfood.json itself
+  // carries the RATIFIED label (expected_verdict_class), not the raw
+  // observation. Fall back to expected_verdict_class when the report is
+  // unavailable (e.g. a fresh checkout with no raw dir).
+  const reportPath = path.join(rawDir, 'sanitize-report.json');
+  const rawVerdictById = {};
+  if (fs.existsSync(reportPath)) {
+    const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    for (const row of (reportData.rows || [])) {
+      rawVerdictById[row.id] = row.raw_verdict && row.raw_verdict.class;
+    }
+  }
 
   if (!fs.existsSync(DOGFOOD_PATH)) {
     process.stderr.write('extract-dogfood write-review-sheet: dogfood.json missing\n');
@@ -870,12 +883,12 @@ async function runWriteReviewSheet(rawDir, withHeadVerdicts) {
   for (const entry of entries) {
     if (entry.r_c_case === true) rcEntry = entry;
     const gist = gistById[entry.id] || entry.why || '';
-    const liveOutcome = entry.expected_verdict_class === 'block' ? 'block' : 'pass';
+    const liveOutcome = rawVerdictById[entry.id] || entry.expected_verdict_class;
     const cells = [
       entry.id,
       gist.replace(/\|/g, '/'),
       liveOutcome,
-      entry.expected_verdict_class,
+      liveOutcome,
     ];
     if (withHeadVerdicts) cells.push(headResults[entry.id] || 'unknown');
     cells.push(entry.expected_verdict_class);
