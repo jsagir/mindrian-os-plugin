@@ -117,3 +117,7 @@ None - no external service configuration required. No secrets, no network egress
 *Phase: 357-gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re*
 *Plan: 02*
 *Completed: 2026-09-23*
+
+## Self-Check: PASSED
+
+All 3 created files verified present on disk (`scripts/replay-card-fire.cjs`, `tests/test-357-replay.cjs`, this summary). All 3 commits (`7d8b9086d` Task 1, `1fd52f351` Task 2, `62dd55ca0` this summary) verified present in `git log`. No missing items.
