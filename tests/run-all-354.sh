@@ -68,6 +68,8 @@ run_if "354: POC save origin (SYS-06)"                tests/test-354-poc-save-or
 run_if "354: dashboard Host read (SYS-06 adjacent)"   tests/test-354-dashboard-host-read.cjs      node tests/test-354-dashboard-host-read.cjs
 # (THEO-01) Theo router contract
 run_if "354: Theo router contract (THEO-01)"          tests/test-354-theo-router-contract.cjs     node tests/test-354-theo-router-contract.cjs
+# (THEO-01) framework command ledger (Jev recall extension)
+run_if "354: framework command ledger (THEO-01)"      tests/test-354-framework-command-ledger.cjs node tests/test-354-framework-command-ledger.cjs
 # (THEO-01) taxonomy ladder casing
 run_if "354: taxonomy ladder casing (THEO-01)"        tests/test-354-taxonomy-ladder-casing.cjs   node tests/test-354-taxonomy-ladder-casing.cjs
 # (SYS-06) POC room journey
