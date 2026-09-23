@@ -675,12 +675,20 @@ function classifyCardFire(turn, registry) {
       //       correct. Confirmed live: the F.8 room-binding gate force-fired three
       //       consecutive times on notification-only turns in one session (see
       //       .planning/debug/resolved/room-bind-gate-fires-on-notification-only-turns.md).
+      //   (3) Phase 357-07 (D-07 amended by R-A): the preceding record carries a REAL text
+      //       block (so it is not caught by (2) above) but is structurally a HARNESS
+      //       record, not a human turn -- a subagent hand-back, a background peer note, or
+      //       an idle-session notice, all of which Claude Code surfaces as a role:user
+      //       record with isMeta:true or a non-human origin. The 2026-09-23 live false
+      //       block (session 56924067, live-2026-09-23-01) was exactly this: a hand-back
+      //       record misread as typed, incidentally overlapping the fresh F.8 subject.
       // classifyPrecedingUserContentSource (readTranscriptTurn) is the ONLY producer of
-      // 'tool_result' -- an unexplained/absent preceding record still resolves to 'none' and
-      // stays on the pre-fix conservative floor below. This check is PRIMARY-path ONLY (per
-      // the confirmed mechanism); the BACKSTOP path already forces unconditionally on a terse
-      // turn (gateStale:false, unchanged) and is out of scope for this fix.
-      if (t.preceding_user_text_source === 'tool_result') {
+      // 'tool_result' and 'harness' -- an unexplained/absent preceding record still resolves
+      // to 'none' and stays on the pre-fix conservative floor below. This check is
+      // PRIMARY-path ONLY (per the confirmed mechanism); the BACKSTOP path already forces
+      // unconditionally on a terse turn (gateStale:false, unchanged) and is out of scope for
+      // this fix.
+      if (t.preceding_user_text_source === 'tool_result' || t.preceding_user_text_source === 'harness') {
         return { intercept: false, reason: 'preceding-turn-synthetic-no-user-engagement', degrade: false };
       }
       // card-fire-over-enforcement (2026-07-20) fix (B): a STALE side-channel
@@ -1329,9 +1337,12 @@ function appendInterceptLog(turn, verdict) {
 //   - gate_is_fresh encodes elapsed time since mint, never still-pending state; a
 //     gate answered 30 seconds ago and a gate still sitting unanswered 30 seconds ago
 //     are byte-identical to it.
-//   - preceding-turn-synthetic-no-user-engagement only fires on a CONFIRMED
-//     'tool_result' record; a background task-notification carrying a real text block
-//     classifies as 'typed' and falls straight through.
+//   - preceding-turn-synthetic-no-user-engagement fires on a CONFIRMED 'tool_result'
+//     record, and, since Phase 357-07 (D-07/R-A), on a CONFIRMED 'harness' record too --
+//     a background task-notification or peer hand-back carrying a real text block now
+//     classifies as 'harness' (structural: isMeta, origin.kind, or a leading tag) rather
+//     than 'typed', so it exits through this same synthetic guard instead of falling
+//     straight through to the relevance check.
 //
 // TERMINAL vs ACTIVE (the load-bearing distinction): consume on card-fired /
 // no-gate-signal / any relevance pass / a bounded-escape degrade. NEVER consume on
@@ -1432,6 +1443,7 @@ function readTranscriptTurn(transcriptPath) {
     gate_signature: gateSig,
     preceding_user_text: turn.preceding_user_text,
     preceding_user_text_source: turn.preceding_user_text_source,
+    preceding_user_is_meta: turn.preceding_user_is_meta,
   };
 }
 
@@ -1634,6 +1646,12 @@ function deriveTurnSignals(env) {
     ? e.preceding_user_text_source
     : (txn ? txn.preceding_user_text_source : 'none');
 
+  // Phase 357-07 (D-07/R-A): thread preceding_user_is_meta through with the same
+  // direct-field-wins precedence as every other signal above.
+  const precedingUserIsMeta = typeof e.preceding_user_is_meta === 'boolean'
+    ? e.preceding_user_is_meta
+    : (txn ? txn.preceding_user_is_meta : false);
+
   return {
     ran_entries: ranEntries,
     askuserquestion_fired: askFired,
@@ -1642,6 +1660,7 @@ function deriveTurnSignals(env) {
     gate_signature: gateSig,
     preceding_user_text: precedingUserText,
     preceding_user_text_source: precedingUserTextSource,
+    preceding_user_is_meta: precedingUserIsMeta,
     // 2026-07-05 relevance-gate fix: direct-field envelopes (the unit-test
     // seam) keep precedence over the side-channel-derived subject text,
     // mirroring the existing ran_entries precedence rule exactly.
