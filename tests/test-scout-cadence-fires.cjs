@@ -15,18 +15,23 @@
  *
  * The SCHED-02 four map onto the runner's emitted step names like so:
  *   whitespace recompute  -> compute-whitespace-gaps / whitespace-to-graph
- *   reverse-salient       -> detect-reverse-salients
+ *   reverse-salient       -> rs-engine-cjs (Phase 355 D-52; the CJS RS engine,
+ *                             lib/core/rs-engine.cjs's runModeInternal --
+ *                             the Python detect-reverse-salients.py detector
+ *                             is retired from this path)
  *   opportunity-bank scan -> opportunity-bank-scan
  *   competitor watch      -> competitor-watch (emitted as a public-SIGNAL query plan)
  *
- * sklearn-tolerance: a CI box without scikit-learn degrades the three Python
- * steps (compute-hsi / detect-reverse-salients / compute-whitespace-gaps) to
- * status "skipped". This suite asserts each SCHED-02 step is PRESENT in steps[]
- * (the suite ATTEMPTED it), not that sklearn is installed. When sklearn is
- * absent the runner emits a single "hsi-recompute"/"detect-reverse-salients"/
- * "whitespace-recompute" skipped triple; this suite accepts either the live
- * Python step names or the skipped-degraded names for the reverse-salient and
- * whitespace presence assertions.
+ * sklearn-tolerance: a CI box without scikit-learn degrades the two Python
+ * steps (compute-hsi / compute-whitespace-gaps) to status "skipped". This
+ * suite asserts each SCHED-02 step is PRESENT in steps[] (the suite
+ * ATTEMPTED it), not that sklearn is installed. When sklearn is absent the
+ * runner emits a single "hsi-recompute"/"whitespace-recompute" skipped pair;
+ * this suite accepts either the live Python step names or the
+ * skipped-degraded names for the whitespace presence assertion. rs-engine-cjs
+ * (Phase 355 D-52) has no scikit-learn/Python dependency, so it always runs
+ * as a live step regardless of the sklearn gate -- no skipped-name variant
+ * needed for the reverse-salient assertion.
  *
  * House rule: hyphens only, no em-dashes.
  */
@@ -169,9 +174,13 @@ function stepNames(summary) {
       label + ': SCHED-02 whitespace recompute present'
     );
     // 2. reverse-salient
+    // Amended Phase 355 D-52: the Python detect-reverse-salients.py detector
+    // is retired; SCHED-02's reverse-salient sensor is the CJS RS engine
+    // (lib/core/rs-engine.cjs's runModeInternal), which runs unconditionally
+    // (no scikit-learn gate), so it is present in every fired run.
     assert.ok(
-      names.includes('detect-reverse-salients'),
-      label + ': SCHED-02 reverse-salient present (emitted even when sklearn-absent as a skipped step)'
+      names.includes('rs-engine-cjs'),
+      label + ': SCHED-02 reverse-salient present (rs-engine-cjs, Phase 355 D-52)'
     );
     // 3. opportunity-bank scan (also a SCHED-02 sensor)
     assert.ok(

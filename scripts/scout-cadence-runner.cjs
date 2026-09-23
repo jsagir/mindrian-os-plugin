@@ -16,10 +16,12 @@
  *   3. sentinel-deadline-monitor    (SENT-02; reads .planning/STATE.md)
  *   4. competitor-watch             (SCHED-02; emitted as a hat-scoped public-SIGNAL
  *                                    query plan -- the runner itself NEVER fetches)
- *   5. HSI-recompute                (compute-hsi.py -> detect-reverse-salients.py
- *                                    -> hsi-to-graph.cjs; D-03 exit not swallowed)
+ *   5. HSI-recompute                (compute-hsi.py -> hsi-to-graph.cjs; D-03
+ *                                    exit not swallowed)
  *   6. whitespace recompute         (SCHED-02; compute-whitespace-gaps.py -> whitespace-to-graph.cjs)
- *   7. reverse-salient              (SCHED-02; part of the HSI step's detect-reverse-salients)
+ *   7. reverse-salient              (SCHED-02; rs-engine-cjs -- lib/core/rs-engine.cjs's
+ *                                    runModeInternal, Phase 355 D-52; the Python
+ *                                    detect-reverse-salients.py detector is retired)
  *   8. opportunity-bank scan        (SCHED-02; compute-opportunity-state + opportunity-ops.listOpportunities)
  *  8b. url-ingest-crawl             (Phase 220-04 REQ-3; the watched-sources
  *                                    inbound heartbeat: due registry sources
@@ -380,15 +382,12 @@ async function main(argv) {
   // 5 + 6 + 7. HSI-recompute (+ reverse-salient) + whitespace recompute.
   const deps = hsiDepsAvailable();
   if (!deps.available) {
-    const note = `scikit-learn unavailable (${deps.tier}); HSI + whitespace Python steps skipped`;
+    const note = `scikit-learn unavailable (${deps.tier}); HSI Python steps skipped`;
     steps.push({ name: 'hsi-recompute', status: 'skipped', exit: 0, stdout: note, stderr: '' });
-    steps.push({ name: 'detect-reverse-salients', status: 'skipped', exit: 0, stdout: note, stderr: '' });
     steps.push({ name: 'whitespace-recompute', status: 'skipped', exit: 0, stdout: note, stderr: '' });
   } else {
     // 5. compute-hsi.py -> output JSON
     steps.push(runStep('compute-hsi', 'python3', [bin('compute-hsi.py'), roomDir, '--output', path.join(roomDir, '.hsi-results.json')]));
-    // 7. detect-reverse-salients.py
-    steps.push(runStep('detect-reverse-salients', 'python3', [bin('detect-reverse-salients.py'), roomDir]));
     // 5c. hsi-to-graph.cjs -- D-03: surface a degraded advisory non-fatally.
     const hsiGraph = runStep('hsi-to-graph', 'node', [bin('hsi-to-graph.cjs'), roomDir]);
     if (hsiGraph.exit !== 0) {
@@ -402,6 +401,21 @@ async function main(argv) {
     const wsGraph = runStep('whitespace-to-graph', 'node', [bin('whitespace-to-graph.cjs'), roomDir]);
     if (wsGraph.exit === 0) findingsToGraph.push('whitespace-zones');
     steps.push(wsGraph);
+  }
+
+  // 7. rs-engine-cjs: reverse salients via lib/core/rs-engine.cjs's
+  //    runModeInternal (Phase 355 D-52) -- the same engine /mos:find-
+  //    bottlenecks uses, replacing the retired Python detect-reverse-
+  //    salients.py step. Deliberately NOT inside the `deps.available`
+  //    gate above: the CJS engine has no scikit-learn/Python dependency,
+  //    so SCHED-02's reverse-salient sensor still fires even when the
+  //    scikit-learn HSI/whitespace legs are skipped (T-355-52).
+  {
+    const rsEngineAbs = path.join(PLUGIN_ROOT, 'lib', 'core', 'rs-engine.cjs');
+    const rsEngineScript =
+      'const roomDir = process.argv[1];\n' +
+      `require(${JSON.stringify(rsEngineAbs)}).runModeInternal(roomDir, {}).then(() => process.exit(0)).catch((e) => { console.error(e && e.message); process.exit(1); });`;
+    steps.push(runStep('rs-engine-cjs', process.execPath, ['-e', rsEngineScript, roomDir]));
   }
 
   // 8. opportunity-bank scan: compute-opportunity-state, then the Phase 219
