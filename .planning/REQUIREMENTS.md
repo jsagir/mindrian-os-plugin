@@ -2948,7 +2948,7 @@ contract.
       the whole-message and streamed paths while bold, italic, code and lists still render.
       Plan 354-07.
 
-- [ ] **SYS-04**: A failed tool-module registration keeps siblings working, writes a stderr
+- [x] **SYS-04**: A failed tool-module registration keeps siblings working, writes a stderr
       diagnostic (stdout protocol-clean) and is reported by registerCoreTools and status_read
       capability_floor.tool_registration. Plan 354-14.
 
