@@ -24,6 +24,8 @@ Every cross-domain finding MindrianOS shows a user (eureka, find-connections, fi
 
 ## Exact next steps, in order
 
+**Progress (jsagi-d9, 2026-09-23 16:55 UTC): steps 1 and 2 are DONE.** Phase 354 CLOSED at `973deb329` (18/18, `run-all-354.sh` 19/0/1, jsagi-25 confirmed). The deferred STATE record landed at `04ebd5d64` (hand-corrected for the documented resync-clobber; do NOT re-run `state.planned-phase`, it clobbers `last_activity` again). Resume at step 3. Also read the "Peer contract from Phase 356" section below before 355-07. Phase 357 (jsagi-e0) is executing in this tree at the same time and also edits `scripts/jev-devtime-client.cjs`, `tests/test-353-tripwires.cjs` and `skills/larry-personality/SKILL.md`: re-read each from disk before editing, commit `--only`.
+
 1. **Wait for Phase 354 to close.** Session jsagi-25 is executing it in this same working tree (13/18 at last report, wave 6 of 8) and will ping when 354-16 lands. `355-01` Task 1 refuses to run while any 354-NN plan is unchecked in ROADMAP.md or while `gate.cjs`, `tool-router.cjs`, `brain-client.cjs`, `part8-egress-guard.cjs`, `doctor.cjs` or `scripts/jev-devtime-client.cjs` carry an uncommitted diff you did not make. Do not bypass that gate.
 2. **Then record the planned state** (deliberately deferred to avoid clobbering the peer's STATE.md writes): `node ~/.claude/gsd-core/bin/gsd-tools.cjs query state.planned-phase --phase 355 --name "hidden-in-plain-sight-jev-through-theo-cross-connection-engi" --plans 28`, then `git commit --only .planning/STATE.md`.
 3. **Then** `/clear` and `/gsd-execute-phase 355`.
