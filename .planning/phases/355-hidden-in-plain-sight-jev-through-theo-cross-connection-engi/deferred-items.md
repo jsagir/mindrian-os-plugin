@@ -99,3 +99,76 @@ any 355-10 edit lands. The test file itself contains zero references to
 `epistemic_type`; the failure originates in a navigation/insertNode call
 this plan's files_modified list does not touch. Not fixed here (Scope
 Boundary rule). Flagged for the navigator/a future phase to root-cause.
+
+## 355-11 Task 1: leg H's last two unresolved hits are outside this plan's `files_modified` scope
+
+`tests/test-355-direction-agreement.cjs` leg H (the "one rule" repo sweep)
+still fails after this plan, with exactly two unresolved hits:
+`lib/core/rs-chain-feeder.cjs` and `lib/memory/test-rs-discovery-engine.cjs`.
+Neither file is in 355-11's `files_modified` list (`lib/core/intelligence-cascade.cjs`,
+`scripts/scout-cadence-runner.cjs`, `tests/test-scout-cadence-fires.cjs`,
+`commands/scout.md`, `skills/scout/SKILL.md`, `scripts/detect-reverse-salients.py`,
+`scripts/compute-hsi.py`), and this plan's own `must_haves` and success
+criteria name only leg G ("RED-to-GREEN: leg G ... passes"), never leg H --
+confirmed by re-reading 355-11-PLAN.md's frontmatter and objective before
+treating this as in scope. **Correcting a forward-looking claim from
+355-10-SUMMARY.md's "Next Phase Readiness"**, which said leg H's remaining
+duplication "remain[s] for 355-11" to close: that is not this plan's stated
+scope, so leg H is carried forward, not fixed here (Scope Boundary rule /
+Rule 4 territory -- editing `rs-chain-feeder.cjs`'s own rule duplication is
+an architectural change to a file outside this plan's declared surface).
+Flagged for 355-12 (whose own stated scope is exactly "stored-label readers
+re-derive direction through the module") or a later plan to close.
+
+## 355-11 Task 1: five unfiltered `REVERSE_SALIENT` edge readers found (for 355-12)
+
+Per the plan's must_haves ("the SUMMARY records every unfiltered
+REVERSE_SALIENT reader found (assumption A2) for plan 355-12"), a full
+`grep -rn "REVERSE_SALIENT" lib scripts --include=*.cjs` sweep plus a
+per-hit read found five call sites that query `edges WHERE type =
+'REVERSE_SALIENT'` (or scan already-loaded edges by `type` alone) with NO
+filter on `properties.source === 'rs-engine'`. Not fixed here -- reading and
+filtering these is 355-12's stated job, not 355-11's. Listed for that
+plan's own read_first:
+
+1. `lib/core/nl-graph-queries.cjs:77` (the `reverse_salients` NL query
+   builder) -- selects `differential_score` / `innovation_type` /
+   `innovation_thesis`, property names that only ever existed on the
+   Section-level, Python/`hsi-to-graph.cjs`-sourced edge shape (never on an
+   rs-engine-sourced, Artifact-level edge). No source filter in SQL.
+2. `lib/chat/fabric-chat.cjs:49` (the "Which sections have bottlenecks?"
+   canned fabric-chat query) -- same unfiltered `WHERE e.type =
+   'REVERSE_SALIENT'`, same Section-level property names.
+3. `lib/core/futures/orchestrator.cjs:1166` (`runRSReverseSalient`'s
+   post-invocation `SELECT COUNT(*) ... WHERE type = 'REVERSE_SALIENT'`) --
+   the comment above it says this counts "the REVERSE_SALIENT edges the
+   rs-engine raw path wrote", but the query counts ALL edges of that type
+   regardless of source; if a room already carries Python/hsi-to-graph-
+   sourced edges, this count is inflated relative to what the doc comment
+   claims it measures.
+4. `scripts/generate-snapshot.cjs:277` (`bottleneckCount` tally in the
+   `.snapshots` state generator) -- counts every edge of type
+   `REVERSE_SALIENT` toward the user-facing bottleneck count, no source
+   split.
+5. `scripts/extract-room-intelligence.cjs:263` (the Top-5-signals
+   `signalPriority` extraction in `ROOM-INTELLIGENCE.md` generation) --
+   groups edges by `type` only; a `REVERSE_SALIENT`-typed edge from either
+   source surfaces identically as a top signal.
+
+**Confirmed NOT an issue** (checked and ruled out, not listed above):
+`lib/core/leverage-scan.cjs:126`'s `SELECT ... WHERE type = 'REVERSE_SALIENT'`
+looks unfiltered in SQL but is filtered immediately after, in JS
+(`if (props.source !== 'rs-engine') continue;`) -- already correctly scoped.
+
+**A sixth, adjacent finding (a WRITER, not a reader, so distinct from the
+must-have's reader inventory, but flagged for the same 355-12 read since it
+bears on the "rs-engine-sourced edges are unaffected" claim):**
+`scripts/hsi-to-graph.cjs`'s own cleanup (`DELETE FROM edges WHERE type =
+'REVERSE_SALIENT'`, unconditional, no source filter) runs on every
+hsi-to-graph pass and would delete rs-engine-sourced (Artifact-level) edges
+too, not only the Section-level Python-origin edges it rewrites from
+`.hsi-results.json`. This plan's own must_haves state rs-engine-sourced
+edges are "unaffected" by an hsi-to-graph run; that assumption does not
+hold against the literal DELETE scope in `hsi-to-graph.cjs` today. Pre-
+existing behavior (this plan did not introduce or touch it -- `hsi-to-
+graph.cjs` is not in 355-11's `files_modified`), not fixed here.
