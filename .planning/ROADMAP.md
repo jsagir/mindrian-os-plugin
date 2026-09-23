@@ -1094,6 +1094,28 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 358 to break down)
 
+### Phase 359: Missed-fork detection: Larry poses a genuine decision in prose and no card fires (CLI), measured on the 357 replay corpus
+
+**Goal:** When Larry poses a genuine decision in prose ("research first, or build the plan?") with no numbered options, no ASCII box and no hook-reached registry gate, `scripts/check-card-fire.cjs` has no signal and no card fires. SPEC 357 names this class out of scope (known_miss, intern-w1). Measure it first: count missed forks in the 357 replay corpus and the navigator-labeled dogfood set. Then pick a deterministic fix. Leading candidate: Larry emits a structured, machine-readable choice trailer that the Stop hook can check, instead of the hook guessing from text. Part 8 and the 2026-09-17 rulings still hold: no runtime Jev, no user text to Jev. Jev may label synthetic fixtures at dev time (the 357 teacher/student pattern).
+**Requirements**: TBD (minted at spec time)
+**Depends on:** Phase 357 (replay corpus, harness and the D-06 dogfood labels are the measurement instrument)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 359 to break down)
+
+### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
+
+**Goal:** The UserPromptSubmit room-bind picker (F.8) is re-injected on turns whose triggering record is a harness message: a subagent hand-back or cross-session peer message (`isMeta: true`), or a task-notification (`origin.kind: task-notification`). Observed all through session 56924067 on 2026-09-23. 357-RESEARCH Finding 3 shows it was the upstream minter of that day's anchor false block: the picker minted a fresh F.8 gate on a hand-back turn, and the Stop hook then force-blocked it. Fix: the bind prompt fires only on a human-originated turn. Reuse 357's `harness` source classifier with the R-A carve-out; do not build a second classifier. Scope is the session-start / UserPromptSubmit hook path only.
+**Requirements**: TBD (minted at spec time)
+**Depends on:** Phase 357 (the `harness` source class in lib/hmi/turn-text.cjs, D-07 / R-A)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 360 to break down)
+
 ### Phase 270: Memory and Context Operator MCP
 
 **Goal:** Navigator observation, 2026-08-27: memory and context in this repo are scattered across many discrete MCP tools (`memory_event`, `graph_write`, `artifact_file`, `room_state_bound`, `graph_query`, `whitespace_scan`...) with no single thing owning the memory lifecycle end to end -- surfaced directly by this session's own finding that `~/.mindrian-user.md` (the promised cross-room "who is this user" file) has zero writers anywhere in the repo despite onboarding prose asserting it exists (Phase 267.1's GAP I-1, now Phase 267.2's W2). Theo's own package.json already frames itself as "MindrianOS's *consolidated* MCP server" for the Brain side -- the room side never got the equivalent treatment. Research this phase's actual shape: does consolidating room-side memory operations into one coherent "operator" surface (rather than many small tools) reduce real friction, or is the current fragmentation load-bearing (e.g. each tool's narrow scope is itself a Part 8 safety property, per `lib/mcp/*` tool descriptions -- verify before assuming consolidation is strictly better)? At minimum this phase should determine: (1) whether the cross-room identity write (Phase 267.2 W2's job) should be built as a first tool under this new operator rather than a one-off function, (2) whether Part 8's Brain-boundary enforcement (currently a documented convention, not a schema-level guarantee) can be made structurally enforced by a memory-operator tool's own input/output schema, and (3) how this interacts with Theo eventually becoming the consolidated Brain-side MCP -- does a room-side "memory operator" mirror that architecture, or is the analogy wrong because Brain content and room content have fundamentally different locality guarantees (Part 8: room data never leaves; Brain content is already remote by design).
