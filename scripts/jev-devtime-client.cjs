@@ -343,6 +343,18 @@ function makeEgressGuard(profile, opts) {
 // fetch path in this module, by construction. fetchImpl is resolved at CALL
 // time (never captured at module load), because tests swap globalThis.fetch
 // after requiring the modules that use this client.
+//
+// 355-07 (D-57, additive, pitfall 9): two default-off options on jev()'s
+// opts. `timeoutMs` (a positive number) adds an AbortSignal.timeout() to
+// the fetch init so a hung vendor socket can no longer stall a measurement
+// run; omit it and behavior is byte-identical to before. `honorRetryAfter`
+// (=== true) makes a 429/529 carrying a numeric positive `retry-after`
+// header sleep that many seconds instead of the existing exponential
+// backoff; omit it and the existing `400 * 2 ** attempt` backoff runs
+// exactly as before. Neither option changes any existing caller's
+// behavior (353's ledger, 356's material_step_ledger, 354-17's
+// framework_command_ledger, 357's card_fire_replay all call jev() without
+// either option).
 // ---------------------------------------------------------------------------
 const _defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -364,6 +376,7 @@ async function jev(body, opts) {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + o.key, 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: (typeof o.timeoutMs === 'number' && o.timeoutMs > 0) ? AbortSignal.timeout(o.timeoutMs) : undefined,
       });
     } catch (e) {
       if (attempt++ < 3) { await sleepImpl(500 * 2 ** attempt); continue; }
@@ -373,6 +386,10 @@ async function jev(body, opts) {
     const text = await r.text();
     let json = null;
     try { json = JSON.parse(text); } catch (_e) { /* leave json null */ }
+    if (o.honorRetryAfter === true && (r.status === 429 || r.status === 529) && attempt < 4) {
+      const ra = r.headers && typeof r.headers.get === 'function' ? Number(r.headers.get('retry-after')) : NaN;
+      if (Number.isFinite(ra) && ra > 0) { attempt++; await sleepImpl(ra * 1000); continue; }
+    }
     if ((r.status === 429 || r.status === 529) && attempt++ < 4) { await sleepImpl(400 * 2 ** attempt); continue; }
     return { status: r.status, ms: ms, json: json, text: text.slice(0, 200) };
   }
@@ -394,7 +411,11 @@ async function pool(items, n, fn) {
 // ---------------------------------------------------------------------------
 // EGRESS_PROFILES: frozen object of frozen profile objects, one per builder,
 // never a merged union (D-08). 356-07 adds material_step_ledger; 354-17 and
-// 357 add their own profiles from their own builders.
+// 357 add their own profiles from their own builders. 355-07 adds three
+// more (hsi_thinking_mode, citation_check, usefulness_judge), each composed
+// with its own closure ceiling in scripts/jev-question-ceilings.cjs -- see
+// that file, never this one, for the membership/equality checks a bare
+// profile guard cannot express.
 // ---------------------------------------------------------------------------
 const EGRESS_PROFILES = Object.freeze({
   section_command_ledger: Object.freeze({
@@ -471,6 +492,65 @@ const EGRESS_PROFILES = Object.freeze({
     criteria_keys: Object.freeze(['true', 'false']),
     question_max_len: 400,
     question_strings_from_file_key: 'policy',
+  }),
+  // 355 (D-44, D-55): Which thinking mode does `sentence` express? Closure
+  // check composed in scripts/jev-question-ceilings.cjs (fixture membership
+  // for `sentence`, exact frozen question equality). Never merged with any
+  // other profile (D-08: one profile per builder).
+  hsi_thinking_mode: Object.freeze({
+    id: 'hsi_thinking_mode',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-1.13.0',
+    state_keys: Object.freeze(['sentence']),
+    string_keys: Object.freeze(['sentence']),
+    max_len_by_key: Object.freeze({ sentence: 300 }),
+    question_ids: Object.freeze(['mode']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'choice',
+    instructions_keys: Object.freeze(['question', 'rule']),
+    criteria_keys: Object.freeze(['analytical', 'integrative', 'descriptive', 'evaluative', 'creative', 'none']),
+    question_max_len: 200,
+  }),
+  // 355 (D-44, D-46, D-55): How does `path` relate to `claim`? Closure
+  // check composed in scripts/jev-question-ceilings.cjs (claim equals the
+  // templated name + direction string, path equals hopsFromTheoPath(Theo's
+  // own answer) exactly). Never merged with any other profile (D-08: one
+  // profile per builder).
+  citation_check: Object.freeze({
+    id: 'citation_check',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-1.13.0',
+    state_keys: Object.freeze(['claim', 'path']),
+    string_keys: Object.freeze(['claim']),
+    max_len_by_key: Object.freeze({ claim: 400 }),
+    question_ids: Object.freeze(['relation']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'choice',
+    instructions_keys: Object.freeze(['question', 'rule']),
+    criteria_keys: Object.freeze(['supports', 'contradicts', 'says_nothing']),
+    question_max_len: 200,
+  }),
+  // 355 (D-44, D-55): Would a domain reader act on this pairing to extend
+  // the opportunity? Closure check composed in
+  // scripts/jev-question-ceilings.cjs (byte-equal excerpts against a known
+  // pairing, verification in strong/indirect/unverified). Never merged with
+  // any other profile (D-08: one profile per builder).
+  usefulness_judge: Object.freeze({
+    id: 'usefulness_judge',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-1.13.0',
+    state_keys: Object.freeze(['a_excerpt', 'b_excerpt', 'direction_phrase', 'verification']),
+    string_keys: Object.freeze(['a_excerpt', 'b_excerpt', 'direction_phrase', 'verification']),
+    max_len_by_key: Object.freeze({ a_excerpt: 2400, b_excerpt: 2400, direction_phrase: 80, verification: 16 }),
+    question_ids: Object.freeze(['usefulness']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'choice',
+    instructions_keys: Object.freeze(['question', 'rule']),
+    criteria_keys: Object.freeze(['useful', 'not_useful', 'already_known', 'none']),
+    question_max_len: 200,
   }),
 });
 
