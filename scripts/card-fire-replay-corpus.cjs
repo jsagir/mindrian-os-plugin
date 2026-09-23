@@ -298,7 +298,7 @@ function validateEntry(entry, fileMeta) {
     errors.push('fileMeta.sanitization_statement must be a non-empty string');
   }
 
-  if (containsEmDash(entry)) {
+  if (containsEmDash(entry) || containsEmDash(fileMeta)) {
     errors.push('entry contains an em-dash (U+2014); hyphens only');
   }
 
