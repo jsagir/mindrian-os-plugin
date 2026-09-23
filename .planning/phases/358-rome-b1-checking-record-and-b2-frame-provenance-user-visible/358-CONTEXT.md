@@ -47,6 +47,14 @@ THIS PLANNING PASS covers B1 only (slide A2: "stores what each claim was checked
 - lib/mcp/tools/gate.cjs is Phase 354 territory: if B1 needs it, coordinate with the 354 session (jsagi-25) first; prefer not touching it.
 - No em-dashes in any written text.
 
+### Navigator rulings after research (2026-09-23, LOCKED)
+- Desktop writes: YES. Add the Claude Desktop MCP client name `claude-ai` to the tier0 write-enabled host list (same pattern as commit 5f0a55993). Writes still land as proposed through the chokepoint. Cowork is added only after a live probe confirms its client name; until then the demo-machine env fallback MINDRIAN_MCP_FIRST=desktop,cowork is documented, not relied on.
+- Disputed sticks: if ANY record on a claim has result contradicts, the claim's verification status is disputed until a person resolves it; every record stays visible; a later supports never hides an earlier contradicts.
+- Who checked: add optional `checked_by_id` resolved via the existing resolveByUser; local only, never crosses to Theo.
+- Bug to fix (proven by research, blocks AT2): writeClaimNode rebuilds claim properties and wipes the `verification` key on re-file (typed-claim.cjs:139-177, node-insert.cjs:246-247). Carry it forward and add it to PROTECTED_CLAIM_KEYS; add a regression test covering graph-derivation style re-saves.
+- Red tests left by substrate commit 42191a6ae (test-234 description floor, test-270 schema budget, test-276 honesty sweep) must be green at phase end.
+- The 6 October go/no-go checklist includes a release cut and a live install check on the real demo machines (a main commit is not live until released and picked up).
+
 ### Claude's Discretion
 - Exact CLI surface (extend an existing /mos: command such as the room/query view, or a small new command) chosen by reuse-before-build (Canon Part 7): search commands/*.md first.
 - Exact MCP surface: extend claim_verify and add or extend a read tool for the claim view and the room portrait; prefer extending existing tools over new ones.
