@@ -166,3 +166,7 @@ Excluded per R-J (pre-existing reds, not touched): `tests/test-card-fire-relevan
 *Phase: 357-gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re*
 *Plan: 01*
 *Completed: 2026-09-23*
+
+## Self-Check: PASSED
+
+All 7 created files verified present on disk (`scripts/card-fire-replay-corpus.cjs`, the 4 `tests/fixtures/card-fire-replay/*.json` files, `tests/test-357-corpus-loader.cjs`, `tests/run-all-357.sh`). All 3 commits (`64fa2735f` Task 1, `2f4a29be6` Task 2, `8070997b9` this summary) verified present in `git log`. No missing items.
