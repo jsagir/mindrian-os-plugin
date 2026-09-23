@@ -930,7 +930,7 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 **Goal:** Independently research the whole plugin and Theo integration, reproduce or refute the review findings, then repair confirmed failures and verify complete user journeys. Research must precede implementation.
 **Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). Newly discovered post-planning, navigator-directed 2026-09-23: THEO-04 (raw `theo` MCP server at `~/.claude.json` bypasses `part8-egress-guard.cjs`; document + procedural discipline, not a code fix). All thirteen registered in `.planning/REQUIREMENTS.md`.
 **Depends on:** Phase 353
-**Plans:** 6/18 plans executed
+**Plans:** 7/18 plans executed
 
 **Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351, 352 AND 355 (355 is titled "Jev-through-Theo Cross-Connection Engines" and depends on 354 -- 354-17 and 354-18 below already cover the TypeSafe/Jev-framework-ledger and raw-theo-MCP-exposure ground; scope 355 to not re-cover them). Uncommitted Sep-20 localhost-poc room-mode diff: committed (`e08c32f05`). Decisions: D-354-EGR APPROVED (navigator, 2026-09-23, unchanged from plan); D-354-SYS05 may still be vetoed (ledger section 9).
 
@@ -950,7 +950,7 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [x] 354-05-PLAN.md -- SYS-01: one realpath-containment helper for artifact_file, section and reasoning resources, reasoning-ops
 - [x] 354-06-PLAN.md -- THEO-03: closed-vocabulary typed-question proof; ask/search refuse unproven free-form prose (D-354-EGR)
-- [ ] 354-07-PLAN.md -- SYS-03, SYS-06: inert chat and tool-component rendering
+- [x] 354-07-PLAN.md -- SYS-03, SYS-06: inert chat and tool-component rendering
 - [ ] 354-08-PLAN.md -- SYS-06: POC lossless save, Host/Origin/token model, revision conflicts; legacy dashboard Host-on-read recheck
 
 **Wave 4** *(tier 3, Theo contract-safety; depends on wave 3)*

@@ -2944,7 +2944,7 @@ contract.
       a dead owner is recovered by exactly one contender, only the token owner releases, nesting
       holds until the outermost release, graph-ops holds it across its await. Plan 354-04.
 
-- [ ] **SYS-03**: Assistant and tool-component output in lib/chat renders inert in a real browser on
+- [x] **SYS-03**: Assistant and tool-component output in lib/chat renders inert in a real browser on
       the whole-message and streamed paths while bold, italic, code and lists still render.
       Plan 354-07.
 
