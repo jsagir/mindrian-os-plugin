@@ -127,3 +127,10 @@ None - no external service configuration required. The one live Theo call this p
 ---
 *Phase: 355-hidden-in-plain-sight-jev-through-theo-cross-connection-engi*
 *Completed: 2026-09-24*
+
+## Self-Check: PASSED
+
+All 4 files verified present on disk (`scripts/refresh-framework-names.cjs`,
+`tests/test-355-framework-names.cjs`, `data/framework-names.json`,
+`355-08-SUMMARY.md`); all 3 commits (`7e8be3330`, `f55f004f6`, `da0ad772c`)
+verified present in `git log`.
