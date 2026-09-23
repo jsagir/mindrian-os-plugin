@@ -28,11 +28,15 @@ assert.equal(row.review_status, 'proposed');
 assert.equal(props.verification.status, 'checked');
 assert.equal(props.verification.records[0].against_id, 'artifact:source-1');
 assert.equal(props.verification.records[0].note_handle, 'artifact:note-1');
+const expectedRecordsByRung = {};
+for (let i = 1; i <= navigation.VERIFICATION_RUNGS.length; i += 1) expectedRecordsByRung[String(i)] = 0;
+expectedRecordsByRung.unknown = 1;
 const portrait = navigation.readVerificationPortrait(d);
 assert.deepEqual(portrait, {
   claims_total: 1, claims_unchecked: 0, claims_checked: 1, claims_disputed: 0,
   claims_inconclusive: 0, records_total: 1,
   records_by_result: { supports: 1, contradicts: 0, inconclusive: 0 },
+  records_by_rung: expectedRecordsByRung,
 });
 assert.equal(navigation.recordClaimVerification(d, {
   claim_id: claim.node_id, against_id: 'source:x', against_kind: 'source',
