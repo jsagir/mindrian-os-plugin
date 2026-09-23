@@ -59,6 +59,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const crypto = require('node:crypto');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const FIXTURES_ROOT = path.join(REPO_ROOT, 'tests', 'fixtures');
@@ -79,6 +80,21 @@ const INTERNAL_ID_RE = /\b[a-zA-Z][a-zA-Z]*-export-\d+\b/;
 // ---------------------------------------------------------------------------
 function loadFrameworkNamesForCapture() {
   return verificationStamp.loadFrameworkNames();
+}
+
+// ---------------------------------------------------------------------------
+// _hostToken(): a provenance token for `theo_host` that never carries the
+// raw OS hostname. `os.hostname()` on this navigator's own workstation is
+// literally the navigator's real name run together (e.g. "JonathanSagir"),
+// observed live during this plan's own smoke test -- committing it verbatim
+// would put a real name in the repo (CLAUDE.md / MEMORY.md hard rule: no
+// real names anywhere in a tracked file). A short sha256 prefix keeps the
+// field's actual purpose (distinguishing which machine captured a given
+// file, so a second capture run is provably a different or the same
+// workstation) without ever writing the name itself.
+// ---------------------------------------------------------------------------
+function _hostToken() {
+  return crypto.createHash('sha256').update(os.hostname()).digest('hex').slice(0, 12);
 }
 
 function loadSnapshotSha256() {
@@ -306,7 +322,7 @@ function _mergeCaptureFile(existing, result, snapshotSha256) {
   if (!existing) {
     return {
       captured_at: capturedAt,
-      theo_host: os.hostname(),
+      theo_host: _hostToken(),
       snapshot_sha256: snapshotSha256,
       served: result.served,
       calls: result.calls,
@@ -327,7 +343,7 @@ function _mergeCaptureFile(existing, result, snapshotSha256) {
   if (newCalls > 0) newLatency.push.apply(newLatency, result.latency_ms);
   return {
     captured_at: capturedAt,
-    theo_host: os.hostname(),
+    theo_host: _hostToken(),
     snapshot_sha256: snapshotSha256,
     served: Boolean(existing.served) || result.served,
     calls: (typeof existing.calls === 'number' ? existing.calls : 0) + newCalls,
