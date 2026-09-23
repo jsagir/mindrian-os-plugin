@@ -44,6 +44,22 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
+const checkCardFire = require(path.join(__dirname, 'check-card-fire.cjs'));
+
+// classifyStopOutcome anchors (WR-02, 357-REVIEW.md): derived from
+// check-card-fire.cjs's own buildEnforcementEnvelope output shape at
+// require-time, instead of hardcoded magic byte-lengths cross-checked
+// against nothing. A future change to the hook's real stdout shape (even a
+// whitespace/wording change) now updates these anchors automatically
+// instead of silently returning null and dropping candidates from a
+// future --scan rerun.
+const PASS_STDOUT_LEN = JSON.stringify(
+  checkCardFire.buildEnforcementEnvelope({ intercept: false, degrade: false })
+).length;
+const DEGRADE_STDOUT_LEN = JSON.stringify(
+  checkCardFire.buildEnforcementEnvelope({ intercept: false, degrade: true })
+).length;
+
 const REPO_ROOT = path.join(__dirname, '..');
 const PHASE_DOCS_DIR = path.join(
   REPO_ROOT, '.planning', 'phases',
@@ -251,8 +267,8 @@ function classifyStopOutcome(attachment) {
       const cmd = typeof attachment.command === 'string' ? attachment.command : '';
       if (cmd.indexOf('check-card-fire.cjs') === -1) return null;
       const stdout = typeof attachment.stdout === 'string' ? attachment.stdout : '';
-      if (stdout.length === 39) return 'pass';
-      if (stdout.length === 71) return 'degrade';
+      if (stdout.length === PASS_STDOUT_LEN) return 'pass';
+      if (stdout.length === DEGRADE_STDOUT_LEN) return 'degrade';
       return null;
     }
     if (attachment.type === 'hook_blocking_error') {
