@@ -133,6 +133,23 @@ const alteredHash = crypto
 check('phraseHash() changes when a phrase changes', alteredHash !== hash1);
 
 // ---------------------------------------------------------------------------
+// PHRASES_CONFIRMED (Phase 355-02, PWS author ruling 2026-09-23): the ruling
+// pins the phraseHash() value at confirmation time; if a later edit changes
+// any phrase without a fresh ruling, this equality goes false and the test
+// fails (D-35 "if the phrases change after judging, direction_ok labels are
+// re-run").
+// ---------------------------------------------------------------------------
+check(
+  'PHRASES_CONFIRMED is present and frozen',
+  mod.PHRASES_CONFIRMED !== undefined && Object.isFrozen(mod.PHRASES_CONFIRMED)
+);
+check("PHRASES_CONFIRMED.by === 'pws-author' (role only, never a name)", mod.PHRASES_CONFIRMED && mod.PHRASES_CONFIRMED.by === 'pws-author');
+check(
+  'PHRASES_CONFIRMED.phrase_hash === phraseHash()',
+  mod.PHRASES_CONFIRMED && mod.PHRASES_CONFIRMED.phrase_hash === mod.phraseHash()
+);
+
+// ---------------------------------------------------------------------------
 // Static legs: module cites 355-ORIGIN-CONCEPT.md; requires only node:crypto.
 // ---------------------------------------------------------------------------
 const source = fs.readFileSync(MODULE_PATH, 'utf8');
