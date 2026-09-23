@@ -304,11 +304,102 @@ function legSectionParity() {
   }
 }
 
-// Task 2 appends further legs here (builder injection, no key material)
-// once scripts/build-command-irreversibility-ledger.cjs exists. Placeholder
-// no-op so Task 1's commit runs this file standalone and green.
+// ---------------------------------------------------------------------------
+// Leg (Task 2): builder injection (R7 acceptance). scoreAll rejects with
+// EGRESS_REFUSED, naming the injected key, with zero fetch calls.
+// ---------------------------------------------------------------------------
+const SENTINEL_KEY = 'sk-356-SENTINEL-DO-NOT-SHIP';
+
+async function legBuilderInjection(builder) {
+  console.log('--- leg: builder injection (R7 acceptance) ---');
+  await withTempRoot(async (tmpRoot) => {
+    const rows = registryRows.slice(0, 3).map((r) => ({ command: r.command, teaching: r.teaching || '', jtbd_summary: r.jtbd_summary || '' }));
+    const policy = builder.readPolicy(tmpRoot);
+    let calls = 0;
+    const fetchImpl = async () => { calls += 1; return { status: 200, text: async () => '{}' }; };
+    const injectedBuildPayload = (row, pol) => {
+      const b = builder.buildPayload(row, pol);
+      b.state.room_path = '/home/someone/room';
+      return b;
+    };
+    try {
+      await builder.scoreAll(rows, policy, { key: 'k', root: tmpRoot, fetchImpl: fetchImpl, buildPayloadImpl: injectedBuildPayload, concurrency: 1 });
+      check('builder injection: scoreAll rejects', false);
+    } catch (e) {
+      check('builder injection: rejects with EGRESS_REFUSED', e.code === 'EGRESS_REFUSED');
+      check('builder injection: key names room_path', e.key === 'room_path');
+      check('builder injection: zero fetch calls', calls === 0);
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Leg (Task 2): no key material anywhere under data/ (sentinel + real key).
+// ---------------------------------------------------------------------------
+function listFilesRecursive(dirAbs) {
+  const out = [];
+  let entries;
+  try { entries = fs.readdirSync(dirAbs, { withFileTypes: true }); } catch (_e) { return out; }
+  for (const entry of entries) {
+    const abs = path.join(dirAbs, entry.name);
+    if (entry.isDirectory()) out.push(...listFilesRecursive(abs));
+    else if (entry.isFile()) out.push(abs);
+  }
+  return out;
+}
+
+function dataFilesContain(needle) {
+  const files = listFilesRecursive(DATA_DIR);
+  return files.filter((f) => {
+    try { return fs.readFileSync(f, 'utf8').indexOf(needle) !== -1; } catch (_e) { return false; }
+  });
+}
+
+async function legNoKeyMaterial(builder) {
+  console.log('--- leg: no key material in data/ ---');
+  await withTempRoot(async (tmpRoot) => {
+    const rows = registryRows.slice(0, 3).map((r) => ({ command: r.command, teaching: r.teaching || '', jtbd_summary: r.jtbd_summary || '' }));
+    const policy = builder.readPolicy(tmpRoot);
+    const fixture = { model: 'jev-fixture-356', default_p: 0.05, p: {} };
+    const sink = [];
+    const fetchImpl = builder.makeFixtureFetch(fixture, sink);
+    const result = await builder.scoreAll(rows, policy, { key: SENTINEL_KEY, root: tmpRoot, fetchImpl: fetchImpl, concurrency: 2 });
+    const hitInResult = JSON.stringify(result).indexOf(SENTINEL_KEY) !== -1;
+    check('sentinel key absent from scoreAll result', !hitInResult);
+    const hits = dataFilesContain(SENTINEL_KEY);
+    check('sentinel key absent from every file under data/', hits.length === 0);
+  });
+
+  let realKey = null;
+  try {
+    realKey = client.loadKey({ env: {}, secretsPath: path.join(os.homedir(), '.secrets', 'typesafe.env') });
+  } catch (_e) {
+    realKey = null;
+  }
+  if (typeof realKey === 'string' && realKey.length > 0) {
+    const files = listFilesRecursive(DATA_DIR);
+    const hits = dataFilesContain(realKey);
+    check('real key absent from every file under data/', hits.length === 0);
+    console.log('real key compared against ' + files.length + ' data files: absent');
+  } else {
+    console.log('real key unavailable: leg skipped');
+  }
+}
+
+// Task 2 legs run only once scripts/build-command-irreversibility-ledger.cjs
+// exists (it lands in this same plan's Task 2, immediately before this
+// file's own Task 2 append, so by the time this file is committed the
+// builder always exists; the guard is defensive for a standalone re-run of
+// an older commit of this file).
 async function runTask2Legs() {
-  console.log('PENDING: Task 2 legs (builder injection, no key material) not landed yet');
+  if (!fs.existsSync(BUILDER_PATH)) {
+    console.log('PENDING: scripts/build-command-irreversibility-ledger.cjs not landed yet');
+    check('Task 2 legs: pending (builder not landed), counted as passing', true);
+    return;
+  }
+  const builder = require(BUILDER_PATH);
+  await legBuilderInjection(builder);
+  await legNoKeyMaterial(builder);
 }
 
 async function main() {

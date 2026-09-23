@@ -1,0 +1,12 @@
+{
+  "_note": "SYNTHETIC fixture for Phase 356 tests. Not Jev output. Not the answer key.",
+  "model": "jev-fixture-356",
+  "default_p": 0.05,
+  "p": {
+    "/mos:publish": 0.97,
+    "/mos:export": 0.31,
+    "/mos:snapshot": 0.22,
+    "/mos:vault": 0.18,
+    "/mos:present": 0.12
+  }
+}
