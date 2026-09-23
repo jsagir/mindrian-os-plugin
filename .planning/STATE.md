@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-17-PLAN.md
-last_updated: "2026-09-23T14:01:11.132Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 17 (framework-command ledger, THEO-01 recall extension) executed
+stopped_at: Completed 354-13-PLAN.md
+last_updated: "2026-09-23T14:56:11.602Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 13 (SYS-07 acceptance-runner diagnostics, classified WORKING) executed
 progress:
-  total_phases: 110
+  total_phases: 111
   completed_phases: 35
-  total_plans: 378
-  completed_plans: 309
-  percent: 82
+  total_plans: 388
+  completed_plans: 314
+  percent: 81
 ---
+
+<!-- NOTE (354-13 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` reported stale Phase 353 counters (current_plan 3 of 3,
+     ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 314, total: 388, percent: 81. `state.record-metric --phase 354 --plan 13
+     --duration 45min --tasks 3 --files 3` landed its own correct Performance Metrics row.
+     `state.add-decision --summary ...` repeated the documented `[Phase ?]` placeholder-prefix
+     bug again, fixed in place to `[Phase 354] 354-13: ...`. `state.record-session` this run
+     updated ONLY the body's own `Last session:` line; frontmatter `stopped_at`/`last_activity`/
+     `percent` were reverted to stale values (`Completed 354-17-PLAN.md`, the 2026-09-17 Phase
+     353 line, `32`) and the body `Stopped at:` line stayed at the stale `354-17` value.
+     Hand-corrected: frontmatter `stopped_at` -> "Completed 354-13-PLAN.md", `last_activity` ->
+     this plan's own completion line, `percent` -> 81 (matching `state.update-progress`'s
+     just-computed value); body `Stopped at:` line -> "Completed 354-13-PLAN.md" to match.
+     `total_plans`/`completed_plans` (388/314) were already correct from `state.update-progress`,
+     not reverted this run. Also ran `requirements.mark-complete SYS-07` this session (354-13's
+     own owning plan per REQUIREMENTS.md's SYS-07 row, confirmed before running) -- REQUIREMENTS.md's
+     SYS-07 row is now `[x]`. -->
 
 <!-- NOTE (354-17 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6924,6 +6943,7 @@ Progress: [█████████░] 92%
 | Phase 354 P11 | ~50min | 3 tasks | 4 files |
 | Phase 354 P12 | ~95min | 3 tasks | 3 files |
 | Phase 354 P17 | 25min | 2 tasks | 8 files |
+| Phase 354 P13 | 45min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -8606,6 +8626,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-11: room mode files through fileArtifact into <room>/<section>/workspace-poc.md (governed door); graph()/graphAnswer() enrich claim:artifact nodes with a locally-known source path since getGraphExport's own Part 8 whitelist never emits one; SYS-06 marked complete (354-07/08/11 all landed, full J1-J8 journey passes).
 - [Phase 354] 354-12: hermetic four-case Theo journey proven, live contract run actually executed and passed 9/9 (THEO-01/THEO-03 closed), THEO-02 dispositioned BLOCKED on Phase 351 with fresh six-command evidence
 - [Phase 354] 354-17: committed ledger ships offline-seed (promotes zero candidates by design); lookup consulted only after 354-09's exact-slug safety check fails
+- [Phase 354] 354-13: SYS-07 acceptance-runner diagnostics landed (runBoundedChild, per-point timing, stderr progress); clean rerun classified WORKING, not a defect
 
 ### Pending Todos
 
@@ -8754,8 +8775,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T14:01:11.052Z
-Stopped at: Completed 354-17-PLAN.md
+Last session: 2026-09-23T14:56:11.377Z
+Stopped at: Completed 354-13-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

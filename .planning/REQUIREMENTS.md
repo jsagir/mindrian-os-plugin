@@ -2962,7 +2962,7 @@ contract.
       edit/save/reopen, governed index, inspect, grounded ask with references, external edit).
       Plans 354-07, 354-08, 354-11.
 
-- [ ] **SYS-07**: The acceptance runner reports per-point timing and progress, bounds every child
+- [x] **SYS-07**: The acceptance runner reports per-point timing and progress, bounds every child
       process, and a clean rerun classifies the timeout as WORKING, ENV GAP or NEW FAILURE with an
       orphan check, recorded in `.planning/debug/sys-07-acceptance-timing.md`. Plan 354-13.
 
