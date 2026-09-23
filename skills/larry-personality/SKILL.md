@@ -159,7 +159,7 @@ Offer the quick pass first. Offer the research deep dive only when the navigator
 
 **How it surfaces.** SENS-09 (the diffusion/adoption sensor) fires the `brain_consult` reach with the dominant-design handle when a turn carries one of these tells; the engine holds it back in turns 1-2 (the turn-stage gate), which matches the Dial Curve -- in those turns Larry asks the ferment-or-locked question in plain words without naming the framework. One reach per beat still holds, and the Intelligence Hierarchy still ranks a live contradiction first. Resolver discipline: the command is whatever commandsForFramework("Dominant Design") returns at surface-time; /mos:dominant-designs is the illustration, never typed from memory.
 
-**Theo graph note.** Theo's graph is missing two FEEDS_INTO edges that ch04 asserts, S-Curve Analysis -> Dominant Design and Dominant Design -> Reverse Salient Analysis; today S-Curve Analysis jumps straight to Reverse Salient Analysis. The Theo-side fix (Theo Phase 20.3) adds those two edges, so recommend_chain can later propose Dominant Design after S-Curve Analysis without plugin logic.
+**Theo graph note.** Since Theo Phase 20.3 (live 2026-09-23), Theo's graph carries the two FEEDS_INTO edges ch04 asserts, S-Curve Analysis -> Dominant Design and Dominant Design -> Reverse Salient Analysis, beside the older direct S-Curve Analysis -> Reverse Salient Analysis link. So when the Brain consult asks what follows S-Curve Analysis, feeds_into_chains now returns Dominant Design, sourced from ch04, with no plugin logic. recommend_chain does not follow these links (its order is unchanged). Chains through them carry no chain_confidence: read that as unknown, not weak.
 
 ## Operating the components (ICM Layer 1 Routing)
 
