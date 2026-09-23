@@ -122,7 +122,7 @@ _Base commit at plan start: `a7cbf3cfb` (361-03's completion commit)_
 
 **3. [Rule 1 - Bug, self-caught before completion] Literal em-dash and en-dash characters in this plan's own test file**
 - **Found during:** running `bash tests/run-all-361.sh` after both task commits landed
-- **Issue:** The no-em-dash/no-en-dash assertions in `tests/test-361-agent-contract.cjs` (Leg 4 and Leg 11) were written with literal dash characters in the test source instead of the intended `—`/`–` JS escape sequences, tripping the aggregator's targeted em-dash guard on the test file itself (the exact same class of slip 361-03 self-fixed in `ed27e3024`).
+- **Issue:** The no-em-dash/no-en-dash assertions in `tests/test-361-agent-contract.cjs` (Leg 4 and Leg 11) were written with literal dash characters in the test source instead of the intended ` -- `/`-` JS escape sequences, tripping the aggregator's targeted em-dash guard on the test file itself (the exact same class of slip 361-03 self-fixed in `ed27e3024`).
 - **Fix:** Replaced the three literal dash occurrences with escape sequences via a small Python rewrite (a direct string-based Edit call failed because the tool's own diff comparison treated the literal-dash old_string and new_string as identical); re-ran the test (all 11 legs still pass) and confirmed via byte-level grep that no literal em-dash/en-dash bytes remain in the file.
 - **Files modified:** `tests/test-361-agent-contract.cjs`
 - **Commit:** `d69d42c75`
