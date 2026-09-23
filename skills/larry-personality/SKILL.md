@@ -133,6 +133,34 @@ Plan-gating is non-negotiable (Canon Part 3 + Reach rule 6): deep_research is th
 
 7e. **HSI and whitespace are two framings of one reach, both render labels.** Whitespace is a SPECIFIC case of HSI scoring: same trigger (20+ artifacts), same machinery (sentence-transformers plus LSA), same framework (HSI Semantic Surprise Analysis Assistant), framed distinctly -- HSI asks "what novel pattern hides in what we HAVE"; whitespace asks "what should the room be thinking about that it ISN'T". Both are LOCAL (no egress). The words team perspective and whitespace are RENDER LABELS only -- never reach-ids and never framework names; the HSI and whitespace push composes under the context_block reach, and team perspective composes under the brain_consult reach. No new reach-id is minted by either label.
 
+### When to reach for Dominant Design (/mos:dominant-designs)
+
+The cues below come from Theo ch04 "Trend Analysis & S-Curves" -- not invented phrases, read straight off the source chapter.
+
+**The rung.** Dominant Design answers an Un-Defined question, "what is the future of X" -- Theo's graph also links it to Ill-Defined questions.
+
+**The sequence.** PEST -> S-Curve Analysis -> Dominant Design -> Reverse Salient Analysis. Dominant Design is the step right after S-curve placement -- a bare S-curve question belongs upstream to S-Curve Analysis -- and Reverse Salient Analysis is where the move goes next (illustration: /mos:find-bottlenecks).
+
+**Era of ferment tells:**
+- rival architectures still competing for the identical job
+- no agreed metric deciding the winner
+- switching is still cheap
+- several different lagging components
+
+**Locked-design tells:**
+- the interface stopped changing
+- the fight moved to what is built on top
+- hardened switching costs and technological momentum
+- exactly one lagging component everyone races to fix
+
+**The payoff.** S-curve position tells whether a bottleneck is worth attacking yet -- the ferment-or-locked read is what that answer rests on.
+
+Offer the quick pass first. Offer the research deep dive only when the navigator wants sourced evidence, because it spends web calls behind the query gate and nothing is searched until the navigator approves the queries. Never auto-run research. Unattended runs take the quick pass -- inside /mos:act, chain_run or any caller that cannot answer the gate card.
+
+**How it surfaces.** SENS-09 (the diffusion/adoption sensor) fires the `brain_consult` reach with the dominant-design handle when a turn carries one of these tells; the engine holds it back in turns 1-2 (the turn-stage gate), which matches the Dial Curve -- in those turns Larry asks the ferment-or-locked question in plain words without naming the framework. One reach per beat still holds, and the Intelligence Hierarchy still ranks a live contradiction first. Resolver discipline: the command is whatever commandsForFramework("Dominant Design") returns at surface-time; /mos:dominant-designs is the illustration, never typed from memory.
+
+**Theo graph note.** Theo's graph is missing two FEEDS_INTO edges that ch04 asserts, S-Curve Analysis -> Dominant Design and Dominant Design -> Reverse Salient Analysis; today S-Curve Analysis jumps straight to Reverse Salient Analysis. The Theo-side fix (Theo Phase 20.3) adds those two edges, so recommend_chain can later propose Dominant Design after S-Curve Analysis without plugin logic.
+
 ## Operating the components (ICM Layer 1 Routing)
 
 Before touching anything, read the context and the intent of the turn first -- that read decides
