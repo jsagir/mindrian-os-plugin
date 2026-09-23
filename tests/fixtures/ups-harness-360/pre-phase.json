@@ -120,5 +120,134 @@
     "lib/core/session-binding.cjs": "",
     "lib/core/room-path-containment.cjs": ""
   },
-  "suites": {}
+  "suites": {
+    "tests/test-209-primary-sidechannel.cjs": {
+      "group": "r3",
+      "file": "tests/test-209-primary-sidechannel.cjs",
+      "exit": 0,
+      "ok_count": 36,
+      "fail_lines": []
+    },
+    "tests/test-209-engine-arm-contract.cjs": {
+      "group": "r3",
+      "file": "tests/test-209-engine-arm-contract.cjs",
+      "exit": 0,
+      "ok_count": 0,
+      "fail_lines": []
+    },
+    "tests/test-225-answer-narrowing.cjs": {
+      "group": "r3",
+      "file": "tests/test-225-answer-narrowing.cjs",
+      "exit": 0,
+      "ok_count": 4,
+      "fail_lines": []
+    },
+    "tests/test-260917-binding-gate-offscope.cjs": {
+      "group": "r3",
+      "file": "tests/test-260917-binding-gate-offscope.cjs",
+      "exit": 0,
+      "ok_count": 4,
+      "fail_lines": []
+    },
+    "tests/test-251-skeleton-split.cjs": {
+      "group": "r3",
+      "file": "tests/test-251-skeleton-split.cjs",
+      "exit": 0,
+      "ok_count": 4,
+      "fail_lines": []
+    },
+    "lib/memory/userpromptsubmit-integration.test.cjs": {
+      "group": "r3",
+      "file": "lib/memory/userpromptsubmit-integration.test.cjs",
+      "exit": 1,
+      "ok_count": 13,
+      "fail_lines": [
+        "FAIL Test 8: tier_0 fallback leaves Phase 83 intent classifier path intact"
+      ]
+    },
+    "tests/test-248-room-bind-honest-return.cjs": {
+      "group": "mcp",
+      "file": "tests/test-248-room-bind-honest-return.cjs",
+      "exit": 0,
+      "ok_count": 27,
+      "fail_lines": []
+    },
+    "tests/test-248-room-bind-session-authoritative.cjs": {
+      "group": "mcp",
+      "file": "tests/test-248-room-bind-session-authoritative.cjs",
+      "exit": 0,
+      "ok_count": 6,
+      "fail_lines": []
+    },
+    "tests/test-room-bind-health-signal.cjs": {
+      "group": "mcp",
+      "file": "tests/test-room-bind-health-signal.cjs",
+      "exit": 0,
+      "ok_count": 7,
+      "fail_lines": []
+    },
+    "tests/test-room-bind-stdio-session-fallback.cjs": {
+      "group": "mcp",
+      "file": "tests/test-room-bind-stdio-session-fallback.cjs",
+      "exit": 0,
+      "ok_count": 4,
+      "fail_lines": []
+    },
+    "tests/test-225-zero-score-gate.cjs": {
+      "group": "wider",
+      "file": "tests/test-225-zero-score-gate.cjs",
+      "exit": 0,
+      "ok_count": 8,
+      "fail_lines": []
+    },
+    "tests/test-225-gate-degrade.cjs": {
+      "group": "wider",
+      "file": "tests/test-225-gate-degrade.cjs",
+      "exit": 0,
+      "ok_count": 2,
+      "fail_lines": []
+    },
+    "tests/test-226-session-binding-key-alignment.cjs": {
+      "group": "wider",
+      "file": "tests/test-226-session-binding-key-alignment.cjs",
+      "exit": 0,
+      "ok_count": 4,
+      "fail_lines": []
+    },
+    "tests/test-260917-rooms-home-precedence.cjs": {
+      "group": "wider",
+      "file": "tests/test-260917-rooms-home-precedence.cjs",
+      "exit": 0,
+      "ok_count": 6,
+      "fail_lines": []
+    },
+    "tests/test-binding-gate-degrade.test.cjs": {
+      "group": "wider",
+      "file": "tests/test-binding-gate-degrade.test.cjs",
+      "exit": 0,
+      "ok_count": 0,
+      "fail_lines": []
+    },
+    "lib/memory/room-classifier-strict-mode.test.cjs": {
+      "group": "wider",
+      "file": "lib/memory/room-classifier-strict-mode.test.cjs",
+      "exit": 0,
+      "ok_count": 0,
+      "fail_lines": []
+    },
+    "tests/test-cross-session-room-bleed.cjs": {
+      "group": "wider",
+      "file": "tests/test-cross-session-room-bleed.cjs",
+      "exit": 0,
+      "ok_count": 0,
+      "fail_lines": []
+    },
+    "tests/test-reach-gate-stale-turn-input.cjs": {
+      "group": "wider",
+      "file": "tests/test-reach-gate-stale-turn-input.cjs",
+      "exit": 0,
+      "ok_count": 0,
+      "fail_lines": []
+    }
+  }
 }
