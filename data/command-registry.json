@@ -1657,7 +1657,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation.",
+      "teaching": "When you need to view the active Data Room, /mos:room opens it. /mos:room question shows the room's governing question with its origin and history, and asks what the old question got wrong before a changed question is recorded.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },

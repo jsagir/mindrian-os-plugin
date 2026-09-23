@@ -14,7 +14,7 @@ interactive_first_reward: "--none (diagnostic surface)"
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
 serves_jtbd: ["audit-room"]
-teaching: "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation."
+teaching: "When you need to view the active Data Room, /mos:room opens it. /mos:room question shows the room's governing question with its origin and history, and asks what the old question got wrong before a changed question is recorded."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
