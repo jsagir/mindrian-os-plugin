@@ -19,6 +19,8 @@ Pipeline: Load HSI results -> Group by section -> Cross-section analysis
           -> Classify -> Score (with spectral bonus) -> Generate thesis -> Update JSON
 """
 
+# Offline reference only since Phase 355 D-52; no live caller. It writes the
+# retired Convention B direction; do not reintroduce it on a live path.
 import argparse
 import json
 import sys

@@ -22,6 +22,10 @@ Tier system (per HSI-05):
     Tier 2: sklearn + Pinecone (uses existing embeddings if configured)
 """
 
+# Reference implementation, the MINDRIAN_RS_BACKEND=python fallback and
+# scout's HSI step 1. Its surprise_type strings use the retired Convention B;
+# since Phase 355 D-07 no reader trusts them: hsi-to-graph re-derives from
+# lsa_sim / semantic_sim through lib/core/direction-convention.cjs.
 import argparse
 import hashlib
 import json

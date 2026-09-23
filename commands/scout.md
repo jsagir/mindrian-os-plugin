@@ -269,8 +269,8 @@ If dependencies are available:
 # Step 1: Compute HSI scores
 python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR" --output "$ROOM_DIR/.hsi-results.json"
 
-# Step 2: Detect reverse salients (lagging subsystems)
-python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
+# Step 2: Reverse salients from the CJS RS engine (the engine /mos:find-bottlenecks uses)
+node -e "require('${PLUGIN_ROOT}/lib/core/rs-engine.cjs').runModeInternal(process.argv[1], {}).then(() => process.exit(0)).catch((e) => { console.error(e && e.message); process.exit(1); });" "$ROOM_DIR"
 
 # Step 3: Write HSI edges to room graph (if available)
 # D-03: do NOT swallow the HSI-to-graph stderr/exit. A silent scout is how
@@ -280,6 +280,8 @@ if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR"; then
   echo "ADVISORY: HSI-to-graph step failed (room graph not updated this run); scout continues in degraded mode" >&2
 fi
 ```
+
+Phase 355: the Python detector is reference only; direction labels in `.hsi-results.json` are re-derived from the stored similarity pair, never trusted as written.
 
 Report:
 - Number of HSI pairs scored
