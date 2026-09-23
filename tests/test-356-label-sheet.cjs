@@ -540,7 +540,10 @@ console.log('');
   const prelabelsBytes = fs.readFileSync(PRELABELS_PATH);
   check('shipped leg: blind sheet seal matches the committed pre-label file bytes', parsed.meta.prelabels_sha256 === sha256Hex(prelabelsBytes));
   check('shipped leg: blind sheet has no autonomous_safe token', !/autonomous_safe/i.test(md));
-  check('shipped leg: blind sheet has no boundary token (case-insensitive)', !/boundary/i.test(md));
+  // Narrowed 2026-09-23 (navigator-approved in session): the real registry's own
+  // Canon Part 8 wording ("Part-8 boundary gate") is command text, not policy text.
+  // The leak this guards against is the policy's boundary_cases field in any spelling.
+  check('shipped leg: blind sheet has no boundary-case token (case-insensitive)', !/boundary[\s_-]*cases?/i.test(md));
 })();
 console.log('');
 
