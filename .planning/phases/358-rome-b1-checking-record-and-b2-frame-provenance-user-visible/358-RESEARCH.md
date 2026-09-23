@@ -495,21 +495,25 @@ try {
 | A4 | Officers will reopen claims by text search rather than by id | Pattern 3, Pitfall 3 | If they re-file, they see a fresh unchecked duplicate |
 | A5 | Latest-result-wins status is acceptable for "disputed" | Pitfall 6 | A contradiction could look resolved on the slide demo |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Recognize Claude Desktop (and Cowork) as write-enabled hosts?**
    - What we know: the gate refuses Desktop today (probed); precedent exists for flipping a host.
    - What's unclear: the exact Cowork client name; whether the navigator accepts widening the unauthenticated-name convenience gate.
    - Recommendation: approve `claude-ai` as tier0 now (checkpoint task), probe Cowork on a real session, keep the env-var fallback documented for the demo machines.
+   - RESOLVED: navigator approved `claude-ai` as a tier0 write-enabled host; Cowork added only after a live probe (358-CONTEXT.md, Navigator rulings after research). Implemented in 358-02 Task 3.
 2. **Should "disputed" be sticky?**
    - What we know: status = latest result (:97-99).
    - Recommendation: keep shipped behavior for 6 Oct; show `records_by_result` everywhere; revisit with the paper author.
+   - RESOLVED (overrides the recommendation): navigator ruled disputed sticks; any contradicts keeps the claim disputed until a person resolves it (358-CONTEXT.md). Implemented in 358-01 Task 2.
 3. **Should "by" show a person, not just `user`?**
    - What we know: CONTEXT specifics show "by / when"; `checked_by` is `user|system`; `navigation.resolveByUser(roomDir)` (confirm-node.cjs:54-71) already resolves a non-agent navigator id from USER.md for confirmations.
    - Recommendation: add an optional `checked_by_id` stamped from `resolveByUser` at the MCP/CLI layer (local only, Part 8 safe). Low effort; planner may defer.
+   - RESOLVED: navigator approved optional `checked_by_id` via resolveByUser, local only (358-CONTEXT.md). Implemented in 358-01 / 358-03 / 358-04.
 4. **Should Larry's runtime instructions mention the two tools?**
    - What we know: tool descriptions are how Desktop Larry discovers tools; the runtime loop text lives in `lib/mcp/runtime-instructions.cjs`.
    - Recommendation: rely on descriptions for 6 Oct; do not edit the instructions (budget and parity tests guard them).
+   - RESOLVED: accepted as recommended; no plan edits lib/mcp/runtime-instructions.cjs.
 
 ## Environment Availability
 
