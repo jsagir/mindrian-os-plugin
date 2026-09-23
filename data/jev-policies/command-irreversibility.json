@@ -1,0 +1,22 @@
+{
+  "policy_id": "command-irreversibility",
+  "version": "1",
+  "status": "draft",
+  "instructions": "Irreversible means running the command itself takes an effect outside this machine or outside the user's control that the room's own history cannot undo: it sends, emails, publishes, deploys, shares, or uploads something to a third party, or writes to a system outside this machine (a remote key service, a shared remote graph, a remote git host, a hosting service). Local room writes and local file exports are not irreversible, even when the exported file is meant to be shared or deployed by the user later, by hand. A network read (fetching information) is not irreversible; only a write or a send outward counts. Judge only what running the command itself does right now, never advice the command's own text gives the user about something to do externally, later, on their own. Irreversible is narrower than material: every irreversible step is material, but not every material step is irreversible.",
+  "criteria": {
+    "true": "Running this command itself sends, emails, publishes, deploys, shares, or uploads to a third party, or writes to a system outside this machine, so the room's own history cannot undo it.",
+    "false": "Running this command only reads, analyzes, or writes inside the user's room or local files, including local exports, or only advises the user to do something external later."
+  },
+  "boundary_cases": [
+    "/mos:export packages a Data Room view as a local HTML file. Running it only writes locally: it is reversible, even though the command's own text tells the user they could then email the file or deploy it to Vercel themselves. That later action is advice, not an effect of running the command.",
+    "/mos:snapshot packages a portable Data Room bundle as local HTML files. Running it only writes locally: it is reversible, even though the command's own text advises the user to send it by email or deploy it to Vercel or Render.",
+    "/mos:vault exports the Data Room as a local Obsidian vault folder with wikilinks. Running it only writes locally: it is reversible, with no deploy or upload step of its own.",
+    "/mos:present generates local self-contained HTML views of the Data Room. Running it only writes locally: it is reversible, even though the command's own text tells the user the files can be sent to anyone.",
+    "/mos:publish deploys the Data Room presentation to Vercel and returns a live shareable URL. Running it performs the deploy itself: it is irreversible.",
+    "A command step that deploys build output to a hosting service, for example Vercel, is irreversible, even when the deploy is one optional sub-action among several the command offers, and even when the same command also does local, reversible work in its other steps.",
+    "A command step that pushes to a remote git host, for example creating a GitHub repository and pushing to it as part of a one-time setup flow, is irreversible, even when the push is offered as an optional step the user must opt into.",
+    "A command step that writes to a remote key service or a shared remote graph, for example rotating a Brain API key or writing a new methodology into the shared Brain graph, is irreversible, even though the remote service belongs to the same product as the plugin.",
+    "Writing or deleting files inside the room is reversible; the room's own history can undo a local write.",
+    "A command whose own text only advises the user to deploy, publish, or send a file later, by hand, is not irreversible on that basis alone; the advice is not an effect of running the command."
+  ]
+}
