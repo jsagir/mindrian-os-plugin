@@ -1,0 +1,25 @@
+{
+  "_note": "Claude-written dev fixture, Phase 355. Tuning set only: never scored, never gold, used solely to iterate criteria wording (355-AI-SPEC.md Section 4b). Shares no sentence with tests/fixtures/355-hsi-thinking-mode-sentences.items.json.",
+  "items": [
+    { "id": "t001", "sentence": "The clinic tracked wait times across two locations and found a small but steady improvement each week." },
+    { "id": "t002", "sentence": "What if the shipping desk tried a single unified label instead of three separate stickers." },
+    { "id": "t003", "sentence": "The manual lists the required torque values for each bolt on the housing assembly." },
+    { "id": "t004", "sentence": "The board should weigh the new lease's cost against the space it would free up downtown." },
+    { "id": "t005", "sentence": "The teacher linked the fractions unit to the music class's rhythm exercises this term." },
+    { "id": "t006", "sentence": "Please join the call five minutes early so we can test the screen share first." },
+    { "id": "t007", "sentence": "The auditor compared receipts against the ledger and found the totals matched within a dollar." },
+    { "id": "t008", "sentence": "The clinic's new triage island sits just past the front desk, near the vending machines." },
+    { "id": "t009", "sentence": "Engineers imagined a lighter frame that could shave weight off the whole assembly." },
+    { "id": "t010", "sentence": "The report includes a summary table, a methodology section and three appendices." },
+    { "id": "t011", "sentence": "The district could not confirm the transfer count until the registrar reviewed the records." },
+    { "id": "t012", "sentence": "The pharmacy compared refill delays between the two locations over a six-week window." },
+    { "id": "t013", "sentence": "The vendor merged its loyalty program design with the airline's frequent-flyer tier system." },
+    { "id": "t014", "sentence": "The memo notes an important renewal deadline near the bottom of the second page." },
+    { "id": "t015", "sentence": "The plant should replace the aging conveyor before the next peak season begins." },
+    { "id": "t016", "sentence": "See you at the follow-up call, same link, same time as last week." },
+    { "id": "t017", "sentence": "The analyst measured call volume by hour to see where the staffing gap was worst." },
+    { "id": "t018", "sentence": "The team pioneered a lighter onboarding flow that might cut signup time in half." },
+    { "id": "t019", "sentence": "The transcript lists the course name, the term and the instructor of record." },
+    { "id": "t020", "sentence": "The advisor said the current advising load is heavier than the department's own guideline." }
+  ]
+}
