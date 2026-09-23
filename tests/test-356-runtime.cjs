@@ -272,8 +272,196 @@ resetAll();
 // =============================================================================
 // TASK 2 -- INTEGRATION LEGS (runChain / isIrreversibleStep)
 // =============================================================================
-// gsd:write-continue -- Task 2 appends its legs here, right before the final
-// zero-network-egress leg below. CHAIN_EXEC_PATH is already declared above.
+
+const executor = require(CHAIN_EXEC_PATH);
+
+// The keyword-only predicate re-implemented from IRREVERSIBLE_HINTS, for the
+// "degrades to today's behavior" equality checks below.
+function preRule(step) {
+  if (!step || typeof step !== 'object') return false;
+  if (step.irreversible === true) return true;
+  const hay = String(step.command || '').toLowerCase();
+  if (hay.length === 0) return false;
+  for (const hint of executor.IRREVERSIBLE_HINTS) {
+    if (hay.indexOf(hint) !== -1) return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// R5(a): a fresh flag:true entry on an autonomous_safe command halts runChain
+// there with haltedAt.reason === 'forced_material', before the step runs.
+// ---------------------------------------------------------------------------
+console.log('--- leg: R5(a) fresh flag:true forces a halt on an autonomous_safe command ---');
+resetAll();
+{
+  const rowFA = resolver.commandRow('/mos:find-analogies');
+  check(
+    '/mos:find-analogies is autonomous_safe: true in the registry',
+    registry.commands.find(function (c) { return c.command === '/mos:find-analogies'; }).autonomous_safe === true
+  );
+  const th = ledger.commandTextHash('/mos:find-analogies', rowFA.teaching, rowFA.jtbd_summary);
+  writeLedger({ entries: [{ command: '/mos:find-analogies', flag: true, text_hash: th }] });
+  resetAll();
+
+  const seen = [];
+  const steps = [
+    { step: 1, command: '/mos:find-analogies' },
+    { step: 2, command: '/mos:find-connections' },
+  ];
+  const result = executor.runChain(steps, {
+    postureFn: function () { return { autonomous_safe: true, posture: 'run' }; },
+    onStep: function (s) { seen.push(s.command); return { chain_output: 'out', quality: 'high' }; },
+    onHalt: function () { return 'defer'; },
+    decideFn: function () { return { decision_trace: null }; },
+  });
+
+  check('R5(a): runChain does not complete', result.completed === false);
+  check(
+    'R5(a): halts at /mos:find-analogies',
+    result.haltedAt && result.haltedAt.step && result.haltedAt.step.command === '/mos:find-analogies'
+  );
+  check('R5(a): halt reason is forced_material', result.haltedAt && result.haltedAt.reason === 'forced_material');
+  check('R5(a): no step ran before the halt', seen.length === 0);
+
+  clearLedgerEnv();
+  resetAll();
+}
+
+// ---------------------------------------------------------------------------
+// R5(b): a fresh flag:false entry on /mos:publish still halts forced_material
+// (the keyword hint already forces this one; the leg proves the ledger
+// clause is reachable without disturbing that outcome).
+// ---------------------------------------------------------------------------
+console.log('--- leg: R5(b) fresh flag:false on /mos:publish still halts forced_material ---');
+resetAll();
+{
+  const rowPub = resolver.commandRow('/mos:publish');
+  const th = ledger.commandTextHash('/mos:publish', rowPub.teaching, rowPub.jtbd_summary);
+  writeLedger({ entries: [{ command: '/mos:publish', flag: false, text_hash: th }] });
+  resetAll();
+
+  check(
+    'R5(b): isIrreversibleStep({ command: "/mos:publish" }) is true',
+    executor.isIrreversibleStep({ command: '/mos:publish' }) === true
+  );
+
+  const result = executor.runChain([{ step: 1, command: '/mos:publish' }], {
+    postureFn: function () { return { autonomous_safe: false, posture: 'hold' }; },
+    onStep: function () { return { chain_output: 'out', quality: 'high' }; },
+    onHalt: function () { return 'defer'; },
+    decideFn: function () { return { decision_trace: null }; },
+  });
+  check(
+    'R5(b): one-step runChain halts forced_material',
+    result.haltedAt && result.haltedAt.reason === 'forced_material'
+  );
+
+  clearLedgerEnv();
+  resetAll();
+}
+
+// ---------------------------------------------------------------------------
+// R5(c): a missing / malformed ledger degrades isIrreversibleStep to exactly
+// the pre-356 keyword-only predicate, for every registry command.
+// ---------------------------------------------------------------------------
+console.log('--- leg: R5(c) missing / malformed ledger degrades to the pre-356 predicate ---');
+resetAll();
+{
+  process.env.MINDRIAN_IRREVERSIBILITY_LEDGER = '/nonexistent/356.json';
+  resetAll();
+  let allMatch = true;
+  for (const c of REGISTRY_COMMANDS) {
+    if (executor.isIrreversibleStep({ command: c }) !== preRule({ command: c })) allMatch = false;
+  }
+  check('R5(c) missing ledger: isIrreversibleStep equals preRule for every registry command', allMatch);
+  check(
+    'R5(c) missing ledger: an explicit step.irreversible flag stays true',
+    executor.isIrreversibleStep({ irreversible: true }) === true
+  );
+  clearLedgerEnv();
+  resetAll();
+}
+resetAll();
+{
+  const p = path.join(os.tmpdir(), 'mos-356-r5c-malformed-' + process.pid + '.json');
+  fs.writeFileSync(p, '{not valid json', 'utf8');
+  _tmpFiles.push(p);
+  process.env.MINDRIAN_IRREVERSIBILITY_LEDGER = p;
+  resetAll();
+  let allMatch = true;
+  for (const c of REGISTRY_COMMANDS) {
+    if (executor.isIrreversibleStep({ command: c }) !== preRule({ command: c })) allMatch = false;
+  }
+  check('R5(c) malformed ledger: isIrreversibleStep equals preRule for every registry command', allMatch);
+  check(
+    'R5(c) malformed ledger: an explicit step.irreversible flag stays true',
+    executor.isIrreversibleStep({ irreversible: true }) === true
+  );
+  clearLedgerEnv();
+  resetAll();
+}
+
+// ---------------------------------------------------------------------------
+// Add-only property: with every registry command flagged false, and again
+// with every entry stale, no command where preRule(c) is true ever returns
+// false (the ledger clause can only add halts, never remove one).
+// ---------------------------------------------------------------------------
+console.log('--- leg: add-only property ---');
+resetAll();
+{
+  const entriesAllFalse = registry.commands.map(function (c) {
+    const th = ledger.commandTextHash(c.command, c.teaching, c.jtbd_summary);
+    return { command: c.command, flag: false, text_hash: th };
+  });
+  writeLedger({ entries: entriesAllFalse });
+  resetAll();
+  let ok = true;
+  for (const c of REGISTRY_COMMANDS) {
+    if (preRule({ command: c }) && !executor.isIrreversibleStep({ command: c })) ok = false;
+  }
+  check('add-only: every-command-flagged-false ledger never clears a preRule-true command', ok);
+  clearLedgerEnv();
+  resetAll();
+}
+resetAll();
+{
+  const entriesAllStale = registry.commands.map(function (c) {
+    const th = ledger.commandTextHash(c.command, 'a stale teaching text edited after scoring', c.jtbd_summary);
+    return { command: c.command, flag: true, text_hash: th };
+  });
+  writeLedger({ entries: entriesAllStale });
+  resetAll();
+  let ok = true;
+  for (const c of REGISTRY_COMMANDS) {
+    if (preRule({ command: c }) && !executor.isIrreversibleStep({ command: c })) ok = false;
+  }
+  check('add-only: every-entry-stale ledger never clears a preRule-true command', ok);
+  clearLedgerEnv();
+  resetAll();
+}
+
+// ---------------------------------------------------------------------------
+// Export surface unchanged: the seam adds no export to chain-executor.cjs.
+// ---------------------------------------------------------------------------
+console.log('--- leg: export surface unchanged ---');
+{
+  const PRE_356_EXPORTS = [
+    'BEHAVIORAL_CHANNEL_ARMED',
+    'DEFAULT_MAX_STEPS',
+    'IRREVERSIBLE_HINTS',
+    'isIrreversibleStep',
+    'makeGateFn',
+    'resolveSuccessor',
+    'runChain',
+    'writeApprovedStepRecord',
+  ].sort();
+  const actual = Object.keys(require(CHAIN_EXEC_PATH)).sort();
+  check(
+    'chain-executor.cjs export surface is unchanged (' + PRE_356_EXPORTS.length + ' names, sorted)',
+    JSON.stringify(actual) === JSON.stringify(PRE_356_EXPORTS)
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Final leg: zero network egress across every leg above.

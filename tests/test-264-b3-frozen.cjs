@@ -44,6 +44,8 @@
  * FAILURE, not a skip: a renamed or deleted function must redden this test,
  * never silently pass it.
  *
+ * Phase 356 re-pinned isIrreversibleStep only; see the ARM 1 comment.
+ *
  * House rule: hyphens only, no em-dashes.
  */
 
@@ -102,10 +104,17 @@ console.log('test-264-b3-frozen');
 // the base commit were confirmed byte-identical for this file before these
 // literals were recorded -- see 264-04-SUMMARY.md for the recorded
 // `git diff --quiet` proof).
+//
+// Re-pin (Phase 356 R5, D-17, 2026-09-23): isIrreversibleStep's final
+// "return false;" became "return _ledgerForcesIrreversible(step.command);",
+// an add-only third signal (a fresh dev-time ledger entry can force a halt,
+// never clear one). Previous pin
+// 037f9515aeff1b5123956b4dfda515ee3076f20fd4423f5cc0e92f65b4c3bc3d. The
+// other five pins are unchanged. First re-pin of a Canon Part 3 gate surface.
 // ---------------------------------------------------------------------------
 const PINNED_HASHES = {
   _defaultPostureFn: '43a27cb8c87e781f309a0a2c409fd2ff28f27ed759ca2c33280ff7f5076ef116',
-  isIrreversibleStep: '037f9515aeff1b5123956b4dfda515ee3076f20fd4423f5cc0e92f65b4c3bc3d',
+  isIrreversibleStep: '010df7b3d1fdb6b93652e68cd2962ea05206031c026e04cbb0bd7fa940d868b2',
   _isMaterialStep: 'c644e445d27d31390e8abf561108213a02a641635906bba8cba3d23734308a9b',
   _critiqueFailed: '6f356837ac5229a5fce69ea0e27ae9db17412aff625c7e8a67165fbbdc3a664d',
   _ralphSafeRetry: 'da7cbfedb260924bd88f1a3cc031b2c7db3e964976429e84587c5da3480314d7',
