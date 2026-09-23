@@ -1,0 +1,5 @@
+# Who patients actually trust for advice
+
+A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival.
+
+The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is. Acute, visibly dangerous conditions send people to the clinic quickly. Anything that reads as chronic, or as a second visit for something that already seemed to resolve, gets routed through the elder or the healer first, sometimes instead of the clinic, sometimes as a genuine parallel track. Nobody on the clinic side has mapped this formally; it emerged only because a few conversations happened to ask an open question instead of a clinic-centered one.

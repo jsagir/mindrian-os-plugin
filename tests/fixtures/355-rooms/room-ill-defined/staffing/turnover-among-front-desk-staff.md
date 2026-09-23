@@ -1,0 +1,5 @@
+# Turnover among front-desk staff
+
+Four different people have held the front-desk role in the past eighteen months. Each new hire inherits the informal systems the previous person built, most of which live in that person's head rather than in any written procedure, so a meaningful share of institutional memory about which patients tend to need extra follow-up support leaves with every departure.
+
+The clerk currently in the role, only four months in, was candid that she is still learning which patients call back reliably and which need a second nudge, a judgment her predecessor apparently made well but never wrote down anywhere the next person could find. The clinic manager has floated the idea of a simple handover document, but it keeps losing priority against whatever is most urgent that particular week, and the same instinct that keeps deferring the community health workers' follow-up calls seems to be deferring this too: nothing about writing down tacit knowledge has an externally imposed deadline.

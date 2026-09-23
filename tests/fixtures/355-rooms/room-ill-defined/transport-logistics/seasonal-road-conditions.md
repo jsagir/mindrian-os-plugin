@@ -1,0 +1,5 @@
+# Seasonal road conditions
+
+The rains cut the reliable road network by more than half for roughly ten weeks a year, and referral volume does not fall during that window, it rises, because the same rains bring the waterborne illness season. The team has known this for years in the sense that everyone who has worked at the clinic through a rainy season mentions it unprompted, but it has never been written down as a factor in referral scheduling, only repeated as local knowledge that new staff pick up by word of mouth.
+
+One community elder pointed out that the community already has an informal solution: motorbike taxis that know which back tracks stay passable, at a price most patients cannot afford, and that the clinic could plausibly subsidize a handful of trips per week for the referrals judged most urgent, for a fraction of what the second shuttle van repair would cost. Nobody has costed this properly yet. It sits in the space between "a good idea somebody mentioned once" and "a line item," which is where most of this clinic's actual working solutions seem to live.

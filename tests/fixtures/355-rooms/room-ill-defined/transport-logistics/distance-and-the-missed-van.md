@@ -1,0 +1,5 @@
+# Distance and the missed van
+
+The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.
+
+There is a second van in the depot, but it needs a repair the budget has not covered for two quarters running. The transport lead has asked three times. Meanwhile the walking alternative for the farthest village is close to three hours each way over a track that floods in the rainy season, which is also exactly the season referral volume spikes, since that is when the seasonal illnesses the clinic treats are most common. The mismatch between demand and capacity is worst exactly when it matters most.

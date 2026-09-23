@@ -1,0 +1,5 @@
+# The missed second visit
+
+Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.
+
+There is no reminder system that reaches patients between visit one and visit two. The clinic has phone numbers for about sixty percent of patients, and even where a number exists, prepaid minutes often run out before the reminder window opens. A paper appointment card is handed out at visit one, but the nurse admits she has seen these cards used as bookmarks, shopping lists, and once as a fan on a hot day, which is a fair use for a piece of paper that carries no reminder function of its own beyond a handwritten date nobody circles back to.
