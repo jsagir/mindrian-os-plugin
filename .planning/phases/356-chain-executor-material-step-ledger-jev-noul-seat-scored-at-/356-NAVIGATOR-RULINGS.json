@@ -1,0 +1,190 @@
+{
+  "source": "https://claude.ai/artifact/MJ9TUDfHkam37NPJ5YPvco (validation desk db, rulings collection)",
+  "exported_at": "2026-09-23T13:43:32.213Z",
+  "chat_clarifications": {
+    "/mos:admin": "Legacy now that Theo took over the Brain, so no flag (navigator answer in chat, 2026-09-23)",
+    "/mos:vault": "Don't flag (navigator answer in chat, matches desk ruling)"
+  },
+  "rulings": {
+    "d21-heal": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:heal",
+      "decided": true,
+      "decided_at": "2026-09-23T13:43:13.019Z",
+      "irreversible": true,
+      "item_id": "d21-heal",
+      "kind": "arbitrate",
+      "reason": "Reparis all !",
+      "source": "navigator-artifact"
+    },
+    "d21-mva-brief": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:mva-brief",
+      "decided": true,
+      "decided_at": "2026-09-23T13:39:52.732Z",
+      "irreversible": false,
+      "item_id": "d21-mva-brief",
+      "kind": "arbitrate",
+      "reason": "This is a quicl. you can add a if to render ask for user. HITL",
+      "source": "navigator-artifact"
+    },
+    "d21-new-surface": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:new-surface",
+      "decided": true,
+      "decided_at": "2026-09-23T13:40:26.172Z",
+      "irreversible": true,
+      "item_id": "d21-new-surface",
+      "kind": "arbitrate",
+      "reason": "need to flash cuz Theo needs to get a mirroring set of nodes also",
+      "source": "navigator-artifact"
+    },
+    "d21-rooms": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:rooms",
+      "decided": true,
+      "decided_at": "2026-09-23T13:41:50.082Z",
+      "irreversible": false,
+      "item_id": "d21-rooms",
+      "kind": "review",
+      "reason": "bothj",
+      "source": "navigator-artifact"
+    },
+    "d21-scheduled-tasks": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:scheduled-tasks",
+      "decided": true,
+      "decided_at": "2026-09-23T13:40:51.158Z",
+      "irreversible": false,
+      "item_id": "d21-scheduled-tasks",
+      "kind": "arbitrate",
+      "reason": "Theo needs to get enged to offer",
+      "source": "navigator-artifact"
+    },
+    "d21-setup": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:setup",
+      "decided": true,
+      "decided_at": "2026-09-23T13:41:06.163Z",
+      "irreversible": false,
+      "item_id": "d21-setup",
+      "kind": "arbitrate",
+      "reason": "goof",
+      "source": "navigator-artifact"
+    },
+    "d21-show": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:show",
+      "decided": true,
+      "decided_at": "2026-09-23T13:42:33.701Z",
+      "irreversible": true,
+      "item_id": "d21-show",
+      "kind": "arbitrate",
+      "reason": "shwo is a quick view",
+      "source": "navigator-artifact"
+    },
+    "d21-vault": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:vault",
+      "decided": true,
+      "decided_at": "2026-09-23T13:41:27.396Z",
+      "irreversible": false,
+      "item_id": "d21-vault",
+      "kind": "arbitrate",
+      "reason": "Only if user has obsidian in their systme or asked for it",
+      "source": "navigator-artifact"
+    },
+    "mos-admin": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:admin",
+      "decided": true,
+      "decided_at": "2026-09-23T12:56:45.877Z",
+      "irreversible": false,
+      "item_id": "mos-admin",
+      "kind": "review",
+      "reason": "Brain > Theo !",
+      "source": "navigator-artifact"
+    },
+    "mos-doctor": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:doctor",
+      "decided": true,
+      "decided_at": "2026-09-23T12:57:30.372Z",
+      "irreversible": true,
+      "item_id": "mos-doctor",
+      "kind": "review",
+      "reason": "alwas run diagosits with --fix",
+      "source": "navigator-artifact"
+    },
+    "mos-export": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:export",
+      "decided": true,
+      "decided_at": "2026-09-23T12:58:14.149Z",
+      "irreversible": true,
+      "item_id": "mos-export",
+      "kind": "review",
+      "reason": "m:os styling can be changed ! but mind mindrian logo alwasy remais wit h main by mindrisnos with www.mindrian-os.com",
+      "source": "navigator-artifact"
+    },
+    "mos-rs-fetch": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:rs-fetch",
+      "decided": true,
+      "decided_at": "2026-09-23T13:00:11.275Z",
+      "irreversible": false,
+      "item_id": "mos-rs-fetch",
+      "kind": "arbitrate",
+      "reason": "Local only !",
+      "source": "navigator-artifact"
+    },
+    "mos-update": {
+      "approved": null,
+      "choice": "y",
+      "command": "/mos:update",
+      "decided": true,
+      "decided_at": "2026-09-23T12:57:11.700Z",
+      "irreversible": true,
+      "item_id": "mos-update",
+      "kind": "review",
+      "reason": "Always check from update !",
+      "source": "navigator-artifact"
+    },
+    "mos-wiki": {
+      "approved": null,
+      "choice": "n",
+      "command": "/mos:wiki",
+      "decided": true,
+      "decided_at": "2026-09-23T13:00:13.474Z",
+      "irreversible": false,
+      "item_id": "mos-wiki",
+      "kind": "review",
+      "reason": "opens a locak host of the data room wiki. showing it to user",
+      "source": "navigator-artifact"
+    },
+    "policy-lock-v2": {
+      "approved": true,
+      "choice": "ok",
+      "command": null,
+      "decided": true,
+      "decided_at": "2026-09-23T13:42:17.919Z",
+      "irreversible": null,
+      "item_id": "policy-lock-v2",
+      "kind": "confirm",
+      "reason": "i approve i stii want you to consould with jev and with theo",
+      "source": "navigator-artifact"
+    }
+  }
+}
