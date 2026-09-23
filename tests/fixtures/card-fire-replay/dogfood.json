@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "phase": "357-gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re",
+    "source": "dogfood",
+    "schema": "D-02 entry shape; see scripts/card-fire-replay-corpus.cjs validateEntry",
+    "sanitization_statement": "Entries are built locally from the navigator's own dev-session transcripts (R-D snapshot), sanitized before commit with neutral stand-in tokens for any name, room, venture, or path, verdict-preserving per RESEARCH Pitfall 5, and never sent to Jev (D-05, D-11)."
+  },
+  "entries": []
+}

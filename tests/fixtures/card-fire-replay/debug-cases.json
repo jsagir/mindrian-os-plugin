@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "phase": "357-gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re",
+    "source": "debug",
+    "schema": "D-02 entry shape; see scripts/card-fire-replay-corpus.cjs validateEntry",
+    "sanitization_statement": "Every value in this file is authored for this corpus from the structural shape recorded in .planning/debug/resolved/ RCAs. No real person or organization name appears anywhere in this file, and no room or venture content from any live conversation, transcript, or intercept log appears anywhere in this file."
+  },
+  "entries": []
+}

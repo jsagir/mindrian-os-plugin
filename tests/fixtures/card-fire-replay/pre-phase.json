@@ -1,0 +1,14 @@
+{
+  "pre_phase_sha": "973deb3296f60c8583fe2ba2eac1ba5d32d62024",
+  "recorded_at": "2026-09-23T16:56:04Z",
+  "why": "The last commit before any Phase 357 runtime change; --code-root pre-phase archives it so every later replay run reproduces the exact code that produced the 2026-09-23 false blocks (D-03, R-I).",
+  "runtime_files": {
+    "lib/hmi/turn-text.cjs": "087949fe43a3a6739bb19d7769e9c1cd3f1cb9d5914a2cf7e855ef066d274969",
+    "scripts/check-card-fire.cjs": "062111eb7960f4101d9d84f2b681502934a34257a34e79b634188aec0d48483b",
+    "lib/core/gate-relevance.cjs": "0c90dae98f935d6a2039a555acaddd44c1b10ca456dadc610bcbdd4d112c506d",
+    "lib/core/card-fire-sidechannel.cjs": "c62e9aee99beab56a8a7f8cc8ae14e1cdea6f981b801ea7290cd1cdb552eb2cd",
+    "lib/mcp/stop-gate-handler.cjs": "8c347610f0e8ca9abf6620c8be685b9c2e71ab835c5eea61e01f03e3346cd126",
+    "lib/hmi/dial-presenter.cjs": "f8271268049acfbbcbbca62135d43c3be81884135bb0b5a6e3d0ed779b8493d9",
+    "data/render-coverage-registry.json": "77beef4192dd4053d1ab1ff43bf30d89bf7e291d73691d927535fcbf5528fa81"
+  }
+}
