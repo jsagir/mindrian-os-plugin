@@ -172,3 +172,35 @@ edges are "unaffected" by an hsi-to-graph run; that assumption does not
 hold against the literal DELETE scope in `hsi-to-graph.cjs` today. Pre-
 existing behavior (this plan did not introduce or touch it -- `hsi-to-
 graph.cjs` is not in 355-11's `files_modified`), not fixed here.
+
+## 355-12 Task 1/2: leg H's last two unresolved hits remain out of this
+## plan's `files_modified` scope; the REVERSE_SALIENT DELETE finding above
+## is carried forward unresolved (plan text says "change nothing else")
+
+`tests/test-355-direction-agreement.cjs` leg H still fails after this plan,
+with the SAME two unresolved hits 355-11 left: `lib/core/rs-chain-feeder.cjs`
+(`score >= 7 && rs === 'structural_transfer'`, a downstream ROUTING gate that
+consumes an already-computed classification, not the comparison-to-label
+rule itself, but it trips leg H's comparison-adjacent-to-literal pattern) and
+`lib/memory/test-rs-discovery-engine.cjs` (a pinned test fixture's
+`rsType === 'structural_transfer'` / `'semantic_implementation'` branches in
+its own `feeds_into` mapping, mirroring `rs-chain-feeder.cjs`'s logic for
+test coverage). Neither file is in 355-12's `files_modified`
+(`tests/test-355-direction-readers.cjs`, `lib/core/eureka-critic.cjs`,
+`lib/core/eureka/eureka-offer.cjs`, `lib/core/grill-engine.cjs`,
+`lib/mcp/tool-router.cjs`, `scripts/hsi-to-graph.cjs`,
+`lib/core/nl-graph-queries.cjs`, `lib/chat/fabric-chat.cjs`,
+`scripts/generate-chat-embed.cjs`); 355-12-PLAN.md's own must_haves name only
+"Leg H of tests/test-355-direction-agreement.cjs gains no new hits" (a
+no-new-regression bar), never full leg H closure. Confirmed via
+`node tests/test-355-direction-agreement.cjs 2>&1 | grep -E "^FAIL: H "` --
+still exactly the same two files, zero new ones (187 PASS / 1 FAIL after
+this plan; the single FAIL is leg H, unchanged in count from the pre-plan
+baseline). Not fixed here (Scope Boundary rule) -- editing either file's own
+`feeds_into` rule is a real code change to a file this plan was never asked
+to touch. `scripts/hsi-to-graph.cjs`'s unconditional REVERSE_SALIENT DELETE
+(the sixth finding immediately above) is likewise still open: Task 2's own
+action text says "change nothing else" about `hsi-to-graph.cjs` beyond the
+HSI_CONNECTION `surprise_type` write, so the DELETE's missing source filter
+was left exactly as 355-11 found it, not touched here. Flagged for a later
+355 plan (or the navigator) to close both.
