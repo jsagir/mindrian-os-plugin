@@ -4,14 +4,14 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 355-01-PLAN.md - D-57 gate proven, direction-convention module shipped
-last_updated: "2026-09-23T18:02:15.515Z"
-last_activity: 2026-09-23 -- Phase 355 Plan 01 complete (D-57 gate, direction-convention module)
+last_updated: "2026-09-23T18:27:07.242Z"
+last_activity: 2026-09-23 -- Phase 355 execution started
 progress:
   total_phases: 111
   completed_phases: 37
   total_plans: 396
-  completed_plans: 334
-  percent: 84
+  completed_plans: 336
+  percent: 33
 ---
 
 <!-- NOTE (355-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
@@ -5364,6 +5364,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
 Plan: 2 of 28
 Status: Ready to execute
+Previously (355-04, parallel wave-2 plan, not part of the sequential 348 chain below):
+  complete -- HIPS-02 floor disclosure. Shipped data/floor-ledger.json (35 rows, all
+  status:disclosed per D-19: 22 primary rows covering the full D-21 inventory plus the two
+  HIPS-02 research additions (hsi-to-graph.cjs's 0.3 literal, the whitespace novelty label
+  text), plus 13 supplementary rows for every other literal the pattern-pass sweep found
+  across the rs-*/hsi-*/eureka*/whitespace* engine families), scripts/check-floor-ledger.cjs
+  (validateLedger: shape + calibration-gate + stale-anchor detection; resolveHits: the sweep,
+  73 files scanned, 60 hits, 0 unresolved; --check CLI, zero network, never requires
+  brain-client), and lib/core/floor-disclosure.cjs (PRODUCER_IDS frozen five-producer set,
+  disclosureFor/disclosureLine, no numeric value ever rendered, D-30 regex asserted clean).
+  tests/test-355-floor-sweep.cjs: 106/106 assertions pass (RED confirmed first: module-not-found
+  before Task 1's GREEN, floor-disclosure-missing before Task 2's GREEN). docs/ENV-TUNING.md
+  gained "## Phase 355 disclosed floors" (EUREKA_DIFF_FLOOR, the four eureka-critic Stage A gate
+  env names, the three analogy-fitness env names). bash tests/run-all-355.sh: PASS=20 FAIL=3
+  SKIP=11 (up from 355-01's baseline PASS=16 FAIL=3 SKIP=14; the 3 FAILs are the same
+  pre-existing external failures logged in deferred-items.md, no new regression). Full detail
+  in 355-04-SUMMARY.md.
 Previously: Plan 348-02 complete -- minted tests/helpers/fixture-room-348.cjs (wide + legacy
   schema-variant fixture, two confirmed claims, one chokepoint-written CONTRADICTS edge, zero
   raw INSERTs), wrote tests/test-348-supersession-e2e.cjs (the SUPER-17 ten-step loop proof +
@@ -7056,6 +7073,7 @@ Progress: [█████████░] 92%
 | Phase 354 P18 | 5min | 2 tasks | 6 files |
 | Phase 354 P16 | 180min | 3 tasks | 8 files |
 | Phase 355 P01 | 45min | 2 tasks | 6 files |
+| Phase 355 P04 | 90min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -8748,6 +8766,7 @@ Progress: [█████████░] 92%
 - [Phase 355] 355-01: D-57 gate scoped to the six named shared files; three peer-owned dirty files outside that list left untouched per Phase 356 peer contract
 - [Phase 355] 355-01: direction-convention DIRECTION_MEANING renders the CONTEXT <specifics> wording (same meaning in different words / same words with different meaning), not RESEARCH.md's shorter Code Examples gist
 - [Phase 355] 355-01: three pre-existing tests/run-all-355.sh no-regression-leg failures logged to deferred-items.md, not fixed (out of this plan's scope)
+- [Phase 355] 355-04: shipped 35-row data/floor-ledger.json (22 D-21/HIPS-02 primary rows + 13 supplementary rows for every other pattern hit across the engine families), scripts/check-floor-ledger.cjs (validateLedger + resolveHits sweep, zero unresolved hits across 73 files / 60 hits), and lib/core/floor-disclosure.cjs (disclosureFor/disclosureLine, no value ever rendered)
 
 ### Pending Todos
 
