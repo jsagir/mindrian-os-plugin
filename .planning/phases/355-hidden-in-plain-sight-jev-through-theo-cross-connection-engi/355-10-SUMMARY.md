@@ -145,3 +145,12 @@ None - no external service configuration required.
 ---
 *Phase: 355-hidden-in-plain-sight-jev-through-theo-cross-connection-engi*
 *Completed: 2026-09-24*
+
+## Self-Check: PASSED
+
+All 8 created/modified files verified present on disk
+(`tests/fixtures/355/eureka-ranking-pin.json`, `tests/test-355-eureka-ranking-pin.cjs`,
+`lib/core/rs-differential-scorer.cjs`, `lib/core/eureka/portfolio-dimensions.cjs`,
+`tests/test-211-measured-differential.cjs`, `tests/test-215-score.cjs`,
+`deferred-items.md`, this SUMMARY.md); all four commits (`dd6d7c08a`,
+`522b2d6b8`, `2e3fadd18`, `24262f5b9`) verified present in `git log`.
