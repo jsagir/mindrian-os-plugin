@@ -207,6 +207,54 @@ rest of this guard enforces.
 
 ---
 
+## Fix Status (2026-09-23, post-review)
+
+All four findings were fixed, each in its own commit, TDD (RED then GREEN) for CR-01.
+
+### CR-01: FIXED
+
+- **Commit:** `15b1febba`
+- **Files:** `lib/hmi/turn-text.cjs`, `tests/test-357-harness-source.cjs`
+- **Applied fix:** Gated rule 1 on `base === 'typed'` in `classifyPrecedingUserContentSource`, matching the review's exact suggestion. Added Behavior 9 to `tests/test-357-harness-source.cjs` (`isMeta:true` + `''`/`null`/`[]` content, expect `'none'`); confirmed RED against the pre-fix code (asserted `'harness' !== 'none'`), then confirmed GREEN after the fix.
+- **Verification:** All 11 assertions in `tests/test-357-harness-source.cjs` pass. Full corpus replay unchanged: 60 entries, 0 false_blocks, 0 new_misses, 0 parity_mismatches. `node tests/test-357-replay.cjs --mutation` and `bash tests/run-all-357.sh` (16/16) both green post-fix.
+
+### WR-01: FIXED
+
+- **Commit:** `8e38556d3`
+- **File:** `scripts/extract-dogfood-stop-events.cjs`
+- **Applied fix:** Threaded `candidate.live_outcome` (the real live production Stop verdict, already computed by `runScan`/`buildCandidate`) through `sanitize-report.json`'s rows in `runApplySanitized`. `runWriteReviewSheet` now reads it back as `liveOutcomeById`, kept distinct from `rawVerdictById` (the pre-phase replay verdict). The two review-sheet columns ("live outcome", "pre-phase verdict") now populate from their own distinct sources instead of the same value twice.
+- **Verification:** Re-read modified sections, `node -c` syntax check passed. Dev-only tooling with no dedicated unit suite in scope; verified by inspection of the full `runApplySanitized`/`runWriteReviewSheet` data flow and confirmed `candidate.live_outcome` is populated at `buildCandidate` (line ~349) exactly as the fix assumes.
+
+### WR-02: FIXED
+
+- **Commit:** `c748dee14`
+- **File:** `scripts/extract-dogfood-stop-events.cjs`
+- **Applied fix:** Replaced the hardcoded `stdout.length === 39` / `=== 71` magic numbers in `classifyStopOutcome` with `PASS_STDOUT_LEN` / `DEGRADE_STDOUT_LEN`, derived at require-time from `check-card-fire.cjs`'s own exported `buildEnforcementEnvelope()` output shape (option 1 of the review's two suggested directions). A future change to the hook's real stdout shape now updates these anchors automatically instead of silently returning `null` and dropping candidates.
+- **Verification:** Confirmed the derived constants equal the prior literals (39 and 71) via `node -e`, and exercised `classifyStopOutcome` end-to-end against real pass/degrade/block/non-ccf/non-Stop attachment shapes -- all classify correctly.
+
+### IN-01: FIXED
+
+- **Commit:** `301fd6a83`
+- **File:** `scripts/card-fire-replay-corpus.cjs`
+- **Applied fix:** Extended the em-dash guard in `validateEntry` to `containsEmDash(entry) || containsEmDash(fileMeta)`, exactly as suggested.
+- **Verification:** Verified against a synthetic dirty-`fileMeta` fixture (guard now fires) and against the real committed corpus via `node tests/test-357-corpus-loader.cjs` (still clean, 12/12 legs pass).
+
+### Required-green re-verification (after all four fixes)
+
+- `node scripts/replay-card-fire.cjs --surface both --baseline compare`: 60 entries, 0 false_blocks, 0 new_misses, 0 parity_mismatches.
+- `node tests/test-357-replay.cjs --mutation`: PASS 3/3.
+- `bash tests/run-all-357.sh`: PASS=16 FAIL=0 SKIP=0.
+- `node tests/test-209-primary-sidechannel.cjs`: PASS 36 assertions.
+- `node tests/test-238-card-fire-corpus.cjs`: PASS 32 assertions.
+
+### Note on `tests/fixtures/ups-harness-360/pre-phase.json` (Phase 360-01)
+
+Not edited. It pins `plan_base_sha` (a git commit SHA, i.e. the whole-tree state at Phase 360-01's PLAN_BASE) and a per-suite result baseline (`ok_count`/`exit`/`fail_lines`, keyed by test file path) -- it does NOT pin a content digest (e.g. a sha256) of `lib/hmi/turn-text.cjs` or any other single file. The closest suite in its baseline that exercises `turn-text.cjs` is `tests/test-209-primary-sidechannel.cjs`, pinned at `ok_count: 36, exit: 0`; re-running that exact suite after the CR-01 fix still reports 36/36 passing, exit 0, matching the pinned baseline. No digest in this fixture needs updating because of the CR-01 fix.
+
+---
+
 _Reviewed: 2026-09-23T19:59:15Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: deep_
+_Fixed: 2026-09-23_
+_Fixer: Claude (gsd-code-fixer)_
