@@ -116,6 +116,7 @@ const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
   'jev-devtime-client',
   'build-command-irreversibility-ledger',
   'irreversibility-answer-key',
+  'build-framework-command-ledger',
 ]);
 
 function escapeRe(s) {
