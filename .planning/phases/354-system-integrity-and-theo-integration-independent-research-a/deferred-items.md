@@ -84,3 +84,45 @@ current task; logged here per the executor's scope-boundary discipline.
   acquireLock/releaseLock call sites (lines 409/440, 502/582) are unchanged legacy
   no-handle callers that this plan's fix keeps working (verified by Tests 1-11 and the
   concurrent-worker Test 9 all passing).
+
+## 354-06: pre-existing `tests/test-257-brain-tool-egress-invariant.cjs` Arm 2 flake
+(unrelated to THEO-03 / D-354-EGR)
+
+- **Found during:** 354-06 Task 3 verification (`node tests/test-257-brain-tool-egress-invariant.cjs`),
+  one of the plan's own required `<verify>` commands.
+- **Symptom:** `AssertionError [ERR_ASSERTION]: <tool>: a blocked call must open no socket
+  at all; captured: [{"name":"theo_health","arguments":{}}]` in "Arm 2: zero egress on a
+  canary, per canary-carrying tool" -- the captured tool name varies run to run
+  (observed brain_query and brain_search across different runs), always exactly one
+  unexpected `theo_health` capture with an empty `{}` argument object.
+- **Root cause (not yet fixed):** `bin/mindrian-brain-mcp-client.cjs`'s `main()` fires
+  `lib/core/brain-prewarm.cjs`'s `prewarm()` at shim startup, never awaited
+  (`prewarm().catch(() => {})`), which sends a content-free `theo_health` probe
+  (`callTool('theo_health', {})`) to whatever `MINDRIAN_BRAIN_URL` resolves to -- the
+  SAME capture server this test points every shim spawn at. Arm 2's `resetCaptured()`
+  truncates the shared `captured` array immediately before its own `tools/call` request,
+  but the async prewarm fetch can still land its own POST to the capture server in the
+  same window, landing in `captured` as an unrelated entry Arm 2's `capturedCount === 0`
+  assertion was never designed to tolerate. This is a timing race in the shared test
+  fixture between two independent async operations (prewarm, the arm's own request), not
+  a defect in `part8-egress-guard.cjs`, `brain-client.cjs`, or `part8-egress-guard-hook.cjs`.
+- **Confirmed unrelated to 354-06's fix:** temporarily reverted all three files this plan
+  modified (`lib/core/part8-egress-guard.cjs`, `lib/core/brain-client.cjs`,
+  `scripts/part8-egress-guard-hook.cjs`) to their pre-354-06 committed state via
+  `git show HEAD:<path>` written over each file (not `git checkout --`, to avoid touching
+  the destructive-git-prohibition list), re-ran the test twice against that reverted
+  combination: the identical Arm 2 `theo_health` race failed both times (only Arm 4 also
+  failed, which is expected -- Arm 4 was rewritten this plan to assert 354-06's own new
+  refusal behavior and correctly fails against pre-354-06 code). Restored all three files
+  from a saved copy immediately after, diffed byte-identical to confirm a clean restore,
+  then re-ran the full suite once more to confirm only Arm 2 remained red.
+- **Scope:** `lib/core/brain-prewarm.cjs` (Quick 260911-ddd, DDD-02) or this test's own
+  fixture isolation (it does not set an env flag to suppress prewarm, nor does it drain
+  the capture server between shim spawn and Arm 2's own request), not 354-06 (THEO-03 /
+  D-354-EGR). Not investigated further -- out of scope for this plan. Should be picked up
+  by whichever plan or session next touches `brain-prewarm.cjs` or this test's shim-spawn
+  helper, or a dedicated `/gsd-debug` session if it blocks a release gate.
+- **Impact on 354-06:** None. Every other Arm in this suite passes (1a/1b/1c, 2b, 3, 4,
+  5, 6, 7a, 7b), including Arm 4 (this plan's own rewrite, proving the new
+  refuse-before-the-wire behavior for an ambiguous free-form `brain_ask` question) and
+  Arm 5 (proving a genuinely typed question still allows and reaches the wire).
