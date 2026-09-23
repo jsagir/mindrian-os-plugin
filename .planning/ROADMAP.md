@@ -978,6 +978,17 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [x] 354-16-PLAN.md -- all IDs (SYS-01..09, THEO-01..04): concurrency and Tri-Polar checks, measured gates, final dispositions (THEO-04 closes MITIGATED-DOCUMENTED, not FIXED-VERIFIED), review corrections, requirement rows, handoff entry, rethinking-room filing
 
+### Phase 362: Card gate: text-dependent relevance false block (R-C follow-on from Phase 357, dogfood entry dogfood-0f86dd63-092046)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 361
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 362 to break down)
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD

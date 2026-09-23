@@ -3049,45 +3049,78 @@ proof, or left open with a stated reason, at phase close by `357-10-PLAN.md` Tas
 precedent. Execution is held until Phase 354 completes (D-15). The roadmap title's "ledger" wording
 is superseded by `357-SPEC.md`: there is no runtime ledger.
 
-- [ ] **GATE357-01**: One versioned replay corpus with four sources (the 238 corpus read in place
+- [x] **GATE357-01**: One versioned replay corpus with four sources (the 238 corpus read in place
       through an adapter, the resolved debug cases, the 2026-09-23 live false blocks, at least 20
       dogfood Stop events), at least 45 entries, each with source, expected verdict class, label
       origin and why, every file carrying a sanitization statement; live and dogfood entries replay
-      in transcript mode. Plans 357-01, 357-05, 357-06.
+      in transcript mode. Plans 357-01, 357-05, 357-06. Proof: `node scripts/replay-card-fire.cjs
+      --surface both --baseline compare` on HEAD reports `entries=60` across all four sources
+      (357-09-SUMMARY.md), corpus loader `tests/test-357-corpus-loader.cjs` L1-L6 + `--dogfood-strict`
+      PASS (357-01-SUMMARY.md), `dogfood.json` holds 24 ratified entries (357-08-SUMMARY.md).
 
-- [ ] **GATE357-02**: `scripts/replay-card-fire.cjs` replays the corpus through the real
+- [x] **GATE357-02**: `scripts/replay-card-fire.cjs` replays the corpus through the real
       deriveTurnSignals and classifyCardFire with no network, supports --surface, --baseline,
       --json and --code-root, reproduces the pre-phase false block as FALSE_BLOCK, and exits
-      non-zero on false blocks or new misses. Plans 357-02, 357-05, 357-09.
+      non-zero on false blocks or new misses. Plans 357-02, 357-05, 357-09. Proof:
+      `node scripts/replay-card-fire.cjs --code-root pre-phase --surface cli --baseline write`
+      reported `false_blocks=13` (pre-fix world), `node tests/test-357-replay.cjs` PASS 12/12
+      (357-09-SUMMARY.md), `node scripts/replay-card-fire.cjs --surface both --source 238 --json`
+      -> `{entries:18, errors:0, parity_mismatches:0, false_blocks:0}` (357-02-SUMMARY.md).
 
-- [ ] **GATE357-03**: A dev-only Jev labeler asks three independent Nouls for sources (a), (b), (c)
+- [x] **GATE357-03**: A dev-only Jev labeler asks three independent Nouls for sources (a), (b), (c)
       only, through the shared client and its card_fire_replay egress profile, refuses dogfood
       before building any request, runs keyless with exit 0, never auto-applies a label, and is
-      banned from hooks/ by the shared tripwire list. Plans 357-03, 357-04, 357-08.
+      banned from hooks/ by the shared tripwire list. Plans 357-03, 357-04, 357-08. Proof:
+      `node tests/test-357-labeler-refusal.cjs` PASS=83 FAIL=0 (357-08-SUMMARY.md), labeler run
+      `labeled: 36 rows written` (sources 238/debug/live only, 0 dogfood rows reached the client),
+      `HOOKS_BANNED_LEDGER_SCRIPTS` gains `label-card-fire-replay` in `tests/test-353-tripwires.cjs`
+      (357-04-SUMMARY.md).
 
-- [ ] **GATE357-04**: A preceding harness record (subagent hand-back, task notification, peer or
+- [x] **GATE357-04**: A preceding harness record (subagent hand-back, task notification, peer or
       idle notice) is classified 'harness' and treated as synthetic on the PRIMARY path, with the
-      human-upstream carve-out (R-A), fixing live-2026-09-23-01. Plans 357-07, 357-09.
+      human-upstream carve-out (R-A), fixing live-2026-09-23-01. Plans 357-07, 357-09. Proof:
+      full corpus replay on HEAD `false_blocks:0 new_misses:0 parity_mismatches:0` (was 13
+      false_blocks pre-fix), `node tests/test-357-harness-source.cjs` PASS 10/10, mutation leg M1
+      (revert turn-text.cjs/check-card-fire.cjs) reproduces `live-2026-09-23-01` FALSE_BLOCK
+      (357-07-SUMMARY.md, 357-09-SUMMARY.md).
 
-- [ ] **GATE357-05**: The F.1 dial's static chrome words, derived from dial-presenter's template
+- [x] **GATE357-05**: The F.1 dial's static chrome words, derived from dial-presenter's template
       strings and pinned by a drift test, no longer satisfy topical relevance on their own (R-F),
-      fixing live-2026-09-23-02. Plans 357-07, 357-09.
+      fixing live-2026-09-23-02. Plans 357-07, 357-09. Proof: `node tests/test-357-f1-chrome.cjs`
+      PASS 12/12, mutation leg M2 (revert gate-relevance.cjs) reproduces `live-2026-09-23-02`
+      FALSE_BLOCK (357-07-SUMMARY.md, 357-09-SUMMARY.md).
 
-- [ ] **GATE357-06**: The CLI hook and the MCP stop_gate_check give identical verdict classes on
+- [x] **GATE357-06**: The CLI hook and the MCP stop_gate_check give identical verdict classes on
       every corpus entry (dedup excluded) under a hermetic environment that never touches the
-      navigator's real rooms. Plans 357-02, 357-09.
+      navigator's real rooms. Plans 357-02, 357-09. Proof: `node scripts/replay-card-fire.cjs
+      --surface both --baseline compare` -> `entries=60 ... parity_mismatches=0` (357-09-SUMMARY.md);
+      `tests/test-357-replay.cjs` L3 hermeticity negative control (a decoy machine-wide active room
+      is never resolved or touched) PASS (357-02-SUMMARY.md).
 
-- [ ] **GATE357-07**: After the replay proves 0 false blocks and 0 new misses, the two Larry
+- [x] **GATE357-07**: After the replay proves 0 false blocks and 0 new misses, the two Larry
       card-rule spans shrink by at least 50% (2230 B to at most 1115 B, R-B) with the voice, card
       and handoff tests green and the harness manifest regenerated; otherwise the skip reason is
-      recorded. Plan 357-10.
+      recorded. Plan 357-10. Proof: R4 re-checked MET on HEAD (`node scripts/replay-card-fire.cjs
+      --surface both --baseline compare` -> `entries=60 false_blocks=0 new_misses=0`, exit 0), the
+      two spans measured 1751B+479B=2230B before and 624B+232B=856B after (61.6% cut, at most
+      1115B), `node tests/test-gate-native-fire-w1.cjs`, `node tests/test-larry-voice-mark-182.cjs`,
+      `node tests/test-larry-handoff-seam.cjs`, `node tests/test-356-larry-contract.cjs` all PASS,
+      `node scripts/build-harness-manifest.cjs --check` -> `harness-manifest: OK` (357-10-SUMMARY.md,
+      commit 2a91bf375).
 
-- [ ] **GATE357-08**: The replay is a standing gate in run-all-357 and run-all-238, and reverting
-      either runtime fix makes it fail (mutation leg). Plans 357-01, 357-09.
+- [x] **GATE357-08**: The replay is a standing gate in run-all-357 and run-all-238, and reverting
+      either runtime fix makes it fail (mutation leg). Plans 357-01, 357-09. Proof:
+      `node tests/test-357-replay.cjs --mutation` PASS 3/3 (M1/M2/M3 each reproduce FALSE_BLOCK on
+      revert), `bash tests/run-all-357.sh` PASS=16 FAIL=0, `run-all-238.sh` carries the additive
+      "357 card-fire replay standing gate" leg (357-09-SUMMARY.md).
 
-- [ ] **GATE357-09**: Dogfood Stop events are extracted locally from the R-D snapshot, sanitized
+- [x] **GATE357-09**: Dogfood Stop events are extracted locally from the R-D snapshot, sanitized
       with verdict preservation, never sent to Jev, and ratified by the navigator at the single
-      human checkpoint (including the R-C 09:20 case). Plans 357-06, 357-08.
+      human checkpoint (including the R-C 09:20 case). Plans 357-06, 357-08. Proof: 24/24
+      `dogfood.json` entries `label_origin: human`, `meta.ratified_at: 2026-09-23`; R-C
+      (`dogfood-0f86dd63-092046`) ruled `known_false_block` with a text-dependence reason, excluded
+      from the 0-false-block bar; `git diff` on `debug-cases.json`/`live-2026-09-23.json` empty
+      (no Jev label auto-applied) (357-08-SUMMARY.md).
 
 ### Phase 359 - Missed-fork declaration (FORK359 family)
 
