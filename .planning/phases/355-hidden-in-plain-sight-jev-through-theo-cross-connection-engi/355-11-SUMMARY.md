@@ -151,3 +151,13 @@ None - no external service configuration required.
 ---
 *Phase: 355-hidden-in-plain-sight-jev-through-theo-cross-connection-engi*
 *Completed: 2026-09-24*
+
+## Self-Check: PASSED
+
+All 9 created/modified files verified present on disk
+(`lib/core/intelligence-cascade.cjs`, `scripts/scout-cadence-runner.cjs`,
+`tests/test-scout-cadence-fires.cjs`, `commands/scout.md`,
+`skills/scout/SKILL.md`, `scripts/detect-reverse-salients.py`,
+`scripts/compute-hsi.py`, `deferred-items.md`, `.planning/ROADMAP.md`);
+all five commits (`b04bec07f`, `f8d1fb22f`, `0687e672a`, `7183f3608`,
+`879cf9973`) verified present in `git log`.
