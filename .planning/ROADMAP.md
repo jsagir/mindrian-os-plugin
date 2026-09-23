@@ -978,6 +978,16 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [ ] 354-16-PLAN.md -- all IDs (SYS-01..09, THEO-01..04): concurrency and Tri-Polar checks, measured gates, final dispositions (THEO-04 closes MITIGATED-DOCUMENTED, not FIXED-VERIFIED), review corrections, requirement rows, handoff entry, rethinking-room filing
 
+---
+Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
+**Requirements**: TBD
+**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267 to break down)
+
 ### Phase 355: Hidden in Plain Sight: Jev-through-Theo Cross-Connection Engines (honesty pass, KG-verification spearhead, first Jev question)
 
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
@@ -1163,29 +1173,18 @@ Plans:
 
 - [ ] 360-08-PLAN.md -- BIND360-01..11: full evidence run, requirement closure with proof, VALIDATION sign-off, dual research filing, follow-on record
 
+
 ### Phase 361: Dominant-design research mode -- /mos:dominant-designs gains an evidence deep dive backed by a parallel dominant-design-researcher agent
 
-**Scope (as added):** Dominant-design research mode: /mos:dominant-designs gains a research deep dive backed by a new parallel dominant-design-researcher agent (one evidence question per invocation, structured JSON, every claim sourced or absent): variant census, convergence signals, S-curve limits, discontinuity signals; the quick pass stays conversational. Framework structure from Theo (Dominant Design Framework: framework_step, framework_techniques from Theo Phase 20; case_story from Theo Phase 20.1), evidence from Tavily; Part 8 known-shape entries for every Theo call; filing via fileEvidenceWithReadback with provenance; registry row updated (web_scope, agent) and theo-resync fired. Upgrades the existing command, no duplicate command (navigator ruling 2026-09-23). PM: jsagi-ec session.
-
-
+**Scope (as added 2026-09-23, navigator ruling: upgrade the existing command, no duplicate):** /mos:dominant-designs gains a research deep dive backed by a new parallel dominant-design-researcher agent (one evidence question per invocation, structured JSON, every claim sourced or absent): variant census, convergence signals, S-curve limits, discontinuity signals; the quick pass stays conversational. Framework structure from Theo (Dominant Design Framework: framework_step, framework_techniques from Theo Phase 20; case_story from Theo Phase 20.1), evidence from Tavily; Part 8 known-shape entries for every Theo call (separate entries in lib/core/part8-egress-guard.cjs, not editing Phase 355's find_connections entry); filing via fileEvidenceWithReadback with provenance; registry row updated (web_scope, agent) and theo-resync fired. PM: jsagi-ec session.
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase 360
+**Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 0 plans
 
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 361 to break down)
-
----
-Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
-**Requirements**: TBD
-**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
-**Plans:** 0 plans
-
-Plans:
-
-- [ ] TBD (run /gsd-plan-phase 267 to break down)
 
 ### Phase 270: Memory and Context Operator MCP
 
