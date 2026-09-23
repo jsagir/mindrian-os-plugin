@@ -57,10 +57,10 @@ THIS PLANNING PASS covers B1 only (slide A2: "stores what each claim was checked
 
 ### B2 slice (planning pass 2, LOCKED 2026-09-23; B1 is complete: plans 358-01..05, runner 27/27)
 B2 makes slide A1 true: "which direction" and "can I turn around". Acceptance tests (go/no-go, each move judged separately):
-- B2-AT1 (which direction): the room shows where its CURRENT governing question came from: chosen / tasking / prompt / inherited. Visible on CLI and via MCP (Desktop  is write-enabled per B1).
+- B2-AT1 (which direction): the room shows where its CURRENT governing question came from: chosen / tasking / prompt / inherited. Visible on CLI and via MCP (Desktop `claude-ai` is write-enabled per B1).
 - B2-AT2 (which direction): changing the question keeps the old one visible as a history an officer can open (ordered versions, each with origin and time).
 - B2-AT3 (can I turn around): before an answer to a CHANGED question is produced through the normal flow, the officer is asked what the old question got wrong. Scope for 6 Oct: the pause sits on the governing-question change path (the frame/governing-thought write), so a question change cannot land silently; answer producers that read the governing thought see an unresolved change and surface the ask first. The planner must name every answer path covered and every path NOT covered, honestly.
-- B2-AT4 (can I turn around): with a written account the change is filed as  (account stored as an artifact handle, never free text in graph metadata); without one it is filed as ; BOTH frames stay visible; neither is presented as better.
+- B2-AT4 (can I turn around): with a written account the change is filed as `refines` (account stored as an artifact handle, never free text in graph metadata); without one it is filed as `relocates`; BOTH frames stay visible; neither is presented as better.
 - If B2-AT1/AT2 pass but AT3/AT4 do not, "which direction" goes up and "can I turn around" stays off (pre-written fallback wording in nato.html).
 - Substrate: lib/core/navigation/typed-frame.cjs (origin, governingThoughtHash, predecessorHash, classifyFrameChange exist; no consumer); governing-thought hash + staleness machinery (brain-derivation.cjs, brain-derivation-queue.cjs, brain-md-staleness.cjs, navigation-engine-offer.cjs); docs/FRAME-PROVENANCE-PRODUCT-WORKUP.md is a PEER-UNTRACKED file: read-only, never stage it.
 - Same canon and collision rules as B1. Reuse B1 surfaces where natural (claim_read / claim-checks CLI patterns, run-all-358.sh legs added deliberately).
