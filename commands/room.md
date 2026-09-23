@@ -1,13 +1,13 @@
 ---
 name: room
-description: View, launch, or navigate the Data Room
+description: View, launch, or navigate the Data Room, and show, record or change the room's governing question with its origin and history
 help_jtbd: "Open your current room's view in this terminal."
-argument-hint: "[overview|<section>|checks|claim <id or words>|check <id or words>]"
+argument-hint: "[overview|<section>|checks|claim <id or words>|check <id or words>|question [history|set <question>|cancel]]"
 body_shape: C
 layer: "none"
 layer_why: "Opens the room view with its current state; a render-only default entry-point view."
 hitl_shape: "F.1"
-hitl_why: "Room navigation offers one next move from the current room."
+hitl_why: "Room navigation offers one next move from the current room, and a governing-question change asks one thing first, what the old question got wrong, on a single card."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/room.md:121, the default overview's Semantic Tree, a predictable structural readout of what the navigator has already filed.
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_overview: B (Semantic Tree)
@@ -59,10 +59,11 @@ You are Larry. This command manages the Data Room using **Body Shape B (Semantic
 - **overview subcommand:** Body Shape B -- Semantic Tree (folder tree with meaning symbols)
 - **[section] subcommand:** Body Shape C -- Room Card (wiki-style with graph relationships)
 - **checks, claim and check subcommands:** render inside the Room Card 4-zone anatomy (Shape C); the Content Body prints the `scripts/claim-checks.cjs` script output verbatim.
+- **question subcommands:** render inside the Room Card 4-zone anatomy (Shape C); the Content Body prints the `scripts/room-question.cjs` output verbatim, and the waiting change (when there is one) always comes first.
 - **Reference:** `skills/ui-system/SKILL.md`
 - All subcommands follow the 4-zone anatomy: Header Panel, Content Body, Intelligence Strip (conditional), Action Footer (NEVER omitted)
 
-Parse the user's input to determine which subcommand to execute. The subcommands `checks`, `claim` and `check` are matched before the [section] fallback, so a section can never shadow them. If no subcommand is given, default to **overview** (text-based).
+Parse the user's input to determine which subcommand to execute. The subcommands `checks`, `claim`, `check` and `question` are matched before the [section] fallback, so a section can never shadow them. If no subcommand is given, default to **overview** (text-based).
 
 ## Subcommand: view
 
@@ -382,6 +383,101 @@ Rules:
 - Never run a confirmation, `gate_answer` or any other command after recording.
 - On a refusal, show the script's 3-line block verbatim and re-ask only the field it names, not the whole flow.
 
+## When Larry routes a turn to the question door
+
+The room's governing question is the one question the room's work serves, recorded with where it came from; it is NOT the "Governing Thought" line a section card prints (that line is a machine summary of what a section knows).
+
+Route here when the officer:
+- states or changes the room's question (for example: "our question is now ...", "change our governing question to ...")
+- or asks about it (for example: "what is our governing question", "where did our question come from", "how has our question changed")
+
+An ordinary question asked in conversation is not the room's governing question; do not route it here.
+
+If the officer raises a new question in conversation and you are about to work on it, ask first whether it is the room's new governing question; if yes, run the set flow below before answering.
+
+## Subcommand: question
+
+**Trigger:** `/mos:room question`, `/mos:room question history`, `/mos:room question set <question>`, `/mos:room question cancel`
+
+### Step 1: Check for Room
+
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If it exits non-zero (no room found), use the 3-line error format:
+```
+x No Data Room found
+  Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
+  Fix: /mos:new-project
+```
+
+STOP.
+
+### Step 2: Show (`question` alone)
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" show --room "<room path>"
+```
+
+Render 4-Zone Output (Shape C: Room Card):
+
+**Zone 1 -- Header Panel:**
+```
+-- [Room Name] -- governing question -- [Venture Stage] --
+```
+
+**Zone 2 -- Content Body:** the `scripts/room-question.cjs` output verbatim. Never reorder it: a waiting change is printed first by design.
+
+**Zone 4 -- Action Footer (NEVER omit):**
+```
+  ▶ /mos:room question history          See every version of the question
+  ▷ /mos:room question set <question>   Record or change the question
+```
+
+### Step 3: History
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" history --room "<room path>"
+```
+
+Print the output verbatim, then one plain sentence: every version is kept exactly as it was written, and no version is ranked above another.
+
+### Step 4: Set
+
+1. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" show --room "<room path>" --json` to read the current version and any pending change.
+2. Take the officer's question text exactly as written after `set`. If none was given, ask in plain text: "What is the question this room's work serves?"
+3. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" origins --json` and fire an AskUserQuestion card "Where did this question come from?" with one option per origin labeled `<id> - <label>` verbatim from the JSON. If more than 4 origins are returned, show the first 3 plus a 4th option "More options".
+4. Run:
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" set --room "<room path>" --origin <id> --based-on <current version, omitted when there is none> "<question text>"
+   ```
+5. Branch on the result:
+   - **Exit 0:** render a Shape E mini report with the output verbatim.
+   - **Exit 1, `Why: change_needs_account`:** the change is now waiting and the script has already printed the ask "What did the old question get wrong?" to stderr, along with the Decision Gate card and its AskUserQuestion contract. Fire AskUserQuestion with exactly the card's options ("Write what it got wrong (files as refines)", "It is a new question (files as relocates)", "Cancel the change").
+     - On "Write what it got wrong": ask in plain text "In your own words: what did the old question get wrong?" and pass the answer VERBATIM as `--account "<the officer's words>"` (escape double quotes; never write, shorten or polish it; if the officer typed the answer into the card's free-text field, that text is the account).
+     - On "It is a new question": re-run Step 4.4 with `--relocate`.
+     - On "Cancel the change": run `node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" cancel --room "<room path>"`.
+   - **Exit 1, `Why: question_changed_meanwhile`:** show the block and restart from Step 4.1.
+   - **Any other refusal:** show the 3-line block verbatim and re-ask only the field it names.
+
+### Step 5: Cancel
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/room-question.cjs" cancel --room "<room path>"
+```
+
+Print the output verbatim.
+
+Rules:
+- The account is the officer's own words; never choose "It is a new question" for the officer and never treat a missing answer as one.
+- Never present either version as better, improved or corrected: both stay on the record.
+- Call it "Governing question", never "Governing Thought".
+- A question change only discussed in conversation is not recorded; the set flow is the only way to change it.
+- Recording a question never confirms or ranks anything.
+
 ## Subcommand: add
 
 **Trigger:** `/mos:room add {name}` or `/mos:room add {parent}/{name}`
@@ -516,5 +612,6 @@ Larry adds a brief observation about the export quality (e.g., "Three empty sect
 - For add: confirm with a relevant observation, not just "done."
 - For export: frame it as preparation for a real audience.
 - For checks, claim and check: "checked" and "confirmed" are different words; never call a checked claim confirmed.
+- For question: the governing question is the officer's recorded question with its origin; it is not a section's Governing Thought, and no version is ranked above another.
 - **Banned phrases (per D-23):** "Great question!", "I'd be happy to help", "It's important to note", "Let me explain", sentences starting with "I"
 - NO EMOJI. Use only the 12 glyphs from the symbol vocabulary.
