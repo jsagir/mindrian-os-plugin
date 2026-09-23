@@ -5,5 +5,86 @@
     "schema": "D-02 entry shape; see scripts/card-fire-replay-corpus.cjs validateEntry",
     "sanitization_statement": "The two 2026-09-23 entries are paraphrased from a local-only snapshot (~/.cache/mindrian-dev/357-raw/, R-D), keeping only record structure (isMeta, origin.kind, record order), gate shape, reach age, and the token-overlap class that decides relevance. No third-party names appear anywhere in this file, and no room or venture specifics appear anywhere in this file."
   },
-  "entries": []
+  "entries": [
+    {
+      "id": "live-2026-09-23-01",
+      "source": "live",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Let's kick off a quick status roll-up across the open items." },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": {
+              "role": "assistant",
+              "content": [
+                { "type": "text", "text": "Checking now." },
+                { "type": "tool_use", "name": "RunBackgroundCheck", "id": "toolu_live01a", "input": {} }
+              ]
+            }
+          },
+          {
+            "type": "user",
+            "message": {
+              "role": "user",
+              "content": [ { "type": "tool_result", "tool_use_id": "toolu_live01a", "content": "Status roll-up finished." } ]
+            }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Reviewing the results now." } ] }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "Handoff complete: the ALPHA room review wrapped up cleanly, returning control to the main thread now." },
+            "isMeta": true,
+            "origin": { "kind": "peer" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Roll-up review complete. Nothing further needed on this thread right now." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.8", "age_ms": 7000, "subject": "-- mindrianOS -- bind session -- select rooms -- ROOM_ALPHA Just talk (no room) Start a new room" }
+        ],
+        "counters": { "retry": 0, "session": 0 }
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "human",
+      "why": "Reconstructs the 2026-09-23 session 56924067 false block (CONTEXT root cause, R-E): the record right before the blocked turn was a subagent hand-back, written by Claude Code as a role:user record with isMeta true and a real text block. Per R-E this anchor models the FRESH F.8 room-bind gate minted on the hand-back turn itself, not the F.1 reach that a prior, separate Stop had already consumed as preceding-turn-synthetic-no-user-engagement. classifyPrecedingUserContentSource (1-arg, pre-D-07) returns typed for any real text block, so the harness hand-back was misread as a human turn and force-blocked on incidental token overlap with the F.8 subject."
+    },
+    {
+      "id": "live-2026-09-23-02",
+      "source": "live",
+      "envelope": {
+        "mode": "transcript+sidechannel",
+        "transcript": [
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Continuing the review, one moment." } ] }
+          },
+          {
+            "type": "user",
+            "message": { "role": "user", "content": "quick gate check before we wrap this thread" },
+            "origin": { "kind": "human" }
+          },
+          {
+            "type": "assistant",
+            "message": { "role": "assistant", "content": [ { "type": "text", "text": "Noted, resuming the current task." } ] }
+          }
+        ],
+        "sidechannel_records": [
+          { "entry": "scripts/intent-classifier.cjs", "shape": "F.1", "age_ms": 30000, "subject": "■ dev repo - REACH - decision gate\n▼ LOCAL dev repo (offline) / BRAIN (offline) / SIGNAL (none this turn)\n[----------] cold\n\n→ Choose next reach:\n▷ memory_artifact:research/sample-briefing-mirror ........ 38%\ntop-1 of 4" }
+        ]
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "human",
+      "why": "Reconstructs the second 2026-09-23 false block in the same session, 09:40:16Z (D-08a, R-F): the preceding record WAS a real human-typed question, so D-07 does not cover it. The block was an F.1 reach about an unrelated room artifact that passed relevance by incidental overlap on a single F.1 dial-chrome token, gate (from the header line's own -REACH- decision gate wording), with zero overlap on any distinguishing content token. D-08a's fix direction is to extend the GATE_BOILERPLATE_TOKENS precedent to F.1's own static dial chrome."
+    }
+  ]
 }
