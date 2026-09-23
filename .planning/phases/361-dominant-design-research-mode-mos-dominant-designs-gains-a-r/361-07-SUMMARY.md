@@ -107,7 +107,7 @@ See `key-decisions` in the frontmatter above (the harness-manifest regeneration-
 
 **1. [Rule 1 - Bug, self-caught before completion] Literal em-dash/en-dash characters in this plan's own test file**
 - **Found during:** running `bash tests/run-all-361.sh` after Task 2/3's initial gate pass, before the final commit
-- **Issue:** The hygiene leg's own no-em-dash/no-en-dash assertions in `tests/test-361-command-contract.cjs` were written with literal U+2014/U+2013 characters in the test source instead of the intended `—`/`–` JS escape sequences, tripping `tests/run-all-361.sh`'s targeted em-dash guard on the test file itself. Same class of slip 361-03 (`ed27e3024`) and 361-04 (`d69d42c75`) self-caught.
+- **Issue:** The hygiene leg's own no-em-dash/no-en-dash assertions in `tests/test-361-command-contract.cjs` were written with literal U+2014/U+2013 characters in the test source instead of the intended JS unicode escape sequences, tripping `tests/run-all-361.sh`'s targeted em-dash guard on the test file itself. Same class of slip 361-03 (`ed27e3024`) and 361-04 (`d69d42c75`) self-caught.
 - **Fix:** Replaced the two literal characters with escape sequences via a small Python rewrite (a direct string-based Edit call reported "no changes to make" because the tool's own diff comparison treated the literal-character old_string and new_string as identical, so a byte-level rewrite was used instead); re-ran the test (20/20 legs still pass) and confirmed via byte-level grep that no em-dash/en-dash bytes remain in the file.
 - **Files modified:** `tests/test-361-command-contract.cjs`
 - **Commit:** `f3995f2e4`
