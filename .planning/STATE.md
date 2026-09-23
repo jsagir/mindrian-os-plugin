@@ -3,16 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 353-03-PLAN.md - Phase 353 CLOSED (3/3 plans)
-last_updated: "2026-09-17T19:42:32.996Z"
-last_activity: 2026-09-17 -- Phase 353 Plan 03 (Fixture Grading) complete; Phase 353 CLOSED (3/3 plans)
+stopped_at: Completed 354-01-PLAN.md - Wave 1 of 8
+last_updated: "2026-09-23T09:10:14.378Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 01 (disposition ledger + shared test infra) complete; Phase 354 continues (Wave 1 of 8 done, 18 plans total)
 progress:
-  total_phases: 103
+  total_phases: 107
   completed_phases: 35
-  total_plans: 293
-  completed_plans: 287
-  percent: 98
+  total_plans: 311
+  completed_plans: 288
+  percent: 93
 ---
+
+<!-- NOTE (354-01 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` reported `last_plan`/current_plan 3 of 3 -- this is Phase 353's own
+     stale counters, since Phase 354 has no per-phase plan-position tracking in this frontmatter
+     shape; not used. `state.update-progress` correctly computed `completed: 288, percent: 93`
+     (288/311). `roadmap.update-plan-progress 354` correctly reported plan_count 18, summary_count
+     1, status "In Progress". `state.record-metric` (flag syntax `--phase --plan --duration
+     --tasks --files`) landed its own correct Performance Metrics row. `state.add-decision`
+     (with `--summary`) repeated the documented `[Phase ?]` placeholder-prefix bug (prepended
+     `[Phase ?]: ` ahead of this plan's own already-prefixed `[Phase 354]` text), fixed in place
+     to a single `[Phase 354] 354-01: ...` line. `state.record-session` updated only `Last
+     session` and `Stopped At`, correctly to "Completed 354-01-PLAN.md - Wave 1 of N" (N left as
+     a literal placeholder by the tool call); hand-corrected here to "Wave 1 of 8" (ROADMAP.md
+     names 8 waves for Phase 354) and `last_activity` (reverted to a stale 2026-09-17 Phase 353
+     line by the same clobber pattern) hand-corrected to this plan's own completion line;
+     `percent` (reverted to `33`, a phases-ratio reading, 35/107, not the plan-completion
+     percentage) hand-corrected to `93`, matching `state.update-progress`'s own correct
+     computation. Left `total_phases`/`completed_phases` at 107/35 unchanged (Phase 354 has not
+     closed; correct as reported). -->
 
 <!-- NOTE (353-03 execute-plan, 2026-09-17, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -35,7 +55,6 @@ progress:
      at 103/35 unchanged (correct as reported by `state.advance-plan` itself this time). This is
      the third and last such note for Phase 353; same root cause as every other note in this
      file. -->
-
 
 <!-- NOTE (353-02 execute-plan, 2026-09-17, resync-clobber pattern, same class as every note in
      this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6646,6 +6665,8 @@ Progress: [█████████░] 92%
 | Phase 353 P01 | 180min | 8 tasks | 20 files |
 | Phase 353 P02 | ~5h | 10 tasks | 33 files |
 | Phase 353 P03 | 1.5h | 7 tasks | 17 files |
+| Phase 354 P01 | 26min | 2 tasks | 5 files |
+| Phase 354 P01 | 26min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -6884,6 +6905,7 @@ Progress: [█████████░] 92%
   research/2026-09-23-hidden-in-plain-sight-jev-through-theo-design.md, mirrored to
   ~/MindrianOS/research/). Route chosen by the navigator: spec-phase / discuss-phase
   next, not plan-phase. Depends on 354 (Theo integration research). Not planned yet.
+
 - Phase 356 added (2026-09-23, `/gsd-phase`): "Chain-executor material-step ledger: Jev
   Noul seat scored at dev time, shipped as data" - replaces the substring-only
   IRREVERSIBLE_HINTS check in chain-executor.cjs with a dev-time Jev Noul ledger over the
@@ -8314,6 +8336,7 @@ Progress: [█████████░] 92%
 - [Phase 353] 353-02: governance-dial field corrected to decision_surface (not hitl_shape, which is the MCP-tool-class dial only); the four vocabulary-extension jobs declared honestly rather than mislabeled
 - [Phase 353] 353-03: jev_total/jev_pass count every jev-kind item graded (answered or skipped), never just the answered subset, so a fully-skipped run reports 0/4 rather than the misleading 0/0
 - [Phase 353] 353-03: RULE-01..21 and RULE-29 Measured blocks were backfilled in Task 7 (R-353-F), not left unmeasured from Plans 01/02's earlier [x] flip; every command re-run directly in this session
+- [Phase 354] 354-01: Published the pre-implementation disposition ledger (13 IDs, all re-run live) and the shared Phase 354 test aggregator; D-354-SYS05 and D-354-EGR restated with impact, THEO-04 recorded CONFIRMED with remediation pending Plan 354-18
 
 ### Pending Todos
 
@@ -8462,8 +8485,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-17T19:42:32.932Z
-Stopped at: Completed 349-05-PLAN.md
+Last session: 2026-09-23T09:10:13.931Z
+Stopped at: Completed 354-01-PLAN.md - Wave 1 of N
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
