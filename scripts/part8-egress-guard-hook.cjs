@@ -120,7 +120,13 @@ const GATE_PATH = path.join(__dirname, '..', 'lib', 'hmi', 'part8-egress-gate.cj
 // task makes. Both classes are minted at
 // lib/core/part8-egress-guard.cjs::classify().
 // ---------------------------------------------------------------------------
-const SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES = Object.freeze(new Set(['freeform_unmatched', 'unknown']));
+// 354-06 (D-354-EGR): 'freeform_unproven' joins the set. On a shim-backed
+// scope the call proceeds to bin/mindrian-brain-mcp-client.cjs, whose
+// ask()/search() (lib/core/brain-client.cjs::_typedFreeformGate, Task 3)
+// refuse it with the renderable egress_blocked envelope BEFORE any wire
+// call -- a PreToolUse hook cannot render that refusal itself (260917-dgf).
+// Every non-shim Brain-shaped scope keeps exit 2 on this class, unchanged.
+const SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES = Object.freeze(new Set(['freeform_unmatched', 'unknown', 'freeform_unproven']));
 
 // ---------------------------------------------------------------------------
 // stdin read + exit signaling (clone write-scope-check.cjs:144-150, 174-179).

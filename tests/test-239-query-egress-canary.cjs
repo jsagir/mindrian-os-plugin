@@ -191,7 +191,20 @@ async function main() {
         ' raw-field=' + JSON.stringify(v3) + '\n'
     );
     assert.strictEqual(v1.verdict, 'ambiguous', 'bare-cypher canary must classify ambiguous');
-    assert.strictEqual(v2.verdict, 'allow', 'templated-cypher canary must classify allow (the measured laundering)');
+    // 354-06 (D-354-EGR): the measured laundering this leg used to pin
+    // (a bare "Framework" keyword hit inside an assembled Cypher string
+    // earning 'allow') is CLOSED by the same structural-proof fix that
+    // closes the brain_ask false-safe-egress gap: classify() step 3 no
+    // longer treats keyword presence as proof for ANY free-form field,
+    // brain_query's assembled cypher string included. The templated string
+    // here ('MATCH (f:Framework) WHERE x="<canary>"') carries tokens
+    // (match, f, where, x, the canary itself) outside the closed
+    // vocabulary, so it is now correctly ambiguous, not allow. This is a
+    // strict security improvement, not a regression: LEG 1's raw-field
+    // guard (the actual production control for suggestValidationSteps)
+    // still runs upstream of any template assembly and is unaffected --
+    // see the coupling note below, now doubly true (both tiers refuse it).
+    assert.strictEqual(v2.verdict, 'ambiguous', '354-06: templated-cypher canary must now classify ambiguous (the measured laundering is closed, not merely bypassed)');
     assert.notStrictEqual(
       v3.verdict,
       'allow',

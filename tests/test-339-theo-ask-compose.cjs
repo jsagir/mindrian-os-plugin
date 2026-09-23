@@ -407,10 +407,13 @@ test('Arm 2: ask() against an incumbent-shaped response passes through unchanged
     return { ok: false, status: 500, text: async () => '' };
   };
   try {
-    // ALLOW-vocabulary text (matches part8-egress-guard's move_set class),
-    // so no egress_disclosure gets additively attached and the byte-equal
-    // assertion below stays clean.
-    const result = await brainClient.ask('framework chain analysis sequence');
+    // 354-06 (D-354-EGR): every token here (framework, chain, sequence) is
+    // closed-vocabulary (QUESTION_FUNCTION_WORDS), so _typedFreeformGate
+    // proves it typed_question and ask() proceeds to callTool() unchanged --
+    // no egress_disclosure gets attached, keeping the byte-equal assertion
+    // below clean. Was 'framework chain analysis sequence'; 'analysis' is
+    // not closed-vocabulary and would now be refused before any fetch.
+    const result = await brainClient.ask('framework chain sequence');
     assert.deepStrictEqual(result, incumbentPayload);
     assert.equal('grounding' in result, false);
     assert.equal(fetchCalls, 2); // initialize + tools/call
@@ -446,7 +449,10 @@ test('Arm 3b: a transport-null result passes through ask() unchanged', async () 
     throw new Error('simulated transport failure');
   };
   try {
-    const result = await brainClient.ask('framework chain analysis sequence');
+    // 354-06 (D-354-EGR): same closed-vocabulary rephrase as Arm 2 above, so
+    // _typedFreeformGate proceeds to callTool() and this arm still exercises
+    // the transport-null contract instead of short-circuiting on the gate.
+    const result = await brainClient.ask('framework chain sequence');
     assert.equal(result, null);
   } finally {
     global.fetch = origFetch;

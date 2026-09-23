@@ -114,13 +114,17 @@ function unitLeg() {
     'CONTENT-SET payload'
   );
 
-  // The pre-existing free-form allow path is untouched.
+  // 354-06 (D-354-EGR): the free-form allow path now requires structural
+  // proof, not keyword presence. 'lean startup methodology' carries
+  // 'methodology' (a methodology-vocabulary hit) next to 'lean' and
+  // 'startup', neither of which is closed-vocabulary -- ambiguous
+  // (freeform_unproven), never allow. Was: 'allow' / 'move_set'.
   expectVerdict(
     { question: 'lean startup methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
-    'allow',
-    'move_set',
-    'brain_ask methodology question'
+    'ambiguous',
+    'freeform_unproven',
+    'brain_ask methodology question (unproven free-form tokens)'
   );
 
   // Quick task 260807-h5s is the reversal authority: the Phase 245 D-28 FLAGGED

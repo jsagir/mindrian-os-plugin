@@ -184,12 +184,16 @@ function armE() {
 
   expectVerdict({}, FIND, 'allow', 'empty_payload', 'empty payload under find_connections tool name');
   expectVerdict({ a: 1 }, FIND, 'ambiguous', 'unknown', 'generic {a:1} under find_connections tool name');
+  // 354-06 (D-354-EGR): keyword presence no longer proves "generic"; every
+  // token must be structurally proven closed-vocabulary. 'lean' and
+  // 'startup' are not, so this is ambiguous (freeform_unproven), never
+  // allow. Was: 'allow' / 'move_set'.
   expectVerdict(
     { question: 'lean startup methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
-    'allow',
-    'move_set',
-    'shipped brain_ask methodology question'
+    'ambiguous',
+    'freeform_unproven',
+    'shipped brain_ask methodology question (unproven free-form tokens)'
   );
   expectVerdict(
     { cypher: 'note from jane@startup.com re: 2.3M ARR model' },
