@@ -88,3 +88,5 @@ This is news worth a line: `framework_techniques` moved from not-served to serve
 ## Task grant context (for the navigator's checkpoint)
 
 Row today (`data/subagent-dispatch-grants.json`, `commands/dominant-designs.md`): `status: pending`, `reviewed_by: navigator`, `reviewed_date: 2026-09-23`, `fan_bound: 4` (clamped by `resolveFanoutCap`). With the row pending, `/mos:dominant-designs` still works; each of up to four lane-agent spawns per deep dive may show a permission prompt, and `tests/test-265-swarm-task-grant.cjs` reports it as `unratified` (a strict grant-gate run, `TEST_265_GRANTS_STRICT=1`, would fail on this row alone).
+
+Grant decision: ratify, answered by the navigator on 2026-09-23. Chosen from the orchestrator's decision card: "Ratify the grant that lets /mos:dominant-designs spawn up to 4 read-only researcher agents (one per evidence lane) after you approve the query gate?"
