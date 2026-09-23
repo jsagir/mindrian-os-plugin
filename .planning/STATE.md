@@ -6883,6 +6883,13 @@ Progress: [█████████░] 92%
   research/2026-09-23-hidden-in-plain-sight-jev-through-theo-design.md, mirrored to
   ~/MindrianOS/research/). Route chosen by the navigator: spec-phase / discuss-phase
   next, not plan-phase. Depends on 354 (Theo integration research). Not planned yet.
+- Phase 356 added (2026-09-23, `/gsd-phase`): "Chain-executor material-step ledger: Jev
+  Noul seat scored at dev time, shipped as data" - replaces the substring-only
+  IRREVERSIBLE_HINTS check in chain-executor.cjs with a dev-time Jev Noul ledger over the
+  command registry, shipped as data. Hints and step.material stay authoritative overrides.
+  Navigator ruling: no live per-step call, no Theo gateway. Depends on 353 (ledger builder
+  pattern); coordinate with 354-17. Also this session: quick task 260923-d9l pinned GSD
+  planning/discuss/research agents to claude-opus-5-5 (6bce5f088). Spec-phase next.
 
 - 2026-09-20: Phase 354 added as the user's next requested work: System Integrity and Theo Integration. Research pending; independently validate the review before planning fixes. Tracked direction: `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`. Existing execution status above is preserved; this entry does not claim research or repairs have run.
 
