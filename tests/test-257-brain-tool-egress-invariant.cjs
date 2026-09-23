@@ -366,37 +366,34 @@ async function main() {
     const ambiguousVerdict = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
     let allowCapturedCount = 0;
     let allowWire = '';
-    await record('Arm 4: ambiguous proceeds and discloses (verdict verified in-process first)', async () => {
+    // 354-06 (D-354-EGR) SUPERSEDES this arm's original Phase 254 D-02
+    // Option A pin FOR THE brain_ask/brain_search CHANNELS SPECIFICALLY.
+    // The plan's own objective states the impact directly: "a model-issued
+    // brain_ask or brain_search containing any token outside the closed
+    // vocabulary... is refused with the existing honest egress_blocked
+    // envelope... instead of being forwarded with a disclosure." callTool's
+    // general belt (the other 14 wrappers) keeps disclose-and-proceed,
+    // unchanged -- only ask()/search()/smartSearch()'s own pre-callTool
+    // _typedFreeformGate (lib/core/brain-client.cjs) refuses an ambiguous
+    // free-form question outright, the same as a block verdict, because
+    // for these two natural-language channels "ambiguous" and "block" are
+    // both "not proven closed-vocabulary" -- there is no safe partial
+    // disclosure of an unproven free-form question the way there is for a
+    // typed packet field. Re-verify the arm's own new claim with the
+    // suite's live capture server rather than assuming it.
+    await record('Arm 4 (354-06): an ambiguous free-form brain_ask question is refused before the wire, not disclosed-and-proceeded', async () => {
       assert.strictEqual(ambiguousVerdict.verdict, 'ambiguous', 'fixture text no longer classifies ambiguous -- the arm would silently become an allow arm; verdict was: ' + JSON.stringify(ambiguousVerdict));
 
       resetCaptured();
       resetToolScript();
-      const ambiguousBody =
-        'data: ' +
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          result: {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                directive: { guided: { questions: [], framework: null, stage: 'ambiguous_probe' } },
-                next_gate: { sub_shape: 'F.1', options: ['proceed'] },
-              }),
-            }],
-          },
-        }) +
-        '\n';
-      setToolScript([{ body: ambiguousBody }]);
       const resp = await shim.request('tools/call', { name: 'brain_ask', arguments: { question: AMBIGUOUS_TEXT } });
       const envelope = parseEnvelope(resp);
       const capturedLen = captured.length;
       resetToolScript();
 
-      assert.ok(capturedLen > 0, 'an ambiguous verdict must proceed to the wire (Phase 254 D-02 Option A); captured.length was 0');
-      assert.ok(envelope.egress_disclosure, 'expected an own egress_disclosure key on the envelope: ' + JSON.stringify(envelope));
-      assert.strictEqual(envelope.egress_disclosure.verdict, 'ambiguous');
-      assert.strictEqual(envelope.egress_disclosure.disposition, 'proceeded');
+      assert.strictEqual(capturedLen, 0, '354-06: an ambiguous free-form brain_ask question must open no socket at all (D-354-EGR); captured.length was ' + capturedLen);
+      assert.strictEqual(getKind('brain_ask', envelope), 'egress_blocked', '354-06: expected kind egress_blocked, got envelope: ' + JSON.stringify(envelope));
+      assert.strictEqual(getStatus('brain_ask', envelope), 'BRAIN_EGRESS_BLOCKED', '354-06: expected status BRAIN_EGRESS_BLOCKED');
     });
 
     // -----------------------------------------------------------------

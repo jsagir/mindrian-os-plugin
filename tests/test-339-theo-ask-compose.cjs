@@ -435,7 +435,18 @@ test('Arm 3a: an egress_blocked sentinel passes through ask() unchanged, zero ne
   };
   try {
     const result = await brainClient.ask('contact me at jane@startup.com');
-    assert.deepStrictEqual(result, { error: 'egress_blocked', tool: 'brain_ask', egress_class: 'content_set' });
+    // 354-06 (D-354-EGR): the block now short-circuits at ask()'s own
+    // _typedFreeformGate, BEFORE callTool() is ever reached, so the
+    // sentinel is _typedFreeformGate's shape (adds a `reason` field) rather
+    // than callTool()'s own belt sentinel. tool/egress_class are unchanged
+    // (classify()'s content_set verdict is byte-identical either way);
+    // fetchCalls stays 0 either way (both enforcement points are pre-wire).
+    assert.deepStrictEqual(result, {
+      error: 'egress_blocked',
+      tool: 'brain_ask',
+      egress_class: 'content_set',
+      reason: 'Brain free-form channels accept closed-vocabulary methodology questions only (framework names, problem types, stages, command slugs); rephrase without room or venture details.',
+    });
     assert.equal(fetchCalls, 0);
   } finally {
     global.fetch = origFetch;
