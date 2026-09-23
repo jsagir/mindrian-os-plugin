@@ -1,45 +1,127 @@
-# Phase 267: MCP Stateless Protocol Migration - Research
+# Phase 267: MCP Stateless Protocol Migration - Research (FORCE-REFRESH)
 
-**Researched:** 2026-08-27
-**Domain:** MCP protocol revision 2026-07-28 (SEP-2575 stateless, SEP-2322 MRTR, SEP-2243 headers) and the TypeScript SDK v1 -> v2 migration, applied to this repo's three MCP servers
-**Confidence:** HIGH on every load-bearing claim. Each is traced to a byte-level comparison of two SDK tarballs read on disk, an official GitHub release body, an npm registry probe, a live `require()` smoke test, or a file:line in this repo. Claims that could not be grounded are labelled explicitly.
+**Researched:** 2026-09-23 (force-refresh of the 2026-08-27 pass, which had a 14-day validity window and was 27 days past it)
+**Domain:** MCP protocol revision 2026-07-28 (SEP-2575 stateless, SEP-2322 MRTR, SEP-2243 headers) and the TypeScript SDK v1 -> v2 package-family migration, applied to the ONE MCP server family this repo still owns: the local `mindrian-os` server plus its two stdio siblings
+**Confidence:** HIGH on every load-bearing claim. The new findings rest on live probes run in this session: a Claude Code 2.1.280 wire tee, a dual-era `serveStdio` round trip, a real-server boot under zod 4, the codemod run on a scratch copy, npm tarball diffs, and official release bodies. Anything that could not be grounded is labelled as such.
+
+**Working-tree note (measurement provenance):** every live probe against this repo ran on HEAD `0ddd4fa75` plus a peer session's uncommitted edits to `lib/mcp/tool-router.cjs` and `lib/mcp/tools/sensors.cjs`. This research did not create or touch those edits. All scratch work (tarballs, a v2 install, probes, the codemod run) lived under the session scratchpad. The repo's `package.json`, lockfiles, and `node_modules` were never modified. slopcheck ran in `scan` mode from a scratch directory, not `install` mode in the repo.
 
 ---
 
 ## Summary
 
-**The phase's stated premise is falsified.** The ROADMAP entry says: "Confirmed buildable: 1.30.0 already ships `sessionIdGenerator: undefined` stateless mode in both `streamableHttp.js` and `webStandardStreamableHttp.js`." Both halves of that sentence are true and neither one supports the conclusion. `sessionIdGenerator: undefined` has been in the SDK since long before the 2026-07-28 spec existed - it is documented in the **1.29.0** copy already on disk (`node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js:29-31`), and it is the *2025-era* Streamable HTTP "stateless mode" idiom, not SEP-2575. `@modelcontextprotocol/sdk@1.30.0` does **not** implement the 2026-07-28 revision at all: I downloaded the 1.30.0 tarball and diffed it against the installed 1.29.0. `dist/cjs/types.js` is **byte-identical** (md5 `a9989adb21fa11708f35cd6f6014d89a` on both), `LATEST_PROTOCOL_VERSION` is still `'2025-11-25'`, and greps for `server/discover`, `inputRequests`, `inputResponses`, `requestState`, `Mcp-Method`, `Mcp-Name`, `ttlMs`, `cacheScope`, and `resultType` return **zero hits across the entire dist**. 1.30.0 is a maintenance release: 8 changed JS files plus two new ones (`server/sseKeepAlive.js`, `shared/mediaType.js` - an SSE keep-alive timer and a Content-Type media-type parser). Bumping 1.29.0 -> 1.30.0 buys this repo nothing protocol-wise.
+**The one hard blocker is gone, and the reasoning behind it was also partly wrong.** `@modelcontextprotocol/ext-apps` shipped `2.0.0` on **2026-09-08** (not 09-17; that is the npm `modified` stamp). Its peers are now `@modelcontextprotocol/{core,client}: ^2.0.0` (required), `@modelcontextprotocol/server: ^2.0.0` (optional, only for `./server`), and `zod: ^4.2.0`. The release notes say the MCP Apps wire protocol is unchanged, with cross-version interop tested against 1.7.5 in both directions. The prior research said the blocker was a nominal-type crossing, and that part was **wrong in mechanism**. I diffed both tarballs. `registerAppTool` and `registerAppResource` are duck-typed wrappers in **both** 1.7.5 and 2.0.0: they just call `server.registerTool(...)` and `server.registerResource(...)`. The real 1.x coupling was that the bundled `./server` entry imported `@modelcontextprotocol/sdk/...` at load time and declared the v1 peer. The 2.0.0 `./server` entry is 561 bytes with **zero runtime imports**. A live CJS smoke test (ext-apps 2.0.0 against `@modelcontextprotocol/server@2.1.0` on Node 22.23.1) registered, listed, and called all three app tools correctly. The API change 1.7.5 -> 2.0.0 that matters to this repo is small: raw-shape `inputSchema` became a deprecated-but-working overload. The lockfiles actually pin ext-apps **1.5.0**, not 1.7.5.
 
-**The 2026-07-28 spec is real, and the real migration target is a different package family.** `docs/specification/2026-07-28/` exists in the official `modelcontextprotocol/modelcontextprotocol` repo, confirming the 266 research addendum's spec claim. But the TypeScript SDK carrying that revision was released as **v2**, a renamed, re-split package family published 2026-07-27T23:55Z: `@modelcontextprotocol/core`, `/server`, `/client`, `/node`, `/express`, `/fastify`, `/server-legacy`, and an official migration codemod `@modelcontextprotocol/codemod`, all at `2.0.0`. The v2 release body states it plainly: *"First beta release of SDK v2 with support for the MCP 2026-07-28 specification revision."* Two official migration guides exist and I read both in full. So the phase is not a version bump. It is a **package-family migration** that happens to also unlock the protocol revision.
+**The prior primary recommendation (Brain-server-first split) is moot for two independent reasons, and I do not carry it forward.** (1) `mcp-server-brain/` is a **dead service**, per `docs/257-NOTE-part8-enforcement-locus-rulings.md:22`. The live Brain is Theo at `theo-mcp.onrender.com` (`lib/core/brain-client.cjs:40`), a separate repo, and ROADMAP line 615 already moved the Brain half out of this phase. (2) The ext-apps reason for holding the local server back no longer exists. **Fresh recommendation:** one phase, one in-repo target: the local `mindrian-os` server, the brain stdio shim, and the two in-repo MCP clients. Do it as one migration that is **internally staged along process boundaries**, the way the official guide recommends. The small, isolated brain stdio shim goes first as a canary, then the local server over stdio, then the HTTP branches, and v1 is removed last. The codemod is out (see below).
 
-**Two of the phase's four goals are already satisfied, and one of them would be a regression to "fix".** Goal (1), enable stateless mode: `mcp-server-brain/server.cjs:32-46` already builds a fresh `McpServer` + fresh transport per POST with `sessionIdGenerator: undefined` - it is the textbook stateless server, and the v2 guide says a setup shaped exactly like it *"maps directly onto the default entry"*. The local server's flag-OFF HTTP path is also already stateless (`bin/mindrian-mcp-server.cjs:277`). The local server's flag-ON path is deliberately **sessionful** because per-session room binding (`resolveWriteTargetDir(sessionId, ...)`) is keyed on the MCP session id; forcing `sessionIdGenerator: undefined` there would break the D-01 daemon topology Phase 198 paid for. Goal (2), rework gate-render from "held-open-SSE" to MRTR: `lib/mcp/gate-render.cjs` **does not hold a stream open**. It is a pure composition module that returns a card plus a minted `gate_id`; the answer arrives later through a separate `gate_answer` tool call. That is architecturally already MRTR. Only rung (a) (`renderViaElicitation`, `:216-232`) does an inline round trip, via an `elicitInput` function *injected by the caller* (`lib/mcp/tools/gate.cjs:129-131`) and gated on an elicitation capability the 265 audit's live wire probe confirmed no Claude host negotiates. The 266 addendum's "held-open-SSE" characterization is inaccurate and should not be carried into the plan.
+**Three findings change what this phase is actually worth, and the navigator should see them before planning.**
+- **Claude Code speaks 2025-11-25 to stdio servers, even ones that offer 2026-07-28.** A live tee in front of a v2 dual-era server showed Claude Code **2.1.280** opening with a plain `initialize` at `2025-11-25`. There was no `server/discover` probe and no probe sibling process. The prior research read the 2.1.238 CHANGELOG line backwards. It says *"Fixed stdio MCP servers receiving a `server/discover` request before `initialize`"*, meaning the host **stopped** probing stdio. The host negotiates 2026-07-28 only with **direct HTTP servers**, by default since before 2.1.274 (the 2.1.274 entry extends that default to Bedrock/Vertex/Foundry/telemetry-off installs). So moving the CLI and Desktop stdio paths to `serveStdio` changes **nothing on the wire today** for Claude Code. It is future-proofing. The 2026 era gets exercised on this repo's HTTP branch.
+- **This repo's flag-OFF HTTP branch is broken today, for every client and every era.** It serves exactly **one** HTTP request per process lifetime. `initialize` returns 200, then `notifications/initialized`, `tools/list`, and everything after return 500. The cause is that `bin/mindrian-mcp-server.cjs:318` builds ONE stateless `StreamableHTTPServerTransport` and reuses it, and the SDK has a guard that throws `"Stateless transport cannot be reused across requests"` (`webStandardStreamableHttp.js:142`, present in both 1.27.1 and 1.29.0). `lib/mcp/surface-detect.cjs:36-58` routes every Cowork VM (`CLAUDE_SURFACE=cowork`, `COWORK_SESSION_ID`, or a `/sessions` dir) to this branch. Whether real Cowork reaches it could not be probed from here. `createMcpHandler(createServer)` builds a fresh server per request, so it fixes this **by construction**. That makes the HTTP half of this phase a bug fix with a protocol upgrade attached.
+- **Claude Code 2.1.280 now declares `elicitation: {}`.** This reverses the 265 audit's "no Claude host declares elicitation", and it makes the comment at `lib/mcp/tools/gate.cjs:145-152` stale. Result: gate rung (a), the inline `server.server.elicitInput` round trip, is the **live** CLI gate path today, driven by a host change rather than a repo change. The 265 R-5 schema fix already shipped, and `tests/test-265-gate-render-elicit-schema.cjs` passes. On a 2025-era connection, which is what stdio is, v2 keeps `elicitInput` working. So the MRTR rework is **not required** for this phase.
 
-**There is one hard blocker for the local server, and it is not in this repo's control.** `@modelcontextprotocol/ext-apps` - used at `lib/mcp/app-views.cjs:25` to register the three MCP Apps tools - declares `@modelcontextprotocol/sdk: ^1.29.0` as a **peer dependency**, at its latest published version `1.7.5` (2026-07-23, four days before v2 shipped). No v2-compatible ext-apps release exists. The v2 guide's boundary rule is explicit and unforgiving: *"objects must not flow between v1-imported and v2-imported code (`instanceof` and nominal types do not cross)."* `registerAppTool(server, ...)` receives the `McpServer` instance directly. A v2 `McpServer` handed to a v1-compiled ext-apps is exactly the forbidden crossing.
+**The zod 3 -> 4 blast radius, which the prior research called "High and unmeasured" (A6), is now measured and LOW at runtime.** I booted the real server under zod 4.6.5 (every `require('zod')` redirected in a scratch preload; the v1 SDK 1.29.0 peer accepts `^3.25 || ^4`). It registered all 42 tools and 9 prompts. Every tool description is byte-identical, and every prompt is identical. `bash tests/run-all-198.sh` gives **identical per-leg outcomes** under zod 3 and zod 4 (21 pass, and the same 3 legs fail, which are pre-existing). The wire-visible change is real, though: `additionalProperties: false` disappears at **38** schema sites across **35 of 42** tools. That is how zod 4 renders default (strip) objects. Runtime stripping behavior is unchanged, and Phase 257's strict-object arms still pass under zod 4. One test-infra break: `tests/test-198-contract-schema.test.cjs:210-212` introspects `_def.typeName`, which is `undefined` in zod 4.
 
-**Primary recommendation:** Split this phase along the process boundary the v2 guide itself recommends for staged migrations. Migrate **`mcp-server-brain` to v2 first** - it is a separate package with its own `node_modules`, has no ext-apps dependency, is already stateless, deploys to Render independently of any plugin release, and is server-side so it cannot break the Tri-Polar rule. Adopt the 2026-07-28 revision there via `createMcpHandler` with the default `legacy: 'stateless'`, which serves both eras on one endpoint. Hold the **local `mindrian-os` server on v1** until ext-apps ships a v2-compatible release, and treat "unblock ext-apps" (upstream issue, vendor the two helpers, or gate MCP Apps off) as an explicit decision the navigator makes rather than something a plan quietly assumes. Do the zod 3 -> 4 bump as its own isolated, verifiable step, because its failure mode is silent.
+**The official codemod does nothing useful here, and its one action is harmful.** Run on a scratch copy of `bin/` + `lib/` + `package.json`, it rewrote **zero** source files. It **removed** `@modelcontextprotocol/sdk` from `package.json` without adding any v2 package, leaving a manifest that can't resolve. A controlled test showed why: it rewrites ESM `import` only, so `require()` in `.js` and `.cjs` is ignored. This resolves prior Open Question 3 as **negative**: hand-migrate.
+
+**Primary recommendation:** plan Phase 267 as a **local-server-only, unified, internally-staged v2 migration**, with a zod-4 + SDK 1.30.1 Wave 0 that ships green on v1 first. Hand-migrate 51 variadic registration sites (no codemod). Adopt `serveStdio` on the two stdio servers. Replace the broken flag-OFF HTTP branch with `createMcpHandler`. Keep the flag-ON daemon sessionful through the guide's `isLegacyRequest` + `legacy: 'reject'` routing. Keep MRTR, `mcp-server-brain`, and Theo out of scope.
 
 ---
 
 ## Project Constraints (from CLAUDE.md)
 
-Extracted directives that bind this phase. These carry the same authority as locked decisions.
+Carried from 2026-08-27, **re-confirmed 2026-09-23** against the current `./CLAUDE.md` and its four `@include` files. Changes are marked.
 
 | # | Directive | Bearing on this phase |
 |---|-----------|----------------------|
-| C-1 | **Workspace guard.** Every commit, git op, and GSD phase runs from `/home/jsagi/dev/MindrianOS-Plugin/`, never `~/.claude/plugins/mindrian-os/`. | Any `npm install` for this phase runs in the dev workspace only. |
-| C-2 | **Tri-Polar Design Rule (STRONG DEFAULT).** Evaluate every feature through CLI + Desktop + Cowork; a skip is a deliberate stated call, not an oversight. | The three surfaces use three different transports (stdio, stdio, HTTP). A protocol change touches all three differently. Goal (3) of the phase. |
-| C-3 | **Canon Part 8 - Graph Boundary.** User data never egresses to the Brain. | `requestState` round-trips through the client. Anything minted into it from a room context is a Part 8 surface. See Pitfall 5. |
-| C-4 | **Canon Part 7 - Reuse Before Build.** Justify net-new surface against the 25 existing methodology commands. | Argues for the official codemod over a hand-written migration, and against hand-rolling an MRTR state machine. |
-| C-5 | **Canon Part 11 - CIRS.** Every invocable surface is born WIRED or EXCLUDED with a declared HITL shape; `scripts/check-shape-declaration.cjs` lints at commit + release + doctor. | `registerTool` migration must preserve every `connectors` export (e.g. `lib/mcp/tools/gate.cjs:276-291`). Rewriting registration calls must not drop a connector declaration. |
-| C-6 | **Release lockstep (5 gates).** CHANGELOG + plugin.json + package.json + git tag + marketplace.json, via `scripts/release.sh <version>`. Never bump by hand. | The plugin-side half of this phase ships through a version cut. `mcp-server-brain` deploys separately to Render and is NOT part of the five-gate lockstep. |
-| C-7 | **CJS only, no TypeScript.** `lib/core/*.cjs` ships as source; every output is an inspectable edit surface. No Commander/yargs. | The official codemod is AST-based and TypeScript-oriented. Its value on a CJS `require()` codebase is unverified - see Open Question 3. |
-| C-8 | **No em-dashes anywhere.** Hyphens only. Feynman-simplified, JTBD-oriented prose. | Applies to every tool description touched during registration rewrites, and is already enforced for 8 of 36 tools by `tests/test-234-tool-description-floor.cjs`. |
-| C-9 | **Dev-Research Compositing.** Every phase touching MindrianOS's own architecture files research in BOTH `.planning/phases/<N>/` and `~/MindrianRooms/rethinking-mindrianos/research/<dated-entry>/`, cross-linked. | This document needs a room-side counterpart entry. Not yet filed. |
-| C-10 | **Consult ALL relevant grounding sources.** Context7 for named-library API contracts; claude-api skill / claude-code-guide agent for Claude Code internals; langtalks for agent/LLM concepts. | Grounding used here: official SDK GitHub releases + migration guides (authoritative for the SDK contract), the `anthropics/claude-code` CHANGELOG raw file (authoritative for host behavior), byte-level reads of both SDK tarballs. langtalks was NOT consulted: the 265 audit already established (section 3.3-4) that MCP elicitation and gate design are **not in that corpus**, and a protocol-revision question is a spec/SDK question, not a podcast-corpus one. Saying so explicitly per the rule's own "picking langtalks by default is itself a research gap" clause. |
-| C-11 | **Supply-chain allowlist.** `references/security/cve-db.json` `surfaces.supply_chain.allowlist` (15 entries) is scanned by `lib/core/security/agentshield-scanner.cjs`. | Every new `@modelcontextprotocol/*` package needs a VETTED entry or the agentshield supply_chain surface fails. |
-| C-12 | **QA/RCA standard.** Findings go to `.planning/debug/<slug>.md` per `docs/RCA-TEMPLATE.md`. | If a migration step surfaces a NEW FAILURE, it gets an RCA doc, not an inline note. |
+| C-1 | **Workspace guard.** Every commit, git op, and GSD phase runs from `/home/jsagi/dev/MindrianOS-Plugin/`. | Re-confirmed: `pwd` = dev workspace; `git fetch origin main` shows zero ahead and zero behind. Use `node lib/core/repo-version.cjs` for the version (reads `2.0.0-beta.48`), never a tree search. |
+| C-2 | **Tri-Polar Design Rule.** Evaluate every feature through CLI + Desktop + Cowork. | **Sharpened this session:** CLI stdio is 2025-era by host choice (verified live). Desktop is unknown (no public changelog, A2). Cowork routes to the HTTP branch, which is broken today (verified live). |
+| C-3 | **Canon Part 8 - Graph Boundary.** User data never egresses to the Brain. | **Corrected scope:** `requestState` minted by the LOCAL server goes back to the MCP host, which already holds the tool results. It is a tamper surface (V5/V6), not a Brain-egress surface. Part 8 still binds anything this phase touches on the brain stdio shim (`bin/mindrian-brain-mcp-client.cjs`) and `lib/core/part8-egress-guard.cjs`. |
+| C-4 | **Canon Part 7 - Reuse Before Build.** | Argues for reusing Phase 356's shipped `data/command-irreversibility-ledger.json` if tool annotations are added, and for the SDK's `createRequestStateCodec` over a hand-rolled one. |
+| C-5 | **Canon Part 11 - CIRS.** Every surface is born WIRED or EXCLUDED with a HITL shape; `scripts/check-shape-declaration.cjs` lints (advisory WARN by default). | 51 registration rewrites touch every tool module's sibling `connectors` export. Run `build-connector-registry.cjs --check` and `check-shape-declaration.cjs --strict` per commit. |
+| C-6 | **Release lockstep** via `scripts/release.sh <version>` (RULE 5 in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` carries the count). Never bump by hand. | **Changed since 08-27:** Phase 341 retired vendored `node_modules`. Dependencies now ship as `npm-shrinkwrap.json` (tracked) and install per machine via the loader's `npm ci --ignore-scripts`. The v2 packages must land in `package.json`, `package-lock.json`, **and** `npm-shrinkwrap.json`. `scripts/check-release-payload-ceiling.cjs` (20,000 entries / 256 MiB) must stay green. |
+| C-7 | **CJS only, no TypeScript.** | **Now measured:** the codemod does not touch CJS `require()`. All migration is by hand. |
+| C-8 | **No em-dashes anywhere.** Hyphens only. Feynman, JTBD prose. | Applies to every tool description touched. `tests/test-234-tool-description-floor.cjs` enforces part of it. |
+| C-9 | **Dev-Research Compositing.** Research goes in BOTH the phase dir and `~/MindrianRooms/rethinking-mindrianos/research/`, cross-linked. | Room mirror filed this session. Filing status and path are in the return message and below under Sources. |
+| C-10 | **Consult ALL relevant grounding sources** (six standing sources). | Done this pass: Theo, langtalks, icm-architect, the Jev spike skill, the official SDK/spec/ext-apps releases, and the Claude Code CHANGELOG. See "Grounding Consults". Context7 CLI (`ctx7`) is not installed. Zod facts come from the official `zod.dev/v4/changelog` via WebFetch and were then **measured live** against zod 4.6.5. |
+| C-11 | **Supply-chain allowlist** `references/security/cve-db.json` `surfaces.supply_chain.allowlist` (15 entries). | Re-confirmed: `@modelcontextprotocol/sdk`, `@modelcontextprotocol/ext-apps`, and `zod` are VETTED. `@modelcontextprotocol/{server,core,client}` (and `node` if used) each need a new VETTED entry. |
+| C-12 | **QA/RCA standard.** A NEW FAILURE gets `.planning/debug/<slug>.md` per `docs/RCA-TEMPLATE.md`. | **Three NEW FAILURES found this session**, each needing an RCA: (1) flag-OFF HTTP one-request lifetime; (2) `app-views.cjs` `schema:` key drops all three MCP Apps input schemas; (3) the `gate.cjs` elicitation premise is stale, so rung (a) is live on CLI. Two pre-existing test failures were also observed: `test-257` Arm F (stale `brain_ask` description fixture) and Arm B (a flaky `theo_health` boot race). |
+| C-13 (new) | **Theo routing rule (THEO-04).** Questions about Theo's own repo, schema, or code may read `/home/jsagi/Theo` directly. Anything carrying room content goes through the guarded `mindrian-brain` shim. | This research read only Theo's own `package.json`, `src/`, and `.planning/`. No room content was involved. |
 
-**Note on absent upstream input:** no `267-CONTEXT.md` exists (`has_context: false`), and `workflow.skip_discuss` is `true` in `.planning/config.json`. There are therefore **no locked user decisions** constraining this research. The navigator directive quoted in the phase brief ("built NOW, not deferred") is the one binding instruction, and it is honored: everything below is scoped as shippable work, not a deferral argument. But the directive was issued on top of a premise this research falsifies, so the **shape** of the work differs from the ROADMAP text. That gap needs a navigator ruling before planning - see Open Question 1.
+**Upstream input:** no `267-CONTEXT.md` (`workflow.skip_discuss: true`). The binding navigator rulings in `ROADMAP.md` are: (a) "built NOW"; (b) 2026-09-01 "WAIT UPSTREAM", whose condition is now **satisfied**, since ext-apps 2.0.0 is out; (c) ROADMAP line 615, "the Brain-server half does not belong to MindrianOS-Plugin". No vendor-vs-gate-off question needs re-opening, because upstream shipped.
+
+---
+
+## What Changed Since 2026-08-27 (delta ledger)
+
+Every load-bearing claim from the prior pass, with its current status.
+
+| Prior claim / item | Status 2026-09-23 | Evidence |
+|---|---|---|
+| F-1: `sdk@1.30.0` does not implement 2026-07-28 | **RE-CONFIRMED, extended to 1.30.1.** `dist/cjs/types.js` md5 `a9989adb21fa11708f35cd6f6014d89a` is identical across 1.29.0 (installed), 1.30.0, and 1.30.1. `LATEST_PROTOCOL_VERSION = '2025-11-25'`. All 10 markers (`server/discover`, `inputResponses`, `inputRequests`, `requestState`, `Mcp-Method`, `Mcp-Name`, `ttlMs`, `cacheScope`, `resultType`, `2026-07-28`) have 0 hits. 1.30.1 changed 3 JS files and added `server/requestBody.js`. | `npm pack` of both, md5 plus grep; release body `1.30.1`: "[v1.x] fix(server): read HTTP request bodies with a size limit and bound JSON-RPC batch length" (#2717) plus an auth resource-URI fix. |
+| v2 family is at 2.0.0 | **UPDATED:** `server`, `core`, `client`, `node`, `codemod`, and `server-legacy` are at **2.1.0** (published **today**, 2026-09-23T15:43Z). `express` and `hono` are 2.0.1; `fastify` is 2.0.0. `server@2.1.0` pins `core` **exactly** at `2.1.0`. | `npm view`, `gh release list`. |
+| ext-apps hard blocker (Pitfall 3, OQ2, A5) | **RESOLVED.** 2.0.0 was published 2026-09-08. Peers are listed above. The prior "nominal-type crossing" mechanism was **wrong**: the helpers are duck-typed in both versions (see Summary). Live CJS smoke test passes. | Tarball diff of `dist/src/server/index.{js,d.ts}`; ext-apps `v2.0.0` release body; scratch smoke test. |
+| Lockfile ext-apps version | **CORRECTED:** `package-lock.json` and `npm-shrinkwrap.json` pin `@modelcontextprotocol/ext-apps@1.5.0` (manifest `^1.5.0`), not 1.7.5. | lockfile read. |
+| Primary rec: migrate `mcp-server-brain` first | **WITHDRAWN.** It is dead (`docs/257-NOTE...md:22`). The live Brain is Theo, a separate repo. | See Summary. |
+| OQ1: does the navigator still want the Brain-first split | **MOOT.** Replaced with the fresh local-server recommendation above. | - |
+| OQ3: codemod on CJS | **RESOLVED NEGATIVE.** Zero source rewrites. It strips the v1 dependency from the manifest without adding v2. It rewrites ESM `import` only. | Scratch run on a repo copy plus a controlled 3-file test (`.mjs` rewritten; `.js` and `.cjs` with `require` untouched). |
+| OQ4: D-MOAT-1 plan-tier seam through `createMcpHandler` | **MOOT for this repo.** It was about the dead `mcp-server-brain`. Theo is keyless with no tiers (Theo `08.4-MOS-LEARNING.md`). **Precedent found anyway:** the retired PWS Brain ran `createMcpHandler((ctx) => buildBrainServer({...ctx, adminAllowed}), { legacy: 'stateless' })` behind `toNodeHandler`, with auth reaching the factory as `ctx.authInfo` via `req.auth` (`~/dev/ProblemsWorthSolving-Brain/src/http/app.mjs:13-14,323-330`). | Cross-repo reads. |
+| OQ5: `requestState` HMAC key source | **DEFERRED, still.** MRTR is out of scope (see OQ6). | - |
+| OQ6: does any Claude host declare elicitation | **RESOLVED for CLI: YES.** Claude Code 2.1.280 `initialize` carries `capabilities: {"roots":{"listChanged":true},"elicitation":{}}` (print mode, live tee). Desktop and Cowork are still unprobed. | Live wire tee, see Environment. |
+| A1: SEP-2577 deprecates Sampling, Roots, Logging | **VERIFIED** from the spec itself. `schema/2026-07-28/schema.ts` marks `roots`/`sampling` capabilities `@deprecated Deprecated as of protocol version 2026-07-28 (SEP-2577). Remains in the specification for at least twelve months`. | `gh api` spec read. |
+| A2: Desktop and Cowork share the CLI's era behavior | **STILL OPEN.** It now matters less, because the CLI itself stays 2025 on stdio. | - |
+| A3: codemod useful on CJS | **FALSIFIED** (OQ3). | - |
+| A4: `legacy: 'stateless'` serves the plugin's 2025 client identically | **STRONGLY SUPPORTED.** The retired PWS Brain served this plugin's released `brain-client.cjs` through v2 `createMcpHandler({legacy:'stateless'})` in production (on `2.0.0-beta.4`). Still relevant as a **cross-repo** constraint on Theo, not as plugin work. | See OQ4 row. |
+| A6: zod 3 -> 4 blast radius "High and unmeasured" | **MEASURED: LOW at runtime, MEDIUM on the wire contract.** See Summary and Pitfall 2. | Scratch preload boot plus `run-all-198` under both zods, plus `test-257` under both. |
+| Pitfall 5: `requestState` = Canon Part 8 surface | **CORRECTED** (see C-3). Opaque-handles-only stays good hygiene for integrity and size reasons. | Canon Part 8 text: LOCAL -> BRAIN. |
+| Claude Code 2.1.238 "emits server/discover to stdio" | **CORRECTED (read backwards).** 2.1.238 *stopped* doing that. 2.1.280 sends plain `initialize` at 2025-11-25 over stdio. | CHANGELOG raw plus live tee. |
+| "36 tools" registration count | **UPDATED:** live `tools/list` returns **42 tools, 9 prompts, 61 resources, 3 resource templates, 0 annotations**. Registration forms: 39 `server.tool(`, 3 `server.prompt(`, 9 `server.resource(` (**51 variadic sites**), 6 `server.registerPrompt(`, 3 ext-apps `registerAppTool`, and 6 `registerTool` in the brain shim. `lib/mcp/tools/` grew from 8 to 14 files. | Live stdio `tools/list` plus grep. |
+| Vendored `node_modules` ships with the plugin | **SUPERSEDED by Phase 341:** npm-source artifact with `npm-shrinkwrap.json`. | `.claude/includes/release-process.md`. |
+| Runtime State Inventory, Security Domain, import-site table | **Carried forward and updated below.** Changed rows are marked. | - |
+
+---
+
+## Grounding Consults (the four the navigator named)
+
+### 1. Theo (`/home/jsagi/Theo`, standing consult; read-only, Theo's own repo/code only, per C-13)
+
+- **Theo's MCP SDK:** `@modelcontextprotocol/sdk` **1.30.0 exact pin**, `zod` **4.4.3 exact pin**, ESM TypeScript, `src/http/serve.ts:105-252` v1 `StreamableHTTPServerTransport` with `sessionIdGenerator: undefined` and a fresh transport per request. **Theo has NOT migrated to v2.**
+- **Theo's own v1-vs-v2 decision exists and is deliberate:** `Theo/.planning/phases/08.4-remote-hosting-mcp-server/08.4-CONTEXT.md` **D-04**: "Use `@modelcontextprotocol/sdk@1.30.0`'s own `StreamableHTTPServerTransport` ... **No new HTTP framework dependency** -- do not add `express` or `@modelcontextprotocol/server`." The reason is dependency minimalism, not a technical blocker.
+- **The zod precedent is weaker than ROADMAP line 615 implies.** Theo was **born** on zod 4.4.3 at scaffold (`b97738f`, 2026-08-23). It never performed a zod 3 -> 4 migration, so there is no Theo migration learning to reuse for the zod bump. The measurement in this document replaces it.
+- **The wire contract binds both repos (Theo `REQUIREMENTS.md` HOST-01):** Theo accepts "a bare `tools/call` with no prior `initialize` and no `mcp-session-id`" because the released `lib/core/brain-client.cjs` sends exactly that. The client hand-rolls `initialize` at `protocolVersion: '2024-11-05'` (`brain-client.cjs:486-503`), then bare `tools/call` with hardcoded `id: 2`, no `MCP-Protocol-Version` header, and no `_meta` envelope (`:706-720`). **Consequence for the plugin:** `brain-client.cjs` is a hand-rolled 2025-era client outside the SDK migration surface, so this phase must NOT touch it. **Cross-repo note for Theo:** if Theo ever moves to v2 `createMcpHandler`, it must keep `legacy: 'stateless'` (never `'reject'`), or every installed plugin's Brain goes dark.
+- **MOS-LEARNING files:** 10 exist in `Theo/.planning/phases/*/`. The relevant one is `08.4-MOS-LEARNING.md` (Theo is keyless, SSE-framed, bare `tools/call`, `/register` is a compatibility shim). **None covers SDK v2 or 2026-07-28** (grep of Theo `.planning/` for `2026-07-28|SEP-2575|createMcpHandler` returns only the D-04/D-05 references above).
+- **Theo-side analog, stated per CLAUDE.md:** yes, a parallel decision is pending in Theo (stay on v1 per D-04, or move later). It is Theo's call in Theo's repo. Nothing here blocks on it, and nothing here should wait for it.
+
+### 2. langtalks-graph-expert (queried live over its stdio MCP server, `graph_stats`: 9,477 nodes / 21,725 edges / 47 sources)
+
+Queries run, with the actual answers:
+- `query_relationship("How does MCP protocol versioning or a stateless MCP transport relate to session state and backward compatibility between MCP clients and servers?")` returned 523 loosely matched nodes (`stateless` from a Redis/agent-memory episode, `Versioning`/`Compatibility` from a Databricks episode, `Session`/`protocol` from an ICM note). **None is about MCP transports.**
+- `get_entity("MCP")` was **found**: episodes 44 (MCP intro, 2025-03-31), 50 (A2A), 55 (Context Engineering), 57 (Memory), 70 (Claude Code tips).
+- `get_entity` returned **`found: false`** for `protocol versioning`, `elicitation`, `Streamable HTTP`, and `backward compatibility`.
+- `relationship_path(MCP, session)` and `(MCP, stateless)` were found only as **2-hop episode co-mentions** (`mentioned_in_episode`). There is no semantic edge. `multihop_query(MCP, migration)` returned 0 shared episodes.
+- **Verdict: "Not in the corpus yet"** for MCP protocol versioning, era negotiation, stateless-vs-sessionful transports, and elicitation. This matches Theo's own 08.4 langtalks consult (F2: "The corpus's transport picture is a generation behind ... Streamable HTTP ... does not appear in the corpus"; F3: "the corpus is empty"). Per CLAUDE.md this is a valid answer. The authoritative sources for this phase are the SDK, the spec, and the host CHANGELOG.
+
+### 3. icm-architect (skill read in full; applied to the room-binding question the navigator raised)
+
+**The question:** how does room binding survive a protocol era with no `Mcp-Session-Id`, and is there an ICM-native way to carry room identity?
+
+**What the code says first (verified):** on stdio, which covers CLI and Desktop, `extra.sessionId` is **already `undefined` today**. `lib/core/session-binding.cjs:139-140` resolves identity as `explicit > extra.sessionId > process.env.CLAUDE_CODE_SESSION_ID > null`. That is a host-supplied, process-scoped identity, not a transport-minted one. The live dual-era probe confirmed `ctx.sessionId` is `undefined` on stdio in **both** eras under v2. **So the 2026 era costs the stdio surfaces nothing on room binding.** The only transport-minted identity is the flag-ON daemon (`MINDRIAN_MCP_FIRST`, **default OFF**, `lib/mcp/mcp-first-flag.cjs`). There, `randomUUID()` sessions plus the shim's pre-seeded `clientOpts.sessionId = MINDRIAN_SESSION_ID` (`bin/mindrian-mcp-shim.cjs:63-68`) carry the D-02 one-namespace binding.
+
+**ICM-native reading (invariants 1, 8, 9):** the binding store is already ICM-native. It is a plain file per session at `$MINDRIAN_ROOMS_HOME/.rooms/sessions/<sessionId>.json`, so the filesystem is the state machine. What is not ICM-native is where the **key** comes from on the daemon path: an opaque token minted by the transport. The ICM answer is that identity should be a **named, explicit handle the caller carries per request** (the room slug, which is a folder, is the most natural ICM identity), resolved against that file. It should never be connection state. That lines up with the 2026 model (self-describing requests) and with the existing `room_bind` override args (`room`, `sessionId`). icm-architect's own guardrail also applies: *"Know where ICM loses: ... high-concurrency multi-user serving ... genuinely need framework code."* The flag-ON multi-client daemon is exactly that case.
+
+**Recommendation from this consult:** (a) do **not** re-architect room binding in this phase. Keep the flag-ON daemon sessionful and 2025-era through the guide's supported `isLegacyRequest(request)` + `createMcpHandler(factory, { legacy: 'reject' })` routing, so the session-keyed binding keeps working unchanged. (b) Record, as a follow-up seed rather than work here, that a future 2026-native daemon should carry the binding key as an explicit per-request handle: a reverse-DNS custom `_meta` key such as `io.mindrian/sessionId`, or the existing explicit `room`/`sessionId` tool args, resolved against the same session file. Never transport state. This is `[ASSUMED]` design direction, not a verified SDK capability: I did not verify that custom `_meta` keys survive v2's envelope lift on requests. Verify that before seeding.
+
+### 4. Jev / TypeSafe (`.claude/skills/spike-findings-MindrianOS-Plugin/`, SKILL.md plus all three references read in full)
+
+**The seat test used** (Phase 354 discipline, from the skill): a finite input space, scored once, shipped as data, a typed choice/score with no text generation; never a live runtime call, and never near an egress or security boundary. Plus the parity reference's rule: *"Use code, not Jev, when the inputs are already booleans."*
+
+| Candidate surface in this phase | Seat? | Reasoning |
+|---|---|---|
+| **zod 3 -> 4 blast-radius audit** (the one the navigator asked about specifically) | **NO** | The input space is finite (43 zod-importing files, 388 `z.<factory>(` calls), so the first test passes. It fails the parity rule. The official changelog defines the breaking set as **syntactic patterns** (`.errors`, `invalid_type_error`, `errorMap`, single-arg `z.record`, `._def`, `z.coerce`, and so on). A deterministic scan classifies every site exactly, for free, and reproducibly (run this session). Beyond that, the question that matters ("does it still work?") is answered by **execution**, not judgment: booting the real server under zod 4 and diffing `tools/list`, which found things no classifier would predict (38 dropped `additionalProperties:false`, and 4.6.5 still accepting single-arg `z.record` despite the changelog saying "removed"). A probabilistic scorer adds error to a question code answers exactly. It is also a one-time audit whose output is not shipped as runtime data. |
+| Codemod dry-run (OQ3) | **NO** | A one-time tooling spike, as the navigator already noted. Resolved by execution this session. |
+| `readOnlyHint` / `destructiveHint` annotations for the 42 tools (a free win if registrations are rewritten anyway) | **No NEW seat; REUSE existing Jev data** | This is the closest structural fit: 42 finite inputs, labels shipped as static data, typed booleans. But `destructiveHint`/`readOnlyHint` feed host permission and auto-approval behavior, which is near a security boundary, and that fails the seat test for a fresh Jev call. Canon Part 7 points to a better answer: **Phase 356 already shipped a dev-time Jev Noul per command** (`data/command-irreversibility-ledger.json`, 113 entries, `p_irreversible` + `flag`, navigator-verified 2026-09-23). The 11 router tools in `tool-router.cjs` dispatch to `command` enums, so their `destructiveHint` can be **derived** as the OR of the ledger's `flag` over each tool's enum. The 31 direct tools get human-reviewed labels from reading the handler code (does it write `room.db` or the filesystem?). `readOnlyHint: true` should be asserted only from a code reading, never inferred. Jev's cost was already paid, and nothing new crosses to TypeSafe. |
+| Anything at runtime (era detection, capability routing, gate rung choice) | **NO** | These are deterministic protocol facts. A vendor call in the connect path would also be a second vendor in every turn loop, which the skill forbids. |
+
+**Plain verdict:** Jev has **no new seat** in Phase 267. The only Jev-adjacent move is optional reuse of Phase 356's already-shipped ledger data for tool annotations, gated on a navigator decision to add annotations at all. This matches Phase 354's precedent of excluding Jev where code or execution answers the question exactly.
 
 ---
 
@@ -47,238 +129,198 @@ Extracted directives that bind this phase. These carry the same authority as loc
 
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
-| Protocol era negotiation (`initialize` vs `server/discover`) | MCP host (Claude Code / Desktop / Cowork) | SDK transport layer | The client picks the era. A server can only offer; it never chooses. This is why goal (3) is a host-capability question, not a server-code question. |
-| Session identity | MCP transport | Local room-binding store (`lib/core/session-binding.cjs`) | 2025 era: transport-minted `Mcp-Session-Id`. 2026 era: no session at all; identity is per-request in `_meta`. The repo's room binding currently depends on the 2025 answer. |
-| Gate state across a HITL round trip | Server process memory (`lib/mcp/gate-ledger.cjs`) | Would become `requestState` (client-echoed) under 2026 | Today's ledger is an in-process `Map`. It survives because the *process* is long-lived, not because the *session* is. |
-| Elicitation / structured input | 2025: MCP host UI via server->client request. 2026: server handler return value (`inputRequired`) | `lib/mcp/gate-render.cjs` rung (a) | The 2026 revision deletes the server->client request channel entirely. |
-| Tool / resource / prompt registration | `@modelcontextprotocol/server` `McpServer` | `lib/mcp/*.cjs` registrars | Era-independent. Registration API changed between v1 and v2 for reasons unrelated to the protocol revision. |
-| Schema -> JSON Schema conversion | zod (authoring instance) | SDK bundled zod fallback | v2 delegates to the authoring zod's `~standard.jsonSchema` (zod >= 4.2.0). This is where the silent zod-3 failure lives. |
-| MCP Apps UI resources | `@modelcontextprotocol/ext-apps` | `lib/mcp/app-views.cjs` | An out-of-repo package pinned to SDK v1. The one tier this repo cannot unilaterally move. |
-| Brain teaching-graph access | `mcp-server-brain` (remote, Render) | `lib/core/brain-client.cjs` | Separate process, separate manifest, separate deploy. This separation is what makes a staged migration possible. |
+| Protocol era negotiation | MCP host | SDK serving entry (`serveStdio` / `createMcpHandler`) | The client picks. **Verified:** Claude Code picks 2025 on stdio and 2026 on direct HTTP. |
+| Session / room identity | Host env (`CLAUDE_CODE_SESSION_ID`) on stdio; transport session on the flag-ON daemon | `lib/core/session-binding.cjs` file store | See icm-architect consult. |
+| Gate state across a HITL round trip | `lib/mcp/gate-ledger.cjs` (process memory) | - | Unchanged by the migration. The ledger lives as long as the process does. |
+| Elicitation | Host (declares `elicitation`) | `gate-render.cjs` rung (a) via `server.server.elicitInput` | **Live on CLI now.** It survives v2 on 2025-era connections. |
+| Tool/resource/prompt registration | `@modelcontextprotocol/server` `McpServer.register*` | `lib/mcp/*.cjs` registrars | The variadic forms are gone in v2 (`server.tool` is `undefined`, verified). |
+| Schema -> JSON Schema | zod 4 `toJSONSchema` (draft 2020-12 under v2) | - | Under v1 plus zod 4 it is still draft-07, converted by the SDK. |
+| MCP Apps UI resources | `@modelcontextprotocol/ext-apps@2.0.0` `./server` (duck-typed) | `lib/mcp/app-views.cjs` | **Unblocked.** |
+| Brain access | Theo (remote, separate repo) | `lib/core/brain-client.cjs` (hand-rolled 2025 client) + `bin/mindrian-brain-mcp-client.cjs` (stdio shim, SDK) | Only the stdio shim is in scope. `brain-client.cjs` is not an SDK consumer. |
+| `mcp-server-brain/` | **None (dead service)** | - | Out of scope. Separate cleanup candidate. |
 
 ---
 
 ## Standard Stack
 
-### Core (the actual migration target)
+### Core (migration target)
 
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
-| `@modelcontextprotocol/server` | 2.0.0 | Server implementation: `McpServer`, `createMcpHandler`, `serveStdio`, `inputRequired`, `acceptedContent`, `inputResponse`, `createRequestStateCodec`, `fromJsonSchema` | The only published TypeScript package that implements the 2026-07-28 revision. `[VERIFIED: npm registry + official GitHub release + live require() smoke test]` |
-| `@modelcontextprotocol/core` | 2.0.0 | Public Zod `*Schema` constants (spec + OAuth/OpenID), shared across packages so one schema graph is evaluated | v1's `sdk/types.js` split out. Required transitively by `/server` and `/client`. `[VERIFIED: npm registry]` |
-| `@modelcontextprotocol/client` | 2.0.0 | Client implementation: `Client`, `StreamableHTTPClientTransport`, `versionNegotiation` | Needed by `lib/mcp/adapter-client.cjs` and `bin/mindrian-mcp-shim.cjs` when they move. `[VERIFIED: npm registry]` |
-| `zod` | ^4.2.0 | Schema validation. **Hard requirement** of the v2 packages | v2 declares `zod: ^4.2.0`. zod 3 is no longer supported, and the failure is silent. `[VERIFIED: npm view @modelcontextprotocol/server@2.0.0 dependencies]` |
+| `@modelcontextprotocol/server` | **2.1.0** (2026-09-23) | `McpServer`, `createMcpHandler`, `isLegacyRequest`, `inputRequired`, `acceptedContent`, `createRequestStateCodec`, `DEFAULT_MAX_REQUEST_BODY_SIZE`, `InMemoryTransport`, `ResourceTemplate`. `./stdio` exports `StdioServerTransport`, `serveStdio`. | The only TS SDK that implements 2026-07-28. `[VERIFIED: npm registry + official GitHub release + live require() smoke test]` |
+| `@modelcontextprotocol/core` | **2.1.0** | Shared schemas. **Exact-pinned** by `server@2.1.0`. | `[VERIFIED: npm view dependencies]` |
+| `@modelcontextprotocol/client` | **2.1.0** | `Client`; `StreamableHTTPClientTransport`; `./stdio` exports `StdioClientTransport`. **Required peer of ext-apps 2.0.0.** | `[VERIFIED]` |
+| `@modelcontextprotocol/ext-apps` | **2.0.0** (2026-09-08) | `registerAppTool`, `registerAppResource`, `RESOURCE_MIME_TYPE`. The `./server` entry has zero runtime imports. | `[VERIFIED: tarball read + release body + live smoke]` |
+| `zod` | **^4.2.0** (latest 4.6.5) | Schema validation. v2 floor is `^4.2.0`. | `[VERIFIED + measured]` |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `@modelcontextprotocol/codemod` | 2.0.0 | Official v1->v2 AST codemod: rewrites import paths, symbol renames, `setRequestHandler` schema->method-string, `extra.*` -> `ctx.*`, `.tool()` -> `registerTool`, and `package.json` | Run first on any file being migrated. Effectiveness on this repo's CJS `require()` style is unverified - Open Question 3. `[VERIFIED: npm registry + official migration guide]` |
-| `@modelcontextprotocol/node` | 2.0.0 | Node middleware: `toNodeHandler`, `NodeStreamableHTTPServerTransport`. Depends on `@hono/node-server` | Only if a server needs `createMcpHandler` behind Express/Node HTTP. Applies to `mcp-server-brain` and the local server's HTTP branch. Emits a harmless unmet-peer warning for `hono`. `[VERIFIED: npm registry]` |
-| `@modelcontextprotocol/express` | 2.0.0 | Express adapters (peer: `express`) | Alternative to `/node` for `mcp-server-brain`, which is already an Express app. `[VERIFIED: npm registry]` |
-| `@modelcontextprotocol/server-legacy` | 2.0.0 | Frozen v1 SSE transport + OAuth AS helpers. Deprecated on arrival | **Not needed here.** This repo does zero MCP OAuth (265 audit item 2.13) and uses no `SSEServerTransport`. Listed only so a planner does not add it reflexively. |
+| Library | Version | When to Use |
+|---------|---------|-------------|
+| `@modelcontextprotocol/node` | 2.1.0 | `toNodeHandler(handler)` to mount `createMcpHandler` on the existing Express app. Depends on `@hono/node-server`; peer `hono ^4.11.4` gives an unmet-peer warning unless added. Precedent: the retired PWS Brain. |
+| `@modelcontextprotocol/sdk` | **1.30.1** (Wave 0 only) | Interim bump **on v1** before the v2 cutover. It adds a 4 MiB request-body limit and a 100-message batch bound (a security patch). v1.x is still receiving backports, and the guide states no v1 EOL date. |
+| ~~`@modelcontextprotocol/codemod`~~ | - | **Do not use** (measured: zero CJS rewrites, harmful manifest edit). Its transform list is useful only as a checklist: `imports, symbols, removed-apis, mcpserver-api, handlers, schema-params, context, completable-nesting, mock-paths`. |
+| ~~`@modelcontextprotocol/server-legacy`~~ | - | Not needed. No SSE transport, no MCP OAuth. |
+| ~~`@modelcontextprotocol/express`~~ | - | Not needed. `toNodeHandler` from `/node` works on Express 5, as the precedent shows. |
 
 ### Alternatives Considered
 
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
-| v2 package family | `@modelcontextprotocol/sdk@1.30.0` | **Does not work.** 1.30.0 contains zero SEP-2575 implementation (see Finding F-1). It would satisfy the ROADMAP's literal text while delivering none of its intent. |
-| Full v2 cutover on both servers | Brain-server-only v2, local server stays v1 | Recommended. The ext-apps peer pin (F-6) blocks a clean local cutover today; forcing it means dropping MCP Apps or vendoring ext-apps internals. |
-| `createMcpHandler` for the local HTTP branch | Keep `StreamableHTTPServerTransport` sessionful | The flag-ON daemon path *needs* sessions for room binding. `createMcpHandler` builds a fresh server per request. Migrating that path is a re-architecture of session-scoped room binding, not a transport swap. |
-| `serveStdio(factory)` for stdio surfaces | Keep `server.connect(new StdioServerTransport())` | The v2 guide is explicit: a hand-constructed `Server` on `StdioServerTransport` *"serves only the 2025-era protocol - upgrading the SDK changes nothing about what it puts on the wire."* Serving 2026 on stdio requires `serveStdio`. |
-| Hand-rolled MRTR state machine | `inputRequired()` + `createRequestStateCodec()` | v2's legacy shim means one handler written in the 2026 style serves BOTH eras. Hand-rolling forfeits that and re-implements HMAC sealing badly. See Don't Hand-Roll. |
-| zod 4 workspace-wide bump | Per-package alias `"zod-v4": "npm:zod@^4.2.0"` | The guide documents the alias escape hatch for zod-3-pinned workspaces. Viable if the repo's ~200 other zod usages make a full bump too risky. Costs a second zod copy. |
+| v2 migration | Stay on v1 at 1.30.1 and only fix the HTTP bug by building a transport per request on v1 | Honest option. It fixes the live bug with minimal change, but adopts nothing from 2026-07-28, which is the phase goal and the navigator's "build now". It is a valid **Wave 0**, not a substitute for the phase. |
+| Unified, internally staged | Staged by server with v1 kept for months | There is no longer a reason to hold any server back. v1 and v2 coexist in one manifest under different names, so staging is cheap. |
+| Hand migration | Codemod | Codemod measured useless on CJS. |
+| `createMcpHandler` for the flag-ON daemon | Keep the v1-style sessionful transport map, re-expressed on v2 transports behind `isLegacyRequest` | Recommended. `createMcpHandler` alone is per-request stateless and would break session-keyed room binding. |
+| MRTR rework of gate rung (a) now | Keep inline `elicitInput` (2025 era) | Recommended. No Claude host negotiates 2026 on stdio, and `elicitInput` works on 2025 connections under v2. MRTR can land later without a rewrite, because the legacy shim runs one `inputRequired` handler on both eras. |
 
-**Installation (Brain server first, per the recommendation):**
-
+**Installation (Wave 0, on v1, measured safe):**
 ```bash
-# in mcp-server-brain/ (its own manifest and node_modules)
-npm install @modelcontextprotocol/server@2.0.0 @modelcontextprotocol/core@2.0.0 \
-            @modelcontextprotocol/express@2.0.0 zod@^4.2.0
+npm install zod@^4.2.0 @modelcontextprotocol/sdk@1.30.1
+# then regenerate npm-shrinkwrap.json per RULE 8 / release.sh Step 6.7-successor
+```
+**Installation (v2 waves, v1 kept until the last wave):**
+```bash
+npm install @modelcontextprotocol/server@2.1.0 @modelcontextprotocol/core@2.1.0 \
+            @modelcontextprotocol/client@2.1.0 @modelcontextprotocol/node@2.1.0 \
+            @modelcontextprotocol/ext-apps@2.0.0
+# final wave only:
 npm uninstall @modelcontextprotocol/sdk
-```
-
-**Version verification performed:**
-
-```
-npm view @modelcontextprotocol/sdk version          -> 1.30.0 (published 2026-07-27T17:56:01Z, dist-tag latest)
-npm view @modelcontextprotocol/server version       -> 2.0.0
-npm view @modelcontextprotocol/core version         -> 2.0.0
-npm view @modelcontextprotocol/client version       -> 2.0.0
-npm view @modelcontextprotocol/node version         -> 2.0.0
-npm view @modelcontextprotocol/codemod version      -> 2.0.0
-npm view @modelcontextprotocol/ext-apps version     -> 1.7.5 (published 2026-07-23T11:29:39Z)
 ```
 
 ---
 
 ## Package Legitimacy Audit
 
-`slopcheck` was installed and run against all five candidate packages. **Caution for the planner:** `slopcheck install` is not a dry-run - it executes a real `npm install` in the current working directory. It modified this repo's `package.json` and `package-lock.json`; both were reverted with `git checkout --` and `npm install`, and the installed SDK was re-confirmed at 1.29.0 with the working tree clean. Any future slopcheck run in this repo should happen in a scratch directory.
+`slopcheck scan` (non-installing) ran from a **scratch directory** against a probe `package.json`. The repo was not touched.
 
-| Package | Registry | Age | Downloads | Source Repo | slopcheck | Disposition |
-|---------|----------|-----|-----------|-------------|-----------|-------------|
-| `@modelcontextprotocol/core` | npm | 62 days (2026-07-27) | not measured | github.com/modelcontextprotocol/typescript-sdk | `[OK]` (noted "Relatively new") | Approved |
-| `@modelcontextprotocol/server` | npm | 62 days | not measured | same monorepo | `[OK]` | Approved |
-| `@modelcontextprotocol/client` | npm | 62 days | not measured | same monorepo | `[OK]` | Approved |
-| `@modelcontextprotocol/node` | npm | 62 days | not measured | same monorepo | `[OK]` | Approved |
-| `@modelcontextprotocol/codemod` | npm | 62 days | not measured | same monorepo | `[OK]` (noted "Relatively new") | Approved |
+| Package | Registry | Age | Downloads/wk | Source Repo | Install scripts | slopcheck | Disposition |
+|---------|----------|-----|-----------|-------------|-----------------|-----------|-------------|
+| `@modelcontextprotocol/server@2.1.0` | npm | v2 line since 2026-04-01 alpha; 2.1.0 today | 4,319,675 | github.com/modelcontextprotocol/typescript-sdk | none | `[OK]` | Approved |
+| `@modelcontextprotocol/core@2.1.0` | npm | same | 5,482,161 | same | none | `[OK]` | Approved |
+| `@modelcontextprotocol/client@2.1.0` | npm | same | 3,631,483 | same | none | `[OK]` | Approved |
+| `@modelcontextprotocol/node@2.1.0` | npm | same | 1,402,024 | same | none | `[OK]` | Approved |
+| `@modelcontextprotocol/ext-apps@2.0.0` | npm | line since 2025; 2.0.0 on 2026-09-08 | 3,033,000 | github.com/modelcontextprotocol/ext-apps | none | `[OK]` | Approved |
+| `zod@4.6.5` | npm | years | 211,933,203 | github.com/colinhacks/zod | none | `[OK]` | Approved |
+| `@modelcontextprotocol/codemod@2.1.0` | npm | same monorepo | 2,275 | same | none | `[OK]` | Not recommended (no value on CJS) |
 
-**Packages removed due to slopcheck `[SLOP]` verdict:** none.
-**Packages flagged `[SUS]`:** none.
-
-**Provenance note (this is why they are `[VERIFIED]`, not `[ASSUMED]`):** these package names were **not** discovered by web search or from training data. They were read off `gh release list --repo modelcontextprotocol/typescript-sdk`, i.e. the official SDK repository's own release tags, each of which resolves to a GitHub release body authored by the SDK maintainers. That is an authoritative source, and the names independently pass registry verification and slopcheck. The scope `@modelcontextprotocol` is already on this repo's VETTED allowlist for two sibling packages.
-
-**Supply-chain gate (C-11).** `references/security/cve-db.json` -> `surfaces.supply_chain.allowlist` currently holds 15 entries, including `@modelcontextprotocol/sdk` and `@modelcontextprotocol/ext-apps` as `VETTED`. Every v2 package added to a manifest needs its own allowlist entry with a dated review note, matching the format of the existing `ajv` entry. `lib/core/security/agentshield-scanner.cjs` reads this file; `tests/run-all-199.sh` exercises it.
-
-**New transitive surface.** v1's SDK pulled in 17 direct dependencies (express, hono, cors, ajv, ajv-formats, raw-body, zod-to-json-schema, express-rate-limit, json-schema-typed, ...). v2's `/server` pulls only two (`zod`, `@modelcontextprotocol/core`). This is a **net reduction** in transitive surface, which is a real supply-chain win worth stating. Two dependencies the repo used to get transitively are already declared directly and so are unaffected: `ajv` (`package.json:26`, required by `lib/core/brain-client.cjs` for Phase 110 typed-packet enforcement) and `express` (`package.json`, `^5.1.0`). Verified - no transitive-loss breakage.
+**Removed ([SLOP]):** none. **Flagged ([SUS]):** none.
+**Provenance:** the package names come from the official SDK repo's own release tags (`gh release list`), the ext-apps release body, and the npm registry. None came from web search or training data. That is why they are tagged VERIFIED.
+**Supply-chain gate (C-11):** add VETTED entries for `server`, `core`, `client`, and `node` (if used) in `references/security/cve-db.json`, dated, in the `ajv` entry's format. Transitive surface **shrinks**: v2 `server` depends only on `zod` + `core`, versus v1's 17 direct dependencies.
 
 ---
 
 ## Architecture Patterns
 
-### System Architecture Diagram
+### System Architecture Diagram (current reality, verified)
 
 ```
-                    ┌─────────────────────────────────────────────┐
-                    │  MCP HOSTS (era negotiation happens HERE)   │
-                    │  Claude Code CLI │ Desktop │ Cowork          │
-                    └───────┬──────────────┬─────────────┬────────┘
-                            │ stdio        │ stdio       │ HTTP
-                            │              │             │
-        ┌───────────────────▼──────────────▼─────────────▼──────────────┐
-        │  era probe: server/discover ──► modern (2026-07-28)           │
-        │             fallback ────────► initialize (2025-11-25)        │
-        │  [Claude Code 2.1.238 confirms the host emits server/discover]│
-        └───────────────────┬───────────────────────────────────────────┘
-                            │
-    ┌───────────────────────┴────────────────────────┐
-    │                                                │
-    ▼ (A) bin/mindrian-mcp-server.cjs                ▼ (B) bin/mindrian-brain-mcp-client.cjs
-      ├─ stdio branch  ──► StdioServerTransport         └─ stdio proxy, zero network code
-      │    v2 path: serveStdio(factory)                    delegates to lib/core/brain-client.cjs
-      └─ http branch                                                    │
-           ├─ flag-OFF: ONE stateless transport                         │  HTTPS
-           │    (sessionIdGenerator: undefined) ◄── already stateless    │
-           └─ flag-ON (daemon): session-keyed transport Map              ▼
-                (sessionIdGenerator: randomUUID)              (C) mcp-server-brain/server.cjs
-                needs sessions for room binding                   Express + API-key gate
-                          │                                       NEW server + NEW transport
-                          │                                       per POST, sessionIdGenerator:
-                          ▼                                       undefined ◄── already stateless
-              bin/mindrian-mcp-shim.cjs                           v2 path: createMcpHandler
-              (stdio <-> HTTP bridge for CLI hooks)                        + toNodeHandler
-                          │
-    ┌─────────────────────┴──────────────────────────────────┐
-    │  REGISTRATION SEAMS (all v1 variadic API today)        │
-    │  tool-router.cjs (11) │ tools/*.cjs (20) │ inline (2)  │
-    │  app-views.cjs (3) ──► @modelcontextprotocol/ext-apps  │
-    │                         ▲ PEER-PINNED TO SDK ^1.29.0   │
-    │                         └── BLOCKS v2 on server (A)     │
-    └─────────────────────┬──────────────────────────────────┘
-                          │
-    ┌─────────────────────▼──────────────────────────────────┐
-    │  HITL GATE PATH (already two-phase, already MRTR-shaped)│
-    │  gate_render ──► mint gate_id ──► return card           │
-    │       │                                                 │
-    │       ├─ rung (a) elicitation: INLINE round trip        │
-    │       │    (only path that awaits; capability never     │
-    │       │     declared by any Claude host -> dormant)     │
-    │       ├─ rung (b) AskUserQuestion (Claude hosts)        │
-    │       └─ rung (c) structured text (headless)            │
-    │                          │                              │
-    │  gate_answer ◄───────────┘ (separate tool call, later)  │
-    │       └─ consume gate_id from gate-ledger.cjs           │
-    │            IN-PROCESS Map, TTL 30min, session-keyed     │
-    │            survives because the PROCESS lives, not      │
-    │            because the SESSION does                     │
-    └────────────────────────────────────────────────────────┘
+  HOSTS                     CLI (Claude Code 2.1.280)     Desktop (unprobed)      Cowork VM
+                              stdio, 2025-11-25              stdio, era ?           surface-detect -> HTTP
+                              declares elicitation:{}        (A2)                   (CLAUDE_SURFACE=cowork |
+                              NO server/discover on stdio                            COWORK_SESSION_ID | /sessions)
+                                   |                             |                        |
+                                   v                             v                        v
+  ENTRY        bin/mindrian-mcp-server.cjs  detectSurface() -> transport
+               |-- stdio branch: server.connect(StdioServerTransport)   --> v2: serveStdio(createServer)
+               |                                                             (one factory call per connection;
+               |                                                              serves 2025 AND 2026)
+               '-- http branch (Express, 127.0.0.1)
+                    |-- flag-OFF (default): ONE shared stateless transport
+                    |      ** BROKEN TODAY: serves 1 request per process, then 500 **
+                    |      --> v2: app.all('/mcp', toNodeHandler(createMcpHandler(factory)))
+                    |          fresh server per request = bug fixed by construction; both eras
+                    '-- flag-ON (MINDRIAN_MCP_FIRST, default OFF): session-keyed transport map
+                           randomUUID sessions -> room binding (D-02)
+                           --> v2: isLegacyRequest(req) ? existing sessionful legacy path
+                                                        : createMcpHandler(factory,{legacy:'reject'})
+
+               bin/mindrian-mcp-shim.cjs (stdio <-> daemon HTTP bridge, verbatim)  --> v2 Client, default legacy mode
+               lib/mcp/adapter-client.cjs (hook -> daemon queries)                 --> v2 Client, default legacy mode
+               bin/mindrian-brain-mcp-client.cjs (stdio, 6 registerTool)           --> v2 serveStdio  [CANARY, wave 1]
+                    '-- lib/core/brain-client.cjs  hand-rolled 2025 JSON-RPC over fetch --> Theo (keyless, v1 1.30.0)
+                         NOT an SDK consumer: DO NOT MIGRATE in this phase
+
+  REGISTRATION (inside createServer() -- already a factory, bin/mindrian-mcp-server.cjs:158)
+    tool-router.cjs (11 server.tool) | tools/*.cjs (27 server.tool) | contract-version.cjs (1)
+    prompts.cjs (3 server.prompt + 6 registerPrompt) | resources.cjs (9 server.resource)
+    app-views.cjs (3 registerAppTool, ** `schema:` key bug: all 3 publish empty input schemas **)
+    startTreeWatcher(s) <-- SIDE EFFECT INSIDE THE FACTORY: must move out before createMcpHandler
+
+  GATE PATH (unchanged by the migration)
+    gate_render -> detectClientCapabilities(server.server.getClientCapabilities())
+       elicitation declared (CLI today) -> rung (a) inline elicitInput  [works on 2025-era under v2]
+       2026-pinned connection -> getClientCapabilities() === undefined -> rung (b)/(c)
+    gate_answer -> gate-ledger.cjs in-process Map (TTL 30 min, single-use)
 ```
 
-### Pattern 1: Serve both eras from one factory (HTTP)
+### Pattern 1: stdio, one factory, both eras (`serveStdio`)
+**What:** replace `server.connect(new StdioServerTransport())` with `serveStdio(() => server)` (the stdio process serves one connection, so the module-level singleton is fine) or `serveStdio(createServer)`.
+**Verified live:** a v2 client in `auto` mode negotiated `2026-07-28`, `instructions` was delivered, `getClientCapabilities()`/`getClientVersion()` returned `undefined`, the envelope carried `protocolVersion`, `clientInfo`, and `clientCapabilities`, and the factory was called once per connection. A default-mode v2 client and the repo's v1 client both negotiated `2025-11-25` with `instructions` delivered.
+**Note:** on the SDK's own `StdioClientTransport` in `auto` mode, the probe runs on a **disposable sibling process**, so the server boots twice. That only matters for in-repo tests that spawn the server with a v2 client in `auto` mode, because this server has boot side effects (dep-heal, tree watcher, session catch-up). Claude Code does not do this (verified).
 
-**What:** `createMcpHandler(factory)` builds a fresh `McpServer` per request and serves 2026-07-28 natively; the default `legacy: 'stateless'` also serves 2025-era clients through the established stateless idiom on the same endpoint.
-**When to use:** `mcp-server-brain`. Its current shape (`new McpServer` + `new StreamableHTTPServerTransport({sessionIdGenerator: undefined})` per POST) is the exact setup the guide says maps directly onto the default entry.
-
+### Pattern 2: HTTP flag-OFF, per-request factory (`createMcpHandler`)
 ```javascript
-// Source: docs/migration/support-2026-07-28.md, "Server over HTTP: createMcpHandler"
-// (github.com/modelcontextprotocol/typescript-sdk), transposed to CJS.
-const { createMcpHandler, McpServer } = require('@modelcontextprotocol/server');
+// Source: typescript-sdk docs/migration/support-2026-07-28.md "Server over HTTP";
+// in-house precedent ~/dev/ProblemsWorthSolving-Brain/src/http/app.mjs:323-330. CJS transposition.
+const { createMcpHandler } = require('@modelcontextprotocol/server');
 const { toNodeHandler } = require('@modelcontextprotocol/node');
+const handler = createMcpHandler(() => createServerForRequest(), { legacy: 'stateless' });
+app.all('/mcp', toNodeHandler(handler, { onerror: (e) => process.stderr.write('[mcp] ' + e.message + '\n') }));
+```
+**Preconditions:** (1) move `startTreeWatcher(s, {})` out of `createServer()`, or it starts one watcher **per request**. Under 2026 era, `list_changed` goes through `handler.notify.resourcesChanged()` over the handler's bus. (2) Measure `createServer()` cost per request (42 tools + 61 resources + 9 prompts rebuilt every POST). Not measured this session. (3) Keep `express.json()` off `/mcp` or pass the parsed body. The precedent passes `req.body` as the positional third argument to avoid the double-body-read trap. 2.1.0 enforces a 4 MiB default body limit unless a pre-parsed body is passed.
 
-const handler = createMcpHandler(() => {
-  const server = new McpServer({ name: 'mindrian-brain', version: '1.0.0' },
-                               { capabilities: { tools: {} } });
-  // register tools once - the SAME factory backs both eras
-  return server;
+### Pattern 3: HTTP flag-ON, keep sessions for room binding
+```javascript
+// Source: support-2026-07-28.md, sessionful-legacy routing example.
+const modern = createMcpHandler(factory, { legacy: 'reject' });
+app.all('/mcp', async (req, res) => {
+  // isLegacyRequest works on a web Request; toNodeHandler / toWebRequest adapts. Plan-time spike:
+  // confirm the cleanest Node-side seam (the guide's example is fetch-shaped).
+  if (await isLegacyRequest(webReq)) return existingSessionfulLegacyPath(req, res);
+  return toNodeHandler(modern)(req, res, req.body);
 });
-
-app.all('/mcp', toNodeHandler(handler));
 ```
+**Why:** it keeps D-02 one-namespace session binding intact without re-architecting, per the icm-architect consult. The flag defaults OFF, so this is low-traffic code, but test `tests/test-198-concurrency-mcp.test.cjs` pins it.
 
-**Critical caveat, verbatim from the guide:** *"Stateless legacy HTTP (`createMcpHandler` with `legacy: 'stateless'`) builds a fresh instance per request: no initialize handshake, no return path for server->client requests. The shim degrades to the clean capability refusal there - full shim behavior needs stdio (`serveStdio`) or a sessionful legacy wiring."* The Brain server issues no server->client requests today, so this costs nothing there. It would matter on the local server's HTTP branch.
-
-### Pattern 2: Serve both eras on stdio
-
-**What:** `serveStdio(() => buildServer())` from `@modelcontextprotocol/server/stdio`. The opening exchange selects the connection's era; one factory instance is pinned per connection.
-**When to use:** the local server's stdio branch (CLI + Desktop), and `bin/mindrian-brain-mcp-client.cjs`.
-**Verified on disk:** `require('@modelcontextprotocol/server/stdio')` exports exactly `{ StdioServerTransport, serveStdio }`.
-
+### Pattern 4: registration rewrite (51 sites, by hand)
 ```javascript
-// v1 (today, bin/mindrian-mcp-server.cjs:395-396) - 2025 era only, forever
-const transport = new StdioServerTransport();
-await server.connect(transport);
-
-// v2 - serves BOTH eras; { legacy: 'reject' } refuses 2025 openings
-const { serveStdio } = require('@modelcontextprotocol/server/stdio');
-serveStdio(() => createServer());
+// v1 (today) - REMOVED in v2: server.tool is undefined (verified)
+server.tool('room_bind', 'desc...', { room: z.string().optional() }, async (args, extra) => {...});
+// v2 - raw shapes still accepted by registerTool (verified), so the minimal rewrite is mechanical:
+server.registerTool('room_bind', { description: 'desc...', inputSchema: { room: z.string().optional() } },
+  async (args, ctx) => {...});   // extra -> ctx; ctx.sessionId still present on legacy HTTP sessions
 ```
+The `title` and `annotations` config slots become available. See the Jev consult for the annotation-source rule.
 
-**Behavioral consequence to plan for:** on a 2026-pinned connection, `getClientCapabilities()` and `getClientVersion()` return `undefined` - no `initialize` ever runs. `lib/mcp/tools/gate.cjs:87-100` (`detectClientCapabilities`) reads exactly `server.server.getClientCapabilities()`. Under 2026 it silently returns `undefined`, `elicitation` resolves `false`, and the ladder falls to rung (b). That happens to be the *current* behavior anyway, so the practical break is nil - but the code would be reading a permanently-dead field, and per-request identity would need to come from `ctx.mcpReq.envelope` instead.
+### Pattern 5: clients stay 2025 by default
+`lib/mcp/adapter-client.cjs` and `bin/mindrian-mcp-shim.cjs` move to `@modelcontextprotocol/client`. **Do not** set `versionNegotiation: 'auto'`. The default is byte-identical 2025 `initialize`, which is what the flag-ON daemon's sessionful legacy path expects.
 
-### Pattern 3: MRTR - one handler, both eras
-
-**What:** return `inputRequired({ inputRequests: {...}, requestState })` from a `tools/call` handler instead of awaiting a server->client request. On 2026 the client retries the original call with `inputResponses`. On 2025 the SDK's **legacy shim** (on by default) issues real `elicitation/create` requests over the live session and re-enters the handler. Same code, both eras.
-**When to use:** `lib/mcp/gate-render.cjs` rung (a), if and when the local server reaches v2.
-
-```javascript
-// Source: docs/migration/support-2026-07-28.md, "Multi-round-trip requests"
-// and "Replacing per-session state: requestState". Transposed to CJS.
-const { inputRequired, acceptedContent, createRequestStateCodec } =
-  require('@modelcontextprotocol/server');
-
-const stateCodec = createRequestStateCodec({ key: SECRET, ttlSeconds: 1800 });
-// ServerOptions: { requestState: { verify: stateCodec.verify } }
-
-async function gateHandler(args, ctx) {
-  const state = ctx.mcpReq.requestState();
-  if (state === undefined) {
-    return inputRequired({
-      inputRequests: { choice: inputRequired.elicit({ requestedSchema }) },
-      requestState: await stateCodec.mint({ step: 'awaiting-choice', gate_id })
-    });
-  }
-  const picked = acceptedContent(ctx.mcpReq.inputResponses, 'choice', CHOICE_SCHEMA);
-  // ratify...
-}
+### Recommended wave structure (for the planner)
 ```
-
-**Two knobs the plan must set explicitly** (`ServerOptions.inputRequired`): `maxRounds` defaults to `8` on the shim (tighter than the client driver's 10, because the shim holds a live wire request open for the whole flow), and `roundTimeoutMs` defaults to `600_000` because embedded requests are human-paced.
-
-### Pattern 4: Staged migration along a process boundary
-
-**What:** v1 and v2 have **different package names**, so both can be installed in one manifest simultaneously. The guide's safe order: (1) add v2 packages *and* the zod 4 bump while keeping `@modelcontextprotocol/sdk`; (2) rewrite sources incrementally; (3) remove the v1 dependency only when nothing imports it.
-**When to use:** this whole phase. The `mcp-server-brain` / plugin split is a natural process boundary where the two sides share only the wire format.
-**Guide's own boundary rule:** *"stage along process or transport boundaries where the two sides share only the wire format"* - because *"objects must not flow between v1-imported and v2-imported code."*
+Wave 0 (on v1, independently shippable):
+  - tests/test-267-sdk-era-assert.cjs, doctor L4 tools/list count assertion (Pitfall 1/2 guards)
+  - zod ^4.2.0 + sdk 1.30.1; update tests/test-198-contract-schema.test.cjs introspection
+    (_def.typeName -> _zod.def.type or toJSONSchema-driven samples); decide the
+    additionalProperties:false question (Pitfall 2b)
+  - app-views.cjs schema: -> inputSchema: (3 tools)          [RCA 2]
+  - flag-OFF HTTP one-request bug RCA                        [RCA 1]; gate.cjs stale premise RCA [RCA 3]
+Wave 1 (canary): bin/mindrian-brain-mcp-client.cjs -> v2 serveStdio (6 registerTool, Part 8 guard intact)
+Wave 2: local server stdio -> serveStdio; 51 registration rewrites; ext-apps 2.0.0; 25 server.server.* reads audited;
+        9 extra.sessionId sites -> ctx; requireWithHeal paths + mcp-dep-heal FALLBACK
+Wave 3: HTTP flag-OFF -> createMcpHandler (tree watcher out of factory); flag-ON -> isLegacyRequest routing;
+        shim + adapter-client -> v2 Client (legacy mode)
+Wave 4: remove @modelcontextprotocol/sdk; allowlist; shrinkwrap; payload ceiling; Tri-Polar wire probes; doctor --acceptance
+```
 
 ### Anti-Patterns to Avoid
-
-- **Bumping 1.29.0 -> 1.30.0 and calling the phase done.** The version numbers move, the CHANGELOG reads plausible, and zero protocol behavior changes. This is the single most likely failure mode of this phase, because it is exactly what the ROADMAP text instructs.
-- **Setting `sessionIdGenerator: undefined` on the flag-ON daemon path.** That path is deliberately sessionful. Phase 198-08's comment block (`bin/mindrian-mcp-server.cjs:254-271`) documents the live bug that forced it: a single shared stateful transport answered exactly one session per process lifetime and rejected every later client with "Bad Request: Server already initialized".
-- **Running the codemod at the repo root in one pass.** It rewrites the nearest `package.json` walking up - including removing the v1 dependency - which strands every not-yet-migrated import. The guide names this explicitly as the wrong order.
-- **Handing a v2 `McpServer` to `@modelcontextprotocol/ext-apps`.** Cross-boundary object flow. `instanceof` and nominal types do not cross.
-- **Treating `@modelcontextprotocol/core-internal` as importable.** It is `private: true`, unpublished, and the guide says do not import it directly.
-- **Assuming the codemod handles injected SDK surfaces.** It is import-driven. `lib/mcp/tools/*.cjs` receive `server` as a *parameter* and import no SDK at all - the codemod will never touch them, and the v1 idioms there fail at **runtime**, not at load. This repo's disjoint-file tool contract makes this the dominant case, not the edge case.
+- **Running the codemod on this repo.** Measured: zero rewrites, and it deletes the v1 dependency without adding v2.
+- **Bumping to 1.30.1 and calling 2026-07-28 adopted.** Its `types.js` is byte-identical to 1.29.0.
+- **`createMcpHandler` on the flag-ON daemon path.** It silently kills session-keyed room binding.
+- **Calling `createServer()` per request with `startTreeWatcher` still inside.** That leaks a watcher per request.
+- **Touching `lib/core/brain-client.cjs`.** It is not an SDK consumer, and Theo's wire contract pins its exact shape.
+- **Migrating `mcp-server-brain/`.** It is dead code.
+- **Setting `versionNegotiation: 'auto'` on in-repo clients.** It adds a probe round trip, and on stdio it spawns a sibling server process.
+- **Trusting the `lib/mcp/tools/gate.cjs:145-152` comment** that says no Claude host declares elicitation. It is false as of 2.1.280.
 
 ---
 
@@ -286,191 +328,130 @@ async function gateHandler(args, ctx) {
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Sealing `requestState` so a client cannot forge it | Custom HMAC wrapper around `JSON.stringify` | `createRequestStateCodec({ key, ttlSeconds, bind })` from `@modelcontextprotocol/server` | `requestState` round-trips through an untrusted client. The helper does HMAC-SHA256 sealing, TTL, and principal binding, and its `verify` plugs straight into `ServerOptions.requestState.verify` so the seam runs it *before* the handler. A failed verify answers `-32602` above the tool funnel. Hand-rolling means re-deriving binding-to-originating-method and expiry semantics. |
-| Serving both protocol eras from one endpoint | Branch on a request header and dispatch to two server builds | `createMcpHandler(factory)` (HTTP) / `serveStdio(factory)` (stdio) | One factory, one endpoint, both eras. If a sessionful legacy path must be kept, the guide gives `isLegacyRequest(request)` + `legacy: 'reject'` as the supported routing seam. |
-| Making an elicitation handler work on old and new hosts | `if (era === '2026') {...} else {...}` in `gate-render.cjs` | Write once in `inputRequired(...)` style; the built-in legacy shim serves 2025 | The guide's table says explicitly: *"handler shared across both eras - no branch needed."* The shim mirrors the modern client driver's semantics exactly, including per-round `inputResponses` replacement and byte-exact `requestState` echo. |
-| Reading elicitation answers out of `inputResponses` | Manual property probing on an untrusted object | `acceptedContent(responses, key, schema)` (schema-aware) or `inputResponse(responses, key)` (discriminated: `missing` / `elicit` / `sampling` / `roots`) | Accepted content is **not** re-validated against `requestedSchema` by the SDK on either era. The schema-aware overload is the intended validation point, and returns `undefined` on mismatch/decline/missing so the handler can re-ask instead of dying. |
-| Converting zod schemas to JSON Schema | `zod-to-json-schema` calls in registration code | zod >= 4.2.0's own `~standard.jsonSchema`, or `fromJsonSchema()` for raw JSON Schema | v1's built-in conversion of foreign shapes is **gone** in v2. `schemaToJson`, `parseSchemaAsync`, `getSchemaShape`, `getSchemaDescription`, `isOptionalSchema`, `unwrapOptionalSchema`, and `toJsonSchemaCompat` are all removed. |
-| Rewriting v1 import paths and symbol renames by hand | A `sed` sweep over `require()` lines | `npx @modelcontextprotocol/codemod@latest v1-to-v2 <dir>` | The rename mappings are the codemod's own source of truth and are not reproduced in the guide. A hand sweep will miss `ErrorCode` -> `ProtocolErrorCode` splitting into `SdkErrorCode` for local-only members, and `IsomorphicHeaders` -> `Headers` bracket-to-`.get()` semantics. Caveat: do NOT use bare `npx` per this repo's own supply-chain discipline; install the codemod as a devDependency and invoke the local binary. |
-| Counting MCP tools / servers for docs | New frozen literals | Runtime enumeration (the Canon Part 11 precedent: "the surface count is enumerated from disk at run time, never a frozen literal") | The 265 audit found six separate stale counts (D-1, D-2, D-8). A registration-API rewrite touching all 36 tools is exactly when a new wrong literal gets typed. |
+| Serving two protocol eras | Header-sniffing dispatch | `serveStdio(factory)` / `createMcpHandler(factory)`; `isLegacyRequest` + `legacy:'reject'` for the sessionful path | Verified live on stdio; guide-documented for HTTP. |
+| Request-body limits on the HTTP branch | Custom Express limit tuned by guesswork | SDK 2.1.0 / 1.30.1 built-in 4 MiB limit (`maxRequestBodySize`) plus the 100-message batch bound | Security patch in both lines. |
+| `requestState` sealing (if MRTR ever lands) | HMAC wrapper | `createRequestStateCodec` | Unchanged from the prior pass. |
+| Elicitation answer parsing on 2026 | Manual `inputResponses` probing | `acceptedContent(responses, key, schema)` | Unchanged from the prior pass. |
+| v1->v2 source rewrite | **The official codemod** (a reversal of the prior pass) | A deterministic grep checklist over `server.tool(`, `server.prompt(`, `server.resource(`, `extra.`, `server.server.`, `requireWithHeal('@modelcontextprotocol/sdk`, `require('@modelcontextprotocol/sdk` | The codemod ignores `require()`. |
+| zod breaking-change audit | A Jev classifier, or manual reading | The deterministic scan plus **the real-server boot under zod 4 with a `tools/list` diff** (both run this session; reproduce in Wave 0) | Execution is exact. |
+| Tool `destructiveHint` labels | New Jev scoring | Derive from `data/command-irreversibility-ledger.json` (Phase 356) for router tools; code-read for the rest | Reuse before build; no new egress. |
+| Counting tools for docs | Frozen literals | Runtime enumeration (`tools/list`) | Count moved 36 -> 42 in 27 days. |
 
-**Key insight:** the v2 SDK ships the *entire* MRTR mechanism - state sealing, cross-era compatibility shim, typed response readers, round caps - as first-class API. Nearly everything Phase 267 sounds like it should build already exists as a supported export. The genuine engineering work in this phase is **not** implementing statelessness; it is the mechanical package migration, the zod bump, and resolving the ext-apps peer pin.
+**Key insight:** the SDK work is mechanical. The genuine engineering is (1) the HTTP branch, which is broken today and gets fixed by the per-request factory, (2) keeping session-keyed room binding on the flag-ON daemon, and (3) deciding what the wire contract should advertise now that zod 4 renders `additionalProperties` differently.
 
 ---
 
 ## Runtime State Inventory
 
-This is a migration phase, so this section is mandatory. The canonical question: *after the SDK is swapped and the servers restart, what state was implicitly relying on session or connection continuity?*
+The canonical question: after the SDK is swapped and servers restart, what state was implicitly relying on session or connection continuity?
 
 | Category | Items Found | Action Required |
 |----------|-------------|------------------|
-| **In-process state keyed on session/connection** | `lib/mcp/gate-ledger.cjs:29` `_ledger` Map (30-min TTL, session-keyed, single-use gate mint/consume). `lib/mcp/gate-render.cjs:155` `_firedBindingSessions` Set (D-04 once-per-session binding card). `lib/mcp/session-registry.cjs:31-32` `openSessions` Set + `connectionMap` Map. `lib/mcp/stop-gate-handler.cjs:370` `_sessionDedupState` Map. `lib/mcp/sse-event-bus.cjs:19` `subscribers` Set. `lib/mcp/tool-router.cjs:67,92` `_eurekaCriticDedupeCache`, `_eurekaScanInFlight`. `lib/mcp/brain-router.cjs:26` `cache` Map. | **Analysis, then mostly no-op.** All eight are *module-level* singletons in the Node module cache, so they survive `createMcpHandler`'s per-request `McpServer` construction as long as the **process** persists. They only break under a genuinely multi-process or multi-instance deployment. None of this repo's three servers is deployed that way today (Render runs a single `mcp-server-brain` instance; the local servers are one process per host). **Plan must state this explicitly** rather than migrating state that does not need migrating. The one that would need `requestState` if the Brain server ever scaled horizontally is `gate-ledger.cjs` - but `gate_render`/`gate_answer` live on the LOCAL server, not the Brain, so even that is theoretical today. |
-| **Session-keyed persistent data** | `lib/core/session-binding.cjs` (the Phase 194 room-binding store, keyed by MCP session id per the D-02 one-namespace rule). `lib/mcp/session-room.cjs` `resolveSessionRoomDir(sessionId, ctx)`. `lib/mcp/tool-router.cjs:106` `resolveWriteTargetDir(sessionId, ...)`. `bin/mindrian-mcp-shim.cjs` passes `MINDRIAN_SESSION_ID` through as the connection key. | **This is the real coupling.** Under the 2026 era there is no `Mcp-Session-Id` and `getClientCapabilities()` is `undefined`; identity is per-request in `ctx.mcpReq.envelope`. The repo's write-target resolution is keyed on a session id that the 2026 era does not mint. **Do not migrate the local server's flag-ON daemon path to a 2026-era wire without first re-architecting this.** The `MINDRIAN_SESSION_ID` env var path (hook-derived, shim-supplied) is the seam that would survive, because it is *externally* supplied rather than transport-minted. Flag this to the navigator as the largest hidden cost in the phase. |
-| **Live service config** | Render service `mindrian-brain` (`mcp-server-brain/render.yaml`) - env vars `BRAIN_API_KEYS`, `BRAIN_CYPHER_MAX_ROWS`, `BRAIN_CYPHER_MAX_BYTES`, `BRAIN_CYPHER_TIMEOUT_MS`, `BRAIN_CYPHER_MAX_ESTIMATED_ROWS`. Marketplace pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref`. | **None from the SDK swap.** No env var name changes. The Render deploy is a separate push and is NOT part of the plugin's five-gate release lockstep (C-6) - the plan must not assume `release.sh` ships the Brain server. |
-| **Secrets / env vars** | `MINDRIAN_BRAIN_KEY` (env or `~/.mindrian.env`), `MINDRIAN_TRANSPORT`, `MINDRIAN_MCP_FIRST`, `MINDRIAN_MCP_DAEMON`, `MINDRIAN_SESSION_ID`, `MINDRIAN_ROOM`, `MINDRIAN_ROOMS_HOME`. | **None change.** But a **new** secret is introduced if `createRequestStateCodec({ key })` is adopted: the HMAC key for sealing `requestState`. It needs a name, a source, and a rotation story. Not yet decided - Open Question 5. |
-| **OS-registered state** | `lib/mcp/daemon-lifecycle.cjs` pidfile + discovered port (flag-ON only). Claude Code's own `.mcp.json` server registrations (`mindrian-os`, `mindrian-brain`, both `alwaysLoad: true`). | **Pidfile:** stale after a daemon restart, already self-managed by `clearOnce()` on SIGTERM/SIGINT/exit. **`.mcp.json`:** unchanged by this phase - the command and args are the same file paths. |
-| **Build artifacts / installed packages** | `node_modules/@modelcontextprotocol/sdk@1.29.0` (plugin root), `mcp-server-brain/node_modules/@modelcontextprotocol/sdk@1.27.1` (**note the version skew - the Brain server is two minors behind the plugin**), `dist/generic-claude-dir/.mcp.json` (gitignored, regenerated per machine by `scripts/build-dist-bundles.cjs`). Vendored `node_modules` ships with the plugin. | **Real work.** The vendored `node_modules` rule means the v2 packages ship to every user's install cache. `lib/core/mcp-dep-heal.cjs:172` hard-codes the probe fallback `['@modelcontextprotocol/sdk', 'zod']` and its test `lib/core/mcp-dep-heal.test.cjs:39,85,166,171,210` asserts on those literals plus `@modelcontextprotocol/ext-apps` - all must be updated or the self-heal probes for a package that is no longer there. The `dist/generic-claude-dir` bundle regenerates. `mcp-server-brain`'s own 1.27.1 pin is independent and can move first. |
+| **In-process state** (re-confirmed 2026-09-23) | `gate-ledger.cjs` `_ledger` Map; `gate-render.cjs` `_firedBindingSessions`; `session-registry.cjs` `openSessions`/`connectionMap`; `stop-gate-handler.cjs` `_sessionDedupState`; `sse-event-bus.cjs` `subscribers`; `tool-router.cjs` Eureka caches; `brain-router.cjs` `cache`. **New:** `tree-watcher.cjs` watcher handle, started **inside** `createServer()`. | Module-level singletons survive per-request factories within one process, so no migration is needed. **Except the tree watcher:** hoist it out of the factory before `createMcpHandler` (Pattern 2). |
+| **Session-keyed persistent data** (updated) | `lib/core/session-binding.cjs` file store keyed by `explicit > extra.sessionId > CLAUDE_CODE_SESSION_ID`. On stdio, `extra.sessionId` is already undefined (verified in both eras). Transport-minted ids exist only on the flag-ON daemon (default OFF), fed by the shim's `clientOpts.sessionId = MINDRIAN_SESSION_ID`. | **Stdio: no action.** Flag-ON: keep sessionful legacy (Pattern 3). The 9 `extra.sessionId` sites become `ctx.sessionId`, which v2 still populates on legacy sessions and leaves `undefined` on stdio and 2026. |
+| **Live service config** | Theo on Render (not this repo). `mcp-server-brain/render.yaml` belongs to a **dead** service. Marketplace `source.version` pin. | None from the swap. Do not redeploy `mcp-server-brain`. |
+| **Secrets / env vars** | `MINDRIAN_BRAIN_KEY`, `MINDRIAN_TRANSPORT`, `MINDRIAN_MCP_FIRST`, `MINDRIAN_MCP_DAEMON`, `MINDRIAN_SESSION_ID`, `CLAUDE_CODE_SESSION_ID`, `MINDRIAN_ROOM`, `MINDRIAN_ROOMS_HOME`. | None change. No `requestState` key is needed, because MRTR is out of scope. |
+| **OS-registered state** | Daemon pidfile (flag-ON). `.mcp.json` registrations (`mindrian-os`, `mindrian-brain`, both `alwaysLoad: true`, stdio). **New observation:** the server's SIGTERM handler does **not** exit in HTTP mode. A test server survived `timeout 40` (SIGTERM) and needed SIGKILL. v2 2.1.0's "`StdioServerTransport` closes on stdin EOF" fix addresses the stdio side. | `.mcp.json` is unchanged. Add a Wave 4 check that the HTTP-mode process exits on SIGTERM (a lifecycle regression guard, related to the release note's Windows zombie story). |
+| **Build artifacts / installed packages** (updated) | `package.json` (sdk `^1.29.0`, ext-apps `^1.5.0`, zod `^3.25.76`); **`npm-shrinkwrap.json` (tracked, Phase 341)** plus `package-lock.json` (both pin ext-apps 1.5.0, sdk 1.29.0, zod 3.25.76); `mcp-server-brain/node_modules` sdk 1.27.1 (dead, ignore); `lib/core/mcp-dep-heal.cjs:364` FALLBACK `['@modelcontextprotocol/sdk','zod']`; `lib/core/mcp-dep-heal.test.cjs:39,85-86,99,116`; `requireWithHeal('@modelcontextprotocol/sdk/...')` at `bin/mindrian-mcp-server.cjs:86-87` and `bin/mindrian-brain-mcp-client.cjs:58-59`. | Update all of them. `mcp-dep-heal` probes by **directory existence** (`fs.existsSync(path.join(nm, ...dep.split('/')))`, `:420`), so v2 packages not exporting `./package.json` (verified) does not break it. Regenerate shrinkwrap per RULE 8. |
 
-**Explicitly checked and found nothing:** no ChromaDB/Mem0/Redis keys reference the SDK or a session id. No n8n workflows, Datadog service names, Tailscale ACL tags, Windows Task Scheduler descriptions, launchd plists, or systemd units are implicated - verified by grepping the repo for `@modelcontextprotocol` outside `node_modules` (the full result set is 9 production import sites, listed under Environment Availability, plus doc/test references). No Docker image tags. No compiled binaries.
+**Explicitly checked, nothing found:** no datastore keys reference the SDK; no Docker tags or compiled binaries; nothing in the repo resolves `@modelcontextprotocol/*/package.json` (grep: 0 hits).
 
 ---
 
 ## Common Pitfalls
 
-### Pitfall 1: Bumping the SDK version and believing the protocol changed
+### Pitfall 1: Bumping the SDK version and believing the protocol changed (re-confirmed)
+Holds for 1.30.1 too. Guard: `tests/test-267-sdk-era-assert.cjs` (Wave 0) asserting the installed server's modern vocabulary. **Trap:** `input_required` appears in v1 as the Tasks status enum, so it is a false positive.
 
-**What goes wrong:** `npm install @modelcontextprotocol/sdk@1.30.0`, CHANGELOG entry written, phase marked complete. Nothing on the wire changed.
-**Why it happens:** the ROADMAP text asserts 1.30.0 carries stateless mode, and it *does* carry `sessionIdGenerator: undefined` - which is a real, working feature that has nothing to do with SEP-2575. The 266 addendum itself flagged this honestly: *"Whether 1.30.0 itself implements the stateless core ... was NOT verified in this pass ... do not assume 1.30.0 is stateless-compliant without checking."* That warning was correct and was subsequently overwritten by a confident ROADMAP sentence.
-**How to avoid:** the falsification test is one command against any candidate SDK version:
+### Pitfall 2: zod 4 changes the ADVERTISED contract, not the runtime (measured)
+**What goes wrong:** after the bump, 35 of 42 tools stop advertising `additionalProperties: false` (38 sites). Hosts and models may then send extra keys. Runtime behavior is the same as today (strip), but `tests/test-257-strict-input-shapes.cjs` Arm F asserts `additionalProperties:false` on the brain-shim tools, and any test that snapshots schemas will move.
+**Also:** 3 `z.record` sites gain `propertyNames:{type:string}`, and 1 `.int()` gains safe-integer bounds. Under v2 the `$schema` becomes draft 2020-12, versus draft-07 under v1. Descriptions are preserved everywhere (0 description diffs). The zod 4.0-4.1 `.describe()`-dropping trap does not apply at `^4.2.0`.
+**Pitfall 2b, decision needed:** either accept the looser advertisement, or convert tools whose undeclared-key rejection matters to `z.strictObject` (the Phase 257 mechanism, which still works under zod 4, verified: Arms Z2, Z3, Z4, and A pass).
+**Test infra:** `tests/test-198-contract-schema.test.cjs:205-213` walks `_def.typeName`, which is `undefined` in zod 4 (`_def.type` holds `'object'`). It already fails on zod 3 today (at `context_assemble`) and fails earlier under zod 4 (at `chain_resolve`). Rewrite it against `_zod.def.type` or `z.toJSONSchema`.
+**Live-verified oddity:** zod 4.6.5 still **accepts** single-argument `z.record(z.unknown())`, even though the changelog lists it as removed. Do not spend effort on those 4 live sites. Do not rely on it forever either.
 
-```bash
-grep -c "2026-07-28" node_modules/@modelcontextprotocol/*/dist/**/types.js
-grep -rl "server/discover\|inputRequests\|requestState" node_modules/@modelcontextprotocol/
-```
+### Pitfall 3 (REPLACED): ext-apps is not a blocker, but `app-views.cjs` has its own bug
+**What goes wrong:** `lib/mcp/app-views.cjs:242,267,296` pass `schema:` instead of `inputSchema:`. `registerTool` destructures `inputSchema` (`sdk/dist/cjs/server/mcp.js:706`), so the key is ignored. All three MCP Apps tools publish `{"type":"object","properties":{}}` (verified live on v1 **and** v2), and their handlers receive the request context as `args`. That means `room_path`, `section`, and `layout` are unreachable, and every call falls back to `roomDir`.
+**Fix:** rename to `inputSchema:`. Verified under v2: the schema publishes and args arrive correctly. Ship it in Wave 0 on v1. It is independent of the migration.
 
-**Warning signs:** `LATEST_PROTOCOL_VERSION` reads `'2025-11-25'`; `types.js` md5 matches the previous version.
+### Pitfall 4: A registration rewrite drops a CIRS connector (carried from 2026-08-27)
+It now spans 51 sites across 16 files. Run `node scripts/build-connector-registry.cjs --check` and `node scripts/check-shape-declaration.cjs --strict` per commit.
 
-### Pitfall 2: The silent zod-3 failure
+### Pitfall 5 (CORRECTED): `requestState` is a tamper surface, not a Part 8 surface
+It only matters if MRTR is adopted, which it is not in this phase. Keep opaque handles only.
 
-**What goes wrong:** v2 is installed while `package.json` still declares `zod ^3.25.76`. Everything installs. Everything typechecks (there is no TS here anyway). The server starts. The server connects. Then the **first `tools/list`** answers with an error pointing at `fromJsonSchema()`, while the process keeps running.
-**Why it happens:** verbatim from the guide - *"a zod-3 range that satisfied the v1 peer installs and typechecks cleanly under v2 and only fails at runtime - and quietly: registration swallows the conversion failure."* zod >= 4.2.0 self-converts via `~standard.jsonSchema`; zod 4.0-4.1 falls back to the SDK's bundled zod with a one-time `[mcp-sdk]` warning **and drops every `.describe()` field description**. This repo puts load-bearing instructions in `.describe()` calls throughout `tool-router.cjs` and `tools/*.cjs`.
-**Confirmed live in this session:** installing the v2 packages alongside the repo's existing `zod@3.25.76` succeeded with **no error at all**, resolving nested `zod@4.4.3` copies inside `@modelcontextprotocol/{core,server,client}` while the root stayed at 3.25.76. That is precisely the configuration that produces the quiet runtime failure.
-**How to avoid:** a `tools/list` wire assertion is the only reliable gate. `scripts/doctor.cjs`'s L4 handshake currently does **not** call `tools/list` (265 audit item 2.6 confirms `grep` for `listTools`/`tools/list`/`toolCount` returns nothing in `doctor.cjs`). Adding it is a prerequisite for this phase, not a nice-to-have.
-**Warning signs:** a green test suite over a server whose `tools/list` errors; tool descriptions losing their parameter `.describe()` text.
+### Pitfall 6: `_meta` retry-field collision (carried)
+Zero exposure: grep shows no tool schema uses `inputResponses` or `requestState` as a param name.
 
-### Pitfall 3: The ext-apps peer pin, discovered at runtime
+### Pitfall 7 (UPGRADED): the codemod is harmful here, not merely incomplete
+It removes `@modelcontextprotocol/sdk` from `package.json` without adding v2 packages, because it detects no ESM imports. Never run it at the repo root.
 
-**What goes wrong:** the local server migrates to v2, `lib/mcp/app-views.cjs:25` still requires `@modelcontextprotocol/ext-apps/server`, and `registerAppTool(server, ...)` receives a v2 `McpServer`. Failure is a nominal-type mismatch inside a third-party package, surfacing as an opaque error at registration or a silently-missing MCP Apps tool on Desktop/Cowork.
-**Why it happens:** `@modelcontextprotocol/ext-apps@1.7.5` (latest, published 2026-07-23 - four days *before* v2) declares `@modelcontextprotocol/sdk: ^1.29.0` as a peer. There is no v2-compatible release. The v2 release body even acknowledges the MCP Apps SDK as a `Protocol`-subclassing consumer that needed a compatibility export restored.
-**How to avoid:** decide the ext-apps question *before* planning tasks for the local server. Three options, none free: (a) hold the local server on v1 until ext-apps ships v2 support; (b) gate the three MCP Apps tools off and lose Desktop/Cowork room-dashboard / room-wiki / room-graph - a direct Tri-Polar cost; (c) vendor the two helper functions used (`registerAppTool`, `registerAppResource`) - Canon Part 7 makes this a build-not-reuse decision that needs justification.
-**Warning signs:** an unmet-peer warning naming `@modelcontextprotocol/sdk` after the v1 package is removed.
+### Pitfall 8: Injected surfaces and `requireWithHeal` are invisible to any import-driven tool (extended)
+Beyond the 14 `lib/mcp/tools/*.cjs` modules that receive `server` as a parameter, the two bins load the SDK through `requireWithHeal('<path>')`, not `require()`. Any grep-based checklist must include `requireWithHeal(`. `tests/test-266-connect-path-process-budget.cjs` counts at least 4 connect-path heal calls in `bin/mindrian-mcp-server.cjs`, so keep that census true when paths change.
 
-### Pitfall 4: The registration API rewrite silently drops a CIRS connector
+### Pitfall 9 (NEW): the flag-OFF HTTP branch can't serve a second request
+Covered in the Summary. **Warning sign:** a Cowork session that connects and then fails on its first `tools/list`. **Testing trap:** a stale test server (the SIGTERM handler doesn't exit) keeps port 3847 bound, and later test servers fail to bind silently. That produced false readings during this research. Test harnesses must kill by PID with SIGKILL and assert the port is free before each case.
 
-**What goes wrong:** rewriting 36 `server.tool(name, desc, schema, handler)` calls into `registerTool(name, {description, inputSchema}, handler)` touches every tool module. A module's `connectors` export (Canon Part 11 R1/R16, e.g. `lib/mcp/tools/gate.cjs:276-291`) is a *sibling* of the registration call, easy to leave behind or misalign when a tool name changes shape.
-**Why it happens:** `scripts/build-connector-registry.cjs` regenerates `data/mcp-tool-connectors.json` and `data/connector-registry.json` from those exports. `scripts/check-shape-declaration.cjs` runs as an **advisory WARN**, not a block (Phase 210), so a dropped declaration does not fail the build.
-**How to avoid:** run `node scripts/build-connector-registry.cjs --check` and `node scripts/check-shape-declaration.cjs --strict` after every registration-rewrite commit, not just at release.
-**Warning signs:** the declared-surface count moving without an intentional reason.
+### Pitfall 10 (NEW): a per-request factory with side effects
+`createServer()` starts the tree watcher and rebuilds 42 tools + 61 resources + 9 prompts. Under `createMcpHandler` that runs **every POST**. Hoist side effects out, and measure build latency before committing to per-request construction on a hot path (the statusline queries the daemon on every render, per the 198-08 comments).
 
-### Pitfall 5: Putting room content into `requestState` (Canon Part 8)
-
-**What goes wrong:** the MRTR rework threads gate context through `requestState` for convenience, and that context contains room artifacts, venture names, or user claims. `requestState` round-trips **through the client**, and `createRequestStateCodec` is *signed, not encrypted* - the guide says so explicitly: *"the client can base64url-decode the payload."*
-**Why it happens:** the multi-step MRTR idiom actively encourages threading "everything it has learned" through `requestState` as a discriminated union of phases.
-**How to avoid:** treat `requestState` as a public channel. Carry only opaque handles (a `gate_id`, a phase enum, an integer count) and keep the card body in the process-local ledger. The current `gate-ledger.cjs` design already does exactly this and should not be "improved" into carrying the card.
-**Warning signs:** any `stateCodec.mint(...)` call whose payload contains a string that came from a room file.
-
-### Pitfall 6: `_meta` retry-field collision on 2025-era custom methods
-
-**What goes wrong:** a 2025-era peer's custom-method request that uses the bare top-level param names `inputResponses` or `requestState` has them **lifted out of `request.params`** by v2's protocol layer.
-**Why it happens:** verbatim from the guide - *"2025-11-25 does not reserve the bare names `inputResponses`/`requestState`, so a 2025 peer's custom-method request that uses them as ordinary top-level params has them lifted."* They remain readable at `ctx.mcpReq.inputResponses` / `ctx.mcpReq.requestState()`.
-**Blast radius here:** grep confirms neither name appears anywhere in this repo's tool schemas. **Currently zero.** Documented so a future tool author does not pick those names.
-
-### Pitfall 7: Running the codemod at the repo root
-
-**What goes wrong:** the codemod rewrites the *nearest* `package.json` walking up - **including removing the v1 dependency** - so every not-yet-rewritten import fails module resolution immediately.
-**How to avoid:** the guide's staged order is (1) add v2 + zod 4 while keeping v1, (2) rewrite incrementally, (3) remove v1 last. During staged passes, use `--dry-run`, use `--ignore` globs for files that interface with v1-bound dependencies (i.e. `lib/mcp/app-views.cjs`), and review or revert the manifest edit until the final stage.
-
-### Pitfall 8: Assuming the codemod covers `lib/mcp/tools/*.cjs`
-
-**What goes wrong:** the codemod reports success; the eight disjoint-file tool modules are untouched; their v1 idioms fail at runtime.
-**Why it happens:** the codemod is **import-driven**. `lib/mcp/tools/gate.cjs`, `room.cjs`, `graph.cjs`, `sensors.cjs`, `chain.cjs`, `status.cjs`, `stop-gate.cjs`, `views.cjs` all receive `server` as a function parameter (`register(server, ctx)`) and import **no SDK symbol at all** - only `zod`. The guide names this case: *"a file that receives the SDK surface as a parameter (dependency injection, factory seams) and has no SDK import is never rewritten, and the v1 idioms there fail at runtime, not compile time."*
-**How to avoid:** grep those eight files for `server.tool(`, `server.prompt(`, `server.resource(`, `extra.`, `ErrorCode.` and migrate them by hand. This repo's own Canon Part 11 disjoint-file contract makes the injected-surface case the **majority** of the registration surface (20 of 36 tools), not an edge case.
+### Pitfall 11 (NEW): the host already changed the gate path
+Rung (a) elicitation is live on CLI (host declares `elicitation:{}`). UX consequence: gate cards render as the host's elicitation dialog, not the AskUserQuestion card. This came from the host, not from this repo, and it needs a navigator/design look (C-12 RCA 3). Migration must keep `server.server.elicitInput` working on 2025-era connections (it does under v2, verified).
 
 ---
 
 ## Code Examples
 
-### Verifying whether an SDK version actually implements 2026-07-28
-
+### Falsification test for any candidate SDK (re-run 2026-09-23 on 1.30.1)
 ```bash
-# Source: derived from the official spec repo's method vocabulary.
 SDK=node_modules/@modelcontextprotocol/sdk/dist/cjs
-grep -n "LATEST_PROTOCOL_VERSION" $SDK/types.js
-for t in "server/discover" "inputResponses" "inputRequests" "requestState" \
-         "Mcp-Method" "Mcp-Name" "ttlMs" "cacheScope" "resultType"; do
-  printf "%-18s -> %s files\n" "$t" "$(grep -rl "$t" $SDK 2>/dev/null | wc -l)"
-done
+grep -n "LATEST_PROTOCOL_VERSION =" $SDK/types.js          # '2025-11-25' on 1.29.0 / 1.30.0 / 1.30.1
+for t in server/discover inputResponses inputRequests requestState Mcp-Method Mcp-Name ttlMs cacheScope resultType 2026-07-28; do
+  printf "%-16s %s\n" "$t" "$(grep -rl "$t" $SDK | wc -l)"; done   # all 0 on v1
 ```
 
-Run against 1.30.0 this prints `LATEST_PROTOCOL_VERSION = '2025-11-25'` and `0 files` for every marker.
-**Do not trust `input_required` as a positive signal:** it appears in 5 files of *both* 1.29.0 and 1.30.0, but as `TaskStatusSchema = z.enum(['working', 'input_required', ...])` - the 2025-11-25 **Tasks** status enum, an unrelated feature that v2 deprecates. This is a live false-positive trap for anyone grepping casually.
-
-### The Brain server, before and after
-
+### Measuring the zod 4 blast radius without touching the repo (reproducible)
 ```javascript
-// BEFORE - mcp-server-brain/server.cjs:32-46 (verbatim shape)
-app.post('/mcp', async (req, res) => {
-  const server = new McpServer({ name: 'mindrian-brain', version: '1.0.0' });
-  registerNeo4jTools(server, { plan: req.brainPlan });
-  registerPineconeTools(server);
-  registerBrainAsk(server);
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  await server.connect(transport);
-  await transport.handleRequest(req, res, req.body);
-});
-
-// AFTER - createMcpHandler, both eras, one endpoint
-// Source: docs/migration/support-2026-07-28.md "Server over HTTP"
-const { createMcpHandler, McpServer } = require('@modelcontextprotocol/server');
-const { toNodeHandler } = require('@modelcontextprotocol/node');
-
-app.all('/mcp', toNodeHandler(createMcpHandler((ctx) => {
-  const server = new McpServer({ name: 'mindrian-brain', version: '1.0.0' },
-                               { capabilities: { tools: {} } });
-  registerNeo4jTools(server, { plan: /* per-request plan, see note */ });
-  registerPineconeTools(server);
-  registerBrainAsk(server);
-  return server;
-})));
+// preload: redirect every require('zod'|'zod/...') to a scratch zod@4 install
+const Module = require('module'); const orig = Module._resolveFilename;
+Module._resolveFilename = function (req, parent, ...r) {
+  if (req === 'zod' || req.startsWith('zod/')) return orig.call(this, req, { ...parent, paths: [Z4_NODE_MODULES] }, ...r);
+  return orig.call(this, req, parent, ...r);
+};
+// run: NODE_OPTIONS="-r ./zod4-preload.cjs" bash tests/run-all-198.sh   (NODE_OPTIONS so spawned children inherit)
+// and: boot bin/mindrian-mcp-server.cjs under the preload, diff tools/list against a zod-3 run (key-order-insensitive)
 ```
 
-**Note the one real design question this raises:** today `registerNeo4jTools(server, { plan: req.brainPlan })` closes over the **Express request** to carry the API key's plan tier (the D-MOAT-1 admin gate). Under `createMcpHandler` the factory does not receive the Express `req`. The plan tier must reach the factory another way - the handler is web-standards-only (`{ fetch, close, notify, bus }`), so the natural seam is reading the auth header off the web-standard `Request` inside the factory, or keeping `validateApiKey` as Express middleware and threading the result through. **This is the single most load-bearing unknown in the Brain-server migration** and needs a spike before the plan commits to `createMcpHandler`. Flagged as Open Question 4.
-
-### Registration API: v1 -> v2 (applies to all 36 tools)
-
+### ext-apps 2.0.0 from CJS against v2 (verified live)
 ```javascript
-// v1 (today) - variadic, raw zod shape. REMOVED in v2.
-server.tool('gate_render', 'Render the Mindrian gate superset card ...',
-  { gate_id: z.string().min(1).optional(), options: z.array(gateOptionSchema).min(1) },
-  async ({ gate_id, options }, extra) => { ... });
-
-// v2 - config object, wrapped Standard Schema, ctx not extra
-server.registerTool('gate_render',
-  { description: 'Render the Mindrian gate superset card ...',
-    inputSchema: z.object({ gate_id: z.string().min(1).optional(),
-                            options: z.array(gateOptionSchema).min(1) }) },
-  async ({ gate_id, options }, ctx) => { ... });
+const { McpServer } = require('@modelcontextprotocol/server');
+const { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } = require('@modelcontextprotocol/ext-apps/server');
+registerAppTool(server, 'room-wiki', {
+  title: 'Data Room Wiki', description: '...',
+  inputSchema: z.object({ room_path: z.string().optional().describe('Path to room directory') }), // NOT `schema:`
+  _meta: { ui: { resourceUri: 'ui://mindrian-os/room-wiki' } }
+}, async (args) => ({ content: [{ type: 'text', text: '...' }] }));
+// tools/list -> _meta {"ui":{"resourceUri":...},"ui/resourceUri":...}; args -> {"room_path":"/tmp/r"}
 ```
 
-**Two free wins to fold in while every registration is being touched anyway** (both from the 265 audit's R-6): `registerTool`'s config object has slots for `title` and `annotations` (`readOnlyHint` / `destructiveHint` / `idempotentHint` / `openWorldHint`), which **zero of 36 tools currently declare** because the v1 variadic form had no slot for them. `lib/mcp/app-views.cjs:239-245` is the in-repo precedent. Doing this during the forced rewrite costs almost nothing; doing it later means touching all 36 twice.
-
-**`extra` -> `ctx` remap that matters here:** `extra.sessionId` has no direct `ctx` equivalent on a 2026-era connection. `lib/core/session-binding.cjs`'s `resolveEffectiveSessionId(undefined, extra)` is called at seven sites in `tool-router.cjs` plus both gate tools. On 2025-era connections under v2 it keeps working; on 2026-era it does not. See Runtime State Inventory, row 2.
+### Live host wire probe (the Wave 0 Tri-Polar harness seed)
+A transparent stdio tee in front of any server logs `initialize` / `server/discover` params (method, protocol version, clientInfo, capabilities only, with no content), driven by `claude -p ... --mcp-config <tee.json> --strict-mcp-config`. It produced the 2.1.280 facts above. Extend `tests/test-248-surface-probes.cjs` with this for CLI. Desktop and Cowork need a manual run on those hosts.
 
 ---
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `@modelcontextprotocol/sdk` single package | `@modelcontextprotocol/{core,server,client,node,express,fastify}` | 2026-07-27 (v2.0.0) | Import paths and package names all change. v1 and v2 coexist under different names. |
-| `initialize` / `initialized` handshake | `server/discover` probe with `versionNegotiation` | spec 2026-07-28 | No handshake means no connection-scoped negotiated state. |
-| `Mcp-Session-Id` header | per-request `_meta` envelope (`io.modelcontextprotocol/{protocolVersion,clientInfo,clientCapabilities,logLevel}`) | spec 2026-07-28 | Any request lands on any instance behind a plain round-robin LB. |
-| Server->client requests (`elicitation/create`, `sampling/createMessage`, `roots/list`) | `return inputRequired({...})` from the handler; client retries with `inputResponses` | SEP-2322 (MRTR) | The server->client JSON-RPC channel is **removed** in the 2026 era. |
-| Unsolicited `list_changed` / `resources/updated` notifications | `subscriptions/listen` stream the client opens | spec 2026-07-28 | Server never sends an un-requested notification type. `resources/subscribe` is 2025-only. |
-| `logging/setLevel` RPC | per-request `_meta.logLevel` envelope key; **absent = opt-out, not "no filter"** | spec 2026-07-28 | The SDK `Client` does not auto-attach `logLevel`, so handler logs on a default 2026 exchange are silently suppressed. |
-| POST `notifications/cancelled` | close the request's SSE response stream (Streamable HTTP, 2026 era only) | spec 2026-07-28 | Nothing to change in calling code. |
-| `server.tool()` / `.prompt()` / `.resource()` variadic | `registerTool` / `registerPrompt` / `registerResource` with config object | v2.0.0 | The variadic forms are **removed**, not deprecated. |
-| zod `^3.25 \|\| ^4.0` peer | `zod ^4.2.0` dependency | v2.0.0 | zod 3 fails quietly at first `tools/list`. |
-| `RequestHandlerExtra` (`extra`) | structured `ServerContext` / `ClientContext` (`ctx`), with `ctx.mcpReq.*` and `ctx.http?.*` | v2.0.0 | `ctx.http` is `undefined` on stdio - needs optional chaining. |
-| `IsomorphicHeaders` bracket access | Web Standard `Headers` with `.get()` | v2.0.0 | Header *reads* change; headers passed *in* via plain objects are unchanged. |
-| `McpError` | `ProtocolError`; `ErrorCode` splits into `ProtocolErrorCode` + `SdkErrorCode` | v2.0.0 | `RequestTimeout` and `ConnectionClosed` move to `SdkErrorCode`. |
+| Old Approach | Current Approach | When Changed | Impact here |
+|--------------|------------------|--------------|-------------|
+| `@modelcontextprotocol/sdk` monolith | `@modelcontextprotocol/{core,server,client,node,...}` | 2.0.0 on 2026-07-27; **2.1.0 on 2026-09-23** | Import paths change; v1 and v2 coexist by name. |
+| ext-apps on SDK v1 | ext-apps 2.0.0 on v2 split packages; MCP Apps wire unchanged | 2026-09-08 | Blocker gone. |
+| Host probes stdio with `server/discover` | Host sends plain `initialize` to stdio; probes/negotiates 2026 only for direct HTTP | CC 2.1.238 (stdio fix); 2.1.274 HTTP default widened | 2026 is live on HTTP only. |
+| No Claude host elicitation | CC declares `elicitation:{}`; URL-mode elicitation on 2026 connections (2.1.281) | by 2.1.280 / 2.1.281 | Rung (a) is live on CLI. |
+| Unbounded HTTP bodies | 4 MiB default + 100-message batch cap | v1 1.30.1 and v2 2.1.0 (both today) | Free hardening on either line. |
+| Unsolicited `list_changed` | `subscriptions/listen`; `serveStdio` routes existing `send*ListChanged()` automatically | spec 2026-07-28 | Tree watcher keeps working on stdio; on HTTP use `handler.notify`. |
+| `initialize` carries `instructions` | `DiscoverResult.instructions` carries it too | spec 2026-07-28 | `RUNTIME_INSTRUCTIONS` survives in both eras (verified live). |
 
-**Deprecated / removed, relevant here:**
-- **Sampling, Roots, Logging** - deprecated per SEP-2577 (per the 266 addendum's Tavily sourcing). This repo uses none of them. `[CITED: 266-RESEARCH-stateless-spec-update.md, not independently re-verified in this pass]`
-- **Tasks** (`tasks/*`, `TaskStatus` incl. `input_required`) - deprecated wire vocabulary, excluded from v2's typed method maps; inbound `tasks/*` on a 2026 connection gets `-32601`. This repo does not implement tasks (`lib/mcp/capability-registry.cjs` names Tasks as a Phase 58/60 hook point, never built).
-- **`SSEServerTransport`** - removed; frozen copy in `@modelcontextprotocol/server-legacy/sse`. Not used here.
-- **`WebSocketClientTransport`** - removed. Not used here.
-- **`LegacyTitledEnumSchemaSchema`** (`enum` + `enumNames`) - the shape `lib/mcp/gate-render.cjs:189-201` emits today, carrying a removal notice in SDK 1.29.0. The 265 audit's R-5 already scoped this fix. **Sequencing note:** R-5 rewrites the elicitation schema in the v1 idiom; Pattern 3 above rewrites the same code in the v2 idiom. Doing both is wasted work - decide which one this phase does.
+**Deprecated (verified from the spec this session):** `roots` and `sampling` client capabilities (SEP-2577, 12+ months). This repo uses neither.
 
 ---
 
@@ -478,43 +459,23 @@ server.registerTool('gate_render',
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | The 2026-07-28 spec deprecates Sampling, Roots, and Logging (SEP-2577) with a 12-month backward-compatibility window | State of the Art | Low. Not used by this repo either way. Sourced from the 266 addendum's Tavily pass; I confirmed the *spec revision* exists via the official repo but did not read SEP-2577 itself. |
-| A2 | Claude Desktop and Cowork ship the same MCP client era-negotiation behavior as Claude Code CLI | Tri-Polar / Environment | **Medium-high.** I verified Claude Code CLI's behavior from its public CHANGELOG. There is no equivalent public changelog for Desktop or Cowork. If Desktop lags on era support, a `legacy: 'reject'` anywhere breaks that surface silently. This is a Tri-Polar gap that needs a live probe on each surface, not an inference. |
-| A3 | The `@modelcontextprotocol/codemod` package produces useful output on CJS `require()` source | Standard Stack / Pitfall 8 | Medium. The guide is written for TypeScript ESM. It explicitly says import-less injected surfaces are never rewritten, which covers 20 of this repo's 36 tools. The codemod may still handle the 9 direct-import sites well. **Not tested in this pass** - a dry run is the cheapest possible spike. |
-| A4 | Migrating `mcp-server-brain` to v2 does not change what any plugin-side client sees on the wire | Recommendation | Medium. Rests on `createMcpHandler`'s default `legacy: 'stateless'` serving 2025 clients identically. The guide asserts it; I did not run a live cross-version probe. A `legacy: 'stateless'` regression would take the Brain offline for every installed user, which is the highest-blast-radius outcome in this phase. |
-| A5 | No published `@modelcontextprotocol/ext-apps` release supports SDK v2 | Pitfall 3 | Low. Verified `1.7.5` is `latest` and its peer is `^1.29.0`, and it predates v2 by four days. Could change any day - **re-check at plan time**, not at execute time. |
-| A6 | The repo's ~200 other zod call sites are compatible with a zod 3 -> 4 bump | Standard Stack / Pitfall 2 | **High and unmeasured.** I verified v2 *requires* zod 4 but did **not** audit this repo's own zod usage for v3-to-v4 breaking changes (`z.ZodTypeDef` removed, `z.ZodType` generics changed, `.regex()` / `.positive()` behavior). This is the biggest un-sized item in the phase. |
+| A2 | Claude Desktop's stdio client negotiates like Claude Code's (2025 on stdio) | Tri-Polar | Medium. If Desktop negotiates 2026 on stdio, `getClientCapabilities()` returns `undefined` there, and the gate ladder falls to rung (b)/(c) on Desktop after migration. Needs a manual Desktop tee probe. |
+| A7 | Real Cowork launches the local server so that `surface-detect` picks HTTP (and so hits the one-request bug) | Pitfall 9 | Medium-high for prioritization. If Cowork actually talks stdio, the HTTP bug is latent, not live. Either way it is a bug. Needs a Cowork-side probe. |
+| A8 | Claude Code interactive mode sends the same `initialize` capabilities as print mode (`elicitation:{}`) | OQ6 | Low-medium. Same client binary. The probe used `-p`. |
+| A9 | Custom reverse-DNS `_meta` keys (for example `io.mindrian/sessionId`) survive v2's envelope lift on requests | icm-architect consult | Low for this phase (seed only). Verify before any 2026-native daemon design. |
+| A10 | `createServer()` per-request cost is acceptable on the HTTP flag-OFF path | Pattern 2 | Medium. Not measured. Wave 3 spike. |
+| A11 | v2 legacy-stateless leg accepts header-less 2025 POSTs the way v1 does (relevant only to Theo's future choice) | Theo consult | Low for this repo (cross-repo note only). Production precedent on 2.0.0-beta.4. |
 
 ---
 
 ## Open Questions
 
-1. **Does the navigator still want this phase, given the premise is falsified?**
-   - What we know: the directive was "build now, not a dormant ledger candidate," issued on the belief that a 1.29 -> 1.30 bump delivers stateless. It does not. The real work is a package-family migration with a hard third-party blocker.
-   - What's unclear: whether "build now" survives contact with a 3-5x larger, partially-blocked scope.
-   - Recommendation: surface this before planning. The honest framing is not "should we defer" but "the phase is real and worth doing, and it is a different, larger phase than the ROADMAP describes." Propose the Brain-server-first split (which is genuinely shippable now, independently, with low blast radius) as the Phase 267 the navigator actually gets, and let the local-server half become 267b gated on ext-apps.
-
-2. **What is the ext-apps ruling?**
-   - What we know: no v2-compatible release; the three MCP Apps tools are Desktop/Cowork-only surfaces (`room-dashboard`, `room-wiki`, `room-graph`).
-   - What's unclear: whether losing them temporarily is acceptable, and whether an upstream issue has been filed.
-   - Recommendation: file an upstream issue against `modelcontextprotocol/ext-apps` regardless (it costs nothing and starts the clock), and default to holding the local server on v1 rather than dropping a Tri-Polar surface.
-
-3. **Does the official codemod do anything useful on CJS?**
-   - Recommendation: cheapest possible spike. `npx`-free: install `@modelcontextprotocol/codemod` as a devDependency in a scratch clone and run `v1-to-v2 --dry-run` against `mcp-server-brain/`. Fifteen minutes, and it sizes the whole manual-rewrite estimate.
-
-4. **How does the API-key plan tier reach a `createMcpHandler` factory?**
-   - What we know: `registerNeo4jTools(server, { plan: req.brainPlan })` closes over the Express request today; `createMcpHandler`'s factory does not receive it. The D-MOAT-1 admin gate on `brain_query` depends on this.
-   - What's unclear: the exact factory signature and whether the web-standard `Request` is reachable from it.
-   - Recommendation: **this is a spike, not a task.** A moat guard is on the line (`mcp-server-brain/CLAUDE.md`, D-MOAT-1). Prove the seam before writing the plan.
-
-5. **Where does the `requestState` HMAC key come from, if MRTR is adopted?**
-   - What's unclear: env var name, generation, rotation, and behavior when absent. A per-process random key is the safe default for a single-instance deployment but breaks the moment a second instance exists.
-   - Recommendation: defer entirely. MRTR only matters on the local server, which is blocked on ext-apps anyway.
-
-6. **Does any Claude host actually declare the elicitation capability now?**
-   - What we know: two data points in tension. Claude Code **2.1.76** added MCP elicitation support per its own CHANGELOG; the 265 audit's **live wire probe on 2026-08-27** found no elicitation capability negotiated, and `lib/mcp/tools/gate.cjs:9-11` cites issue #2799 as still open.
-   - Why it matters: if elicitation is live, rung (a) is live, and the deprecated `enumNames` schema (265 R-5) becomes a **real user-facing bug** rather than a latent one - and MRTR stops being theoretical.
-   - Recommendation: a fresh wire probe of `initialize` on all three surfaces is a Wave 0 task. It is a five-minute check that changes the priority of two separate findings.
+1. **Navigator: approve the reshaped scope?** The recommendation is a local-server-only, unified, internally-staged migration with a v1 Wave 0, and it drops the Brain-first split. What we know: the blocker is gone, and the Brain half is dead or belongs to Theo. Recommendation: approve in one word, then plan.
+2. **Is the flag-OFF HTTP branch reachable by real Cowork today (A7)?** Recommendation: file RCA 1 now regardless (the bug is real), and run a Cowork-side probe as a Wave 0 manual checkpoint to set its severity.
+3. **Advertised strictness after zod 4 (Pitfall 2b):** accept that `additionalProperties:false` disappears on 35 tools, or move sensitive tools to `z.strictObject`? Recommendation: the navigator picks the principle; the default is to preserve today's advertised contract for tools that accept free text or ids, via `z.strictObject`.
+4. **Gate UX now that CLI elicitation is live (Pitfall 11):** is the host's elicitation dialog the intended CLI gate experience, or should Claude hosts stay on rung (b)? This is a design question, not an SDK one. It is independent of the migration, but the planner should not "fix" the ladder silently.
+5. **Tool annotations:** fold into the 51-site rewrite (sourced from the 356 ledger plus code reading, per the Jev consult) or defer? Recommendation: fold `title` in now (free). Annotations only with a navigator ruling, because they touch host permission behavior.
+6. **`mcp-server-brain/` disposition:** delete or archive in a separate cleanup phase. Out of scope here. Registering it avoids a future session re-litigating it.
 
 ---
 
@@ -522,155 +483,144 @@ server.registerTool('gate_render',
 
 | Dependency | Required By | Available | Version | Fallback |
 |------------|------------|-----------|---------|----------|
-| Node.js | v2 requires >= 20; repo engine floor is >= 22.16.0 | yes | v22.23.1 | none needed |
-| npm | manifest edits, install | yes | bundled | none needed |
-| `@modelcontextprotocol/sdk` | current v1 servers | yes (installed) | 1.29.0 (plugin), 1.27.1 (mcp-server-brain) | n/a |
-| `@modelcontextprotocol/server@2.0.0` | the migration | installable + **CJS `require()` verified working** | 2.0.0 | none |
-| `@modelcontextprotocol/ext-apps` | `lib/mcp/app-views.cjs` MCP Apps | yes, but **peer-pinned to SDK ^1.29.0** | 1.7.5 (latest) | **no v2-compatible fallback exists** |
-| `zod` | all tool schemas | yes | 3.25.76 (repo declares `^3.25.76`) | v2 needs `^4.2.0`; alias `"zod-v4": "npm:zod@^4.2.0"` is the documented escape hatch |
-| `express` | both HTTP servers | yes, **direct dep** | `^5.1.0` | unaffected by SDK swap |
-| `ajv` | `lib/core/brain-client.cjs` Phase 110 typed packets | yes, **direct dep** | `^8.18.0` | unaffected (was transitive via v1 SDK; already declared directly, so no loss) |
-| `slopcheck` | package legitimacy gate | yes | installed this session | n/a |
-| `gh` CLI | reading official SDK release bodies and migration guides | yes, authenticated | n/a | WebFetch (returned 404 on the SDK's `CHANGELOG.md` - the repo has no root changelog; releases are the source) |
+| Node.js | v2 needs >= 20; repo floor >= 22.16.0 | yes | v22.23.1 | - |
+| npm | installs, shrinkwrap | yes | bundled | - |
+| Claude Code CLI | Tri-Polar wire probe | yes | 2.1.280 (2.1.281 released) | - |
+| `@modelcontextprotocol/server@2.1.0` + ext-apps 2.0.0 | migration | installable; **CJS require verified** | 2.1.0 / 2.0.0 | - |
+| `@modelcontextprotocol/sdk` | current servers | installed | 1.29.0 (1.30.1 available) | - |
+| zod | all schemas | installed 3.25.76 | 4.6.5 available | - |
+| `gh` CLI | release bodies, spec reads | yes, authenticated | - | WebFetch |
+| slopcheck | legitimacy gate | yes | scan mode used | - |
+| ctx7 (Context7 CLI) | library docs | **no** | - | Official zod changelog via WebFetch plus live measurement |
+| Claude Desktop / Cowork hosts | A2 / A7 probes | **not probeable from this shell** | - | Manual checkpoint tasks |
 
-**Complete production SDK import surface (9 sites, the full migration blast radius):**
+**Production SDK import surface (updated; all must move):**
 
-| File:line | Symbols |
+| File:line | Symbols / form |
 |---|---|
-| `bin/mindrian-mcp-server.cjs:55,56,223` | `McpServer`, `StdioServerTransport`, `StreamableHTTPServerTransport` |
-| `bin/mindrian-brain-mcp-client.cjs:40,41` | `McpServer`, `StdioServerTransport` |
+| `bin/mindrian-mcp-server.cjs:86,87` | `McpServer`, `StdioServerTransport` via **`requireWithHeal`** |
+| `bin/mindrian-mcp-server.cjs:264` | `StreamableHTTPServerTransport` (lazy `require`) |
+| `bin/mindrian-brain-mcp-client.cjs:58,59` | `McpServer`, `StdioServerTransport` via **`requireWithHeal`** |
 | `bin/mindrian-mcp-shim.cjs:36,37` | `StdioServerTransport`, `StreamableHTTPClientTransport` |
 | `lib/mcp/adapter-client.cjs:21,22` | `Client`, `StreamableHTTPClientTransport` |
-| `lib/mcp/resources.cjs:21` | `ResourceTemplate` (**note: the codemod renames the *type* to `ResourceTemplateType` but keeps the URI-template *class* name - this is the class, so no rename**) |
-| `mcp-server-brain/server.cjs:4,5` | `McpServer`, `StreamableHTTPServerTransport` |
-| `lib/core/mcp-dep-heal.cjs:172` | package-name string literal in the probe fallback array |
-| `lib/mcp/app-views.cjs:25` | `@modelcontextprotocol/ext-apps/server` (indirect SDK coupling) |
-| JSDoc type refs (no runtime effect) | `capability-registry.cjs:32`, `app-views.cjs:232`, `tool-router.cjs:632`, `prompts.cjs:91` |
-
-**Missing dependencies with no fallback:** an ext-apps release compatible with SDK v2. This is the only genuine blocker and it is upstream.
-**Missing dependencies with fallback:** zod 4 (per-package alias available).
+| `lib/mcp/resources.cjs:21` | `ResourceTemplate` (class exists in v2 `@modelcontextprotocol/server`, verified) |
+| `lib/mcp/app-views.cjs:25` | `@modelcontextprotocol/ext-apps/server` |
+| `lib/core/mcp-dep-heal.cjs:364` | FALLBACK literal |
+| Injected-surface idioms | 39 `server.tool(` + 3 `server.prompt(` + 9 `server.resource(`; 25 `server.server.*` reads (`elicitInput` x4 files, `getClientCapabilities` x4, `getClientVersion` x5); 9 `extra.sessionId`; `sendResourceListChanged` in `tree-watcher.cjs` |
+| Tests importing the v1 SDK | 11 files (`tests/test-354-*` x6, `test-248`, `test-257`, `test-265`, `test-276`, `scripts/build-brain-packet-schema.cjs`), plus `docs/reviews/phase-354-probes/*.cjs` |
+| `mcp-server-brain/server.cjs:4,5` | **dead, out of scope** |
 
 ---
 
 ## Validation Architecture
 
-`workflow.nyquist_validation` is `true` in `.planning/config.json`.
+`workflow.nyquist_validation: true`.
 
 ### Test Framework
-
 | Property | Value |
 |----------|-------|
-| Framework | Node built-in (`node:assert` + `node:test` in `.test.cjs` files) and bare `node <file>.cjs` scripts printing `PASS:` / `FAIL:` |
-| Config file | none - `tests/run-all-<phase>.sh` shell drivers are the aggregation seam |
-| Quick run command | `node tests/test-198-gate-renderers.test.cjs` (verified green this session) |
-| Full suite command | `bash tests/run-all-198.sh` (gate/MCP layer), `node scripts/doctor.cjs --acceptance` (roll-up) |
+| Framework | Node built-ins (`node:assert`, `node:test`) plus bare `node <file>.cjs` PASS/FAIL scripts |
+| Config file | none; `tests/run-all-<phase>.sh` aggregators |
+| Quick run command | `node tests/test-198-gate-renderers.test.cjs && node tests/test-265-gate-render-elicit-schema.cjs` (both green 2026-09-23) |
+| Full suite command | `bash tests/run-all-198.sh` (baseline today: 21 PASS / 3 FAIL pre-existing: Part 8 local-only floor, SPEC-2 contract-schema, SPEC-5 adapter budget); `node scripts/doctor.cjs --acceptance` |
 
 ### Phase Requirements -> Test Map
+No 267 IDs exist. The planner should mint them (suggested prefix `MCPV2-`). Derived:
 
-`.planning/REQUIREMENTS.md` contains **no 267-prefixed requirement IDs** (grep returns nothing) and the ROADMAP entry says `**Requirements**: TBD`. The map below is therefore derived from the four ROADMAP goals, and the planner should mint real IDs.
-
-| Derived Req | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| G1a | The chosen SDK version actually implements 2026-07-28 (guards Pitfall 1) | unit | `node tests/test-267-sdk-era-assert.cjs` | ❌ Wave 0 |
-| G1b | Brain server answers `tools/list` with 6 tools over the wire (guards Pitfall 2, the silent zod-3 failure) | integration | `node tests/test-267-brain-tools-list.cjs` | ❌ Wave 0 |
-| G1c | Local server answers `tools/list` with the full tool set over stdio | integration | extend `scripts/doctor.cjs` L4 with a `tools/list` + count + zero-tool assertion (265 R-7) | ❌ Wave 0 |
-| G2 | Gate answer identity holds across all three rungs after any gate-render change | unit | `node tests/test-198-gate-renderers.test.cjs` | ✅ green today |
-| G2b | Elicitation `requestedSchema` uses the current titled form, not `enumNames` | unit | `tests/test-198-gate-renderers.test.cjs:60` currently asserts the **legacy** shape and must be updated | ✅ exists, asserts wrong thing |
-| G3a | Every declared MCP surface survives a registration-API rewrite | gate | `node scripts/build-connector-registry.cjs --check` | ✅ exists |
-| G3b | Every surface keeps its HITL shape declaration | gate | `node scripts/check-shape-declaration.cjs --strict` | ✅ exists (advisory by default) |
-| G3c | Tri-Polar: all three surfaces connect and negotiate cleanly | manual + probe | live probe per surface - **no automated harness exists**; see Wave 0 | ❌ Wave 0 |
-| G4a | Tool descriptions keep their prose contract across the rewrite | unit | `node tests/test-234-tool-description-floor.cjs` (covers 8 of 36 - 265 R-3 widens it) | ✅ exists, partial |
-| G4b | Dependency self-heal still probes for packages that exist | unit | `node lib/core/mcp-dep-heal.test.cjs` - **will fail** once the SDK package name changes | ✅ exists, needs update |
-| G4c | Supply-chain allowlist covers every new package | gate | `bash tests/run-all-199.sh` (agentshield) | ✅ exists |
-| G4d | Flag-OFF byte-identical parity preserved | integration | `node tests/test-198-flag-off-parity.test.cjs`, `bash tests/parity-198.sh` | ✅ exists |
-| G4e | Concurrent multi-session HTTP still works (guards the 198-08 regression) | integration | `node tests/test-198-concurrency-mcp.test.cjs` | ✅ exists |
+| Req | Behavior | Type | Command | Exists? |
+|-----|----------|------|---------|---------|
+| MCPV2-01 | Installed server package implements 2026-07-28 (Pitfall 1) | unit | `node tests/test-267-sdk-era-assert.cjs` | ❌ W0 |
+| MCPV2-02 | Local server `tools/list` = runtime count, non-empty descriptions, both eras | integration | new `tests/test-267-dual-era-tools-list.cjs` (stdio, v2 client default + `auto`) + doctor L4 count | ❌ W0 |
+| MCPV2-03 | zod 4: descriptions byte-identical; advertised-strictness policy held | integration | new `tests/test-267-zod4-schema-contract.cjs` (tools/list snapshot diff) + `test-257` Arms Z2-Z4/A | ❌ W0 / ✅ |
+| MCPV2-04 | MCP Apps tools publish real input schemas and receive args | integration | new `tests/test-267-app-views-schema.cjs` | ❌ W0 |
+| MCPV2-05 | HTTP flag-OFF serves N>1 sequential requests and both eras | integration | new `tests/test-267-http-multi-request.cjs` (fresh port, kill by PID) | ❌ W0 |
+| MCPV2-06 | Flag-ON daemon keeps session-keyed binding and concurrency | integration | `node tests/test-198-concurrency-mcp.test.cjs`, `tests/parity-198.sh` | ✅ |
+| MCPV2-07 | Gate answer identity across rungs; elicitation schema current | unit | `test-198-gate-renderers`, `test-265-gate-render-elicit-schema` | ✅ green |
+| MCPV2-08 | CIRS connectors and HITL shapes survive 51 rewrites | gate | `build-connector-registry.cjs --check`, `check-shape-declaration.cjs --strict` | ✅ |
+| MCPV2-09 | Dep self-heal probes real packages | unit | `node lib/core/mcp-dep-heal.test.cjs` (update literals) | ✅ needs update |
+| MCPV2-10 | Supply-chain allowlist covers new packages | gate | `bash tests/run-all-199.sh` | ✅ |
+| MCPV2-11 | Brain stdio shim unchanged on the wire (6 tools, Part 8 guard) | integration | `tests/test-257-strict-input-shapes.cjs` Arms A-E, G | ✅ (Arm F stale, Arm B flaky, both pre-existing) |
+| MCPV2-12 | Payload ceiling holds after dependency swap | gate | `node scripts/check-release-payload-ceiling.cjs` | ✅ |
+| MCPV2-13 | Tri-Polar: CLI wire probe records era + capabilities; Desktop/Cowork manual | probe/manual | extend `tests/test-248-surface-probes.cjs` with the stdio tee | ❌ W0 |
+| MCPV2-14 | HTTP-mode process exits on SIGTERM | integration | new lifecycle check | ❌ W4 |
 
 ### Sampling Rate
-
-- **Per task commit:** `node tests/test-198-gate-renderers.test.cjs && node scripts/build-connector-registry.cjs --check`
-- **Per wave merge:** `bash tests/run-all-198.sh && bash tests/run-all-234.sh && bash tests/run-all-199.sh`
-- **Phase gate:** `node scripts/doctor.cjs --acceptance` green, plus the new `tools/list` wire assertions green on all three surfaces, before `/gsd-verify-work`.
+- **Per task commit:** quick run + `build-connector-registry.cjs --check`
+- **Per wave merge:** `run-all-198`, `run-all-234`, `run-all-199`, `test-257`, `mcp-dep-heal.test.cjs`
+- **Phase gate:** `doctor --acceptance` green; MCPV2-02/05/13 green; pre-existing reds unchanged, or fixed and noted
 
 ### Wave 0 Gaps
-
-- [ ] `tests/test-267-sdk-era-assert.cjs` - asserts the installed SDK's `LATEST_PROTOCOL_VERSION` and the presence of the 2026 method vocabulary. The single cheapest guard against Pitfall 1, and it fails today by design.
-- [ ] `tests/test-267-brain-tools-list.cjs` - spawns/dials the Brain server and asserts `tools/list` returns 6 tools with non-empty descriptions. Guards the silent zod-3 failure (Pitfall 2). Extends the existing `mcp-server-brain/test-brain.cjs`.
-- [ ] `scripts/doctor.cjs` L4 extension - add `tools/list`, report the count, fail on zero. This is 265 recommendation R-7, and it is a **prerequisite** here rather than a nice-to-have, because it is the only thing that catches a server that connects but registers nothing.
-- [ ] **Fresh `initialize` wire probe on all three surfaces**, recording negotiated protocol version and declared client capabilities (especially `elicitation`). Resolves Open Question 6 and assumption A2 in one pass. No harness exists; `tests/test-248-surface-probes.cjs` is the closest precedent to extend.
-- [ ] `lib/core/mcp-dep-heal.test.cjs` update - its `FALLBACK` literal and four fixture manifests hard-code `@modelcontextprotocol/sdk`.
-- [ ] Codemod dry-run spike (Open Question 3) - not a test, but it sizes every downstream estimate.
+- [ ] `tests/test-267-sdk-era-assert.cjs`
+- [ ] `tests/test-267-dual-era-tools-list.cjs` + doctor L4 `tools/list` count (265 R-7)
+- [ ] `tests/test-267-zod4-schema-contract.cjs`
+- [ ] `tests/test-267-app-views-schema.cjs`
+- [ ] `tests/test-267-http-multi-request.cjs` (PID-kill + port-free assertions, Pitfall 9)
+- [ ] Rewrite `tests/test-198-contract-schema.test.cjs` introspection (zod 4)
+- [ ] Stdio tee harness into `tests/test-248-surface-probes.cjs`
+- [ ] Three RCA docs under `.planning/debug/` (C-12)
 
 ---
 
 ## Security Domain
 
-`security_enforcement` is not set to `false` in `.planning/config.json`, so this section applies.
-
-### Applicable ASVS Categories
+`security_enforcement` is not `false`, so this section applies.
 
 | ASVS Category | Applies | Standard Control |
 |---------------|---------|-----------------|
-| V2 Authentication | yes (Brain server only) | Static API key via `mcp-server-brain/lib/auth.cjs` `validateApiKey`, Express middleware on `/mcp`. **The `createMcpHandler` migration moves this seam** - see Open Question 4. The local servers are stdio with no auth. |
-| V3 Session Management | yes | The 2026 era **deletes sessions**. `lib/mcp/gate-ledger.cjs`'s session-keyed, single-use, TTL-bounded mint/consume is the anti-replay control and must survive any migration intact (T-198-10 / T-198-12 doctrine). |
-| V4 Access Control | yes | D-MOAT-1: `brain_query` and `brain_write` are admin-plan-gated. `req.brainPlan` is the carrier. **This is exactly what Open Question 4 puts at risk** - a factory that cannot see the plan tier silently ungates the moat. Treat any `createMcpHandler` task as touching an access-control boundary. |
-| V5 Input Validation | yes | zod schemas on every tool input; `validateChosenAgainstCard` (`gate-render.cjs:262`) is the GATE-01 G-2 value-domain check. Under v2, `acceptedContent(responses, key, schema)` is the analogous control for MRTR responses - the SDK does **not** re-validate accepted elicitation content against `requestedSchema` on either era. |
-| V6 Cryptography | yes, if MRTR is adopted | `createRequestStateCodec` (HMAC-SHA256, signed **not encrypted**). Never hand-roll. Key management is Open Question 5. |
+| V2 Authentication | **no (changed)** | The local servers are stdio or loopback HTTP with no auth. The Brain auth question (old OQ4) belonged to the dead `mcp-server-brain`, and Theo is keyless by design. |
+| V3 Session Management | yes | The flag-ON daemon keeps sessions (Pattern 3). `gate-ledger.cjs` single-use, session-keyed, 30-min TTL (T-198-10) must not regress. |
+| V4 Access Control | yes | Room write-scope (`isRoomInWriteScope`) keyed by the session binding. Unchanged by the stdio migration. |
+| V5 Input Validation | yes | zod on every tool; `validateChosenAgainstCard`. **New:** the zod 4 advertised-strictness change (Pitfall 2) and the app-views empty-schema bug (Pitfall 3). Phase 257's `z.strictObject` mechanism is verified under zod 4. |
+| V6 Cryptography | no (this phase) | MRTR and `requestState` are deferred. |
+| V12 / resource limits | **yes (new)** | 4 MiB body limit and 100-message batch bound, from 1.30.1 (v1) or 2.1.0 (v2). The HTTP branch has no limit today beyond Express's default `express.json()` 100 KB. Note the interaction: `express.json()` runs before the SDK. |
 
-### Known Threat Patterns for this stack
-
-| Pattern | STRIDE | Standard Mitigation |
-|---------|--------|---------------------|
-| Forged / replayed `gate_id` reaching `navigation.cjs` | Spoofing | Existing: `gate-ledger.cjs` single-use, session-keyed, 30-min TTL (T-198-10). **Must not regress during migration.** |
-| Forged `requestState` on retry | Tampering | `ServerOptions.requestState.verify` hook runs before the handler on every round, including the legacy shim path; a rejection answers `-32602` above the tool funnel. |
-| Room content leaking through `requestState` | Information Disclosure / **Canon Part 8 breach** | `requestState` is client-visible base64url. Carry opaque handles only. See Pitfall 5. |
-| Unbounded MRTR round loop | Denial of Service | `inputRequired.maxRounds` (client driver default 10, shim default 8); `SdkError(InputRequiredRoundsExceeded)`. Set explicitly rather than relying on defaults. |
-| `Mcp-Param-*` header / body disagreement | Tampering | `createMcpHandler` rejects with `400` + JSON-RPC `-32020` (`HeaderMismatch`). Automatic; no repo code needed. |
-| Cypher injection via `brain_query` | Tampering / Info Disclosure | Existing D-MOAT-1 admin gate + D-MOAT-2 caps (`BRAIN_CYPHER_MAX_ROWS/BYTES/TIMEOUT_MS/MAX_ESTIMATED_ROWS`). Unchanged by the SDK swap, **but see V4 above** - the gate's carrier changes. |
-| Supply-chain: new scoped packages | Tampering | `references/security/cve-db.json` allowlist + `lib/core/security/agentshield-scanner.cjs`. Every v2 package needs a VETTED entry. slopcheck clean (see audit). |
-| Tool output trusted as instruction | Elevation of Privilege | Named by the 265 audit's corpus grounding as an unmitigated class on `artifact_file` / `meeting` ingest. **Out of scope for this phase**, noted so it is not lost. |
+| Pattern | STRIDE | Mitigation |
+|---------|--------|-----------|
+| Forged/replayed `gate_id` | Spoofing | Existing ledger (unchanged). |
+| Undeclared-key smuggling | Tampering / Info disclosure | Phase 257 `z.strictObject` on the brain shim tools (verified under zod 4). Decide policy for local tools (OQ3). |
+| Oversized body / batch flood on loopback HTTP | DoS | SDK body and batch bounds (Wave 0 via 1.30.1). |
+| DNS-rebinding against 127.0.0.1:3847 | Spoofing | Consider `localhostHostValidation()`/`localhostOriginValidation()` from `@modelcontextprotocol/node` (the retired PWS Brain used them). `[ASSUMED]` applicable; verify at plan time. |
+| Stale process holding the port (SIGTERM ignored) | DoS / integrity of tests | MCPV2-14 lifecycle check. |
+| Supply chain | Tampering | Allowlist entries; slopcheck clean; no install scripts on any package. |
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
+- npm registry (`npm view` versions, time, peers, deps, scripts, repository) for sdk, server, core, client, node, express, fastify, codemod, server-legacy, ext-apps, zod; npm downloads API.
+- `npm pack` tarball diffs: sdk 1.30.0 vs 1.30.1 (md5 of every JS file; marker greps); ext-apps 1.7.5 vs 2.0.0 (`dist/src/server/index.{js,d.ts}`).
+- GitHub releases (`gh release view`): `1.30.1`; `@modelcontextprotocol/{server,core,client,node,codemod}@2.1.0`; ext-apps `v2.0.0`.
+- `docs/migration/support-2026-07-28.md` (725 lines, last touched 2026-08-28) and `upgrade-to-v2.md` (1,881 lines), fetched fresh via `gh api`.
+- Spec: `modelcontextprotocol/modelcontextprotocol` `schema/2026-07-28/schema.ts` (DiscoverResult `instructions`; SEP-2577 deprecations).
+- `anthropics/claude-code` CHANGELOG raw (7,453 lines): 2.1.238, 2.1.274, 2.1.281, 2.1.76, 2.1.117 entries.
+- Live probes this session: Claude Code 2.1.280 stdio tee; dual-era `serveStdio` (v2 auto, v2 default, v1 client); ext-apps 2.0.0 CJS smoke; v2 API surface check; real server `tools/list` (42/9/61/3/0 annotations); zod-4 preload boot plus key-order-insensitive diff; `run-all-198` under both zods; `test-257` under both zods (x2); `test-198-contract-schema` under both; flag-OFF HTTP clean per-case probes; codemod on a repo copy plus a controlled 3-file test; langtalks MCP queries.
+- `https://zod.dev/v4/changelog` (WebFetch), cross-checked by live measurement against zod 4.6.5.
+- Repo reads: `bin/mindrian-mcp-server.cjs`, `lib/mcp/app-views.cjs`, `lib/mcp/tools/gate.cjs`, `lib/core/session-binding.cjs`, `lib/core/brain-client.cjs`, `bin/mindrian-mcp-shim.cjs`, `lib/mcp/surface-detect.cjs`, `lib/mcp/mcp-first-flag.cjs`, `lib/core/mcp-dep-heal.cjs`, `package.json`, lockfiles, `references/security/cve-db.json`, `docs/257-NOTE-part8-enforcement-locus-rulings.md`, `.planning/ROADMAP.md` (Phase 267 at lines 609-620 and 984-991), `data/command-irreversibility-ledger.json`.
+- Cross-repo (read-only): `/home/jsagi/Theo` (`package.json`, `src/http/serve.ts`, `.planning/phases/08.4-*/{CONTEXT,MOS-LEARNING,LANGTALKS-CONSULT}.md`, `REQUIREMENTS.md` HOST-01); `/home/jsagi/dev/ProblemsWorthSolving-Brain/src/http/app.mjs`.
 
-- `gh release view "@modelcontextprotocol/server@2.0.0" --repo modelcontextprotocol/typescript-sdk` - the v2 release body, read in full. Establishes 2026-07-28 support, CJS builds, `inputRequired.elicit()`, the spec PR #3002 final-revision alignment, and the SEP-2243 header work.
-- `gh release list --repo modelcontextprotocol/typescript-sdk --limit 8` - the eight v2 package tags, all 2026-07-27T23:55Z.
-- `docs/migration/upgrade-to-v2.md` (1,874 lines) - fetched via `gh api`, read in full for Packaging & runtime, Imports & transports, Low-level protocol / `ctx`, and Server registration API.
-- `docs/migration/support-2026-07-28.md` (723 lines) - fetched via `gh api`, read in full. Every MRTR, `requestState`, `createMcpHandler`, `serveStdio`, and legacy-shim claim above comes from here.
-- `gh api repos/modelcontextprotocol/modelcontextprotocol/contents/docs/specification` - confirms `2026-07-28/` exists alongside `2024-11-05`, `2025-03-26`, `2025-06-18`, `2025-11-25`, `draft`.
-- **Byte-level comparison of SDK 1.29.0 (on disk) vs 1.30.0 (`npm pack`, extracted to scratch).** md5 of `dist/cjs/types.js` identical on both. `find`-based file-list diff and per-file md5 sweep yielding exactly 8 changed JS files + 2 new. Marker greps for the nine 2026-era vocabulary tokens. This is the evidence for Finding F-1 and it is reproducible.
-- `npm view` against the registry for versions, dist-tags, publish times, engines, dependencies, and peerDependencies of `@modelcontextprotocol/{sdk,core,server,client,node,codemod,ext-apps}`.
-- **Live `require()` smoke test** of the installed v2 packages: `@modelcontextprotocol/server` exports `McpServer, acceptedContent, createMcpHandler, createRequestStateCodec, fromJsonSchema, inputRequired, inputResponse`; `@modelcontextprotocol/server/stdio` exports `StdioServerTransport, serveStdio`. CJS `require()` confirmed working.
-- `anthropics/claude-code` `CHANGELOG.md` raw (5,930 lines, curl'd, version attribution derived with an `awk` pass tracking the enclosing `## <version>` heading, per the 265 audit's documented method). Establishes 2.1.238 (`server/discover` to stdio servers) and 2.1.76 (elicitation support added).
-- This repo, read directly: `bin/mindrian-mcp-server.cjs` (404 lines, full), `lib/mcp/gate-render.cjs` (425 lines, full), `lib/mcp/tools/gate.cjs` (303 lines, full), `mcp-server-brain/server.cjs` (86 lines, full), `bin/mindrian-mcp-shim.cjs`, `lib/mcp/gate-ledger.cjs` (head), `lib/mcp/session-registry.cjs` (head), `scripts/doctor.cjs:1298-1360`, `package.json`, `mcp-server-brain/package.json`, `references/security/cve-db.json`, `CLAUDE.md` + its four `@include` files, `mcp-server-brain/CLAUDE.md`.
-- `slopcheck install` against all five candidate v2 packages: 5 OK, 0 SLOP, 0 SUS.
+### Secondary (MEDIUM)
+- The 2026-08-27 `267-RESEARCH.md` pass (superseded by this file; carried rows marked).
+- `267-RESEARCH-stateless-spec-update.md` (spec addendum; its spec claims re-confirmed; its "held-open-SSE" characterization was already corrected in the prior pass).
 
-### Secondary (MEDIUM confidence)
+### Tertiary (LOW)
+- Desktop and Cowork era behavior: no source found (A2, A7).
 
-- `.planning/phases/265-.../265-RESEARCH-mcp-layer-audit.md` - the MCP layer audit. Its wire measurements (36 + 6 tools, description byte counts, zero annotations, no elicitation capability negotiated) are treated as authoritative for repo state as of 2026-08-27 and were not re-measured here.
-- `.planning/phases/266-.../266-RESEARCH-stateless-spec-update.md` - the spec addendum. Its spec-revision claim is **confirmed** by the official repo. Its 1.30.0 speculation was correctly hedged and is now **resolved as negative**. Its "held-open-SSE" characterization of `gate-render.cjs` is **corrected** by direct code reading.
-
-### Tertiary (LOW confidence)
-
-- SEP-2577 (Sampling/Roots/Logging deprecation) and the 12-month compatibility window - carried from the 266 addendum's Tavily pass, not independently verified here. Immaterial: this repo uses none of the three.
-- Claude Desktop and Cowork MCP client era-negotiation behavior - **no public source found**. Inferred from Claude Code CLI only. This is assumption A2 and it is the weakest link in the Tri-Polar analysis.
+### Room mirror (Dev-Research Compositing, C-9)
+- Direct write to `~/MindrianRooms/rethinking-mindrianos/research/` was **refused** by the `write-scope-check` hook (active room `motj-ecosystem`), the same refusal Phase 354-16 hit. Following that precedent, I did not route around it. Filed at the documented plugin-side fallback: `/home/jsagi/MindrianOS/research/2026-09-23-mcp-sdk-v2-migration-refresh-267.md` with `mirror_status: PENDING`. Follow-up: `/mos:rooms switch rethinking-mindrianos`, then file the identical content under the same filename in that room's `research/`.
 
 ---
 
 ## Metadata
 
 **Confidence breakdown:**
-- **Falsification of the phase premise (1.30.0 is not stateless):** HIGH. Byte-level md5 comparison of two tarballs, reproducible in one command.
-- **Correct migration target (v2 package family):** HIGH. Official release bodies plus two official migration guides read in full plus a live `require()` smoke test.
-- **Repo state (what is already stateless, what gate-render actually does):** HIGH. Every claim is file:line from a full read.
-- **ext-apps blocker:** HIGH on the peer pin (registry-verified at the latest version). MEDIUM on the consequence, since the exact failure mode was reasoned from the guide's boundary rule rather than reproduced.
-- **zod 3 -> 4 blast radius inside this repo:** LOW. The v2 requirement is HIGH-confidence; this repo's own ~200 zod call sites were **not** audited. Largest un-sized risk in the phase.
-- **Tri-Polar backward compatibility:** MEDIUM for Claude Code CLI (public changelog). LOW for Desktop and Cowork (no source; inferred). The phase's goal (3) cannot be closed on inference - it needs a live probe per surface.
-- **Architecture patterns and MRTR mechanics:** HIGH. Direct from `support-2026-07-28.md`.
+- **ext-apps unblock and API delta:** HIGH (tarball read, release body, live smoke).
+- **1.30.1 non-implementation:** HIGH (byte-level).
+- **Host era and elicitation behavior on CLI:** HIGH for 2.1.280 print mode (live wire); MEDIUM for interactive (A8); LOW for Desktop/Cowork (A2/A7).
+- **zod 4 blast radius:** HIGH (execution-measured on the real server and suites).
+- **Codemod verdict:** HIGH (execution).
+- **flag-OFF HTTP bug:** HIGH on mechanism (clean per-case repro plus SDK source line); MEDIUM on production reachability (A7).
+- **Architecture patterns:** HIGH for stdio (live); MEDIUM-HIGH for HTTP (guide plus in-house production precedent; per-request cost unmeasured).
 
-**Research date:** 2026-08-27
-**Valid until:** 2026-09-10 (14 days). Short deliberately: the v2 packages are 62 days old and moving, and the single biggest blocker - an ext-apps release supporting v2 - could land any day and change the whole recommended shape of the phase. **Re-run `npm view @modelcontextprotocol/ext-apps@latest peerDependencies` before planning.**
-
-**Working-tree note:** slopcheck's `install` subcommand performed a real `npm install` in this repo. `package.json` and `package-lock.json` were reverted via `git checkout --`, `npm install` was re-run, and `@modelcontextprotocol/sdk@1.29.0` was re-confirmed on disk with `node_modules/@modelcontextprotocol/` containing exactly `ext-apps` and `sdk`. The only remaining working-tree modifications are `.planning/ROADMAP.md` and `.planning/STATE.md`, which were touched by `gsd-tools query init.phase-op 267`, not by this research.
+**Research date:** 2026-09-23
+**Valid until:** 2026-10-07 (14 days). The v2 line shipped 2.1.0 today, and Claude Code ships MCP behavior changes almost weekly (2.1.281 today). Before planning, re-run `npm view @modelcontextprotocol/server version`, `npm view @modelcontextprotocol/ext-apps version peerDependencies`, and the stdio tee against the then-current `claude --version`.
