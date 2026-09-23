@@ -1092,14 +1092,47 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 ### Phase 355.1: Ambient trigger: the room starts the breakthrough run (SENS-20 room-delta sensor, strategy-not-keywords front end) (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 355
-**Plans:** 0 plans
+**Goal:** The room, never the user, starts the breakthrough run: one detector (SENS-21) and one evaluator recognize five room-delta classes through the navigation chokepoint and start the five stamped Phase 355 producers underneath as autonomous_safe machinery on every surface (CLI hooks; the MCP Stop-time close-out on Desktop and Cowork); a per-room ledger with a delta hash and a lock prevents re-runs; only strong and indirect findings reach the card, once, through SENS-13; the framing follows the room problem type through a non-keyword chain. Widens the Phase 117 door; no rival spawner, no command, no MCP tool, no seventh reach. Navigator ruling 2026-09-23 (355.1-PRD.md).
+**Requirements**: AMB-01, AMB-02, AMB-03, AMB-04, AMB-05, AMB-06, AMB-07, AMB-08, AMB-09 (phase-local, defined in 355.1-PRD.md, registered in REQUIREMENTS.md by 355.1-16 at close)
+**Depends on:** Phase 355 (CLOSED before 355.1-01 runs)
+**Plans:** 16 plans (9 waves; one human checkpoint, 355.1-08, before every go-live plan)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 355.1 to break down)
+**Wave 1**
+- [ ] 355.1-01-PLAN.md -- AMB-09, AMB-08: EXECUTION GATE: nothing in Phase 355.1 runs until Phase 355 has closed (355-27 landed).
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 355.1-02-PLAN.md -- AMB-01: AMB-01's read side: three of the five delta classes have no navigation reader today (research C6: node_created events are a ghost, CONTRADICTS edges carry no timestamp, nothing reads stage or sub-room creation).
+- [ ] 355.1-03-PLAN.md -- AMB-02, AMB-01: AMB-02 and the pure half of AMB-01: one detector, SENS-21, registered in every gated lockstep place, riding the existing context_block reach; plus the pure classifier and delta hash the evaluator (plan 355.1-06) and the child (plan 355.1-09) share.
+- [ ] 355.1-04-PLAN.md -- AMB-07: AMB-07, the deferred 355 front end: the card's framing follows the room's problem type, found strategically (what the navigator ratified, what the room declares, what its structure shows), never by matching words.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 355.1-05-PLAN.md -- AMB-04: AMB-04: the memory that keeps an ambient trigger from becoming a nag or a Theo load problem.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 355.1-06-PLAN.md -- AMB-01, AMB-03, AMB-04, AMB-08: The machinery half of the split (AMB-01, AMB-03, AMB-04): one evaluator every surface calls (the CLI Stop hook and the MCP close-out, wired live in plan 355.1-14; the material-mode child in plan 355.1-09).
+- [ ] 355.1-07-PLAN.md -- AMB-03, AMB-05, AMB-08: AMB-03's substance and AMB-05's tier gate: the composition the background child runs.
+- [ ] 355.1-08-PLAN.md -- AMB-05, AMB-04, AMB-07, AMB-01 (CHECKPOINT: navigator ruling): The single human decision of Phase 355.1 (AC6).
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 355.1-09-PLAN.md -- AMB-03, AMB-06, AMB-08, AMB-04: AMB-03 made real on the process level: the one existing background child learns an ambient mode and stops calling a dead seam.
+- [ ] 355.1-10-PLAN.md -- AMB-05, AMB-06: Navigator Ruling 5, so a filed artifact produces one card, not two.
+- [ ] 355.1-11-PLAN.md -- AMB-05, AMB-07: AMB-05 and AMB-07 on the card: the stamped ambient finding reaches the navigator once, through the SENS-13 path 355 built, opening with a phrase chosen by the room's problem type.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 355.1-12-PLAN.md -- AMB-06, AMB-07, AMB-05, AMB-08: AC8 and the prose half of AMB-06 / AMB-07: the words users and Larry see.
+- [ ] 355.1-13-PLAN.md -- AMB-05, AMB-06: Ruling 2 on the hookless surfaces: the stamped card is offered once on Desktop and Cowork, as it already is on the CLI.
+
+**Wave 7** *(blocked on Wave 6 completion)*
+- [ ] 355.1-14-PLAN.md -- AMB-06, AMB-04, AMB-03, AMB-08: Go live on all three surfaces (AMB-06), after the checkpoint approved it.
+
+**Wave 8** *(blocked on Wave 7 completion)*
+- [ ] 355.1-15-PLAN.md -- AMB-08, AMB-09: AMB-08 and AMB-09's gate: prove on every new file that nothing from the room leaves the machine except canon handles through the one stamp adapter, that zod sits only at the outside edges, that machinery confirms nothing, and...
+
+**Wave 9** *(blocked on Wave 8 completion)*
+- [ ] 355.1-16-PLAN.md -- AMB-01, AMB-02, AMB-03, AMB-04, AMB-05, AMB-06, AMB-07, AMB-08, AMB-09: Close Phase 355.1 (AMB-09): register the nine requirements with their proof, finalize the validation contract, leave a tracked close-out and a dated handoff entry so the next session on any machine knows what shipped and what...
+
 
 ### Phase 356: Chain-executor material-step ledger: Jev Noul seat scored at dev time, shipped as data
 
