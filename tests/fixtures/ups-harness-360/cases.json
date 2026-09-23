@@ -1,0 +1,413 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "phase": "360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8",
+    "plan": "360-02",
+    "source": "authored",
+    "built": "2026-09-23",
+    "purpose": "Sanitized UserPromptSubmit harness/human fixtures for Phase 360 (room-bind picker fires on harness turns). Every entry, sequence and policy_entry here is authored placeholder data driving scripts/intent-classifier.cjs through spawn-kit.cjs; none of it is copied from any live transcript, snapshot, or intercept log. Plans 04 and 05 drive the hook against this data; this plan (360-02) only defines it and the R4/R8/R9 tripwire.",
+    "sanitization_statement": "Every text value in this file is authored for this corpus, following the tests/fixtures/card-fire-corpus-238.json convention. No real person name, no real organization name, no real email address, no session UUID from any live Claude Code transcript, and no peer unix-domain-socket path appears anywhere in this file. The stored-peer anchor shape from 357 RESEARCH Finding 3 (the session that minted the anchor false block) is reconstructed structurally only: the leading framing text and the tag that follows it, never the anchor's own conversational content, and never its session id or timestamp. Room names (copper-ledger, tin-orchard, quantum-bakery) are the same authored placeholders already committed in tests/test-260917-binding-gate-offscope.cjs; session ids and the one peer name are the sample- placeholders named below. The grep patterns run against this file to confirm no real-name/UUID/socket-path token leaked in are recorded in tests/test-360-tripwire.cjs legs r8b and r8c, and their pass/fail status is recorded in 360-02-SUMMARY.md.",
+    "no_real_user_content_by_construction": true,
+    "placeholders": {
+      "session_ids": "every stdin.session_id in this file matches ^sample-session-[a-z0-9-]+$",
+      "peers": ["sample-peer"],
+      "rooms": ["copper-ledger", "tin-orchard", "quantum-bakery"],
+      "rooms_note": "Rooms deliberately do NOT carry a shared 'sample-' prefix: scoreRoom (scripts/intent-classifier.cjs) awards +5 for a room-name token found in the message, so a shared token in every room name (and in the 'sample-peer' placeholder) would score every room at once and break the zero-score and off-scope legs. These three names are the same authored placeholders already committed in tests/test-260917-binding-gate-offscope.cjs, carrying no real content."
+    },
+    "ups_stdin_note": "UserPromptSubmit stdin carries no origin and no isMeta field (360-RESEARCH Finding 1, confirmed against Claude Code 2.1.281 in tests/fixtures/ups-harness-360/pre-phase.json a1_check), so every entry here is prompt-only: the harness/human distinction is expressed purely through the LEAD text of stdin.prompt, per D-02's lead-only reduction.",
+    "accepted_limits": [
+      {
+        "id": "pasted-harness-lead",
+        "reason": "The lead-only verdict cannot distinguish a human who pastes a harness tag as the first characters of their own typed message from a genuine harness turn. RESEARCH Finding 3/4 measured 0 of 2,154 human-origin prompts in the 30-day census leading with any of the five harness leads, so this is an accepted limit, not a defect: CONTEXT D-04's transcript-tail veto is superseded (see accepted-limit-pasted-lead entry below).",
+        "observed": 0
+      }
+    ]
+  },
+  "rooms": {
+    "active": "copper-ledger",
+    "copper-ledger": {
+      "state_md": "---\nproject: Invoice Ledger Billing\n---\n# Copper Ledger\nAccounts Payable Register\n"
+    },
+    "tin-orchard": {
+      "state_md": "---\nproject: Apple Orchard Harvest\n---\n# Tin Orchard\nPear Canning Facility\n"
+    },
+    "quantum-bakery": {
+      "state_md": "---\nproject: Sourdough Croissant Bakery\n---\n# Quantum Bakery\nOven Baking Schedule\n"
+    }
+  },
+  "fingerprint_bodies": {
+    "copper_ledger_rich": "let us review the invoice ledger billing accounts payable register process for this week please",
+    "zero_score_reframe": "I am a student enrolled in an urban mobility course and our group project is about transportation and mobility planning for a mid sized city"
+  },
+  "entries": [
+    {
+      "id": "harness-task-notification",
+      "shape": "task-notification",
+      "stdin": {
+        "prompt": "<task-notification>\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-a",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "A queued task-notification block, no origin, leading '<task-notification' (D-14, R5). The control body alone is rich in copper-ledger's fingerprint and fires the unbound F.8 gate today (RED baseline, recorded in 360-02-SUMMARY.md)."
+    },
+    {
+      "id": "harness-queued-cross-session",
+      "shape": "queued-cross-session",
+      "stdin": {
+        "prompt": "<cross-session-message from=\"sample-peer\">\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-b",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "A queued cross-session delivery, origin.kind:'peer', leading the cross-session-message tag naming sample-peer (R5, R-A gap this phase closes)."
+    },
+    {
+      "id": "harness-queued-agent-message",
+      "shape": "queued-agent-message",
+      "stdin": {
+        "prompt": "<agent-message from=\"sample-peer\">\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-c",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "A queued agent-message delivery, origin.kind:'peer', leading the agent-message tag naming sample-peer (R5, R-A gap this phase closes)."
+    },
+    {
+      "id": "harness-stored-peer-framing",
+      "shape": "stored-peer-framing",
+      "stdin": {
+        "prompt": "Another Claude session sent a message:\n<agent-message from=\"sample-peer\">\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-d",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "The anchor shape (357 RESEARCH Finding 3, the session that minted the anchor false block): a stored peer hand-back, isMeta:true, structurally reconstructed only (framing text + tag, never the anchor's own content, and never its session id or timestamp)."
+    },
+    {
+      "id": "harness-stored-peer-framing-working",
+      "shape": "stored-peer-framing-working",
+      "stdin": {
+        "prompt": "Another Claude session sent a message while you were working:\n<cross-session-message from=\"sample-peer\">\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-e",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "The 'while you were working' framing variant (Pitfall 6): covered by the 37-char stem 'Another Claude session sent a message', not the brittle 40-char LCP."
+    },
+    {
+      "id": "harness-idle-notice",
+      "shape": "idle-notice",
+      "stdin": {
+        "prompt": "[Cross-session idle notice]\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-f",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "isMeta:true, no origin, leading '[Cross-session idle notice]' (already in HARNESS_LEADS at plan base)."
+    },
+    {
+      "id": "harness-offscope-bound",
+      "shape": "bound-offscope",
+      "setup": {
+        "binding": { "bound": ["tin-orchard"], "primary": "tin-orchard" }
+      },
+      "stdin": {
+        "prompt": "<task-notification>\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-g",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "marker": "also matches",
+      "note": "Session bound to tin-orchard; the body scores copper-ledger (off-scope). Control (human) fires the off-scope 'also matches' header (260917-dia); the harness entry must suppress it (R1)."
+    },
+    {
+      "id": "harness-zero-score-bound",
+      "shape": "bound-zero-score",
+      "setup": {
+        "binding": { "bound": ["quantum-bakery"], "primary": "quantum-bakery" }
+      },
+      "stdin": {
+        "prompt": "<task-notification>\nI am a student enrolled in an urban mobility course and our group project is about transportation and mobility planning for a mid sized city",
+        "session_id": "sample-session-h",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "I am a student enrolled in an urban mobility course and our group project is about transportation and mobility planning for a mid sized city",
+      "expect": "suppress",
+      "marker": "no room matched",
+      "note": "Session bound to quantum-bakery; a substantive zero-fingerprint reframe (test-225's REFRAME shape). Control (human) fires the zero-score 'no room matched' gate; the harness entry must suppress it (R1)."
+    },
+    {
+      "id": "harness-strict-mode",
+      "shape": "strict-mode",
+      "stdin": {
+        "prompt": "<task-notification>\n\"tin-orchard\"",
+        "session_id": "sample-session-i",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "control_prompt": "\"tin-orchard\"",
+      "expect": "suppress",
+      "marker": "strict-mode override",
+      "note": "The control ('\"tin-orchard\"', a quoted exact non-active room name) matches detectStrictMode's Pattern 3 (lib/core/room-classifier-strict-mode.cjs) and, since the active room is copper-ledger, fires emitStrictModeOverride. Reachable by construction: the registry's active room is copper-ledger and tin-orchard is a distinct registered slug, so the quoted control's strict-mode branch (main() :505) is taken."
+    },
+    {
+      "id": "carveout-skill-body",
+      "shape": "skill-body-carveout",
+      "stdin": {
+        "prompt": "Base directory for this skill: /home/sample-user/.claude/skills/sample-skill\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-j",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "fire",
+      "note": "A Skill-body meta record (R-A carve-out, R8): no harness lead, so classifyUserPromptText (once it lands, 360-06) returns 'typed', not 'harness'. Fires by construction; the gate must still fire because the body scores copper-ledger."
+    },
+    {
+      "id": "human-direct",
+      "shape": "human-direct",
+      "stdin": {
+        "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-k",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "fire",
+      "note": "R3 control: an unbound session, a human-origin message with no harness lead, scoring copper-ledger. Must fire the F.8 unbound header before AND after this phase (byte-identical, R3)."
+    },
+    {
+      "id": "human-queued",
+      "shape": "human-queued",
+      "stdin": {
+        "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-l",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "fire",
+      "note": "A queued human command (origin.kind:'human' upstream of the hook) reaches the hook stdin as plain prompt text, structurally identical to human-direct at this hook (RESEARCH Finding 1: the UPS stdin never carries origin). Must still fire (R3)."
+    },
+    {
+      "id": "human-mid-text-quote",
+      "shape": "mid-text-quote",
+      "stdin": {
+        "prompt": "By the way, here is what came in earlier: <task-notification>fyi only</task-notification> anyway, let us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-m",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "fire",
+      "note": "D-12: a human sentence that quotes a harness tag MID-TEXT, not as its lead. classifyUserPromptText only checks the lead, so this stays non-harness and the gate fires."
+    },
+    {
+      "id": "human-image-lead",
+      "shape": "image-lead",
+      "stdin": {
+        "prompt": "[Image #1]\nlet us review the invoice ledger billing accounts payable register process for this week please",
+        "session_id": "sample-session-n",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "fire",
+      "note": "An image-placeholder lead is not in HARNESS_LEADS; a human pasting an image and scoring text still fires today and after (R3/R6 boundary)."
+    },
+    {
+      "id": "human-terse",
+      "shape": "human-terse",
+      "stdin": {
+        "prompt": "ok thanks",
+        "session_id": "sample-session-o",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "unchanged",
+      "note": "A genuinely terse two-word human acknowledgement: zero fingerprint score, below the PD-3 substantiality floor either way. No output before or after this phase."
+    },
+    {
+      "id": "accepted-limit-pasted-lead",
+      "shape": "pasted-lead-human",
+      "stdin": {
+        "prompt": "<agent-message from=\"sample-peer\">\nlet us review the apple orchard harvest pear canning facility notes for this week please",
+        "session_id": "sample-session-p",
+        "hook_event_name": "UserPromptSubmit"
+      },
+      "expect": "suppress",
+      "accepted_limit": "pasted-harness-lead",
+      "note": "A human who literally pastes an agent-message tag as the first characters of their own typed message. Lead-only verdict cannot distinguish this from a genuine harness turn (CONTEXT D-04 superseded, RESEARCH Finding 4: 0 of 2,154 human prompts in the 30-day census lead with a harness tag). Recorded as an accepted limit, not a defect."
+    }
+  ],
+  "sequences": [
+    {
+      "id": "r2-pending-answer",
+      "note": "R2: a harness turn must not consume a pending F.8 binding_gate_payload. Turn 1 fires the unbound gate and mints the payload; turn 2 is a harness prompt whose body IS one of turn 1's option labels (substituted at run time as {{LABEL}}, read from turn 1's rendered payload) -- it must NOT be consumed; turn 3 is the identical label sent as a human turn, which must still bind (today's behavior unchanged).",
+      "turns": [
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please"
+        },
+        {
+          "kind": "harness",
+          "prompt": "<task-notification>\n{{LABEL}}"
+        },
+        {
+          "kind": "human",
+          "prompt": "{{LABEL}}"
+        }
+      ]
+    },
+    {
+      "id": "r11-no-room-typed",
+      "note": "N-2: once a session answers 'dev repo / no room' (the {{NO_ROOM_LABEL}} sentinel, resolved at run time from the turn-1 payload's labelToSlug), the picker must not re-fire for the rest of that session_id; a different session_id must still fire (the other_session_id leg).",
+      "cwd_class": "inside-rooms-home",
+      "other_session_id": "sample-session-r11-other",
+      "turns": [
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please"
+        },
+        {
+          "kind": "human",
+          "prompt": "{{NO_ROOM_LABEL}}"
+        },
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please"
+        }
+      ]
+    },
+    {
+      "id": "r11-no-room-after-zero-score",
+      "note": "N-2 composed with the zero-score gate: after a substantive zero-score reframe (bound primary quantum-bakery) answers {{NO_ROOM_LABEL}}, a later copper-ledger scoring prompt in the same session must not re-fire.",
+      "cwd_class": "inside-rooms-home",
+      "setup": {
+        "binding": { "bound": ["quantum-bakery"], "primary": "quantum-bakery" }
+      },
+      "turns": [
+        {
+          "kind": "human",
+          "prompt": "I am a student enrolled in an urban mobility course and our group project is about transportation and mobility planning for a mid sized city"
+        },
+        {
+          "kind": "human",
+          "prompt": "{{NO_ROOM_LABEL}}"
+        },
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please"
+        }
+      ]
+    },
+    {
+      "id": "r11-explicit-rebind",
+      "note": "N-2 explicit override: after the typed no-room sequence, an explicit binding write (through the session-binding store, standing in for /mos:rooms or room_bind) to tin-orchard must still allow a later copper-ledger prompt to fire the 'also matches' off-scope marker -- explicit room commands are never suppressed by the no-room memory.",
+      "cwd_class": "inside-rooms-home",
+      "explicit_rebind": { "bound": ["tin-orchard"], "primary": "tin-orchard" },
+      "turns": [
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please"
+        },
+        {
+          "kind": "human",
+          "prompt": "{{NO_ROOM_LABEL}}"
+        },
+        {
+          "kind": "human",
+          "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+          "marker": "also matches"
+        }
+      ]
+    }
+  ],
+  "policy_entries": [
+    {
+      "id": "outside-dev-repo",
+      "cwd_class": "outside-dev-repo",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "N-1: cwd resolves outside MINDRIAN_ROOMS_HOME (a code repo). The picker must not fire, mint, or write a marker, regardless of how rich the message scores."
+    },
+    {
+      "id": "inside-rooms-home",
+      "cwd_class": "inside-rooms-home",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "unchanged",
+      "note": "cwd resolves inside MINDRIAN_ROOMS_HOME (a room directory). N-1 does not apply; behavior is today's behavior (fire)."
+    },
+    {
+      "id": "rooms-home-itself",
+      "cwd_class": "rooms-home-itself",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "unchanged",
+      "note": "cwd IS MINDRIAN_ROOMS_HOME itself (the root, not a room subdirectory). Counts as inside for N-1 purposes."
+    },
+    {
+      "id": "ancestor",
+      "cwd_class": "ancestor",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "cwd is an ANCESTOR of MINDRIAN_ROOMS_HOME (ambiguous: could contain the rooms home or could be a code repo root). N-1 fails toward showing the picker (fire) per the amendment's 'unresolvable cwd still fires' rule."
+    },
+    {
+      "id": "missing",
+      "cwd_class": "missing",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "stdin carries no cwd field at all. Unreadable/ambiguous cwd fails toward today's behavior (fire)."
+    },
+    {
+      "id": "non-string",
+      "cwd_class": "non-string",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "stdin.cwd is a non-string (a malformed payload). Fails toward fire."
+    },
+    {
+      "id": "relative",
+      "cwd_class": "relative",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "stdin.cwd is a relative path (never emitted by real Claude Code, but a malformed/adversarial payload must fail toward fire, never toward a false suppress)."
+    },
+    {
+      "id": "nonexistent",
+      "cwd_class": "nonexistent",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "stdin.cwd names a path that does not exist on disk. Fails toward fire (an unreadable cwd is ambiguous, not a confident outside-verdict)."
+    },
+    {
+      "id": "symlink-to-inside",
+      "cwd_class": "symlink-to-inside",
+      "binding": null,
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "note": "stdin.cwd is a symlink whose target resolves inside MINDRIAN_ROOMS_HOME, but the symlink's own path (pre-realpath) sits outside it. Deterministic realpath-prefix check must resolve this to 'inside' in the shipped implementation; recorded here as 'fire' (today's pre-implementation behavior) so 360-07's fixture leg can show the flip to 'unchanged' once N-1 lands."
+    },
+    {
+      "id": "bound-outside-offscope",
+      "cwd_class": "outside-dev-repo",
+      "binding": { "bound": ["tin-orchard"], "primary": "tin-orchard" },
+      "prompt": "let us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "fire",
+      "marker": "also matches",
+      "note": "N-1's cwd rule is scoped to UNBOUND sessions choosing whether to show the picker at all; a session that is ALREADY bound and cwd's outside the rooms home must still see its off-scope mismatch (a bound session working from a code repo can still write off-scope)."
+    },
+    {
+      "id": "harness-inside",
+      "cwd_class": "inside-rooms-home",
+      "binding": null,
+      "prompt": "<task-notification>\nlet us review the invoice ledger billing accounts payable register process for this week please",
+      "expect": "suppress",
+      "note": "A harness-lead prompt with cwd inside the rooms home: R1 suppresses it regardless of cwd (R1 and R10 are independent gates; R1 always wins for a harness verdict)."
+    }
+  ]
+}
