@@ -56,3 +56,33 @@ discipline.
      `test-353-tripwires.cjs` green). If any count differs, restore only this file
      (`git checkout -- scripts/build-section-command-ledger.cjs`, sanctioned because it
      was clean before the refactor edit) and re-defer.
+
+## 356-09: pre-existing tests/test-356-policy.cjs shipped-policy leg failure DEFERRED
+
+- **Date:** 2026-09-23
+- **Found during:** 356-09 baseline check (`bash tests/run-all-356.sh`), before any 356-09
+  edit landed. Confirmed pre-existing: `git stash`-free baseline run (no working-tree
+  changes at the time) already reported `PASSED=21 FAILED=1 SKIPPED=3`, with the one
+  failure being `test-356-policy.cjs`'s `shipped policy: boundary_cases mentions
+  /mos:vault` leg.
+- **Reason:** 356-06 landed `data/jev-policies/command-irreversibility.json` under the
+  D-21 rubric ("always stop for the navigator", not "outside the machine"). Its
+  `boundary_cases` array names `/mos:export`, `/mos:snapshot`, `/mos:present`,
+  `/mos:publish`, `/mos:update`, `/mos:doctor`, `/mos:admin`, `/mos:rs-fetch`, and
+  `/mos:wiki`, but never `/mos:vault` -- `tests/test-356-policy.cjs`'s shipped-policy
+  leg (owned by 356-07) still asserts the pre-D-21 boundary-case list. This is a
+  356-06/356-07 mismatch, not caused by any 356-09 edit: `scripts/build-command-
+  irreversibility-ledger.cjs`'s Task 1 and Task 2 commits do not touch the policy file,
+  `readPolicy`'s validation (shape only: `policy_id`, `version`, `instructions`,
+  `criteria.{true,false}`, non-empty `boundary_cases[]`), or `tests/test-356-policy.cjs`.
+- **Scope:** `tests/test-356-policy.cjs` (the shipped-policy leg) and/or
+  `data/jev-policies/command-irreversibility.json` (`boundary_cases`). Neither file is
+  in 356-09's `files_modified`.
+- **Impact on 356-09:** `bash tests/run-all-356.sh` reports `FAILED=1` both before and
+  after 356-09's two commits (confirmed by re-running the full aggregator after each
+  commit); the one failure is this pre-existing mismatch, never a 356-09 regression.
+  `node tests/test-356-ledger-build.cjs` itself is green (73/73) standalone.
+- **Recipe to apply later** (356-07 or 356-06's owner): either add `/mos:vault` back to
+  the policy's `boundary_cases` (if D-21's rubric still wants it named explicitly) or
+  update `tests/test-356-policy.cjs`'s shipped-policy leg to match the D-21-era wording,
+  whichever the navigator rules is correct for the current rubric.
