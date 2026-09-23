@@ -622,13 +622,13 @@ async function fakeFetch(_url, init) {
 | A6 | An additive `commandRow` export on `command-resolver.cjs` is acceptable to that module's owners | Pattern 2 | Fallback: the ledger module reads the registry itself (honoring `MINDRIAN_COMMAND_REGISTRY`), costing a second JSON parse |
 | A7 | Egress caps teaching 800 / jtbd_summary 200 / slug 64 / policy 8000 | Pattern 3 | A longer future blurb makes the build throw (refuse, don't strip); raise the cap deliberately |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Policy `criteria` shape.** What we know: Noul takes `{true, false}`; D-01 and 357 D-12 say `criteria[]`. Recommendation: object in the file, confirm with the navigator at the policy-lock checkpoint, message jsagi-e0.
-2. **Degenerate-threshold rule (A1).** Recommendation: adopt the two rules in Pattern 6 and state them in the policy-lock checkpoint.
-3. **Who owns the uncommitted diffs** in `eval-icm-writers.cjs`, `test-353-grader-agreement.cjs`, `test-353-ledger-shape.cjs`? Git cannot say (no commits yet). The extraction does not touch them, but D-06/D-11 require messaging the owner before editing the 353 builder they depend on. Recommendation: first execute task lists peers and messages them; proceed only on the builder file, which is clean.
-4. **354-17 copy-vs-import.** Its plan copies the client. Recommendation: message jsagi-25 with the client path and the `framework_command_ledger` profile slot; do not edit 354's plan.
-5. **Should `--check` join `doctor --acceptance`?** Not required by SPEC; recommend deferring.
+1. **Policy `criteria` shape.** What we know: Noul takes `{true, false}`; D-01 and 357 D-12 say `criteria[]`. Recommendation: object in the file, confirm with the navigator at the policy-lock checkpoint, message jsagi-e0. **RESOLVED:** D-01 amended to the object shape; jsagi-e0 applied it in 357-CONTEXT D-11/D-12.
+2. **Degenerate-threshold rule (A1).** Recommendation: adopt the two rules in Pattern 6 and state them in the policy-lock checkpoint. **RESOLVED:** D-15.
+3. **Who owns the uncommitted diffs** in `eval-icm-writers.cjs`, `test-353-grader-agreement.cjs`, `test-353-ledger-shape.cjs`? Git cannot say (no commits yet). The extraction does not touch them, but D-06/D-11 require messaging the owner before editing the 353 builder they depend on. Recommendation: first execute task lists peers and messages them; proceed only on the builder file, which is clean. **RESOLVED:** D-18 (unowned; never edited; 353 refactor guarded and deferred while the diffs remain).
+4. **354-17 copy-vs-import.** Its plan copies the client. Recommendation: message jsagi-25 with the client path and the `framework_command_ledger` profile slot; do not edit 354's plan. **RESOLVED:** D-19 (jsagi-25 amended 354-17 to import-or-extract, commits 873363114 and 74ff4a7ae).
+5. **Should `--check` join `doctor --acceptance`?** Not required by SPEC; recommend deferring. **RESOLVED:** deferred, consistent with the SPEC boundaries (not in scope for 356).
 
 ## Environment Availability
 
