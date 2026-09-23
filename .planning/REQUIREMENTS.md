@@ -2940,7 +2940,7 @@ contract.
       read/write resolve by realpath inside the room; percent-encoded traversal and sibling prefixes
       stay refused through the SDK URI matcher; valid discovered sections stay readable. Plan 354-05.
 
-- [ ] **SYS-02**: The cross-process write lock is owner-safe: a live owner is never displaced by age,
+- [x] **SYS-02**: The cross-process write lock is owner-safe: a live owner is never displaced by age,
       a dead owner is recovered by exactly one contender, only the token owner releases, nesting
       holds until the outermost release, graph-ops holds it across its await. Plan 354-04.
 

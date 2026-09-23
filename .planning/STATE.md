@@ -3,16 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-03-PLAN.md - Wave 2 of 8
-last_updated: "2026-09-23T09:43:37.383Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 03 (chain resume identity, SYS-09) completed
+stopped_at: Completed 354-04-PLAN.md - Wave 2 of 8
+last_updated: "2026-09-23T10:03:51.387Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 04 (write-lock ownership, SYS-02) completed
 progress:
   total_phases: 107
   completed_phases: 35
   total_plans: 311
-  completed_plans: 290
-  percent: 93
+  completed_plans: 291
+  percent: 94
 ---
+
+<!-- NOTE (354-04 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` reported `last_plan`/current_plan 3 of 3, status ready_for_verification --
+     Phase 353's own stale counters again, not used. `state.update-progress` correctly computed
+     `completed: 291, percent: 94` (291/311). `state.record-metric` (flag syntax `--phase --plan
+     --duration --tasks --files`) landed its own correct Performance Metrics row (Phase 354 P04,
+     32min, 2 tasks, 4 files). `state.add-decision` (with `--summary`) repeated the documented
+     `[Phase ?]` placeholder-prefix bug, fixed in place to a single `[Phase 354] 354-04: ...` line.
+     `state.record-session` this run updated ONLY the frontmatter `last_updated` timestamp and
+     reported `{"updated":["Last session"]}` -- narrower than it claimed: the body's own
+     "Stopped at:" line was left at the stale "Completed 354-03-PLAN.md" value despite the tool
+     being passed "Completed 354-04-PLAN.md - Wave 2 of 8" as its argument. Hand-corrected: frontmatter
+     `stopped_at` -> "Completed 354-04-PLAN.md - Wave 2 of 8", `last_activity` (reverted to the
+     stale 2026-09-17 Phase 353 line) -> this plan's own completion line, `percent` (reverted to
+     `33`, a phases-ratio reading) -> `94`; body "Stopped at:" line -> "Completed 354-04-PLAN.md -
+     Wave 2 of 8" to match. Left `total_phases`/`completed_phases` at 107/35 unchanged (Phase 354
+     has not closed; correct as reported). -->
 
 <!-- NOTE (354-03 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6706,6 +6724,7 @@ Progress: [█████████░] 92%
 | Phase 354 P01 | 26min | 2 tasks | 5 files |
 | Phase 354 P02 | 15min | 2 tasks | 2 files |
 | Phase 354 P03 | 18min | 2 tasks | 3 files |
+| Phase 354 P04 | 32min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -8378,6 +8397,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-01: Published the pre-implementation disposition ledger (13 IDs, all re-run live) and the shared Phase 354 test aggregator; D-354-SYS05 and D-354-EGR restated with impact, THEO-04 recorded CONFIRMED with remediation pending Plan 354-18
 - [Phase 354] 354-02: gate_answer's approve branch now promotes the card's subject claim (not the newly-minted decision node) through a named-reason eligibility gate; strategy-card and material-step approvals byte-unchanged (strategy_card_owned_by_goal_gate / kind_not_general short-circuits).
 - [Phase 354] 354-03: chain resume identity fixed by positional index (_computeResumePlan), not command-name lookup; mismatched journal halts named, completion checked against the durable journal
+- [Phase 354] 354-04: owner-token write lock, liveness-only recovery (process.kill(pid,0) is the sole takeover truth, age is documentation only); in-process _held registry keeps all 5 legacy no-handle callers working unedited; new breakLock() operator escape hatch, no automatic caller
 
 ### Pending Todos
 
@@ -8526,8 +8546,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T09:43:36.692Z
-Stopped at: Completed 354-03-PLAN.md - Wave 2 of 8
+Last session: 2026-09-23T10:03:50.948Z
+Stopped at: Completed 354-04-PLAN.md - Wave 2 of 8
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
