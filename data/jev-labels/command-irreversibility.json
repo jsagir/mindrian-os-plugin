@@ -1,0 +1,689 @@
+{
+  "schema": "jev-answer-key/v1",
+  "labels_for": "data/command-registry.json",
+  "registry_hash": "43d13474f8028fb9a2cc589388a9aa2a2ef90cf5a7bb55fee10eb203c850f9f8",
+  "reviewed_by": "navigator",
+  "reviewed_at": "2026-09-23",
+  "method": "D-20: a fresh second blind labeler (labeler A) filled the 113-row D-21 rubric sheet independently of labeler B (Claude sealed pre-labels re-run under D-21), both blind to each other and to any policy text; agreements became label_source two-model-blind-agreement (reason taken from labeler B). D-21: the flagged predicate changed to \"always stop for the navigator\", so both blind labelers re-ran under the new rubric; the resulting disagreements, plus every general boundary case the navigator reviewed directly at the validation desk, went to the navigator for a ruling (label_source navigator-arbitrated, reason verbatim from the ruling, or from the chat clarification for /mos:admin); navigator rulings always win over a model label.",
+  "rows": [
+    {
+      "command": "/mos:act",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:admin",
+      "irreversible": false,
+      "reason": "Legacy now that Theo took over the Brain, so no flag (navigator answer in chat, 2026-09-23)",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:agentshield",
+      "irreversible": false,
+      "reason": "Read-only scan of plugin surfaces",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:analyze-needs",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:analyze-systems",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:analyze-timing",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:auto-explore",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:beautiful-question",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:bono",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:brain-derive",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:build-knowledge",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:build-thesis",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:causal",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:challenge-assumptions",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:compare-ventures",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:correct-reference-now",
+      "irreversible": false,
+      "reason": "Writes the date into the local reference seam",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:dashboard",
+      "irreversible": false,
+      "reason": "Local view of the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:deck",
+      "irreversible": true,
+      "reason": "Produces a branded MindrianOS deck meant to be shown to others",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:deep-grade",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:diagnose",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:diagnostics",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:dial-memory-refresh",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:diffusion",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:discover",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:doctor",
+      "irreversible": true,
+      "reason": "alwas run diagosits with --fix",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:dogfood-flush",
+      "irreversible": false,
+      "reason": "Regenerates local room state",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:dominant-designs",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:eureka",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:explain-decision",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:explore-domains",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:explore-futures",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:explore-opportunity",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:explore-trends",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:export",
+      "irreversible": true,
+      "reason": "m:os styling can be changed ! but mind mindrian logo alwasy remais wit h main by mindrisnos with www.mindrian-os.com",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:feynman-timeline-refresh",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:file-meeting",
+      "irreversible": false,
+      "reason": "Files a transcript into room sections",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:find-analogies",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:find-bottlenecks",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:find-connections",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:funding",
+      "irreversible": false,
+      "reason": "Tracks grant pipeline inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:futures",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:grade",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:grade-grant",
+      "irreversible": false,
+      "reason": "Scores a draft locally before submission",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:graph",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:hat-briefing",
+      "irreversible": false,
+      "reason": "Consolidates hat memory into a room briefing",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:heal",
+      "irreversible": true,
+      "reason": "Reparis all !",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:help",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:hmi-status",
+      "irreversible": false,
+      "reason": "Read-only UI compliance audit",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:ignite",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "irreversible": true,
+      "reason": "Writes to the shared remote Brain graph and vectors",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:intel-pipeline",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:jtbd",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:leadership",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:lean-canvas",
+      "irreversible": false,
+      "reason": "Fills a canvas as working material in the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:macro-trends",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:map-unknowns",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:memory",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:memory-cortex-reach",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:models",
+      "irreversible": false,
+      "reason": "Local routing profile view or switch",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:mos",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:mos-reason",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:mullins",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:mva-brief",
+      "irreversible": false,
+      "reason": "This is a quicl. you can add a if to render ask for user. HITL",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:mva-option",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:mva-report",
+      "irreversible": false,
+      "reason": "Local report only, sends nothing",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:new-project",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:new-surface",
+      "irreversible": true,
+      "reason": "need to flash cuz Theo needs to get a mirroring set of nodes also",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:onboard",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:operator",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:opportunities",
+      "irreversible": false,
+      "reason": "Discovers and files grants inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:organize",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:persona",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:pipeline",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:present",
+      "irreversible": true,
+      "reason": "Generates branded six-view presentation meant to be sent to others",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:publish",
+      "irreversible": true,
+      "reason": "Deploys the presentation to Vercel as a public link",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:pws-brain",
+      "irreversible": false,
+      "reason": "Read-only side by side query comparison",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:qualify-opportunity",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:query",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:radar",
+      "irreversible": false,
+      "reason": "Reads public changelog into a local ledger",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:reanalyze",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:research",
+      "irreversible": false,
+      "reason": "Web reads and in-room filing only",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:room",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:rooms",
+      "irreversible": false,
+      "reason": "bothj",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:root-cause",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:rs-experts",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:rs-explain",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:rs-fetch",
+      "irreversible": false,
+      "reason": "Local only !",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:rs-thesis",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:scenario-plan",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:scheduled-tasks",
+      "irreversible": false,
+      "reason": "Theo needs to get enged to offer",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:score-innovation",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:scout",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:setup",
+      "irreversible": false,
+      "reason": "goof",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:show",
+      "irreversible": true,
+      "reason": "shwo is a quick view",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:skill",
+      "irreversible": false,
+      "reason": "Writes a room-scoped skill file inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:snapshot",
+      "irreversible": true,
+      "reason": "Builds a branded export bundle for sharing outside the team",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:speakers",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:splash",
+      "irreversible": false,
+      "reason": "Displays a banner locally",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:stance",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:status",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:structure-argument",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:suggest-next",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:systems-thinking",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:think-hats",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:trending-to-absurd",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:update",
+      "irreversible": true,
+      "reason": "Always check from update !",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:user-needs",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:validate",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:validate-proposition",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:vault",
+      "irreversible": false,
+      "reason": "Only if user has obsidian in their systme or asked for it",
+      "label_source": "navigator-arbitrated"
+    },
+    {
+      "command": "/mos:visualize",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:whitespace",
+      "irreversible": false,
+      "reason": "Reads, analyzes or writes working material inside the room",
+      "label_source": "two-model-blind-agreement"
+    },
+    {
+      "command": "/mos:wiki",
+      "irreversible": false,
+      "reason": "opens a locak host of the data room wiki. showing it to user",
+      "label_source": "navigator-arbitrated"
+    }
+  ],
+  "appeal_rulings": []
+}
