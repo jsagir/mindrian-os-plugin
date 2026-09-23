@@ -1241,7 +1241,7 @@ Plans:
 **Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 8 plans in 5 waves
-**Progress:** 6/8 plans executed (361-01, 361-02, 361-03, 361-04, 361-05, 361-06 done, 2026-09-23)
+**Progress:** 7/8 plans executed (361-01, 361-02, 361-03, 361-04, 361-05, 361-06, 361-07 done, 2026-09-23)
 
 Plans:
 
@@ -1262,7 +1262,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 361-07-PLAN.md -- the command upgrade: quick pass byte-preserved, unattended runs take the quick pass (D-12), query gate before any dispatch, parallel lane fan-out, validation, six phases citing rows, file only on approval; `web_scope: white`, Task plus a pending grant row, teaching line (D-11); every registry and ledger regenerated, registry hash moved
+- [x] 361-07-PLAN.md -- the command upgrade: quick pass byte-preserved, unattended runs take the quick pass (D-12), query gate before any dispatch, parallel lane fan-out, validation, six phases citing rows, file only on approval; `web_scope: white`, Task plus a pending grant row, teaching line (D-11); every registry and ledger regenerated, registry hash moved
 
 **Wave 5** *(not autonomous)*
 
