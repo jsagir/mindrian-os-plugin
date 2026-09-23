@@ -446,6 +446,32 @@ const EGRESS_PROFILES = Object.freeze({
     candidate_max_len: 140,
     message_prefix: 'assertEgressCeiling',
   }),
+  // 357-03 (D-10, D-12, R-G): the dev-time card-fire-replay labeler's own
+  // profile, declared in 356's exact_state_v1 schema, adding no new schema
+  // pieces. Three independent Nouls (is_fork, already_answered, relevant)
+  // score a Stop-event replay entry. state.policy must be byte-identical to
+  // data/jev-policies/card-fire-replay.json (must_equal_file); every
+  // question string outside the fixed question sentence must come from that
+  // same file (question_strings_from_file_key), so no room or dogfood text
+  // can cross to Jev through this profile. Never merged with any other
+  // profile (D-08: one profile per builder).
+  card_fire_replay: Object.freeze({
+    id: 'card_fire_replay',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-latest',
+    state_keys: Object.freeze(['output_text', 'preceding_user_text', 'gate_subject_text', 'gate_shape', 'turns_since_gate', 'policy']),
+    string_keys: Object.freeze(['output_text', 'preceding_user_text', 'gate_subject_text', 'gate_shape', 'turns_since_gate', 'policy']),
+    max_len_by_key: Object.freeze({ output_text: 4000, preceding_user_text: 2000, gate_subject_text: 300 }),
+    must_equal_file: Object.freeze({ policy: 'data/jev-policies/card-fire-replay.json' }),
+    question_ids: Object.freeze(['is_fork', 'already_answered', 'relevant']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'noul',
+    instructions_keys: Object.freeze(['question', 'rule', 'boundary_cases']),
+    criteria_keys: Object.freeze(['true', 'false']),
+    question_max_len: 400,
+    question_strings_from_file_key: 'policy',
+  }),
 });
 
 module.exports = { DEFAULT_ENDPOINT, loadKey, makeEgressGuard, jev, pool, EGRESS_PROFILES };
