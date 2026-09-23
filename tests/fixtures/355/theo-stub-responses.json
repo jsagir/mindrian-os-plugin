@@ -1,0 +1,199 @@
+{
+  "_note": "synthetic, shaped exactly like the 2026-09-23 live probes (355-RESEARCH.md 'Live Theo Contract'); internal Theo record ids replaced by fixture-* ids; every from/to name is a real snapshot entry from data/framework-names.json (framework_names or curated_extras). Keys are '<from>\u0000<to>'.",
+  "responses": {
+    "Reverse Salient Analysis\u0000Six Thinking Hats": {
+      "from": "Reverse Salient Analysis",
+      "to": "Six Thinking Hats",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Reverse Salient Analysis", "Six Thinking Hats"],
+          "pathLabels": ["Framework", "Framework"],
+          "edges": ["EXTENDS"],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Design Thinking\u0000Jobs to Be Done (JTBD)": {
+      "from": "Design Thinking",
+      "to": "Jobs to Be Done (JTBD)",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Design Thinking", "Systems Thinking", "Jobs to Be Done (JTBD)"],
+          "pathLabels": ["Framework", "Framework", "Framework"],
+          "edges": ["FEEDS_INTO", "SUPPORTS"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Cynefin Framework\u0000Hedgehog Concept": {
+      "from": "Cynefin Framework",
+      "to": "Hedgehog Concept",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Cynefin Framework", "Systems Thinking", "Design Thinking", "Hedgehog Concept"],
+          "pathLabels": ["Framework", "Framework", "Framework", "Framework"],
+          "edges": ["ADDRESSES", "COMPLEMENTS", "EXTENDS"],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Hierarchy Mapping\u0000PEST Analysis": {
+      "from": "Hierarchy Mapping",
+      "to": "PEST Analysis",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Hierarchy Mapping", "fixture-brainrecord-1", "PEST Analysis"],
+          "pathLabels": ["Framework", "BrainRecord", "Framework"],
+          "edges": ["SOURCED_FROM", "SOURCED_FROM"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Ackoff Pyramid\u0000Dominant Design": {
+      "from": "Ackoff Pyramid",
+      "to": "Dominant Design",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Ackoff Pyramid", "Ill-Defined Problem", "Dominant Design"],
+          "pathLabels": ["Framework", "DomainConcept", "Framework"],
+          "edges": ["ADDRESSES_PROBLEM_TYPE", "ADDRESSES_PROBLEM_TYPE"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Futures Wheel\u0000Mullins Model": {
+      "from": "Futures Wheel",
+      "to": "Mullins Model",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Futures Wheel", "fixture-domain-1", "Mullins Model"],
+          "pathLabels": ["Framework", "DomainConcept", "Framework"],
+          "edges": ["ADDRESSES_PROBLEM_TYPE", "ADDRESSES_PROBLEM_TYPE"],
+          "hops": 2
+        },
+        {
+          "path": ["Futures Wheel", "fixture-brainrecord-2", "Mullins Model"],
+          "pathLabels": ["Framework", "BrainRecord", "Framework"],
+          "edges": ["SOURCED_FROM", "SOURCED_FROM"],
+          "hops": 2
+        },
+        {
+          "path": ["Futures Wheel", "Adoption-Capacity Theory", "Mullins Model"],
+          "pathLabels": ["Framework", "Framework", "Framework"],
+          "edges": ["FEEDS_INTO", "SUPPORTS"],
+          "hops": 2
+        },
+        {
+          "path": ["Futures Wheel", "Self-Selling Loop", "Mullins Model"],
+          "pathLabels": ["Framework", "Framework", "Framework"],
+          "edges": ["EXTENDS", "COMPLEMENTS"],
+          "hops": 2
+        },
+        {
+          "path": ["Futures Wheel", "S-Curve Analysis", "Mullins Model"],
+          "pathLabels": ["Framework", "Framework", "Framework"],
+          "edges": ["SUPPORTS", "FEEDS_INTO"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Self-Selling Loop\u0000Dominant Design": {
+      "coverage": { "matched": 1, "total": 2, "status": "partial" },
+      "refusals": [
+        { "endpoint": "to", "name": "Dominant Design", "code": "FRAMEWORK_NOT_FOUND", "detail": "no live Framework carries the name (fixture)" }
+      ]
+    },
+    "Hedgehog Concept\u0000Six Thinking Hats": {
+      "from": "Hedgehog Concept",
+      "to": "Six Thinking Hats",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [],
+      "diagnostics": {}
+    },
+    "Design Thinking\u0000Cynefin Framework": {
+      "from": "Design Thinking",
+      "to": "Cynefin Framework",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Design Thinking", "Cynefin Framework"],
+          "pathLabels": ["Framework", "Framework"],
+          "edges": ["EXTENDS"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "Systems Thinking\u0000Hierarchy Mapping": {
+      "from": "Systems Thinking",
+      "to": "Hierarchy Mapping",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["Systems Thinking", "Hierarchy Mapping"],
+          "pathLabels": ["Framework"],
+          "edges": ["SUPPORTS"],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {}
+    },
+    "S-Curve Analysis\u0000Ackoff Pyramid": {
+      "from": "S-Curve Analysis",
+      "to": "Ackoff Pyramid",
+      "maxHops": 3,
+      "limit": 20,
+      "coverage": { "matched": 2, "total": 2, "status": "complete" },
+      "paths": [
+        {
+          "path": ["S-Curve Analysis", "fixture-domain-2", "Ackoff Pyramid"],
+          "pathLabels": ["Framework", "DomainConcept", "Framework"],
+          "edges": ["ADDRESSES", "SUPPORTS"],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {}
+    },
+    "PEST Analysis\u0000Ackoff Pyramid": { "$null": true },
+    "Mullins Model\u0000Futures Wheel": { "$throw": "synthetic transport failure (fixture)" },
+    "Six Thinking Hats\u0000Design Thinking": { "error": "egress_blocked", "tool": "find_connections", "egress_class": "content_set" },
+    "Jobs to Be Done (JTBD)\u0000Systems Thinking": { "error": "tier_denied", "tool": "find_connections", "message": "fixture tier denied" },
+    "S-Curve Analysis\u0000Hedgehog Concept": { "error": "rate_limited", "tool": "find_connections", "retry_after_s": 2, "attempts": 3, "message": "fixture rate limited" },
+    "Hierarchy Mapping\u0000Dominant Design": { "error": "invalid_key", "tool": "find_connections", "message": "fixture invalid key" },
+    "Adoption-Capacity Theory\u0000Self-Selling Loop": { "error": "tool not found: find_connections" },
+    "Futures Wheel\u0000Six Thinking Hats": { "error": "something else entirely (fixture)" },
+    "Cynefin Framework\u0000Ackoff Pyramid": { "$string": "just a raw string reply (fixture)" },
+    "Hedgehog Concept\u0000Hierarchy Mapping": { "text": "Error: something went wrong (fixture)" },
+    "PEST Analysis\u0000Dominant Design": { "coverage": { "matched": 1, "total": 2, "status": "partial" } }
+  }
+}
