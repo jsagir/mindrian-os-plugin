@@ -1045,13 +1045,43 @@ Plans:
 ### Phase 357: Gate-triad ledger: Jev-scored-at-dev-time is-fork/answered/relevant for the Stop-hook card gate, shipped as data, plus larry-extended gate-prose shrink
 
 **Goal:** Replace the regex + token-overlap guesses in the Stop-hook card gate (`scripts/check-card-fire.cjs` classifyCardFire, `lib/core/gate-relevance.cjs`) with a dev-time ledger. A local, network-free extractor quantizes each turn into a closed feature vector (gate shape, turns-since-gate bucket, prior-turn answer match, topical-overlap bucket, output-ends-in-question, option-list form). `scripts/build-gate-triad-ledger.cjs` enumerates that finite space and asks Jev three Noul per cell (is-fork, already-answered, relevant) with the policy stated in the question. The result ships as `data/gate-triad-ledger.json`, the same pattern as the Phase 353 section-command ledger. A missing or bad ledger falls back to today's heuristics byte-identically. Regression set: the 7 resolved card-fire debug files plus the 2026-09-23 no-fork footer false block. Then shrink larry-extended / larry-personality gate prose to "obey the injected gate verdict" and report the byte delta. Locked by the 2026-09-17 rulings: zero user text to Jev, Jev never in a hook, no live call. Brief: `357-BRIEF.md`.
-**Requirements**: TBD
-**Depends on:** Phase 353 (ledger builder pattern). Sequenced after Phase 354 execution to avoid concurrent edits; shares one Jev client with 354-17 and 356.
-**Plans:** 0 plans
+**Goal note:** superseded by `357-SPEC.md` (round 2): no runtime ledger; a labeled replay corpus plus harness gives 0 false blocks and 0 new missed forks through a minimal deterministic fix, Jev labels sanitized fixtures at dev time only, and Larry's gate prose shrinks only after that bar is met.
+**Requirements**: GATE357-01..09 (minted at plan time 2026-09-23; registered in `.planning/REQUIREMENTS.md`)
+**Depends on:** Phase 353 (ledger builder pattern). Sequenced after Phase 354 execution to avoid concurrent edits (execution HELD until 354-16 closes, D-15); shares one Jev client with 354-17 and 356.
+**Plans:** 10 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 357 to break down)
+**Wave 1**
+
+- [ ] 357-01-PLAN.md -- GATE357-01, -08: 354 gate, pre-phase anchor, corpus loader (238 read in place), empty-entries source files, loader test, run-all-357.sh
+
+**Wave 2** *(depends on 357-01)*
+
+- [ ] 357-02-PLAN.md -- GATE357-02, -06: replay harness (CLI + MCP, hermetic, --code-root pre-phase, baseline, exit semantics) and its test
+- [ ] 357-03-PLAN.md -- GATE357-03: card_fire_replay profile on the shared Jev client (356 exact_state_v1 schema, import-if-present) and the three Noul policies
+
+**Wave 3**
+
+- [ ] 357-04-PLAN.md -- GATE357-03: dev-time Jev labeler (refuses dogfood, keyless exit 0), refusal test, HOOKS_BANNED_LEDGER_SCRIPTS entry
+- [ ] 357-05-PLAN.md -- GATE357-01, -02: authored debug-case entries (10 RCAs, carve-outs, harness cases) and the two sanitized live 2026-09-23 entries (pre-phase FALSE_BLOCK proven)
+- [ ] 357-06-PLAN.md -- GATE357-09, -01: local-only dogfood extractor (R-D snapshot), verdict-preserving sanitization, >= 20 dogfood entries, review sheet
+
+**Wave 4**
+
+- [ ] 357-07-PLAN.md -- GATE357-04, -05: D-07 'harness' source class with the R-A carve-out, D-08a F.1 dial chrome strip with a renderer drift test
+
+**Wave 5** *(non-autonomous)*
+
+- [ ] 357-08-PLAN.md -- GATE357-09, -03, -04: Jev label run, the single navigator checkpoint (dogfood labels, R-C 09:20 case, Jev disagreements), rulings applied
+
+**Wave 6**
+
+- [ ] 357-09-PLAN.md -- GATE357-02, -04, -05, -06, -08: pre-phase baseline, 0/0 bar with CLI/MCP parity on HEAD, run-all-238 standing leg, reverted-fix mutation leg
+
+**Wave 7**
+
+- [ ] 357-10-PLAN.md -- GATE357-07 plus close-out: metric-gated Larry prose shrink on the two card spans (or recorded skip), manifest regen, requirement closure, D-17 dual filing, R-C follow-on
 
 ### Phase 270: Memory and Context Operator MCP
 

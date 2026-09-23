@@ -2995,6 +2995,55 @@ contract.
       not removed, not patched in Theo's own repository (out of scope), never claimed to be blocked.
       Plan 354-18.
 
+### Phase 357 - Gate-triad replay harness (GATE357 family)
+
+GATE357-01..09 were minted in the Phase 357 plan set (2026-09-23), ratifying `357-RESEARCH.md`'s
+proposed IDs for SPEC R1-R7 as amended by `357-CONTEXT.md`'s post-research rulings R-A..R-J, scoped
+to Phase 357 only, and are registered here at plan time as `- [ ]` rows to be closed with measured
+proof, or left open with a stated reason, at phase close by `357-10-PLAN.md` Task 2, per the same
+precedent. Execution is held until Phase 354 completes (D-15). The roadmap title's "ledger" wording
+is superseded by `357-SPEC.md`: there is no runtime ledger.
+
+- [ ] **GATE357-01**: One versioned replay corpus with four sources (the 238 corpus read in place
+      through an adapter, the resolved debug cases, the 2026-09-23 live false blocks, at least 20
+      dogfood Stop events), at least 45 entries, each with source, expected verdict class, label
+      origin and why, every file carrying a sanitization statement; live and dogfood entries replay
+      in transcript mode. Plans 357-01, 357-05, 357-06.
+
+- [ ] **GATE357-02**: `scripts/replay-card-fire.cjs` replays the corpus through the real
+      deriveTurnSignals and classifyCardFire with no network, supports --surface, --baseline,
+      --json and --code-root, reproduces the pre-phase false block as FALSE_BLOCK, and exits
+      non-zero on false blocks or new misses. Plans 357-02, 357-05, 357-09.
+
+- [ ] **GATE357-03**: A dev-only Jev labeler asks three independent Nouls for sources (a), (b), (c)
+      only, through the shared client and its card_fire_replay egress profile, refuses dogfood
+      before building any request, runs keyless with exit 0, never auto-applies a label, and is
+      banned from hooks/ by the shared tripwire list. Plans 357-03, 357-04, 357-08.
+
+- [ ] **GATE357-04**: A preceding harness record (subagent hand-back, task notification, peer or
+      idle notice) is classified 'harness' and treated as synthetic on the PRIMARY path, with the
+      human-upstream carve-out (R-A), fixing live-2026-09-23-01. Plans 357-07, 357-09.
+
+- [ ] **GATE357-05**: The F.1 dial's static chrome words, derived from dial-presenter's template
+      strings and pinned by a drift test, no longer satisfy topical relevance on their own (R-F),
+      fixing live-2026-09-23-02. Plans 357-07, 357-09.
+
+- [ ] **GATE357-06**: The CLI hook and the MCP stop_gate_check give identical verdict classes on
+      every corpus entry (dedup excluded) under a hermetic environment that never touches the
+      navigator's real rooms. Plans 357-02, 357-09.
+
+- [ ] **GATE357-07**: After the replay proves 0 false blocks and 0 new misses, the two Larry
+      card-rule spans shrink by at least 50% (2230 B to at most 1115 B, R-B) with the voice, card
+      and handoff tests green and the harness manifest regenerated; otherwise the skip reason is
+      recorded. Plan 357-10.
+
+- [ ] **GATE357-08**: The replay is a standing gate in run-all-357 and run-all-238, and reverting
+      either runtime fix makes it fail (mutation leg). Plans 357-01, 357-09.
+
+- [ ] **GATE357-09**: Dogfood Stop events are extracted locally from the R-D snapshot, sanitized
+      with verdict preservation, never sent to Jev, and ratified by the navigator at the single
+      human checkpoint (including the R-C 09:20 case). Plans 357-06, 357-08.
+
 ## Traceability
 
 339 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
@@ -3006,7 +3055,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
-(Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354). All minted
+(Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3084,7 +3133,7 @@ proof, or left open with a stated reason, at phase close by `354-16-PLAN.md` Tas
 Roadmap phases must map all 339 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS and THEO
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO and GATE357
 families
 alike (the
 Phase 266 and 269
