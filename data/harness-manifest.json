@@ -54,12 +54,12 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "ea0630868360b06396eff9a5f9a05be595cb7e568ac1ee1768e1f8c602520bbd"
+      "digest": "73127dd6d97f95ecf0a88f64136458c1c68d04b041b8428c431a2ca4c5b41437"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "9298674a2452367e7a0dbdd199dbd2f45c46f49a385879a6a7206af2b4497b23"
+      "digest": "522325bd5a8a00904ffa22f67852f3c65afba0000fc60a9f4d10010e483d1f1c"
     },
     {
       "role": "desktop_cowork_wire",
