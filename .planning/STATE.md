@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-07-PLAN.md - Wave 3 of 8
-last_updated: "2026-09-23T11:37:30.581Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 07 (chat/component inert rendering, SYS-03) completed
+stopped_at: Completed 354-08-PLAN.md - Wave 3 of 8
+last_updated: "2026-09-23T12:04:21.397Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 08 (POC save/origin hardening, dashboard Host check) completed
 progress:
   total_phases: 107
   completed_phases: 35
   total_plans: 334
-  completed_plans: 295
-  percent: 88
+  completed_plans: 299
+  percent: 90
 ---
+
+<!-- NOTE (354-08 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported Phase 353's stale counters (current_plan 3 of 3,
+     status ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 299, total: 334, percent: 90. `state.record-metric` (flag syntax --phase --plan
+     --duration --tasks --files) landed its own correct Performance Metrics row (Phase 354 P08,
+     ~55min, 3 tasks, 8 files). `state.add-decision` (with --summary) repeated the documented
+     `[Phase ?]` placeholder-prefix bug again, fixed in place to a single `[Phase 354] 354-08: ...`
+     line. `state.record-session` this run updated ONLY the body's own `Last session:` line --
+     narrower than it claimed: the body's "Stopped at:" line was left at the stale "Completed
+     354-07-PLAN.md" value, and `last_activity`/`stopped_at`/`percent` in the frontmatter were
+     reverted to stale Phase 353 values (last_activity to the 2026-09-17 line, percent to 33).
+     Hand-corrected: frontmatter `stopped_at` -> "Completed 354-08-PLAN.md - Wave 3 of 8",
+     `last_activity` -> this plan's own completion line, `percent` -> 90 (matching
+     state.update-progress's own just-computed value); `total_plans`/`completed_plans` (334/299)
+     were already correct, not reverted this run. Body "Stopped at:" line -> "Completed
+     354-08-PLAN.md - Wave 3 of 8" to match. Left `total_phases`/`completed_phases` at 107/35
+     unchanged (Phase 354 has not closed; correct as reported). -->
 
 <!-- NOTE (354-07 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -6789,6 +6808,7 @@ Progress: [█████████░] 92%
 | Phase 354 P05 | 30min | 3 tasks | 7 files |
 | Phase 354 P06 | 55min | 3 tasks | 12 files |
 | Phase 354 P07 | 15min | 2 tasks | 3 files |
+| Phase 354 P08 | 55min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -8465,6 +8485,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-05: one realpath-containment helper (lib/core/room-path-containment.cjs) closes the write/read/reasoning-ops symlink-escape seam (SYS-01); routed through safeResolveSection so every existing caller inherits it
 - [Phase 354] 354-06: classify() step 3 now proves a free-form brain_ask/brain_search question is closed-vocabulary structurally (QUESTION_FUNCTION_WORDS/METHODOLOGY_TOKEN_SET/COMMAND_SLUG_SET/CANONICAL_PHRASES), not merely keyword-present; brain-client.cjs::_typedFreeformGate refuses an unproven ambiguous free-form question outright in ask()/search()/smartSearch() (D-02 disclose-and-proceed unchanged for the other 14 wrappers); THEO-03 row stays open pending 354-12
 - [Phase 354] 354-07: escape-first renderMarkdown (fenced blocks extracted+escaped before transforms) inertizes chat-panel.js on both _renderMessage and streamed innerHTML sites; generative-tools.js gains safeColor hex validation (T-354-15) and single-quote escaping; SYS-03 closed, SYS-06 left open for 354-08/354-11
+- [Phase 354] 354-08: POC hardened with per-launch capability token, exact-Origin/Host checks, sha256 revisioned atomic saves, and a lossless textarea editor; legacy dashboard now Host-checks every GET route too; SYS-06 left open pending 354-11's journey test
 
 ### Pending Todos
 
@@ -8613,8 +8634,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T11:37:29.988Z
-Stopped at: Completed 354-07-PLAN.md - Wave 3 of 8
+Last session: 2026-09-23T12:04:21.063Z
+Stopped at: Completed 354-08-PLAN.md - Wave 3 of 8
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
