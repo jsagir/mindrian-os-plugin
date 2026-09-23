@@ -981,12 +981,14 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
-**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
+**Depends on:** Phase 266. UNBLOCKED 2026-09-23: `@modelcontextprotocol/ext-apps` moved from `1.7.5` (peer-pinned to SDK `^1.29.0`, the sole hard blocker per `267-RESEARCH.md`) to `2.0.0` (now requires `@modelcontextprotocol/{core,client,server}: ^2.0.0`, matching the v2 family). Re-verified live via `npm view @modelcontextprotocol/ext-apps peerDependencies` -- no longer inferred from stale research.
 **Plans:** 0 plans
+
+**Next action:** `267-RESEARCH.md` (2026-08-27) states its own validity window as 14 days and is now 27 days stale beyond that -- SDK moved 1.30.0 -> 1.30.1 and ext-apps moved 1.7.5 -> 2.0.0 since it was written. Re-run `/gsd-plan-phase 267 --research` (force-refresh) before planning, not `--skip-research` -- Open Questions 1 (does the navigator still want the Brain-server-first split now that the reason for it may be moot?), 2 (ext-apps ruling, likely moot now), 3 (codemod CJS spike), 4 (D-MOAT-1 plan-tier seam through `createMcpHandler` -- a security spike, not a task) and 6 (fresh elicitation-capability wire probe on all three surfaces) all need re-answering against current state, not the 2026-08-27 snapshot. Assumption A6 (zod 3->4 blast radius across this repo's ~200 call sites) is still marked "High and unmeasured" and remains the single largest un-sized risk in the phase regardless of the ext-apps unblock.
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 267 to break down)
+- [ ] TBD (run /gsd-plan-phase 267 --research to refresh stale research, then break down)
 
 ### Phase 355: Hidden in Plain Sight: Jev-through-Theo Cross-Connection Engines (honesty pass, KG-verification spearhead, first Jev question)
 
