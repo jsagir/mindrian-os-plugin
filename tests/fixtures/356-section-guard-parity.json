@@ -1,0 +1,460 @@
+{
+  "schema": "356-section-guard-parity/v1",
+  "recorded_from": "assertEgressCeiling at 201c10cf65dc5f09300fd3c8e41324827309f4df (scripts/build-section-command-ledger.cjs)",
+  "cases": [
+    {
+      "name": "minimal_valid",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "disallowed_top_key_room_path",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        },
+        "room_path": "/tmp/x"
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: disallowed top-level key \"room_path\""
+      }
+    },
+    {
+      "name": "state_as_array_skips_state_checks",
+      "payload": {
+        "model": "jev-latest",
+        "state": [
+          "section",
+          "problem_type"
+        ],
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "disallowed_state_key_room_path",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          },
+          "room_path": "/tmp/x"
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: disallowed state key \"room_path\""
+      }
+    },
+    {
+      "name": "disallowed_candidate_key_body",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d",
+              "body": "raw room content"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: disallowed candidate key \"body\" on c1"
+      }
+    },
+    {
+      "name": "candidate_string_141_chars_throws",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: candidate.c1.name exceeds 140 chars"
+      }
+    },
+    {
+      "name": "candidate_string_140_chars_ok",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "judge_401_chars_throws",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: question q instructions.judge unexpectedly long"
+      }
+    },
+    {
+      "name": "judge_400_chars_ok",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "criteria_arbitrary_keys_ok",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "anything": "goes",
+              "another": 1,
+              "nested": {
+                "a": 1
+              }
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "payload_null",
+      "payload": null,
+      "expect": {
+        "throws": "assertEgressCeiling: payload must be an object"
+      }
+    },
+    {
+      "name": "payload_string",
+      "payload": "not an object",
+      "expect": {
+        "throws": "assertEgressCeiling: payload must be an object"
+      }
+    },
+    {
+      "name": "state_absent_ok",
+      "payload": {
+        "model": "jev-latest",
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "candidates_absent_ok",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st"
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "numeric_candidate_value_ok",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": 42,
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": "ok"
+    },
+    {
+      "name": "two_candidates_second_bad_key_names_c2",
+      "payload": {
+        "model": "jev-latest",
+        "state": {
+          "section": "s",
+          "problem_type": "p",
+          "stage": "st",
+          "candidates": {
+            "c1": {
+              "name": "n",
+              "jtbd": "j",
+              "glossary": "g",
+              "description": "d"
+            },
+            "c2": {
+              "name": "ok",
+              "badkey": "nope"
+            }
+          }
+        },
+        "questions": {
+          "q": {
+            "type": "noul",
+            "instructions": {
+              "judge": "j"
+            },
+            "criteria": {
+              "true": "t",
+              "false": "f"
+            }
+          }
+        }
+      },
+      "expect": {
+        "throws": "assertEgressCeiling: disallowed candidate key \"badkey\" on c2"
+      }
+    }
+  ]
+}
