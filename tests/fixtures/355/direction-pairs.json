@@ -1,0 +1,286 @@
+{
+  "_source": "expected labels computed by lib/core/direction-convention.cjs classify() after the PWS author's phrase ruling (355-PHRASE-CONFIRMATION.md); never hand-edited",
+  "phrase_hash": "fba76597996550770774995f22602eb220054e2615a4d6e77212c01bc09cfe16",
+  "generated_at": "2026-09-23T18:36:00.442Z",
+  "pairs": [
+    {
+      "id": "clear-bridge-1",
+      "lsa": 0.1,
+      "semantic": 0.8,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-bridge-2",
+      "lsa": 0.15,
+      "semantic": 0.75,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-bridge-3",
+      "lsa": 0.05,
+      "semantic": 0.65,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-bridge-4",
+      "lsa": 0.2,
+      "semantic": 0.9,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-bridge-5",
+      "lsa": 0.12,
+      "semantic": 0.6,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-bridge-6",
+      "lsa": 0.08,
+      "semantic": 0.55,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "clear meaning bridge: lsa low, semantic high"
+    },
+    {
+      "id": "clear-collision-1",
+      "lsa": 0.8,
+      "semantic": 0.1,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "clear-collision-2",
+      "lsa": 0.75,
+      "semantic": 0.15,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "clear-collision-3",
+      "lsa": 0.65,
+      "semantic": 0.05,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "clear-collision-4",
+      "lsa": 0.9,
+      "semantic": 0.2,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "clear-collision-5",
+      "lsa": 0.6,
+      "semantic": 0.12,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "clear-collision-6",
+      "lsa": 0.55,
+      "semantic": 0.08,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "clear term collision: lsa high, semantic low"
+    },
+    {
+      "id": "tie-exact-mid",
+      "lsa": 0.4,
+      "semantic": 0.4,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "exact tie (D-02: buckets semantic_implementation)"
+    },
+    {
+      "id": "tie-exact-zero",
+      "lsa": 0,
+      "semantic": 0,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "exact tie at 0/0"
+    },
+    {
+      "id": "tie-exact-one",
+      "lsa": 1,
+      "semantic": 1,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "exact tie at 1/1"
+    },
+    {
+      "id": "near-tie-plus-0001",
+      "lsa": 0.5,
+      "semantic": 0.501,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "near tie, diff +0.001"
+    },
+    {
+      "id": "near-tie-minus-0001",
+      "lsa": 0.501,
+      "semantic": 0.5,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "near tie, diff -0.001"
+    },
+    {
+      "id": "near-tie-plus-00001",
+      "lsa": 0.5,
+      "semantic": 0.5001,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "near tie, diff +0.0001"
+    },
+    {
+      "id": "near-tie-minus-00001",
+      "lsa": 0.5001,
+      "semantic": 0.5,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "near tie, diff -0.0001"
+    },
+    {
+      "id": "both-near-zero-1",
+      "lsa": 0.001,
+      "semantic": 0.002,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "both near zero"
+    },
+    {
+      "id": "both-near-zero-2",
+      "lsa": 0.003,
+      "semantic": 0.001,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "both near zero"
+    },
+    {
+      "id": "both-near-one-1",
+      "lsa": 0.98,
+      "semantic": 0.99,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "both near one"
+    },
+    {
+      "id": "both-near-one-2",
+      "lsa": 0.99,
+      "semantic": 0.97,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "both near one"
+    },
+    {
+      "id": "missing-null-lsa",
+      "lsa": null,
+      "semantic": 0.5,
+      "expected": "none",
+      "classifier_single_axis": false,
+      "note": "missing: lsa is JSON null"
+    },
+    {
+      "id": "missing-absent-semantic",
+      "lsa": 0.5,
+      "expected": "none",
+      "classifier_single_axis": false,
+      "note": "missing: semantic key absent entirely"
+    },
+    {
+      "id": "missing-nan-string-lsa",
+      "lsa": "NaN",
+      "semantic": 0.5,
+      "expected": "none",
+      "classifier_single_axis": false,
+      "note": "missing: lsa is the string \"NaN\""
+    },
+    {
+      "id": "outrange-lsa-over-one",
+      "lsa": 1.2,
+      "semantic": 0.3,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": false,
+      "note": "out-of-range finite: lsa > 1"
+    },
+    {
+      "id": "outrange-semantic-negative",
+      "lsa": -0.2,
+      "semantic": 0.1,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "out-of-range finite: lsa < 0"
+    },
+    {
+      "id": "real-272-hsi-1",
+      "lsa": 0.2456,
+      "semantic": 0.4828,
+      "expected": "structural_transfer",
+      "classifier_single_axis": false,
+      "note": "real row from tests/fixtures/272/room/.hsi-results.json (assumptions/performance-tuning-03 x research/data-pipeline-04)"
+    },
+    {
+      "id": "single-axis-lsa-high-1",
+      "lsa": 0.5,
+      "semantic": 0.1,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": true,
+      "note": "single axis: lsa >= 0.3, semantic < 0.3"
+    },
+    {
+      "id": "single-axis-semantic-high-1",
+      "lsa": 0.1,
+      "semantic": 0.5,
+      "expected": "structural_transfer",
+      "classifier_single_axis": true,
+      "note": "single axis: semantic >= 0.3, lsa < 0.3"
+    },
+    {
+      "id": "single-axis-lsa-high-2",
+      "lsa": 0.35,
+      "semantic": 0.05,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": true,
+      "note": "single axis: lsa >= 0.3, semantic < 0.3"
+    },
+    {
+      "id": "single-axis-semantic-high-2",
+      "lsa": 0.05,
+      "semantic": 0.35,
+      "expected": "structural_transfer",
+      "classifier_single_axis": true,
+      "note": "single axis: semantic >= 0.3, lsa < 0.3"
+    },
+    {
+      "id": "single-axis-lsa-high-3",
+      "lsa": 0.9,
+      "semantic": 0.29,
+      "expected": "semantic_implementation",
+      "classifier_single_axis": true,
+      "note": "single axis: lsa >= 0.3, semantic < 0.3"
+    },
+    {
+      "id": "single-axis-semantic-high-3",
+      "lsa": 0.29,
+      "semantic": 0.9,
+      "expected": "structural_transfer",
+      "classifier_single_axis": true,
+      "note": "single axis: semantic >= 0.3, lsa < 0.3"
+    }
+  ]
+}
