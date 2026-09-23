@@ -550,7 +550,9 @@ Not a rename or migration phase. One runtime item worth naming: Theo's command l
 | A6 | Lane query templates (wording) | Composer | Low: navigator sees and edits every query at the gate |
 | A7 | Keeping `hitl_shape: "F.1"` (gate card as a single next-move pick) is acceptable over declaring `hitl_stages` | Pattern 3 | Low: `check-shape-declaration` is advisory; can be revised later |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All five resolved by the navigator on 2026-09-23 as `361-CONTEXT.md` D-11 (OQ-1), D-12 (OQ-2), D-14 (OQ-3), D-13 (OQ-4), D-15 (OQ-5).
 
 1. **What does "update the registry row in place (web_scope, the agent it dispatches, produces)" map to?**
    - Known: the row has no `web_scope` or agent field; it is generated.
