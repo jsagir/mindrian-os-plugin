@@ -2926,10 +2926,14 @@ SYS-01..07 and THEO-01..03 are the candidate ledger ids defined in
 `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md` (the phase mandate); SYS-08 and
 SYS-09 were minted in the Phase 354 plan set (2026-09-23) for the two newly discovered P1 findings
 in `docs/reviews/2026-09-23-deep-system-research.md` that fit no candidate row (the roadmap card
-requires newly discovered failures to be included). Scoped to Phase 354 only, registered here at
-plan time as `- [ ]` rows, to be closed with measured proof, or left open with a stated reason, at
-phase close by `354-16-PLAN.md` Task 3, per the Phase 254/257/265/267.2/267.3/270/272/274/276/
-339/275/340/344/343/347/345/346/348/349/353 precedent. `354-CONTEXT.md` is the scope contract.
+requires newly discovered failures to be included); THEO-04 was minted post-planning (2026-09-23,
+navigator-directed) for a newly discovered exposure the original research never examined -- the raw
+`theo` MCP server (`~/.claude.json`) bypasses `lib/core/part8-egress-guard.cjs` entirely, a
+structural gap between two MCP registrations rather than a bug in either. Scoped to Phase 354 only,
+registered here at plan time as `- [ ]` rows, to be closed with measured proof, or left open with a
+stated reason, at phase close by `354-16-PLAN.md` Task 3, per the Phase 254/257/265/267.2/267.3/270/
+272/274/276/339/275/340/344/343/347/345/346/348/349/353 precedent. `354-CONTEXT.md` is the scope
+contract.
 
 - [ ] **SYS-01**: Room path containment holds against symlinks on every MCP read and write path:
       artifact_file, room://section/{sectionName}, reasoning://section/{name} and every reasoning-ops
@@ -2973,10 +2977,15 @@ phase close by `354-16-PLAN.md` Task 3, per the Phase 254/257/265/267.2/267.3/27
       thin-result providers with no room byte on the wire and no fallback labelled as Theo, and the
       free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
       354-12.
+- [ ] **THEO-04**: The raw `theo` MCP server's bypass of `part8-egress-guard.cjs` is documented where
+      a session will read it before calling a Brain-adjacent tool (CLAUDE.md, GROUNDING-SOURCES.md)
+      and surfaced by an offline, zero-network, WARN-only `doctor.cjs --acceptance` advisory check;
+      not removed, not patched in Theo's own repository (out of scope), never claimed to be blocked.
+      Plan 354-18.
 
 ## Traceability
 
-338 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+339 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -2985,7 +2994,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
-(Phase 353), plus SYS-01..09 / THEO-01..03 (Phase 354). All minted
+(Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3055,11 +3064,12 @@ Phase 353 only, and are registered here at plan time as `- [ ]` rows to be close
 measured proof at phase close by `353-03-PLAN.md` Task 7, per the same precedent. The
 roadmap card's `ICM-353-01..03` labels are working labels that map onto these ids and are not
 register rows of their own.
-SYS-01..07 and THEO-01..03 are the Phase 354 handoff's candidate ledger ids and SYS-08..09 were
-minted in the Phase 354 plan set (2026-09-23) for newly discovered findings; all twelve are
-registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
-stated reason, at phase close by `354-16-PLAN.md` Task 3.
-Roadmap phases must map all 338 active requirements with no orphans.
+SYS-01..07 and THEO-01..03 are the Phase 354 handoff's candidate ledger ids, SYS-08..09 were
+minted in the Phase 354 plan set (2026-09-23) for newly discovered findings, and THEO-04 was
+minted post-planning (2026-09-23, navigator-directed) for the raw-theo-MCP egress-guard-bypass
+exposure; all thirteen are registered here at plan time as `- [ ]` rows to be closed with measured
+proof, or left open with a stated reason, at phase close by `354-16-PLAN.md` Task 3.
+Roadmap phases must map all 339 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
 FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS and THEO

@@ -928,11 +928,11 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 ### Phase 354: System Integrity and Theo Integration - Independent Research and Verified Repair
 
 **Goal:** Independently research the whole plugin and Theo integration, reproduce or refute the review findings, then repair confirmed failures and verify complete user journeys. Research must precede implementation.
-**Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). All twelve registered in `.planning/REQUIREMENTS.md` at plan time.
+**Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). Newly discovered post-planning, navigator-directed 2026-09-23: THEO-04 (raw `theo` MCP server at `~/.claude.json` bypasses `part8-egress-guard.cjs`; document + procedural discipline, not a code fix). All thirteen registered in `.planning/REQUIREMENTS.md`.
 **Depends on:** Phase 353
-**Plans:** 16 plans
+**Plans:** 18 plans
 
-**Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351 and 352; no duplicate implementation or silent deferrals. Before wave 3: the uncommitted Sep-20 localhost-poc room-mode diff must be committed or discarded by the navigator (354-08 precondition), and decisions D-354-SYS05 and D-354-EGR may be vetoed (ledger section 9).
+**Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351, 352 AND 355 (355 is titled "Jev-through-Theo Cross-Connection Engines" and depends on 354 -- 354-17 and 354-18 below already cover the TypeSafe/Jev-framework-ledger and raw-theo-MCP-exposure ground; scope 355 to not re-cover them). Uncommitted Sep-20 localhost-poc room-mode diff: committed (`e08c32f05`). Decisions: D-354-EGR APPROVED (navigator, 2026-09-23, unchanged from plan); D-354-SYS05 may still be vetoed (ledger section 9).
 
 Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, trust/state integrity, boundary integrity, Theo contract-safety, journeys, diagnostics, close-out)
 
@@ -957,6 +957,7 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 - [ ] 354-09-PLAN.md -- THEO-01: structural rung round trip, registry-only executable chains validated before act init, ranked-candidate provenance, disclosed degradation
 - [ ] 354-10-PLAN.md -- THEO-01: taxonomy_ladder casing matched to Theo's PROBLEM_TYPE_IDS (recommendChain untouched)
+- [ ] 354-17-PLAN.md -- THEO-01 (navigator-directed TypeSafe/Jev addition, 2026-09-23; depends on 354-09): sibling of the shipped Phase 353 section-command-ledger builder, `scripts/build-framework-command-ledger.cjs` -> `data/framework-command-ledger.json`, dev-time Jev-scored, zero runtime vendor call, recovers recall 354-09's exact-slug safety check costs without weakening it
 
 **Wave 5** *(tier 4, journeys; depends on wave 4)*
 
@@ -968,6 +969,7 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 - [ ] 354-13-PLAN.md -- SYS-07: acceptance-runner timing, bounded children, clean rerun and RCA classification
 - [ ] 354-14-PLAN.md -- SYS-04: registration report, stderr diagnostics, status_read tool_registration health
 - [ ] 354-15-PLAN.md -- SYS-05: extract_shallow honest pure-parse contract (D-354-SYS05)
+- [ ] 354-18-PLAN.md -- THEO-04 (newly discovered, navigator-directed document + procedural discipline, 2026-09-23): CLAUDE.md/GROUNDING-SOURCES.md routing rule plus an offline, WARN-only, non-blocking `scripts/check-theo-mcp-exposure.cjs` wired into `doctor.cjs --acceptance`'s advisory registry
 
 **Wave 7** *(close-out; depends on wave 6)*
 
