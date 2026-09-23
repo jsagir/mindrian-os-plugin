@@ -925,6 +925,54 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 
 - [x] 353-03-PLAN.md -- RULE-22..28: Fixture grading. evals/icm/ with five per-writer checklists and a once-authored Claude-judge baseline, scripts/eval-icm-writers.cjs (fixture-only, dev-time key, De Stijl report), the paired top-3 hit-rate run, exact-agreement grading, the icm-ruling-eval-fresh acceptance point, three tripwires, and the phase close-out
 
+### Phase 354: System Integrity and Theo Integration - Independent Research and Verified Repair
+
+**Goal:** Independently research the whole plugin and Theo integration, reproduce or refute the review findings, then repair confirmed failures and verify complete user journeys. Research must precede implementation.
+**Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). All twelve registered in `.planning/REQUIREMENTS.md` at plan time.
+**Depends on:** Phase 353
+**Plans:** 16 plans
+
+**Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351 and 352; no duplicate implementation or silent deferrals. Before wave 3: the uncommitted Sep-20 localhost-poc room-mode diff must be committed or discarded by the navigator (354-08 precondition), and decisions D-354-SYS05 and D-354-EGR may be vetoed (ledger section 9).
+
+Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, trust/state integrity, boundary integrity, Theo contract-safety, journeys, diagnostics, close-out)
+
+**Wave 1**
+
+- [ ] 354-01-PLAN.md -- all IDs: pre-implementation disposition ledger (probes re-run, coverage map, ownership map, D-354-SYS05 and D-354-EGR) plus shared test infrastructure (run-all-354.sh, scratch-room and Playwright helpers)
+
+**Wave 2** *(tier 1, trust and state integrity; depends on 354-01)*
+
+- [ ] 354-02-PLAN.md -- SYS-08: gate approval confirms the card's subject claim, not the decision node
+- [ ] 354-03-PLAN.md -- SYS-09: chain resume by positional step identity, predecessor output restore, journal agreement
+- [ ] 354-04-PLAN.md -- SYS-02: owner-token write lock, liveness-only recovery, owner-aware release, graph-ops handle
+
+**Wave 3** *(tier 2, boundary integrity; depends on wave 2)*
+
+- [ ] 354-05-PLAN.md -- SYS-01: one realpath-containment helper for artifact_file, section and reasoning resources, reasoning-ops
+- [ ] 354-06-PLAN.md -- THEO-03: closed-vocabulary typed-question proof; ask/search refuse unproven free-form prose (D-354-EGR)
+- [ ] 354-07-PLAN.md -- SYS-03, SYS-06: inert chat and tool-component rendering
+- [ ] 354-08-PLAN.md -- SYS-06: POC lossless save, Host/Origin/token model, revision conflicts; legacy dashboard Host-on-read recheck
+
+**Wave 4** *(tier 3, Theo contract-safety; depends on wave 3)*
+
+- [ ] 354-09-PLAN.md -- THEO-01: structural rung round trip, registry-only executable chains validated before act init, ranked-candidate provenance, disclosed degradation
+- [ ] 354-10-PLAN.md -- THEO-01: taxonomy_ladder casing matched to Theo's PROBLEM_TYPE_IDS (recommendChain untouched)
+
+**Wave 5** *(tier 4, journeys; depends on wave 4)*
+
+- [ ] 354-11-PLAN.md -- SYS-06: browser-to-room-to-graph journey on one temporary room through the governed filing path
+- [ ] 354-12-PLAN.md -- THEO-01, THEO-02, THEO-03: hermetic four-case Theo journey, opt-in live contract run, THEO-02 BLOCKED on Phase 351 with evidence
+
+**Wave 6** *(tier 5, diagnostics; depends on wave 5)*
+
+- [ ] 354-13-PLAN.md -- SYS-07: acceptance-runner timing, bounded children, clean rerun and RCA classification
+- [ ] 354-14-PLAN.md -- SYS-04: registration report, stderr diagnostics, status_read tool_registration health
+- [ ] 354-15-PLAN.md -- SYS-05: extract_shallow honest pure-parse contract (D-354-SYS05)
+
+**Wave 7** *(close-out; depends on wave 6)*
+
+- [ ] 354-16-PLAN.md -- all IDs: concurrency and Tri-Polar checks, measured gates, final dispositions, review corrections, requirement rows, handoff entry, rethinking-room filing
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD

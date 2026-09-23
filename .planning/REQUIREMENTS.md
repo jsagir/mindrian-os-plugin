@@ -2920,9 +2920,63 @@ where a ruling and a roadmap sentence disagree, the ruling wins and the row says
       example line 2502, line 3153) already carried an em-dash before this phase; this phase's own
       new bullet (`CHANGELOG.md` lines 1-15) carries zero, verified independently.
 
+### Phase 354 - System Integrity and Theo Integration (SYS and THEO families)
+
+SYS-01..07 and THEO-01..03 are the candidate ledger ids defined in
+`docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md` (the phase mandate); SYS-08 and
+SYS-09 were minted in the Phase 354 plan set (2026-09-23) for the two newly discovered P1 findings
+in `docs/reviews/2026-09-23-deep-system-research.md` that fit no candidate row (the roadmap card
+requires newly discovered failures to be included). Scoped to Phase 354 only, registered here at
+plan time as `- [ ]` rows, to be closed with measured proof, or left open with a stated reason, at
+phase close by `354-16-PLAN.md` Task 3, per the Phase 254/257/265/267.2/267.3/270/272/274/276/
+339/275/340/344/343/347/345/346/348/349/353 precedent. `354-CONTEXT.md` is the scope contract.
+
+- [ ] **SYS-01**: Room path containment holds against symlinks on every MCP read and write path:
+      artifact_file, room://section/{sectionName}, reasoning://section/{name} and every reasoning-ops
+      read/write resolve by realpath inside the room; percent-encoded traversal and sibling prefixes
+      stay refused through the SDK URI matcher; valid discovered sections stay readable. Plan 354-05.
+- [ ] **SYS-02**: The cross-process write lock is owner-safe: a live owner is never displaced by age,
+      a dead owner is recovered by exactly one contender, only the token owner releases, nesting
+      holds until the outermost release, graph-ops holds it across its await. Plan 354-04.
+- [ ] **SYS-03**: Assistant and tool-component output in lib/chat renders inert in a real browser on
+      the whole-message and streamed paths while bold, italic, code and lists still render.
+      Plan 354-07.
+- [ ] **SYS-04**: A failed tool-module registration keeps siblings working, writes a stderr
+      diagnostic (stdout protocol-clean) and is reported by registerCoreTools and status_read
+      capability_floor.tool_registration. Plan 354-14.
+- [ ] **SYS-05**: extract_shallow's public contract is honest parsing (D-354-SYS05): the handler
+      writes nothing to disk or room.db (verified after reopening), its description and response say
+      so, and agents/larry-extended.md names claim_write as the persistence step. Plan 354-15.
+- [ ] **SYS-06**: The localhost POC saves untouched content byte-identically, refuses cross-origin
+      writes and foreign Host reads, detects stale-tab conflicts, files room documents through the
+      governed artifact path, and passes the full browser-to-room-to-graph journey (bind,
+      edit/save/reopen, governed index, inspect, grounded ask with references, external edit).
+      Plans 354-07, 354-08, 354-11.
+- [ ] **SYS-07**: The acceptance runner reports per-point timing and progress, bounds every child
+      process, and a clean rerun classifies the timeout as WORKING, ENV GAP or NEW FAILURE with an
+      orphan check, recorded in `.planning/debug/sys-07-acceptance-timing.md`. Plan 354-13.
+- [ ] **SYS-08**: Gate approval promotes the card's subject claim (the exact claim id reads
+      confirmed after reopening), never evidence nodes, and leaves strategy and material-step cards
+      unchanged. Plan 354-02.
+- [ ] **SYS-09**: Chain resume uses positional step identity validated against the journal,
+      restores the journaled predecessor output reference, halts on a mismatched journal, and never
+      reports completion the journal contradicts. Plan 354-03.
+- [ ] **THEO-01**: The plugin-to-Theo contract is safe: the classified rung reaches Theo's
+      recommend_chain intact, chains contain only registry command ids and are validated before act
+      state initialization, provenance claims no unverified FEEDS_INTO, degradation is disclosed,
+      the taxonomy ladder sends Theo's enum casing on all four rungs, and a live synthetic run is
+      recorded (or live certification stays open). Plans 354-09, 354-10, 354-12.
+- [ ] **THEO-02**: Release registry synchronization is dispositioned with plugin-side evidence and a
+      read-only provider inspection, coordinated with Phase 351 and never marked complete while the
+      Theo-side consumer is absent. Plan 354-12.
+- [ ] **THEO-03**: The teaching-to-action loop is proven for healthy, unavailable, invalid-schema and
+      thin-result providers with no room byte on the wire and no fallback labelled as Theo, and the
+      free-form Brain channels accept only closed-vocabulary questions (D-354-EGR). Plans 354-06,
+      354-12.
+
 ## Traceability
 
-326 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+338 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -2931,7 +2985,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
-(Phase 353). All minted
+(Phase 353), plus SYS-01..09 / THEO-01..03 (Phase 354). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -3001,10 +3055,14 @@ Phase 353 only, and are registered here at plan time as `- [ ]` rows to be close
 measured proof at phase close by `353-03-PLAN.md` Task 7, per the same precedent. The
 roadmap card's `ICM-353-01..03` labels are working labels that map onto these ids and are not
 register rows of their own.
-Roadmap phases must map all 326 active requirements with no orphans.
+SYS-01..07 and THEO-01..03 are the Phase 354 handoff's candidate ledger ids and SYS-08..09 were
+minted in the Phase 354 plan set (2026-09-23) for newly discovered findings; all twelve are
+registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
+stated reason, at phase close by `354-16-PLAN.md` Task 3.
+Roadmap phases must map all 338 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY and RULE
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS and THEO
 families
 alike (the
 Phase 266 and 269
