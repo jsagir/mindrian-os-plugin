@@ -245,6 +245,19 @@ ok('Behavior 8: corpus legs -- live-01 + 3 debug D-07 targets OK, carve-out ids 
 });
 
 // =======================================================================
+// Behavior 9 (CR-01, REVIEW.md): rule 1 must require the base classification
+// to be 'typed' before promoting to 'harness'. An isMeta:true record with
+// empty/absent content has base 'none' and must stay 'none' (the documented
+// conservative floor), never get promoted to 'harness' by isMeta alone.
+// =======================================================================
+ok("Behavior 9 (CR-01): isMeta true + empty/absent content ('', null, []) stays 'none', never 'harness'", function () {
+  const classify = turnText.classifyPrecedingUserContentSource;
+  assert.equal(classify('', { isMeta: true, prevHumanUpstream: false }), 'none');
+  assert.equal(classify(null, { isMeta: true, prevHumanUpstream: false }), 'none');
+  assert.equal(classify([], { isMeta: true, prevHumanUpstream: false }), 'none');
+});
+
+// =======================================================================
 // Structural-only guard: the R-A dropped tags never appear as a live match
 // target, and HARNESS_LEADS is frozen and exported.
 // =======================================================================
