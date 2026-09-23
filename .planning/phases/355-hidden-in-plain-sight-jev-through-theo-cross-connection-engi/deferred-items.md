@@ -84,3 +84,18 @@ concurrency flake).
 None of the four is caused by, or fixable within, this plan's stated scope
 (D-03/D-04, four flipped producers + two amended consumers + two amended
 tests). Flagged here for the navigator/a future phase to root-cause.
+
+## 355-10 Task 2: `tests/test-218-cohort-stratification.cjs` pre-existing failure, unrelated to the D-47 flip
+
+While cross-checking for regressions beyond Task 2's own required verify
+list, `node tests/test-218-cohort-stratification.cjs` fails with
+`test-218-cohort-stratification FAILED: insertNode: invalid epistemic_type
+"undefined"`. Confirmed PRE-EXISTING and unrelated to the D-47 flip: with
+`lib/core/rs-differential-scorer.cjs` and
+`lib/core/eureka/portfolio-dimensions.cjs` temporarily restored to their
+pre-Task-2 (`HEAD`) content, the SAME failure reproduces identically before
+any 355-10 edit lands. The test file itself contains zero references to
+`direction`, `structural_transfer`, `semantic_implementation`, or
+`epistemic_type`; the failure originates in a navigation/insertNode call
+this plan's files_modified list does not touch. Not fixed here (Scope
+Boundary rule). Flagged for the navigator/a future phase to root-cause.

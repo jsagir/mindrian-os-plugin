@@ -13,11 +13,21 @@
  *   Test 2: validated_demand is the pair_count percentile within the cohort
  *           (top pair_count -> 1.0, bottom -> 0.0, ties share the mean rank).
  *   Test 3: pair feasibility piecewise map from the rs measured fields
- *           (in-band structural bridge -> 1.0, out-of-band transfer -> 0.7,
- *           semantic_implementation -> 0.4, passes false -> 0.1).
+ *           (in-band bridge -> 1.0, out-of-band transfer -> 0.7,
+ *           paraphrase-risk floor -> 0.4, passes false -> 0.1).
+ *
  *   Test 4: scorePairDimensions aggregates sides (strategic_fit = max,
  *           validated_demand = mean, tech_econ_feasibility = the rs value).
  *   Test 5: weakDimensions + complementary (three low into one high precond).
+ *
+ * Amended Phase 355 D-47: rs-differential-scorer.cjs's scoreMeasured direction
+ * label now follows lib/core/direction-convention.cjs (355-RESEARCH.md
+ * correction C1), so feasibilityFromRs's two label branches were swapped in
+ * the SAME commit (correction C2) to keep the meaning-to-feasibility map --
+ * and therefore eureka's ranking -- unchanged. Below, only the `direction`
+ * strings in Test 3's fixtures changed; every expected feasibility NUMBER
+ * (1.0/0.7/0.4/0.1) stays exactly as it was, because the branches moved with
+ * the labels.
  */
 'use strict';
 
@@ -75,39 +85,46 @@ function ok(name) { passed += 1; console.log('  ok   ' + name); }
 
 // ---------- Test 3: pair feasibility piecewise map ----------
 {
+  // Amended Phase 355 D-47: the bridge/transfer branch now keys on
+  // 'semantic_implementation' and the paraphrase-risk floor now keys on
+  // 'structural_transfer' (feasibilityFromRs's two branches swapped with the
+  // scoreMeasured label flip, in the same commit, so these NUMBERS are
+  // unchanged from before D-47 -- only which label reaches them moved).
   const bridge = dim.scorePairDimensions({
     a: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
     b: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
-    rs: { direction: 'structural_transfer', abs_diff: 0.20, passes: true },
+    rs: { direction: 'semantic_implementation', abs_diff: 0.20, passes: true },
   });
   const transfer = dim.scorePairDimensions({
     a: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
     b: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
-    rs: { direction: 'structural_transfer', abs_diff: 0.30, passes: true },
+    rs: { direction: 'semantic_implementation', abs_diff: 0.30, passes: true },
   });
   const semantic = dim.scorePairDimensions({
     a: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
     b: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
-    rs: { direction: 'semantic_implementation', abs_diff: 0.30, passes: true },
+    rs: { direction: 'structural_transfer', abs_diff: 0.30, passes: true },
   });
   const failing = dim.scorePairDimensions({
     a: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
     b: { strategic_fit: 0.5, validated_demand: 0.5, tech_econ_feasibility: 0.5 },
-    rs: { direction: 'structural_transfer', abs_diff: 0.05, passes: false },
+    rs: { direction: 'semantic_implementation', abs_diff: 0.05, passes: false },
   });
-  assert.equal(bridge.tech_econ_feasibility, 1.0, 'Test 3: in-band structural bridge -> 1.0');
+  assert.equal(bridge.tech_econ_feasibility, 1.0, 'Test 3: in-band bridge -> 1.0');
   assert.equal(transfer.tech_econ_feasibility, 0.7, 'Test 3: out-of-band transfer -> 0.7');
-  assert.equal(semantic.tech_econ_feasibility, 0.4, 'Test 3: semantic_implementation -> 0.4');
+  assert.equal(semantic.tech_econ_feasibility, 0.4, 'Test 3: structural_transfer (paraphrase-risk floor) -> 0.4');
   assert.equal(failing.tech_econ_feasibility, 0.1, 'Test 3: passes false -> 0.1');
   ok('Test 3: pair feasibility piecewise map (1.0/0.7/0.4/0.1) over the rs fields');
 }
 
 // ---------- Test 4: scorePairDimensions aggregation ----------
 {
+  // Amended Phase 355 D-47: 'semantic_implementation' is now the label that
+  // reaches the in-band bridge feasibility (see the file header note).
   const pair = dim.scorePairDimensions({
     a: { strategic_fit: 1.0, validated_demand: 0.2, tech_econ_feasibility: 0.9 },
     b: { strategic_fit: 0.5, validated_demand: 0.8, tech_econ_feasibility: 0.1 },
-    rs: { direction: 'structural_transfer', abs_diff: 0.20, passes: true },
+    rs: { direction: 'semantic_implementation', abs_diff: 0.20, passes: true },
   });
   assert.equal(pair.strategic_fit, 1.0, 'Test 4: strategic_fit = max(a,b)');
   assert.ok(Math.abs(pair.validated_demand - 0.5) < 1e-9, 'Test 4: validated_demand = mean(a,b)');

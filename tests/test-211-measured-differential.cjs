@@ -10,6 +10,13 @@
  *
  *   Tests 1-4  lexical-overlap.cjs (the no-Python lexical leg)
  *   Tests 5-10 scoreMeasured in rs-differential-scorer.cjs (the D-200-1 swap)
+ *
+ * Amended Phase 355 D-47: scoreMeasured's direction label now comes from
+ * lib/core/direction-convention.cjs's classify() instead of its own inverted
+ * local rule (355-RESEARCH.md correction C1). Only Tests 5-6's expected
+ * `direction` string changed below; every other field (semantic, lexical,
+ * signed_diff, passes, band) is byte-identical -- the flip changes what the
+ * label MEANS, not which side of the differential wins.
  */
 'use strict';
 
@@ -106,10 +113,10 @@ async function run() {
     assert.strictEqual(r.semantic, 1.0, 'Test 5: semantic cosine 1.0');
     assert.strictEqual(r.lexical, 0.05, 'Test 5: lexical 0.05');
     assert.ok(near(r.signed_diff, 0.95), 'Test 5: signed_diff near +0.95');
-    assert.strictEqual(r.direction, 'semantic_implementation', 'Test 5: direction');
+    assert.strictEqual(r.direction, 'structural_transfer', 'Test 5: direction');
     assert.strictEqual(r.passes, true, 'Test 5: passes true');
     assert.strictEqual(r.band, 'breakthrough', 'Test 5: band breakthrough');
-    ok('Test 5: near-identical semantic + low lexical -> semantic_implementation, breakthrough');
+    ok('Test 5: near-identical semantic + low lexical -> structural_transfer, breakthrough');
   }
 
   // ---------- Test 6: structural_transfer, high leg is lexical ----------
@@ -120,9 +127,9 @@ async function run() {
     });
     assert.strictEqual(r.semantic, 0, 'Test 6: semantic cosine 0');
     assert.ok(near(r.signed_diff, -0.8), 'Test 6: signed_diff near -0.8');
-    assert.strictEqual(r.direction, 'structural_transfer', 'Test 6: direction');
+    assert.strictEqual(r.direction, 'semantic_implementation', 'Test 6: direction');
     assert.strictEqual(r.passes, true, 'Test 6: passes true (high leg lexical 0.8 > 0.2)');
-    ok('Test 6: orthogonal semantic + high lexical -> structural_transfer, passes');
+    ok('Test 6: orthogonal semantic + high lexical -> semantic_implementation, passes');
   }
 
   // ---------- Test 7: provenance stamped + env floor resolution ----------
