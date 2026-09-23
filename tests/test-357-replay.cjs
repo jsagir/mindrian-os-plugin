@@ -47,20 +47,7 @@ function ok(desc, fn) {
   }
 }
 
-// ---------------------------------------------------------------------
-// --mutation reservation (Task 2 action): a distinct invocation mode this
-// file's own runner recognizes. Plan 357-09 lands baseline.json and
-// implements the real mutation leg; until then this flag SKIPs cleanly
-// rather than failing, so the reserved flag is provable today without a
-// baseline to test against yet.
-// ---------------------------------------------------------------------
-if (process.argv.indexOf('--mutation') !== -1) {
-  const baselinePath = path.join(corpusLoader.CORPUS_DIR, 'baseline.json');
-  if (!fs.existsSync(baselinePath)) {
-    console.log('SKIP mutation: baseline lands in 357-09');
-    process.exit(0);
-  }
-}
+const MUTATION_MODE = process.argv.indexOf('--mutation') !== -1;
 
 // ---------------------------------------------------------------------
 // The network-attempt-detector preload (D-13 backstop). Written ONCE to a
@@ -133,6 +120,122 @@ function writeTempCorpus(entries, opts) {
 
 function findEntry(json, id) {
   return (json && Array.isArray(json.entries)) ? json.entries.find(function (e) { return e.id === id; }) : null;
+}
+
+// =======================================================================
+// --mutation (357-09 Task 2, GATE357-08, R7/R-I/R-J): a distinct invocation
+// mode, guarded by run-all-357.sh / run-all-238.sh on baseline.json's own
+// existence. Proves that reverting either D-07 or D-08a fix (individually,
+// then together) makes the standing replay fail honestly, by rebuilding a
+// HEAD code root three times with the named runtime files restored to their
+// pre-phase bytes (`git show <pre_phase_sha>:<path>`) and re-running the real
+// replay against each mutant. Every mkdtemp is removed in a finally; nothing
+// is ever written back into the working tree (T-357-12).
+// =======================================================================
+function buildMutantBase() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-357-root-mutation-base-'));
+  const archivePath = path.join(tmp, 'a.tar');
+  spawnSync('git', ['archive', '-o', archivePath, 'HEAD', 'scripts', 'lib', 'data', 'package.json', '.claude-plugin'], { cwd: REPO, stdio: ['ignore', 'ignore', 'pipe'] });
+  spawnSync('tar', ['-xf', archivePath, '-C', tmp], { stdio: ['ignore', 'ignore', 'pipe'] });
+  fs.rmSync(archivePath, { force: true });
+  const nodeModulesSrc = path.join(REPO, 'node_modules');
+  if (fs.existsSync(nodeModulesSrc)) {
+    try { fs.symlinkSync(nodeModulesSrc, path.join(tmp, 'node_modules'), 'dir'); } catch (_e) { /* best-effort */ }
+  }
+  return tmp;
+}
+
+function makeMutant(baseDir, label, preSha, revertPaths) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-357-root-mutation-' + label + '-'));
+  fs.cpSync(baseDir, dir, { recursive: true });
+  for (const relPath of revertPaths) {
+    const shown = spawnSync('git', ['show', preSha + ':' + relPath], { cwd: REPO, maxBuffer: 16 * 1024 * 1024 });
+    if (shown.status !== 0) {
+      throw new Error('git show ' + preSha + ':' + relPath + ' failed: ' + shown.stderr);
+    }
+    fs.writeFileSync(path.join(dir, relPath), shown.stdout);
+  }
+  return dir;
+}
+
+function runMutationLeg() {
+  const pre = corpusLoader.readPrePhase();
+  const preSha = pre && pre.pre_phase_sha;
+  if (!preSha) {
+    ok('mutation: pre_phase_sha is available', function () {
+      throw new Error('tests/fixtures/card-fire-replay/pre-phase.json is missing pre_phase_sha');
+    });
+    return;
+  }
+
+  // The revert can only be proven load-bearing when the unmutated HEAD bar
+  // is itself green (R4 MET). A red HEAD bar is an honest red here, not an
+  // improvised pass.
+  const headRes = replay(['--surface', 'both', '--baseline', 'compare']);
+  if (headRes.status !== 0) {
+    console.log('mutation leg: not provable, R4 NOT MET');
+    ok('mutation: the unmutated HEAD bar must be green (R4 MET) before a revert is provable', function () {
+      assert.equal(headRes.status, 0, 'HEAD --baseline compare must exit 0; got ' + headRes.status + ' stdout=' + headRes.stdout + ' stderr=' + headRes.stderr);
+    });
+    return;
+  }
+
+  let baseDir = null;
+  const mutantDirs = [];
+  try {
+    baseDir = buildMutantBase();
+    const m1 = makeMutant(baseDir, 'm1', preSha, ['lib/hmi/turn-text.cjs', 'scripts/check-card-fire.cjs']);
+    mutantDirs.push(m1);
+    const m2 = makeMutant(baseDir, 'm2', preSha, ['lib/core/gate-relevance.cjs']);
+    mutantDirs.push(m2);
+    const m3 = makeMutant(baseDir, 'm3', preSha, ['lib/hmi/turn-text.cjs', 'scripts/check-card-fire.cjs', 'lib/core/gate-relevance.cjs']);
+    mutantDirs.push(m3);
+
+    ok('mutation M1: reverting D-07 (turn-text.cjs, check-card-fire.cjs) fails the replay on live-2026-09-23-01', function () {
+      const res = replay(['--code-root', m1, '--surface', 'both', '--baseline', 'compare']);
+      assert.equal(res.status, 1, 'M1 must exit 1 (a reverted D-07 fix must reproduce a false block); got ' + res.status + ' stdout=' + res.stdout + ' stderr=' + res.stderr);
+      const e = findEntry(res.json, 'live-2026-09-23-01');
+      assert.ok(e, 'live-2026-09-23-01 must be present in the M1 run');
+      assert.equal(e.outcome, 'FALSE_BLOCK', 'live-2026-09-23-01 must be FALSE_BLOCK under M1, got ' + e.outcome);
+    });
+
+    ok('mutation M2: reverting D-08a (gate-relevance.cjs) fails the replay on live-2026-09-23-02', function () {
+      const res = replay(['--code-root', m2, '--surface', 'both', '--baseline', 'compare']);
+      assert.equal(res.status, 1, 'M2 must exit 1 (a reverted D-08a fix must reproduce a false block); got ' + res.status + ' stdout=' + res.stdout + ' stderr=' + res.stderr);
+      const e = findEntry(res.json, 'live-2026-09-23-02');
+      assert.ok(e, 'live-2026-09-23-02 must be present in the M2 run');
+      assert.equal(e.outcome, 'FALSE_BLOCK', 'live-2026-09-23-02 must be FALSE_BLOCK under M2, got ' + e.outcome);
+    });
+
+    ok('mutation M3: reverting both fixes fails the replay on both live entries', function () {
+      const res = replay(['--code-root', m3, '--surface', 'both', '--baseline', 'compare']);
+      assert.equal(res.status, 1, 'M3 must exit 1 (both reverted fixes must reproduce both false blocks); got ' + res.status + ' stdout=' + res.stdout + ' stderr=' + res.stderr);
+      const e1 = findEntry(res.json, 'live-2026-09-23-01');
+      const e2 = findEntry(res.json, 'live-2026-09-23-02');
+      assert.ok(e1 && e2, 'both live anchors must be present in the M3 run');
+      assert.equal(e1.outcome, 'FALSE_BLOCK', 'live-2026-09-23-01 must be FALSE_BLOCK under M3, got ' + e1.outcome);
+      assert.equal(e2.outcome, 'FALSE_BLOCK', 'live-2026-09-23-02 must be FALSE_BLOCK under M3, got ' + e2.outcome);
+    });
+  } finally {
+    for (const d of mutantDirs) {
+      try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+    }
+    if (baseDir) {
+      try { fs.rmSync(baseDir, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+    }
+  }
+}
+
+if (MUTATION_MODE) {
+  const baselinePath = path.join(corpusLoader.CORPUS_DIR, 'baseline.json');
+  if (!fs.existsSync(baselinePath)) {
+    console.log('SKIP mutation: baseline lands in 357-09');
+    process.exit(0);
+  }
+  runMutationLeg();
+  console.log((failures === 0 ? 'PASS' : 'FAIL') + ' ' + (total - failures) + '/' + total);
+  process.exitCode = failures === 0 ? 0 : 1;
+  process.exit(process.exitCode);
 }
 
 // =======================================================================

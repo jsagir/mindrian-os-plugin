@@ -56,6 +56,8 @@ run_if "238-06 mint-ratifier seam liveness (GATE-01 G-1)" "tests/test-238-mint-r
   node tests/test-238-mint-ratifier-seam.cjs
 run_if "238-07/08 card-fire corpus (GATE-04)" "tests/test-238-card-fire-corpus.cjs" \
   node tests/test-238-card-fire-corpus.cjs
+run_if "357 card-fire replay standing gate (GATE-04, R-J)" "tests/test-357-replay.cjs" \
+  node tests/test-357-replay.cjs
 run_if "regression: 209 backstop tuning (ASCII_BOX_GLYPH_RE stability)" "tests/test-209-backstop-tuning.cjs" \
   node tests/test-209-backstop-tuning.cjs
 run_if "regression: 198 chain run halt" "tests/test-198-chain-run-halt.test.cjs" \

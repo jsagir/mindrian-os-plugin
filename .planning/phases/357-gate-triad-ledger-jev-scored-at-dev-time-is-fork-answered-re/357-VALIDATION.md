@@ -2,8 +2,8 @@
 phase: 357
 slug: gate-triad-ledger-jev-scored-at-dev-time-is-fork-answered-re
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-09-23
 ---
 
@@ -52,9 +52,9 @@ created: 2026-09-23
 
 ## Wave 0 Requirements
 
-- [ ] `tests/run-all-357.sh`, `tests/test-357-corpus-loader.cjs`, `test-357-replay.cjs`, `test-357-labeler-refusal.cjs`, `test-357-harness-source.cjs`, `test-357-f1-chrome.cjs`
-- [ ] `tests/fixtures/card-fire-replay/` skeleton with `meta.sanitization_statement`
-- [ ] The pre-phase sha recorded (the commit before the first 357 code change) for `--code-root` and `--baseline write`
+- [x] `tests/run-all-357.sh`, `tests/test-357-corpus-loader.cjs`, `test-357-replay.cjs`, `test-357-labeler-refusal.cjs`, `test-357-harness-source.cjs`, `test-357-f1-chrome.cjs`
+- [x] `tests/fixtures/card-fire-replay/` skeleton with `meta.sanitization_statement`
+- [x] The pre-phase sha recorded (the commit before the first 357 code change) for `--code-root` and `--baseline write`
 
 ## Manual-Only Verifications
 
@@ -66,11 +66,11 @@ created: 2026-09-23
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-09-23 (357-09 bar: MET)
