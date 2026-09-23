@@ -1,0 +1,5807 @@
+{
+  "captured_at": "2026-09-23T22:52:58.439Z",
+  "theo_host": "64e4efc95420",
+  "snapshot_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
+  "served": true,
+  "calls": 148,
+  "latency_ms": [
+    2567,
+    1582,
+    1564,
+    1660,
+    1560,
+    1571,
+    1705,
+    1548,
+    1555,
+    1622,
+    1570,
+    1619,
+    1744,
+    1585,
+    1567,
+    1574,
+    1571,
+    1577,
+    1564,
+    1712,
+    1562,
+    1606,
+    1568,
+    1564,
+    1563,
+    1710,
+    1551,
+    1590,
+    1546,
+    1557,
+    1577,
+    1611,
+    1790,
+    1597,
+    1570,
+    1591,
+    1590,
+    1592,
+    1724,
+    1579,
+    1587,
+    1633,
+    1597,
+    1586,
+    1559,
+    1715,
+    1573,
+    1548,
+    1557,
+    1551,
+    1575,
+    1758,
+    1591,
+    1594,
+    1581,
+    1564,
+    1575,
+    1570,
+    1722,
+    1572,
+    1562,
+    1561,
+    1549,
+    1550,
+    1701,
+    1554,
+    1563,
+    1567,
+    1563,
+    1567,
+    1565,
+    1748,
+    1621,
+    1606,
+    1762,
+    1579,
+    1576,
+    1747,
+    1571,
+    1584,
+    1584,
+    1565,
+    1564,
+    1557,
+    1710,
+    1564,
+    1564,
+    1560,
+    1562,
+    1582,
+    1742,
+    1601,
+    1778,
+    1815,
+    1613,
+    1576,
+    1579,
+    1727,
+    1572,
+    1580,
+    1582,
+    1572,
+    1564,
+    1720,
+    1564,
+    3385,
+    1612,
+    1578,
+    1579,
+    1589,
+    1584,
+    1717,
+    1571,
+    1578,
+    1565,
+    1570,
+    1554,
+    1585,
+    1697,
+    1570,
+    1568,
+    1575,
+    1602,
+    1595,
+    1756,
+    1574,
+    1577,
+    1602,
+    1565,
+    1567,
+    1615,
+    1750,
+    1713,
+    1567,
+    1553,
+    1575,
+    1594,
+    1719,
+    1566,
+    1544,
+    1555,
+    1576,
+    1600,
+    1591,
+    1761,
+    1572,
+    1588,
+    1595
+  ],
+  "responses": {
+    "Six Thinking Hats\u0000Black Hat Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Black Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Blue Hat Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Blue Hat Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Red Hat Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Red Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000White Hat Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "White Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Yellow Hat Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Yellow Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Green Hat Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Green Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Black Hat Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Black Hat Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Lateral Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Build-Measure-Learn Cycle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Minimum Viable Product / MVP": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Lean Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Ash Maurya Running Lean": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Business Model Canvas\u0000Lean Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Business Model Canvas",
+            "HEART Framework",
+            "Lean Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Business Model Canvas",
+            "Effectuation",
+            "Lean Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Business Model Canvas",
+            "brainrecord-captured-1",
+            "Lean Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Business Model Canvas\u0000Value Proposition Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Customer Development\u0000Lean Startup": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Agile Development\u0000Lean Principles": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup (Build-Measure-Learn)\u0000Build-Measure-Learn Cycle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "brainrecord-captured-1",
+            "Theory of Constraints"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis\u0000Six Thinking Hats": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "domainconcept-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "Trending to the Absurd",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "PWS Value Proposition",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "Causal Loop Diagrams",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "brainrecord-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis\u0000Dominant Design": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "Dominant Design"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis\u0000S-Curve Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "S-Curve Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Theory of Constraints\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Theory of Constraints",
+            "brainrecord-captured-1",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Theory of Constraints",
+            "brainrecord-captured-1",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Theory of Constraints",
+            "brainrecord-captured-1",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Theory of Constraints",
+            "brainrecord-captured-1",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM",
+            "PREREQUISITE"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Theory of Constraints",
+            "brainrecord-captured-1",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Disruptive Innovation\u0000The Innovators Dilemma": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Disruptive Innovation\u0000The Chasm Framework / Crossing the Chasm": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Disruptive Innovation\u0000Sustaining vs Disruptive Innovation": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Disruptive Innovation",
+            "domainconcept-captured-1",
+            "Sustaining vs Disruptive Innovation"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Disruptive Innovation",
+            "brainrecord-captured-1",
+            "Sustaining vs Disruptive Innovation"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Dominant Design\u0000S-Curve Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Dominant Design",
+            "S-Curve Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "Dominant Design",
+            "S-Curve Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Dominant Design\u0000Technology Adoption Lifecycle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis / Reverse Salience\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "5 Whys Technique\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "5 Whys Technique\u0000Fishbone Diagrams": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Fishbone Diagrams": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Decision Trees\u000010-10-10 Decision Method": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE (Mutually Exclusive, Collectively Exhaustive)\u0000Issue Trees": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "MECE",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ALIAS_OF",
+            "APPLIED_IN"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE (Mutually Exclusive, Collectively Exhaustive)\u0000The Pyramid Principle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "The Pyramid Principle"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "The Pyramid Principle"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "The Pyramid Principle"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Issue Trees\u0000The Pyramid Principle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Issue Trees",
+            "brainrecord-captured-1",
+            "The Pyramid Principle"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE Mutually Exclusive Collectively Exhaustive\u0000Issue Trees": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Jobs to Be Done / JTBD": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Jobs-to-be-Done Statements": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Core Technology Extension / Jobs-To-Be-Done": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs-to-be-Done for Business Models\u0000Jobs to Be Done (JTBD)": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Jobs-to-be-Done for Business Models",
+            "brainrecord-captured-1",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Causal Loop Diagramming": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Stock and Flow Diagrams": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "domainconcept-captured-2",
+            "Stock and Flow Diagrams"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Systems Thinking",
+            "Causal Loop Diagrams",
+            "Stock and Flow Diagrams"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Systems Thinking",
+            "Causal Loop Diagrams",
+            "Stock and Flow Diagrams"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Systems Thinking",
+            "Causal Loop Diagrams",
+            "Stock and Flow Diagrams"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Systems Thinking",
+            "Feedback loops",
+            "Stock and Flow Diagrams"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000System Archetypes": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Feedback Loop Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Wicked Problems Framework": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Wicked Problems Framework": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Complex Domain Questions": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking and Wicked Problems combined\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Shell Scenario Planning Method": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Scenario Planning",
+            "Shell Scenario Planning Method"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PART_OF"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Shell's Two-Scenario Approach": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000The Scenario Matrix Tool / 2x2 Scenario Matrix": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Trending to the Absurd": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Scenario Planning",
+            "Trending to the Absurd"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Trending to the Absurd"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Trending to the Absurd"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Trending to the Absurd"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Futures Wheel\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Futures Wheel",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        {
+          "path": [
+            "Futures Wheel",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Strategic Foresight\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Scenario Analysis Framework": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Scenario Planning",
+            "domainconcept-captured-3",
+            "Scenario Analysis Framework"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Analysis Framework"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Scenario Analysis",
+            "Scenario Analysis Framework"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ALIAS_OF",
+            "PART_OF"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Scenario Analysis",
+            "Scenario Analysis Framework"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ALIAS_OF",
+            "ALIAS_OF"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "brainrecord-captured-1",
+            "Scenario Analysis Framework"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Scenario Logic": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Level 5 Leadership\u0000Servant Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Level 5 Leadership",
+            "Servant Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Situational Leadership\u0000Adaptive Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Situational Leadership",
+            "Adaptive Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Transformational Leadership\u0000Authentic Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Transformational Leadership",
+            "Authentic Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Distributed Leadership\u0000Systems Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Distributed Leadership",
+            "brainrecord-captured-1",
+            "Systems Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Five Practices of Effective Executives\u0000Level 5 Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Five Practices of Effective Executives",
+            "PWS Value Proposition",
+            "Level 5 Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Five Practices of Effective Executives",
+            "PWS Value Proposition",
+            "Level 5 Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Five Practices of Effective Executives",
+            "brainrecord-captured-1",
+            "Level 5 Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Reverse Salient Analysis\u0000Level 5 Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "PWS Value Proposition",
+            "Level 5 Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Reverse Salient Analysis",
+            "brainrecord-captured-1",
+            "Level 5 Leadership"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000DCF Discounted Cash Flow": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "TRIZ / Genrich Altshuller Innovation Algorithm\u0000Servant Leadership": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Fishbone Diagrams\u0000Stockdale Paradox": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE (Mutually Exclusive, Collectively Exhaustive)\u0000George Church Regenesis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "PEST Analysis\u0000Wallas Four-Stage Model of the Creative Process": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "PEST Analysis",
+            "domainconcept-captured-3",
+            "Usher's Model of Cumulative Synthesis",
+            "Wallas Four-Stage Model of the Creative Process"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "PEST Analysis",
+            "domainconcept-captured-3",
+            "Diverge-Converge Model",
+            "Wallas Four-Stage Model of the Creative Process"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "PEST Analysis",
+            "Structured Trend Extrapolation Process",
+            "brainrecord-captured-1",
+            "Wallas Four-Stage Model of the Creative Process"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "PEST Analysis",
+            "Macro Trends",
+            "brainrecord-captured-1",
+            "Wallas Four-Stage Model of the Creative Process"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "PEST Analysis",
+            "Adoption-Capacity Theory",
+            "brainrecord-captured-1",
+            "Wallas Four-Stage Model of the Creative Process"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Business Model Canvas\u0000Christian Brose The Kill Chain": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "10-10-10 Decision Method\u0000Dual-Use Technology": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "ESG Due Diligence Framework\u0000Six Thinking Hats": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "ESG Due Diligence Framework",
+            "Systems Thinking",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "ESG Due Diligence Framework",
+            "Systems Thinking",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "ESG Due Diligence Framework",
+            "brainrecord-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Legal Due Diligence Framework\u0000Lateral Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "DCF Discounted Cash Flow\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Financial Due Diligence Framework\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Financial Due Diligence Framework",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "George Church Regenesis\u0000Dual-Use Technology": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Poverty\u0000DCF Discounted Cash Flow": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Stockdale Paradox\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Stockdale Paradox",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Sustaining vs Disruptive Innovation\u0000Disruptive Innovation": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Sustaining vs Disruptive Innovation",
+            "domainconcept-captured-1",
+            "Disruptive Innovation"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Sustaining vs Disruptive Innovation",
+            "brainrecord-captured-1",
+            "Disruptive Innovation"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Dominant Design\u0000Creative Destruction": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Dominant Design",
+            "domainconcept-captured-1",
+            "Creative Destruction"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Dominant Design",
+            "S-Curve Analysis",
+            "Creative Destruction"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Dominant Design",
+            "S-Curve Analysis",
+            "Creative Destruction"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Dominant Design",
+            "brainrecord-captured-1",
+            "Creative Destruction"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Consider-The-Opposite\u0000CAF Consider All Factors": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Devils Advocacy\u0000Truth-Seeking Groups / Decision Pods": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Red Teaming\u0000Devils Advocacy": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Pre-mortem Analysis\u0000Idealized Design": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Opposite Plan\u0000Consider-The-Opposite": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Human-Centered Design": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Design Thinking Process": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Rapid Prototyping": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Human-Centered Design\u0000IDEO Deep Dive / Structured Brainstorming Techniques": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "TRIZ / Genrich Altshuller Innovation Algorithm\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "TRIZ / Genrich Altshuller Innovation Algorithm\u0000Constraint Removal": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "White Space Analysis\u0000Four Actions Framework / Blue Ocean Strategy": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "McKinsey Three Horizons\u0000Three-Horizon Framework": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "McKinsey Three Horizons\u0000The Three Box Solution": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "OODA Loop\u0000Decision Trees": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "OODA Loop\u0000Commander's Intent": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Diffusion of Innovations (Rogers)\u0000Technology Adoption Lifecycle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Diffusion of Innovations (Rogers)\u0000Law of Diffusion of Innovation": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "The Chasm Framework / Crossing the Chasm\u0000Technology Adoption Lifecycle": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Pattern Recognition\u0000Pattern Matching System": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Opportunity Recognition as Pattern Recognition\u0000Pattern Recognition": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Opportunity Recognition as Pattern Recognition",
+            "brainrecord-captured-1",
+            "Pattern Recognition"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Issue Trees": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Cynefin Framework",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Six Thinking Hats",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Problem Definition Transformation Framework",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Problem Definition Transformation Framework",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Causal Loop Diagrams",
+            "brainrecord-captured-1",
+            "Issue Trees"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Problem Taxonomy (Search Gradient)\u0000Problem Typology Framework / The Taxonomy of Problems": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Wicked Problems Framework\u0000Dilemmas in a General Theory of Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Chaotic Domain Questions": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Complicated Domain Questions": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Confused Domain Questions": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Cynefin Framework",
+            "domainconcept-captured-1",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Scenario Planning",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Six Thinking Hats": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Cynefin Framework",
+            "domainconcept-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Trending to the Absurd",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "PWS Value Proposition",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Cynefin Framework\u0000Reverse Salient Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Cynefin Framework",
+            "Trending to the Absurd",
+            "Reverse Salient Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "PWS Value Proposition",
+            "Reverse Salient Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Scenario Planning",
+            "Reverse Salient Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "Usher's Model of Cumulative Synthesis",
+            "Reverse Salient Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Cynefin Framework",
+            "OODA Loop",
+            "Reverse Salient Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "GUARDED_BY"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Wicked Problems Framework\u0000Reverse Salient Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Wicked Problems Framework\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Level 5 Leadership\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Level 5 Leadership",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Level 5 Leadership\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Level 5 Leadership",
+            "PWS Value Proposition",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Level 5 Leadership",
+            "brainrecord-captured-1",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Servant Leadership\u0000Design Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Servant Leadership",
+            "brainrecord-captured-1",
+            "Design Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Design Thinking",
+            "brainrecord-captured-1",
+            "Theory of Constraints"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Design Thinking",
+            "domainconcept-captured-2",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "domainconcept-captured-2",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "domainconcept-captured-2",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "PREREQUISITE"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "domainconcept-captured-2",
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-3",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Design Thinking\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Design Thinking",
+            "domainconcept-captured-2",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Design Thinking",
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "TRIZ / Genrich Altshuller Innovation Algorithm\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "TRIZ / Genrich Altshuller Innovation Algorithm\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Cynefin Framework",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Systems Thinking",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Root Cause Analysis",
+            "domainconcept-captured-3",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Fishbone Diagrams\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Fishbone Diagrams\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-2",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-3",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Lean Startup": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Value Proposition Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Value Proposition Canvas\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE (Mutually Exclusive, Collectively Exhaustive)\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "domainconcept-captured-3",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PRECEDES",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PRECEDES",
+            "PREREQUISITE"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "MECE (Mutually Exclusive, Collectively Exhaustive)\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "domainconcept-captured-3",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Scenario Planning",
+            "domainconcept-captured-2",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Scenario Planning\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Scenario Planning",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Scenario Planning",
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Decision Trees\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Decision Trees\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "OODA Loop\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "OODA Loop",
+            "Cynefin Framework",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "OODA Loop",
+            "Red Teaming",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "OODA Loop",
+            "Reverse Salient Analysis",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "OODA Loop",
+            "brainrecord-captured-1",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "OODA Loop\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "OODA Loop",
+            "brainrecord-captured-1",
+            "Theory of Constraints"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Pre-mortem Analysis\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Pre-mortem Analysis\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Red Teaming\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Red Teaming",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Red Teaming\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Red Teaming",
+            "domainconcept-captured-3",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "PREREQUISITE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Business Model Canvas\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Business Model Canvas",
+            "brainrecord-captured-1",
+            "Theory of Constraints"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Business Model Canvas\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Business Model Canvas",
+            "domainconcept-captured-3",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "domainconcept-captured-2",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Systems Thinking",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "brainrecord-captured-1",
+            "Theory of Constraints"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "Scenario Planning"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Business Model Canvas": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "domainconcept-captured-2",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Six Thinking Hats",
+            "brainrecord-captured-1",
+            "Business Model Canvas"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Six Thinking Hats\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Theory of Constraints": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Lean Startup\u0000Scenario Planning": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    }
+  }
+}

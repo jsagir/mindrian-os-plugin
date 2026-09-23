@@ -1,0 +1,880 @@
+{
+  "_note": "templated from canon names and captured Theo paths only; no labels",
+  "phrase_hash": "fba76597996550770774995f22602eb220054e2615a4d6e77212c01bc09cfe16",
+  "capture_sha256": "02bd6ff5d73857a51fb1153bd2df345be99df3c99af9836f5101f8cd60e1b97f",
+  "items": [
+    {
+      "pair_id": "cp-001",
+      "from": "Six Thinking Hats",
+      "to": "Yellow Hat Analysis",
+      "direction": "structural_transfer",
+      "claim": "Six Thinking Hats and Yellow Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Yellow Hat Analysis"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-002",
+      "from": "Six Thinking Hats",
+      "to": "Blue Hat Thinking",
+      "direction": "structural_transfer",
+      "claim": "Six Thinking Hats and Blue Hat Thinking: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Blue Hat Thinking"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-003",
+      "from": "Six Thinking Hats",
+      "to": "Red Hat Analysis",
+      "direction": "structural_transfer",
+      "claim": "Six Thinking Hats and Red Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Red Hat Analysis"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-004",
+      "from": "Business Model Canvas",
+      "to": "Lean Canvas",
+      "direction": "structural_transfer",
+      "claim": "Business Model Canvas and Lean Canvas: same meaning in different words.",
+      "path": [
+        {
+          "from": "Business Model Canvas",
+          "relation": "feeds into",
+          "to": "Effectuation"
+        },
+        {
+          "from": "Effectuation",
+          "relation": "feeds into",
+          "to": "Lean Canvas"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-005",
+      "from": "Reverse Salient Analysis",
+      "to": "Dominant Design",
+      "direction": "structural_transfer",
+      "claim": "Reverse Salient Analysis and Dominant Design: same meaning in different words.",
+      "path": [
+        {
+          "from": "Reverse Salient Analysis",
+          "relation": "feeds into",
+          "to": "Dominant Design"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-006",
+      "from": "Dominant Design",
+      "to": "S-Curve Analysis",
+      "direction": "structural_transfer",
+      "claim": "Dominant Design and S-Curve Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Dominant Design",
+          "relation": "feeds into",
+          "to": "S-Curve Analysis"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-007",
+      "from": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+      "to": "The Pyramid Principle",
+      "direction": "structural_transfer",
+      "claim": "MECE (Mutually Exclusive, Collectively Exhaustive) and The Pyramid Principle: same meaning in different words.",
+      "path": [
+        {
+          "from": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+          "relation": "feeds into",
+          "to": "The Pyramid Principle"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-008",
+      "from": "Systems Thinking",
+      "to": "Stock and Flow Diagrams",
+      "direction": "structural_transfer",
+      "claim": "Systems Thinking and Stock and Flow Diagrams: same meaning in different words.",
+      "path": [
+        {
+          "from": "Systems Thinking",
+          "relation": "feeds into",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "feeds into",
+          "to": "Stock and Flow Diagrams"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-009",
+      "from": "Level 5 Leadership",
+      "to": "Servant Leadership",
+      "direction": "structural_transfer",
+      "claim": "Level 5 Leadership and Servant Leadership: same meaning in different words.",
+      "path": [
+        {
+          "from": "Level 5 Leadership",
+          "relation": "feeds into",
+          "to": "Servant Leadership"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-010",
+      "from": "Situational Leadership",
+      "to": "Adaptive Leadership",
+      "direction": "structural_transfer",
+      "claim": "Situational Leadership and Adaptive Leadership: same meaning in different words.",
+      "path": [
+        {
+          "from": "Situational Leadership",
+          "relation": "feeds into",
+          "to": "Adaptive Leadership"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-011",
+      "from": "Financial Due Diligence Framework",
+      "to": "Business Model Canvas",
+      "direction": "structural_transfer",
+      "claim": "Financial Due Diligence Framework and Business Model Canvas: same meaning in different words.",
+      "path": [
+        {
+          "from": "Financial Due Diligence Framework",
+          "relation": "complements",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-012",
+      "from": "Dominant Design",
+      "to": "Creative Destruction",
+      "direction": "structural_transfer",
+      "claim": "Dominant Design and Creative Destruction: same meaning in different words.",
+      "path": [
+        {
+          "from": "Dominant Design",
+          "relation": "feeds into",
+          "to": "S-Curve Analysis"
+        },
+        {
+          "from": "S-Curve Analysis",
+          "relation": "feeds into",
+          "to": "Creative Destruction"
+        }
+      ],
+      "stratum": "direct_lateral",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-013",
+      "from": "Reverse Salient Analysis",
+      "to": "Theory of Constraints",
+      "direction": "semantic_implementation",
+      "claim": "Reverse Salient Analysis and Theory of Constraints: same words with different meaning.",
+      "path": [
+        {
+          "from": "Reverse Salient Analysis",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Theory of Constraints"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-014",
+      "from": "Issue Trees",
+      "to": "The Pyramid Principle",
+      "direction": "semantic_implementation",
+      "claim": "Issue Trees and The Pyramid Principle: same words with different meaning.",
+      "path": [
+        {
+          "from": "Issue Trees",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "The Pyramid Principle"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-015",
+      "from": "Jobs-to-be-Done for Business Models",
+      "to": "Jobs to Be Done (JTBD)",
+      "direction": "semantic_implementation",
+      "claim": "Jobs-to-be-Done for Business Models and Jobs to Be Done (JTBD): same words with different meaning.",
+      "path": [
+        {
+          "from": "Jobs-to-be-Done for Business Models",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Jobs to Be Done (JTBD)"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-016",
+      "from": "Scenario Planning",
+      "to": "Shell Scenario Planning Method",
+      "direction": "semantic_implementation",
+      "claim": "Scenario Planning and Shell Scenario Planning Method: same words with different meaning.",
+      "path": [
+        {
+          "from": "Scenario Planning",
+          "relation": "part of",
+          "to": "Shell Scenario Planning Method"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-017",
+      "from": "Distributed Leadership",
+      "to": "Systems Leadership",
+      "direction": "semantic_implementation",
+      "claim": "Distributed Leadership and Systems Leadership: same words with different meaning.",
+      "path": [
+        {
+          "from": "Distributed Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Systems Leadership"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-018",
+      "from": "Stockdale Paradox",
+      "to": "Business Model Canvas",
+      "direction": "semantic_implementation",
+      "claim": "Stockdale Paradox and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Stockdale Paradox",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-019",
+      "from": "Opportunity Recognition as Pattern Recognition",
+      "to": "Pattern Recognition",
+      "direction": "semantic_implementation",
+      "claim": "Opportunity Recognition as Pattern Recognition and Pattern Recognition: same words with different meaning.",
+      "path": [
+        {
+          "from": "Opportunity Recognition as Pattern Recognition",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Pattern Recognition"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-020",
+      "from": "Disruptive Innovation",
+      "to": "Sustaining vs Disruptive Innovation",
+      "direction": "semantic_implementation",
+      "claim": "Disruptive Innovation and Sustaining vs Disruptive Innovation: same words with different meaning.",
+      "path": [
+        {
+          "from": "Disruptive Innovation",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Sustaining vs Disruptive Innovation"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-021",
+      "from": "Level 5 Leadership",
+      "to": "Business Model Canvas",
+      "direction": "semantic_implementation",
+      "claim": "Level 5 Leadership and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Level 5 Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-022",
+      "from": "Servant Leadership",
+      "to": "Design Thinking",
+      "direction": "semantic_implementation",
+      "claim": "Servant Leadership and Design Thinking: same words with different meaning.",
+      "path": [
+        {
+          "from": "Servant Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Design Thinking"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-023",
+      "from": "Systems Thinking",
+      "to": "Business Model Canvas",
+      "direction": "semantic_implementation",
+      "claim": "Systems Thinking and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Systems Thinking",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "stratum": "hub",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-024",
+      "from": "Theory of Constraints",
+      "to": "Root Cause Analysis",
+      "direction": "structural_transfer",
+      "claim": "Theory of Constraints and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Theory of Constraints",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "feeds into",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "stratum": "three_hop",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-025",
+      "from": "PEST Analysis",
+      "to": "Wallas Four-Stage Model of the Creative Process",
+      "direction": "structural_transfer",
+      "claim": "PEST Analysis and Wallas Four-Stage Model of the Creative Process: same meaning in different words.",
+      "path": [
+        {
+          "from": "PEST Analysis",
+          "relation": "feeds into",
+          "to": "Adoption-Capacity Theory"
+        },
+        {
+          "from": "Adoption-Capacity Theory",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Wallas Four-Stage Model of the Creative Process"
+        }
+      ],
+      "stratum": "three_hop",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-026",
+      "from": "Root Cause Analysis",
+      "to": "Issue Trees",
+      "direction": "structural_transfer",
+      "claim": "Root Cause Analysis and Issue Trees: same meaning in different words.",
+      "path": [
+        {
+          "from": "Root Cause Analysis",
+          "relation": "feeds into",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Issue Trees"
+        }
+      ],
+      "stratum": "three_hop",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-027",
+      "from": "Design Thinking",
+      "to": "Root Cause Analysis",
+      "direction": "structural_transfer",
+      "claim": "Design Thinking and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "addresses problem type",
+          "to": "[DomainConcept]"
+        },
+        {
+          "from": "[DomainConcept]",
+          "relation": "addresses problem type",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "stratum": "three_hop",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-028",
+      "from": "Six Thinking Hats",
+      "to": "Root Cause Analysis",
+      "direction": "structural_transfer",
+      "claim": "Six Thinking Hats and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "complements",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-029",
+      "from": "Six Thinking Hats",
+      "to": "Root Cause Analysis",
+      "direction": "semantic_implementation",
+      "claim": "Six Thinking Hats and Root Cause Analysis: same words with different meaning.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "complements",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-030",
+      "from": "Design Thinking",
+      "to": "Scenario Planning",
+      "direction": "structural_transfer",
+      "claim": "Design Thinking and Scenario Planning: same meaning in different words.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-031",
+      "from": "Design Thinking",
+      "to": "Scenario Planning",
+      "direction": "semantic_implementation",
+      "claim": "Design Thinking and Scenario Planning: same words with different meaning.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-032",
+      "from": "OODA Loop",
+      "to": "Scenario Planning",
+      "direction": "structural_transfer",
+      "claim": "OODA Loop and Scenario Planning: same meaning in different words.",
+      "path": [
+        {
+          "from": "OODA Loop",
+          "relation": "complements",
+          "to": "Cynefin Framework"
+        },
+        {
+          "from": "Cynefin Framework",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-033",
+      "from": "OODA Loop",
+      "to": "Scenario Planning",
+      "direction": "semantic_implementation",
+      "claim": "OODA Loop and Scenario Planning: same words with different meaning.",
+      "path": [
+        {
+          "from": "OODA Loop",
+          "relation": "complements",
+          "to": "Cynefin Framework"
+        },
+        {
+          "from": "Cynefin Framework",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-034",
+      "from": "Cynefin Framework",
+      "to": "Reverse Salient Analysis",
+      "direction": "structural_transfer",
+      "claim": "Cynefin Framework and Reverse Salient Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Cynefin Framework",
+          "relation": "complements",
+          "to": "OODA Loop"
+        },
+        {
+          "from": "OODA Loop",
+          "relation": "guarded by",
+          "to": "Reverse Salient Analysis"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-035",
+      "from": "Cynefin Framework",
+      "to": "Reverse Salient Analysis",
+      "direction": "semantic_implementation",
+      "claim": "Cynefin Framework and Reverse Salient Analysis: same words with different meaning.",
+      "path": [
+        {
+          "from": "Cynefin Framework",
+          "relation": "complements",
+          "to": "OODA Loop"
+        },
+        {
+          "from": "OODA Loop",
+          "relation": "guarded by",
+          "to": "Reverse Salient Analysis"
+        }
+      ],
+      "stratum": "both_directions",
+      "synthetic": false
+    },
+    {
+      "pair_id": "cp-036",
+      "from": "Consider-The-Opposite",
+      "to": "CAF Consider All Factors",
+      "direction": "structural_transfer",
+      "claim": "Consider-The-Opposite and CAF Consider All Factors: same meaning in different words.",
+      "path": [
+        {
+          "from": "Consider-The-Opposite",
+          "relation": "contrasts with",
+          "to": "CAF Consider All Factors"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-037",
+      "from": "Devils Advocacy",
+      "to": "Truth-Seeking Groups / Decision Pods",
+      "direction": "structural_transfer",
+      "claim": "Devils Advocacy and Truth-Seeking Groups / Decision Pods: same meaning in different words.",
+      "path": [
+        {
+          "from": "Devils Advocacy",
+          "relation": "contrasts with",
+          "to": "Truth-Seeking Groups / Decision Pods"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-038",
+      "from": "Red Teaming",
+      "to": "Devils Advocacy",
+      "direction": "structural_transfer",
+      "claim": "Red Teaming and Devils Advocacy: same meaning in different words.",
+      "path": [
+        {
+          "from": "Red Teaming",
+          "relation": "contrasts with",
+          "to": "Devils Advocacy"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-039",
+      "from": "Pre-mortem Analysis",
+      "to": "Idealized Design",
+      "direction": "structural_transfer",
+      "claim": "Pre-mortem Analysis and Idealized Design: same meaning in different words.",
+      "path": [
+        {
+          "from": "Pre-mortem Analysis",
+          "relation": "contrasts with",
+          "to": "Idealized Design"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-040",
+      "from": "Sustaining vs Disruptive Innovation",
+      "to": "Disruptive Innovation",
+      "direction": "structural_transfer",
+      "claim": "Sustaining vs Disruptive Innovation and Disruptive Innovation: same meaning in different words.",
+      "path": [
+        {
+          "from": "Sustaining vs Disruptive Innovation",
+          "relation": "contrasts with",
+          "to": "Disruptive Innovation"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-041",
+      "from": "Bootstrap Philosophy",
+      "to": "Customer Funded Business",
+      "direction": "structural_transfer",
+      "claim": "Bootstrap Philosophy and Customer Funded Business: same meaning in different words.",
+      "path": [
+        {
+          "from": "Bootstrap Philosophy",
+          "relation": "contrasts with",
+          "to": "Customer Funded Business"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-042",
+      "from": "Opposite Plan",
+      "to": "Consider-The-Opposite",
+      "direction": "structural_transfer",
+      "claim": "Opposite Plan and Consider-The-Opposite: same meaning in different words.",
+      "path": [
+        {
+          "from": "Opposite Plan",
+          "relation": "contrasts with",
+          "to": "Consider-The-Opposite"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    },
+    {
+      "pair_id": "cp-043",
+      "from": "Black Hat Thinking",
+      "to": "Yellow Hat Analysis",
+      "direction": "structural_transfer",
+      "claim": "Black Hat Thinking and Yellow Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Black Hat Thinking",
+          "relation": "contrasts with",
+          "to": "Yellow Hat Analysis"
+        }
+      ],
+      "stratum": "contradicting",
+      "synthetic": true
+    }
+  ],
+  "no_path": [
+    {
+      "pair_id": "cp-044",
+      "from": "Six Thinking Hats",
+      "to": "Lateral Thinking",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-045",
+      "from": "Lean Startup",
+      "to": "Build-Measure-Learn Cycle",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-046",
+      "from": "Lean Startup",
+      "to": "Minimum Viable Product / MVP",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-047",
+      "from": "Lean Startup",
+      "to": "Lean Canvas",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-048",
+      "from": "Lean Startup",
+      "to": "Ash Maurya Running Lean",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-049",
+      "from": "Business Model Canvas",
+      "to": "Value Proposition Canvas",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-050",
+      "from": "Customer Development",
+      "to": "Lean Startup",
+      "direction": "structural_transfer"
+    },
+    {
+      "pair_id": "cp-051",
+      "from": "Agile Development",
+      "to": "Lean Principles",
+      "direction": "structural_transfer"
+    }
+  ]
+}
