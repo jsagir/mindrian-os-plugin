@@ -183,3 +183,19 @@ Status: ✓ = met minimum, ⚠ = below minimum (planner treats as assumption)
 *Phase: 360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8*
 *Spec created: 2026-09-23*
 *Next step: /gsd-discuss-phase 360 - implementation decisions (classifier entry point shape, input source per A1-A3, where the gate sits in main())*
+
+## Amendments (navigator, 2026-09-23, post-research)
+
+10. **cwd suppression**: an unbound session's picker does not fire when the hook stdin `cwd` is outside
+    `MINDRIAN_ROOMS_HOME`.
+    - Current: the picker fires on every human turn, regardless of cwd.
+    - Target: no picker, no F.8 mint and no marker write when cwd is outside the rooms home. Inside it,
+      behavior is unchanged. An unresolvable cwd still fires.
+    - Acceptance: fixture tests with a dev-repo cwd give 0 outputs, with a cwd inside the rooms home the
+      output is unchanged, and an unresolvable cwd fires. The snapshot replay on session 56924067 (a dev
+      repo) shows 0 human-turn pickers.
+11. **"dev repo / no room" remembered for the session**
+    - Current: the answer is not remembered, so the picker re-fires.
+    - Target: after that answer, 0 re-fires for the same session_id; a new session asks again.
+    - Acceptance: a two-turn fixture (answer, then another human turn) shows 1 picker then 0; a different
+      session_id fires.

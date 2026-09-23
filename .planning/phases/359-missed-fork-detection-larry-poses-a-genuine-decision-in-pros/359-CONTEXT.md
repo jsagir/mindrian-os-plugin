@@ -386,3 +386,36 @@ Downstream agents MUST read `359-SPEC.md` before planning or implementing. Requi
   3 runs per scenario per arm. The script refuses to start if its projected total is over the cap. The model
   is fixed and is never Fable.
 </navigator_rulings>
+
+<navigator_rulings_2>
+## Navigator rulings, round 2 (2026-09-23, after research)
+
+- **N-3: the moonshot option (amends D-01 to D-03 grammar and SPEC R3, R8).** Every declared fork ends with
+  a MOONSHOT option. The navigator put it this way: "a what if... style option, a moonshot, relevant in
+  context yet radical; can learn from trending to the absurd".
+  - Grammar: `Your call: <practical> | <practical>[ | <practical>] | What if <moonshot>`. There are 2 or 3
+    practical labels, then exactly one final label that starts with the literal `What if` (case-sensitive).
+    That gives 3 to 4 labels in total.
+  - Why 4 in total and not a literal 5th label: AskUserQuestion renders at most 4 options, and it adds its
+    own "Other" free-text field. A 5th declared label could never reach the card. 3 practical + 1 moonshot
+    is the most the card can carry with the moonshot guaranteed on screen. (This is orchestrator
+    interpretation; flag it at verify.)
+  - Deterministic check (R4 arm): the parser requires the last label to start with `What if`. A declaration
+    without one is malformed, so it is treated as "not declared" (fails inert, the same as today). The hook
+    never judges relevance or radicalness; that would be meaning, which Part 8 forbids at runtime.
+  - Quality is measured at DEV TIME ONLY. In the R9 forward run and on the synthetic fixtures, Jev scores
+    each moonshot with a Score "relevant-to-context" and a Score "radical-departure". These are synthetic
+    scenario texts, so no user text is involved and it is Part-8 clean. The 357 teacher pattern applies,
+    through the shared client and the existing card_fire_replay-style profile, or a 359 profile if the
+    planner needs different keys (the owner is 356's schema).
+  - Larry's prose rule gets one clause: the last option is a relevant, radical "What if..." move
+    (lateral elevation; trending-to-absurd is a legitimate source). The byte budget stays at 400 B net
+    (R-A6 pins apply).
+  - The card options map 1:1 to the declared labels, with the moonshot last.
+- **N-4: R9 fallback.** If the dev-only permission host fails its smoke run, R9 becomes "declaration
+  adoption only", measured from text. A vacuity floor applies: at least 6 pre-arm misses out of 30 fork
+  runs, otherwise the result is INCONCLUSIVE, not a pass.
+- **N-5: the R9 model is Sonnet 5** (never Fable). The $60 total and $0.40 per-run caps stand, and the smoke
+  run replaces the estimates.
+- **N-6: the 400 B cap is NET** (researcher recommendation, default).
+</navigator_rulings_2>

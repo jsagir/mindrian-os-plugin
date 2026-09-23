@@ -249,3 +249,21 @@ Downstream agents MUST read `360-SPEC.md` before planning or implementing. Requi
 
 *Phase: 360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8*
 *Context gathered: 2026-09-23*
+
+<navigator_rulings>
+## Navigator ruling (2026-09-23, after research): picker firing policy FOLDED INTO 360
+
+- **N-1: cwd rule.** On a human turn in an unbound session, the room-bind picker (and its side-channel mint
+  and marker writes) does NOT fire when the hook stdin `cwd` resolves outside `MINDRIAN_ROOMS_HOME`
+  (default `~/MindrianRooms`), for example a code repo such as `~/dev/MindrianOS-Plugin`.
+  - It is deterministic: a realpath prefix check with no text inspection and no egress.
+  - Inside the rooms home, behavior is unchanged.
+  - An unreadable or ambiguous cwd means today's behavior (fire), so the rule fails toward showing the picker.
+- **N-2: session memory for "dev repo / no room".** Once the navigator answers the picker with the
+  "dev repo / no room" option (or its label equivalent), the picker does not re-fire for the rest of that
+  session_id. Store it in the existing per-session binding store (whatever binds a room today), not a new
+  store. Explicit room commands (`/mos:rooms`, room_bind) still work.
+- Both rules supersede the "fire-every-human-turn" deferral in D-20 / SPEC Deferred. They add SPEC R10 (cwd)
+  and R11 (session memory); see 360-SPEC Amendments. BIND360-10 and BIND360-11 are minted at plan time.
+- Tri-Polar: CLI hook only. The MCP room_bind on Desktop/Cowork is unchanged.
+</navigator_rulings>
