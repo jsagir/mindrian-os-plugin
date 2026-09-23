@@ -86,6 +86,12 @@ run_if "354: registration diagnostics (SYS-04)"       tests/test-354-registratio
 run_if "354: extract_shallow contract (SYS-05)"       tests/test-354-extract-shallow-contract.cjs node tests/test-354-extract-shallow-contract.cjs
 # (acceptance close-out) concurrency surfaces
 run_if "354: concurrency surfaces (close-out)"        tests/test-354-concurrency-surfaces.cjs     node tests/test-354-concurrency-surfaces.cjs
+# (THEO-04) theo MCP exposure advisory check -- deliberate re-open per this
+# file's own header comment: 354-18-PLAN.md's <verification> block requires
+# `bash tests/run-all-354.sh` to show this leg PASSED. THEO-04 was minted
+# post-planning (2026-09-23 addendum), after 354-01 authored this aggregator,
+# so no leg existed for it until now.
+run_if "354: theo MCP exposure advisory (THEO-04)"    tests/test-354-theo-mcp-exposure.cjs         node tests/test-354-theo-mcp-exposure.cjs
 
 # --- Em-dash guard (always) --------------------------------------------------
 # The non-test files Phase 354 plans modify directly, named explicitly; a
@@ -113,7 +119,9 @@ PHASE_354_SURFACES=(
   "lib/mcp/tools/dual-path.cjs"
   "agents/larry-extended.md"
   "scripts/doctor.cjs"
+  "scripts/check-theo-mcp-exposure.cjs"
   "CLAUDE.md"
+  "docs/GROUNDING-SOURCES.md"
 )
 EMDASH_FILES=("${PHASE_354_SURFACES[@]}" "tests/run-all-354.sh" "tests/helpers/fixture-room-354.cjs" "tests/helpers/playwright-354.cjs")
 while IFS= read -r -d '' f; do
