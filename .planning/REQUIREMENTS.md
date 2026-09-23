@@ -2935,7 +2935,7 @@ stated reason, at phase close by `354-16-PLAN.md` Task 3, per the Phase 254/257/
 272/274/276/339/275/340/344/343/347/345/346/348/349/353 precedent. `354-CONTEXT.md` is the scope
 contract.
 
-- [ ] **SYS-01**: Room path containment holds against symlinks on every MCP read and write path:
+- [x] **SYS-01**: Room path containment holds against symlinks on every MCP read and write path:
       artifact_file, room://section/{sectionName}, reasoning://section/{name} and every reasoning-ops
       read/write resolve by realpath inside the room; percent-encoded traversal and sibling prefixes
       stay refused through the SDK URI matcher; valid discovered sections stay readable. Plan 354-05.
