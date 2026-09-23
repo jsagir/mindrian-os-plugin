@@ -36,7 +36,7 @@ allowed-tools:
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-06]
+  sensor_triggers: [SENS-06, SENS-09]
   reach_id: context_block
   sub_mode: dominant-design
   framework: "Dominant Design"

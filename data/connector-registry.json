@@ -364,7 +364,8 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-06"
+        "SENS-06",
+        "SENS-09"
       ],
       "reach_id": "context_block",
       "sub_mode": "dominant-design",
@@ -3490,7 +3491,8 @@
     ],
     "SENS-09": [
       "/mos:analyze-timing",
-      "/mos:diffusion"
+      "/mos:diffusion",
+      "/mos:dominant-designs"
     ],
     "SENS-01": [
       "/mos:auto-explore",

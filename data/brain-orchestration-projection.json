@@ -715,7 +715,8 @@
       "hierarchy_rank": 28,
       "posture": "push_forward",
       "sensor_triggers": [
-        "SENS-06"
+        "SENS-06",
+        "SENS-09"
       ],
       "framework": "Dominant Design",
       "chain_provenance": {
@@ -724,7 +725,8 @@
         "reach_id": "context_block",
         "sub_mode": "dominant-design",
         "firing_sensors": [
-          "SENS-06"
+          "SENS-06",
+          "SENS-09"
         ]
       },
       "ranking": {
@@ -733,7 +735,8 @@
         "hierarchy_rank": 28,
         "posture": "push_forward",
         "sensor_triggers": [
-          "SENS-06"
+          "SENS-06",
+          "SENS-09"
         ],
         "framework": "Dominant Design"
       }
