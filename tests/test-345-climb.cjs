@@ -112,9 +112,9 @@ async function main() {
     });
     const result = await taxonomyClimb.renderLadder('IllDefined', 'explore');
     assert.equal(lastToolName, 'taxonomy_ladder');
-    assert.deepEqual(lastArgs, { rung: 'ill-defined', question_label: 'explore' });
+    assert.deepEqual(lastArgs, { rung: 'IllDefined', question_label: 'explore' });
     assert.deepEqual(result, { rows: ['ill-defined', 'well-defined'] });
-    ok("renderLadder('IllDefined', 'explore') calls callTool('taxonomy_ladder', { rung: 'ill-defined', question_label: 'explore' }) and returns the result");
+    ok("renderLadder('IllDefined', 'explore') calls callTool('taxonomy_ladder', { rung: 'IllDefined', question_label: 'explore' }) and returns the result");
   } finally {
     restoreStub();
   }
@@ -153,7 +153,7 @@ async function main() {
     });
     const result = await taxonomyClimb.renderLadder('IllDefined', 'this-is-not-a-taxonomy-slug');
     assert.ok(!Object.prototype.hasOwnProperty.call(lastArgs, 'question_label'), 'question_label must be ABSENT for a non-taxonomy jtbdSlug');
-    assert.deepEqual(lastArgs, { rung: 'ill-defined' });
+    assert.deepEqual(lastArgs, { rung: 'IllDefined' });
     ok('renderLadder omits question_label entirely when jtbdSlug is not a member of the closed taxonomy set (result: ' + JSON.stringify(result) + ')');
   } finally {
     restoreStub();

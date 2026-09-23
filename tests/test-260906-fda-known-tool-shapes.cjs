@@ -91,12 +91,12 @@ function armA() {
 
   expectVerdict({ from: 'Design Thinking', to: 'SWOT', maxHops: 3 }, FIND, 'allow', 'known_tool_shape', 'find_connections with maxHops');
 
-  const t1 = expectVerdict({ rung: 'wicked' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder minimal');
+  const t1 = expectVerdict({ rung: 'Wicked' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder minimal');
   ok(t1.reason === 'taxonomy_ladder rung enum', 'taxonomy_ladder reason literal must be stable, got ' + t1.reason);
 
-  expectVerdict({ rung: 'undefined' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder rung undefined');
-  expectVerdict({ rung: 'ill-defined', question_label: 'framework sequencing' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder with question_label');
-  expectVerdict({ rung: 'well-defined' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder rung well-defined');
+  expectVerdict({ rung: 'UnDefined' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder rung UnDefined');
+  expectVerdict({ rung: 'IllDefined', question_label: 'framework sequencing' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder with question_label');
+  expectVerdict({ rung: 'WellDefined' }, TAX, 'allow', 'known_tool_shape', 'taxonomy_ladder rung WellDefined');
 
   console.log('Arm A ok (' + checks + ' assertions cumulative)');
 }
@@ -220,7 +220,7 @@ function armF() {
   ok(typeof guard._isSafeShortLabel === 'function', '_isSafeShortLabel must be exported');
   ok(typeof guard._hasExactKeys === 'function', '_hasExactKeys must be exported');
   ok(guard.TAXONOMY_RUNGS && guard.TAXONOMY_RUNGS.size === 4, 'TAXONOMY_RUNGS must have exactly 4 members');
-  ['undefined', 'ill-defined', 'well-defined', 'wicked'].forEach(function (r) {
+  ['UnDefined', 'IllDefined', 'WellDefined', 'Wicked'].forEach(function (r) {
     ok(guard.TAXONOMY_RUNGS.has(r), 'TAXONOMY_RUNGS must contain "' + r + '"');
   });
 

@@ -77,10 +77,10 @@ ok('isTheoRung(42) is false and does not throw', vocab.isTheoRung(42) === false)
 console.log('--- Leg 3: toLadderRung round trip ---');
 
 const EXPECTED_LADDER_MAP = {
-  Wicked: 'wicked',
-  UnDefined: 'undefined',
-  WellDefined: 'well-defined',
-  IllDefined: 'ill-defined',
+  Wicked: 'Wicked',
+  UnDefined: 'UnDefined',
+  WellDefined: 'WellDefined',
+  IllDefined: 'IllDefined',
 };
 
 Object.keys(EXPECTED_LADDER_MAP).forEach(function (theoRung) {
@@ -90,8 +90,8 @@ Object.keys(EXPECTED_LADDER_MAP).forEach(function (theoRung) {
 });
 
 ok(
-  'toLadderRung(IllDefined) returns ill-defined',
-  vocab.toLadderRung('IllDefined') === 'ill-defined'
+  'toLadderRung(IllDefined) returns IllDefined',
+  vocab.toLadderRung('IllDefined') === 'IllDefined'
 );
 
 const ladderValues = Object.keys(EXPECTED_LADDER_MAP).map(function (k) {
