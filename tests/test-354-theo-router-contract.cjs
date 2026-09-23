@@ -141,6 +141,57 @@ function startDelayServer(delayMs) {
   });
 }
 
+// A `global.fetch` capture stub, seeded from
+// docs/reviews/phase-354-probes/theo.cjs (lines 10-23): the reference probe
+// this suite pins deliberately keeps `MINDRIAN_BRAIN_URL` set to the REAL
+// Theo origin string ('https://theo-mcp.onrender.com') while stubbing only
+// the network transport, because `lib/core/brain-client.cjs`'s
+// `_normalizeBrainProblemType` selects its alias table BY ORIGIN
+// (`THEO_ORIGINS`) -- recommendChain's origin-specific normalization is
+// explicitly out of this plan's scope and unchanged (354-CONTEXT.md
+// CTX-CORRECTED), so proving the EXACT Theo-cased rung
+// (WellDefined/UnDefined/IllDefined/Wicked) reaches the wire requires the
+// origin the real product points at in production, not an arbitrary
+// loopback address that the origin selector would treat as
+// incumbent-shaped. tests/helpers/brain-capture-server.cjs's real HTTP
+// listener is used everywhere else in this suite (A1, D1) where the origin
+// does not participate in the assertion.
+function makeFetchStub() {
+  const state = { calls: [], script: [], idx: 0 };
+  const stub = async function (_url, opts) {
+    const request = JSON.parse(opts.body);
+    if (request.method === 'initialize') {
+      return {
+        ok: true,
+        status: 200,
+        text: async () => 'data: ' + JSON.stringify({
+          jsonrpc: '2.0', id: request.id,
+          result: { protocolVersion: '2024-11-05', capabilities: {} },
+        }) + '\n',
+      };
+    }
+    if (request.method === 'tools/call') {
+      state.calls.push({
+        name: request.params && request.params.name,
+        arguments: (request.params && request.params.arguments) || {},
+      });
+      const entry = state.script[Math.min(state.idx, state.script.length - 1)] || { payload: { ok: true } };
+      state.idx += 1;
+      return {
+        ok: true,
+        status: 200,
+        text: async () => sseTextBody(entry.payload, request.id),
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      text: async () => 'data: ' + JSON.stringify({ jsonrpc: '2.0', id: request.id, result: {} }) + '\n',
+    };
+  };
+  return { stub, state };
+}
+
 (async () => {
   const { server, port, url } = await startCaptureServer();
 
@@ -167,27 +218,41 @@ function startDelayServer(delayMs) {
   ];
 
   const RANKED_SCRIPT = [
-    { body: sseTextBody({ answer_mode: 'structured_rows', rows: [] }) },
-    { body: sseTextBody({ chain: [{ framework: 'Design Thinking', degree: 100 }] }) },
-    { body: sseTextBody([{ framework: 'Design Thinking', commands: ['/mos:diagnose', '/mos:build-mvp'] }]) },
+    { payload: { answer_mode: 'structured_rows', rows: [] } },
+    { payload: { chain: [{ framework: 'Design Thinking', degree: 100 }] } },
+    { payload: [{ framework: 'Design Thinking', commands: ['/mos:diagnose', '/mos:build-mvp'] }] },
   ];
 
+  const savedBrainUrl = process.env.MINDRIAN_BRAIN_URL;
+  const savedBrainKey = process.env.MINDRIAN_BRAIN_KEY;
+  const originalFetch = global.fetch;
+
   const caseResults = [];
+  process.env.MINDRIAN_BRAIN_URL = 'https://theo-mcp.onrender.com';
+  process.env.MINDRIAN_BRAIN_KEY = 'synthetic-354-09-theo-key';
+  requireFresh(BRAIN_CLIENT_PATH);
   for (let i = 0; i < CASES.length; i++) {
     const [definition, complexity, expectedRung] = CASES[i];
     stateOps.getState = function () {
       return 'definition_level: ' + definition + '\ncomplexity: ' + complexity;
     };
-    resetToolScript();
-    setToolScript(RANKED_SCRIPT);
-    resetCaptured();
+    const { stub, state } = makeFetchStub();
+    state.script = RANKED_SCRIPT;
+    global.fetch = stub;
     const room = 'synthetic-354-09-case-' + i;
     // eslint-disable-next-line no-await-in-loop
     const rec = await brainRouter.recommend(room);
-    const callsSnapshot = captured.slice();
-    caseResults.push({ definition, complexity, expectedRung, rec, callsSnapshot });
+    global.fetch = originalFetch;
+    caseResults.push({ definition, complexity, expectedRung, rec, callsSnapshot: state.calls.slice() });
   }
   stateOps.getState = originalGetState;
+
+  // Restore the capture-server-pointed brain-client instance for the rest
+  // of this suite (A1, D1), which do not participate in origin-based alias
+  // selection.
+  process.env.MINDRIAN_BRAIN_URL = savedBrainUrl;
+  process.env.MINDRIAN_BRAIN_KEY = savedBrainKey;
+  requireFresh(BRAIN_CLIENT_PATH);
 
   for (let i = 0; i < caseResults.length; i++) {
     const { definition, complexity, expectedRung, rec, callsSnapshot } = caseResults[i];
