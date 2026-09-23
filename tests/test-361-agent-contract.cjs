@@ -180,7 +180,7 @@ const allowedTools = parseDashList(fmText, 'allowed-tools');
   assert.ok(fm.connector, 'Leg 4: connector block is present');
   assert.strictEqual(fm.connector.excluded, 'true', 'Leg 4: connector.excluded is true');
   assert.ok(typeof fm.connector.reason === 'string' && fm.connector.reason.length > 0, 'Leg 4: connector.reason is a non-empty string');
-  assert.ok(fm.connector.reason.indexOf('—') === -1, 'Leg 4: connector.reason carries no em-dash');
+  assert.ok(fm.connector.reason.indexOf('\u2014') === -1, 'Leg 4: connector.reason carries no em-dash');
   assert.ok(fmText.indexOf('hitl_shape') === -1, 'Leg 4: no hitl_shape key anywhere in frontmatter');
   assert.ok(fmText.indexOf('hitl_why') === -1, 'Leg 4: no hitl_why key anywhere in frontmatter');
   ok('Leg 4: connector.excluded true with a non-empty reason, no hitl_shape/hitl_why anywhere in frontmatter');
@@ -250,8 +250,8 @@ const allowedTools = parseDashList(fmText, 'allowed-tools');
 
 // ---------- Leg 11: no em-dash/en-dash, no test-250 banned phrase, min lines ----------
 {
-  assert.ok(raw.indexOf('—') === -1, 'Leg 11: file carries an em-dash');
-  assert.ok(raw.indexOf('–') === -1, 'Leg 11: file carries an en-dash');
+  assert.ok(raw.indexOf('\u2014') === -1, 'Leg 11: file carries an em-dash');
+  assert.ok(raw.indexOf('\u2013') === -1, 'Leg 11: file carries an en-dash');
   const FORBIDDEN = [
     /silent fallback/i,
     /never mention (failures|this bookkeeping)/i,
