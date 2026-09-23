@@ -930,7 +930,7 @@ Plans: (planned 2026-09-17; requirement ids RULE-01..29 registered in .planning/
 **Goal:** Independently research the whole plugin and Theo integration, reproduce or refute the review findings, then repair confirmed failures and verify complete user journeys. Research must precede implementation.
 **Requirements**: SYS-01..07 and THEO-01..03, defined in `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`; include newly discovered failures and explicit coverage gaps. Newly discovered findings minted at plan time: SYS-08 (gate approval promotes the card subject), SYS-09 (chain resume identity and predecessor output). Newly discovered post-planning, navigator-directed 2026-09-23: THEO-04 (raw `theo` MCP server at `~/.claude.json` bypasses `part8-egress-guard.cjs`; document + procedural discipline, not a code fix). All thirteen registered in `.planning/REQUIREMENTS.md`.
 **Depends on:** Phase 353
-**Plans:** 17/18 plans executed
+**Plans:** 18/18 plans complete
 
 **Next action:** `/gsd-execute-phase 354`. Research complete (`354-RESEARCH.md`, `docs/reviews/2026-09-23-deep-system-research.md`). Coordinate existing ownership in phases 273, 345, 350, 351, 352 AND 355 (355 is titled "Jev-through-Theo Cross-Connection Engines" and depends on 354 -- 354-17 and 354-18 below already cover the TypeSafe/Jev-framework-ledger and raw-theo-MCP-exposure ground; scope 355 to not re-cover them). Uncommitted Sep-20 localhost-poc room-mode diff: committed (`e08c32f05`). Decisions: D-354-EGR APPROVED (navigator, 2026-09-23, unchanged from plan); D-354-SYS05 may still be vetoed (ledger section 9).
 
@@ -976,7 +976,7 @@ Plans: (planned 2026-09-23; waves follow the locked repair sequence: ledger, tru
 
 **Wave 8** *(close-out; depends on wave 7, including 354-17 and 354-18)*
 
-- [ ] 354-16-PLAN.md -- all IDs (SYS-01..09, THEO-01..04): concurrency and Tri-Polar checks, measured gates, final dispositions (THEO-04 closes MITIGATED-DOCUMENTED, not FIXED-VERIFIED), review corrections, requirement rows, handoff entry, rethinking-room filing
+- [x] 354-16-PLAN.md -- all IDs (SYS-01..09, THEO-01..04): concurrency and Tri-Polar checks, measured gates, final dispositions (THEO-04 closes MITIGATED-DOCUMENTED, not FIXED-VERIFIED), review corrections, requirement rows, handoff entry, rethinking-room filing
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
@@ -1001,7 +1001,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 **Wave 1**
 
-- [ ] 355-01-PLAN.md -- HIPS-01, HIPS-10: the D-57 gate (Phase 354 CLOSED, clean shared files), 355-BASELINE.md with the doctor baseline captured once, tests/run-all-355.sh skeleton, lib/core/direction-convention.cjs (Convention A, none on missing values) with its RED-first test
+- [x] 355-01-PLAN.md -- HIPS-01, HIPS-10: the D-57 gate (Phase 354 CLOSED, clean shared files), 355-BASELINE.md with the doctor baseline captured once, tests/run-all-355.sh skeleton, lib/core/direction-convention.cjs (Convention A, none on missing values) with its RED-first test (completed 2026-09-23)
 
 **Wave 2** *(depends on 355-01)*
 

@@ -3,16 +3,35 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 354-18-PLAN.md
-last_updated: "2026-09-23T15:40:47.729Z"
-last_activity: 2026-09-23 -- Phase 354 Plan 18 (THEO-04) execution completed
+stopped_at: Completed 354-16-PLAN.md - Phase 354 CLOSED
+last_updated: "2026-09-23T16:51:14.920Z"
+last_activity: 2026-09-23 -- Phase 354 Plan 16 (close-out) execution completed, Phase 354 CLOSED
 progress:
   total_phases: 111
-  completed_phases: 36
+  completed_phases: 37
   total_plans: 396
-  completed_plans: 322
-  percent: 81
+  completed_plans: 327
+  percent: 83
 ---
+
+<!-- NOTE (354-16 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.advance-plan` again reported stale Phase 353 counters (current_plan 3 of 3,
+     ready_for_verification) -- not used. `state.update-progress` correctly computed
+     completed: 327, total: 396, percent: 83. `state.record-metric --phase 354 --plan 16
+     --duration 180min --tasks 3 --files 8` landed its own correct Performance Metrics row.
+     `state.add-decision --summary ...` repeated the documented `[Phase ?]` placeholder-prefix
+     bug again, fixed in place to a single `[Phase 354] 354-16: ...` line.
+     `state.record-session` this run updated `stopped_at` correctly ("Completed 354-16-PLAN.md
+     - Phase 354 CLOSED") but reverted `last_activity` to the stale 2026-09-17 Phase 353 line
+     and `percent` to the stale `32`. Hand-corrected: `last_activity` -> this plan's own
+     completion line, `percent` -> 83 (matching `state.update-progress`'s just-computed value),
+     `completed_phases` -> 37 (Phase 354 now fully closed, up from 36). `completed_plans` (327)
+     was already correct from the update-progress run, not reverted this run. Phase 354 is now
+     CLOSED: all 18 plans complete, all 13 SYS/THEO requirement rows dispositioned
+     (`.planning/REQUIREMENTS.md`), disposition ledger Final disposition section published
+     (`docs/reviews/phase-354-disposition-ledger.md`), close-out doc published
+     (`docs/reviews/phase-354-close-out.md`). -->
 
 <!-- NOTE (354-18 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -7004,6 +7023,7 @@ Progress: [█████████░] 92%
 | Phase 354 P14 | 35min | 2 tasks | 3 files |
 | Phase 354 P15 | 35min | 2 tasks | 6 files |
 | Phase 354 P18 | 5min | 2 tasks | 6 files |
+| Phase 354 P16 | 180min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -7250,6 +7270,7 @@ Progress: [█████████░] 92%
   Navigator ruling: no live per-step call, no Theo gateway. Depends on 353 (ledger builder
   pattern); coordinate with 354-17. Also this session: quick task 260923-d9l pinned GSD
   planning/discuss/research agents to claude-opus-5-5 (6bce5f088). Spec-phase next.
+
 - Phase 356 COMPLETE (2026-09-23, 13/13 plans, VERIFIED): dev-time Jev Noul ledger shipped (data/command-irreversibility-ledger.json, T=0.23, 15 of 113 flagged, 4 Jev false alarms none chain-run, ~$0.013). isIrreversibleStep gains an add-only, hash-checked, zero-network ledger signal; ledger-absent behavior equals pre-356. Navigator rulings D-20 (two blind model labelers + navigator arbitration via a validation-desk artifact), D-21 (flag = always stop for the navigator), D-22 (policy = strategy + tactics). Shared scripts/jev-devtime-client.cjs adopted by 354-17/357. Report: 356-REPORT.md; trail: rethinking-mindrianos research 2026-09-23 (home 4d33884e1). Follow-ups: navigator may reverse Jev flags on /mos:mva-brief and /mos:setup via --from-raw; 353-builder refactor deferred; gsd-tools query commit sweeps the whole index.
 
 - 2026-09-20: Phase 354 added as the user's next requested work: System Integrity and Theo Integration. Research pending; independently validate the review before planning fixes. Tracked direction: `docs/2026-09-20-HANDOFF-phase-354-system-integrity-and-theo.md`. Existing execution status above is preserved; this entry does not claim research or repairs have run.
@@ -8691,6 +8712,7 @@ Progress: [█████████░] 92%
 - [Phase 354] 354-14: registerCoreTools() returns {complete, registered, failed, at}; getRegistrationHealth() exports a clone; status_read exposes capability_floor.tool_registration; H1 checks run before F2 to observe F1's singleton state
 - [Phase 354] 354-15: extract_shallow's public contract settled as honest parsing (D-354-SYS05) -- pure parse, persisted:false, claim_write is the governed persistence step
 - [Phase 354] 354-18: THEO-04 closed as mitigated-documented (no --strict mode on check-theo-mcp-exposure.cjs; WARN output on stdout per plan's own test spec; deliberately re-opened tests/run-all-354.sh to wire in the new leg)
+- [Phase 354] 354-16: closed the phase -- 11 of 13 SYS/THEO IDs FIXED-VERIFIED, THEO-04 MITIGATED-DOCUMENTED (never claimed fixed), THEO-02 stays BLOCKED on Phase 351; concurrency proven live across CLI/MCP-stdio/browser (25/25 checks); no release cut, fixed on main only
 
 ### Pending Todos
 
@@ -8839,8 +8861,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T15:40:47.611Z
-Stopped at: Completed 354-18-PLAN.md
+Last session: 2026-09-23T16:51:14.847Z
+Stopped at: Completed 354-16-PLAN.md - Phase 354 CLOSED
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
