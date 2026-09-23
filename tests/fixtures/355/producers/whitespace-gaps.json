@@ -1,0 +1,55 @@
+{
+  "_note": "Phase 355-16 (HIPS-04, HIPS-05) producer test fixture. Five zones: three resolvable-both-ends pairs drawn from tests/fixtures/355/theo-stub-responses.json's from/to pairs (strong 1-hop, strong 2-hop, indirect 3-hop), one zone whose nearest_frameworks are neither a data/framework-names.json entry, one zone with only a single nearest_frameworks entry (degenerate pair, toHandle always null).",
+  "gaps": [
+    {
+      "zone_id": "ws-gap-001",
+      "density_score": 0.05,
+      "problem_type": "Ill-Defined",
+      "nearest_frameworks": ["Reverse Salient Analysis", "Six Thinking Hats"],
+      "validated": true,
+      "framework_chain": ["Reverse Salient Analysis", "Six Thinking Hats"],
+      "nearest_room_artifacts": [
+        { "title": "customer-jobs-analysis.md", "section": "market-analysis" }
+      ],
+      "validation": { "gates_passed": ["anchor", "spread"], "gates_failed": [] },
+      "hypothesis": "The room has not yet connected reverse-salient bottleneck analysis to the Six Thinking Hats framing of the same gap."
+    },
+    {
+      "zone_id": "ws-gap-002",
+      "density_score": 0.15,
+      "problem_type": "Well-Defined",
+      "nearest_frameworks": ["Design Thinking", "Jobs to Be Done (JTBD)"],
+      "validated": true,
+      "framework_chain": ["Design Thinking", "Jobs to Be Done (JTBD)"],
+      "nearest_room_artifacts": [],
+      "validation": { "gates_passed": ["anchor"], "gates_failed": ["spread"] }
+    },
+    {
+      "zone_id": "ws-gap-003",
+      "density_score": 0.25,
+      "problem_type": "Wicked",
+      "nearest_frameworks": ["Cynefin Framework", "Hedgehog Concept"],
+      "validated": false,
+      "framework_chain": ["Cynefin Framework", "Hedgehog Concept"],
+      "nearest_room_artifacts": []
+    },
+    {
+      "zone_id": "ws-gap-004",
+      "density_score": 0.35,
+      "problem_type": "Un-Defined",
+      "nearest_frameworks": ["Not A Real Framework", "Also Not Real"],
+      "validated": false,
+      "framework_chain": [],
+      "nearest_room_artifacts": []
+    },
+    {
+      "zone_id": "ws-gap-005",
+      "density_score": 0.45,
+      "problem_type": "Un-Defined",
+      "nearest_frameworks": ["Hierarchy Mapping"],
+      "validated": true,
+      "framework_chain": ["Hierarchy Mapping"],
+      "nearest_room_artifacts": []
+    }
+  ]
+}

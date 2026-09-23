@@ -25,6 +25,15 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { ensureBrainBaseline } = require('./ensure-brain-baseline.cjs');
+// Phase 355-16 (HIPS-04, HIPS-05, D-08, D-29, D-30): the stamp and the
+// disclosure line, wired at the OUTPUT layer only -- the Python compute
+// (compute-whitespace-gaps.py) and every density/novelty math line in this
+// file stay byte-unchanged. See whitespaceEndpoints/renderScanLines/
+// renderAnalyzeLines/renderNoveltyLines below.
+const verificationStamp = require('../lib/core/verification-stamp.cjs');
+const verificationStampFormat = require('../lib/core/verification-stamp-format.cjs');
+const directionConvention = require('../lib/core/direction-convention.cjs');
+const floorDisclosure = require('../lib/core/floor-disclosure.cjs');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -86,6 +95,222 @@ function padRight(str, len) {
   return (str || '').padEnd(len);
 }
 
+// ---------------------------------------------------------------------------
+// Verification seams (Phase 355-16, HIPS-04, HIPS-05).
+// ---------------------------------------------------------------------------
+
+/*
+ * _readArtifactRaw(roomDir, artifactPath) -- best-effort local read of an
+ * artifact referenced by a novelty row. artifactPath may or may not carry
+ * the section directory or the .md extension; tried in order, never throws.
+ */
+function _readArtifactRaw(roomDir, sectionRel, artifactRel) {
+  if (!roomDir || !artifactRel) return '';
+  const base = String(artifactRel).replace(/\.md$/, '');
+  const candidates = [
+    sectionRel ? path.join(roomDir, sectionRel, base + '.md') : null,
+    path.join(roomDir, base + '.md'),
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      return fs.readFileSync(candidate, 'utf-8');
+    } catch (_e) {
+      // try next candidate
+    }
+  }
+  return '';
+}
+
+/*
+ * whitespaceEndpoints(finding, kind, ctx) -> { fromHandle, toHandle, fromVia,
+ * toVia }, the shape lib/core/verification-stamp.cjs's stampFindings expects
+ * per finding (D-48, D-49):
+ *   kind 'zone'    -- finding.nearest_frameworks[0] and [1], each admitted
+ *                      only if it is an exact data/framework-names.json entry
+ *                      (never fuzzy, never Theo-resolved).
+ *   kind 'novelty' -- the artifact's own carried name (extractCarried against
+ *                      finding.artifact_text / finding.artifact_title,
+ *                      resolved through resolveEndpoint -- framework, then
+ *                      methodology, then title) and finding.nearest_concept.
+ * A raw name absent from the local snapshot resolves to null, same as a
+ * missing name: stampFindings then stamps that finding unverified/not_called
+ * /handle_unresolved, never guessing and never calling Theo for it.
+ */
+function whitespaceEndpoints(finding, kind, ctx) {
+  const f = finding || {};
+  const names = (ctx && ctx.names) || verificationStamp.loadFrameworkNames();
+
+  if (kind === 'zone') {
+    const list = Array.isArray(f.nearest_frameworks) ? f.nearest_frameworks : [];
+    const fromRaw = list[0] || null;
+    const toRaw = list[1] || null;
+    const fromHandle = fromRaw && names.has(fromRaw) ? fromRaw : null;
+    const toHandle = toRaw && names.has(toRaw) ? toRaw : null;
+    return {
+      fromHandle: fromHandle,
+      toHandle: toHandle,
+      fromVia: fromHandle ? 'nearest_frameworks[0]' : null,
+      toVia: toHandle ? 'nearest_frameworks[1]' : null,
+    };
+  }
+
+  if (kind === 'novelty') {
+    const carried = verificationStamp.extractCarried(f.artifact_text, f.artifact_title);
+    const resolvedFrom = verificationStamp.resolveEndpoint(carried, ctx);
+    const toRaw = f.nearest_concept || null;
+    const toHandle = toRaw && names.has(toRaw) ? toRaw : null;
+    return {
+      fromHandle: resolvedFrom.name,
+      toHandle: toHandle,
+      fromVia: resolvedFrom.via,
+      toVia: toHandle ? 'nearest_concept' : null,
+    };
+  }
+
+  throw new Error('whitespaceEndpoints: unknown kind "' + kind + '"');
+}
+
+/*
+ * renderScanLines(gaps, stamps) -- the `map` subcommand's Zone 2 body, as a
+ * pure line array. `gaps` must already be sorted ascending by density_score
+ * (sparsest first, the existing sort order) so the row index doubles as the
+ * D-29 sparsity rank (1 = sparsest); `stamps` is aligned 1:1 with `gaps`.
+ * No density decimal anywhere (D-29); one formatStampLines('cli') block per
+ * zone, disclosureLine('whitespace') last (D-27, D-30).
+ */
+function renderScanLines(gaps, stamps) {
+  const lines = [];
+  const zoneColW = 24;
+  const rankColW = 8;
+  const typeColW = 15;
+
+  lines.push('');
+  lines.push('  ' + padRight('Zone', zoneColW) + padRight('Rank', rankColW) + padRight('Type', typeColW) + 'Nearest Frameworks');
+
+  gaps.forEach((gap, i) => {
+    const zoneId = padRight(gap.zone_id || gap.gap_id || '?', zoneColW);
+    const rank = padRight(String(i + 1), rankColW);
+    const ptype = padRight(gap.problem_type || 'Un-Defined', typeColW);
+    const frameworks = (gap.nearest_frameworks || gap.nearest_brain_frameworks || []).slice(0, 2).join(', ');
+    lines.push('  ' + zoneId + rank + ptype + truncate(frameworks, 30));
+  });
+
+  const validated = gaps.filter((g) => g.validated).length;
+  const sparsest = gaps[0];
+  lines.push('');
+  lines.push('  Zones: ' + gaps.length + ' total  |  ' + validated + ' validated  |  Sparsest: '
+    + (sparsest ? (sparsest.zone_id || sparsest.gap_id) : 'none') + ' (rank 1 of ' + gaps.length + ')');
+
+  lines.push('');
+  gaps.forEach((_gap, i) => {
+    lines.push.apply(lines, verificationStampFormat.formatStampLines(stamps[i], 'cli'));
+  });
+  lines.push(floorDisclosure.disclosureLine('whitespace'));
+
+  // D-30 backstop: the whole captured render, not only the stamp block, is
+  // swept for a bare decimal/percent token before it ever reaches stdout.
+  return verificationStampFormat.assertNoScalar(lines).lines;
+}
+
+/*
+ * renderAnalyzeLines(zone, stamp, rank, total) -- the `analyze` subcommand's
+ * Zone 2 body. The Density line becomes 'Rank: sparsity rank n of N' (D-29).
+ */
+function renderAnalyzeLines(zone, stamp, rank, total) {
+  const lines = [];
+  lines.push('');
+  lines.push('  Zone: ' + (zone.zone_id || zone.gap_id || '?'));
+  lines.push('  Rank: sparsity rank ' + rank + ' of ' + total);
+  lines.push('  Problem Type: ' + (zone.problem_type || 'Un-Defined'));
+  const gatesPassed = zone.validation ? (zone.validation.gates_passed || []).length : 0;
+  const gatesTotal = zone.validation
+    ? gatesPassed + (zone.validation.gates_failed || []).length
+    : 0;
+  lines.push('  Validated: ' + (zone.validated ? 'Yes' : 'No') + (zone.validation ? ' (' + gatesPassed + '/' + gatesTotal + ' gates)' : ''));
+  lines.push('');
+
+  const chain = zone.framework_chain || [];
+  if (chain.length > 0) {
+    lines.push('  Framework Chain:');
+    chain.forEach((fw, i) => {
+      const prefix = i < chain.length - 1 ? SYM.BRANCH : SYM.LAST;
+      lines.push('  ' + prefix + ' ' + fw);
+    });
+    lines.push('');
+  }
+
+  const artifacts = zone.nearest_room_artifacts || [];
+  if (artifacts.length > 0) {
+    lines.push('  Nearest Artifacts:');
+    artifacts.forEach((a, i) => {
+      const prefix = i < artifacts.length - 1 ? SYM.BRANCH : SYM.LAST;
+      const name = typeof a === 'string' ? a : (a.title || a.artifact_id || a.id || '?');
+      const section = typeof a === 'object' ? (a.section || '') : '';
+      lines.push('  ' + prefix + ' ' + name + (section ? ' (' + section + '/)' : ''));
+    });
+    lines.push('');
+  }
+
+  const hypothesis = zone.hypothesis || zone.hypothesis_text || null;
+  lines.push('  Hypothesis:');
+  if (hypothesis) {
+    lines.push('  ' + hypothesis);
+  } else {
+    lines.push('  Not yet generated -- run /mos:whitespace hypothesis ' + (zone.zone_id || zone.gap_id || ''));
+  }
+  lines.push('');
+
+  lines.push.apply(lines, verificationStampFormat.formatStampLines(stamp, 'cli'));
+  lines.push(floorDisclosure.disclosureLine('whitespace'));
+
+  // D-30 backstop: see renderScanLines.
+  return verificationStampFormat.assertNoScalar(lines).lines;
+}
+
+/*
+ * renderNoveltyLines(scores, stamps) -- the `score` subcommand's Zone 2 body.
+ * Novelty scores render as the band word (novel/moderate/covered) from the
+ * existing (ledgered) 0.8/0.4 comparison, never the raw decimal (D-29); the
+ * comparison itself is unchanged.
+ */
+function renderNoveltyLines(scores, stamps) {
+  const lines = [];
+  const artColW = 32;
+  const secColW = 22;
+  const bandColW = 10;
+
+  lines.push('');
+  lines.push('  ' + padRight('Artifact', artColW) + padRight('Section', secColW) + padRight('Novelty', bandColW) + 'Nearest Concept');
+
+  let novel = 0;
+  let moderate = 0;
+  let covered = 0;
+
+  scores.forEach((item) => {
+    const name = truncate(item.artifact || item.name || item.id || '?', artColW - 2);
+    const section = truncate(item.section || '', secColW - 2);
+    const score = item.novelty_score || item.score || 0;
+    const concept = truncate(item.nearest_concept || item.nearest_brain || '', 24);
+
+    let band;
+    if (score >= 0.8) { band = 'novel'; novel++; } else if (score >= 0.4) { band = 'moderate'; moderate++; } else { band = 'covered'; covered++; }
+
+    lines.push('  ' + padRight(name, artColW) + padRight(section, secColW) + padRight(band, bandColW) + concept);
+  });
+
+  lines.push('');
+  lines.push('  Artifacts: ' + scores.length + '  |  Novel: ' + novel + '  |  Moderate: ' + moderate + '  |  Covered: ' + covered);
+
+  lines.push('');
+  scores.forEach((_item, i) => {
+    lines.push.apply(lines, verificationStampFormat.formatStampLines(stamps[i], 'cli'));
+  });
+  lines.push(floorDisclosure.disclosureLine('whitespace'));
+
+  // D-30 backstop: see renderScanLines.
+  return verificationStampFormat.assertNoScalar(lines).lines;
+}
+
 function runScript(cmd, opts = {}) {
   try {
     return execSync(cmd, {
@@ -122,7 +347,7 @@ function getRoomName(roomDir) {
 // Subcommand: map
 // ---------------------------------------------------------------------------
 
-function cmdMap(roomDir) {
+async function cmdMap(roomDir) {
   const mindrianDir = path.join(roomDir, '.mindrian');
   const embeddingsPath = path.join(mindrianDir, 'whitespace-embeddings.json');
   const resultsPath = path.join(mindrianDir, 'whitespace-results.json');
@@ -177,35 +402,25 @@ function cmdMap(roomDir) {
   }
 
   const gaps = (data.gaps || []).sort((a, b) => (a.density_score || 0) - (b.density_score || 0));
-  const validated = gaps.filter(g => g.validated).length;
-  const sparsest = gaps[0];
 
-  // Output: Mondrian Board
-  const zoneColW = 24;
-  const densityColW = 10;
-  const typeColW = 15;
+  // Phase 355-16 (D-08, D-12, D-27): resolve endpoints locally, then await
+  // Theo once per distinct pair before any line is printed.
+  const findings = gaps.map((gap) => Object.assign(
+    { direction: directionConvention.NONE },
+    whitespaceEndpoints(gap, 'zone')
+  ));
+  const stamps = await verificationStamp.stampFindings(findings, {});
 
-  console.log('');
-  console.log(`  ${padRight('Zone', zoneColW)}${padRight('Density', densityColW)}${padRight('Type', typeColW)}Nearest Frameworks`);
-
-  for (const gap of gaps) {
-    const zoneId = padRight(gap.zone_id || gap.gap_id || '?', zoneColW);
-    const density = padRight((gap.density_score || 0).toFixed(2), densityColW);
-    const ptype = padRight(gap.problem_type || 'Un-Defined', typeColW);
-    const frameworks = (gap.nearest_frameworks || gap.nearest_brain_frameworks || [])
-      .slice(0, 2).join(', ');
-    console.log(`  ${zoneId}${density}${ptype}${truncate(frameworks, 30)}`);
+  for (const line of renderScanLines(gaps, stamps)) {
+    console.log(line);
   }
-
-  console.log('');
-  console.log(`  Zones: ${gaps.length} total  |  ${validated} validated  |  Sparsest: ${sparsest ? (sparsest.zone_id || sparsest.gap_id) : 'none'} (density ${sparsest ? (sparsest.density_score || 0).toFixed(2) : 'n/a'})`);
 }
 
 // ---------------------------------------------------------------------------
 // Subcommand: analyze
 // ---------------------------------------------------------------------------
 
-function cmdAnalyze(roomDir, zoneId) {
+async function cmdAnalyze(roomDir, zoneId) {
   if (!zoneId) {
     printError('Zone ID required', 'analyze needs a zone ID argument', '/mos:whitespace map (to see available zones)');
     return;
@@ -221,9 +436,11 @@ function cmdAnalyze(roomDir, zoneId) {
     return;
   }
 
-  // Find zone
-  const gaps = data.gaps || [];
-  const zone = gaps.find(g => (g.zone_id || g.gap_id) === zoneId);
+  // Find zone. Rank (D-29) is computed against the SAME ascending-by-density
+  // sort cmdMap uses, so `analyze`'s rank always agrees with `map`'s rank.
+  const gaps = (data.gaps || []).sort((a, b) => (a.density_score || 0) - (b.density_score || 0));
+  const rankIndex = gaps.findIndex((g) => (g.zone_id || g.gap_id) === zoneId);
+  const zone = rankIndex === -1 ? null : gaps[rankIndex];
   if (!zone) {
     const available = gaps.map(g => g.zone_id || g.gap_id).join(', ');
     printError(`Zone not found: ${zoneId}`,
@@ -249,45 +466,14 @@ function cmdAnalyze(roomDir, zoneId) {
     if (found) enrichedZone = found;
   }
 
-  // Output: Action Report
-  console.log('');
-  console.log(`  Zone: ${zoneId}`);
-  console.log(`  Density: ${(enrichedZone.density_score || 0).toFixed(2)}`);
-  console.log(`  Problem Type: ${enrichedZone.problem_type || 'Un-Defined'}`);
-  console.log(`  Validated: ${enrichedZone.validated ? 'Yes' : 'No'}${enrichedZone.validation ? ` (${(enrichedZone.validation.gates_passed || []).length}/${(enrichedZone.validation.gates_passed || []).length + (enrichedZone.validation.gates_failed || []).length} gates)` : ''}`);
-  console.log('');
+  const endpoints = whitespaceEndpoints(enrichedZone, 'zone');
+  const stamp = await verificationStamp.stampFinding(
+    Object.assign({ direction: directionConvention.NONE }, endpoints),
+    {}
+  );
 
-  // Framework chain
-  const chain = enrichedZone.framework_chain || [];
-  if (chain.length > 0) {
-    console.log('  Framework Chain:');
-    chain.forEach((fw, i) => {
-      const prefix = i < chain.length - 1 ? SYM.BRANCH : SYM.LAST;
-      console.log(`  ${prefix} ${fw}`);
-    });
-    console.log('');
-  }
-
-  // Nearest artifacts
-  const artifacts = enrichedZone.nearest_room_artifacts || [];
-  if (artifacts.length > 0) {
-    console.log('  Nearest Artifacts:');
-    artifacts.forEach((a, i) => {
-      const prefix = i < artifacts.length - 1 ? SYM.BRANCH : SYM.LAST;
-      const name = typeof a === 'string' ? a : (a.title || a.artifact_id || a.id || '?');
-      const section = typeof a === 'object' ? (a.section || '') : '';
-      console.log(`  ${prefix} ${name}${section ? ` (${section}/)` : ''}`);
-    });
-    console.log('');
-  }
-
-  // Hypothesis
-  const hypothesis = enrichedZone.hypothesis || enrichedZone.hypothesis_text || null;
-  console.log('  Hypothesis:');
-  if (hypothesis) {
-    console.log(`  ${hypothesis}`);
-  } else {
-    console.log(`  Not yet generated -- run ${C.CYAN}/mos:whitespace hypothesis ${zoneId}${C.RESET}`);
+  for (const line of renderAnalyzeLines(enrichedZone, stamp, rankIndex + 1, gaps.length)) {
+    console.log(line);
   }
 }
 
@@ -480,7 +666,7 @@ function cmdTree(roomDir) {
 // Subcommand: score
 // ---------------------------------------------------------------------------
 
-function cmdScore(roomDir) {
+async function cmdScore(roomDir) {
   const resultsPath = path.join(roomDir, '.mindrian', 'whitespace-results.json');
   const data = readJSON(resultsPath);
 
@@ -497,30 +683,23 @@ function cmdScore(roomDir) {
     return;
   }
 
-  const artColW = 32;
-  const secColW = 22;
-  const novColW = 10;
+  // Phase 355-16 (D-48): each novelty row's endpoints are the artifact's own
+  // carried name (frontmatter framework:/methodology:/title, read locally)
+  // and the row's nearest_concept.
+  const artifactRel = (item) => item.artifact || item.name || item.id || '';
+  const findings = scores.map((item) => {
+    const raw = _readArtifactRaw(roomDir, item.section, artifactRel(item));
+    const enriched = Object.assign({}, item, {
+      artifact_text: raw,
+      artifact_title: artifactRel(item),
+    });
+    return Object.assign({ direction: directionConvention.NONE }, whitespaceEndpoints(enriched, 'novelty'));
+  });
+  const stamps = await verificationStamp.stampFindings(findings, {});
 
-  console.log('');
-  console.log(`  ${padRight('Artifact', artColW)}${padRight('Section', secColW)}${padRight('Novelty', novColW)}Nearest Concept`);
-
-  let novel = 0, moderate = 0, covered = 0;
-
-  for (const item of scores) {
-    const name = truncate(item.artifact || item.name || item.id || '?', artColW - 2);
-    const section = truncate(item.section || '', secColW - 2);
-    const score = (item.novelty_score || item.score || 0);
-    const concept = truncate(item.nearest_concept || item.nearest_brain || '', 24);
-
-    if (score >= 0.8) novel++;
-    else if (score >= 0.4) moderate++;
-    else covered++;
-
-    console.log(`  ${padRight(name, artColW)}${padRight(section, secColW)}${padRight(score.toFixed(2), novColW)}${concept}`);
+  for (const line of renderNoveltyLines(scores, stamps)) {
+    console.log(line);
   }
-
-  console.log('');
-  console.log(`  Artifacts: ${scores.length}  |  Novel (>0.8): ${novel}  |  Moderate: ${moderate}  |  Covered (<0.4): ${covered}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -638,12 +817,15 @@ function cmdExternal(roomDir) {
     console.log('');
     console.log(`  Papers Analyzed: ${papers.length}`);
     console.log('  Top Matches:');
+    // Phase 355-16 (D-29): a relevance decimal is not a stamped framework
+    // pair (external literature match, no Theo endpoint on either side) --
+    // it still never renders as a raw number. `papers` is assumed pre-sorted
+    // by relevance; this is the paper's rank within the shown top 3.
     papers.slice(0, 3).forEach((p, i) => {
       const prefix = i < Math.min(papers.length, 3) - 1 ? SYM.BRANCH : SYM.LAST;
       const title = truncate(p.title || '', 45);
       const year = p.year || '?';
-      const rel = (p.relevance || 0).toFixed(2);
-      console.log(`  ${prefix} ${title} (${year}) -- relevance: ${rel}`);
+      console.log(`  ${prefix} ${title} (${year}) -- relevance rank ${i + 1} of ${Math.min(papers.length, 3)}`);
     });
   }
 
@@ -762,7 +944,7 @@ Examples:
 // Main
 // ---------------------------------------------------------------------------
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);
 
   // Help
@@ -802,10 +984,10 @@ function main() {
   // Dispatch
   switch (subcommand) {
     case 'map':
-      cmdMap(resolvedRoom);
+      await cmdMap(resolvedRoom);
       break;
     case 'analyze':
-      cmdAnalyze(resolvedRoom, subArgs[0]);
+      await cmdAnalyze(resolvedRoom, subArgs[0]);
       break;
     case 'hypothesis':
       cmdHypothesis(resolvedRoom, subArgs[0]);
@@ -814,7 +996,7 @@ function main() {
       cmdTree(resolvedRoom);
       break;
     case 'score':
-      cmdScore(resolvedRoom);
+      await cmdScore(resolvedRoom);
       break;
     case 'external':
       cmdExternal(resolvedRoom);
@@ -828,4 +1010,19 @@ function main() {
   }
 }
 
-main();
+// Phase 355-16: guard the CLI trigger so this module can be `require()`d
+// (scripts/whitespace-to-graph.cjs reuses `whitespaceEndpoints` below)
+// without firing the dispatcher as a side effect of loading.
+if (require.main === module) {
+  main().catch((e) => {
+    console.error('whitespace-command error: ' + (e && e.message ? e.message : e));
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  whitespaceEndpoints,
+  renderScanLines,
+  renderAnalyzeLines,
+  renderNoveltyLines,
+};

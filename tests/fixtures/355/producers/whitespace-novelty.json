@@ -1,0 +1,53 @@
+{
+  "_note": "Phase 355-16 (HIPS-04, HIPS-05) producer test fixture. Six novelty rows spanning all three D-29 bands (novel >=0.8, moderate 0.4-0.8, covered <0.4). Each row's artifact_text carries the frontmatter framework: this plan's whitespaceEndpoints('novelty') resolves through extractCarried + resolveEndpoint (D-48); nearest_concept values are drawn from data/framework-names.json / tests/fixtures/355/theo-stub-responses.json pairs so the stub fixture can answer them.",
+  "rows": [
+    {
+      "artifact": "novelty-a",
+      "section": "market-analysis",
+      "novelty_score": 0.92,
+      "nearest_concept": "Dominant Design",
+      "artifact_text": "---\nframework: Ackoff Pyramid\n---\n\n# Novelty A\n\nBody text about pyramid layers.",
+      "artifact_title": "Novelty A"
+    },
+    {
+      "artifact": "novelty-b",
+      "section": "market-analysis",
+      "novelty_score": 0.85,
+      "nearest_concept": "Ackoff Pyramid",
+      "artifact_text": "---\nframework: S-Curve Analysis\n---\n\n# Novelty B\n\nBody text about adoption curves.",
+      "artifact_title": "Novelty B"
+    },
+    {
+      "artifact": "novelty-c",
+      "section": "competitive-analysis",
+      "novelty_score": 0.6,
+      "nearest_concept": "Mullins Model",
+      "artifact_text": "---\nframework: Futures Wheel\n---\n\n# Novelty C\n\nBody text about second-order effects.",
+      "artifact_title": "Novelty C"
+    },
+    {
+      "artifact": "novelty-d",
+      "section": "competitive-analysis",
+      "novelty_score": 0.45,
+      "nearest_concept": "Six Thinking Hats",
+      "artifact_text": "---\nframework: Hedgehog Concept\n---\n\n# Novelty D\n\nBody text about the one thing.",
+      "artifact_title": "Novelty D"
+    },
+    {
+      "artifact": "novelty-e",
+      "section": "legal-ip",
+      "novelty_score": 0.3,
+      "nearest_concept": "Dominant Design",
+      "artifact_text": "---\nframework: Self-Selling Loop\n---\n\n# Novelty E\n\nBody text about viral loops.",
+      "artifact_title": "Novelty E"
+    },
+    {
+      "artifact": "novelty-f",
+      "section": "legal-ip",
+      "novelty_score": 0.1,
+      "nearest_concept": "Also Not Canon",
+      "artifact_text": "---\nframework: Not A Framework At All\n---\n\n# Novelty F\n\nBody text that carries no canon handle.",
+      "artifact_title": "Novelty F"
+    }
+  ]
+}
