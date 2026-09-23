@@ -112,6 +112,17 @@ B2 makes slide A1 true: "which direction" and "can I turn around". Acceptance te
 
 </deferred>
 
+<b2_rulings>
+## B2 Navigator Rulings (2026-09-23, answers to 358-B2-RESEARCH.md Open Questions)
+
+1. **AT3 slide wording - CHANGED.** Fallback/slide sentence becomes: "When the governing question changes, the room asks what the old question got wrong before it records the new question, and keeps both questions on the record." AT3 passes when (a) the change door refuses without account/relocate on CLI and Desktop, (b) every B2 read surface shows the pending ask first, (c) the demo script routes every question change through the door. 358-11 runbook uses this wording verbatim.
+2. **Governing question = NEW explicit room-level record** (not the MINTO governing_thought). Research default, accepted.
+3. **Origin REQUIRED on every version**; labels (chosen/tasking/prompt/inherited) provisional behind one constant with TODO(358) until the paper author confirms definitions.
+4. **Phase 345 goal.parent_question - defer**; log the reconciliation in the handoff. Research default, accepted.
+5. **Artifacts live under `<room>/.mindrian/frames/`.** Research default, accepted.
+6. **chain_run pending-change halt - stretch only**, after B2-01..B2-10 are green. Research default, accepted.
+</b2_rulings>
+
 ---
 
 *Phase: 358-rome-b1-checking-record-and-b2-frame-provenance-user-visible*
