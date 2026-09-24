@@ -1,0 +1,680 @@
+{
+  "_labeling_note": "Navigator blind gold, Phase 355 (pairings-unstamped).",
+  "labeler": "navigator",
+  "fixture_sha256": "1fb0c813fcdb4d8ed5b55c0b6851036aeb29fa2041605e25ba1debf172dc7973",
+  "labeled_at": "2026-09-24T16:23:28.824Z",
+  "items": [
+    {
+      "pair_id": "71a3b362198b",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:55:15.132Z"
+    },
+    {
+      "pair_id": "138231a5710a",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:19:09.306Z"
+    },
+    {
+      "pair_id": "550a0c8ccb95",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:21:39.575Z"
+    },
+    {
+      "pair_id": "22f2f99ce390",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:11:18.611Z"
+    },
+    {
+      "pair_id": "942a7bb77393",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:21:50.673Z"
+    },
+    {
+      "pair_id": "5f346a0c4258",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:09:54.527Z"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:50:59.460Z"
+    },
+    {
+      "pair_id": "dfb8af2a042f",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:18:08.488Z"
+    },
+    {
+      "pair_id": "575d21ab0fa1",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:22:09.565Z"
+    },
+    {
+      "pair_id": "651643e6aef4",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:24:19.870Z"
+    },
+    {
+      "pair_id": "53628980d126",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:52:58.217Z"
+    },
+    {
+      "pair_id": "967eebebdb2a",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:51:14.676Z"
+    },
+    {
+      "pair_id": "20a8a389efbb",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:56:59.279Z"
+    },
+    {
+      "pair_id": "08d48c49f73f",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:22:50.882Z"
+    },
+    {
+      "pair_id": "eaf0c6945c2a",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:19:31.999Z"
+    },
+    {
+      "pair_id": "bfa53320bdb5",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:18:57.440Z"
+    },
+    {
+      "pair_id": "59f67da1507d",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:24:00.675Z"
+    },
+    {
+      "pair_id": "ac899cc31a08",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:18:51.526Z"
+    },
+    {
+      "pair_id": "a3dd5a5a8ba9",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:21:55.179Z"
+    },
+    {
+      "pair_id": "739b13f07f52",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:11:43.418Z"
+    },
+    {
+      "pair_id": "32428ac3c5d0",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:53:46.999Z"
+    },
+    {
+      "pair_id": "e522567a70db",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:51:27.260Z"
+    },
+    {
+      "pair_id": "71b5ca116782",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:23:49.509Z"
+    },
+    {
+      "pair_id": "973e829e5c7a",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:10:49.062Z"
+    },
+    {
+      "pair_id": "2d2f994aa0b7",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:20:14.807Z"
+    },
+    {
+      "pair_id": "7f149cc68eae",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:17:01.066Z"
+    },
+    {
+      "pair_id": "762e30d72079",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:14:00.615Z"
+    },
+    {
+      "pair_id": "86160a4c843e",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:50:10.904Z"
+    },
+    {
+      "pair_id": "33c16fc98207",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:57:09.794Z"
+    },
+    {
+      "pair_id": "5670bf421779",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:58:31.131Z"
+    },
+    {
+      "pair_id": "dedbd55a5148",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-09-24T15:09:38.868Z"
+    },
+    {
+      "pair_id": "e649276d0880",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:11:03.519Z"
+    },
+    {
+      "pair_id": "4966f51f4ba5",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:59:00.459Z"
+    },
+    {
+      "pair_id": "b6c39a8315e4",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:52:31.736Z"
+    },
+    {
+      "pair_id": "4ae95ebc099b",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:56:12.123Z"
+    },
+    {
+      "pair_id": "b9d565a07c73",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:22:36.719Z"
+    },
+    {
+      "pair_id": "bde4986ef002",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:23:26.068Z"
+    },
+    {
+      "pair_id": "920e9533101d",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:56:45.359Z"
+    },
+    {
+      "pair_id": "481a96a042ed",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-09-24T15:14:18.158Z"
+    },
+    {
+      "pair_id": "a9c4eb92d9cc",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:53:24.633Z"
+    },
+    {
+      "pair_id": "d37e922b92b0",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:54:24.297Z"
+    },
+    {
+      "pair_id": "2dbf73d27401",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:14:45.803Z"
+    },
+    {
+      "pair_id": "21617932599e",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:23:37.904Z"
+    },
+    {
+      "pair_id": "5af9d958e847",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:19:45.423Z"
+    },
+    {
+      "pair_id": "9482b5ee2a88",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:58:19.851Z"
+    },
+    {
+      "pair_id": "be93e2bc753b",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:18:37.173Z"
+    },
+    {
+      "pair_id": "df772c7aa5d7",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:23:10.599Z"
+    },
+    {
+      "pair_id": "a21dc91990b1",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:16:13.469Z"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:50:36.166Z"
+    },
+    {
+      "pair_id": "bd37004bd111",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:56:00.559Z"
+    },
+    {
+      "pair_id": "4fdfc34bbe31",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:16:32.221Z"
+    },
+    {
+      "pair_id": "7ec79d35bcf1",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:58:44.632Z"
+    },
+    {
+      "pair_id": "be259de33291",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:17:42.499Z"
+    },
+    {
+      "pair_id": "f8059ad37e84",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:20:26.025Z"
+    },
+    {
+      "pair_id": "89e18440699d",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:51:57.256Z"
+    },
+    {
+      "pair_id": "c165d7681b78",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:22:21.487Z"
+    },
+    {
+      "pair_id": "73c2c0780e26",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:54:58.875Z"
+    },
+    {
+      "pair_id": "824233d5323d",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:16:46.748Z"
+    },
+    {
+      "pair_id": "27e3a9dabd93",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:57:19.614Z"
+    },
+    {
+      "pair_id": "5546fe323f60",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:22:02.468Z"
+    },
+    {
+      "pair_id": "9d6f82c08309",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:59:17.853Z"
+    },
+    {
+      "pair_id": "6a7b75fc7d8b",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:50:48.672Z"
+    },
+    {
+      "pair_id": "aa4cb153e855",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:57:51.539Z"
+    },
+    {
+      "pair_id": "0665103b1407",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:54:11.298Z"
+    },
+    {
+      "pair_id": "e5fee29f3af4",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:21:14.799Z"
+    },
+    {
+      "pair_id": "f9fd20cf5a3e",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:22:25.510Z"
+    },
+    {
+      "pair_id": "716eb86322a4",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:18:21.577Z"
+    },
+    {
+      "pair_id": "68f9f5a9dc5c",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:53:13.922Z"
+    },
+    {
+      "pair_id": "954cb61cfd87",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:15:54.708Z"
+    },
+    {
+      "pair_id": "925616befba3",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:53:35.735Z"
+    },
+    {
+      "pair_id": "f84fe5852911",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:12:31.312Z"
+    },
+    {
+      "pair_id": "5102fc9796a9",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:23:04.848Z"
+    },
+    {
+      "pair_id": "c5f662bf8905",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-09-24T15:09:02.071Z"
+    },
+    {
+      "pair_id": "69bc60c5c1e7",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T16:21:27.346Z"
+    },
+    {
+      "pair_id": "94cffb2d0328",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:56:23.664Z"
+    },
+    {
+      "pair_id": "26c18b2b9ed8",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:52:46.254Z"
+    },
+    {
+      "pair_id": "4e052215042a",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:13:25.497Z"
+    },
+    {
+      "pair_id": "608a8786af6b",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:07:56.421Z"
+    },
+    {
+      "pair_id": "3a4fdbc9405b",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:10:34.201Z"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:57:31.609Z"
+    },
+    {
+      "pair_id": "da82dcd1283b",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:12:13.303Z"
+    },
+    {
+      "pair_id": "6bbc973b8673",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:19:19.133Z"
+    },
+    {
+      "pair_id": "69c01d1e94a5",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:53:57.261Z"
+    },
+    {
+      "pair_id": "e183a8a8a38e",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:13:43.586Z"
+    },
+    {
+      "pair_id": "8113656967e0",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:55:47.612Z"
+    },
+    {
+      "pair_id": "7b46e9e17d79",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T15:51:43.426Z"
+    },
+    {
+      "pair_id": "d4807ef935c4",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:19:55.975Z"
+    },
+    {
+      "pair_id": "923eaa491b7d",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:21:00.397Z"
+    },
+    {
+      "pair_id": "97bd79e86a1f",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:54:38.775Z"
+    },
+    {
+      "pair_id": "cf322dc30df8",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-09-24T16:22:14.259Z"
+    },
+    {
+      "pair_id": "013ae8ee02d5",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:58:05.566Z"
+    },
+    {
+      "pair_id": "88576a2b871c",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T16:19:02.693Z"
+    },
+    {
+      "pair_id": "874efea9a47c",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T16:20:39.563Z"
+    },
+    {
+      "pair_id": "f3bec26b00bf",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T15:11:58.024Z"
+    },
+    {
+      "pair_id": "e31a64af2475",
+      "useful": false,
+      "direction_ok": false,
+      "already_known": false,
+      "at": "2026-09-24T16:20:50.650Z"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": true,
+      "at": "2026-09-24T15:17:15.870Z"
+    }
+  ]
+}
