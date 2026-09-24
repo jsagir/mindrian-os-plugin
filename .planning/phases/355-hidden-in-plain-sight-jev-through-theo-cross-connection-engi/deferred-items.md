@@ -228,3 +228,31 @@ last commit that touched it, which predates this session. None requires
 (grep-confirmed). Not fixed here (Scope Boundary rule); flagged for the
 navigator/a future phase to root-cause the `epistemic_type` contract these
 tests' shared fixture-room builder violates.
+
+## 355-19: `tests/test-237-session-scope.cjs` Leg 4 (MUTATION) pre-existing
+## failure, unrelated to the eureka side-channel v2 bump
+
+Running the regression sweep for files that `require` either
+`lib/core/eureka/eureka-reach-runner.cjs` or `lib/core/sensors/sensor-eureka.cjs`
+found `node tests/test-237-session-scope.cjs` fails Leg 4 (MUTATION) with
+`Cannot find module './sensors/sensor-content-relevance.cjs'` inside its own
+tmp-dir mutated copy of `lib/core/insight-sensors.cjs` (Legs 1-3 pass).
+
+Confirmed pre-existing and unrelated to this plan: the test's own
+`loadMutatedInsightSensors` helper copies `lib/core/insight-sensors.cjs` to
+a tmp dir and rewrites ONLY the relative `require('./sensors/...')` calls
+named in its hardcoded `SENSOR_REQUIRE_FILES` list (16 entries) to absolute
+repo paths, then `require()`s the tmp copy. `sensor-eureka.cjs` IS in that
+list (confirming this plan's own file is not the gap). `insight-sensors.cjs`
+requires 20 sensor files today, including `sensor-content-relevance.cjs`
+(landed in Phase 244-05, commit `dc34fc886`, AFTER `tests/test-237-session-scope.cjs`
+was authored in Phase 237-04, commit `37b2aa662`) plus three more
+(`sensor-perspective-lock.cjs`, `sensor-roadmap-type.cjs`,
+`sensor-graph-integrity.cjs`, `sensor-strategy-reach.cjs`) -- none of these
+four post-237 sensors were ever added to `SENSOR_REQUIRE_FILES`, so their
+relative requires stay unpinned in the tmp copy and fail to resolve from
+outside the repo tree. `git status --short` on `tests/test-237-session-scope.cjs`
+and `lib/core/insight-sensors.cjs` shows zero diff from this plan. Not fixed
+here (Scope Boundary rule -- `tests/test-237-session-scope.cjs` is not in
+355-19's `files_modified`); flagged for the navigator/a future phase to add
+the four missing entries to `SENSOR_REQUIRE_FILES`.
