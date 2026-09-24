@@ -121,6 +121,7 @@ const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
   'jev-question-ceilings',
   'jev-response-schema',
   'measure-hsi-thinking-mode',
+  'score-moonshots-359',
 ]);
 
 function escapeRe(s) {
