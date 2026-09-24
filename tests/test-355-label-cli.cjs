@@ -764,6 +764,206 @@ async function main() {
   }
 
   // ---------------------------------------------------------------------
+  // Behavior 12 (quick 260924-ohd): sitting UX - answer echo, [labeled/total]
+  // counter, undo line, ignored keys silent
+  // ---------------------------------------------------------------------
+  async function settle() {
+    await new Promise((r) => setImmediate(r));
+    await new Promise((r) => setImmediate(r));
+  }
+
+  // B12a: triple set (pairings-unstamped) - counter, echo, undo, ignored keys
+  {
+    const sessionDir = mkTmpDir('session-b12a');
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['start', '--set', 'pairings-unstamped', '--items', pairingItemsPath, '--session-dir', sessionDir, '--seed', '7'],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    await settle();
+    const legend = cli.LEGENDS['pairings-unstamped'];
+    check('B12a: legend then [0/2] at output start', output.text.indexOf(legend + '\n[0/2]\n') === 0, output.text);
+    check('B12a: counter followed by the room line', /\[0\/2\]\n(alpha|beta)\n/.test(output.text), output.text);
+
+    let mark = output.text.length;
+    input.write('x\n');
+    await settle();
+    let delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12a: ignored key x writes zero bytes', delta === '', JSON.stringify(delta));
+
+    input.write('y\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12a: y echoes then the next prompt', delta === 'useful? y\ndirection ok? (y/n)\n', JSON.stringify(delta));
+
+    input.write('n\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12a: n echoes then the next prompt', delta === 'direction ok? n\nalready known? (y/n)\n', JSON.stringify(delta));
+
+    input.write('n\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12a: third n echo starts the delta', delta.indexOf('already known? n\n') === 0, JSON.stringify(delta));
+    check('B12a: [1/2] counter appears after the echo', delta.indexOf('[1/2]\n') > 0, JSON.stringify(delta));
+
+    const sessionPath = path.join(sessionDir, 'labeling-session-pairings-unstamped.json');
+    let session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+    const firstId = Object.keys(session.entries)[0];
+    check('B12a: exactly one entry after the triple', Object.keys(session.entries).length === 1, Object.keys(session.entries).join(','));
+
+    input.write('z\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12a: ignored key z after the triple writes zero bytes', delta === '', JSON.stringify(delta));
+
+    input.write('u\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check(
+      'B12a: undo names the cleared id and re-shows [0/2]',
+      delta.indexOf('undo: ' + firstId + ' cleared\n[0/2]\n') === 0,
+      JSON.stringify(delta),
+    );
+
+    session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+    check('B12a: entries empty after undo', Object.keys(session.entries).length === 0);
+
+    input.write('q\n');
+    const code = await runPromise;
+    check('B12a: q exits 0', code === 0);
+    session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+    const sixKeys = ['set', 'fixture_sha256', 'order_seed', 'phrase_module_hash', 'started_at', 'entries'];
+    check(
+      'B12a: session file has exactly the six keys',
+      Object.keys(session).length === 6 && sixKeys.every((k) => Object.prototype.hasOwnProperty.call(session, k)),
+      Object.keys(session).join(','),
+    );
+  }
+
+  // B12b: keyed set (sentences) - counter, echo, ignored keys
+  {
+    const sessionDir = mkTmpDir('session-b12b');
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['start', '--set', 'sentences', '--items', sentenceItemsPath, '--session-dir', sessionDir],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    await settle();
+    const legend = cli.LEGENDS.sentences;
+    check('B12b: legend then [0/3] at output start', output.text.indexOf(legend + '\n[0/3]\n') === 0, output.text);
+
+    let mark = output.text.length;
+    input.write('9\n');
+    await settle();
+    let delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12b: ignored key 9 writes zero bytes', delta === '', JSON.stringify(delta));
+
+    input.write('y\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12b: ignored key y writes zero bytes', delta === '', JSON.stringify(delta));
+
+    input.write('1\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12b: 1 echoes label then [1/3]', delta.indexOf('label: analytical\n[1/3]\n') === 0, JSON.stringify(delta));
+
+    input.write('6\n');
+    await settle();
+    delta = output.text.slice(mark);
+    mark = output.text.length;
+    check('B12b: 6 echoes label then [2/3]', delta.indexOf('label: none\n[2/3]\n') === 0, JSON.stringify(delta));
+
+    input.write('q\n');
+    const code = await runPromise;
+    check('B12b: q exits 0', code === 0);
+  }
+
+  // B12c: keyed set (citations) - echo carries the resolved label text
+  {
+    const sessionDir = mkTmpDir('session-b12c');
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['start', '--set', 'citations', '--items', citationItemsPath, '--session-dir', sessionDir],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    await settle();
+    const mark = output.text.length;
+    input.write('n\n');
+    await settle();
+    const delta = output.text.slice(mark);
+    check('B12c: n echoes says_nothing then [1/2]', delta.indexOf('label: says_nothing\n[1/2]\n') === 0, JSON.stringify(delta));
+
+    input.write('q\n');
+    const code = await runPromise;
+    check('B12c: q exits 0', code === 0);
+  }
+
+  // B12d: resume compatibility (R5) - a pre-change-shape session file resumes
+  // under the new code showing the counter, and re-saves byte-identical.
+  {
+    const sessionDir = mkTmpDir('session-b12d');
+    const sessionPath = path.join(sessionDir, 'labeling-session-pairings-unstamped.json');
+    const fixtureSha256 = crypto.createHash('sha256').update(fs.readFileSync(pairingItemsPath, 'utf8')).digest('hex');
+    writeJson(sessionPath, {
+      set: 'pairings-unstamped',
+      fixture_sha256: fixtureSha256,
+      order_seed: 42,
+      phrase_module_hash: 'abc123',
+      started_at: '2026-09-24T00:00:00.000Z',
+      entries: {
+        p1: { useful: true, direction_ok: false, already_known: false, at: '2026-09-24T00:00:00.000Z', ms: 1234 },
+      },
+    });
+    const beforeBytes = fs.readFileSync(sessionPath);
+
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['resume', '--set', 'pairings-unstamped', '--items', pairingItemsPath, '--session-dir', sessionDir],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    await settle();
+    const legend = cli.LEGENDS['pairings-unstamped'];
+    check('B12d: resume prints legend then [1/2] then beta', output.text.indexOf(legend + '\n[1/2]\nbeta\n') === 0, output.text);
+
+    input.write('q\n');
+    const code = await runPromise;
+    check('B12d: resume q exits 0', code === 0);
+    const afterBytes = fs.readFileSync(sessionPath);
+    check('B12d: session file byte-identical after resume + q', beforeBytes.equals(afterBytes));
+  }
+
+  // ---------------------------------------------------------------------
   // Behavior 11 / static tripwire: no banned requires, non-comment lines only
   // ---------------------------------------------------------------------
   {

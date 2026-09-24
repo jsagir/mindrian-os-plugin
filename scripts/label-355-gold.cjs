@@ -34,6 +34,11 @@
  * the identical order from the same seed and the same item-id list. The
  * session file is keyed by item id, never by position (D-33).
  *
+ * Sitting feedback (quick 260924-ohd): raw mode turns off the terminal's own
+ * local echo, so the CLI writes each accepted answer back itself, prefixes
+ * every item with a [labeled/total] counter, and names the cleared item on
+ * undo - the navigator's confirmation that a keypress registered.
+ *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
 
@@ -184,11 +189,20 @@ const SETS = Object.freeze({
 
 const TRIPLE_FIELDS = ['useful', 'direction_ok', 'already_known'];
 
+// ---------------------------------------------------------------------------
+// answerLabel(field) -- the field label used both in the y/n prompt (via
+// promptFor) and in the accepted-answer echo (quick 260924-ohd). Kept as one
+// function so the echo and the prompt can never drift apart.
+// ---------------------------------------------------------------------------
+function answerLabel(field) {
+  if (field === 'useful') return 'useful?';
+  if (field === 'direction_ok') return 'direction ok?';
+  if (field === 'already_known') return 'already known?';
+  return field + '?';
+}
+
 function promptFor(field) {
-  if (field === 'useful') return 'useful? (y/n)';
-  if (field === 'direction_ok') return 'direction ok? (y/n)';
-  if (field === 'already_known') return 'already known? (y/n)';
-  return field + '? (y/n)';
+  return answerLabel(field) + ' (y/n)';
 }
 
 function parseArgv(argv) {
@@ -666,6 +680,7 @@ function doSession({ mode, setId, setDef, flags, input, output, write, now, root
         return;
       }
       const item = itemById.get(currentId);
+      write('[' + Object.keys(session.entries).length + '/' + order.length + ']\n');
       write(renderItem(setDef, item) + '\n');
       itemShownAt = now();
       pending = {};
@@ -690,6 +705,7 @@ function doSession({ mode, setId, setDef, flags, input, output, write, now, root
       const lastId = keys[keys.length - 1];
       delete session.entries[lastId];
       saveSessionAtomic(sessionPath, session);
+      write('undo: ' + lastId + ' cleared\n');
       currentId = lastId;
       showCurrent();
     }
@@ -715,6 +731,7 @@ function doSession({ mode, setId, setDef, flags, input, output, write, now, root
       if (setDef.kind === 'keyed') {
         const label = setDef.keys[token];
         if (!label) return;
+        write('label: ' + label + '\n');
         recordEntry({ label: label });
         return;
       }
@@ -725,6 +742,7 @@ function doSession({ mode, setId, setDef, flags, input, output, write, now, root
         const nextField = TRIPLE_FIELDS.find((f) => !(f in pending));
         if (!nextField) return;
         pending[nextField] = val;
+        write(answerLabel(nextField) + ' ' + token + '\n');
         const remaining = TRIPLE_FIELDS.find((f) => !(f in pending));
         if (!remaining) {
           recordEntry(pending);
