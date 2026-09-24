@@ -220,7 +220,7 @@ You know you are here when `/mos:eureka status` reads `reasoning_await_mappings`
    ```
 
    The runner replays your answers through the REAL rubric (verdict computed by code, biased to reject) and writes the SAME `{ provenance, ranked, tail, statements }` md+json labeled `mode:reasoning`. If it exits with a re-answer request (status `reasoning_await_answers` with `retry:true`), re-answer ONLY the named pairs faithfully and run `reasoning-score` again (one retry allowed) -- never guess to make it pass.
-6. **Render.** Render the report through Shape E with the caveat in the TOP zone (Zone 1), stated once, prominently -- never a footer (SEED req 4). The ranked table shows `lsa_similarity` + `verdict`, never a differential column. Nothing is banked (`banked:false` on every row, Canon Part 9 human-only promotion).
+6. **Render.** Render the report through Shape E with the caveat in the TOP zone (Zone 1), stated once, prominently -- never a footer (SEED req 4). The ranked table shows `verdict` + `mode` only, never a lexical-overlap number and never a differential column (Phase 355-18, D-29). Nothing is banked (`banked:false` on every row, Canon Part 9 human-only promotion).
 
 ## The 4-Zone Render Spec
 
@@ -241,24 +241,48 @@ Zone 2 reads the report JSON fields by name. Render exactly this anatomy.
 
 When `provenance.run_mode` is `reasoning`, render the caveat FIRST, in the TOP zone (Zone 1), stated once, prominently -- never a footer. See the reasoning-mode section below.
 
-(b) Ranked table from `json.ranked` -- one row per pair. The columns depend on the mode:
+(b) Ranked table from `json.ranked` -- one row per pair. The columns depend on the mode. Phase
+355-18 (D-27, D-29): never render a score, similarity, differential or percentage anywhere in
+this table -- the composite score stays data in the JSON, never rendered; reproduce the stamp
+block verbatim under each row instead.
 
-- **Embedded** (`run_mode` is `live`/`offline`): rank, A title, B title, composite `score`, weak dimensions (or `-`), and a tail-flag glyph (`⚡`) only when the pair is tail-flagged.
+- **Embedded** (`run_mode` is `live`/`offline`): rank, A, B, weak dimensions (or `-`), a
+  tail-flag glyph (`⚡`) only when the pair is tail-flagged, and mode -- then `json.ranked[i].stamp`
+  reproduced verbatim as the stamp block under that row (the path check, or the honest
+  unverified reason; `formatStampLines` shape). A row with no stored `stamp` (the report was
+  never run with `--stamp`) renders "Not yet checked; run the CLI to verify." instead of a block.
 
 ```
-  Rank  A                         B                         Score   Weak dims        Tail   Mode
-  1     [A title]                 [B title]                 0.74    validated_demand        embedded
-  2     [A title]                 [B title]                 0.68    -                ⚡      embedded
+  Rank  A                         B                         Weak dims        Tail   Mode
+  1     [A title]                 [B title]                 validated_demand        embedded
+  ✓ strong · same meaning in different words · theo
+  path   [A title] -- FEEDS_INTO -- [B title]
+  tier   strong, one step in the methodology graph
+  judge  none, path check only
+
+  2     [A title]                 [B title]                 -                ⚡      embedded
+  ⚠ unverified · same words with different meaning · theo unavailable
+  reason methodology graph unreachable
+  may be novel or hallucinated - verify with a domain expert
+  judge  none, path check only
 ```
 
-- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `lsa_similarity` (the ONE surviving Jaccard number), `verdict`, and `mode`. NEVER render a `differential_score` or `semantic_similarity` column -- those legs are structurally null in reasoning mode and a fabricated numeric column would be the D1 lie in render form.
+- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `verdict`, and `mode`. NEVER
+  render a lexical-overlap column, a `differential_score` column or a `semantic_similarity`
+  column -- reasoning-mode pairs have no rs pair to verify against the methodology graph, so this
+  table carries no number of any kind (D-29, the D1 lie in render form).
 
 ```
-  Rank  A                         B                         lsa_similarity  Verdict        Mode
-  1     [A title]                 [B title]                 0.11            transferable   reasoning
+  Rank  A                         B                         Verdict        Mode
+  1     [A title]                 [B title]                 transferable   reasoning
 ```
 
 Reasoning and embedded pairs are NEVER merged into one ranked list (D6 never-merge).
+
+Never render a score, similarity, differential or percentage anywhere on this card; reproduce a
+stamp block verbatim, exactly as printed. On Desktop/Cowork, when a finding's stamp was never
+computed this run, say exactly "Not yet checked; run the CLI to verify." (D-50) -- never guess
+what the path check would have said.
 
 (c) Tail read:
 - When `json.tail.insufficient_structure` is true, render EXACTLY this honest line and nothing more for the tail:
@@ -313,5 +337,5 @@ Common errors:
 ## Cross-Surface Adaptation
 
 - **CLI:** Full power. The dispatcher runs via Bash; the 4-zone output is formatted for the terminal.
-- **Desktop:** Larry renders the SAME report JSON conversationally -- ranked pairs, the tail read, and the Opportunity Statements described in natural language, numbers preserved.
+- **Desktop:** Larry renders the SAME report JSON conversationally -- ranked pairs, the tail read, and the Opportunity Statements described in natural language, never a score or similarity number (D-29). Reproduce a stored stamp block's evidence in prose; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).
 - **Cowork:** Same as CLI. The report file under `.mindrian/eureka/` is shareable via `00_Context/` for team visibility.

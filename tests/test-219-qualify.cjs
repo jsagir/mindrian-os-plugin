@@ -323,7 +323,11 @@ check('Test 6 -- formatComponentLines renders D-18 components + harvest_index; t
   assert.ok(Array.isArray(lines) && lines.length >= 1, 'returns lines');
   const joined = lines.join('\n');
   assert.ok(/critic/i.test(joined), 'critic_gate line present');
-  assert.ok(joined.indexOf('0.62') !== -1, 'compression score rendered');
+  // Amended Phase 355 D-29 (Canon Part 12): a finite component number no
+  // longer prints the raw digits -- componentValue renders it as the word
+  // 'measured' (the value is withheld, not zeroed).
+  assert.ok(joined.indexOf('0.62') === -1, 'compression score no longer renders as a bare decimal (D-29)');
+  assert.ok(/compression:\s*measured/i.test(joined), "compression score renders as 'measured' (D-29)");
   assert.ok(/unknown/.test(joined), "typed 'unknown' renders verbatim");
   const evidenceLine = lines.find((l) => /evidence/i.test(l));
   assert.ok(evidenceLine, 'evidence_readiness line present');
