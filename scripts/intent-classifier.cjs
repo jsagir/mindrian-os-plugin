@@ -410,6 +410,26 @@ const STDIN_MESSAGE = extractMessage(STDIN_RAW);
 // env/hash fallback so the CLI read key matches the MCP room_bind write key.
 const STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
 
+// Phase 360 (D-06): the verdict comes from the ONE shared classifier in
+// lib/hmi/turn-text.cjs (SPEC R4); it judges exactly the same text the
+// room-resolution gate scores below (D-01 text signature), never a second
+// parse of the payload. Only an exact 'harness' verdict suppresses; a
+// missing module, a missing export, or a throw leaves today's human path
+// intact (SPEC R6, PSB-06 never-block). No transcript file read here --
+// CONTEXT D-04 is superseded by RESEARCH Finding 4 (the hook reads no
+// transcript; the design must not depend on transcript timing at all).
+function harnessVerdict(text) {
+  if (typeof text !== 'string' || text.length === 0) return false;
+  try {
+    const tt = require(path.join(__dirname, '..', 'lib', 'hmi', 'turn-text.cjs'));
+    if (!tt || typeof tt.classifyUserPromptText !== 'function') return false;
+    return tt.classifyUserPromptText(text) === 'harness';
+  } catch (_e) {
+    return false;
+  }
+}
+const TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
+
 // ---------------------------------------------------------------------------
 // Phase 94-06: emitStrictModeOverride
 //
@@ -480,6 +500,13 @@ function main() {
 
   const message = STDIN_MESSAGE;
   if (!message) return 0;
+
+  // Phase 360 (D-07): one early guard, before the strict-mode override, the
+  // zero-score gate, the F.8 binding gate and the legacy advisory, so no
+  // header, systemMessage, side-channel F.8 record, trace payload or offered
+  // marker is produced on a harness turn (SPEC R1; this is the upstream
+  // minter of the 2026-09-23 anchor false block, 357 RESEARCH Finding 3).
+  if (TURN_IS_HARNESS) return 0;
 
   const root = resolveMindrianRoomsRoot();
   if (!root) return 0;
@@ -3571,9 +3598,15 @@ try {
       // routing the confirmed set through captureCliActionSet -> consumeSessionBinding
       // (the net-new session-file SINK). Best-effort: a non-gate / cold turn is a
       // no-op, never a throw (PSB-06, the never-block contract).
-      try {
-        consumePriorBindingAnswer(roomDir, sessionId, STDIN_MESSAGE);
-      } catch (_) { /* fire-and-forget: never disrupt the prompt (PSB-06) */ }
+      // Phase 360 (D-08): a harness turn never answers the binding card -- a
+      // peer's or subagent's text is never read as the navigator's answer
+      // (SPEC R2). The pending binding_gate_payload stays unconsumed for the
+      // next human turn.
+      if (!TURN_IS_HARNESS) {
+        try {
+          consumePriorBindingAnswer(roomDir, sessionId, STDIN_MESSAGE);
+        } catch (_) { /* fire-and-forget: never disrupt the prompt (PSB-06) */ }
+      }
       navP = emitEngineDecisionBlock(roomDir, sessionId).then(function (out) {
         if (!out || !out.decision) return null;
         // Phase 91-03: compose engine decision with legacy file-state +
