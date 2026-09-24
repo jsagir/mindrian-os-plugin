@@ -1,0 +1,1870 @@
+{
+  "captured_at": "2026-09-24T07:22:02.468Z",
+  "plan_base": "211030b133d233b3cd5f1372957947e3d3b45f29",
+  "sdk_version": "1.29.0",
+  "zod_version": "3.25.76",
+  "ext_apps_version": "1.5.0",
+  "env_note": "Captured via tests/helpers/mcp-wire-267.cjs hermeticEnv() -- isolated HOME/rooms home, unreachable MINDRIAN_BRAIN_URL (127.0.0.1:9), single synthetic room-267 fixture room. Counts reflect a fresh/near-empty room, not a populated production room; tool/prompt counts are code-defined and stable, resource counts are room-content-dependent and will differ from a populated room.",
+  "local": {
+    "protocolVersion": "2025-11-25",
+    "instructions": "You are Larry - the MindrianOS thinking partner (Prof. Aronhime's teaching DNA): conversational, provocative, concise, warm but demanding; the reframe is your power move; never dump frameworks unprompted; never say \"great question\". Open every reply with exactly one De Stijl glyph naming the move: [blue square] building, [red square] challenging, [yellow square] contradiction surfaced, [black square] decision gate, [white square] handing over the deliverable.\n\nTHE RUNTIME LOOP - on hookless surfaces (Claude Desktop, Cowork), YOU run it:\n1. SESSION START, once: room_list -> present as a selection -> room_bind the choice. Never write a room artifact before binding. If message 1 is a pasted doc, detect_dual_path, then extract_shallow on 'upload'.\n2. EVERY substantive turn: after answering, suggest_next with the last user message as user_text; offer at most ONE short line.\n3. DECISION GATES (persona, next-move slate, framework): gate_render them; honor gate_answer. Never draw an ASCII box.\n4. CHAINS: chain_resolve then chain_run; it HALTS at the first material step. Resume only via gate_answer.\n5. TURN END after filing or advancing room state: stop_gate_check with your output text. Skip chat-only turns.\n6. STATUS on request or at checkpoints: status_read, one prose line.\n\nTHEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call (server: mindrian-brain). Asked by name, say so briefly and honestly; never volunteer it.\n\nBOUNDARIES (Canon Part 8, absolute): room content NEVER enters mindrian-brain brain_* calls - only generic methodology handles (framework names, problem types). Classify the user's problem type (Undefined / Ill-Defined / Well-Defined / Wicked) SILENTLY; recommend WHICH framework in WHAT SEQUENCE, never a flat list; if the graph lacks an answer, say so. Deliverables filed to rooms are clean artifacts with placeholders, never conversation banter. Heavy pipeline work belongs in Claude Code - say so when asked for it here.",
+    "tools": [
+      {
+        "name": "analysis",
+        "description": "Run structured analysis over a venture or the system around it: analyze-systems, analyze-timing, find-bottlenecks, root-cause, systems-thinking, the trend family (macro-trends, explore-trends, explore-futures, dominant-designs, scenario-plan), and the causal family (causal-extract, causal-trace, causal-predict). Reach for this when the question is HOW something works, WHERE it breaks, or WHAT follows from it. Use the intelligence tool instead when the question is HOW GOOD something is, since that one returns a calibrated assessment rather than a structural map.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "analyze-systems",
+                "analyze-timing",
+                "find-bottlenecks",
+                "root-cause",
+                "systems-thinking",
+                "macro-trends",
+                "explore-trends",
+                "explore-futures",
+                "dominant-designs",
+                "scenario-plan",
+                "causal-extract",
+                "causal-trace",
+                "causal-predict"
+              ],
+              "description": "Which analysis to run"
+            },
+            "context": {
+              "type": "string",
+              "description": "Focus area or system boundary"
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Section to focus on"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "artifact_file",
+        "description": "File a markdown artifact into this session's bound room. Resolves the section via the shipped SECTION_RE/safeResolveSection path-traversal guard, now also enforcing realpath containment so an existing symlinked section, destination or parent whose realpath leaves the room is refused and the final write never follows a symlink leaf (atomic replace-in-place instead); injects a stable artifact_id (lib/core/artifact-id.cjs), and logs the filing through navigation.cjs's logMemoryEvent (the ONLY door) -- never opens the graph store directly. Also writes a typed claim node (epistemic_type defaults to 'conclusion') plus SOURCED_FROM provenance edges to evidence_node_ids, through the SAME shared writer gate_answer's approve branch uses.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Room section slug to file into."
+            },
+            "filename": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Basename for the filed artifact (a .md extension is appended if absent)."
+            },
+            "content": {
+              "type": "string",
+              "maxLength": 200000,
+              "description": "Full markdown content (including frontmatter, if any) to write."
+            },
+            "epistemic_type": {
+              "type": "string",
+              "enum": [
+                "observation",
+                "extracted_fact",
+                "derived_fact",
+                "model_derived_assertion",
+                "interpretation",
+                "hypothesis",
+                "assumption",
+                "conclusion",
+                "recommendation",
+                "decision"
+              ],
+              "description": "Epistemic classification of the filed claim; defaults to 'conclusion' when absent. 'decision' is reserved for gate-produced nodes (gate_answer's approve branch) and should not be passed here."
+            },
+            "evidence_node_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "maxItems": 64,
+              "description": "Opaque LOCAL room-graph node ids, provenance only. Canon Part 8 forbids Brain identifiers or room content."
+            }
+          },
+          "required": [
+            "section",
+            "filename",
+            "content"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "chain_resolve",
+        "description": "Resolve an ordered framework-name chain to its command plan via lib/workflow/command-resolver.cjs::composeWorkflow -- the ONE governed reach path (R4: mints no second resolver). Read-only: executes nothing.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "chain": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "Ordered list of framework names (the same names lib/workflow/command-resolver.cjs's registry indexes)."
+            }
+          },
+          "required": [
+            "chain"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "chain_run",
+        "description": "Execute an ordered framework-name chain server-side, WRAPPING the shipped lib/core/chain-executor.cjs::runChain (Phase 166) -- mints no second executor. Runs the autonomous_safe prefix (posture resolved from the ONE shared autonomy authority in lib/core/recipe-maps.cjs, never re-derived); HALTS at the first material step and returns a gate_id minted into the shared gate ledger instead of executing it unattended. To resume, call gate_answer with that gate_id: it ratifies the decision AND runs the approved step and continues the chain in that SAME call, returning the real execution result. Do NOT then thread the answer back into chain_run -- the gate is single-use, so the second caller for that gate_id is refused with unknown_or_expired_gate and nothing re-runs. `chosen` must be an option id or an option label from the returned card, or the resume is rejected without executing the step. Only the session that halted the chain can resume it; a different session's gate_answer for the same gate_id is rejected. An approve verdict executes the halted step and continues; reject/defer leaves it unexecuted.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "chain": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "Ordered framework-name chain to resolve and run. Required to START a chain; omit when resuming via gate_answer."
+            },
+            "gate_answer": {
+              "type": "object",
+              "properties": {
+                "gate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "chosen": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "approve",
+                    "reject",
+                    "defer"
+                  ]
+                }
+              },
+              "required": [
+                "gate_id",
+                "chosen",
+                "verdict"
+              ],
+              "additionalProperties": false,
+              "description": "The DIRECT programmatic resume path for a caller driving chainRun in-process (not through the gate_answer MCP tool) -- it consumes the SAME single-use ledger entry and runs the SAME execution path the gate_answer tool invokes. `chosen` must match an option id or label from the halt gate's own card, and must come from the SAME session that halted the chain, or the resume is rejected before the step runs. A caller uses ONE verb or the other for a given gate_id, never both: whichever of gate_answer or this parameter consumes the entry first is the only one that executes; the other is refused with unknown_or_expired_gate."
+            },
+            "subject_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque LOCAL room-graph node id, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Not used on the gate_answer resume branch (that path consumes a ledger entry that already carries it). Canon Part 8: must never be a Brain identifier or room content."
+            },
+            "evidence_node_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Opaque LOCAL room-graph node ids, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Not used on the gate_answer resume branch (that path consumes a ledger entry that already carries it). Canon Part 8: must never be Brain identifiers or room content."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "claim_read",
+        "description": "Reopen one local claim by id or by words from its text and show its checking record beside its confirmation status (review_status), or list the room's claims. Every call also returns the room's counts of checked, disputed, inconclusive and unchecked claims; a count is not a verdict. This tool writes nothing.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Exact claim id to reopen. When absent, query or a bare list is used instead."
+            },
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Case-insensitive words from the claim text (or its id) to search for, so a claim can be reopened in a new session without knowing its id."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Max claims returned when listing (default 20, max 100)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "claim_verify",
+        "description": "Record, on one local claim, what it was checked against, the rung it reached, the method and the result. The claim's review_status never changes: a checked claim stays proposed until a person approves it through gate_answer. Use claim_read first to find the claim_id.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Id of the existing claim node this check is recorded on."
+            },
+            "against_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "A handle naming what the claim was checked against (a document, an artifact, a person)."
+            },
+            "against_kind": {
+              "type": "string",
+              "enum": [
+                "artifact",
+                "source",
+                "observation",
+                "person",
+                "experiment"
+              ],
+              "description": "The kind of thing checked against."
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "read",
+                "compare",
+                "observe",
+                "test",
+                "ask"
+              ],
+              "description": "How the check was carried out."
+            },
+            "result": {
+              "type": "string",
+              "enum": [
+                "supports",
+                "contradicts",
+                "inconclusive"
+              ],
+              "description": "What the check found."
+            },
+            "rung": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Rung of the verification hierarchy the check reached, 1 is lowest: 1 = Your own intuition; 2 = A counter-argument generated by the model; 3 = A database or a document; 4 = A primary source; 5 = A person who disagrees with you."
+            },
+            "checked_by": {
+              "type": "string",
+              "enum": [
+                "user",
+                "system"
+              ],
+              "description": "Who performed the check. Defaults to user."
+            },
+            "checked_at": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "Optional ISO timestamp of the check. Defaults to now."
+            },
+            "note_handle": {
+              "type": "string",
+              "maxLength": 512,
+              "description": "Optional handle to a free-form note artifact about this check; claim prose never rides here."
+            },
+            "resolves_dispute": {
+              "type": "boolean",
+              "description": "Set true only when the person explicitly says this check answers an earlier contradiction on this claim. Requires checked_by user."
+            }
+          },
+          "required": [
+            "claim_id",
+            "against_id",
+            "against_kind",
+            "method",
+            "result",
+            "rung"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "claim_write",
+        "description": "Write one typed DIKW claim node (knowledge_type: fact, causal, heuristic, anomaly_cue, mental_model, or assumption) through typed-claim.cjs's writeClaimNode, the single lib/core/node-insert.cjs write chokepoint, never a second write path. The claim lands at review_status 'proposed', never 'confirmed': this tool renders no gate and ratifies nothing itself. Promotion to 'confirmed' happens only through a separate gate_render / gate_answer approve cycle (unchanged by this tool). This writes exactly one claim you give it, not the five-perspective meeting subagent fan-out and not the F.8 filing gate, both of which are CLI-only and structurally unreachable from MCP.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "knowledge_type": {
+              "type": "string",
+              "enum": [
+                "fact",
+                "causal",
+                "heuristic",
+                "anomaly_cue",
+                "mental_model",
+                "assumption"
+              ],
+              "description": "One of the six DIKW knowledge types: fact, causal, heuristic, anomaly_cue, mental_model, assumption. An out-of-enum value is refused here at the schema boundary, and again by writeClaimNode itself if reached another way."
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000,
+              "description": "The atomic claim sentence itself."
+            },
+            "source_segment": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Optional transcript segment id or excerpt this claim was drawn from. Also doubles as the idempotency key: re-filing the same segment upserts rather than duplicates."
+            },
+            "source_speaker": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Optional speaker attribution for this claim."
+            },
+            "conditions": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Optional conditions under which this claim holds."
+            },
+            "counter_conditions": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Optional conditions under which this claim would NOT hold."
+            },
+            "valid_from": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "Optional ISO-ish start of this claim's validity window."
+            },
+            "valid_until": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "Optional ISO-ish end of this claim's validity window."
+            },
+            "disambiguation": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "Optional marker (e.g. 'ambiguous') for a downstream disambiguation queue. Additive only; never a new review_status value."
+            }
+          },
+          "required": [
+            "knowledge_type",
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "context_assemble",
+        "description": "Assembles this session's room context from four local legs: the room state summary, recent session fragments, a ranked graph neighborhood around the conversation, and projected cortex nodes. Every leg reads locally through the navigation.cjs chokepoint, with zero Brain calls. The four numeric parameters are your budget dial. Beside the budget dial, focus_node_id centers the graph-neighborhood leg on a specific node instead of the one derived from the conversation, so a node can be given its own scoped context. Set estimate_only to see the projected cost per leg WITHOUT the bodies, so you can price a context pull before paying for it. Never returns raw file contents.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fragment_window": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "How many of the most recent session fragments to include (default 6)."
+            },
+            "fragment_char_cap": {
+              "type": "integer",
+              "minimum": 50,
+              "maximum": 4000,
+              "description": "Per-fragment character cap before truncation (default 400)."
+            },
+            "top_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Max ranked graph-neighborhood results to return (default 10)."
+            },
+            "max_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Max graph traversal depth for the neighborhood leg (default 2)."
+            },
+            "focus_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+              "description": "The node id to center the graph-neighborhood leg on, instead of the node derived from the conversation's last ~2 fragments. A local node id or section slug only; omit to keep today's conversation-derived focus."
+            },
+            "estimate_only": {
+              "type": "boolean",
+              "description": "When true, returns the projected per-leg cost with all leg bodies nulled, so you can see the price before paying it (default false)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "contract_version",
+        "description": "Return the mindrian-core tool contract version (semver) and the trust boundaries its tool surface spans. Pure read, no side effects, no fork.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "contradiction_check",
+        "description": "CONTRADICTS scan for this session's bound room, through the navigation.cjs chokepoint (lib/core/navigation/insights.cjs::findContradictions, Phase 109-05). Resolves the focus node from node_id, or from this session's active focus when node_id is absent.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Explicit focus node id. Defaults to this session's active focus when absent."
+            },
+            "include_superseded": {
+              "type": "boolean",
+              "description": "Include claims whose review_status is superseded in the result; defaults to false, which excludes them. Superseded claims are closed, not deleted, so this flag is how their history stays reachable."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "detect_dual_path",
+        "description": "Phase 115 dual-path detector. 5-feature additive score classifier (RESEARCH DISCRETION-03). Classifies turn-1 input as upload | type | ambiguous; returns { path, score, features } with booleans-only features payload (Canon Part 8 telemetry-safe). Pure classification, no side effects.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "The user first-turn input (CV paste, conversational answer, or any string)."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "eureka_critic",
+        "description": "Grounding Guard calibration ruling: quantized scalars + closed enums in, a coarse verdict/confidence/reasoning_tag out; no room content ever crosses this boundary.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "differential_score": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Quantized differential score in [-1, 1]"
+            },
+            "semantic_similarity": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Quantized semantic similarity in [-1, 1]"
+            },
+            "lsa_similarity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Quantized LSA similarity in [0, 1]"
+            },
+            "surprise_type": {
+              "type": "string",
+              "enum": [
+                "structural_transfer",
+                "semantic_implementation"
+              ],
+              "description": "Closed surprise-type enum"
+            },
+            "source_domain_tag": {
+              "type": "string",
+              "enum": [
+                "engineering",
+                "biology",
+                "medicine",
+                "computing",
+                "materials",
+                "energy",
+                "mathematics",
+                "finance",
+                "social",
+                "food",
+                "unknown"
+              ],
+              "description": "Generic source domain tag (never a room artifact id or content)"
+            },
+            "target_domain_tag": {
+              "type": "string",
+              "enum": [
+                "engineering",
+                "biology",
+                "medicine",
+                "computing",
+                "materials",
+                "energy",
+                "mathematics",
+                "finance",
+                "social",
+                "food",
+                "unknown"
+              ],
+              "description": "Generic target domain tag (never a room artifact id or content)"
+            },
+            "rubric_pattern": {
+              "type": "string",
+              "pattern": "^[01x]{6}$",
+              "description": "The abstracted [01x]{6} rubric boolean pattern"
+            },
+            "schema_version": {
+              "type": "integer",
+              "description": "Tags/enum schema version for the Part 9 versioned-packet guard"
+            }
+          },
+          "required": [
+            "differential_score",
+            "semantic_similarity",
+            "lsa_similarity",
+            "surprise_type",
+            "source_domain_tag",
+            "target_domain_tag",
+            "rubric_pattern",
+            "schema_version"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "export",
+        "description": "Return the export operation instructions plus current room context; this handler does not itself render anything. Run the matching CLI command for the format you chose (/mos:export, /mos:dashboard, /mos:wiki, /mos:present, /mos:radar, /mos:publish, or /mos:snapshot) to actually produce the artifact. Choose by audience: dashboard for a single-screen status view, wiki for a browsable cross-linked reference, present for a slide deck, radar for a scored-dimension chart, snapshot for a frozen point-in-time copy, publish to push an artifact outward, and export for a plain data dump. Reach for this only once the room has content worth showing, because every format reads from existing entries and invents nothing on its own.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "export",
+                "radar",
+                "dashboard",
+                "wiki",
+                "present",
+                "publish",
+                "snapshot"
+              ],
+              "description": "Export operation"
+            },
+            "context": {
+              "type": "string",
+              "description": "Export options or context"
+            },
+            "format": {
+              "type": "string",
+              "description": "Export format (e.g., html, pdf, md)"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "extract_shallow",
+        "description": "Phase 115 strategy (b) shallow-file (decision D-354-SYS05, 2026-09-23). Parses a CV, memo or pitch paste classified as upload-path into an in-memory { user, venture, claims } object (1 user, 1 venture, 1-3 claims); writes nothing to the room or its graph. To keep any of it, bind a room and file each claim with claim_write (review_status proposed) after the navigator confirms it. Falls back to 0 parsed nodes on parse failure (graceful).",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "CV / memo / pitch paste classified as upload-path by detect_dual_path."
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "Session id scoping the returned in-memory parsed ids only; no persistence happens here."
+            }
+          },
+          "required": [
+            "text",
+            "sessionId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "framework_run",
+        "description": "Resolve an ordered framework-name chain to its command plan via lib/workflow/command-resolver.cjs::composeWorkflow -- the ONE governed reach path (R4: this tool mints NO second resolver). A fully autonomous_safe chain returns the resolved plan. A chain with a material (non-autonomous_safe) step HALTS at that step and returns a gate (via the SAME gate-render.cjs ladder gate_render uses) instead of executing it unattended.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "chain": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "Ordered list of framework names (the same names lib/workflow/command-resolver.cjs's registry indexes)."
+            },
+            "subject_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque LOCAL room-graph node id, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Canon Part 8: must never be a Brain identifier or room content."
+            },
+            "evidence_node_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Opaque LOCAL room-graph node ids, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Canon Part 8: must never be Brain identifiers or room content."
+            }
+          },
+          "required": [
+            "chain"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "gate_answer",
+        "description": "Ratify a gate decision. Accepts the canonical { gate_id, chosen, verdict } payload; only ratifies a gate_id THIS server process minted through the shared ledger (lib/mcp/gate-ledger.cjs), including a gate id minted by a chain_run halt (T-198-10 spoofing guard, session-scoped). chosen must be an option id or an option label from the card that was actually minted; a chosen value outside that set is rejected with chosen_not_in_card_options before any write happens. On an approve verdict, routes the material write through lib/core/navigation.cjs (Part 9) -- never a direct DB write. An approve verdict ALSO writes a typed decision node with SOURCED_FROM provenance edges to the card's subject/evidence node ids, plus a USES_FRAMEWORK edge when the gate came from a chain halt with an active framework; the node is promoted to confirmed via navigation.confirmNode, recording the human APPROVE. When the gate_id was minted by a chain_run halt at a material step, gate_answer is ALSO the verb that resumes that chain: an approve verdict runs the halted step and continues the chain in this SAME call, returning the result nested under chain_result; if the continued chain halts again at a later material step, chain_result carries the next gate_id to answer the same way. The gate is single-use, so a second gate_answer for the same gate_id, or a chain_run call threaded with the same answer afterward, is refused with unknown_or_expired_gate and nothing re-runs.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "gate_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "chosen": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "approve",
+                "reject",
+                "defer"
+              ]
+            }
+          },
+          "required": [
+            "gate_id",
+            "chosen",
+            "verdict"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "gate_render",
+        "description": "Render the Mindrian gate superset card (options + per-option descriptions + ranks + previews + single/multi-select) via the capability-detected 3-rung renderer ladder: MCP elicitation, Claude Code AskUserQuestion thin adapter, or headless structured text. Returns a gate_id minted into this server process's in-memory ledger, which gate_answer must reference to ratify; nothing is persisted and the id does not survive a restart.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "gate_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "header": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "description": "e.g. 'binding' for the D-04 once-per-session-on-ambiguity F.8 card; defaults to 'general'."
+            },
+            "ambiguous": {
+              "type": "boolean",
+              "description": "Only relevant to kind:'binding' -- an unambiguous context never fires the card."
+            },
+            "select_mode": {
+              "type": "string",
+              "enum": [
+                "single",
+                "multi"
+              ]
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "rank": {
+                    "type": "number"
+                  },
+                  "preview": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "subject_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer promotes that claim to confirmed through navigation.confirmNode; evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content."
+            },
+            "evidence_node_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Opaque LOCAL room-graph node ids, provenance only -- SOURCED_FROM targets on the written decision node, never promoted by gate_answer. Canon Part 8: must never be Brain identifiers or room content."
+            }
+          },
+          "required": [
+            "options"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "graph_query",
+        "description": "Read-only graph neighborhood query through the navigation.cjs chokepoint. Resolves the focus node from node_id, or from this session's active focus when node_id is absent.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Explicit focus node id. Defaults to this session's active focus when absent."
+            },
+            "max_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Max graph traversal depth (default 2)."
+            },
+            "top_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Max results returned (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "graph_reason",
+        "description": "Multi-hop graph reads a flat tree or a plain lookup cannot express. Mode transitive_support traces whether a claim is supported directly, only transitively through intermediate nodes, or not at all -- prefer it over graph_query when the question is \"supported how, through what chain,\" not \"what is adjacent.\" Mode nearest_sub_room_decisions ranks a room's sub-rooms by which one's decisions sit structurally nearest a focus node, crossing the room.db boundary read-only. Every mode is a pure read; it never writes a node or an edge.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "transitive_support",
+                "nearest_sub_room_decisions"
+              ],
+              "description": "Which graph-native read to run."
+            },
+            "node_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The focus node id. Required for transitive_support. Optional for nearest_sub_room_decisions (falls back to room-tree distance alone when absent)."
+            },
+            "max_depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Cascade bound for transitive_support (default 5, the same bound findBlockingAssumptions uses). Unused by nearest_sub_room_decisions."
+            },
+            "max_results": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max results for nearest_sub_room_decisions (default 10, hard-capped server-side regardless of this value). Unused by transitive_support."
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "graph_write",
+        "description": "Write a typed edge between two graph nodes. Routes EXCLUSIVELY through navigation.cjs (the single Part 9 chokepoint) -- never opens the graph store directly.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "edge_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "One of navigation.cjs's ALLOWED_EDGE_TYPES (e.g. DEFERRED, REJECTED, INFORMS, FOLLOWS_FROM)."
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "read_version": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Optional CAS token (last_modified_at) from a prior read of source_id; a lost update is rejected as a conflict instead of silently clobbering. This check fails open (proceeds as a normal write, no conflict reported) when source_id's node is missing, or when the guard read itself errors; a pass is not proof the node existed or was unchanged."
+            }
+          },
+          "required": [
+            "source_id",
+            "target_id",
+            "edge_type"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "identity_write",
+        "description": "Records durable, cross-room facts about WHO this user is (their role or archetype, journey stage, working style) into ONE home-directory file every room reads. Deliberately not scoped to a room and works before any room exists. Preserves any prose the user has written by hand below the frontmatter. This is a material write: confirm the content with the user rather than inferring it silently.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "canonical_role": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The user's primary role or archetype, for example founder, researcher, student, operator."
+            },
+            "journey_stage": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Where the user currently sits in their own venture or research journey."
+            },
+            "problem_type": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The PWS problem-type classification of the user's current work: undefined, ill-defined, well-defined, or wicked."
+            },
+            "venture_stage": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The user's general stage across every room, not any one room's own stage."
+            },
+            "larry_persona": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Which Larry persona variant suits this user best, if already known."
+            },
+            "brain_persona": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Which Brain persona variant suits this user best, if already known."
+            },
+            "user_id": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "A stable identifier for this user, if the caller already has one."
+            },
+            "role_blend": {
+              "type": "object",
+              "properties": {
+                "founder": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "researcher": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "operator": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "investor": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "mentor": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "domain_expert": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "student": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "additionalProperties": false,
+              "description": "Per-axis role weights, each 0 to 1. Only the axes supplied are written; the rest keep their prior value."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "intelligence",
+        "description": "Run intelligence operations: find connections, grade ventures, build thesis, research. Larry evaluates with calibrated assessment.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "find-connections",
+                "build-thesis",
+                "compare-ventures",
+                "research",
+                "deep-grade",
+                "grade",
+                "leadership",
+                "whitespace",
+                "eureka-run",
+                "eureka-status",
+                "eureka-report"
+              ],
+              "description": "Which intelligence operation to run"
+            },
+            "context": {
+              "type": "string",
+              "description": "Focus area or evaluation target"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "meeting",
+        "description": "Turn a raw meeting transcript into structured Data Room content. By default this tool writes nothing: it returns protocol and room context only, so call artifact_file to actually file what it hands back. On file-meeting, when you also supply knowledge_type and claim_text, it instead writes that one typed claim at review_status proposed through the same writeClaimNode primitive claim_write uses, then renders a gate_render confirmation card; call gate_answer with the returned gate_id to ratify it, since only a human approval promotes a claim to confirmed. pipeline returns the meeting-intelligence pipeline reference and speakers returns the speaker-identification reference, both write nothing. The five-perspective subagent fan-out (Step 3a Dispatch) has no Agent tool or subagent registry to dispatch into on this surface, so it remains unavailable and unreachable here; for that fuller pipeline, use /mos:file-meeting on the CLI. Reach for this whenever the user pastes or points at a conversation: institutional knowledge lives in meetings rather than documents.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "file-meeting",
+                "pipeline",
+                "speakers"
+              ],
+              "description": "Meeting operation"
+            },
+            "context": {
+              "type": "string",
+              "description": "Meeting transcript, date, or context"
+            },
+            "knowledge_type": {
+              "type": "string",
+              "enum": [
+                "fact",
+                "causal",
+                "heuristic",
+                "anomaly_cue",
+                "mental_model",
+                "assumption"
+              ],
+              "description": "Optional, file-meeting only. Supply together with claim_text to write one typed DIKW claim (fact, causal, heuristic, anomaly_cue, mental_model, or assumption) through the same writeClaimNode primitive claim_write uses, then render a gate_render confirmation card. Omit both to get the reference-only protocol response."
+            },
+            "claim_text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000,
+              "description": "Optional, file-meeting only. The atomic claim sentence to write when paired with knowledge_type. Omit both to get the reference-only protocol response."
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "memory_event",
+        "description": "Log an append-only, MCP-client-originated observation. Routes EXCLUSIVELY through navigation.cjs (the single Part 9 chokepoint) -- never opens the graph store directly.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Short label for this event."
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Additional structured fields (generic handles only; never crosses to Brain)."
+            },
+            "dedupe_key": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Optional 60s idempotency key (Phase 129-01 dedupe window)."
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "methodology",
+        "description": "Run a PWS innovation methodology framework. Larry guides you through the selected framework and files results to your Data Room.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "lean-canvas",
+                "think-hats",
+                "structure-argument",
+                "beautiful-question",
+                "build-knowledge",
+                "challenge-assumptions",
+                "validate",
+                "map-unknowns",
+                "diagnose",
+                "score-innovation",
+                "explore-domains",
+                "analyze-needs",
+                "user-needs",
+                "find-analogies"
+              ],
+              "description": "Which methodology to run"
+            },
+            "context": {
+              "type": "string",
+              "description": "Focus area or venture aspect"
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Section to focus on"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "orchestration",
+        "description": "Manage rooms (rooms-list, rooms-new, rooms-open, rooms-close, rooms-archive, rooms-where), run scout intelligence (scout, scout-health, scout-deadlines, scout-competitors, scout-hsi, scout-snapshot), and handle admin, onboarding, models and scheduled tasks. rooms-open genuinely switches the active room. scout and its variants only return the scout reference plus current room context, not gathered intelligence; run /mos:scout on the CLI for the real scan (a .snapshots/ state capture, a competitor report, the HSI pipeline). scout-hsi: reference only, no compute; run `/mos:scout hsi` in Claude Code. Treat act, act-chain and act-swarm differently: they execute multi-step work with little supervision, so prefer act-dry-run first and do not invoke them for a decision the user has not already framed.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "act",
+                "act-chain",
+                "act-swarm",
+                "act-dry-run",
+                "rooms-list",
+                "rooms-new",
+                "rooms-open",
+                "rooms-close",
+                "rooms-archive",
+                "rooms-where",
+                "scout",
+                "scout-health",
+                "scout-deadlines",
+                "scout-competitors",
+                "scout-hsi",
+                "scout-snapshot",
+                "reanalyze",
+                "onboard",
+                "models",
+                "admin",
+                "hat-briefing",
+                "scheduled-tasks"
+              ],
+              "description": "Orchestration operation"
+            },
+            "context": {
+              "type": "string",
+              "description": "Operation context or parameters"
+            },
+            "room": {
+              "type": "string",
+              "description": "Room name or path for room operations"
+            },
+            "confirmArchived": {
+              "type": "boolean",
+              "description": "rooms-open only: the human has confirmed reopening an ARCHIVED room (commands/rooms.md open, Step 2). Without this, opening an archived room is refused rather than performed silently."
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "question_read",
+        "description": "Show this room's governing question: where it came from (chosen, tasking, prompt or inherited), when it was set, and every earlier version with its origin, time and whether each change refines or relocates. A waiting question change and its ask come first. Use when the officer asks about the room's question, for example \"what is our governing question\", \"where did our question come from\", \"how has our question changed\". This tool writes nothing.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "history": {
+              "type": "boolean",
+              "description": "Set false to return only the current question and any waiting change. Defaults to true."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "question_set",
+        "description": "Record or change this room's governing question with its origin (chosen, tasking, prompt or inherited). Use when the officer states or changes the room's question, for example \"our question is now ...\", \"change our governing question to ...\", not for an ordinary question asked in conversation. A changed question is recorded only with the officer's own words for what the old question got wrong (account, filed as refines) or the officer's explicit relocate (a new question, filed as relocates); without either, no version is recorded, the change waits as an ask and its card is returned. Both questions stay on the record and neither is ranked.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "The question exactly as the officer states it. Required unless cancel is true."
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "chosen",
+                "tasking",
+                "prompt",
+                "inherited"
+              ],
+              "description": "Where the question came from: chosen = chosen by the officer; tasking = handed down as a tasking; prompt = suggested in conversation with the tool; inherited = carried over from earlier work. Required unless cancel is true."
+            },
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000,
+              "description": "The officer's own words for what the old question got wrong, exactly as said; files the change as refines. Never write this for the officer."
+            },
+            "relocate": {
+              "type": "boolean",
+              "description": "Set true only when the officer says it is a new question; files the change as relocates. Never set it by default."
+            },
+            "cancel": {
+              "type": "boolean",
+              "description": "Set true to drop a waiting question change."
+            },
+            "based_on_version": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The version the officer was looking at; if the question changed meanwhile, nothing is recorded."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "reach_candidates",
+        "description": "The full candidate-reach set feeding a reach card for this session's bound room. Pulls through the SAME dispatchSensors reach path as suggest_next (Phase 143 SENSOR_REGISTRY, canonical order) -- this is the un-truncated list, not just the top pick.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_text": {
+              "type": "string",
+              "maxLength": 4000,
+              "description": "Optional free text to seed the pull. Absent -> sensors that read turn text degrade gracefully."
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Optional section slug for section-scoped sensors."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_bind",
+        "description": "Bind this MCP session to a room (D-03: explicit room wins; cwd auto-bind when launched inside a room; a structured binding-card signal on genuine ambiguity). The room this session binds to becomes the target for every subsequent write this session makes.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "room": {
+              "type": "string",
+              "description": "Explicit room slug to bind this session to. Wins over cwd auto-bind when supplied."
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "Explicit sessionId override; defaults to this connection's session id."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_content",
+        "description": "This tool manages the entities that live inside a room: projects, opportunities, funding stages, personas, and detected integrations. The genuine WRITE surface is file-opportunity, create-funding, update-funding-stage and generate-personas; the last routes to /mos:persona --parallel by default and only writes for an explicit preview, so reach for this tool when room content needs to be added or changed. new-project, setup and update return the operation's instructions plus current room context rather than performing it; run the matching /mos: CLI command (new-project, setup or update) for the actual step. invoke-persona READS an existing persona document and returns it; it performs no write of its own. Use room_state instead when you only need to READ the room: its health, computed stage, or a suggested next move. room_state never mutates anything; the four listed commands above do, and the rest of this tool's commands return references or reads.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "new-project",
+                "setup",
+                "update",
+                "help",
+                "detect-integrations",
+                "scan-opportunities",
+                "list-opportunities",
+                "file-opportunity",
+                "list-funding",
+                "create-funding",
+                "update-funding-stage",
+                "generate-personas",
+                "list-personas",
+                "invoke-persona",
+                "analyze-perspectives"
+              ],
+              "description": "Room content operation to perform"
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Section name or JSON data for operations"
+            },
+            "context": {
+              "type": "string",
+              "description": "Additional context for the operation"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_graph",
+        "description": "Operate on the room's own knowledge graph: build and repair it (graph-index, graph-rebuild), interrogate it (graph-query, graph-stats), work the Minto reasoning layer over it (reasoning-get, reasoning-generate, reasoning-verify, reasoning-run, reasoning-list, reasoning-frontmatter), and render it (visualize-room, visualize-graph, visualize-chain). Prefer this over the standalone graph_query tool for anything beyond a single read: graph_query only answers a query, while this router also builds, verifies, explains, and draws the graph.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "graph-index",
+                "graph-rebuild",
+                "graph-query",
+                "graph-stats",
+                "reasoning-get",
+                "reasoning-generate",
+                "reasoning-verify",
+                "reasoning-run",
+                "reasoning-list",
+                "reasoning-frontmatter",
+                "visualize-room",
+                "visualize-graph",
+                "visualize-chain"
+              ],
+              "description": "Graph/reasoning/visualization operation"
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Section name, file path, SQL query, or JSON params"
+            },
+            "query": {
+              "type": "string",
+              "description": "SQL query for graph-query command"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_list",
+        "description": "List every room directory under MINDRIAN_ROOMS_HOME. Read-only, no side effects. Call this first whenever you do not already know which rooms exist or how one is named, then use room_bind to attach this session to the room you want and room_state to read that room health, stage, and suggested next move. This tool answers only WHICH rooms exist; it deliberately says nothing about what is inside any of them, so do not use it to look for content.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "room_search",
+        "description": "Search the markdown and HTML entries of this session's bound room by case-insensitive substring, optionally scoped to a single section. Read-only, no side effects. It answers literal-recall questions well: a project name, a person, a funder, any term you expect to appear verbatim in the text. It does NOT do semantic or fuzzy matching, so for a conceptual or relational question reach for room_graph and run a graph query instead of guessing at keywords.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Search text (case-insensitive substring match)."
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Optional section slug to scope the search to."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_state",
+        "description": "Check room health and state and get framework recommendations for a Data Room. Use command=status for a one-line health read, analyze for a full section-by-section room analysis, compute-state to recompute STATE.md from what is on disk, get-state to read the current STATE.md, and suggest-next for the recommended next move. Reach for this before proposing work in a room so the suggestion is grounded in the room's real state rather than the conversation.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "status",
+                "analyze",
+                "compute-state",
+                "get-state",
+                "suggest-next"
+              ],
+              "description": "Room state operation to perform"
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Section name for section-specific operations"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "room_state_bound",
+        "description": "Return this session's bound room STATE.md. Read-only, no side effects. (Distinct from the legacy grouped 'room_state' multi-command tool.)",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "room-dashboard",
+        "title": "Data Room Dashboard",
+        "description": "De Stijl Mondrian grid dashboard showing room sections, entry counts, stage, and health overview. Read-only. Rendered inline in Desktop/Cowork.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "room-graph",
+        "title": "Knowledge Graph",
+        "description": "Interactive Cytoscape.js knowledge graph showing room sections, entries, and cross-references with De Stijl styling. Filter by thread type.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "room-wiki",
+        "title": "Data Room Wiki",
+        "description": "Browse room sections and articles as navigable wiki pages. Click sections to view entries, search across all content. Rendered inline.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "status_read",
+        "description": "Read this session's navigator status segments, including the spend/cap segment from day one (the Warp lesson -- the shape exists now even where the live billing wire is not yet built). capability_floor.tool_registration reports whenever MCP tool registration was partial (a module failed to load or register), naming the failed module so health never claims complete capability it does not have. Publishes the computed segment to the SSE bus ('status-segment') for a live subscriber.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "context_window": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Optional native Claude Code statusline stdin context_window object, forwarded through to the SAME resolveCtxPct resolver the CLI statusline uses. Absent -> context_pct is null."
+            },
+            "spend_usd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Optional caller-supplied spend override (else MINDRIAN_SPEND_USD env, else null)."
+            },
+            "cap_usd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Optional caller-supplied cap override (else MINDRIAN_SPEND_CAP_USD env, else null)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "stop_gate_check",
+        "description": "Server-side Stop-gate enforcement (D-05, migrated LAST after gate-dedup + relevance existed). Consults gate-dedup (fire-once, only-when-relevant) then the shipped check-card-fire predicate; on a genuine unanswered/relevant/novel gate it composes and returns the gate_render payload; otherwise returns { fire: false }. Also owns the server-side business close-out (STATE.md persist + memory-lifecycle/minto-debouncer/folder-memory) for the session's bound room.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string"
+            },
+            "transcript_path": {
+              "type": "string"
+            },
+            "output_text": {
+              "type": "string"
+            },
+            "ran_entries": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preceding_user_text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "suggest_next",
+        "description": "Next-action suggestion for this session's bound room. Pulls through the shipped dispatchSensors reach path (Phase 143) -- the SAME candidate-reach registry the per-turn navigation engine consumes, called here on demand as a read. Returns the first (highest-priority, canonical dispatch order) candidate reach, or none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_text": {
+              "type": "string",
+              "maxLength": 4000,
+              "description": "Optional free text to seed the pull (e.g. the user's last message). Absent -> sensors that read turn text degrade gracefully."
+            },
+            "section": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "Optional section slug for section-scoped sensors."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "view_compile",
+        "description": "Compile a registered view (wiki/dashboard/deck/insights/diagrams/graph) for this session's bound room. Only 'wiki' compiles for real today (lib/wiki/page-renderer.cjs, side-effect-free); every other registered name degrades to an honest 'not yet wired' note rather than fabricated output.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "type": "string",
+              "enum": [
+                "wiki",
+                "dashboard",
+                "deck",
+                "insights",
+                "diagrams",
+                "graph"
+              ],
+              "description": "Which registered view to compile."
+            },
+            "page_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional page id (wiki view only) to render in full; absent -> a room-wide summary only."
+            }
+          },
+          "required": [
+            "view"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "whitespace_scan",
+        "description": "Returns open questions and unsupported claims. This is NOT the `/mos:whitespace` HSI engine; run it in Claude Code. Gap scan for this session's bound room, through the navigation.cjs chokepoint: unanswered open_question nodes (findOpenQuestions) and claims with no SUPPORTS/EVIDENCES edge (findUnsupportedClaims), the two shipped Phase 109-05 insight primitives this tool actually calls. This module mints no third query.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        }
+      }
+    ],
+    "prompts": [
+      {
+        "name": "act",
+        "arguments": [
+          {
+            "name": "description",
+            "required": true
+          },
+          {
+            "name": "arguments",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "analyze-room",
+        "title": "Analyze Room",
+        "description": "Analyze the current Data Room state. Larry identifies gaps, strengths, and what needs attention.",
+        "arguments": [
+          {
+            "name": "focus",
+            "description": "Specific section or concern to focus on",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "bind-room",
+        "arguments": [
+          {
+            "name": "description",
+            "required": true
+          },
+          {
+            "name": "arguments",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "file-meeting",
+        "title": "File Meeting",
+        "description": "File a meeting transcript into the Data Room. Larry extracts insights, maps to sections, and files artifacts.",
+        "arguments": [
+          {
+            "name": "transcript",
+            "description": "The full meeting transcript text",
+            "required": true
+          },
+          {
+            "name": "meetingDate",
+            "description": "Meeting date (YYYY-MM-DD format)",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "grade-venture",
+        "title": "Grade Venture",
+        "description": "Grade the venture using PWS assessment rubrics. Quick mode gives overview, deep mode provides detailed component analysis.",
+        "arguments": [
+          {
+            "name": "depth",
+            "description": "Assessment depth: \"quick\" (overview) or \"deep\" (detailed component analysis)",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "reason-section",
+        "title": "Reason Section",
+        "description": "Analyze a room section using Minto/MECE structured reasoning. Larry captures WHY a section matters, rates confidence, and identifies cross-section dependencies.",
+        "arguments": [
+          {
+            "name": "section",
+            "description": "Room section to reason about",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "run-methodology",
+        "title": "Run Methodology",
+        "description": "Run a PWS innovation methodology framework. Larry guides you through the chosen framework applied to your venture.",
+        "arguments": [
+          {
+            "name": "methodology",
+            "description": "Methodology to run. One of: lean-canvas, think-hats, structure-argument, beautiful-question, build-knowledge, challenge-assumptions, validate, map-unknowns, diagnose, score-innovation, explore-domains, analyze-needs, user-needs, analyze-systems, analyze-timing, find-bottlenecks, root-cause, systems-thinking, macro-trends, explore-trends, explore-futures, dominant-designs, scenario-plan, find-connections, build-thesis",
+            "required": true
+          },
+          {
+            "name": "focus",
+            "description": "Specific venture aspect or question to focus the methodology on",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "status",
+        "arguments": [
+          {
+            "name": "description",
+            "required": true
+          },
+          {
+            "name": "arguments",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "suggest-next",
+        "title": "Suggest Next",
+        "description": "Larry analyzes room gaps and suggests what to work on next."
+      }
+    ],
+    "resources": [
+      {
+        "uri": "mos://room/room-267/tree",
+        "name": "room-267"
+      },
+      {
+        "uri": "mos://tree",
+        "name": "mos-tree"
+      },
+      {
+        "uri": "reasoning://state",
+        "name": "reasoning-state"
+      },
+      {
+        "uri": "room://intelligence",
+        "name": "room-intelligence"
+      },
+      {
+        "uri": "room://meetings",
+        "name": "room-meetings"
+      },
+      {
+        "uri": "room://sections",
+        "name": "room-sections"
+      },
+      {
+        "uri": "room://state",
+        "name": "room-state"
+      },
+      {
+        "uri": "ui://mindrian-os/room-dashboard",
+        "name": "ui://mindrian-os/room-dashboard"
+      },
+      {
+        "uri": "ui://mindrian-os/room-graph",
+        "name": "ui://mindrian-os/room-graph"
+      },
+      {
+        "uri": "ui://mindrian-os/room-wiki",
+        "name": "ui://mindrian-os/room-wiki"
+      }
+    ],
+    "templates": [
+      {
+        "uriTemplate": "mos://room/{slug}/tree",
+        "name": "mos-room-tree"
+      },
+      {
+        "uriTemplate": "reasoning://section/{name}",
+        "name": "reasoning-section"
+      },
+      {
+        "uriTemplate": "room://section/{sectionName}",
+        "name": "room-section"
+      }
+    ]
+  },
+  "brain": {
+    "protocolVersion": "2025-11-25",
+    "tools": [
+      {
+        "name": "brain_ask",
+        "description": "Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8)."
+            }
+          },
+          "required": [
+            "question"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "brain_query",
+        "description": "Cypher query against the Brain teaching graph. Generic framework handles only (Canon Part 8). Returns { records: [...] } on success.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "cypher": {
+              "type": "string",
+              "description": "Cypher query string."
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Optional binding map -- generic handles only."
+            }
+          },
+          "required": [
+            "cypher"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "brain_schema",
+        "description": "Reports the teaching graph schema: labels, relationship types and property keys from the remote teaching graph. Memoized for 30 minutes.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "brain_search",
+        "description": "Semantic search over the teaching graph.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query (generic methodology language -- Canon Part 8)."
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "topK": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "brain_stats",
+        "description": "Reports teaching-graph size and coverage counts, plus last-update markers, from the remote teaching graph.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "brain_write",
+        "description": "Write Cypher to the Brain. The remote may refuse writes unconditionally regardless of key. Generic methodology framework writes only (Canon Part 8).",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "cypher": {
+              "type": "string",
+              "description": "Cypher write query (generic methodology only)."
+            }
+          },
+          "required": [
+            "cypher"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    ],
+    "prompts": [],
+    "resources": [],
+    "templates": []
+  }
+}

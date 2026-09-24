@@ -74,7 +74,25 @@ run_if "267: in-repo clients (MCPV2-06)" tests/test-267-mcpv2-clients.cjs node t
 # Individual test files that PASSED on the unchanged tree (267-BASELINE.md,
 # step 5). Suites with pre-existing reds (run-all-198 and any other named in
 # the baseline) are NOT aggregator legs; every plan compares them against
-# 267-BASELINE.md by hand instead.
+# 267-BASELINE.md by hand instead. Whole-suite scripts (run-all-266.sh) are
+# also excluded here even when fully green -- this section is individual test
+# files only, per Task 2 step 7.
+run_if "regression: 257 envelope passthrough" tests/test-257-envelope-passthrough.cjs node tests/test-257-envelope-passthrough.cjs
+run_if "regression: 257 refusal egress kind" tests/test-257-refusal-egress-kind.cjs node tests/test-257-refusal-egress-kind.cjs
+run_if "regression: mcp-dep-heal" lib/core/mcp-dep-heal.test.cjs node lib/core/mcp-dep-heal.test.cjs
+run_if "regression: 265 gate-render elicit schema" tests/test-265-gate-render-elicit-schema.cjs node tests/test-265-gate-render-elicit-schema.cjs
+run_if "regression: 265 mcp surface organ" tests/test-265-mcp-surface-organ.cjs node tests/test-265-mcp-surface-organ.cjs
+run_if "regression: 248 surface probes" tests/test-248-surface-probes.cjs node tests/test-248-surface-probes.cjs
+run_if "regression: 248 resolver census" tests/test-248-resolver-census.cjs node tests/test-248-resolver-census.cjs
+run_if "regression: 354 concurrency surfaces" tests/test-354-concurrency-surfaces.cjs node tests/test-354-concurrency-surfaces.cjs
+run_if "regression: 354 egress typed question" tests/test-354-egress-typed-question.cjs node tests/test-354-egress-typed-question.cjs
+run_if "regression: 354 extract shallow contract" tests/test-354-extract-shallow-contract.cjs node tests/test-354-extract-shallow-contract.cjs
+run_if "regression: 354 registration diagnostics" tests/test-354-registration-diagnostics.cjs node tests/test-354-registration-diagnostics.cjs
+run_if "regression: 354 room symlink containment" tests/test-354-room-symlink-containment.cjs node tests/test-354-room-symlink-containment.cjs
+run_if "regression: 354 theo journey" tests/test-354-theo-journey.cjs node tests/test-354-theo-journey.cjs
+run_if "regression: 276 claim write primitive" tests/test-276-claim-write-primitive.cjs node tests/test-276-claim-write-primitive.cjs
+run_if "regression: 341 shrinkwrap no dev" tests/test-341-shrinkwrap-no-dev.cjs node tests/test-341-shrinkwrap-no-dev.cjs
+run_if "regression: release payload ceiling" scripts/check-release-payload-ceiling.cjs node scripts/check-release-payload-ceiling.cjs --check
 
 # --- Em-dash guard (always; covers every Phase 267 test file and helper) ---
 echo "--- 267: em-dash guard ---"
