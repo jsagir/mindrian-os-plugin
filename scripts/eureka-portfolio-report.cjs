@@ -99,6 +99,13 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
 const triModal = require(path.join(REPO_ROOT, 'lib/core/eureka/tri-modal-index.cjs'));
 const { scoreMeasured } = require(path.join(REPO_ROOT, 'lib/core/rs-differential-scorer.cjs'));
+// Phase 355-20 (D-53 C4): the SAME UNCALIBRATED band classifier scoreMeasured
+// itself uses (rs-differential-scorer.cjs's own bandFor), reused (not
+// re-derived) to decide whether a banked stamped finding's band is one the
+// eureka sensor fires on. _test.* is a deliberate test-seam reuse, mirroring
+// the identical precedent already established for resolveEurekaDiffFloor in
+// lib/core/eureka/eureka-reach-runner.cjs.
+const bandForDiff = require(path.join(REPO_ROOT, 'lib/core/rs-differential-scorer.cjs'))._test.bandFor;
 const spine = require(path.join(REPO_ROOT, 'lib/core/eureka/embedding-spine.cjs'));
 
 // Reused 211 runner helpers (Part 7 composition; additively exported in Task 1).
@@ -143,6 +150,12 @@ const verificationStamp = require(path.join(REPO_ROOT, 'lib/core/verification-st
 const verificationStampFormat = require(path.join(REPO_ROOT, 'lib/core/verification-stamp-format.cjs'));
 const floorDisclosure = require(path.join(REPO_ROOT, 'lib/core/floor-disclosure.cjs'));
 const directionConvention = require(path.join(REPO_ROOT, 'lib/core/direction-convention.cjs'));
+
+// Phase 355-20 (HIPS-06, D-53 C4): the filing-layer side-channel writer.
+// bankStatements calls writeStampedSideChannel AFTER its own BEGIN/COMMIT
+// commits (never inside the transaction) -- pure fs writes, zero SQL, zero
+// network. See lib/core/eureka/eureka-reach-runner.cjs's own header.
+const eurekaReachRunner = require(path.join(REPO_ROOT, 'lib/core/eureka/eureka-reach-runner.cjs'));
 
 const DEFAULT_GRAPH = 'evals/eureka/jhtv-idea-graph.json';
 const PROGRESS_EVERY = 100000; // full mode over a big room is ~millions of pairs
@@ -1722,6 +1735,82 @@ function deriveBankSection(db, entry) {
   return 'unknown';
 }
 
+// _bankPairKey(pair) -- the stable join key opts.stampsByKey is keyed on
+// (Phase 355-20, D-43), mirroring the candMap.set(idA+'|'+idB) join style
+// main() already uses above.
+function _bankPairKey(pair) {
+  return String(pair && pair.idA) + '|' + String(pair && pair.idB);
+}
+
+// _resolveBankStamp(entry, stampsByKey) -- the Stamp attached to this entry's
+// pair: opts.stampsByKey when supplied, else the pair's own `.stamp`
+// (stampRankedPairs mutates a ranked row's `.stamp` in place, and a ranked-
+// derived candidate's `entry.pair` IS that same row object). null on an
+// ordinary, unstamped bankStatements call -- every pre-355-20 caller.
+function _resolveBankStamp(entry, stampsByKey) {
+  if (stampsByKey instanceof Map) {
+    const s = stampsByKey.get(_bankPairKey(entry && entry.pair));
+    if (s) return s;
+  }
+  const p = entry && entry.pair;
+  return (p && p.stamp) ? p.stamp : null;
+}
+
+// _sourcedFromTarget(db, entityId) -- D-38's "the two source artifact nodes":
+// the entity's own DESCRIBES target (the SAME provenance link scripts/
+// entity-extract.cjs writes), else the entity node id itself when no
+// DESCRIBES edge exists. READ-only; never throws.
+function _sourcedFromTarget(db, entityId) {
+  if (typeof entityId !== 'string' || entityId.length === 0 || !db) return entityId;
+  try {
+    const row = db.prepare("SELECT target FROM edges WHERE source = ? AND type = 'DESCRIBES' LIMIT 1").get(entityId);
+    if (row && typeof row.target === 'string' && row.target.length > 0) return row.target;
+  } catch (_e) {
+    // fall through to the entity id itself
+  }
+  return entityId;
+}
+
+// _readPwsStage(roomDir) -- D-40/D-37: the room root ROOM.md frontmatter's
+// own `pws_stage:` value, read ONCE (a filesystem read, never inside the
+// write transaction), restricted to the two D-40 values. Mirrors lib/core/
+// cross-room-aggregator.cjs's isRoomOptedOut idiom (first 2KB only;
+// frontmatter is always at the top). Absence, an unreadable file, or any
+// other value all degrade to null (omitted from extraProps).
+function _readPwsStage(roomDir) {
+  if (typeof roomDir !== 'string' || roomDir.length === 0) return null;
+  try {
+    const rp = path.join(roomDir, 'ROOM.md');
+    const st = fs.statSync(rp);
+    if (!st.isFile()) return null;
+    const fd = fs.openSync(rp, 'r');
+    try {
+      const buf = Buffer.alloc(2048);
+      const bytes = fs.readSync(fd, buf, 0, 2048, 0);
+      const head = buf.slice(0, bytes).toString('utf8');
+      const m = head.match(/^pws_stage\s*:\s*["']?(ill_defined|extend_opportunity)["']?\s*$/mi);
+      return m ? m[1].toLowerCase() : null;
+    } finally {
+      try { fs.closeSync(fd); } catch (_e) { /* best effort */ }
+    }
+  } catch (_e) {
+    return null;
+  }
+}
+
+// _theoMsBucket(ms) -- one of the four AI-SPEC Section 7 latency buckets.
+function _theoMsBucket(ms) {
+  const n = Number.isFinite(ms) ? ms : 0;
+  if (n < 1000) return '<1s';
+  if (n < 3000) return '1-3s';
+  if (n < 10000) return '3-10s';
+  return '>10s';
+}
+
+// The sensor-eureka FIRING_BANDS the side channel only fires on (mirrors
+// lib/core/eureka/eureka-reach-runner.cjs's own frozen FIRING_BANDS).
+const SIDE_CHANNEL_FIRING_BANDS = Object.freeze(['opportunity', 'high', 'breakthrough']);
+
 // bankStatements(db, sessionId, statements, opts?) -- the REQ-1 governed write.
 //
 // statements is the in-memory statements-loop array [{ pair, statement,
@@ -1734,17 +1823,60 @@ function deriveBankSection(db, entry) {
 // WHOLE batch rolls back (all-or-nothing); the function itself never throws -
 // it returns { ok:false, reason, detail } after ROLLBACK.
 //
-// Returns { ok:true, banked, edges, skipped, predicate } on success. Exported
-// so tests/test-219-banking.cjs drives it hermetically without a eureka run.
+// Phase 355-20 (HIPS-06, D-36..D-43, D-53 C4, D-56, AI-SPEC Section 7):
+// opts may additionally carry { stampsByKey, roomDir, runMode,
+// stampElapsedMs }. When an entry's pair carries a Stamp (via stampsByKey or
+// its own `.stamp`), the SAME writeOpportunityNode call above extends its
+// extraProps with the stamp's flat fields (verification/backend/direction/
+// judge/path/path_labels/path_edges/path_len), pws_stage (read once, before
+// BEGIN) and engine_mode, and reason/formula_version change to 'eureka
+// stamped finding' / 'stamp-v1'; NEVER a second writer, NEVER review_status.
+// Immediately after, a SOURCED_FROM edge (relation 'sourced_from', origin
+// 'eureka-355') lands on each end's source artifact node (falling back to
+// the entity node id itself), beside the DERIVED_FROM edges. All Theo calls
+// already completed inside stampRankedPairs, strictly BEFORE this function's
+// own BEGIN (D-56) -- bankStatements itself is synchronous and issues zero
+// network calls. AFTER db.exec('COMMIT') succeeds, the highest-ranked banked
+// stamped finding whose critic verdict is 'transferable' and whose band
+// fires gets its v2 side channel written via
+// lib/core/eureka/eureka-reach-runner.cjs's writeStampedSideChannel
+// (opportunity_handle = the minted node id) -- pure fs I/O, not SQL, so it
+// runs outside the transaction on purpose. One local memory_event
+// 'cross_connection_stamped' is then written through navigation.cjs, honoring
+// MINDRIAN_DISABLE_MEMORY_EVENT. An ordinary, unstamped call (every
+// pre-355-20 caller, including tests/test-219-banking.cjs) is byte-identical:
+// this whole extension is a no-op whenever nothing this run carried a stamp.
+//
+// Returns { ok:true, banked, edges, skipped, predicate, stampedBanked,
+// sideChannel } on success. Exported so tests/test-219-banking.cjs and
+// tests/test-355-filing.cjs drive it hermetically without a eureka run.
 function bankStatements(db, sessionId, statements, opts) {
   if (!db || !Array.isArray(statements)) {
     return { ok: false, reason: 'invalid_params' };
   }
   const sid = (typeof sessionId === 'string' && sessionId.length > 0) ? sessionId : BANK_SESSION_ID;
-  const mode = resolveBankPredicate(opts && opts.predicate);
+  const options = (opts && typeof opts === 'object') ? opts : {};
+  const mode = resolveBankPredicate(options.predicate);
+  const stampsByKey = (options.stampsByKey instanceof Map) ? options.stampsByKey : null;
+  const roomDirOpt = (typeof options.roomDir === 'string' && options.roomDir) ? options.roomDir : '';
+  const runMode = (typeof options.runMode === 'string' && options.runMode) ? options.runMode : 'unknown';
+  // D-40: read once, before BEGIN -- a filesystem read, never inside the
+  // write transaction.
+  const pwsStage = _readPwsStage(roomDirOpt);
+  // AI-SPEC Section 7 telemetry scope: every candidate this run carried a
+  // stamp for, banked or not (the signal is Theo verification coverage, not
+  // the banking predicate's own outcome). Computed before BEGIN too (pure
+  // in-memory read of already-computed stamps -- zero DB access).
+  const stampedThisRun = [];
+  for (const entry of statements) {
+    const s = _resolveBankStamp(entry, stampsByKey);
+    if (s) stampedThisRun.push(s);
+  }
+
   let banked = 0;
   let edges = 0;
   let skipped = 0;
+  const stampedBanked = [];
   try {
     db.exec('BEGIN');
   } catch (e) {
@@ -1760,6 +1892,33 @@ function bankStatements(db, sessionId, statements, opts) {
       const name = (titleA && titleB) ? (titleA + ' x ' + titleB) : (titleA || titleB);
       const section = deriveBankSection(db, entry);
       const fields = st.fields || {};
+      const stamp = _resolveBankStamp(entry, stampsByKey);
+
+      const extraProps = {
+        statement_text: typeof st.text === 'string' ? st.text : '',
+        potential_tier: typeof fields.potential_tier === 'string' ? fields.potential_tier : '',
+        critic: typeof st.critic === 'string' ? st.critic : 'resolved',
+        rank: typeof pair.rank === 'number' ? pair.rank : null,
+        tail_flag: entry.tailFlag === true,
+        bank_predicate: mode,
+      };
+      let reason = 'eureka statement banked (predicate ' + mode + ')';
+      let formulaVersion = 'eureka-critic-v1';
+      // D-36..D-38, D-40, D-56: a stamped statement mints through the SAME
+      // writeOpportunityNode call above -- never a second writer, never
+      // review_status, never a STATE_KEYS key (writeOpportunityNode's own
+      // merge already strips those from extraProps).
+      if (stamp) {
+        // D-36's own call shape: reason: 'eureka stamped finding',
+        // formula_version: 'stamp-v1' -- landed via the two locals below so
+        // the SAME writeOpportunityNode call carries them.
+        reason = 'eureka stamped finding';
+        formulaVersion = 'stamp-v1';
+        Object.assign(extraProps, verificationStamp.toNodeProps(stamp));
+        if (pwsStage) extraProps.pws_stage = pwsStage;
+        extraProps.engine_mode = runMode;
+      }
+
       const w = navigation.writeOpportunityNode(db, {
         name: name,
         sessionId: sid,
@@ -1768,17 +1927,10 @@ function bankStatements(db, sessionId, statements, opts) {
         score: typeof pair.score === 'number' ? pair.score : undefined,
         section: section,
         actor: 'system',
-        reason: 'eureka statement banked (predicate ' + mode + ')',
+        reason: reason,
         evidence_ids: [pair.idA, pair.idB].filter(function (x) { return typeof x === 'string' && x.length > 0; }),
-        formula_version: 'eureka-critic-v1',
-        extraProps: {
-          statement_text: typeof st.text === 'string' ? st.text : '',
-          potential_tier: typeof fields.potential_tier === 'string' ? fields.potential_tier : '',
-          critic: typeof st.critic === 'string' ? st.critic : 'resolved',
-          rank: typeof pair.rank === 'number' ? pair.rank : null,
-          tail_flag: entry.tailFlag === true,
-          bank_predicate: mode,
-        },
+        formula_version: formulaVersion,
+        extraProps: extraProps,
       });
       if (!w || w.ok !== true) {
         throw new Error('bank write failed: ' + ((w && w.reason) || 'unknown') + ' for "' + String(name).slice(0, 60) + '"');
@@ -1798,13 +1950,105 @@ function bankStatements(db, sessionId, statements, opts) {
         }
         edges += 1;
       }
+      // D-38: SOURCED_FROM provenance to each end's SOURCE ARTIFACT node
+      // (falling back to the entity node id itself), beside the DERIVED_FROM
+      // edges above. writeEdge directly -- linkOpportunityEvidence rejects
+      // SOURCED_FROM (outside OPPORTUNITY_EVIDENCE_EDGE_SUBSET by design).
+      if (stamp) {
+        const sourcedTargets = [pair.idA, pair.idB]
+          .filter(function (x) { return typeof x === 'string' && x.length > 0; })
+          .map(function (id) { return _sourcedFromTarget(db, id); });
+        for (const targetId of sourcedTargets) {
+          const r2 = navigation.writeEdge(db, {
+            source_id: w.node_id,
+            target_id: targetId,
+            edge_type: 'SOURCED_FROM',
+            properties: { relation: 'sourced_from', origin: 'eureka-355' },
+          });
+          if (!r2 || r2.ok !== true) {
+            throw new Error('bank SOURCED_FROM edge failed: ' + ((r2 && r2.reason) || 'unknown') + ' -> ' + targetId);
+          }
+        }
+        stampedBanked.push({
+          node_id: w.node_id,
+          rank: typeof pair.rank === 'number' ? pair.rank : null,
+          critic: typeof st.critic === 'string' ? st.critic : null,
+          abs_diff: (pair.rs && typeof pair.rs.abs_diff === 'number') ? pair.rs.abs_diff : null,
+          direction: stamp.direction,
+          stamp: stamp,
+          a: { handle: String(pair.idA), text: String(titleA || pair.idA) },
+          b: { handle: String(pair.idB), text: String(titleB || pair.idB) },
+        });
+      }
     }
     db.exec('COMMIT');
   } catch (err) {
     try { db.exec('ROLLBACK'); } catch (_e) { /* already rolled back */ }
     return { ok: false, reason: 'banking_batch_failed', detail: String(err && err.message ? err.message : err).slice(0, 120) };
   }
-  return { ok: true, banked: banked, edges: edges, skipped: skipped, predicate: mode };
+
+  // ---- D-53 C4 + AI-SPEC Section 7: post-COMMIT side channel + telemetry.
+  // Runs ONLY when this call actually stamped something this run -- an
+  // ordinary, unstamped bankStatements call (every pre-355-20 caller) is
+  // byte-identical: stampedThisRun stays empty, this whole block is a no-op. ----
+  let sideChannel = null;
+  if (stampedThisRun.length > 0) {
+    let pick = null;
+    for (const item of stampedBanked) {
+      if (item.critic !== 'transferable') continue;
+      if (typeof item.abs_diff !== 'number') continue;
+      const band = bandForDiff(item.abs_diff);
+      if (SIDE_CHANNEL_FIRING_BANDS.indexOf(band) === -1) continue;
+      const rank = (typeof item.rank === 'number') ? item.rank : Infinity;
+      if (!pick || rank < pick.rank) pick = Object.assign({ band: band, rank: rank }, item);
+    }
+    if (pick) {
+      sideChannel = eurekaReachRunner.writeStampedSideChannel(roomDirOpt, {
+        score: { direction: pick.direction, abs_diff: pick.abs_diff, band: pick.band, passes: true },
+        guard: { verdict: 'transferable', confidence: 'high', tags: [] },
+        a: pick.a,
+        b: pick.b,
+        stamp: pick.stamp,
+        opportunityHandle: pick.node_id,
+      });
+      if (!sideChannel.ok) {
+        process.stderr.write('eureka-portfolio-report: side channel not written (' + sideChannel.reason + ')\n');
+      }
+    } else {
+      sideChannel = { ok: false, reason: 'no_qualifying_stamped_finding' };
+      process.stderr.write('eureka-portfolio-report: no banked stamped finding qualifies for the side channel this run\n');
+    }
+
+    if (process.env.MINDRIAN_DISABLE_MEMORY_EVENT !== '1') {
+      const tierCounts = {};
+      const reasonCounts = {};
+      const backendCounts = {};
+      for (const s of stampedThisRun) {
+        tierCounts[s.verification] = (tierCounts[s.verification] || 0) + 1;
+        backendCounts[s.backend] = (backendCounts[s.backend] || 0) + 1;
+        if (typeof s.reason === 'string') reasonCounts[s.reason] = (reasonCounts[s.reason] || 0) + 1;
+      }
+      let mostCommonBackend = 'not_called';
+      let topCount = -1;
+      for (const key of Object.keys(backendCounts)) {
+        if (backendCounts[key] > topCount) { mostCommonBackend = key; topCount = backendCounts[key]; }
+      }
+      navigation.logMemoryEvent(db, 'cross_connection_stamped', {
+        producer: 'eureka',
+        finding_count: stampedThisRun.length,
+        tier_counts: tierCounts,
+        reason_counts: reasonCounts,
+        backend: mostCommonBackend,
+        judge: 'none',
+        theo_ms_bucket: _theoMsBucket(options.stampElapsedMs),
+      });
+    }
+  }
+
+  return {
+    ok: true, banked: banked, edges: edges, skipped: skipped, predicate: mode,
+    stampedBanked: stampedBanked, sideChannel: sideChannel,
+  };
 }
 
 // ---------------------------------------------------------------------------
