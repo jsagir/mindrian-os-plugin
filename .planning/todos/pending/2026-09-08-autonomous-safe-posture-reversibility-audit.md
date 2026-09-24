@@ -72,3 +72,28 @@ axis, both, or neither? Surface it whenever a future phase next touches `autonom
 or widens what runs unattended (a natural moment: SEED-033's own L1 already runs bounded retries
 inside autonomous_safe steps per Phase 201-02 - does ITS retry cap reflect a reversibility
 judgment, or was it picked for another reason?).
+
+## Data point: Phase 355 verification stamp
+
+Recorded by Phase 355 (Hidden in Plain Sight: Jev-through-Theo cross-connection
+engines) Plan 21, 2026-09-24, commit-adjacent to `355-21`'s own task 1 commit.
+A second, concrete data point for the standing audit above: `lib/core/verification-stamp.cjs`
+(the module `find-bottlenecks`, `find-connections`, `whitespace`, `hsi-to-graph` and `eureka` all
+call to attach a cross-connection stamp) makes exactly one read-only Theo `find_connections`
+call per distinct framework pair, writes nothing of its own (any node/edge write happens through
+the caller's own pre-existing writer, e.g. `addWhitespaceZone`, never a second writer this module
+opens), and sends only canon Framework names, never room or user content (D-10, D-48).
+
+Plotted against the reversibility x consequence grid: reversibility is `n/a (read-only)` (there is
+nothing to reverse), consequence is `low` (a stamp changes what is rendered, never what is filed
+or acted on); that places it squarely in the grid's no-gate quadrant, matching the module's own
+declared `POSTURE`:
+
+```
+POSTURE = { autonomous_safe: true, reversibility: 'n/a (read-only)', consequence: 'low', writes: 'none' }
+```
+
+It is not a chain step: `lib/core/chain-executor.cjs` never references `verification-stamp.cjs`
+or `stamp-connections.cjs` (a stamp is never treated as a material step a chain run could halt
+on), coordinated with Phase 356's own Jev-seat policy so the two phases' autonomous-safe surfaces
+do not collide. Machine-checked by `tests/test-355-cirs-wiring.cjs` (355-21).
