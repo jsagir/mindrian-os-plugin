@@ -213,4 +213,41 @@ compared to; since the two are byte-identical here, applying it against
 
 ## Decision
 
-pending navigator sign-off
+**not_adopted.** Signed off by the navigator, 2026-09-24.
+
+The bar (D-45) failed on all 3 repeats, mechanically applied against
+`regex_postfix`. Jev's full-set accuracy (n=45, none counted) came in below
+the regex's on every repeat, not above: 42.22% / 42.22% / 44.44% for Jev
+against 48.89% for the regex, gaps of -6.67 / -6.67 / -4.45 points (the bar
+needed +10 or more). Two of the five measurable modes dropped past the
+5-point tolerance on every repeat: descriptive (-20.00 / -20.00 / -10.00
+points) and creative (-18.19 points, every repeat). `none` could not be
+evaluated on either side (zero gold examples in this partial 45-item set),
+recorded as `skipped_modes`, not scored as a pass or a drop. Because the bar
+did not clear on any of the 3 repeats, `not_adopted` was the only valid
+option (D-45: the bar is never relaxed after results); the mixed-repeat
+"inside run-to-run noise" wording does not apply here, since noise means
+clearing on some repeats and not others, and this bar cleared on none.
+
+**The navigator's reading for the record, beyond the mechanical bar
+result:** both engines score under 50 percent against a fast, single-labeler
+gold, so the gold itself is as much under test here as either engine is.
+With only 7 to 11 gold examples per mode, one sentence moving from wrong to
+right shifts a mode's recall by 9 to 14 points -- the per-mode numbers above
+are that fragile at this sample size. The regex cannot answer `none` at all
+by construction (`THINKING_MODES_v1` has no `none` entry); of its 19
+descriptive answers on this 45-item set, 10 were the zero-match fallback
+(no keyword matched anything), which is the regex's real blind spot and the
+dimension this measurement was supposed to surface -- and could not, because
+this partial gold carries zero `none` examples to measure against.
+
+**What a future attempt needs:** complete the labeling sitting to the full
+132 sentences (87 items remain open in the session file), re-emit the gold
+without `--partial`, and re-measure. This measurement, taken at n=45 against
+a partial gold with no `none` examples, is not evidence that Jev cannot help
+with thinking-mode labeling -- it is evidence that a single unaided Jev
+Choice does not clear the fixed bar on the specific 45 items labeled so far.
+Per 355-15's own `must_haves`, adoption work (plan 355-28) runs only on an
+`adopted` decision; with `not_adopted` recorded here, 355-28's own Task 1
+gate reads this record and skips its three tasks, writing nothing under
+`data/`.

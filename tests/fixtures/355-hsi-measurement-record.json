@@ -931,7 +931,7 @@
     ]
   },
   "bar_baseline": "regex_postfix",
-  "decision": "pending_signoff",
-  "signed_off_by": null,
-  "signed_off_at": null
+  "decision": "not_adopted",
+  "signed_off_by": "navigator",
+  "signed_off_at": "2026-09-24T06:09:36.000Z"
 }
