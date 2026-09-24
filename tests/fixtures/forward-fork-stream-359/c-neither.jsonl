@@ -1,0 +1,12 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-c"}],"model":"claude-sonnet-5","session_id":"sess-c"}
+{"type":"system","subtype":"hook_event","hook_event_name":"SessionStart","output":"[MindrianOS] Room bound: scratch-359."}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"warm-up turn 1"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A short warm-up reply."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.05,"duration_ms":3000}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"warm-up turn 2"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A second warm-up reply."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.09,"duration_ms":3200}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"the fork turn text"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"I looked at both paths and think the first one makes sense, so I will go ahead with it."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.12,"duration_ms":3500}
+{"type":"system","subtype":"hook_event","hook_event_name":"Stop"}

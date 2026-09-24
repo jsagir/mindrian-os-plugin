@@ -1,0 +1,8 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-h"}],"model":"claude-sonnet-5","session_id":"sess-h"}
+{"type":"system","subtype":"hook_event","hook_event_name":"SessionStart","output":"[MindrianOS] Room bound: scratch-359."}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"warm-up turn 1"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A short warm-up reply."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.18,"duration_ms":6000}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"the fork turn text"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Still thinking this through before the budget ran out."}]}}
+{"type":"result","subtype":"error_budget_exceeded","total_cost_usd":0.41,"duration_ms":9500}

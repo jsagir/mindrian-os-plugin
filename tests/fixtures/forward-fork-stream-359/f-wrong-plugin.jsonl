@@ -1,0 +1,6 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-f"},{"name":"mos","path":"/tmp/arm-tree-f-shadow"}],"model":"claude-sonnet-5","session_id":"sess-f"}
+{"type":"system","subtype":"hook_event","hook_event_name":"SessionStart","output":"[MindrianOS] Room bound: scratch-359."}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"the fork turn text"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Two plugins named mos are loaded, which must never happen in a real run."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.07,"duration_ms":2900}
+{"type":"system","subtype":"hook_event","hook_event_name":"Stop"}

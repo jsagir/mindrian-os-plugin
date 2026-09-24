@@ -1,0 +1,6 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-d"}],"model":"claude-sonnet-5","session_id":"sess-d"}
+{"type":"system","subtype":"hook_event","hook_event_name":"SessionStart","output":"[MindrianOS] Room bound: scratch-359."}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"the fork turn text on turn 1"}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"AskUserQuestion","input":{"questions":[{"question":"Pick a mode","options":[{"label":"Just Talk"},{"label":"Explore + Capture"},{"label":"Build a Room"}]}]}}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.08,"duration_ms":3100}
+{"type":"system","subtype":"hook_event","hook_event_name":"Stop"}

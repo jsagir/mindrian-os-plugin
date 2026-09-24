@@ -1,0 +1,7 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-i"}],"model":"claude-sonnet-5","session_id":"sess-i"}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"warm-up turn 1"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A short warm-up reply."}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.05,"duration_ms":3000}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"the fork turn text"}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"AskUserQuestion","input":{"questions":[{"question":"Which way?","options":[{"label":"Option A"},{"label":"Option B"}]}]}}]}}
+{"type":"result","subtype":"success","total_cost_usd":0.11,"duration_ms":3700}
