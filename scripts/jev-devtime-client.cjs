@@ -552,6 +552,39 @@ const EGRESS_PROFILES = Object.freeze({
     criteria_keys: Object.freeze(['useful', 'not_useful', 'already_known', 'none']),
     question_max_len: 200,
   }),
+  // 359-04 (N-3, Part 8: dev time only, never a hook, synthetic text only):
+  // scores each declared moonshot ("What if ..." label) with two independent
+  // Score questions, relevant_to_context and radical_departure, over the
+  // 359 synthetic fixture and authored forward-scenario text only. Declared
+  // in 356's exact_state_v1 kind, using only its existing optional fields
+  // (state_keys, string_keys, max_len_by_key, must_equal_file, question_ids,
+  // question_keys, question_type, instructions_keys, question_max_len).
+  // Deliberately OMITS criteria_keys and question_strings_from_file_key:
+  // both assume Noul-shaped criteria objects ({true, false}), but a Score
+  // question's criteria is an ARRAY of level descriptions, which the
+  // question_strings_from_file_key check cannot express (it reads
+  // criteria.true / criteria.false, not an array). This is a real guard
+  // gap for this profile, not papered over: scripts/score-moonshots-359.cjs
+  // copies every rule, level and boundary string from the policy file
+  // verbatim, and its own test (S3) asserts deep equality against the file
+  // on every built body. 356 owns the schema; this profile adds no new
+  // schema piece, only a new frozen entry (D-08: one profile per builder,
+  // never merged).
+  fork359_moonshot: Object.freeze({
+    id: 'fork359_moonshot',
+    kind: 'exact_state_v1',
+    top_keys: Object.freeze(['model', 'state', 'questions']),
+    model: 'jev-latest',
+    state_keys: Object.freeze(['context', 'practical_labels', 'moonshot', 'policy']),
+    string_keys: Object.freeze(['context', 'practical_labels', 'moonshot', 'policy']),
+    max_len_by_key: Object.freeze({ context: 2000, practical_labels: 300, moonshot: 100 }),
+    must_equal_file: Object.freeze({ policy: 'data/jev-policies/fork359-moonshot.json' }),
+    question_ids: Object.freeze(['relevant_to_context', 'radical_departure']),
+    question_keys: Object.freeze(['type', 'instructions', 'criteria']),
+    question_type: 'score',
+    instructions_keys: Object.freeze(['question', 'rule', 'boundary_cases']),
+    question_max_len: 400,
+  }),
 });
 
 module.exports = { DEFAULT_ENDPOINT, loadKey, makeEgressGuard, jev, pool, EGRESS_PROFILES };

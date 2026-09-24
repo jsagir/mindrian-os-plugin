@@ -1,0 +1,45 @@
+{
+  "policy_set": "fork359-moonshot",
+  "version": "1",
+  "phase": "359",
+  "used_by": "scripts/score-moonshots-359.cjs (dev time only, never a hook, synthetic text only)",
+  "policies": [
+    {
+      "policy_id": "relevant_to_context",
+      "version": "1",
+      "instructions": "This question reads context (the decision the navigator is actually working on), practical_labels (the ordinary options already on the table) and moonshot (the final What-if label under review). It asks whether the moonshot still addresses the same decision named in context, even though it is framed as a lateral or radical move. A moonshot that reframes, elevates, or recombines the same decision scores high. A moonshot that quietly drifts to an unrelated topic, a different decision entirely, or generic advice untethered from context scores low. Relevance is judged against context alone, never against how closely the moonshot resembles the practical_labels in wording.",
+      "levels": [
+        "The moonshot names a different decision altogether, or generic advice that could follow any context; nothing in it ties back to what context describes.",
+        "The moonshot gestures at the general topic area of context but does not engage the actual decision on the table; a reader could not tell which of context's options it is answering.",
+        "The moonshot addresses context's decision indirectly, through a related but distinct angle, so the connection takes a moment to see.",
+        "The moonshot clearly answers the decision in context, reframed at a lateral or unconventional angle, and a reader immediately sees which choice it responds to.",
+        "The moonshot reframes the exact decision in context so sharply that it exposes an option the practical_labels themselves missed, while staying unmistakably about that same decision."
+      ],
+      "boundary_cases": [
+        "A moonshot that proposes an unrelated hobby or life change when context describes a work decision -> level 1: it names a different decision altogether.",
+        "A moonshot that repeats one of the practical_labels almost word for word, adding no lateral angle -> level 2 at most: it engages the topic area but does not add a distinct angle a reader could point to.",
+        "A moonshot that reframes context's decision as a bet, a combination of two practical_labels, or a reversed framing of the same choice -> level 4: unmistakably the same decision, lateral in form.",
+        "A moonshot that recasts context's decision so the practical_labels' own blind spot becomes visible, while a reader can still name exactly which decision it answers -> level 5."
+      ]
+    },
+    {
+      "policy_id": "radical_departure",
+      "version": "1",
+      "instructions": "This question reads practical_labels (the ordinary options already on the table) and moonshot (the final What-if label under review). It asks how far the moonshot departs from every practical_label in kind, not just in wording. A moonshot that only rewords one of the practical_labels scores low. A moonshot that proposes a lateral elevation, a structural recombination, or a trend pushed toward its logical or absurd extreme, while still pointing at the same decision, scores high; trending to the absurd is a legitimate and valued source of radicalness, not a penalty.",
+      "levels": [
+        "The moonshot is a rewording or minor variant of one practical_label; choosing it would produce essentially the same action as that label.",
+        "The moonshot adjusts the scope, timing, or intensity of a practical_label (more of it, less of it, sooner, later) without changing its underlying kind of move.",
+        "The moonshot recombines or sequences two or more practical_labels into one move, which no single practical_label offers on its own.",
+        "The moonshot proposes a move of a different kind than any practical_label: a lateral elevation, an inversion, or a trend taken further than any practical_label goes.",
+        "The moonshot pushes a trend or structural idea to its absurd or extreme logical conclusion, a kind of move no practical_label even gestures at, while still landing on the same decision."
+      ],
+      "boundary_cases": [
+        "A moonshot that says 'do the same thing, but call it something else' -> level 1: same kind of move as a practical_label, wording only.",
+        "A moonshot that says 'do practical_label X, but faster and with more resources' -> level 2: same kind of move, different scope or timing.",
+        "A moonshot that merges two practical_labels into a single hybrid move neither offers alone -> level 3: a recombination, not yet a different kind of move.",
+        "A moonshot that flips the frame entirely, such as turning a build-vs-wait decision into 'let the market decide by shipping a decoy first' -> level 4: a genuinely different kind of move.",
+        "A moonshot that takes a practical_label's underlying trend and pushes it to its absurd extreme, such as 'automate the decision itself so no one has to choose again' -> level 5: trending to the absurd, still pointing at the same decision."
+      ]
+    }
+  ]
+}
