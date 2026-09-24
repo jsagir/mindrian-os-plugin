@@ -188,13 +188,13 @@
       },
       "expected_verdict_class": "block",
       "label_origin": "hand",
-      "why": "A 3-practical fork (D-19 category: 3-way forks).",
+      "why": "A 3-practical fork (D-19 category: 3-way forks) (ruled 2026-09-24).",
       "prose_fork": true,
       "fork_labels": [
         "Go narrow with a flagship customer",
         "Go broad with a self-serve waitlist",
         "Go quiet and finish integration first",
-        "What if we tease the flagship deal while the waitlist fills quietly"
+        "What if we let the first customer announce it for us"
       ],
       "known_miss": {
         "reason": "undeclared prose fork, text-dependent (359 R2)"
@@ -238,13 +238,13 @@
       },
       "expected_verdict_class": "block",
       "label_origin": "hand",
-      "why": "A 3-practical fork (D-19 category: 3-way forks).",
+      "why": "A 3-practical fork (D-19 category: 3-way forks) (ruled 2026-09-24).",
       "prose_fork": true,
       "fork_labels": [
         "Publish the full internal writeup",
         "Publish a trimmed customer summary",
         "Hold until the fix is verified",
-        "What if we publish a one-line acknowledgment and promise more soon"
+        "What if we open the fix verification to customers live"
       ],
       "known_miss": {
         "reason": "undeclared prose fork, text-dependent (359 R2)"

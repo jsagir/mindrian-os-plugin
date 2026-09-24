@@ -42,3 +42,11 @@ blocks, task-notification misreads, tool_result guard exits, staleness, and
 one navigator-ruled R-C known_false_block); none of the 24 final assistant
 turns poses a genuine two-or-more-way decision in flowing prose with no
 card. The navigator may overrule any single id at the plan-06 checkpoint.
+
+## Ruling (2026-09-24)
+
+Navigator selected approve-all at the plan-06 checkpoint. All 24 proposed
+`prose_fork: false` labels are ratified unchanged, no id flipped. Every
+label's `fork_label_origin` moved from `local` to `human` and
+`meta.ratified` is now `true` (`meta.ratified_at: 2026-09-24`) in
+`tests/fixtures/card-fire-replay/dogfood-fork-labels-359.json` (D-21).
