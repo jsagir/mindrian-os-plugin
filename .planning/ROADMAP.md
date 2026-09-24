@@ -1221,13 +1221,23 @@ Plans:
 ### Phase 358: Rome: B1 checking record and B2 frame provenance, user-visible
 
 **Goal:** Make the NATO Defense College slide claims (A1 "which direction / can I turn around", A2 "stores what each claim was checked against - on the claim, visible months later, countable across a body of work") TRUE in the normal user flow by 13 October 2026, or keep them off the slides. HARD go/no-go on 6 October 2026: each move is judged on its own acceptance test; a failed move stays off the deck and the pre-written fallback wording is used. B1 (checking record): an officer records on a claim what it was checked against, the rung (from the paper author's verification hierarchy, The Orientation Problem; exact rung list pending from him), method (read/compare/observe/test/ask) and result, without a developer; the record is readable when the claim is reopened in a later session; the room shows counts of checked / disputed / inconclusive / unchecked across all claims with unchecked always shown; a count is never a score and a checked claim stays proposed until a person confirms it. B2 (frame provenance): the room shows where its governing question came from (chosen / tasking / prompt / inherited); changing the question keeps the old one visible as a history; before an answer to a changed question appears, the user is asked what the old question got wrong; with an account the change is filed as refines, without one as relocates, neither presented as better. Existing substrate: lib/core/navigation/verification.cjs, lib/mcp/tools/claim-verify.cjs, lib/core/navigation/typed-frame.cjs; design: docs/2026-09-23-B1-B2-IMPLEMENTATION-RESEARCH.md, docs/FRAME-PROVENANCE-PRODUCT-WORKUP.md; acceptance tests + fallback wording as shown to the paper author: https://mindrian-explainer-gate.vercel.app/nato.html. Tri-Polar: must work on CLI and via MCP on Desktop/Cowork (officers drive hands-on). Canon Part 8: rung/origin are local enums; free-form notes stay artifacts referenced by handle; nothing crosses to Theo. Build order: B1 first (smaller, stronger slide), then B2 origin+history, then the pre-answer pause (riskiest: spans every answer producer).
-**Requirements**: TBD
+**Requirements**: B1-01..B1-07, B2-01..B2-10 (locked acceptance tests in 358-CONTEXT.md; B2 ids from 358-B2-RESEARCH.md)
 **Depends on:** Phase 354 plan 354-02 (gate subject promotion, shipped) for claim/gate surfaces; runs IN PARALLEL with 354-357 (coordinate on lib/mcp/tools/gate.cjs with the 354 session); deadline-driven, not sequential after 357
-**Plans:** 0 plans
+**Plans:** 11/11 plans complete (verification: human_needed - live Desktop/Cowork probes + Theo resync check pending release, navigator-approved 2026-09-24)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 358 to break down)
+- [x] 358-01-PLAN.md -- B1 rung constant, sticky disputed, claim view and room counts
+- [x] 358-02-PLAN.md -- re-file carry-forward fix, Claude Desktop write-enabled host tier
+- [x] 358-03-PLAN.md -- /mos:room checks, claim and check (CLI checking record)
+- [x] 358-04-PLAN.md -- claim_verify with rung, claim_read with room counts (MCP)
+- [x] 358-05-PLAN.md -- B1 registry regeneration and baseline close-out
+- [x] 358-06-PLAN.md -- B1 6 October go/no-go runbook (probes pending release)
+- [x] 358-07-PLAN.md -- B2 frame substrate hardening + the one governing-question write door + F.1 card
+- [x] 358-08-PLAN.md -- /mos:room question CLI + Larry routing section + routing spec test
+- [x] 358-09-PLAN.md -- question_read / question_set MCP tools + surfaces and persistence tests
+- [x] 358-10-PLAN.md -- B2 registry regeneration, Theo teaching line, test-270/276 re-baseline
+- [x] 358-11-PLAN.md -- B2 6 October go/no-go runbook (F.1 ruled; probes + Theo check pending release)
 
 ### Phase 359: Missed-fork detection: Larry poses a genuine decision in prose and no card fires (CLI), measured on the 357 replay corpus
 
