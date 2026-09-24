@@ -204,3 +204,27 @@ action text says "change nothing else" about `hsi-to-graph.cjs` beyond the
 HSI_CONNECTION `surprise_type` write, so the DELETE's missing source filter
 was left exactly as 355-11 found it, not touched here. Flagged for a later
 355 plan (or the navigator) to close both.
+
+## 355-18: three more pre-existing `insertNode: invalid epistemic_type
+## "undefined"` failures found (same class 355-10 already logged)
+
+Running the full `tests/test-215-*.cjs`/`tests/test-219-*.cjs`/`tests/test-226-*.cjs`
+regression sweep after this plan's own changes found three MORE failures in
+the same pre-existing class 355-10-SUMMARY.md already logged for
+`tests/test-218-cohort-stratification.cjs`:
+
+1. `tests/test-219-banking.cjs` -- `insertNode: invalid epistemic_type
+   "undefined"` at its own line 415.
+2. `tests/test-219-low-confidence-disclosure.cjs` -- same error.
+3. `tests/test-219-metadata.cjs` -- same error.
+
+Confirmed unrelated to this plan: `git status --short` on all three test
+files, `lib/core/node-insert.cjs`, and `tests/helpers/fixture-room-219.cjs`
+(the shared fixture builder none of the three's own failing line touches
+directly) shows zero diff -- every one of them is byte-identical to the
+last commit that touched it, which predates this session. None requires
+(directly or transitively) `scripts/eureka-portfolio-report.cjs`,
+`lib/core/eureka/report-html.cjs`, or `lib/core/eureka/qualify-opportunity.cjs`
+(grep-confirmed). Not fixed here (Scope Boundary rule); flagged for the
+navigator/a future phase to root-cause the `epistemic_type` contract these
+tests' shared fixture-room builder violates.
