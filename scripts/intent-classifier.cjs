@@ -394,6 +394,22 @@ function extractSessionId(raw) {
   return '';
 }
 
+// Phase 360 (N-1): mirrors extractSessionId's parse shape -- the UserPromptSubmit
+// stdin's `cwd` field (or `payload.cwd`), never a second JSON parse (STDIN_RAW is
+// already parsed once here). Never throws; a missing or malformed field returns
+// undefined, which cwdRoomsHomeVerdict treats as 'unresolvable' (fail toward
+// today's picker).
+function extractCwd(raw) {
+  if (!raw || !raw.trim()) return undefined;
+  let parsed = null;
+  try { parsed = JSON.parse(raw.trim()); } catch (_) { return undefined; }
+  if (!parsed || typeof parsed !== 'object') return undefined;
+  if (typeof parsed.cwd === 'string' && parsed.cwd.length > 0) return parsed.cwd;
+  if (parsed.payload && typeof parsed.payload === 'object'
+      && typeof parsed.payload.cwd === 'string' && parsed.payload.cwd.length > 0) return parsed.payload.cwd;
+  return undefined;
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -424,11 +440,36 @@ function harnessVerdict(text) {
     const tt = require(path.join(__dirname, '..', 'lib', 'hmi', 'turn-text.cjs'));
     if (!tt || typeof tt.classifyUserPromptText !== 'function') return false;
     return tt.classifyUserPromptText(text) === 'harness';
-  } catch (_e) {
-    return false;
-  }
+  } catch (_e) { return false; }
 }
 const TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
+// Phase 360 (N-1): the hook stdin's cwd, read once at module init (same
+// STDIN_RAW, no second parse of a different shape than extractSessionId's).
+const STDIN_CWD = extractCwd(STDIN_RAW);
+
+// Phase 360 (N-1, N-2): an unbound session's picker (and its side-channel
+// mint and marker writes) does not fire when the session's cwd resolves
+// outside the rooms home (N-1, SPEC R10, a deterministic realpath prefix
+// check, no text inspection, no egress) or when the session already chose
+// "dev repo / no room", stored as the NO_ROOM_SLUG sentinel in the existing
+// per-session binding store (N-2, SPEC R11). Both rules are unbound-only
+// (P-2: a session with a real bound primary is untouched) and both fail
+// toward today's picker on any fault (missing module, missing export,
+// throw, or a session with a real primary): SPEC R6/PSB-06 applied to this
+// guard. Composes lib/core/room-bind-picker-policy.cjs (N-1/N-2's actual
+// rule body) and lib/core/session-binding.cjs's readSessionBinding (the
+// SAME key resolveSessionId(resolveActiveRoomDir()) the F.8 path below
+// already reads, so this guard never invents a second session identity).
+function unboundPickerSuppressed(root) {
+  try {
+    const sessionId = resolveSessionId(resolveActiveRoomDir());
+    const sb = require(path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs'));
+    const binding = sb.readSessionBinding(sessionId, { home: root });
+    const policy = require(path.join(__dirname, '..', 'lib', 'core', 'room-bind-picker-policy.cjs'));
+    if (!policy || typeof policy.unboundPickerSuppression !== 'function') return false;
+    return policy.unboundPickerSuppression({ binding: binding, cwd: STDIN_CWD, roomsRoot: root }) !== null;
+  } catch (_e) { return false; }
+}
 
 // ---------------------------------------------------------------------------
 // Phase 94-06: emitStrictModeOverride
@@ -510,6 +551,26 @@ function main() {
 
   const root = resolveMindrianRoomsRoot();
   if (!root) return 0;
+
+  // Phase 360 (N-1, N-2): same early-guard block as the harness guard above.
+  // N-1: an unbound session whose cwd resolves outside the rooms home (a
+  // code repo, for example) gets no picker, no F.8 mint and no marker write;
+  // inside the rooms home nothing changes; an unreadable or ambiguous cwd
+  // (including an ancestor of the rooms home, P-1) fires, same as today.
+  // N-2: a stored "dev repo / no room" choice is honored for the rest of the
+  // session; a new session_id asks again; an explicit room binding restores
+  // gating (verified root cause: a stored NO_ROOM_SLUG binding re-fires the
+  // unbound header today, because runBindingGate -> resolveSessionScope
+  // tests set-membership against a sentinel that is never a scored room, and
+  // the F.8 path maps a sentinel primary to boundPrimary null, which selects
+  // the unbound header -- the zero-score path already honors the sentinel at
+  // :645, the F.8 path does not; this guard closes that gap in the hook
+  // without touching the shared scope resolver MCP also uses).
+  // P-3: this early return also silences the strict-mode override and the
+  // legacy advisory for these two session classes (same single-guard
+  // rationale as D-07: they are the same room-bind nag family). SPEC R10,
+  // R11.
+  if (unboundPickerSuppressed(root)) return 0;
 
   const reg = readRegistry(root);
   const active = activeRoomFromRegistry(reg);
