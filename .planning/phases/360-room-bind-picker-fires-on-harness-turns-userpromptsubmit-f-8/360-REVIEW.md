@@ -97,6 +97,75 @@ Given the explicit review focus on hook latency (this hook fires on literally ev
 
 ---
 
+## Fix Status (gsd-code-fixer, 2026-09-24)
+
+All three WARNING findings were fixed and committed on `main`, one commit per finding, in the
+shared dev tree (`/home/jsagi/dev/MindrianOS-Plugin`), with peer files (`lib/core/fork-declaration.cjs`,
+`lib/core/gate-relevance.cjs`, the four deliberately-uncommitted files) untouched.
+
+### WR-01: fixed
+
+**Commit:** `5aea10f1f`
+**Files:** `lib/hmi/turn-text.cjs`, `tests/test-360-leads.cjs`
+
+The bare 37-char peer stem in `HARNESS_LEADS` is no longer a plain `startsWith` match. A new
+`leadMatchesHarnessTag(lead, tag)` requires the stem to be immediately followed by the actual
+harness framing continuation (`:` or ` while you were working:`, then optional inline whitespace
+and a line break) before it counts as a match; the other four `HARNESS_LEADS` entries are
+unaffected and stay plain `startsWith`. Two RED-then-GREEN legs were added to
+`tests/test-360-leads.cjs` pinning the review's exact repro and a same-line-colon variant.
+
+Verified: `node tests/test-360-leads.cjs` (28/28, RED confirmed before the fix, GREEN after),
+`node tests/test-360-snapshot-replay.cjs` (harness 33->0, human 2->2, unchanged), `bash
+tests/run-all-357.sh` (PASS=16 FAIL=0), `node scripts/replay-card-fire.cjs --surface both
+--baseline compare` (new_misses=0, parity_mismatches=0, errors=0, unchanged per-entry).
+
+### WR-02: fixed
+
+**Commit:** `ee605e1a2`
+**Files:** `lib/core/room-bind-picker-policy.cjs`, `tests/test-360-picker-policy.cjs`
+
+`unboundPickerSuppression`'s no-room-remembered branch now only fires when the `NO_ROOM_SLUG`
+sentinel is the SOLE entry in `bound` (no real room slug riding alongside it) or is the EXPLICIT
+`primary`. A binding shaped `{ bound: ['some-room', NO_ROOM_SLUG], primary: null }` (a navigator
+who checked both a real room's box and "dev repo / no room" without picking a primary) now falls
+through to today's picker behavior (`null`) instead of permanently suppressing. Two unit legs
+were added to `tests/test-360-picker-policy.cjs`, pinning both the non-suppressing ambiguous
+shape and the still-suppressing explicit-primary-plus-real-room shape.
+
+Verified: `node tests/test-360-picker-policy.cjs` (36/36, including both new legs).
+
+### WR-03: fixed
+
+**Commit:** `0e55561dd`
+**Files:** `scripts/intent-classifier.cjs`
+
+Added `getCachedSessionBinding(sessionId, root)`, a memoized reader keyed on
+`sessionId + root`, threaded into `unboundPickerSuppressed`, the zero-score gate, and the F.8
+binding gate, replacing their three independent `readSessionBinding` calls. A read fault is
+cached and re-thrown on every subsequent call for that key, so each call site's own pre-existing
+try/catch fail-open behavior is unchanged; only the redundant filesystem read is eliminated. The
+fix was contained to `scripts/intent-classifier.cjs`; `consumePriorBindingAnswer`'s own separate,
+rarely-triggered `readSessionBinding` call was left untouched (out of this finding's cited scope,
+`:463-472` vs `:698`/`:766`).
+
+Verified: `node tests/test-360-harness-picker.cjs --only r3` (6/6), `node
+tests/test-360-r3-suites.cjs` (18/18, byte-identical human-turn output confirmed), `bash
+tests/run-all-360.sh` (PASS=8 FAIL=0).
+
+### IN-01, IN-02: documented only, no change
+
+Both are explicitly marked "not required this phase" / "tracked as a stated follow-on candidate
+already" in the original review, and the fix instructions for this pass named them
+document-only. No source change made.
+
+---
+
+_Fixed: 2026-09-24_
+_Fixer: Claude (gsd-code-fixer)_
+
+---
+
 _Reviewed: 2026-09-24T12:11:35Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: deep_
