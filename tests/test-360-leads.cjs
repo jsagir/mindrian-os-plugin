@@ -174,6 +174,22 @@ check('harness: bracketed idle notice preceded by newlines', function () {
   assertHarness('\n' + IDLE_NOTICE, 'bracketed idle notice + leading newlines');
 });
 
+// ----- WR-01 (360-REVIEW.md): the bare peer stem must not misclassify a human sentence ----
+
+check('typed: a human sentence that merely opens with the peer stem (WR-01)', function () {
+  assertTyped(
+    'Another Claude session sent a message that confused me, what should I do about it?',
+    'human sentence opening with the peer stem, no framing continuation'
+  );
+});
+
+check('typed: peer stem followed by prose with a colon later, no line break right after it (WR-01)', function () {
+  assertTyped(
+    'Another Claude session sent a message: it was about the invoice ledger, can you help?',
+    'peer stem + colon + prose on the same line (no line break) stays typed'
+  );
+});
+
 // ----- Typed (non-harness) shapes, including the D-12 mid-text carve-out -----------------
 
 check('typed: a human sentence quoting a task-notification tag mid-text (D-12)', function () {
