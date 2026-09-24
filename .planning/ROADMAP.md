@@ -1020,9 +1020,9 @@ Plans:
 ### Phase 355: Hidden in Plain Sight: Jev-through-Theo Cross-Connection Engines (honesty pass, KG-verification spearhead, first Jev question)
 
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
-**Requirements**: TBD (minted at spec time)
+**Requirements**: HIPS-01..HIPS-10 (phase-local, minted in the 355 plan set; registered in REQUIREMENTS.md)
 **Depends on:** Phase 354 (354-17 Jev ledger, 354-18 THEO-04)
-**Plans:** 27/28 plans executed
+**Plans:** 28/28 plans executed
 
 **Next action:** `/gsd-execute-phase 355` only after Phase 354 closes (355-01 Task 1 gates on it and on a clean tree for gate.cjs, tool-router.cjs, brain-client.cjs, part8-egress-guard.cjs, doctor.cjs, scripts/jev-devtime-client.cjs). Spec `355-SPEC.md`, AI contract `355-AI-SPEC.md`, decisions `355-CONTEXT.md` (D-01..D-58), research `355-RESEARCH.md`, patterns `355-PATTERNS.md`, Nyquist `355-VALIDATION.md`. Requirements HIPS-01..HIPS-10 are minted in the plans and registered by 355-27 at close.
 
@@ -1087,7 +1087,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 **Wave 11** *(depends on 355-21, 355-23, 355-25, 355-26, 355-28)*
 
-- [ ] 355-27-PLAN.md -- HIPS-10: close-out - HIPS rows registered in REQUIREMENTS.md, run-all-355.sh green, doctor acceptance no-new-regression, the rethinking-mindrianos research filing, the outbound Theo note
+- [x] 355-27-PLAN.md -- HIPS-10: close-out - HIPS-01..09 registered [x] with measured proof in REQUIREMENTS.md, HIPS-10 registered [ ] open (documented reason); tests/run-all-355.sh Part 8/9 sweeps hard-gated over the full 6-file target list plus a new navigation-chokepoint check, all 30 tests/test-355-*.cjs registered in lib/memory/run-feynman-tests.cjs; PASS=69 FAIL=4 SKIP=0 (three BASE_355-documented external reds unchanged, plus one new out-of-scope doctor `icm-ruling-eval-fresh` regression caused by concurrent peer sessions' version bumps, not any 355 file -- never re-baselined, documented in the script's own header); the rethinking-mindrianos research filing and the outbound Theo note (completed 2026-09-25; two in-scope 355 test-file bugs fixed as deviations: test-355-doctor-point.cjs's stale "calibrate-citation-check.cjs missing" assumption (355-26 landed the script after 355-21 wrote the test) and test-355-direction-readers.cjs's fake-server mock (Phase 267-06 rewrote tool-router.cjs's `server.tool` to `server.registerTool` after 355-12 landed))
 
 ### Phase 355.1: Ambient trigger: the room starts the breakthrough run (SENS-20 room-delta sensor, strategy-not-keywords front end) (INSERTED)
 

@@ -3352,9 +3352,141 @@ stated reason, at phase close by `361-08-PLAN.md` Task 3.
       flow text are byte-identical to the pre-phase command, and the quick pass calls no composer,
       no Theo tool and no agent. Plans 361-01, 361-07.
 
+### Phase 355 - Hidden in Plain Sight (HIPS family)
+
+HIPS-01..10 were minted in the Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s
+proposed IDs for SPEC Requirements 1-7 plus the AI-SPEC's D15/D18 dev-time measurements and the
+phase gate, scoped to Phase 355 only, and are registered here at phase close by `355-27-PLAN.md`
+Task 2, per the Phase 272/274/276/275/340 precedent. `355-CONTEXT.md` is the scope contract.
+
+- [x] **HIPS-01**: Every discovery engine (HSI, reverse-salient, eureka portfolio ranking, stored
+      HSI_CONNECTION/REVERSE_SALIENT readers, the eureka_critic MCP schema) computes its direction
+      label through the single `lib/core/direction-convention.cjs` module (Convention A, `none` on a
+      missing/below-floor pair), never a local literal comparison, and a stored label is always
+      re-derived from the pair, never trusted. Plans 01, 02, 09, 10, 11, 12, 19.
+      **Measured:** (2026-09-25) `node tests/test-355-direction-convention.cjs` 31/31;
+      `node tests/test-355-direction-agreement.cjs` 187 PASS / 1 FAIL (leg H only: two hits,
+      `lib/core/rs-chain-feeder.cjs` and `lib/memory/test-rs-discovery-engine.cjs`, both outside
+      every plan's `files_modified`, carried forward per `deferred-items.md`; every other leg A-G
+      green); `node tests/test-355-eureka-ranking-pin.cjs` 45/45 (D-47 ranking pinned byte-for-byte
+      on the unchanged code); `node tests/test-355-direction-readers.cjs` 28/28 (fixed in 355-27
+      Task 1 for the Phase 267-06 `server.tool` -> `server.registerTool` API rewrite that landed on
+      main after 355-12; the test's mock, not the production schema, needed the update). Leg H's two
+      unresolved hits are a documented open finding, not a blocker: 355-12's own `must_haves` scoped
+      the bar to "no new hits," not full leg-H closure.
+
+- [x] **HIPS-02**: Every hardcoded floor/threshold literal this phase's engines depend on is
+      disclosed in `data/floor-ledger.json` (never silently calibrated on the fixture rooms, D-19),
+      and a fake floor a producer does not actually read fails the sweep's negative control. Plans
+      04, 16, 23.
+      **Measured:** (2026-09-25) `node tests/test-355-floor-sweep.cjs` 109/109 (includes leg 4b, the
+      dependent-output render leg landed in 355-23); `data/floor-ledger.json` carries 35 disclosed
+      rows, `floor_basis: "disclosed, not calibrated"`.
+
+- [x] **HIPS-03**: Every renamed/re-described 355 surface (`scout-hsi`, `whitespace_scan`) states
+      what it actually does; no shipped command, skill, agent or hook calls the old
+      `whitespace_scan` name; the naming fixture is the real gate, not a docs-only change. Plan 05.
+      **Measured:** (2026-09-25) `node tests/test-355-naming-honesty.cjs` 18/18;
+      `node scripts/build-connector-registry.cjs --check`, `node scripts/build-orchestration-projection.cjs --check`
+      and `node scripts/check-shape-declaration.cjs --check` all PASSED (run-all-355.sh section 6).
+
+- [x] **HIPS-04**: Every cross-connection finding is verified through `lib/core/verification-stamp.cjs`
+      against exact canon Framework names only (local exact-name resolution, D-48), the degrade-on-
+      Theo-down path always returns `unverified`/`unavailable`/no path, and the one live Theo capture
+      this phase ran carries no fabricated internal id. Plans 06, 08, 14, 16, 17, 18, 21, 23, 25.
+      **Measured:** (2026-09-25) `node tests/test-355-stamp-truth.cjs` 66/66;
+      `node tests/test-355-theo-unreachable.cjs` 25/25; `node tests/test-355-stamp-coverage.cjs`
+      31/31 (byte-true replay of the real 355-14 capture, 148 pairs, 42 verified / 106 unverified);
+      `node tests/test-355-theo-capture.cjs` 36/36; the one live `find_connections` capture measured
+      p50 1580 ms / p95 1761 ms over 165 timed calls (355-VERIFICATION.md); `data/framework-names.json`
+      snapshot dated 2026-09-23, 410 live canon names, `source_sha256: 3935848a1641ed12...`.
+
+- [x] **HIPS-05**: Every producer that surfaces a cross-connection finding (whitespace, HSI,
+      reverse-salient/find-bottlenecks, find-connections, eureka) renders the stamp on all three
+      surfaces (CLI, Desktop narration of a stored stamp, Cowork) with zero raw decimal and zero
+      banned over-claim; Larry Desktop narrates only a stored stamp, never computes one live. Plans
+      06, 16, 17, 18, 22, 23.
+      **Measured:** (2026-09-25) `node tests/test-355-no-decimal.cjs` 73/73 (all five producers, the
+      reach card, four prose fixtures, Theo up and down, 8 negative controls);
+      `node tests/test-355-tri-polar.cjs` 22/22; `node tests/test-355-stamp-format.cjs` 48/48;
+      `node tests/test-355-producer-whitespace-hsi.cjs` 58/58; `node tests/test-355-producer-rs-connections.cjs`
+      43/43; `node tests/test-355-producer-eureka.cjs` 54/54.
+
+- [x] **HIPS-06**: An accepted cross-connection finding files as a proposed opportunity through the
+      existing `navigation.cjs` harvest path only (never a second write door), SENS-13's evidence
+      bag fires once per finding via the idempotent ledger, and only a human gate promotion moves a
+      card's subject claim. Plans 19, 20, 22.
+      **Measured:** (2026-09-25) `node tests/test-355-filing.cjs` 43/43;
+      `node tests/test-355-side-channel-v2.cjs` 63/63; `node tests/test-355-gate-opportunity-promotion.cjs`
+      33/33; `node tests/test-355-sens13-fire-once.cjs` 21/21.
+
+- [x] **HIPS-07**: The first human-judged hit rate for the connection engines is recorded on fixture
+      rooms only, blind before any stamp, with per-room n and a 95% Wilson interval, never claimed
+      as a proof of value. Plans 03, 13, 24, 25.
+      **Measured:** (2026-09-25) `node tests/test-355-hit-rate-record.cjs` 93/93;
+      `node tests/test-355-label-cli.cjs` 96/96; `node tests/test-355-fixture-rooms.cjs` 34/34;
+      pooled useful rate 43/96 (44.8%, 95% Wilson 35.2% to 54.7%) across `room-ill-defined` (21/32,
+      65.6%), `room-extend` (15/26, 57.7%) and `room-control` (7/38, 18.4%) (355-VERIFICATION.md).
+      No target was set and none is implied; this is a starting mark, not a pass/fail bar.
+
+- [x] **HIPS-08**: The HSI thinking-mode Jev Choice is measured against the existing keyword-count
+      regex on a blind human gold, with a fixed adoption bar written before the run, and the bar is
+      never relaxed after results. Plans 03, 07, 15, 28.
+      **Measured:** (2026-09-25) `node tests/test-355-hsi-measurement-record.cjs` 101/101;
+      `node tests/test-355-jev-ceilings.cjs` 132/132; Jev full-set accuracy 42.22% / 42.22% / 44.44%
+      across 3 repeats (n=45) against the regex's 48.89%, gaps of -6.67 / -6.67 / -4.45 points against
+      a +10-point bar; **not_adopted**, signed by the navigator 2026-09-24 (355-JEV-MEASUREMENT.md).
+      355-28 (the conditional distillation plan) correctly no-op'd (SKIPPED) on this `not_adopted`
+      decision.
+
+- [x] **HIPS-09**: The citation-check policy (stated vs withheld rule) and the usefulness judge are
+      calibrated dev-time-only against a human gold, with the band computed from measured accuracy
+      (never Jev's own confidence number), and no verdict from this calibration reaches a runtime
+      stamp this phase (`judge` stays the zod literal `'none'`). Plans 07, 14, 26.
+      **Measured:** (2026-09-25) `node tests/test-355-jev-calibration-record.cjs` 110/110; stated-rule
+      exact agreement 41/43 (95.35%), auto-verdict slice 23/23 (100%, band high); withheld-rule exact
+      agreement 25/43 (58.14%), auto-verdict slice 10/12 (83.33%); usefulness-judge overall agreement
+      with the navigator's blind label 73/96 (76.04%), unverified-tier 79.27%, strong-tier 53.85%
+      (355-JEV-MEASUREMENT.md). Gold caveat carried forward: the citation gold is machine-labeled
+      (`claude-opus-5.5`, `labeler_kind: external_model`) and structurally cannot produce a
+      `supports` verdict in this item set (`deferred-items.md`, 355-14 Task 3).
+
+- [ ] **HIPS-10**: `bash tests/run-all-355.sh` exits 0 with the doctor --acceptance leg's failing-
+      point set a subset of the BASE_355 baseline, and every offline `tests/test-355-*.cjs` file is
+      registered in `lib/memory/run-feynman-tests.cjs`'s `TEST_FILES`. Plans 01, 21, 27.
+      **Status:** Left `[ ]` -- not fully clean. 355-27 Task 1 hard-gated the Part 8/Part 9 sweeps over
+      the full 6-file target list (a missing target now FAILS, never SKIPs), added the navigation-
+      chokepoint check on `scripts/eureka-portfolio-report.cjs` /
+      `lib/core/eureka/opportunity-harvest.cjs`, and registered all 30 `tests/test-355-*.cjs` files in
+      `lib/memory/run-feynman-tests.cjs` (`grep -c "tests', 'test-355-" lib/memory/run-feynman-tests.cjs`
+      = 30 = `ls tests/test-355-*.cjs | wc -l`; each of the 30 individually verified `exit 0` with
+      `TYPESAFE_API_KEY` unset, except `test-355-direction-agreement.cjs`'s documented leg-H
+      finding above). `bash tests/run-all-355.sh` itself reports PASS=69 FAIL=4 SKIP=0: three are the
+      BASE_355-documented external reds, unchanged (`test-355-direction-agreement.cjs` leg H,
+      `run-all-272.sh`'s `@huggingface/transformers` API gap, `part8-egress-guard.test.cjs` PB8-03);
+      the fourth is a NEW doctor `--acceptance` point, `icm-ruling-eval-fresh`
+      ("plugin_version has fallen more than one release behind"), caused by concurrent peer sessions
+      in this shared tree cutting plugin releases (v2.0.0-beta.49, v2.0.0-beta.50) past
+      `evals/icm/last-run.json`'s stamped 2.0.0-beta.48 without re-running the eval that refreshes
+      it -- that eval (`scripts/eval-icm-writers.cjs`) is confirmed Phase 353/356 peer territory
+      (355-BASELINE.md's own D-57 gate sweep), and the identical root cause independently fails
+      `tests/run-all-353.sh`'s own `section-command-ledger` leg live today even though that suite was
+      recorded green at Phase 353's own close-out. Per this plan's own instruction ("never
+      re-baseline"), this point was NOT added to the accepted baseline set and `tests/run-all-353.sh`
+      was NOT added to the no-regression legs; both exclusions are documented in
+      `tests/run-all-355.sh`'s own header. Separately, `node lib/memory/run-feynman-tests.cjs`'s full
+      historical registry (spanning every phase back to the earliest, not just Phase 355) could not
+      be run to completion this session: it stalls on a pre-existing, unrelated legacy test
+      (`test/84-smart-notebook-copilot.test.cjs`), confirmed unchanged by this or any Phase 355
+      session (`git status --short` clean) and outside every 355 plan's `files_modified`; not fixed
+      here (Scope Boundary rule), logged to `deferred-items.md`. This row stays open until a
+      navigator or a peer session (a) re-runs `scripts/eval-icm-writers.cjs` to refresh
+      `evals/icm/last-run.json` past the version drift, and (b) root-causes the pre-existing feynman-
+      runner hang -- neither is a Phase 355 file or a Phase 355 fix.
+
 ## Traceability
 
-373 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+383 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3364,7 +3496,11 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 343), plus SHARED-01..13 (Phase 347), plus STRAT-01..18 (Phase 345), plus ARB-01..16
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
-FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361).
+FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
+plus HIPS-01..10 (Phase 355). HIPS-01..10 were minted in the Phase 355 plan set (2026-09-23),
+ratifying `355-RESEARCH.md`'s proposed IDs for SPEC Requirements 1-7 plus the AI-SPEC's D15/D18
+dev-time measurements and the phase gate, and are registered here at phase close by
+`355-27-PLAN.md` Task 2, per the Phase 272/274/276/275/340 precedent.
 All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
@@ -3456,7 +3592,8 @@ stated reason, at phase close by `361-08-PLAN.md` Task 3.
 Roadmap phases must map all 373 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360 and DDR361
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361
+and HIPS
 families
 alike (the
 Phase 266 and 269
