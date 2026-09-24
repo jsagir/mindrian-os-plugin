@@ -241,13 +241,167 @@ function legDependentOutputs() {
   check('lib/core/floor-disclosure.cjs requires only node:fs and node:path', requireCount === 2 && /require\('node:fs'\)/.test(src) && /require\('node:path'\)/.test(src));
 }
 
-legLedgerShape();
-legValidateLedger();
-legResolveHits();
-legNegativeControl();
-legDependentOutputs();
+// ---------------------------------------------------------------------------
+// Phase 355-23: D-22 dependent-output render leg. For every disclosed
+// ledger row and each producer in its dependent_outputs, that producer's
+// own captured render (driven through the exact same render seams the
+// five producers' own D-27/D-29 output uses) contains disclosureLine(
+// producer) AND contains none of the row's own numeric values as a bare
+// decimal token. This corroborates D-30's general no-decimal sweep with a
+// floor-specific proof: a disclosed threshold's own literal value never
+// rides its dependent producer's rendered finding.
+// ---------------------------------------------------------------------------
+async function legDependentOutputRenders() {
+  console.log('--- leg 4b (Phase 355-23): dependent-output render leg ---');
 
-check('no network attempted (hygiene-355 net guard)', netGuard.attempts() === 0, String(netGuard.attempts()));
-netGuard.restore();
+  const whitespaceCommand = require('../scripts/whitespace-command.cjs');
+  const hsiToGraph = require('../scripts/hsi-to-graph.cjs');
+  const reverseSalientAgent = require('../lib/agents/reverse-salient-agent.cjs');
+  const stampConnections = require('../scripts/stamp-connections.cjs');
+  const eurekaRunner = require('../scripts/eureka-portfolio-report.cjs');
+  const verificationStamp = require('../lib/core/verification-stamp.cjs');
+  const directionConvention = require('../lib/core/direction-convention.cjs');
+  const floorDisclosure = require('../lib/core/floor-disclosure.cjs');
+  const { makeReplayCallTool } = require('./helpers/theo-replay-355.cjs');
 
-process.exit(checker.summary());
+  const stubFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'theo-stub-responses.json'), 'utf8'));
+  const gapsFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'whitespace-gaps.json'), 'utf8'));
+  const eurekaFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'eureka-report.json'), 'utf8'));
+  const rsFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'rs-pairs.json'), 'utf8'));
+
+  async function captureStdoutAsync(fn) {
+    const rawLines = [];
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (chunk) => { rawLines.push(String(chunk)); return true; };
+    try {
+      const result = await fn();
+      return { result, rawLines };
+    } finally {
+      process.stdout.write = original;
+    }
+  }
+
+  const minimalProvenanceEmbedded = {
+    run_mode: 'live', pairs_mode: 'graph', encoder_model: 'fixture-stub', encoder_dtype: 'stub', vec_backend: 'fixture',
+    ahp_weights: { strategic_fit: 0.5, validated_demand: 0.3, tech_econ_feasibility: 0.2 }, ahp_cr: 0.0, ahp_matrix_source: 'fixture',
+    tail_composition: 'fixture', growth_proxy: 'fixture', tail_thresholds: { attnCut: 0.5, growthCut: 0.5 },
+    tail_insufficient_structure: true, tail_suspect_noise: false, graph_nodes: 6, converges_pairs: 6, cohort_techs: 6,
+    pairs_scored: 6, scaffold_pairs_excluded: 0, container_pairs_excluded: 0, low_trust_pairs_excluded: 0, figure_guard_skipped: 0,
+    critic_resolution: 'fixture', honest_nouns: 'a fixture report, not a real room', run_date: '2026-09-24',
+    encoder_unavailable: false, degrade_cause: null,
+  };
+
+  function makeMdCtx(ranked) {
+    return {
+      provenance: minimalProvenanceEmbedded, roomDir: 'fixture-room', graphRel: 'fixture-graph.json', offline: true,
+      top: ranked.length, ranked: ranked, tailIds: new Set(eurekaFixture.embedded.tailIds),
+      tail: { insufficient_structure: true, suspect_noise: false, tail: [] }, tailPairs: [], statements: [],
+      techFor: () => ({ title: 'unused' }),
+    };
+  }
+
+  // Render text once per producer, reusing the exact same render seams
+  // tests/test-355-no-decimal.cjs and tests/test-355-stamp-coverage.cjs
+  // already drive.
+  const renders = {};
+
+  {
+    const gaps = gapsFixture.gaps.slice().sort((a, b) => (a.density_score || 0) - (b.density_score || 0));
+    const findings = gaps.map((g) => Object.assign({ direction: directionConvention.NONE }, whitespaceCommand.whitespaceEndpoints(g, 'zone')));
+    const stamps = await verificationStamp.stampFindings(findings, { callTool: makeReplayCallTool(stubFixture) });
+    renders.whitespace = whitespaceCommand.renderScanLines(gaps, stamps).join('\n');
+  }
+
+  {
+    const pairs = [
+      { left_title: 'Reverse Salient Analysis', right_title: 'Six Thinking Hats' },
+      { left_title: 'Cynefin Framework', right_title: 'Hedgehog Concept' },
+    ];
+    const findings = pairs.map((p) => {
+      const from = verificationStamp.resolveEndpoint({ title: p.left_title });
+      const to = verificationStamp.resolveEndpoint({ title: p.right_title });
+      return { fromHandle: from.name, toHandle: to.name, direction: directionConvention.NONE };
+    });
+    const stamps = await verificationStamp.stampFindings(findings, { callTool: makeReplayCallTool(stubFixture) });
+    renders.hsi = hsiToGraph.renderHsiFindings(pairs, stamps).join('\n');
+  }
+
+  {
+    const p = rsFixture.pairs[0];
+    const from = verificationStamp.resolveEndpoint({ title: p.source_title });
+    const to = verificationStamp.resolveEndpoint({ title: p.target_title });
+    const finding = { fromHandle: from.name, toHandle: to.name, direction: directionConvention.DIRECTIONS.indexOf(p.direction) !== -1 ? p.direction : directionConvention.NONE };
+    const stamp = await verificationStamp.stampFinding(finding, { callTool: makeReplayCallTool(stubFixture) });
+    const rsFinding = { body_text: p.source_title + ' is lagging relative to ' + p.target_title, brain_chain_text: '' };
+    renders['find-bottlenecks'] = reverseSalientAgent.renderBottleneckFinding(rsFinding, stamp).join('\n');
+  }
+
+  {
+    const { rawLines } = await captureStdoutAsync(() => stampConnections.main(['--pair', 'Reverse Salient Analysis|Six Thinking Hats'], { callTool: makeReplayCallTool(stubFixture) }));
+    renders['find-connections'] = rawLines.join('');
+  }
+
+  {
+    const ranked = JSON.parse(JSON.stringify(eurekaFixture.embedded.ranked));
+    await eurekaRunner.stampRankedPairs(ranked, {}, { callTool: makeReplayCallTool(stubFixture) });
+    const md = eurekaRunner.renderReport(makeMdCtx(ranked));
+    renders.eureka = md.split('## Ranked top')[1].split('## Tail quadrant')[0];
+  }
+
+  const raw = loadRawLedger();
+  const disclosedWithDeps = raw.rows.filter((r) => r.status === 'disclosed' && Array.isArray(r.dependent_outputs) && r.dependent_outputs.length > 0);
+  check('leg 4b: at least one disclosed row carries dependent_outputs', disclosedWithDeps.length > 0, String(disclosedWithDeps.length));
+
+  function flattenDecimals(value) {
+    const nums = Array.isArray(value) ? value : [value];
+    const decimals = [];
+    for (const n of nums) {
+      if (typeof n === 'number' && Number.isFinite(n) && !Number.isInteger(n)) decimals.push(n);
+    }
+    return decimals;
+  }
+
+  const disclosureMisses = [];
+  const decimalLeaks = [];
+
+  for (const row of disclosedWithDeps) {
+    for (const producerId of row.dependent_outputs) {
+      const text = renders[producerId];
+      if (typeof text !== 'string') continue; // every one of the five producers is covered above; defensive only
+      if (text.indexOf(floorDisclosure.disclosureLine(producerId)) === -1) {
+        disclosureMisses.push(row.id + ' -> ' + producerId);
+      }
+      const decimals = flattenDecimals(row.value);
+      for (const d of decimals) {
+        const token = String(d).replace(/\./g, '\\.');
+        const re = new RegExp('(^|[^0-9A-Za-z.])' + token + '([^0-9.]|$)');
+        if (re.test(text)) {
+          decimalLeaks.push(row.id + ' -> ' + producerId + ' :: ' + String(d));
+        }
+      }
+    }
+  }
+
+  check('leg 4b: every dependent producer render carries disclosureLine(producer)', disclosureMisses.length === 0, JSON.stringify(disclosureMisses.slice(0, 10)));
+  check("leg 4b: none of a disclosed row's own numeric values appear as a bare decimal token in its dependent producers' renders", decimalLeaks.length === 0, JSON.stringify(decimalLeaks.slice(0, 10)));
+}
+
+async function main() {
+  legLedgerShape();
+  legValidateLedger();
+  legResolveHits();
+  legNegativeControl();
+  legDependentOutputs();
+  await legDependentOutputRenders();
+
+  check('no network attempted (hygiene-355 net guard)', netGuard.attempts() === 0, String(netGuard.attempts()));
+  netGuard.restore();
+
+  process.exit(checker.summary());
+}
+
+main().catch((e) => {
+  console.error('test-355-floor-sweep: uncaught error: ' + String((e && e.stack) || e));
+  netGuard.restore();
+  process.exit(1);
+});
