@@ -269,7 +269,13 @@ check('T7 structural: rooms-open executes and mutating siblings cannot claim com
 // -------------------------------------------------------------------------
 function makeFakeServer() {
   const tools = {};
-  return { tools, tool(name, _desc, _schema, handler) { tools[name] = handler; } };
+  // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+  // config, handler) (v2 registration API); capture both forms.
+  return {
+    tools,
+    tool(name, _desc, _schema, handler) { tools[name] = handler; },
+    registerTool(name, _config, handler) { tools[name] = handler; },
+  };
 }
 
 function orchestrationHandler(bootRoomDir) {

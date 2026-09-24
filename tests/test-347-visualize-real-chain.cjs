@@ -174,7 +174,13 @@ const TOOL_ROUTER_SOURCE = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'tool-r
 // tests/test-232.1-room-state-density.cjs's own harness pattern).
 function makeFakeServer() {
   const tools = {};
-  return { tools, tool(name, _desc, _schema, handler) { tools[name] = handler; } };
+  // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+  // config, handler) (v2 registration API); capture both forms.
+  return {
+    tools,
+    tool(name, _desc, _schema, handler) { tools[name] = handler; },
+    registerTool(name, _config, handler) { tools[name] = handler; },
+  };
 }
 
 function responseText(res) {

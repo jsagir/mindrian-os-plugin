@@ -55,6 +55,9 @@ function makeFakeServer() {
   return {
     tools,
     tool(name, _desc, _schema, handler) { tools[name] = handler; },
+    // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+    // config, handler) (v2 registration API); capture both forms.
+    registerTool(name, _config, handler) { tools[name] = handler; },
   };
 }
 

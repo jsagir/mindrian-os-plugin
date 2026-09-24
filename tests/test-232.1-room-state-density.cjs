@@ -81,6 +81,12 @@ function makeFakeServer() {
   return {
     tools,
     tool(name, _desc, _schema, handler) { tools[name] = handler; },
+    // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+    // config, handler) (v2 registration API); this fake must capture the
+    // handler under BOTH forms so a handler still-unmigrated elsewhere in
+    // the same registration pass (server.tool) and an already-migrated one
+    // (server.registerTool) are both reachable by name.
+    registerTool(name, _config, handler) { tools[name] = handler; },
   };
 }
 

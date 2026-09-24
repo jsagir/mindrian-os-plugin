@@ -84,6 +84,16 @@ const stubServer = {
   tool: (name, description, schema, handler) => {
     captured.set(name, { description, schema, handler });
   },
+  // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+  // config, handler) (v2 registration API), config = { title, description,
+  // inputSchema }. Capture the same { description, schema, handler } shape
+  // the v1-variadic arm above builds, so downstream reads (e.g.
+  // captured.get('meeting').description) stay byte-identical regardless of
+  // which registration form the tool it looked up actually uses.
+  registerTool: (name, config, handler) => {
+    const cfg = config || {};
+    captured.set(name, { description: cfg.description, schema: cfg.inputSchema, handler });
+  },
 };
 
 registerRouterTools(stubServer, tmpRoomDir, REPO_ROOT, { full: '' }, 'cli');
@@ -175,6 +185,9 @@ const branchResponses = {};
   const captured2 = new Map();
   const stubServer2 = {
     tool: (name, desc2, schema2, handler2) => captured2.set(name, { handler: handler2 }),
+    // Phase 267-06: production tool-router.cjs now calls registerTool(name,
+    // config, handler) (v2 registration API); capture both forms.
+    registerTool: (name, config2, handler2) => captured2.set(name, { handler: handler2 }),
   };
   registerRouterTools(stubServer2, sentinelRoomDir, REPO_ROOT, { full: '' }, 'cli');
   const handler2 = captured2.get('meeting').handler;
