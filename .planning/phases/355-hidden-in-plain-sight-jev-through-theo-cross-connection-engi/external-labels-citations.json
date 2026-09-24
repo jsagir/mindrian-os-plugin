@@ -1,0 +1,181 @@
+{
+ "labeler": "claude-opus-5.5",
+ "labeler_kind": "external_model",
+ "independence": "clean (fresh to the model; opaque ids; shuffled)",
+ "rubric": "CLI legend only (rule withheld), same as the navigator sitting",
+ "received_at": "2026-09-24T10:57:36.584Z",
+ "items": [
+  {
+   "pair_id": "cp-021",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-011",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-012",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-018",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-037",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-020",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-014",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-041",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-009",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-010",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-002",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-034",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-042",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-004",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-031",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-026",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-027",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-019",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-007",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-038",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-029",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-036",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-040",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-024",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-015",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-039",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-032",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-003",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-030",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-033",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-022",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-006",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-008",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-035",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-028",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-017",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-016",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-001",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-005",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-013",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-025",
+   "label": "says_nothing"
+  },
+  {
+   "pair_id": "cp-043",
+   "label": "contradicts"
+  },
+  {
+   "pair_id": "cp-023",
+   "label": "says_nothing"
+  }
+ ]
+}

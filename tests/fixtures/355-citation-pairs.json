@@ -1,0 +1,660 @@
+{
+  "_labeling_note": "Machine-labeled gold, Phase 355 (citations), under the navigator ruling of 2026-09-24 (the navigator's own blind sitting for this set is recorded separately, in the session file).",
+  "labeler": "claude-opus-5.5",
+  "labeler_kind": "external_model",
+  "fixture_sha256": "ad6ee535d579038a57a5512e9c671ce1670dacb15f2bd923d2aaf1a4bae17767",
+  "labeled_at": "2026-09-24T11:13:49.743Z",
+  "items": [
+    {
+      "id": "cp-001",
+      "claim": "Six Thinking Hats and Yellow Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Yellow Hat Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-002",
+      "claim": "Six Thinking Hats and Blue Hat Thinking: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Blue Hat Thinking"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-003",
+      "claim": "Six Thinking Hats and Red Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "feeds into",
+          "to": "Red Hat Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-004",
+      "claim": "Business Model Canvas and Lean Canvas: same meaning in different words.",
+      "path": [
+        {
+          "from": "Business Model Canvas",
+          "relation": "feeds into",
+          "to": "Effectuation"
+        },
+        {
+          "from": "Effectuation",
+          "relation": "feeds into",
+          "to": "Lean Canvas"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-005",
+      "claim": "Reverse Salient Analysis and Dominant Design: same meaning in different words.",
+      "path": [
+        {
+          "from": "Reverse Salient Analysis",
+          "relation": "feeds into",
+          "to": "Dominant Design"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-006",
+      "claim": "Dominant Design and S-Curve Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Dominant Design",
+          "relation": "feeds into",
+          "to": "S-Curve Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-007",
+      "claim": "MECE (Mutually Exclusive, Collectively Exhaustive) and The Pyramid Principle: same meaning in different words.",
+      "path": [
+        {
+          "from": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+          "relation": "feeds into",
+          "to": "The Pyramid Principle"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-008",
+      "claim": "Systems Thinking and Stock and Flow Diagrams: same meaning in different words.",
+      "path": [
+        {
+          "from": "Systems Thinking",
+          "relation": "feeds into",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "feeds into",
+          "to": "Stock and Flow Diagrams"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-009",
+      "claim": "Level 5 Leadership and Servant Leadership: same meaning in different words.",
+      "path": [
+        {
+          "from": "Level 5 Leadership",
+          "relation": "feeds into",
+          "to": "Servant Leadership"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-010",
+      "claim": "Situational Leadership and Adaptive Leadership: same meaning in different words.",
+      "path": [
+        {
+          "from": "Situational Leadership",
+          "relation": "feeds into",
+          "to": "Adaptive Leadership"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-011",
+      "claim": "Financial Due Diligence Framework and Business Model Canvas: same meaning in different words.",
+      "path": [
+        {
+          "from": "Financial Due Diligence Framework",
+          "relation": "complements",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-012",
+      "claim": "Dominant Design and Creative Destruction: same meaning in different words.",
+      "path": [
+        {
+          "from": "Dominant Design",
+          "relation": "feeds into",
+          "to": "S-Curve Analysis"
+        },
+        {
+          "from": "S-Curve Analysis",
+          "relation": "feeds into",
+          "to": "Creative Destruction"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-013",
+      "claim": "Reverse Salient Analysis and Theory of Constraints: same words with different meaning.",
+      "path": [
+        {
+          "from": "Reverse Salient Analysis",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Theory of Constraints"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-014",
+      "claim": "Issue Trees and The Pyramid Principle: same words with different meaning.",
+      "path": [
+        {
+          "from": "Issue Trees",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "The Pyramid Principle"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-015",
+      "claim": "Jobs-to-be-Done for Business Models and Jobs to Be Done (JTBD): same words with different meaning.",
+      "path": [
+        {
+          "from": "Jobs-to-be-Done for Business Models",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Jobs to Be Done (JTBD)"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-016",
+      "claim": "Scenario Planning and Shell Scenario Planning Method: same words with different meaning.",
+      "path": [
+        {
+          "from": "Scenario Planning",
+          "relation": "part of",
+          "to": "Shell Scenario Planning Method"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-017",
+      "claim": "Distributed Leadership and Systems Leadership: same words with different meaning.",
+      "path": [
+        {
+          "from": "Distributed Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Systems Leadership"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-018",
+      "claim": "Stockdale Paradox and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Stockdale Paradox",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-019",
+      "claim": "Opportunity Recognition as Pattern Recognition and Pattern Recognition: same words with different meaning.",
+      "path": [
+        {
+          "from": "Opportunity Recognition as Pattern Recognition",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Pattern Recognition"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-020",
+      "claim": "Disruptive Innovation and Sustaining vs Disruptive Innovation: same words with different meaning.",
+      "path": [
+        {
+          "from": "Disruptive Innovation",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Sustaining vs Disruptive Innovation"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-021",
+      "claim": "Level 5 Leadership and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Level 5 Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-022",
+      "claim": "Servant Leadership and Design Thinking: same words with different meaning.",
+      "path": [
+        {
+          "from": "Servant Leadership",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Design Thinking"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-023",
+      "claim": "Systems Thinking and Business Model Canvas: same words with different meaning.",
+      "path": [
+        {
+          "from": "Systems Thinking",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Business Model Canvas"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-024",
+      "claim": "Theory of Constraints and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Theory of Constraints",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "feeds into",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-025",
+      "claim": "PEST Analysis and Wallas Four-Stage Model of the Creative Process: same meaning in different words.",
+      "path": [
+        {
+          "from": "PEST Analysis",
+          "relation": "feeds into",
+          "to": "Adoption-Capacity Theory"
+        },
+        {
+          "from": "Adoption-Capacity Theory",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Wallas Four-Stage Model of the Creative Process"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-026",
+      "claim": "Root Cause Analysis and Issue Trees: same meaning in different words.",
+      "path": [
+        {
+          "from": "Root Cause Analysis",
+          "relation": "feeds into",
+          "to": "Causal Loop Diagrams"
+        },
+        {
+          "from": "Causal Loop Diagrams",
+          "relation": "sourced from",
+          "to": "[BrainRecord]"
+        },
+        {
+          "from": "[BrainRecord]",
+          "relation": "sourced from",
+          "to": "Issue Trees"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-027",
+      "claim": "Design Thinking and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "addresses problem type",
+          "to": "[DomainConcept]"
+        },
+        {
+          "from": "[DomainConcept]",
+          "relation": "addresses problem type",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-028",
+      "claim": "Six Thinking Hats and Root Cause Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "complements",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-029",
+      "claim": "Six Thinking Hats and Root Cause Analysis: same words with different meaning.",
+      "path": [
+        {
+          "from": "Six Thinking Hats",
+          "relation": "complements",
+          "to": "Root Cause Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-030",
+      "claim": "Design Thinking and Scenario Planning: same meaning in different words.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-031",
+      "claim": "Design Thinking and Scenario Planning: same words with different meaning.",
+      "path": [
+        {
+          "from": "Design Thinking",
+          "relation": "complements",
+          "to": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "from": "Jobs to Be Done (JTBD)",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-032",
+      "claim": "OODA Loop and Scenario Planning: same meaning in different words.",
+      "path": [
+        {
+          "from": "OODA Loop",
+          "relation": "complements",
+          "to": "Cynefin Framework"
+        },
+        {
+          "from": "Cynefin Framework",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-033",
+      "claim": "OODA Loop and Scenario Planning: same words with different meaning.",
+      "path": [
+        {
+          "from": "OODA Loop",
+          "relation": "complements",
+          "to": "Cynefin Framework"
+        },
+        {
+          "from": "Cynefin Framework",
+          "relation": "feeds into",
+          "to": "Scenario Planning"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-034",
+      "claim": "Cynefin Framework and Reverse Salient Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Cynefin Framework",
+          "relation": "complements",
+          "to": "OODA Loop"
+        },
+        {
+          "from": "OODA Loop",
+          "relation": "guarded by",
+          "to": "Reverse Salient Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-035",
+      "claim": "Cynefin Framework and Reverse Salient Analysis: same words with different meaning.",
+      "path": [
+        {
+          "from": "Cynefin Framework",
+          "relation": "complements",
+          "to": "OODA Loop"
+        },
+        {
+          "from": "OODA Loop",
+          "relation": "guarded by",
+          "to": "Reverse Salient Analysis"
+        }
+      ],
+      "gold": "says_nothing"
+    },
+    {
+      "id": "cp-036",
+      "claim": "Consider-The-Opposite and CAF Consider All Factors: same meaning in different words.",
+      "path": [
+        {
+          "from": "Consider-The-Opposite",
+          "relation": "contrasts with",
+          "to": "CAF Consider All Factors"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-037",
+      "claim": "Devils Advocacy and Truth-Seeking Groups / Decision Pods: same meaning in different words.",
+      "path": [
+        {
+          "from": "Devils Advocacy",
+          "relation": "contrasts with",
+          "to": "Truth-Seeking Groups / Decision Pods"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-038",
+      "claim": "Red Teaming and Devils Advocacy: same meaning in different words.",
+      "path": [
+        {
+          "from": "Red Teaming",
+          "relation": "contrasts with",
+          "to": "Devils Advocacy"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-039",
+      "claim": "Pre-mortem Analysis and Idealized Design: same meaning in different words.",
+      "path": [
+        {
+          "from": "Pre-mortem Analysis",
+          "relation": "contrasts with",
+          "to": "Idealized Design"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-040",
+      "claim": "Sustaining vs Disruptive Innovation and Disruptive Innovation: same meaning in different words.",
+      "path": [
+        {
+          "from": "Sustaining vs Disruptive Innovation",
+          "relation": "contrasts with",
+          "to": "Disruptive Innovation"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-041",
+      "claim": "Bootstrap Philosophy and Customer Funded Business: same meaning in different words.",
+      "path": [
+        {
+          "from": "Bootstrap Philosophy",
+          "relation": "contrasts with",
+          "to": "Customer Funded Business"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-042",
+      "claim": "Opposite Plan and Consider-The-Opposite: same meaning in different words.",
+      "path": [
+        {
+          "from": "Opposite Plan",
+          "relation": "contrasts with",
+          "to": "Consider-The-Opposite"
+        }
+      ],
+      "gold": "contradicts"
+    },
+    {
+      "id": "cp-043",
+      "claim": "Black Hat Thinking and Yellow Hat Analysis: same meaning in different words.",
+      "path": [
+        {
+          "from": "Black Hat Thinking",
+          "relation": "contrasts with",
+          "to": "Yellow Hat Analysis"
+        }
+      ],
+      "gold": "contradicts"
+    }
+  ]
+}
