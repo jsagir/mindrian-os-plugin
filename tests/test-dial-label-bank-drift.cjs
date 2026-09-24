@@ -256,6 +256,46 @@ check('the generic fallback one_line is sourced from jtbd-taxonomy.json explore 
   assert.ok(out.label.indexOf('{') === -1, 'fallback must not carry a raw slot');
 });
 
+// ---------- 8. Amended Phase 355 D-41: the deep_research stamped-finding
+// card variant (HIPS-06, HIPS-05). A SENS-13 (eureka_bridge) reach's card
+// carries its stamp instead of the ordinary {topic}/{framework} sentence;
+// the variant bypasses {slot} resolution entirely and never invokes the
+// Part-8 egress audit (stamp_path is a pre-rendered LOCAL string, never a
+// raw {framework} input). ----------
+check('Amended Phase 355 D-41: a verified eureka_bridge card renders "verified through <stamp_path>"', () => {
+  const out = composer.composeLabel('deep_research', {
+    signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'Reverse Salient Analysis -- EXTENDS -- Six Thinking Hats',
+  });
+  assert.equal(out.label, 'verified through Reverse Salient Analysis -- EXTENDS -- Six Thinking Hats');
+  assert.equal(out.degraded, false, 'a stamped card is never the degraded generic line');
+  assert.equal(out.canonical_verb, 'framework-led deep research plan', 'canonical_verb still persists to the graph edge');
+});
+
+check('Amended Phase 355 D-41: an unverified eureka_bridge card renders the exact unverified sentence', () => {
+  const out = composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'unverified' });
+  assert.equal(out.label, 'unverified - novel or hallucinated, verify with an expert');
+  assert.equal(out.degraded, false);
+});
+
+check('Amended Phase 355 D-41: the stamped-finding variant never invokes the egress audit (render-only)', () => {
+  const before = composer._auditCallCount();
+  composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'A -- EXTENDS -- B' });
+  composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'unverified' });
+  const after = composer._auditCallCount();
+  assert.equal(after, before, 'the stamped-finding variant invoked the egress audit (count moved)');
+});
+
+check('Amended Phase 355 D-41: an ordinary deep_research call (no eureka_bridge signal) is unaffected', () => {
+  const out = composer.composeLabel('deep_research', { topic: 'pricing', framework: 'SWOT' });
+  assert.ok(out.label.indexOf('pricing') !== -1 && out.label.indexOf('SWOT') !== -1, 'the ordinary JTBD sentence still renders');
+});
+
+check('Amended Phase 355 D-41: signal eureka_bridge alone (no stamp_verification) falls through to the ordinary ladder', () => {
+  const out = composer.composeLabel('deep_research', { signal: 'eureka_bridge', topic: 'pricing', framework: 'SWOT' });
+  assert.ok(out.label.indexOf('unverified') === -1 && out.label.indexOf('verified through') === -1,
+    'a card missing stamp_verification must never render the stamped variant');
+});
+
 // ---------- summary ----------
 if (failures > 0) {
   console.error('\nDIALTUI-05 drift test: ' + failures + ' assertion group(s) FAILED');
