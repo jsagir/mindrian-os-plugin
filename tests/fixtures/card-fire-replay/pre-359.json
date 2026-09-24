@@ -1,0 +1,319 @@
+{
+  "pre_359_sha": "2797903a005b7e0500b74c0af70ea86f6f7958fc",
+  "recorded_at": "2026-09-24T12:11:04.415Z",
+  "why": "the last commit before any Phase 359 runtime or prose change; the R5 inertness snapshot and --code-root git:<sha> anchor",
+  "runtime_files": {
+    "scripts/check-card-fire.cjs": "d380b7c9197d222a3172c1604178fc177b013085c200c139befa4352da0ab884",
+    "lib/core/gate-relevance.cjs": "8ab8ad5e86eaf8a34103202e0196bba16e0458b30372a916f302e8c735e46f89",
+    "lib/mcp/stop-gate-handler.cjs": "8c347610f0e8ca9abf6620c8be685b9c2e71ab835c5eea61e01f03e3346cd126",
+    "lib/hmi/turn-text.cjs": "1f523f2fd55630eb4375c90330b8388e264b9774c1e805d87d4b8a28aab215ac",
+    "lib/hmi/voice-color-mark.cjs": "705454633554fccfe3ea6a946d19e4e695001388d88c2692d5f427073d267997",
+    "lib/mcp/runtime-instructions.cjs": "4d0087c7245c3c3de5b05238106b49969338fda2f4eca93e1bb0ce9a05217b27",
+    "scripts/session-start": "b8f68d2f4cf243b714ca378aa9278f26c3f8aa5102198f7b3f25ffdcc192b243",
+    "agents/larry-extended.md": "73127dd6d97f95ecf0a88f64136458c1c68d04b041b8428c431a2ca4c5b41437",
+    "skills/larry-personality/SKILL.md": "85c2779d5fbef6bc0eb22b559c227cb48afbf1853e8fbd3e767433db02d258c6"
+  },
+  "entry_count": 60,
+  "verdicts": {
+    "238:inline-academic-citation:s1": {
+      "cli_class": "pass",
+      "cli_reason": "backstop-uncorroborated-by-side-channel",
+      "mcp_class": "pass"
+    },
+    "238:footnote-reference-list:s1": {
+      "cli_class": "pass",
+      "cli_reason": "backstop-uncorroborated-by-side-channel",
+      "mcp_class": "pass"
+    },
+    "238:markdown-reference-link-definitions:s1": {
+      "cli_class": "pass",
+      "cli_reason": "backstop-uncorroborated-by-side-channel",
+      "mcp_class": "pass"
+    },
+    "238:array-indexing-in-prose:s1": {
+      "cli_class": "pass",
+      "cli_reason": "backstop-uncorroborated-by-side-channel",
+      "mcp_class": "pass"
+    },
+    "238:code-enum-indexing:s1": {
+      "cli_class": "pass",
+      "cli_reason": "backstop-uncorroborated-by-side-channel",
+      "mcp_class": "pass"
+    },
+    "238:benign-numbered-step-instructions:s1": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "238:benign-action-footer:s1": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "238:terse-turn-after-stale-reach-suggestion:s1": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "238:turn-following-already-answered-gate:s1": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "238:notification-only-turn:s1": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "238:genuine-multiline-bracket-box:s2": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:genuine-multiline-bracket-box:s3": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:genuine-bulleted-bracket-box:s2": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:genuine-bulleted-bracket-box:s3": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:type-1-2-or-3-literal:s2": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:type-1-2-or-3-literal:s3": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:reconstructed-two-honest-paths-fork:s2": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "238:reconstructed-two-honest-paths-fork:s3": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "debug-backstop-benign-list": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "debug-answered-gate-refires": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "debug-block-surface-simple-binary": {
+      "cli_class": "pass",
+      "cli_reason": "gate-is-simple-binary",
+      "mcp_class": "pass"
+    },
+    "debug-over-enforcement-stale-terse": {
+      "cli_class": "pass",
+      "cli_reason": "gate-irrelevant-to-turn",
+      "mcp_class": "pass"
+    },
+    "debug-relevance-check-gap-no-subject": {
+      "cli_class": "pass",
+      "cli_reason": "primary-gate-existence-unconfirmed",
+      "mcp_class": "pass"
+    },
+    "debug-stale-f1-irrelevant": {
+      "cli_class": "pass",
+      "cli_reason": "gate-irrelevant-to-turn",
+      "mcp_class": "pass"
+    },
+    "debug-option-shaped-prose-f8-chrome": {
+      "cli_class": "pass",
+      "cli_reason": "gate-irrelevant-to-turn",
+      "mcp_class": "pass"
+    },
+    "debug-room-bind-tool-result": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "debug-room-bind-task-notification": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "debug-intern-w1-labeled-fork": {
+      "cli_class": "block",
+      "cli_reason": "ascii-box-backstop-no-card",
+      "mcp_class": "block"
+    },
+    "debug-intern-w1-prose-fork": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "debug-reach-gate-stale-turn-input": {
+      "cli_class": "block",
+      "cli_reason": "reached-registry-gate-no-card",
+      "mcp_class": "block"
+    },
+    "debug-carveout-skill-meta-after-human": {
+      "cli_class": "block",
+      "cli_reason": "reached-registry-gate-no-card",
+      "mcp_class": "block"
+    },
+    "debug-carveout-image-meta-after-human": {
+      "cli_class": "block",
+      "cli_reason": "reached-registry-gate-no-card",
+      "mcp_class": "block"
+    },
+    "debug-harness-peer-after-tool-result": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "debug-harness-idle-notice": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "live-2026-09-23-01": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "live-2026-09-23-02": {
+      "cli_class": "pass",
+      "cli_reason": "gate-irrelevant-to-turn",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-091452": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-092655": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0f86dd63-065920": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0f86dd63-070027": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0f86dd63-093356": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-21829408-092938": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-21829408-093038": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-21829408-093053": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0f86dd63-092046": {
+      "cli_class": "block",
+      "cli_reason": "reached-registry-gate-no-card",
+      "mcp_class": "block"
+    },
+    "dogfood-0208790f-060830": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-063354": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-064501": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-065048": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-065507": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-065759": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-083847": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-084111": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-084140": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-084127": {
+      "cli_class": "pass",
+      "cli_reason": "preceding-turn-synthetic-no-user-engagement",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-060555": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-062150": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-062345": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-065535": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    },
+    "dogfood-0208790f-091355": {
+      "cli_class": "pass",
+      "cli_reason": "no-gate-signal",
+      "mcp_class": "pass"
+    }
+  }
+}
