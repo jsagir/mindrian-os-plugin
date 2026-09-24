@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.48 (in progress)
+## [2.0.0-beta.49] - 2026-09-24
 
 ### Added
 - **ICM section ruling system**: every room and sub-room now self-locates (a rebuildable
