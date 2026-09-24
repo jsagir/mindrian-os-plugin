@@ -5490,6 +5490,25 @@ Previously (267-05, parallel out-of-band plan, unrelated to the sequential 348 c
   tool still rejects arguments-absent. bash tests/run-all-267.sh PASS=23 FAIL=0 SKIP=10;
   doctor --acceptance 21/22 (sole fail pre-existing, peer-session tree state). Full detail
   in 267-05-SUMMARY.md.
+Previously (267-06, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): complete -- Wave 2's first plan, 12 of 51
+  registration-rewrite sites. Wrote tests/test-267-mcpv2-registration-api.cjs (a recording
+  fake McpServer, stack-frame call attribution so a registrar's own cascade into another
+  registrar never pollutes its verdict, --file per-commit mode plus a full-mode live
+  wireSnapshot check), proved genuine RED against the real unmigrated source (11 + 1
+  v1-variadic FAIL lines) before committing. Rewrote lib/mcp/tool-router.cjs's 11 sites
+  (room_state, room_content, room_graph, methodology, analysis, intelligence, meeting,
+  export, orchestration, room_bind, eureka_critic) and lib/mcp/contract-version.cjs's 1
+  site to server.registerTool(name, {title, description, inputSchema: z.object(shape)},
+  cb) on the still-v1 McpServer, one commit per file, CIRS gate green at each (registry
+  --check clean, no new shape violation, 31 connector descriptors unchanged). Fixed a
+  Rule-1 regression this rewrite directly caused in 10 pre-existing test fixtures whose
+  fake McpServer only understood the removed v1 tool() form (added a registerTool()
+  capture sibling to each; all 10 green after). bash tests/run-all-198.sh (13/3/0) and
+  run-all-267.sh (23/1-expected/9) both match 267-BASELINE.md exactly; full-mode
+  registration-API check stays documented-RED until 267-09. One pre-existing, unrelated
+  test-347 safeResolveSection count mismatch logged to deferred-items.md, not fixed.
+  Full detail in 267-06-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
