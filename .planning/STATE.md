@@ -5437,6 +5437,20 @@ Previously (267-02, parallel out-of-band plan, unrelated to the sequential 348 c
   non-invasive node -r SDK-error-text instrumentation that touched no repo file). Zero
   production files touched (git diff --stat against PLAN_BASE 782ecc466 over bin/lib/scripts/
   tests empty). Full detail in 267-02-SUMMARY.md.
+Previously (267-03, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): complete -- Wave 0 zod 4 + SDK 1.30.1 bump,
+  still on the v1 SDK, zero registration-code changes. Measured the zod-4 wire delta on a
+  scratch install (37 local tools lose additionalProperties:false at 40 sites, brain_query
+  gains propertyNames on a z.record site, eureka_critic + question_set gain safe-integer
+  int bounds, zero description diffs), pinned it into tests/fixtures/267/zod4-accepted-deltas.json,
+  and wrote tests/test-267-mcpv2-zod4-contract.cjs (MCPV2-03) RED-before/GREEN-after the
+  bump. Bumped zod to ^4.2.0 (resolved 4.6.5) and @modelcontextprotocol/sdk to ^1.30.1 in
+  lockstep across package.json/package-lock.json/npm-shrinkwrap.json (npm ls zod: one
+  deduped instance). Made tests/test-198-contract-schema.test.cjs zod-version-agnostic
+  (_zod.def.type or _def.typeName); same pre-existing "context_assemble" failure preserved
+  unchanged. Every suite in 267-BASELINE.md re-run with the same named pre-existing FAILs,
+  nothing newly red; git diff PLAN_BASE -- lib bin empty; bash tests/run-all-267.sh
+  PASS=21 FAIL=0 SKIP=12. Full detail in 267-03-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
