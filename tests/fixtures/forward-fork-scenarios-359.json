@@ -1,0 +1,312 @@
+{
+  "meta": {
+    "phase": "359-missed-fork-detection-larry-poses-a-genuine-decision-in-pros",
+    "sanitization_statement": "authored for this phase; no user, dogfood or transcript text (SPEC R9, Part 8)",
+    "model": "claude-sonnet-5",
+    "runs_per_scenario": 3,
+    "caps": { "per_run_usd": 0.40, "total_usd": 60 },
+    "vacuity_floor": { "min_pre_missed": 6, "min_fraction_of_pre_fork_runs": 0.2 }
+  },
+  "scenarios": [
+    {
+      "id": "fwd-fork-01",
+      "poses_fork": true,
+      "turns": [
+        "I'm scoping a new initiative and want a sounding board before I commit any time.",
+        "The team already has a rough hypothesis about the customer problem, but nothing validated yet.",
+        "Two things are pulling at me right now: run the discovery interviews first, or just start building the plan document and fill gaps as we go. Which way should I lean?"
+      ],
+      "fork_labels": [
+        "Run the discovery interviews first",
+        "Start building the plan document now",
+        "What if we sketched the plan and ran two interviews in parallel this week"
+      ],
+      "why": "genuine two-way research-first vs build-first fork on the last turn, intern-w1 shape"
+    },
+    {
+      "id": "fwd-fork-02",
+      "poses_fork": true,
+      "turns": [
+        "We have been tracking a small feature for a few weeks.",
+        "Early numbers are promising but the sample is still thin.",
+        "Do I ship this to everyone now, or hold another two weeks to get a cleaner read on the data?"
+      ],
+      "fork_labels": [
+        "Ship it to everyone now",
+        "Hold two more weeks for cleaner data",
+        "What if we shipped to half the users and kept the other half as a control group"
+      ],
+      "why": "ship-now vs wait-for-data fork, timing decision with real stakes"
+    },
+    {
+      "id": "fwd-fork-03",
+      "poses_fork": true,
+      "turns": [
+        "Hiring is eating a lot of my week right now.",
+        "I have a stack of resumes and a half-built outreach script.",
+        "Should I block off tomorrow for interviews, or finish the outreach automation first so the pipeline does not dry up?"
+      ],
+      "fork_labels": [
+        "Block tomorrow for interviews",
+        "Finish the outreach automation first",
+        "What if we asked the current pipeline for referrals instead of outreach"
+      ],
+      "why": "resource-allocation fork between two legitimate near-term priorities"
+    },
+    {
+      "id": "fwd-fork-04",
+      "poses_fork": true,
+      "turns": [
+        "I have got three weeks before the next check-in.",
+        "The core assumption has not been tested against a real user yet.",
+        "I keep going back and forth: build the MVP now and learn from usage, or spend a week validating the core assumption first."
+      ],
+      "fork_labels": [
+        "Build the MVP now",
+        "Spend a week validating the assumption first",
+        "What if we ran a fake-door test instead of building anything at all"
+      ],
+      "why": "build-vs-validate fork, sanitized variant of the intern-w1 research-vs-build shape"
+    },
+    {
+      "id": "fwd-fork-05",
+      "poses_fork": true,
+      "turns": [
+        "Funding is on my mind again this week.",
+        "There is a grant deadline coming up and also a bootstrap path that keeps things scrappy.",
+        "Chase the grant application this month, or keep bootstrapping and skip the grant cycle entirely?"
+      ],
+      "fork_labels": [
+        "Chase the grant application this month",
+        "Keep bootstrapping and skip the grant",
+        "What if we applied for the grant but built as though it will never arrive"
+      ],
+      "why": "funding-path fork with a real deadline pressure"
+    },
+    {
+      "id": "fwd-fork-06",
+      "poses_fork": true,
+      "turns": [
+        "The research results are further along than I expected.",
+        "I have not decided how to protect or publish them yet.",
+        "Write the paper first, or file the patent first before anyone else sees the method?"
+      ],
+      "fork_labels": [
+        "Write the paper first",
+        "File the patent first",
+        "What if we filed a provisional patent and drafted the paper at the same time"
+      ],
+      "why": "publish-vs-protect fork common to research-adjacent ventures"
+    },
+    {
+      "id": "fwd-fork-07",
+      "poses_fork": true,
+      "turns": [
+        "We just closed a small round.",
+        "There is pressure to hire fast, but the current team is still finding its footing.",
+        "Grow the team now to cover more ground, or stay lean for another quarter and prove the model first?"
+      ],
+      "fork_labels": [
+        "Grow the team now",
+        "Stay lean for another quarter",
+        "What if we hired one contractor for the riskiest gap instead of a team"
+      ],
+      "why": "team-growth-timing fork, classic post-funding decision"
+    },
+    {
+      "id": "fwd-fork-08",
+      "poses_fork": true,
+      "turns": [
+        "The infrastructure work is piling up.",
+        "We could build the tooling ourselves or buy something off the shelf.",
+        "Build this in-house so we control it, or bring in a vendor and move faster in the short term?"
+      ],
+      "fork_labels": [
+        "Build it in-house",
+        "Bring in a vendor",
+        "What if we vendored the boring parts and built only the core ourselves"
+      ],
+      "why": "build-vs-buy fork, a recurring venture-operations decision"
+    },
+    {
+      "id": "fwd-fork-09",
+      "poses_fork": true,
+      "turns": [
+        "There are two workstreams competing for the same two people.",
+        "Both feel urgent but neither is fully staffed.",
+        "Run them one after another so each gets full attention, or split the team and run both in parallel?"
+      ],
+      "fork_labels": [
+        "Run them sequentially",
+        "Split the team and run both in parallel",
+        "What if we ran both in parallel but capped one workstream to a single day a week"
+      ],
+      "why": "sequencing fork under shared, scarce resources"
+    },
+    {
+      "id": "fwd-fork-10",
+      "poses_fork": true,
+      "turns": [
+        "The product is ready enough to show someone.",
+        "I keep debating how wide to go on day one.",
+        "Pilot with a single customer and go deep, or launch broadly and see who bites?"
+      ],
+      "fork_labels": [
+        "Pilot with a single customer",
+        "Launch broadly right away",
+        "What if we launched broadly but held the core feature back for the pilot only"
+      ],
+      "why": "go-to-market breadth fork at first launch"
+    },
+    {
+      "id": "fwd-fork-11",
+      "poses_fork": true,
+      "turns": [
+        "The codebase has some rough edges that are slowing the team down.",
+        "There is also a backlog of feature requests from the last round of user calls.",
+        "Spend this sprint refactoring the rough parts, or push through and ship the requested features first?"
+      ],
+      "fork_labels": [
+        "Refactor the rough parts this sprint",
+        "Ship the requested features first",
+        "What if we refactored only the module blocking the next three features"
+      ],
+      "why": "tech-debt vs feature-velocity fork, common late-planning decision"
+    },
+    {
+      "id": "fwd-fork-12",
+      "poses_fork": true,
+      "turns": [
+        "A promising inbound lead showed up out of nowhere.",
+        "It was not part of the outbound plan we agreed on last week.",
+        "Chase this inbound lead hard, or stay disciplined and keep working the outbound plan as agreed?"
+      ],
+      "fork_labels": [
+        "Chase the inbound lead hard",
+        "Stay disciplined on the outbound plan",
+        "What if we gave the lead one week before returning fully to outbound"
+      ],
+      "why": "focus-discipline fork, a distraction-shaped genuine decision"
+    },
+    {
+      "id": "fwd-ctrl-01",
+      "poses_fork": false,
+      "turns": [
+        "Quick terminology check before we keep going.",
+        "I want to make sure I am using a term correctly in my notes.",
+        "What does runway mean in the context of a venture's finances?"
+      ],
+      "why": "single-right-answer factual definition, no navigator decision involved"
+    },
+    {
+      "id": "fwd-ctrl-02",
+      "poses_fork": false,
+      "turns": [
+        "I just finished a long call and want it captured cleanly.",
+        "The call covered budget, timeline and one open risk.",
+        "Draft a two-paragraph summary of that call for my notes."
+      ],
+      "why": "plain instruction, one correct action, no fork"
+    },
+    {
+      "id": "fwd-ctrl-03",
+      "poses_fork": false,
+      "turns": [
+        "That framework you walked me through earlier really clicked.",
+        "I used it in a meeting today and it landed well.",
+        "Thanks, that was exactly what I needed."
+      ],
+      "why": "closing thank-you, no decision pending"
+    },
+    {
+      "id": "fwd-ctrl-04",
+      "poses_fork": false,
+      "turns": [
+        "You offered to sketch an outline for the pitch deck last time.",
+        "I have thought about it and I do not have a better idea.",
+        "Yes, go ahead and sketch that outline."
+      ],
+      "why": "accepting an earlier offer, one path already chosen"
+    },
+    {
+      "id": "fwd-ctrl-05",
+      "poses_fork": false,
+      "turns": [
+        "I am filling out a template and hit a section I do not understand.",
+        "It is asking for something called a moat and something called a wedge.",
+        "Can you explain the difference between a moat and a wedge in plain terms?"
+      ],
+      "why": "clarifying-question pair, informational, backstop-benign shape"
+    },
+    {
+      "id": "fwd-ctrl-06",
+      "poses_fork": false,
+      "turns": [
+        "I want to get organized before next week's review.",
+        "There are a few administrative things I keep forgetting.",
+        "List the steps to renew our business registration this quarter."
+      ],
+      "why": "informational step-list request, no decision to be made"
+    },
+    {
+      "id": "fwd-ctrl-07",
+      "poses_fork": false,
+      "turns": [
+        "I am double-checking a number before I present it.",
+        "It is a basic calculation, not a judgment call.",
+        "What is 15 percent of 40,000?"
+      ],
+      "why": "single-right-answer arithmetic question"
+    },
+    {
+      "id": "fwd-ctrl-08",
+      "poses_fork": false,
+      "turns": [
+        "I wrote a short paragraph for the newsletter.",
+        "I want a second pass before it goes out.",
+        "Proofread this paragraph for tone and typos: our team shipped three updates this month and we are gratefull for the support."
+      ],
+      "why": "proofreading instruction, one right way to help"
+    },
+    {
+      "id": "fwd-ctrl-09",
+      "poses_fork": false,
+      "turns": [
+        "I am citing a few sources in a report.",
+        "I have the list but it is not formatted consistently.",
+        "Format this list of sources as footnotes: the March update, the April survey, and the customer call notes."
+      ],
+      "why": "footnote-reference-list request, backstop-benign shape, not a fork"
+    },
+    {
+      "id": "fwd-ctrl-10",
+      "poses_fork": false,
+      "turns": [
+        "I was thinking about why the last launch felt rushed.",
+        "Looking back, the cause seems fairly obvious now.",
+        "Was the timeline too aggressive? Yes, clearly, in hindsight it was."
+      ],
+      "why": "rhetorical question the same turn answers, no live fork"
+    },
+    {
+      "id": "fwd-ctrl-11",
+      "poses_fork": false,
+      "turns": [
+        "I want to note something small before I forget it.",
+        "It is a housekeeping item, not a strategic call.",
+        "Please reschedule tomorrow's sync to Thursday at the same time."
+      ],
+      "why": "simple scheduling instruction, no genuine navigator decision"
+    },
+    {
+      "id": "fwd-ctrl-12",
+      "poses_fork": false,
+      "turns": [
+        "You suggested last time that I track this metric weekly instead of monthly.",
+        "That makes sense given how fast things are moving.",
+        "Okay, switch to weekly tracking for that metric."
+      ],
+      "why": "accepting a previously suggested next step, single path"
+    }
+  ]
+}
