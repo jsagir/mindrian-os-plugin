@@ -5451,6 +5451,22 @@ Previously (267-03, parallel out-of-band plan, unrelated to the sequential 348 c
   unchanged. Every suite in 267-BASELINE.md re-run with the same named pre-existing FAILs,
   nothing newly red; git diff PLAN_BASE -- lib bin empty; bash tests/run-all-267.sh
   PASS=21 FAIL=0 SKIP=12. Full detail in 267-03-SUMMARY.md.
+Previously (267-04, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): PARTIAL -- 2 of 3 tasks complete, then
+  BLOCKED on a checkpoint:human-action gate (Task 3, gate="blocking") that genuinely
+  cannot be automated from this shell. Task 1 shipped the reusable handshake-only
+  stdio tee (tests/helpers/mcp-stdio-tee.cjs), its self-test
+  (tests/test-267-mcpv2-tee.cjs, 8/8 checks green), and the opt-in live CLI probe
+  (tests/test-267-mcpv2-cli-probe.cjs, exits 77 unless MOS_267_LIVE_CLI_PROBE=1).
+  Task 2 ran the live probe once against both the local server and the brain shim
+  (claude 2.1.281 CLI, real result not ENV GAP: plain initialize at 2025-11-25,
+  capabilityKeys ["roots","elicitation"], no server/discover -- zero drift from
+  267-RESEARCH.md's 2.1.280 wire tee), and opened
+  267-TRIPOLAR-PROBES.md with the CLI section filled and ready-to-paste Desktop/
+  Cowork config snippets. Task 3 needs an actual human to open Claude Desktop and
+  a Cowork VM and paste back handshake/process facts -- STOPPED per protocol
+  rather than fabricated. Full detail and exact resume steps in 267-04-SUMMARY.md
+  and 267-TRIPOLAR-PROBES.md's Desktop/Cowork sections.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
