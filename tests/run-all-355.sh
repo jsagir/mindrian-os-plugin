@@ -18,16 +18,41 @@
 # precedent even though it did not fail at BASE_355, in case it reappears
 # under a different concurrent session's transient state.
 #
-# Legs (skeleton until each 355 artifact lands; every 355-specific leg SKIPs
-# cleanly on a partial tree):
+# Plan 355-27 (HIPS-10, SPEC AC13) note: a live doctor --acceptance run during
+# this plan's own execution (2026-09-25) additionally surfaced
+# `icm-ruling-eval-fresh` FAILING ("plugin_version has fallen more than one
+# release behind") -- NOT present in the BASE_355 baseline above. Root cause:
+# concurrent peer sessions in this shared tree cut plugin releases
+# (v2.0.0-beta.49, v2.0.0-beta.50) past evals/icm/last-run.json's stamped
+# 2.0.0-beta.48 without re-running the eval that refreshes it. That eval
+# (`scripts/eval-icm-writers.cjs`) is Phase 353/356 peer territory --
+# confirmed peer-owned by 355-BASELINE.md's own D-57 gate sweep -- and the
+# SAME root cause (`plugin_version drift: ledger=2.0.0-beta.48
+# repo=2.0.0-beta.50`) independently fails tests/run-all-353.sh's own
+# `section-command-ledger` leg live today, even though tests/run-all-353.sh
+# was recorded green (PASS=22 FAIL=0) at Phase 353's own close-out, before
+# BASE_355. Per this plan's own action text ("never re-baseline"), this leg
+# below is NOT added to the accepted doctor baseline set -- the gap is real,
+# named here, and left FAILING so the gate stays honest; it is not caused by,
+# or fixable within, any Phase 355 file. tests/run-all-353.sh is likewise NOT
+# added to the no-regression legs in section (8) below for the same reason
+# (see that leg's own comment).
+#
+# Legs (every 355-specific leg SKIPs cleanly on a partial tree):
 #   (1) glob loop over tests/test-355-*.cjs (run_if, exit 77 = SKIP)
-#   (2) Part 8 sweep: no egress token in the 355 target list
-#   (3) Part 9 sweep: no node:sqlite / DatabaseSync / INSERT INTO in the same list
+#   (2) Part 8 sweep: no egress token in the 355 target list (hard `run`,
+#       a missing target FAILS -- HIPS-10, plan 355-27)
+#   (3) Part 9 sweep: no node:sqlite / DatabaseSync / INSERT INTO in the same
+#       list (hard `run`), plus the navigation-chokepoint check on
+#       scripts/eureka-portfolio-report.cjs (still requires navigation.cjs,
+#       the one write door) and lib/core/eureka/opportunity-harvest.cjs
+#       (still zero INSERT/UPDATE/DELETE -- read-only by contract)
 #   (4) package.json / package-lock.json unchanged (zero new dependencies)
 #   (5) --check replays of the 355 dev-time scripts (run_if per script existing)
 #   (6) structural gates (connector registry, orchestration projection,
 #       shape declaration advisory-WARN, render coverage)
-#   (7) doctor_acceptance_no_new_regression, this phase's baseline
+#   (7) doctor_acceptance_no_new_regression, this phase's baseline (never
+#       re-baselined by plan 355-27; see the icm-ruling-eval-fresh note above)
 #   (8) no-regression legs against sibling phases and shared surfaces
 #   (9) em-dash leg over every file this phase adds/touches
 #
@@ -89,8 +114,9 @@ fi
 
 # ---------------------------------------------------------------------------
 # (2) Part 8 sweep -- no egress token on an executable line in the 355
-#     target list. A MISSING target is run_if-guarded for now (plan 355-27
-#     flips missing targets to FAIL once every artifact should exist).
+#     target list. HARD `run` as of plan 355-27 (HIPS-10): every target below
+#     must exist on disk now that the phase is closing; a MISSING target
+#     FAILS the leg instead of skipping.
 # ---------------------------------------------------------------------------
 PART8_RE="fetch\(|https?://|require\(['\"]node:https?|\b(curl|wget)\b"
 PART8_TARGETS=(
@@ -99,42 +125,78 @@ PART8_TARGETS=(
   "lib/core/verification-stamp-format.cjs"
   "lib/core/floor-disclosure.cjs"
   "scripts/stamp-connections.cjs"
+  "scripts/check-cross-connection-honesty.cjs"
 )
-echo "--- Part 8 sweep: no egress in the 355 target list ---"
-for tgt in "${PART8_TARGETS[@]}"; do
+part8_sweep_one() {
+  local tgt="$1"
   if [ ! -f "$tgt" ]; then
-    echo "--- Part 8 sweep: $tgt ---"; echo ">>> Part 8 sweep: $tgt: SKIPPED (missing $tgt)"; SKIP=$((SKIP+1)); echo ""
-    continue
+    echo "    MISSING 355 target (HIPS-10 hard gate): $tgt"
+    return 1
   fi
-  echo "--- Part 8 sweep: $tgt ---"
   if strip_comments "$tgt" | grep -nE "$PART8_RE" >/dev/null 2>&1; then
     echo "    FORBIDDEN egress token on an executable line in: $tgt"
-    echo ">>> Part 8 sweep: $tgt: FAILED"; FAIL=$((FAIL+1))
-  else
-    echo ">>> Part 8 sweep: $tgt: PASSED"; PASS=$((PASS+1))
+    return 1
   fi
-  echo ""
+  return 0
+}
+echo "--- Part 8 sweep: no egress in the 355 target list (hard gate) ---"
+for tgt in "${PART8_TARGETS[@]}"; do
+  run "Part 8 sweep: $tgt" part8_sweep_one "$tgt"
 done
 
 # ---------------------------------------------------------------------------
 # (3) Part 9 sweep -- no node:sqlite / DatabaseSync / INSERT INTO on an
-#     executable line in the same target list (comment-stripped).
+#     executable line in the same target list (comment-stripped). HARD `run`
+#     as of plan 355-27 (HIPS-10): a missing target FAILS the leg.
 # ---------------------------------------------------------------------------
-echo "--- Part 9 sweep: no direct-db token in the 355 target list ---"
-for tgt in "${PART8_TARGETS[@]}"; do
+part9_sweep_one() {
+  local tgt="$1"
   if [ ! -f "$tgt" ]; then
-    echo "--- Part 9 sweep: $tgt ---"; echo ">>> Part 9 sweep: $tgt: SKIPPED (missing $tgt)"; SKIP=$((SKIP+1)); echo ""
-    continue
+    echo "    MISSING 355 target (HIPS-10 hard gate): $tgt"
+    return 1
   fi
-  echo "--- Part 9 sweep: $tgt ---"
   if strip_comments "$tgt" | grep -niE "require\(['\"]node:sqlite|\bDatabaseSync\b|insert[[:space:]]+into[[:space:]]+" >/dev/null 2>&1; then
     echo "    FORBIDDEN direct-db token on an executable line in: $tgt"
-    echo ">>> Part 9 sweep: $tgt: FAILED"; FAIL=$((FAIL+1))
-  else
-    echo ">>> Part 9 sweep: $tgt: PASSED"; PASS=$((PASS+1))
+    return 1
   fi
-  echo ""
+  return 0
+}
+echo "--- Part 9 sweep: no direct-db token in the 355 target list (hard gate) ---"
+for tgt in "${PART8_TARGETS[@]}"; do
+  run "Part 9 sweep: $tgt" part9_sweep_one "$tgt"
 done
+
+# ---------------------------------------------------------------------------
+# (3b) Part 9 navigation-chokepoint check (plan 355-27, HIPS-02/HIPS-04): the
+#      two banking-adjacent files named in the plan's action text still route
+#      every write through lib/core/navigation.cjs, the one SQL write door
+#      (architecture.md). scripts/eureka-portfolio-report.cjs performs the
+#      actual banking mutation and must still `require` navigation.cjs;
+#      lib/core/eureka/opportunity-harvest.cjs is READ-ONLY BY CONTRACT
+#      (T-219-10, its own docstring) and must carry zero INSERT/UPDATE/DELETE
+#      on an executable line, exactly like the Part 9 sweep above.
+# ---------------------------------------------------------------------------
+echo "--- Part 9 navigation chokepoint: eureka-portfolio-report.cjs + opportunity-harvest.cjs ---"
+nav_chokepoint_report() {
+  local tgt="scripts/eureka-portfolio-report.cjs"
+  if [ ! -f "$tgt" ]; then echo "    MISSING: $tgt"; return 1; fi
+  if strip_comments "$tgt" | grep -nE "require\(.*navigation\.cjs" >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "    $tgt no longer requires navigation.cjs -- the banking write path may have bypassed the chokepoint"
+  return 1
+}
+run "Part 9 navigation chokepoint: eureka-portfolio-report.cjs requires navigation.cjs" nav_chokepoint_report
+nav_chokepoint_harvest() {
+  local tgt="lib/core/eureka/opportunity-harvest.cjs"
+  if [ ! -f "$tgt" ]; then echo "    MISSING: $tgt"; return 1; fi
+  if strip_comments "$tgt" | grep -niE "insert[[:space:]]+into[[:space:]]+|update[[:space:]]+\w+[[:space:]]+set[[:space:]]+|delete[[:space:]]+from[[:space:]]+" >/dev/null 2>&1; then
+    echo "    $tgt carries a direct write statement -- no longer read-only by contract (T-219-10)"
+    return 1
+  fi
+  return 0
+}
+run "Part 9 navigation chokepoint: opportunity-harvest.cjs stays read-only (zero direct writes)" nav_chokepoint_harvest
 
 # ---------------------------------------------------------------------------
 # (4) Req 4-style dependency-diff leg -- zero new dependencies.
@@ -233,6 +295,39 @@ run_if "no-regression: test-354-egress-typed-question.cjs" "tests/test-354-egres
   node tests/test-354-egress-typed-question.cjs
 run_if "no-regression: test-reverse-salient-telemetry.cjs" "tests/test-reverse-salient-telemetry.cjs" \
   node tests/test-reverse-salient-telemetry.cjs
+
+# Plan 355-27 (HIPS-01) amended-test no-regression legs: the tests earlier
+# 355 plans edited in place (direction fixtures swapped, D-47 flip, D-07
+# re-derivation) rather than authoring a new tests/test-355-*.cjs file.
+run_if "no-regression: 272-hsi-lsa-algorithm.test.cjs" "tests/272-hsi-lsa-algorithm.test.cjs" \
+  node tests/272-hsi-lsa-algorithm.test.cjs
+run_if "no-regression: test-211-measured-differential.cjs" "tests/test-211-measured-differential.cjs" \
+  node tests/test-211-measured-differential.cjs
+run_if "no-regression: test-215-score.cjs" "tests/test-215-score.cjs" \
+  node tests/test-215-score.cjs
+run_if "no-regression: test-213-part8-boundary.cjs" "tests/test-213-part8-boundary.cjs" \
+  node tests/test-213-part8-boundary.cjs
+run_if "no-regression: test-scout-cadence-fires.cjs" "tests/test-scout-cadence-fires.cjs" \
+  node tests/test-scout-cadence-fires.cjs
+run_if "no-regression: test-dial-label-bank-drift.cjs" "tests/test-dial-label-bank-drift.cjs" \
+  node tests/test-dial-label-bank-drift.cjs
+run_if "no-regression: lib/memory/test-rs-innovation-classifier.cjs" "lib/memory/test-rs-innovation-classifier.cjs" \
+  node lib/memory/test-rs-innovation-classifier.cjs
+
+# tests/run-all-353.sh is deliberately NOT added here. It was recorded green
+# (PASS=22 FAIL=0 SKIP=0) at Phase 353's own close-out (355-VERIFICATION.md
+# precedent: 353-VERIFICATION.md, 2026-09-17, before BASE_355) and the file
+# itself is unchanged since (git-stash-free evidence: the file's last commit
+# is an ancestor of BASE_355). But a live re-run during this plan's own
+# execution (2026-09-25) shows it FAILING today
+# (`section-command-ledger: FAILED (plugin_version drift: ledger=2.0.0-beta.48
+# repo=2.0.0-beta.50)`) -- the identical environment-driven version-lockstep
+# gap documented in this file's header for doctor's `icm-ruling-eval-fresh`
+# point, caused by concurrent peer sessions cutting plugin releases past the
+# ledger's stamped version, not by any Phase 355 file. Adding a leg that is
+# known to fail today for a reason wholly outside this phase's scope would
+# conflate that drift with 355's own proof, so it stays excluded; see the
+# header note above for the full account.
 
 # ---------------------------------------------------------------------------
 # (9) Em-dash leg -- zero U+2014 in every NEW 355 file, and in ADDED lines

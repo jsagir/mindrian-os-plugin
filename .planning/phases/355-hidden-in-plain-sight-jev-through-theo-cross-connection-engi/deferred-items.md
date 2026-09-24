@@ -407,3 +407,61 @@ Recorded as an open question in `355-VERIFICATION.md` (hit-rate section,
 The 355-24 remark above (a fourth, research-type fixture room with planted
 known transfers so recall can be measured; ruling pending) is carried into
 the same "Open questions" list of `355-VERIFICATION.md`.
+
+## 355-27 Task 1: two new out-of-baseline gaps found while finalizing the
+## phase gate, neither caused by or fixable within any Phase 355 file
+
+Found while closing HIPS-10 (final `bash tests/run-all-355.sh` and
+`node lib/memory/run-feynman-tests.cjs` runs). Not fixed here (Scope
+Boundary rule); both are named in `.planning/REQUIREMENTS.md` HIPS-10's
+open row and in `tests/run-all-355.sh`'s own header.
+
+1. **`doctor --acceptance`'s new `icm-ruling-eval-fresh` point FAILS live**
+   (`plugin_version has fallen more than one release behind
+   (2.0.0-beta.48 -> 2.0.0-beta.50)`), NOT present in the BASE_355 baseline
+   (`{verify-release-clean-tree}` (+ `coverage-gate`)). Root cause: this
+   point compares `evals/icm/last-run.json`'s stamped `plugin_version`
+   against the running repo's version; concurrent peer sessions in this
+   shared tree cut plugin releases (v2.0.0-beta.49, then v2.0.0-beta.50)
+   without re-running the eval that refreshes the stamp. That eval
+   (`scripts/eval-icm-writers.cjs`) is confirmed Phase 353/356 peer
+   territory (355-BASELINE.md's own D-57 gate sweep names it explicitly).
+   The identical root cause independently fails `tests/run-all-353.sh`'s
+   own `section-command-ledger` leg live today
+   (`plugin_version drift: ledger=2.0.0-beta.48 repo=2.0.0-beta.50`), even
+   though that suite was recorded green (PASS=22 FAIL=0) at Phase 353's
+   own close-out, before BASE_355, and the file is unchanged since. Per
+   this plan's own "never re-baseline" instruction, this point was NOT
+   added to `run-all-355.sh`'s accepted doctor baseline set, and
+   `tests/run-all-353.sh` was NOT added to the no-regression legs; the gap
+   stays visible so the gate stays honest. Resolution needs a peer/navigator
+   session to re-run `scripts/eval-icm-writers.cjs` (out of Phase 355's
+   `files_modified` on every plan).
+
+2. **`node lib/memory/run-feynman-tests.cjs`'s full historical registry
+   hangs, reproducibly, on a pre-existing legacy test unrelated to any
+   Phase 355 file.** Confirmed on two separate isolated runs (2026-09-25):
+   the runner's stdout stalls permanently partway through
+   `test/84-smart-notebook-copilot.test.cjs` Case 13 (`ok 14 honesty layer
+   sibling section (84-10)` never prints; the process sits `state: S
+   (sleeping)`, 0% CPU, indefinitely). Root cause, read from the test file
+   (not fixed): Case 13's own `spawnSync('bash', [onStop], { timeout: 10000
+   })` call (`test/84-smart-notebook-copilot.test.cjs:714-719`) invokes
+   `scripts/on-stop`; Node's `spawnSync` `timeout` option SIGTERMs the
+   direct child at 10s, but if `on-stop` backgrounds a detached grandchild
+   that inherits the parent's stdout/stderr file descriptors, that
+   grandchild keeps the pipe open after the timed-out parent dies, and
+   `spawnSync` blocks reading until EOF on a pipe that will never close --
+   a known Node `child_process` hang class, not a Phase 355 defect.
+   `git status --short test/84-smart-notebook-copilot.test.cjs
+   scripts/on-stop lib/memory/run-feynman-tests.cjs` (before this plan's
+   own registration edit) is clean; neither file is in any Phase 355 plan's
+   `files_modified`. This plan's own registration of the 30
+   `tests/test-355-*.cjs` files was verified correct by an isolated script
+   that extracts and individually spawns just those 30 entries (all exit 0
+   except the documented `test-355-direction-agreement.cjs` leg-H finding
+   above) -- the registration itself is proven; the full historical
+   corpus's own pre-existing hang is what could not be run to completion
+   this session. Flagged for the navigator or a future phase to root-cause
+   `scripts/on-stop`'s backgrounding behavior or add a hard per-child
+   `stdio: ['ignore','pipe','pipe']` + `detached:false` guard to the test.

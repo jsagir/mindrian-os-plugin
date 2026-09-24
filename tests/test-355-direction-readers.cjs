@@ -152,13 +152,17 @@ for (const rel of REQUIRING_FILES) {
 
 // Leg 1f: tool-router.cjs's eureka_critic input schema accepts exactly
 // DIRECTIONS for surprise_type, and schema_version is unchanged (still an
-// int field, no literal bump).
+// int field, no literal bump). Phase 267-06 rewrote every registration site
+// from server.tool(name, desc, shape) to server.registerTool(name, {title,
+// description, inputSchema: z.object(shape)}, handler); the fake server
+// below was updated to match (captures config.inputSchema.shape, the raw
+// per-field zod schema map, same as the pre-267-06 third argument).
 {
   const router = require(path.join(REPO, 'lib', 'mcp', 'tool-router.cjs'));
   const schemas = {};
   const fakeServer = {
-    tool(name, _desc, schema) {
-      schemas[name] = schema;
+    registerTool(name, config, _handler) {
+      schemas[name] = config && config.inputSchema && config.inputSchema.shape;
     },
   };
   const fakeRoomDir = path.join(REPO, '__nonexistent_355_readers_probe_room__');

@@ -51,9 +51,11 @@ function checkSourceHygiene() {
 
 // ---------------------------------------------------------------------------
 // In-process legs against the REAL repo, spawnImpl injected so no real child
-// process ever runs. scripts/measure-hsi-thinking-mode.cjs exists in this
-// repo; scripts/calibrate-citation-check.cjs does not (355-26 has not
-// landed) -- exercising the "missing script -> not_run" degrade for free.
+// process ever runs. scripts/measure-hsi-thinking-mode.cjs and
+// scripts/calibrate-citation-check.cjs both exist in this repo as of 355-27
+// (355-26 landed calibrate-citation-check.cjs) -- both REPLAY_SCRIPTS
+// entries are spawned in the exit-0 leg below (updated from the original
+// "one existing script" assumption written before 355-26 landed).
 // data/hsi-thinking-mode-rules.json does not exist in this repo either --
 // exercising the "no rule table -> not_run" degrade for free.
 // ---------------------------------------------------------------------------
@@ -77,9 +79,10 @@ async function runRealRepoLegs() {
     const result = await checkCrossConnectionHonesty({ repoRoot: REPO, spawnImpl });
     check('exit 0: overall ok true', result.ok === true, JSON.stringify(result));
     check('exit 0: finding null', result.finding === null, JSON.stringify(result.finding));
-    check('exit 0: spawnImpl was invoked exactly once (only the one existing script)', spawnImpl.calls.length === 1, 'got ' + spawnImpl.calls.length);
+    check('exit 0: spawnImpl was invoked exactly twice (both REPLAY_SCRIPTS entries now exist)', spawnImpl.calls.length === 2, 'got ' + spawnImpl.calls.length);
     check('exit 0: the invoked script is measure-hsi-thinking-mode.cjs --check', spawnImpl.calls[0].args.some((a) => String(a).indexOf('measure-hsi-thinking-mode.cjs') !== -1) && spawnImpl.calls[0].args.indexOf('--check') !== -1);
-    check('exit 0: detail.replays names calibrate-citation-check.cjs as not_run (missing script)', result.detail && result.detail.replays && result.detail.replays['calibrate-citation-check.cjs'] && result.detail.replays['calibrate-citation-check.cjs'].status === 'not_run');
+    check('exit 0: the second invoked script is calibrate-citation-check.cjs --check', spawnImpl.calls[1] && spawnImpl.calls[1].args.some((a) => String(a).indexOf('calibrate-citation-check.cjs') !== -1) && spawnImpl.calls[1].args.indexOf('--check') !== -1);
+    check('exit 0: detail.replays names calibrate-citation-check.cjs as ok (script now exists, spawnImpl returned 0)', result.detail && result.detail.replays && result.detail.replays['calibrate-citation-check.cjs'] && result.detail.replays['calibrate-citation-check.cjs'].status === 'ok');
     check('exit 0: detail.rule_table is not_run (no data/hsi-thinking-mode-rules.json in this repo)', result.detail && result.detail.rule_table && result.detail.rule_table.status === 'not_run');
   }
 
