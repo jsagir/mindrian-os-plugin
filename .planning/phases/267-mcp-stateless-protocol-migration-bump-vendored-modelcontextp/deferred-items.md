@@ -73,3 +73,47 @@ the reason above.
 so; the fix belongs to whoever owns test-347's own baseline count (either
 correct the comment/assertion to 7, or find and remove the stray 7th
 mention) -- out of scope for a registration-API migration phase.
+
+## 267-07: two pre-existing gate_answer-approve test failures, confirmed unrelated to the registerTool migration
+
+Found while sweeping every test file that requires `lib/mcp/tools/gate.cjs`
+and drives its own fake `McpServer`, to check whether gate.cjs's Task 2
+registration rewrite broke anything outside this plan's own declared verify
+list (the same proactive sweep discipline 267-06 used for its 10-fixture
+Rule-1 fix). Six fixtures genuinely needed a `registerTool` capture sibling
+(a real regression this plan's own gate.cjs commit caused -- see its own
+SUMMARY.md for the fix). Two more, `tests/test-238-chosen-validation.cjs`
+and `tests/test-345-gate-ratify.cjs`, failed differently: once given the
+same `registerTool` sibling, they no longer crash on the missing method, but
+each fails a genuine assertion on `gate_answer`'s approve-verdict response.
+
+1. **`tests/test-238-chosen-validation.cjs`** ("case 1 (anti-vacuity
+   control): a valid chosen ratifies and writes exactly one memory_event
+   row") fails: `afterCase1 !== beforeCase1 + 1` (2 memory_event rows
+   written for one approve, not 1). Line 156-159.
+2. **`tests/test-345-gate-ratify.cjs`** ("gate_answer (approve leg):
+   strategy_ratification.ok is true, anchor_confirmed is true") fails at
+   line 433: `strategy_ratification.ok` or `.anchor_confirmed` reads false
+   for a strategy-card approve.
+
+**Confirmed NOT caused by this plan's registerTool rewrite**: both failures
+were reproduced identically against `gate.cjs` as of THIS plan's own Task 1
+comment-fix commit (`aafa47ce7`, still the pre-migration `server.tool()`
+form) with the same fixed fixtures swapped in temporarily, then the current
+`server.registerTool()` form restored -- byte-identical failure output
+either way. The likely cause is later-phase growth of `gate_answer`'s
+approve branch (Phase 345-07 STRAT-13's `goalGate.ratifyGoalProposal`, and/
+or Phase 354/355's `_promoteCardSubject` / `_maybeLogGateOutcome` additive
+writes) outpacing these two older tests' fixed expectations (one
+memory_event row, or a specific strategy-ratification shape) -- not
+investigated further, since root-causing gate_answer's write count is a
+different task than a registration-API migration.
+
+Classification: pre-existing, unrelated to Phase 267. Neither file is
+referenced by `tests/run-all-198.sh` or `tests/run-all-267.sh`, and neither
+is named in 267-07-PLAN.md's `<verify>` block.
+
+**Do not fix as part of any Phase 267 plan** unless a plan explicitly says
+so; the fix belongs to whoever owns `gate_answer`'s approve-branch write
+count / strategy-ratification contract (Phase 345/354/355's own owners) --
+out of scope for a registration-API migration phase.

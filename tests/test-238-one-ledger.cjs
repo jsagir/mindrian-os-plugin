@@ -77,6 +77,21 @@ function makeFakeServer() {
       }
       registered.push({ name, description, schema, handler });
     },
+    // Phase 267-07: gate.cjs now calls server.registerTool(name, {title,
+    // description, inputSchema}, handler) (v2 registration API) instead of
+    // the removed-in-v2 tool(name, desc, shape, handler). Capture the same
+    // {name, description, schema, handler} shape the tool() arm above
+    // builds -- .shape unwraps inputSchema's raw ZodRawShape (a ZodObject's
+    // own .shape getter) back to the pre-migration schema value this
+    // fixture's downstream reads already expect.
+    registerTool(name, config, handler) {
+      const cfg = config || {};
+      const schema = (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {};
+      if (registered.some((r) => r.name === name)) {
+        throw new Error('DUPLICATE_TOOL_NAME: ' + name);
+      }
+      registered.push({ name, description: cfg.description, schema, handler });
+    },
     _registered: registered,
     server: {
       getClientCapabilities() { return {}; }, // no elicitation -> headless/askuserquestion rungs
