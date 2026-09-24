@@ -440,8 +440,30 @@ async function main() {
 
     // -----------------------------------------------------------------
     // Arm E: the zero-parameter risk case, both call shapes, before vs
-    // after. arguments ABSENT and arguments:{} must behave identically
-    // pre- and post-migration for brain_schema and brain_stats.
+    // after.
+    //
+    // Phase 267 Plan 05 (MEASURED, ACCEPTED DELTA): "before" (still
+    // requiring @modelcontextprotocol/sdk v1) and "after" (current HEAD,
+    // migrated to @modelcontextprotocol/server v2's serveStdio) now run on
+    // genuinely different major SDK versions for the first time this test
+    // exists -- it was written in Phase 257-08 to compare two registration
+    // FORMS on the same v1 SDK, and the v1 -> v2 migration is an incidental
+    // change in what "after" now means, not a coincidental one.
+    //
+    // Live-measured on this tree: v1's registerTool passes an OMITTED
+    // `arguments` field straight to zod as `undefined`, which every schema
+    // rejects outright ("expected object, received undefined") -- a raw
+    // top-level type mismatch, not required-field enforcement. v2's
+    // registerTool normalizes an omitted `arguments` field to `{}` BEFORE
+    // validation, for every tool. Against an EMPTY schema (brain_schema,
+    // brain_stats) that normalizes-and-passes (isError flips true ->
+    // false). Against a schema with a required field it still correctly
+    // fails required-field validation -- VERIFIED by Arm E2 immediately
+    // below. This is a spec-compliance improvement (MCP's
+    // CallToolRequestParams.arguments is OPTIONAL), not a validation
+    // bypass: the undeclared-key rejection (Arm A/G) and the
+    // declared-arguments-pass (Arm C) checks are unaffected, since both
+    // send an explicit `arguments` object.
     // -----------------------------------------------------------------
     const zeroParamTools = liveNames.filter((n) => n === 'brain_schema' || n === 'brain_stats');
     assert.ok(zeroParamTools.length > 0, 'expected at least one zero-parameter tool (brain_schema/brain_stats) in the live catalog');
@@ -450,15 +472,47 @@ async function main() {
       for (const toolName of zeroParamTools) {
         const beforeAbsent = await callToolShape(before, toolName, 'absent');
         const afterAbsent = await callToolShape(after, toolName, 'absent');
-        process.stdout.write('    ' + toolName + ' (arguments absent): before.isError=' + beforeAbsent.isError + ' after.isError=' + afterAbsent.isError + '\n');
-        assert.strictEqual(afterAbsent.isError, beforeAbsent.isError, toolName + ' (arguments absent): isError flipped by the migration -- before=' + JSON.stringify(beforeAbsent) + ' after=' + JSON.stringify(afterAbsent));
-
         const beforeEmpty = await callToolShape(before, toolName, 'empty');
         const afterEmpty = await callToolShape(after, toolName, 'empty');
+        process.stdout.write('    ' + toolName + ' (arguments absent): before.isError=' + beforeAbsent.isError + ' after.isError=' + afterAbsent.isError + '\n');
         process.stdout.write('    ' + toolName + ' (arguments:{}):    before.isError=' + beforeEmpty.isError + ' after.isError=' + afterEmpty.isError + '\n');
+
+        // arguments:{} must behave identically before vs after -- this
+        // shape was never touched by the SDK migration and any drift here
+        // is a genuine regression.
         assert.strictEqual(afterEmpty.isError, beforeEmpty.isError, toolName + ' (arguments:{}): isError flipped by the migration -- before=' + JSON.stringify(beforeEmpty) + ' after=' + JSON.stringify(afterEmpty));
+
+        // arguments absent: accept ONLY the one measured, documented
+        // direction (v1 errors, v2 normalizes-and-succeeds). Any other
+        // divergence, including the reverse direction or a flip on a shim
+        // that used to succeed, still fails loudly.
+        if (afterAbsent.isError !== beforeAbsent.isError) {
+          assert.strictEqual(beforeAbsent.isError, true, toolName + ' (arguments absent): unexpected before-shape -- expected v1 to error, got: ' + JSON.stringify(beforeAbsent));
+          assert.strictEqual(afterAbsent.isError, false, toolName + ' (arguments absent): unexpected after-shape -- expected v2 to succeed (normalized to {}), got: ' + JSON.stringify(afterAbsent));
+        }
       }
     });
+
+    // -----------------------------------------------------------------
+    // Arm E2 (Phase 267 Plan 05, NEW): proves Arm E's normalization delta
+    // is NOT a validation bypass -- a tool with a REQUIRED field
+    // (brain_ask's "question") called with `arguments` omitted must still
+    // fail required-field validation on the migrated ("after") shim,
+    // exactly as arguments:{} does today. If this ever passed silently,
+    // that would be the genuine security regression Arm E's original
+    // design was guarding against.
+    // -----------------------------------------------------------------
+    if (liveNames.indexOf('brain_ask') !== -1) {
+      await recordAsync('Arm E2: a required-field tool (brain_ask) still rejects arguments-absent on the migrated shim', async () => {
+        const afterAbsent = await callToolShape(after, 'brain_ask', 'absent');
+        process.stdout.write('    brain_ask (arguments absent, after): isError=' + afterAbsent.isError + '\n');
+        assert.strictEqual(afterAbsent.isError, true, 'brain_ask must still reject a call missing its required "question" field when arguments is omitted, got: ' + JSON.stringify(afterAbsent));
+        assert.ok(
+          /question|Invalid arguments|Invalid input/i.test(afterAbsent.text),
+          'brain_ask arguments-absent rejection must name the missing required field, got: ' + afterAbsent.text
+        );
+      });
+    }
 
     // -----------------------------------------------------------------
     // Arm F: catalog parity, before vs after. Names, descriptions,

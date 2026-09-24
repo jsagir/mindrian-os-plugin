@@ -37,7 +37,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // changes no production file"). Each later migrating plan appends its own
 // entry paths here (absolute-from-repo-root, forward slashes).
 // ---------------------------------------------------------------------------
-const EXPECT_V2 = [];
+const EXPECT_V2 = ['bin/mindrian-brain-mcp-client.cjs'];
 
 let passCount = 0;
 let failCount = 0;
@@ -155,6 +155,23 @@ function armA() {
 // =============================================================================
 // Arm B: v2 support check
 // =============================================================================
+// Phase 267 Plan 05 correction: this arm originally checked
+// mod.SUPPORTED_PROTOCOL_VERSIONS for the literal '2026-07-28'. Measured
+// against the REAL installed v2.1.0 package (the first time this repo ever
+// installed it): SUPPORTED_PROTOCOL_VERSIONS is DELIBERATELY the legacy
+// `initialize`-only list (five 2025-and-earlier revisions) and will never
+// carry a modern-era string -- the SDK's own internal source comment names
+// this "G-D2-4: no public modern-version constant ships before era-aware
+// list semantics exist". There is no public export naming 2026-07-28 today.
+// Rewritten to what the package genuinely proves: (a) serveStdio,
+// createMcpHandler and isLegacyRequest are v2-only symbols with no v1
+// analog -- their presence alone falsifies "this could still be v1"; (b) a
+// grep-based marker check over the package's own compiled dist output,
+// mirroring Arm A's falsification style, for the modern-era literal
+// '2026-07-28' appearing in real (non-comment) code, not just in a doc
+// comment. The full dual-era proof on the actual wire lives in
+// tests/test-267-mcpv2-brain-shim.cjs (MCPV2-11) -- this arm only falsifies
+// "the installed package cannot possibly be v2".
 function armB() {
   const label = 'Arm B (v2 era support)';
   let serverPkg;
@@ -173,18 +190,48 @@ function armB() {
     return;
   }
 
-  const supported = mod.SUPPORTED_PROTOCOL_VERSIONS;
-  if (!Array.isArray(supported)) {
-    fail(label, 'SUPPORTED_PROTOCOL_VERSIONS is not exported as an array');
+  const mainOnlySymbols = ['createMcpHandler', 'isLegacyRequest'];
+  const missingSymbols = mainOnlySymbols.filter((s) => typeof mod[s] !== 'function');
+
+  // serveStdio lives on the package's /stdio subpath export, not the main
+  // entry point (verified live: require('@modelcontextprotocol/server')'s
+  // own export list does not include it).
+  let stdioMod;
+  try {
+    stdioMod = require('@modelcontextprotocol/server/stdio');
+  } catch (e) {
+    fail(label, `@modelcontextprotocol/server/stdio require() threw: ${e.message}`);
     return;
   }
-  const hasModern = supported.includes('2026-07-28');
-  const hasLegacy = supported.includes('2025-11-25');
-  if (!hasModern || !hasLegacy) {
-    fail(label, `SUPPORTED_PROTOCOL_VERSIONS=${JSON.stringify(supported)} missing an expected era`);
+  if (typeof stdioMod.serveStdio !== 'function') missingSymbols.push('stdio:serveStdio');
+
+  if (missingSymbols.length > 0) {
+    fail(label, `missing v2-only export(s), cannot be a genuine v2 install: ${missingSymbols.join(', ')}`);
     return;
   }
-  pass(label, `SUPPORTED_PROTOCOL_VERSIONS includes both 2026-07-28 and 2025-11-25`);
+
+  const distDir = path.dirname(serverPkg);
+  const distFiles = walkFiles(distDir, ['.cjs', '.js']);
+  let foundModernLiteral = false;
+  for (const file of distFiles) {
+    let content;
+    try {
+      content = fs.readFileSync(file, 'utf8');
+    } catch (_e) {
+      continue;
+    }
+    const active = nonCommentLines(content).join('\n');
+    if (active.indexOf('2026-07-28') !== -1) {
+      foundModernLiteral = true;
+      break;
+    }
+  }
+  if (!foundModernLiteral) {
+    fail(label, `no compiled dist file under ${path.relative(REPO_ROOT, distDir)} contains the '2026-07-28' code literal`);
+    return;
+  }
+
+  pass(label, `v2-only exports present (${mainOnlySymbols.concat('stdio:serveStdio').join(', ')}) and the modern-era literal is compiled into the package's own dist output`);
 }
 
 // =============================================================================

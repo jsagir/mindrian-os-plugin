@@ -20,6 +20,13 @@
  * zero matches for the network-surface token set (delegation property --
  * every network call lives in brain-client.cjs).
  *
+ * Phase 267 Plan 05 (canary, MCPV2-11): migrated to the v2 SDK family --
+ * McpServer from @modelcontextprotocol/server, served via serveStdio from
+ * @modelcontextprotocol/server/stdio, which serves both the 2025-11-25 and
+ * 2026-07-28 protocol eras from the same registered tool set with zero
+ * per-era branching in this file. @modelcontextprotocol/sdk is no longer
+ * required anywhere below.
+ *
  * HARD RULE: no em-dashes anywhere in this file (hyphens only).
  */
 
@@ -55,8 +62,8 @@ if (depHealOutcome && depHealOutcome.ok === false) {
   );
 }
 
-const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog, connectPath: true });
-const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog, connectPath: true });
+const { McpServer } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
+const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
 const { z } = requireWithHeal('zod', { log: healLog, connectPath: true });
 
 const brainClient = require('../lib/core/brain-client.cjs');
@@ -307,9 +314,13 @@ server.registerTool(
   }
 );
 
+// Phase 267 Plan 05: kept for a future shutdown path (serveStdio's returned
+// handle exposes close()); not yet wired to any signal handler here, matching
+// this file's pre-migration behavior (no explicit close on SIGTERM either).
+let stdioHandle = null;
+
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  stdioHandle = serveStdio(() => server);
   process.stderr.write('[mindrian-brain] MCP server v' + version + ' started (stdio)\n');
 
   // Quick 260911-ddd (DDD-02): fire a content-free Brain pre-warm here,
