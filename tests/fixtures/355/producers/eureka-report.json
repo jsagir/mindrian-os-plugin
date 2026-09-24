@@ -1,0 +1,107 @@
+{
+  "embedded": {
+    "tailIds": ["cand-b1", "cand-a4"],
+    "ranked": [
+      {
+        "rank": 1,
+        "idA": "cand-a1",
+        "idB": "cand-b1",
+        "techA": { "title": "Design Thinking" },
+        "techB": { "title": "Jobs to Be Done (JTBD)" },
+        "weakA": [],
+        "weakB": ["validated_demand"],
+        "pairDims": { "strategic_fit": 1, "validated_demand": 0.5, "tech_econ_feasibility": 0.7 },
+        "score": 0.82,
+        "rs": { "direction": "structural_transfer", "abs_diff": 0.31, "passes": true },
+        "banked": false
+      },
+      {
+        "rank": 2,
+        "idA": "cand-a2",
+        "idB": "cand-b2",
+        "techA": { "title": "Cynefin Framework" },
+        "techB": { "title": "Hedgehog Concept" },
+        "weakA": ["tech_econ_feasibility"],
+        "weakB": [],
+        "pairDims": { "strategic_fit": 0.7, "validated_demand": 0.6, "tech_econ_feasibility": 0.2 },
+        "score": 0.61,
+        "rs": { "direction": "semantic_implementation", "abs_diff": 0.18, "passes": true },
+        "banked": true
+      },
+      {
+        "rank": 3,
+        "idA": "cand-a3",
+        "idB": "cand-b3",
+        "techA": { "title": "S-Curve Analysis" },
+        "techB": { "title": "Ackoff Pyramid" },
+        "weakA": [],
+        "weakB": [],
+        "pairDims": { "strategic_fit": 0.5, "validated_demand": 0.4, "tech_econ_feasibility": 0.4 },
+        "score": 0.55,
+        "rs": { "direction": "structural_transfer", "abs_diff": 0.22, "passes": true },
+        "banked": false
+      },
+      {
+        "rank": 4,
+        "idA": "cand-a4",
+        "idB": "cand-b4",
+        "techA": { "title": "Momentum Investing Method 0.87" },
+        "techB": { "title": "Consumer Sentiment Tracker" },
+        "weakA": ["strategic_fit"],
+        "weakB": ["validated_demand", "tech_econ_feasibility"],
+        "pairDims": { "strategic_fit": 0.3, "validated_demand": 0.2, "tech_econ_feasibility": 0.3 },
+        "score": 0.31,
+        "rs": { "direction": "semantic_implementation", "abs_diff": 0.05, "passes": false },
+        "banked": false
+      },
+      {
+        "rank": 5,
+        "idA": "cand-a5",
+        "idB": "cand-b5",
+        "techA": { "title": "Bespoke Venture Concept Alpha" },
+        "techB": { "title": "Bespoke Venture Concept Beta" },
+        "weakA": [],
+        "weakB": [],
+        "pairDims": { "strategic_fit": 0.6, "validated_demand": 0.5, "tech_econ_feasibility": 0.5 },
+        "score": 0.53,
+        "rs": { "direction": "structural_transfer", "abs_diff": 0.12, "passes": true },
+        "banked": false
+      },
+      {
+        "rank": 6,
+        "idA": "cand-a6",
+        "idB": "cand-b6",
+        "techA": { "title": "Reverse Salient Analysis" },
+        "techB": { "title": "Six Thinking Hats" },
+        "weakA": [],
+        "weakB": [],
+        "pairDims": { "strategic_fit": 0.9, "validated_demand": 0.8, "tech_econ_feasibility": 0.6 },
+        "score": 0.77,
+        "rs": { "direction": "structural_transfer", "abs_diff": 0.4, "passes": true },
+        "banked": false
+      }
+    ]
+  },
+  "reasoning": {
+    "ranked": [
+      {
+        "rank": 1,
+        "a": "cand-r-a1",
+        "b": "cand-r-b1",
+        "a_title": "Design Thinking",
+        "b_title": "Systems Thinking mapping notes",
+        "verdict": "transferable",
+        "mode": "reasoning"
+      },
+      {
+        "rank": 2,
+        "a": "cand-r-a2",
+        "b": "cand-r-b2",
+        "a_title": "Bespoke Signal Alpha",
+        "b_title": "Bespoke Signal Beta",
+        "verdict": "rejected_general_shallow",
+        "mode": "reasoning"
+      }
+    ]
+  }
+}

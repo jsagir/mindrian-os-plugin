@@ -133,6 +133,17 @@ const { ENTITY_NODE_TYPES } = require(path.join(REPO_ROOT, 'lib/core/navigation/
 // attempt genuinely degraded (idx.embedded !== true or scored.length === 0).
 const reasoningMode = require(path.join(REPO_ROOT, 'lib/core/eureka/reasoning-mode.cjs'));
 
+// Phase 355-18 (HIPS-04, HIPS-05, D-08, D-16, D-29, D-48, D-56): the eureka
+// pairs' verification stamp. Stamps are computed in main() AFTER `ranked` is
+// final and BEFORE bankStatements opens its transaction (D-56), so 355-20's
+// filing wiring inherits an already-stamped ranked row. The rendered reports
+// never print a rank/composite/similarity decimal again -- the stamp's path
+// (or its honest unverified reason) replaces every number.
+const verificationStamp = require(path.join(REPO_ROOT, 'lib/core/verification-stamp.cjs'));
+const verificationStampFormat = require(path.join(REPO_ROOT, 'lib/core/verification-stamp-format.cjs'));
+const floorDisclosure = require(path.join(REPO_ROOT, 'lib/core/floor-disclosure.cjs'));
+const directionConvention = require(path.join(REPO_ROOT, 'lib/core/direction-convention.cjs'));
+
 const DEFAULT_GRAPH = 'evals/eureka/jhtv-idea-graph.json';
 const PROGRESS_EVERY = 100000; // full mode over a big room is ~millions of pairs
 
@@ -158,6 +169,14 @@ function parseArgv(argv) {
     answers: '',
     reasoningWorkdir: '',
     forceEncoderUnavailable: false,
+    // Phase 355-18 (HIPS-04, HIPS-05, D-08, D-56): opt-in, default false so a
+    // plain run stays byte-identical (zero Theo calls) -- matching the
+    // 355-16 --stamp precedent (whitespace-to-graph.cjs, hsi-to-graph.cjs).
+    // WHEN set, main() stamps every ranked pair with verification-stamp.cjs
+    // BEFORE bankStatements opens its transaction (D-56); every rendered
+    // ranked row then carries its own methodology-graph path check instead
+    // of a raw score.
+    stamp: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
@@ -177,6 +196,7 @@ function parseArgv(argv) {
       case '--answers': opts.answers = argv[i += 1]; break;
       case '--reasoning-workdir': opts.reasoningWorkdir = argv[i += 1]; break;
       case '--force-encoder-unavailable': opts.forceEncoderUnavailable = true; break;
+      case '--stamp': opts.stamp = true; break;
       case '-h':
       case '--help': opts.help = true; break;
       default: break;
@@ -215,6 +235,9 @@ const HELP = [
   '  --answers <path>      [<workdir>/answers.json]   session-written neutral+adversarial answers',
   '  --reasoning-workdir <dir> [<db>/.mindrian/eureka/reasoning]  the reasoning stage state dir',
   '  --force-encoder-unavailable      test seam: force idx.embedded !== true so the degrade path runs',
+  '  --stamp                          [off] stamp every ranked pair via verification-stamp.cjs before',
+  '                                   banking (one bounded Theo read per distinct pair, generic canon',
+  '                                   Framework names only -- Canon Part 8, D-08, D-56); off by default',
   '  --help                           show this help',
 ].join('\n');
 
@@ -274,6 +297,98 @@ function techFor(techMap, id) {
     primary_problem: '',
     problems: [],
   };
+}
+
+// ---------------------------------------------------------------------------
+// Phase 355-18 (HIPS-04, D-48): local, exact endpoint resolution for a eureka
+// pair. A side's carried name is read from ITS OWN source artifact's raw text
+// (frontmatter `framework:`, then `methodology:` via the registry), falling
+// back to the entity's own title when no artifact backs it or nothing is
+// carried. Never a fuzzy match, never a Theo lookup to resolve a name (D-10).
+// The opaque room.db node id (a_handle/b_handle) never leaves this function.
+// ---------------------------------------------------------------------------
+
+// Read an artifact's RAW text (frontmatter intact -- unlike
+// tri-modal-index.cjs's readArtifactBody, which strips it for embedding text)
+// with the same traversal guard: the resolved path must be roomDir itself or
+// strictly under it. Never throws; any failure degrades to ''.
+function _readArtifactRawText(roomDir, relPath) {
+  if (typeof roomDir !== 'string' || !roomDir || typeof relPath !== 'string' || !relPath) return '';
+  try {
+    const base = path.resolve(roomDir);
+    const resolved = path.resolve(base, relPath);
+    if (resolved !== base && resolved.indexOf(base + path.sep) !== 0) return '';
+    const st = fs.statSync(resolved);
+    if (!st.isFile()) return '';
+    return fs.readFileSync(resolved, 'utf8');
+  } catch (_e) {
+    return '';
+  }
+}
+
+/*
+ * eurekaEndpoints(pair, ctx) -> { fromHandle, toHandle, fromVia, toVia,
+ * fromTitle, toTitle }. `pair` carries { idA, idB, techA, techB } (a scored
+ * row's own shape). `ctx` carries { db, roomDir, indexed } -- indexed is the
+ * canonical-id -> { rawId, ... } Map main() already builds; `db` and
+ * `roomDir` locate the raw node row + its source artifact file. A missing
+ * db/indexed entry/artifact degrades gracefully to title-only resolution
+ * (extractCarried on an empty string still yields a usable fallback).
+ */
+function eurekaEndpoints(pair, ctx) {
+  function resolveOne(canonId, tech) {
+    const fallbackTitle = (tech && typeof tech.title === 'string' && tech.title) ? tech.title : String(canonId);
+    let raw = '';
+    const node = ctx && ctx.indexed && typeof ctx.indexed.get === 'function' ? ctx.indexed.get(canonId) : null;
+    const rawId = node && node.rawId;
+    if (rawId && ctx && ctx.db) {
+      try {
+        const row = ctx.db.prepare('SELECT properties FROM nodes WHERE id = ?').get(rawId);
+        if (row) {
+          const props = JSON.parse(row.properties || '{}');
+          if (typeof props.path === 'string' && props.path.length > 0 && ctx.roomDir) {
+            raw = _readArtifactRawText(ctx.roomDir, props.path);
+          }
+        }
+      } catch (_e) {
+        raw = '';
+      }
+    }
+    const carried = verificationStamp.extractCarried(raw, fallbackTitle);
+    return Object.assign({ title: fallbackTitle }, verificationStamp.resolveEndpoint(carried));
+  }
+  const from = resolveOne(pair && pair.idA, pair && pair.techA);
+  const to = resolveOne(pair && pair.idB, pair && pair.techB);
+  return {
+    fromHandle: from.name,
+    toHandle: to.name,
+    fromVia: from.via,
+    toVia: to.via,
+    fromTitle: from.title,
+    toTitle: to.title,
+  };
+}
+
+/*
+ * stampRankedPairs(ranked, ctx, deps) -> Stamp[] (aligned to `ranked`'s own
+ * order; also attaches `stamp` onto each `ranked[i]` in place, D-08). direction
+ * is the pair's own scoreMeasured direction (post 355-10's D-47 flip; `r.rs.direction`)
+ * when it is a member of the closed DIRECTIONS enum, else `directionConvention.NONE`
+ * (a candidate whose rs pair never resolved a direction, or a reasoning-mode row
+ * with no (lsa, semantic) pair to compare). Calls verificationStamp.stampFindings
+ * once for the whole ranked set (its own per-run memo dedups a shared pair).
+ */
+async function stampRankedPairs(ranked, ctx, deps) {
+  const list = Array.isArray(ranked) ? ranked : [];
+  const findings = list.map(function (r) {
+    const ep = eurekaEndpoints({ idA: r.idA, idB: r.idB, techA: r.techA, techB: r.techB }, ctx);
+    const rsDirection = r && r.rs && r.rs.direction;
+    const direction = directionConvention.DIRECTIONS.indexOf(rsDirection) !== -1 ? rsDirection : directionConvention.NONE;
+    return Object.assign({ direction: direction }, ep);
+  });
+  const stamps = await verificationStamp.stampFindings(findings, deps);
+  for (let i = 0; i < list.length; i += 1) list[i].stamp = stamps[i];
+  return stamps;
 }
 
 // The three Wave-1 entity relation edge types (typed-entity.cjs ENTITY_EDGE_SUBSET),
@@ -531,35 +646,46 @@ function renderReport(ctx) {
     }
   }
 
-  // -- Ranked top N (score is a sort key; the tail is NOT) --
+  // -- Ranked top N (the composite score is the SORT KEY ONLY -- D-29: it stays
+  //    data in portfolio-report.json, it is NEVER rendered here again). Each
+  //    row carries rank / A title / B title / weak dims / tail glyph / mode,
+  //    then its own verification stamp block (D-08, D-27) -- the path check
+  //    replaces the number. `banked` is described in the Opportunity
+  //    Statements section below, not repeated here. --
   L.push('## Ranked top ' + ctx.top);
   L.push('');
-  L.push('Ranked by the AHP composite score descending. `weak dims` are the dimensions strictly');
-  L.push('below the weak floor on either side (the combine rationale). `banked` is true ONLY on a');
-  L.push('resolved passing critic verdict.');
+  L.push('Ranked by the AHP composite score descending (the score is a sort key kept in the JSON');
+  L.push('sibling, never rendered - D-29). `weak dims` are the dimensions strictly below the weak');
+  L.push('floor on either side (the combine rationale). Each row carries its own methodology-graph');
+  L.push('verification stamp: a real path check, never a similarity number.');
   L.push('');
   if (ctx.ranked.length === 0) {
     L.push('_No ranked pairs (see the encoder note above, or the graph paired nothing in the room)._');
     L.push('');
   } else {
-    L.push('| rank | A (id: title) | B (id: title) | score | strat_fit | val_demand | feasibility | weak dims | banked |');
-    L.push('| ---- | ------------- | ------------- | ----- | --------- | ---------- | ----------- | --------- | ------ |');
+    const rankedLines = [];
+    const tailIds = ctx.tailIds;
     for (let i = 0; i < ctx.ranked.length; i += 1) {
       const r = ctx.ranked[i];
       const weak = (r.weakA.concat(r.weakB));
       const weakStr = weak.length ? Array.from(new Set(weak)).join(', ') : 'none';
-      L.push('| ' + r.rank
-        + ' | ' + r.idA + ': ' + truncate(r.techA.title, 30)
-        + ' | ' + r.idB + ': ' + truncate(r.techB.title, 30)
-        + ' | ' + fmt(r.score, 3)
-        + ' | ' + fmt(r.pairDims.strategic_fit, 2)
-        + ' | ' + fmt(r.pairDims.validated_demand, 2)
-        + ' | ' + fmt(r.pairDims.tech_econ_feasibility, 2)
-        + ' | ' + weakStr
-        + ' | ' + (r.banked ? 'yes' : 'no')
-        + ' |');
+      const tailGlyph = (tailIds && typeof tailIds.has === 'function' && (tailIds.has(r.idA) || tailIds.has(r.idB))) ? '⚡' : '-';
+      rankedLines.push('### ' + r.rank + '. ' + truncate(r.techA.title, 40) + ' x ' + truncate(r.techB.title, 40));
+      rankedLines.push('');
+      rankedLines.push('weak dims: ' + weakStr + '  |  tail: ' + tailGlyph + '  |  mode: embedded');
+      if (r.stamp) {
+        rankedLines.push.apply(rankedLines, verificationStampFormat.formatStampLines(r.stamp, 'cli'));
+      } else {
+        rankedLines.push('not verified this run - re-run with --stamp to check the methodology graph');
+      }
+      rankedLines.push('');
     }
-    L.push('');
+    rankedLines.push(floorDisclosure.disclosureLine('eureka'));
+    rankedLines.push('');
+    // D-30 backstop: sweep ONLY this stamp-bearing section (never the whole
+    // document -- provenance carries legitimate AHP/tail decimals out of
+    // this plan's scope) for a bare decimal or percent token.
+    L.push.apply(L, verificationStampFormat.assertNoScalar(rankedLines).lines);
   }
 
   // -- Tail quadrant: its OWN section, never a sort key --
@@ -730,8 +856,9 @@ function renderReasoningReport(ctx) {
   L.push('   below are a short working diagnosis, not a finished ranked list.');
   L.push('2. WHY the basis is weak: the embedding encoder was unavailable (degrade cause: `'
     + String(p.degrade_cause) + '`), so 2 of the critic\'s 3 numeric legs (differential_score and');
-  L.push('   semantic_similarity) are structurally null. Only the lexical overlap (Jaccard,');
-  L.push('   lsa_similarity) is a real number here.');
+  L.push('   semantic_similarity) are structurally null. Only a lexical-overlap (Jaccard) measure');
+  L.push('   was computed here, and Phase 355-18 (D-29) withholds it from every render too -- the');
+  L.push('   rubric verdict below is the honest evidence, never a fabricated number.');
   L.push('3. The analogy bar was NOT lowered: the SAME six-item structure-mapping rubric ran twice');
   L.push('   (neutral + adversarial) and the verdict was computed by code, exactly as embedded mode.');
   L.push('4. Nothing here is banked or confirmed. Acting on any pair is a human decision (Canon Part 9:');
@@ -758,23 +885,25 @@ function renderReasoningReport(ctx) {
   L.push('| Run date | ' + p.run_date + ' |');
   L.push('');
 
-  // -- Ranked (reasoning mode). NEVER a differential / semantic / AHP score column. --
+  // -- Ranked (reasoning mode). NEVER a differential / semantic / AHP score
+  //    column, and (Phase 355-18, D-29) NEVER an lsa_similarity column
+  //    either -- reasoning-mode pairs have no rs pair to verify against Theo,
+  //    so this render shows verdict + mode only, no number of any kind. --
   L.push('## Ranked top ' + ctx.top + ' (reasoning mode)');
   L.push('');
-  L.push('Ordered ascending by lexical overlap. LOW lexical overlap on a pair the rubric still');
-  L.push('cleared is the eureka signature: shared meaning the vocabulary hides.');
+  L.push('Ordered by the rubric verdict alone (Phase 355-18, D-29: no encoder-derived number is');
+  L.push('rendered in reasoning mode, including the lexical-overlap leg).');
   L.push('');
   if (ranked.length === 0) {
     L.push('_No pair cleared the two-pass rubric this run (an honest short/empty reasoning result)._');
     L.push('');
   } else {
-    L.push('| rank | pair (A x B) | lsa_similarity | verdict | mode |');
-    L.push('| ---- | ------------ | -------------- | ------- | ---- |');
+    L.push('| rank | pair (A x B) | verdict | mode |');
+    L.push('| ---- | ------------ | ------- | ---- |');
     for (let i = 0; i < ranked.length; i += 1) {
       const r = ranked[i];
       L.push('| ' + r.rank
         + ' | ' + truncate(String(r.a_title || r.a), 30) + ' x ' + truncate(String(r.b_title || r.b), 30)
-        + ' | ' + fmt(r.lsa_similarity, 3)
         + ' | ' + r.verdict
         + ' | ' + r.mode
         + ' |');
@@ -800,7 +929,6 @@ function renderReasoningReport(ctx) {
       L.push('| Mode | ' + s.mode + ' |');
       L.push('| Banked | ' + String(s.banked) + ' |');
       L.push('| Critic verdict | ' + s.critic + ' |');
-      L.push('| lsa_similarity (' + s.lexical_method + ') | ' + fmt(s.lsa_similarity, 3) + ' |');
       L.push('| Potential | ' + s.potential_tier + ' |');
       L.push('');
     }
@@ -813,8 +941,9 @@ function renderReasoningReport(ctx) {
 // main
 // ---------------------------------------------------------------------------
 
-async function main(argv) {
+async function main(argv, deps) {
   const opts = parseArgv(argv);
+  const runDeps = deps || {};
   if (opts.help) {
     process.stdout.write(HELP + '\n');
     return 0;
@@ -1165,6 +1294,19 @@ async function main(argv) {
     for (let i = 0; i < scored.length; i += 1) scored[i].rank = i + 1;
     const ranked = scored.slice(0, opts.top);
 
+    // Phase 355-18 (HIPS-04, D-08, D-56): opt-in (--stamp, off by default --
+    // this file's own Canon Part 8 header stays literally true for a plain
+    // run). WHEN set, stamp every ranked pair NOW -- after `ranked` is
+    // final, BEFORE the statements loop and strictly before bankStatements
+    // opens its BEGIN/COMMIT transaction below, so a Theo call never lands
+    // inside the banking write window. Attaches `r.stamp` onto each ranked
+    // row in place; without the flag every ranked row's `.stamp` stays
+    // undefined and the render below prints the honest "not verified this
+    // run" line instead (never a decimal either way).
+    if (opts.stamp) {
+      await stampRankedPairs(ranked, { db: db, roomDir: roomDir, indexed: indexed }, runDeps);
+    }
+
     const candMap = new Map();
     for (let i = 0; i < ranked.length; i += 1) candMap.set(ranked[i].idA + '|' + ranked[i].idB, ranked[i]);
     const tailPairs = [];
@@ -1344,6 +1486,7 @@ async function main(argv) {
       offline: opts.offline,
       top: opts.top,
       ranked: ranked,
+      tailIds: tailIds,
       tail: tailResult,
       tailPairs: tailPairs,
       statements: statements,
@@ -1363,12 +1506,19 @@ async function main(argv) {
           b: r.idB,
           a_title: r.techA.title,
           b_title: r.techB.title,
+          // Phase 355-18 (D-29): the composite score stays as DATA here (Plan
+          // 05's downstream banking predicate still reads it) but is never
+          // rendered on any surface again -- the stamp is the rendered
+          // evidence now.
           score: r.score,
           dims: r.pairDims,
           weak_a: r.weakA,
           weak_b: r.weakB,
           complementary: r.isComp,
           tail_flag: tailIds.has(r.idA) || tailIds.has(r.idB),
+          // Phase 355-18 (HIPS-04, D-08, D-56): the verification stamp
+          // stampRankedPairs computed above, before this JSON was built.
+          stamp: r.stamp || null,
           banked: r.banked === true,
           // WR-03 fix: field-parity with statements[] (which already carries
           // mode: 'embedded') and with the reasoning ranked[] rows (mode:
@@ -2035,4 +2185,10 @@ module.exports = {
   buildUpgradeDelta: buildUpgradeDelta,
   renderReasoningReport: renderReasoningReport,
   resolveReasoningPaths: resolveReasoningPaths,
+  // Phase 355-18 (HIPS-04, HIPS-05): the stamp-wiring seams, exported so
+  // tests/test-355-producer-eureka.cjs drives them hermetically (offline
+  // deps.callTool, no room.db, no encoder) without a full eureka run.
+  eurekaEndpoints: eurekaEndpoints,
+  stampRankedPairs: stampRankedPairs,
+  renderReport: renderReport,
 };
