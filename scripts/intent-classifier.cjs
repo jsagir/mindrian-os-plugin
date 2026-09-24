@@ -447,6 +447,36 @@ const TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
 // STDIN_RAW, no second parse of a different shape than extractSessionId's).
 const STDIN_CWD = extractCwd(STDIN_RAW);
 
+// WR-03 fix (360-REVIEW.md): the picker-suppression guard below, the zero-score gate,
+// and the F.8 binding gate each independently called session-binding.cjs's
+// readSessionBinding for THIS session (up to 3 reads of one small JSON file per hook
+// invocation, none of them budget-aware). All three derive the identical sessionId
+// (resolveSessionId(resolveActiveRoomDir())) and nothing in this hook writes to the
+// binding store between these reads, so one read is byte-identical to three.
+// getCachedSessionBinding memoizes the read (keyed on sessionId + root) and every call
+// site below threads its result instead of re-reading. A read fault is cached and
+// RE-THROWN on every call for the same key, so each call site's own try/catch degrades
+// exactly the way it did before this fix (fail-open, unchanged) -- only the actual
+// redundant filesystem read is eliminated, not the fault-handling shape at any site.
+let SESSION_BINDING_CACHE = null; // { key: string, binding: object } | { key: string, error: Error }
+function getCachedSessionBinding(sessionId, root) {
+  const key = String(sessionId) + '\u0000' + String(root);
+  if (SESSION_BINDING_CACHE && SESSION_BINDING_CACHE.key === key) {
+    if (SESSION_BINDING_CACHE.error) throw SESSION_BINDING_CACHE.error;
+    return SESSION_BINDING_CACHE.binding;
+  }
+  try {
+    const binding = require(
+      path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
+    ).readSessionBinding(sessionId, { home: root });
+    SESSION_BINDING_CACHE = { key: key, binding: binding };
+    return binding;
+  } catch (e) {
+    SESSION_BINDING_CACHE = { key: key, error: e };
+    throw e;
+  }
+}
+
 // Phase 360 (N-1, N-2): an unbound session's picker (and its side-channel
 // mint and marker writes) does not fire when the session's cwd resolves
 // outside the rooms home (N-1, SPEC R10, a deterministic realpath prefix
@@ -463,8 +493,7 @@ const STDIN_CWD = extractCwd(STDIN_RAW);
 function unboundPickerSuppressed(root) {
   try {
     const sessionId = resolveSessionId(resolveActiveRoomDir());
-    const sb = require(path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs'));
-    const binding = sb.readSessionBinding(sessionId, { home: root });
+    const binding = getCachedSessionBinding(sessionId, root);
     const policy = require(path.join(__dirname, '..', 'lib', 'core', 'room-bind-picker-policy.cjs'));
     if (!policy || typeof policy.unboundPickerSuppression !== 'function') return false;
     return policy.unboundPickerSuppression({ binding: binding, cwd: STDIN_CWD, roomsRoot: root }) !== null;
@@ -693,9 +722,9 @@ function main() {
         const machineWideDir = resolveActiveRoomDir();
         const sessionId = resolveSessionId(machineWideDir);
         const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
-        const binding = require(
-          path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
-        ).readSessionBinding(sessionId, { home: root });
+        // WR-03 (360-REVIEW.md): reuse the memoized read (see getCachedSessionBinding
+        // above) instead of re-reading the same session's binding file a second time.
+        const binding = getCachedSessionBinding(sessionId, root);
         // Fire only for a session with a real bound primary. An unbound session
         // (primary null), or one that explicitly chose dev-repo/no-room
         // (primary === __no_room__, where every substantive dev-repo message scores
@@ -761,9 +790,9 @@ function main() {
       // real bound primary (same call the zero-score path already uses) so the
       // gate can tell the two cases apart instead of mislabeling an off-scope
       // match as "session unbound".
-      const bindingForGate = require(
-        path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
-      ).readSessionBinding(sessionId, { home: root });
+      // WR-03 (360-REVIEW.md): reuse the memoized read (see getCachedSessionBinding
+      // above) instead of re-reading the same session's binding file a third time.
+      const bindingForGate = getCachedSessionBinding(sessionId, root);
       const boundPrimary = (bindingForGate && typeof bindingForGate.primary === 'string'
           && bindingForGate.primary.length > 0 && bindingForGate.primary !== NO_ROOM_SLUG)
         ? bindingForGate.primary
