@@ -349,3 +349,35 @@ contradiction, not one Theo's canon produced unprompted. Not a labeling
 defect, but a fact about what the `contradicts` class actually measures
 this phase, worth carrying forward alongside the `supports`-unreachable
 finding above.
+
+## 355-24 Task 3: navigator remark - the engine has never been measured on
+## a research-type venture; a fourth fixture room is proposed (ruling
+## pending)
+
+During the sitting-1 blind judging session (2026-09-24, about 19:17 local),
+the navigator remarked that all three existing fixture rooms
+(`room-ill-defined`, `room-extend`, `room-control`) are business or
+operations ventures, and that the only science-flavored text anywhere in
+the fixture set sits in `room-control` as deliberately-planted null
+material (content the engine is expected to correctly NOT connect). His
+own words: the engine has never actually been measured against a research
+venture, and he wants "more scientific-style pairs, as we want to drive
+scientific breakthroughs."
+
+Orchestrator recommendation given during the sitting, **ruling pending**:
+add a fourth fixture room of type `research`, seeded with planted
+KNOWN cross-field transfers (a genuine bridge the room's own content
+establishes, not a null case), so a future measurement pass can score
+recall (did the engine find the bridge we already know is there)
+alongside the precision this phase's three-room baseline already measures.
+Candidate scope for a later phase, not this one -- 355-24's own
+`files_modified` is the measurement script, the unstamped export, and the
+sitting-1 judgments only; building a new fixture room with its own planted
+cross-field transfers is a new-fixture-authoring effort on the scale of
+the original three (see `tests/fixtures/355-rooms/README.md`), not
+something this plan's declared surface can absorb without a Rule 4
+architectural-change checkpoint.
+
+Not fixed here. Flagged for the navigator to rule on (a fourth `research`-
+type fixture room, or an equivalent recall-oriented follow-up), and for
+whichever later 355 or 355.1 plan the ruling assigns it to.
