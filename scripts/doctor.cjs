@@ -2121,6 +2121,37 @@ function buildAcceptanceChecklist(ctx) {
         return { ok: true, finding: null, detail: { status: 'fresh', agreement: agreement, plugin_version: releasedVersion } };
       },
     },
+    {
+      // Phase 355 Plan 21 (HIPS-10, AI-SPEC Section 5): an offline,
+      // zero-network blocker proving the cross-connection honesty machinery
+      // (verification-stamp.cjs's degrade-on-Theo-down behavior, and the
+      // 355 measurement records' offline replay) has not silently broken. A
+      // DOCTOR_TEST_FAIL_POINT arm and a DOCTOR_SKIP_CROSS_CONNECTION=1
+      // escape mirror the icm-ruling-eval-fresh point immediately above. No
+      // row is added to data/doctor-modules.json: that file registers the
+      // accumulative engine's organ modules, not acceptance-checklist
+      // points -- the icm-ruling-eval-fresh precedent carries no row either
+      // (the open-question ruling this plan's frontmatter records).
+      id: 'cross-connection-honesty',
+      label: 'Cross-connection honesty: stamps degrade honestly and the 355 measurement records replay offline',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'cross-connection-honesty') {
+          return { ok: false, finding: 'cross-connection-honesty synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_CROSS_CONNECTION === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_CROSS_CONNECTION=1' } };
+        }
+        try {
+          const checkCrossConnectionHonesty = require(path.join(__dirname, 'check-cross-connection-honesty.cjs')).checkCrossConnectionHonesty;
+          const repoRoot = path.join(__dirname, '..');
+          return await checkCrossConnectionHonesty({ repoRoot: repoRoot });
+        } catch (e) {
+          return { ok: false, finding: 'cross-connection-honesty threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
