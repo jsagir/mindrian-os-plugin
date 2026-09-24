@@ -182,9 +182,15 @@ function parseArgv(argv) {
     const tok = list[i];
     if (tok && tok.indexOf('--') === 0) {
       const key = tok.slice(2);
-      const val = list[i + 1];
-      flags[key] = val;
-      i += 1;
+      const next = list[i + 1];
+      // A flag with no following value (last token, or immediately followed
+      // by another --flag) is a boolean switch (e.g. --partial, --help).
+      if (next === undefined || next.indexOf('--') === 0) {
+        flags[key] = true;
+      } else {
+        flags[key] = next;
+        i += 1;
+      }
     }
   }
   return { cmd, flags };
@@ -221,7 +227,10 @@ function usageText() {
     '  node scripts/label-355-gold.cjs start   --set <set> [--items <p>] [--session-dir <d>] [--seed <n>]',
     '  node scripts/label-355-gold.cjs resume  --set <set> [--items <p>] [--session-dir <d>]',
     '  node scripts/label-355-gold.cjs status  --set <set> [--items <p>] [--session-dir <d>]',
-    '  node scripts/label-355-gold.cjs emit    --set <set> [--items <p>] [--session-dir <d>] [--out <p>]',
+    '  node scripts/label-355-gold.cjs emit    --set <set> [--items <p>] [--session-dir <d>] [--out <p>] [--partial]',
+    '    --partial: emit the navigator-ruled floor (only the labeled items);',
+    '               refuses nothing on the missing count; marks partial:true,',
+    '               labeled_count, total_items, floor_ruling in the gold file.',
     'Sets: sentences, citations, pairings-unstamped, pairings-stamped',
     '',
   ].join('\n');
@@ -310,11 +319,13 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
     return 1;
   }
 
+  const partial = !!flags.partial;
   const missing = items.filter((it) => !session.entries[it.id]);
-  if (missing.length > 0) {
+  if (missing.length > 0 && !partial) {
     write('label-355-gold: refused -- ' + missing.length + ' item(s) not yet labeled\n');
     return 1;
   }
+  const itemsToEmit = partial ? items.filter((it) => session.entries[it.id]) : items;
 
   const outRaw = flags.out ? path.resolve(flags.out) : path.join(root, setDef.outDefault);
   const outReal = resolveAndContain(outRaw, [path.join(root, 'tests', 'fixtures'), os.tmpdir()]);
@@ -331,7 +342,7 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
       labeler: 'navigator',
       fixture_sha256: fixtureSha256,
       labeled_at: labeledAt,
-      items: items.map((it) => {
+      items: itemsToEmit.map((it) => {
         const e = session.entries[it.id];
         return {
           pair_id: it.id,
@@ -348,7 +359,7 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
       labeler: 'navigator',
       fixture_sha256: fixtureSha256,
       labeled_at: labeledAt,
-      items: items.map((it) => {
+      items: itemsToEmit.map((it) => {
         const out = { id: it.id };
         for (let i = 0; i < setDef.displayFields.length; i += 1) {
           const field = setDef.displayFields[i];
@@ -357,6 +368,21 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
         out.gold = session.entries[it.id].label;
         return out;
       }),
+    };
+  }
+
+  // --partial: the navigator's floor ruling. Emitted only when the caller
+  // asked for it explicitly; without the flag, payload shape is unchanged
+  // from before this flag existed (D-31..D-33, 355-03 Task 3 checkpoint).
+  if (partial) {
+    payload.partial = true;
+    payload.labeled_count = itemsToEmit.length;
+    payload.total_items = items.length;
+    payload.floor_ruling = {
+      by: 'navigator',
+      at: labeledAt,
+      floor: itemsToEmit.length,
+      note: 'floor lowered to the items labeled; remaining items stay open in the session file',
     };
   }
 
