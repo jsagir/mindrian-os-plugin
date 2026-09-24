@@ -205,22 +205,54 @@ for (const surface of mcpToolSurfaces) {
 // (string/number/boolean/enum/array/object/record introspection) and prove
 // the schema PARSES it. This is the "validates a sample input" half of
 // SPEC-2's "every tool schema-valid" acceptance, generic across all present
-// and future tools -- no per-tool sample map to maintain. ---
+// and future tools -- no per-tool sample map to maintain.
+//
+// Phase 267 Plan 03 (MCPV2-03): zod-version-agnostic kind reader. zod 3
+// exposes the type kind at `_def.typeName` ('ZodString', 'ZodOptional', ...);
+// zod 4 moves it to `_zod.def.type` (lowercase, 'string', 'optional', ...)
+// and `_def.typeName` is undefined there, which crashed this introspection
+// with a TypeError before this rewrite (267-RESEARCH.md Pitfall 2 "Test
+// infra"). Both vocabularies are mapped onto the SAME sample generator below
+// -- what this test asserts is unchanged, only how it reads the schema kind.
+// Known pre-existing gap, NOT fixed here (out of this plan's scope, see
+// 267-BASELINE.md): the generator always samples the bare type (e.g. `1` for
+// any number), ignoring `.min()`/`.max()` constraints, so a field like
+// context_assemble's `fragment_char_cap: z.number().int().min(50).max(4000)`
+// still synthesizes an out-of-range sample and still fails its PARSES check
+// under either zod version -- the same "context_assemble schema PARSES a
+// synthesized sample input" failure named in 267-BASELINE.md. ---
 function sampleForZodType(zType, depth) {
-  if (!zType || !zType._def || depth > 4) return 'sample';
-  const def = zType._def;
-  const name = def.typeName;
-  if (name === 'ZodOptional' || name === 'ZodNullable' || name === 'ZodDefault') {
-    return sampleForZodType(def.innerType, depth);
+  if (!zType || depth > 4) return 'sample';
+  const v4def = zType._zod && zType._zod.def;
+  const kind = v4def ? v4def.type : (zType._def && zType._def.typeName);
+  if (!kind) return 'sample';
+
+  if (kind === 'optional' || kind === 'ZodOptional'
+    || kind === 'nullable' || kind === 'ZodNullable'
+    || kind === 'default' || kind === 'ZodDefault') {
+    const inner = v4def ? v4def.innerType : zType._def.innerType;
+    return sampleForZodType(inner, depth);
   }
-  if (name === 'ZodString') return 'sample-text';
-  if (name === 'ZodNumber') return 1;
-  if (name === 'ZodBoolean') return true;
-  if (name === 'ZodEnum') return Array.isArray(def.values) ? def.values[0] : 'sample';
-  if (name === 'ZodArray') return [sampleForZodType(def.type, depth + 1)];
-  if (name === 'ZodRecord') return {};
-  if (name === 'ZodObject') {
-    const shape = typeof def.shape === 'function' ? def.shape() : (def.shape || {});
+  if (kind === 'string' || kind === 'ZodString') return 'sample-text';
+  if (kind === 'number' || kind === 'ZodNumber') return 1;
+  if (kind === 'boolean' || kind === 'ZodBoolean') return true;
+  if (kind === 'enum' || kind === 'ZodEnum') {
+    if (v4def) {
+      const values = Object.values(v4def.entries || {});
+      return values.length > 0 ? values[0] : 'sample';
+    }
+    const def = zType._def;
+    return Array.isArray(def.values) ? def.values[0] : 'sample';
+  }
+  if (kind === 'array' || kind === 'ZodArray') {
+    const elementType = v4def ? v4def.element : zType._def.type;
+    return [sampleForZodType(elementType, depth + 1)];
+  }
+  if (kind === 'record' || kind === 'ZodRecord') return {};
+  if (kind === 'object' || kind === 'ZodObject') {
+    const shape = v4def
+      ? (v4def.shape || {})
+      : (typeof zType._def.shape === 'function' ? zType._def.shape() : (zType._def.shape || {}));
     const obj = {};
     for (const [k, v] of Object.entries(shape)) obj[k] = sampleForZodType(v, depth + 1);
     return obj;
