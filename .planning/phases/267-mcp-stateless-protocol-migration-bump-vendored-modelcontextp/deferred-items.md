@@ -40,3 +40,36 @@ rediscover it, and so no later Phase 267 plan mistakes it for a migration
 **Do not fix as part of any Phase 267 plan** unless a plan explicitly says
 so; a fix here belongs to `lib/core/part8-egress-guard.cjs`'s own owning
 surface, which is out of scope for this phase per 267-CONTEXT.md.
+
+## 267-06: pre-existing `safeResolveSection` occurrence-count mismatch in test-347
+
+Found while checking whether tool-router.cjs's registration rewrite (11
+sites, `server.tool` -> `server.registerTool`) broke any test outside this
+plan's declared `files_modified`. `tests/test-347-visualize-real-chain.cjs`
+Task 2 Test 7 asserts `(TOOL_ROUTER_SOURCE.match(/safeResolveSection/g) ||
+[]).length === 6` with a comment naming the expected 6 sites (two comments,
+the function definition, the one call site, a JSDoc reference, and the
+`module.exports._test` entry). `grep -c safeResolveSection
+lib/mcp/tool-router.cjs` returns **7** both before and after 267-06's
+diff (confirmed via `git show HEAD:lib/mcp/tool-router.cjs | grep -c
+safeResolveSection`, and `git diff` for 267-06's own tool-router.cjs
+commit contains zero lines matching `safeResolveSection`) -- this plan's
+registration rewrite touched none of those lines. The 7th occurrence
+(line ~2326, a comment: "... those modules require this file back for
+SECTION_RE/safeResolveSection reuse) ever runs...") already existed at
+267-06's PLAN_BASE.
+
+Classification: pre-existing, unrelated to Phase 267. Not part of this
+plan's own gate set (`tests/test-347-visualize-real-chain.cjs` is not
+referenced by `tests/run-all-198.sh` or `tests/run-all-267.sh`, and is not
+named in this plan's `<verify>` block). 267-06 DID fix this file's
+`makeFakeServer()` (added a `registerTool` capture sibling, a genuine
+Rule-1 bug this plan's own tool-router.cjs change caused -- see the
+267-06 SUMMARY), which resolved 5 of that file's 6 originally-failing
+checks; only Task 2 Test 7's occurrence-count assertion remains red, for
+the reason above.
+
+**Do not fix as part of any Phase 267 plan** unless a plan explicitly says
+so; the fix belongs to whoever owns test-347's own baseline count (either
+correct the comment/assertion to 7, or find and remove the stray 7th
+mention) -- out of scope for a registration-API migration phase.
