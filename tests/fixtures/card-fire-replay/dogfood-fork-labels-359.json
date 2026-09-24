@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "phase": "359-missed-fork-detection-larry-poses-a-genuine-decision-in-pros",
+    "source": "dogfood-overlay-359",
+    "sanitization_statement": "labels authored locally over the already-sanitized 357 dogfood entries; never sent to Jev (Part 8, D-21)",
+    "ratified": false
+  },
+  "labels": {
+    "dogfood-0208790f-091452": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (harness-preceded false block: subagent hand-back read as typed, echoes fresh F.8 candidate name); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-092655": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (two consecutive peer hand-back status notes, harness-preceded, no genuine human engagement); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0f86dd63-065920": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (task-notification record misread as typed, echoes fresh F.8 candidate name); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0f86dd63-070027": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (two consecutive task-notification records, same misread-as-typed mechanism); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0f86dd63-093356": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (terse task-notification record echoes a fresh F.1 reach gate pending-item name); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-21829408-092938": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (two isMeta records with real body text, pre-fix source classifier reads them as typed); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-21829408-093038": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (peer hand-back echoes fresh F.1/F.8 candidate name, low-signal-fresh default); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-21829408-093053": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (consecutive peer hand-backs echo freshest F.8 candidate name; card never fired); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0f86dd63-092046": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (R-C known_false_block: single coincidental content-token overlap on a human continuity turn); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-060830": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; synthetic-no-user-engagement guard exits before relevance); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-063354": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; gate stale by Stop time, guard exits before relevance); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-064501": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; both mints predate the guard check); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-065048": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; guard exits before relevance regardless of freshness); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-065507": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (latest preceding record is a pure tool_result even though an earlier hand-back appears further back); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-065759": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; guard exits before relevance runs); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-083847": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (latest preceding record is a pure tool_result; guard exits before relevance runs); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-084111": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (preceding record is a pure tool_result; guard exits before relevance runs); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-084140": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (a Skill-body meta record appears earlier, but the LATEST preceding record is a pure tool_result); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-084127": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (peer hand-back with real text precedes a fresh F.8 gate but shares zero non-boilerplate tokens); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-060555": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (no gate was reached this turn; ordinary short human turn with nothing to force); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-062150": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (no gate was reached this turn; ordinary tool-result-preceded turn with no forced card); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-062345": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (no gate was reached this turn; ordinary tool-result-preceded turn with no forced card); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-065535": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (no gate was reached this turn despite a task-notification preceding it); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    },
+    "dogfood-0208790f-091355": {
+      "prose_fork": false,
+      "fork_label_origin": "local",
+      "why": "Entry exercises the SIDECHANNEL/BACKSTOP gate-reach classification mechanism (no gate was reached this turn; ordinary tool-result-preceded turn); the final assistant turn (when present at all) carries no genuine two-or-more-way decision posed in flowing prose, so no card-worthy fork exists here (359 D-21)."
+    }
+  }
+}

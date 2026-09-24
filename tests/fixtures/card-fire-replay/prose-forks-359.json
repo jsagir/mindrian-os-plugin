@@ -1,0 +1,726 @@
+{
+  "meta": {
+    "phase": "359-missed-fork-detection-larry-poses-a-genuine-decision-in-pros",
+    "source": "synthetic-359",
+    "schema": "357 D-02 entry shape plus prose_fork and fork_labels (359 D-18); see scripts/card-fire-replay-corpus.cjs validateEntry",
+    "grammar": "N-3: Your call: p1 | p2[ | p3] | What if m",
+    "sanitization_statement": "Every value is authored for this corpus; the intern-w1 forks are paraphrased from the structural shape in the resolved RCA; no real person, organization, room or venture content; no user or dogfood text (Part 8)."
+  },
+  "entries": [
+    {
+      "id": "syn359-fork-01",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Two honest paths here, and they pull against each other. We could research first, mapping the landscape before committing to a direction, or we could build the plan now and let the gaps surface as we go.",
+        "preceding_user_text": "I'm stuck between digging deeper and just moving. What do you think?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Paraphrases the first intern-w1 fork (\"research first vs build the plan\") from intern-w1-card-discipline-decay.md, structural shape only.",
+      "prose_fork": true,
+      "fork_labels": [
+        "Research first",
+        "Build the plan now",
+        "What if we flip a coin, purely to break the analysis loop"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-02",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ The plan itself is solid, but I see two ways to move next. Build the plan now and start executing on the parts we're already sure of, or file the evidence first so the record is airtight before anyone acts on it.",
+        "preceding_user_text": "Evidence is basically ready. Should we just go?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Paraphrases the second intern-w1 fork (\"build the plan now vs file evidence first\") from intern-w1-card-discipline-decay.md, structural shape only.",
+      "prose_fork": true,
+      "fork_labels": [
+        "Build the plan now",
+        "File the evidence first",
+        "What if we publish the plan in draft form, evidence footnoted as it lands"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-03",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Which pull is stronger for you right now? Get hired soon, so the immediate pressure eases, or build toward the long-term plan, so the next five years look the way you actually want them to.",
+        "preceding_user_text": "I keep going back and forth on this. Not sure which one wins.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Paraphrases the third intern-w1 fork (\"which pull is stronger - get hired soon vs build toward...\") from intern-w1-card-discipline-decay.md, structural shape only.",
+      "prose_fork": true,
+      "fork_labels": [
+        "Get hired soon",
+        "Build toward the long-term plan",
+        "What if a short contract funds the long-term plan directly"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-04",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Here's the actual fork in front of you: do we ship the draft as-is today, or do we hold it one more cycle for a second review pass?",
+        "preceding_user_text": "The draft looks close. Not sure if it needs another look though.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A question-phrased 2-practical fork (D-19 category: forks phrased as a question).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Ship the draft today",
+        "Hold it one more review cycle",
+        "What if we ship a stripped-down version and queue the rest"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-05",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ So which is it: do we keep the current vendor and absorb the renewal cost, or do we switch vendors and eat the migration pain instead?",
+        "preceding_user_text": "The renewal notice came in. Costs went up again.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A question-phrased 2-practical fork (D-19 category: forks phrased as a question).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Keep the current vendor",
+        "Switch vendors",
+        "What if we renegotiate down to the new vendor’s price first"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-06",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Real question for you: do we hire the specialist now, before the workload actually justifies it, or do we wait for the workload to prove it out first?",
+        "preceding_user_text": "Team is stretched thin already. Not sure if that is enough of a signal.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A question-phrased 2-practical fork (D-19 category: forks phrased as a question).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Hire the specialist now",
+        "Wait for the workload to prove out",
+        "What if we bring them on part-time until the case is obvious"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-07",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Which direction do you actually want: do we consolidate the two tools into one, or do we keep them separate and just improve the handoff between them?",
+        "preceding_user_text": "The handoff keeps causing small errors. Annoying but not catastrophic.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A question-phrased 2-practical fork (D-19 category: forks phrased as a question).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Consolidate the two tools",
+        "Keep them separate, improve the handoff",
+        "What if we sunset both and adopt a third tool neither of us has evaluated yet"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-08",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Three real moves are on the table for the launch: go narrow with a single flagship customer, go broad with a self-serve waitlist, or go quiet and finish the integration work first before telling anyone.",
+        "preceding_user_text": "Launch is close. I keep flip-flopping on how loud to be about it.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A 3-practical fork (D-19 category: 3-way forks).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Go narrow with a flagship customer",
+        "Go broad with a self-serve waitlist",
+        "Go quiet and finish integration first",
+        "What if we tease the flagship deal while the waitlist fills quietly"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-09",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ For the budget cut, there are three real paths: trim every team by the same percentage, protect the core product team and cut support harder, or freeze hiring instead of cutting anyone already on staff.",
+        "preceding_user_text": "The budget memo landed this morning. Nobody is happy about it.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A 3-practical fork (D-19 category: 3-way forks).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Cut every team by the same percentage",
+        "Protect product, cut support harder",
+        "Freeze hiring instead",
+        "What if we cut travel and tooling spend first, revisit headcount later"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-10",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ On the outage postmortem, three ways to close it out: publish the full technical writeup internally, publish a trimmed customer-facing summary, or hold it entirely until the fix is fully verified in production.",
+        "preceding_user_text": "Customers are asking what happened. The fix looks stable but it is early.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A 3-practical fork (D-19 category: 3-way forks).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Publish the full internal writeup",
+        "Publish a trimmed customer summary",
+        "Hold until the fix is verified",
+        "What if we publish a one-line acknowledgment and promise more soon"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-11",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ My read is that we should archive the old dashboard outright, it is not worth the maintenance burden anymore. If that feels too abrupt, the alternative is to keep it read-only for one more quarter so nobody loses history mid-project.",
+        "preceding_user_text": "The old dashboard still gets a handful of visits a week.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A recommendation-plus-alternative fork (D-19 category).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Archive the old dashboard outright",
+        "Keep it read-only for one more quarter",
+        "What if we migrate its three most-used widgets, archive the rest now"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-12",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ I would recommend rewriting the parser from scratch, the current one has accumulated too many special cases to trust. The alternative, if a rewrite feels risky right now, is patching the worst three special cases and leaving the rest alone.",
+        "preceding_user_text": "The parser bug reports keep trickling in. Nothing urgent yet.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A recommendation-plus-alternative fork (D-19 category).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Rewrite the parser from scratch",
+        "Patch the worst three special cases",
+        "What if we run a second parser behind a flag and compare live traffic"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-13",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ My recommendation is to bring the design review in-house permanently, it has been the bottleneck every single cycle. The alternative is keeping the outside reviewer but doubling their cadence instead.",
+        "preceding_user_text": "Design review has been slow again this cycle.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A recommendation-plus-alternative fork (D-19 category).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Bring design review in-house permanently",
+        "Keep the outside reviewer, double the cadence",
+        "What if we run both for one cycle and let turnaround decide"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-14",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Straight yes-or-no on this one: yes, ship the draft now and let the second review happen live, or no, hold it back until review finishes first.",
+        "preceding_user_text": "The draft is basically done. Review queue is backed up though.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A yes/no-shaped 2-practical fork (D-19; exercises the gate-is-simple-binary exclusion, isYesNoShapedGate must read this true).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Yes, ship the draft now",
+        "No, hold it back until review finishes",
+        "What if we open the draft up for public beta testing instead"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-15",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Simple call, actually: yes, greenlight the pilot and staff it this week, or no, kill the pilot and reassign the two engineers already.",
+        "preceding_user_text": "The pilot numbers came in mixed. Not a clear yes or no from the data alone.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A yes/no-shaped 2-practical fork (D-19; exercises the gate-is-simple-binary exclusion, isYesNoShapedGate must read this true).",
+      "prose_fork": true,
+      "fork_labels": [
+        "Yes, greenlight the pilot",
+        "No, kill the pilot",
+        "What if we spin the pilot out as its own independent lab"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-16",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Two numbers worth comparing before you decide: yesterday's draft, which is the version the team already reviewed, or now, meaning the version with this morning's last-minute edits folded in.",
+        "preceding_user_text": "Which version are we even looking at right now?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "Known limitation (RESEARCH Pitfall 5): these two labels normalize to 'yes...' and 'no...' by pure ACCIDENT of English spelling (\"Yesterday's draft\" / \"Now\"), not because they mean yes/no. isYesNoShapedGate cannot tell this apart from a real yes/no pair and will exempt it under gate-is-simple-binary; this is a documented false exemption, not a bug in this fixture.",
+      "prose_fork": true,
+      "fork_labels": [
+        "Yesterday's draft",
+        "Now",
+        "What if we scrap both and start fresh with the new format"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-fork-17",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ שתי דרכים אמיתיות עומדות על הפרק. לחקור קודם, למפות את השטח לפני שמתחייבים לכיוון, או לבנות את התוכנית עכשיו, להתחיל לבנות מיד.",
+        "preceding_user_text": "לא בטוח איפה להתחיל.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "block",
+      "label_origin": "hand",
+      "why": "A Hebrew-labeled fork (D-19 category); non-ASCII 80-code-point cap and isYesNoShapedGate must still catch this as a genuine fork, not exempt it.",
+      "prose_fork": true,
+      "fork_labels": [
+        "לחקור קודם",
+        "לבנות את התוכנית עכשיו",
+        "What if עושים גם וגם, שבוע ראשון של מחקר מקביל מימון וממשיך למשך השבוע"
+      ],
+      "known_miss": {
+        "reason": "undeclared prose fork, text-dependent (359 R2)"
+      }
+    },
+    {
+      "id": "syn359-ctrl-01",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟦 Two clarifying questions before I proceed: what's the target audience for this doc, and what's the deadline you're working against?",
+        "preceding_user_text": "Can you draft the announcement?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Clarifying-question pair (backstop-benign shape); a pair of questions gathering context, not a fork posing a decision.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-02",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟦 Here's what happens next, purely informational:\n1. The build finishes in the background.\n2. The test suite runs automatically once it does.\n3. You'll get a summary in this thread when both are done.",
+        "preceding_user_text": "What happens after I hit merge?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Informational step list (backstop-benign shape); describes a sequence that already happened or will happen automatically, not a choice.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-03",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟨 Two real constraints here, NOT options to pick between: the budget cap on the vendor contract, and the deadline the board set for the migration. Both apply regardless of what we do next.",
+        "preceding_user_text": "Are the budget and the deadline both hard limits?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "The \"NOT options to pick between\" disclaimer shape (backstop-benign, paraphrased from card-fire-relevance-check-gap.md’s exact live false-positive text).",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-04",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬜ Sources referenced above:\n1. Internal metrics doc, updated this week.\n2. Team retro notes from the last sprint.\n3. The vendor's own changelog for the release in question.",
+        "preceding_user_text": "Where did those numbers come from?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Footnote reference list (backstop-benign shape); citations, not options.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-05",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟦 Next, you could:\n1. Review the draft outline.\n2. Confirm the timeline with the team.\n3. Send the summary once it's approved.",
+        "preceding_user_text": "What should I do after this?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Action Footer (backstop-benign shape); the platform’s own mandatory 2-3 suggested next commands, not a decision gate.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-06",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟨 A few caveats before you run this:\n1. It's slow on a cold start, budget a minute or two.\n2. It needs network access to reach the registry.\n3. It skips validation entirely in dry-run mode.",
+        "preceding_user_text": "Anything I should watch out for before running it?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Caveat list (backstop-benign shape); warnings about one already-chosen action, not a fork between alternatives.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-07",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟥 Should we ship today or wait? Ship today, honestly. The fix is small, it's been through review, and holding it just adds risk without adding confidence.",
+        "preceding_user_text": "Is the fix ready to go out?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Rhetorical X-or-Y question the same reply answers; the reply resolves it, so no live fork remains for the navigator.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-08",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟥 Draft now or draft later? Draft now, while the context from this conversation is still fresh. Waiting just means re-explaining all of this to myself next week.",
+        "preceding_user_text": "When should the draft happen?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Rhetorical X-or-Y question the same reply answers; the reply resolves it, so no live fork remains for the navigator.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-09",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "🟥 Research first or build first? Honestly, it doesn't matter here, the two tracks are independent enough that I'll just do both in parallel starting now.",
+        "preceding_user_text": "Which comes first, research or building?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Rhetorical X-or-Y question the same reply answers; the reply resolves it, so no live fork remains for the navigator.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-10",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬜ The outline covers the three sections we discussed, ready for your read. Want me to draft it?",
+        "preceding_user_text": "That outline looks solid to me.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Closing yes/no offer (backstop-benign shape); a trivial confirmation closer, not a genuine two-way strategic fork.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-11",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬜ That covers the full incident timeline. Should I go ahead and file it with the postmortem template?",
+        "preceding_user_text": "Timeline looks complete to me.",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Closing yes/no offer (backstop-benign shape); a trivial confirmation closer, not a genuine two-way strategic fork.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-12",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬜ I pulled the last three quarters of numbers into one sheet, with the trend line included. Want those?",
+        "preceding_user_text": "Can you also check the trend?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Closing yes/no offer (backstop-benign shape); a trivial confirmation closer, not a genuine two-way strategic fork.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-13",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ This one is close, but I don't think it needs a real fork yet.\nYour call: build it",
+        "preceding_user_text": "Should we build this or not?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): only 1 label after the prefix, no separator at all; parseForkDeclaration requires 3-4 labels, so this stays not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-14",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Two options on the table, no moonshot attached this time.\nYour call: Build it | Research it",
+        "preceding_user_text": "Build it or research it first?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): exactly 2 labels, no final \"What if\" moonshot; below MIN_LABELS=3, so this stays not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-15",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Here's the shape of it, versioned for clarity.\nYour call: Build it [v2] | Research it | What if we prototype both in parallel",
+        "preceding_user_text": "Which version are we talking about?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): a bracket inside a label; parseForkDeclaration rejects any line containing \"[\" or \"]\".",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-16",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Your call: Build it | Research it | What if we prototype both\nLet me know what you think, no rush on this.",
+        "preceding_user_text": "What are the options here?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): the declaration is not the LAST non-empty line, a trailing prose line follows it; parseForkDeclaration reads only the last line.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-17",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Laying out the choice plainly below.\n**Your call:** Build it | Research it | What if we prototype both",
+        "preceding_user_text": "Can you lay out the choice plainly?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): markdown emphasis around the prefix; the line does not start with the literal \"Your call: \" (no leading \"**\"), so it is not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-18",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ One more decision point before we move on.\nYour call: Build it | Research it | what if we prototype both",
+        "preceding_user_text": "What's the decision point?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): the moonshot uses a lowercase \"what if\" (case-sensitive MOONSHOT_PREFIX requires capital \"What if\"), so it is not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-19",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ This one has more moving pieces than usual.\nYour call: Plan A | Plan B | Plan C | Plan D | What if we skip all four and start over",
+        "preceding_user_text": "How many plans are actually on the table?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative): 5 labels total, one over MAX_LABELS=4 (AskUserQuestion cannot render a 5th option); not-declared.",
+      "prose_fork": false
+    }
+  ]
+}
