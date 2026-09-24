@@ -454,6 +454,44 @@ leg('unit-suppress-real-primary-with-sentinel-also-bound', function () {
   } finally { fx.cleanup(); }
 });
 
+leg('unit-suppress-real-room-plus-sentinel-null-primary', function () {
+  // WR-02 (360-REVIEW.md): consumeSessionBinding writes `bound` straight from the F.8
+  // card's confirmed multi-select toggle set, independent of `primary`. A navigator who
+  // checks both a real room's box AND "dev repo / no room", without also picking a
+  // primary, produces exactly this shape: { bound: ['tin-orchard', NO_ROOM_SLUG],
+  // primary: null }. That must NOT be read as "chose no room" (a real room is also
+  // sitting right there in `bound`) -- today's picker behavior applies (null), same as
+  // the outside-cwd branch two lines below the sentinel check in the source.
+  const loaded = requirePolicyReady();
+  const fx = makeFixture();
+  try {
+    const cwd = resolveCwd(fx, 'outside-dev-repo');
+    const binding = { bound: ['tin-orchard', loaded.NO_ROOM_SLUG], primary: null };
+    const v = loaded.policy.unboundPickerSuppression({ binding: binding, cwd: cwd, roomsRoot: fx.rooms });
+    assertValidSuppressionVerdict(v, 'real-room-plus-sentinel-null-primary');
+    assertTrue(v === null,
+      'a real room slug in bound alongside the sentinel, with a null primary, must not '
+      + 'permanently suppress (WR-02); got ' + JSON.stringify(v));
+  } finally { fx.cleanup(); }
+});
+
+leg('unit-suppress-sentinel-explicit-primary-plus-real-room-bound', function () {
+  // The other WR-02 side: when the sentinel IS the explicit primary, it still suppresses
+  // even if a real room slug also rides in `bound` -- a deliberate "primarily, no room"
+  // choice outranks a co-resident room checkbox.
+  const loaded = requirePolicyReady();
+  const fx = makeFixture();
+  try {
+    const cwd = resolveCwd(fx, 'outside-dev-repo');
+    const binding = { bound: ['tin-orchard', loaded.NO_ROOM_SLUG], primary: loaded.NO_ROOM_SLUG };
+    const v = loaded.policy.unboundPickerSuppression({ binding: binding, cwd: cwd, roomsRoot: fx.rooms });
+    assertValidSuppressionVerdict(v, 'sentinel-explicit-primary-plus-real-room-bound');
+    assertTrue(v === 'no-room-remembered',
+      'an explicit sentinel primary must still suppress even with a real room co-resident in bound; got '
+      + JSON.stringify(v));
+  } finally { fx.cleanup(); }
+});
+
 leg('unit-suppress-never-throws-malformed-bindings', function () {
   const loaded = requirePolicyReady();
   const fx = makeFixture();
