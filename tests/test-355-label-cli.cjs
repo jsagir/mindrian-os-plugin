@@ -432,6 +432,74 @@ async function main() {
   }
 
   // ---------------------------------------------------------------------
+  // Behavior 8b: emit --partial writes only the labeled items under the
+  // navigator's floor ruling (355-03 Task 3 checkpoint resolution). Without
+  // --partial, an incomplete session still refuses -- byte-identical to the
+  // pre-existing behavior.
+  // ---------------------------------------------------------------------
+  {
+    const sessionDir = mkTmpDir('session-partial');
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['start', '--set', 'sentences', '--items', sentenceItemsPath, '--session-dir', sessionDir],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    input.write('1\n');
+    input.write('6\n');
+    input.write('q\n');
+    await runPromise;
+
+    const outDir = mkTmpDir('out-partial');
+    const outPath = path.join(outDir, 'gold-partial.json');
+    const emitOut = makeOutput();
+    const emitCode = await cli.run({
+      argv: ['emit', '--set', 'sentences', '--items', sentenceItemsPath, '--session-dir', sessionDir, '--out', outPath, '--partial'],
+      input: new PassThrough(),
+      output: emitOut,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B8b: emit --partial succeeds on an incomplete session', emitCode === 0, emitOut.text);
+    const goldPartial = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+    check('B8b: partial gold carries partial:true', goldPartial.partial === true);
+    check('B8b: partial gold labeled_count matches entries', goldPartial.labeled_count === 2, String(goldPartial.labeled_count));
+    check('B8b: partial gold total_items matches the full item set', goldPartial.total_items === 3, String(goldPartial.total_items));
+    check(
+      'B8b: partial gold items array holds only the labeled items',
+      Array.isArray(goldPartial.items) && goldPartial.items.length === 2,
+      String(goldPartial.items.length),
+    );
+    check(
+      'B8b: floor_ruling carries by/at/floor/note',
+      !!goldPartial.floor_ruling
+        && goldPartial.floor_ruling.by === 'navigator'
+        && typeof goldPartial.floor_ruling.at === 'string'
+        && goldPartial.floor_ruling.floor === 2
+        && typeof goldPartial.floor_ruling.note === 'string',
+    );
+
+    const outDir2 = mkTmpDir('out-partial-default');
+    const outPath2 = path.join(outDir2, 'gold-should-not-exist.json');
+    const emitOut2 = makeOutput();
+    const emitCode2 = await cli.run({
+      argv: ['emit', '--set', 'sentences', '--items', sentenceItemsPath, '--session-dir', sessionDir, '--out', outPath2],
+      input: new PassThrough(),
+      output: emitOut2,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B8b: emit without --partial still refuses the same incomplete session', emitCode2 !== 0);
+    check('B8b: incomplete gold file never written without --partial', !fs.existsSync(outPath2));
+  }
+
+  // ---------------------------------------------------------------------
   // Behavior 9: no boundary_tag leakage; unstamped pairing carries no stamp text
   // ---------------------------------------------------------------------
   {
