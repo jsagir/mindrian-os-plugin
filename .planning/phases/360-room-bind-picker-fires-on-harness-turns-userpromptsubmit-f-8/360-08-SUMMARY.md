@@ -201,3 +201,14 @@ both research homes with the follow-on candidates recorded for the navigator. No
 *Phase: 360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8*
 *Plan: 08*
 *Completed: 2026-09-24*
+
+## Self-Check: PASSED
+
+- FOUND: .planning/REQUIREMENTS.md (11 BIND360 rows closed, 0 open)
+- FOUND: .planning/phases/360-room-bind-picker-fires-on-harness-turns-userpromptsubmit-f-8/360-VALIDATION.md (nyquist_compliant: true)
+- FOUND: /home/jsagi/MindrianRooms/rethinking-mindrianos/research/2026-09-23-phase-360-room-bind-picker-harness-turns-and-dev-repo.md
+- FOUND: /home/jsagi/MindrianOS/research/2026-09-23-phase-360-room-bind-picker-harness-turns-and-dev-repo.md (byte-identical to the above)
+- FOUND: commit 1aa186dac (Task 1, dev repo)
+- FOUND: commit f7b311c12 (Task 2, home repo)
+- FOUND: commit 5dc93b726 (this SUMMARY, dev repo)
+- 0 em-dash characters across all edited/created files in this plan
