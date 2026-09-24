@@ -1,0 +1,354 @@
+{
+  "measured_at": "2026-09-24T00:00:00Z",
+  "zod_version": "4.6.5",
+  "note": "CTX ruling 2026-09-23: accept the looser default (strip, not strict); runtime stripping unchanged",
+  "zod4_additionalProperties_dropped": [
+    {
+      "kind": "tool",
+      "name": "analysis",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "artifact_file",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "chain_resolve",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "chain_run",
+      "field": "inputSchema",
+      "path": [
+        ".",
+        "/properties/gate_answer"
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "claim_read",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "claim_verify",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "claim_write",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "context_assemble",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "contradiction_check",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "detect_dual_path",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_critic",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ],
+      "also": [
+        {
+          "safe_integer_bounds_gained": [
+            "/properties/schema_version"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "export",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "extract_shallow",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "framework_run",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "gate_answer",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "gate_render",
+      "field": "inputSchema",
+      "path": [
+        ".",
+        "/properties/options/items"
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "graph_query",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "graph_reason",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "graph_write",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ],
+      "also": [
+        {
+          "propertyNames_gained": [
+            "/properties/properties"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "identity_write",
+      "field": "inputSchema",
+      "path": [
+        ".",
+        "/properties/role_blend"
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "intelligence",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "meeting",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "memory_event",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ],
+      "also": [
+        {
+          "propertyNames_gained": [
+            "/properties/payload"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "methodology",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "orchestration",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "question_read",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "question_set",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ],
+      "also": [
+        {
+          "safe_integer_bounds_gained": [
+            "/properties/based_on_version"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "reach_candidates",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "room_bind",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "room_content",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "room_graph",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "room_search",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "room_state",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "status_read",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ],
+      "also": [
+        {
+          "propertyNames_gained": [
+            "/properties/context_window"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "stop_gate_check",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "suggest_next",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    },
+    {
+      "kind": "tool",
+      "name": "view_compile",
+      "field": "inputSchema",
+      "path": [
+        "."
+      ]
+    }
+  ],
+  "zod4_other": [
+    {
+      "kind": "tool",
+      "name": "brain_query",
+      "field": "inputSchema",
+      "path": [
+        "/properties/params"
+      ],
+      "note": "propertyNames gained on z.record site; additionalProperties:false preserved (Part 8 strict-object guard intact)"
+    }
+  ],
+  "app_views_schema_fix": [],
+  "prompts_fix": []
+}
