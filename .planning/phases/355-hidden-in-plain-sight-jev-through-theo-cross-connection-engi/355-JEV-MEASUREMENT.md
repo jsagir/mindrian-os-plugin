@@ -251,3 +251,168 @@ Per 355-15's own `must_haves`, adoption work (plan 355-28) runs only on an
 `adopted` decision; with `not_adopted` recorded here, 355-28's own Task 1
 gate reads this record and skips its three tasks, writing nothing under
 `data/`.
+
+---
+
+## Citation-check calibration (D-46, AI-SPEC D15)
+
+Measured: 2026-09-24T18:10:37.007Z. Model, every recorded response:
+`jev-1.13.0` (pinned; a different model on any single call would have
+aborted the run). Calls: 86 (43 templated items x 2 variants: rule stated,
+rule withheld), `non_200: 0`. Input tokens: 45,275. Cost estimate:
+$0.00190155 at the vendor-documented $0.042 per million input tokens
+(output tokens are free).
+
+The item file (`tests/fixtures/355-citation-pairs.items.json`) carries 43
+templated `{claim, path}` items across 5 strata (`direct_lateral` 12,
+`hub` 11, `three_hop` 4, `both_directions` 8, `contradicting` 8), plus 8
+`no_path` entries that carry no `path` at all. Those 8 make ZERO Jev
+calls: code decides `unverified` for a citation with no path to score
+(D-46), so nothing about them is calibrated here -- only their count is
+recorded.
+
+8 of the 43 scored items are synthetic (`synthetic: true`): the entire
+`contradicting` stratum, built by 355-14 Task 2's own fallback rule
+because Theo's canon carried zero naturally-occurring `CONTRASTS_WITH`
+edges among the sampled pairs. The other 35 are drawn directly from a
+live Theo capture.
+
+The gold (`tests/fixtures/355-citation-pairs.json`) is machine-labeled by
+an external model (`claude-opus-5.5`, `labeler_kind: external_model`)
+under the navigator's 2026-09-24 ruling recorded in 355-14-SUMMARY.md --
+the navigator's own blind sitting on this exact set stands at 0/43 (a real
+CLI defect, root-caused and fixed within that same plan, not a change of
+position; the sentence gold in 355-15 above remains the navigator's own
+blind labels, unaffected). The gold's own verdict counts across the 43
+scored items: 35 `says_nothing`, 8 `contradicts`, 0 `supports`.
+
+Two limitations from 355-14-SUMMARY.md carry into every number below:
+
+1. **`supports` is structurally unreachable in this item set.** No item
+   samples an `ALIAS_OF` path, so this calibration exercises a two-class
+   effective gold (`says_nothing` vs `contradicts`), not the three-class
+   schema the `citation_check` profile itself supports. A follow-up item
+   set sampling `ALIAS_OF` paths specifically would be needed to measure
+   `supports` at all.
+2. **Every `contradicts` gold item is exactly the synthetic
+   `contradicting` stratum** -- the 8 items where 355-14 constructed the
+   contradiction itself, since Theo's canon returned none of these
+   unprompted. The `contradicts` numbers below measure Jev against a
+   constructed contradiction, not one the canon produced on its own.
+
+The rule (`CITATION_RULE`, `scripts/jev-question-ceilings.cjs`), stated
+verbatim to Jev in the `stated` variant and withheld entirely in the
+`withheld` variant:
+
+> Apply in this order. (1) If a hop in `path` states a relation opposite
+> to the one `claim` asserts, answer contradicts. (2) Else if the hops,
+> read in order, directly show the relation `claim` asserts, answer
+> supports. (3) Else answer says_nothing. A path that joins the two
+> frameworks only through a broad shared node (a problem type, a stage, a
+> general category) says nothing.
+
+### Stated vs withheld
+
+| Variant | n | Exact agreement with gold | Auto-verdict slice (confidence >= 0.8) | Coverage | Human-routed share |
+|---|---|---|---|---|---|
+| stated | 43 | 41/43 (95.35%) | 23/23 correct (100.00%) | 53.49% | 46.51% |
+| withheld | 43 | 25/43 (58.14%) | 10/12 correct (83.33%) | 27.91% | 72.09% |
+
+Stating the rule roughly doubles exact agreement on this item set (58.14%
+-> 95.35%) and roughly doubles the share of items the auto-verdict slice
+would cover (27.91% -> 53.49%), while also raising the auto-slice's own
+accuracy (83.33% -> 100.00%). The direction of this gap matches the
+spike's earlier policy-execution-parity finding (64/64 stated vs 40/64
+withheld; `.claude/skills/spike-findings-MindrianOS-Plugin`), on a
+different, phase-355-specific item set.
+
+### Band and the future seam
+
+The stated-rule auto-verdict slice's measured accuracy is
+`confidenceFromBucket({correct: 23, n: 23})` = **high** (23 of 23 correct,
+>= 0.9 -- `lib/core/eureka-critic.cjs`). This band is computed from
+measured accuracy on this run, never from Jev's own confidence number
+(Tetlock #6; D-46) -- that is the entire point of `bandFromMeasured`.
+
+The rule for a future seam, written down now, before any seam exists:
+high band -> auto-verdict is allowed at confidence >= 0.8; medium band ->
+every verdict goes to a human; low or unknown band -> rewrite the
+question before this seam is used at all.
+
+**No Jev verdict from this calibration reaches a runtime stamp this
+phase.** `judge` stays the zod literal `'none'` at runtime (D-14); this is
+a dev-time measurement only, feeding the Theo T-2 outbound note (355-27).
+
+---
+
+## Usefulness judge vs navigator (AI-SPEC D18)
+
+Measured: 2026-09-24T18:10:47.516Z. Model, every recorded response:
+`jev-1.13.0`. Calls: 96 (one per sitting-1 pairing,
+`tests/fixtures/355-rooms/pairings.items.json`), `non_200: 0`. Input
+tokens: 79,231. Cost estimate: $0.00332770 at $0.042 per million input
+tokens.
+
+Each pairing was sent to Jev as `{a_excerpt, b_excerpt, direction_phrase,
+verification}` through the `usefulness_judge` profile -- `verification`
+is the stamp TIER WORD from `tests/fixtures/355-rooms/stamps.json`
+(`strong` / `indirect` / `unverified`), never a number. The excerpts are
+synthetic dev-repo fixture text (three Claude-authored fixture rooms), not
+user-room bytes, so this stays Part-8-clean. Jev answered one Choice per
+pairing: `useful` / `not_useful` / `already_known` / `none`.
+
+### Agreement with the navigator's blind `useful` / not label
+
+Mapping (D-46): navigator `useful: true` <-> Jev choice `useful`;
+navigator `useful: false` <-> any other Jev choice (`not_useful`,
+`already_known`, `none`).
+
+| | n | Agree | Rate |
+|---|---|---|---|
+| overall | 96 | 73 | 76.04% |
+| unverified tier | 82 | 65 | 79.27% |
+| strong tier | 13 | 7 | 53.85% |
+| indirect tier | 1 | 1 | 100.00% |
+
+Jev agrees with the navigator most often on `unverified` pairings (79.27%,
+the tier with the most examples, 82 of 96) and least often on `strong`
+pairings (53.85%, 13 examples) -- the reverse of what a verification tier
+"helping" the judge would look like. `indirect` has only 1 example in this
+fixture-room set; its 100% agreement is not a meaningful rate at n=1.
+
+### `already_known`
+
+Two different figures, both requested by AI-SPEC D18 and the plan's own
+execution notes -- they answer different questions and must not be read
+as the same number.
+
+**`already_known` rate per tier** (share of Jev's OWN answers that were
+`already_known`, regardless of whether the navigator agreed):
+
+| Tier | n | Jev said already_known | Rate |
+|---|---|---|---|
+| unverified | 82 | 2 | 2.44% |
+| strong | 13 | 0 | 0% |
+| indirect | 1 | 0 | 0% |
+
+**Agreement on the navigator's own `already_known` label** (Jev's
+`already_known` choice vs the navigator's `already_known: true/false`
+boolean, overall, all 96 pairings): 53 of 96 agree, **55.21%**. The
+navigator marked 45 of 96 pairings `already_known: true`
+(355-24-SUMMARY.md's own tally); Jev's `already_known` choice landed on
+only 2 of 96 pairings total (both in the `unverified` tier) -- Jev is far
+more reluctant to call a pairing already-known than the navigator was,
+which is most of why the two `already_known` figures above diverge so
+sharply from each other.
+
+The navigator's `direction_ok` label was **not** judged by Jev in this
+plan -- out of scope for D18 (AI-SPEC D18 asks about usefulness, not
+direction correctness); no agreement figure for `direction_ok` exists in
+this record.
+
+**Jev's answers never enter the hit rate.** `355-VERIFICATION.md`'s hit
+rate (D16, 355-25) is computed from
+`tests/fixtures/355-rooms/judgments.json` (the navigator's blind sitting-1
+judgments) alone; this section only measures how far a Jev usefulness
+judge sits from that human gold, per AI-SPEC D18 -- it does not replace,
+feed, or adjust the hit rate.

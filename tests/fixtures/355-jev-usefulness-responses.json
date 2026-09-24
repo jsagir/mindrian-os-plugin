@@ -1,0 +1,2114 @@
+{
+  "97a0730bcb0e783499d84680cf64b191500a1989325938458ba5e2d90b528ef5": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "none": 0.02,
+            "already_known": 0.02,
+            "useful": 0.57,
+            "not_useful": 0.39
+          },
+          "confidence": 0.43
+        }
+      },
+      "usage": {
+        "input_tokens": 844,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "084e269a3daaa58b270a320adaa27fe7a0db893e26106036fa4f6080d76ab800": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.14,
+            "useful": 0.85,
+            "none": 0.01
+          },
+          "confidence": 0.79
+        }
+      },
+      "usage": {
+        "input_tokens": 834,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "de85d3a99a2864c7273900d74aec61334f5aa3768f41d372cb1422844cbd58d8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.53,
+            "none": 0.01,
+            "not_useful": 0.36,
+            "already_known": 0.1
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 872,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "7d4547b2f40625094d94fc6f77f596a11915f3c3fc897d5a3cc60aa59da93a65": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "none": 0.06,
+            "useful": 0.32,
+            "not_useful": 0.62
+          },
+          "confidence": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 848,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "db6248068276bfd98b9d023e89131cd685c3eff9117f514fa478442a834197c1": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.67,
+            "useful": 0.28,
+            "none": 0.04,
+            "already_known": 0
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 847,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "914f24cbdb69d1248d56c3f4054e20c229cfcd37d4813c3f632b567d7031c4ce": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "none": 0.01,
+            "not_useful": 0.23,
+            "useful": 0.75,
+            "already_known": 0.01
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 859,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "6cd72a773dd7903668ff1832dd700218e08e7b2eb16caf3561b36c07c0b2fd09": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.19,
+            "useful": 0.27,
+            "not_useful": 0.54,
+            "already_known": 0
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 826,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "a157e4eaaf5f4a95a394b1105fb7f58b338c34a07ce8e5505c58bf4942a449f2": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "not_useful": 0.64,
+            "useful": 0.24,
+            "none": 0.11
+          },
+          "confidence": 0.52
+        }
+      },
+      "usage": {
+        "input_tokens": 839,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "171036ac25ec6e0925d831bc933440a19d893a07a6ab1f800e07eb88744d727a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "not_useful": 0.18,
+            "useful": 0.79,
+            "none": 0.02
+          },
+          "confidence": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 844,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "ed1b305b7e250de06c75647b601e89c12182cbb658975a5c7bf169de5b1c168f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.74,
+            "useful": 0.15,
+            "none": 0.11,
+            "already_known": 0
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 847,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "3f65627b2f1f97df1301e61a72b3bc81f49376b54d740d46ccc3d71f32bb8431": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.34,
+            "none": 0.09,
+            "already_known": 0,
+            "not_useful": 0.57
+          },
+          "confidence": 0.43
+        }
+      },
+      "usage": {
+        "input_tokens": 825,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "1b61da4a3fae9a95efc8a15a621f9ebc837090bf15d14600f69095f8497ac95c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.4,
+            "none": 0.05,
+            "useful": 0.54
+          },
+          "confidence": 0.39
+        }
+      },
+      "usage": {
+        "input_tokens": 854,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "e889cdd14c98175dd307dd7780fcb5d5a62ffc5d2ff330ae4207d89ae9a563d5": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.2,
+            "none": 0.11,
+            "not_useful": 0.6799999999999999,
+            "already_known": 0.01
+          },
+          "confidence": 0.58
+        }
+      },
+      "usage": {
+        "input_tokens": 836,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "d516023d3fdfea96954d84b2b97210a169b96460660ae48909b99e1a8bfa6944": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.05,
+            "not_useful": 0.76,
+            "useful": 0.18,
+            "already_known": 0.01
+          },
+          "confidence": 0.68
+        }
+      },
+      "usage": {
+        "input_tokens": 860,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "961bf9695874a197832c4b964e7dea7a893ebd078a3951841dd48f51a1950866": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.79,
+            "none": 0.02,
+            "already_known": 0.01,
+            "not_useful": 0.18
+          },
+          "confidence": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 851,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "5925a8a7da97066491f534661c503bbc3dd608d213ca833632758f09aafae86d": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "not_useful": 0.47,
+            "none": 0.02,
+            "useful": 0.5
+          },
+          "confidence": 0.33
+        }
+      },
+      "usage": {
+        "input_tokens": 854,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "354cae9fe4c4221245a245a77b96444ab78883a4b3368cca5d05d6a04cf94106": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.67,
+            "none": 0.05,
+            "already_known": 0,
+            "useful": 0.28
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 828,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "c9c2cf449e4b2fe25010e9c678f075c5844c4620121401bf88383af205cb634e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.02,
+            "not_useful": 0.15,
+            "useful": 0.82,
+            "none": 0.01
+          },
+          "confidence": 0.76
+        }
+      },
+      "usage": {
+        "input_tokens": 840,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "0c3710c2e0008eb770c2056543ad691f53063bcf0100e3af15c5f8c22f7cd14b": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "useful": 0.36,
+            "none": 0.05,
+            "not_useful": 0.58
+          },
+          "confidence": 0.44
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "b5f0ef2d2ae70eb36435bf30e3901c521e760a6d2590926beb66b739be4924de": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.37,
+            "none": 0.01,
+            "already_known": 0.01,
+            "useful": 0.61
+          },
+          "confidence": 0.48
+        }
+      },
+      "usage": {
+        "input_tokens": 865,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "4906a97a29b3729bd5a6d8594f7e094282d63f3ead80a978c355fab25572bc2f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.74,
+            "not_useful": 0.24,
+            "already_known": 0.01,
+            "none": 0.01
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "f0ef6d50463f22d9343f4ff4f30986f880fd38cf48e94ef4eb1ef964b700c135": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.7,
+            "none": 0.01,
+            "not_useful": 0.27,
+            "already_known": 0.02
+          },
+          "confidence": 0.61
+        }
+      },
+      "usage": {
+        "input_tokens": 812,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "b7ad30ccad0cc5508c5ac8661329255546afbdccb952167d24b0cc598f715253": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.91,
+            "not_useful": 0.08,
+            "none": 0,
+            "already_known": 0.01
+          },
+          "confidence": 0.88
+        }
+      },
+      "usage": {
+        "input_tokens": 800,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "febb69e429c7aa98793290ac419691cc49a0846998ce42260da9a445e9fc701c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.22,
+            "none": 0.02,
+            "useful": 0.75,
+            "already_known": 0.01
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "1629a0ea155e04ccee296b1872b1274c11e2e1675afbfe95ff860c7d4f1cc996": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.03,
+            "already_known": 0,
+            "useful": 0.21,
+            "not_useful": 0.76
+          },
+          "confidence": 0.68
+        }
+      },
+      "usage": {
+        "input_tokens": 837,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "329beed18922a51da8ce5d2311237719bfe319d98a7ced6b6a4e78c8db683ecd": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "none": 0.02,
+            "not_useful": 0.62,
+            "useful": 0.36
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 830,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "5e5da877c91c9e232c3ba072a14b439361830fd3f8c28a3080b6e065de87b7e2": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.62,
+            "none": 0.05,
+            "already_known": 0,
+            "useful": 0.33
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 803,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "92dffe0bbab46bf8f5a81579dbf9d7b8695cc4059140eceea627cbf8b81c7882": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.23,
+            "none": 0.07,
+            "already_known": 0,
+            "not_useful": 0.7
+          },
+          "confidence": 0.59
+        }
+      },
+      "usage": {
+        "input_tokens": 854,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "6de3560fc8366c6f05c21b142f6872ff56ad341a4a703bb328c5bd38cd0cee04": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.24,
+            "useful": 0.73,
+            "none": 0.03
+          },
+          "confidence": 0.64
+        }
+      },
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "888bc57a1367fac2eb34ec8bf1f89f46c08fd3989c8c56e5a94d43407ad8d4b2": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.19,
+            "not_useful": 0.77,
+            "none": 0.04,
+            "already_known": 0
+          },
+          "confidence": 0.69
+        }
+      },
+      "usage": {
+        "input_tokens": 812,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "c9212257884f7c22f13ad11b66e7d7de51319dd7253cfc66c3474ce2767df8c1": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "none": 0.03,
+            "useful": 0.67,
+            "not_useful": 0.3,
+            "already_known": 0
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 828,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "35ce81e0c177922513d0bcc86ccad1a6eed799ed8bfe470aef798fe197d855de": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.48,
+            "not_useful": 0.46,
+            "none": 0.05,
+            "already_known": 0.01
+          },
+          "confidence": 0.32
+        }
+      },
+      "usage": {
+        "input_tokens": 831,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "fb1774c0ec9f30f1516fbe1c667c0fc77a45431892c0eec3dbee88b6f86e2d55": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.02,
+            "useful": 0.34,
+            "none": 0.01,
+            "not_useful": 0.63
+          },
+          "confidence": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 808,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "a302bd33fd28fb578960b3e6269b597423824077dcf91150b66e5f27072c6b2d": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.43,
+            "none": 0.01,
+            "already_known": 0.28,
+            "not_useful": 0.28
+          },
+          "confidence": 0.24
+        }
+      },
+      "usage": {
+        "input_tokens": 829,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "7315e304a02b17b6057658c41c16a72f9a1faceda3aeeb85355af7f6dd80291f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.02,
+            "already_known": 0.01,
+            "not_useful": 0.66,
+            "useful": 0.31
+          },
+          "confidence": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "31810cdbd78e4779ae7c413b0a0c17487547f86de391431e59a1fbe031f3909a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.62,
+            "useful": 0.35,
+            "none": 0.01,
+            "already_known": 0.02
+          },
+          "confidence": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "ebe2807a56061f8740299e07afa52275b5d85171d53e7810016a00aca7ae83af": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.48,
+            "none": 0.01,
+            "not_useful": 0.32,
+            "already_known": 0.19
+          },
+          "confidence": 0.31
+        }
+      },
+      "usage": {
+        "input_tokens": 799,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "271117eec0e63f4694a2ef010d7a4df8cdbc6b7f35d96fa07cc7a36bf298fa81": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.13,
+            "none": 0.03,
+            "useful": 0.62,
+            "not_useful": 0.22
+          },
+          "confidence": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "9a37a5fc8d76fe3aa50019b9830730e0fd15febb11f9394a6645c73a5b577438": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.51,
+            "useful": 0.45,
+            "none": 0.01,
+            "already_known": 0.03
+          },
+          "confidence": 0.35
+        }
+      },
+      "usage": {
+        "input_tokens": 807,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "e7080c24a6669a77392ac2131b57a4a8b45469cf8f11466e02ae8e5bb126af23": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.45,
+            "already_known": 0,
+            "useful": 0.5,
+            "none": 0.05
+          },
+          "confidence": 0.33
+        }
+      },
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "8f8a5c3ed8db83d07e90eb6996840e52d8e44fadac52dd17b23f985ce23fd62b": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.26,
+            "already_known": 0.02,
+            "none": 0.01,
+            "useful": 0.71
+          },
+          "confidence": 0.62
+        }
+      },
+      "usage": {
+        "input_tokens": 817,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "29df832fb704db936993674449f5dc9d3ca7d44c79848f4b289c031a79204329": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "none": 0.04,
+            "useful": 0.58,
+            "not_useful": 0.37,
+            "already_known": 0.01
+          },
+          "confidence": 0.45
+        }
+      },
+      "usage": {
+        "input_tokens": 830,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "82f8d90909409b21e55063b2a5c4869a36745241edb4bf86bde11451ef9bce6b": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.03,
+            "already_known": 0.02,
+            "useful": 0.19,
+            "not_useful": 0.76
+          },
+          "confidence": 0.67
+        }
+      },
+      "usage": {
+        "input_tokens": 823,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "d88c47fecd3cdbd9fa78c25757bba86731eb6c8d2a8341e09098bbf5e1b27e3d": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.02,
+            "already_known": 0.01,
+            "not_useful": 0.67,
+            "useful": 0.3
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "3e3bb15bb3db23f690e983ce91ff8b2118eef96cfaf9e6cf1a50799eeb974e7f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.65,
+            "not_useful": 0.31,
+            "none": 0.01,
+            "already_known": 0.03
+          },
+          "confidence": 0.54
+        }
+      },
+      "usage": {
+        "input_tokens": 781,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "f6a22b23dee06a405471a0253fa6833b971486e7aeb65fb33e94670671084102": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.14,
+            "already_known": 0,
+            "not_useful": 0.85,
+            "none": 0.01
+          },
+          "confidence": 0.79
+        }
+      },
+      "usage": {
+        "input_tokens": 820,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "922018e2ebd15ad8d9216f61f31ba5eb671940f28dedc3de514f95078f04cc07": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.57,
+            "none": 0.03,
+            "already_known": 0.02,
+            "not_useful": 0.38
+          },
+          "confidence": 0.44
+        }
+      },
+      "usage": {
+        "input_tokens": 825,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "c23a6e2ef0d9851ec10b3b7c32bc0854c5ce3819573c5786c4bde4cddef91cac": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "useful": 0.57,
+            "none": 0.04,
+            "not_useful": 0.38
+          },
+          "confidence": 0.44
+        }
+      },
+      "usage": {
+        "input_tokens": 806,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "a4c1d867a4557c180d189b4c9a47718e3ac05a5b1081af48f28a6aba32bf112e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.64,
+            "already_known": 0.06,
+            "not_useful": 0.29,
+            "none": 0.01
+          },
+          "confidence": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 815,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "8e92ffbad80928edc75b1150f64fd2de053df627b8d8a121ab188a2895ce670e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.02,
+            "none": 0.01,
+            "useful": 0.71,
+            "not_useful": 0.26
+          },
+          "confidence": 0.62
+        }
+      },
+      "usage": {
+        "input_tokens": 828,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "2d5e2a069e35ff0721f9b021e8ef89526fc6aac3a0f161848973dffc3b622e3f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "not_useful": 0.33,
+            "none": 0.02,
+            "useful": 0.64
+          },
+          "confidence": 0.52
+        }
+      },
+      "usage": {
+        "input_tokens": 822,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "44a13ffb0be54896d3228d952186b395719b3be43de37e5d21fa1b1fed189da1": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "none": 0.09,
+            "useful": 0.17,
+            "not_useful": 0.74
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 827,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "ea0afc148e75d17cbf87640ebec2c4b1e471e2084b97eee48bbdeec949143190": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.12,
+            "already_known": 0,
+            "useful": 0.87,
+            "none": 0.01
+          },
+          "confidence": 0.81
+        }
+      },
+      "usage": {
+        "input_tokens": 820,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "688821781915a85e04b9d76d160ab0dae63e5fcd0acea85d700b70454ebed78e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.02,
+            "useful": 0.44,
+            "not_useful": 0.53,
+            "already_known": 0.01
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 825,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "1497268315f598bd5cb21ad18044e0610de0d83d4b09848d35eb3974043dfa1b": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.01,
+            "useful": 0.35,
+            "already_known": 0.19,
+            "not_useful": 0.45
+          },
+          "confidence": 0.28
+        }
+      },
+      "usage": {
+        "input_tokens": 814,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "42b41fe2ed3db2a8b136a1c20de29d697f761d91ebb053d0a7ef1b52ffe3b18f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "useful": 0.6,
+            "none": 0.05,
+            "already_known": 0.01,
+            "not_useful": 0.34
+          },
+          "confidence": 0.48
+        }
+      },
+      "usage": {
+        "input_tokens": 815,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "2698cb94819c3a3e2d6b1ae0fb888760846291eb5a1d662d5c4f2a684e036f17": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.18,
+            "not_useful": 0.67,
+            "none": 0.14,
+            "already_known": 0.01
+          },
+          "confidence": 0.57
+        }
+      },
+      "usage": {
+        "input_tokens": 810,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "4d8f5dac1b106a9b9cb6713465f94757f2b414b3ebf0d0be573bb751899339b3": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.51,
+            "already_known": 0.01,
+            "none": 0.09,
+            "useful": 0.39
+          },
+          "confidence": 0.34
+        }
+      },
+      "usage": {
+        "input_tokens": 825,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "a5baad18598176b051cbbc326231d5882b4bf80b12bc6766528089b38488e8b8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "none": 0.33,
+            "not_useful": 0.54,
+            "useful": 0.13
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 811,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "20a8095afb573d3ceb88460dcd1ddb1c013ba094f0d7d7d2be789a048c0766eb": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.75,
+            "useful": 0.05,
+            "none": 0.18,
+            "already_known": 0.02
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 770,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "75d0b2212f5be70475dee0373b8ea5d4f58dca2efc8524156e67b3083248b67a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.51,
+            "already_known": 0.09,
+            "none": 0.06,
+            "useful": 0.34
+          },
+          "confidence": 0.34
+        }
+      },
+      "usage": {
+        "input_tokens": 799,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "f2ea34215d95477db3ae15bd9c5f87eeba732e54f182f2b20154ea68ba17b548": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.26,
+            "none": 0.02,
+            "useful": 0.4,
+            "already_known": 0.32
+          },
+          "confidence": 0.2
+        }
+      },
+      "usage": {
+        "input_tokens": 807,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "e071705f34ee45350ad916babd8cc588298d434afa7c0fd2bc1c5a27d96ef622": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.02,
+            "useful": 0.39,
+            "none": 0.04,
+            "not_useful": 0.55
+          },
+          "confidence": 0.4
+        }
+      },
+      "usage": {
+        "input_tokens": 846,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "2a0b57e2ca43455458eab3fd2d03bcd85dc9741e157aa66b5909f61a7a51949e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.03,
+            "none": 0.19,
+            "not_useful": 0.78,
+            "already_known": 0
+          },
+          "confidence": 0.7
+        }
+      },
+      "usage": {
+        "input_tokens": 773,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "8a29d01e0c5c0d1afe702692ed5dfa32b6d9743dbc1486775915ac2395cce223": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.51,
+            "none": 0.04,
+            "already_known": 0.13,
+            "useful": 0.32
+          },
+          "confidence": 0.34
+        }
+      },
+      "usage": {
+        "input_tokens": 859,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "1546c4f81cb406b44f1ed9198b5127a4bb10a31682554a7ad0aea940401563aa": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "already_known": 0.28,
+            "not_useful": 0.29,
+            "none": 0.07,
+            "useful": 0.36
+          },
+          "confidence": 0.15
+        }
+      },
+      "usage": {
+        "input_tokens": 820,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "ed2194e453435f899c8c7a87d1221fcb8ccc3d38ce2744aa4bb851901e4aa740": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.65,
+            "none": 0.12,
+            "useful": 0.23,
+            "already_known": 0
+          },
+          "confidence": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 776,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "f48b7e367a8255054eaceecd6fdb7c0837e4039b55ac49dc2d67dc89b014592a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.53,
+            "already_known": 0.16,
+            "useful": 0.3,
+            "none": 0.01
+          },
+          "confidence": 0.39
+        }
+      },
+      "usage": {
+        "input_tokens": 804,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "ff3f308f2f8606047bbadd57e92747e2896dd23be950e3dfb0fe0d65d2ff0c2c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.62,
+            "useful": 0.22,
+            "none": 0.09,
+            "already_known": 0.07
+          },
+          "confidence": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 795,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "d134e3d8c4469daa6fe1284bb44ab821228ce2dbf256a0e57917dd52acd8c44c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.03,
+            "already_known": 0,
+            "not_useful": 0.87,
+            "none": 0.1
+          },
+          "confidence": 0.82
+        }
+      },
+      "usage": {
+        "input_tokens": 836,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "844b357101580a3ebe359540335729b81032b0a09f27c2d3dc6a092fb53fb99f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.79,
+            "none": 0.17,
+            "useful": 0.04
+          },
+          "confidence": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 839,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "c58582a0fce4a3a770b7ebc7b5d1cd693040f230cd40b04d5a1f3b1887b34d45": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.05,
+            "useful": 0.1,
+            "already_known": 0,
+            "not_useful": 0.85
+          },
+          "confidence": 0.8
+        }
+      },
+      "usage": {
+        "input_tokens": 859,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "151f71a6b3ea09a904df7850c0b5c4bd115c7e4fb1f257e18e72da02f79b4043": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.15,
+            "already_known": 0.01,
+            "not_useful": 0.8099999999999999,
+            "none": 0.03
+          },
+          "confidence": 0.76
+        }
+      },
+      "usage": {
+        "input_tokens": 845,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "c1d7d8c1291d59beb75d46521372a793288ea8793156eb2faa001562a6e895da": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.1,
+            "none": 0.07,
+            "not_useful": 0.83,
+            "already_known": 0
+          },
+          "confidence": 0.78
+        }
+      },
+      "usage": {
+        "input_tokens": 824,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "ec58fe4471cdef1ca5e9d0600016c212ede4a9f647a11626525ce1a1087a45e8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.04,
+            "useful": 0.33,
+            "not_useful": 0.59,
+            "already_known": 0.04
+          },
+          "confidence": 0.46
+        }
+      },
+      "usage": {
+        "input_tokens": 849,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "739e97007cb521dc86e49e22adb81a313bb95cf27539c44a805c8f1b3e6ced15": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "none": 0.1,
+            "not_useful": 0.83,
+            "useful": 0.06
+          },
+          "confidence": 0.78
+        }
+      },
+      "usage": {
+        "input_tokens": 826,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "d5f70905f220fe866b6f79bf17cebb9102586d31f87397639be36eed6bf7c606": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.22,
+            "not_useful": 0.63,
+            "none": 0.05,
+            "useful": 0.1
+          },
+          "confidence": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "8262766722053ca4ed496465084819e129dc30fc50157715eb11898ffe7ce1e7": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.78,
+            "useful": 0.12,
+            "none": 0.1
+          },
+          "confidence": 0.7
+        }
+      },
+      "usage": {
+        "input_tokens": 848,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "ffa3e2451b156e06b2cb42634486a30168c4b697687dd2160f12a4307fcae3b0": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "useful",
+          "probabilities": {
+            "not_useful": 0.38,
+            "none": 0.01,
+            "useful": 0.43,
+            "already_known": 0.18
+          },
+          "confidence": 0.23
+        }
+      },
+      "usage": {
+        "input_tokens": 794,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "d39f2b2d880d3d9594a425573475ffac5a575ca1d906b5286e2a10360a8083d4": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.05,
+            "not_useful": 0.91,
+            "already_known": 0,
+            "none": 0.04
+          },
+          "confidence": 0.88
+        }
+      },
+      "usage": {
+        "input_tokens": 798,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "40872bd6c290e4346423e913bcac7555150a71a93fe59bed2f1e3db93bd8e969": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.46,
+            "already_known": 0.01,
+            "none": 0.1,
+            "useful": 0.43
+          },
+          "confidence": 0.28
+        }
+      },
+      "usage": {
+        "input_tokens": 833,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "29486978eb99872dfa6ab84dc7ecd22d8ac41a54e377e833e4a92d8e374c5af6": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.74,
+            "already_known": 0,
+            "useful": 0.22,
+            "none": 0.04
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 859,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "49dd474a65db06a6d166dd944e636144fdc69afd42d4c013d1699f176f5dbecc": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.01,
+            "useful": 0.02,
+            "not_useful": 0.97,
+            "already_known": 0
+          },
+          "confidence": 0.96
+        }
+      },
+      "usage": {
+        "input_tokens": 819,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "8dc32684ad60400148305f501e98201a1e8443102d427a8d288f9f1571e605f0": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "already_known",
+          "probabilities": {
+            "already_known": 0.67,
+            "useful": 0.12,
+            "none": 0,
+            "not_useful": 0.21
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 861,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "d97aa58a59ecc91192bfbc9cba6a8aa2cb72587a80710f9aeb5c11301409cf86": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.23,
+            "useful": 0.28,
+            "already_known": 0.01,
+            "not_useful": 0.48
+          },
+          "confidence": 0.32
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "41e4e1d7aad9511ea4c7817a0a900544853929939a868c9eef375800c5195e3e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.09,
+            "none": 0.16,
+            "already_known": 0.01,
+            "not_useful": 0.74
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 850,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "f2c3ee171db11b70d8f013dea503fd944a9543203d380a1d56f57517126b85be": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "not_useful": 0.78,
+            "none": 0.17,
+            "useful": 0.05
+          },
+          "confidence": 0.7
+        }
+      },
+      "usage": {
+        "input_tokens": 829,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "d4a4866269333234f4b7c3d490e93a35b40b47de15bfe5278be00e0494c693ab": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.7,
+            "already_known": 0,
+            "useful": 0.02,
+            "none": 0.28
+          },
+          "confidence": 0.6
+        }
+      },
+      "usage": {
+        "input_tokens": 801,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "b32572507363afb5513dace8772d36de20997f1f0ad3229cd303dcada4ea02f6": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "useful": 0.12,
+            "none": 0.06,
+            "not_useful": 0.81
+          },
+          "confidence": 0.74
+        }
+      },
+      "usage": {
+        "input_tokens": 811,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "883c0129a67579a2feb5d59593bd122cf2c6948e90cfb52c3f1f7b807eeca446": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "already_known",
+          "probabilities": {
+            "not_useful": 0.24,
+            "useful": 0.26,
+            "none": 0.01,
+            "already_known": 0.49
+          },
+          "confidence": 0.33
+        }
+      },
+      "usage": {
+        "input_tokens": 848,
+        "output_tokens": 52
+      }
+    }
+  ],
+  "a6cd962b1e3241f43c6ccc537d6227d1065ca27bbd4e6d0404f1d30a3fcb11ea": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "none": 0.12,
+            "not_useful": 0.74,
+            "useful": 0.14,
+            "already_known": 0
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 833,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "6a80ed1e52b179e2fea23515f2ebeec7b241c0764758c43c3424b115dc470557": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0,
+            "none": 0.19,
+            "not_useful": 0.76,
+            "useful": 0.05
+          },
+          "confidence": 0.68
+        }
+      },
+      "usage": {
+        "input_tokens": 813,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "7a08f76df6d1f0ea03579a374f070bb5109e193ae0adf4aa3b4e038c5ff7bd5c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.36,
+            "none": 0.01,
+            "not_useful": 0.6,
+            "already_known": 0.03
+          },
+          "confidence": 0.46
+        }
+      },
+      "usage": {
+        "input_tokens": 821,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "07e996d839a9be515cb6fd3f520750d3963cb321ed3e6d7e10d5d389bcc28ece": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "already_known": 0.01,
+            "not_useful": 0.57,
+            "none": 0.28,
+            "useful": 0.14
+          },
+          "confidence": 0.43
+        }
+      },
+      "usage": {
+        "input_tokens": 849,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "c7918651ff01c40f6aea0ba25b712743f24947567acc96f388b245f791f2fda9": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "not_useful": 0.54,
+            "none": 0.04,
+            "useful": 0.41,
+            "already_known": 0.01
+          },
+          "confidence": 0.39
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 53
+      }
+    }
+  ],
+  "daf641e8a1ed4eafb32a02a65405295ab23c05a1a9711440d260b55efe226ccc": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "usefulness": {
+          "type": "choice",
+          "choice": "not_useful",
+          "probabilities": {
+            "useful": 0.01,
+            "none": 0.01,
+            "already_known": 0,
+            "not_useful": 0.98
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 53
+      }
+    }
+  ]
+}

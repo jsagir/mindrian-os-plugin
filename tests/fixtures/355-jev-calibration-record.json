@@ -1,0 +1,106 @@
+{
+  "citation": {
+    "measured_at": "2026-09-24T18:10:37.007Z",
+    "jev_model": "jev-1.13.0",
+    "calls": 86,
+    "non_200": 0,
+    "input_tokens": 45275,
+    "cost_usd_estimate": 0.0019015500000000003,
+    "fixture_sha256": "ad6ee535d579038a57a5512e9c671ce1670dacb15f2bd923d2aaf1a4bae17767",
+    "gold_labeled_at": "2026-09-24T11:13:49.743Z",
+    "item_count": 43,
+    "no_path_count": 8,
+    "stated": {
+      "n": 43,
+      "exact_agreement": {
+        "correct": 41,
+        "n": 43,
+        "rate": 0.9534883720930233
+      },
+      "auto_slice": {
+        "n": 23,
+        "correct": 23,
+        "agreement": 1,
+        "coverage_share": 0.5348837209302325
+      },
+      "human_routed_share": 0.46511627906976744
+    },
+    "withheld": {
+      "n": 43,
+      "exact_agreement": {
+        "correct": 25,
+        "n": 43,
+        "rate": 0.5813953488372093
+      },
+      "auto_slice": {
+        "n": 12,
+        "correct": 10,
+        "agreement": 0.8333333333333334,
+        "coverage_share": 0.27906976744186046
+      },
+      "human_routed_share": 0.7209302325581395
+    },
+    "band_stated": "high",
+    "seam_rule": "high: auto-verdict allowed at confidence >= 0.8. medium: every verdict goes to a human. low or unknown: rewrite the question before this seam is used.",
+    "rule_text_sha256": "138779cbbbb831a05cbf870761adce09b4436f8c0d7630bc6d0c3b8f6e84e184",
+    "question_sha256s": {
+      "stated": "ebc3a18c984d59bc4fa43fd9156c210e4790123d003d9a3b3388c2aea13640cb",
+      "withheld": "8aa238e33ffb76abcb1bdc22b1229d49fdbab5684d517845a6c5e78e010da276"
+    }
+  },
+  "usefulness": {
+    "measured_at": "2026-09-24T18:10:47.516Z",
+    "jev_model": "jev-1.13.0",
+    "calls": 96,
+    "non_200": 0,
+    "input_tokens": 79231,
+    "cost_usd_estimate": 0.003327702,
+    "fixture_sha256": "1fb0c813fcdb4d8ed5b55c0b6851036aeb29fa2041605e25ba1debf172dc7973",
+    "judgments_labeled_at": "2026-09-24T16:23:28.824Z",
+    "n": 96,
+    "agreement": {
+      "n": 96,
+      "agree": 73,
+      "rate": 0.7604166666666666
+    },
+    "per_tier": {
+      "unverified": {
+        "n": 82,
+        "agree": 65,
+        "rate": 0.7926829268292683
+      },
+      "strong": {
+        "n": 13,
+        "agree": 7,
+        "rate": 0.5384615384615384
+      },
+      "indirect": {
+        "n": 1,
+        "agree": 1,
+        "rate": 1
+      }
+    },
+    "already_known_by_tier": {
+      "unverified": {
+        "n": 82,
+        "count": 2,
+        "rate": 0.024390243902439025
+      },
+      "strong": {
+        "n": 13,
+        "count": 0,
+        "rate": 0
+      },
+      "indirect": {
+        "n": 1,
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "already_known_agreement": {
+      "n": 96,
+      "agree": 53,
+      "rate": 0.5520833333333334
+    }
+  }
+}
