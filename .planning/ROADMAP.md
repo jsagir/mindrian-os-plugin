@@ -1023,7 +1023,7 @@ Plans:
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
 **Requirements**: TBD (minted at spec time)
 **Depends on:** Phase 354 (354-17 Jev ledger, 354-18 THEO-04)
-**Plans:** 19/28 plans executed
+**Plans:** 20/28 plans executed
 
 **Next action:** `/gsd-execute-phase 355` only after Phase 354 closes (355-01 Task 1 gates on it and on a clean tree for gate.cjs, tool-router.cjs, brain-client.cjs, part8-egress-guard.cjs, doctor.cjs, scripts/jev-devtime-client.cjs). Spec `355-SPEC.md`, AI contract `355-AI-SPEC.md`, decisions `355-CONTEXT.md` (D-01..D-58), research `355-RESEARCH.md`, patterns `355-PATTERNS.md`, Nyquist `355-VALIDATION.md`. Requirements HIPS-01..HIPS-10 are minted in the plans and registered by 355-27 at close.
 
@@ -1036,7 +1036,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 **Wave 2** *(depends on 355-01)*
 
 - [x] 355-02-PLAN.md -- HIPS-01: PWS author confirms the two direction phrases (checkpoint), then the failing direction-agreement test committed RED on the legs 09/10/11 turn green [checkpoint]
-- [ ] 355-03-PLAN.md -- HIPS-07, HIPS-08: scripts/label-355-gold.cjs keypress labeling CLI (seeded shuffle, hash-bound, blinding tripwires) and the navigator's blind sentence-gold sitting (checkpoint) [checkpoint]
+- [x] 355-03-PLAN.md -- HIPS-07, HIPS-08: scripts/label-355-gold.cjs keypress labeling CLI (seeded shuffle, hash-bound, blinding tripwires) and the navigator's blind sentence-gold sitting (checkpoint) (completed 2026-09-24; 45 of 132 labeled under the navigator's floor ruling) [checkpoint]
 - [x] 355-04-PLAN.md -- HIPS-02: data/floor-ledger.json (one row per floor literal, disclosed) and the floor sweep test with its negative control
 - [x] 355-05-PLAN.md -- HIPS-03: naming honesty - scout-hsi reference-only banner text, whitespace_scan description, the fixture test that is the real gate
 - [x] 355-06-PLAN.md -- HIPS-04, HIPS-05: lib/core/verification-stamp.cjs (exact {from, to}, local exact-name resolution, per-run memo, degradation matrix, judge none, anchor-only paths never verify) and the shared per-surface stamp formatter (completed 2026-09-23; adapter built and proved against 22 recorded/stubbed Theo shapes -- producers wired in 355-16/17/18/20 later, per the plan's own objective)
