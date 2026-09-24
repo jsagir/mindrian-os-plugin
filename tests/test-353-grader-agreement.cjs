@@ -19,6 +19,9 @@
 
 'use strict';
 
+let fetchCalls = 0;
+global.fetch = function () { fetchCalls += 1; throw new Error('no network in this test'); };
+
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -72,6 +75,49 @@ if (!key) {
   console.log('key present: a live grading run is the navigator\'s own act, not run automatically here');
 }
 
-console.log('');
-console.log('PASS=' + PASS + ' FAIL=' + FAIL);
-process.exit(FAIL === 0 ? 0 : 1);
+(async function testJevWire() {
+  const ledgerBuilder = require('../scripts/build-section-command-ledger.cjs');
+  const graded = runner.gradeRoom(path.join(REPO, 'tests/fixtures/icm-rooms/alpha-room'));
+  const items = graded.items.filter((i) => i.kind === 'jev');
+  check('at least four real jev payloads inspected', items.length >= 4);
+  for (const item of items) {
+    const payload = runner.buildJevPayload(item);
+    const q = payload.questions[item.item_id];
+    check(item.item_id + ' has typed choice criteria', q.type === 'choice'
+      && q.criteria && !Array.isArray(q.criteria)
+      && typeof q.criteria.pass === 'string' && q.criteria.pass.length > 0
+      && typeof q.criteria.fail === 'string' && q.criteria.fail.length > 0);
+    check(item.item_id + ' judge is bounded', typeof q.instructions.judge === 'string' && q.instructions.judge.length <= 200);
+    check(item.item_id + ' passes egress ceiling', ledgerBuilder.assertEgressCeiling(payload) === true);
+  }
+  const item = items[0];
+  const resolve = async (response) => {
+    const copy = { ...item };
+    await runner.resolveJevItems([copy], {
+      keyPresent: true, codeOnly: false, key: 'test-key-not-real',
+      jevFn: async () => response,
+    });
+    return copy;
+  };
+  const recorded = (choice) => ({ status: 200, json: {
+    model: 'jev-1.13.0',
+    answers: { [item.item_id]: { type: 'choice', choice: choice, confidence: 0.8,
+      probabilities: choice === 'pass' ? { pass: 0.8, fail: 0.2 } : { pass: 0.2, fail: 0.8 } } },
+    usage: { input_tokens: 500, output_tokens: 40 },
+  } });
+  const passed = await resolve(recorded('pass'));
+  check('recorded 200 pass yields verdict and ok', passed.verdict === 'pass' && passed.ok === true);
+  check('recorded 200 preserves confidence', passed.confidence === 0.8);
+  check('recorded 200 preserves probabilities', passed.probabilities && passed.probabilities.pass === 0.8 && passed.probabilities.fail === 0.2);
+  check('recorded 200 preserves vendor model', passed.jev_model === 'jev-1.13.0');
+  const failed = await resolve(recorded('fail'));
+  check('recorded 200 fail yields verdict and ok', failed.verdict === 'fail' && failed.ok === false);
+  const rejected = await resolve({ status: 422, json: { detail: 'unprocessable' } });
+  check('recorded 422 remains unanswered', rejected.ok === null && rejected.verdict === null && rejected.confidence === null);
+  check('recorded 422 names unrecognized shape and status', /unrecognized shape/.test(rejected.detail) && /422/.test(rejected.detail));
+  check('recorded 422 is excluded from agreement', runner.computeAgreement([rejected], baseline) === null);
+  check('zero network calls throughout this test', fetchCalls === 0);
+  console.log('');
+  console.log('PASS=' + PASS + ' FAIL=' + FAIL);
+  process.exitCode = FAIL === 0 ? 0 : 1;
+}()).catch((e) => { console.error(e); process.exitCode = 1; });

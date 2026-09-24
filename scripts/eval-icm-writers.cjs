@@ -142,7 +142,7 @@ function codeItem(checklist, itemId, ok, detail, room) {
 }
 
 function jevItem(checklist, itemId, wire, room) {
-  return { checklist: checklist, item_id: itemId, kind: 'jev', ok: null, verdict: null, detail: 'not yet graded', wire: wire, room: room || null };
+  return { checklist: checklist, item_id: itemId, kind: 'jev', ok: null, verdict: null, confidence: null, probabilities: null, detail: 'not yet graded', wire: wire, room: room || null };
 }
 
 // ---------------------------------------------------------------------------
@@ -317,6 +317,9 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
     name: 'methodology sequence fit',
     jtbd: 'Score whether the named framework sequence is a plausible first-move order for this job',
     glossary: 'A Score question over the section job and its ordered framework names only',
+    judge: 'Does the named framework sequence in this state read as a plausible first-move order for a section doing this job?',
+    pass: 'the sequence is a plausible first-move order for a section doing this job',
+    fail: 'the sequence is not a plausible first-move order: premature, off-job, or out of order',
   }, roomLabel));
   // Order check kept structurally distinct from presence (recorded, never silently folded):
   if (!orderOk) items[0].detail += (items[0].detail ? '; ' : '') + 'order violations: ' + detail2.join('; ');
@@ -356,6 +359,9 @@ function gradeMintoRefresher(tmpRoom, sectionSlugs, roomLabel) {
     name: 'governing thought summary fit',
     jtbd: 'Noul: does this governing thought plausibly summarize a section holding these artifact titles',
     glossary: 'the section slug, the governing thought text, and a titles-only artifact list',
+    judge: 'Does the governing thought in this state plausibly summarize a section holding these artifact titles?',
+    pass: 'the governing thought plausibly summarizes a section holding those artifact titles',
+    fail: 'the governing thought does not summarize them: it is generic, template text, or about something else',
   }, roomLabel));
   return items;
 }
@@ -416,6 +422,9 @@ function gradeClaimFiler(tmpRoom, sectionSlug, roomLabel) {
       name: 'epistemic type plausibility',
       jtbd: 'Score whether the chosen epistemic_type fits the structural shape of this claim',
       glossary: 'the epistemic_type enum value and a claim shape summary only; never the claim text',
+      judge: 'Is the epistemic type in this state a plausible fit for a claim of this shape?',
+      pass: 'the epistemic type is a plausible fit for a claim of that shape',
+      fail: 'the epistemic type is an implausible fit for a claim of that shape',
     }, roomLabel));
   } catch (e) {
     items.push(codeItem('claim-filer', 'item-1-anchor-edge', false, 'threw: ' + (e && e.message), roomLabel));
@@ -461,6 +470,9 @@ function gradeEntityExtractor(tmpRoom, roomLabel) {
     name: slug,
     jtbd: 'Score whether this slug reads as a single concept handle rather than a truncated sentence fragment',
     glossary: 'the normalized slug only; the raw source sentence stays local',
+    judge: 'Does the slug in this state read as a single concept handle rather than a truncated sentence fragment?',
+    pass: 'the slug reads as a single concept or noun-phrase handle, for example market-size',
+    fail: 'the slug reads as a truncated sentence fragment, for example we-do-not-actually-know-who',
   }, roomLabel));
   return items;
 }
@@ -487,7 +499,11 @@ function buildJevPayload(item) {
       },
     },
     questions: {
-      [item.item_id]: { instructions: { judge: String(wire.jtbd || '').slice(0, 200) } },
+      [item.item_id]: {
+        type: 'choice',
+        instructions: { judge: String(wire.judge || wire.jtbd || '').slice(0, 200) },
+        criteria: { pass: String(wire.pass || '').slice(0, 200), fail: String(wire.fail || '').slice(0, 200) },
+      },
     },
   };
 }
@@ -497,6 +513,7 @@ function buildJevPayload(item) {
 // only fires the actual vendor call when a key resolves and --code-only was
 // not passed.
 async function resolveJevItems(items, opts) {
+  const jevFn = (opts && opts.jevFn) || ledgerBuilder.jev;
   for (const it of items) {
     if (it.kind !== 'jev') continue;
     const payload = buildJevPayload(it);
@@ -509,14 +526,19 @@ async function resolveJevItems(items, opts) {
       continue;
     }
     try {
-      const res = await ledgerBuilder.jev(opts.key, payload);
-      if (res && res.json && typeof res.json.verdict === 'string') {
-        it.verdict = res.json.verdict;
-        it.ok = res.json.verdict === 'pass';
-        it.detail = 'jev responded: ' + res.json.verdict;
+      const res = await jevFn(opts.key, payload);
+      const answer = res && res.json && res.json.answers && res.json.answers[it.item_id];
+      if (res && res.status === 200 && answer && (answer.choice === 'pass' || answer.choice === 'fail')) {
+        it.verdict = answer.choice;
+        it.ok = answer.choice === 'pass';
+        it.confidence = typeof answer.confidence === 'number' ? answer.confidence : null;
+        it.probabilities = answer.probabilities || null;
+        it.jev_model = res.json.model || null;
+        it.detail = 'jev responded: ' + answer.choice + ' (confidence ' + it.confidence + ')';
       } else {
-        it.verdict = 'unknown';
+        it.verdict = null;
         it.ok = null;
+        it.confidence = null;
         it.detail = 'jev responded with an unrecognized shape (status ' + (res && res.status) + ')';
       }
     } catch (e) {
@@ -703,7 +725,6 @@ async function main() {
   // answered or skipped), never just the answered subset -- "0/4 (skipped)"
   // must stay visibly distinct from "0/0 (no jev items exist)" (T-353-23).
   const jevItemsAll = allItems.filter((i) => i.kind === 'jev');
-  const jevAnswered = jevItemsAll.filter((i) => i.ok !== null);
   const codePass = codeItems.filter((i) => i.ok === true).length;
   const jevPass = jevItemsAll.filter((i) => i.ok === true).length;
   const baseline = loadBaseline();
@@ -716,7 +737,7 @@ async function main() {
     items: allItems.map((i) => {
       // Never carry `wire` (the payload shape) or any key material into the
       // shipped artifact; keep only the graded verdict shape.
-      const out = { checklist: i.checklist, item_id: i.item_id, kind: i.kind, ok: i.ok, verdict: i.verdict, detail: i.detail, room: i.room };
+      const out = { checklist: i.checklist, item_id: i.item_id, kind: i.kind, ok: i.ok, verdict: i.verdict, confidence: i.confidence ?? null, probabilities: i.probabilities ?? null, detail: i.detail, room: i.room };
       return out;
     }),
     code_pass: codePass,
@@ -724,7 +745,7 @@ async function main() {
     jev_pass: jevPass,
     jev_total: jevItemsAll.length,
     agreement: agreement,
-    jev_model: (keyPresent && jevAnswered.length > 0) ? 'jev-latest' : null,
+    jev_model: (allItems.find((i) => i.jev_model) || {}).jev_model || null,
     key_present: keyPresent,
   };
 

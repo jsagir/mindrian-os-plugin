@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Phase 353 Plan 02 Task 2 (+ Task 3 shipped-file legs): the ledger build
- * script and the shipped offline seed ledger.
+ * script and the shipped vendor-scored ledger.
  *
  * Gates RULE-12 (build script), RULE-13 (shipped ledger).
  *
@@ -99,9 +99,9 @@ check('jev-fixture build carries the fixture model', fixtureLedger.jev_model ===
   // ---- Task 3 shipped-file legs ----
   if (fs.existsSync(LEDGER_PATH)) {
     const shipped = require(LEDGER_PATH);
-    check('shipped ledger build_mode is offline-seed', shipped.build_mode === 'offline-seed');
-    check('shipped ledger jev_model is null', shipped.jev_model === null);
-    check('shipped ledger confidence_floor is null', shipped.confidence_floor === null);
+    check('shipped ledger build_mode is jev-scored', shipped.build_mode === 'jev-scored');
+    check('shipped ledger jev_model is a non-empty string', typeof shipped.jev_model === 'string' && shipped.jev_model.length > 0);
+    check('shipped ledger confidence_floor is a number in [0,1]', typeof shipped.confidence_floor === 'number' && shipped.confidence_floor >= 0 && shipped.confidence_floor <= 1);
     const keys = Object.keys(shipped.rows || {});
     check('shipped ledger has at least one row', keys.length > 0);
     let allKeysWellFormed = true;
@@ -113,7 +113,11 @@ check('jev-fixture build carries the fixture model', fixtureLedger.jev_model ===
       if (!keys.some((k) => k.split('|')[0] === j)) everyJobHasRow = false;
     }
     check('every canon job has a shipped ledger row', everyJobHasRow);
-    check('shipped ledger every candidate confidence is null', Object.values(shipped.rows).every((arr) => arr.every((c) => c.confidence === null)));
+    const badConfidences = Object.values(shipped.rows).flat().filter((c) => typeof c.confidence !== 'number' || !(c.confidence >= 0 && c.confidence <= 1)).length;
+    check('shipped ledger every candidate confidence is a number in [0,1] (invalid: ' + badConfidences + ')', badConfidences === 0);
+    check('shipped ledger theo_frameworks is a positive integer', Number.isInteger(shipped.theo_frameworks) && shipped.theo_frameworks > 0);
+    check('shipped ledger carries the usage header', costKeys.every((k) => typeof shipped[k] === 'number' && shipped[k] >= 0)
+      && shipped.jev_calls > 0 && typeof shipped.cost_basis === 'string' && shipped.cost_basis.length > 0);
   } else {
     console.log('SKIP: shipped data/section-command-ledger.json not yet written (Task 3)');
   }
