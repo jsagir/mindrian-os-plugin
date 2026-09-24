@@ -120,6 +120,7 @@ const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
   'label-card-fire-replay',
   'jev-question-ceilings',
   'jev-response-schema',
+  'measure-hsi-thinking-mode',
 ]);
 
 function escapeRe(s) {
