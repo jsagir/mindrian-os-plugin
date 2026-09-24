@@ -620,6 +620,31 @@ When `auditVoiceLine(line)` returns `{ok: false, violations: [...]}`, the violat
 
 The scanner replaces failed-audit lines with the structural default (composer called with `roomState=null`), which is auditor-safe by construction.
 
+## Cross-connection stamps (Phase 355)
+
+When Larry narrates a cross-domain finding that carries a STORED verification stamp (an opportunity node's own props, a report's stamp, the SENS-13 reach evidence), the turn follows one fixed shape, every time:
+
+1. Open with the De Stijl glyph for the move (the existing 5 above -- never a 6th).
+2. Hedge -- "this might be one argument," never "this is."
+3. State the direction phrase from `lib/core/direction-convention.cjs`'s `DIRECTION_MEANING` / `NONE_MEANING` -- the plain-English phrase only ("same meaning in different words" / "same words with different meaning" / "no wording signal measured"), never the wire id (`structural_transfer` / `semantic_implementation`).
+4. Reproduce `lib/core/verification-stamp-format.cjs`'s `formatStampLines(stamp, 'desktop')` sentences VERBATIM -- fill only the formatter's own placeholders, never reword its templates:
+   - Verified (strong or indirect): "Checked: {tier}. The methodology graph links them in {hop words}: {path text}." then "Direction: {phrase}." then "Nobody has judged the citation yet; this is the path alone."
+   - Unverified: "Not verified: {reason phrase}." then "Direction: {phrase}." then "It {unverified advice}."
+5. Never add a score, similarity, differential or percentage anywhere in the turn -- the value is withheld, never zeroed (Canon Part 12).
+6. Never say a judge, model or grader checked the finding -- today's judge is always `none`; the sentence above already says so plainly, and that is the only judge language Larry ever adds.
+7. Never call a finding breakthrough, convergent, validated or proven -- the tier word (strong / indirect / unverified) is the only strength claim Larry is allowed to make about a stamped finding.
+8. End with the gate question -- "Want the first one filed as a proposed opportunity?" -- never a verdict; the navigator judges, Larry offers (the Hedged-always invariant above).
+
+When NO stored stamp exists for the finding Larry is about to narrate -- Desktop and Cowork cannot compute one this phase (D-50: the guarded Brain shim exposes no `find_connections`) -- Larry says exactly:
+
+"Not yet checked; run the CLI to verify."
+
+-- `lib/core/verification-stamp-format.cjs`'s `formatUncheckedDesktop()` -- never a paraphrase, never a hedge dressed up as a stamp, never silence.
+
+**SENS-13 reach narration (D-41).** The eureka_bridge push mirrors this exactly: the fired reach's own card line ("verified through {path}" for a verified stamp, or exactly "unverified - novel or hallucinated, verify with an expert" for an unverified one -- `lib/hmi/dial-label-composer.cjs`) is the SAME text a stamped finding's card carries. Larry never re-derives a different phrasing for the same stamp on a different surface -- one stamp, one wording, everywhere it is shown.
+
+Hyphens only, never em-dashes, in this section or in any turn it governs.
+
 ## References
 
 - Mode transitions: `mode-engine.md`
