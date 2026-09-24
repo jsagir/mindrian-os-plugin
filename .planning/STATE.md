@@ -5509,6 +5509,27 @@ Previously (267-06, parallel out-of-band plan, unrelated to the sequential 348 c
   registration-API check stays documented-RED until 267-09. One pre-existing, unrelated
   test-347 safeResolveSection count mismatch logged to deferred-items.md, not fixed.
   Full detail in 267-06-SUMMARY.md.
+Previously (267-07, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): complete -- RCA 3 resolved (gate.cjs's
+  elicitation-capability comment corrected test-first: tests/test-267-mcpv2-gate-premise.cjs
+  went RED against the stale "do not declare it" phrase, GREEN after a comment-only fix
+  citing Claude Code 2.1.280's live-verified elicitation declaration, Desktop/Cowork stated
+  unprobed; RCA moved to .planning/debug/resolved/, knowledge-base.md block added), then 7
+  more registration-rewrite sites: gate.cjs (gate_render, gate_answer), chain.cjs
+  (chain_resolve, chain_run), claim-verify.cjs (claim_verify, claim_read), claim.cjs
+  (claim_write) -- 19 of 51 phase-wide sites now migrated, one commit per file, CIRS/zod4/
+  registration-API gates green after each. Fixed a Rule-1 regression across 8 pre-existing
+  fake-server test fixtures the migration directly broke (registerTool capture siblings
+  added, same pattern as 267-06). Three pre-existing, confirmed-unrelated findings logged to
+  deferred-items.md, none fixed: test-237-approve-executes.cjs's mutation-test needle is
+  stale against a Phase 347 dispatcher-call change; check-tool-honesty.cjs's scanAll() does
+  not recognize server.registerTool( call sites (a phase-wide scanner gap already silently
+  live since 267-06's own first migrations, not unique to this plan's four files);
+  test-353-filing-gate.cjs's EVENT_TYPES.size assertion has drifted (104 live vs 102
+  expected). bash tests/run-all-198.sh matches baseline exactly (13/3/0); bash
+  tests/run-all-267.sh reads PASS=23 FAIL=2 SKIP=8 -- one documented-expected (full-mode
+  registration-API check, red until 267-09) plus the one deferred check-tool-honesty
+  regression named above. Full detail in 267-07-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
