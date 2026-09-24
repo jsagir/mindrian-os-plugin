@@ -173,6 +173,13 @@ function directionPhraseFor(direction) {
 async function exportUnstamped(rooms, opts) {
   const options = opts || {};
   const top = Number.isFinite(options.top) ? options.top : 10;
+  // threshold: OPTIONAL, defaults to each engine's own DEFAULT_THRESHOLD
+  // (0.3) when absent -- a uniform override (never per-room), recorded on
+  // the payload as threshold_used so a reader can see exactly what "shown"
+  // meant for this run (D-21's disclosed-floor discipline extended to this
+  // dev-time export: the value is stated, not hidden, and the PRODUCTION
+  // engine defaults in rs-engine.cjs / hsi-engine.cjs are never touched).
+  const threshold = Number.isFinite(options.threshold) ? options.threshold : null;
   const runProducers = typeof options.runProducers === 'function' ? options.runProducers : defaultRunProducers;
 
   const items = [];
@@ -182,7 +189,7 @@ async function exportUnstamped(rooms, opts) {
   for (const room of Array.isArray(rooms) ? rooms : []) {
     const roomName = room.name;
     // eslint-disable-next-line no-await-in-loop
-    const roomResult = await runProducers({ room: roomName, dir: room.dir, top });
+    const roomResult = await runProducers({ room: roomName, dir: room.dir, top, threshold });
     if (roomResult && roomResult.encoder && !encoderModel) encoderModel = roomResult.encoder;
 
     const seen = new Set();
@@ -226,6 +233,7 @@ async function exportUnstamped(rooms, opts) {
     generated_at: new Date().toISOString(),
     encoder: encoderModel,
     top_k: top,
+    threshold_used: threshold === null ? 'engine_default' : threshold,
     phrase_hash: directionConvention.phraseHash(),
     rooms: roomsMeta,
     items,
@@ -264,7 +272,8 @@ async function defaultRunProducers(ctx) {
 
     // --- HSI ---
     try {
-      const hsiResult = await hsiEngine.runTier1(copyDir, {});
+      const hsiOpts = Number.isFinite(ctx.threshold) ? { threshold: ctx.threshold } : {};
+      const hsiResult = await hsiEngine.runTier1(copyDir, hsiOpts);
       const hsiPairs = Array.isArray(hsiResult && hsiResult.hsi_pairs) ? hsiResult.hsi_pairs : [];
       const topHsi = hsiPairs.slice().sort((a, b) => (b.hsi_score || 0) - (a.hsi_score || 0)).slice(0, ctx.top);
       if (topHsi.length > 0) {
@@ -300,7 +309,9 @@ async function defaultRunProducers(ctx) {
 
     // --- RS (find-bottlenecks' own engine) ---
     try {
-      const rsResult = await rsEngine.runModeInternal(copyDir, { topk: ctx.top });
+      const rsOpts = { topk: ctx.top };
+      if (Number.isFinite(ctx.threshold)) rsOpts.threshold = ctx.threshold;
+      const rsResult = await rsEngine.runModeInternal(copyDir, rsOpts);
       const rsPairs = Array.isArray(rsResult && rsResult.pairs) ? rsResult.pairs : [];
       if (rsPairs.length > 0) {
         if (!encoder && rsResult.metadata && rsResult.metadata.embedding_model) {
@@ -483,7 +494,7 @@ function computeRates(joined, opts) {
 const HELP_TEXT = [
   'measure-355-hit-rate.cjs -- fixture-only hit-rate measurement (D-32, D-34, SPEC AC12)',
   'Usage:',
-  '  node scripts/measure-355-hit-rate.cjs export --unstamped [--top <n>] [--room <path>]',
+  '  node scripts/measure-355-hit-rate.cjs export --unstamped [--top <n>] [--threshold <n>] [--room <path>]',
   '  node scripts/measure-355-hit-rate.cjs stamp    (355-25)',
   '  node scripts/measure-355-hit-rate.cjs record   (355-25)',
   '  node scripts/measure-355-hit-rate.cjs --check',
@@ -503,6 +514,16 @@ async function doExport(args) {
     if (Number.isFinite(parsed) && parsed > 0) top = parsed;
   }
 
+  // --threshold: OPTIONAL, uniform override of each engine's own
+  // DEFAULT_THRESHOLD (0.3). Absent -> exportUnstamped uses the engines'
+  // own default (recorded as threshold_used: 'engine_default').
+  let threshold;
+  const thresholdIdx = args.indexOf('--threshold');
+  if (thresholdIdx !== -1 && args[thresholdIdx + 1] !== undefined) {
+    const parsedThreshold = Number(args[thresholdIdx + 1]);
+    if (Number.isFinite(parsedThreshold)) threshold = parsedThreshold;
+  }
+
   let rooms;
   const roomIdx = args.indexOf('--room');
   if (roomIdx !== -1 && args[roomIdx + 1] !== undefined) {
@@ -520,7 +541,7 @@ async function doExport(args) {
 
   let payload;
   try {
-    payload = await exportUnstamped(rooms, { top });
+    payload = await exportUnstamped(rooms, { top, threshold });
   } catch (e) {
     process.stderr.write('measure-355-hit-rate: ' + e.message + '\n');
     return 1;

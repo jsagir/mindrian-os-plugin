@@ -1,0 +1,995 @@
+{
+  "generated_at": "2026-09-24T11:42:58.604Z",
+  "encoder": "MongoDB/mdbr-leaf-ir",
+  "top_k": 30,
+  "threshold_used": 0.2,
+  "phrase_hash": "fba76597996550770774995f22602eb220054e2615a4d6e77212c01bc09cfe16",
+  "rooms": {
+    "room-ill-defined": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 32
+    },
+    "room-extend": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 26
+    },
+    "room-control": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 38
+    }
+  },
+  "items": [
+    {
+      "pair_id": "71a3b362198b",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Seasonal road conditions\n\n# Seasonal road conditions The rains cut the reliable road network by more than half for roughly ten weeks a year, and referral volume does not fall during that window, it rises, because the same rains bring the waterborne illness season. The team has known this for years in the sense that everyone who has worked at the clinic through a rainy season mentions it unprompted, but it has never been written down as a factor in referral scheduling, only repeated as local knowledge that new staff pick up by word of mouth.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "transport-logistics/seasonal-road-conditions.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "138231a5710a",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "Who patients actually trust for advice\n\n# Who patients actually trust for advice A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival. The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "community-trust/who-patients-actually-trust-for-advice.md"
+    },
+    {
+      "pair_id": "550a0c8ccb95",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Referral hand-off gaps\n\n# Referral hand-off gaps The clinic sends a referral to the district hospital, and from that moment the coordinator loses visibility into what happens next. Three consecutive months of records were pulled and the pattern is blunt: about a third of referrals never generate a hospital-side appointment at all, and nobody at either end owns the gap. The hospital intake desk says it never received a fax; the clinic says the fax log shows it sent. Both are probably telling the truth, which suggests the failure sits in the hand-off mechanism itself rather than in either team's diligence.",
+      "b_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/referral-hand-off-gaps.md",
+      "b_path": "patient-flow/the-missed-second-visit.md"
+    },
+    {
+      "pair_id": "22f2f99ce390",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Who patients actually trust for advice\n\n# Who patients actually trust for advice A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival. The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is.",
+      "b_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/who-patients-actually-trust-for-advice.md",
+      "b_path": "patient-flow/charting-the-patients-actual-path.md"
+    },
+    {
+      "pair_id": "942a7bb77393",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "5f346a0c4258",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Who patients actually trust for advice\n\n# Who patients actually trust for advice A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival. The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/who-patients-actually-trust-for-advice.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    },
+    {
+      "pair_id": "dfb8af2a042f",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "Seasonal road conditions\n\n# Seasonal road conditions The rains cut the reliable road network by more than half for roughly ten weeks a year, and referral volume does not fall during that window, it rises, because the same rains bring the waterborne illness season. The team has known this for years in the sense that everyone who has worked at the clinic through a rainy season mentions it unprompted, but it has never been written down as a factor in referral scheduling, only repeated as local knowledge that new staff pick up by word of mouth.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "transport-logistics/seasonal-road-conditions.md"
+    },
+    {
+      "pair_id": "575d21ab0fa1",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Referral hand-off gaps\n\n# Referral hand-off gaps The clinic sends a referral to the district hospital, and from that moment the coordinator loses visibility into what happens next. Three consecutive months of records were pulled and the pattern is blunt: about a third of referrals never generate a hospital-side appointment at all, and nobody at either end owns the gap. The hospital intake desk says it never received a fax; the clinic says the fax log shows it sent. Both are probably telling the truth, which suggests the failure sits in the hand-off mechanism itself rather than in either team's diligence.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/referral-hand-off-gaps.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "651643e6aef4",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "What patients tell the front desk\n\n# What patients tell the front desk The front desk clerk keeps an informal notebook of things patients say when they cancel or fail to return, because nobody ever asked her to but she noticed the answers kept rhyming with each other. The most common thing patients say, in one phrasing or another, is some version of \"I didn't think I still needed to come. \" The second most common is a version of \"I wasn't sure the follow-up would be different from the first visit.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/what-patients-tell-the-front-desk.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "53628980d126",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "patient-flow/the-missed-second-visit.md"
+    },
+    {
+      "pair_id": "967eebebdb2a",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Who patients actually trust for advice\n\n# Who patients actually trust for advice A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival. The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is.",
+      "b_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/who-patients-actually-trust-for-advice.md",
+      "b_path": "patient-flow/the-missed-second-visit.md"
+    },
+    {
+      "pair_id": "20a8a389efbb",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "Referral hand-off gaps\n\n# Referral hand-off gaps The clinic sends a referral to the district hospital, and from that moment the coordinator loses visibility into what happens next. Three consecutive months of records were pulled and the pattern is blunt: about a third of referrals never generate a hospital-side appointment at all, and nobody at either end owns the gap. The hospital intake desk says it never received a fax; the clinic says the fax log shows it sent. Both are probably telling the truth, which suggests the failure sits in the hand-off mechanism itself rather than in either team's diligence.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "patient-flow/referral-hand-off-gaps.md"
+    },
+    {
+      "pair_id": "08d48c49f73f",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Referral hand-off gaps\n\n# Referral hand-off gaps The clinic sends a referral to the district hospital, and from that moment the coordinator loses visibility into what happens next. Three consecutive months of records were pulled and the pattern is blunt: about a third of referrals never generate a hospital-side appointment at all, and nobody at either end owns the gap. The hospital intake desk says it never received a fax; the clinic says the fax log shows it sent. Both are probably telling the truth, which suggests the failure sits in the hand-off mechanism itself rather than in either team's diligence.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/referral-hand-off-gaps.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    },
+    {
+      "pair_id": "eaf0c6945c2a",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "What patients tell the front desk\n\n# What patients tell the front desk The front desk clerk keeps an informal notebook of things patients say when they cancel or fail to return, because nobody ever asked her to but she noticed the answers kept rhyming with each other. The most common thing patients say, in one phrasing or another, is some version of \"I didn't think I still needed to come. \" The second most common is a version of \"I wasn't sure the follow-up would be different from the first visit.",
+      "b_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/what-patients-tell-the-front-desk.md",
+      "b_path": "patient-flow/charting-the-patients-actual-path.md"
+    },
+    {
+      "pair_id": "bfa53320bdb5",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "What patients tell the front desk\n\n# What patients tell the front desk The front desk clerk keeps an informal notebook of things patients say when they cancel or fail to return, because nobody ever asked her to but she noticed the answers kept rhyming with each other. The most common thing patients say, in one phrasing or another, is some version of \"I didn't think I still needed to come. \" The second most common is a version of \"I wasn't sure the follow-up would be different from the first visit.",
+      "b_excerpt": "Who patients actually trust for advice\n\n# Who patients actually trust for advice A short round of conversations with patients and their families turned up a trust map that does not match the clinic's own sense of its role. For most families in the catchment area, the first stop for health advice is not the clinic at all, it is a specific set of respected elders and, for a smaller but real share of families, a traditional healer whose standing in the community long predates the clinic's arrival. The clinic is trusted for some things and not others, and the line between the two is not always where staff assume it is.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/what-patients-tell-the-front-desk.md",
+      "b_path": "community-trust/who-patients-actually-trust-for-advice.md"
+    },
+    {
+      "pair_id": "59f67da1507d",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "ac899cc31a08",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "transport-logistics/distance-and-the-missed-van.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "a3dd5a5a8ba9",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    },
+    {
+      "pair_id": "739b13f07f52",
+      "room": "room-ill-defined",
+      "producer": "hsi",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "32428ac3c5d0",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "What patients tell the front desk\n\n# What patients tell the front desk The front desk clerk keeps an informal notebook of things patients say when they cancel or fail to return, because nobody ever asked her to but she noticed the answers kept rhyming with each other. The most common thing patients say, in one phrasing or another, is some version of \"I didn't think I still needed to come. \" The second most common is a version of \"I wasn't sure the follow-up would be different from the first visit.",
+      "b_excerpt": "Turnover among front-desk staff\n\n# Turnover among front-desk staff Four different people have held the front-desk role in the past eighteen months. Each new hire inherits the informal systems the previous person built, most of which live in that person's head rather than in any written procedure, so a meaningful share of institutional memory about which patients tend to need extra follow-up support leaves with every departure.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/what-patients-tell-the-front-desk.md",
+      "b_path": "staffing/turnover-among-front-desk-staff.md"
+    },
+    {
+      "pair_id": "e522567a70db",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "The follow-up call list nobody owns\n\n# The follow-up call list nobody owns Every week a list of patients due for a follow-up call gets printed from the appointment system. The question of whose job it is to actually make those calls has never been formally assigned, which means in practice it gets done by whoever has a free half hour and remembers the list exists, most weeks the same one nurse, some weeks nobody.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "staffing/the-follow-up-call-list-nobody-owns.md"
+    },
+    {
+      "pair_id": "71b5ca116782",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "Community health worker caseload\n\n# Community health worker caseload The clinic has two community health workers whose job description includes home visits to patients who missed a follow-up, among a long list of other duties: vaccination campaigns, maternal health checks, and increasingly, paperwork for a reporting system that was added last year without removing anything from what came before it.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "staffing/community-health-worker-caseload.md"
+    },
+    {
+      "pair_id": "973e829e5c7a",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "Community health worker caseload\n\n# Community health worker caseload The clinic has two community health workers whose job description includes home visits to patients who missed a follow-up, among a long list of other duties: vaccination campaigns, maternal health checks, and increasingly, paperwork for a reporting system that was added last year without removing anything from what came before it.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "staffing/community-health-worker-caseload.md"
+    },
+    {
+      "pair_id": "2d2f994aa0b7",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    },
+    {
+      "pair_id": "7f149cc68eae",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "The follow-up call list nobody owns\n\n# The follow-up call list nobody owns Every week a list of patients due for a follow-up call gets printed from the appointment system. The question of whose job it is to actually make those calls has never been formally assigned, which means in practice it gets done by whoever has a free half hour and remembers the list exists, most weeks the same one nurse, some weeks nobody.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "staffing/the-follow-up-call-list-nobody-owns.md"
+    },
+    {
+      "pair_id": "762e30d72079",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Turnover among front-desk staff\n\n# Turnover among front-desk staff Four different people have held the front-desk role in the past eighteen months. Each new hire inherits the informal systems the previous person built, most of which live in that person's head rather than in any written procedure, so a meaningful share of institutional memory about which patients tend to need extra follow-up support leaves with every departure.",
+      "b_excerpt": "Shared-ride scheduling attempt\n\n# Shared-ride scheduling attempt Three months ago the clinic tried grouping referral patients by pickup village and scheduling a shared ride rather than relying on the daily van's first-come seating. On paper it should have raised capacity without adding a vehicle, since a ride shared by four patients from the same village uses the same fuel and driver time as a ride for one. In practice the scheme lasted six weeks before it quietly stopped running, and it is worth being honest about why.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "staffing/turnover-among-front-desk-staff.md",
+      "b_path": "transport-logistics/shared-ride-scheduling-attempt.md"
+    },
+    {
+      "pair_id": "86160a4c843e",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Referral hand-off gaps\n\n# Referral hand-off gaps The clinic sends a referral to the district hospital, and from that moment the coordinator loses visibility into what happens next. Three consecutive months of records were pulled and the pattern is blunt: about a third of referrals never generate a hospital-side appointment at all, and nobody at either end owns the gap. The hospital intake desk says it never received a fax; the clinic says the fax log shows it sent. Both are probably telling the truth, which suggests the failure sits in the hand-off mechanism itself rather than in either team's diligence.",
+      "b_excerpt": "Seasonal road conditions\n\n# Seasonal road conditions The rains cut the reliable road network by more than half for roughly ten weeks a year, and referral volume does not fall during that window, it rises, because the same rains bring the waterborne illness season. The team has known this for years in the sense that everyone who has worked at the clinic through a rainy season mentions it unprompted, but it has never been written down as a factor in referral scheduling, only repeated as local knowledge that new staff pick up by word of mouth.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/referral-hand-off-gaps.md",
+      "b_path": "transport-logistics/seasonal-road-conditions.md"
+    },
+    {
+      "pair_id": "33c16fc98207",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "Turnover among front-desk staff\n\n# Turnover among front-desk staff Four different people have held the front-desk role in the past eighteen months. Each new hire inherits the informal systems the previous person built, most of which live in that person's head rather than in any written procedure, so a meaningful share of institutional memory about which patients tend to need extra follow-up support leaves with every departure.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "staffing/turnover-among-front-desk-staff.md"
+    },
+    {
+      "pair_id": "5670bf421779",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Community health worker caseload\n\n# Community health worker caseload The clinic has two community health workers whose job description includes home visits to patients who missed a follow-up, among a long list of other duties: vaccination campaigns, maternal health checks, and increasingly, paperwork for a reporting system that was added last year without removing anything from what came before it.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "staffing/community-health-worker-caseload.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    },
+    {
+      "pair_id": "dedbd55a5148",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "Charting the patient's actual path\n\n# Charting the patient's actual path Someone finally walked the route a patient actually takes, door to door, rather than the route the intake form assumes. The assumed path is home, clinic, referral, hospital, follow-up, done. The actual path, for the six patients shadowed this month, involved at least one detour every time: a wait for a relative to be free to travel with them, a market day that could not be missed because it is the only paid work that week, a second opinion sought from a trusted elder before committing to the hospital trip.",
+      "b_excerpt": "Turnover among front-desk staff\n\n# Turnover among front-desk staff Four different people have held the front-desk role in the past eighteen months. Each new hire inherits the informal systems the previous person built, most of which live in that person's head rather than in any written procedure, so a meaningful share of institutional memory about which patients tend to need extra follow-up support leaves with every departure.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "patient-flow/charting-the-patients-actual-path.md",
+      "b_path": "staffing/turnover-among-front-desk-staff.md"
+    },
+    {
+      "pair_id": "e649276d0880",
+      "room": "room-ill-defined",
+      "producer": "rs",
+      "a_excerpt": "The clinic's reputation after a bad outcome\n\n# The clinic's reputation after a bad outcome Eight months ago a referred patient from one of the three villages died after a complication the family believes the clinic should have caught earlier. Whether that belief is medically accurate is a separate question from its effect, which has been substantial: staff report that referrals from that specific village have dropped noticeably since, and word in the community links the clinic's name to the outcome regardless of what the chart actually shows.",
+      "b_excerpt": "Seasonal road conditions\n\n# Seasonal road conditions The rains cut the reliable road network by more than half for roughly ten weeks a year, and referral volume does not fall during that window, it rises, because the same rains bring the waterborne illness season. The team has known this for years in the sense that everyone who has worked at the clinic through a rainy season mentions it unprompted, but it has never been written down as a factor in referral scheduling, only repeated as local knowledge that new staff pick up by word of mouth.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "community-trust/the-clinics-reputation-after-a-bad-outcome.md",
+      "b_path": "transport-logistics/seasonal-road-conditions.md"
+    },
+    {
+      "pair_id": "4966f51f4ba5",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Packaging weight versus thermal mass trade-off\n\n# Packaging weight versus thermal mass trade-off More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.",
+      "b_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/packaging-weight-versus-thermal-mass-trade-off.md",
+      "b_path": "materials-science/phase-change-material-behavior-in-transit.md"
+    },
+    {
+      "pair_id": "b6c39a8315e4",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "b_excerpt": "Current customer mix\n\n# Current customer mix The paying customer base splits roughly into three groups: small pharmacies moving temperature-sensitive medication, a handful of specialty food producers, and a growing but still minority share of home-delivery subscriptions for a regional dairy. The dairy subscriptions are the newest segment and the fastest-growing of the three, up sharply over the past year, though still smaller in absolute revenue than the pharmacy contracts that anchor the business.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "regulation/pharma-cold-chain-compliance-today.md",
+      "b_path": "retail-demand/current-customer-mix.md"
+    },
+    {
+      "pair_id": "4ae95ebc099b",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Insulation panel reuse economics\n\n# Insulation panel reuse economics Each van's insulation panels last roughly three years before the gel's thermal performance degrades enough to replace them, and the used panels currently go to disposal, which the finance lead flagged as a cost line worth a second look, not because it is large on its own but because disposal fees for anything containing a phase-change compound have risen twice in the past year under a new local waste rule.",
+      "b_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/insulation-panel-reuse-economics.md",
+      "b_path": "materials-science/phase-change-material-behavior-in-transit.md"
+    },
+    {
+      "pair_id": "b9d565a07c73",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Insulation panel reuse economics\n\n# Insulation panel reuse economics Each van's insulation panels last roughly three years before the gel's thermal performance degrades enough to replace them, and the used panels currently go to disposal, which the finance lead flagged as a cost line worth a second look, not because it is large on its own but because disposal fees for anything containing a phase-change compound have risen twice in the past year under a new local waste rule.",
+      "b_excerpt": "Packaging weight versus thermal mass trade-off\n\n# Packaging weight versus thermal mass trade-off More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/insulation-panel-reuse-economics.md",
+      "b_path": "materials-science/packaging-weight-versus-thermal-mass-trade-off.md"
+    },
+    {
+      "pair_id": "bde4986ef002",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "operations/diagnosing-why-breaches-happen.md"
+    },
+    {
+      "pair_id": "920e9533101d",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Current customer mix\n\n# Current customer mix The paying customer base splits roughly into three groups: small pharmacies moving temperature-sensitive medication, a handful of specialty food producers, and a growing but still minority share of home-delivery subscriptions for a regional dairy. The dairy subscriptions are the newest segment and the fastest-growing of the three, up sharply over the past year, though still smaller in absolute revenue than the pharmacy contracts that anchor the business.",
+      "b_excerpt": "Pricing sensitivity by segment\n\n# Pricing sensitivity by segment A round of casual pricing conversations with existing customers surfaced a pattern the sales lead had not expected: the pharmacy contracts, which carry the strictest temperature tolerance and the most regulatory consequence for a failure, are also the least price-sensitive of the three segments, while the dairy subscriptions, which carry the loosest tolerance and the least consequence for a minor breach, are the most price-sensitive by a wide margin.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-demand/current-customer-mix.md",
+      "b_path": "retail-demand/pricing-sensitivity-by-segment.md"
+    },
+    {
+      "pair_id": "481a96a042ed",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Adjacent buyers who mentioned the same pain\n\n# Adjacent buyers who mentioned the same pain Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.",
+      "b_excerpt": "Current customer mix\n\n# Current customer mix The paying customer base splits roughly into three groups: small pharmacies moving temperature-sensitive medication, a handful of specialty food producers, and a growing but still minority share of home-delivery subscriptions for a regional dairy. The dairy subscriptions are the newest segment and the fastest-growing of the three, up sharply over the past year, though still smaller in absolute revenue than the pharmacy contracts that anchor the business.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain.md",
+      "b_path": "retail-demand/current-customer-mix.md"
+    },
+    {
+      "pair_id": "a9c4eb92d9cc",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "operations/route-consolidation-for-perishables.md"
+    },
+    {
+      "pair_id": "d37e922b92b0",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "b_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/phase-change-material-behavior-in-transit.md",
+      "b_path": "operations/cold-chain-breach-detection-today.md"
+    },
+    {
+      "pair_id": "2dbf73d27401",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Packaging weight versus thermal mass trade-off\n\n# Packaging weight versus thermal mass trade-off More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.",
+      "b_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/packaging-weight-versus-thermal-mass-trade-off.md",
+      "b_path": "operations/diagnosing-why-breaches-happen.md"
+    },
+    {
+      "pair_id": "21617932599e",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "b_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/phase-change-material-behavior-in-transit.md",
+      "b_path": "operations/route-consolidation-for-perishables.md"
+    },
+    {
+      "pair_id": "5af9d958e847",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Adjacent buyers who mentioned the same pain\n\n# Adjacent buyers who mentioned the same pain Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.",
+      "b_excerpt": "Pricing sensitivity by segment\n\n# Pricing sensitivity by segment A round of casual pricing conversations with existing customers surfaced a pattern the sales lead had not expected: the pharmacy contracts, which carry the strictest temperature tolerance and the most regulatory consequence for a failure, are also the least price-sensitive of the three segments, while the dairy subscriptions, which carry the loosest tolerance and the least consequence for a minor breach, are the most price-sensitive by a wide margin.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain.md",
+      "b_path": "retail-demand/pricing-sensitivity-by-segment.md"
+    },
+    {
+      "pair_id": "9482b5ee2a88",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "What a new category would require\n\n# What a new category would require Pulling the threads from the compliance lead's comment and the auditor's aside together, the rough shape of what a genuinely new category would need starts to come into focus, though nobody has written it down as a proposal yet.",
+      "b_excerpt": "Adjacent buyers who mentioned the same pain\n\n# Adjacent buyers who mentioned the same pain Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "regulation/what-a-new-category-would-require.md",
+      "b_path": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain.md"
+    },
+    {
+      "pair_id": "be93e2bc753b",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Packaging weight versus thermal mass trade-off\n\n# Packaging weight versus thermal mass trade-off More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.",
+      "b_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/packaging-weight-versus-thermal-mass-trade-off.md",
+      "b_path": "operations/route-consolidation-for-perishables.md"
+    },
+    {
+      "pair_id": "df772c7aa5d7",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Food-safety audit findings\n\n# Food-safety audit findings The annual food-safety audit for the specialty-food segment came back clean this year, but the auditor's informal comments afterward were more interesting than the formal report: she mentioned, unprompted, that a cosmetics or skincare client asking about cold-chain transport would fall under a noticeably lighter regulatory regime than either pharmaceuticals or food, since most personal-care products in this category are not classified as requiring the same chain-of-custody documentation.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "regulation/food-safety-audit-findings.md"
+    },
+    {
+      "pair_id": "a21dc91990b1",
+      "room": "room-extend",
+      "producer": "hsi",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Pricing sensitivity by segment\n\n# Pricing sensitivity by segment A round of casual pricing conversations with existing customers surfaced a pattern the sales lead had not expected: the pharmacy contracts, which carry the strictest temperature tolerance and the most regulatory consequence for a failure, are also the least price-sensitive of the three segments, while the dairy subscriptions, which carry the loosest tolerance and the least consequence for a minor breach, are the most price-sensitive by a wide margin.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "retail-demand/pricing-sensitivity-by-segment.md"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "regulation/pharma-cold-chain-compliance-today.md"
+    },
+    {
+      "pair_id": "bd37004bd111",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "b_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/phase-change-material-behavior-in-transit.md",
+      "b_path": "operations/diagnosing-why-breaches-happen.md"
+    },
+    {
+      "pair_id": "4fdfc34bbe31",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "b_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "operations/diagnosing-why-breaches-happen.md",
+      "b_path": "operations/route-consolidation-for-perishables.md"
+    },
+    {
+      "pair_id": "7ec79d35bcf1",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Packaging weight versus thermal mass trade-off\n\n# Packaging weight versus thermal mass trade-off More phase-change gel means longer thermal buffering, but it also means more weight per van, and weight is not free: it eats into fuel efficiency and, past a threshold the fleet manager has flagged twice this year, starts to matter for the axle rating on the older vans in the fleet. The current panel spec is a compromise reached three years ago, before the route-consolidation change lengthened some runs and shortened others.",
+      "b_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/packaging-weight-versus-thermal-mass-trade-off.md",
+      "b_path": "regulation/pharma-cold-chain-compliance-today.md"
+    },
+    {
+      "pair_id": "be259de33291",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "b_excerpt": "Adjacent buyers who mentioned the same pain\n\n# Adjacent buyers who mentioned the same pain Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/route-consolidation-for-perishables.md",
+      "b_path": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain.md"
+    },
+    {
+      "pair_id": "f8059ad37e84",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Phase-change material behavior in transit\n\n# Phase-change material behavior in transit The insulated panels lining each van use a phase-change gel that absorbs heat as it melts and releases it slowly as it refreezes, which is what lets the cargo hold stay inside the two to eight degree band for hours without active refrigeration running the whole time. The gel does not resist a temperature swing directly; it buffers one, soaking up a short spike and giving the cold chain time to recover before the spike reaches the cargo itself.",
+      "b_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/phase-change-material-behavior-in-transit.md",
+      "b_path": "regulation/pharma-cold-chain-compliance-today.md"
+    },
+    {
+      "pair_id": "89e18440699d",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "b_excerpt": "Pricing sensitivity by segment\n\n# Pricing sensitivity by segment A round of casual pricing conversations with existing customers surfaced a pattern the sales lead had not expected: the pharmacy contracts, which carry the strictest temperature tolerance and the most regulatory consequence for a failure, are also the least price-sensitive of the three segments, while the dairy subscriptions, which carry the loosest tolerance and the least consequence for a minor breach, are the most price-sensitive by a wide margin.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "regulation/pharma-cold-chain-compliance-today.md",
+      "b_path": "retail-demand/pricing-sensitivity-by-segment.md"
+    },
+    {
+      "pair_id": "c165d7681b78",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Insulation panel reuse economics\n\n# Insulation panel reuse economics Each van's insulation panels last roughly three years before the gel's thermal performance degrades enough to replace them, and the used panels currently go to disposal, which the finance lead flagged as a cost line worth a second look, not because it is large on its own but because disposal fees for anything containing a phase-change compound have risen twice in the past year under a new local waste rule.",
+      "b_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/insulation-panel-reuse-economics.md",
+      "b_path": "operations/diagnosing-why-breaches-happen.md"
+    },
+    {
+      "pair_id": "73c2c0780e26",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Insulation panel reuse economics\n\n# Insulation panel reuse economics Each van's insulation panels last roughly three years before the gel's thermal performance degrades enough to replace them, and the used panels currently go to disposal, which the finance lead flagged as a cost line worth a second look, not because it is large on its own but because disposal fees for anything containing a phase-change compound have risen twice in the past year under a new local waste rule.",
+      "b_excerpt": "Route consolidation for perishables\n\n# Route consolidation for perishables The dispatch team redrew the delivery routes eight months ago around a simple rule: never let a refrigerated van carry a partial load past a forty percent fill rate if a nearby stop could top it off within a fifteen minute detour. Fuel cost per delivered unit dropped by a bit more than a fifth, and van count on the road on a typical day fell from eleven to nine without cutting the number of daily deliveries.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "materials-science/insulation-panel-reuse-economics.md",
+      "b_path": "operations/route-consolidation-for-perishables.md"
+    },
+    {
+      "pair_id": "824233d5323d",
+      "room": "room-extend",
+      "producer": "rs",
+      "a_excerpt": "Diagnosing why breaches happen\n\n# Diagnosing why breaches happen Pulling the thread on the last twenty breach events against the logger data turned up a more specific cause than \"insulation runs out eventually. \" Every one of the twenty events happened on a route where the fourth stop or later fell during the two hours around midday, the hottest part of the day and also the point where the van's rear doors had already been opened and closed, cumulatively, the most times.",
+      "b_excerpt": "Adjacent buyers who mentioned the same pain\n\n# Adjacent buyers who mentioned the same pain Two unsolicited inquiries came in this quarter from businesses well outside the current customer mix. A small-batch skincare maker asked whether the service could carry a handful of temperature-sensitive botanical ingredients between her workshop and a co-packer, a volume far below the minimum any current contract requires, and she was turned away politely, since nothing in the current sales process knows what to do with a request that small.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "operations/diagnosing-why-breaches-happen.md",
+      "b_path": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain.md"
+    },
+    {
+      "pair_id": "27e3a9dabd93",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "computer-security/side-channel-leak.md"
+    },
+    {
+      "pair_id": "5546fe323f60",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "b_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/side-channel-leak.md",
+      "b_path": "computer-security/signature-detection.md"
+    },
+    {
+      "pair_id": "9d6f82c08309",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Rate limiting to protect the login service\n\n# Rate limiting to protect the login service After a credential-stuffing incident last year, the team added a rate limiter in front of the login endpoint: no single account or source address is allowed more than a fixed number of login attempts inside a rolling window, and anything past that cap gets delayed or rejected outright rather than processed immediately. The login service itself did not get any faster or more secure at handling an individual request; what changed is the maximum volume of requests allowed to reach it per unit time from any one source.",
+      "b_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/rate-limiting.md",
+      "b_path": "computer-security/side-channel-leak.md"
+    },
+    {
+      "pair_id": "6a7b75fc7d8b",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Ion channels and membrane signaling\n\n# Ion channels and membrane signaling A cell's outer membrane is not a simple wall, it is studded with channel proteins, each one a narrow, highly selective pore that lets one specific type of ion, sodium, potassium, or calcium, cross the membrane while blocking almost everything else. The channel does not pump the ion through by spending energy; it opens or closes in response to a trigger, a voltage change or a chemical signal binding nearby, and lets the ion flow down its own existing gradient once the gate is open.",
+      "b_excerpt": "Spillway regulation below the main dam\n\n# Spillway regulation below the main dam The dam's spillway gates do not generate power and were not built to; their entire function is to control how much water is released downstream per hour, independent of how much water is arriving from upstream at any given moment. During a heavy rain event, inflow can spike far above what the downstream channel and the towns along it could safely absorb all at once, and the gates hold most of that spike back in the reservoir, releasing it gradually over the following days instead.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "cell-biology/ion-channel-signaling.md",
+      "b_path": "river-hydrology/spillway-regulation.md"
+    },
+    {
+      "pair_id": "aa4cb153e855",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Immune memory after first exposure\n\n# Immune memory after first exposure The first time the immune system meets a given pathogen, its response is slow: it takes days to recognize the invader as a threat, build the right antibody, and mount an effective response, and in that window the pathogen can do real damage. The second time the same pathogen shows up, weeks, months, or years later, the response is dramatically faster, often fast enough that the person never notices they were exposed at all.",
+      "b_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "cell-biology/immune-memory.md",
+      "b_path": "computer-security/signature-detection.md"
+    },
+    {
+      "pair_id": "0665103b1407",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "b_excerpt": "A trip-wire offer that pays for the funnel\n\n# A trip-wire offer that pays for the funnel The marketing team's lowest-priced item, a small accessory priced close to cost, is not expected to make money on its own, and everyone on the team already knows this going in. Its entire job is to get a new customer to complete a first purchase at all, crossing the psychological and logistical threshold of entering payment details and receiving a first delivery, since the data consistently shows that a customer who has bought once, at any price, is dramatically more likely to buy again than one who has never bought at all.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-marketing/attribution-funnel.md",
+      "b_path": "retail-marketing/trip-wire-offer.md"
+    },
+    {
+      "pair_id": "e5fee29f3af4",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "b_excerpt": "The watershed that funnels rainfall to one gauge\n\n# The watershed that funnels rainfall to one gauge Rain falling anywhere across the roughly four hundred square kilometers of this watershed eventually drains, through hundreds of smaller streams and tributaries, down to a single measurement point where a gauge records combined flow every fifteen minutes.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "river-hydrology/channel-meander.md",
+      "b_path": "river-hydrology/watershed-funnel.md"
+    },
+    {
+      "pair_id": "f9fd20cf5a3e",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "b_excerpt": "The watershed that funnels rainfall to one gauge\n\n# The watershed that funnels rainfall to one gauge Rain falling anywhere across the roughly four hundred square kilometers of this watershed eventually drains, through hundreds of smaller streams and tributaries, down to a single measurement point where a gauge records combined flow every fifteen minutes.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "river-hydrology/river-bank-erosion.md",
+      "b_path": "river-hydrology/watershed-funnel.md"
+    },
+    {
+      "pair_id": "716eb86322a4",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "b_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/self-replicating-virus-code.md",
+      "b_path": "computer-security/signature-detection.md"
+    },
+    {
+      "pair_id": "68f9f5a9dc5c",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "river-hydrology/channel-meander.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    },
+    {
+      "pair_id": "954cb61cfd87",
+      "room": "room-control",
+      "producer": "hsi",
+      "a_excerpt": "Spillway regulation below the main dam\n\n# Spillway regulation below the main dam The dam's spillway gates do not generate power and were not built to; their entire function is to control how much water is released downstream per hour, independent of how much water is arriving from upstream at any given moment. During a heavy rain event, inflow can spike far above what the downstream channel and the towns along it could safely absorb all at once, and the gates hold most of that spike back in the reservoir, releasing it gradually over the following days instead.",
+      "b_excerpt": "The watershed that funnels rainfall to one gauge\n\n# The watershed that funnels rainfall to one gauge Rain falling anywhere across the roughly four hundred square kilometers of this watershed eventually drains, through hundreds of smaller streams and tributaries, down to a single measurement point where a gauge records combined flow every fifteen minutes.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "river-hydrology/spillway-regulation.md",
+      "b_path": "river-hydrology/watershed-funnel.md"
+    },
+    {
+      "pair_id": "925616befba3",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "f84fe5852911",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    },
+    {
+      "pair_id": "5102fc9796a9",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Chemoattractant gradients guiding a cell toward a target\n\n# Chemoattractant gradients guiding a cell toward a target An immune cell hunting an infection site does not travel in a straight line by luck; it follows a chemical gradient, a signaling molecule released at the infection site that is most concentrated near the source and thins out with distance. The travelling cell reads the difference in concentration across its own two ends and steps toward whichever side reads slightly higher, over and over, closing the distance without ever needing to know where the source actually is in advance.",
+      "b_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/chemoattractant-gradient.md",
+      "b_path": "cell-biology/virus-replication.md"
+    },
+    {
+      "pair_id": "c5f662bf8905",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Ion channels and membrane signaling\n\n# Ion channels and membrane signaling A cell's outer membrane is not a simple wall, it is studded with channel proteins, each one a narrow, highly selective pore that lets one specific type of ion, sodium, potassium, or calcium, cross the membrane while blocking almost everything else. The channel does not pump the ion through by spending energy; it opens or closes in response to a trigger, a voltage change or a chemical signal binding nearby, and lets the ion flow down its own existing gradient once the gate is open.",
+      "b_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/ion-channel-signaling.md",
+      "b_path": "retail-marketing/attribution-funnel.md"
+    },
+    {
+      "pair_id": "69bc60c5c1e7",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/attribution-funnel.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "94cffb2d0328",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Chemoattractant gradients guiding a cell toward a target\n\n# Chemoattractant gradients guiding a cell toward a target An immune cell hunting an infection site does not travel in a straight line by luck; it follows a chemical gradient, a signaling molecule released at the infection site that is most concentrated near the source and thins out with distance. The travelling cell reads the difference in concentration across its own two ends and steps toward whichever side reads slightly higher, over and over, closing the distance without ever needing to know where the source actually is in advance.",
+      "b_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/chemoattractant-gradient.md",
+      "b_path": "computer-security/self-replicating-virus-code.md"
+    },
+    {
+      "pair_id": "26c18b2b9ed8",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "computer-security/self-replicating-virus-code.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "4e052215042a",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Rate limiting to protect the login service\n\n# Rate limiting to protect the login service After a credential-stuffing incident last year, the team added a rate limiter in front of the login endpoint: no single account or source address is allowed more than a fixed number of login attempts inside a rolling window, and anything past that cap gets delayed or rejected outright rather than processed immediately. The login service itself did not get any faster or more secure at handling an individual request; what changed is the maximum volume of requests allowed to reach it per unit time from any one source.",
+      "b_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/rate-limiting.md",
+      "b_path": "computer-security/signature-detection.md"
+    },
+    {
+      "pair_id": "608a8786af6b",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "A merchandising bank of seasonal display fixtures\n\n# A merchandising bank of seasonal display fixtures The warehouse maintains a bank of pre-built display fixtures, end-cap units, seasonal signage frames, and shelf-edge strips, that get rotated out to retail partners ahead of each seasonal campaign and collected back afterward for reuse the following year. The bank currently holds enough fixtures to outfit about sixty retail locations at once, and utilization runs close to full during the two peak seasons but sits mostly idle the rest of the year.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "retail-marketing/merchandising-bank-display.md"
+    },
+    {
+      "pair_id": "3a4fdbc9405b",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "b_excerpt": "The watershed that funnels rainfall to one gauge\n\n# The watershed that funnels rainfall to one gauge Rain falling anywhere across the roughly four hundred square kilometers of this watershed eventually drains, through hundreds of smaller streams and tributaries, down to a single measurement point where a gauge records combined flow every fifteen minutes.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-marketing/attribution-funnel.md",
+      "b_path": "river-hydrology/watershed-funnel.md"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/sales-channel-mix.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "da82dcd1283b",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "b_excerpt": "A trip-wire offer that pays for the funnel\n\n# A trip-wire offer that pays for the funnel The marketing team's lowest-priced item, a small accessory priced close to cost, is not expected to make money on its own, and everyone on the team already knows this going in. Its entire job is to get a new customer to complete a first purchase at all, crossing the psychological and logistical threshold of entering payment details and receiving a first delivery, since the data consistently shows that a customer who has bought once, at any price, is dramatically more likely to buy again than one who has never bought at all.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "retail-marketing/sales-channel-mix.md",
+      "b_path": "retail-marketing/trip-wire-offer.md"
+    },
+    {
+      "pair_id": "6bbc973b8673",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "retail-marketing/attribution-funnel.md"
+    },
+    {
+      "pair_id": "69c01d1e94a5",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Ion channels and membrane signaling\n\n# Ion channels and membrane signaling A cell's outer membrane is not a simple wall, it is studded with channel proteins, each one a narrow, highly selective pore that lets one specific type of ion, sodium, potassium, or calcium, cross the membrane while blocking almost everything else. The channel does not pump the ion through by spending energy; it opens or closes in response to a trigger, a voltage change or a chemical signal binding nearby, and lets the ion flow down its own existing gradient once the gate is open.",
+      "b_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/ion-channel-signaling.md",
+      "b_path": "retail-marketing/sales-channel-mix.md"
+    },
+    {
+      "pair_id": "e183a8a8a38e",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "computer-security/self-replicating-virus-code.md"
+    },
+    {
+      "pair_id": "8113656967e0",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "b_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/signature-detection.md",
+      "b_path": "retail-marketing/attribution-funnel.md"
+    },
+    {
+      "pair_id": "7b46e9e17d79",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Immune memory after first exposure\n\n# Immune memory after first exposure The first time the immune system meets a given pathogen, its response is slow: it takes days to recognize the invader as a threat, build the right antibody, and mount an effective response, and in that window the pathogen can do real damage. The second time the same pathogen shows up, weeks, months, or years later, the response is dramatically faster, often fast enough that the person never notices they were exposed at all.",
+      "b_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "cell-biology/immune-memory.md",
+      "b_path": "cell-biology/virus-replication.md"
+    },
+    {
+      "pair_id": "d4807ef935c4",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "computer-security/self-replicating-virus-code.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    },
+    {
+      "pair_id": "923eaa491b7d",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/sales-channel-mix.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    },
+    {
+      "pair_id": "97bd79e86a1f",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "b_excerpt": "A trip-wire offer that pays for the funnel\n\n# A trip-wire offer that pays for the funnel The marketing team's lowest-priced item, a small accessory priced close to cost, is not expected to make money on its own, and everyone on the team already knows this going in. Its entire job is to get a new customer to complete a first purchase at all, crossing the psychological and logistical threshold of entering payment details and receiving a first delivery, since the data consistently shows that a customer who has bought once, at any price, is dramatically more likely to buy again than one who has never bought at all.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "computer-security/side-channel-leak.md",
+      "b_path": "retail-marketing/trip-wire-offer.md"
+    },
+    {
+      "pair_id": "cf322dc30df8",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Rate limiting to protect the login service\n\n# Rate limiting to protect the login service After a credential-stuffing incident last year, the team added a rate limiter in front of the login endpoint: no single account or source address is allowed more than a fixed number of login attempts inside a rolling window, and anything past that cap gets delayed or rejected outright rather than processed immediately. The login service itself did not get any faster or more secure at handling an individual request; what changed is the maximum volume of requests allowed to reach it per unit time from any one source.",
+      "b_excerpt": "Spillway regulation below the main dam\n\n# Spillway regulation below the main dam The dam's spillway gates do not generate power and were not built to; their entire function is to control how much water is released downstream per hour, independent of how much water is arriving from upstream at any given moment. During a heavy rain event, inflow can spike far above what the downstream channel and the towns along it could safely absorb all at once, and the gates hold most of that spike back in the reservoir, releasing it gradually over the following days instead.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "computer-security/rate-limiting.md",
+      "b_path": "river-hydrology/spillway-regulation.md"
+    },
+    {
+      "pair_id": "013ae8ee02d5",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Virus replication inside a host cell\n\n# Virus replication inside a host cell A virus cannot reproduce on its own; it has no metabolism of its own to speak of, which is part of why biologists argue about whether to even call it fully alive. What it does have is a small set of genetic instructions and a surface shape built to latch onto a specific receptor on a host cell's membrane. Once attached, it hijacks the host cell's own machinery, the same machinery the cell normally uses to build its own proteins, and redirects that machinery to copy the virus's genetic material and assemble new viral particles instead.",
+      "b_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "cell-biology/virus-replication.md",
+      "b_path": "retail-marketing/sales-channel-mix.md"
+    },
+    {
+      "pair_id": "88576a2b871c",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "The attribution funnel that collects every touchpoint\n\n# The attribution funnel that collects every touchpoint A single purchase this quarter can usually be traced back through several earlier touchpoints: a social ad seen three weeks ago, a search two weeks ago, an abandoned cart a week ago, and finally the email that prompted the completed order. Each of those touchpoints happens on a different platform, at a different time, through a different channel entirely, and on its own tells the analytics team almost nothing useful about what actually drove the sale.",
+      "b_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/attribution-funnel.md",
+      "b_path": "retail-marketing/sales-channel-mix.md"
+    },
+    {
+      "pair_id": "874efea9a47c",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "A merchandising bank of seasonal display fixtures\n\n# A merchandising bank of seasonal display fixtures The warehouse maintains a bank of pre-built display fixtures, end-cap units, seasonal signage frames, and shelf-edge strips, that get rotated out to retail partners ahead of each seasonal campaign and collected back afterward for reuse the following year. The bank currently holds enough fixtures to outfit about sixty retail locations at once, and utilization runs close to full during the two peak seasons but sits mostly idle the rest of the year.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/merchandising-bank-display.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "f3bec26b00bf",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Rate limiting to protect the login service\n\n# Rate limiting to protect the login service After a credential-stuffing incident last year, the team added a rate limiter in front of the login endpoint: no single account or source address is allowed more than a fixed number of login attempts inside a rolling window, and anything past that cap gets delayed or rejected outright rather than processed immediately. The login service itself did not get any faster or more secure at handling an individual request; what changed is the maximum volume of requests allowed to reach it per unit time from any one source.",
+      "b_excerpt": "Self-replicating code that spreads between hosts\n\n# Self-replicating code that spreads between hosts The incident report from last month's outbreak described a piece of malicious code, commonly called a computer virus in casual usage, that could not run or spread on its own without first attaching itself to a legitimate, already-running program on the host machine. Once attached, it used the host program's own execution to copy itself, wrote that copy into other files or programs it could reach on the same machine, and rode the network connection to any reachable machine to repeat the process there.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "computer-security/rate-limiting.md",
+      "b_path": "computer-security/self-replicating-virus-code.md"
+    },
+    {
+      "pair_id": "e31a64af2475",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "Chemoattractant gradients guiding a cell toward a target\n\n# Chemoattractant gradients guiding a cell toward a target An immune cell hunting an infection site does not travel in a straight line by luck; it follows a chemical gradient, a signaling molecule released at the infection site that is most concentrated near the source and thins out with distance. The travelling cell reads the difference in concentration across its own two ends and steps toward whichever side reads slightly higher, over and over, closing the distance without ever needing to know where the source actually is in advance.",
+      "b_excerpt": "Signature-based intrusion detection\n\n# Signature-based intrusion detection The security team's intrusion detection system does not try to understand what an attacker is doing in any general sense; it keeps a large, continuously updated library of signatures, specific byte patterns or behavior sequences pulled from previously observed attacks, and checks every incoming request against that library for a match. A match that scores above the threshold gets blocked or flagged before it can do anything.",
+      "direction_phrase": "same meaning in different words",
+      "a_path": "cell-biology/chemoattractant-gradient.md",
+      "b_path": "computer-security/signature-detection.md"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "room": "room-control",
+      "producer": "rs",
+      "a_excerpt": "A merchandising bank of seasonal display fixtures\n\n# A merchandising bank of seasonal display fixtures The warehouse maintains a bank of pre-built display fixtures, end-cap units, seasonal signage frames, and shelf-edge strips, that get rotated out to retail partners ahead of each seasonal campaign and collected back afterward for reuse the following year. The bank currently holds enough fixtures to outfit about sixty retail locations at once, and utilization runs close to full during the two peak seasons but sits mostly idle the rest of the year.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "same words with different meaning",
+      "a_path": "retail-marketing/merchandising-bank-display.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    }
+  ]
+}
