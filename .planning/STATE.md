@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 355-05-PLAN.md - scout-hsi and whitespace_scan naming honesty fixed, D-25 fixture gate committed
-last_updated: "2026-09-24T07:35:57.717Z"
+last_updated: "2026-09-24T07:53:29.432Z"
 last_activity: 2026-09-23 -- Phase 355 execution continuing (355-05 complete)
 progress:
   total_phases: 113
   completed_phases: 40
   total_plans: 435
-  completed_plans: 375
+  completed_plans: 376
   percent: 86
 ---
 
@@ -5425,6 +5425,18 @@ Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 c
   not fixed. MCPV2-01/-08/-19 requirements NOT yet marked in REQUIREMENTS.md -- this
   phase's own stated convention (ROADMAP.md) registers all MCPV2-* requirements at
   phase close (plan 267-18), not incrementally. Full detail in 267-01-SUMMARY.md.
+Previously (267-02, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): complete -- filed all seven NEW FAILURE RCAs
+  per docs/RCA-TEMPLATE.md in .planning/debug/ (mcp-http-flag-off-one-request-per-process.md
+  fix->267-12, app-views-schema-key-drops-input-schemas.md fix->267-10,
+  gate-elicitation-premise-stale-comment.md fix->267-07, runtime-loop-prompts-bogus-args-schema.md
+  fix->267-09, mcp-server-sigterm-no-exit.md fix->267-13, mcp-http-listen-error-false-started.md
+  fix->267-13, mcp-shim-preseeded-session-id-rejected.md fix PENDING navigator decision,
+  pinned by 267-15, seeded by 267-18). Every RCA's Evidence section is live-reproduced
+  against this tree (three HTTP-mode server spawns, four stdio-mode server/shim spawns, one
+  non-invasive node -r SDK-error-text instrumentation that touched no repo file). Zero
+  production files touched (git diff --stat against PLAN_BASE 782ecc466 over bin/lib/scripts/
+  tests empty). Full detail in 267-02-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"

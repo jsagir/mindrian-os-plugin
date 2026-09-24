@@ -622,12 +622,12 @@ Further correction: the "Brain server" half of this phase does not belong to Min
 
 **Requirements**: MCPV2-01, MCPV2-02, MCPV2-03, MCPV2-04, MCPV2-05, MCPV2-06, MCPV2-07, MCPV2-08, MCPV2-09, MCPV2-10, MCPV2-11, MCPV2-12, MCPV2-13, MCPV2-14, MCPV2-15, MCPV2-16, MCPV2-17, MCPV2-18, MCPV2-19 (minted at plan time 2026-09-23, extending `267-RESEARCH.md`'s own MCPV2-01..14 Validation Architecture table; registered in `.planning/REQUIREMENTS.md` by plan 267-18, per the Phase 254/257/265/267.2/340 precedent)
 **Depends on:** none blocking (Phase 339 Theo cutover shipped; ext-apps 2.x upstream)
-**Plans:** 1/18 plans executed. 18 plans in 16 waves.
+**Plans:** 2/18 plans executed
 
 Plans:
 
 - [x] 267-01-PLAN.md -- W0: baseline on the unchanged tree, SDK-independent wire helper, run-all-267 aggregator, sdk-era / lockstep / per-commit CIRS gate tests (MCPV2-01, -08, -19). 267-01-SUMMARY.md: PLAN_BASE 211030b13, CONNECTOR_DESCRIPTORS=31, SHAPE_VIOLATIONS=53, wire snapshot 44/9/10/3 local + 6 brain-shim tools. Zero production files touched. Two new pre-existing test-257 egress-boundary failures found and logged to deferred-items.md (out of scope, not fixed).
-- [ ] 267-02-PLAN.md -- W0: seven RCAs for the NEW FAILURES, filed before any fix (MCPV2-15)
+- [x] 267-02-PLAN.md -- W0: seven RCAs for the NEW FAILURES, filed before any fix (MCPV2-15)
 - [ ] 267-03-PLAN.md -- W0: zod 4 + @modelcontextprotocol/sdk 1.30.1 green on v1, zod-4 wire delta measured then pinned as the accepted set (MCPV2-03, -12, -19)
 - [ ] 267-04-PLAN.md -- W0: handshake-only stdio tee, live CLI probe, navigator Desktop/Cowork probe checkpoint (MCPV2-13)
 - [ ] 267-05-PLAN.md -- W1 canary: v2 family installed and vetted, brain stdio shim on serveStdio, both eras, Part 8 intact (MCPV2-11, -10, -09)
