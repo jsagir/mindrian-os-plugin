@@ -419,3 +419,33 @@ Downstream agents MUST read `359-SPEC.md` before planning or implementing. Requi
   run replaces the estimates.
 - **N-6: the 400 B cap is NET** (researcher recommendation, default).
 </navigator_rulings_2>
+
+<navigator_rulings_3>
+## Navigator rulings, round 3 (2026-09-24, at the 359-06 checkpoint)
+
+- **N-7: cosmetic declaration slips are TOLERATED (amends D-01 to D-03 / N-3 grammar).**
+  - The parser also accepts:
+    - a lowercase `what if` moonshot prefix
+    - markdown emphasis (`**` / `*` / `_`) wrapping the `Your call:` prefix or the whole line
+    - one trailing blank or short sign-off line after the declaration
+  - Structural errors stay rejected:
+    - fewer than 3 or more than 4 labels in total
+    - brackets
+    - duplicates
+    - voice glyphs
+    - a line that is not a declaration
+  - The rule is still deterministic: no prose guessing, and 0 new false blocks on the 357 corpus.
+  - The near-miss controls syn359-ctrl-16/17/18 become parser-positive, so their prose_fork label is re-read.
+    New structural near-miss negatives replace them so the corpus keeps at least 15 controls.
+  - Evidence: Jev (dev time, synthetic only) read all 6 near-miss controls as real forks. Under strict grammar, a
+    one-character slip by Larry means a missed card.
+- **N-8: push moonshots harder.** Scores were: relevance mean 3.52/4, radicalness mean 2.50/4, and nothing
+  scored 4.
+  - Plan 09's prose rule says the What-if should break an assumption the practical options share, pushed
+    toward the absurd when that helps (trending-to-absurd).
+  - The weakest two fixture moonshots (syn359-fork-08, syn359-fork-10) are rewritten in 359-06 Task 3.
+  - The R9 forward run rescores moonshots against the same policy.
+- **Confirmed:** I-1 (the yes/no exemption applies to practical labels only), I-2 (the vacuity floor applies in
+  both probe and text mode), and all 13 hand labels kept. The 24 dogfood entries are ratified as
+  prose_fork:false.
+</navigator_rulings_3>
