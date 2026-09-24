@@ -185,6 +185,22 @@ in claim-verify.cjs (or gate.cjs/chain.cjs) themselves. Not referenced by
 `tests/run-all-198.sh` or `tests/run-all-267.sh` (Phase 358 owns its own
 `tests/run-all-358.sh`); not named in 267-07-PLAN.md's `<verify>` block.
 
+**UPDATE (Task 2, claim.cjs commit):** the SAME gap also broke one of this
+plan's own explicitly-named gate files,
+`tests/test-276-claim-write-primitive.cjs`'s "claim.cjs scans OK on the
+honesty checker's first sweep (zero non-OK rows)" assertion (an anti-
+vacuity check requiring `rows.length > 0`, which a vanished-row scan fails
+even though zero non-OK verdicts exist) -- 43/44 rather than the baseline's
+44/44, the ONE remaining red being this exact scanner gap, not a new
+claim.cjs defect. Independently confirmed pre-existing and NOT unique to
+this plan's own four files: `tests/test-276-tool-honesty-switch-
+branches.cjs` (an unrelated Phase 276 test, not touched by 267-07 at all)
+ALSO now fails 2 of 17 assertions on `room_content`, a tool
+`tool-router.cjs` registers -- migrated by 267-06, a full commit before
+this plan started. This proves the gap was ALREADY silently live and
+unnoticed the moment 267-06 landed; 267-07 did not introduce the disease,
+only tripped two more of its pre-existing symptom sites.
+
 **Do not fix as part of any Phase 267 plan** unless a plan explicitly says
 so; `findServerToolCalls`'s regex (and, downstream, `extractHandlerBody`'s
 4th-positional-argument assumption) needs real rework to recognize the

@@ -89,6 +89,17 @@ function registerAndCapture(roomDir) {
     tool: (name, description, schema, handler) => {
       captured.set(name, { description, schema, handler });
     },
+    // Phase 267-07: claim.cjs (and gate.cjs / chain.cjs / claim-verify.cjs /
+    // tool-router.cjs / contract-version.cjs before it) now calls
+    // server.registerTool(name, {title, description, inputSchema}, handler)
+    // (v2 registration API) instead of the removed-in-v2 tool(name, desc,
+    // shape, handler). Capture the same {description, schema, handler}
+    // shape the tool() arm above builds so captured.get('claim_write')
+    // stays reachable regardless of which registration form it uses.
+    registerTool: (name, config, handler) => {
+      const cfg = config || {};
+      captured.set(name, { description: cfg.description, schema: cfg.inputSchema, handler });
+    },
   };
   registerCoreTools(stubServer, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'cli' });
   return captured;
