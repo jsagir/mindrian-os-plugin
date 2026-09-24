@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "scanned_at": "2026-07-10T12:00:00.000Z",
   "guard": {
     "available": true,
@@ -17,5 +17,7 @@
   "provenance": {
     "model": "mdbr-leaf-ir",
     "method": "scoreMeasured+stageA"
-  }
+  },
+  "stamp": null,
+  "opportunity_handle": null
 }

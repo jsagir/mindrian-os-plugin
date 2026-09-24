@@ -135,8 +135,10 @@ ok('6 malformed JSON / missing roomDir / schema_version mismatch -> null (no thr
   assert.strictEqual(sensorEureka({}, {}, { roomDir: freshRoom('{ not json') }), null, 'malformed json');
   assert.strictEqual(sensorEureka({}, {}, {}), null, 'missing roomDir');
   assert.strictEqual(sensorEureka({}, {}, { roomDir: '/nonexistent-213-room' }), null, 'nonexistent room');
+  // Amended Phase 355 D-53: the fixture is now v2, so the mismatch probe
+  // moves from 2 to 3 (2 is the current valid version).
   const p = loadFixture();
-  p.schema_version = 2;
+  p.schema_version = 3;
   assert.strictEqual(sensorEureka({}, {}, { roomDir: freshRoom(p) }), null, 'schema_version mismatch');
 });
 
@@ -182,6 +184,8 @@ okAsync('8 probeGuard({criticProbeFn:()=>null}) -> available:false', function ()
 });
 
 okAsync('9 closed-schema writer: written file has EXACTLY the closed key set', function () {
+  // Amended Phase 355 D-53: the writer is now v2 (stamp/opportunity_handle
+  // added to the top-level key set, both null on this hook-path scan).
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'run9-'));
   return runnerMod.runEurekaScan({
     roomDir: dir, pair: PAIR, criticProbeFn: stubCriticCleared,
@@ -189,11 +193,13 @@ okAsync('9 closed-schema writer: written file has EXACTLY the closed key set', f
   }).then(function (o) {
     assert.strictEqual(o.fired, true, 'should fire: ' + o.reason);
     const written = JSON.parse(fs.readFileSync(o.sideChannelPath, 'utf8'));
-    assert.strictEqual(Object.keys(written).sort().join(','), 'bridge,guard,provenance,scanned_at,schema_version', 'top key set');
+    assert.strictEqual(Object.keys(written).sort().join(','), 'bridge,guard,opportunity_handle,provenance,scanned_at,schema_version,stamp', 'top key set');
     assert.strictEqual(Object.keys(written.guard).sort().join(','), 'available,confidence,tags,verdict', 'guard key set');
     assert.strictEqual(Object.keys(written.bridge).sort().join(','), 'a_handle,b_handle,band,differential_quantized,surprise_type', 'bridge key set');
     assert.strictEqual(Object.keys(written.provenance).sort().join(','), 'method,model', 'provenance key set');
-    assert.strictEqual(written.schema_version, 1);
+    assert.strictEqual(written.schema_version, 2);
+    assert.strictEqual(written.stamp, null, 'the hook-path scan never carries a stamp');
+    assert.strictEqual(written.opportunity_handle, null, 'the hook-path scan never carries an opportunity_handle');
     assert.strictEqual(written.guard.verdict, 'transferable');
     assert.strictEqual(written.bridge.a_handle, 'n1');
     assert.strictEqual(written.bridge.differential_quantized, 0.6);

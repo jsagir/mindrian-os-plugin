@@ -127,9 +127,11 @@ ok('(a) side-channel: poisoned pair -> no sentinel byte in last-eureka.json', as
 // (b) OFFER: the composed offer text + object cross clean; prose never leaks.
 // ---------------------------------------------------------------------------
 
+// Amended Phase 355 D-53: a v2 payload (stamp/opportunity_handle null on
+// this hook-path-shaped fixture, matching what a real scan producer writes).
 function validOfferPayload() {
   return {
-    schema_version: 1,
+    schema_version: 2,
     scanned_at: '2026-07-10T12:00:00.000Z',
     guard: { available: true, verdict: 'transferable', confidence: 'high', tags: ['passes_all_gates'] },
     bridge: {
@@ -137,6 +139,8 @@ function validOfferPayload() {
       band: 'breakthrough', differential_quantized: 0.57,
     },
     provenance: { model: 'mdbr-leaf-ir', method: 'scoreMeasured+stageA' },
+    stamp: null,
+    opportunity_handle: null,
   };
 }
 
