@@ -1022,7 +1022,7 @@ Plans:
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
 **Requirements**: TBD (minted at spec time)
 **Depends on:** Phase 354 (354-17 Jev ledger, 354-18 THEO-04)
-**Plans:** 26/28 plans executed
+**Plans:** 27/28 plans executed
 
 **Next action:** `/gsd-execute-phase 355` only after Phase 354 closes (355-01 Task 1 gates on it and on a clean tree for gate.cjs, tool-router.cjs, brain-client.cjs, part8-egress-guard.cjs, doctor.cjs, scripts/jev-devtime-client.cjs). Spec `355-SPEC.md`, AI contract `355-AI-SPEC.md`, decisions `355-CONTEXT.md` (D-01..D-58), research `355-RESEARCH.md`, patterns `355-PATTERNS.md`, Nyquist `355-VALIDATION.md`. Requirements HIPS-01..HIPS-10 are minted in the plans and registered by 355-27 at close.
 
@@ -1079,7 +1079,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 **Wave 9** *(depends on 355-24)*
 
-- [ ] 355-25-PLAN.md -- HIPS-04, HIPS-07: stamped run, judging sitting 2, per-tier rates, unverified rate and hub-inflation share recorded in 355-VERIFICATION.md (checkpoint) [checkpoint]
+- [x] 355-25-PLAN.md -- HIPS-04, HIPS-07: stamped run, judging sitting 2, per-tier rates, unverified rate and hub-inflation share recorded in 355-VERIFICATION.md (checkpoint) (completed 2026-09-24; 96 judged pairings stamped via one live Theo capture replayed offline (strong 13, indirect 1, unverified 82); blind pooled useful 43/96, Wilson 35.2-54.7%, equal to the unstamped baseline; strong 7/13, indirect 0/1, unverified 36/82, so the strong tier carries no measured information yet; as-shown 42/96, gap -1.0 pp; unverified share 85.4%, not_called 80.2%, hub-inflation 4/13 (in-sample proxy), provenance-routed strong 0; Theo latency p50 1580 ms / p95 1761 ms; sitting 2 taken same session, 91 of 96 items in chat, disclosed; first calibration point on fixture rooms, no target) [checkpoint]
 
 **Wave 10** *(depends on 355-14, 355-15, 355-25, 355-28)*
 
