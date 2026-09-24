@@ -9,9 +9,10 @@
  * eureka-offer.cjs, grill-engine.cjs) and the eureka_critic zod schema in
  * tool-router.cjs all now source the two wire ids from
  * lib/core/direction-convention.cjs's DIRECTIONS instead of carrying a
- * second copy. eureka-reach-runner.cjs and sensor-eureka.cjs are the two
- * named 355-19 carve-outs (they move with the schema_version bump, not this
- * plan).
+ * second copy. eureka-reach-runner.cjs and sensor-eureka.cjs were the two
+ * 355-19 carve-outs (they moved with the schema_version bump, in 355-19's
+ * own Task 2 -- SURPRISE_TYPES / FIRING_SURPRISE_TYPES now alias DIRECTIONS
+ * there too, so the static sweep below allows zero exceptions).
  *
  * Task 2: producers that store a direction/innovation label in a room
  * (scripts/hsi-to-graph.cjs) and readers that surface one
@@ -58,8 +59,6 @@ const TWO_LITERAL_ARRAY =
 
 const ALLOWED_ARRAY_HITS = [
   path.join('lib', 'core', 'direction-convention.cjs'), // the definition itself
-  path.join('lib', 'core', 'eureka', 'eureka-reach-runner.cjs'), // moves in 355-19
-  path.join('lib', 'core', 'sensors', 'sensor-eureka.cjs'), // moves in 355-19
 ];
 
 function sweepLibForTwoLiteralArrays() {
@@ -80,14 +79,9 @@ function sweepLibForTwoLiteralArrays() {
 const arrayHits = sweepLibForTwoLiteralArrays();
 const unresolvedArrayHits = arrayHits.filter((rel) => ALLOWED_ARRAY_HITS.indexOf(rel) === -1);
 check(
-  'T1 static: no unresolved two-literal direction-id arrays under lib/ (allowed: direction-convention.cjs + the two 355-19 carve-outs)',
+  'T1 static: no unresolved two-literal direction-id arrays under lib/ (allowed: direction-convention.cjs only, post-355-19)',
   unresolvedArrayHits.length === 0,
   unresolvedArrayHits.length ? 'unresolved: ' + unresolvedArrayHits.join(', ') : undefined
-);
-check(
-  'T1 static: the two 355-19 carve-outs are still present (unwidened exception list)',
-  arrayHits.indexOf(path.join('lib', 'core', 'eureka', 'eureka-reach-runner.cjs')) !== -1 &&
-    arrayHits.indexOf(path.join('lib', 'core', 'sensors', 'sensor-eureka.cjs')) !== -1
 );
 
 // Leg 1b: each of the four files requires direction-convention.cjs.

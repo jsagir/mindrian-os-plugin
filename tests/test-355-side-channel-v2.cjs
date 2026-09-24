@@ -227,8 +227,8 @@ async function main() {
     const res = runnerMod.writeStampedSideChannel(dir, {
       score: firingScore(),
       guard: { verdict: 'transferable', confidence: 'high', tags: [] },
-      a: { handle: 'n042' },
-      b: { handle: 'n317' },
+      a: { handle: 'n042', text: 'alpha' },
+      b: { handle: 'n317', text: 'omega' },
       stamp: VERIFIED_STAMP,
       opportunityHandle: 'opp-handle-3',
       now: 1720000000000,
@@ -242,8 +242,8 @@ async function main() {
     const badRes = runnerMod.writeStampedSideChannel(badDir, {
       score: firingScore(),
       guard: { verdict: 'transferable', confidence: 'high', tags: [] },
-      a: { handle: 'n042' },
-      b: { handle: 'n317' },
+      a: { handle: 'n042', text: 'alpha' },
+      b: { handle: 'n317', text: 'omega' },
       stamp: { verification: 'made_up_tier', backend: 'theo', direction: 'none', judge: 'none' },
     });
     check('writeStampedSideChannel returns ok:false + reason on an invalid stamp', badRes && badRes.ok === false && typeof badRes.reason === 'string', badRes && JSON.stringify(badRes));
