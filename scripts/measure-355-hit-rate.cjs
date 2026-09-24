@@ -28,8 +28,10 @@
  * D-32 / D-35 step (4): this file's own `export --unstamped` path never
  * requires lib/core/verification-stamp.cjs and never calls Theo -- the
  * unstamped baseline exists so the navigator's first sitting is blind. The
- * `stamp` and `record` subcommands are 355-25's own scope; this plan wires
- * their argv slots and --check's absent-record leg only.
+ * `stamp` subcommand (355-25 Task 1) stamps the already-judged pairings from
+ * one live Theo capture replayed offline; `record` (355-25 Task 3) writes
+ * tests/fixtures/355-rooms/hit-rate-record.json and the 355-VERIFICATION.md
+ * hit-rate section; `--check` recomputes the record byte-for-byte.
  *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
@@ -470,13 +472,23 @@ function computeRates(joined, opts) {
     };
   }
 
+  // false_friends_by_tier (355-25, D17): a planted false friend (a
+  // same-word, different-meaning pair from planted-cases.json, joined by
+  // artifact paths) counts only when the reader marked the named direction
+  // WRONG (direction_ok === false) -- a term collision the engine's
+  // direction label did not survive. false_friends_shown_by_tier counts
+  // every planted false friend that was shown, whatever the direction mark,
+  // so a reader can see the denominator beside the count.
   const falseFriendsByTier = { strong: 0, indirect: 0, unverified: 0 };
+  const falseFriendsShownByTier = { strong: 0, indirect: 0, unverified: 0 };
   for (const r of list) {
     if (!r.a_path || !r.b_path) continue;
     const key = [r.a_path, r.b_path].sort().join('\u0000');
     if (!ffKeySet.has(key)) continue;
     const tier = r.stamp && TIERS.indexOf(r.stamp.verification) !== -1 ? r.stamp.verification : null;
-    if (tier) falseFriendsByTier[tier] += 1;
+    if (!tier) continue;
+    falseFriendsShownByTier[tier] += 1;
+    if (r.direction_ok === false) falseFriendsByTier[tier] += 1;
   }
 
   return {
@@ -488,6 +500,7 @@ function computeRates(joined, opts) {
     not_called_share: notCalledShare,
     already_known_by_tier: alreadyKnownByTier,
     false_friends_by_tier: falseFriendsByTier,
+    false_friends_shown_by_tier: falseFriendsShownByTier,
   };
 }
 
@@ -730,15 +743,789 @@ async function doStamp() {
 }
 
 // ---------------------------------------------------------------------------
+// 355-25 Task 3: the hit-rate record (SPEC Req 7, AC12, AI-SPEC D16/D17 and
+// Section 6). buildRecord() is PURE over already-parsed inputs (no Date, no
+// network, no randomness) so --check can recompute it byte-for-byte;
+// loadRecordInputs() is the only file reader; renderSection() turns the
+// machine record into the 355-VERIFICATION.md section, which is a VIEW of
+// the record and never a second source of any number.
+// ---------------------------------------------------------------------------
+const JUDGMENTS_STAMPED_PATH = path.join(FIXTURE_ROOT, 'judgments-stamped.json');
+const PLANTED_PATH = path.join(FIXTURE_ROOT, 'planted-cases.json');
+const PHASE_DIR = path.join(REPO_ROOT, '.planning', 'phases', '355-hidden-in-plain-sight-jev-through-theo-cross-connection-engi');
+const VERIFICATION_PATH = path.join(PHASE_DIR, '355-VERIFICATION.md');
+const SESSION_STAMPED_PATH = path.join(PHASE_DIR, 'labeling-session-pairings-stamped.json');
+const NAME_SNAPSHOT_PATH = path.join(REPO_ROOT, 'data', 'framework-names.json');
+const SECTION_HEADING = '## Hit-rate record (SPEC Req 7)';
+const SECTION_END = '<!-- hit-rate-record:end -->';
+const SECTION_REGEN_COMMENT = '<!-- Regenerate with node scripts/measure-355-hit-rate.cjs record; verifiers append below, never overwrite this section. -->';
+const HUB_PROXY_SOURCE = 'in-sample proxy: interior-node frequency across the strong paths in this record, top decile (no governed Theo call returns node degree)';
+
+// percentileNearestRank(values, p): the nearest-rank percentile (the
+// smallest value with at least p of the sample at or below it). null on an
+// empty sample.
+function percentileNearestRank(values, p) {
+  const v = (Array.isArray(values) ? values : []).filter((x) => Number.isFinite(x)).slice().sort((a, b) => a - b);
+  if (v.length === 0) return null;
+  const idx = Math.min(v.length - 1, Math.max(0, Math.ceil(p * v.length) - 1));
+  return v[idx];
+}
+
+function rateOfRows(rows, field) {
+  const f = field || 'useful';
+  const n = rows.length;
+  const k = rows.filter((r) => r[f] === true).length;
+  return { k, n, rate: n > 0 ? k / n : 0, wilson: wilson95(k, n) };
+}
+
+function tierOf(stamp) {
+  return stamp && TIERS.indexOf(stamp.verification) !== -1 ? stamp.verification : null;
+}
+
+// hubMetrics(rows): Section 6 hub-inflation share, provenance-routed strong
+// count (RESEARCH C6), and diversity, over the STRONG stamps of the joined
+// rows. The degree source is the in-sample proxy (HUB_PROXY_SOURCE): count
+// how often each interior node (every node but the two endpoints) appears
+// across the strong paths, sort by count (ties by name), take the top
+// decile of distinct interior nodes (at least one; a tie at the cut is
+// included), and report the share of strong stamps whose interior crosses
+// one of them.
+function hubMetrics(rows) {
+  const strong = rows.filter((r) => r.stamp && r.stamp.verification === 'strong' && r.stamp.path && Array.isArray(r.stamp.path.nodes));
+  const freq = new Map();
+  for (const r of strong) {
+    const interior = r.stamp.path.nodes.slice(1, -1);
+    for (const node of interior) freq.set(node, (freq.get(node) || 0) + 1);
+  }
+  const ranked = Array.from(freq.entries())
+    .map(([node, count]) => ({ node, count }))
+    .sort((a, b) => (b.count - a.count) || (a.node < b.node ? -1 : (a.node > b.node ? 1 : 0)));
+  let top = [];
+  if (ranked.length > 0) {
+    const cut = Math.max(1, Math.ceil(0.1 * ranked.length));
+    const threshold = ranked[cut - 1].count;
+    top = ranked.filter((x) => x.count >= threshold);
+  }
+  const topSet = new Set(top.map((x) => x.node));
+  const crossing = strong.filter((r) => r.stamp.path.nodes.slice(1, -1).some((n) => topSet.has(n))).length;
+  const provenance = strong.filter((r) => {
+    const labels = Array.isArray(r.stamp.path.labels) ? r.stamp.path.labels : [];
+    const edges = Array.isArray(r.stamp.path.edges) ? r.stamp.path.edges : [];
+    return labels.indexOf('BrainRecord') !== -1 || edges.indexOf('SOURCED_FROM') !== -1;
+  }).length;
+  return {
+    hub_inflation: {
+      k: crossing,
+      n: strong.length,
+      share: strong.length > 0 ? crossing / strong.length : 0,
+      proxy_source: HUB_PROXY_SOURCE,
+      top_decile_nodes: top,
+      interior_node_frequency: ranked,
+    },
+    provenance_routed_strong: provenance,
+    diversity: {
+      distinct_interior_nodes: ranked.length,
+      strong_stamps: strong.length,
+      ratio: strong.length > 0 ? ranked.length / strong.length : 0,
+    },
+  };
+}
+
+// buildRecord(inp): inp = {
+//   items, stampedItems, judgments, judgmentsStamped, stamps, capture,
+//   planted, session (optional), nameSnapshot (optional),
+//   sha: { items, stamped_items, judgments, judgments_stamped, stamps,
+//          capture, planted, session, name_snapshot } }.
+// Throws on any provenance mismatch (a judgments file pinned to a different
+// items file, a missing stamp, a pair set that differs between sittings)
+// rather than computing a number over the wrong join.
+function buildRecord(inp) {
+  const items = inp.items.items;
+  const stampedItems = inp.stampedItems.items;
+  const byPair = inp.stamps.by_pair || {};
+
+  if (inp.judgments.fixture_sha256 !== inp.sha.items) {
+    throw new Error('record: judgments.json fixture_sha256 does not match pairings.items.json');
+  }
+  if (inp.judgmentsStamped.fixture_sha256 !== inp.sha.stamped_items) {
+    throw new Error('record: judgments-stamped.json fixture_sha256 does not match pairings-stamped.items.json');
+  }
+  const ids = items.map((i) => i.pair_id).sort();
+  const stampedIds = stampedItems.map((i) => i.pair_id).sort();
+  const blindIds = inp.judgments.items.map((j) => j.pair_id).sort();
+  const shownIds = inp.judgmentsStamped.items.map((j) => j.pair_id).sort();
+  const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+  if (!same(ids, blindIds)) throw new Error('record: sitting-1 judgments do not cover exactly the shown pairings');
+  if (!same(ids, stampedIds)) throw new Error('record: the stamped item file does not carry exactly the shown pairings');
+  if (!same(stampedIds, shownIds)) throw new Error('record: sitting-2 judgments do not cover exactly the stamped pairings');
+  for (const id of ids) {
+    if (!byPair[id] || !byPair[id].stamp) throw new Error('record: no stamp for pair ' + id);
+  }
+
+  const itemById = new Map(items.map((i) => [i.pair_id, i]));
+  const plantedCases = inp.planted;
+
+  // Per-tier rates come from the BLIND sitting-1 labels joined to the stamps
+  // (AI-SPEC Labeling step 3); sitting 2 is the as-shown pass only.
+  const blindJoined = joinJudgments(inp.judgments, inp.items, byPair);
+  const shownJoined = joinJudgments(inp.judgmentsStamped, inp.stampedItems, byPair);
+  const blind = computeRates(blindJoined, { plantedCases });
+  const shown = computeRates(shownJoined, { plantedCases });
+  const shownById = new Map(shownJoined.map((r) => [r.pair_id, r]));
+
+  for (const r of blindJoined) r.direction_phrase = itemById.get(r.pair_id).direction_phrase;
+
+  function groupRates(rows, keyFn, field) {
+    const groups = {};
+    for (const r of rows) {
+      const key = keyFn(r);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    }
+    const out = {};
+    for (const key of Object.keys(groups).sort()) out[key] = rateOfRows(groups[key], field);
+    return out;
+  }
+
+  const tierCounts = { strong: 0, indirect: 0, unverified: 0 };
+  for (const r of blindJoined) tierCounts[tierOf(r.stamp)] += 1;
+
+  // Stamp influence: the as-shown pass minus the blind pass, per pairing.
+  const agreement = {};
+  for (const f of ['useful', 'direction_ok', 'already_known']) {
+    const agree = blindJoined.filter((r) => shownById.get(r.pair_id)[f] === r[f]).length;
+    agreement[f] = { agree, n: blindJoined.length, rate: blindJoined.length > 0 ? agree / blindJoined.length : 0 };
+  }
+  const usefulFlips = {
+    not_useful_to_useful: blindJoined.filter((r) => r.useful === false && shownById.get(r.pair_id).useful === true).length,
+    useful_to_not_useful: blindJoined.filter((r) => r.useful === true && shownById.get(r.pair_id).useful === false).length,
+  };
+  const gapPerTier = {};
+  for (const t of TIERS) gapPerTier[t] = shown.per_tier[t].rate - blind.per_tier[t].rate;
+
+  // Direction fidelity: direction_ok from the blind pass, by shown phrase and
+  // by tier; planted cases joined by artifact paths only now, after both
+  // sittings (planted-cases.json's own _note).
+  const pathKey = (a, b) => [a, b].sort().join('\u0000');
+  const rowByPaths = new Map(blindJoined.map((r) => [pathKey(r.a_path, r.b_path), r]));
+  const plantedShown = [];
+  for (const kind of ['false_friends', 'meaning_bridges']) {
+    const list = Array.isArray(plantedCases && plantedCases[kind]) ? plantedCases[kind] : [];
+    for (const c of list) {
+      const r = rowByPaths.get(pathKey(c.a, c.b));
+      if (!r) continue;
+      plantedShown.push({
+        kind: kind === 'false_friends' ? 'false_friend' : 'meaning_bridge',
+        pair_id: r.pair_id,
+        room: r.room,
+        direction_phrase: r.direction_phrase,
+        tier: tierOf(r.stamp),
+        direction_ok: r.direction_ok,
+        useful: r.useful,
+      });
+    }
+  }
+  plantedShown.sort((a, b) => (a.kind < b.kind ? -1 : (a.kind > b.kind ? 1 : (a.pair_id < b.pair_id ? -1 : 1))));
+
+  // Verified versus already known (Section 6 domain failure mode 4).
+  const usefulNovelByTier = {};
+  for (const t of TIERS) {
+    usefulNovelByTier[t] = blindJoined.filter((r) => tierOf(r.stamp) === t && r.useful === true && r.already_known === false).length;
+  }
+
+  const hub = hubMetrics(blindJoined);
+
+  const latency = Array.isArray(inp.capture.latency_ms) ? inp.capture.latency_ms : [];
+  const theoLatency = {
+    p50: percentileNearestRank(latency, 0.5),
+    p95: percentileNearestRank(latency, 0.95),
+    n: latency.length,
+    min: latency.length ? Math.min.apply(null, latency) : null,
+    max: latency.length ? Math.max.apply(null, latency) : null,
+    calls: Number.isFinite(inp.capture.calls) ? inp.capture.calls : null,
+    responses: inp.capture.responses ? Object.keys(inp.capture.responses).length : null,
+    captured_at: inp.capture.captured_at || null,
+    method: 'nearest-rank percentile over every latency_ms value in tests/fixtures/355-theo-find-connections-responses.json (plugin side, through brain-client, dev machine)',
+  };
+
+  // Labelers and how sitting 2 was taken (from the raw session file).
+  let viaCli = null;
+  let viaChat = null;
+  let untimed = null;
+  if (inp.session && inp.session.entries) {
+    const entries = Object.values(inp.session.entries);
+    viaChat = entries.filter((e) => e.via === 'chat-sitting').length;
+    viaCli = entries.filter((e) => !e.via).length;
+    untimed = entries.filter((e) => e.ms === null || e.ms === undefined).length;
+    if (inp.session.fixture_sha256 !== inp.sha.stamped_items) {
+      throw new Error('record: the sitting-2 session file is pinned to a different stamped item file');
+    }
+  }
+
+  const perRoomJudgments = {};
+  for (const it of items) {
+    const b = blindJoined.find((r) => r.pair_id === it.pair_id);
+    const s = shownById.get(it.pair_id);
+    if (!perRoomJudgments[it.room]) perRoomJudgments[it.room] = [];
+    perRoomJudgments[it.room].push({
+      pair_id: it.pair_id,
+      producer: it.producer,
+      direction_phrase: it.direction_phrase,
+      tier: tierOf(b.stamp),
+      reason: b.stamp.reason || null,
+      useful: b.useful,
+      direction_ok: b.direction_ok,
+      already_known: b.already_known,
+      as_shown: { useful: s.useful, direction_ok: s.direction_ok, already_known: s.already_known },
+    });
+  }
+
+  const nameSnap = inp.nameSnapshot || {};
+
+  return {
+    schema: 'hit-rate-record/1',
+    _note: 'Phase 355 (HIPS-07) first human-judged hit rate. Dev-repo fixture rooms only, not real ventures; no target. Rates are fractions here; 355-VERIFICATION.md renders them. Regenerate with: node scripts/measure-355-hit-rate.cjs record; verify with --check.',
+    inputs: {
+      pairings_items_sha256: inp.sha.items,
+      pairings_stamped_items_sha256: inp.sha.stamped_items,
+      judgments_sha256: inp.sha.judgments,
+      judgments_stamped_sha256: inp.sha.judgments_stamped,
+      stamps_sha256: inp.sha.stamps,
+      capture_sha256: inp.sha.capture,
+      stamps_capture_sha256: inp.stamps.capture_sha256 || null,
+      planted_cases_sha256: inp.sha.planted,
+      session_stamped_sha256: inp.sha.session || null,
+      theo_snapshot_sha256: inp.stamps.snapshot_sha256 || null,
+      name_snapshot_date: nameSnap.snapshot_date || null,
+      name_snapshot_source_sha256: nameSnap.source_sha256 || null,
+    },
+    export: {
+      encoder: inp.items.encoder || null,
+      top_k: inp.items.top_k,
+      threshold_used: inp.items.threshold_used,
+    },
+    rooms: inp.items.rooms,
+    labelers: {
+      sitting_1: { labeler: inp.judgments.labeler, labeled_at: inp.judgments.labeled_at, n: inp.judgments.items.length, stamps_shown: false },
+      sitting_2: {
+        labeler: inp.judgmentsStamped.labeler,
+        labeled_at: inp.judgmentsStamped.labeled_at,
+        n: inp.judgmentsStamped.items.length,
+        stamps_shown: true,
+        via_cli: viaCli,
+        via_chat_sitting: viaChat,
+        untimed: untimed,
+      },
+      second_labeler: null,
+    },
+    stamped_only_pairings: stampedIds.filter((id) => !itemById.has(id)).length,
+    per_room: blind.per_room,
+    pooled: blind.pooled,
+    per_tier: blind.per_tier,
+    per_producer: groupRates(blindJoined, (r) => r.producer),
+    per_direction: groupRates(blindJoined, (r) => r.direction_phrase),
+    baseline: Object.assign({ definition: 'sitting 1 (blind, no stamp) useful rate over every shown pairing of today\'s raw HSI / RS output' }, blind.pooled),
+    as_shown: {
+      pooled: shown.pooled,
+      per_room: shown.per_room,
+      per_tier: shown.per_tier,
+    },
+    stamp_influence: {
+      gap: shown.pooled.rate - blind.pooled.rate,
+      gap_per_tier: gapPerTier,
+      agreement,
+      useful_flips: usefulFlips,
+    },
+    tier_counts: tierCounts,
+    unverified_share: blind.unverified_share,
+    reason_mix: blind.reason_mix,
+    not_called_share: blind.not_called_share,
+    hub_inflation_share: hub.hub_inflation.share,
+    hub_inflation: hub.hub_inflation,
+    provenance_routed_strong: hub.provenance_routed_strong,
+    diversity: hub.diversity,
+    direction_fidelity: {
+      overall: rateOfRows(blindJoined, 'direction_ok'),
+      by_phrase: groupRates(blindJoined, (r) => r.direction_phrase, 'direction_ok'),
+      by_tier: (() => {
+        const out = {};
+        for (const t of TIERS) out[t] = rateOfRows(blindJoined.filter((r) => tierOf(r.stamp) === t), 'direction_ok');
+        return out;
+      })(),
+      as_shown_overall: rateOfRows(shownJoined, 'direction_ok'),
+    },
+    false_friends_by_tier: blind.false_friends_by_tier,
+    false_friends_shown_by_tier: blind.false_friends_shown_by_tier,
+    planted: {
+      false_friends_total: Array.isArray(plantedCases.false_friends) ? plantedCases.false_friends.length : 0,
+      meaning_bridges_total: Array.isArray(plantedCases.meaning_bridges) ? plantedCases.meaning_bridges.length : 0,
+      shown: plantedShown,
+    },
+    already_known_by_tier: blind.already_known_by_tier,
+    useful_novel_by_tier: usefulNovelByTier,
+    already_known_overall: rateOfRows(blindJoined, 'already_known'),
+    theo_latency_ms: theoLatency,
+    judgments: perRoomJudgments,
+  };
+}
+
+function sha256OfText(t) {
+  return crypto.createHash('sha256').update(t).digest('hex');
+}
+
+// loadRecordInputs(): the only file reader behind the record. Every hash is
+// over the exact bytes on disk.
+function loadRecordInputs() {
+  const read = (p) => fs.readFileSync(p, 'utf8');
+  const raw = {
+    items: read(ITEMS_PATH),
+    stamped_items: read(STAMPED_ITEMS_PATH),
+    judgments: read(JUDGMENTS_PATH),
+    judgments_stamped: read(JUDGMENTS_STAMPED_PATH),
+    stamps: read(STAMPS_PATH),
+    capture: read(CAPTURE_PATH),
+    planted: read(PLANTED_PATH),
+    session: fs.existsSync(SESSION_STAMPED_PATH) ? read(SESSION_STAMPED_PATH) : null,
+    name_snapshot: fs.existsSync(NAME_SNAPSHOT_PATH) ? read(NAME_SNAPSHOT_PATH) : null,
+  };
+  const sha = {};
+  for (const k of Object.keys(raw)) sha[k] = raw[k] === null ? null : sha256OfText(raw[k]);
+  return {
+    items: JSON.parse(raw.items),
+    stampedItems: JSON.parse(raw.stamped_items),
+    judgments: JSON.parse(raw.judgments),
+    judgmentsStamped: JSON.parse(raw.judgments_stamped),
+    stamps: JSON.parse(raw.stamps),
+    capture: JSON.parse(raw.capture),
+    planted: JSON.parse(raw.planted),
+    session: raw.session === null ? null : JSON.parse(raw.session),
+    nameSnapshot: raw.name_snapshot === null ? null : JSON.parse(raw.name_snapshot),
+    sha,
+  };
+}
+
+function serializeRecord(record) {
+  return JSON.stringify(record, null, 2) + '\n';
+}
+
+// ---- rendering (numbers allowed: a dev record, not a user surface) ----
+function pct(x) {
+  return (x * 100).toFixed(1) + '%';
+}
+
+function fmtRate(r) {
+  if (!r || r.n === 0) return '0 of 0 (no pairings in this bucket, so no rate)';
+  return r.k + ' of ' + r.n + ' (' + pct(r.rate) + ', 95% Wilson ' + pct(r.wilson[0]) + ' to ' + pct(r.wilson[1]) + ')';
+}
+
+function rateRow(label, r) {
+  if (!r || r.n === 0) return '| ' + label + ' | 0 / 0 | no rate | no interval |';
+  return '| ' + label + ' | ' + r.k + ' / ' + r.n + ' | ' + pct(r.rate) + ' | ' + pct(r.wilson[0]) + ' to ' + pct(r.wilson[1]) + ' |';
+}
+
+function pp(x) {
+  const v = x * 100;
+  const s = (v >= 0 ? '+' : '') + v.toFixed(1);
+  return s + ' percentage points';
+}
+
+function plural(n, word) {
+  return n + ' ' + word + (n === 1 ? '' : 's');
+}
+
+function yn(b) {
+  return b === true ? 'y' : (b === false ? 'n' : '-');
+}
+
+const ROOM_SHAPES = {
+  'room-ill-defined': 'an ill-defined problem (rural clinics losing patients between referral and follow-up)',
+  'room-extend': 'the extend-the-opportunity step (a working cold-chain delivery service looking at an adjacent use)',
+  'room-control': 'four deliberately distant domains with planted meaning bridges and planted same-word cases',
+};
+
+function renderSection(record) {
+  const L = [];
+  const push = (...xs) => { for (const x of xs) L.push(x); };
+  const pooled = record.pooled;
+  const base = record.baseline;
+  const tiers = record.per_tier;
+  const s1 = record.labelers.sitting_1;
+  const s2 = record.labelers.sitting_2;
+  const totalShown = pooled.n;
+  const rooms = Object.keys(record.rooms);
+
+  push(SECTION_HEADING, '', SECTION_REGEN_COMMENT, '');
+  push(
+    'This is the first time anyone has measured whether the connection engines show a person something worth reading. ' +
+    'The navigator read every pairing the engines showed on three small practice rooms and answered three yes / no questions about each one: ' +
+    'is this useful, is the named direction right, and did I already know this. ' +
+    'Every number below is computed by code from those answers. The machine source is `tests/fixtures/355-rooms/hit-rate-record.json`; ' +
+    '`node scripts/measure-355-hit-rate.cjs --check` recomputes it from the raw files and fails if a single value differs. ' +
+    'No live room was read or written: the measurement script refuses any room path outside `tests/fixtures/355-rooms/`, and every engine ran on a temporary copy.',
+    ''
+  );
+
+  // Rooms and producers
+  push('### Rooms and producers', '');
+  push('| Room | Shape | Producers that ran | Shown pairings |', '|---|---|---|---|');
+  for (const room of rooms) {
+    const meta = record.rooms[room];
+    push('| `' + room + '` | ' + (ROOM_SHAPES[room] || 'fixture room') + ' | ' + meta.producers_ran.join(', ') + ' | ' + meta.shown + ' |');
+  }
+  push('');
+  push(
+    'The pairings are what HSI and the reverse-salient engine showed, at most ' + record.export.top_k + ' per producer per room, ' +
+    'with a similarity floor of ' + record.export.threshold_used + ' applied the same way to every room (the engines\' own default is 0.3; the lower floor was needed to reach 20 shown pairings per room). ' +
+    'The encoder was `' + record.export.encoder + '`. Eureka showed nothing: these rooms are plain markdown with no extracted entities, so its substrate was unavailable, and the record says so instead of guessing a ranked pair. ' +
+    'Pairings were deduplicated across producers, so ' + totalShown + ' distinct pairings were judged in total.',
+    ''
+  );
+  push(
+    'One labeler, the navigator, judged every pairing twice. Sitting 1 was blind: the pairing with no stamp (' + s1.n + ' judged, finished ' + s1.labeled_at + '). ' +
+    'Stamps were computed only after sitting 1 was committed. Sitting 2 showed the same pairings shuffled, now with their stamp lines (' + s2.n + ' judged, finished ' + s2.labeled_at + '). ' +
+    'No pairing appeared only in the stamped pass (' + record.stamped_only_pairings + ' stamped-only pairings).',
+    ''
+  );
+
+  // Hit rate
+  push('### Hit rate', '');
+  push(
+    '"Useful" means the navigator said yes to "is this useful" in the blind sitting. The 95% Wilson interval is the range of true rates that could plausibly produce the count we saw; a small count gives a wide range, which is the honest shape of a first measurement.',
+    ''
+  );
+  push('| Scope | Useful / judged | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const room of rooms) push(rateRow('`' + room + '`', record.per_room[room]));
+  push(rateRow('**Pooled**', pooled));
+  push('');
+  push('Per stamp tier (blind sitting-1 labels joined to the stamps by pair id, so the stamp could not anchor the label):', '');
+  push('| Tier | Useful / judged | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const t of TIERS) push(rateRow(t, tiers[t]));
+  push('');
+  const strongBeats = tiers.strong.n > 0 && tiers.strong.wilson[0] > base.rate;
+  if (strongBeats) {
+    push('The strong tier\'s whole interval sits above the unstamped baseline rate: on these rooms, a strong stamp picked out pairings the navigator found useful more often than the raw output did.', '');
+  } else {
+    push(
+      'Strong-tier pairings were judged useful ' + fmtRate(tiers.strong) + ', against the unstamped baseline of ' + pct(base.rate) + '. ' +
+      'The strong interval does not sit above the baseline, so, in the words of AI-SPEC Section 6, the tier carries no measured information yet. ' +
+      'The tier rule is not changed in this phase; the result goes to the next engine phase\'s discussion.',
+      ''
+    );
+  }
+  push('Per producer (blind):', '');
+  push('| Producer | Useful / judged | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const p of Object.keys(record.per_producer)) push(rateRow(p, record.per_producer[p]));
+  push('');
+
+  // Unstamped baseline
+  push('### Unstamped baseline', '');
+  push(
+    'The unstamped baseline is the rate on today\'s raw engine output with no stamp in sight: sitting 1 over all ' + base.n + ' shown pairings, ' + fmtRate(base) + '. ' +
+    'It is the same number as the pooled rate above, on purpose: every shown pairing was judged blind, so the pooled blind rate is the baseline, and each tier rate is a slice of that same blind judging. ' +
+    'A tier rate is read against this baseline, never against zero.',
+    ''
+  );
+
+  // As-shown
+  const inf = record.stamp_influence;
+  push('### As-shown rate and stamp influence', '');
+  push(
+    'Sitting 2 showed the same pairings again, shuffled, each with its stamp lines. The as-shown useful rate is ' + fmtRate(record.as_shown.pooled) + '. ' +
+    'The gap between the as-shown rate and the unstamped baseline is ' + pp(inf.gap) + '. ' +
+    'That gap measures how much seeing the stamp moved the reader. It is not a measure of usefulness, and the tier rates above never use sitting-2 labels.',
+    ''
+  );
+  push('| Tier | Blind useful rate | As-shown useful rate | Gap |', '|---|---|---|---|');
+  for (const t of TIERS) {
+    push('| ' + t + ' | ' + fmtRate(tiers[t]) + ' | ' + fmtRate(record.as_shown.per_tier[t]) + ' | ' + pp(inf.gap_per_tier[t]) + ' |');
+  }
+  push('');
+  push(
+    'Per pairing, the two sittings agreed on useful ' + inf.agreement.useful.agree + ' of ' + inf.agreement.useful.n +
+    ', on direction ' + inf.agreement.direction_ok.agree + ' of ' + inf.agreement.direction_ok.n +
+    ', and on already known ' + inf.agreement.already_known.agree + ' of ' + inf.agreement.already_known.n + '. ' +
+    'Useful answers moved from no to yes on ' + plural(inf.useful_flips.not_useful_to_useful, 'pairing') + ' and from yes to no on ' + plural(inf.useful_flips.useful_to_not_useful, 'pairing') + '. ' +
+    'Two cautions travel with this: most pairings (' + record.tier_counts.unverified + ' of ' + totalShown + ') carried an unverified stamp, so for most of them the stamp line said only "verify with a domain expert"; ' +
+    'and sitting 2 was taken in the same session as sitting 1 (see Disclosed limitations), so memory of the first answers may have held the second ones steady, which would make the influence look smaller than a later sitting would show.',
+    ''
+  );
+
+  // Stamp mix
+  push('### Stamp mix and not_called share', '');
+  push('| Tier | Stamped pairings |', '|---|---|');
+  for (const t of TIERS) push('| ' + t + ' | ' + record.tier_counts[t] + ' |');
+  push('');
+  push('Unverified share: ' + pct(record.unverified_share) + ' of stamped pairings. Reasons behind the unverified stamps:', '');
+  push('| Reason | Count |', '|---|---|');
+  for (const reason of Object.keys(record.reason_mix).sort()) push('| `' + reason + '` | ' + record.reason_mix[reason] + ' |');
+  push('');
+  push(
+    'The not_called share is ' + pct(record.not_called_share) + ': for those pairings at least one side did not carry a canon Framework name under the D-48 exact-match rule (frontmatter `framework:`, then `methodology:` through the command registry, then the title), so Theo was never asked. ' +
+    'That is a vocabulary gap between room prose and canon names, noted for the later Terminology Translation work, not a Theo outage. ' +
+    'Where Theo was asked and found no lateral path, that is a canon-coverage finding for Theo (T-3), sent upstream with counts only.',
+    ''
+  );
+
+  // Hub
+  const hub = record.hub_inflation;
+  push('### Hub inflation, provenance routing and diversity', '');
+  push(
+    'Degree source: ' + hub.proxy_source + '. ' +
+    'Hub-inflation share: ' + hub.k + ' of ' + hub.n + ' strong stamps (' + pct(hub.share) + ') have a path interior that crosses a top-decile node. ' +
+    'Top-decile interior nodes: ' + (hub.top_decile_nodes.length ? hub.top_decile_nodes.map((x) => '"' + x.node + '" (' + x.count + ')').join(', ') : 'none') + '. ' +
+    'A high share would mean a strong stamp mostly certifies one shared textbook node rather than a transfer; the list goes to the PWS author for review and into the next phase\'s tier-rule review, not into this phase\'s rule.',
+    ''
+  );
+  push(
+    'Provenance-routed strong stamps (a lateral path that also crosses a `BrainRecord` node or a `SOURCED_FROM` edge, RESEARCH C6): ' + record.provenance_routed_strong + '. ' +
+    'Diversity: ' + record.diversity.distinct_interior_nodes + ' distinct interior nodes across ' + record.diversity.strong_stamps + ' strong stamps (' + record.diversity.ratio.toFixed(3) + '). ' +
+    'All counts are recorded with no target.',
+    ''
+  );
+
+  // Direction fidelity
+  const df = record.direction_fidelity;
+  push('### Direction fidelity (false friends per tier)', '');
+  push(
+    'Blind, the navigator marked the named direction right on ' + fmtRate(df.overall) + '. As shown, ' + fmtRate(df.as_shown_overall) + '.',
+    ''
+  );
+  push('| Direction shown | Direction marked right / shown | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const ph of Object.keys(df.by_phrase)) push(rateRow('"' + ph + '"', df.by_phrase[ph]));
+  push('');
+  push('| Tier | Direction marked right / shown | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const t of TIERS) push(rateRow(t, df.by_tier[t]));
+  push('');
+  const pl = record.planted;
+  const ffShown = pl.shown.filter((x) => x.kind === 'false_friend').length;
+  const mbShown = pl.shown.filter((x) => x.kind === 'meaning_bridge').length;
+  push(
+    'The planted cases in `room-control` (`planted-cases.json`, never opened before judging) were joined only now, after both sittings, by artifact path. ' +
+    'The engines showed ' + ffShown + ' of the ' + pl.false_friends_total + ' planted false friends (same word, different meaning) and ' + mbShown + ' of the ' + pl.meaning_bridges_total + ' planted meaning bridges (same mechanism, different words).',
+    ''
+  );
+  push('| Planted case | Pair | Direction shown | Tier | Direction right (blind) | Useful (blind) |', '|---|---|---|---|---|---|');
+  for (const x of pl.shown) {
+    push('| ' + x.kind.replace('_', ' ') + ' | `' + x.pair_id + '` | "' + x.direction_phrase + '" | ' + x.tier + ' | ' + yn(x.direction_ok) + ' | ' + yn(x.useful) + ' |');
+  }
+  push('');
+  push(
+    'False-friend count per tier (planted false friends whose named direction the navigator marked wrong), with the number shown beside it: ' +
+    TIERS.map((t) => t + ' ' + record.false_friends_by_tier[t] + ' of ' + record.false_friends_shown_by_tier[t]).join(', ') + '. ' +
+    (record.false_friends_by_tier.strong > 0
+      ? 'A false-friend strong exists and goes to the PWS author.'
+      : 'No false friend reached the strong tier, so none goes to the PWS author from this run.'),
+    ''
+  );
+
+  // Verified vs already known
+  push('### Verified versus already known', '');
+  push('| Tier | Already known | Not already known | Useful and not already known |', '|---|---|---|---|');
+  for (const t of TIERS) {
+    push('| ' + t + ' | ' + record.already_known_by_tier[t].true + ' | ' + record.already_known_by_tier[t].false + ' | ' + record.useful_novel_by_tier[t] + ' |');
+  }
+  push('');
+  const knownShare = (t) => {
+    const b = record.already_known_by_tier[t];
+    const n = b.true + b.false;
+    return n > 0 ? b.true / n : null;
+  };
+  const ks = knownShare('strong');
+  const ku = knownShare('unverified');
+  let crossText = 'Overall the navigator already knew ' + fmtRate(record.already_known_overall) + '. ';
+  if (ks !== null && ku !== null) {
+    crossText += 'Already-known share: strong ' + pct(ks) + ', unverified ' + pct(ku) + '. ';
+    if (ks > ku) {
+      crossText += 'Strong pairings were already known more often than unverified ones: on these rooms, verification and novelty lean apart, which is input for the later computed novelty signal. ' +
+        'With only ' + (record.already_known_by_tier.strong.true + record.already_known_by_tier.strong.false) + ' strong pairings this is a lean, not a settled difference.';
+    } else {
+      crossText += 'Strong pairings were not already known more often than unverified ones on these rooms; no sign here that verification and novelty pull apart.';
+    }
+  }
+  push(crossText, '');
+
+  // Latency
+  const lat = record.theo_latency_ms;
+  push('### Theo latency', '');
+  push(
+    'Theo `find_connections` latency, measured on the plugin side through `brain-client.cjs` on the dev machine (the first plugin-side measurement): ' +
+    'p50 ' + lat.p50 + ' ms, p95 ' + lat.p95 + ' ms, over ' + lat.n + ' timed calls (min ' + lat.min + ' ms, max ' + lat.max + ' ms; nearest-rank percentiles). ' +
+    'The timings cover every call in the capture file, across all Phase 355 captures including this plan\'s append (the file records ' + lat.calls + ' calls and ' + lat.responses + ' distinct responses beside ' + lat.n + ' timings). Stamping itself replays the capture offline and makes no network call.',
+    ''
+  );
+
+  // Portfolio tension
+  push('### Portfolio ranking tension (D-47)', '');
+  push(
+    'Today\'s eureka feasibility map gives its higher band to pairs labeled "same words with different meaning" (the shared-words case). ' +
+    'This phase fixed the label\'s meaning but kept the ranking byte-for-byte (D-47, pinned by `tests/fixtures/355/eureka-ranking-pin.json`), because a ranking change is not an honesty-pass decision. ' +
+    'The per-direction hit rate below is the evidence the next engine phase needs:',
+    ''
+  );
+  push('| Direction shown | Useful / judged | Rate | 95% Wilson interval |', '|---|---|---|---|');
+  for (const ph of Object.keys(record.per_direction)) push(rateRow('"' + ph + '"', record.per_direction[ph]));
+  push('');
+  const sw = record.per_direction['same words with different meaning'];
+  const sm = record.per_direction['same meaning in different words'];
+  if (sw && sm) {
+    let t;
+    if (sw.rate < sm.rate) {
+      t = 'On these rooms the direction today\'s ranking rewards was judged useful less often (' + pct(sw.rate) + ' against ' + pct(sm.rate) + '). ';
+    } else if (sw.rate > sm.rate) {
+      t = 'On these rooms the direction today\'s ranking rewards was judged useful more often (' + pct(sw.rate) + ' against ' + pct(sm.rate) + '). ';
+    } else {
+      t = 'On these rooms both directions were judged useful at the same rate (' + pct(sw.rate) + '). ';
+    }
+    const overlap = sw.wilson[1] >= sm.wilson[0] && sm.wilson[1] >= sw.wilson[0];
+    t += overlap
+      ? 'The two Wilson intervals overlap, so this is a lean, not a settled difference. '
+      : 'The two Wilson intervals do not overlap. ';
+    t += 'Nothing in the ranking is changed here; the numbers go to the next engine phase.';
+    push(t, '');
+  }
+
+  // Every shown pairing
+  push('### Every shown pairing, per room', '');
+  push(
+    'Columns: pair id, producer, the direction phrase shown, the stamp tier (with the unverified reason), then the blind answers (useful, direction right, already known) and the as-shown useful answer. y = yes, n = no.',
+    ''
+  );
+  for (const room of Object.keys(record.judgments)) {
+    const rows = record.judgments[room];
+    push('#### `' + room + '`: useful ' + fmtRate(record.per_room[room]), '');
+    push('| Pair | Producer | Direction shown | Tier | Useful | Direction right | Already known | Useful as shown |', '|---|---|---|---|---|---|---|---|');
+    for (const r of rows) {
+      push('| `' + r.pair_id + '` | ' + r.producer + ' | ' + r.direction_phrase + ' | ' + r.tier + (r.reason ? ' (`' + r.reason + '`)' : '') + ' | ' + yn(r.useful) + ' | ' + yn(r.direction_ok) + ' | ' + yn(r.already_known) + ' | ' + yn(r.as_shown.useful) + ' |');
+    }
+    push('');
+  }
+
+  // Disclosed limitations
+  const rejected1 = df.overall.n - df.overall.k;
+  const rejected2 = df.as_shown_overall.n - df.as_shown_overall.k;
+  push('### Disclosed limitations', '');
+  push(
+    '- **One labeler.** Every judgment is the navigator\'s; no second blind labeler was available, so there is no agreement figure or kappa for this set. The machine usefulness judge measured in 355-26 is compared against this gold in `355-JEV-MEASUREMENT.md` under its own model name and never feeds these rates.',
+    '- **Sitting 2 was taken in the same session as sitting 1.** The labeling protocol asks for a later sitting; the navigator chose "now, same session" at 19:36 local on 2026-09-24. Memory of sitting 1 may have steadied sitting 2, which bears on the stamp-influence gap only, never on the blind rates.',
+    '- **How sitting 2 was taken.** ' + (s2.via_cli === null ? 'The session file was not available to this record.' :
+      s2.via_cli + ' pairings were labeled in the terminal CLI; the other ' + s2.via_chat_sitting + ' were labeled blind by the navigator in chat (session jsagi-7b, 2026-09-24/25). ' +
+      'The orchestrator rendered the same whitelisted display fields the CLI shows (room, A excerpt, B excerpt, direction phrase, stamp lines), in the CLI\'s own seeded order (the session file\'s order_seed), and wrote the navigator\'s y / n answers into the session file keyed by pair id; those entries carry `via: "chat-sitting"` and no per-item timing (' + s2.untimed + ' untimed entries). ' +
+      'In the first chat batch of 10, two B excerpts were shortened to a back-reference to an identical earlier excerpt and a few excerpts were lightly condensed; every later batch was verbatim. No hidden field (boundary tag, planted-case data) was ever shown.'),
+    '- **Desktop and Cowork cannot compute a stamp (D-50).** The guarded Brain shim exposes no `find_connections`; Larry there narrates only stamps a CLI run already stored and otherwise says "not yet checked".',
+    '- **`compute-hsi.py` still writes retired-convention strings (D-07).** No reader trusts them; every reader re-derives the direction from the stored similarity pair.',
+    '- **Name snapshot date (D-51).** Endpoints were resolved against `data/framework-names.json`, snapshot dated ' + record.inputs.name_snapshot_date + ' (source hash `' + String(record.inputs.name_snapshot_source_sha256).slice(0, 12) + '`); ' +
+      (record.inputs.name_snapshot_source_sha256 === record.inputs.theo_snapshot_sha256 ? 'the capture was taken against the same snapshot hash.' : 'the capture\'s snapshot hash differs from the name snapshot\'s source hash.'),
+    '- **Fixture rooms, not ventures.** The three rooms are small, Claude-authored and synthetic; eureka contributed no pairings; the similarity floor was lowered uniformly to reach 20 per room. The latency figures come from one dev machine.',
+    ''
+  );
+  push('### Open questions', '');
+  push(
+    '- **Why were so many direction labels rejected?** The navigator marked the named direction wrong on ' + rejected1 + ' of ' + df.overall.n + ' pairings blind (' + rejected2 + ' as shown). ' +
+      'The question offered only the two direction phrases and no "neither category fits" answer, so a "no" cannot tell apart four causes: the classifier, the export, judging consistency, or the two-phrase definition itself. The cause is not established. ' +
+      'Follow-up: review the rejected labels again with a third option ("neither fits") before any change to the direction module.',
+    '- **Recall is unmeasured.** None of the three rooms is a research venture (the only science-flavored text sits in `room-control` as planted material the engine is meant to handle correctly), and this record can speak only to precision. A fourth, research-type fixture room seeded with planted known cross-field transfers would let a later pass measure recall (did the engine find the bridge we know is there). Ruling pending with the navigator.',
+    ''
+  );
+
+  // Closing
+  push('### What this number is', '');
+  push(
+    'This is the first calibration point in the engine\'s history, taken on dev-repo fixture rooms, not real ventures. No target was set and none is implied: the pooled useful rate of ' + pct(pooled.rate) + ' (n = ' + pooled.n + ') is a starting mark for later runs to be read against. ' +
+    'The briefing\'s own MVP bar, "50%+ of top-10 findings judged \'interesting\'", is quoted here only as the briefing\'s reference point; it is not this phase\'s target, and this record judged every shown pairing rather than a top 10. ' +
+    'A high unverified rate (' + pct(record.unverified_share) + ' here) is a canon-coverage finding for Theo (T-3), reported upstream with counts only, not a phase failure.',
+    ''
+  );
+  push(SECTION_END);
+  return L.join('\n') + '\n';
+}
+
+const VERIFICATION_PREAMBLE = [
+  '# Phase 355 Verification Record',
+  '',
+  'Phase 355: Hidden in Plain Sight, the Jev-through-Theo cross-connection engines. Sections generated from a machine record say so at their top; verifiers add their own sections after them.',
+  '',
+].join('\n');
+
+// spliceSection(existing, section): replaces the hit-rate section (heading
+// through SECTION_END) in place, or appends it when absent. Everything
+// before and after the section is kept byte-for-byte.
+function spliceSection(existing, section) {
+  if (existing === null || existing === undefined) return VERIFICATION_PREAMBLE + '\n' + section;
+  const start = existing.indexOf(SECTION_HEADING + '\n');
+  if (start === -1) {
+    const sep = existing.endsWith('\n\n') ? '' : (existing.endsWith('\n') ? '\n' : '\n\n');
+    return existing + sep + section;
+  }
+  const endIdx = existing.indexOf(SECTION_END, start);
+  if (endIdx === -1) throw new Error('355-VERIFICATION.md carries the hit-rate heading but no end marker; refusing to guess where the section ends');
+  let after = existing.slice(endIdx + SECTION_END.length);
+  if (after.startsWith('\n')) after = after.slice(1);
+  return existing.slice(0, start) + section + after;
+}
+
+function writeSection(verificationPath, record) {
+  const existing = fs.existsSync(verificationPath) ? fs.readFileSync(verificationPath, 'utf8') : null;
+  const next = spliceSection(existing, renderSection(record));
+  if (next !== existing) {
+    fs.mkdirSync(path.dirname(verificationPath), { recursive: true });
+    fs.writeFileSync(verificationPath, next);
+    return true;
+  }
+  return false;
+}
+
+function doRecord(opts) {
+  const o = opts || {};
+  const recordPath = o.recordPath || RECORD_PATH;
+  const verificationPath = o.verificationPath || VERIFICATION_PATH;
+  const record = buildRecord(loadRecordInputs());
+  const tmp = recordPath + '.tmp';
+  fs.writeFileSync(tmp, serializeRecord(record));
+  fs.renameSync(tmp, recordPath);
+  writeSection(verificationPath, record);
+  process.stdout.write(
+    'measure-355-hit-rate: wrote ' + recordPath + ' and the hit-rate section of ' + verificationPath +
+    ' (pooled ' + record.pooled.k + '/' + record.pooled.n + ')\n'
+  );
+  return 0;
+}
+
+// checkRecord(opts): 77 when the record is absent; otherwise recompute it
+// from the raw files and require byte equality with the stored record (1 on
+// any difference, the section left untouched); on a match, regenerate the
+// 355-VERIFICATION.md section from the record (a view, never a source).
+function checkRecord(opts) {
+  const o = opts || {};
+  const recordPath = o.recordPath || RECORD_PATH;
+  const verificationPath = o.verificationPath || VERIFICATION_PATH;
+  if (!fs.existsSync(recordPath)) return 77;
+  let recomputed;
+  try {
+    recomputed = serializeRecord(buildRecord(loadRecordInputs()));
+  } catch (e) {
+    process.stderr.write('measure-355-hit-rate --check: ' + e.message + '\n');
+    return 1;
+  }
+  const stored = fs.readFileSync(recordPath, 'utf8');
+  if (stored !== recomputed) {
+    process.stderr.write('measure-355-hit-rate --check: ' + recordPath + ' differs from the record recomputed from the raw judgments, stamps and capture\n');
+    return 1;
+  }
+  const rewrote = writeSection(verificationPath, JSON.parse(stored));
+  if (rewrote) process.stdout.write('measure-355-hit-rate --check: regenerated the hit-rate section of ' + verificationPath + '\n');
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 const HELP_TEXT = [
   'measure-355-hit-rate.cjs -- fixture-only hit-rate measurement (D-32, D-34, SPEC AC12)',
   'Usage:',
   '  node scripts/measure-355-hit-rate.cjs export --unstamped [--top <n>] [--threshold <n>] [--room <path>]',
-  '  node scripts/measure-355-hit-rate.cjs stamp    (355-25)',
-  '  node scripts/measure-355-hit-rate.cjs record   (355-25)',
-  '  node scripts/measure-355-hit-rate.cjs --check',
+  '  node scripts/measure-355-hit-rate.cjs stamp    (one live Theo capture, then offline stamping)',
+  '  node scripts/measure-355-hit-rate.cjs record   (writes hit-rate-record.json and the 355-VERIFICATION.md section)',
+  '  node scripts/measure-355-hit-rate.cjs --check  (77 if no record; recomputes it exactly, then regenerates the section)',
   '  node scripts/measure-355-hit-rate.cjs --help',
   '',
 ].join('\n');
@@ -799,14 +1586,7 @@ async function doExport(args) {
 }
 
 function doCheck() {
-  if (!fs.existsSync(RECORD_PATH)) {
-    return 77;
-  }
-  // 355-25's own scope: recompute the record from tests/fixtures/355-rooms/
-  // judgments.json + stamps.json and compare byte-for-byte against
-  // hit-rate-record.json, regenerating 355-VERIFICATION.md's hit-rate
-  // section. Not implemented in this plan.
-  return 0;
+  return checkRecord();
 }
 
 async function cliMain(argv) {
@@ -827,8 +1607,7 @@ async function cliMain(argv) {
     return doStamp();
   }
   if (cmd === 'record') {
-    process.stderr.write('measure-355-hit-rate: "' + cmd + '" is 355-25\'s own scope, not yet implemented\n');
-    return 1;
+    return doRecord();
   }
 
   process.stderr.write('measure-355-hit-rate: unknown command "' + cmd + '"\n');
@@ -859,6 +1638,15 @@ module.exports = {
   directionFromPhrase,
   sha256OfFile,
   doStamp,
+  percentileNearestRank,
+  hubMetrics,
+  buildRecord,
+  loadRecordInputs,
+  serializeRecord,
+  renderSection,
+  spliceSection,
+  checkRecord,
+  doRecord,
   cliMain,
   FIXTURE_ROOT,
   DEFAULT_ROOM_NAMES,
@@ -868,4 +1656,8 @@ module.exports = {
   STAMPS_PATH,
   STAMPED_ITEMS_PATH,
   CAPTURE_PATH,
+  JUDGMENTS_STAMPED_PATH,
+  VERIFICATION_PATH,
+  SECTION_HEADING,
+  SECTION_END,
 };

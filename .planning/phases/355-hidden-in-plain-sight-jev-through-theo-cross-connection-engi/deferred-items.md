@@ -381,3 +381,29 @@ architectural-change checkpoint.
 Not fixed here. Flagged for the navigator to rule on (a fourth `research`-
 type fixture room, or an equivalent recall-oriented follow-up), and for
 whichever later 355 or 355.1 plan the ruling assigns it to.
+
+## 355-25 Task 3: navigator remark - the rejected direction labels had no
+## "neither category fits" option, so the cause of the direction mismatch
+## is not established (open question)
+
+The navigator marked the named direction wrong on 80 of 96 pairings in the
+blind sitting (81 of 96 in the as-shown sitting;
+`tests/fixtures/355-rooms/hit-rate-record.json` `direction_fidelity`). The
+direction question offered only the two confirmed phrases ("same meaning in
+different words" / "same words with different meaning") and a y / n mark,
+with no "neither category fits" answer. So a "no" cannot tell apart four
+possible causes: the direction classifier itself, the export (which phrase
+was rendered for the pair), judging consistency, or the two-phrase
+definition not fitting pairs of this kind. The cause is NOT established,
+and nothing in this phase changes the direction module on the strength of
+the 80.
+
+Follow-up (not scheduled; for the navigator and the next engine phase):
+review the rejected labels again under a third option ("neither fits")
+before any change to `lib/core/direction-convention.cjs` or its tie band.
+Recorded as an open question in `355-VERIFICATION.md` (hit-rate section,
+"Open questions").
+
+The 355-24 remark above (a fourth, research-type fixture room with planted
+known transfers so recall can be measured; ruling pending) is carried into
+the same "Open questions" list of `355-VERIFICATION.md`.

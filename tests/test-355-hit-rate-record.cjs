@@ -10,10 +10,13 @@
  * never requires lib/core/verification-stamp.cjs's network-calling path --
  * every stamp used here is injected as a plain object.
  *
- * Exit 0 on full green. The `--check` leg (77 while
- * tests/fixtures/355-rooms/hit-rate-record.json is absent) is asserted as a
- * VALUE inside this file, not propagated as this file's own exit code --
- * this file itself exits 0 when every check (including that one) passes.
+ * Exit 0 on full green. The `--check` absent-record contract (77) is
+ * asserted as a VALUE against an injected absent path, never propagated as
+ * this file's own exit code. 355-25 Task 3 added the present-record legs:
+ * exact recomputation, n and Wilson on every rate, >= 20 judged per room,
+ * the committed 355-VERIFICATION.md section being the record's rendering
+ * (checked against a temp copy, never rewriting the tracked file), the
+ * banned-claim and em-dash scans, and the blind-before-stamped git order.
  *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
@@ -306,13 +309,165 @@ function legComputeRates() {
 }
 
 // ---------------------------------------------------------------------------
-// leg: --check exits 77 while hit-rate-record.json is absent
+// leg: false friends count only when the reader marked the direction wrong
+// (355-25 plan text: "planted false_friends whose direction_ok was false")
 // ---------------------------------------------------------------------------
-async function legCheckAbsent() {
-  console.log('--- leg: --check (record absent) ---');
-  check('tests/fixtures/355-rooms/hit-rate-record.json does not exist yet (355-25 writes it)', !fs.existsSync(measure.RECORD_PATH));
-  const code = await measure.cliMain(['--check']);
-  check('cliMain(["--check"]) returns 77 while the record is absent', code === 77);
+function legFalseFriendDirection() {
+  console.log('--- leg: false-friend count requires direction_ok false ---');
+  const planted = { false_friends: [{ a: 'x/a.md', b: 'y/b.md' }, { a: 'x/c.md', b: 'y/d.md' }] };
+  const joined = [
+    { pair_id: 'q1', room: 'r', a_path: 'y/b.md', b_path: 'x/a.md', useful: false, direction_ok: false, already_known: false, stamp: fakeStamp('unverified', { reason: 'handle_unresolved', backend: 'not_called' }) },
+    { pair_id: 'q2', room: 'r', a_path: 'x/c.md', b_path: 'y/d.md', useful: false, direction_ok: true, already_known: false, stamp: fakeStamp('unverified', { reason: 'handle_unresolved', backend: 'not_called' }) },
+  ];
+  const rates = measure.computeRates(joined, { plantedCases: planted });
+  check('a shown false friend marked direction-wrong counts', rates.false_friends_by_tier.unverified === 1);
+  check('a shown false friend marked direction-right is shown but not counted', rates.false_friends_shown_by_tier.unverified === 2);
+}
+
+// ---------------------------------------------------------------------------
+// leg: nearest-rank percentile and hub metrics (hand-computed)
+// ---------------------------------------------------------------------------
+function legPercentile() {
+  console.log('--- leg: percentile + hub metrics ---');
+  check('p50 of [5,1,3,2,4] is 3 (nearest rank)', measure.percentileNearestRank([5, 1, 3, 2, 4], 0.5) === 3);
+  check('p95 of 1..20 is 19 (nearest rank)', measure.percentileNearestRank(Array.from({ length: 20 }, (_, i) => i + 1), 0.95) === 19);
+  check('percentile of an empty sample is null', measure.percentileNearestRank([], 0.5) === null);
+  const mk = (nodes, labels, edges) => ({ stamp: fakeStamp('strong', { path: { nodes, labels, edges } }) });
+  const rows = [
+    mk(['A', 'H', 'B'], ['Framework', 'Framework', 'Framework'], ['FEEDS_INTO', 'FEEDS_INTO']),
+    mk(['C', 'H', 'D'], ['Framework', 'Framework', 'Framework'], ['FEEDS_INTO', 'FEEDS_INTO']),
+    mk(['E', 'X', 'F'], ['Framework', 'BrainRecord', 'Framework'], ['SOURCED_FROM', 'FEEDS_INTO']),
+    mk(['G', 'I'], ['Framework', 'Framework'], ['FEEDS_INTO']),
+  ];
+  const h = measure.hubMetrics(rows);
+  check('hub: the most frequent interior node is the top decile', h.hub_inflation.top_decile_nodes.length === 1 && h.hub_inflation.top_decile_nodes[0].node === 'H');
+  check('hub: 2 of 4 strong paths cross the hub', h.hub_inflation.k === 2 && h.hub_inflation.n === 4 && approxEqual(h.hub_inflation.share, 0.5));
+  check('provenance-routed strong counts a BrainRecord / SOURCED_FROM path', h.provenance_routed_strong === 1);
+  check('diversity = distinct interior nodes / strong stamps', h.diversity.distinct_interior_nodes === 2 && approxEqual(h.diversity.ratio, 0.5));
+}
+
+// ---------------------------------------------------------------------------
+// leg: --check's absent-record contract (77), proved against an injected
+// absent path so the real record's presence never turns this into a SKIP.
+// ---------------------------------------------------------------------------
+function legCheckAbsentContract() {
+  console.log('--- leg: --check (record absent -> 77) ---');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'measure-355-absent-'));
+  const code = measure.checkRecord({ recordPath: path.join(tmp, 'hit-rate-record.json'), verificationPath: path.join(tmp, 'V.md') });
+  check('checkRecord returns 77 when the record path does not exist', code === 77);
+  check('checkRecord wrote no section when the record is absent', !fs.existsSync(path.join(tmp, 'V.md')));
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+// ---------------------------------------------------------------------------
+// leg: the real record (355-25 Task 3). Recomputes exactly, carries n and a
+// Wilson interval on every rate, >= 20 judged per room, and the committed
+// 355-VERIFICATION.md section is already the rendering of the record.
+// ---------------------------------------------------------------------------
+function isRate(r) {
+  return !!r && Number.isInteger(r.k) && Number.isInteger(r.n) && r.n >= 0 && r.k >= 0 && r.k <= r.n &&
+    typeof r.rate === 'number' && r.rate >= 0 && r.rate <= 1 &&
+    Array.isArray(r.wilson) && r.wilson.length === 2 && r.wilson[0] >= 0 && r.wilson[1] <= 1 && r.wilson[0] <= r.wilson[1] &&
+    approxEqual(r.rate, r.n > 0 ? r.k / r.n : 0);
+}
+
+function legRecordPresent() {
+  console.log('--- leg: hit-rate record (present) ---');
+  check('tests/fixtures/355-rooms/hit-rate-record.json exists (355-25 Task 3 wrote it)', fs.existsSync(measure.RECORD_PATH));
+  if (!fs.existsSync(measure.RECORD_PATH)) return;
+  const stored = fs.readFileSync(measure.RECORD_PATH, 'utf8');
+  const record = JSON.parse(stored);
+
+  const inputs = measure.loadRecordInputs();
+  const a = measure.serializeRecord(measure.buildRecord(inputs));
+  const b = measure.serializeRecord(measure.buildRecord(measure.loadRecordInputs()));
+  check('buildRecord is deterministic (two recomputations are byte-identical)', a === b);
+  check('the stored record equals the record recomputed from the raw files', a === stored);
+
+  const required = ['per_room', 'pooled', 'per_tier', 'baseline', 'as_shown', 'unverified_share', 'reason_mix', 'not_called_share',
+    'hub_inflation_share', 'provenance_routed_strong', 'diversity', 'false_friends_by_tier', 'already_known_by_tier', 'theo_latency_ms'];
+  const missing = required.filter((k) => !(k in record));
+  check('record carries every key the plan names', missing.length === 0, missing.join(','));
+
+  const rooms = Object.keys(record.per_room);
+  check('record covers the three fixture rooms', rooms.length === 3 && measure.DEFAULT_ROOM_NAMES.every((r) => rooms.indexOf(r) !== -1));
+  check('every room has >= 20 judged pairings', rooms.every((r) => record.per_room[r].n >= 20));
+  check('every per-room rate carries k, n, rate and a Wilson interval', rooms.every((r) => isRate(record.per_room[r])));
+  check('pooled carries k, n, rate and a Wilson interval', isRate(record.pooled));
+  check('pooled n equals the sum of per-room n', record.pooled.n === rooms.reduce((acc, r) => acc + record.per_room[r].n, 0));
+  check('per-tier rates (strong, indirect, unverified) each carry k, n, rate and a Wilson interval', ['strong', 'indirect', 'unverified'].every((t) => isRate(record.per_tier[t])));
+  check('per-tier n sums to the pooled n (every judged pairing has a stamp)', ['strong', 'indirect', 'unverified'].reduce((acc, t) => acc + record.per_tier[t].n, 0) === record.pooled.n);
+  check('baseline carries k, n, rate and a Wilson interval, equal to the blind pooled rate', isRate(record.baseline) && record.baseline.k === record.pooled.k && record.baseline.n === record.pooled.n);
+  check('as_shown pooled carries k, n, rate and a Wilson interval over the same n', isRate(record.as_shown.pooled) && record.as_shown.pooled.n === record.pooled.n);
+  check('stamp_influence.gap equals as_shown minus baseline', approxEqual(record.stamp_influence.gap, record.as_shown.pooled.rate - record.baseline.rate));
+  check('shares are fractions in [0, 1]', [record.unverified_share, record.not_called_share, record.hub_inflation_share].every((x) => typeof x === 'number' && x >= 0 && x <= 1));
+  check('hub inflation names its degree source as the in-sample proxy', /in-sample proxy/.test(record.hub_inflation.proxy_source));
+  check('Theo latency p50 <= p95, both finite, with n', Number.isFinite(record.theo_latency_ms.p50) && Number.isFinite(record.theo_latency_ms.p95) && record.theo_latency_ms.p50 <= record.theo_latency_ms.p95 && record.theo_latency_ms.n > 0);
+  check('both sittings are the navigator (one labeler), sitting 1 blind, sitting 2 with stamps', record.labelers.sitting_1.labeler === 'navigator' && record.labelers.sitting_2.labeler === 'navigator' && record.labelers.sitting_1.stamps_shown === false && record.labelers.sitting_2.stamps_shown === true);
+  const judgedRows = Object.values(record.judgments).reduce((acc, rows) => acc + rows.length, 0);
+  check('the record lists every judged pairing, per room', judgedRows === record.pooled.n);
+
+  // The committed section is already the rendering of the record: run
+  // --check against a temp copy and require the copy to be unchanged.
+  const verificationPath = measure.VERIFICATION_PATH;
+  check('355-VERIFICATION.md exists', fs.existsSync(verificationPath));
+  if (!fs.existsSync(verificationPath)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'measure-355-verif-'));
+  const copy = path.join(tmp, '355-VERIFICATION.md');
+  fs.copyFileSync(verificationPath, copy);
+  const code = measure.checkRecord({ verificationPath: copy });
+  check('checkRecord returns 0 on the real record', code === 0);
+  check('the committed hit-rate section is current (checkRecord left the copy unchanged)', fs.readFileSync(copy, 'utf8') === fs.readFileSync(verificationPath, 'utf8'));
+  fs.rmSync(tmp, { recursive: true, force: true });
+
+  const text = fs.readFileSync(verificationPath, 'utf8');
+  const heading = measure.SECTION_HEADING;
+  check('section heading appears exactly once', text.split(heading + '\n').length === 2);
+  const section = text.slice(text.indexOf(heading), text.indexOf(measure.SECTION_END));
+  check('section contains "Wilson", "unstamped baseline" and "first calibration point"', /Wilson/.test(section) && /unstamped baseline/.test(section) && /first calibration point/.test(section));
+  check('section carries the regenerate / append-only header comment', /Regenerate with node scripts\/measure-355-hit-rate\.cjs record; verifiers append below, never overwrite this section\./.test(section));
+  check('355-VERIFICATION.md makes no banned claim (works / improves discovery / validated / proven)', !/\b(works|improves discovery|validated|proven)\b/i.test(text));
+  check('355-VERIFICATION.md carries no em-dash', text.indexOf('\u2014') === -1);
+}
+
+// ---------------------------------------------------------------------------
+// leg: spliceSection keeps everything outside the section byte-for-byte
+// ---------------------------------------------------------------------------
+function legSplice() {
+  console.log('--- leg: spliceSection ---');
+  const H = measure.SECTION_HEADING;
+  const E = measure.SECTION_END;
+  const before = '# T\n\nintro\n\n';
+  const after = '\n## Verifier notes\n\nappended text\n';
+  const doc = before + H + '\n\nold body\n' + E + '\n' + after;
+  const out = measure.spliceSection(doc, H + '\n\nnew body\n' + E + '\n');
+  check('spliceSection replaces only the section body', out === before + H + '\n\nnew body\n' + E + '\n' + after);
+  let threw = false;
+  try { measure.spliceSection(before + H + '\n\nno end marker\n', H + '\n' + E + '\n'); } catch (_e) { threw = true; }
+  check('spliceSection refuses a heading with no end marker', threw);
+}
+
+// ---------------------------------------------------------------------------
+// leg: blind-before-stamped git order (D-32): the sitting-1 judgments commit
+// is an ancestor of the stamps commit, which is an ancestor of the sitting-2
+// judgments commit.
+// ---------------------------------------------------------------------------
+function legGitOrder() {
+  console.log('--- leg: git order (sitting 1 -> stamps -> sitting 2) ---');
+  const { spawnSync } = require('node:child_process');
+  const firstAdd = (rel) => {
+    const r = spawnSync('git', ['log', '--diff-filter=A', '--format=%H', '--', rel], { cwd: REPO_ROOT, encoding: 'utf8' });
+    const lines = (r.stdout || '').trim().split('\n').filter(Boolean);
+    return lines.length ? lines[lines.length - 1] : null;
+  };
+  const isAncestor = (a, b) => spawnSync('git', ['merge-base', '--is-ancestor', a, b], { cwd: REPO_ROOT }).status === 0;
+  const j1 = firstAdd('tests/fixtures/355-rooms/judgments.json');
+  const st = firstAdd('tests/fixtures/355-rooms/stamps.json');
+  const j2 = firstAdd('tests/fixtures/355-rooms/judgments-stamped.json');
+  check('judgments.json, stamps.json and judgments-stamped.json each have an adding commit', !!(j1 && st && j2), [j1, st, j2].join(' '));
+  if (!(j1 && st && j2)) return;
+  check('the sitting-1 judgments commit is an ancestor of the stamps commit', j1 !== st && isAncestor(j1, st));
+  check('the stamps commit is an ancestor of the sitting-2 judgments commit', st !== j2 && isAncestor(st, j2));
 }
 
 // ---------------------------------------------------------------------------
@@ -345,7 +500,12 @@ async function main() {
   await legExportUnstamped();
   legWilson();
   legComputeRates();
-  await legCheckAbsent();
+  legFalseFriendDirection();
+  legPercentile();
+  legCheckAbsentContract();
+  legRecordPresent();
+  legSplice();
+  legGitOrder();
   legCliRefusal();
   await legHelp();
 

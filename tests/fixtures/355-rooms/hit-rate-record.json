@@ -1,0 +1,1962 @@
+{
+  "schema": "hit-rate-record/1",
+  "_note": "Phase 355 (HIPS-07) first human-judged hit rate. Dev-repo fixture rooms only, not real ventures; no target. Rates are fractions here; 355-VERIFICATION.md renders them. Regenerate with: node scripts/measure-355-hit-rate.cjs record; verify with --check.",
+  "inputs": {
+    "pairings_items_sha256": "1fb0c813fcdb4d8ed5b55c0b6851036aeb29fa2041605e25ba1debf172dc7973",
+    "pairings_stamped_items_sha256": "1b692d2ac2c8a0e7d078f74c68f8ac99e6a0890a0df328aedce69c46f9c74c17",
+    "judgments_sha256": "c5ad317ea722264bccb4727bb3f943d4d8bf87b6a26af59034ea8ab929662ff5",
+    "judgments_stamped_sha256": "e423fdd04467c9c6470e96a2492a122fa4fb659433293f804f1437d23dd8c90e",
+    "stamps_sha256": "9c8d04c8c3fe7f7e7cefadcdaf90ca58f4925a2abb5aa2095fffe8834bac1538",
+    "capture_sha256": "2976649aee5c16e290980e64e8f71c75fb7989976b629acf07da49d57108b4a2",
+    "stamps_capture_sha256": "2976649aee5c16e290980e64e8f71c75fb7989976b629acf07da49d57108b4a2",
+    "planted_cases_sha256": "94e19ae3bf177012751335606d588e8de1f6e83ce3dc538de3a749c5bbf23502",
+    "session_stamped_sha256": "20bc727d31a180f8070d220119f22d062ba2e6edbdc8174e632cd6b8aecbae94",
+    "theo_snapshot_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
+    "name_snapshot_date": "2026-09-23",
+    "name_snapshot_source_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53"
+  },
+  "export": {
+    "encoder": "MongoDB/mdbr-leaf-ir",
+    "top_k": 30,
+    "threshold_used": 0.2
+  },
+  "rooms": {
+    "room-ill-defined": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 32
+    },
+    "room-extend": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 26
+    },
+    "room-control": {
+      "producers_ran": [
+        "hsi",
+        "rs",
+        "eureka: substrate_unavailable"
+      ],
+      "shown": 38
+    }
+  },
+  "labelers": {
+    "sitting_1": {
+      "labeler": "navigator",
+      "labeled_at": "2026-09-24T16:23:28.824Z",
+      "n": 96,
+      "stamps_shown": false
+    },
+    "sitting_2": {
+      "labeler": "navigator",
+      "labeled_at": "2026-09-24T20:28:04.600Z",
+      "n": 96,
+      "stamps_shown": true,
+      "via_cli": 5,
+      "via_chat_sitting": 91,
+      "untimed": 91
+    },
+    "second_labeler": null
+  },
+  "stamped_only_pairings": 0,
+  "per_room": {
+    "room-ill-defined": {
+      "k": 21,
+      "n": 32,
+      "rate": 0.65625,
+      "wilson": [
+        0.4831108797494618,
+        0.7958956207817935
+      ]
+    },
+    "room-extend": {
+      "k": 15,
+      "n": 26,
+      "rate": 0.5769230769230769,
+      "wilson": [
+        0.38948613742545585,
+        0.744555566895797
+      ]
+    },
+    "room-control": {
+      "k": 7,
+      "n": 38,
+      "rate": 0.18421052631578946,
+      "wilson": [
+        0.092217651837305,
+        0.3341885807509379
+      ]
+    }
+  },
+  "pooled": {
+    "k": 43,
+    "n": 96,
+    "rate": 0.4479166666666667,
+    "wilson": [
+      0.3523575930248626,
+      0.5474836140454539
+    ]
+  },
+  "per_tier": {
+    "strong": {
+      "k": 7,
+      "n": 13,
+      "rate": 0.5384615384615384,
+      "wilson": [
+        0.2914379570986657,
+        0.7679393219446548
+      ]
+    },
+    "indirect": {
+      "k": 0,
+      "n": 1,
+      "rate": 0,
+      "wilson": [
+        0,
+        0.7934506856996815
+      ]
+    },
+    "unverified": {
+      "k": 36,
+      "n": 82,
+      "rate": 0.43902439024390244,
+      "wilson": [
+        0.3367353846112281,
+        0.5467707890119626
+      ]
+    }
+  },
+  "per_producer": {
+    "hsi": {
+      "k": 27,
+      "n": 47,
+      "rate": 0.574468085106383,
+      "wilson": [
+        0.4328191934229275,
+        0.7048637165903182
+      ]
+    },
+    "rs": {
+      "k": 16,
+      "n": 49,
+      "rate": 0.32653061224489793,
+      "wilson": [
+        0.2120749699956838,
+        0.46620794688771033
+      ]
+    }
+  },
+  "per_direction": {
+    "same meaning in different words": {
+      "k": 41,
+      "n": 75,
+      "rate": 0.5466666666666666,
+      "wilson": [
+        0.4344837385173655,
+        0.6543020361822088
+      ]
+    },
+    "same words with different meaning": {
+      "k": 2,
+      "n": 21,
+      "rate": 0.09523809523809523,
+      "wilson": [
+        0.026518767430940157,
+        0.2891413907959853
+      ]
+    }
+  },
+  "baseline": {
+    "definition": "sitting 1 (blind, no stamp) useful rate over every shown pairing of today's raw HSI / RS output",
+    "k": 43,
+    "n": 96,
+    "rate": 0.4479166666666667,
+    "wilson": [
+      0.3523575930248626,
+      0.5474836140454539
+    ]
+  },
+  "as_shown": {
+    "pooled": {
+      "k": 42,
+      "n": 96,
+      "rate": 0.4375,
+      "wilson": [
+        0.3425682747368588,
+        0.537241173747521
+      ]
+    },
+    "per_room": {
+      "room-ill-defined": {
+        "k": 19,
+        "n": 32,
+        "rate": 0.59375,
+        "wilson": [
+          0.422600248715733,
+          0.7448036516030203
+        ]
+      },
+      "room-extend": {
+        "k": 15,
+        "n": 26,
+        "rate": 0.5769230769230769,
+        "wilson": [
+          0.38948613742545585,
+          0.744555566895797
+        ]
+      },
+      "room-control": {
+        "k": 8,
+        "n": 38,
+        "rate": 0.21052631578947367,
+        "wilson": [
+          0.11074791841316625,
+          0.363457794792723
+        ]
+      }
+    },
+    "per_tier": {
+      "strong": {
+        "k": 6,
+        "n": 13,
+        "rate": 0.46153846153846156,
+        "wilson": [
+          0.23206067805534528,
+          0.7085620429013343
+        ]
+      },
+      "indirect": {
+        "k": 0,
+        "n": 1,
+        "rate": 0,
+        "wilson": [
+          0,
+          0.7934506856996815
+        ]
+      },
+      "unverified": {
+        "k": 36,
+        "n": 82,
+        "rate": 0.43902439024390244,
+        "wilson": [
+          0.3367353846112281,
+          0.5467707890119626
+        ]
+      }
+    }
+  },
+  "stamp_influence": {
+    "gap": -0.010416666666666685,
+    "gap_per_tier": {
+      "strong": -0.07692307692307687,
+      "indirect": 0,
+      "unverified": 0
+    },
+    "agreement": {
+      "useful": {
+        "agree": 93,
+        "n": 96,
+        "rate": 0.96875
+      },
+      "direction_ok": {
+        "agree": 93,
+        "n": 96,
+        "rate": 0.96875
+      },
+      "already_known": {
+        "agree": 95,
+        "n": 96,
+        "rate": 0.9895833333333334
+      }
+    },
+    "useful_flips": {
+      "not_useful_to_useful": 1,
+      "useful_to_not_useful": 2
+    }
+  },
+  "tier_counts": {
+    "strong": 13,
+    "indirect": 1,
+    "unverified": 82
+  },
+  "unverified_share": 0.8541666666666666,
+  "reason_mix": {
+    "handle_unresolved": 77,
+    "no_path_within_3_hops": 4,
+    "no_lateral_relation": 1
+  },
+  "not_called_share": 0.8020833333333334,
+  "hub_inflation_share": 0.3076923076923077,
+  "hub_inflation": {
+    "k": 4,
+    "n": 13,
+    "share": 0.3076923076923077,
+    "proxy_source": "in-sample proxy: interior-node frequency across the strong paths in this record, top decile (no governed Theo call returns node degree)",
+    "top_decile_nodes": [
+      {
+        "node": "PWS Value Proposition",
+        "count": 4
+      }
+    ],
+    "interior_node_frequency": [
+      {
+        "node": "PWS Value Proposition",
+        "count": 4
+      },
+      {
+        "node": "Cynefin Framework",
+        "count": 1
+      },
+      {
+        "node": "Nested Hierarchies",
+        "count": 1
+      },
+      {
+        "node": "PWS Pitch-Craft Distillation",
+        "count": 1
+      },
+      {
+        "node": "Problem Definition Transformation Framework",
+        "count": 1
+      }
+    ]
+  },
+  "provenance_routed_strong": 0,
+  "diversity": {
+    "distinct_interior_nodes": 5,
+    "strong_stamps": 13,
+    "ratio": 0.38461538461538464
+  },
+  "direction_fidelity": {
+    "overall": {
+      "k": 16,
+      "n": 96,
+      "rate": 0.16666666666666666,
+      "wilson": [
+        0.10527382370804238,
+        0.2537099015419836
+      ]
+    },
+    "by_phrase": {
+      "same meaning in different words": {
+        "k": 9,
+        "n": 75,
+        "rate": 0.12,
+        "wilson": [
+          0.06443371823014094,
+          0.21259640207332445
+        ]
+      },
+      "same words with different meaning": {
+        "k": 7,
+        "n": 21,
+        "rate": 0.3333333333333333,
+        "wilson": [
+          0.17194752602322766,
+          0.5462654803055064
+        ]
+      }
+    },
+    "by_tier": {
+      "strong": {
+        "k": 2,
+        "n": 13,
+        "rate": 0.15384615384615385,
+        "wilson": [
+          0.043258178346393526,
+          0.4223463102637225
+        ]
+      },
+      "indirect": {
+        "k": 0,
+        "n": 1,
+        "rate": 0,
+        "wilson": [
+          0,
+          0.7934506856996815
+        ]
+      },
+      "unverified": {
+        "k": 14,
+        "n": 82,
+        "rate": 0.17073170731707318,
+        "wilson": [
+          0.10451594665844671,
+          0.26641739090678307
+        ]
+      }
+    },
+    "as_shown_overall": {
+      "k": 15,
+      "n": 96,
+      "rate": 0.15625,
+      "wilson": [
+        0.09703709989594433,
+        0.24191486676814497
+      ]
+    }
+  },
+  "false_friends_by_tier": {
+    "strong": 0,
+    "indirect": 0,
+    "unverified": 1
+  },
+  "false_friends_shown_by_tier": {
+    "strong": 0,
+    "indirect": 0,
+    "unverified": 3
+  },
+  "planted": {
+    "false_friends_total": 4,
+    "meaning_bridges_total": 4,
+    "shown": [
+      {
+        "kind": "false_friend",
+        "pair_id": "0d18bca0c2f7",
+        "room": "room-control",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "direction_ok": true,
+        "useful": false
+      },
+      {
+        "kind": "false_friend",
+        "pair_id": "e183a8a8a38e",
+        "room": "room-control",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "direction_ok": false,
+        "useful": false
+      },
+      {
+        "kind": "false_friend",
+        "pair_id": "f06bd895b05b",
+        "room": "room-control",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "direction_ok": true,
+        "useful": false
+      },
+      {
+        "kind": "meaning_bridge",
+        "pair_id": "3a4fdbc9405b",
+        "room": "room-control",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "direction_ok": true,
+        "useful": false
+      },
+      {
+        "kind": "meaning_bridge",
+        "pair_id": "aa4cb153e855",
+        "room": "room-control",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "direction_ok": true,
+        "useful": false
+      },
+      {
+        "kind": "meaning_bridge",
+        "pair_id": "cf322dc30df8",
+        "room": "room-control",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "direction_ok": false,
+        "useful": false
+      }
+    ]
+  },
+  "already_known_by_tier": {
+    "strong": {
+      "true": 7,
+      "false": 6
+    },
+    "indirect": {
+      "true": 0,
+      "false": 1
+    },
+    "unverified": {
+      "true": 38,
+      "false": 44
+    }
+  },
+  "useful_novel_by_tier": {
+    "strong": 2,
+    "indirect": 0,
+    "unverified": 16
+  },
+  "already_known_overall": {
+    "k": 45,
+    "n": 96,
+    "rate": 0.46875,
+    "wilson": [
+      0.3720607443637722,
+      0.5678439798784176
+    ]
+  },
+  "theo_latency_ms": {
+    "p50": 1580,
+    "p95": 1761,
+    "n": 165,
+    "min": 1544,
+    "max": 3385,
+    "calls": 164,
+    "responses": 164,
+    "captured_at": "2026-09-24T16:34:45.223Z",
+    "method": "nearest-rank percentile over every latency_ms value in tests/fixtures/355-theo-find-connections-responses.json (plugin side, through brain-client, dev machine)"
+  },
+  "judgments": {
+    "room-ill-defined": [
+      {
+        "pair_id": "71a3b362198b",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "138231a5710a",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "550a0c8ccb95",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "22f2f99ce390",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "942a7bb77393",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "5f346a0c4258",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "a9c96654c1cb",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "dfb8af2a042f",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "575d21ab0fa1",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "651643e6aef4",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "53628980d126",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "967eebebdb2a",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "20a8a389efbb",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "08d48c49f73f",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "eaf0c6945c2a",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "bfa53320bdb5",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "59f67da1507d",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "ac899cc31a08",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "a3dd5a5a8ba9",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "739b13f07f52",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "32428ac3c5d0",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "e522567a70db",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "71b5ca116782",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "973e829e5c7a",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "2d2f994aa0b7",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "7f149cc68eae",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "762e30d72079",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "86160a4c843e",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "33c16fc98207",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "5670bf421779",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "dedbd55a5148",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "e649276d0880",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      }
+    ],
+    "room-extend": [
+      {
+        "pair_id": "4966f51f4ba5",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "b6c39a8315e4",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "4ae95ebc099b",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "b9d565a07c73",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "bde4986ef002",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "920e9533101d",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "no_path_within_3_hops",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "481a96a042ed",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": true,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "a9c4eb92d9cc",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "d37e922b92b0",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "2dbf73d27401",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "21617932599e",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "5af9d958e847",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "9482b5ee2a88",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "be93e2bc753b",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "df772c7aa5d7",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "a21dc91990b1",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "ca988c187c01",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "bd37004bd111",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "4fdfc34bbe31",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "7ec79d35bcf1",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "be259de33291",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "f8059ad37e84",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "89e18440699d",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "c165d7681b78",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "73c2c0780e26",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "824233d5323d",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      }
+    ],
+    "room-control": [
+      {
+        "pair_id": "27e3a9dabd93",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "5546fe323f60",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "9d6f82c08309",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "6a7b75fc7d8b",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "aa4cb153e855",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "0665103b1407",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "no_path_within_3_hops",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "e5fee29f3af4",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "f9fd20cf5a3e",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "716eb86322a4",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "68f9f5a9dc5c",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "954cb61cfd87",
+        "producer": "hsi",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "925616befba3",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "f84fe5852911",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "5102fc9796a9",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "c5f662bf8905",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "69bc60c5c1e7",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "94cffb2d0328",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "26c18b2b9ed8",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "4e052215042a",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "no_path_within_3_hops",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "608a8786af6b",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "3a4fdbc9405b",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "strong",
+        "reason": null,
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "f06bd895b05b",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "da82dcd1283b",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "6bbc973b8673",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "69c01d1e94a5",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "e183a8a8a38e",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "8113656967e0",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "no_lateral_relation",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "7b46e9e17d79",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "d4807ef935c4",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "923eaa491b7d",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "97bd79e86a1f",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "cf322dc30df8",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "no_path_within_3_hops",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "013ae8ee02d5",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "88576a2b871c",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": true,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": true,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "874efea9a47c",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      },
+      {
+        "pair_id": "f3bec26b00bf",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "e31a64af2475",
+        "producer": "rs",
+        "direction_phrase": "same meaning in different words",
+        "tier": "indirect",
+        "reason": null,
+        "useful": false,
+        "direction_ok": false,
+        "already_known": false,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": false,
+          "already_known": false
+        }
+      },
+      {
+        "pair_id": "0d18bca0c2f7",
+        "producer": "rs",
+        "direction_phrase": "same words with different meaning",
+        "tier": "unverified",
+        "reason": "handle_unresolved",
+        "useful": false,
+        "direction_ok": true,
+        "already_known": true,
+        "as_shown": {
+          "useful": false,
+          "direction_ok": true,
+          "already_known": true
+        }
+      }
+    ]
+  }
+}
