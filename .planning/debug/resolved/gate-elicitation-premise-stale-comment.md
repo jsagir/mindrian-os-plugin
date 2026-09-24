@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "gate-elicitation-premise-stale-comment"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [3, 11]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-09-24T12:10:06Z
 ---
 
 ## Current Focus
@@ -151,8 +151,36 @@ started: The comment predates 2.1.280 (the "265 audit premise" per 267-RESEARCH.
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-07
-verification: PENDING
-files_changed: []
-commits: PENDING
+root_cause: CONFIRMED -- see Technical Root Cause above. `lib/mcp/tools/gate.cjs`'s two comment blocks (`:4-11` file-header, `:196-207` `detectClientCapabilities` JSDoc) asserted a host-behavior fact (issue #2799, "Claude Code/Desktop/Cowork do not declare elicitation") that was true at the 265 audit and stopped being true for Claude Code specifically once build 2.1.280 shipped `elicitation: {}` in its `initialize` capabilities, without the comment being updated alongside. `detectClientCapabilities`'s own executable logic (`server.server.getClientCapabilities()`, read live at call time) was never wrong and needed no change.
+
+fix: test-first per CTX-TESTFIRST. `tests/test-267-mcpv2-gate-premise.cjs` committed RED (`2f14c7eb8`) against the unmigrated comment text (source arm failed: still contained "do not declare it", no "2.1.280" mention; behavior arm already green, proving the ladder's own logic was never the bug). Rewrote ONLY the two comment blocks in `lib/mcp/tools/gate.cjs` (fix commit `aafa47ce7`) to state: capability comes from the MCP initialize handshake; Claude Code declares `elicitation: {}` as of build 2.1.280 (live wire tee, 2026-09-23; re-confirmed at 2.1.281, 2026-09-24, `267-TRIPOLAR-PROBES.md`), so rung (a) (inline `elicitInput`) is the live CLI gate path by navigator ruling (CTX 2026-09-23, "let elicitation take over on CLI"); Desktop and Cowork are stated as UNPROBED as of 2026-09-24 (`267-TRIPOLAR-PROBES.md` Task 3, still pending) rather than lumped into the retracted "do not declare" claim; a 2026-07-28-pinned connection still returns `undefined` from `getClientCapabilities()`, falling to rung (b)/(c); `CLAUDE_HOST_SURFACES` still identifies Claude hosts for rung (b). Comment-only change, zero code-line diff (proven below). No rung was suppressed or forced, per the CTX ruling.
+
+verification:
+```
+$ node tests/test-267-mcpv2-gate-premise.cjs
+PASS: gate.cjs comment text no longer asserts Claude hosts "do not declare" elicitation
+PASS: gate.cjs comment text mentions elicitation together with the verified build 2.1.280
+PASS: a fake server declaring elicitation:{} reports elicitation:true
+PASS: a fake server whose getClientCapabilities() returns undefined reports elicitation:false
+PASS: a fake server whose getClientCapabilities() throws reports elicitation:false (caught, not propagated)
+PASS=5 FAIL=0 (exit 0)
+
+$ node tests/test-198-gate-renderers.test.cjs
+PASS: test-198-gate-renderers (SPEC-4: one gate, three renderers, three identical gate_answer payloads)
+(exit 0)
+
+$ node tests/test-265-gate-render-elicit-schema.cjs
+PASS: test-265-gate-render-elicit-schema (all 5 arms: single-select, multi-select, label-not-slug, sdk, answer-identity)
+(exit 0)
+
+$ grep -c "do not declare it" lib/mcp/tools/gate.cjs
+0
+$ grep -c "2.1.280" lib/mcp/tools/gate.cjs
+2
+$ git diff aafa47ce7~1 aafa47ce7 -- lib/mcp/tools/gate.cjs | grep "^[-+]" | grep -v "^[-+]\s*\(//\|\*\|/\*\*\)" | grep -v "^[-+][-+]" | wc -l
+0   (comment-only commit, confirmed)
+```
+
+files_changed: `lib/mcp/tools/gate.cjs` (comment-only), `tests/test-267-mcpv2-gate-premise.cjs` (new).
+
+commits: `2f14c7eb8` (test, RED) then `aafa47ce7` (fix, comment-only, GREEN). Landed as Task 1 of `267-07-PLAN.md`; gate.cjs's separate registration-API rewrite (`server.tool` -> `server.registerTool`) is Task 2's own commit `b9eaa80d9`, unrelated to this RCA's fix.
