@@ -4,15 +4,36 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 355-05-PLAN.md - scout-hsi and whitespace_scan naming honesty fixed, D-25 fixture gate committed
-last_updated: "2026-09-23T19:31:26.538Z"
+last_updated: "2026-09-24T07:35:57.717Z"
 last_activity: 2026-09-23 -- Phase 355 execution continuing (355-05 complete)
 progress:
-  total_phases: 111
-  completed_phases: 38
-  total_plans: 397
-  completed_plans: 342
+  total_phases: 113
+  completed_phases: 40
+  total_plans: 435
+  completed_plans: 375
   percent: 86
 ---
+
+<!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
+     note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
+     `state.update-progress` correctly recomputed `total_phases` 111->113, `completed_phases`
+     38->40, `total_plans` 397->435, `completed_plans` 342->375 (this session's own new
+     267-01-SUMMARY.md plus every peer-session SUMMARY.md landed on disk since the prior
+     snapshot). It also clobbered `stopped_at` -> "Completed 355-02-PLAN.md - ..." (stale,
+     reverting past the already-correct 355-05 completion recorded below), `last_activity` ->
+     "Phase 355 execution started" (same staleness), and `percent` -> 35 (mathematically wrong:
+     375/435 = 86%, not 35% -- the tool's percent computation used a different, stale
+     denominator than the completed_plans/total_plans pair sitting next to it). This session did
+     NOT run `state.advance-plan` or `state.record-session` (Phase 267 is not this file's
+     "Current Position", which correctly belongs to the actively-executing Phase 355 peer
+     session; see the new "Previously (267-01, ...)" entry below Current Position for this
+     plan's own completion record, added without touching Phase/Plan/Status). Hand-corrected:
+     `stopped_at` -> "Completed 355-05-PLAN.md - scout-hsi and whitespace_scan naming honesty
+     fixed, D-25 fixture gate committed", `last_activity` -> "2026-09-23 -- Phase 355 execution
+     continuing (355-05 complete)", `percent` -> 86 (matching the correctly-recomputed
+     completed_plans/total_plans ratio). `total_phases`/`completed_phases`/`total_plans`/
+     `completed_plans` were already correct from the update-progress run, not reverted this
+     run. -->
 
 <!-- NOTE (355-02 execute-plan, 2026-09-23, resync-clobber pattern, same class as every other
      note in this file, per .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md):
@@ -5383,6 +5404,27 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
 Plan: 3 of 28
 Status: Ready to execute
+Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
+  across sessions, per the documented multi-session tree-sharing reality):
+  complete -- Phase 267 Wave 0 test scaffolding and baseline. Shipped
+  tests/helpers/mcp-wire-267.cjs (SDK-independent stdio JSON-RPC helper, zero
+  @modelcontextprotocol/* require), tests/run-all-267.sh (aggregator, 16 MCPV2 legs
+  pre-declared + 16 regression legs, PASS=20 FAIL=0 SKIP=13),
+  tests/test-267-mcpv2-sdk-era.cjs (MCPV2-01, four arms), tests/test-267-mcpv2-lockstep.cjs
+  (MCPV2-19, six checks), tests/test-267-mcpv2-cirs-gates.cjs (MCPV2-08, the per-commit
+  CIRS gate), and 267-BASELINE.md (PLAN_BASE 211030b13, CONNECTOR_DESCRIPTORS=31,
+  SHAPE_VIOLATIONS=53 zero under lib/mcp/, wire snapshot 44 tools/9 prompts/10
+  resources/3 templates local + 6 brain-shim tools, full suite/test result table with
+  every pre-existing FAIL named). Zero production files touched (git diff --stat
+  against PLAN_BASE over bin/lib/scripts/package* empty). Two NEW pre-existing test
+  failures found under the Part 8 egress boundary (test-257-brain-tool-egress-invariant.cjs
+  Arm 2, test-257-shim-honest-refusal.cjs Arm 4), out of scope for this plan
+  (part8-egress-guard.cjs is on the phase's Never-Edit list), logged to
+  .planning/phases/267-mcp-stateless-protocol-migration-bump-vendored-modelcontextp/deferred-items.md,
+  not fixed. MCPV2-01/-08/-19 requirements NOT yet marked in REQUIREMENTS.md -- this
+  phase's own stated convention (ROADMAP.md) registers all MCPV2-* requirements at
+  phase close (plan 267-18), not incrementally. Full detail in 267-01-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
