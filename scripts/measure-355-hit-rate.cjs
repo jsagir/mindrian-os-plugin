@@ -53,6 +53,9 @@ const DEFAULT_ROOM_NAMES = Object.freeze(['room-ill-defined', 'room-extend', 'ro
 const ITEMS_PATH = path.join(FIXTURE_ROOT, 'pairings.items.json');
 const JUDGMENTS_PATH = path.join(FIXTURE_ROOT, 'judgments.json');
 const RECORD_PATH = path.join(FIXTURE_ROOT, 'hit-rate-record.json');
+const STAMPS_PATH = path.join(FIXTURE_ROOT, 'stamps.json');
+const STAMPED_ITEMS_PATH = path.join(FIXTURE_ROOT, 'pairings-stamped.items.json');
+const CAPTURE_PATH = path.join(REPO_ROOT, 'tests', 'fixtures', '355-theo-find-connections-responses.json');
 const MIN_SHOWN_PER_ROOM = 20;
 const EXCERPT_MAX_CHARS = 600;
 
@@ -489,6 +492,244 @@ function computeRates(joined, opts) {
 }
 
 // ---------------------------------------------------------------------------
+// directionFromPhrase(phrase): the inverse of directionPhraseFor -- exact
+// string match against DIRECTION_MEANING's two confirmed phrases, else the
+// NONE direction id (D-49: whitespace / find-connections items carry no
+// wording-difference measurement at all). pairings.items.json stores only
+// the rendered phrase, never the raw direction id, so a stamp's own
+// `direction` field is re-derived here rather than re-measured.
+// ---------------------------------------------------------------------------
+function directionFromPhrase(phrase) {
+  const meaning = directionConvention.DIRECTION_MEANING;
+  for (const id of Object.keys(meaning)) {
+    if (meaning[id] === phrase) return id;
+  }
+  return directionConvention.NONE;
+}
+
+// ---------------------------------------------------------------------------
+// sha256OfFile(p): hex sha256 of a file's exact bytes on disk (provenance
+// hashing for stamps.json's capture_sha256 / the fixture_sha256 refusal
+// gate -- both anchor to the byte-identical file a reader can re-hash).
+// ---------------------------------------------------------------------------
+function sha256OfFile(p) {
+  return crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+}
+
+// ---------------------------------------------------------------------------
+// resolveArtifactEndpoint(roomCopyDir, relPath, deps): reads the artifact's
+// RAW file bytes (frontmatter intact) from a temp room copy, derives its
+// title the same way rs-engine.cjs's own discoverArtifacts does
+// (extractTitle), then runs extractCarried + resolveEndpoint against the
+// local canon-name snapshot (D-10, D-48). A missing file degrades to
+// title-only resolution against an empty string, matching
+// reverse-salient-agent.cjs's own rsEndpoints idiom -- never guesses, never
+// asks Theo to resolve a name.
+// ---------------------------------------------------------------------------
+function resolveArtifactEndpoint(roomCopyDir, relPath, deps) {
+  const rsEngine = deps.rsEngine;
+  const verificationStamp = deps.verificationStamp;
+  const fp = path.join(roomCopyDir, relPath);
+  let raw = '';
+  try {
+    raw = fs.readFileSync(fp, 'utf8');
+  } catch (_e) {
+    raw = '';
+  }
+  const title = rsEngine.extractTitle(raw, fp);
+  const carried = verificationStamp.extractCarried(raw, title);
+  const resolved = verificationStamp.resolveEndpoint(carried, { names: deps.names, registry: deps.registry });
+  return { name: resolved.name, via: resolved.via, title };
+}
+
+// ---------------------------------------------------------------------------
+// doStamp(): the `stamp` subcommand (355-25, HIPS-04, HIPS-07). Refuses
+// unless judgments.json exists and its fixture_sha256 matches
+// pairings.items.json's own byte-identical sha256 (D-32: stamps only after
+// the blind sitting-1 judgments are committed). Resolves every item's two
+// endpoints from a FRESH TEMP COPY of its fixture room (never the tracked
+// tree itself), runs capture-355-theo-responses.cjs --live --append once
+// against the distinct resolvable canon-name pairs, then stamps every item
+// offline by replaying the merged capture file through
+// lib/core/verification-stamp.cjs's own deps.callTool seam (zero network
+// during stamping -- the capture step is the only live call this command
+// ever makes).
+// ---------------------------------------------------------------------------
+async function doStamp() {
+  if (!fs.existsSync(ITEMS_PATH)) {
+    process.stderr.write('measure-355-hit-rate: stamp refused -- ' + ITEMS_PATH + ' does not exist (run export --unstamped first)\n');
+    return 1;
+  }
+  if (!fs.existsSync(JUDGMENTS_PATH)) {
+    process.stderr.write('measure-355-hit-rate: stamp refused -- ' + JUDGMENTS_PATH + ' does not exist (stamps only after the sitting-1 blind judgments are committed, D-32)\n');
+    return 1;
+  }
+
+  const itemsRaw = fs.readFileSync(ITEMS_PATH, 'utf8');
+  const itemsSha256 = crypto.createHash('sha256').update(itemsRaw).digest('hex');
+  const itemsPayload = JSON.parse(itemsRaw);
+  const judgmentsPayload = JSON.parse(fs.readFileSync(JUDGMENTS_PATH, 'utf8'));
+
+  if (judgmentsPayload.fixture_sha256 !== itemsSha256) {
+    process.stderr.write(
+      'measure-355-hit-rate: stamp refused -- judgments.json.fixture_sha256 (' + judgmentsPayload.fixture_sha256 +
+      ') does not match the current sha256 of pairings.items.json (' + itemsSha256 + ')\n'
+    );
+    return 1;
+  }
+
+  const items = Array.isArray(itemsPayload.items) ? itemsPayload.items : [];
+
+  // Lazy requires (D-32's own idiom: requiring the stamp module is 355-25's
+  // own scope, never reached by the export --unstamped path above).
+  // eslint-disable-next-line global-require
+  const verificationStamp = require('../lib/core/verification-stamp.cjs');
+  // eslint-disable-next-line global-require
+  const rsEngine = require('../lib/core/rs-engine.cjs');
+
+  const names = verificationStamp.loadFrameworkNames();
+  const registry = verificationStamp.loadCommandFrameworks();
+  const deps = { rsEngine, verificationStamp, names, registry };
+
+  // One fresh temp copy per distinct room referenced by the 96 items (never
+  // the tracked tests/fixtures/355-rooms tree itself -- guardRoomPath proves
+  // the source, cpSync writes only to os.tmpdir()).
+  const roomNames = Array.from(new Set(items.map((it) => it.room)));
+  const roomCopyDirs = {};
+  const tmpRoots = [];
+  try {
+    for (const roomName of roomNames) {
+      const guardedSrc = guardRoomPath(path.join(FIXTURE_ROOT, roomName));
+      const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'measure-355-stamp-'));
+      const copyDir = path.join(tmpRoot, roomName);
+      fs.cpSync(guardedSrc, copyDir, { recursive: true });
+      roomCopyDirs[roomName] = copyDir;
+      tmpRoots.push(tmpRoot);
+    }
+
+    const endpointsByPairId = {};
+    for (const it of items) {
+      const from = resolveArtifactEndpoint(roomCopyDirs[it.room], it.a_path, deps);
+      const to = resolveArtifactEndpoint(roomCopyDirs[it.room], it.b_path, deps);
+      endpointsByPairId[it.pair_id] = {
+        fromHandle: from.name,
+        toHandle: to.name,
+        fromVia: from.via,
+        toVia: to.via,
+        direction: directionFromPhrase(it.direction_phrase),
+      };
+    }
+
+    // Distinct resolvable (both sides matched) canon-name pairs, in first-
+    // seen order, order-sensitive (from -> to), matching stampFindings' own
+    // pairKeyOf convention.
+    const distinctPairs = [];
+    const seenPairKeys = new Set();
+    for (const pid of Object.keys(endpointsByPairId)) {
+      const e = endpointsByPairId[pid];
+      if (!e.fromHandle || !e.toHandle) continue;
+      const key = e.fromHandle + '\u0000' + e.toHandle;
+      if (seenPairKeys.has(key)) continue;
+      seenPairKeys.add(key);
+      distinctPairs.push({ from: e.fromHandle, to: e.toHandle });
+    }
+
+    // Run the one live capture (canon names only, through
+    // capture-355-theo-responses.cjs's own brain-client wire door) even when
+    // distinctPairs is empty, so --check's captured_at/snapshot_sha256
+    // invariants and this run's own record of "zero resolvable pairs this
+    // fixture set" both come from the same real invocation, never skipped.
+    const scratchPairsPath = path.join(os.tmpdir(), 'measure-355-stamp-pairs-' + process.pid + '-' + Date.now() + '.json');
+    fs.writeFileSync(scratchPairsPath, JSON.stringify(distinctPairs, null, 2));
+    let captureResult;
+    try {
+      // eslint-disable-next-line global-require
+      const { spawnSync } = require('node:child_process');
+      const captureScript = path.join(REPO_ROOT, 'scripts', 'capture-355-theo-responses.cjs');
+      captureResult = spawnSync(process.execPath, [captureScript, '--live', '--append', '--pairs', scratchPairsPath], {
+        stdio: 'inherit',
+      });
+    } finally {
+      fs.rmSync(scratchPairsPath, { force: true });
+    }
+
+    if (!captureResult || captureResult.status !== 0) {
+      process.stderr.write(
+        'measure-355-hit-rate: BLOCKED -- capture-355-theo-responses --live --append exited ' +
+        (captureResult ? String(captureResult.status) : '(spawn failed)') +
+        '; Theo is unreachable or refused. Not recording an outage as findings; re-run stamp once Theo answers.\n'
+      );
+      return 1;
+    }
+
+    if (!fs.existsSync(CAPTURE_PATH)) {
+      process.stderr.write('measure-355-hit-rate: BLOCKED -- capture-355-theo-responses reported success but ' + CAPTURE_PATH + ' is missing\n');
+      return 1;
+    }
+
+    const captureSha256 = sha256OfFile(CAPTURE_PATH);
+    const capturePayload = JSON.parse(fs.readFileSync(CAPTURE_PATH, 'utf8'));
+
+    // Local replay only from here on: zero network during stamping. Reuses
+    // the vetted sentinel vocabulary tests/helpers/theo-replay-355.cjs
+    // already carries for capture-355-theo-responses.cjs's own
+    // $null/$error/$text shapes (Part 7: reuse before build) -- this
+    // measurement script never opens a second socket door of its own.
+    // eslint-disable-next-line global-require
+    const { makeReplayCallTool } = require('../tests/helpers/theo-replay-355.cjs');
+    const replayCallTool = makeReplayCallTool(capturePayload);
+
+    const stampsByPairId = {};
+    const stampedItems = [];
+    for (const it of items) {
+      const e = endpointsByPairId[it.pair_id];
+      const finding = {
+        fromHandle: e.fromHandle,
+        toHandle: e.toHandle,
+        direction: e.direction,
+        fromVia: e.fromVia,
+        toVia: e.toVia,
+      };
+      // eslint-disable-next-line no-await-in-loop
+      const { stamp, detail } = await verificationStamp.stampFindingDetailed(finding, { callTool: replayCallTool });
+      stampsByPairId[it.pair_id] = { stamp, detail };
+      // eslint-disable-next-line global-require
+      const { formatStampLines } = require('../lib/core/verification-stamp-format.cjs');
+      const stampLines = formatStampLines(stamp, 'cli').join('\n');
+      stampedItems.push(Object.assign({}, it, { stamp_lines: stampLines }));
+    }
+
+    const snapshotSha256 = typeof capturePayload.snapshot_sha256 === 'string' ? capturePayload.snapshot_sha256 : null;
+
+    const stampsPayload = {
+      generated_at: new Date().toISOString(),
+      capture_sha256: captureSha256,
+      snapshot_sha256: snapshotSha256,
+      by_pair: stampsByPairId,
+    };
+
+    const stampsTmp = STAMPS_PATH + '.tmp';
+    fs.writeFileSync(stampsTmp, JSON.stringify(stampsPayload, null, 2));
+    fs.renameSync(stampsTmp, STAMPS_PATH);
+
+    const stampedItemsPayload = Object.assign({}, itemsPayload, { items: stampedItems });
+    const stampedItemsTmp = STAMPED_ITEMS_PATH + '.tmp';
+    fs.writeFileSync(stampedItemsTmp, JSON.stringify(stampedItemsPayload, null, 2));
+    fs.renameSync(stampedItemsTmp, STAMPED_ITEMS_PATH);
+
+    process.stdout.write(
+      'measure-355-hit-rate: wrote ' + STAMPS_PATH + ' and ' + STAMPED_ITEMS_PATH +
+      ' (' + items.length + ' items, ' + distinctPairs.length + ' distinct resolvable canon-name pairs)\n'
+    );
+    return 0;
+  } finally {
+    for (const t of tmpRoots) {
+      fs.rmSync(t, { recursive: true, force: true });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 const HELP_TEXT = [
@@ -582,7 +823,10 @@ async function cliMain(argv) {
   if (cmd === 'export') {
     return doExport(args.slice(1));
   }
-  if (cmd === 'stamp' || cmd === 'record') {
+  if (cmd === 'stamp') {
+    return doStamp();
+  }
+  if (cmd === 'record') {
     process.stderr.write('measure-355-hit-rate: "' + cmd + '" is 355-25\'s own scope, not yet implemented\n');
     return 1;
   }
@@ -612,10 +856,16 @@ module.exports = {
   buildExcerpt,
   pairId,
   directionPhraseFor,
+  directionFromPhrase,
+  sha256OfFile,
+  doStamp,
   cliMain,
   FIXTURE_ROOT,
   DEFAULT_ROOM_NAMES,
   ITEMS_PATH,
   JUDGMENTS_PATH,
   RECORD_PATH,
+  STAMPS_PATH,
+  STAMPED_ITEMS_PATH,
+  CAPTURE_PATH,
 };

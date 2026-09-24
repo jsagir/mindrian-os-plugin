@@ -1,9 +1,9 @@
 {
-  "captured_at": "2026-09-23T22:52:58.439Z",
+  "captured_at": "2026-09-24T16:34:45.223Z",
   "theo_host": "64e4efc95420",
   "snapshot_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
   "served": true,
-  "calls": 148,
+  "calls": 164,
   "latency_ms": [
     2567,
     1582,
@@ -152,7 +152,24 @@
     1761,
     1572,
     1588,
-    1595
+    1595,
+    3065,
+    1629,
+    1563,
+    1612,
+    1701,
+    1653,
+    1745,
+    1616,
+    1650,
+    1645,
+    1640,
+    1568,
+    1798,
+    1599,
+    1578,
+    1580,
+    1593
   ],
   "responses": {
     "Six Thinking Hats\u0000Black Hat Thinking": {
@@ -5796,6 +5813,1072 @@
           {
             "gqlStatus": "02000",
             "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-1",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "Scenario Planning",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "brainrecord-captured-1",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Root Cause Analysis",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Beautiful Question Framework\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "Six Thinking Hats",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "Six Thinking Hats",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "brainrecord-captured-1",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Beautiful Question Framework\u0000Jobs to Be Done (JTBD)": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "domainconcept-captured-3",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "Trending to the Absurd",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "Trending to the Absurd",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "PWS Value Proposition",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Beautiful Question Framework",
+            "brainrecord-captured-1",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Red Teaming\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Red Teaming",
+            "domainconcept-captured-1",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Nested Hierarchies",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Scenario Planning",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Red Teaming",
+            "Six Thinking Hats",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "PREREQUISITE",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Six Thinking Hats": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "Trending to the Absurd",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "RELATES_TO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "Trending to the Absurd",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "RELATES_TO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Value Proposition",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "brainrecord-captured-1",
+            "Six Thinking Hats"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Behavioral Economics": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "PWS Value Proposition\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "PWS Value Proposition",
+            "domainconcept-captured-2",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "PWS Value Proposition",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "PWS Value Proposition",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "PWS Value Proposition",
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "PWS Value Proposition\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Systems Thinking\u0000Ackoff Pyramid": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Systems Thinking",
+            "Ackoff Pyramid"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "12 Leverage Points\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Jobs to Be Done (JTBD)\u0000Ackoff Pyramid": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-3",
+            "Ackoff Pyramid"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "domainconcept-captured-1",
+            "Ackoff Pyramid"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Ackoff Pyramid"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        {
+          "path": [
+            "Jobs to Be Done (JTBD)",
+            "brainrecord-captured-1",
+            "Ackoff Pyramid"
+          ],
+          "pathLabels": [
+            "Framework",
+            "BrainRecord",
+            "Framework"
+          ],
+          "edges": [
+            "SOURCED_FROM",
+            "SOURCED_FROM"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "Root Cause Analysis\u0000Jobs to Be Done (JTBD)": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "Root Cause Analysis",
+            "domainconcept-captured-2",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "12 Leverage Points\u0000Systems Thinking": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "02000",
+            "statusDescription": "note: no data",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
+          }
+        ],
+        "warningGqlStatuses": []
+      }
+    },
+    "S-Curve Analysis\u0000Root Cause Analysis": {
+      "coverage": {
+        "matched": 2,
+        "total": 2,
+        "status": "complete"
+      },
+      "paths": [
+        {
+          "path": [
+            "S-Curve Analysis",
+            "domainconcept-captured-1",
+            "Six Thinking Hats",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "S-Curve Analysis",
+            "domainconcept-captured-1",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "S-Curve Analysis",
+            "domainconcept-captured-1",
+            "Causal Loop Diagrams",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "PREREQUISITE"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "S-Curve Analysis",
+            "domainconcept-captured-1",
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "DomainConcept",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE",
+            "FEEDS_INTO"
+          ],
+          "hops": 3
+        },
+        {
+          "path": [
+            "S-Curve Analysis",
+            "Trending to the Absurd",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "pathLabels": [
+            "Framework",
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "RELATES_TO",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        }
+      ],
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
+          {
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
             "severity": "UNKNOWN",
             "classification": "UNKNOWN"
           }

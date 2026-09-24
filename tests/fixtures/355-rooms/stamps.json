@@ -1,0 +1,1898 @@
+{
+  "generated_at": "2026-09-24T16:34:45.251Z",
+  "capture_sha256": "2976649aee5c16e290980e64e8f71c75fb7989976b629acf07da49d57108b4a2",
+  "snapshot_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
+  "by_pair": {
+    "71a3b362198b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "138231a5710a": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "550a0c8ccb95": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "22f2f99ce390": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "942a7bb77393": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 1
+      }
+    },
+    "5f346a0c4258": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "a9c96654c1cb": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "dfb8af2a042f": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "575d21ab0fa1": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Root Cause Analysis",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "framework",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        "ms": 0
+      }
+    },
+    "651643e6aef4": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Beautiful Question Framework",
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "framework",
+        "paths_count": 4,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "53628980d126": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "967eebebdb2a": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "20a8a389efbb": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Red Teaming",
+            "Problem Definition Transformation Framework",
+            "Root Cause Analysis"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "08d48c49f73f": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "eaf0c6945c2a": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Beautiful Question Framework",
+            "PWS Value Proposition",
+            "Jobs to Be Done (JTBD)"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "methodology",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "bfa53320bdb5": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "59f67da1507d": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "ac899cc31a08": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "a3dd5a5a8ba9": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "739b13f07f52": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Red Teaming",
+            "Nested Hierarchies",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "GUARDED_BY",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "32428ac3c5d0": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "e522567a70db": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "71b5ca116782": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Value Proposition",
+            "Six Thinking Hats"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "methodology",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "FEEDS_INTO"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "973e829e5c7a": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "2d2f994aa0b7": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "7f149cc68eae": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "762e30d72079": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "86160a4c843e": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "33c16fc98207": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "5670bf421779": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "dedbd55a5148": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "e649276d0880": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "4966f51f4ba5": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "b6c39a8315e4": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "4ae95ebc099b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "b9d565a07c73": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "bde4986ef002": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "920e9533101d": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "no_path_within_3_hops"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "481a96a042ed": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "a9c4eb92d9cc": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "d37e922b92b0": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "2dbf73d27401": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "21617932599e": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "5af9d958e847": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "9482b5ee2a88": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "be93e2bc753b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "df772c7aa5d7": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "a21dc91990b1": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "ca988c187c01": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "bd37004bd111": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "4fdfc34bbe31": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Root Cause Analysis",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        "ms": 0
+      }
+    },
+    "7ec79d35bcf1": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "be259de33291": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "f8059ad37e84": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "89e18440699d": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "c165d7681b78": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "PWS Value Proposition",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "COMPLEMENTS"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "methodology",
+        "paths_count": 4,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "73c2c0780e26": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "PWS Value Proposition",
+            "Systems Thinking"
+          ],
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "framework",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        "ms": 0
+      }
+    },
+    "824233d5323d": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "27e3a9dabd93": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "5546fe323f60": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "9d6f82c08309": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "6a7b75fc7d8b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "aa4cb153e855": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Systems Thinking",
+            "Root Cause Analysis"
+          ],
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "methodology",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        "ms": 0
+      }
+    },
+    "0665103b1407": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "no_path_within_3_hops"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "e5fee29f3af4": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "f9fd20cf5a3e": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "716eb86322a4": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "68f9f5a9dc5c": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "954cb61cfd87": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Systems Thinking",
+            "Ackoff Pyramid"
+          ],
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO"
+          ],
+          "hops": 1
+        },
+        "ms": 0
+      }
+    },
+    "925616befba3": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "f84fe5852911": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "5102fc9796a9": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "c5f662bf8905": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "69bc60c5c1e7": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "94cffb2d0328": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "26c18b2b9ed8": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "4e052215042a": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "no_path_within_3_hops"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "608a8786af6b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "3a4fdbc9405b": {
+      "stamp": {
+        "verification": "strong",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Ackoff Pyramid"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "COMPLEMENTS"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "framework",
+        "paths_count": 4,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "COMPLEMENTS",
+            "COMPLEMENTS"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "f06bd895b05b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "da82dcd1283b": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "6bbc973b8673": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "69c01d1e94a5": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "e183a8a8a38e": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "8113656967e0": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "no_lateral_relation"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "methodology",
+        "paths_count": 1,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "DomainConcept",
+            "Framework"
+          ],
+          "edges": [
+            "ADDRESSES_PROBLEM_TYPE",
+            "ADDRESSES_PROBLEM_TYPE"
+          ],
+          "hops": 2
+        },
+        "ms": 0
+      }
+    },
+    "7b46e9e17d79": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "d4807ef935c4": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "923eaa491b7d": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "97bd79e86a1f": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": "framework",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "cf322dc30df8": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "theo",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "no_path_within_3_hops"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": "methodology",
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "013ae8ee02d5": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "88576a2b871c": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "874efea9a47c": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "f3bec26b00bf": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": "framework",
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    },
+    "e31a64af2475": {
+      "stamp": {
+        "verification": "indirect",
+        "backend": "theo",
+        "direction": "structural_transfer",
+        "judge": "none",
+        "path": {
+          "nodes": [
+            "S-Curve Analysis",
+            "Trending to the Absurd",
+            "Cynefin Framework",
+            "Root Cause Analysis"
+          ],
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "RELATES_TO",
+            "COMPLEMENTS"
+          ]
+        }
+      },
+      "detail": {
+        "from_via": "methodology",
+        "to_via": "methodology",
+        "paths_count": 5,
+        "chosen": {
+          "labels": [
+            "Framework",
+            "Framework",
+            "Framework",
+            "Framework"
+          ],
+          "edges": [
+            "FEEDS_INTO",
+            "RELATES_TO",
+            "COMPLEMENTS"
+          ],
+          "hops": 3
+        },
+        "ms": 0
+      }
+    },
+    "0d18bca0c2f7": {
+      "stamp": {
+        "verification": "unverified",
+        "backend": "not_called",
+        "direction": "semantic_implementation",
+        "judge": "none",
+        "reason": "handle_unresolved"
+      },
+      "detail": {
+        "from_via": null,
+        "to_via": null,
+        "paths_count": 0,
+        "chosen": null,
+        "ms": 0
+      }
+    }
+  }
+}
