@@ -1022,7 +1022,7 @@ Plans:
 **Goal:** Complete the April 2025 "Algorithmic Generation of Reverse Salient Solutions" concept as an innovation Eureka engine built on strategy rather than keywords: the room's own strategic state (its reverse salient, stage, JTBD, problem type, structural holes) chooses what to look for; the two-encoder differential stays; Jev names the pairing's discovery pattern and verifies it against Theo's canon; the human reads twenty explained, verified pairs instead of a thousand raw ones; the opportunity files as a proposed claim in the ICM structure and hands off to the framework Theo recommends next. Rule: code finds, Jev judges the type, Theo proxies typed calls and interprets nothing, Larry composes, a human ratifies. Three homes (room-local engine / Theo seam / external computation), one wire shape (enums, buckets, ids). Brief: 355-BRIEF.md; origin: 355-ORIGIN-CONCEPT.md. Sequencing per brief: honesty pass first (one sign convention derived from the deck's own semantics, floors sourced or labeled unverified, naming fixes), then KG-verification spearhead, then the HSI thinking-mode Choice as the first Jev question. Scope around Phase 354's 354-17 (Jev framework-command ledger) and 354-18 (THEO-04 raw-theo-MCP bypass), not re-derive them. Spec-phase next, not plan-phase.
 **Requirements**: TBD (minted at spec time)
 **Depends on:** Phase 354 (354-17 Jev ledger, 354-18 THEO-04)
-**Plans:** 24/28 plans executed
+**Plans:** 25/28 plans executed
 
 **Next action:** `/gsd-execute-phase 355` only after Phase 354 closes (355-01 Task 1 gates on it and on a clean tree for gate.cjs, tool-router.cjs, brain-client.cjs, part8-egress-guard.cjs, doctor.cjs, scripts/jev-devtime-client.cjs). Spec `355-SPEC.md`, AI contract `355-AI-SPEC.md`, decisions `355-CONTEXT.md` (D-01..D-58), research `355-RESEARCH.md`, patterns `355-PATTERNS.md`, Nyquist `355-VALIDATION.md`. Requirements HIPS-01..HIPS-10 are minted in the plans and registered by 355-27 at close.
 
@@ -1075,7 +1075,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 
 **Wave 8** *(depends on 355-03, 355-13, 355-14, 355-23)*
 
-- [ ] 355-24-PLAN.md -- HIPS-07: measure-355-hit-rate.cjs, the unstamped baseline export, and the navigator's blind judging sitting 1 (checkpoint) [checkpoint]
+- [x] 355-24-PLAN.md -- HIPS-07: measure-355-hit-rate.cjs, the unstamped baseline export, and the navigator's blind judging sitting 1 (checkpoint) (completed 2026-09-24; 96 unstamped shown pairings across the three fixture rooms judged blind by the navigator in one continuous take, before any pairings-stamped file existed; useful 43/96, direction_ok 16/96, already_known 45/96, novel-useful (useful and not already_known) 18/96; gold verified against pairings.items.json's own sha256 and committed; navigator remark on measuring recall via a fourth research-type fixture room logged to deferred-items.md, ruling pending) [checkpoint]
 
 **Wave 9** *(depends on 355-24)*
 
