@@ -149,3 +149,74 @@ Classification: pre-existing, unrelated to Phase 267. Not referenced by
 so; the fix belongs to whoever rebaselines `DISPATCHER_CALL_NEEDLE` against
 chain.cjs's current dispatcher-call text (Phase 347's own owner) -- out of
 scope for a registration-API migration phase.
+
+## 267-07: scripts/check-tool-honesty.cjs's scanAll() does not recognize server.registerTool( call sites (phase-wide gap, not unique to this plan's files)
+
+Found while sweeping `tests/test-358-b1-surfaces.cjs` (Phase 358's own MCP-
+surface test, not a Phase 267 gate) after claim-verify.cjs's registration
+rewrite. Its A11 leg ("claim_verify row present in scanAll", "claim_read row
+present in scanAll", "every claim_verify/claim_read row has verdict OK")
+failed: `scripts/check-tool-honesty.cjs`'s `findServerToolCalls` (line 559)
+uses `const re = /server\.tool\s*\(/g;` -- it finds ONLY the removed-in-v2
+`server.tool(` call form, never `server.registerTool(`. Once a tool
+migrates, `scanAll()` silently stops reporting a row for it at all (not a
+false-negative verdict -- the row disappears from the scan entirely).
+
+This is a PHASE-WIDE gap, not something claim-verify.cjs's own migration
+introduced: it has been true since 267-06's very first `registerTool` sites
+(`tool-router.cjs`'s 11 tools, `contract-version.cjs`'s 1) and is equally
+true right now for `gate_render`/`gate_answer`/`chain_resolve`/`chain_run`
+(this plan's other three files). Nothing caught it until this specific test
+happened to assert on `scanAll()` rows for `claim_verify`/`claim_read` by
+name. `check-tool-honesty.cjs` itself runs as a pre-commit hook and reports
+"OK" throughout this plan's own commits (a shrinking tool count each time --
+"27 tool(s)" then "25 tool(s)" -- consistent with migrated tools quietly
+dropping out of its scan, not with a real reduction in registered tools).
+
+**Fixture-side fix applied** (necessary regardless, matches the established
+267-06/267-07 pattern): `tests/test-358-b1-surfaces.cjs`'s own
+`registerAndCapture` stub server gained a `registerTool` capture sibling (it
+only had `.tool()`), which alone recovered 18 of the 21 originally-broken
+assertions (from 21 failures down to 3). The remaining 3 are `scanAll()`'s
+own scanner gap, not a fixture problem.
+
+Classification: pre-existing systemic gap in a scanning tool, not a defect
+in claim-verify.cjs (or gate.cjs/chain.cjs) themselves. Not referenced by
+`tests/run-all-198.sh` or `tests/run-all-267.sh` (Phase 358 owns its own
+`tests/run-all-358.sh`); not named in 267-07-PLAN.md's `<verify>` block.
+
+**Do not fix as part of any Phase 267 plan** unless a plan explicitly says
+so; `findServerToolCalls`'s regex (and, downstream, `extractHandlerBody`'s
+4th-positional-argument assumption) needs real rework to recognize the
+3-argument `registerTool(name, config, handler)` form and pull description/
+handler out of `config`, not a drive-by regex tweak inside a registration-
+rewrite plan -- this belongs to whichever later Phase 267 plan finishes the
+51-site migration (or a dedicated tool-honesty-scanner update), so the fix
+lands once, against the FINAL post-migration call shape, not repeatedly as
+each file migrates.
+
+## 267-07: pre-existing EVENT_TYPES.size drift in test-353-filing-gate.cjs (unrelated to registration API)
+
+Found while sweeping every test file requiring `lib/mcp/tools/claim.cjs`
+before migrating it. `tests/test-353-filing-gate.cjs` line 143 asserts
+`memoryEvents.EVENT_TYPES.size === 102`; the live value is 104. This is a
+plain hardcoded-count drift in `lib/core/navigation/memory-events.cjs`'s
+`EVENT_TYPES` frozen Set (two new event-type string literals landed via
+later phases -- Phase 354/355/358 are the likely source, matching the new
+`cross_connection_gate_outcome` and similar event types seen elsewhere in
+this plan's own read of gate.cjs), nothing to do with `server.tool(` vs
+`server.registerTool(`. Confirmed unrelated to this plan's own scope: this
+test requires `claim.cjs`, which had not yet been touched by this session
+when the drift was first observed (checked before Task 2's claim.cjs
+commit), and the failing assertion itself never inspects a tool
+registration at all -- only a Set's `.size`.
+
+Classification: pre-existing, unrelated to Phase 267. Not referenced by
+`tests/run-all-198.sh` or `tests/run-all-267.sh`; not named in
+267-07-PLAN.md's `<verify>` block.
+
+**Do not fix as part of any Phase 267 plan** unless a plan explicitly says
+so; the fix (bump the hardcoded 102 to the current true count, or name
+which new EVENT_TYPES members were added and by which phase) belongs to
+whoever owns `test-353-filing-gate.cjs` and `memory-events.cjs`'s own
+EVENT_TYPES ledger -- out of scope for a registration-API migration phase.

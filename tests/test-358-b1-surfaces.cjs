@@ -141,6 +141,19 @@ function registerAndCapture(roomDir) {
     tool: (name, description, schema, handler) => {
       captured.set(name, { description, schema, handler });
     },
+    // Phase 267-07: claim-verify.cjs (and gate.cjs / chain.cjs / contract-
+    // version.cjs before it) now calls server.registerTool(name, {title,
+    // description, inputSchema}, handler) (v2 registration API) instead of
+    // the removed-in-v2 tool(name, desc, shape, handler). Capture the same
+    // {description, schema, handler} shape the tool() arm above builds --
+    // .shape unwraps inputSchema's raw ZodRawShape (a ZodObject's own
+    // .shape getter) back to the pre-migration schema value this file's own
+    // `z.object(verifyReg.schema)` reconstruction (A2) requires unchanged.
+    registerTool: (name, config, handler) => {
+      const cfg = config || {};
+      const schema = (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {};
+      captured.set(name, { description: cfg.description, schema, handler });
+    },
     server: { getClientVersion: () => currentClient },
   };
   registerCoreTools(stubServer, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'desktop' });
