@@ -157,6 +157,11 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 // its final intercept. Pure LOCAL string work, never throws (Part 8).
 const gateRelevance = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
 
+// Phase 359-03 (FORK359-04, D-06 to D-10, N-3): the fork declaration parser.
+// Pure LOCAL string work, never throws. deriveTurnSignals below is the ONLY
+// call site of parseForkDeclaration (A13 tripwire: exactly one call).
+const forkDeclaration = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'fork-declaration.cjs'));
+
 // Phase 298-03: the transcript reader (readTranscriptTurn/readTranscriptTail plus the
 // four helper functions it used) moved to lib/hmi/turn-text.cjs, the single transcript
 // reader shared with a later Stop-hook consumer (298-07). This file keeps
@@ -441,6 +446,27 @@ function gateSignature(outputText) {
 //   transcript-length value (CR-02 / CR-03). A growing value is UNREACHABLE as the key.
 // Part 8: a local sha256 over local stable identity scalars; never egresses.
 // ---------------------------------------------------------------------------
+// declaredIdentity(turn) -- Phase 359-03 (FORK359-04/07, D-08, D-10, Finding 5,
+// RESEARCH Code Example 3). The retry-key / dedup identity for a DECLARED
+// fork, distinct from gate_signature (which is '' for pure prose with no
+// glyph and no bracket labels -- Finding 5's MCP dedup-collision defect), so
+// two distinct declared forks in one session never share a counter or a
+// dedup key. '' when the turn does not carry a declaration, so turnContextHash
+// and the MCP dedup subject both fall back to their existing behavior
+// unchanged (D-08: non-declared keys stay byte-identical). NFKC-normalize,
+// lowercase, collapse whitespace and trim each label before sorting and
+// joining, so label order, case and incidental whitespace never flap the
+// identity while a genuinely different label set still produces a different
+// one. Pure local string work; never throws.
+// ---------------------------------------------------------------------------
+function declaredIdentity(turn) {
+  const t = turn && typeof turn === 'object' ? turn : {};
+  if (t.fork_declared !== true || !Array.isArray(t.declared_labels) || t.declared_labels.length === 0) return '';
+  const normalized = t.declared_labels.map(function (l) {
+    return String(l).normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+  }).sort();
+  return 'decl:' + normalized.join(',');
+}
 function turnContextHash(turn) {
   const t = turn && typeof turn === 'object' ? turn : {};
   const session = typeof t.session_id === 'string' ? t.session_id : '';
@@ -458,9 +484,16 @@ function turnContextHash(turn) {
   // DEGENERATE FLOOR (gateIdentity empty): key on session_id ALONE. This always converges (any
   // consecutive intercept in the session increments the same counter). It is NEVER a growing
   // value -- the assistantCount / gate_turn_index fallback is DELETED.
+  // Phase 359-03 (D-08): a declared turn's key additionally carries the
+  // declared-label identity (declaredIdentity), so a declared fork never
+  // collides with an undeclared gate sharing the same gate identity, and two
+  // DIFFERENT declared forks in the same session get different keys. '' for a
+  // non-declared turn, so the hashed input string below is then byte-
+  // identical to the pre-359 input (A8's undeclared-matrix leg proves it).
+  const decl = declaredIdentity(t);
   return crypto
     .createHash('sha256')
-    .update('s:' + session + '|g:' + gateIdentity)
+    .update('s:' + session + '|g:' + gateIdentity + (decl ? '|' + decl : ''))
     .digest('hex')
     .slice(0, 16);
 }
@@ -542,9 +575,34 @@ function classifyCardFire(turn, registry) {
     // cue nearby, so a benign Action Footer / step-by-step list no longer force-fires.
     const backstopHit = computeBackstopHit(outputText);
 
-    if (!primaryHit && !backstopHit) {
+    // ANCHOR fork359-declared-arm (mutation M1 in tests/test-359-replay.cjs edits the next line)
+    const forkDeclared = t.fork_declared === true && Array.isArray(t.declared_labels) && t.declared_labels.length >= forkDeclaration.MIN_LABELS;
+    if (!primaryHit && !backstopHit && !forkDeclared) {
       // No gate-reaching signal on this turn -> zero forced cards (ordinary turn).
       return { intercept: false, reason: 'no-gate-signal', degrade: false };
+    }
+
+    // Phase 359-03 (D-06, D-07, N-3, SPEC R4): the DECLARED-FORK arm. A turn
+    // whose final text carried a valid N-3 declaration is owned by this arm
+    // UNCONDITIONALLY -- it wins over a stale/irrelevant PRIMARY hit on the
+    // SAME turn (D-07) and skips every "was there really a gate here" check
+    // below (backstop-uncorroborated-by-side-channel, primary-gate-existence-
+    // unconfirmed, preceding-turn-synthetic-no-user-engagement, gate-
+    // irrelevant-to-turn, gate-already-answered): Larry SAID this turn posed a
+    // fork, so none of those checks apply. Only the two bounded-escape
+    // ceilings (reused verbatim, never re-declared -- D-06 step 5) and the
+    // yes/no exemption still apply. N-3: the exemption reads the PRACTICAL
+    // labels only (the final What-if moonshot excluded), since every
+    // declaration carries a moonshot and isYesNoShapedGate requires exactly 2
+    // labels.
+    if (forkDeclared) {
+      const declSessionCount = Number.isFinite(t.session_count) ? t.session_count : 0;
+      if (declSessionCount >= MAX_SESSION_INTERCEPTS) return { intercept: false, degrade: true, reason: 'session-intercept-ceiling-reached-after-' + MAX_SESSION_INTERCEPTS + '-intercepts' };
+      const declRetryCount = Number.isFinite(t.retry_count) ? t.retry_count : 0;
+      if (declRetryCount >= MAX_FORCE_RETRIES) return { intercept: false, degrade: true, reason: 'bounded-escape-released-after-' + MAX_FORCE_RETRIES + '-retries' };
+      const practicalLabels = t.declared_labels.slice(0, -1).map(gateRelevance.normalizeOptionLabel);
+      if (gateRelevance.isYesNoShapedGate(practicalLabels)) return { intercept: false, reason: 'gate-is-simple-binary', degrade: false };
+      return { intercept: true, reason: 'declared-fork-no-card', degrade: false };
     }
 
     // Phase 238-08 (GATE-04, D-15): the backstop-corroboration gate. `238-RESEARCH.md`
@@ -1437,6 +1495,14 @@ function readTranscriptTurn(transcriptPath) {
   // gate-identifying content (Part 8: a sha256 hash, the raw message text never leaves this
   // function). Growth-invariant, per-gate, present whenever a gate is detected.
   const gateSig = gateSignature(turn.output_text);
+  // Phase 359-03 (D-10, Pattern 1, Pitfall 1): decl_source_text -- the text of
+  // the LAST assistant message in the CURRENT-TURN window (turn.assistant_contents,
+  // already reset at every role:user record) whose extracted text is non-empty.
+  // Deliberately NOT output_text: readTurnText never resets lastAssistantText
+  // at a user boundary, so output_text can be a PREVIOUS turn's text, which
+  // would re-fire a stale declaration. Reuses the SAME readTurnText result
+  // above; the transcript is never read twice.
+  const declSourceText = turn.assistant_contents.map(turnText.extractAssistantText).filter(function (s) { return s; }).pop() || '';
   return {
     output_text: turn.output_text,
     askuserquestion_fired: askFired,
@@ -1444,6 +1510,7 @@ function readTranscriptTurn(transcriptPath) {
     preceding_user_text: turn.preceding_user_text,
     preceding_user_text_source: turn.preceding_user_text_source,
     preceding_user_is_meta: turn.preceding_user_is_meta,
+    decl_source_text: declSourceText,
   };
 }
 
@@ -1610,6 +1677,21 @@ function deriveTurnSignals(env) {
     txn = readTranscriptTurn(e.transcript_path);
   }
 
+  // Phase 359-03 (D-10, Pattern 1, Pitfall 1): the declaration source is a
+  // SEPARATE precedence chain from directText above -- a direct output_text,
+  // else the live Stop stdin's own last_assistant_message field (the docs-
+  // recommended "final text of THIS turn" field, distinct from the legacy
+  // last_assistant_text unit-test field directText reads), else the parsed
+  // transcript's current-window decl_source_text. Reuses txn when it was
+  // already parsed above; only parses a second time if it was not (never
+  // reads the transcript more than once per actual need).
+  const directDeclSource = typeof e.output_text === 'string' ? e.output_text
+    : (typeof e.last_assistant_message === 'string' ? e.last_assistant_message : null);
+  let declTxn = txn;
+  if (directDeclSource === null && declTxn === null && typeof e.transcript_path === 'string') declTxn = readTranscriptTurn(e.transcript_path);
+  const declSource = directDeclSource !== null ? directDeclSource : (declTxn ? declTxn.decl_source_text : '');
+  const decl = forkDeclaration.parseForkDeclaration(declSource);
+
   const outputText = directText !== null ? directText : (txn ? txn.output_text : '');
   const askFired = directAsk || (txn ? txn.askuserquestion_fired : false);
   // CR-03 / WR-07: the transcript-growth-invariant, per-gate retry anchor. Precedence:
@@ -1680,6 +1762,11 @@ function deriveTurnSignals(env) {
     // an uncorroborated backstop hit on a healthy side channel should intercept.
     sidechannel_health: sidechannelHealth,
     reach_corroborated: reachCorroborated,
+    // Phase 359-03 (D-06, D-10, N-3): the declared-fork signal. Ignores any
+    // direct fork_declared/declared_labels field on the envelope (T-359-11,
+    // A11) -- a declaration is derived from THIS turn's own text ONLY.
+    fork_declared: decl.declared === true,
+    declared_labels: decl.declared === true ? decl.labels.slice() : [],
   };
 }
 
@@ -1783,6 +1870,7 @@ module.exports = {
   gateReachingEntries,
   gateSignature,
   turnContextHash,
+  declaredIdentity,
   deriveTurnSignals,
   consumeReachedGatesForVerdict,
   readTranscriptTurn,
