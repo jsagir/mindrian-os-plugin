@@ -89,7 +89,7 @@ const MODE_DROP_BP_THRESHOLD = 500; // D-45: 5 recall points, in basis points
 // ---------------------------------------------------------------------------
 const MODE_PATTERN_MIRROR = Object.freeze({
   analytical: /\b(because|therefore|consequently|evidence|data|measure|quantif|statistic|analyz|assess|evaluat|compar)\w*\b/gi,
-  integrative: /\b(connect|bridge|synthes|combin|integrat|cross|interdisciplin|convergence|fusion|hybrid|anolog|metaphor|transfer)\w*\b/gi,
+  integrative: /\b(connect|bridge|synthes|combin|integrat|cross|interdisciplin|convergence|fusion|hybrid|analog|metaphor|transfer)\w*\b/gi,
   descriptive: /\b(is|are|was|were|has|have|consist|compris|includ|contain|describ|defin|refer|represent)\w*\b/gi,
   evaluative: /\b(should|must|better|worse|risk|opportunit|strength|weakness|advantage|disadvantage|critical|important|significant)\w*\b/gi,
   creative: /\b(novel|innovati|reimagin|redefin|what.if|could|might|envision|transform|disrupt|pioneer|breakthrough|radical)\w*\b/gi,

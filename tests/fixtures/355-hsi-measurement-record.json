@@ -1,0 +1,937 @@
+{
+  "measured_at": "2026-09-24T04:54:07.149Z",
+  "jev_model": "jev-1.13.0",
+  "calls": 135,
+  "non_200": 0,
+  "input_tokens": 101730,
+  "cost_usd_estimate": 0.00427266,
+  "question_sha256": "3ad28aae0121ee583a974c097c14394544bba3d4c874506b2a4ac96f54a98a63",
+  "fixture_sha256": "1899a5fcac518ac54f76ddd5a97efd7dc69bb523693fdca2b1fbcdb0f7de96cd",
+  "gold_labeled_at": "2026-09-24T04:33:11.960Z",
+  "repeats": [
+    {
+      "n": 45,
+      "full_accuracy": {
+        "jev": 4222,
+        "regex": null
+      },
+      "subset5_accuracy": {
+        "n": 45,
+        "jev": 4222,
+        "regex": null
+      },
+      "recall_by_mode": {
+        "jev": {
+          "analytical": {
+            "correct": 3,
+            "total": 7,
+            "accuracy_bp": 4286
+          },
+          "integrative": {
+            "correct": 2,
+            "total": 10,
+            "accuracy_bp": 2000
+          },
+          "descriptive": {
+            "correct": 5,
+            "total": 10,
+            "accuracy_bp": 5000
+          },
+          "evaluative": {
+            "correct": 4,
+            "total": 7,
+            "accuracy_bp": 5714
+          },
+          "creative": {
+            "correct": 5,
+            "total": 11,
+            "accuracy_bp": 4545
+          },
+          "none": {
+            "correct": 0,
+            "total": 0,
+            "accuracy_bp": null,
+            "note": "no gold examples"
+          }
+        },
+        "regex": null
+      },
+      "confusion": {
+        "jev": {
+          "labels": [
+            "analytical",
+            "integrative",
+            "descriptive",
+            "evaluative",
+            "creative",
+            "none"
+          ],
+          "matrix": [
+            [
+              3,
+              1,
+              3,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              2,
+              3,
+              2,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              5,
+              2,
+              0,
+              3
+            ],
+            [
+              0,
+              0,
+              2,
+              4,
+              0,
+              1
+            ],
+            [
+              1,
+              3,
+              1,
+              1,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "regex": null
+      },
+      "confidence_slices": {
+        "ge_0_9": {
+          "n": 27,
+          "accuracy": 5185
+        },
+        "lt_0_9": {
+          "n": 18,
+          "accuracy": 2778
+        }
+      },
+      "regex_descriptive_share": null,
+      "regex_zero_match_fallbacks": null,
+      "item_correct": {
+        "jev": {
+          "s001": true,
+          "s004": false,
+          "s011": false,
+          "s015": false,
+          "s016": true,
+          "s020": false,
+          "s022": true,
+          "s025": true,
+          "s027": false,
+          "s030": false,
+          "s031": false,
+          "s034": false,
+          "s040": true,
+          "s045": true,
+          "s047": false,
+          "s049": false,
+          "s050": true,
+          "s051": false,
+          "s054": false,
+          "s059": false,
+          "s060": false,
+          "s061": false,
+          "s062": false,
+          "s064": true,
+          "s067": false,
+          "s074": true,
+          "s075": false,
+          "s077": true,
+          "s083": true,
+          "s087": false,
+          "s088": true,
+          "s092": true,
+          "s095": false,
+          "s096": true,
+          "s099": true,
+          "s100": false,
+          "s101": true,
+          "s102": true,
+          "s111": false,
+          "s113": true,
+          "s116": false,
+          "s118": false,
+          "s119": false,
+          "s128": true,
+          "s129": false
+        },
+        "regex": null
+      }
+    },
+    {
+      "n": 45,
+      "full_accuracy": {
+        "jev": 4222,
+        "regex": null
+      },
+      "subset5_accuracy": {
+        "n": 45,
+        "jev": 4222,
+        "regex": null
+      },
+      "recall_by_mode": {
+        "jev": {
+          "analytical": {
+            "correct": 3,
+            "total": 7,
+            "accuracy_bp": 4286
+          },
+          "integrative": {
+            "correct": 2,
+            "total": 10,
+            "accuracy_bp": 2000
+          },
+          "descriptive": {
+            "correct": 5,
+            "total": 10,
+            "accuracy_bp": 5000
+          },
+          "evaluative": {
+            "correct": 4,
+            "total": 7,
+            "accuracy_bp": 5714
+          },
+          "creative": {
+            "correct": 5,
+            "total": 11,
+            "accuracy_bp": 4545
+          },
+          "none": {
+            "correct": 0,
+            "total": 0,
+            "accuracy_bp": null,
+            "note": "no gold examples"
+          }
+        },
+        "regex": null
+      },
+      "confusion": {
+        "jev": {
+          "labels": [
+            "analytical",
+            "integrative",
+            "descriptive",
+            "evaluative",
+            "creative",
+            "none"
+          ],
+          "matrix": [
+            [
+              3,
+              1,
+              3,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              2,
+              3,
+              2,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              5,
+              2,
+              0,
+              3
+            ],
+            [
+              0,
+              0,
+              2,
+              4,
+              0,
+              1
+            ],
+            [
+              1,
+              3,
+              1,
+              1,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "regex": null
+      },
+      "confidence_slices": {
+        "ge_0_9": {
+          "n": 28,
+          "accuracy": 5000
+        },
+        "lt_0_9": {
+          "n": 17,
+          "accuracy": 2941
+        }
+      },
+      "regex_descriptive_share": null,
+      "regex_zero_match_fallbacks": null,
+      "item_correct": {
+        "jev": {
+          "s001": true,
+          "s004": false,
+          "s011": false,
+          "s015": false,
+          "s016": true,
+          "s020": false,
+          "s022": true,
+          "s025": true,
+          "s027": false,
+          "s030": false,
+          "s031": false,
+          "s034": false,
+          "s040": true,
+          "s045": true,
+          "s047": false,
+          "s049": false,
+          "s050": true,
+          "s051": false,
+          "s054": false,
+          "s059": false,
+          "s060": false,
+          "s061": false,
+          "s062": false,
+          "s064": true,
+          "s067": false,
+          "s074": true,
+          "s075": false,
+          "s077": true,
+          "s083": true,
+          "s087": false,
+          "s088": true,
+          "s092": true,
+          "s095": false,
+          "s096": true,
+          "s099": true,
+          "s100": false,
+          "s101": true,
+          "s102": true,
+          "s111": false,
+          "s113": true,
+          "s116": false,
+          "s118": false,
+          "s119": false,
+          "s128": true,
+          "s129": false
+        },
+        "regex": null
+      }
+    },
+    {
+      "n": 45,
+      "full_accuracy": {
+        "jev": 4444,
+        "regex": null
+      },
+      "subset5_accuracy": {
+        "n": 45,
+        "jev": 4444,
+        "regex": null
+      },
+      "recall_by_mode": {
+        "jev": {
+          "analytical": {
+            "correct": 3,
+            "total": 7,
+            "accuracy_bp": 4286
+          },
+          "integrative": {
+            "correct": 2,
+            "total": 10,
+            "accuracy_bp": 2000
+          },
+          "descriptive": {
+            "correct": 6,
+            "total": 10,
+            "accuracy_bp": 6000
+          },
+          "evaluative": {
+            "correct": 4,
+            "total": 7,
+            "accuracy_bp": 5714
+          },
+          "creative": {
+            "correct": 5,
+            "total": 11,
+            "accuracy_bp": 4545
+          },
+          "none": {
+            "correct": 0,
+            "total": 0,
+            "accuracy_bp": null,
+            "note": "no gold examples"
+          }
+        },
+        "regex": null
+      },
+      "confusion": {
+        "jev": {
+          "labels": [
+            "analytical",
+            "integrative",
+            "descriptive",
+            "evaluative",
+            "creative",
+            "none"
+          ],
+          "matrix": [
+            [
+              3,
+              1,
+              3,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              2,
+              3,
+              2,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              6,
+              1,
+              0,
+              3
+            ],
+            [
+              0,
+              0,
+              2,
+              4,
+              0,
+              1
+            ],
+            [
+              1,
+              3,
+              1,
+              1,
+              5,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "regex": null
+      },
+      "confidence_slices": {
+        "ge_0_9": {
+          "n": 28,
+          "accuracy": 5000
+        },
+        "lt_0_9": {
+          "n": 17,
+          "accuracy": 3529
+        }
+      },
+      "regex_descriptive_share": null,
+      "regex_zero_match_fallbacks": null,
+      "item_correct": {
+        "jev": {
+          "s001": true,
+          "s004": false,
+          "s011": false,
+          "s015": false,
+          "s016": true,
+          "s020": false,
+          "s022": true,
+          "s025": true,
+          "s027": false,
+          "s030": false,
+          "s031": false,
+          "s034": false,
+          "s040": true,
+          "s045": true,
+          "s047": false,
+          "s049": false,
+          "s050": true,
+          "s051": false,
+          "s054": false,
+          "s059": false,
+          "s060": true,
+          "s061": false,
+          "s062": false,
+          "s064": true,
+          "s067": false,
+          "s074": true,
+          "s075": false,
+          "s077": true,
+          "s083": true,
+          "s087": false,
+          "s088": true,
+          "s092": true,
+          "s095": false,
+          "s096": true,
+          "s099": true,
+          "s100": false,
+          "s101": true,
+          "s102": true,
+          "s111": false,
+          "s113": true,
+          "s116": false,
+          "s118": false,
+          "s119": false,
+          "s128": true,
+          "s129": false
+        },
+        "regex": null
+      }
+    }
+  ],
+  "regex_prefix": {
+    "n": 45,
+    "full_accuracy": {
+      "jev": null,
+      "regex": 4889
+    },
+    "subset5_accuracy": {
+      "n": 45,
+      "jev": null,
+      "regex": 4889
+    },
+    "recall_by_mode": {
+      "jev": null,
+      "regex": {
+        "analytical": {
+          "correct": 3,
+          "total": 7,
+          "accuracy_bp": 4286
+        },
+        "integrative": {
+          "correct": 2,
+          "total": 10,
+          "accuracy_bp": 2000
+        },
+        "descriptive": {
+          "correct": 7,
+          "total": 10,
+          "accuracy_bp": 7000
+        },
+        "evaluative": {
+          "correct": 3,
+          "total": 7,
+          "accuracy_bp": 4286
+        },
+        "creative": {
+          "correct": 7,
+          "total": 11,
+          "accuracy_bp": 6364
+        },
+        "none": {
+          "correct": 0,
+          "total": 0,
+          "accuracy_bp": null,
+          "note": "no gold examples"
+        }
+      }
+    },
+    "confusion": {
+      "jev": null,
+      "regex": {
+        "labels": [
+          "analytical",
+          "integrative",
+          "descriptive",
+          "evaluative",
+          "creative",
+          "none"
+        ],
+        "matrix": [
+          [
+            3,
+            1,
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            2,
+            4,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            7,
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            3,
+            1,
+            0
+          ],
+          [
+            0,
+            2,
+            2,
+            0,
+            7,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "confidence_slices": {
+      "ge_0_9": {
+        "n": 0,
+        "accuracy": null
+      },
+      "lt_0_9": {
+        "n": 0,
+        "accuracy": null
+      }
+    },
+    "regex_descriptive_share": 4222,
+    "regex_zero_match_fallbacks": 10,
+    "item_correct": {
+      "jev": null,
+      "regex": {
+        "s001": true,
+        "s004": false,
+        "s011": false,
+        "s015": false,
+        "s016": true,
+        "s020": false,
+        "s022": true,
+        "s025": true,
+        "s027": false,
+        "s030": false,
+        "s031": false,
+        "s034": false,
+        "s040": false,
+        "s045": false,
+        "s047": false,
+        "s049": false,
+        "s050": true,
+        "s051": false,
+        "s054": true,
+        "s059": false,
+        "s060": false,
+        "s061": false,
+        "s062": false,
+        "s064": true,
+        "s067": false,
+        "s074": true,
+        "s075": false,
+        "s077": true,
+        "s083": true,
+        "s087": false,
+        "s088": false,
+        "s092": true,
+        "s095": true,
+        "s096": true,
+        "s099": true,
+        "s100": true,
+        "s101": true,
+        "s102": true,
+        "s111": true,
+        "s113": true,
+        "s116": false,
+        "s118": true,
+        "s119": false,
+        "s128": true,
+        "s129": true
+      }
+    }
+  },
+  "regex_postfix": {
+    "n": 45,
+    "full_accuracy": {
+      "jev": null,
+      "regex": 4889
+    },
+    "subset5_accuracy": {
+      "n": 45,
+      "jev": null,
+      "regex": 4889
+    },
+    "recall_by_mode": {
+      "jev": null,
+      "regex": {
+        "analytical": {
+          "correct": 3,
+          "total": 7,
+          "accuracy_bp": 4286
+        },
+        "integrative": {
+          "correct": 2,
+          "total": 10,
+          "accuracy_bp": 2000
+        },
+        "descriptive": {
+          "correct": 7,
+          "total": 10,
+          "accuracy_bp": 7000
+        },
+        "evaluative": {
+          "correct": 3,
+          "total": 7,
+          "accuracy_bp": 4286
+        },
+        "creative": {
+          "correct": 7,
+          "total": 11,
+          "accuracy_bp": 6364
+        },
+        "none": {
+          "correct": 0,
+          "total": 0,
+          "accuracy_bp": null,
+          "note": "no gold examples"
+        }
+      }
+    },
+    "confusion": {
+      "jev": null,
+      "regex": {
+        "labels": [
+          "analytical",
+          "integrative",
+          "descriptive",
+          "evaluative",
+          "creative",
+          "none"
+        ],
+        "matrix": [
+          [
+            3,
+            1,
+            3,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            2,
+            4,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            7,
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            3,
+            1,
+            0
+          ],
+          [
+            0,
+            2,
+            2,
+            0,
+            7,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "confidence_slices": {
+      "ge_0_9": {
+        "n": 0,
+        "accuracy": null
+      },
+      "lt_0_9": {
+        "n": 0,
+        "accuracy": null
+      }
+    },
+    "regex_descriptive_share": 4222,
+    "regex_zero_match_fallbacks": 10,
+    "item_correct": {
+      "jev": null,
+      "regex": {
+        "s001": true,
+        "s004": false,
+        "s011": false,
+        "s015": false,
+        "s016": true,
+        "s020": false,
+        "s022": true,
+        "s025": true,
+        "s027": false,
+        "s030": false,
+        "s031": false,
+        "s034": false,
+        "s040": false,
+        "s045": false,
+        "s047": false,
+        "s049": false,
+        "s050": true,
+        "s051": false,
+        "s054": true,
+        "s059": false,
+        "s060": false,
+        "s061": false,
+        "s062": false,
+        "s064": true,
+        "s067": false,
+        "s074": true,
+        "s075": false,
+        "s077": true,
+        "s083": true,
+        "s087": false,
+        "s088": false,
+        "s092": true,
+        "s095": true,
+        "s096": true,
+        "s099": true,
+        "s100": true,
+        "s101": true,
+        "s102": true,
+        "s111": true,
+        "s113": true,
+        "s116": false,
+        "s118": true,
+        "s119": false,
+        "s128": true,
+        "s129": true
+      }
+    }
+  },
+  "bar": {
+    "cleared": false,
+    "per_repeat": [
+      {
+        "repeat": 1,
+        "gap_bp": -667,
+        "mode_drops": [
+          {
+            "mode": "descriptive",
+            "drop_bp": 2000
+          },
+          {
+            "mode": "creative",
+            "drop_bp": 1819
+          }
+        ],
+        "cleared": false
+      },
+      {
+        "repeat": 2,
+        "gap_bp": -667,
+        "mode_drops": [
+          {
+            "mode": "descriptive",
+            "drop_bp": 2000
+          },
+          {
+            "mode": "creative",
+            "drop_bp": 1819
+          }
+        ],
+        "cleared": false
+      },
+      {
+        "repeat": 3,
+        "gap_bp": -445,
+        "mode_drops": [
+          {
+            "mode": "descriptive",
+            "drop_bp": 1000
+          },
+          {
+            "mode": "creative",
+            "drop_bp": 1819
+          }
+        ],
+        "cleared": false
+      }
+    ],
+    "reason": "not cleared: bar not met on any repeat",
+    "flip_count": null,
+    "skipped_modes": [
+      "none"
+    ]
+  },
+  "bar_baseline": "regex_postfix",
+  "decision": "pending_signoff",
+  "signed_off_by": null,
+  "signed_off_at": null
+}

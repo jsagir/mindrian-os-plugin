@@ -1,0 +1,3062 @@
+{
+  "735c347a354df9ae35f9a53800a608c2c57997c68edf0eb3c1932f3e8dad5ed9": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "none": 0,
+            "descriptive": 0.33,
+            "evaluative": 0.01,
+            "integrative": 0,
+            "analytical": 0.66,
+            "creative": 0
+          },
+          "confidence": 0.59
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.01,
+            "integrative": 0,
+            "descriptive": 0.35,
+            "analytical": 0.64,
+            "creative": 0
+          },
+          "confidence": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0.01,
+            "creative": 0,
+            "none": 0,
+            "analytical": 0.65,
+            "descriptive": 0.34,
+            "integrative": 0
+          },
+          "confidence": 0.58
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "e3f7dd262d48293955105249828285b02cd954d1188ab0c7e19b662345806d9a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "descriptive": 0.01,
+            "analytical": 0.99
+          },
+          "confidence": 0.99
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "descriptive": 0.01,
+            "analytical": 0.99,
+            "evaluative": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "descriptive": 0.01,
+            "analytical": 0.99,
+            "evaluative": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "e64cce6e00684f305df813f144421a56ec67a67afdc64b9456faa10238fd7548": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 0.02,
+            "analytical": 0.98
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "analytical": 0.97,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 0.03,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "analytical": 0.98,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 0.02
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "560ad3b5db7abae99a5108e9e69062220f35295124fc0e8730b8ea2971769b24": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 1,
+            "creative": 0,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "analytical": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "901d8331640995c55dc2c86fa6dfeef48dd2f289795ce3d346832a03077a3feb": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0,
+            "integrative": 0,
+            "none": 0,
+            "analytical": 0.9,
+            "descriptive": 0.1,
+            "creative": 0
+          },
+          "confidence": 0.88
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "descriptive": 0.1,
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0.9,
+            "creative": 0
+          },
+          "confidence": 0.87
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "descriptive": 0.15,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0.85,
+            "creative": 0,
+            "none": 0
+          },
+          "confidence": 0.81
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "d8c2df45029c2122ec4909f94db3db220facbd142aa3261b7a3b31b1ba06b00e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0,
+            "descriptive": 0.21,
+            "none": 0,
+            "analytical": 0.79,
+            "creative": 0,
+            "integrative": 0
+          },
+          "confidence": 0.75
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 0.21,
+            "analytical": 0.79
+          },
+          "confidence": 0.75
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "analytical": 0.78,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 0.22
+          },
+          "confidence": 0.73
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "7cfc1b896d986d7502cd8750cf9ec5cb6e897618d31a12df8301306076e00f37": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "integrative": 0.98,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0,
+            "descriptive": 0.02,
+            "evaluative": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0.98,
+            "analytical": 0,
+            "descriptive": 0.02,
+            "creative": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "none": 0,
+            "descriptive": 0.01,
+            "analytical": 0,
+            "integrative": 0.99,
+            "evaluative": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "0ddfac7b030ac88c9ea7283f4b55d46f47acdbe032b640632785dbd92b62f2ba": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "descriptive": 0,
+            "integrative": 1,
+            "evaluative": 0,
+            "creative": 0,
+            "analytical": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 757,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 1,
+            "creative": 0,
+            "descriptive": 0,
+            "analytical": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 757,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "none": 0,
+            "descriptive": 0,
+            "analytical": 0,
+            "evaluative": 0,
+            "integrative": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 757,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "093be882e2e201c990d9ea44b390a16e56c218f3111f6156b0d99234f6f87c78": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "analytical": 0.06,
+            "evaluative": 0,
+            "descriptive": 0.09,
+            "integrative": 0.85,
+            "creative": 0,
+            "none": 0
+          },
+          "confidence": 0.82
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "descriptive": 0.09,
+            "evaluative": 0,
+            "integrative": 0.85,
+            "creative": 0,
+            "analytical": 0.06
+          },
+          "confidence": 0.81
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0.06,
+            "integrative": 0.85,
+            "descriptive": 0.09,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 0.81
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "f3e4d8be21f9b88682efc47b906c33248b6405dbbc1c1ebe0b64eb80054d7ce5": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "integrative": 0,
+            "descriptive": 0.04,
+            "analytical": 0.96,
+            "creative": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 0.95
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "evaluative": 0,
+            "analytical": 0.98,
+            "none": 0,
+            "integrative": 0,
+            "creative": 0,
+            "descriptive": 0.02
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "analytical",
+          "probabilities": {
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0.98,
+            "creative": 0,
+            "descriptive": 0.02
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "31ed9f09a90e256b29ced5d9dc3e2092dfd9adca78da73ba5e932f45fda68ef2": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "evaluative": 0,
+            "integrative": 1,
+            "none": 0,
+            "analytical": 0,
+            "descriptive": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 1,
+            "analytical": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "analytical": 0,
+            "evaluative": 0,
+            "integrative": 1,
+            "descriptive": 0,
+            "creative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "383fc69ff96e7ccc069d3688d37e165e0497f8801c991a4a2cefca86ecfc3818": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "descriptive": 0,
+            "integrative": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 760,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 0,
+            "none": 0,
+            "integrative": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 760,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 1,
+            "descriptive": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 760,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "785f41db14cd3526d22ebb0df0bd556069bfc1e32f7e10293ff24fc1aa69d136": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "integrative": 0.87,
+            "evaluative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 0.13
+          },
+          "confidence": 0.84
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0.88,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 0.12
+          },
+          "confidence": 0.86
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "integrative",
+          "probabilities": {
+            "descriptive": 0.11,
+            "evaluative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "integrative": 0.89,
+            "none": 0
+          },
+          "confidence": 0.86
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 69
+      }
+    }
+  ],
+  "0252f072c180b4b12ddbee487b752fec3715e407396fa293e059f1d3044eeae8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.76,
+            "integrative": 0,
+            "evaluative": 0.24,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0
+          },
+          "confidence": 0.7
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.74,
+            "evaluative": 0.26,
+            "creative": 0,
+            "none": 0,
+            "analytical": 0,
+            "integrative": 0
+          },
+          "confidence": 0.69
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.77,
+            "none": 0,
+            "evaluative": 0.23,
+            "integrative": 0,
+            "analytical": 0,
+            "creative": 0
+          },
+          "confidence": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "ebc5b0ce2d794bf394e911d001402971ef8eb8afb6f90aecae607bc4bf48f32f": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0,
+            "none": 0,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "integrative": 0,
+            "descriptive": 1,
+            "analytical": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "60a49e45ee74ac0d8f49f57de9563adfe8f84713ad5f616338955979db3ff96c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0.17,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0.12,
+            "descriptive": 0.71
+          },
+          "confidence": 0.64
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "integrative": 0,
+            "descriptive": 0.65,
+            "analytical": 0.2,
+            "creative": 0,
+            "evaluative": 0.15,
+            "none": 0
+          },
+          "confidence": 0.58
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0.13,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 0.7,
+            "analytical": 0.17
+          },
+          "confidence": 0.63
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "788e94cc32b64a923a664d9475aa5798798f73e5e035fb58855a5f8ed3d237fc": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "0c16e55554513c76d744cdcfd0dc0ccce7766634542a86893350564abaa50954": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "integrative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 0.67,
+            "none": 0,
+            "evaluative": 0.33
+          },
+          "confidence": 0.6
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 0.72,
+            "integrative": 0,
+            "evaluative": 0.28
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "integrative": 0,
+            "descriptive": 0.73,
+            "evaluative": 0.27,
+            "creative": 0,
+            "analytical": 0,
+            "none": 0
+          },
+          "confidence": 0.67
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "e53748c52bbc5399d28e6277db7cef6f0196d5079b90d3d1785cb9f45de7699e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "evaluative": 0.41,
+            "descriptive": 0.59,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "descriptive": 0.59,
+            "evaluative": 0.41,
+            "none": 0
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0.42,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 0.58,
+            "analytical": 0
+          },
+          "confidence": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "720e2cef3347d8233b244fd303e23da07c8b716be1f8d2875708cc179b82ff94": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0,
+            "none": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "db62f24a9920beaf1c470fc130f227154894333388454fa8215dcf29d8e8c1bc": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.56,
+            "integrative": 0,
+            "descriptive": 0.44,
+            "analytical": 0,
+            "creative": 0
+          },
+          "confidence": 0.47
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "descriptive": 0.49,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0,
+            "integrative": 0,
+            "evaluative": 0.51
+          },
+          "confidence": 0.4
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.52,
+            "analytical": 0,
+            "evaluative": 0.48,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 0.41
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "9f5405130119069e856b4fd5f910e938f853a8f14d8b990b89687f9b69bc6e06": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "none": 0,
+            "descriptive": 1,
+            "integrative": 0,
+            "creative": 0,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0,
+            "integrative": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "03d8800ae33522270c7bf42c96a76e6e6b52ee04967014f7d3e8100c364a7ad7": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 1,
+            "evaluative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0,
+            "none": 0,
+            "descriptive": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "0d94e559aced2618cf252ed80fdd9409b4d9e1d1feb001c3f32c61e6c92a8fae": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0,
+            "descriptive": 1,
+            "integrative": 0,
+            "analytical": 0,
+            "evaluative": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0,
+            "integrative": 0,
+            "none": 0,
+            "analytical": 0,
+            "descriptive": 1,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 1,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "2654e48ed42b29ea4cf615fa5f61cae21338c6c52c5d1806ce26c154bb763b2c": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "descriptive": 0,
+            "evaluative": 1,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 0,
+            "evaluative": 1,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 1,
+            "descriptive": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "4486b3318ffa63b2154479dacab37fa06be91b4d3423d86ce06c75c00e467f60": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "evaluative": 1,
+            "descriptive": 0,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 1,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "integrative": 0,
+            "descriptive": 0,
+            "evaluative": 1,
+            "creative": 0,
+            "analytical": 0,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "508da823042b7bb13390e9988359ddeb3f31bf103e62fbb8a6fbea5d2f2db2cf": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 0,
+            "evaluative": 1,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 750,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "creative": 0,
+            "evaluative": 1,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 750,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "descriptive": 0,
+            "evaluative": 1,
+            "none": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 750,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "cdb5305199f5eb709d2fed11ace1b992793e3f4213f99053a0b2bcb6cc52b49e": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0.01,
+            "creative": 0,
+            "evaluative": 0.99,
+            "descriptive": 0,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 0.99
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.99,
+            "integrative": 0,
+            "descriptive": 0,
+            "creative": 0,
+            "analytical": 0.01
+          },
+          "confidence": 0.99
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0.01,
+            "none": 0,
+            "descriptive": 0,
+            "integrative": 0,
+            "creative": 0,
+            "evaluative": 0.99
+          },
+          "confidence": 0.99
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "22d598a35eb3be58acfb8c448495885c2df3b1bf5c8a4287955b10eb6705ffd8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.99,
+            "integrative": 0,
+            "creative": 0,
+            "analytical": 0.01,
+            "descriptive": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0.01,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0.99,
+            "descriptive": 0
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "integrative": 0,
+            "analytical": 0.01,
+            "creative": 0,
+            "descriptive": 0,
+            "none": 0,
+            "evaluative": 0.99
+          },
+          "confidence": 0.98
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "299a4bedbcfb42e7a655073e96ba725d36f3fec110d0b638883bb5f3a6f6eb8b": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "evaluative": 1,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0,
+            "creative": 0,
+            "none": 0,
+            "evaluative": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 1,
+            "descriptive": 0,
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 753,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "2f1d4b43f77adb71b308f014fd256c79be150fb6bbd7fc8e1d799823469dd9fb": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 1,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "creative": 0,
+            "evaluative": 1,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 1,
+            "descriptive": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "60cfb73aa2b626ee2443cbbe3ba89a59d6c8b0e3bb3b7722fe9d00d359673dc8": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.4,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0.24,
+            "integrative": 0.01,
+            "evaluative": 0.35
+          },
+          "confidence": 0.27
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "descriptive": 0.47000000000000003,
+            "none": 0,
+            "integrative": 0.01,
+            "evaluative": 0.32,
+            "analytical": 0,
+            "creative": 0.2
+          },
+          "confidence": 0.36
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "creative": 0.19,
+            "descriptive": 0.48,
+            "integrative": 0.01,
+            "analytical": 0,
+            "evaluative": 0.32,
+            "none": 0
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "37de06dbf0cc024dec66849610610c428a107ee0b6da5ccd2c4b6ee97545cc02": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.02,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0.12,
+            "creative": 0.86
+          },
+          "confidence": 0.83
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "analytical": 0,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0.86,
+            "evaluative": 0.02,
+            "descriptive": 0.12
+          },
+          "confidence": 0.82
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "creative": 0.9,
+            "integrative": 0,
+            "evaluative": 0.01,
+            "analytical": 0,
+            "descriptive": 0.09,
+            "none": 0
+          },
+          "confidence": 0.87
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "5c5e6739d634216b26099793a5e17aa85f87fe49d2eb809e1d13d8c98f550aa3": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 1,
+            "evaluative": 0,
+            "descriptive": 0,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0,
+            "integrative": 0,
+            "creative": 1,
+            "analytical": 0,
+            "descriptive": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "none": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "creative": 1,
+            "descriptive": 0,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "f3d0c600094184c22b9645485885abc8d2b572fd47d8aede7dbc0487e36a4d67": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "creative": 0.63,
+            "evaluative": 0,
+            "analytical": 0,
+            "descriptive": 0.37,
+            "integrative": 0,
+            "none": 0
+          },
+          "confidence": 0.54
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "creative": 0.59,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0,
+            "descriptive": 0.41000000000000003,
+            "none": 0
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0.62,
+            "evaluative": 0,
+            "descriptive": 0.38,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "71a7daf7fa5e0c62e28f46064f883bb3706520b86483d47243513dc634e9aca5": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "none": 0,
+            "creative": 1,
+            "descriptive": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "evaluative": 0,
+            "analytical": 0,
+            "none": 0,
+            "integrative": 0,
+            "creative": 1,
+            "descriptive": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 1,
+            "evaluative": 0,
+            "descriptive": 0,
+            "none": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "ee57670977b2158077e5d21aff03adc2f92d7c62d8fc0175a90c6a6cac521d79": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "evaluative": 0,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0.93,
+            "analytical": 0,
+            "descriptive": 0.07
+          },
+          "confidence": 0.92
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "none": 0,
+            "creative": 0.95,
+            "evaluative": 0,
+            "integrative": 0,
+            "descriptive": 0.05,
+            "analytical": 0
+          },
+          "confidence": 0.94
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "creative",
+          "probabilities": {
+            "descriptive": 0.04,
+            "analytical": 0,
+            "none": 0,
+            "creative": 0.96,
+            "integrative": 0,
+            "evaluative": 0
+          },
+          "confidence": 0.95
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "5a001506145b337263e659f71f92b7060507dd14b8a22f7458bf61e128896010": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "creative": 0.31,
+            "analytical": 0,
+            "integrative": 0,
+            "descriptive": 0.24,
+            "evaluative": 0.45,
+            "none": 0
+          },
+          "confidence": 0.32
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "none": 0,
+            "evaluative": 0.48,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0.22,
+            "creative": 0.3
+          },
+          "confidence": 0.36
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "evaluative",
+          "probabilities": {
+            "descriptive": 0.23,
+            "analytical": 0,
+            "integrative": 0,
+            "creative": 0.28,
+            "none": 0,
+            "evaluative": 0.49
+          },
+          "confidence": 0.37
+        }
+      },
+      "usage": {
+        "input_tokens": 752,
+        "output_tokens": 68
+      }
+    }
+  ],
+  "389396516b11d4707cfc6caafe874175179ac1f0bee521aafee5a8f59964e289": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "none": 0.91,
+            "evaluative": 0.09,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0,
+            "creative": 0
+          },
+          "confidence": 0.89
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 0,
+            "evaluative": 0.08,
+            "creative": 0,
+            "analytical": 0,
+            "none": 0.92
+          },
+          "confidence": 0.9
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "evaluative": 0.07,
+            "creative": 0,
+            "none": 0.93,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0
+          },
+          "confidence": 0.92
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "769b8a591cdc4252eb7303db23560868bee4a9875609427611631633fb446f2a": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "none": 0.54,
+            "evaluative": 0,
+            "integrative": 0,
+            "analytical": 0,
+            "descriptive": 0.46,
+            "creative": 0
+          },
+          "confidence": 0.44
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "descriptive": 0.41,
+            "integrative": 0,
+            "evaluative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "none": 0.59
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "integrative": 0,
+            "evaluative": 0.01,
+            "none": 0.58,
+            "creative": 0,
+            "analytical": 0,
+            "descriptive": 0.41
+          },
+          "confidence": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "acf920c941417d9a3dd6c3582424295070ff6739f92f3d0e7b06366521391c08": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 0,
+            "analytical": 0.01,
+            "creative": 0,
+            "evaluative": 0.33,
+            "none": 0.66
+          },
+          "confidence": 0.59
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "descriptive": 0,
+            "analytical": 0.01,
+            "evaluative": 0.29,
+            "creative": 0,
+            "integrative": 0,
+            "none": 0.7
+          },
+          "confidence": 0.65
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "descriptive": 0,
+            "integrative": 0,
+            "evaluative": 0.27,
+            "analytical": 0.01,
+            "creative": 0,
+            "none": 0.72
+          },
+          "confidence": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 751,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "a39ddc04227392da4d14e3225db0045be9282daa04f963bffa696a41b270c883": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "integrative": 0,
+            "none": 0,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "none": 0,
+            "creative": 0,
+            "descriptive": 1,
+            "analytical": 0,
+            "evaluative": 0,
+            "integrative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "none": 0,
+            "integrative": 0,
+            "evaluative": 0,
+            "descriptive": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 758,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "660bfdd0ff01f65b3cfed747e61265619bf45df5dfe38bd88213c1b14b066611": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "integrative": 0,
+            "analytical": 0,
+            "creative": 0,
+            "descriptive": 0,
+            "none": 1,
+            "evaluative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "none": 1,
+            "evaluative": 0,
+            "integrative": 0,
+            "descriptive": 0,
+            "analytical": 0,
+            "creative": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "creative": 0,
+            "evaluative": 0,
+            "analytical": 0,
+            "descriptive": 0,
+            "integrative": 0,
+            "none": 1
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 755,
+        "output_tokens": 67
+      }
+    }
+  ],
+  "5321e585d310375daa04659f6dc6d74db9419892f052d1a2206c415b478f91cb": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0,
+            "integrative": 0,
+            "none": 0.04,
+            "creative": 0,
+            "analytical": 0,
+            "descriptive": 0.96
+          },
+          "confidence": 0.95
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "analytical": 0,
+            "integrative": 0,
+            "none": 0.05,
+            "creative": 0,
+            "evaluative": 0,
+            "descriptive": 0.95
+          },
+          "confidence": 0.94
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "descriptive",
+          "probabilities": {
+            "evaluative": 0,
+            "creative": 0,
+            "none": 0.03,
+            "integrative": 0,
+            "descriptive": 0.97,
+            "analytical": 0
+          },
+          "confidence": 0.97
+        }
+      },
+      "usage": {
+        "input_tokens": 754,
+        "output_tokens": 70
+      }
+    }
+  ],
+  "05f2cddaf7122d1b7e06f96c85c811a606ba5ce32e6164767d4ee144d2dd8adc": [
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "creative": 0,
+            "analytical": 0,
+            "integrative": 0,
+            "descriptive": 0.24,
+            "evaluative": 0,
+            "none": 0.76
+          },
+          "confidence": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "analytical": 0,
+            "creative": 0,
+            "none": 0.77,
+            "integrative": 0,
+            "evaluative": 0,
+            "descriptive": 0.23
+          },
+          "confidence": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 67
+      }
+    },
+    {
+      "model": "jev-1.13.0",
+      "answers": {
+        "mode": {
+          "type": "choice",
+          "choice": "none",
+          "probabilities": {
+            "analytical": 0,
+            "evaluative": 0,
+            "descriptive": 0.2,
+            "integrative": 0,
+            "creative": 0,
+            "none": 0.8
+          },
+          "confidence": 0.75
+        }
+      },
+      "usage": {
+        "input_tokens": 756,
+        "output_tokens": 67
+      }
+    }
+  ]
+}
