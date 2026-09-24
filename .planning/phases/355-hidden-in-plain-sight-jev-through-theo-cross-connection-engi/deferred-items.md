@@ -256,3 +256,48 @@ and `lib/core/insight-sensors.cjs` shows zero diff from this plan. Not fixed
 here (Scope Boundary rule -- `tests/test-237-session-scope.cjs` is not in
 355-19's `files_modified`); flagged for the navigator/a future phase to add
 the four missing entries to `SENSOR_REQUIRE_FILES`.
+
+## 355-23 Task 2: `lib/core/verification-stamp-format.cjs`'s D-30 decimal
+## regex does not catch a decimal immediately followed by a sentence-ending
+## period
+
+Found while writing `tests/test-355-tri-polar.cjs`'s negative control:
+`DECIMAL_TOKEN_RE`'s trailing lookahead is `(?![0-9.])` -- it requires the
+character right after a matched decimal to be neither a digit nor a literal
+period. A planted decimal placed at the very end of a Larry Desktop prose
+sentence (`formatStampLines(stamp, 'desktop')`'s "Checked: strong. The
+methodology graph links them in one step: A -- EDGE -- B 0.87.", where the
+node name itself is the last thing before the sentence's own closing
+period) is NOT caught: `assertNoScalar` reports zero withheld tokens for
+that exact string. Reproduced live:
+
+```
+node -e "
+const fmt = require('./lib/core/verification-stamp-format.cjs');
+console.log(fmt.assertNoScalar(['Six Thinking Hats 0.87.']));
+"
+# -> { lines: [ 'Six Thinking Hats 0.87.' ], withheld: 0 }
+```
+
+A decimal planted mid-sentence (followed by a space, an edge-joiner
+`" -- "`, or any non-period/non-digit character) IS caught correctly; the
+gap is specific to the "decimal immediately precedes a literal `.`" case,
+which the desktop prose surface -- the one Larry surface whose sentences
+routinely end in a period right after a rendered path node -- can produce
+in principle if a real Theo `pathLabels`/`path` entry ever contained a
+decimal-shaped substring as its last character before end-of-sentence.
+
+Not fixed here: `lib/core/verification-stamp-format.cjs` is not in this
+plan's (355-23's) `files_modified` (skills/larry-personality/SKILL.md, the
+four prose fixtures, and the four test files only), and it is a shared
+355-06-owned file this session did not otherwise touch (`git status
+--short lib/core/verification-stamp-format.cjs` is clean). The negative
+controls in `tests/test-355-no-decimal.cjs` and `tests/test-355-tri-polar.cjs`
+both route around this specific edge case (planting the decimal on a
+MIDDLE path node, never the last one before a sentence-ending period) so
+they prove the real property (a decimal is caught) without silently
+depending on the gap. Flagged for the navigator or a later phase to widen
+`DECIMAL_TOKEN_RE`'s trailing lookahead (e.g. to also reject a following
+literal `.` only when NOT itself followed by more digits, or simpler: drop
+the `.` from the negative lookahead entirely, since `0.87.` should never be
+read as a decimal followed by more decimal digits).
