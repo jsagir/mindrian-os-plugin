@@ -5467,6 +5467,29 @@ Previously (267-04, parallel out-of-band plan, unrelated to the sequential 348 c
   a Cowork VM and paste back handshake/process facts -- STOPPED per protocol
   rather than fabricated. Full detail and exact resume steps in 267-04-SUMMARY.md
   and 267-TRIPOLAR-PROBES.md's Desktop/Cowork sections.
+Previously (267-05, parallel out-of-band plan, unrelated to the sequential 348 chain
+  or the Phase 355 wave-2 sequence below): complete -- the canary, Wave 1's only plan.
+  Installed @modelcontextprotocol/{server,core,client}@2.1.0 in lockstep (all three
+  re-checked live via npm view at execute time, one deduped core instance, three dated
+  VETTED allowlist entries in references/security/cve-db.json), taught
+  lib/core/mcp-dep-heal.cjs's FALLBACK about the new package, and wrote
+  tests/test-267-mcpv2-brain-shim.cjs (MCPV2-11) -- a real v2 Client + StdioClientTransport
+  driven against the real spawned brain shim in both eras, RED before migration
+  (PASS=4 FAIL=2: the 2026 arm and the source arm) committed as its own commit. Migrated
+  bin/mindrian-brain-mcp-client.cjs to @modelcontextprotocol/server's McpServer +
+  serveStdio (zero changes to the six registerTool calls/schemas, zero diff on
+  brain-client.cjs / part8-egress-guard.cjs / mcp-server-brain against PLAN_BASE); canary
+  test flips to PASS=6 FAIL=0. Fixed two Rule-1 bugs in existing tests directly caused by
+  this task's own change: tests/test-267-mcpv2-sdk-era.cjs Arm B's premise (grep
+  SUPPORTED_PROTOCOL_VERSIONS for '2026-07-28') did not survive contact with the real
+  v2.1.0 package, which deliberately ships no public modern-version constant --
+  rewritten to check v2-only exports plus a dist-file literal grep; and
+  tests/test-257-strict-input-shapes.cjs Arm E (a Phase 257-08 test) needed narrowing
+  after v2's registerTool was measured to normalize an omitted `arguments` field to {}
+  before validation -- verified NOT a bypass via a new Arm E2 proving a required-field
+  tool still rejects arguments-absent. bash tests/run-all-267.sh PASS=23 FAIL=0 SKIP=10;
+  doctor --acceptance 21/22 (sole fail pre-existing, peer-session tree state). Full detail
+  in 267-05-SUMMARY.md.
 Previously (355-05, parallel wave-2 plan, not part of the sequential 348 chain below):
   complete -- HIPS-03 naming honesty. scout-hsi's description sentence and its NOT EXECUTED
   banner both now say "reference only, no compute; run `/mos:scout hsi` in Claude Code"
