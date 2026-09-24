@@ -117,3 +117,35 @@ is named in 267-07-PLAN.md's `<verify>` block.
 so; the fix belongs to whoever owns `gate_answer`'s approve-branch write
 count / strategy-ratification contract (Phase 345/354/355's own owners) --
 out of scope for a registration-API migration phase.
+
+## 267-07: pre-existing stale mutation-test needle in test-237-approve-executes.cjs Leg 7
+
+Found while checking whether chain.cjs's registration rewrite broke
+`tests/test-237-approve-executes.cjs` (a mutation-testing harness that
+writes a tmp mutated copy of `lib/mcp/tools/chain.cjs` with its dispatcher
+call swapped for a fabricated-success stub, to prove the real approve path
+is genuinely exercised). Leg 7 fails: `buildMutatedChainCjs`'s
+`DISPATCHER_CALL_NEEDLE` string search
+(`makeChainStepDispatcher(roomDir, { sessionId: o.sessionId, targetSection:
+... : null })`) no longer matches chain.cjs's live source, which reads
+`makeChainStepDispatcher(roomDir, { sessionId: o.sessionId, targetSection:
+..., runId: runId })` -- Phase 347's CR-01 `runId` wiring (see
+`lib/mcp/tools/chain.cjs`'s own module-header note on `runId`) added a
+`, runId: runId` field to this call sometime after this harness's needle
+was last updated, and nobody rebaselined the needle.
+
+Confirmed NOT caused by this plan's registerTool migration: reproduced
+identically with `lib/mcp/tools/chain.cjs` swapped back to its committed
+pre-migration (`server.tool()`) form and the migrated form restored
+afterward -- byte-identical failure either way (the needle lives inside
+`chainRun`'s function body, which this plan's registration-only rewrite
+never touches).
+
+Classification: pre-existing, unrelated to Phase 267. Not referenced by
+`tests/run-all-198.sh` or `tests/run-all-267.sh`, not named in
+267-07-PLAN.md's `<verify>` block.
+
+**Do not fix as part of any Phase 267 plan** unless a plan explicitly says
+so; the fix belongs to whoever rebaselines `DISPATCHER_CALL_NEEDLE` against
+chain.cjs's current dispatcher-call text (Phase 347's own owner) -- out of
+scope for a registration-API migration phase.
