@@ -301,3 +301,51 @@ depending on the gap. Flagged for the navigator or a later phase to widen
 literal `.` only when NOT itself followed by more digits, or simpler: drop
 the `.` from the negative lookahead entirely, since `0.87.` should never be
 read as a decimal followed by more decimal digits).
+
+## 355-14 Task 3: a follow-up citation item set sampling ALIAS_OF paths is
+## needed -- `supports` is unreachable in the current 43-item set
+
+The external model that labeled the citation set under the navigator's
+2026-09-24 ruling surfaced this itself, and it reproduces on inspection of
+`tests/fixtures/355-citation-pairs.items.json`: every one of the 43
+templated items was built from `feeds_into` / `CONTRASTS_WITH`-adjacent
+hop types (the `direct_lateral`, `hub`, `three_hop`, `both_directions` and
+`contradicting` strata per 355-14 Task 2's action text), and NONE of them
+samples an `ALIAS_OF` path. Theo's canon carries `ALIAS_OF` edges (per
+this same plan's Task 2 census of the live capture), but the citation-item
+templater never selected one. The practical consequence: a same-meaning
+claim (`"X and Y: same meaning in different words"`, `direction:
+structural_transfer`) can be templated over a `feeds_into` hop, but a
+`feeds_into` hop is never sufficient grounds for a genuine `supports`
+verdict against a same-meaning claim -- it says a relationship exists, not
+that the two names mean the same thing. So every item in this set reduces
+to a binary "does a contrasts-with hop appear" question (`contradicts` vs
+`says_nothing`), and `supports` has a 0% prior no matter how the labeler
+reasons about it. This is why the distribution came back 35 `says_nothing`
+/ 8 `contradicts` / 0 `supports` -- not a labeler failure, a sampling gap
+in the item set the label-355-gold Task 2 templater built.
+
+Not fixed here: widening the templater to draw from `ALIAS_OF` paths is a
+change to `scripts/jev-question-ceilings.cjs`'s `renderClaim` /
+`hopsFromTheoPath` call sites and 355-14 Task 2's own action text, not
+Task 3's job (labeling what Task 2 already produced). Flagged for a later
+355 plan (or a dedicated follow-up item set) that samples `ALIAS_OF` paths
+specifically, so `supports` has a real chance to appear in a future
+citation gold. **355-26's stated-vs-withheld citation calibration
+(consuming this gold) must be read with this limitation in mind**: its
+measured agreement is against a two-class effective gold
+(`says_nothing`/`contradicts`), not the full three-class
+`supports`/`says_nothing`/`contradicts` vocabulary the calibration script's
+own schema allows for.
+
+A second, related note carried into 355-14-SUMMARY.md: the eight
+`contradicting`-stratum items are exactly the eight items this gold labels
+`contradicts` (355-14 Task 2's action text: "if Theo's edge vocabulary has
+no opposite-relation type on any captured path... mark them
+`synthetic: true`" -- confirmed true for all eight in
+`355-citation-pairs.items.json`). So every `contradicts` verdict in this
+gold is scored against a synthetic (constructed, not naturally-occurring)
+contradiction, not one Theo's canon produced unprompted. Not a labeling
+defect, but a fact about what the `contradicts` class actually measures
+this phase, worth carrying forward alongside the `supports`-unreachable
+finding above.
