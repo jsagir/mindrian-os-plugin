@@ -1,0 +1,242 @@
+{
+  "_labeling_note": "Navigator blind gold, Phase 355 (sentences).",
+  "labeler": "navigator",
+  "fixture_sha256": "1899a5fcac518ac54f76ddd5a97efd7dc69bb523693fdca2b1fbcdb0f7de96cd",
+  "labeled_at": "2026-09-24T04:33:11.960Z",
+  "items": [
+    {
+      "id": "s001",
+      "sentence": "The audit team compared infection rates across three wards because the sample sizes finally reached statistical significance.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s004",
+      "sentence": "Quality engineers quantified defect rates on the new press line before approving the tooling change.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s011",
+      "sentence": "The line supervisor quantified scrap weight per shift to isolate which station drove the waste.",
+      "gold": "creative"
+    },
+    {
+      "id": "s015",
+      "sentence": "The pharmacy log noted the barcode scanner could not read three labels during the morning shift.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s016",
+      "sentence": "Consequently, the warehouse team recalculated the reorder point after measuring three months of demand data.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s020",
+      "sentence": "Consequently, the agency measured response times across every precinct before proposing the staffing change.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s022",
+      "sentence": "Nurses measured turnaround time on lab results across two shifts to see where the delay accumulated.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s025",
+      "sentence": "The literacy program combined the reading coach's cueing system with the math tutor's pacing chart.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s027",
+      "sentence": "The treasury team merged the cash-forecasting method from retail with the seasonal model used in agriculture.",
+      "gold": "creative"
+    },
+    {
+      "id": "s030",
+      "sentence": "Cross-training let the ICU nurses apply the sepsis checklist the ER team had already refined.",
+      "gold": "creative"
+    },
+    {
+      "id": "s031",
+      "sentence": "The dispatcher linked the weather-delay rule from the airline industry to the trucking schedule.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s034",
+      "sentence": "The lending team combined the credit-scoring approach from microloans with the mortgage underwriting model.",
+      "gold": "creative"
+    },
+    {
+      "id": "s040",
+      "sentence": "The assembly team adapted the kitchen's mise-en-place habit to prep stations before each shift.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s045",
+      "sentence": "The intake form includes an important field for allergies, current medications and the date of the last visit.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s047",
+      "sentence": "The syllabus describes six units, each with a reading list and a short weekly quiz.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s049",
+      "sentence": "The ledger entry represents a routine deposit; the teller noted no issue with the batch total.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s050",
+      "sentence": "The zoning map defines three districts, each with its own setback and height rule.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s051",
+      "sentence": "The config file has an important settings section covering database connection and timeout values.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s054",
+      "sentence": "The transcript includes an important note about the credit hours converted from the transfer school.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s059",
+      "sentence": "The discharge summary lists the diagnosis, the medications prescribed and the follow-up date.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s060",
+      "sentence": "The warehouse layout marks an important clearance path along aisle six for forklift traffic.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s061",
+      "sentence": "The rubric describes four performance levels, from beginning to advanced, for each criterion.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s062",
+      "sentence": "The maintenance log has a column for the date, the technician and the parts replaced.",
+      "gold": "analytical"
+    },
+    {
+      "id": "s064",
+      "sentence": "The report describes the survey method, the sample size and the response rate.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s067",
+      "sentence": "The reviewer flagged the staffing gap as a significant risk to weekend coverage.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s074",
+      "sentence": "The committee judged the old triage rule better suited to a smaller emergency room.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s075",
+      "sentence": "The audit called the manual counting step a critical risk in the receiving process.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s077",
+      "sentence": "The engineer argued the new fixture is a clear advantage over the old jig.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s083",
+      "sentence": "The principal argued the block schedule is better for labs but worse for short subjects.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s087",
+      "sentence": "The architect said the shared database is a significant risk to the team's release speed.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s088",
+      "sentence": "The pharmacist argued the new labeling is a meaningful improvement in dosing safety.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s092",
+      "sentence": "Engineers proposed a breakthrough fixture that could cut changeover time by more than half.",
+      "gold": "creative"
+    },
+    {
+      "id": "s095",
+      "sentence": "The team pioneered a novel caching scheme that could reshape how the checkout flow performs.",
+      "gold": "creative"
+    },
+    {
+      "id": "s096",
+      "sentence": "What if triage ran on a rotating pod model instead of the fixed-desk layout.",
+      "gold": "creative"
+    },
+    {
+      "id": "s099",
+      "sentence": "The plant envisioned a modular line that could be reconfigured overnight for a new product.",
+      "gold": "creative"
+    },
+    {
+      "id": "s100",
+      "sentence": "The team pioneered an innovative escrow structure that might redefine how small deals close.",
+      "gold": "creative"
+    },
+    {
+      "id": "s101",
+      "sentence": "The city imagined a radical transit redesign built entirely around on-demand shuttle pods.",
+      "gold": "creative"
+    },
+    {
+      "id": "s102",
+      "sentence": "What if the onboarding flow transformed into a single guided conversation instead of six forms.",
+      "gold": "creative"
+    },
+    {
+      "id": "s111",
+      "sentence": "Good morning everyone, please find a seat near the front so we can begin on time.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s113",
+      "sentence": "Section four of the packet covers appendices, glossary terms and the revision history for this quarter.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s116",
+      "sentence": "Agenda item three gets five minutes, then we move straight into questions from the floor.",
+      "gold": "evaluative"
+    },
+    {
+      "id": "s118",
+      "sentence": "Please RSVP by Friday so catering can order enough lunches for the whole group.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s119",
+      "sentence": "See everyone at the next standup, same time, same room, coffee provided as usual.",
+      "gold": "integrative"
+    },
+    {
+      "id": "s128",
+      "sentence": "Coffee and snacks are in the back of the room, near the window on the left.",
+      "gold": "descriptive"
+    },
+    {
+      "id": "s129",
+      "sentence": "Slides will be posted after the session ends, along with a short recording for anyone who missed it.",
+      "gold": "descriptive"
+    }
+  ],
+  "partial": true,
+  "labeled_count": 45,
+  "total_items": 132,
+  "floor_ruling": {
+    "by": "navigator",
+    "at": "2026-09-24T04:33:11.960Z",
+    "floor": 45,
+    "note": "floor lowered to the items labeled; remaining items stay open in the session file"
+  }
+}
