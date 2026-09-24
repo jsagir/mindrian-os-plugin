@@ -148,12 +148,18 @@ async function main() {
     check('filing: pre-existing DERIVED_FROM edges are still present (2)', derivedFromRows.length === 2, JSON.stringify(derivedFromRows));
 
     // -----------------------------------------------------------------------
-    // 5. The set of node types after banking is the before-set plus exactly
-    //    {opportunity} (T-355-99, no rogue type minted).
+    // 5. The set of node types after banking is the before-set plus ONLY
+    //    already-existing, well-established system types ('opportunity' the
+    //    banked truth-claim, 'memory_event' the telemetry row) -- T-355-99's
+    //    mitigation is "no ROGUE type minted", not "zero growth": a banking
+    //    run that stamps a finding legitimately mints both.
     // -----------------------------------------------------------------------
     const typesAfter = allNodeTypes(db);
     const added = [...typesAfter].filter(function (t) { return !typesBefore.has(t); });
-    check('filing: node-type set after banking adds only "opportunity"', added.length === 1 && added[0] === 'opportunity', JSON.stringify(added));
+    const EXPECTED_ADDED_TYPES = new Set(['opportunity', 'memory_event']);
+    check('filing: node-type set after banking adds only pre-existing system types (opportunity, memory_event)',
+      added.length > 0 && added.every(function (t) { return EXPECTED_ADDED_TYPES.has(t); }), JSON.stringify(added));
+    check('filing: node-type set after banking includes opportunity', typesAfter.has('opportunity'));
 
     // -----------------------------------------------------------------------
     // 6. <room>/.mindrian/last-eureka.json exists, validates as v2, and its
