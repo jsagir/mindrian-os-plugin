@@ -3195,58 +3195,77 @@ left open with a stated reason, at phase close by `360-08-PLAN.md` Task 1. Execu
 RESEARCH Finding 4: the harness verdict is lead-only, because the UserPromptSubmit stdin carries no
 origin and no isMeta.
 
-- [ ] **BIND360-01**: On a UserPromptSubmit turn whose prompt classifies as harness,
+- [x] **BIND360-01**: On a UserPromptSubmit turn whose prompt classifies as harness,
       `scripts/intent-classifier.cjs` `main()` emits no room-resolution output (the F.8 unbound and
       off-scope headers, the zero-score gate, the strict-mode override, the legacy advisory) and makes
       no side-channel F.8 record, no binding_gate / zero_score_gate trace payload and no offered-marker
-      write; the same prompt on the pre-phase code fires (control). Plans 360-04, 360-07.
+      write; the same prompt on the pre-phase code fires (control). Plans 360-04, 360-07. Proof:
+      test-360-harness-picker r1 legs green (34 checks, 0 side writes on every harness class, human
+      control fires), commit 8a1dfa1cb.
 
-- [ ] **BIND360-02**: A harness turn does not invoke the F.8 binding-answer consumer, so a pending
+- [x] **BIND360-02**: A harness turn does not invoke the F.8 binding-answer consumer, so a pending
       binding_gate_payload stays unconsumed, and no session binding and no binding_gate_consumed
       marker is written; the next human turn carrying an exact label binds as before. Plans 360-04,
-      360-07.
+      360-07. Proof: test-360-harness-picker r2-sequence green (spy call count 0 on the harness turn,
+      the following human label binds), commit 8a1dfa1cb.
 
-- [ ] **BIND360-03**: Human turns keep today's behavior: human-origin fixtures (cwd absent or inside
+- [x] **BIND360-03**: Human turns keep today's behavior: human-origin fixtures (cwd absent or inside
       the rooms home) produce byte-identical stdout on the pre-phase commit and on HEAD, and the six
       SPEC R3 binding suites plus the wider classifier regression net are no worse than the plan-time
-      baseline. Plans 360-01, 360-04, 360-07.
+      baseline. Plans 360-01, 360-04, 360-07. Proof: test-360-harness-picker r3 legs green (6/6
+      byte-identical) and test-360-r3-suites.cjs green (18/18 suites, includes the four MCP room-bind
+      suites), commits e9e630a9f, 8a1dfa1cb.
 
-- [ ] **BIND360-04**: One classifier: the verdict comes from `lib/hmi/turn-text.cjs`
+- [x] **BIND360-04**: One classifier: the verdict comes from `lib/hmi/turn-text.cjs`
       `classifyUserPromptText`, which calls the 357 rule body; intent-classifier holds no harness lead
       literal and reads no isMeta or origin, and the lead list is defined in exactly one file under
-      lib/ and scripts/. Plans 360-02, 360-06, 360-07.
+      lib/ and scripts/. Plans 360-02, 360-06, 360-07. Proof: test-360-tripwire r4a-d green (4/4, single
+      lead-list file, 0 isMeta/origin reads in intent-classifier.cjs), commits 3816c294b, 8a1dfa1cb.
 
-- [ ] **BIND360-05**: The one shared HARNESS_LEADS covers every harness lead seen at
+- [x] **BIND360-05**: The one shared HARNESS_LEADS covers every harness lead seen at
       UserPromptSubmit (task notification, queued cross-session and agent-message tags, the peer
       framing stem, the idle notice); a human prompt that quotes a tag mid-text stays non-harness; the
-      357 replay keeps identical per-entry outcomes. Plans 360-03, 360-06.
+      357 replay keeps identical per-entry outcomes. Plans 360-03, 360-06. Proof: test-360-leads.cjs
+      green (26/26, 5 frozen leads, mid-text quote stays typed) and run-all-357.sh green (PASS=16
+      FAIL=0, unchanged), commit 3816c294b.
 
-- [ ] **BIND360-06**: Any classifier or policy fault (throw, missing export, unrecognized input) leaves
+- [x] **BIND360-06**: Any classifier or policy fault (throw, missing export, unrecognized input) leaves
       the human path unchanged and the hook exits 0; only a confirmed 'harness' verdict or a confirmed
-      policy verdict suppresses. Plans 360-04, 360-05, 360-07.
+      policy verdict suppresses. Plans 360-04, 360-05, 360-07. Proof: test-360-harness-picker r6 legs
+      green (4/4, throwing/missing export, exit 0, human path unchanged) and
+      fault-throwing-picker-policy in test-360-picker-policy.cjs green, commits 8a07a03b3, 8a1dfa1cb.
 
-- [ ] **BIND360-07**: The local snapshot replay reports harness-triggered unbound picker fires 33 -> 0
+- [x] **BIND360-07**: The local snapshot replay reports harness-triggered unbound picker fires 33 -> 0
       and human-triggered 2 -> 2 under the harness verdict, with 0 human runs given a harness verdict;
-      it skips with a stated reason when the snapshot is absent. Plans 360-03, 360-06, 360-08.
+      it skips with a stated reason when the snapshot is absent. Plans 360-03, 360-06, 360-08. Proof:
+      test-360-snapshot-replay.cjs layer h green, measured this close-out: harness 33 -> 0, human 2 -> 2,
+      0 human runs carry a harness verdict, commit 59b2cccd2.
 
-- [ ] **BIND360-08**: Committed fixtures are authored placeholders carrying a sanitization statement;
+- [x] **BIND360-08**: Committed fixtures are authored placeholders carrying a sanitization statement;
       no snapshot session id, peer socket path, real peer name or transcript file is committed. Plans
-      360-02, 360-08.
+      360-02, 360-08. Proof: test-360-tripwire r8a-e green (5/5, sanitization statement present, 0
+      session-id and 0 peer-name leaks against the raw snapshot), commit ad3e806fb.
 
-- [ ] **BIND360-09**: Tri-Polar parity: no lib/mcp/ path in 360's own commits, and the four MCP
+- [x] **BIND360-09**: Tri-Polar parity: no lib/mcp/ path in 360's own commits, and the four MCP
       room-bind suites stay green (the defect needs a UserPromptSubmit hook, so it is CLI-only). Plans
-      360-01, 360-02, 360-08.
+      360-01, 360-02, 360-08. Proof: test-360-tripwire r9 green (0 never-edit-path hits across all 17
+      of 360's own commits, scoped by git log --grep, not a raw range diff) and test-360-r3-suites.cjs
+      green including the four MCP room-bind suites, this close-out run.
 
-- [ ] **BIND360-10**: In an unbound session, the room-bind picker, its F.8 mint and its marker writes
+- [x] **BIND360-10**: In an unbound session, the room-bind picker, its F.8 mint and its marker writes
       do not fire when the hook stdin cwd resolves (realpath) outside the rooms home; inside it the
       behavior is unchanged, and a missing, unreadable, relative or ambiguous (an ancestor of the rooms
       home) cwd fires as today; the snapshot replay shows 0 human-turn pickers for the dev-repo anchor
-      session (N-1, SPEC R10). Plans 360-03, 360-05, 360-07.
+      session (N-1, SPEC R10). Plans 360-03, 360-05, 360-07. Proof: test-360-picker-policy r10 legs
+      green (12/12, ancestor still fires per P-1) and test-360-snapshot-replay.cjs layer c green
+      (human post fires 0, anchor session post fires 0), commit 59b2cccd2.
 
-- [ ] **BIND360-11**: After a "dev repo / no room" answer is stored in the existing session binding
+- [x] **BIND360-11**: After a "dev repo / no room" answer is stored in the existing session binding
       store (the reserved `__no_room__` sentinel), the picker does not re-fire for that session_id; a
       new session asks again, and an explicit room binding restores normal behavior (N-2, SPEC R11).
-      Plans 360-05, 360-07.
+      Plans 360-05, 360-07. Proof: test-360-picker-policy r11 legs green (3/3: remembered no-room
+      stays quiet, a fresh session asks again, an explicit rebind restores gating per P-2), commit
+      59b2cccd2.
 
 ### Phase 361 - Dominant-design research mode (DDR361 family)
 
