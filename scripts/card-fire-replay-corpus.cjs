@@ -30,6 +30,24 @@ const SOURCE_FILES = Object.freeze({
   dogfood: 'dogfood.json',
 });
 
+// ---------------------------------------------------------------------
+// Phase 359-02 (SPEC R1, D-18 to D-21): OPT-IN sources. synthetic-359 is
+// NEVER loaded by loadCorpus({}) (the 357 default-load contract, D-06 step
+// 5 / 359-01 item (h)) -- it is loaded ONLY when its source name is listed
+// in the new `optIn` loadCorpus option. SOURCES / SOURCE_FILES above stay
+// byte-identical (additive-only extension, never a replacement).
+// ---------------------------------------------------------------------
+const OPT_IN_SOURCES = Object.freeze(['synthetic-359']);
+
+const OPT_IN_SOURCE_FILES = Object.freeze({
+  'synthetic-359': 'prose-forks-359.json',
+});
+
+// FORK359_OVERLAY_FILE (D-21): the local prose_fork overlay for the 357
+// dogfood entries. Read from CORPUS_DIR only when loadCorpus's
+// `fork359Overlay` option is true. Never sent anywhere (Part 8).
+const FORK359_OVERLAY_FILE = 'dogfood-fork-labels-359.json';
+
 const LABEL_ORIGINS = Object.freeze(['hand', 'jev', 'local', 'human']);
 
 const ENVELOPE_MODES = Object.freeze(['direct', 'transcript', 'sidechannel', 'transcript+sidechannel']);
@@ -213,8 +231,8 @@ function validateEntry(entry, fileMeta) {
   if (!isNonEmptyString(entry.id)) {
     errors.push('id must be a non-empty string');
   }
-  if (SOURCES.indexOf(entry.source) === -1) {
-    errors.push('source must be one of: ' + SOURCES.join(', '));
+  if (SOURCES.indexOf(entry.source) === -1 && OPT_IN_SOURCES.indexOf(entry.source) === -1) {
+    errors.push('source must be one of: ' + SOURCES.concat(OPT_IN_SOURCES).join(', '));
   }
   if (entry.expected_verdict_class !== 'block' && entry.expected_verdict_class !== 'pass') {
     errors.push('expected_verdict_class must be "block" or "pass"');
@@ -294,6 +312,36 @@ function validateEntry(entry, fileMeta) {
     }
   }
 
+  // ---------------------------------------------------------------------
+  // Phase 359-02 (SPEC R1, D-18): prose_fork / fork_labels / fork_label_origin.
+  // The N-3 grammar itself (2-3 practical labels then one "What if" moonshot)
+  // is asserted by lib/core/fork-declaration.cjs and its own test, kept OUT
+  // of this loader (D-06: the loader stays free of any lib/ require) -- here
+  // we only enforce the SPEC R1 floor (2 or more fork_labels).
+  // ---------------------------------------------------------------------
+  if (entry.prose_fork !== undefined && typeof entry.prose_fork !== 'boolean') {
+    errors.push('prose_fork must be a boolean when present');
+  }
+  if (entry.prose_fork === true) {
+    if (!Array.isArray(entry.fork_labels) || entry.fork_labels.length < 2
+      || !entry.fork_labels.every(isNonEmptyString)) {
+      errors.push('fork_labels must be an array of 2 or more non-empty strings when prose_fork is true');
+    }
+  } else if (Object.prototype.hasOwnProperty.call(entry, 'fork_labels')) {
+    errors.push('fork_labels is only allowed when prose_fork is true');
+  }
+  if (entry.fork_label_origin !== undefined && LABEL_ORIGINS.indexOf(entry.fork_label_origin) === -1) {
+    errors.push('fork_label_origin must be one of: ' + LABEL_ORIGINS.join(', '));
+  }
+  if (entry.source === 'synthetic-359') {
+    if (!envelope || envelope.mode !== 'direct') {
+      errors.push('source "synthetic-359" requires envelope.mode to be "direct" (D-18)');
+    }
+    if (typeof entry.prose_fork !== 'boolean') {
+      errors.push('source "synthetic-359" requires a boolean prose_fork (D-18)');
+    }
+  }
+
   if (!fileMeta || !isNonEmptyString(fileMeta.sanitization_statement)) {
     errors.push('fileMeta.sanitization_statement must be a non-empty string');
   }
@@ -315,6 +363,12 @@ function loadCorpus(opts) {
   const corpusDir = options.corpusDir || CORPUS_DIR;
   const include238 = options.include238 !== false;
   const wantSources = Array.isArray(options.sources) ? options.sources : null;
+  // Phase 359-02 (D-06 step 5 / D-18): OPT-IN only. An empty (or absent)
+  // optIn array means loadCorpus({}) returns EXACTLY what it returned before
+  // this option existed -- no OPT_IN_SOURCE_FILES file is ever read unless
+  // its source name is explicitly listed here.
+  const optIn = Array.isArray(options.optIn) ? options.optIn : [];
+  const wantFork359Overlay = options.fork359Overlay === true;
 
   const entries = [];
   const files = {};
@@ -384,6 +438,72 @@ function loadCorpus(opts) {
     }
   }
 
+  // ---------------------------------------------------------------------
+  // Phase 359-02 (D-06 step 5, D-18): OPT-IN source files. Loaded ONLY when
+  // both wantSource(src) (the pre-existing `sources` filter) AND
+  // optIn.indexOf(src) !== -1 (the new opt-in gate) are true. With optIn
+  // left at its default ([]), this loop never runs, so loadCorpus({}) is
+  // byte-for-byte the pre-359 function (357's own gate, D-17).
+  // ---------------------------------------------------------------------
+  for (const sourceKey of Object.keys(OPT_IN_SOURCE_FILES)) {
+    if (!wantSource(sourceKey)) continue;
+    if (optIn.indexOf(sourceKey) === -1) continue;
+    const fileName = OPT_IN_SOURCE_FILES[sourceKey];
+    const filePath = path.join(corpusDir, fileName);
+    if (!fs.existsSync(filePath)) {
+      continue;
+    }
+    try {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      const fileMeta = parsed && parsed.meta;
+      const list = (parsed && Array.isArray(parsed.entries)) ? parsed.entries : [];
+      const count = addEntries(list, fileMeta, sourceKey, filePath);
+      files[sourceKey] = { path: filePath, meta: fileMeta || null, count };
+    } catch (e) {
+      errors.push(filePath + ': failed to read/parse (' + e.message + ')');
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // Phase 359-02 (D-21): the dogfood prose_fork overlay. Loaded ONLY when
+  // options.fork359Overlay === true (default false, so loadCorpus({})
+  // never reads this file either). Merges prose_fork / fork_labels /
+  // fork_label_origin onto the matching already-validated dogfood entry
+  // BY REFERENCE (entries array holds the same object). An overlay id with
+  // no matching dogfood entry is an error string, never a throw. A missing
+  // overlay file is an error only when the option is explicitly true.
+  // ---------------------------------------------------------------------
+  if (wantFork359Overlay) {
+    const overlayPath = path.join(corpusDir, FORK359_OVERLAY_FILE);
+    if (!fs.existsSync(overlayPath)) {
+      errors.push(overlayPath + ': fork359Overlay requested but file is missing');
+    } else {
+      try {
+        const raw = fs.readFileSync(overlayPath, 'utf8');
+        const parsed = JSON.parse(raw);
+        const labels = (parsed && typeof parsed.labels === 'object' && parsed.labels) || {};
+        const byId = new Map();
+        for (const entry of entries) {
+          if (entry && entry.source === 'dogfood') byId.set(entry.id, entry);
+        }
+        for (const overlayId of Object.keys(labels)) {
+          const target = byId.get(overlayId);
+          if (!target) {
+            errors.push(overlayPath + ': overlay id "' + overlayId + '" has no matching dogfood entry');
+            continue;
+          }
+          const label = labels[overlayId] || {};
+          if (typeof label.prose_fork === 'boolean') target.prose_fork = label.prose_fork;
+          if (Array.isArray(label.fork_labels)) target.fork_labels = label.fork_labels;
+          if (typeof label.fork_label_origin === 'string') target.fork_label_origin = label.fork_label_origin;
+        }
+      } catch (e) {
+        errors.push(overlayPath + ': failed to read/parse (' + e.message + ')');
+      }
+    }
+  }
+
   return { entries, files, errors };
 }
 
@@ -408,6 +528,9 @@ module.exports = {
   CORPUS_238_PATH,
   SOURCES,
   SOURCE_FILES,
+  OPT_IN_SOURCES,
+  OPT_IN_SOURCE_FILES,
+  FORK359_OVERLAY_FILE,
   LABEL_ORIGINS,
   ENVELOPE_MODES,
   adapt238,

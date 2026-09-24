@@ -69,9 +69,12 @@ const DEFAULT_REPORT_PATH = path.join(
 
 // ---------------------------------------------------------------------------
 // LABELABLE_SOURCES (D-11): only sources (a)(b)(c) may ever be projected
-// into a request. dogfood is never a member of this list.
+// into a request. dogfood is never a member of this list. Phase 359-02
+// (SPEC R1, D-20) adds 'synthetic-359' additively: it is the ONLY new
+// LABELABLE_SOURCES member this phase ever adds, and it is loaded through
+// 357's existing card_fire_replay egress profile (no new profile, D-20).
 // ---------------------------------------------------------------------------
-const LABELABLE_SOURCES = Object.freeze(['238', 'debug', 'live']);
+const LABELABLE_SOURCES = Object.freeze(['238', 'debug', 'live', 'synthetic-359']);
 
 // ---------------------------------------------------------------------------
 // STRUCTURAL_REASONS: verdict reasons no Noul can inform, since they are
@@ -390,6 +393,7 @@ function parseArgs(argv) {
     corpusDir: undefined,
     only: null,
     dryRun: false,
+    source: null,
   };
   const list = Array.isArray(argv) ? argv.slice() : [];
   for (let i = 0; i < list.length; i++) {
@@ -410,6 +414,9 @@ function parseArgs(argv) {
       case '--dry-run':
         args.dryRun = true;
         break;
+      case '--source':
+        args.source = list[++i];
+        break;
       default:
         break;
     }
@@ -424,11 +431,32 @@ function parseArgs(argv) {
 async function main(argv) {
   const args = parseArgs(argv || process.argv.slice(2));
 
+  // Phase 359-02 (SPEC R1, D-20): --source <src> filters the run to one
+  // source. When that source is opt-in (currently only 'synthetic-359'),
+  // the corpus loader must be told to load it (loadCorpus({}) never does).
+  // Any other unrecognized source name (not a known SOURCES member and not
+  // a known OPT_IN_SOURCES member) is a usage error, exit 2, rather than a
+  // silent zero-row run.
+  if (args.source) {
+    const knownSource = corpusLoader.SOURCES.indexOf(args.source) !== -1
+      || corpusLoader.OPT_IN_SOURCES.indexOf(args.source) !== -1;
+    if (!knownSource) {
+      process.stderr.write('[label-card-fire-replay] unknown --source "' + args.source + '"\n');
+      return 2;
+    }
+  }
+
   const loadOpts = {};
   if (args.corpusDir) loadOpts.corpusDir = args.corpusDir;
+  if (args.source && corpusLoader.OPT_IN_SOURCES.indexOf(args.source) !== -1) {
+    loadOpts.optIn = [args.source];
+  }
   const corpus = corpusLoader.loadCorpus(loadOpts);
 
   let pairs = selectLabelable(corpus);
+  if (args.source) {
+    pairs = pairs.filter((p) => p.entry.source === args.source);
+  }
   if (args.only) {
     const wanted = new Set(args.only);
     pairs = pairs.filter((p) => wanted.has(p.entry.id));
