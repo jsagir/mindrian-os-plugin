@@ -13,13 +13,18 @@
  * requires the thinking-mode regex module, the verification stamp module or
  * any dev-time Jev script (the tripwire this file's own test greps for).
  *
- * Subcommands: start / resume / status / emit, over four sets (sentences,
- * citations, pairings-unstamped, pairings-stamped). Keys 1-6 label the five
- * thinking modes plus none; y/n x3 per pairing (useful, direction ok,
- * already known); s/n/c per citation pair (supports / says nothing /
- * contradicts). u undoes the most recent entry; q (and Ctrl+C) saves and
- * quits. The session is saved after every key via a temp-file-then-rename
- * (atomic) write. Raw keypress via readline.emitKeypressEvents + setRawMode
+ * Subcommands: start / resume / status / emit / import, over four sets
+ * (sentences, citations, pairings-unstamped, pairings-stamped). Keys 1-6
+ * label the five thinking modes plus none; y/n x3 per pairing (useful,
+ * direction ok, already known); s/n/c per citation pair (supports / says
+ * nothing / contradicts). u undoes the most recent entry; q (and Ctrl+C)
+ * saves and quits. The session is saved after every key via a
+ * temp-file-then-rename (atomic) write. `import` writes gold from an
+ * external model's labels under a navigator ruling (355-14 Task 3,
+ * 2026-09-24): a labeler name of "navigator" is refused (the human path
+ * stays the CLI sitting above); the written file carries
+ * labeler_kind: "external_model" so no record can be mistaken for a human
+ * sitting. Raw keypress via readline.emitKeypressEvents + setRawMode
  * when stdin is a TTY, with a line-mode fallback otherwise (WSL raw-mode
  * quirk, Pitfall 12): setRawMode is always restored in a finally / on
  * process 'exit'.
@@ -74,6 +79,18 @@ function shuffle(list, seed) {
 
 function sha256Hex(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
+}
+
+// ---------------------------------------------------------------------------
+// itemId(it) -- the citation items file (355-citation-pairs.items.json,
+// 355-14 Task 2) keys items by "pair_id", never "id"; every other set uses
+// "id". Falling back to pair_id when id is absent keeps every id-keyed path
+// (start/resume/emit/import) working for both shapes with no per-set
+// branching, and fixes the bug where every citation item collapsed onto a
+// single session.entries['undefined'] key (355-14 Task 3 checkpoint).
+// ---------------------------------------------------------------------------
+function itemId(it) {
+  return it.id !== undefined ? it.id : it.pair_id;
 }
 
 // ---------------------------------------------------------------------------
@@ -231,6 +248,13 @@ function usageText() {
     '    --partial: emit the navigator-ruled floor (only the labeled items);',
     '               refuses nothing on the missing count; marks partial:true,',
     '               labeled_count, total_items, floor_ruling in the gold file.',
+    '  node scripts/label-355-gold.cjs import  --set <set> --from <external-labels.json> --labeler <name> [--items <p>] [--out <p>]',
+    '    import: gold from an external model\'s labels, under a navigator',
+    '            ruling (keyed sets only: sentences, citations). Refuses',
+    '            --labeler "navigator" (that path is the CLI sitting above).',
+    '            Requires every item id to appear exactly once with a label',
+    '            from the set\'s closed vocabulary. Writes labeler_kind:',
+    '            "external_model" so the record can never pass as human gold.',
     'Sets: sentences, citations, pairings-unstamped, pairings-stamped',
     '',
   ].join('\n');
@@ -320,12 +344,12 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
   }
 
   const partial = !!flags.partial;
-  const missing = items.filter((it) => !session.entries[it.id]);
+  const missing = items.filter((it) => !session.entries[itemId(it)]);
   if (missing.length > 0 && !partial) {
     write('label-355-gold: refused -- ' + missing.length + ' item(s) not yet labeled\n');
     return 1;
   }
-  const itemsToEmit = partial ? items.filter((it) => session.entries[it.id]) : items;
+  const itemsToEmit = partial ? items.filter((it) => session.entries[itemId(it)]) : items;
 
   const outRaw = flags.out ? path.resolve(flags.out) : path.join(root, setDef.outDefault);
   const outReal = resolveAndContain(outRaw, [path.join(root, 'tests', 'fixtures'), os.tmpdir()]);
@@ -343,9 +367,9 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
       fixture_sha256: fixtureSha256,
       labeled_at: labeledAt,
       items: itemsToEmit.map((it) => {
-        const e = session.entries[it.id];
+        const e = session.entries[itemId(it)];
         return {
-          pair_id: it.id,
+          pair_id: itemId(it),
           useful: e.useful,
           direction_ok: e.direction_ok,
           already_known: e.already_known,
@@ -360,12 +384,12 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
       fixture_sha256: fixtureSha256,
       labeled_at: labeledAt,
       items: itemsToEmit.map((it) => {
-        const out = { id: it.id };
+        const out = { id: itemId(it) };
         for (let i = 0; i < setDef.displayFields.length; i += 1) {
           const field = setDef.displayFields[i];
           if (it[field] !== undefined) out[field] = it[field];
         }
-        out.gold = session.entries[it.id].label;
+        out.gold = session.entries[itemId(it)].label;
         return out;
       }),
     };
@@ -392,6 +416,137 @@ function doEmit({ setId, setDef, flags, write, root, now }) {
   fs.writeFileSync(tmpPath, JSON.stringify(payload, null, 2));
   fs.renameSync(tmpPath, outReal);
   write('label-355-gold: wrote ' + outReal + '\n');
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// import -- gold from an external model's labels under a navigator ruling
+// (355-14 Task 3, 2026-09-24). Never a substitute for the human CLI sitting
+// above: refuses a --labeler of "navigator" outright, and every record it
+// writes is stamped labeler_kind: "external_model" so it can never be
+// mistaken for the navigator's own gold in downstream consumers (355-26).
+// ---------------------------------------------------------------------------
+function doImport({ setId, setDef, flags, write, root, now }) {
+  if (setDef.kind !== 'keyed') {
+    write('label-355-gold: refused -- import is only supported for keyed sets (sentences, citations)\n');
+    return 1;
+  }
+
+  const labeler = typeof flags.labeler === 'string' ? flags.labeler : null;
+  if (!labeler) {
+    write('label-355-gold: refused -- --labeler <name> is required\n');
+    return 1;
+  }
+  if (labeler === 'navigator') {
+    write('label-355-gold: refused -- --labeler "navigator" is reserved for the human CLI sitting (start/resume/emit)\n');
+    return 1;
+  }
+
+  const fromRaw = typeof flags.from === 'string' ? flags.from : null;
+  if (!fromRaw) {
+    write('label-355-gold: refused -- --from <external-labels.json> is required\n');
+    return 1;
+  }
+
+  const itemsPath = flags.items ? path.resolve(flags.items) : path.join(root, setDef.itemsDefault);
+  let raw;
+  let items;
+  try {
+    const loaded = loadItems(itemsPath);
+    raw = loaded.raw;
+    items = loaded.items;
+  } catch (_e) {
+    write('label-355-gold: cannot read items file ' + itemsPath + '\n');
+    return 1;
+  }
+  const fixtureSha256 = sha256Hex(raw);
+
+  const fromPath = path.resolve(fromRaw);
+  let external;
+  try {
+    external = JSON.parse(fs.readFileSync(fromPath, 'utf8'));
+  } catch (_e) {
+    write('label-355-gold: cannot read external labels file ' + fromPath + '\n');
+    return 1;
+  }
+  const extItems = Array.isArray(external.items) ? external.items : null;
+  if (!extItems) {
+    write('label-355-gold: refused -- external labels file has no items array: ' + fromPath + '\n');
+    return 1;
+  }
+
+  const labelById = new Map();
+  for (let i = 0; i < extItems.length; i += 1) {
+    const rawExt = extItems[i] || {};
+    const id = rawExt.pair_id !== undefined ? rawExt.pair_id : rawExt.id;
+    if (id === undefined || labelById.has(id)) {
+      write('label-355-gold: refused -- external labels file carries a missing or duplicate id ("' + id + '")\n');
+      return 1;
+    }
+    labelById.set(id, rawExt.label);
+  }
+
+  const validLabels = new Set(Object.values(setDef.keys));
+  const missing = [];
+  const invalid = [];
+  for (let i = 0; i < items.length; i += 1) {
+    const id = itemId(items[i]);
+    if (!labelById.has(id)) {
+      missing.push(id);
+      continue;
+    }
+    if (!validLabels.has(labelById.get(id))) {
+      invalid.push(id);
+    }
+  }
+  if (missing.length > 0) {
+    write('label-355-gold: refused -- ' + missing.length + ' item(s) from the items file are missing from the external labels file\n');
+    return 1;
+  }
+  if (invalid.length > 0) {
+    write('label-355-gold: refused -- ' + invalid.length + ' item(s) carry a label outside the closed vocabulary\n');
+    return 1;
+  }
+  if (labelById.size !== items.length) {
+    write(
+      'label-355-gold: refused -- external labels file has ' + labelById.size + ' item(s), items file has ' + items.length + ' (must match exactly)\n',
+    );
+    return 1;
+  }
+
+  const outRaw = flags.out ? path.resolve(flags.out) : path.join(root, setDef.outDefault);
+  const outReal = resolveAndContain(outRaw, [path.join(root, 'tests', 'fixtures'), os.tmpdir()]);
+  if (!outReal) {
+    write('label-355-gold: refused -- --out escapes the allowed roots\n');
+    return 1;
+  }
+
+  const labeledAt = new Date(now()).toISOString();
+  const payload = {
+    _labeling_note:
+      'Machine-labeled gold, Phase 355 (' + setId + '), under the navigator ruling of 2026-09-24 ' +
+      '(the navigator\'s own blind sitting for this set is recorded separately, in the session file).',
+    labeler: labeler,
+    labeler_kind: 'external_model',
+    fixture_sha256: fixtureSha256,
+    labeled_at: labeledAt,
+    items: items.map((it) => {
+      const out = { id: itemId(it) };
+      for (let i = 0; i < setDef.displayFields.length; i += 1) {
+        const field = setDef.displayFields[i];
+        if (it[field] !== undefined) out[field] = it[field];
+      }
+      out.gold = labelById.get(itemId(it));
+      return out;
+    }),
+  };
+
+  const dir = path.dirname(outReal);
+  fs.mkdirSync(dir, { recursive: true });
+  const tmpPath = outReal + '.tmp';
+  fs.writeFileSync(tmpPath, JSON.stringify(payload, null, 2));
+  fs.renameSync(tmpPath, outReal);
+  write('label-355-gold: wrote ' + outReal + ' (labeler: ' + labeler + ', labeler_kind: external_model)\n');
   return 0;
 }
 
@@ -435,8 +590,8 @@ function doSession({ mode, setId, setDef, flags, input, output, write, now, root
     const itemById = new Map();
     const ids = [];
     for (let i = 0; i < items.length; i += 1) {
-      itemById.set(items[i].id, items[i]);
-      ids.push(items[i].id);
+      itemById.set(itemId(items[i]), items[i]);
+      ids.push(itemId(items[i]));
     }
 
     let session;
@@ -654,6 +809,9 @@ async function run(opts) {
   }
   if (cmd === 'emit') {
     return doEmit({ setId, setDef, flags, write, root, now: nowFn });
+  }
+  if (cmd === 'import') {
+    return doImport({ setId, setDef, flags, write, root, now: nowFn });
   }
   if (cmd === 'start' || cmd === 'resume') {
     const direction = loadDirectionModule(opts);

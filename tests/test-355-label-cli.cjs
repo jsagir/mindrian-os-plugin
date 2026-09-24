@@ -583,6 +583,187 @@ async function main() {
   }
 
   // ---------------------------------------------------------------------
+  // Behavior 11b: itemId() bug fix -- the real citation items file
+  // (tests/fixtures/355-citation-pairs.items.json) keys items by "pair_id",
+  // never "id". Before this fix, items[i].id was undefined for every
+  // citation item, collapsing all 43 distinct pairs into a single
+  // session.entries['undefined'] key -- the actual mechanism behind the
+  // navigator's citation sitting landing at 0/43 (355-14 Task 3 checkpoint).
+  // ---------------------------------------------------------------------
+  const citationPairIdItemsPath = path.join(workDir, 'citations-pairid.items.json');
+  writeJson(citationPairIdItemsPath, {
+    items: [
+      { pair_id: 'cp-001', claim: 'A and B: same meaning in different words.', path: [{ from: 'A', relation: 'feeds into', to: 'B' }] },
+      { pair_id: 'cp-002', claim: 'A and C: same meaning in different words.', path: [{ from: 'A', relation: 'feeds into', to: 'C' }] },
+      { pair_id: 'cp-003', claim: 'A and D: same meaning in different words.', path: [{ from: 'A', relation: 'feeds into', to: 'D' }] },
+    ],
+  });
+  {
+    const sessionDir = mkTmpDir('session-pairid');
+    const input = new PassThrough();
+    const output = makeOutput();
+    const runPromise = cli.run({
+      argv: ['start', '--set', 'citations', '--items', citationPairIdItemsPath, '--session-dir', sessionDir],
+      input,
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    input.write('s\n');
+    input.write('n\n');
+    input.write('c\n');
+    input.write('q\n');
+    const code = await runPromise;
+    check('B11b: start exits 0 with pair_id-only items', code === 0);
+    const sessionPath = path.join(sessionDir, 'labeling-session-citations.json');
+    const session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+    const entryKeys = Object.keys(session.entries);
+    check('B11b: three distinct entries recorded (pair_id used as the id)', entryKeys.length === 3, entryKeys.join(','));
+    check(
+      'B11b: entries keyed by pair_id, never "undefined"',
+      entryKeys.every((k) => ['cp-001', 'cp-002', 'cp-003'].includes(k)),
+      entryKeys.join(','),
+    );
+
+    const outDir = mkTmpDir('out-pairid');
+    const outPath = path.join(outDir, 'gold-pairid.json');
+    const emitOut = makeOutput();
+    const emitCode = await cli.run({
+      argv: ['emit', '--set', 'citations', '--items', citationPairIdItemsPath, '--session-dir', sessionDir, '--out', outPath],
+      input: new PassThrough(),
+      output: emitOut,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B11b: emit succeeds with pair_id-only items', emitCode === 0, emitOut.text);
+    const gold = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+    check(
+      'B11b: emitted gold items carry id = the pair_id value',
+      gold.items.length === 3 && gold.items.every((it) => ['cp-001', 'cp-002', 'cp-003'].includes(it.id)),
+      JSON.stringify(gold.items.map((it) => it.id)),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Behavior 11c: `import --set citations --from <external-labels.json>
+  // --labeler <name>` -- a machine-labeled gold path under the navigator's
+  // ruling (355-14 Task 3 checkpoint resolution). Refuses a "navigator"
+  // labeler (the human path stays the CLI sitting); verifies every item id
+  // appears exactly once with a label from the closed vocabulary.
+  // ---------------------------------------------------------------------
+  const externalLabelsPath = path.join(workDir, 'external-labels.json');
+  writeJson(externalLabelsPath, {
+    labeler: 'claude-opus-5.5',
+    labeler_kind: 'external_model',
+    items: [
+      { pair_id: 'cp-002', label: 'says_nothing' },
+      { pair_id: 'cp-001', label: 'supports' },
+      { pair_id: 'cp-003', label: 'contradicts' },
+    ],
+  });
+  {
+    const outDir = mkTmpDir('out-import');
+    const outPath = path.join(outDir, 'gold-import.json');
+    const output = makeOutput();
+    const code = await cli.run({
+      argv: ['import', '--set', 'citations', '--items', citationPairIdItemsPath, '--from', externalLabelsPath, '--labeler', 'claude-opus-5.5', '--out', outPath],
+      input: new PassThrough(),
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B11c: import exits 0 on a complete, valid external label set', code === 0, output.text);
+    const gold = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+    check('B11c: gold.labeler equals the given name, never "navigator"', gold.labeler === 'claude-opus-5.5');
+    check('B11c: gold.labeler_kind is "external_model"', gold.labeler_kind === 'external_model');
+    check(
+      'B11c: gold carries fixture_sha256 and labeled_at',
+      typeof gold.fixture_sha256 === 'string' && typeof gold.labeled_at === 'string',
+    );
+    check('B11c: gold item count matches the item set', gold.items.length === 3, String(gold.items.length));
+    const byId = {};
+    gold.items.forEach((it) => {
+      byId[it.id] = it.gold;
+    });
+    check(
+      'B11c: verdicts mapped correctly per pair_id',
+      byId['cp-001'] === 'supports' && byId['cp-002'] === 'says_nothing' && byId['cp-003'] === 'contradicts',
+      JSON.stringify(byId),
+    );
+    check(
+      'B11c: gold items carry claim/path (same displayFields shape as emit)',
+      gold.items.every((it) => typeof it.claim === 'string' && Array.isArray(it.path)),
+    );
+  }
+  {
+    const outDir = mkTmpDir('out-import-navigator');
+    const outPath = path.join(outDir, 'gold-should-not-exist.json');
+    const output = makeOutput();
+    const code = await cli.run({
+      argv: ['import', '--set', 'citations', '--items', citationPairIdItemsPath, '--from', externalLabelsPath, '--labeler', 'navigator', '--out', outPath],
+      input: new PassThrough(),
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B11c: import refuses a "navigator" labeler name', code !== 0);
+    check('B11c: gold file never written when labeler is "navigator"', !fs.existsSync(outPath));
+  }
+  {
+    const incompleteLabelsPath = path.join(workDir, 'external-labels-incomplete.json');
+    writeJson(incompleteLabelsPath, {
+      labeler: 'claude-opus-5.5',
+      labeler_kind: 'external_model',
+      items: [
+        { pair_id: 'cp-001', label: 'supports' },
+        { pair_id: 'cp-002', label: 'says_nothing' },
+      ],
+    });
+    const outDir = mkTmpDir('out-import-incomplete');
+    const outPath = path.join(outDir, 'gold-should-not-exist.json');
+    const output = makeOutput();
+    const code = await cli.run({
+      argv: ['import', '--set', 'citations', '--items', citationPairIdItemsPath, '--from', incompleteLabelsPath, '--labeler', 'claude-opus-5.5', '--out', outPath],
+      input: new PassThrough(),
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B11c: import refuses when an item is missing from the external file', code !== 0);
+    check('B11c: gold file never written when incomplete', !fs.existsSync(outPath));
+  }
+  {
+    const badLabelsPath = path.join(workDir, 'external-labels-bad.json');
+    writeJson(badLabelsPath, {
+      labeler: 'claude-opus-5.5',
+      labeler_kind: 'external_model',
+      items: [
+        { pair_id: 'cp-001', label: 'supports' },
+        { pair_id: 'cp-002', label: 'maybe' },
+        { pair_id: 'cp-003', label: 'contradicts' },
+      ],
+    });
+    const outDir = mkTmpDir('out-import-badlabel');
+    const outPath = path.join(outDir, 'gold-should-not-exist.json');
+    const output = makeOutput();
+    const code = await cli.run({
+      argv: ['import', '--set', 'citations', '--items', citationPairIdItemsPath, '--from', badLabelsPath, '--labeler', 'claude-opus-5.5', '--out', outPath],
+      input: new PassThrough(),
+      output,
+      now,
+      repoRoot: ROOT,
+      direction: goodDirection,
+    });
+    check('B11c: import refuses a label outside the closed vocabulary', code !== 0);
+    check('B11c: gold file never written on an invalid label', !fs.existsSync(outPath));
+  }
+
+  // ---------------------------------------------------------------------
   // Behavior 11 / static tripwire: no banned requires, non-comment lines only
   // ---------------------------------------------------------------------
   {
