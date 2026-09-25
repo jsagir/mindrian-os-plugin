@@ -311,6 +311,620 @@ if (require.main === module) {
   process.exit(main(process.argv));
 }
 
+// ---------------------------------------------------------------------------
+// Phase 355.1 AMB-04: the ambient run ledger (extends this guard; the
+// cadence functions above are UNCHANGED -- this section adds, it never
+// edits, a line above it).
+//
+// One per-room ledger answers "have we already run on exactly this
+// change?", "is a run in flight?", "did we already run this hour?"; one
+// lock keeps two children from running at once; one writer owns the small
+// delta-state file SENS-21 (lib/core/sensors/sensor-room-delta.cjs) reads.
+//
+// CANON PART 8 (same posture as the file's own docblock above): every
+// value here is a closed enum, an ISO time, a non-negative integer, or a
+// truncated hash -- never room content, never a path, never a slug. Zero
+// network: no zod (a schema library, not needed for a plain frozen key
+// list), no fetch, no node:sqlite in this section (the file's PRE-EXISTING
+// HARD-02 check above legitimately uses node:sqlite for the room-graph
+// null-source_path scan; that is unrelated machinery this section never
+// touches).
+//
+// Every function here soft-fails (try/catch, never throws) and every JSON
+// write is temp-then-rename (atomicWriteJsonAmbient below, the
+// scripts/auto-explore-fire.cjs:146-156 idiom, replicated locally).
+//
+// House rule: hyphens only, no em-dashes.
+// ---------------------------------------------------------------------------
+
+const sensorRoomDelta = require('../lib/core/sensors/sensor-room-delta.cjs');
+const directionConvention = require('../lib/core/direction-convention.cjs');
+
+const {
+  DELTA_STATE_RELPATH,
+  DELTA_STATE_SCHEMA_VERSION,
+  DELTA_CLASSES,
+  SEAMS,
+  RUN_STATES,
+  SURFACED_VIA,
+} = sensorRoomDelta;
+const { FRAMING_IDS } = directionConvention;
+
+// -- Constants (data/floor-ledger.json discloses AMBIENT_MAX_RUNS_PER_HOUR
+// as a policy row; approval recorded at the single 355.1 checkpoint) ------
+
+const AMBIENT_LEDGER_RELPATH = path.join('.mindrian', 'ambient-run-ledger.json');
+const AMBIENT_LOCK_RELPATH = path.join('.mindrian', 'ambient-run.lock');
+const AMBIENT_LEDGER_SCHEMA_VERSION = 1;
+const AMBIENT_MAX_RUNS_PER_HOUR = 1;
+const AMBIENT_THROTTLE_WINDOW_MS = 60 * 60 * 1000;
+// Twice the child's total ambient budget of 4 minutes (plan 355.1-09),
+// itself above the measured max fire-child runtime recorded in
+// 355.1-BASELINE.md ("Measured Phase 117 child runtime": research's
+// recorded max 166s is the conservative figure this budget is derived
+// against, not the narrower fresh-sample max the same baseline documents
+// as known to undercount the tail).
+const AMBIENT_LOCK_STALE_MS = 8 * 60 * 1000;
+const STAMPED_MATERIALS_MAX = 32;
+const AMBIENT_PRODUCER_IDS = Object.freeze(['eureka', 'find-connections', 'find-bottlenecks', 'hsi', 'whitespace']);
+const AMBIENT_PRODUCER_OUTCOMES = Object.freeze(['filed', 'no_candidate', 'below_floor', 'guard_not_cleared', 'error', 'skipped', 'deps_missing']);
+const AMBIENT_POSTURES = Object.freeze(['run', 'halt']);
+const SHOULD_RUN_REASONS = Object.freeze(['ok', 'same_hash', 'in_flight', 'throttled', 'locked', 'ledger_corrupt']);
+
+const AMBIENT_LEDGER_KEYS = Object.freeze([
+  'schema_version', 'origin', 'last_run', 'last_delta_hash', 'watermarks',
+  'in_flight', 'runs_window', 'producers', 'tier_counts', 'surfaced_via',
+  'stamped_materials', 'last_closeout_at',
+]);
+const AMBIENT_WATERMARK_KEYS = Object.freeze(['claims_created_at', 'artifacts_created_at', 'contradicts_keys', 'stage', 'children']);
+const AMBIENT_IN_FLIGHT_KEYS = Object.freeze(['delta_hash', 'started_at', 'seam', 'watermarks']);
+const AMBIENT_RUNS_WINDOW_KEYS = Object.freeze(['hour_start', 'count']);
+const AMBIENT_TIER_COUNT_KEYS = Object.freeze(['strong', 'indirect', 'unverified']);
+const AMBIENT_PRODUCER_RECORD_KEYS = Object.freeze(['outcome', 'posture']);
+
+const DELTA_STATE_KEYS = Object.freeze([
+  'schema_version', 'evaluated_at', 'seam', 'classes', 'delta_hash',
+  'run_state', 'material_id', 'opportunity_handle', 'surfaced_via', 'framing',
+]);
+
+// The materialId format a caller may supply, matching
+// lib/core/sensors/sensor-room-delta.cjs's own MATERIAL_ID_RX shape (an
+// opaque local handle, never room content).
+const AMBIENT_MATERIAL_ID_RX = /^[0-9a-f]{6,64}$/;
+const AMBIENT_OPPORTUNITY_HANDLE_RX = /^[A-Za-z0-9:_.-]{1,128}$/;
+const AMBIENT_ISO_RX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const AMBIENT_HEX12_RX = /^[0-9a-f]{12}$/;
+const AMBIENT_HEX64_RX = /^[0-9a-f]{64}$/;
+
+// -- Small closed-shape validators (never throw) ---------------------------
+
+function ambientIsIso(v) { return typeof v === 'string' && AMBIENT_ISO_RX.test(v); }
+function ambientIsNonNegInt(v) { return Number.isInteger(v) && v >= 0; }
+function ambientIsHex12(v) { return typeof v === 'string' && AMBIENT_HEX12_RX.test(v); }
+function ambientIsHex64(v) { return typeof v === 'string' && AMBIENT_HEX64_RX.test(v); }
+function ambientIsHex12Array(v) { return Array.isArray(v) && v.every(ambientIsHex12); }
+
+function ambientHasExactKeys(obj, keys) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  const actual = Object.keys(obj);
+  if (actual.length !== keys.length) return false;
+  return keys.every((k) => actual.indexOf(k) !== -1);
+}
+
+function validateAmbientWatermarks(w) {
+  if (!ambientHasExactKeys(w, AMBIENT_WATERMARK_KEYS)) return false;
+  if (w.claims_created_at !== null && !ambientIsNonNegInt(w.claims_created_at)) return false;
+  if (w.artifacts_created_at !== null && !ambientIsNonNegInt(w.artifacts_created_at)) return false;
+  if (w.contradicts_keys !== null && !ambientIsHex12Array(w.contradicts_keys)) return false;
+  if (w.stage !== null && !ambientIsHex12(w.stage)) return false;
+  if (w.children !== null && !ambientIsHex12Array(w.children)) return false;
+  return true;
+}
+
+function normalizeAmbientWatermarks(candidate, fallback) {
+  const c = (candidate && typeof candidate === 'object') ? candidate : {};
+  const f = (fallback && typeof fallback === 'object') ? fallback : {};
+  const pick = (key) => (Object.prototype.hasOwnProperty.call(c, key) ? c[key] : (Object.prototype.hasOwnProperty.call(f, key) ? f[key] : null));
+  return {
+    claims_created_at: pick('claims_created_at'),
+    artifacts_created_at: pick('artifacts_created_at'),
+    contradicts_keys: pick('contradicts_keys'),
+    stage: pick('stage'),
+    children: pick('children'),
+  };
+}
+
+/**
+ * validateAmbientLedger(obj) -> boolean. Exact top-level key set (12 keys,
+ * an extra or missing key is invalid), closed enums, ISO strings,
+ * non-negative integers and truncated hashes only. Never throws.
+ */
+function validateAmbientLedger(obj) {
+  try {
+    if (!ambientHasExactKeys(obj, AMBIENT_LEDGER_KEYS)) return false;
+    if (obj.schema_version !== AMBIENT_LEDGER_SCHEMA_VERSION) return false;
+    if (obj.origin !== 'ambient') return false;
+    if (obj.last_run !== null && !ambientIsIso(obj.last_run)) return false;
+    if (obj.last_delta_hash !== null && !ambientIsHex64(obj.last_delta_hash)) return false;
+    if (!validateAmbientWatermarks(obj.watermarks)) return false;
+
+    if (obj.in_flight !== null) {
+      if (!ambientHasExactKeys(obj.in_flight, AMBIENT_IN_FLIGHT_KEYS)) return false;
+      if (!ambientIsHex64(obj.in_flight.delta_hash)) return false;
+      if (!ambientIsIso(obj.in_flight.started_at)) return false;
+      if (SEAMS.indexOf(obj.in_flight.seam) === -1) return false;
+      if (!validateAmbientWatermarks(obj.in_flight.watermarks)) return false;
+    }
+
+    if (!ambientHasExactKeys(obj.runs_window, AMBIENT_RUNS_WINDOW_KEYS)) return false;
+    if (obj.runs_window.hour_start !== null && !ambientIsIso(obj.runs_window.hour_start)) return false;
+    if (!ambientIsNonNegInt(obj.runs_window.count)) return false;
+
+    if (!obj.producers || typeof obj.producers !== 'object' || Array.isArray(obj.producers)) return false;
+    for (const key of Object.keys(obj.producers)) {
+      if (AMBIENT_PRODUCER_IDS.indexOf(key) === -1) return false;
+      const p = obj.producers[key];
+      if (!ambientHasExactKeys(p, AMBIENT_PRODUCER_RECORD_KEYS)) return false;
+      if (AMBIENT_PRODUCER_OUTCOMES.indexOf(p.outcome) === -1) return false;
+      if (AMBIENT_POSTURES.indexOf(p.posture) === -1) return false;
+    }
+
+    if (!ambientHasExactKeys(obj.tier_counts, AMBIENT_TIER_COUNT_KEYS)) return false;
+    if (!ambientIsNonNegInt(obj.tier_counts.strong)) return false;
+    if (!ambientIsNonNegInt(obj.tier_counts.indirect)) return false;
+    if (!ambientIsNonNegInt(obj.tier_counts.unverified)) return false;
+
+    if (obj.surfaced_via !== null && SURFACED_VIA.indexOf(obj.surfaced_via) === -1) return false;
+
+    if (!Array.isArray(obj.stamped_materials) || obj.stamped_materials.length > STAMPED_MATERIALS_MAX) return false;
+    if (!obj.stamped_materials.every((m) => typeof m === 'string' && AMBIENT_MATERIAL_ID_RX.test(m))) return false;
+
+    if (obj.last_closeout_at !== null && !ambientIsIso(obj.last_closeout_at)) return false;
+
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// -- File paths + atomic write ----------------------------------------------
+
+function ambientLedgerPath(roomDir) {
+  return path.join(path.resolve(String(roomDir || '')), AMBIENT_LEDGER_RELPATH);
+}
+
+function ambientLockPath(roomDir) {
+  return path.join(path.resolve(String(roomDir || '')), AMBIENT_LOCK_RELPATH);
+}
+
+function ambientDeltaStatePath(roomDir) {
+  return path.join(path.resolve(String(roomDir || '')), DELTA_STATE_RELPATH);
+}
+
+/**
+ * atomicWriteJsonAmbient(filePath, data) -> boolean. temp-then-rename, the
+ * scripts/auto-explore-fire.cjs:146-156 idiom, replicated locally (this
+ * file has no existing atomic-write helper to reuse). Never throws.
+ */
+function atomicWriteJsonAmbient(filePath, data) {
+  try {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const tmpPath = filePath + '.tmp.' + process.pid;
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmpPath, filePath);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+function freshAmbientLedger() {
+  return {
+    schema_version: AMBIENT_LEDGER_SCHEMA_VERSION,
+    origin: 'ambient',
+    last_run: null,
+    last_delta_hash: null,
+    watermarks: {
+      claims_created_at: null,
+      artifacts_created_at: null,
+      contradicts_keys: null,
+      stage: null,
+      children: null,
+    },
+    in_flight: null,
+    runs_window: { hour_start: null, count: 0 },
+    producers: {},
+    tier_counts: { strong: 0, indirect: 0, unverified: 0 },
+    surfaced_via: null,
+    stamped_materials: [],
+    last_closeout_at: null,
+  };
+}
+
+/**
+ * quarantineAmbientLedger(roomDir, nowMs) -> the quarantine path, or null.
+ * T-3551-19: a corrupt ledger is renamed aside (never deleted) so the next
+ * evaluation starts from a fresh ledger instead of blocking forever.
+ */
+function quarantineAmbientLedger(roomDir, nowMs) {
+  const file = ambientLedgerPath(roomDir);
+  try {
+    if (fs.existsSync(file)) {
+      const dest = file + '.corrupt.' + String(Number.isFinite(nowMs) ? nowMs : Date.now());
+      fs.renameSync(file, dest);
+      return dest;
+    }
+  } catch (_e) { /* best effort */ }
+  return null;
+}
+
+/**
+ * readAmbientLedger(roomDir) -> { ledger, corrupt }. No file on disk -> a
+ * fresh ledger, not corrupt. Unparseable JSON or a shape
+ * validateAmbientLedger rejects -> { ledger: null, corrupt: true } (the
+ * caller quarantines; this function never mutates the filesystem itself).
+ */
+function readAmbientLedger(roomDir) {
+  const file = ambientLedgerPath(roomDir);
+  if (!fs.existsSync(file)) {
+    return { ledger: freshAmbientLedger(), corrupt: false };
+  }
+  let parsed = null;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (_e) {
+    return { ledger: null, corrupt: true };
+  }
+  if (!validateAmbientLedger(parsed)) {
+    return { ledger: null, corrupt: true };
+  }
+  return { ledger: parsed, corrupt: false };
+}
+
+// -- shouldRunAmbient: the ladder ------------------------------------------
+
+/**
+ * shouldRunAmbient(roomDir, deltaHash, opts) -> { run, reason }. reason is
+ * a SHOULD_RUN_REASONS member. opts.now is an epoch-ms Number (defaults to
+ * Date.now()). The ladder, in order: corrupt (quarantine, then run) ->
+ * same_hash -> a fresh in_flight claim -> throttled -> a fresh lock file ->
+ * ok. Never throws.
+ */
+function shouldRunAmbient(roomDir, deltaHash, opts) {
+  try {
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+
+    const read = readAmbientLedger(roomDir);
+    if (read.corrupt) {
+      quarantineAmbientLedger(roomDir, nowMs);
+      return { run: false, reason: 'ledger_corrupt' };
+    }
+    const ledger = read.ledger;
+
+    if (typeof deltaHash === 'string' && deltaHash.length > 0 && ledger.last_delta_hash === deltaHash) {
+      return { run: false, reason: 'same_hash' };
+    }
+
+    if (ledger.in_flight && typeof ledger.in_flight === 'object') {
+      const startedMs = Date.parse(ledger.in_flight.started_at);
+      const age = nowMs - startedMs;
+      if (Number.isFinite(startedMs) && age >= 0 && age < AMBIENT_LOCK_STALE_MS) {
+        return { run: false, reason: 'in_flight' };
+      }
+      // Stale in-flight: falls through -- it never blocks, and this
+      // read-only function never clears it (the next claimAmbientRun call
+      // overwrites it).
+    }
+
+    const rw = (ledger.runs_window && typeof ledger.runs_window === 'object') ? ledger.runs_window : { hour_start: null, count: 0 };
+    if (rw.hour_start) {
+      const hourStartMs = Date.parse(rw.hour_start);
+      const withinWindow = Number.isFinite(hourStartMs) && (nowMs - hourStartMs) < AMBIENT_THROTTLE_WINDOW_MS;
+      if (withinWindow && rw.count >= AMBIENT_MAX_RUNS_PER_HOUR) {
+        return { run: false, reason: 'throttled' };
+      }
+    }
+
+    const lockPath = ambientLockPath(roomDir);
+    if (fs.existsSync(lockPath)) {
+      let lockFresh = false;
+      try {
+        const st = fs.statSync(lockPath);
+        lockFresh = (nowMs - st.mtimeMs) <= AMBIENT_LOCK_STALE_MS;
+      } catch (_e) {
+        lockFresh = false;
+      }
+      if (lockFresh) {
+        return { run: false, reason: 'locked' };
+      }
+    }
+
+    return { run: true, reason: 'ok' };
+  } catch (_e) {
+    return { run: false, reason: 'ledger_corrupt' };
+  }
+}
+
+// -- claim / release / record -----------------------------------------------
+
+/**
+ * claimAmbientRun(roomDir, { deltaHash, watermarks, seam, now }) -> {
+ * claimed, ledger }. Sets in_flight and advances runs_window (restarting
+ * the hour window when the prior one elapsed). Never throws.
+ */
+function claimAmbientRun(roomDir, opts) {
+  try {
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+    const nowIso = new Date(nowMs).toISOString();
+
+    const read = readAmbientLedger(roomDir);
+    const ledger = read.corrupt ? freshAmbientLedger() : read.ledger;
+
+    ledger.in_flight = {
+      delta_hash: (typeof o.deltaHash === 'string') ? o.deltaHash : '',
+      started_at: nowIso,
+      seam: (SEAMS.indexOf(o.seam) !== -1) ? o.seam : SEAMS[0],
+      watermarks: normalizeAmbientWatermarks(o.watermarks, {}),
+    };
+
+    const rw = (ledger.runs_window && typeof ledger.runs_window === 'object') ? ledger.runs_window : { hour_start: null, count: 0 };
+    const hourStartMs = rw.hour_start ? Date.parse(rw.hour_start) : NaN;
+    const withinWindow = Number.isFinite(hourStartMs) && (nowMs - hourStartMs) < AMBIENT_THROTTLE_WINDOW_MS;
+    ledger.runs_window = withinWindow
+      ? { hour_start: rw.hour_start, count: rw.count + 1 }
+      : { hour_start: nowIso, count: 1 };
+
+    const wrote = atomicWriteJsonAmbient(ambientLedgerPath(roomDir), ledger);
+    return { claimed: !!wrote, ledger: ledger };
+  } catch (_e) {
+    return { claimed: false };
+  }
+}
+
+/**
+ * releaseAmbientClaim(roomDir, deltaHash) -> { released }. Clears in_flight
+ * ONLY when in_flight.delta_hash === deltaHash (a different hash leaves it
+ * alone). Never throws.
+ */
+function releaseAmbientClaim(roomDir, deltaHash) {
+  try {
+    const read = readAmbientLedger(roomDir);
+    if (read.corrupt) return { released: false };
+    const ledger = read.ledger;
+    if (ledger.in_flight && ledger.in_flight.delta_hash === deltaHash) {
+      ledger.in_flight = null;
+      const wrote = atomicWriteJsonAmbient(ambientLedgerPath(roomDir), ledger);
+      return { released: !!wrote };
+    }
+    return { released: false };
+  } catch (_e) {
+    return { released: false };
+  }
+}
+
+/**
+ * recordAmbientRun(roomDir, { deltaHash, producers, tierCounts,
+ * surfacedVia, materialId, now }) -> { recorded, ledger }. Sets last_run,
+ * last_delta_hash, watermarks (from the claimed in_flight.watermarks),
+ * producers, tier_counts, surfaced_via; appends materialId to
+ * stamped_materials only when surfacedVia is 'sens13' (bounded to
+ * STAMPED_MATERIALS_MAX, oldest dropped); clears in_flight. Never throws.
+ */
+function recordAmbientRun(roomDir, opts) {
+  try {
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+    const nowIso = new Date(nowMs).toISOString();
+
+    const read = readAmbientLedger(roomDir);
+    const ledger = read.corrupt ? freshAmbientLedger() : read.ledger;
+
+    const inFlightWatermarks = (ledger.in_flight && typeof ledger.in_flight === 'object' && ledger.in_flight.watermarks && typeof ledger.in_flight.watermarks === 'object')
+      ? ledger.in_flight.watermarks
+      : null;
+
+    ledger.origin = 'ambient';
+    ledger.last_run = nowIso;
+    ledger.last_delta_hash = (typeof o.deltaHash === 'string') ? o.deltaHash : ledger.last_delta_hash;
+    if (inFlightWatermarks) {
+      ledger.watermarks = normalizeAmbientWatermarks(inFlightWatermarks, ledger.watermarks);
+    }
+    ledger.producers = (o.producers && typeof o.producers === 'object' && !Array.isArray(o.producers)) ? o.producers : ledger.producers;
+    ledger.tier_counts = (o.tierCounts && typeof o.tierCounts === 'object') ? {
+      strong: ambientIsNonNegInt(o.tierCounts.strong) ? o.tierCounts.strong : 0,
+      indirect: ambientIsNonNegInt(o.tierCounts.indirect) ? o.tierCounts.indirect : 0,
+      unverified: ambientIsNonNegInt(o.tierCounts.unverified) ? o.tierCounts.unverified : 0,
+    } : ledger.tier_counts;
+    ledger.surfaced_via = (SURFACED_VIA.indexOf(o.surfacedVia) !== -1) ? o.surfacedVia : null;
+
+    if (ledger.surfaced_via === 'sens13' && typeof o.materialId === 'string' && AMBIENT_MATERIAL_ID_RX.test(o.materialId)) {
+      const list = Array.isArray(ledger.stamped_materials) ? ledger.stamped_materials.slice() : [];
+      list.push(o.materialId);
+      while (list.length > STAMPED_MATERIALS_MAX) list.shift();
+      ledger.stamped_materials = list;
+    }
+
+    ledger.in_flight = null;
+
+    const wrote = atomicWriteJsonAmbient(ambientLedgerPath(roomDir), ledger);
+    return { recorded: !!wrote, ledger: ledger };
+  } catch (_e) {
+    return { recorded: false };
+  }
+}
+
+/**
+ * recordAmbientBaseline(roomDir, { watermarks }) -> { ok, ledger }. Fills
+ * ONLY watermark fields that are still null (contradicts_keys, stage,
+ * children) so classes b, c and d have a baseline even in a room that has
+ * not run yet; NEVER touches claims_created_at, artifacts_created_at,
+ * last_delta_hash, last_run or runs_window. A second call with different
+ * values changes nothing already set. Never throws.
+ */
+function recordAmbientBaseline(roomDir, opts) {
+  try {
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const wm = (o.watermarks && typeof o.watermarks === 'object') ? o.watermarks : {};
+
+    const read = readAmbientLedger(roomDir);
+    const ledger = read.corrupt ? freshAmbientLedger() : read.ledger;
+
+    const next = Object.assign({}, ledger.watermarks);
+    if (next.contradicts_keys === null && Object.prototype.hasOwnProperty.call(wm, 'contradicts_keys')) {
+      next.contradicts_keys = wm.contradicts_keys;
+    }
+    if (next.stage === null && Object.prototype.hasOwnProperty.call(wm, 'stage')) {
+      next.stage = wm.stage;
+    }
+    if (next.children === null && Object.prototype.hasOwnProperty.call(wm, 'children')) {
+      next.children = wm.children;
+    }
+    ledger.watermarks = next;
+
+    const wrote = atomicWriteJsonAmbient(ambientLedgerPath(roomDir), ledger);
+    return { ok: !!wrote, ledger: ledger };
+  } catch (_e) {
+    return { ok: false };
+  }
+}
+
+/**
+ * recordAmbientCloseout(roomDir, { now }) -> { ok, ledger }. Sets
+ * last_closeout_at (Ruling 2: when the Stop-time close-out last ran for
+ * this room, written by plan 355.1-13); changes nothing else. Never
+ * throws.
+ */
+function recordAmbientCloseout(roomDir, opts) {
+  try {
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+    const nowIso = new Date(nowMs).toISOString();
+
+    const read = readAmbientLedger(roomDir);
+    const ledger = read.corrupt ? freshAmbientLedger() : read.ledger;
+    ledger.last_closeout_at = nowIso;
+
+    const wrote = atomicWriteJsonAmbient(ambientLedgerPath(roomDir), ledger);
+    return { ok: !!wrote, ledger: ledger };
+  } catch (_e) {
+    return { ok: false };
+  }
+}
+
+// -- Lock (the scripts/gsd-graph-derive-drain.cjs:243-289 idiom) -----------
+
+/**
+ * acquireAmbientLock(roomDir, opts) -> { ok, path?, reclaimed?, reason? }.
+ * opts.now is an epoch-ms Number. fs.openSync 'wx' (the repo's existing
+ * write-lock idiom); a lock older than AMBIENT_LOCK_STALE_MS is reclaimed
+ * (ok true, reclaimed true) and retried once. Never throws.
+ */
+function acquireAmbientLock(roomDir, opts) {
+  const o = (opts && typeof opts === 'object') ? opts : {};
+  const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+  const lockPath = ambientLockPath(roomDir);
+  try { fs.mkdirSync(path.dirname(lockPath), { recursive: true }); } catch (_e) { /* best effort */ }
+
+  let reclaimed = false;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const fd = fs.openSync(lockPath, 'wx');
+      try { fs.writeSync(fd, String(process.pid)); } catch (_we) { /* advisory */ }
+      fs.closeSync(fd);
+      return { ok: true, path: lockPath, reclaimed: reclaimed };
+    } catch (_e) {
+      try {
+        const st = fs.statSync(lockPath);
+        if ((nowMs - st.mtimeMs) > AMBIENT_LOCK_STALE_MS) {
+          fs.rmSync(lockPath, { force: true });
+          reclaimed = true;
+          continue;
+        }
+        return { ok: false, reason: 'held' };
+      } catch (_se) {
+        // The holder released between our open() and stat(): retry once.
+        continue;
+      }
+    }
+  }
+  return { ok: false, reason: 'held' };
+}
+
+/**
+ * releaseAmbientLock(roomDir) -> { ok }. Never throws.
+ */
+function releaseAmbientLock(roomDir) {
+  const lockPath = ambientLockPath(roomDir);
+  try {
+    fs.rmSync(lockPath, { force: true });
+    return { ok: true };
+  } catch (_e) {
+    return { ok: false };
+  }
+}
+
+// -- Delta-state writer (the SENS-21 side channel; one writer) -------------
+
+/**
+ * validateDeltaState(obj) -> { ok, reason? }. Exact key set (10 keys),
+ * closed enums against SEAMS / DELTA_CLASSES / RUN_STATES / SURFACED_VIA /
+ * FRAMING_IDS (framing checked against direction-convention.cjs's
+ * FRAMING_IDS, seams/run-states/classes against the sensor module's own
+ * enums), sorted classes, a 64-hex delta_hash, an 8-64 lowercase-hex
+ * material_id or null, an opportunity_handle matching
+ * /^[A-Za-z0-9:_.-]{1,128}$/ or null. Never throws.
+ */
+function validateDeltaState(obj) {
+  try {
+    if (!ambientHasExactKeys(obj, DELTA_STATE_KEYS)) return { ok: false, reason: 'key_set' };
+    if (obj.schema_version !== DELTA_STATE_SCHEMA_VERSION) return { ok: false, reason: 'schema_version' };
+    if (!ambientIsIso(obj.evaluated_at)) return { ok: false, reason: 'evaluated_at' };
+    if (SEAMS.indexOf(obj.seam) === -1) return { ok: false, reason: 'seam' };
+    if (!Array.isArray(obj.classes) || obj.classes.length === 0 || obj.classes.some((c) => DELTA_CLASSES.indexOf(c) === -1)) {
+      return { ok: false, reason: 'classes' };
+    }
+    const sortedClasses = obj.classes.slice().sort();
+    if (JSON.stringify(sortedClasses) !== JSON.stringify(obj.classes)) return { ok: false, reason: 'classes_unsorted' };
+    if (!ambientIsHex64(obj.delta_hash)) return { ok: false, reason: 'delta_hash' };
+    if (RUN_STATES.indexOf(obj.run_state) === -1) return { ok: false, reason: 'run_state' };
+    if (obj.material_id !== null && !AMBIENT_MATERIAL_ID_RX.test(String(obj.material_id))) return { ok: false, reason: 'material_id' };
+    if (obj.opportunity_handle !== null && !AMBIENT_OPPORTUNITY_HANDLE_RX.test(String(obj.opportunity_handle))) return { ok: false, reason: 'opportunity_handle' };
+    if (obj.surfaced_via !== null && SURFACED_VIA.indexOf(obj.surfaced_via) === -1) return { ok: false, reason: 'surfaced_via' };
+    if (obj.framing !== null && FRAMING_IDS.indexOf(obj.framing) === -1) return { ok: false, reason: 'framing' };
+    return { ok: true };
+  } catch (_e) {
+    return { ok: false, reason: 'exception' };
+  }
+}
+
+/**
+ * writeRoomDeltaState(roomDir, state) -> { ok, reason? }. Validates the
+ * full closed schema, THEN an atomic temp-then-rename write; an invalid
+ * state writes nothing (no partial file, no .tmp leftover). Never throws.
+ */
+function writeRoomDeltaState(roomDir, state) {
+  const v = validateDeltaState(state);
+  if (!v.ok) return { ok: false, reason: v.reason };
+  const wrote = atomicWriteJsonAmbient(ambientDeltaStatePath(roomDir), state);
+  return wrote ? { ok: true } : { ok: false, reason: 'write_failed' };
+}
+
+/**
+ * readRoomDeltaState(roomDir) -> the parsed state, or null. Never throws.
+ */
+function readRoomDeltaState(roomDir) {
+  try {
+    const file = ambientDeltaStatePath(roomDir);
+    if (!fs.existsSync(file)) return null;
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
 module.exports = {
   shouldFire,
   recordRun,
@@ -320,4 +934,29 @@ module.exports = {
   cadenceStateDir,
   lastRunFile,
   DEFAULT_INTERVAL_HOURS,
+  // Phase 355.1 AMB-04: the ambient run ledger, lock and delta-state writer
+  readAmbientLedger,
+  validateAmbientLedger,
+  shouldRunAmbient,
+  claimAmbientRun,
+  releaseAmbientClaim,
+  recordAmbientRun,
+  recordAmbientBaseline,
+  recordAmbientCloseout,
+  acquireAmbientLock,
+  releaseAmbientLock,
+  validateDeltaState,
+  writeRoomDeltaState,
+  readRoomDeltaState,
+  AMBIENT_LEDGER_RELPATH,
+  AMBIENT_LOCK_RELPATH,
+  AMBIENT_LEDGER_SCHEMA_VERSION,
+  AMBIENT_MAX_RUNS_PER_HOUR,
+  AMBIENT_THROTTLE_WINDOW_MS,
+  AMBIENT_LOCK_STALE_MS,
+  STAMPED_MATERIALS_MAX,
+  AMBIENT_PRODUCER_IDS,
+  AMBIENT_PRODUCER_OUTCOMES,
+  AMBIENT_POSTURES,
+  SHOULD_RUN_REASONS,
 };
