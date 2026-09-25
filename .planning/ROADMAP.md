@@ -1094,7 +1094,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 **Goal:** The room, never the user, starts the breakthrough run: one detector (SENS-21) and one evaluator recognize five room-delta classes through the navigation chokepoint and start the five stamped Phase 355 producers underneath as autonomous_safe machinery on every surface (CLI hooks; the MCP Stop-time close-out on Desktop and Cowork); a per-room ledger with a delta hash and a lock prevents re-runs; only strong and indirect findings reach the card, once, through SENS-13; the framing follows the room problem type through a non-keyword chain. Widens the Phase 117 door; no rival spawner, no command, no MCP tool, no seventh reach. Navigator ruling 2026-09-23 (355.1-PRD.md).
 **Requirements**: AMB-01, AMB-02, AMB-03, AMB-04, AMB-05, AMB-06, AMB-07, AMB-08, AMB-09 (phase-local, defined in 355.1-PRD.md, registered in REQUIREMENTS.md by 355.1-16 at close)
 **Depends on:** Phase 355 (CLOSED before 355.1-01 runs)
-**Plans:** 1/16 plans executed
+**Plans:** 2/16 plans executed
 
 Plans:
 
@@ -1104,7 +1104,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 355.1-02-PLAN.md -- AMB-01: AMB-01's read side: three of the five delta classes have no navigation reader today (research C6: node_created events are a ghost, CONTRADICTS edges carry no timestamp, nothing reads stage or sub-room creation).
+- [x] 355.1-02-PLAN.md -- AMB-01: AMB-01's read side: three of the five delta classes have no navigation reader today (research C6: node_created events are a ghost, CONTRADICTS edges carry no timestamp, nothing reads stage or sub-room creation).
 - [ ] 355.1-03-PLAN.md -- AMB-02, AMB-01: AMB-02 and the pure half of AMB-01: one detector, SENS-21, registered in every gated lockstep place, riding the existing context_block reach; plus the pure classifier and delta hash the evaluator (plan 355.1-06) and the child (plan 355.1-09) share.
 - [ ] 355.1-04-PLAN.md -- AMB-07: AMB-07, the deferred 355 front end: the card's framing follows the room's problem type, found strategically (what the navigator ratified, what the room declares, what its structure shows), never by matching words.
 
