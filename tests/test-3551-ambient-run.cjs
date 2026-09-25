@@ -114,7 +114,7 @@ function stampWith(verification, extra) {
       backend: 'theo',
       direction: 'none',
       judge: 'none',
-      path: { nodes: ['A', 'CAUSES', 'B'], labels: ['Framework', 'Framework'], edges: ['CAUSES'] },
+      path: { nodes: ['A', 'B'], labels: ['Framework', 'Framework'], edges: ['EXTENDS'] },
     }
     : {
       verification: 'unverified',
@@ -177,30 +177,38 @@ try {
     ok('selectCardFinding: a finding with a huge score and tier indirect loses to a strong one (no score field is ever read)');
   })();
 
-  // ---------------------------------------------------------------------
-  // Leg: memoizeCallTool
-  // ---------------------------------------------------------------------
-  (function test_memoizeCallTool() {
-    const inner = theoReplay.makeCountingCallTool(async (tool, args) => ({ paths: [] }));
-    const memo = memoizeCallTool(inner);
-    return Promise.all([
-      memo('find_connections', { from: 'A', to: 'B' }),
-      memo('find_connections', { from: 'A', to: 'B' }),
-      memo('find_connections', { from: 'C', to: 'D' }),
-    ]).then(() => {
+} catch (e) {
+  console.error(e);
+  process.exitCode = 1;
+}
+
+// ---------------------------------------------------------------------
+// The remaining legs (memoizeCallTool onward) are all async; a single
+// async IIFE awaits every leg in order so a rejection anywhere still sets
+// a non-zero exit code before the summary line prints (JS has no
+// top-level await in a CJS file).
+// ---------------------------------------------------------------------
+(async function asyncLegs() {
+  try {
+    // -----------------------------------------------------------------
+    // Leg: memoizeCallTool
+    // -----------------------------------------------------------------
+    await (async function test_memoizeCallTool() {
+      const inner = theoReplay.makeCountingCallTool(async (tool, args) => ({ paths: [] }));
+      const memo = memoizeCallTool(inner);
+      await Promise.all([
+        memo('find_connections', { from: 'A', to: 'B' }),
+        memo('find_connections', { from: 'A', to: 'B' }),
+        memo('find_connections', { from: 'C', to: 'D' }),
+      ]);
       assert.strictEqual(inner.calls.length, 2, 'the same (tool, args) pair called twice must reach the underlying callTool once; a different pair reaches it again');
       ok('memoizeCallTool: the same (tool, args) twice across two producer adapters reaches the underlying counting callTool once; different args twice');
-    });
-  })().then(runComposition).catch(function (e) {
-    console.error(e);
-    process.exitCode = 1;
-  });
+    })();
 
-  function runComposition() {
-    // -------------------------------------------------------------------
+    // -----------------------------------------------------------------
     // Leg: runAmbientComposition (i) unverified-only -> card null
-    // -------------------------------------------------------------------
-    return (async function test_unverifiedOnly() {
+    // -----------------------------------------------------------------
+    await (async function test_unverifiedOnly() {
       const room = trackedRoom('unverified');
       const adapters = {
         eureka: async () => ({ outcome: 'no_candidate', findings: [{ producer: 'eureka', a: { handle: 'ea', text: 'EA' }, b: { handle: 'eb', text: 'EB' }, stamp: stampWith('unverified'), rank: 0 }] }),
@@ -217,20 +225,7 @@ try {
       assert.strictEqual(fs.existsSync(lastEurekaPath), false, 'no .mindrian/last-eureka.json must be written');
       ok('runAmbientComposition (i): only unverified findings -> card null, surfaced_via none, tier_counts.unverified correct, no side channel');
     })();
-  }
-} catch (e) {
-  console.error(e);
-  process.exitCode = 1;
-}
 
-// ---------------------------------------------------------------------
-// The remaining async legs run after the synchronous try/catch above
-// (JS has no top-level await in a CJS file); chained explicitly so a
-// rejection anywhere still sets a non-zero exit code before the summary
-// line prints.
-// ---------------------------------------------------------------------
-(async function asyncLegs() {
-  try {
     // -----------------------------------------------------------------
     // Leg: runAmbientComposition (ii) one indirect + one strong -> filed
     // -----------------------------------------------------------------
@@ -245,7 +240,7 @@ try {
         hsi: async () => ({ outcome: 'no_candidate', findings: [hsiFinding] }),
         whitespace: async () => ({ outcome: 'no_candidate', findings: [wsFinding] }),
       };
-      const measureAndGuard = async () => ({ ok: true, score: { direction: 'none', abs_diff: 0.5, band: 'opportunity', passes: true, semantic: 0.1, lexical: 0.1 }, guard: { cleared: true, verdict: 'transferable', confidence: 'high', tags: [] } });
+      const measureAndGuard = async () => ({ ok: true, score: { direction: 'structural_transfer', abs_diff: 0.5, band: 'opportunity', passes: true, semantic: 0.1, lexical: 0.1 }, guard: { cleared: true, verdict: 'transferable', confidence: 'high', tags: [] } });
       const before = navigation.openRoomDbForCaller(room.roomDir);
       let nodeCountBefore = 0;
       try {
@@ -478,7 +473,7 @@ try {
       if (res.card) {
         verificationStamp.Stamp.parse({
           verification: res.card.verification, backend: 'theo', direction: 'none', judge: 'none',
-          path: { nodes: ['A', 'X', 'B'], labels: ['Framework', 'Framework'], edges: ['EXTENDS'] },
+          path: { nodes: ['A', 'B'], labels: ['Framework', 'Framework'], edges: ['EXTENDS'] },
         });
       }
       ok('integration: the REAL adapters over a copied room-extend fixture with a replay callTool never throw, and every producer ends with an outcome in AMBIENT_PRODUCER_OUTCOMES');
