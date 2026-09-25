@@ -137,7 +137,7 @@ async function main() {
     check('addContradicts added exactly 2 more claim nodes', claimRowsAfter.length === 7,
       'got ' + claimRowsAfter.length);
     const contradictsEdges = readOnlyQuery(room.roomDir,
-      "SELECT source_id, target_id FROM edges WHERE edge_type = 'CONTRADICTS' AND source_id = ? AND target_id = ?",
+      "SELECT source, target FROM edges WHERE type = 'CONTRADICTS' AND source = ? AND target = ?",
       [contra.idA, contra.idB]);
     check('exactly one CONTRADICTS edge between the two new claims', contradictsEdges.length === 1,
       'got ' + contradictsEdges.length);
