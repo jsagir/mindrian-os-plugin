@@ -329,15 +329,106 @@ const BANNED_WORDS_RE = /\b(breakthrough|convergent|validated|proven|great|amazi
 // so the module's own doc header is free to explain what is forbidden and
 // why without tripping the token ban).
 // ---------------------------------------------------------------------------
-function extractQuotedLiterals(text) {
-  const out = [];
-  const re = /'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"/g;
-  let m;
-  // eslint-disable-next-line no-cond-assign
-  while ((m = re.exec(text)) !== null) {
-    out.push(m[1] !== undefined ? m[1] : m[2]);
+// tokenizeStringsAndRegex(text) -> [{ value, inArray }]. A small, real
+// single-pass tokenizer (not a naive quote regex): it skips `//` line
+// comments and real `/.../flags` regex literals (character classes and
+// escapes handled, so a class like `["']?` never confuses the scanner into
+// treating its own quote as a string boundary), and tracks a bracket stack
+// so every extracted string literal records whether its innermost enclosing
+// bracket is `[` (an array literal) -- the shape a phrase-marker table
+// actually has.
+const REGEX_START_PREV_CHARS = new Set(['(', ',', '=', ':', ';', '!', '&', '|', '?', '{', '[', '+', '-', '*', '%', '^', '~', '<', '>']);
+
+function tokenizeStringsAndRegex(text) {
+  const tokens = [];
+  const stack = [];
+  let prevSignificant = '';
+  let i = 0;
+  const n = text.length;
+  while (i < n) {
+    const c = text[i];
+    if (c === "'" || c === '"') {
+      const quote = c;
+      let j = i + 1;
+      let buf = '';
+      while (j < n && text[j] !== quote) {
+        if (text[j] === '\\' && j + 1 < n) {
+          buf += text[j] + text[j + 1];
+          j += 2;
+          continue;
+        }
+        buf += text[j];
+        j += 1;
+      }
+      const inArray = stack.length > 0 && stack[stack.length - 1] === '[';
+      tokens.push({ value: buf, inArray: inArray });
+      i = j + 1;
+      prevSignificant = quote;
+      continue;
+    }
+    if (c === '/' && text[i + 1] === '/') {
+      let j = i;
+      while (j < n && text[j] !== '\n') j += 1;
+      i = j;
+      continue;
+    }
+    if (c === '/' && (prevSignificant === '' || REGEX_START_PREV_CHARS.has(prevSignificant))) {
+      let j = i + 1;
+      let inClass = false;
+      let closed = false;
+      while (j < n) {
+        const cj = text[j];
+        if (cj === '\\') {
+          j += 2;
+          continue;
+        }
+        if (cj === '[') {
+          inClass = true;
+          j += 1;
+          continue;
+        }
+        if (cj === ']') {
+          inClass = false;
+          j += 1;
+          continue;
+        }
+        if (cj === '\n') break;
+        if (cj === '/' && !inClass) {
+          j += 1;
+          closed = true;
+          break;
+        }
+        j += 1;
+      }
+      if (closed) {
+        while (j < n && /[a-z]/i.test(text[j])) j += 1;
+        i = j;
+        prevSignificant = '/';
+        continue;
+      }
+      // Not a real regex literal (malformed / division-like); fall through
+      // and treat the '/' as a plain character below.
+    }
+    if (c === '(' || c === '{' || c === '[') stack.push(c);
+    else if (c === ')' || c === '}' || c === ']') stack.pop();
+    if (!/\s/.test(c)) prevSignificant = c;
+    i += 1;
   }
-  return out;
+  return tokens;
+}
+
+function extractQuotedLiterals(text) {
+  return tokenizeStringsAndRegex(text).map((t) => t.value);
+}
+
+// extractArrayLiteralSpaceyStrings(text) -> quoted string values that sit
+// directly inside a `[...]` array literal AND contain an internal space --
+// the exact shape of a phrase-marker table such as `['future of', ...]`. A
+// lone `'use strict';` (a space, but not inside an array) never matches.
+function extractArrayLiteralSpaceyStrings(text) {
+  return tokenizeStringsAndRegex(text)
+    .filter((t) => t.inArray && /\s/.test(t.value))
+    .map((t) => t.value);
 }
 
 function extractRungMarkers() {
@@ -368,10 +459,10 @@ function extractRungMarkers() {
 
   assert.strictEqual(codeText.indexOf('_inferRungFromQuestion'), -1, 'ambient-framing.cjs (non-comment code) must contain no _inferRungFromQuestion token');
 
-  const quoted = extractQuotedLiterals(codeText);
-  const spacey = quoted.filter((q) => /\s/.test(q));
-  assert.deepEqual(spacey, [], 'ambient-framing.cjs must contain no quoted string literal with an internal space (the shape of a phrase-marker table), found: ' + JSON.stringify(spacey));
+  const spacey = extractArrayLiteralSpaceyStrings(codeText);
+  assert.deepEqual(spacey, [], 'ambient-framing.cjs must contain no array literal holding a quoted string with an internal space (the shape of a phrase-marker table), found: ' + JSON.stringify(spacey));
 
+  const quoted = extractQuotedLiterals(codeText);
   const markers = extractRungMarkers();
   const lowerQuoted = quoted.map((q) => q.toLowerCase());
   for (const marker of markers) {
@@ -407,9 +498,8 @@ function scanForKeywordClassifier(files) {
       flagged.push({ file: f, reason: 'a keyword-classifier call site (_inferRungFromQuestion() smuggled in)' });
       continue;
     }
-    const quoted = extractQuotedLiterals(src);
-    if (quoted.some((q) => /\s/.test(q))) {
-      flagged.push({ file: f, reason: 'a marker-table-shaped array (a quoted string with an internal space)' });
+    if (extractArrayLiteralSpaceyStrings(src).length > 0) {
+      flagged.push({ file: f, reason: 'a marker-table-shaped array (a quoted string with an internal space inside an array literal)' });
     }
   }
   return flagged;
@@ -443,6 +533,11 @@ function scanForKeywordClassifier(files) {
 
 console.log('');
 console.log('PASS test-3551-framing.cjs (' + checks + ' checks)');
+// house-style summary line (hygiene-355 makeChecker's own "PASS: x FAIL: y"
+// shape): every check above throws via assert on the first failure, so
+// reaching this line means FAIL is always 0.
+console.log('--- test-3551-framing ---');
+console.log('PASS: ' + checks + ' FAIL: 0');
 
 assert.strictEqual(netGuard.attempts(), 0, 'installNetGuard must record zero fetch attempts (Pitfall 16)');
 netGuard.restore();
