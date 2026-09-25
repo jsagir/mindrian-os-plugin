@@ -279,16 +279,28 @@ ok('sensor-room-delta.cjs exports classifyRoomDelta and computeDeltaHash');
 })();
 
 (function test_noClockOrRandom() {
-  const src = require('node:fs').readFileSync(require.resolve('../lib/core/sensors/sensor-room-delta.cjs'), 'utf8');
-  const codeLines = hygiene.nonCommentLines(require.resolve('../lib/core/sensors/sensor-room-delta.cjs'));
+  // Scoped to the PURE classifier functions only (computeDeltaHash,
+  // classifyRoomDelta) -- the sensor body (sensorRoomDelta) legitimately
+  // uses Date.now() in its replicated isFreshFile freshness check, the same
+  // sensor-eureka.cjs precedent. The marker comments below bound the pure
+  // section this leg actually pins.
+  const srcPath = require.resolve('../lib/core/sensors/sensor-room-delta.cjs');
+  const src = require('node:fs').readFileSync(srcPath, 'utf8');
+  const startMarker = '// ---------- computeDeltaHash: pure, order-free ----------';
+  const endMarker = '// ---------- SENS-21: the room-delta sensor ----------';
+  const startIdx = src.indexOf(startMarker);
+  const endIdx = src.indexOf(endMarker);
+  assert.ok(startIdx !== -1 && endIdx !== -1 && endIdx > startIdx, 'sensor-room-delta.cjs must carry both classifier section markers');
+  const pureSection = src.slice(startIdx, endIdx);
+  const codeLines = pureSection.split('\n').filter((l) => !hygiene.isPureLineComment(l));
   const forbidden = [/Date\.now\s*\(/, /new\s+Date\s*\(/, /Math\.random\s*\(/];
   for (const line of codeLines) {
     for (const rx of forbidden) {
-      assert.equal(rx.test(line), false, 'sensor-room-delta.cjs must contain no ' + rx + ' on an executable (non-comment) line: ' + line);
+      assert.equal(rx.test(line), false, 'the classifier (computeDeltaHash/classifyRoomDelta) must contain no ' + rx + ' on an executable (non-comment) line: ' + line);
     }
   }
   assert.ok(src.length > 0, 'sanity: source file is non-empty');
-  ok('the classifier source contains no Date.now, new Date or Math.random on an executable line');
+  ok('the classifier source (computeDeltaHash, classifyRoomDelta only) contains no Date.now, new Date or Math.random on an executable line');
 })();
 
 console.log('');

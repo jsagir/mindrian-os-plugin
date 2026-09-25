@@ -202,12 +202,18 @@ try {
     const turn = { signals: [], sectionPath: null };
     const context = { quadruple: null, brainAvailable: false, roomDir: room.roomDir };
     const decision = engine.decide(turn, context);
-    const fired = (decision.decision_trace && Array.isArray(decision.decision_trace.sensorReaches))
-      ? decision.decision_trace.sensorReaches
+    // decide()'s trace surfaces fired sensor reaches through
+    // decision_trace.context_assembly.facts (Phase 144 Task 2's Zep-shaped
+    // trace, buildContextAssembly) -- there is no bare
+    // decision_trace.sensorReaches field; that name is an internal local
+    // variable, never a trace key.
+    const facts = (decision.decision_trace && decision.decision_trace.context_assembly && Array.isArray(decision.decision_trace.context_assembly.facts))
+      ? decision.decision_trace.context_assembly.facts
       : [];
-    const stamped = fired.find((r) => r && r.evidence && r.evidence.sensor_id === 'SENS-21');
-    assert.ok(stamped, 'decide() must include a SENS-21-stamped reach among its fired sensor reaches on the degrade fixture (turn 1, never turn-gated)');
-    ok('decide() with ctx.roomDir on the degrade fixture includes a SENS-21 reach among decision_trace.sensorReaches');
+    const stamped = facts.find((f) => f && f.evidence && f.evidence.sensor_id === 'SENS-21');
+    assert.ok(stamped, 'decide() must include a SENS-21-stamped reach among its fired sensor reaches (decision_trace.context_assembly.facts) on the degrade fixture (turn 1, never turn-gated)');
+    assert.strictEqual(stamped.reach_id, 'context_block', 'the decide()-path SENS-21 reach must ride context_block');
+    ok('decide() with ctx.roomDir on the degrade fixture includes a SENS-21 reach among decision_trace.context_assembly.facts');
   })();
 
   // ---------------------------------------------------------------------
