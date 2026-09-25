@@ -54,7 +54,12 @@ const PINNED_SPAWNER_SET = [
 // (test-auto-explore-fire.cjs, whose token is immediately preceded by a
 // hyphen rather than a quote or a slash).
 const FILENAME_REF_RE = /['"/]auto-explore-fire\.cjs['")]/;
-const SPAWN_CALL_RE = /\b(spawn|fork|exec|execFile)\s*\(/;
+// (Impl|Sync)? catches the module-level spawn seam idiom
+// (spawnImpl(...) -- lib/core/ambient-trigger.cjs's own _internal test
+// double swap point) alongside a direct spawn(/fork(/exec(/execFile( call,
+// without loosening to a bare \w* that would also catch an unrelated
+// execute(/executor( false positive.
+const SPAWN_CALL_RE = /\b(spawn|fork|exec|execFile)(Impl|Sync)?\s*\(/;
 
 function fileReferencesSpawner(fileAbs) {
   const lines = hygiene.nonCommentLines(fileAbs);

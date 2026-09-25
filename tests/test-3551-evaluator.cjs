@@ -152,7 +152,13 @@ try {
     ok('a second evaluateAndMaybeSpawn on the unchanged, in-flight room returns in_flight and spawns nothing');
 
     // after recordAmbientRun for that hash (simulating the child finishing),
-    // the same unchanged room returns same_hash
+    // the ledger's watermark absorbs the 5 claims (class a is an absolute
+    // since-bound threshold, per plan 355.1-03's shipped classifyRoomDelta
+    // contract), so a real re-evaluation against the SAME unmodified room
+    // sees zero new facts and reports no_change, never same_hash -- same_hash
+    // is the ladder's guard against a classifier that still detects a
+    // delta whose hash matches the last recorded one, which the
+    // dedicated stubbed-classifyFn leg below proves directly.
     guard.recordAmbientRun(room.roomDir, {
       deltaHash: spawnedDeltaHash,
       producers: {},
@@ -161,8 +167,44 @@ try {
       now: Date.now(),
     });
     const third = evaluateRoomDelta(room.roomDir, { now: Date.now() });
-    assert.strictEqual(third.decision, 'same_hash', 'after recordAmbientRun the unchanged room must report same_hash');
-    ok('after recordAmbientRun for that hash, the unchanged room returns same_hash');
+    assert.strictEqual(third.decision, 'no_change', 'after recordAmbientRun a real re-evaluation of the unmodified room must report no_change (class a is a since-bound threshold that the recorded watermark now absorbs)');
+    ok('after recordAmbientRun for that hash, a real re-evaluation of the unmodified room returns no_change (the watermark absorbs the already-counted claims)');
+  })();
+
+  // ---------------------------------------------------------------------
+  // Leg: same_hash -- the ladder's own guard when a classifier still
+  // detects a delta whose hash matches the already-recorded one. Uses a
+  // stubbed classifyFn (decoupled from the real since-bound classifier,
+  // which structurally cannot reproduce the same hash twice once its own
+  // watermark has absorbed the underlying facts) to prove the ladder maps
+  // shouldRunAmbient's own same_hash reason straight through.
+  // ---------------------------------------------------------------------
+  (function test_sameHashLadderMapping() {
+    const room = trackedRoom('same-hash');
+    const fixedHash = hex('same-hash-fixture', 64);
+    function fixedClassify() {
+      return {
+        changed: true,
+        classes: ['a'],
+        delta_hash: fixedHash,
+        next_watermarks: { claims_created_at: 1, artifacts_created_at: null, contradicts_keys: [], stage: null, children: [] },
+      };
+    }
+    resetSpawnTracking();
+    const first = evaluateAndMaybeSpawn(room.roomDir, { seam: 'stop_hook', classifyFn: fixedClassify, now: Date.now() });
+    assert.strictEqual(first.decision, 'spawned');
+
+    guard.recordAmbientRun(room.roomDir, {
+      deltaHash: fixedHash,
+      producers: {},
+      tierCounts: { strong: 0, indirect: 0, unverified: 0 },
+      surfacedVia: 'none',
+      now: Date.now(),
+    });
+
+    const second = evaluateRoomDelta(room.roomDir, { classifyFn: fixedClassify, now: Date.now() });
+    assert.strictEqual(second.decision, 'same_hash', 'a classifier that still detects the already-recorded hash must map to the same_hash decision');
+    ok('a classifier still detecting the already-recorded delta hash maps to the same_hash decision via the ladder');
   })();
 
   // ---------------------------------------------------------------------
