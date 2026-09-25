@@ -318,7 +318,7 @@ const BANNED_WORDS_RE = /\b(breakthrough|convergent|validated|proven|great|amazi
     assert.strictEqual(/[0-9]+%/.test(phrase), false, 'FRAMING_PHRASES.' + id + ' must contain no [0-9]+% token: ' + phrase);
     assert.strictEqual(/[0-9]/.test(phrase), false, 'FRAMING_PHRASES.' + id + ' must contain no digit at all: ' + phrase);
     assert.strictEqual(BANNED_WORDS_RE.test(phrase), false, 'FRAMING_PHRASES.' + id + ' must contain no banned over-claim or praise word: ' + phrase);
-    assert.strictEqual(/—/.test(phrase), false, 'FRAMING_PHRASES.' + id + ' must contain no em-dash: ' + phrase);
+    assert.strictEqual(/\u2014/.test(phrase), false, 'FRAMING_PHRASES.' + id + ' must contain no em-dash: ' + phrase);
     assert.ok(phrase.length >= 20 && phrase.length <= 90, 'FRAMING_PHRASES.' + id + ' length must be between 20 and 90 chars, got ' + phrase.length + ': ' + phrase);
   }
   ok('every FRAMING_PHRASES value passes the D-30 sweep, the [0-9]+% ban, the no-digit ban, the banned-word ban, the em-dash ban and the 20-90 length gate');
