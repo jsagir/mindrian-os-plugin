@@ -44,6 +44,10 @@ Migrated (16-column), partially migrated (12-column), and legacy (3-column) data
 
 A statement the schema cannot answer reports null, never zero. A zero on an unreadable column reads as a clean bill of health; a null reads honestly as unmeasured.
 
+## Statement homes
+
+`room-delta-facts.cjs` (Phase 355.1 AMB-01) is a read-only statement home for the ambient trigger's five delta classes (claims since a watermark, CONTRADICTS key set, STATE.md venture_stage, sub-room creation, artifacts since a watermark), re-exported as `readRoomDeltaFacts`. It follows `graph-integrity-counts.cjs`'s own contract: a caller-supplied handle, null never zero, fixed SQL literals only.
+
 ## The two doors
 
 `openRoomDbReadOnlyForCaller` (`spine-events.cjs`) is the door for any census or read-only sweep.
