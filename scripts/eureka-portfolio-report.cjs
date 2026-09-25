@@ -1811,6 +1811,92 @@ function _theoMsBucket(ms) {
 // lib/core/eureka/eureka-reach-runner.cjs's own frozen FIRING_BANDS).
 const SIDE_CHANNEL_FIRING_BANDS = Object.freeze(['opportunity', 'high', 'breakthrough']);
 
+// fileStampedOpportunity(db, params) -- Phase 355.1-07 extraction: "one
+// writer, two callers". params = { a, b, stamp, producer, roomDir, runMode,
+// reason, name?, sessionId?, jtbd?, score?, section?, evidenceIds?,
+// extraProps? }. a/b are { handle, text }. This is the SAME writeOpportunityNode
+// call bankStatements' own stamped branch already made (extraProps merges
+// verificationStamp.toNodeProps(stamp) plus pws_stage and engine_mode,
+// formula_version 'stamp-v1'; the lifecycle-state column NEVER carries an
+// explicit value -- the mint default lands, Part 9 role 5, no confirm path),
+// plus the two SOURCED_FROM writeEdge calls (origin 'eureka-355') --
+// extracted so the ambient composition and bankStatements share ONE writer
+// instead of two. Never opens or closes its own write transaction (the
+// caller owns the transaction boundary) and never throws: returns the
+// minted node id on success, or null on ANY failure (invalid params, a
+// writeOpportunityNode/writeEdge rejection). A
+// caller with the pair's full statement context (bankStatements) supplies
+// name/sessionId/jtbd/score/section/evidenceIds/extraProps explicitly so its
+// own output stays byte-identical to before this extraction; a caller with
+// only the bare pair (the ambient composition) gets sensible defaults: name
+// is `${aText} x ${bText}`, sessionId defaults to 'ambient', section/jtbd/
+// score are omitted, evidenceIds default to [a.handle, b.handle].
+function fileStampedOpportunity(db, params) {
+  try {
+    if (!db || !params || typeof params !== 'object') return null;
+    const { a, b, stamp } = params;
+    if (!a || !b || typeof a.handle !== 'string' || !a.handle
+      || typeof b.handle !== 'string' || !b.handle || !stamp) {
+      return null;
+    }
+    const aText = (typeof a.text === 'string' && a.text) ? a.text : a.handle;
+    const bText = (typeof b.text === 'string' && b.text) ? b.text : b.handle;
+    const name = (typeof params.name === 'string' && params.name) ? params.name : (aText + ' x ' + bText);
+    const sessionId = (typeof params.sessionId === 'string' && params.sessionId) ? params.sessionId : 'ambient';
+    const roomDirResolved = (typeof params.roomDir === 'string' && params.roomDir) ? params.roomDir : '';
+    const runModeResolved = (typeof params.runMode === 'string' && params.runMode) ? params.runMode : 'unknown';
+    const reasonResolved = (typeof params.reason === 'string' && params.reason) ? params.reason : 'stamped finding';
+
+    // D-40: a filesystem read, never a write-transaction read (the caller's
+    // own transaction boundary, if any, is unaffected either way).
+    const pwsStage = _readPwsStage(roomDirResolved);
+
+    const extraProps = Object.assign(
+      {},
+      (params.extraProps && typeof params.extraProps === 'object') ? params.extraProps : {}
+    );
+    Object.assign(extraProps, verificationStamp.toNodeProps(stamp));
+    if (pwsStage) extraProps.pws_stage = pwsStage;
+    extraProps.engine_mode = runModeResolved;
+
+    const evidenceIds = Array.isArray(params.evidenceIds)
+      ? params.evidenceIds.filter(function (x) { return typeof x === 'string' && x.length > 0; })
+      : [a.handle, b.handle].filter(function (x) { return typeof x === 'string' && x.length > 0; });
+
+    const w = navigation.writeOpportunityNode(db, {
+      name: name,
+      sessionId: sessionId,
+      lifecycle: 'candidate',
+      jtbd: (typeof params.jtbd === 'string' && params.jtbd) ? params.jtbd : undefined,
+      score: (typeof params.score === 'number' && Number.isFinite(params.score)) ? params.score : undefined,
+      section: (typeof params.section === 'string' && params.section) ? params.section : undefined,
+      actor: 'system',
+      reason: reasonResolved,
+      evidence_ids: evidenceIds,
+      formula_version: 'stamp-v1',
+      extraProps: extraProps,
+    });
+    if (!w || w.ok !== true) return null;
+
+    // D-38: SOURCED_FROM provenance to each end's source artifact node
+    // (falling back to the entity node id itself), origin 'eureka-355'.
+    const sourcedTargets = [a.handle, b.handle].map(function (id) { return _sourcedFromTarget(db, id); });
+    for (const targetId of sourcedTargets) {
+      const r2 = navigation.writeEdge(db, {
+        source_id: w.node_id,
+        target_id: targetId,
+        edge_type: 'SOURCED_FROM',
+        properties: { relation: 'sourced_from', origin: 'eureka-355' },
+      });
+      if (!r2 || r2.ok !== true) return null;
+    }
+
+    return w.node_id;
+  } catch (_e) {
+    return null;
+  }
+}
+
 // bankStatements(db, sessionId, statements, opts?) -- the REQ-1 governed write.
 //
 // statements is the in-memory statements-loop array [{ pair, statement,
@@ -1902,75 +1988,73 @@ function bankStatements(db, sessionId, statements, opts) {
         tail_flag: entry.tailFlag === true,
         bank_predicate: mode,
       };
-      let reason = 'eureka statement banked (predicate ' + mode + ')';
-      let formulaVersion = 'eureka-critic-v1';
-      // D-36..D-38, D-40, D-56: a stamped statement mints through the SAME
-      // writeOpportunityNode call above -- never a second writer, never
-      // review_status, never a STATE_KEYS key (writeOpportunityNode's own
-      // merge already strips those from extraProps).
+      const evidenceIds = [pair.idA, pair.idB].filter(function (x) { return typeof x === 'string' && x.length > 0; });
+      let nodeId = null;
       if (stamp) {
-        // D-36's own call shape: reason: 'eureka stamped finding',
-        // formula_version: 'stamp-v1' -- landed via the two locals below so
-        // the SAME writeOpportunityNode call carries them.
-        reason = 'eureka stamped finding';
-        formulaVersion = 'stamp-v1';
-        Object.assign(extraProps, verificationStamp.toNodeProps(stamp));
-        if (pwsStage) extraProps.pws_stage = pwsStage;
-        extraProps.engine_mode = runMode;
-      }
-
-      const w = navigation.writeOpportunityNode(db, {
-        name: name,
-        sessionId: sid,
-        lifecycle: 'candidate',
-        jtbd: typeof fields.audience === 'string' ? fields.audience : undefined,
-        score: typeof pair.score === 'number' ? pair.score : undefined,
-        section: section,
-        actor: 'system',
-        reason: reason,
-        evidence_ids: [pair.idA, pair.idB].filter(function (x) { return typeof x === 'string' && x.length > 0; }),
-        formula_version: formulaVersion,
-        extraProps: extraProps,
-      });
-      if (!w || w.ok !== true) {
-        throw new Error('bank write failed: ' + ((w && w.reason) || 'unknown') + ' for "' + String(name).slice(0, 60) + '"');
+        // Phase 355.1-07: the stamped branch mints through the SAME writer
+        // fileStampedOpportunity shares with the ambient composition --
+        // never a second writer, the lifecycle-state column stays at its
+        // mint default. reason: 'eureka stamped finding', formula_version
+        // 'stamp-v1' (fileStampedOpportunity's own default) -- byte-identical
+        // to the pre-extraction inline call.
+        nodeId = fileStampedOpportunity(db, {
+          a: { handle: String(pair.idA), text: String(titleA || pair.idA) },
+          b: { handle: String(pair.idB), text: String(titleB || pair.idB) },
+          stamp: stamp,
+          producer: 'eureka',
+          roomDir: roomDirOpt,
+          runMode: runMode,
+          reason: 'eureka stamped finding',
+          name: name,
+          sessionId: sid,
+          jtbd: typeof fields.audience === 'string' ? fields.audience : undefined,
+          score: typeof pair.score === 'number' ? pair.score : undefined,
+          section: section,
+          evidenceIds: evidenceIds,
+          extraProps: extraProps,
+        });
+        if (!nodeId) {
+          throw new Error('bank write failed: unknown for "' + String(name).slice(0, 60) + '"');
+        }
+      } else {
+        const w = navigation.writeOpportunityNode(db, {
+          name: name,
+          sessionId: sid,
+          lifecycle: 'candidate',
+          jtbd: typeof fields.audience === 'string' ? fields.audience : undefined,
+          score: typeof pair.score === 'number' ? pair.score : undefined,
+          section: section,
+          actor: 'system',
+          reason: 'eureka statement banked (predicate ' + mode + ')',
+          evidence_ids: evidenceIds,
+          formula_version: 'eureka-critic-v1',
+          extraProps: extraProps,
+        });
+        if (!w || w.ok !== true) {
+          throw new Error('bank write failed: ' + ((w && w.reason) || 'unknown') + ' for "' + String(name).slice(0, 60) + '"');
+        }
+        nodeId = w.node_id;
       }
       banked += 1;
       // DERIVED_FROM provenance edges to the candidate pair's a and b nodes.
       for (const targetId of [pair.idA, pair.idB]) {
         if (typeof targetId !== 'string' || targetId.length === 0) continue;
         const r = navigation.linkOpportunityEvidence(db, {
-          opportunity_id: w.node_id,
+          opportunity_id: nodeId,
           target_id: targetId,
           edge_type: 'DERIVED_FROM',
-          properties: { relation: 'derived_from', opportunity_node: w.node_id },
+          properties: { relation: 'derived_from', opportunity_node: nodeId },
         });
         if (!r || r.ok !== true) {
           throw new Error('bank edge failed: ' + ((r && r.reason) || 'unknown') + ' -> ' + targetId);
         }
         edges += 1;
       }
-      // D-38: SOURCED_FROM provenance to each end's SOURCE ARTIFACT node
-      // (falling back to the entity node id itself), beside the DERIVED_FROM
-      // edges above. writeEdge directly -- linkOpportunityEvidence rejects
-      // SOURCED_FROM (outside OPPORTUNITY_EVIDENCE_EDGE_SUBSET by design).
+      // fileStampedOpportunity already wrote the two SOURCED_FROM edges
+      // (origin 'eureka-355') when stamp is present.
       if (stamp) {
-        const sourcedTargets = [pair.idA, pair.idB]
-          .filter(function (x) { return typeof x === 'string' && x.length > 0; })
-          .map(function (id) { return _sourcedFromTarget(db, id); });
-        for (const targetId of sourcedTargets) {
-          const r2 = navigation.writeEdge(db, {
-            source_id: w.node_id,
-            target_id: targetId,
-            edge_type: 'SOURCED_FROM',
-            properties: { relation: 'sourced_from', origin: 'eureka-355' },
-          });
-          if (!r2 || r2.ok !== true) {
-            throw new Error('bank SOURCED_FROM edge failed: ' + ((r2 && r2.reason) || 'unknown') + ' -> ' + targetId);
-          }
-        }
         stampedBanked.push({
-          node_id: w.node_id,
+          node_id: nodeId,
           rank: typeof pair.rank === 'number' ? pair.rank : null,
           critic: typeof st.critic === 'string' ? st.critic : null,
           abs_diff: (pair.rs && typeof pair.rs.abs_diff === 'number') ? pair.rs.abs_diff : null,
@@ -2420,6 +2504,9 @@ module.exports = {
   bankStatements: bankStatements,
   resolveBankPredicate: resolveBankPredicate,
   deriveBankSection: deriveBankSection,
+  // Phase 355.1-07: "one writer, two callers" -- bankStatements and the
+  // ambient composition (lib/core/ambient-run.cjs) share this writer.
+  fileStampedOpportunity: fileStampedOpportunity,
   BANK_SESSION_ID: BANK_SESSION_ID,
   // Phase 226-02: the reasoning-mode stages, exported so the hermetic tests drive
   // them without a full CLI spawn.
