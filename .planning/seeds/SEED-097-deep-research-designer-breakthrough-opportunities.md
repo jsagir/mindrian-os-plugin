@@ -27,7 +27,7 @@ Find Analogies, and Scientific Roadmapping each ask a different strategic
 question. Each may start from a navigator goal or relevant room signal, produce
 its own evidence-backed finding, request research when warranted, and reach
 human review and proposed filing. No finding needs agreement from another
-part, all three of Lawrence's signals, or a five-engine run to count.
+part, all three of the PWS author's signals, or a five-engine run to count.
 
 MOS-CANVAS provides common provenance, privacy and approval boundaries, a
 research gateway, and a portfolio view. The portfolio may link related
@@ -53,7 +53,7 @@ These are design verdicts for discuss/plan, not measured claims of product succe
 | V4 | **Replace the universal pair/fetch pipeline.** | A small local envelope carries method-specific payloads. Local completion is valid; external research is an optional approved child run. |
 | V5 | **Reuse the existing code selectively.** | The current ambient pair selector/Eureka guard is not a universal runner. Extend only the seams needed for selected perspectives and non-pair outputs; no compulsory re-embedding/index migration. |
 | V6 | **Keep Jev through Theo, with policy-specific proof.** | Evaluate each policy on permitted production wire state and held-out cases. Phase 355's mixed results do not validate all semantic judgments. |
-| V7 | **Preserve separate locality and approval contracts.** | Local evidence stays local. Generic Theo packets and approved corpus requests have distinct schemas. Missing two-section context is disclosed, not invented. |
+| V7 | **Preserve separate locality and approval contracts.** | Local evidence stays local. Generic Theo packets and approved corpus requests have distinct schemas. Missing two-section context is disclosed, not invented. An unresolved framework endpoint is a verification state, not a usefulness verdict; the finding remains reviewable with that limitation shown. |
 | V8 | **A pilot sets order; all six define completion.** | Require positive standalone fixtures for every perspective, method-specific quality measures, shared-layer reuse checks and a separate synthesis comparison. |
 
 **Still unresolved:** Theo's live roadmapping/judgment interfaces; exact
@@ -224,9 +224,9 @@ Available strategic inputs, chosen by the question rather than run in a fixed se
 - **355.1 item 11:** a rank-only export from `scripts/eureka-portfolio-report.cjs` so the ambient
   eureka card uses the full AHP / tail-quadrant ranking (`355.1/deferred-items.md`).
 
-## Lawrence's three-signal briefing: Jev-led interpretation (navigator, 2026-09-27)
+## The PWS author's three-signal briefing: Jev-led interpretation (navigator, 2026-09-27)
 
-Lawrence's algorithm R&D briefing proposes that whitespace, novelty, and a cross-domain
+The PWS author's algorithm R&D briefing proposes that whitespace, novelty, and a cross-domain
 connection converging on one finding make a breakthrough candidate. Its own caveat is
 binding: this is a **thesis, not a demonstrated capability**; the surveyed algorithms
 were not run as a combined system. Use them as inspiration for Jev policies and for
@@ -293,7 +293,7 @@ a roadmap need not invent pair endpoints. Record who reviewed which returned
 sources. A provider response is retrieved evidence, not an already-reviewed claim.
 
 **Pilot bar:** at least 5 of the top 10 cards judged interesting by a stated,
-blind human rubric, as in Lawrence's briefing, with a separate relevance set and
+blind human rubric, as in the PWS author's briefing, with a separate relevance set and
 diagnostic metrics for each perspective. If fewer than ten eligible cards exist,
 report the actual denominator and treat the top-10 bar as unevaluated. Include
 appropriate recall/coverage, evidence completeness, cost and a non-regression
@@ -327,6 +327,17 @@ baseline.
    Resolve an approved-query reference versus a dedicated approved-query schema
    before routing corpus requests through Theo; no room text is added to its
    current generic-identifier tools.
+10. **HSI direction convention:** before the HSI standalone fixture is treated as
+    evidence, settle the canonical sign/direction rule against Phase 355's
+    `direction-convention.cjs`, define the `neither fits` outcome, and make every
+    producer and reader use the same meaning. Record this as a prerequisite
+    decision in the HSI adapter plan; a fixture run cannot validate an unsettled
+    label.
+11. **Phase shape:** decide in `/gsd-discuss-phase` whether SEED-097 is executed
+    as one phase with ordered implementation waves or split into multiple linked
+    phases. The six standalone perspective contracts, shared-layer scope and Theo
+    companion remain the completion scope either way; a pilot determines order and
+    risk, not whether a perspective is dropped.
 
 ## Shared layer and minimum implementation changes
 
@@ -399,7 +410,7 @@ research through the standing consults: icm-architect, langtalks-graph-expert, C
 - `commands/think-hats.md`, `commands/persona.md`, `agents/persona-analyst.md`
 - `agents/analogy-query-fetcher.md`, `agents/dominant-design-researcher.md`, `commands/find-analogies.md`, `commands/research.md`, `agents/research.md`
 - `lib/core/ambient-run.cjs` (the five producers this designer would feed from)
-- `~/MindrianRooms/rethinking-mindrianos/research/2026-09-23-algorithm-rd-briefing-mirror/` (Lawrence's 13-tab briefing, dated capture)
+- `~/MindrianRooms/rethinking-mindrianos/research/2026-09-23-algorithm-rd-briefing-mirror/` (the PWS author's 13-tab briefing, dated capture)
 - `docs/SEED-097-LAWRENCE-ALGORITHM-REVIEW.md` (source-checked Jev interpretation and evaluation cautions)
 - `~/MindrianRooms/mindrianOS/research/2026-09-27-mos-canvas-open-source-tooling-review.md` (source-checked tooling decisions; research is the evidence home)
 - `~/MindrianRooms/mindrianOS/methodology/2026-09-27-mos-canvas-scientific-roadmapping-handoff.md` (Theo framework to MOS-CANVAS integration contract)
