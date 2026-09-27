@@ -1,10 +1,14 @@
 {
-  "run_at": "2026-09-17T19:17:48.707Z",
-  "plugin_version": "2.0.0-beta.48",
+  "run_at": "2026-09-27T17:31:13.263Z",
+  "plugin_version": "2.0.0-beta.50",
   "rooms": [
     {
       "room": "alpha-room",
       "path": "tests/fixtures/icm-rooms/alpha-room"
+    },
+    {
+      "room": "gamma-room",
+      "path": "tests/fixtures/icm-rooms/gamma-room"
     }
   ],
   "items": [
@@ -14,6 +18,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "every blocked-kind dir carries icm_self; no artifact dir does",
       "room": "alpha-room"
     },
@@ -23,6 +29,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "every block fingerprint recomputes to the same value",
       "room": "alpha-room"
     },
@@ -32,6 +40,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "root ROOM.md recreated from the identity template",
       "room": "alpha-room"
     },
@@ -41,6 +51,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "all six parts present",
       "room": "alpha-room"
     },
@@ -50,6 +62,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "frontmatter carries all four generated keys",
       "room": "alpha-room"
     },
@@ -59,6 +73,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "ruling_fingerprint recomputes to the same value",
       "room": "alpha-room"
     },
@@ -68,6 +84,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "authored prose below the end marker is byte-preserved",
       "room": "alpha-room"
     },
@@ -75,9 +93,14 @@
       "checklist": "ruling-writer",
       "item_id": "item-5-sequence-fits-job",
       "kind": "jev",
-      "ok": null,
-      "verdict": null,
-      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "ok": true,
+      "verdict": "pass",
+      "confidence": 0.61,
+      "probabilities": {
+        "0": 0.2,
+        "1": 0.8
+      },
+      "detail": "jev responded: pass (score 0.8, confidence 0.61)",
       "room": "alpha-room"
     },
     {
@@ -86,6 +109,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "every governing thought is present and non-template",
       "room": "alpha-room"
     },
@@ -93,9 +118,11 @@
       "checklist": "minto-refresher",
       "item_id": "item-2-summarizes-artifacts",
       "kind": "jev",
-      "ok": null,
-      "verdict": null,
-      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "ok": false,
+      "verdict": "fail",
+      "confidence": null,
+      "probabilities": null,
+      "detail": "jev responded: fail (noul 0.31, no confidence -- Noul carries none)",
       "room": "alpha-room"
     },
     {
@@ -104,6 +131,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "SOURCED_FROM edge minted to a jtbd: anchor",
       "room": "alpha-room"
     },
@@ -113,6 +142,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "gate verdict: match",
       "room": "alpha-room"
     },
@@ -120,9 +151,14 @@
       "checklist": "claim-filer",
       "item_id": "item-3-epistemic-type-plausible",
       "kind": "jev",
-      "ok": null,
-      "verdict": null,
-      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "ok": true,
+      "verdict": "pass",
+      "confidence": 0.7,
+      "probabilities": {
+        "0": 0.15,
+        "1": 0.85
+      },
+      "detail": "jev responded: pass (score 0.85, confidence 0.7)",
       "room": "alpha-room"
     },
     {
@@ -131,6 +167,8 @@
       "kind": "code",
       "ok": true,
       "verdict": null,
+      "confidence": null,
+      "probabilities": null,
       "detail": "extracted slug carries no template word: \"situation----complication----question----answer--fixture--phase-\"",
       "room": "alpha-room"
     },
@@ -140,15 +178,191 @@
       "kind": "jev",
       "ok": null,
       "verdict": null,
-      "detail": "SKIP: jev half -- no vendor key resolved this run",
+      "confidence": 0.07,
+      "probabilities": {
+        "0": 0.53,
+        "1": 0.47
+      },
+      "detail": "ABSTAIN: jev score confidence 0.07 is below the 0.5 floor (spread across levels, not a considered verdict)",
       "room": "alpha-room"
+    },
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-1-block-presence",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "every blocked-kind dir carries icm_self; no artifact dir does",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-2-fingerprint",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "every block fingerprint recomputes to the same value",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "scaffolder",
+      "item_id": "item-3-missing-root-recreated",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "root ROOM.md recreated from the identity template",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-1-six-parts",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "all six parts present",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-2-frontmatter-keys",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "frontmatter carries all four generated keys",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-3-fingerprint-recomputes",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "ruling_fingerprint recomputes to the same value",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-4-authored-prose-preserved",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "authored prose below the end marker is byte-preserved",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "ruling-writer",
+      "item_id": "item-5-sequence-fits-job",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "SKIP: jev half -- no section in this room declares job \"model-business\" (item-5 is scoped to the section evals/icm/claude-judge-baseline.json was hand-graded against)",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "minto-refresher",
+      "item_id": "item-1-governing-thought-present",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "every governing thought is present and non-template",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "minto-refresher",
+      "item_id": "item-2-summarizes-artifacts",
+      "kind": "jev",
+      "ok": false,
+      "verdict": "fail",
+      "confidence": null,
+      "probabilities": null,
+      "detail": "jev responded: fail (noul 0.27, no confidence -- Noul carries none)",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-1-anchor-edge",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "SOURCED_FROM edge minted to a jtbd: anchor",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-2-serves-jtbd-honored",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "gate verdict: match",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "claim-filer",
+      "item_id": "item-3-epistemic-type-plausible",
+      "kind": "jev",
+      "ok": true,
+      "verdict": "pass",
+      "confidence": 0.74,
+      "probabilities": {
+        "0": 0.13,
+        "1": 0.87
+      },
+      "detail": "jev responded: pass (score 0.87, confidence 0.74)",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "entity-extractor",
+      "item_id": "item-1-no-template-words",
+      "kind": "code",
+      "ok": true,
+      "verdict": null,
+      "confidence": null,
+      "probabilities": null,
+      "detail": "extracted slug carries no template word: \"situation----complication----question----answer--fixture--phase-\"",
+      "room": "gamma-room"
+    },
+    {
+      "checklist": "entity-extractor",
+      "item_id": "item-2-names-a-concept",
+      "kind": "jev",
+      "ok": null,
+      "verdict": null,
+      "confidence": 0.02,
+      "probabilities": {
+        "0": 0.51,
+        "1": 0.49
+      },
+      "detail": "ABSTAIN: jev score confidence 0.02 is below the 0.5 floor (spread across levels, not a considered verdict)",
+      "room": "gamma-room"
     }
   ],
-  "code_pass": 11,
-  "code_total": 11,
-  "jev_pass": 0,
-  "jev_total": 4,
-  "agreement": null,
-  "jev_model": null,
-  "key_present": false
+  "code_pass": 22,
+  "code_total": 22,
+  "jev_pass": 3,
+  "jev_total": 8,
+  "agreement": 1,
+  "jev_model": "jev-1.13.0",
+  "key_present": true
 }
