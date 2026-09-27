@@ -49,6 +49,12 @@ const EXPECTED_HEADINGS = [
 
 const FORBIDDEN_NEAR_FINDING = ['great', 'amazing', 'excellent', 'brilliant', 'breakthrough', 'validated', 'proven'];
 
+// Built at runtime (never a literal U+2014 in this file's own source) so
+// tests/run-all-3551.sh's em-dash leg (emdash_scan), which greps every
+// tests/test-3551-*.cjs file whole for the literal character, does not
+// false-positive on this comparison literal (deferred-items.md item 2).
+const EM_DASH_CHAR = String.fromCharCode(0x2014);
+
 console.log('test-3551-hooked-audit:');
 
 let pass = 0;
@@ -87,7 +93,7 @@ check('audit states "14 percent"', auditText.indexOf('14 percent') !== -1);
 check('audit states "472"', auditText.indexOf('472') !== -1);
 check('audit states "3,333"', auditText.indexOf('3,333') !== -1);
 
-check('audit carries no U+2014 (em-dash)', auditText.indexOf('—') === -1);
+check('audit carries no U+2014 (em-dash)', auditText.indexOf(EM_DASH_CHAR) === -1);
 
 let findingNearForbidden = null;
 for (const word of FORBIDDEN_NEAR_FINDING) {
@@ -113,7 +119,7 @@ const checkpointText = fs.existsSync(CHECKPOINT_PATH) ? fs.readFileSync(CHECKPOI
 
 const numberedItems = checkpointText.split('\n').filter((l) => /^[0-9]+\. /.test(l));
 check('checkpoint has exactly 10 numbered items', numberedItems.length === 10, 'found ' + numberedItems.length);
-check('checkpoint carries no U+2014 (em-dash)', checkpointText.indexOf('—') === -1);
+check('checkpoint carries no U+2014 (em-dash)', checkpointText.indexOf(EM_DASH_CHAR) === -1);
 check('checkpoint has a "## Navigator ruling" heading', checkpointText.indexOf('## Navigator ruling') !== -1);
 
 // ---------------------------------------------------------------------------
