@@ -103,11 +103,12 @@ function eurekaReachesOf(reaches) {
 // resulting last-eureka.json side channel + opportunity node are the SAME
 // shape production writes (never a hand-built JSON file). Returns the
 // composition result ({ card, surfaced_via, ... }).
-async function seedIndirectComposition(room, stamp) {
+async function seedIndirectComposition(room, stamp, seed) {
+  const suffix = (typeof seed === 'string' && seed) ? seed : '';
   const finding = {
     producer: 'eureka',
-    a: { handle: 'nodeA', text: 'alpha finding text' },
-    b: { handle: 'nodeB', text: 'omega finding text' },
+    a: { handle: 'nodeA' + suffix, text: 'alpha finding text' + suffix },
+    b: { handle: 'nodeB' + suffix, text: 'omega finding text' + suffix },
     stamp: stamp,
     rank: 0,
   };
@@ -284,7 +285,7 @@ async function caseCloseOutFireOnceSequence() {
 
   // Not shown, not marked: a second, DIFFERENT composition is seeded directly
   // (never pulled), so its handle is never noted in process memory.
-  const compRes2 = await seedIndirectComposition(room, INDIRECT_STAMP);
+  const compRes2 = await seedIndirectComposition(room, INDIRECT_STAMP, '-second');
   const handle2 = compRes2.card.opportunity_handle;
   check('a fresh second composition mints a different handle', handle2 !== handle1);
   check('not shown, not marked: the second handle was never noted (no pull happened for it)', surfacedOffers.peekSurfaced(room.roomDir).indexOf(handle2) === -1);
