@@ -372,6 +372,7 @@ main()
   .then(function () {
     cleanupAll();
     console.log('');
+    console.log('PASS: ' + checks + ' FAIL: 0');
     console.log('PASS test-3551-child.cjs (' + checks + ' checks)');
     assert.strictEqual(netGuard.attempts(), 0, 'installNetGuard must record zero fetch attempts (Pitfall 16)');
     netGuard.restore();
@@ -379,6 +380,7 @@ main()
   .catch(function (e) {
     cleanupAll();
     console.log('');
+    console.log('PASS: ' + checks + ' FAIL: 1');
     console.log('FAIL: ' + (e && e.message ? e.message : String(e)));
     console.log('FAIL test-3551-child.cjs (' + checks + ' checks passed before the failure)');
     process.exitCode = 1;
