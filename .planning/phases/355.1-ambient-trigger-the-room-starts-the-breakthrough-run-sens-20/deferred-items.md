@@ -101,3 +101,60 @@ fixed in place.
 matcher's current widened regex (or to a substring/family check) rather
 than an exact legacy string, so the test again reflects the shipped
 wiring.
+
+## 4. `355.1-REVIEW.md` WARNING and INFO findings (surfaced by the 2026-09-27 code review, out of scope for the criticals-only fix pass)
+
+**Surfaced:** `355.1-REVIEW.md` (deep review, 2026-09-27, `gsd-code-reviewer`),
+during the same pass that raised CR-01..CR-04 (all 4 fixed; see that file's
+own "Fix record" section). The navigator approved fixing the criticals
+before the release cut; WARNING and INFO findings were explicitly out of
+scope for that pass and are logged here, open, rather than fixed.
+
+- **WR-01** (`lib/core/ambient-trigger.cjs:277-308`): `evaluateAndClaim`'s
+  delta-state write and `claimAmbientRun`'s ledger write are two separate
+  non-atomic file operations; a crash/kill between them leaves an
+  inconsistent claim. Fix: write the delta-state side channel before (or as
+  part of) the ledger claim, or make `tamper_or_stale` recovery symmetrical
+  (CR-02's fix already makes the recovery side of this symmetrical; the
+  ordering itself is unchanged).
+- **WR-02** (`lib/core/ambient-run.cjs:298`): `_findBottlenecksAdapter`'s
+  outcome ternary (`findings.length > 0 ? 'no_candidate' : 'no_candidate'`)
+  is a no-op; both branches are identical. Fix: delete the ternary, or
+  introduce a real distinguishing outcome value in
+  `AMBIENT_PRODUCER_OUTCOMES` and use it consistently across all five
+  adapters.
+- **WR-03** (`scripts/scout-cadence-guard.cjs:672-678`): `claimAmbientRun`
+  always bumps `runs_window.count` regardless of whether the claim ever
+  leads to a completed run, so CR-01/CR-02's phantom-claim paths can exhaust
+  the hourly cap on claims that never ran. CR-02's fix (this pass) releases
+  `ledger.in_flight` on every abort path but deliberately leaves
+  `runs_window.count` untouched -- this finding is the refund/no-count fix
+  for that counter, explicitly deferred. Fix: only advance
+  `runs_window.count` from `recordAmbientRun` (an actual attempt that
+  reached composition), or refund it from the release path.
+- **WR-04** (`lib/core/ambient-run.cjs:515-550`): no timeout wraps a single
+  producer adapter's `await` inside `runAmbientComposition`'s loop; a single
+  hung producer (e.g. an unbounded `rs-engine.py` subprocess) can stall the
+  whole composition past its nominal 4-minute budget, feeding directly into
+  CR-03's stale-lock scenario (CR-03 itself is fixed this pass; this finding
+  is about not creating that condition in the first place). Fix: wrap each
+  `adapterFn` call in a `Promise.race` against the remaining budget.
+- **WR-05** (`lib/core/ambient-trigger.cjs:337-348`): detached-child
+  survival under `spawnImpl` is unverified on native Windows (Job Object
+  `CREATE_BREAKAWAY_FROM_JOB` semantics; only confirmed on Linux/WSL). Fix:
+  confirm on real Windows, or document the known limitation if the child
+  does not survive.
+- **IN-01** (`lib/core/ambient-trigger.cjs:91`, `scripts/ambient-stop.cjs:30`,
+  `lib/core/ambient-run.cjs:804`): the `MINDRIAN_AMBIENT_DEBUG` env var name
+  is declared as a named constant in two files and used as a bare string
+  literal in the third, so a future rename desyncs silently. Fix: export
+  `AMBIENT_DEBUG_ENV` from one module and import it in the other two.
+- **IN-02** (`lib/core/ambient-trigger.cjs:256-258`): `evaluateRoomDelta`'s
+  outermost catch maps every uncaught exception to `'no_room'`, a
+  misleading label for a genuine internal defect. Fix: introduce a distinct
+  `'internal_error'` terminal decision for this catch.
+
+**Follow-up:** a future plan should pick up WR-01 through WR-05 and IN-01/
+IN-02 as its own scoped fix pass (or fold WR-03 in alongside any future
+CR-02 revisit, since the two are related); none block the 355.1 release
+train per the navigator's ruling recorded above.
