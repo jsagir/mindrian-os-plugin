@@ -1094,7 +1094,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 **Goal:** The room, never the user, starts the breakthrough run: one detector (SENS-21) and one evaluator recognize five room-delta classes through the navigation chokepoint and start the five stamped Phase 355 producers underneath as autonomous_safe machinery on every surface (CLI hooks; the MCP Stop-time close-out on Desktop and Cowork); a per-room ledger with a delta hash and a lock prevents re-runs; only strong and indirect findings reach the card, once, through SENS-13; the framing follows the room problem type through a non-keyword chain. Widens the Phase 117 door; no rival spawner, no command, no MCP tool, no seventh reach. Navigator ruling 2026-09-23 (355.1-PRD.md).
 **Requirements**: AMB-01, AMB-02, AMB-03, AMB-04, AMB-05, AMB-06, AMB-07, AMB-08, AMB-09 (phase-local, defined in 355.1-PRD.md, registered in REQUIREMENTS.md by 355.1-16 at close)
 **Depends on:** Phase 355 (CLOSED before 355.1-01 runs)
-**Plans:** 14/16 plans executed
+**Plans:** 15/16 plans executed
 
 Plans:
 
@@ -1135,7 +1135,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 355.1-15-PLAN.md -- AMB-08, AMB-09: AMB-08 and AMB-09's gate: prove on every new file that nothing from the room leaves the machine except canon handles through the one stamp adapter, that zod sits only at the outside edges, that machinery confirms nothing, and...
+- [x] 355.1-15-PLAN.md -- AMB-08, AMB-09: AMB-08 and AMB-09's gate: prove on every new file that nothing from the room leaves the machine except canon handles through the one stamp adapter, that zod sits only at the outside edges, that machinery confirms nothing, and...
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
