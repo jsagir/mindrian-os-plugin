@@ -900,10 +900,21 @@ function recordAmbientCloseout(roomDir, opts) {
 // -- Lock (the scripts/gsd-graph-derive-drain.cjs:243-289 idiom) -----------
 
 /**
- * acquireAmbientLock(roomDir, opts) -> { ok, path?, reclaimed?, reason? }.
- * opts.now is an epoch-ms Number. fs.openSync 'wx' (the repo's existing
- * write-lock idiom); a lock older than AMBIENT_LOCK_STALE_MS is reclaimed
- * (ok true, reclaimed true) and retried once. Never throws.
+ * acquireAmbientLock(roomDir, opts) -> { ok, path?, reclaimed?, reason?,
+ * token? }. opts.now is an epoch-ms Number. fs.openSync 'wx' (the repo's
+ * existing write-lock idiom); a lock older than AMBIENT_LOCK_STALE_MS is
+ * reclaimed (ok true, reclaimed true) and retried once. Never throws.
+ *
+ * CR-03 fix (355.1 review): the lock file used to carry only
+ * process.pid, and nothing ever read it back -- neither the stale-reclaim
+ * check (mtime-only) nor releaseAmbientLock (an unconditional rmSync of
+ * whatever file currently sits at the path). That let a slow holder's own
+ * `finally`-block release silently delete a DIFFERENT, later owner's live
+ * lock after a stale-reclaim had already taken over the path (see the
+ * review's Child A/Child B walkthrough). The lock file now carries a random
+ * per-acquire token (pid + nonce; the pid alone is meaningless across a
+ * reclaim boundary and was never validated), returned to the caller as
+ * `token`. Every acquire (including a stale reclaim) writes a fresh token.
  */
 function acquireAmbientLock(roomDir, opts) {
   const o = (opts && typeof opts === 'object') ? opts : {};
@@ -915,9 +926,10 @@ function acquireAmbientLock(roomDir, opts) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const fd = fs.openSync(lockPath, 'wx');
-      try { fs.writeSync(fd, String(process.pid)); } catch (_we) { /* advisory */ }
+      const token = String(process.pid) + ':' + crypto.randomBytes(8).toString('hex');
+      try { fs.writeSync(fd, token); } catch (_we) { /* advisory */ }
       fs.closeSync(fd);
-      return { ok: true, path: lockPath, reclaimed: reclaimed };
+      return { ok: true, path: lockPath, reclaimed: reclaimed, token: token };
     } catch (_e) {
       try {
         const st = fs.statSync(lockPath);
@@ -937,11 +949,28 @@ function acquireAmbientLock(roomDir, opts) {
 }
 
 /**
- * releaseAmbientLock(roomDir) -> { ok }. Never throws.
+ * releaseAmbientLock(roomDir, token) -> { ok, reason? }. CR-03 fix: when a
+ * token is supplied, this is now a compare-and-delete -- the lock is
+ * removed ONLY when the file on disk still holds that exact token; a
+ * mismatch (someone else's stale-reclaim already replaced it) returns
+ * { ok: false, reason: 'token_mismatch' } and leaves the file untouched, so
+ * a slow holder's own cleanup can never evict a different, later owner's
+ * live lock. A missing file is treated as already released (ok: true). A
+ * caller with no token (legacy / a test's own direct cleanup) keeps the
+ * prior unconditional-delete behavior; every production caller in this
+ * repo now passes the token acquireAmbientLock returned. Never throws.
  */
-function releaseAmbientLock(roomDir) {
+function releaseAmbientLock(roomDir, token) {
   const lockPath = ambientLockPath(roomDir);
   try {
+    if (!fs.existsSync(lockPath)) return { ok: true };
+    if (typeof token === 'string' && token.length > 0) {
+      let onDisk = null;
+      try { onDisk = fs.readFileSync(lockPath, 'utf8'); } catch (_re) { onDisk = null; }
+      if (onDisk !== token) {
+        return { ok: false, reason: 'token_mismatch' };
+      }
+    }
     fs.rmSync(lockPath, { force: true });
     return { ok: true };
   } catch (_e) {
