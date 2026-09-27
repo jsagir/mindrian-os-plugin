@@ -33,7 +33,8 @@ ask whether a scoped gap is absent from the literature or only absent from the r
 bounded query family, obtain the approved corpus response, and return a hash-anchored evidence
 card. The existing OpenAlex adapter makes this the lowest-risk test. It has a clean falsifier when
 the gap is covered under another term, irrelevant, or caused by extraction failure. It avoids the
-unsettled HSI sign convention and the unverified Scientific Roadmapping Theo seam.
+unsettled HSI sign convention and the unverified Scientific Roadmapping Theo seam (checked
+2026-09-27: the content is in the graph, the typed seam cannot read it; see Live Theo check).
 
 **First discuss decision:** choose the external-research approval mode: per-query exact-string
 approval or a standing audited policy for ambient runs. This is a product behavior decision. A
@@ -340,7 +341,20 @@ baseline.
 6. The exact live Theo interface for Scientific Roadmapping and whether its phase
    outputs can be consumed as typed artifacts without adding private prose to a
    remote request. The authored payload is evidence of method shape, not a live
-   seam test.
+   seam test. **Checked 2026-09-27 (see Live Theo check under Scientific Roadmapping
+   through Theo):** the data is present in production (7 ProcessSteps with content,
+   12 techniques, the 7-to-1 LEADS_TO loop) but the typed seam is not: framework_step
+   returns null label/runIt/researchDirective/artifactRubric/thinkingMode/stepKind for
+   all seven steps. Closing it is the Theo-side authoring requirement. Two
+   sub-decisions to resolve here:
+   - D2 (direction): SEED-097's reading that a detector such as RS nominates a path
+     for Roadmapping versus the graph's Scientific Roadmapping FEEDS_INTO Reverse
+     Salient Analysis; both readings are recorded, neither is picked; resolve at
+     discuss-phase or by a Theo edge ruling.
+   - D3 (well-defined coverage): the rung table sends well-defined problems to a
+     Technical Roadmap while Theo addresses only UnDefined / IllDefined / Wicked;
+     decide whether Theo gains WellDefined coverage or the plugin reroutes
+     well-defined goals.
 7. Which constraint records need a domain expert to establish a real physical
    bound, and how MOS-CANVAS marks an unresolved limiter without promoting it as
    a false assumption.
@@ -443,6 +457,7 @@ research through the standing consults: icm-architect, langtalks-graph-expert, C
 - `~/MindrianRooms/mindrianOS/research/2026-09-27-mos-canvas-open-source-tooling-review.md` (source-checked tooling decisions; research is the evidence home)
 - `~/MindrianRooms/mindrianOS/methodology/2026-09-27-mos-canvas-scientific-roadmapping-handoff.md` (Theo framework to MOS-CANVAS integration contract)
 - `~/MindrianRooms/mindrianOS/opportunity-bank/2026-09-27-mos-canvas-breakthrough-opportunity-slate.md` (proposed product opportunities)
+- `.planning/seeds/SEED-098-scientific-roadmapping-command-through-theo.md` (the /mos: command that runs this perspective through Theo, enterable mid-journey; triggered by the Theo-side authoring requirement above)
 
 ## SEED-097 decision: MOS-CANVAS
 
@@ -581,7 +596,8 @@ The full Codex review is attached at
 ### Scientific Roadmapping through Theo
 
 The navigator confirms Scientific Roadmapping already lives in Theo. Its authored
-Brain payload has seven phases, eleven techniques, and a phase-7-to-phase-1
+Brain payload has seven phases, twelve techniques (live Theo check, 2026-09-27; an
+earlier count of eleven is superseded), and a phase-7-to-phase-1
 re-survey loop. SEED-097 must consume that
 method through Theo rather than implement a parallel roadmap engine. MOS-CANVAS
 holds the room cohort, path and constraint records, source provenance, rejected
@@ -592,7 +608,10 @@ shape and its callable seam; the local payload alone does not establish that.
 The research-builder use is: a detector nominates a path; Scientific Roadmapping
 places the question on the right rung, enumerates routes, and interrogates each
 limiter; an **assumed** constraint becomes a falsifiable research question and
-smallest useful test; catalytic ranking names downstream unlocks. Preserve
+smallest useful test; catalytic ranking names downstream unlocks. Direction is
+unresolved (D2): the live graph has Scientific Roadmapping FEEDS_INTO Reverse
+Salient Analysis, the opposite of a detector nominating a path; both readings
+stand until open decision 6 is ruled. Preserve
 `unresolved` when no derivation or decisive test exists. Do not infer that an
 assumption is false merely because it has not been proved fundamental.
 
@@ -602,7 +621,7 @@ The seven operations and their required artifacts are:
 |---|---|
 | 1. Tension Qualification | Agreed valuable outcome, genuine feasibility dispute, and a named possible limiter. |
 | 2. Goal Quantification | Baseline, unit, target, time horizon, and a result that would falsify the direction. |
-| 3. Rung Placement and Type Selection | Undefined → landscape/vision reframe; ill-defined → program/agenda; well-defined → technical, pipeline, or opportunity analysis when the domain has a constraining model. Do not force a Technical Roadmap where no useful "physics" exists. |
+| 3. Rung Placement and Type Selection | Undefined → landscape/vision reframe; ill-defined → program/agenda; well-defined → technical, pipeline, or opportunity analysis when the domain has a constraining model. Do not force a Technical Roadmap where no useful "physics" exists. Unresolved (D3): Theo currently addresses only UnDefined / IllDefined / Wicked problem types, so the well-defined route has no Theo coverage yet. |
 | 4. Forum Construction | Record frustrated insider, fresh entrant, and physics-grounding perspectives; retain dissent. Serial solo perspectives are provisional when no forum exists. |
 | 5. Path Enumeration | Distinct routes, uncovered regions, and a 10X resurvey, with coverage checked rather than counting brainstormed ideas. |
 | 6. Constraint Interrogation | Per-path limiter ledger: claimed bound, derivation or evidence, counterexample search, `fundamental` / `assumed` / `unresolved`, and a discriminating test. This is the idea-generating step. |
@@ -621,6 +640,78 @@ Scientific Roadmapping is a fourth independent strategic input beside hats,
 engine signals, and pattern-shaped queries. It may start directly from a
 navigator's goal; a detector signal may also nominate a path for it to test.
 The resulting idea is never promoted solely because all three detector scores fired.
+
+#### Live Theo check (2026-09-27)
+
+Checked live against two paths on 2026-09-27: Path A is the guarded mindrian-brain shim
+(production, `brain_query` Cypher); Path B is the raw local Theo stdio tools (local build
+4ae98432, built 2026-09-17, dirty:true, sync_drift not-measured), which describe the local
+build and are not proven equal to hosted production.
+
+| Path | Check | Measured result |
+|---|---|---|
+| A | Framework node and edge counts | "Scientific Roadmapping" node exists. PART_OF 1 (Chapter); HAS_PROCESS_STEP 7; USES_TECHNIQUE 12; COMPLEMENTS 4; PREREQUISITE 1; FEEDS_INTO 4 outgoing; ADDRESSES_PROBLEM_TYPE 3. |
+| A | ProcessStep properties, order, LEADS_TO chain | 7 ProcessSteps with step_name, order, description, key_question, gates, outputs (plus id, name, namespace, batch_id, parent_process, source_label_set), all non-null on every step. Order 1 TENSION, 2 QUANTIFY, 3 RUNG, 4 FORUM, 5 ENUMERATE, 6 INTERROGATE, 7 RANK. LEADS_TO chain 1->2->...->7 and 7->1 (the re-survey loop is real). |
+| A | orchestrationStatus / stepId | Neither property exists in production (UnknownPropertyKeyWarning). |
+| A | FEEDS_INTO / COMPLEMENTS / PREREQUISITE neighbors | FEEDS_INTO outgoing: Reverse Salient Analysis, Hypothesis-Driven Problem Solving, PWS Value Proposition, Three-Horizon Framework. FEEDS_INTO incoming from: Problem Typology Framework / The Taxonomy of Problems, S-Curve Analysis, Problem Taxonomy (Search Gradient), The Innovation Landscape. COMPLEMENTS: Problem Typology Framework / The Taxonomy of Problems, Reverse Salient Analysis, Hypothesis-Driven Problem Solving, Scenario Planning for High Uncertainty. PREREQUISITE: Problem Taxonomy (Search Gradient). |
+| B | normalize_framework_name | Exact canonical; aliases Roadmapping, Field Roadmapping, Technology Roadmapping, Tech Tree Mapping. |
+| B | framework_neighborhood | orchestrationStatus "draft", frameworkType field_survey, patternType cyclical, applicableStages [discovery, problem_definition, opportunity-identification, decision], chapter "Bottlenecks and Decision Speed" (id bottleneck), brainRecords [] (no SOURCED_FROM provenance), commands [] (no /mos: command USES_FRAMEWORK it). |
+| B | framework_step | Returns 7 steps (sr-v1-step-1..7); label, runIt, researchDirective, artifactRubric, thinkingMode, stepKind ALL null on every step. Theo's typed step contract cannot read the step content, which is stored under legacy property names. |
+| B | framework_techniques / problem_types | 12 techniques (names withheld here; the repo is public and the technique list is Brain IP, served live by Theo's framework_techniques tool; Rung Placement is named only because it already appears above as a tracked ProcessStep name). problem_types: IllDefined, UnDefined, Wicked (WellDefined is absent). |
+| A vs B | Graph-state parity | The local server reports orchestrationStatus while production lacks the property: the two paths may not read the same graph state. Unresolved; must be checked, not assumed. |
+
+Discrepancies vs the prior SEED-097 text, each with where it is resolved:
+- D1: the prior count of eleven (superseded above) vs Theo's live count of twelve. Fixed in this section.
+- D2 (direction): SEED-097 said a detector nominates a path for Roadmapping; the graph says Scientific Roadmapping FEEDS_INTO Reverse Salient Analysis. Both readings are recorded; neither is picked. Resolved at open decision 6.
+- D3 (well-defined coverage): the rung table routes well-defined problems to a Technical Roadmap; Theo addresses only UnDefined / IllDefined / Wicked. Resolved at open decision 6.
+- D4 (typed seam): content exists in production; framework_step cannot read it. Resolved by the Theo-side authoring requirement below.
+- D5 (no anchors): no command anchor (commands []) and no provenance anchor (brainRecords []). Resolved by the Theo-side authoring requirement below.
+- D6 (local vs production drift): orchestrationStatus present locally, absent in production. Resolved by the Theo-side authoring requirement below.
+
+The local and production paths may not read the same graph state; this is unresolved and must
+be checked, not assumed.
+
+#### Theo-side authoring requirement (Theo companion phase, alongside Theo SEED-015)
+
+This work happens in the Theo session (repo ~/Theo, its own GSD), never from this repo; this
+seed only records the requirement, and no Theo write is made from the plugin.
+
+1. Re-author Scientific Roadmapping so it reads through Theo's own typed framework_step
+   contract without losing content. Proposed mapping, labeled proposed, to confirm against
+   the framework_step contract in the Theo session:
+
+   | Legacy property | Typed field | Note |
+   |---|---|---|
+   | id (sr-v1-step-N, already surfaced by framework_step; production has no stepId property) | stepId | |
+   | step_name | label | |
+   | description | runIt | |
+   | key_question | researchDirective | |
+   | gates + outputs | artifactRubric | gates as pass conditions, outputs as required artifacts |
+   | no legacy source | thinkingMode and stepKind | author per step, never default silently |
+
+   order and the LEADS_TO chain including 7-to-1 are preserved; legacy properties are
+   retained, or migrated only with a per-step parity check, so no step loses description,
+   key_question, gates or outputs.
+2. Add SOURCED_FROM provenance to the source article
+   https://www.essentialtechnology.blog/p/scientific-roadmapping (brainRecords is empty
+   today). Keep the navigator's research-builder additions (serial solo roles, the versioned
+   ratchet on discarded paths, the constraint-to-falsifiable-question reading) attributed as
+   MindrianOS application, not to the article's author.
+3. Rule explicitly on the Reverse Salient FEEDS_INTO direction (D2), and in the same ruling
+   state whether re-entry from a hypothesis in flight needs a Hypothesis-Driven Problem
+   Solving to Scientific Roadmapping edge or is covered by the existing COMPLEMENTS edge
+   (Theo already has Scientific Roadmapping FEEDS_INTO and COMPLEMENTS Hypothesis-Driven
+   Problem Solving; see SEED-098 mid-journey entry).
+4. Rule explicitly on WellDefined coverage (D3).
+5. Set a real orchestrationStatus in production and reconcile the local build with
+   production (D6), with sync_drift measured rather than not-measured.
+6. Add the USES_FRAMEWORK edge from the SEED-098 command once that command exists (D5,
+   commands [] today).
+
+**Acceptance:** framework_step returns non-null label and runIt for all 7 steps on the
+hosted endpoint, read through the guarded mindrian-brain shim (not raw Theo tools).
+Supporting checks: brainRecords non-empty with SOURCED_FROM to the article; orchestrationStatus
+present and equal on local and hosted; D2 and D3 rulings recorded in SEED-097 open decision 6.
 
 ### Open-source and public-data incorporation review
 
@@ -655,7 +746,8 @@ mode, (2) prior-art and contradiction cards, (3) cross-room mechanism transfer,
 and temporal bridging. The **first slice** is Whitespace + OpenAlex: one two-section
 cohort, one scoped gap, one approved literature cohort, an evaluated evidence card and
 a human-reviewed filing. Scientific Roadmapping remains a later perspective fixture
-once its live Theo interface is verified. Separately run RS or another perspective on
+once its live Theo interface is verified (checked 2026-09-27: data present, typed seam
+not readable; see Live Theo check). Separately run RS or another perspective on
 the same cohort, then test whether linking the cards adds value. These are hypotheses
 for the product, not
 claims of scientific breakthroughs.
@@ -726,3 +818,5 @@ run may reopen a rejected route only when new evidence changes the reason.
 - Before relying on the Theo roadmapping or Jev handoff, verify their **live**
   callable contracts. The local Scientific Roadmapping payload establishes
   intended graph structure but does not prove what the production graph serves.
+  The 2026-09-27 live check found the production data present but the typed step seam
+  unreadable; the Theo-side authoring requirement's acceptance check is the gate.
