@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 355-05-PLAN.md - scout-hsi and whitespace_scan naming honesty fixed, D-25 fixture gate committed
-last_updated: "2026-09-24T07:53:29.432Z"
-last_activity: 2026-09-23 -- Phase 355 execution continuing (355-05 complete)
+status: ready_to_release
+stopped_at: Phase 355.1 complete (16/16 plans, code-review criticals CR-01..04 fixed) and Phase 355 closed (28/28, goal-backward verification passed); next is the release cut, then SEED-097
+last_updated: "2026-09-27T16:38:24.336Z"
+last_activity: 2026-09-27 -- Phase 355.1 executed and verified; 355 verified; review fixes landed; release cut pending
 progress:
   total_phases: 113
   completed_phases: 40
@@ -2255,7 +2255,28 @@ progress:
      left as the concurrent session's disk-scanned values (self-consistent, just the percent
      lagged). Not this plan's own regression. -->
 
+<!-- NOTE (355.1 execute-phase orchestrator, jsagi-7b, 2026-09-27T16:38:24.336Z): frontmatter and the entry below
+     hand-edited, not via gsd-tools state.*. Reason: STATE.md's Current Position was still on Phase 355
+     (left there while peers held STATE writes), and state.advance-plan regressed it during 355.1-01
+     (progress 86 -> 37). All 355.1 executors were told to skip state.* and this single reconcile
+     replaces their per-plan writes. progress counters left untouched (not recomputed here). -->
 # Project State
+
+## (2026-09-27) -- PHASES 355 + 355.1 CLOSED -- Hidden in Plain Sight (28/28) and the ambient trigger (16/16); release cut next
+
+**Phase 355 (28/28):** direction convention sourced from the April 2025 origin deck, the verification stamp from Theo's find_connections hop tier on all five producers, raw scores removed, first human-judged hit rate recorded (useful 43/96, Wilson 35-55 percent; stamp influence -1 point; 85 percent unverified, 77 handle_unresolved). Goal-backward verification: **passed** (HIPS-01..09 verified by independent re-run). **HIPS-10 open by navigator ruling.** Sitting 2 was labeled 5/96 in the CLI and 91/96 in chat (via: chat-sitting), disclosed in 355-VERIFICATION.md.
+
+**Phase 355.1 (16/16):** the room, never the user, starts the breakthrough run. SENS-21 room-delta detector, since-bound evaluator, ambient ledger + lock, the Phase 117 child's --ambient mode composing the five stamped producers, one card per material (Ruling 5), fire-once at close-out on Desktop/Cowork (Ruling 2), async CLI Stop entry and MCP close-out (tri-polar live). Checkpoint 08 approved 2026-09-27: all 10 items + item 11 (eureka ranking follow-up); FRAMING_CONFIRMED by the PWS author (role only). AMB-01..09 closed. Verification: **human_needed** (9/9 code-verifiable; the real-Desktop one-card leg is navigator-run after release).
+
+**Code review (355.1-REVIEW.md):** 4 critical concurrency findings fixed before release: CR-01 claim mutex (b3f9e5ffb), CR-02 release on every abort path (51b6d4837), CR-03 lock owner token with compare-and-delete (fb461a650), CR-04 single Stop owner under MINDRIAN_MCP_FIRST (63a4320fa); real multi-process race test tests/test-3551-concurrency.cjs (7cea542c5). 5 warnings + 2 info deferred (deferred-items.md). Flake root cause fixed: isFreshFile integer Date.now vs fractional mtimeMs (c744a380a).
+
+**Suite:** tests/run-all-3551.sh PASS=64 FAIL=4, the 4 documented external reds (pre-existing). doctor --acceptance 20/22 (verify-release-clean-tree, icm-ruling-eval-fresh).
+
+**Open / next:**
+- Release cut (scripts/release.sh --prerelease -> v2.0.0-beta.51); main is ahead of origin; the unowned dirty 353-FLEET-REPORT.json (a run-all-353 side effect) blocks the clean-tree gate, navigator's call.
+- After release: the real-Desktop one-card check (navigator).
+- **Next phase: SEED-097 (critical)** Deep Research Designer built with the MCP intelligence services (hats drive what, engines drive queries, problem patterns shape them; per-research context cohort across room sections from the local graph; corpus behind Theo; Theo SEED-015 Jev keyholder). Mandatory consults: icm-architect + local graph. Navigator ruling 2026-09-25: do not narrow the original 355 ask.
+
 
 ## (2026-09-14) -- PHASE 344 CLOSED (9/9 plans) -- The Layer Contract: LAYER-01..15 measured and closed, LAYER-16 open on one room-mirror clause
 
