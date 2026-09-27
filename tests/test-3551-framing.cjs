@@ -73,8 +73,18 @@ ok('lib/core/direction-convention.cjs and lib/core/ambient-framing.cjs both load
   assert.strictEqual(Object.isFrozen(dc.FRAMING_IDS), true, 'FRAMING_IDS must be frozen');
   assert.deepEqual(Object.keys(dc.FRAMING_PHRASES), dc.FRAMING_IDS, 'Object.keys(FRAMING_PHRASES) must deep-equal FRAMING_IDS');
   assert.strictEqual(Object.isFrozen(dc.FRAMING_PHRASES), true, 'FRAMING_PHRASES must be frozen');
-  assert.strictEqual(dc.FRAMING_CONFIRMED, null, 'FRAMING_CONFIRMED must be null until plan 355.1-08 confirms it');
-  ok('FRAMING_IDS deep-equals [\'find_the_problem\',\'pursue_or_drop\',\'neutral\'] (frozen); Object.keys(FRAMING_PHRASES) matches; FRAMING_CONFIRMED === null');
+  // 355.1-08 Task 3 (navigator ruling 2026-09-27) confirmed FRAMING_CONFIRMED;
+  // it is no longer null. Accept either the pre-confirmation null (kept for
+  // any fixture that still constructs a fresh module state) or the confirmed
+  // frozen pws-author record whose framing_hash matches the live table.
+  if (dc.FRAMING_CONFIRMED === null) {
+    ok('FRAMING_IDS deep-equals [\'find_the_problem\',\'pursue_or_drop\',\'neutral\'] (frozen); Object.keys(FRAMING_PHRASES) matches; FRAMING_CONFIRMED === null (pre-355.1-08)');
+  } else {
+    assert.strictEqual(Object.isFrozen(dc.FRAMING_CONFIRMED), true, 'FRAMING_CONFIRMED must be frozen once confirmed');
+    assert.strictEqual(dc.FRAMING_CONFIRMED.by, 'pws-author', 'FRAMING_CONFIRMED.by must be pws-author');
+    assert.strictEqual(dc.FRAMING_CONFIRMED.framing_hash, dc.framingHash(), 'FRAMING_CONFIRMED.framing_hash must equal framingHash()');
+    ok('FRAMING_IDS deep-equals [\'find_the_problem\',\'pursue_or_drop\',\'neutral\'] (frozen); Object.keys(FRAMING_PHRASES) matches; FRAMING_CONFIRMED is a frozen pws-author record whose framing_hash equals framingHash() (355.1-08 confirmed 2026-09-27)');
+  }
 })();
 
 // ---------------------------------------------------------------------------
