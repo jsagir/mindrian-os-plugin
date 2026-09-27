@@ -41,6 +41,47 @@ stamp verifies -> one card, through 355.1's ambient path. Discuss-phase scopes t
 contracts and the designer loop together, so no service is built without the designer as its
 first consumer and the designer never calls anything that is not a typed service.
 
+## Each research runs on a cohort of context from across the room (navigator, 2026-09-27)
+
+A research question is never framed from one finding alone. The designer assembles, per
+research, a **context cohort**: the insights from DIFFERENT parts of the room that bear on the
+question, read together. For example, an HSI pairing between two solution-design artifacts gets
+its cohort from problem-definition (the governing question), market-analysis (who would care),
+open questions and unsupported claims (the gaps), CONTRADICTS edges (the tensions), prior
+REJECTED_BECAUSE decisions (what the navigator already ruled out) and the stage. The cohort is what
+lets the lens and the pattern services ask the RIGHT question, and it is what makes a research
+result land as a room-wide insight instead of a pair-local one.
+
+Rules for the cohort:
+- **Local graph first.** Built only from the room's local SQLite graph (`room/.room-graph/`
+  room.db) through `lib/core/navigation.cjs` reads, the single chokepoint: graph neighborhoods,
+  `room-delta-facts`, open questions, unsupported claims, contradictions, decision nodes. Reuse
+  `context_assemble` (its four legs) and the navigation readers before writing anything new.
+- **Cross-section by design.** A cohort must span at least two ICM sections (not two artifacts in
+  one folder), chosen by graph distance and section role, not by keyword match. Its composition
+  (which sections, which node types, how many) is recorded with every research run so a result can
+  be traced back to the cohort that framed it.
+- **Never egresses (Part 8).** The cohort stays on the machine. Only the typed query the navigator
+  approves crosses; the cohort shapes the query, it is never sent with it.
+- **Results come home to the right sections.** A corpus result is filed back (proposed, human
+  ratified, Part 9) to the section(s) its cohort drew from, with typed edges to the cohort's
+  nodes, so the next ambient run sees it as room delta.
+
+## Mandatory consults for this phase
+
+This phase MUST consult, at discuss-phase AND at plan-phase (not optional, CLAUDE.md standing
+consults):
+- **icm-architect skill:** the cohort's section model (ICM Layers 0-4, ROOM.md identities, which
+  sections a research question should draw from, where results file back, how the room's folder
+  structure stays the orchestration).
+- **The local graph (SQLite room.db, `lib/core/navigation.cjs`, `lib/core/navigation/CONTEXT.md`):**
+  which node and edge types make a cohort, the cohort query cost on a 10k-node room, the typed
+  edges a research result writes back, and the chokepoint discipline. Consult the graph design
+  owners' notes and run the existing navigation perf and invariant tests against a cohort reader.
+- Also, per the grounding rules: langtalks-graph-expert (graph-augmented retrieval, context
+  cohorts / community summaries), Context7 for any corpus API, and Theo for the corpus proxy and
+  the judgment seam.
+
 ## Why This Matters
 
 Today (after 355 and 355.1) every breakthrough finding is a connection between two things
