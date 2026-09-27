@@ -36,6 +36,7 @@ const path = require('node:path');
 
 const store = require('../lib/memory/explored-materials-store.cjs');
 const agent = require('../lib/agents/auto-explore-agent.cjs');
+const { isMaterialHeldForStampedCard } = require('../lib/core/sensors/sensor-room-delta.cjs');
 
 // ---------- Envelope helpers (mirrors scripts/preflight-tension-surface.cjs) ----------
 
@@ -98,6 +99,11 @@ function readFindingFiles(roomDir) {
     try {
       const raw = fs.readFileSync(full, 'utf8');
       const finding = JSON.parse(raw);
+      // Navigator Ruling 5 (Phase 355.1 checkpoint): the stamped SENS-13
+      // card wins on delta class (e) -- skip a finding whose material is
+      // held (in flight or already stamped), so this drain never surfaces
+      // a second card for the same material.
+      if (finding && finding.id && finding.material_id && isMaterialHeldForStampedCard(roomDir, finding.material_id)) continue;
       if (finding && finding.id && finding.material_id) out.push(finding);
     } catch (_e) {
       // skip corrupt
