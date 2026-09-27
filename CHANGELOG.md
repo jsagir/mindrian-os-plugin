@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.50 (in progress)
+## [2.0.0-beta.51] - 2026-09-27
 
 ### Added
 - **The room starts the breakthrough run on its own (Phase 355.1).** You no longer need to know
