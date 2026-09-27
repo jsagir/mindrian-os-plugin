@@ -22,14 +22,36 @@
 # max was 166s and the ambient mode's time budget is derived against that
 # wider figure, not this narrower fresh sample).
 #
-# Legs (every 355.1-specific leg SKIPs cleanly on a partial tree, per plan
-# 355.1-01's SKELETON task; later 355.1 plans flip the run_if-guarded legs to
-# hard `run` once each target exists on disk, the 355-27 precedent):
-#   (1) glob loop over tests/test-3551-*.cjs (run_if, exit 77 = SKIP)
-#   (2) Part 8 sweep: no egress token in the 355.1 target list (run_if per
-#       target existing -- none but the two EXTENDED files exist yet)
+# KNOWN EXTERNAL REDS (plan 355.1-15, AMB-09 "external reds are documented
+# exactly the way 355 documented its own... and do not mask it"). This
+# aggregator is FINAL as of plan 355.1-15: every 355.1-specific leg above is
+# a hard `run`, never a partial-tree SKIP. The following pre-existing legs
+# still FAIL when this aggregator runs, for reasons entirely outside this
+# phase's own `<files>` scope; the gate is never re-baselined, or masked, to
+# hide them, per the 355-27 / 355.1-BASELINE.md precedent. Table shape (leg,
+# cause, owner phase), mirroring 355's own deferred-items.md:
+#
+# | leg                                          | cause                                            | owner phase       |
+# |-----------------------------------------------|---------------------------------------------------|--------------------|
+# | no-regression: test-auto-explore-fingerprint.cjs (subtest 11) | hooks.json's SessionStart preflight-auto-explore direct entry was DELIBERATELY retired by commit 3b8c30c61 (Phase 121.5-00, SessionStart coordinator); the functionality lives on through sessionstart-coordinator.cjs's own contribute() call; the test's exact-shape assertion is stale against that refactor (355.1-14-SUMMARY.md) | Phase 121.5 (the refactor); the test itself is not owned by 355 or 355.1 |
+# | no-regression: test-connector-tier-d-hooks.cjs (CHECK 4) | scripts/brain-derivation-drain.cjs (never named in any 355.1 plan's target list) requires a brain-client in its own fire path | the phase that authored brain-derivation-drain.cjs |
+# | no-regression: test-198-adapter-budget.test.cjs (subtest 2) | an unrelated budget-tracked file set fails against the real committed tree, independent of any 355.1 file | Phase 198 |
+# | no-regression: run-all-355.sh | the nested Phase 355 aggregator's OWN documented reds: test-355-direction-agreement.cjs (a documented-pending item), its own doctor leg keeping icm-ruling-eval-fresh FAILING by design (355-27's "never re-baseline, name it instead"), 272-cache-probe.test.cjs, no-regression: run-all-272.sh, and part8-egress-guard.test.cjs -- none named in any 355.1 plan's target list | Phase 355 (the doctor point), Phase 272 (the cache probe / run-all-272.sh), the part8-egress-guard.test.cjs owner phase |
+#
+# 355.1-BASELINE.md's "run-all-3551 skeleton runtime" section first recorded
+# this exact 4-leg set (confirmed unchanged, standalone, against the
+# unmodified tree, by every 355.1 plan since); a FIFTH or DIFFERENT failing
+# leg here is a genuine NEW regression this gate must still catch, never
+# folded into this table.
+#
+# Legs (every 355.1-specific leg is now a hard `run`, per plan 355.1-15;
+# a missing target FAILS, it is never silently skipped):
+#   (1) glob loop over tests/test-3551-*.cjs (run_if, exit 77 = SKIP; every
+#       file in this glob is long landed as of plan 355.1-15)
+#   (2) Part 8 sweep: no egress token in the final 355.1 target list (hard
+#       `run` per target; a missing target FAILS)
 #   (3) Part 9 sweep: no node:sqlite / DatabaseSync / INSERT INTO in the
-#       same target list (run_if per target existing)
+#       same final target list (hard `run` per target; a missing target FAILS)
 #   (4) package.json / package-lock.json unchanged (zero new dependencies)
 #   (5) check-floor-ledger --check
 #   (6) structural gates (connector registry, orchestration projection,
@@ -98,18 +120,20 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# (2) Part 8 sweep -- no egress token on an executable line in the 355.1
-#     target list. run_if per target: a MISSING target SKIPs until plan
-#     355.1-15 flips this leg to a hard `run` once every target exists.
+# (2) Part 8 sweep -- no egress token on an executable line in the FINAL
+#     355.1 target list. Plan 355.1-15 flips this leg to a hard `run`: a
+#     MISSING target now FAILS the leg (sweep_one below checks existence
+#     explicitly), it is never silently skipped.
 # ---------------------------------------------------------------------------
-# The target list mixes genuinely NEW 355.1 files (which do not exist yet;
-# run_if SKIPs them) with the two files this phase EXTENDS
-# (scripts/auto-explore-fire.cjs, scripts/scout-cadence-guard.cjs, both
-# already on disk pre-355.1). A whole-file scan of an EXTENDED file would
-# judge PRE-EXISTING content this phase has not touched -- exactly the
-# SCOPE BOUNDARY a new phase's own sweep must not cross (mirrors the
-# em-dash leg's own added-lines-only idiom, section 9 below). So: a target
-# that already existed AT BASE_3551 is scanned on ADDED LINES ONLY (git diff
+# The target list mixes genuinely NEW 355.1 files with the two files this
+# phase EXTENDS (scripts/auto-explore-fire.cjs, scripts/scout-cadence-guard.cjs,
+# both already on disk pre-355.1). A whole-file scan of an EXTENDED file would
+# judge PRE-EXISTING content this phase has not touched (scout-cadence-
+# guard.cjs's own pre-355.1 Phase-145 `node:sqlite`/`DatabaseSync` room-graph
+# read for HARD-02 is exactly such a case) -- exactly the SCOPE BOUNDARY a
+# new phase's own sweep must not cross (mirrors the em-dash leg's own
+# added-lines-only idiom, section 9 below). So: a target that already
+# existed AT BASE_3551 is scanned on ADDED LINES ONLY (git diff
 # BASE_3551..working tree); a target that is genuinely new to this phase is
 # scanned WHOLE (100% of it is new). Either way the check's real intent
 # holds: 355.1 never ADDS an egress or direct-db token, regardless of what
@@ -123,6 +147,7 @@ PART8_TARGETS=(
   "lib/core/ambient-framing.cjs"
   "lib/core/ambient-trigger.cjs"
   "lib/core/ambient-run.cjs"
+  "lib/mcp/surfaced-offers.cjs"
   "scripts/ambient-stop.cjs"
   "scripts/auto-explore-fire.cjs"
   "scripts/scout-cadence-guard.cjs"
@@ -147,6 +172,10 @@ target_added_lines() {
 }
 sweep_one() {
   local tgt="$1"; local re="$2"; local what="$3"
+  if [ ! -f "$tgt" ]; then
+    echo "    MISSING target (a missing target FAILS this leg, plan 355.1-15): $tgt"
+    return 1
+  fi
   local hay
   if is_preexisting_target "$tgt"; then
     hay="$(target_added_lines "$tgt" | grep -vE '^[[:space:]]*(//|\*|/\*)')"
@@ -161,20 +190,20 @@ sweep_one() {
 }
 part8_sweep_one() { sweep_one "$1" "$PART8_RE" "egress"; }
 part9_sweep_one() { sweep_one "$1" "$PART9_RE" "direct-db"; }
-echo "--- Part 8 sweep: no egress in the 355.1 target list (run_if per target) ---"
+echo "--- Part 8 sweep: no egress in the final 355.1 target list (hard run, a missing target FAILS) ---"
 for tgt in "${PART8_TARGETS[@]}"; do
-  run_if "Part 8 sweep: $tgt" "$tgt" part8_sweep_one "$tgt"
+  run "Part 8 sweep: $tgt" part8_sweep_one "$tgt"
 done
 
 # ---------------------------------------------------------------------------
 # (3) Part 9 sweep -- no node:sqlite / DatabaseSync / INSERT INTO on an
-#     executable line in the same target list (comment-stripped, or
+#     executable line in the same final target list (comment-stripped, or
 #     added-lines-only for the two pre-existing EXTEND targets -- see the
-#     note above section (2)). run_if per target existing.
+#     note above section (2)). Hard `run`, a missing target FAILS.
 # ---------------------------------------------------------------------------
-echo "--- Part 9 sweep: no direct-db token in the 355.1 target list (run_if per target) ---"
+echo "--- Part 9 sweep: no direct-db token in the final 355.1 target list (hard run, a missing target FAILS) ---"
 for tgt in "${PART8_TARGETS[@]}"; do
-  run_if "Part 9 sweep: $tgt" "$tgt" part9_sweep_one "$tgt"
+  run "Part 9 sweep: $tgt" part9_sweep_one "$tgt"
 done
 
 # ---------------------------------------------------------------------------
@@ -293,6 +322,8 @@ run_if "no-regression: test-198-adapter-budget.test.cjs" "tests/test-198-adapter
   node tests/test-198-adapter-budget.test.cjs
 run_if "no-regression: test-355-side-channel-v2.cjs" "tests/test-355-side-channel-v2.cjs" \
   node tests/test-355-side-channel-v2.cjs
+run_if "355-21 sweep (extended, AMB-08): test-355-part8-egress.cjs" "tests/test-355-part8-egress.cjs" \
+  node tests/test-355-part8-egress.cjs
 run_if "no-regression: test-355-filing.cjs" "tests/test-355-filing.cjs" \
   node tests/test-355-filing.cjs
 run_if "no-regression: test-355-sens13-fire-once.cjs" "tests/test-355-sens13-fire-once.cjs" \
