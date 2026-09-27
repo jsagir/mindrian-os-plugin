@@ -69,3 +69,35 @@ literal U+2014 byte anywhere (`grep -c $'\xe2\x80\x94'
 tests/test-3551-hooked-audit.cjs` prints 0). Behavior unchanged: the same
 two assertions, same 18/18 pass. `bash tests/run-all-3551.sh` is back to
 exactly the 4 baseline failures `355.1-BASELINE.md` documents.
+
+## 3. tests/test-auto-explore-canon-part-8.cjs Test 2 fails pre-existing at HEAD (surfaced during plan 355.1-14 Task 3 verification)
+
+**Surfaced:** plan 355.1-14, Task 3's own orchestrator-directed verify sweep
+(`node tests/test-auto-explore-canon-part-8.cjs`, not named in
+355.1-BASELINE.md's 4 documented gaps).
+
+**Finding:** Test 2 ("hooks/hooks.json contains mcp__brain_.* matcher
+invoking brain-response-sanitize-hook.cjs") asserts an exact matcher string
+`entry.matcher === 'mcp__brain_.*'` on a `PostToolUse` entry. The current
+`hooks/hooks.json` `PostToolUse` matcher for the sanitizer hook has since
+been widened by a later, unrelated phase to
+`"mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)"`
+(covering plugin-prefixed and non-`brain_`-suffixed server names), so the
+test's exact-string comparison no longer matches even though
+`brain-response-sanitize-hook.cjs` is still wired to the same matcher
+family. Confirmed pre-existing and unrelated to plan 355.1-14: reverting
+`hooks/hooks.json` to its HEAD state immediately before Task 3's own edit
+(commit `798d6f0a9`, before the new async Stop entry was added) and
+re-running the test reproduces the identical single failure.
+
+**Scope:** out of plan 355.1-14's `<files>` list intent (the plan's own
+`hooks/hooks.json` edit is scoped to the Stop array only, per its own
+acceptance criteria: "every other entry deep-equals its BASE_3551 value").
+Per the executor's scope-boundary discipline, logged here rather than
+fixed in place.
+
+**Follow-up:** a future plan (or phase close-out) should update
+`tests/test-auto-explore-canon-part-8.cjs` Test 2's assertion to match the
+matcher's current widened regex (or to a substring/family check) rather
+than an exact legacy string, so the test again reflects the shipped
+wiring.
