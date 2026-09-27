@@ -19,7 +19,7 @@
       "checklist": "claim-filer",
       "item_id": "item-3-epistemic-type-plausible",
       "verdict": "pass",
-      "rationale": "An 'observation' epistemic type is a plausible neutral default for a short claim naming no number, no date and no strong evidential or normative marker."
+      "rationale": "Corrected 2026-09-27 (RCA icm-ruling-eval-agreement-below-floor): the original rationale named 'observation' as the epistemic type under test, but reading lib/core/navigation/typed-claim.cjs's KNOWLEDGE_TYPE_TO_EPISTEMIC_TYPE table shows the runner's own test claim (knowledge_type: 'fact') persists epistemic_type 'extracted_fact', confirmed by reading the node's own properties back after the write -- 'observation' is never the value this checklist item actually grades. The verdict is unchanged: 'extracted_fact' is a plausible, arguably more natural fit than 'observation' for a short, directly-stated claim naming no number and no date."
     },
     {
       "checklist": "entity-extractor",
