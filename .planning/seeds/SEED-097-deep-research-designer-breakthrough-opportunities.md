@@ -5,17 +5,41 @@ priority: critical
 planted: 2026-09-27
 planted_during: Phase 355.1 close-out (after execution, before the release cut)
 trigger_when: immediately after the Phase 355.1 release cut; the next phase to discuss, before any other new phase
-scope: large (a multi-plan phase, likely with a Theo-side companion phase)
+scope: large (one phase: the MCP intelligence services and the research designer built together, with a Theo-side companion phase)
 navigator_ruling: "2026-09-25: after 355.1, the next phase is the MCP-based intelligence layer from the ORIGINAL 355 ask. Do not narrow it."
 ---
 
-# SEED-097: Deep Research Designer for breakthrough opportunities
+# SEED-097: Deep Research Designer for breakthrough opportunities, built with the MCP intelligence services
 
 The critical next phase. A research designer that turns the room's own signals into deliberate,
 literature-scale research, so the breakthrough engine stops being limited to what is already in
 the room. It is the MCP-based intelligence layer the navigator asked for at the start of Phase 355
 (the pptx "Algorithmic Generation of Solutions", April 2025, and the algorithm-incorporation
 devpkg zip), which 355 and 355.1 deliberately narrowed to room-local honesty groundwork (Home A).
+
+## Built alongside the MCP intelligence layer, not after it (navigator, 2026-09-27)
+
+The research designer and the MCP intelligence services are ONE critical phase, designed and
+shipped together. Neither comes first. The designer is a consumer and a producer on the same
+service layer:
+
+| Intelligent service (MCP, typed, Home B/C) | What the research designer does with it |
+|---|---|
+| Engine services: RS, HSI, whitespace, eureka as typed MCP tools | Consumes their findings as query candidates (driver 2) |
+| Lens service: hats / persona lenses | Asks it WHAT is worth researching for a finding (driver 1) |
+| Pattern service: problem-type rung, discovery-pattern taxonomy, Terminology Translation, Problem Decomposition | Shapes each query's language and splits the question (driver 3) |
+| Query composer + egress audit (Part 8) | The designer's own output: audited query strings awaiting navigator approval |
+| Corpus service (Scopus, Semantic Scholar, arXiv / PubMed / patents) behind the Theo seam | Runs the approved queries; returns reviewed, hash-anchored rows |
+| Judgment service: Jev through Theo as keyholder (Theo SEED-015) | Types each result (supports / contradicts / says nothing; pattern id; novelty) |
+| Verification service: guarded `find_connections` on the shim | Stamps each research-backed pairing on every surface |
+
+Design rule: one wire shape for all services (closed enums, integer buckets, quantized scalars,
+registry ids; no free text, no room content), the 355 BRIEF's shape. The designer is the
+orchestration that composes the services into a research loop: engine finding -> lens picks the
+question -> pattern shapes the query -> navigator approves -> corpus answers -> Jev types it ->
+stamp verifies -> one card, through 355.1's ambient path. Discuss-phase scopes the service
+contracts and the designer loop together, so no service is built without the designer as its
+first consumer and the designer never calls anything that is not a typed service.
 
 ## Why This Matters
 
