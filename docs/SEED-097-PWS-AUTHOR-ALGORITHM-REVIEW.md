@@ -1,4 +1,4 @@
-# SEED-097: review of Lawrence's three-signal algorithm briefing
+# SEED-097: review of PWS author's three-signal algorithm briefing
 
 Date: 2026-09-27. Status: research and design review; no algorithm has been adopted by this document.
 

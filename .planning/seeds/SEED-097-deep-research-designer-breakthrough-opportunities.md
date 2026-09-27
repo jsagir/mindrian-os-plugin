@@ -6,7 +6,7 @@ planted: 2026-09-27
 updated: 2026-09-27
 planted_during: Phase 355.1 close-out (after execution, before the release cut)
 trigger_when: immediately after the Phase 355.1 release cut; the next phase to discuss, before any other new phase
-scope: large (one phase: the MCP intelligence services and the research designer built together, with a Theo-side companion phase)
+scope: large (one critical phase: the MCP intelligence services, research designer and Theo-side companion are built together)
 navigator_ruling: "2026-09-25: after 355.1, the next phase is the MCP-based intelligence layer from the ORIGINAL 355 ask. Do not narrow it."
 mos_canvas_ruling: "2026-09-27: each MOS-CANVAS part is an independent strategic perspective; cross-perspective synthesis is optional, never required for a useful finding."
 astra_review: "2026-09-27: independent pathways with a minimal shared layer; design corrections incorporated; runtime performance and live Theo contracts remain to be verified."
@@ -19,6 +19,29 @@ literature-scale research, so the breakthrough engine stops being limited to wha
 the room. It is the MCP-based intelligence layer the navigator asked for at the start of Phase 355
 (the pptx "Algorithmic Generation of Solutions", April 2025, and the algorithm-incorporation
 devpkg zip), which 355 and 355.1 deliberately narrowed to room-local honesty groundwork (Home A).
+
+## Discuss-phase brief: the room reaches outside itself
+
+**Governing thought:** the room should reach outside itself, and the graph should decide when,
+which lens, and what query. The research designer is the owner of that decision. MOS-CANVAS
+perspectives remain independent strategic pathways: each can produce a useful local finding, but
+the designer decides whether that finding warrants an external research child run, shapes the
+query, applies the approval policy, and returns the evidence to the originating card.
+
+**First slice:** prove **Whitespace + OpenAlex** end to end. Start with a two-section room cohort,
+ask whether a scoped gap is absent from the literature or only absent from the room, compose one
+bounded query family, obtain the approved corpus response, and return a hash-anchored evidence
+card. The existing OpenAlex adapter makes this the lowest-risk test. It has a clean falsifier when
+the gap is covered under another term, irrelevant, or caused by extraction failure. It avoids the
+unsettled HSI sign convention and the unverified Scientific Roadmapping Theo seam.
+
+**First discuss decision:** choose the external-research approval mode: per-query exact-string
+approval or a standing audited policy for ambient runs. This is a product behavior decision. A
+policy that requires a human turn for every query prevents the room from initiating useful runs;
+any standing policy must still bind provider, scope, query family and audit record.
+
+Everything below is the evidence, review history, contracts and appendix for that brief. The
+details remain authoritative, but they must serve this first proof rather than obscure it.
 
 ## Governing MOS-CANVAS briefing: independent strategic perspectives
 
@@ -107,10 +130,11 @@ Design rule: the 355 BRIEF's restricted enum/bucket/registry-ID shape governs
 Theo analytical and judgment requests. Exact public search queries need their
 own audited approval contract. The common local result envelope never crosses
 either boundary, and private room content accompanies neither request.
-A perspective may compose a research loop from the lens,
-pattern, corpus, Jev and verification services that actually apply to it. When
-external research is used, the exact query is audited and approved before fetching;
-the resulting evidence returns to that perspective's card. Discuss-phase scopes
+A perspective supplies the designer with a strategic question, candidate and evidence needs.
+The research designer owns the cross-service research loop: it decides when external research is
+warranted, selects the applicable lens and pattern, composes the query family, and manages the
+approved child run. When external research is used, the exact query is audited and approved before
+fetching; the resulting evidence returns to that perspective's card. Discuss-phase scopes
 the service contracts and the independent perspective paths together, so each
 service has a concrete consumer without forcing every consumer through one chain.
 
@@ -232,7 +256,7 @@ binding: this is a **thesis, not a demonstrated capability**; the surveyed algor
 were not run as a combined system. Use them as inspiration for Jev policies and for
 evaluation, not as a mandate to install five algorithm packages or recreate the old
 Mindrian V2 pipeline. The evidence review is
-`docs/SEED-097-LAWRENCE-ALGORITHM-REVIEW.md`.
+`docs/SEED-097-PWS-AUTHOR-ALGORITHM-REVIEW.md`.
 
 Source-check corrections that must survive planning: the cited gap-opening result is
 an **odds ratio of 1.58**, not a 58 percentage-point increase; AutoDiscovery's
@@ -303,10 +327,12 @@ baseline.
 
 ## Open decisions for discuss-phase
 
-1. Which corpus first? **OpenAlex is the evidence-backed default for the pilot**
+1. **External-research approval mode:** choose per-query exact-string navigator approval versus
+   a standing, audited query policy for ambient runs. Bind any standing policy to provider, scope,
+   query family and an audit record; do not make the room wait for a human turn on every query.
+2. Which corpus first? **OpenAlex is the evidence-backed default for the first slice**
    because its adapter already exists; compare Semantic Scholar's added recall and
    terms, and Scopus only if access and cost justify it.
-2. Per-query navigator approval vs a standing, audited query policy for the ambient run.
 3. Who pays for the corpus API and the GPU hours; where the corpus service runs.
 4. How a hat lens maps to a query family (one hat, many queries? one query per hat per finding?).
 5. The recall measure: the proposed fourth, research-type fixture room with planted known
@@ -333,11 +359,11 @@ baseline.
     producer and reader use the same meaning. Record this as a prerequisite
     decision in the HSI adapter plan; a fixture run cannot validate an unsettled
     label.
-11. **Phase shape:** decide in `/gsd-discuss-phase` whether SEED-097 is executed
-    as one phase with ordered implementation waves or split into multiple linked
-    phases. The six standalone perspective contracts, shared-layer scope and Theo
-    companion remain the completion scope either way; a pilot determines order and
-    risk, not whether a perspective is dropped.
+11. **Phase work shape:** within the one critical phase, decide in `/gsd-discuss-phase`
+    whether the implementation uses ordered waves or linked workstreams. The six
+    standalone perspective contracts, shared-layer scope and Theo companion remain
+    the completion scope either way; the pilot determines order and risk, not whether
+    a perspective is dropped or the phase is split.
 
 ## Shared layer and minimum implementation changes
 
@@ -380,12 +406,14 @@ Start with the existing provider registry and stores. New dependencies, parallel
 service hosts, schema migrations, replacement engines, and new public commands
 require an explicit demonstrated gap; they are not baseline work for this brief.
 
-Implementation order within the full phase: establish the common contract around
-one existing perspective; adapt and verify all remaining perspectives against
-their own contracts; connect approved research to each applicable path; verify
-cross-client behavior; then evaluate optional portfolio synthesis. A first pilot
-proves the shared layer's shape. It does not close the phase or remove any of the
-six perspectives, nine devpkg capabilities or agreed MCP services from scope.
+Implementation order within the full phase: first prove the research designer's
+external decision loop with **Whitespace + OpenAlex** on a two-section cohort;
+then establish the common contract around that working slice; adapt and verify all
+remaining perspectives against their own contracts; connect approved research to
+each applicable path; verify cross-client behavior; then evaluate optional portfolio
+synthesis. The first slice proves that the room can reach outside itself and return
+useful evidence. It does not close the phase or remove any of the six perspectives,
+nine devpkg capabilities or agreed MCP services from scope.
 
 ## When to Surface
 
@@ -411,7 +439,7 @@ research through the standing consults: icm-architect, langtalks-graph-expert, C
 - `agents/analogy-query-fetcher.md`, `agents/dominant-design-researcher.md`, `commands/find-analogies.md`, `commands/research.md`, `agents/research.md`
 - `lib/core/ambient-run.cjs` (the five producers this designer would feed from)
 - `~/MindrianRooms/rethinking-mindrianos/research/2026-09-23-algorithm-rd-briefing-mirror/` (the PWS author's 13-tab briefing, dated capture)
-- `docs/SEED-097-LAWRENCE-ALGORITHM-REVIEW.md` (source-checked Jev interpretation and evaluation cautions)
+- `docs/SEED-097-PWS-AUTHOR-ALGORITHM-REVIEW.md` (source-checked Jev interpretation and evaluation cautions)
 - `~/MindrianRooms/mindrianOS/research/2026-09-27-mos-canvas-open-source-tooling-review.md` (source-checked tooling decisions; research is the evidence home)
 - `~/MindrianRooms/mindrianOS/methodology/2026-09-27-mos-canvas-scientific-roadmapping-handoff.md` (Theo framework to MOS-CANVAS integration contract)
 - `~/MindrianRooms/mindrianOS/opportunity-bank/2026-09-27-mos-canvas-breakthrough-opportunity-slate.md` (proposed product opportunities)
@@ -532,11 +560,11 @@ own cohort through navigation.
 ### MOS-CANVAS vertical slice for SEED-097
 
 ```text
-two-section local cohort or one quantified roadmapping goal
+two-section local cohort
+→ Whitespace perspective and scoped gap candidate
 → optional hat/persona lens where it sharpens the question
-→ one selected MOS-CANVAS perspective and its standalone candidate
 → one pattern-shaped query family
-→ exact navigator approval
+→ research designer approval-policy decision and exact query audit
 → one corpus adapter behind Theo
 → hash-anchored result review
 → proposed navigation filing
@@ -624,12 +652,12 @@ The room's
 records six proposed product opportunities: (1) constraint ledger/research-builder
 mode, (2) prior-art and contradiction cards, (3) cross-room mechanism transfer,
 (4) source-grounded research cards, (5) calibrated ranking, and (6) terminology
-and temporal bridging. One **first slice** may exercise the Scientific
-Roadmapping perspective alone: one quantified goal, two distinct paths, their
-limiter ledger, one approved literature cohort, an evaluated Jev judgment where
-the allowed typed state suffices, and a human-reviewed card. Separately run RS
-or whitespace on the same cohort, then test whether linking the cards adds
-value. These are hypotheses for the product, not
+and temporal bridging. The **first slice** is Whitespace + OpenAlex: one two-section
+cohort, one scoped gap, one approved literature cohort, an evaluated evidence card and
+a human-reviewed filing. Scientific Roadmapping remains a later perspective fixture
+once its live Theo interface is verified. Separately run RS or another perspective on
+the same cohort, then test whether linking the cards adds value. These are hypotheses
+for the product, not
 claims of scientific breakthroughs.
 
 ### ICM filing and research-run memory
