@@ -1094,7 +1094,7 @@ Plans: (planned 2026-09-23; 28 plans in 11 waves; human checkpoints in 02, 03, 1
 **Goal:** The room, never the user, starts the breakthrough run: one detector (SENS-21) and one evaluator recognize five room-delta classes through the navigation chokepoint and start the five stamped Phase 355 producers underneath as autonomous_safe machinery on every surface (CLI hooks; the MCP Stop-time close-out on Desktop and Cowork); a per-room ledger with a delta hash and a lock prevents re-runs; only strong and indirect findings reach the card, once, through SENS-13; the framing follows the room problem type through a non-keyword chain. Widens the Phase 117 door; no rival spawner, no command, no MCP tool, no seventh reach. Navigator ruling 2026-09-23 (355.1-PRD.md).
 **Requirements**: AMB-01, AMB-02, AMB-03, AMB-04, AMB-05, AMB-06, AMB-07, AMB-08, AMB-09 (phase-local, defined in 355.1-PRD.md, registered in REQUIREMENTS.md by 355.1-16 at close)
 **Depends on:** Phase 355 (CLOSED before 355.1-01 runs)
-**Plans:** 9/16 plans executed
+**Plans:** 10/16 plans executed
 
 Plans:
 
@@ -1121,7 +1121,7 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [x] 355.1-09-PLAN.md -- AMB-03, AMB-06, AMB-08, AMB-04: AMB-03 made real on the process level: the one existing background child learns an ambient mode and stops calling a dead seam.
-- [ ] 355.1-10-PLAN.md -- AMB-05, AMB-06: Navigator Ruling 5, so a filed artifact produces one card, not two.
+- [x] 355.1-10-PLAN.md -- AMB-05, AMB-06: Navigator Ruling 5, so a filed artifact produces one card, not two.
 - [ ] 355.1-11-PLAN.md -- AMB-05, AMB-07: AMB-05 and AMB-07 on the card: the stamped ambient finding reaches the navigator once, through the SENS-13 path 355 built, opening with a phrase chosen by the room's problem type.
 
 **Wave 6** *(blocked on Wave 5 completion)*

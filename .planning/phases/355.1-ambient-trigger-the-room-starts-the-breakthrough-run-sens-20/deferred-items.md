@@ -60,3 +60,12 @@ literal, or have `tests/test-3551-hooked-audit.cjs` construct the character
 via `String.fromCharCode(0x2014)` instead of a literal, so the leg's own
 intent (catch em-dash PROSE, not a comparison literal) is preserved without
 a false positive.
+
+**Resolved:** plan 355.1-10 (orchestrator-assigned fix, ahead of its own
+Task 1), commit `75cef3cfb`. `tests/test-3551-hooked-audit.cjs`'s two
+em-dash assertions now compare against `EM_DASH_CHAR`
+(`String.fromCharCode(0x2014)`, defined once), so the file holds no
+literal U+2014 byte anywhere (`grep -c $'\xe2\x80\x94'
+tests/test-3551-hooked-audit.cjs` prints 0). Behavior unchanged: the same
+two assertions, same 18/18 pass. `bash tests/run-all-3551.sh` is back to
+exactly the 4 baseline failures `355.1-BASELINE.md` documents.
