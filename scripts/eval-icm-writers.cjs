@@ -313,14 +313,45 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
   items.push(codeItem('ruling-writer', 'item-2-frontmatter-keys', fmOk, detail3.join('; ') || 'frontmatter carries all four generated keys', roomLabel));
   items.push(codeItem('ruling-writer', 'item-3-fingerprint-recomputes', fpOk, detail3.join('; ') || 'ruling_fingerprint recomputes to the same value', roomLabel));
   items.push(codeItem('ruling-writer', 'item-4-authored-prose-preserved', tailOk, detail4.join('; ') || 'authored prose below the end marker is byte-preserved', roomLabel));
-  items.push(jevItem('ruling-writer', 'item-5-sequence-fits-job', {
-    name: 'methodology sequence fit',
-    jtbd: 'Score whether the named framework sequence is a plausible first-move order for this job',
-    glossary: 'A Score question over the section job and its ordered framework names only',
-    judge: 'Does the named framework sequence in this state read as a plausible first-move order for a section doing this job?',
-    pass: 'the sequence is a plausible first-move order for a section doing this job',
-    fail: 'the sequence is not a plausible first-move order: premature, off-job, or out of order',
-  }, roomLabel));
+
+  // Item 5 (jev): evals/icm/claude-judge-baseline.json's ruling-writer|
+  // item-5-sequence-fits-job rationale is hand-authored specifically against
+  // the business-model section's job (model-business) and its shipped
+  // sequence -- pin the grading to that same section so the comparison stays
+  // valid across every fixture room; a room without that section (e.g.
+  // gamma-room, whose only section is solution-design/design-solution) has
+  // no baseline-comparable case to grade here and SKIPS this item loudly
+  // rather than judging a different job's sequence against a baseline never
+  // authored for it (RCA icm-ruling-eval-agreement-below-floor).
+  const RULING_BASELINE_JOB_ID = 'model-business';
+  const baselineSlug = sectionSlugs.find((slug) => {
+    const row = sectionRegistry.getSectionJob(slug);
+    return row && row.job_id === RULING_BASELINE_JOB_ID;
+  });
+  if (baselineSlug) {
+    const baselineCanonRow = sectionRegistry.getSectionJob(baselineSlug);
+    const primaryRow = (ledger && ledger.rows) ? ledger.rows[baselineCanonRow.job_id + '|*|*'] : null;
+    const seqNames = Array.isArray(primaryRow) ? primaryRow.slice(0, 3).map((c) => c.command).filter(Boolean) : [];
+    items.push(jevItem('ruling-writer', 'item-5-sequence-fits-job', {
+      qtype: 'score',
+      section: baselineSlug,
+      // The REAL rendered job + sequence (framework/command names only, per
+      // the checklist's own wire contract) -- the pre-fix runner sent a
+      // static, content-free label here every time (RCA
+      // icm-ruling-eval-agreement-below-floor).
+      name: 'job ' + baselineCanonRow.job_id + ': ' + (seqNames.length > 0 ? seqNames.join(', ') : 'no ledger row for this job'),
+      jtbd: 'section job id: ' + baselineCanonRow.job_id,
+      glossary: 'A Score question over the section job and its ordered framework/command names only',
+      judge: 'Does the named framework sequence in this state read as a plausible first-move order for a section doing this job?',
+      pass: 'the sequence is a plausible first-move order for a section doing this job',
+      fail: 'the sequence is not a plausible first-move order: premature, off-job, or out of order',
+    }, roomLabel));
+  } else {
+    const skipped = jevItem('ruling-writer', 'item-5-sequence-fits-job', null, roomLabel);
+    skipped.detail = 'SKIP: jev half -- no section in this room declares job "' + RULING_BASELINE_JOB_ID
+      + '" (item-5 is scoped to the section evals/icm/claude-judge-baseline.json was hand-graded against)';
+    items.push(skipped);
+  }
   // Order check kept structurally distinct from presence (recorded, never silently folded):
   if (!orderOk) items[0].detail += (items[0].detail ? '; ' : '') + 'order violations: ' + detail2.join('; ');
 
@@ -336,6 +367,7 @@ function gradeMintoRefresher(tmpRoom, sectionSlugs, roomLabel) {
   let ok = true;
   const detail = [];
   let gradedAny = false;
+  let firstGraded = null;
 
   for (const rel of targets) {
     const dirAbs = rel === '.' ? tmpRoom : path.join(tmpRoom, rel);
@@ -346,6 +378,7 @@ function gradeMintoRefresher(tmpRoom, sectionSlugs, roomLabel) {
     const gt = extractGoverningThought(raw);
     const nonTemplate = gt.length > 0 && gt.indexOf(MINTO_PLACEHOLDER_SNIPPET) === -1;
     if (!nonTemplate) { ok = false; detail.push(rel + ':empty-or-template'); }
+    if (!firstGraded) firstGraded = { rel: rel, gt: gt, titles: listArtifactTitles(dirAbs) };
   }
 
   if (!gradedAny) {
@@ -355,9 +388,17 @@ function gradeMintoRefresher(tmpRoom, sectionSlugs, roomLabel) {
 
   items.push(codeItem('minto-refresher', 'item-1-governing-thought-present', ok,
     detail.length > 0 ? detail.join('; ') : 'every governing thought is present and non-template', roomLabel));
+
+  // Item 2 (jev): wire the REAL governing thought text and the REAL (titles
+  // only) artifact list for the first graded target -- the pre-fix runner
+  // sent only a static question label every time, never the writer's own
+  // output (RCA icm-ruling-eval-agreement-below-floor).
+  const titlesText = firstGraded.titles.length > 0 ? firstGraded.titles.join(', ') : '(none)';
   items.push(jevItem('minto-refresher', 'item-2-summarizes-artifacts', {
-    name: 'governing thought summary fit',
-    jtbd: 'Noul: does this governing thought plausibly summarize a section holding these artifact titles',
+    qtype: 'noul',
+    section: firstGraded.rel,
+    name: String(firstGraded.gt || '').slice(0, 110),
+    jtbd: 'artifacts: ' + titlesText,
     glossary: 'the section slug, the governing thought text, and a titles-only artifact list',
     judge: 'Does the governing thought in this state plausibly summarize a section holding these artifact titles?',
     pass: 'the governing thought plausibly summarizes a section holding those artifact titles',
@@ -418,9 +459,29 @@ function gradeClaimFiler(tmpRoom, sectionSlug, roomLabel) {
     const gateVerdictKnown = gateResult.verdict === 'match' || gateResult.verdict === 'mismatch' || gateResult.verdict === 'unresolved';
     items.push(codeItem('claim-filer', 'item-2-serves-jtbd-honored', gateVerdictKnown,
       'gate verdict: ' + gateResult.verdict, roomLabel));
+
+    // Item 3 (jev): the checklist's own wire contract is "the epistemic_type
+    // enum value and a structural shape summary, never the claim text" -- read
+    // the REAL persisted epistemic_type back off the node this same call just
+    // wrote (ground truth via the node's own properties blob, never
+    // re-derived), rather than the static placeholder text the pre-fix
+    // runner sent every time (RCA icm-ruling-eval-agreement-below-floor).
+    let epistemicType = null;
+    let shape = { bucket: 'unknown', hasNumber: false, hasDate: false };
+    if (claimResult.ok) {
+      try {
+        const claimRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get(claimResult.node_id);
+        const claimProps = claimRow ? JSON.parse(claimRow.properties) : {};
+        epistemicType = claimProps.epistemic_type || null;
+        shape = claimShapeSummary(claimProps.text || '');
+      } catch (_e) { /* tolerant: falls through to the 'unknown' shape above */ }
+    }
     items.push(jevItem('claim-filer', 'item-3-epistemic-type-plausible', {
-      name: 'epistemic type plausibility',
-      jtbd: 'Score whether the chosen epistemic_type fits the structural shape of this claim',
+      qtype: 'score',
+      section: sectionSlug,
+      name: 'epistemic_type ' + (epistemicType || 'unknown') + '; shape ' + shape.bucket
+        + (shape.hasNumber ? '+number' : '') + (shape.hasDate ? '+date' : ''),
+      jtbd: 'claim shape summary for a filed claim',
       glossary: 'the epistemic_type enum value and a claim shape summary only; never the claim text',
       judge: 'Is the epistemic type in this state a plausible fit for a claim of this shape?',
       pass: 'the epistemic type is a plausible fit for a claim of that shape',
@@ -441,6 +502,31 @@ function gradeClaimFiler(tmpRoom, sectionSlug, roomLabel) {
 // output, never a synthesized string.
 // ---------------------------------------------------------------------------
 const TEMPLATE_WORDS = ['unknown', 'placeholder', 'tbd', 'todo', 'fixme', 'lorem', 'sample'];
+
+// ---------------------------------------------------------------------------
+// claimShapeSummary / listArtifactTitles: the STRUCTURAL summaries the
+// claim-filer and minto-refresher jev items are contractually allowed to
+// send (evals/icm/checklists/claim-filer.md, minto-refresher.md) -- never the
+// claim text itself, never artifact bodies, only shape/titles.
+// ---------------------------------------------------------------------------
+function claimShapeSummary(text) {
+  const s = String(text || '');
+  const words = s.trim().split(/\s+/).filter(Boolean);
+  const bucket = words.length === 0 ? 'empty' : (words.length <= 8 ? 'short' : (words.length <= 20 ? 'medium' : 'long'));
+  const hasNumber = /\d/.test(s);
+  const hasDate = /\b(19|20)\d{2}\b|\b\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?\b|\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(s);
+  return { bucket: bucket, hasNumber: hasNumber, hasDate: hasDate };
+}
+
+const MINTO_STRUCTURAL_FILES = new Set(['ROOM.md', 'MINTO.md', 'CONTEXT.md', 'STATE.md', 'USER.md']);
+function listArtifactTitles(dirAbs) {
+  let entries;
+  try { entries = fs.readdirSync(dirAbs, { withFileTypes: true }); } catch (_e) { return []; }
+  return entries
+    .filter((e) => e.isFile() && e.name.toLowerCase().endsWith('.md') && !MINTO_STRUCTURAL_FILES.has(e.name))
+    .map((e) => e.name.replace(/\.md$/i, ''))
+    .sort();
+}
 
 function gradeEntityExtractor(tmpRoom, roomLabel) {
   const items = [];
@@ -467,6 +553,8 @@ function gradeEntityExtractor(tmpRoom, roomLabel) {
   items.push(codeItem('entity-extractor', 'item-1-no-template-words', ok,
     ok ? 'extracted slug carries no template word: "' + slug + '"' : 'extracted slug carries a template word: "' + slug + '"', roomLabel));
   items.push(jevItem('entity-extractor', 'item-2-names-a-concept', {
+    qtype: 'score',
+    section: roomLabel,
     name: slug,
     jtbd: 'Score whether this slug reads as a single concept handle rather than a truncated sentence fragment',
     glossary: 'the normalized slug only; the raw source sentence stays local',
@@ -484,10 +572,33 @@ function gradeEntityExtractor(tmpRoom, roomLabel) {
 // ---------------------------------------------------------------------------
 function buildJevPayload(item) {
   const wire = item.wire || {};
+  // qtype defaults to 'choice' for backward compatibility, but every shipped
+  // checklist item as of this fix declares its own type explicitly
+  // (evals/icm/checklists/*.md; 353-03-PLAN.md line 120-121): 'score' for
+  // ruling-writer item-5, claim-filer item-3, entity-extractor item-2;
+  // 'noul' for minto-refresher item-2. Never 'choice' -- the pre-fix runner
+  // hardcoded 'choice' for all four, contradicting the checklist's own
+  // stated question type (RCA icm-ruling-eval-agreement-below-floor).
+  const qtype = wire.qtype || 'choice';
+  const question = {
+    type: qtype,
+    instructions: { judge: String(wire.judge || wire.jtbd || '').slice(0, 200) },
+  };
+  if (qtype === 'score') {
+    // Two levels only (this suite's verdict is always categorical pass/fail,
+    // per evals/icm/README.md's EXACT AGREEMENT metric): level 0 the fail
+    // situation, level 1 the pass situation, worded as situations rather
+    // than degrees per the vendor contract (jev-typed-decisions-api.md).
+    question.criteria = [String(wire.fail || '').slice(0, 200), String(wire.pass || '').slice(0, 200)];
+  } else if (qtype === 'choice') {
+    question.criteria = { pass: String(wire.pass || '').slice(0, 200), fail: String(wire.fail || '').slice(0, 200) };
+  }
+  // 'noul' carries no criteria key at all (vendor contract: returns a bare
+  // 0..1, no levels, no confidence).
   return {
     model: 'jev-latest',
     state: {
-      section: item.room || null,
+      section: wire.section || item.room || null,
       problem_type: null,
       stage: null,
       candidates: {
@@ -498,24 +609,34 @@ function buildJevPayload(item) {
         },
       },
     },
-    questions: {
-      [item.item_id]: {
-        type: 'choice',
-        instructions: { judge: String(wire.judge || wire.jtbd || '').slice(0, 200) },
-        criteria: { pass: String(wire.pass || '').slice(0, 200), fail: String(wire.fail || '').slice(0, 200) },
-      },
-    },
+    questions: { [item.item_id]: question },
   };
 }
+
+// Per the vendor contract this repo's own skill doc records
+// (.claude/skills/spike-findings-MindrianOS-Plugin/references/
+// jev-typed-decisions-api.md + policy-execution-parity.md): a Choice or
+// Score confidence is a probability-SPREAD measure, and "under 0.5 do not
+// act" / a confidence in that range "means the mass is spread across
+// options" -- not a considered verdict. The pre-fix runner counted every
+// returned choice as a hard vote regardless of confidence (RCA
+// icm-ruling-eval-agreement-below-floor); a confidence below this floor now
+// abstains (verdict stays null, so computeAgreement excludes it, exactly
+// like the existing no-key skip path) instead of counting as a vote either
+// way. Noul returns no confidence at all (vendor contract), so no floor
+// applies to it.
+const JEV_CONFIDENCE_FLOOR = 0.5;
 
 // resolveJevItems: builds and ceiling-checks every jev payload regardless of
 // key presence (the ceiling holds even when the vendor call never happens);
 // only fires the actual vendor call when a key resolves and --code-only was
-// not passed.
+// not passed. An item with no `wire` was already decided not-applicable at
+// grading time (its `detail` was set then) and is never sent to Jev.
 async function resolveJevItems(items, opts) {
   const jevFn = (opts && opts.jevFn) || ledgerBuilder.jev;
   for (const it of items) {
     if (it.kind !== 'jev') continue;
+    if (!it.wire) continue; // not-applicable to this room; detail already set at push time
     const payload = buildJevPayload(it);
     ledgerBuilder.assertEgressCeiling(payload); // throws before any fetch on a ceiling violation
     if (!opts.keyPresent || opts.codeOnly) {
@@ -525,21 +646,58 @@ async function resolveJevItems(items, opts) {
       it.detail = 'SKIP: jev half -- no vendor key resolved this run';
       continue;
     }
+    const qtype = it.wire.qtype || 'choice';
     try {
       const res = await jevFn(opts.key, payload);
       const answer = res && res.json && res.json.answers && res.json.answers[it.item_id];
-      if (res && res.status === 200 && answer && (answer.choice === 'pass' || answer.choice === 'fail')) {
-        it.verdict = answer.choice;
-        it.ok = answer.choice === 'pass';
-        it.confidence = typeof answer.confidence === 'number' ? answer.confidence : null;
-        it.probabilities = answer.probabilities || null;
-        it.jev_model = res.json.model || null;
-        it.detail = 'jev responded: ' + answer.choice + ' (confidence ' + it.confidence + ')';
-      } else {
+      if (!(res && res.status === 200 && answer)) {
         it.verdict = null;
         it.ok = null;
         it.confidence = null;
         it.detail = 'jev responded with an unrecognized shape (status ' + (res && res.status) + ')';
+        continue;
+      }
+      it.jev_model = res.json.model || null;
+      if (qtype === 'score' && typeof answer.score === 'number') {
+        const verdict = answer.score >= 0.5 ? 'pass' : 'fail';
+        const confidence = typeof answer.confidence === 'number' ? answer.confidence : null;
+        it.probabilities = answer.probabilities || null;
+        if (confidence !== null && confidence < JEV_CONFIDENCE_FLOOR) {
+          it.verdict = null;
+          it.ok = null;
+          it.confidence = confidence;
+          it.detail = 'ABSTAIN: jev score confidence ' + confidence + ' is below the ' + JEV_CONFIDENCE_FLOOR + ' floor (spread across levels, not a considered verdict)';
+        } else {
+          it.verdict = verdict;
+          it.ok = verdict === 'pass';
+          it.confidence = confidence;
+          it.detail = 'jev responded: ' + verdict + ' (score ' + answer.score + ', confidence ' + confidence + ')';
+        }
+      } else if (qtype === 'noul' && typeof answer.noul === 'number') {
+        const verdict = answer.noul >= 0.5 ? 'pass' : 'fail';
+        it.verdict = verdict;
+        it.ok = verdict === 'pass';
+        it.confidence = null; // Noul carries no confidence (vendor contract); no floor applies.
+        it.detail = 'jev responded: ' + verdict + ' (noul ' + answer.noul + ', no confidence -- Noul carries none)';
+      } else if (answer.choice === 'pass' || answer.choice === 'fail') {
+        const confidence = typeof answer.confidence === 'number' ? answer.confidence : null;
+        it.probabilities = answer.probabilities || null;
+        if (confidence !== null && confidence < JEV_CONFIDENCE_FLOOR) {
+          it.verdict = null;
+          it.ok = null;
+          it.confidence = confidence;
+          it.detail = 'ABSTAIN: jev choice confidence ' + confidence + ' is below the ' + JEV_CONFIDENCE_FLOOR + ' floor (spread across options, not a considered verdict)';
+        } else {
+          it.verdict = answer.choice;
+          it.ok = answer.choice === 'pass';
+          it.confidence = confidence;
+          it.detail = 'jev responded: ' + answer.choice + ' (confidence ' + confidence + ')';
+        }
+      } else {
+        it.verdict = null;
+        it.ok = null;
+        it.confidence = null;
+        it.detail = 'jev responded with an unrecognized answer shape for type ' + qtype;
       }
     } catch (e) {
       it.verdict = null;
@@ -775,10 +933,13 @@ if (require.main === module) {
     parseArgv,
     esc,
     extractGoverningThought,
+    claimShapeSummary,
+    listArtifactTitles,
     gradeRoom,
     buildJevPayload,
     resolveJevItems,
     computeAgreement,
     renderHtml,
+    JEV_CONFIDENCE_FLOOR,
   };
 }

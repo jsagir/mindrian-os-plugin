@@ -79,19 +79,39 @@ if (!key) {
   const ledgerBuilder = require('../scripts/build-section-command-ledger.cjs');
   const graded = runner.gradeRoom(path.join(REPO, 'tests/fixtures/icm-rooms/alpha-room'));
   const items = graded.items.filter((i) => i.kind === 'jev');
-  check('at least four real jev payloads inspected', items.length >= 4);
+  check('at least four real jev items graded (alpha-room declares job "model-business")', items.length >= 4);
+  check('every jev item on alpha-room carries real per-instance wire content, never a static label',
+    items.every((i) => i.wire && i.wire.name && i.wire.name !== 'methodology sequence fit'
+      && i.wire.name !== 'epistemic type plausibility' && i.wire.name !== 'governing thought summary fit'));
+  // 353-03-PLAN.md line 120-121 + evals/icm/checklists/*.md: ruling-writer
+  // item-5, claim-filer item-3 and entity-extractor item-2 are each a Jev
+  // Score question; minto-refresher item-2 is a Jev Noul question. Never
+  // Choice (RCA icm-ruling-eval-agreement-below-floor).
+  const EXPECTED_QTYPE = {
+    'ruling-writer|item-5-sequence-fits-job': 'score',
+    'claim-filer|item-3-epistemic-type-plausible': 'score',
+    'entity-extractor|item-2-names-a-concept': 'score',
+    'minto-refresher|item-2-summarizes-artifacts': 'noul',
+  };
   for (const item of items) {
     const payload = runner.buildJevPayload(item);
     const q = payload.questions[item.item_id];
-    check(item.item_id + ' has typed choice criteria', q.type === 'choice'
-      && q.criteria && !Array.isArray(q.criteria)
-      && typeof q.criteria.pass === 'string' && q.criteria.pass.length > 0
-      && typeof q.criteria.fail === 'string' && q.criteria.fail.length > 0);
+    const expected = EXPECTED_QTYPE[item.checklist + '|' + item.item_id];
+    check(item.item_id + ' uses its checklist-declared question type (' + expected + ')', q.type === expected);
+    if (expected === 'score') {
+      check(item.item_id + ' score criteria is a 2-level array', Array.isArray(q.criteria) && q.criteria.length === 2
+        && typeof q.criteria[0] === 'string' && q.criteria[0].length > 0
+        && typeof q.criteria[1] === 'string' && q.criteria[1].length > 0);
+    } else if (expected === 'noul') {
+      check(item.item_id + ' noul carries no criteria key', !('criteria' in q));
+    }
     check(item.item_id + ' judge is bounded', typeof q.instructions.judge === 'string' && q.instructions.judge.length <= 200);
     check(item.item_id + ' passes egress ceiling', ledgerBuilder.assertEgressCeiling(payload) === true);
   }
-  const item = items[0];
-  const resolve = async (response) => {
+
+  const scoreItem = items.find((i) => i.checklist === 'ruling-writer');
+  const noulItem = items.find((i) => i.checklist === 'minto-refresher');
+  const resolve = async (item, response) => {
     const copy = { ...item };
     await runner.resolveJevItems([copy], {
       keyPresent: true, codeOnly: false, key: 'test-key-not-real',
@@ -99,23 +119,46 @@ if (!key) {
     });
     return copy;
   };
-  const recorded = (choice) => ({ status: 200, json: {
+  const scoreResponse = (score, confidence) => ({ status: 200, json: {
     model: 'jev-1.13.0',
-    answers: { [item.item_id]: { type: 'choice', choice: choice, confidence: 0.8,
-      probabilities: choice === 'pass' ? { pass: 0.8, fail: 0.2 } : { pass: 0.2, fail: 0.8 } } },
+    answers: { [scoreItem.item_id]: { type: 'score', score: score, confidence: confidence,
+      probabilities: { 0: 1 - score, 1: score }, legend: { 0: 'fail', 1: 'pass' } } },
     usage: { input_tokens: 500, output_tokens: 40 },
   } });
-  const passed = await resolve(recorded('pass'));
-  check('recorded 200 pass yields verdict and ok', passed.verdict === 'pass' && passed.ok === true);
-  check('recorded 200 preserves confidence', passed.confidence === 0.8);
-  check('recorded 200 preserves probabilities', passed.probabilities && passed.probabilities.pass === 0.8 && passed.probabilities.fail === 0.2);
-  check('recorded 200 preserves vendor model', passed.jev_model === 'jev-1.13.0');
-  const failed = await resolve(recorded('fail'));
-  check('recorded 200 fail yields verdict and ok', failed.verdict === 'fail' && failed.ok === false);
-  const rejected = await resolve({ status: 422, json: { detail: 'unprocessable' } });
+
+  const passed = await resolve(scoreItem, scoreResponse(0.92, 0.84));
+  check('recorded high-confidence score >= 0.5 yields verdict pass', passed.verdict === 'pass' && passed.ok === true);
+  check('recorded score response preserves confidence', passed.confidence === 0.84);
+  check('recorded score response preserves vendor model', passed.jev_model === 'jev-1.13.0');
+
+  const failedScore = await resolve(scoreItem, scoreResponse(0.05, 0.9));
+  check('recorded high-confidence score < 0.5 yields verdict fail', failedScore.verdict === 'fail' && failedScore.ok === false);
+
+  const lowConfidence = await resolve(scoreItem, scoreResponse(0.51, 0.06));
+  check('a score confidence below the 0.5 floor abstains (verdict null, ok null)', lowConfidence.verdict === null && lowConfidence.ok === null);
+  check('an abstained item names ABSTAIN in its detail', /ABSTAIN/.test(lowConfidence.detail));
+  check('an abstained item is excluded from agreement', runner.computeAgreement([lowConfidence], baseline) === null);
+
+  const noulResponse = (noul) => ({ status: 200, json: {
+    model: 'jev-1.13.0',
+    answers: { [noulItem.item_id]: { type: 'noul', noul: noul } },
+    usage: { input_tokens: 400, output_tokens: 30 },
+  } });
+  const noulFail = await resolve(noulItem, noulResponse(0.1));
+  check('a low noul value yields verdict fail with no confidence (Noul carries none)', noulFail.verdict === 'fail' && noulFail.confidence === null);
+  const noulPass = await resolve(noulItem, noulResponse(0.9));
+  check('a high noul value yields verdict pass with no confidence floor applied', noulPass.verdict === 'pass' && noulPass.confidence === null);
+
+  const rejected = await resolve(scoreItem, { status: 422, json: { detail: 'unprocessable' } });
   check('recorded 422 remains unanswered', rejected.ok === null && rejected.verdict === null && rejected.confidence === null);
   check('recorded 422 names unrecognized shape and status', /unrecognized shape/.test(rejected.detail) && /422/.test(rejected.detail));
   check('recorded 422 is excluded from agreement', runner.computeAgreement([rejected], baseline) === null);
+
+  const gammaGraded = runner.gradeRoom(path.join(REPO, 'tests/fixtures/icm-rooms/gamma-room'));
+  const gammaRulingItem = gammaGraded.items.find((i) => i.checklist === 'ruling-writer' && i.item_id === 'item-5-sequence-fits-job');
+  check('gamma-room (no business-model section) skips ruling-writer item-5 as not-applicable, never a guess', gammaRulingItem && gammaRulingItem.wire === null);
+  check('the skipped item still names why, so it is visible and never silently dropped', gammaRulingItem && /SKIP/.test(gammaRulingItem.detail) && /model-business/.test(gammaRulingItem.detail));
+
   check('zero network calls throughout this test', fetchCalls === 0);
   console.log('');
   console.log('PASS=' + PASS + ' FAIL=' + FAIL);
