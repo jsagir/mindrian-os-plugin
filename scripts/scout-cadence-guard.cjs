@@ -648,19 +648,101 @@ function shouldRunAmbient(roomDir, deltaHash, opts) {
 
 // -- claim / release / record -----------------------------------------------
 
+// CR-01 fix (355.1 review): claimAmbientRun used to be a plain
+// read-modify-write (readAmbientLedger -> mutate in_flight in memory ->
+// atomicWriteJsonAmbient). atomicWriteJsonAmbient's temp-then-rename only
+// makes the WRITE atomic; it does nothing to stop two processes both
+// reading in_flight:null before either has written, both concluding
+// claimed:true, and both spawning a child. The fix makes the claim's
+// read-mutate-write window itself mutually exclusive: an exclusive-create
+// ('wx') sentinel file, the same idiom acquireAmbientLock already uses two
+// hundred lines below, guarded by its own AMBIENT_CLAIM_LOCK_RELPATH (kept
+// separate from AMBIENT_LOCK_RELPATH -- the composition lock guards a
+// multi-minute child run; this one guards a sub-millisecond ledger CAS, and
+// conflating them would make a legitimate claim block on an unrelated
+// in-progress composition). A second concurrent caller that cannot acquire
+// this mutex gets claimed:false immediately, without ever reading or
+// mutating the ledger.
+
+const AMBIENT_CLAIM_LOCK_RELPATH = path.join('.mindrian', 'ambient-claim.lock');
+
+function ambientClaimLockPath(roomDir) {
+  return path.join(path.resolve(String(roomDir || '')), AMBIENT_CLAIM_LOCK_RELPATH);
+}
+
+/**
+ * acquireAmbientClaimLock(roomDir, nowMs) -> boolean. A short-lived
+ * exclusive-create mutex (the acquireAmbientLock 'wx' idiom) around
+ * claimAmbientRun's ledger read-modify-write, so only one process at a time
+ * can be inside that window. Reclaims a stale lock (a crash mid-claim that
+ * never released) after AMBIENT_LOCK_STALE_MS -- the same self-healing
+ * window the composition lock uses, even though this mutex is normally held
+ * for microseconds. Never throws.
+ */
+function acquireAmbientClaimLock(roomDir, nowMs) {
+  const lockPath = ambientClaimLockPath(roomDir);
+  try { fs.mkdirSync(path.dirname(lockPath), { recursive: true }); } catch (_e) { /* best effort */ }
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const fd = fs.openSync(lockPath, 'wx');
+      try { fs.writeSync(fd, String(process.pid)); } catch (_we) { /* advisory */ }
+      fs.closeSync(fd);
+      return true;
+    } catch (_e) {
+      try {
+        const st = fs.statSync(lockPath);
+        if ((nowMs - st.mtimeMs) > AMBIENT_LOCK_STALE_MS) {
+          fs.rmSync(lockPath, { force: true });
+          continue;
+        }
+        return false;
+      } catch (_se) {
+        // The holder released between our open() and stat(): retry once.
+        continue;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * releaseAmbientClaimLock(roomDir) -> void. Never throws.
+ */
+function releaseAmbientClaimLock(roomDir) {
+  try { fs.rmSync(ambientClaimLockPath(roomDir), { force: true }); } catch (_e) { /* best effort */ }
+}
+
 /**
  * claimAmbientRun(roomDir, { deltaHash, watermarks, seam, now }) -> {
  * claimed, ledger }. Sets in_flight and advances runs_window (restarting
- * the hour window when the prior one elapsed). Never throws.
+ * the hour window when the prior one elapsed). The whole read-modify-write
+ * runs under acquireAmbientClaimLock (CR-01): a second concurrent caller
+ * that cannot take the mutex, or that takes it but finds a fresh (non-stale)
+ * in_flight already set by the winner, returns claimed:false without
+ * writing anything. Never throws.
  */
 function claimAmbientRun(roomDir, opts) {
+  const o = (opts && typeof opts === 'object') ? opts : {};
+  const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
+  if (!acquireAmbientClaimLock(roomDir, nowMs)) {
+    return { claimed: false };
+  }
   try {
-    const o = (opts && typeof opts === 'object') ? opts : {};
-    const nowMs = Number.isFinite(o.now) ? o.now : Date.now();
     const nowIso = new Date(nowMs).toISOString();
 
     const read = readAmbientLedger(roomDir);
     const ledger = read.corrupt ? freshAmbientLedger() : read.ledger;
+
+    // Re-check under the mutex: if another process already won the claim
+    // (a fresh, non-stale in_flight) between our caller's shouldRunAmbient
+    // check and this write, refuse rather than overwrite it.
+    if (ledger.in_flight && typeof ledger.in_flight === 'object') {
+      const startedMs = Date.parse(ledger.in_flight.started_at);
+      const age = nowMs - startedMs;
+      if (Number.isFinite(startedMs) && age >= 0 && age < AMBIENT_LOCK_STALE_MS) {
+        return { claimed: false };
+      }
+    }
 
     ledger.in_flight = {
       delta_hash: (typeof o.deltaHash === 'string') ? o.deltaHash : '',
@@ -680,6 +762,8 @@ function claimAmbientRun(roomDir, opts) {
     return { claimed: !!wrote, ledger: ledger };
   } catch (_e) {
     return { claimed: false };
+  } finally {
+    releaseAmbientClaimLock(roomDir);
   }
 }
 
@@ -945,11 +1029,14 @@ module.exports = {
   recordAmbientCloseout,
   acquireAmbientLock,
   releaseAmbientLock,
+  acquireAmbientClaimLock,
+  releaseAmbientClaimLock,
   validateDeltaState,
   writeRoomDeltaState,
   readRoomDeltaState,
   AMBIENT_LEDGER_RELPATH,
   AMBIENT_LOCK_RELPATH,
+  AMBIENT_CLAIM_LOCK_RELPATH,
   AMBIENT_LEDGER_SCHEMA_VERSION,
   AMBIENT_MAX_RUNS_PER_HOUR,
   AMBIENT_THROTTLE_WINDOW_MS,
