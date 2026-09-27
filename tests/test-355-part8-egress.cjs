@@ -80,6 +80,17 @@ const PART8_TARGETS = [
   'lib/core/direction-convention.cjs',
   'lib/core/floor-disclosure.cjs',
   'scripts/stamp-connections.cjs',
+  // Amended Phase 355.1 AMB-08: the sweep extended over every new 355.1
+  // ambient-trigger file (plan 355.1-15, the 355-21 target-list extension).
+  'lib/core/navigation/room-delta-facts.cjs',
+  'lib/core/sensors/sensor-room-delta.cjs',
+  'lib/core/ambient-framing.cjs',
+  'lib/core/ambient-trigger.cjs',
+  'lib/core/ambient-run.cjs',
+  'lib/mcp/surfaced-offers.cjs',
+  'scripts/ambient-stop.cjs',
+  'scripts/scout-cadence-guard.cjs',
+  'scripts/auto-explore-fire.cjs',
 ];
 
 function legA() {
