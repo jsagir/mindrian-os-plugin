@@ -1,7 +1,39 @@
 ## [Unreleased] -- v2.0.0-beta.50 (in progress)
 
 ### Added
-- 
+- **The room starts the breakthrough run on its own (Phase 355.1).** You no longer need to know
+  when to ask for the eureka engine. When the room changes in a way that matters (enough new
+  claims, a contradiction, a stage change, a new sub-room, or a newly filed artifact), MindrianOS
+  runs the five cross-connection engines in the background at the end of the turn and brings
+  back at most one card, once, and only when the finding is verified strong or indirect. It works
+  on all three surfaces: a new async Stop entry on the CLI (`scripts/ambient-stop.cjs`), and the
+  `stop_gate_check` close-out on Desktop and Cowork. One run per room per hour at most; a changed
+  room is detected through the local graph only, never by keywords. The card opens with a short
+  framing line matched to the room's problem type. `/mos:auto-explore` stays as the manual
+  fallback, and a new sensor (SENS-21) offers it honestly when a background run could not start.
+- **Every cross-connection finding now says how sure it is (Phase 355).** Findings from eureka,
+  find-connections, find-bottlenecks, HSI and whitespace carry a verification stamp
+  (strong / indirect / unverified) computed from a path check against the methodology graph,
+  plus one plain direction phrase ("same meaning in different words" or "same words with
+  different meaning") defined once from the original concept. Raw similarity scores are no
+  longer shown. An accepted finding files as a proposed opportunity and surfaces once in
+  Larry's next turn.
+
+### Fixed
+- **Two background triggers could start the same run twice.** The ambient claim is now an
+  exclusive, atomic claim; every abort path releases it (a failed start no longer blocks a room
+  for 8 minutes); the run lock carries an owner token so a slow run can never delete a newer
+  run's lock; and one CLI Stop event reaches the evaluator once, even with `MINDRIAN_MCP_FIRST`.
+- **Freshly written signal files could read as stale.** The freshness check compared an integer
+  clock with a fractional file time, so about 1 in 60 immediate reads looked like they came from
+  the future; it now tolerates sub-second skew while still refusing far-future timestamps.
+- `scout-hsi` and the MCP `whitespace_scan` descriptions now say plainly what they do and do not
+  compute.
+
+### Known limits
+- Most real-room findings will stamp "unverified" for now: only about 14 percent of live
+  artifacts carry the `framework:` or `methodology:` frontmatter the stamp needs, so the ambient
+  card will be rare until rooms carry it.
 
 ## [2.0.0-beta.49] - 2026-09-24
 
