@@ -28,3 +28,35 @@ filed; not overturned; not blocking plans 355.1-09 through 355.1-14.
 intelligence-layer phase, so the ambient composition (and any other
 in-process caller) can reuse the full AHP-weighted / tail-quadrant ranking
 instead of the raw `abs_diff` simplification.
+
+## 2. tests/test-3551-hooked-audit.cjs trips the em-dash leg (plan 355.1-08 file, surfaced during plan 355.1-09)
+
+**Surfaced:** plan 355.1-09, Task 3's own `bash tests/run-all-3551.sh` full
+run (the first full-aggregator run since plan 355.1-08 landed
+`tests/test-3551-hooked-audit.cjs`, commit `55a10b272`).
+
+**Finding:** `run-all-3551.sh`'s em-dash leg (section 9, `emdash_scan`)
+globs every `tests/test-3551-*.cjs` file as "new 355.1 content" and greps
+it whole for a literal U+2014. `tests/test-3551-hooked-audit.cjs` lines 90
+and 116 contain the literal em-dash character INSIDE a string literal
+(`auditText.indexOf('—') === -1`) used to assert the audited
+markdown carries none -- the check needs the literal character to compare
+against. This is a false positive in the em-dash leg's own whole-file scan
+against a test file that legitimately carries the character as a
+comparison literal, not as prose. Zero em-dashes exist in any of this
+plan's own three files (`tests/test-3551-child.cjs`,
+`lib/core/ambient-run.cjs`, `scripts/auto-explore-fire.cjs`, confirmed via
+`grep -cP '\x{2014}'` against each, all 0).
+
+**Scope:** out of plan 355.1-09's `<files>` list (`tests/test-3551-child.cjs`,
+`lib/core/ambient-run.cjs`, `scripts/auto-explore-fire.cjs`); the file that
+trips the leg was authored by plan 355.1-08 and neither read nor modified by
+this plan. Per the executor's scope-boundary discipline, logged here rather
+than fixed in place.
+
+**Follow-up:** a future plan (or the phase's own close-out) should either
+narrow `emdash_scan`'s `NEW_FILES` glob to exclude a legitimate comparison
+literal, or have `tests/test-3551-hooked-audit.cjs` construct the character
+via `String.fromCharCode(0x2014)` instead of a literal, so the leg's own
+intent (catch em-dash PROSE, not a comparison literal) is preserved without
+a false positive.
