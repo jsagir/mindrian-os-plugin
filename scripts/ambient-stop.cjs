@@ -23,6 +23,34 @@
  * the reserved no-room sentinel, exits 0; in --dry-run, capture the one
  * spawn the evaluator would make and print one JSON line; otherwise run the
  * evaluator silently. This script itself never spawns (the evaluator does).
+ *
+ * CR-04 fix (355.1 review) -- SINGLE OWNER of the ambient evaluator on the
+ * CLI Stop event: hooks/hooks.json registers this script as its OWN
+ * independent Stop-hook entry, always invoked. Separately, scripts/on-stop
+ * (also a Stop hook, run in the SAME Stop dispatch) has a MINDRIAN_MCP_FIRST
+ * branch that queries the MCP daemon's stop_gate_check tool, which reaches
+ * lib/mcp/stop-gate-handler.cjs's _closeOutAmbientTrigger -- a SECOND,
+ * independent call to ambientTrigger.evaluateAndMaybeSpawn for the same
+ * room, from the same Stop event. Two calls into the same evaluator, only
+ * milliseconds apart, is exactly the CR-01 collision scenario, and it is
+ * the designed always-on behavior of any CLI install with MINDRIAN_MCP_FIRST
+ * set -- not a rare race. Ownership is decided here, deterministically, by
+ * the SAME env var both processes read (isMcpFirst('cli'), the identical
+ * check scripts/on-stop itself makes): when MINDRIAN_MCP_FIRST names 'cli'
+ * (or 'all'), this script stands down and lib/mcp/stop-gate-handler.cjs's
+ * _closeOutAmbientTrigger is the sole owner for this Stop event; otherwise
+ * (the default, flag unset) this script remains the sole owner, exactly as
+ * before. This is deterministic on the flag alone -- it does NOT depend on
+ * whether the CR-01 claim fix would otherwise have arbitrated the race,
+ * because a true mutex would still waste a full spawn + require graph on
+ * every single CLI Stop event under the flag, not just a rare collision.
+ * KNOWN LIMITATION: if MINDRIAN_MCP_FIRST names 'cli' but the daemon is
+ * unreachable, scripts/on-stop's own thin adapter falls through to its
+ * legacy body (which never calls the ambient evaluator directly), so no
+ * ambient evaluation runs at all for that one Stop event; the next Stop
+ * event retries normally. This is the accepted tradeoff of a deterministic,
+ * env-only single-owner check, and matches a Stop hook's own contract that
+ * it must never block or retry-loop.
  */
 
 const fs = require('node:fs');
@@ -75,6 +103,19 @@ function main() {
     return exitZero();
   }
   const dryRun = argv.indexOf('--dry-run') !== -1;
+
+  // CR-04 fix (355.1 review): stand down when MINDRIAN_MCP_FIRST('cli') is
+  // active for this session -- lib/mcp/stop-gate-handler.cjs's
+  // _closeOutAmbientTrigger is the sole owner of the evaluator for this
+  // Stop event in that case (see the header comment above). Checked before
+  // any room resolution or evaluator work, and before --dry-run's own
+  // capture-spawn setup, so a --dry-run invocation under the flag also
+  // reports the stand-down deterministically rather than double-firing.
+  const { isMcpFirst } = require('../lib/mcp/mcp-first-flag.cjs');
+  if (isMcpFirst('cli')) {
+    debugLog('mcp_first_standdown');
+    return exitZero();
+  }
 
   const ambientTrigger = require('../lib/core/ambient-trigger.cjs');
   const resolveActiveRoom = require('../lib/core/resolve-active-room.cjs');
