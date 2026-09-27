@@ -3484,9 +3484,133 @@ Task 2, per the Phase 272/274/276/275/340 precedent. `355-CONTEXT.md` is the sco
       `evals/icm/last-run.json` past the version drift, and (b) root-causes the pre-existing feynman-
       runner hang -- neither is a Phase 355 file or a Phase 355 fix.
 
+### Phase 355.1 - Ambient trigger (AMB family)
+
+AMB-01..09 were minted in `355.1-PRD.md` (2026-09-23) as phase-local IDs, corrected by
+`355.1-CONTEXT.md` against `355.1-RESEARCH.md` (the detector is SENS-21, not SENS-20; the
+aggregator is tests/run-all-3551.sh), and are registered here at phase close by
+`355.1-16-PLAN.md` Task 1, per the Phase 272/274/276/275/340/355 precedent. `355.1-CONTEXT.md`
+is the scope contract.
+
+- [x] **AMB-01**: The trigger is a room delta, never a clock and never a command. Five delta
+      classes count, each detected only through `navigation.cjs` reads (no second SQL door): (a) N
+      or more claim nodes added since the last run (N a disclosed floor); (b) a CONTRADICTS edge
+      surfaced since the last run; (c) a venture-stage change in STATE.md; (d) a sub-room created;
+      (e) a new artifact filed (the existing Phase 117 class, kept). A per-room delta hash (sha256
+      over the sorted delta facts) is computed once per evaluation. Plans 02, 03, 06.
+      **Measured:** (2026-09-27) `node tests/test-3551-delta-classes.cjs` 33/33 (all five classes
+      through `readRoomDeltaFacts` exclusively, the frozen six-key shape, null-never-zero, no Part
+      8 leak in the facts object); `node tests/test-3551-chokepoint.cjs` 6/6 (a planted second SQL
+      reader is caught by the chokepoint sweep); `node tests/test-3551-classify.cjs` 12/12 (the
+      pure classifier, the order-free hash, no `Date.now`/`new Date`/`Math.random` on an executable
+      line).
+
+- [x] **AMB-02**: One detector, `SENS-21` (the PRD's `SENS-20` corrected against Phase 345's own
+      `sensorStrategyReach`), registered in `lib/core/insight-sensors.cjs` in canonical order,
+      riding the EXISTING `context_block` reach at posture `hold` (Group B). It produces a
+      candidate reach only, never routes, never executes (Phase 144 fence), and fires only as the
+      honest fallback offer when the ambient run could not start on the current surface. Plans 03,
+      10.
+      **Measured:** (2026-09-27) `node tests/test-3551-lockstep.cjs` 10/10 (canonical registry
+      order, the Group B posture, place 7 deliberately absent from `navigation-engine.cjs` except
+      the 355.1-12 `commands/auto-explore.md` amendment); `node tests/test-3551-sensor-fires.cjs`
+      8/8 (fallback-only firing proven through the raw sensor call, the MCP pull, and `decide()`).
+
+- [x] **AMB-03**: On a delta, the run starts underneath as `autonomous_safe` machinery: the
+      detached background child (`scripts/auto-explore-fire.cjs`'s ambient mode) composes the five
+      Phase 355 producers so every finding carries the 355 stamp and direction phrase; writes are
+      `proposed`-status only; the first material step stays behind the gate. Plans 06, 07, 09.
+      **Measured:** (2026-09-27) `node tests/test-3551-evaluator.cjs` 19/19 (the decision ladder,
+      hash-once, self-bounded budget, closed argv shape, three-seams-one-claim); `node
+      tests/test-3551-one-spawner.cjs` 3/3 (the pinned spawner set is exactly
+      `scripts/auto-explore-fire.cjs`, `scripts/auto-explore-fingerprint.cjs` and
+      `lib/core/ambient-trigger.cjs`, a planted second spawner caught); `node
+      tests/test-3551-ambient-run.cjs` 18/18 (the five producers composed, posture joined from
+      `recipe-maps.cjs` never typed by hand, a Part 8 Theo-args hygiene leg, a real integration leg
+      over the `room-extend` fixture); `node tests/test-3551-child.cjs` 22/22 (the ambient-mode
+      child, argv-tamper, lock-held, no 117 telemetry leak for ambient runs).
+
+- [x] **AMB-04**: A per-room run ledger (extending `scout-cadence-guard.cjs`'s throttle file
+      shape, zero removed lines) tracks `last_run`, `last_delta_hash`, `origin: 'ambient'` and
+      per-producer outcome; the same delta hash never re-runs; a disclosed throttle floor bounds
+      runs per room per hour; a lock file prevents a duplicate running child. Plans 05, 06, 08.
+      **Measured:** (2026-09-27) `node tests/test-3551-ledger.cjs` 100/100 (same-hash never
+      re-runs, in-flight/throttle/lock ladder, stale reclaim, three corrupt-ledger shapes quarantined,
+      closed schema); `node scripts/check-floor-ledger.cjs --check` 37 rows, 0 unresolved (claim
+      floor N = 5 and the one-ambient-run-per-room-per-hour throttle both disclosed in
+      `data/floor-ledger.json`, gates text "approved at the 355.1 checkpoint 2026-09-27" per
+      `355.1-CHECKPOINT.md` items 2 and 3); `node tests/test-3551-hooked-audit.cjs` 18/18 (both
+      floor rows' approval recorded).
+
+- [x] **AMB-05**: The finding surfaces exactly once through SENS-13's fire-once path as the next
+      move on the card; only `strong` and `indirect` stamps reach the card, `unverified` stays in
+      the ledger and the log; the Hooked audit (`355.1-HOOKED-AUDIT.md`) maps internal trigger
+      (the delta), action (one card), variable reward (stamp tier), investment (the gate answer),
+      and discloses the 14 percent frontmatter-coverage limit; no praise, grade or count in Larry's
+      line. Plans 07, 08, 10, 11, 13.
+      **Measured:** (2026-09-27) `node tests/test-3551-hooked-audit.cjs` 18/18 (the audit filed with
+      the 14 percent disclosure, no praise, approved by the navigator 2026-09-27); `node
+      tests/test-3551-double-card.cjs` 17/17 (Ruling 5: the stamped SENS-13 card wins on a class-e
+      collision, SENS-01 shows only when no stamped finding exists for that `material_id`); `node
+      tests/test-3551-surfacing.cjs` 79/79 (`unverified` never reaches the card, `strong`/`indirect`
+      do, one card per delta hash on CLI, a planted score/count literal caught); `node
+      tests/test-3551-mcp-fire-once.cjs` 44/44 (one card per delta hash on the MCP pull path,
+      winner-noted-only-on-win, soft-fail close-out).
+
+- [x] **AMB-06**: CLI: the existing PostToolUse fingerprint hook (class e) plus a new async
+      Stop-hook entry evaluating classes (a)-(d) within its own time budget. Desktop and Cowork:
+      the MCP server's `stop_gate_check` close-out evaluates the same delta and starts the same
+      child. `/mos:auto-explore` stays a documented fallback, never the way in; each surface
+      carries its own test leg. Plans 09, 12, 13, 14.
+      **Measured:** (2026-09-27) `node tests/test-3551-tri-polar.cjs` 24/24 (one leg per surface --
+      CLI dry-run/real/no-ops, Desktop, Cowork -- PRD AC1 end to end, the async Stop entry exits
+      under 5 s, three-seams-one-run); `node tests/test-3551-prose.cjs` 73/73 (AC8:
+      `/mos:auto-explore` documented as the fallback, no `/mos:` command paired with "breakthrough"
+      anywhere, tri-polar parity between CLI and desktop rendering of the same stamp).
+
+- [x] **AMB-07**: The card's framing follows a non-keyword lookup chain (ratified `jtbd goal.rung`,
+      then `ROOM.md` `pws_stage`, then explicit STATE.md fields, then the structural MINTO
+      classifier, then neutral), never the forbidden keyword table; the three framing phrases were
+      confirmed by the PWS author at the checkpoint (role only, never a name), `framing_hash`
+      verified equal at confirmation time. Plans 04, 08, 11, 12.
+      **Measured:** (2026-09-27) `node tests/test-3551-framing.cjs` 18/18 (the non-keyword chain
+      order, a planted keyword classifier caught, the phrases pass the no-decimal/no-praise gates,
+      `framingHash()` pinned and confirmed by the PWS author 2026-09-27 --
+      `02e90c9d97a9945c5284f68541079fd447760cf853d37219fdd7625d993d9795` -- per `355.1-CHECKPOINT.md`
+      item 4); `node tests/test-3551-prose.cjs` 73/73 (per-framing label parity across all three
+      `FRAMING_IDS`, byte-different from unframed Phase 355 output).
+
+- [x] **AMB-08**: Canon Part 8 (the child reads the room locally, Theo receives only framework
+      handles and enums, argv and logs carry no room bytes), Part 9 (machinery confirms nothing,
+      everything files `proposed`) and Part 11 (every new surface born wired or excluded with a
+      declared HITL shape) all hold; the 355-21 egress sweep covers every new 355.1 file; the four
+      born-wired/projection/render/shape gates stay green. Plans 06, 07, 09, 15.
+      **Measured:** (2026-09-27) `node tests/test-3551-part8-egress.cjs` 68/68 (egress, one-wire,
+      zod-at-edges and Part 9 machinery-confirms-nothing over every new/extended 355.1 file, three
+      negative controls caught); `node tests/test-355-part8-egress.cjs` 31/31 (the 355-21 sweep
+      amended with all 9 new/extended 355.1 files); `node scripts/build-connector-registry.cjs
+      --check`, `node scripts/build-orchestration-projection.cjs --check`, `node
+      scripts/check-render-coverage.cjs` and `node scripts/check-shape-declaration.cjs --check` all
+      exit 0 (the four born-wired/projection/render/shape gates).
+
+- [x] **AMB-09**: `bash tests/run-all-3551.sh` green with external reds documented exactly as 355
+      documented its own, never masked; `node scripts/doctor.cjs --acceptance` unregressed against
+      `355.1-BASELINE.md`'s `BASE_3551` failing-point set; AMB-01..09 registered here at close; a
+      `docs/OPEN-HANDOFFS.md` entry; a rethinking-mindrianos room entry mirrors the ruling and the
+      design. Plans 01, 15, 16.
+      **Measured:** (2026-09-27) `bash tests/run-all-3551.sh` PASS=63 FAIL=4 SKIP=0 -- the 4 FAILs
+      are the aggregator's own documented pre-existing external reds
+      (`no-regression: test-auto-explore-fingerprint.cjs` subtest 11, `no-regression:
+      test-connector-tier-d-hooks.cjs` CHECK 4, `no-regression: test-198-adapter-budget.test.cjs`
+      subtest 2, `no-regression: run-all-355.sh`'s own nested reds), none caused by any 355.1 file;
+      `node scripts/doctor.cjs --acceptance` 20/22, the failing-point set (`verify-release-clean-tree`,
+      `icm-ruling-eval-fresh`) unchanged from `BASE_3551` (`355.1-BASELINE.md`); all 20
+      `tests/test-3551-*.cjs` files registered in `lib/memory/run-feynman-tests.cjs`'s `TEST_FILES`
+      (355.1-15).
+
 ## Traceability
 
-383 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+392 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3497,10 +3621,14 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
-plus HIPS-01..10 (Phase 355). HIPS-01..10 were minted in the Phase 355 plan set (2026-09-23),
-ratifying `355-RESEARCH.md`'s proposed IDs for SPEC Requirements 1-7 plus the AI-SPEC's D15/D18
+plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1). HIPS-01..10 were minted in the
+Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
+Requirements 1-7 plus the AI-SPEC's D15/D18
 dev-time measurements and the phase gate, and are registered here at phase close by
-`355-27-PLAN.md` Task 2, per the Phase 272/274/276/275/340 precedent.
+`355-27-PLAN.md` Task 2, per the Phase 272/274/276/275/340 precedent. AMB-01..09 were minted in
+`355.1-PRD.md` (2026-09-23) as phase-local IDs, corrected by `355.1-CONTEXT.md` against
+`355.1-RESEARCH.md` (the detector is SENS-21, not SENS-20), and are registered here at phase
+close by `355.1-16-PLAN.md` Task 1, per the Phase 272/274/276/275/340/355 precedent.
 All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
@@ -3592,8 +3720,8 @@ stated reason, at phase close by `361-08-PLAN.md` Task 3.
 Roadmap phases must map all 373 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
-FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361
-and HIPS
+FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361,
+HIPS and AMB
 families
 alike (the
 Phase 266 and 269
