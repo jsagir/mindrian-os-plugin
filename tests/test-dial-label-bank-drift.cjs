@@ -296,6 +296,43 @@ check('Amended Phase 355 D-41: signal eureka_bridge alone (no stamp_verification
     'a card missing stamp_verification must never render the stamped variant');
 });
 
+// ---------- 9. Amended Phase 355.1 AMB-07: the framed stamped-finding card
+// variant. slotContext.framing, a FRAMING_IDS member, prefixes
+// FRAMING_PHRASES[framing] + ' -- ' onto the 355-22 stamped line; the
+// unframed case (no framing key, or a non-member value) stays byte-identical
+// to Phase 355's own output. ----------
+const { FRAMING_IDS, FRAMING_PHRASES } = require(path.join(REPO_ROOT, 'lib', 'core', 'direction-convention.cjs'));
+
+check('Amended Phase 355.1 AMB-07: a verified card with each FRAMING_IDS member prefixes the confirmed phrase', () => {
+  for (const framing of FRAMING_IDS) {
+    const out = composer.composeLabel('deep_research', {
+      signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'A -- EXTENDS -- B', framing: framing,
+    });
+    const expected = FRAMING_PHRASES[framing] + ' -- ' + 'verified through A -- EXTENDS -- B';
+    assert.equal(out.label, expected, 'framing "' + framing + '" must prefix the confirmed phrase onto the stamped line');
+    assert.equal(out.degraded, false);
+  }
+});
+
+check('Amended Phase 355.1 AMB-07: an unverified card with a framing still prefixes the confirmed phrase', () => {
+  const out = composer.composeLabel('deep_research', {
+    signal: 'eureka_bridge', stamp_verification: 'unverified', framing: 'neutral',
+  });
+  assert.equal(out.label, FRAMING_PHRASES.neutral + ' -- ' + 'unverified - novel or hallucinated, verify with an expert');
+});
+
+check('Amended Phase 355.1 AMB-07: no framing key renders byte-identical to Phase 355 unframed output', () => {
+  const withFraming = composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'A -- EXTENDS -- B', framing: 'find_the_problem' });
+  const withoutFraming = composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'A -- EXTENDS -- B' });
+  assert.notEqual(withFraming.label, withoutFraming.label, 'a real framing must change the render');
+  assert.equal(withoutFraming.label, 'verified through A -- EXTENDS -- B', 'the unframed render must stay byte-identical to Phase 355 D-41');
+});
+
+check('Amended Phase 355.1 AMB-07: a non-FRAMING_IDS framing value is ignored (never rendered raw)', () => {
+  const out = composer.composeLabel('deep_research', { signal: 'eureka_bridge', stamp_verification: 'strong', stamp_path: 'A -- EXTENDS -- B', framing: 'not_a_real_framing' });
+  assert.equal(out.label, 'verified through A -- EXTENDS -- B', 'an unrecognized framing value must never leak into the label');
+});
+
 // ---------- summary ----------
 if (failures > 0) {
   console.error('\nDIALTUI-05 drift test: ' + failures + ' assertion group(s) FAILED');
