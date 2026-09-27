@@ -11,6 +11,11 @@
  *   fingerprint hook received none, and may be entirely absent when this
  *   script is invoked directly with only 3 argv.)
  *
+ *   [roomDir, '', 'ambient-<12 hex>', session_id, '--ambient']
+ *   (Phase 355.1 ambient mode, started by lib/core/ambient-trigger.cjs's
+ *   evaluateAndMaybeSpawn -- the room-level ambient run, never the Phase
+ *   117 material pipeline below.)
+ *
  * Flow per RESEARCH Section 12 sequence diagram:
  *   1. ensureBrainBaseline(roomDir) -- graceful degradation if {ensured:false}
  *   2. Promise.all([
@@ -28,8 +33,11 @@
  * [Brain-only Cypher edge type, name elided to keep grep regression at zero]
  * never appears in this file (executable or comments).
  *
- * Per Canon Part 8: zero outbound network surface, zero Brain-MCP client
- * require (token elided per 117-02 plan AC bare-substring regression).
+ * Per Canon Part 8: zero outbound network in the Phase 117 pipelines; since
+ * Phase 355.1 the ambient run (lib/core/ambient-run.cjs) stamps findings
+ * through verification-stamp.cjs, the one Theo wire, with canon names only;
+ * this file itself still requires no Brain client (token elided per 117-02
+ * plan AC bare-substring regression).
  *
  * Graph-native HARD RULES (memory feedback_reverse_salient_agent_graph_native.md):
  *   1. NEVER require room-db.cjs directly (Phase 109 D-06 chokepoint).
@@ -166,6 +174,24 @@ async function main() {
   // absent (a direct 3-argv invocation must degrade cleanly, not crash).
   const sessionIdArg = argv[3];
   const session_id = (typeof sessionIdArg === 'string' && sessionIdArg.length > 0) ? sessionIdArg : null;
+
+  // Phase 355.1 (AMB-03, AMB-06): ambient mode. argv[4] === '--ambient' is
+  // started by lib/core/ambient-trigger.cjs's evaluateAndMaybeSpawn (a Stop
+  // hook or an MCP close-out), never by scripts/auto-explore-fingerprint.cjs.
+  // The room-level ambient run replaces the Phase 117 material pipeline
+  // below entirely in this mode; the seam (stop_hook or closeout) is read
+  // by runAmbientInChild from the delta-state side channel itself, never
+  // re-derived here.
+  if (argv[4] === '--ambient') {
+    if (!roomDir || !/^ambient-[0-9a-f]{12}$/.test(material_id)) {
+      process.exit(0);
+    }
+    try {
+      const ambientRun = require('../lib/core/ambient-run.cjs');
+      await ambientRun.runAmbientInChild(roomDir, { ambientId: material_id, sessionId: session_id });
+    } catch (_e) { /* never regress the exit-0 discipline */ }
+    process.exit(0);
+  }
 
   if (!roomDir || !material_id) {
     process.exit(0);
@@ -322,20 +348,13 @@ async function main() {
       });
     } catch (_e) { /* ignore */ }
 
-    // Phase 213 SENS-13 producer -- material filed -> bridge scan -> side-channel;
-    // the sensor (not this script) decides firing; decide() (not the sensor)
-    // decides surfacing; the navigator (not decide()) decides acting. ADDITIVE,
-    // OPT-IN, fire-and-forget: the runner probes the LIVE 212 critic for guard
-    // availability, and honestly degrades (writes nothing) when the guard or the
-    // candidate substrate is absent -- so default behavior is byte-identical when
-    // the eureka substrate is absent. A runner fault can NEVER change this
-    // script's exit code or its own finding write (the Phase 117 exit-0
-    // discipline holds on every path; threat T-213-07).
+    // Phase 355.1: the dead fire-and-forget eureka scan (research C3) is
+    // replaced by the awaited ambient run; the stamped card (SENS-13) now
+    // has a producer on this path; delta class (e).
     try {
-      // eslint-disable-next-line global-require
-      const eurekaRunner = require('../lib/core/eureka/eureka-reach-runner.cjs');
-      eurekaRunner.runEurekaScan({ roomDir: roomDir }).catch(function () { /* swallow */ });
-    } catch (_e) { /* ignore: additive seam, never regress the exit-0 discipline */ }
+      const ambientRun = require('../lib/core/ambient-run.cjs');
+      await ambientRun.runAmbientInChild(roomDir, { seam: 'material', materialId: material_id, sessionId: session_id });
+    } catch (_e) { /* never regress the exit-0 discipline */ }
 
     process.exit(0);
   } catch (_e) {
