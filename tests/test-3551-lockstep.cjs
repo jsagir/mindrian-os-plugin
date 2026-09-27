@@ -9,6 +9,15 @@
  * deliberately absent -- this file also pins that absence). Mirrors
  * tests/test-345-lockstep.cjs's own shape for SENS-20.
  *
+ * AMENDED (Phase 355.1 Plan 12): the place-7 command-frontmatter leg
+ * originally asserted NO commands/*.md anywhere named SENS-21. Plan 12
+ * deliberately wires SENS-21 into commands/auto-explore.md's own
+ * connector.sensor_triggers (documenting which sensors feed that command's
+ * EXISTING context_block reach; no new reach_id, no new command, no new MCP
+ * tool). The leg now allows exactly that one file and still fails on any
+ * OTHER command declaring SENS-21; the decide() ctx-producer absence (the
+ * actual "place 7") is unchanged and still asserted below.
+ *
  * ID CORRECTION (355.1-CONTEXT.md "Research corrections applied"): the PRD
  * text said SENS-20; Phase 345 already holds SENS-20 as sensorStrategyReach.
  * The correct, re-grepped-at-registration id is SENS-21. Every assertion
@@ -121,19 +130,31 @@ assert.strictEqual(sens21Record.optimizes === null, sens21Record.watched_by === 
 ok('SENS-21 declares a coherent counter-metric pairing (343-04 doctrine)');
 
 // ---------------------------------------------------------------------------
-// Place 7 (deliberately NOT taken, per this plan's own ruling): no command
-// frontmatter declares sensor_triggers: [SENS-21], and no decide() ctx
-// producer block mentions SENS-21.
+// Place 7 (still deliberately NOT taken): no decide() ctx producer block
+// mentions SENS-21 -- 355.1-03-PLAN.md's own words, "place 7 (a decide() ctx
+// producer) is deliberately absent", name the decide() mechanism specifically,
+// not connector.sensor_triggers metadata. 355.1-12 (a later, more specific
+// plan in this same phase) deliberately wires SENS-21 into
+// commands/auto-explore.md's own connector.sensor_triggers array (documenting
+// which sensors feed that command's EXISTING context_block reach -- "no new
+// command, no new MCP tool, no seventh reach" per 355.1-CONTEXT.md, i.e. no
+// new reach_id is minted). This leg is narrowed to the file 355.1-12
+// authored, so a genuinely NEW, undocumented command wiring SENS-21 still
+// fails loudly.
 // ---------------------------------------------------------------------------
 const repoRoot = path.resolve(__dirname, '..');
+const SENS21_SENSOR_TRIGGERS_AMENDMENT_355_1_12 = ['commands/auto-explore.md'];
 let commandsGrep = '';
 try {
   commandsGrep = execSync("grep -rl 'SENS-21' commands/ 2>/dev/null || true", { cwd: repoRoot }).toString().trim();
 } catch (_e) {
   commandsGrep = '';
 }
-assert.strictEqual(commandsGrep, '', 'no commands/*.md may declare SENS-21 (place 7 is deliberately not taken this phase): ' + commandsGrep);
-ok('no command frontmatter declares sensor_triggers for SENS-21 (place 7 deliberately absent)');
+const commandsWithSens21 = commandsGrep ? commandsGrep.split('\n').filter(Boolean) : [];
+const unexpectedCommandsWithSens21 = commandsWithSens21.filter((p) => SENS21_SENSOR_TRIGGERS_AMENDMENT_355_1_12.indexOf(p) === -1);
+assert.strictEqual(unexpectedCommandsWithSens21.length, 0,
+  'no commands/*.md other than the 355.1-12 amendment list may declare SENS-21: ' + unexpectedCommandsWithSens21.join(', '));
+ok('no command frontmatter beyond the 355.1-12 amendment (commands/auto-explore.md) declares SENS-21');
 
 let engineGrep = '';
 try {

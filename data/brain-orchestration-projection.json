@@ -151,7 +151,8 @@
       "hierarchy_rank": 17,
       "posture": "push_forward",
       "sensor_triggers": [
-        "SENS-01"
+        "SENS-01",
+        "SENS-21"
       ],
       "framework": "Domain Selection",
       "chain_provenance": {
@@ -160,7 +161,8 @@
         "reach_id": "context_block",
         "sub_mode": "auto-explore",
         "firing_sensors": [
-          "SENS-01"
+          "SENS-01",
+          "SENS-21"
         ]
       },
       "ranking": {
@@ -169,7 +171,8 @@
         "hierarchy_rank": 17,
         "posture": "push_forward",
         "sensor_triggers": [
-          "SENS-01"
+          "SENS-01",
+          "SENS-21"
         ],
         "framework": "Domain Selection"
       }

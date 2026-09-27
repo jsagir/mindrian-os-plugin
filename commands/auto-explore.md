@@ -1,5 +1,5 @@
 ---
-description: "Manually trigger auto-explore on a specific file (Desktop fallback when PostToolUse hook does not fire per RESEARCH 4.8)"
+description: "Manual fallback: run auto-explore on one file by hand when the ambient run could not start on this surface (the room starts it on its own; Phase 355.1)"
 help_jtbd: "Let Larry decompose your domain before you even ask."
 body_shape: "methodology"
 layer: "loop"
@@ -10,7 +10,7 @@ hitl_why: "The rabbit-hole exploration asks how deep to keep going, a depth budg
 interactive_first_reward: methodology_reframe
 argument-hint: "<file_path>"
 serves_jtbd: ["find-problem", "understand-market", "explore"]
-teaching: "In the moment a new artifact lands, /mos:auto-explore kicks off the same domain decomposition the PostToolUse hook would run. Use it on Desktop when the hook does not fire."
+teaching: "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface."
 allowed-tools:
   - "Bash"
   - "Read"
@@ -18,7 +18,7 @@ allowed-tools:
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-01]
+  sensor_triggers: [SENS-01, SENS-21]
   reach_id: context_block
   sub_mode: auto-explore
   framework: "Domain Selection"
@@ -29,9 +29,9 @@ connector:
   web_scope: null
 ---
 
-# /mos:auto-explore -- Manual auto-explore (Desktop fallback)
+# /mos:auto-explore -- Fallback (the room normally starts this on its own)
 
-On Desktop the PostToolUse hook does not fire (Desktop has no PostToolUse hook surface), so the auto-fire pathway from Phase 117-01's `scripts/auto-explore-fingerprint.cjs` cannot trigger automatically. This command is the **Desktop fallback** per RESEARCH 4.8 -- manual invocation produces the same F.1 contract as the CLI auto-fire path, preserving tri-polar render parity (invariant 4 from VALIDATION.md).
+On CLI, the PostToolUse fingerprint (`scripts/auto-explore-fingerprint.cjs`) and the Stop hook start this domain decomposition automatically the moment a new artifact lands. On Desktop and Cowork, the Stop-time close-out (`stop_gate_check`) starts the same ambient run (Phase 355.1) -- Desktop has no PostToolUse hook surface, so the room's own close-out is what fires there instead. This command is the **fallback**, never the way in: manual invocation produces the same F.1 contract as the ambient path, preserving tri-polar render parity (invariant 4 from VALIDATION.md), for the rare case the ambient run could not start on this surface.
 
 ## Steps for Larry
 
@@ -76,7 +76,7 @@ On Desktop the PostToolUse hook does not fire (Desktop has no PostToolUse hook s
 
 ## Why this exists
 
-Per RESEARCH 4.8, Desktop has no PostToolUse hook. Without this command, Desktop users would never see auto-explore findings. The slash invocation produces the SAME F.1 contract as CLI auto-fire -- verified by the three-surface render parity smoke in VALIDATION.md (invariant 4). This is the structural fix for tri-polar coverage.
+Per RESEARCH 4.8, Desktop has no PostToolUse hook, and per Phase 355.1 the room now starts this domain decomposition on its own on every surface (CLI's PostToolUse fingerprint + Stop hook, Desktop/Cowork's Stop-time close-out). Without this command, a surface where the ambient run genuinely could not start would never see an auto-explore finding at all. The slash invocation produces the SAME F.1 contract as the ambient path -- verified by the three-surface render parity smoke in VALIDATION.md (invariant 4). This is the fallback, never the way in, for tri-polar coverage.
 
 ## Tri-polar surfaces
 
@@ -84,4 +84,4 @@ Per RESEARCH 4.8, Desktop has no PostToolUse hook. Without this command, Desktop
 |---------|----------------|---------------|
 | CLI | PostToolUse hook (`scripts/auto-explore-fingerprint.cjs`) -> background spawn -> UserPromptSubmit drain (`scripts/auto-explore-drain.cjs`) | SessionStart preflight (`scripts/preflight-auto-explore.cjs`) |
 | Cowork | Same as CLI | Same as CLI |
-| Desktop | NONE (no PostToolUse) | This slash command + SessionStart preflight drain |
+| Desktop | Stop-time close-out (`stop_gate_check`, Phase 355.1) starts the ambient run | This slash command is the fallback recovery path when the ambient run could not start on this surface |

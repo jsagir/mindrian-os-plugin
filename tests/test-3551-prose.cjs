@@ -114,7 +114,12 @@ function parseFrontmatterYaml(yamlText) {
       try {
         parent[key] = JSON.parse(valueRaw);
       } catch (_e) {
-        parent[key] = [];
+        // Not valid JSON -- this repo's own frontmatter also writes bare,
+        // unquoted array items (e.g. `sensor_triggers: [SENS-01, SENS-21]`).
+        // Fall back to a comma-split over the bracket interior, trimming
+        // whitespace and any quote characters per item.
+        const inner = valueRaw.replace(/^\[/, '').replace(/\]$/, '');
+        parent[key] = inner.trim().length === 0 ? [] : inner.split(',').map((item) => item.trim().replace(/^['"]|['"]$/g, ''));
       }
     } else if (
       (valueRaw.charAt(0) === '"' && valueRaw.charAt(valueRaw.length - 1) === '"') ||

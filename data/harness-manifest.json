@@ -7,19 +7,19 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "2afa656e2ebc049072453ca55587bc8a7f6920f77ec864b4369ae29bc6f85d7e",
+      "digest": "a3fbe501233cf3235679d3c72b186010169275c46580dc4ab2c34d13a39c154b",
       "source_count": 113
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "9fc10ba90b80f57c608f4baa264a8a1f3c4c12adf711701b73dfbeb013a24cd8",
+      "digest": "d0b1591f2bfb3326da9f9592768a323bf5b953108604dc1c71b6331ba09b9e2d",
       "source_count": 213
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "fe2e9b8cc16d9d7042f0e749b9fed2c65365a4b5c60b62bbb743369ebbfb6ac2",
+      "digest": "86ef9d2c357c6d2e808f76e08518f4c3064a2400f37c05a2a18b6d9c9c7fd0de",
       "source_count": 386
     }
   ],
@@ -32,7 +32,7 @@
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "cab51314b69e355deeb808376db03b6e86d804b3709796020ae100dd131ca33d"
+      "digest": "76e92f26f2a094c90e380618665da3d882f819862ea30c1c0fafd3edabe0e6ea"
     },
     {
       "role": "cockpit",
@@ -59,7 +59,7 @@
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "522325bd5a8a00904ffa22f67852f3c65afba0000fc60a9f4d10010e483d1f1c"
+      "digest": "7555c97dcd47652c472499d4c8463c7cbbbaba4d2f6c4edcc47b22603c0b1151"
     },
     {
       "role": "desktop_cowork_wire",

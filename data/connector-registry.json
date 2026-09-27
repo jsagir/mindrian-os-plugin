@@ -75,7 +75,8 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-01"
+        "SENS-01",
+        "SENS-21"
       ],
       "reach_id": "context_block",
       "sub_mode": "auto-explore",
@@ -3544,6 +3545,9 @@
       "/mos:new-project",
       "/mos:new-surface",
       "/mos:skill"
+    ],
+    "SENS-21": [
+      "/mos:auto-explore"
     ],
     "SENS-17": [
       "/mos:bono",

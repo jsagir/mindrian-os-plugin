@@ -142,7 +142,7 @@
         "understand-market",
         "explore"
       ],
-      "teaching": "In the moment a new artifact lands, /mos:auto-explore kicks off the same domain decomposition the PostToolUse hook would run. Use it on Desktop when the hook does not fire.",
+      "teaching": "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
