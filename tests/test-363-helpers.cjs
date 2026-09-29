@@ -31,8 +31,8 @@ const { auditQueryString } = require('../lib/core/rs-egress-prompts.cjs');
 const { readUserMd } = require('../lib/core/user-md-ops.cjs');
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 
-const EM_DASH = '—';
-const EN_DASH = '–';
+const EM_DASH = '\u2014';
+const EN_DASH = '\u2013';
 
 function readAll(dir) {
   const out = [];
