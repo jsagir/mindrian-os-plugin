@@ -53,16 +53,15 @@ run_if "203-04 construction gate (surface A, Plurai parity)" "lib/core/synthetic
 run_if "203-04 behavior gate (surface B, Plurai parity)" "lib/core/synthetic-expert-behavior-gate.cjs" \
   node tests/test-203-behavior-gate.cjs
 
-# Deferred leg: the LIVE hosted Plurai fable judge over both CSVs. It runs only via
-# the interactive /evals:eval MCP flow (start_evaluator -> ask_user model=fable ->
-# get_results), which cannot run non-interactively here. It is DEFERRED and REPORTED,
-# never silently skipped: evals/plurai/203-baseline.json carries baseline_deferred:true
-# and the two local parity gates above hold the line until it is re-run interactively.
-if [ -f "evals/plurai/203-baseline.json" ]; then
-  echo "--- 203-04 live Plurai judge (both surfaces) ---"
-  echo ">>> 203-04 live Plurai judge: DEFERRED (baseline_deferred; re-run /evals:eval model=fable interactively). Local parity gates hold the line."
-  echo ""
-fi
+# Retired leg (203-04): the LIVE hosted Plurai judge over both CSVs. Plurai was
+# retired 2026-09-29 (hosted endpoint HTTP 404); live judging moved to Jev. It is
+# counted as SKIPPED with a reason, never silently dropped and never PASSED: porting
+# these golden CSVs to a Jev live judge is a recorded follow-on. The two local
+# parity gates above hold the line.
+echo "--- 203-04 live judge (retired, both surfaces) ---"
+echo ">>> 203-04 live judge: SKIPPED (RETIRED 2026-09-29: hosted Plurai judge retired, endpoint HTTP 404; live judging moved to Jev; porting these golden CSVs to a Jev live judge is a recorded follow-on). Local parity gates hold the line."
+SKIP=$((SKIP+1))
+echo ""
 
 echo "======================================"
 echo "Phase 203: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"

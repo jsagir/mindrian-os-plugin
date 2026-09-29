@@ -2,16 +2,19 @@
 /*
  * Offline test for lab/eval/report-from-transcript.cjs.
  * =========================================================================
- * Part 8: ZERO network. The four Plurai judges are stubbed via an injected
- * fetchImpl; the deterministic voice-signature leg runs for real (it is offline
- * by construction). Confirms: PII scrub choke point, transcript parsing, per-turn
- * labels from the 4 judges, and the aggregate summary line.
+ * ZERO network by construction. The Plurai judges are retired (2026-09-29): the
+ * tool never fetches, even when an apiKey and a counting fetchImpl are passed;
+ * the three network judges report SKIPPED with PLURAI_RETIRED_REASON, and the
+ * deterministic voice-signature leg still scores for real. Confirms: PII scrub
+ * choke point, transcript parsing, the retired-judge labels, the aggregate
+ * summary line, and that the module surface and source carry no network client.
  *
  * Run: node tests/test-eval-report-from-transcript.cjs
  * No em-dashes. CJS only.
  */
 
 const assert = require('node:assert');
+const fs = require('node:fs');
 const path = require('node:path');
 const mod = require(path.join(__dirname, '..', 'lab', 'eval', 'report-from-transcript.cjs'));
 
@@ -40,21 +43,6 @@ const TRANSCRIPT = [
   '',
   '\u{2B1B} That is the frame. Choose: chase the title, or chase the room you walk into.',
 ].join('\n');
-
-// Deterministic stub for the four judge endpoints, keyed by slug in the URL.
-function makeStubFetch(labelBySlug, calls) {
-  return async function stubFetch(url, opts) {
-    calls.push({ url, body: JSON.parse(opts.body) });
-    const slug = Object.values(mod.JUDGES).map(function (j) { return j.slug; })
-      .find(function (s) { return url.includes('/' + s + '/'); });
-    const label = labelBySlug[slug] || 'Ambiguous';
-    return {
-      status: 200,
-      async json() { return { label, reason: `stub for ${slug}` }; },
-      async text() { return ''; },
-    };
-  };
-}
 
 // --- Tests ----------------------------------------------------------------
 
@@ -85,19 +73,6 @@ ok('extractTurnMeta reads reach + gate annotation', function () {
   assert.strictEqual(meta.gate, 'F.1');
 });
 
-ok('buildRequestBody + parseJudgeResponse round-trip the contract', function () {
-  const body = JSON.parse(mod.buildRequestBody('hello'));
-  assert.strictEqual(body.input, 'hello');
-  assert.deepStrictEqual(mod.parseJudgeResponse({ label: 'Confident', reason: 'x' }), { label: 'Confident', reason: 'x' });
-  assert.strictEqual(mod.parseJudgeResponse({ output: { label: 'Hedged' } }).label, 'Hedged');
-  assert.strictEqual(mod.parseJudgeResponse({}).label, null);
-});
-
-ok('endpointUrl builds the ioa/v1 serving path', function () {
-  assert.strictEqual(mod.endpointUrl('cross-topic-connection'),
-    'https://run.plurai.ai/ioa/v1/cross-topic-connection/1.0.0');
-});
-
 okAsync('offline mode: voice-signature deterministic, network judges skipped, ZERO fetch', async function () {
   let fetchCalls = 0;
   const result = await mod.scoreTranscript(TRANSCRIPT, {
@@ -119,71 +94,48 @@ okAsync('offline mode: voice-signature deterministic, network judges skipped, ZE
   assert.strictEqual(result.scrubStats.emails, 1, 'email scrubbed before any processing');
 });
 
-okAsync('online mode with stubbed judges: per-turn labels + aggregate summary line', async function () {
-  const calls = [];
-  const stub = makeStubFetch({
-    'cross-topic-connection': 'Confident',
-    'ai-turn-progress-evaluator': 'progressing',
-    'reach-gate-choice-classifier': 'Correct',
-    'de-stijl-mark-classifier': 'Pass',
-  }, calls);
-
+okAsync('retired mode: apiKey + counting fetchImpl make ZERO fetch calls, three judges SKIPPED with the retirement reason', async function () {
+  let fetchCalls = 0;
   const result = await mod.scoreTranscript(TRANSCRIPT, {
     apiKey: 'test-key',
     scrubRules: { replacements: [['Bob Jones', 'Person1']] },
-    fetchImpl: stub,
+    fetchImpl: async function () { fetchCalls += 1; return { status: 200, async json() { return {}; }, async text() { return ''; } }; },
   });
-
+  assert.strictEqual(fetchCalls, 0, 'the retired tool must never fetch');
   assert.strictEqual(result.perTurn.length, 3);
-  // Every turn should carry the stubbed labels for the three network judges.
+  assert.strictEqual(result.offline, true, 'always reports offline');
   for (const t of result.perTurn) {
-    assert.strictEqual(t.judges.progress.label, 'progressing');
-    assert.strictEqual(t.judges.elevation.label, 'Confident');
-    assert.strictEqual(t.judges.reachgate.label, 'Correct');
+    for (const k of ['elevation', 'progress', 'reachgate']) {
+      assert.strictEqual(t.judges[k].label, 'SKIPPED', k + ' is SKIPPED');
+      assert.strictEqual(t.judges[k].reason, mod.PLURAI_RETIRED_REASON, k + ' carries the retirement reason');
+    }
   }
-  // Voice: turns 1 and 3 have valid single marks -> hybrid asks the LLM leg (stub
-  // returns Pass); turn 2 is Missing deterministically (no LLM leg).
-  assert.strictEqual(result.perTurn[0].judges.voice.label, 'Pass');
-  assert.strictEqual(result.perTurn[1].judges.voice.label, 'Missing');
-  assert.strictEqual(result.perTurn[2].judges.voice.label, 'Pass');
-
-  // Aggregate + summary line.
-  assert.strictEqual(result.aggregate.progress.progressing, 3);
-  assert.strictEqual(result.aggregate.elevation.Confident, 3);
-  const summary = mod.summaryLine(result.aggregate);
-  assert.ok(/3\/3 progressing/.test(summary), `summary has progressing ratio: ${summary}`);
-  assert.ok(/1 voice violation\b/.test(summary), `summary counts the 1 Missing as a voice violation: ${summary}`);
-  assert.ok(/0 missed cross-frame/.test(summary), `summary: ${summary}`);
-
-  // Part 8: NO unscrubbed PII reached any stubbed endpoint.
-  const allBodies = JSON.stringify(calls.map(function (c) { return c.body; }));
-  assert.ok(!/example\.com/.test(allBodies), 'no email egressed to judges');
-  assert.ok(!/Bob Jones/.test(allBodies), 'no real name egressed to judges');
-  assert.ok(allBodies.includes('Person1') || calls.length > 0, 'pseudonym used');
-
-  // The report renders without throwing and contains the summary.
+  assert.ok(/retired/.test(mod.PLURAI_RETIRED_REASON), 'reason names the retirement');
+  assert.strictEqual(result.perTurn[1].judges.voice.label, 'Missing', 'turn 2 voice is still Missing (deterministic)');
+  assert.strictEqual(result.scrubStats.emails, 1, 'email scrubbed before any processing');
+  // aggregate + summaryLine + formatReport render without throwing.
+  assert.strictEqual(result.aggregate.progress.skipped, 3);
+  assert.ok(typeof mod.summaryLine(result.aggregate) === 'string');
   const report = mod.formatReport(result);
   assert.ok(report.includes('Conversation-flow report'));
-  assert.ok(report.includes('3/3 progressing'));
+  assert.ok(report.includes('SKIPPED'));
+  assert.ok(/retired/.test(report), 'report banner names the retirement');
 });
 
-okAsync('endpoint error is surfaced per-turn, never crashes', async function () {
-  const errStub = async function () { return { status: 404, async json() { return {}; }, async text() { return 'not found'; } }; };
-  const result = await mod.scoreTranscript(TRANSCRIPT, {
-    apiKey: 'test-key',
-    scrubRules: { replacements: [['Bob Jones', 'Person1']] },
-    fetchImpl: errStub,
-  });
-  for (const t of result.perTurn) {
-    assert.ok(t.judges.progress.error, 'progress judge marked error on 404');
-    assert.strictEqual(t.judges.progress.label, 'ERROR');
+ok('module surface: no network client is exported and none is left in the source', function () {
+  for (const name of ['callJudge', 'endpointUrl', 'buildRequestBody', 'parseJudgeResponse', 'loadApiKey']) {
+    assert.strictEqual(mod[name], undefined, name + ' must be gone');
   }
-  // Voice hybrid: on a network gap the LLM leg keeps the deterministic pre-verdict
-  // (Pass), never inventing Wrong-Color.
-  assert.strictEqual(result.perTurn[0].judges.voice.label, 'Pass');
-  assert.strictEqual(result.aggregate.progress.error, 3);
-  // formatReport still renders.
-  assert.ok(mod.formatReport(result).includes('ERROR'));
+  const src = fs.readFileSync(path.join(__dirname, '..', 'lab', 'eval', 'report-from-transcript.cjs'), 'utf8');
+  // Needles are assembled from parts so this test file itself never carries the literals.
+  const needles = ['run.' + 'plurai.ai', 'PLURAI' + '_API_KEY', 'PLURAI' + '_RUN_BASE', 'fetch' + '('];
+  const code = src.split(/\r?\n/).filter(function (l) {
+    const t = l.trim();
+    return !(t.startsWith('//') || t.startsWith('*') || t.startsWith('/*'));
+  });
+  for (const n of needles) {
+    assert.ok(!code.some(function (l) { return l.includes(n); }), 'no non-comment line contains ' + n);
+  }
 });
 
 okAsync('Part 8 advisory fires when names present and no scrub map supplied', async function () {

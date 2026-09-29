@@ -1,5 +1,7 @@
 # MindrianOS x Plurai - Usage and QA Report
 
+> **RETIRED 2026-09-29, superseded by Jev (TypeSafe).** The hosted Plurai judge endpoint returns HTTP 404 on POST /ioa/v1/cross-topic-connection/1.0.0, and MindrianOS evals no longer call Plurai (navigator directive: "evals using jev not plurai"). This report is kept as a historical snapshot. The current contract is in `evals/plurai/README.md`.
+
 **For:** Elad Levi, Plurai (eladl@plurai.ai)
 **From:** Jonathan Sagir, MindrianOS
 **Date:** 2026-07-02

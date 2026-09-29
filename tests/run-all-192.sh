@@ -135,18 +135,16 @@ run "render-coverage gate (check-render-coverage)" \
   node scripts/check-render-coverage.cjs
 
 # ---------------------------------------------------------------------------
-# Deferred leg: the LIVE hosted Plurai fable judge over the posture-framing
-# fidelity CSV (192-04). It runs only via the interactive /evals:eval MCP flow
-# (start_evaluator -> ask_user model=fable -> get_results), which cannot run
-# non-interactively here. It is DEFERRED and REPORTED, never silently skipped:
-# evals/plurai/192-baseline.json carries deferred:true and the local hand-labeled
-# baseline + verdict_map hold the line until it is re-run interactively.
+# Retired leg (192-04): the LIVE hosted Plurai judge over the posture-framing
+# fidelity CSV. Plurai was retired 2026-09-29 (hosted endpoint HTTP 404); live
+# judging moved to Jev. It is counted as SKIPPED with a reason, never silently
+# dropped and never PASSED: porting this golden CSV to a Jev live judge is a
+# recorded follow-on. The local hand-labeled baseline + verdict_map hold the line.
 # ---------------------------------------------------------------------------
-if [ -f "evals/plurai/192-baseline.json" ]; then
-  echo "--- 192-04 live Plurai posture-framing judge ---"
-  echo ">>> 192-04 live Plurai judge: DEFERRED (baseline deferred:true; re-run /evals:eval model=fable interactively). Hand-labeled baseline + verdict_map hold the line."
-  echo ""
-fi
+echo "--- 192-04 live judge (retired) ---"
+echo ">>> 192-04 live judge: SKIPPED (RETIRED 2026-09-29: hosted Plurai judge retired, endpoint HTTP 404; live judging moved to Jev; porting this golden CSV to a Jev live judge is a recorded follow-on). Hand-labeled baseline + verdict_map hold the line."
+SKIP=$((SKIP+1))
+echo ""
 
 echo "======================================"
 echo "Phase 192: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"

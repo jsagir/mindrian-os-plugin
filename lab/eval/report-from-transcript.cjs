@@ -3,38 +3,45 @@
  * report-from-transcript.cjs -- lab-side conversation-flow scorer.
  * =========================================================================
  * WHAT: takes a Larry conversation transcript, splits it into material (Larry)
- * turns plus running frame context, and scores each turn with the four LIVE
- * Plurai judge endpoints, then prints a per-turn + aggregate flow report. This
- * is the lab half of the tester conversation-flow report (D2 of the brief).
+ * turns plus running frame context, and scores each turn, then prints a per-turn
+ * + aggregate flow report. This is the lab half of the tester conversation-flow
+ * report (D2 of the brief).
  *
- * WHY: the 2026-07-01 tester-cohort standup promise -- "did it FIRE THE RIGHT
- * THINGS AT THE RIGHT TIME... the quality of the conversation flow... I'm flying
- * blind without it." D1 (the paste-able extraction prompt) gets a clean report
- * OUT of a tester's Larry session; this script scores a returned transcript so
- * Jonathan can read progression / elevation / reach-gate / voice numbers.
- *
- * Brief: .planning/briefs/tester-conversation-flow-report-BRIEF.md
- * Standup: docs/testers/weekly-cohort/2026-07-01-standup.md
- *
- * The four judges (slugs + labels confirmed against the live Plurai workspace
- * 2026-07-01; each classifier is inputType=text, outputSchema={label, reason}):
+ * RETIRED (quick 260929-obr, 2026-09-29): this tool used to POST scrubbed tester
+ * transcripts to four hosted Plurai judge endpoints. The hosted endpoint is dead
+ * (HTTP 404) and live judging moved to Jev. The transcript judges were NOT ported
+ * to Jev: the Jev egress ruling (spike-findings skill, Requirements) allows
+ * structure only and zero user text, and a tester transcript is user text even
+ * after scrubbing. So this module never touches the network. Only the
+ * deterministic voice-signature is scored; the three network judges report
+ * SKIPPED with PLURAI_RETIRED_REASON. The four retired Plurai judge slugs, kept in
+ * JUDGES for the report labels:
  *   - cross-topic-connection        -> No Connection | Hedged | Confident
  *   - ai-turn-progress-evaluator    -> circular | progressing
  *   - reach-gate-choice-classifier  -> Correct | Wrong | Missed | Ambiguous
  *   - de-stijl-mark-classifier      -> Pass | Missing | Wrong-Color | Multiple
  *
+ * WHY: the 2026-07-01 tester-cohort standup promise -- "did it FIRE THE RIGHT
+ * THINGS AT THE RIGHT TIME... the quality of the conversation flow... I'm flying
+ * blind without it." D1 (the paste-able extraction prompt) gets a clean report
+ * OUT of a tester's Larry session; this script scores a returned transcript so
+ * Jonathan can read the voice-signature numbers.
+ *
+ * Brief: .planning/briefs/tester-conversation-flow-report-BRIEF.md
+ * Standup: docs/testers/weekly-cohort/2026-07-01-standup.md
+ *
  * Voice-signature REUSES lab/eval/voice-mark-hybrid.cjs: deterministic labels
  * (Missing / Multiple / Wrong-Color / native-host) resolve locally with ZERO
- * network; the de-stijl endpoint fires ONLY for the single-valid-mark
- * color-move-match beat (the "Pass?" case). That is the 0.75-laggard lesson.
+ * network. The single-valid-mark beat keeps the hybrid pre-label (never inventing
+ * Wrong-Color).
  *
  * PART 8 (privacy): real tester transcripts carry real names + deal names. The
- * WHOLE raw transcript is scrubbed (emails redacted + a caller-supplied
- * name/deal replacement map) at a SINGLE choke point BEFORE any parse or any
- * Plurai call. Nothing unscrubbed can egress. Offline by default in tests.
+ * WHOLE raw transcript is still scrubbed (emails redacted + a caller-supplied
+ * name/deal replacement map) at a SINGLE choke point BEFORE any parse. There is
+ * no egress path at all.
  *
- * CJS only. No em-dashes. Node >= 22 (global fetch). Lives in lab/, not the user
- * hot path; kept under lab/eval/ to stay clear of Phase 205-09's lab/plurai-suite/.
+ * CJS only. No em-dashes. Lives in lab/, not the user hot path; kept under
+ * lab/eval/ to stay clear of Phase 205-09's lab/plurai-suite/.
  */
 
 const fs = require('node:fs');
@@ -52,13 +59,12 @@ function startsWithVoiceGlyph(line) {
 }
 
 // -------------------------------------------------------------------------
-// Endpoint map. Slug + version confirmed live 2026-07-01. The run-serving path
-// is `${RUN_BASE}/ioa/v1/${slug}/${version}`; auth is `Authorization: Bearer`.
-// The request-body field and response shape are centralized in buildRequestBody
-// + parseJudgeResponse so a single edit corrects both if the live contract moves.
+// Retirement. The old serving path and its base-URL override are deleted; the
+// judge table below survives only for its titles and labels (aggregate and
+// formatReport read them).
 // -------------------------------------------------------------------------
-const RUN_BASE = process.env.PLURAI_RUN_BASE || 'https://run.plurai.ai';
-const VERSION = '1.0.0';
+const PLURAI_RETIRED_REASON = 'plurai retired 2026-09-29 (hosted judge endpoint HTTP 404); '
+  + 'live judging moved to Jev, transcript judges not ported (Jev takes structure only, never transcript text)';
 
 const JUDGES = {
   elevation: {
@@ -82,10 +88,6 @@ const JUDGES = {
     labels: ['Pass', 'Missing', 'Wrong-Color', 'Multiple'],
   },
 };
-
-function endpointUrl(slug) {
-  return `${RUN_BASE}/ioa/v1/${slug}/${VERSION}`;
-}
 
 // -------------------------------------------------------------------------
 // Part 8 scrub. Single choke point: scrub the RAW transcript string before it is
@@ -262,106 +264,24 @@ function buildJudgeInput(judgeKey, turn, context) {
 }
 
 // -------------------------------------------------------------------------
-// Transport. buildRequestBody + parseJudgeResponse isolate the live contract.
-// callJudge returns { label, reason } or { label: 'ERROR', error: true, reason }.
-// Never throws on a bad response; the report surfaces the error per-turn so an
-// un-provisioned endpoint is a visible gap, not a crash.
+// Scoring. For each material (Larry) turn: run voice via the hybrid with NO
+// network leg, and mark the three retired network judges SKIPPED with the
+// retirement reason. Never touches fetch, whatever opts are passed.
 // -------------------------------------------------------------------------
-function buildRequestBody(inputText) {
-  return JSON.stringify({ input: inputText });
-}
-
-function parseJudgeResponse(json) {
-  if (!json || typeof json !== 'object') return { label: null, reason: '' };
-  const label = json.label != null ? json.label
-    : (json.output && json.output.label != null) ? json.output.label
-    : (json.result && json.result.label != null) ? json.result.label
-    : null;
-  const reason = json.reason != null ? json.reason
-    : (json.output && json.output.reason) ? json.output.reason
-    : (json.result && json.result.reason) ? json.result.reason
-    : '';
-  return { label, reason };
-}
-
-async function callJudge(slug, apiKey, inputText, opts) {
-  const o = opts || {};
-  const doFetch = o.fetchImpl || globalThis.fetch;
-  if (typeof doFetch !== 'function') {
-    return { label: 'ERROR', error: true, reason: 'no fetch implementation available' };
-  }
-  const url = endpointUrl(slug);
-  try {
-    const controller = typeof AbortController === 'function' ? new AbortController() : null;
-    const timer = controller ? setTimeout(function () { controller.abort(); }, o.timeoutMs || 30000) : null;
-    let res;
-    try {
-      res = await doFetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: buildRequestBody(inputText),
-        signal: controller ? controller.signal : undefined,
-      });
-    } finally {
-      if (timer) clearTimeout(timer);
-    }
-    if (!res || typeof res.status !== 'number' || res.status < 200 || res.status >= 300) {
-      const status = res ? res.status : 'no-response';
-      let bodyText = '';
-      try { bodyText = res && res.text ? await res.text() : ''; } catch (_e) { bodyText = ''; }
-      return { label: 'ERROR', error: true, reason: `HTTP ${status} ${String(bodyText).slice(0, 160)}`.trim() };
-    }
-    const json = await res.json();
-    const parsed = parseJudgeResponse(json);
-    if (parsed.label == null) {
-      return { label: 'ERROR', error: true, reason: 'response had no label field' };
-    }
-    return parsed;
-  } catch (err) {
-    return { label: 'ERROR', error: true, reason: String(err && err.message ? err.message : err) };
-  }
-}
-
-// -------------------------------------------------------------------------
-// Scoring. For each material (Larry) turn: run voice via the hybrid (LLM leg
-// only on Pass?), and run the other three judges unless --offline.
-// -------------------------------------------------------------------------
-async function scoreTurn(turn, context, apiKey, opts) {
-  const o = opts || {};
-  const offline = o.offline === true || !apiKey;
+async function scoreTurn(turn, _context, _apiKey, _opts) {
   const result = { materialIndex: turn.materialIndex, absIndex: turn.absIndex, meta: turn.meta, judges: {} };
 
-  // Voice-signature: deterministic-first hybrid. The LLM leg fires only for a
-  // single-valid-mark turn AND only when not offline.
+  // Voice-signature: deterministic-first hybrid, llmJudge deliberately undefined.
   const voice = await scoreVoiceMarkHybrid(turn.text, {
     assumeLarryTurn: true,
-    llmJudge: offline ? undefined : async function (turnText, color) {
-      const r = await callJudge(JUDGES.voice.slug, apiKey, turnText, o);
-      if (r.error) return 'Pass'; // network gap: keep the deterministic pre-verdict, do not invent Wrong-Color
-      return r.label === 'Pass' ? 'Pass' : 'Wrong-Color';
-    },
+    llmJudge: undefined,
   });
   result.judges.voice = { label: voice.label, reason: voice.reason,
     deterministic: voice.deterministic === true, needsLlm: voice.needsLlm === true, color: voice.color };
 
-  if (offline) {
-    for (const key of ['elevation', 'progress', 'reachgate']) {
-      result.judges[key] = { label: 'SKIPPED', reason: 'offline (no network judges)', skipped: true };
-    }
-    return result;
+  for (const key of ['elevation', 'progress', 'reachgate']) {
+    result.judges[key] = { label: 'SKIPPED', reason: PLURAI_RETIRED_REASON, skipped: true, retired: true };
   }
-
-  const [elevation, progress, reachgate] = await Promise.all([
-    callJudge(JUDGES.elevation.slug, apiKey, buildJudgeInput('elevation', turn, context), o),
-    callJudge(JUDGES.progress.slug, apiKey, buildJudgeInput('progress', turn, context), o),
-    callJudge(JUDGES.reachgate.slug, apiKey, buildJudgeInput('reachgate', turn, context), o),
-  ]);
-  result.judges.elevation = elevation;
-  result.judges.progress = progress;
-  result.judges.reachgate = reachgate;
   return result;
 }
 
@@ -394,7 +314,7 @@ async function scoreTranscript(rawTranscript, opts) {
     scrubStats: scrub.stats,
     warnings,
     materialCount: larryTurns.length,
-    offline: o.offline === true || !o.apiKey,
+    offline: true,
   };
 }
 
@@ -428,12 +348,12 @@ function tally(bucket, judge) {
 // -------------------------------------------------------------------------
 function formatReport(result) {
   const lines = [];
-  lines.push('Conversation-flow report (lab-side, 4-judge Plurai)');
+  lines.push('Conversation-flow report (lab-side, voice-signature only; Plurai judges retired)');
   lines.push('Source brief: .planning/briefs/tester-conversation-flow-report-BRIEF.md');
   lines.push('Cohort standup: docs/testers/weekly-cohort/2026-07-01-standup.md');
   lines.push('');
   lines.push(`Material Larry turns: ${result.materialCount}` +
-    (result.offline ? '   [OFFLINE: only voice-signature scored deterministically]' : ''));
+    (result.offline ? '   [OFFLINE: only voice-signature scored deterministically; the other three judges are retired (plurai retired 2026-09-29, live judging moved to Jev)]' : ''));
   lines.push(`Part 8 scrub: ${result.scrubStats.emails} email(s) redacted, ${result.scrubStats.replaced} mapped replacement(s).`);
   for (const w of result.warnings) lines.push(`WARN: ${w}`);
   lines.push('');
@@ -487,19 +407,8 @@ function summaryLine(agg) {
 }
 
 // -------------------------------------------------------------------------
-// Key + scrub-rule loading (CLI convenience; never used by the offline test).
+// Scrub-rule loading (CLI convenience).
 // -------------------------------------------------------------------------
-function loadApiKey() {
-  if (process.env.PLURAI_API_KEY) return process.env.PLURAI_API_KEY;
-  try {
-    const p = path.join(require('node:os').homedir(), '.config', 'evals', 'credentials.json');
-    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-    return j.api_key || null;
-  } catch (_e) {
-    return null;
-  }
-}
-
 function loadScrubRules(transcriptPath, cliReplacements) {
   const rules = { replacements: [] };
   const sidecar = `${transcriptPath}.scrub.json`;
@@ -541,9 +450,10 @@ async function main(argv) {
   if (args.help || args._.length === 0) {
     process.stdout.write(
       'Usage: node lab/eval/report-from-transcript.cjs <transcript-file> [--offline] [--json] [--scrub Name=Person1 ...]\n' +
-      '  Scores a Larry conversation transcript with the four Plurai judge endpoints.\n' +
+      '  Scores a Larry conversation transcript. Only the deterministic voice-signature is scored;\n' +
+      '  the three Plurai judges are retired (2026-09-29) and report SKIPPED. Zero network, always.\n' +
       '  Part 8: emails are always redacted; supply a <transcript>.scrub.json or --scrub pairs for names + deal names.\n' +
-      '  --offline runs only the deterministic voice-signature (no network).\n');
+      '  --offline is accepted for backward compatibility and is a no-op (the tool is always offline).\n');
     return args.help ? 0 : 1;
   }
   const transcriptPath = args._[0];
@@ -555,11 +465,10 @@ async function main(argv) {
     return 1;
   }
   const scrubRules = loadScrubRules(transcriptPath, args.scrub);
-  const apiKey = args.offline ? null : loadApiKey();
-  if (!args.offline && !apiKey) {
-    process.stderr.write('WARN: no Plurai API key (PLURAI_API_KEY or ~/.config/evals/credentials.json). Falling back to --offline.\n');
+  if (!args.offline) {
+    process.stderr.write('NOTE: the Plurai network judges are retired (2026-09-29); scoring the voice-signature only, offline.\n');
   }
-  const result = await scoreTranscript(raw, { apiKey, offline: args.offline, scrubRules });
+  const result = await scoreTranscript(raw, { scrubRules });
   process.stdout.write((args.json ? JSON.stringify(result, null, 2) : formatReport(result)) + '\n');
   return 0;
 }
@@ -567,9 +476,8 @@ async function main(argv) {
 module.exports = {
   scrubText, normalizeReplacements, likelyUnredactedNames,
   parseTranscript, extractTurnMeta, contextBefore, buildJudgeInput,
-  buildRequestBody, parseJudgeResponse, callJudge,
   scoreTurn, scoreTranscript, aggregate, formatReport, summaryLine,
-  endpointUrl, loadScrubRules, JUDGES, main,
+  loadScrubRules, JUDGES, PLURAI_RETIRED_REASON, main,
 };
 
 if (require.main === module) {
