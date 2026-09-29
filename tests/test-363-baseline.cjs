@@ -59,8 +59,8 @@ const COMMAND_PATHS = [
 ];
 
 const QUICK_PASS_LINE = 'Ask: "Quick pass or deep dive?"';
-const EM_DASH = '—';
-const EN_DASH = '–';
+const EM_DASH = '\u2014';
+const EN_DASH = '\u2013';
 
 // --- helpers ---------------------------------------------------------------
 
