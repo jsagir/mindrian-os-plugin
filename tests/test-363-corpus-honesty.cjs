@@ -323,6 +323,45 @@ async function main() {
       'threw=' + (threw && threw.name) + ' calls=' + s.calls.length);
   }
 
+  // ---- L15: a spent local budget is a typed spend limit, never empty_valid ----
+  {
+    resetLedger();
+    const telemetry = require('../lib/core/rs-egress-telemetry.cjs');
+    for (let i = 0; i < telemetry.DEFAULT_BUDGETS.openalex; i += 1) {
+      telemetry.recordTelemetry({ source: 'openalex', query_text: 'seed ' + i, status: 'ok', http_status: 200 });
+    }
+    const s = stubFetch(function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); });
+    let env;
+    try {
+      env = await corpus.fetchCorpusEnvelope({ source: 'openalex', query: 'acoustic biofilm disruption', limit: 5 });
+    } finally { s.restore(); }
+    const v = require('../lib/core/recovery/stage-envelope.cjs').validateStageEnvelope(env);
+    check('L15 spent local budget -> blocked / spend_limit_exceeded / not retryable, envelope valid, zero calls',
+      env.status === 'blocked' && env.failure_class === 'spend_limit_exceeded' && env.retryable === false
+        && /budget_exhausted/.test(JSON.stringify(env)) && v.ok === true && s.calls.length === 0,
+      'status=' + env.status + ' class=' + env.failure_class + ' valid=' + JSON.stringify(v) + ' calls=' + s.calls.length);
+  }
+
+  // ---- L16: every typed envelope passes the stage-envelope validator ----
+  {
+    const validate = require('../lib/core/recovery/stage-envelope.cjs').validateStageEnvelope;
+    const handlers = [
+      function () { return makeResponse(429, {}, {}); },
+      function () { return makeResponse(500, {}, {}); },
+      function () { throw abortError(); },
+      function () { throw new TypeError('fetch failed'); },
+      function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); },
+      function () { return makeResponse(200, OK_HEADERS, { meta: { count: 3 }, results: [work(1)] }); },
+    ];
+    const bad = [];
+    for (let i = 0; i < handlers.length; i += 1) {
+      const r = await runLeg(handlers[i]);
+      const v = validate(r.env);
+      if (!v.ok) bad.push(i + ':' + JSON.stringify(v.violations));
+    }
+    check('L16 all six failure and success shapes validate as stage envelopes', bad.length === 0, bad.join(' '));
+  }
+
   // ---- hygiene ----
   check('H1 no em-dash or en-dash characters in this test file',
     (function () {

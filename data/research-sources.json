@@ -8,7 +8,7 @@
       "enabled": true,
       "kind": "academic",
       "gates": [],
-      "note": "No API key. OpenAlex polite pool via OPENALEX_EMAIL. Delegated to lib/core/rs-fetcher-academic.cjs fetchOpenAlex."
+      "note": "Optional OPENALEX_API_KEY, sent as an Authorization Bearer header only (never in a URL). Keyless calls have a small metered daily budget (measured x-ratelimit-limit-usd 0.1 on 2026-09-29); search costs apply per call; results carry meta.count. Polite pool via OPENALEX_EMAIL. A failed fetch is typed failed, never empty_valid. Delegated to lib/core/rs-fetcher-academic.cjs fetchOpenAlex."
     },
     {
       "id": "arxiv",
