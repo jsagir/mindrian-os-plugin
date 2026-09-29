@@ -919,7 +919,9 @@ const r = await brainClient.query(
 | A10 | `research-lane-analyst` as a new Read-only agent is the right unit for deep analysis | Pattern 11 | If context budget allows, the main session could analyze sequentially instead, with no new agent |
 | A11 | Ordinary-install `brain_query` may be refused on Theo | Pitfall 5 | If it is allowed, live refresh can be the default. The ledger still gives replayability |
 
-## Open Questions (need navigator rulings; each has a proposed default)
+## Open Questions (RESOLVED)
+
+> Resolved 2026-09-29 by 363-CONTEXT.md D-10..D-17 (defaults accepted). Plan numbers below predate the final plan set: grants = 363-09, filing = 363-14, MCP tool = 363-17. CONTEXT.md governs. (need navigator rulings; each has a proposed default)
 
 1. **Standing-grant slot values (Pitfall 7).**
    - Known: D-04 binds families by template id. The Part 8 audit is a blocklist.
