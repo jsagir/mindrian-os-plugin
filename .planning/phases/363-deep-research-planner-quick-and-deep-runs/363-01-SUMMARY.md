@@ -101,7 +101,7 @@ Caution: the run-all-131 red reads an environment file, so it may change with us
 **1. [Rule 1 - Bug] Task 1 test held literal dash characters**
 - **Found during:** Task 2 first aggregator run (the em-dash guard flagged tests/test-363-baseline.cjs)
 - **Issue:** `EM_DASH` and `EN_DASH` constants were written as literal characters; the plan requires unicode escapes.
-- **Fix:** rewrote both as `'—'` and `'–'`; test still passes 7/7.
+- **Fix:** rewrote both as JavaScript unicode escapes (U+2014, U+2013); test still passes 7/7.
 - **Commit:** 42bae51c5
 
 **2. [Rule 3 - Blocking] check-floor-ledger needs `--check`**
