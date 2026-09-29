@@ -1,0 +1,38 @@
+{
+  "provenance": "synthetic_on_verified_shape_2026-09-29",
+  "shape_source": "363-RESEARCH.md Pitfalls 2 and 3, Live checks 2026-09-29 (one keyless OpenAlex call: meta.count, x_query, cost and rate-limit headers)",
+  "network": "none; this fixture was written by hand and never fetched from OpenAlex",
+  "bodies_file": "bodies.json",
+  "result_fields": ["id", "doi", "title", "abstract_inverted_index", "publication_year", "type", "is_retracted", "cited_by_count", "primary_location.source.display_name", "primary_location.source.is_in_doaj", "authorships"],
+  "meta_fields": ["count", "db_response_time_ms", "page", "per_page", "groups_count", "cost_usd"],
+  "headers_on_ok_responses": {
+    "x-ratelimit-limit-usd": "0.1",
+    "x-ratelimit-cost-usd": "0.001",
+    "x-ratelimit-remaining-usd": "computed by the replay helper from a per-fetch budget counter"
+  },
+  "response_ids": {
+    "success": [
+      "gap_primary_zero",
+      "synonym_hits",
+      "prior_review_two",
+      "contested_rows",
+      "derivation_hit",
+      "retest_hit",
+      "scurve_ceiling",
+      "scurve_headroom",
+      "diffusion_adoption",
+      "retracted_one"
+    ],
+    "failure_sentinels": [
+      "SENTINEL_429_BUDGET",
+      "SENTINEL_500",
+      "SENTINEL_TIMEOUT",
+      "SENTINEL_NETWORK"
+    ]
+  },
+  "notes": {
+    "gap_primary_zero": "valid empty result: meta.count 0, results []",
+    "synonym_hits": "five results using synonyms of the gap term, none containing the exact gap phrase",
+    "retracted_one": "one result with is_retracted true"
+  }
+}

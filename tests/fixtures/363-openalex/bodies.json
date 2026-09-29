@@ -1,0 +1,2056 @@
+{
+  "gap_primary_zero": {
+    "meta": {
+      "count": 0,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [],
+    "group_by": []
+  },
+  "synonym_hits": {
+    "meta": {
+      "count": 240,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363001",
+        "doi": "https://doi.org/10.0000/synth363.001",
+        "title": "Ultrasonic removal of biofilm from closed water loops",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "study": [
+            1
+          ],
+          "ultrasonic": [
+            2
+          ],
+          "biofilm": [
+            3
+          ],
+          "removal": [
+            4
+          ],
+          "in": [
+            5
+          ],
+          "closed": [
+            6
+          ],
+          "water": [
+            7
+          ],
+          "loops.": [
+            8
+          ],
+          "Low": [
+            9
+          ],
+          "frequency": [
+            10
+          ],
+          "sound": [
+            11
+          ],
+          "reduced": [
+            12
+          ],
+          "attached": [
+            13
+          ],
+          "biomass": [
+            14
+          ],
+          "on": [
+            15
+          ],
+          "steel": [
+            16
+          ],
+          "coupons": [
+            17
+          ],
+          "within": [
+            18
+          ],
+          "one": [
+            19
+          ],
+          "hour.": [
+            20
+          ]
+        },
+        "publication_year": 2021,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 48,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Applied Water Science",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363002",
+        "doi": "https://doi.org/10.0000/synth363.002",
+        "title": "Sonic detachment of surface bacterial films",
+        "abstract_inverted_index": {
+          "Sonic": [
+            0
+          ],
+          "biofilm": [
+            1
+          ],
+          "detachment": [
+            2
+          ],
+          "was": [
+            3
+          ],
+          "measured": [
+            4
+          ],
+          "on": [
+            5
+          ],
+          "polymer": [
+            6
+          ],
+          "and": [
+            7
+          ],
+          "steel": [
+            8
+          ],
+          "surfaces.": [
+            9
+          ],
+          "Detachment": [
+            10
+          ],
+          "rose": [
+            11
+          ],
+          "with": [
+            12
+          ],
+          "acoustic": [
+            13
+          ],
+          "pressure": [
+            14
+          ],
+          "up": [
+            15
+          ],
+          "to": [
+            16
+          ],
+          "a": [
+            17
+          ],
+          "saturation": [
+            18
+          ],
+          "point.": [
+            19
+          ]
+        },
+        "publication_year": 2019,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 31,
+        "primary_location": {
+          "source": {
+            "display_name": "Surface Engineering Letters",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363003",
+        "doi": "https://doi.org/10.0000/synth363.003",
+        "title": "Ultrasound driven dispersal of microbial communities",
+        "abstract_inverted_index": {
+          "Ultrasound": [
+            0
+          ],
+          "driven": [
+            1
+          ],
+          "biofilm": [
+            2
+          ],
+          "dispersal": [
+            3
+          ],
+          "was": [
+            4
+          ],
+          "tested": [
+            5
+          ],
+          "in": [
+            6
+          ],
+          "flow": [
+            7
+          ],
+          "cells.": [
+            8
+          ],
+          "Cavitation": [
+            9
+          ],
+          "near": [
+            10
+          ],
+          "the": [
+            11,
+            14,
+            20
+          ],
+          "wall": [
+            12
+          ],
+          "loosened": [
+            13
+          ],
+          "matrix": [
+            15
+          ],
+          "and": [
+            16
+          ],
+          "released": [
+            17
+          ],
+          "cells": [
+            18
+          ],
+          "into": [
+            19
+          ],
+          "bulk": [
+            21
+          ],
+          "flow.": [
+            22
+          ]
+        },
+        "publication_year": 2022,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 12,
+        "primary_location": {
+          "source": {
+            "display_name": "Biofouling Research",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363004",
+        "doi": "https://doi.org/10.0000/synth363.004",
+        "title": "Pressure waves and matrix breakup in attached cultures",
+        "abstract_inverted_index": {
+          "Pressure": [
+            0
+          ],
+          "wave": [
+            1
+          ],
+          "treatment": [
+            2
+          ],
+          "produced": [
+            3
+          ],
+          "matrix": [
+            4
+          ],
+          "breakup": [
+            5
+          ],
+          "in": [
+            6
+          ],
+          "attached": [
+            7
+          ],
+          "cultures.": [
+            8
+          ],
+          "The": [
+            9
+          ],
+          "effect": [
+            10
+          ],
+          "depended": [
+            11
+          ],
+          "on": [
+            12,
+            16
+          ],
+          "exposure": [
+            13
+          ],
+          "time": [
+            14
+          ],
+          "and": [
+            15
+          ],
+          "the": [
+            17,
+            20
+          ],
+          "age": [
+            18
+          ],
+          "of": [
+            19
+          ],
+          "culture.": [
+            21
+          ]
+        },
+        "publication_year": 2020,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 22,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Fluid and Interface Science",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363005",
+        "doi": "https://doi.org/10.0000/synth363.005",
+        "title": "Vibration based cleaning of fouled heat exchanger tubes",
+        "abstract_inverted_index": {
+          "Vibration": [
+            0
+          ],
+          "based": [
+            1
+          ],
+          "cleaning": [
+            2
+          ],
+          "removed": [
+            3
+          ],
+          "fouling": [
+            4
+          ],
+          "layers": [
+            5
+          ],
+          "from": [
+            6
+          ],
+          "heat": [
+            7
+          ],
+          "exchanger": [
+            8
+          ],
+          "tubes.": [
+            9
+          ],
+          "Biological": [
+            10
+          ],
+          "deposits": [
+            11
+          ],
+          "responded": [
+            12
+          ],
+          "more": [
+            13
+          ],
+          "strongly": [
+            14
+          ],
+          "than": [
+            15
+          ],
+          "mineral": [
+            16
+          ],
+          "scale.": [
+            17
+          ]
+        },
+        "publication_year": 2018,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 67,
+        "primary_location": {
+          "source": {
+            "display_name": "Applied Thermal Engineering Review",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "prior_review_two": {
+    "meta": {
+      "count": 2,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363006",
+        "doi": "https://doi.org/10.0000/synth363.006",
+        "title": "A review of physical methods for controlling biofilm growth",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "review": [
+            1
+          ],
+          "compares": [
+            2
+          ],
+          "physical": [
+            3
+          ],
+          "methods": [
+            4,
+            17
+          ],
+          "for": [
+            5
+          ],
+          "controlling": [
+            6
+          ],
+          "biofilm": [
+            7
+          ],
+          "growth": [
+            8
+          ],
+          "in": [
+            9
+          ],
+          "water": [
+            10
+          ],
+          "systems.": [
+            11
+          ],
+          "Mechanical,": [
+            12
+          ],
+          "thermal": [
+            13
+          ],
+          "and": [
+            14
+          ],
+          "sound": [
+            15
+          ],
+          "based": [
+            16
+          ],
+          "are": [
+            18
+          ],
+          "grouped": [
+            19
+          ],
+          "by": [
+            20
+          ],
+          "mechanism.": [
+            21
+          ]
+        },
+        "publication_year": 2020,
+        "type": "review",
+        "is_retracted": false,
+        "cited_by_count": 210,
+        "primary_location": {
+          "source": {
+            "display_name": "Annual Review of Water Technology",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363007",
+        "doi": "https://doi.org/10.0000/synth363.007",
+        "title": "Emerging non chemical approaches to fouling control",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "survey": [
+            1
+          ],
+          "emerging": [
+            2
+          ],
+          "non": [
+            3
+          ],
+          "chemical": [
+            4
+          ],
+          "approaches": [
+            5
+          ],
+          "to": [
+            6,
+            17
+          ],
+          "fouling": [
+            7
+          ],
+          "control": [
+            8
+          ],
+          "and": [
+            9
+          ],
+          "list": [
+            10
+          ],
+          "open": [
+            11
+          ],
+          "questions": [
+            12
+          ],
+          "on": [
+            13
+          ],
+          "scaling": [
+            14
+          ],
+          "from": [
+            15
+          ],
+          "bench": [
+            16
+          ],
+          "plant.": [
+            18
+          ]
+        },
+        "publication_year": 2023,
+        "type": "review",
+        "is_retracted": false,
+        "cited_by_count": 54,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Sustainable Process Engineering",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "contested_rows": {
+    "meta": {
+      "count": 64,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363008",
+        "doi": "https://doi.org/10.0000/synth363.008",
+        "title": "Low frequency ultrasound lowers biofilm mass in pipe loops",
+        "abstract_inverted_index": {
+          "Low": [
+            0
+          ],
+          "frequency": [
+            1
+          ],
+          "ultrasound": [
+            2
+          ],
+          "reduces": [
+            3
+          ],
+          "biofilm": [
+            4
+          ],
+          "mass": [
+            5
+          ],
+          "in": [
+            6
+          ],
+          "pipe": [
+            7
+          ],
+          "loops.": [
+            8
+          ],
+          "Mean": [
+            9
+          ],
+          "biomass": [
+            10
+          ],
+          "fell": [
+            11
+          ],
+          "by": [
+            12
+          ],
+          "more": [
+            13
+          ],
+          "than": [
+            14
+          ],
+          "half": [
+            15
+          ],
+          "after": [
+            16
+          ],
+          "treatment.": [
+            17
+          ]
+        },
+        "publication_year": 2021,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 40,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Applied Water Science",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363009",
+        "doi": "https://doi.org/10.0000/synth363.009",
+        "title": "Field trial of sound treatment in a cooling circuit",
+        "abstract_inverted_index": {
+          "A": [
+            0
+          ],
+          "field": [
+            1
+          ],
+          "trial": [
+            2
+          ],
+          "in": [
+            3
+          ],
+          "a": [
+            4
+          ],
+          "cooling": [
+            5
+          ],
+          "circuit": [
+            6
+          ],
+          "found": [
+            7
+          ],
+          "that": [
+            8
+          ],
+          "low": [
+            9
+          ],
+          "frequency": [
+            10
+          ],
+          "ultrasound": [
+            11
+          ],
+          "reduces": [
+            12
+          ],
+          "biofilm": [
+            13
+          ],
+          "mass": [
+            14
+          ],
+          "over": [
+            15
+          ],
+          "ten": [
+            16
+          ],
+          "weeks.": [
+            17
+          ]
+        },
+        "publication_year": 2022,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 18,
+        "primary_location": {
+          "source": {
+            "display_name": "Industrial Water Practice",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363010",
+        "doi": "https://doi.org/10.0000/synth363.010",
+        "title": "Bench evidence for ultrasound biofilm control",
+        "abstract_inverted_index": {
+          "Bench": [
+            0
+          ],
+          "experiments": [
+            1
+          ],
+          "show": [
+            2
+          ],
+          "that": [
+            3
+          ],
+          "low": [
+            4
+          ],
+          "frequency": [
+            5
+          ],
+          "ultrasound": [
+            6
+          ],
+          "reduces": [
+            7
+          ],
+          "biofilm": [
+            8
+          ],
+          "mass": [
+            9
+          ],
+          "on": [
+            10
+          ],
+          "steel": [
+            11
+          ],
+          "and": [
+            12
+          ],
+          "polymer": [
+            13
+          ],
+          "coupons.": [
+            14
+          ]
+        },
+        "publication_year": 2019,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 35,
+        "primary_location": {
+          "source": {
+            "display_name": "Biofouling Research",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363011",
+        "doi": "https://doi.org/10.0000/synth363.011",
+        "title": "No lasting effect of ultrasound on mature biofilm",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "found": [
+            1
+          ],
+          "no": [
+            2
+          ],
+          "significant": [
+            3
+          ],
+          "reduction": [
+            4
+          ],
+          "of": [
+            5,
+            13
+          ],
+          "biofilm": [
+            6
+          ],
+          "mass": [
+            7
+          ],
+          "after": [
+            8
+          ],
+          "low": [
+            9
+          ],
+          "frequency": [
+            10
+          ],
+          "ultrasound": [
+            11
+          ],
+          "treatment": [
+            12
+          ],
+          "mature": [
+            14
+          ],
+          "biofilm.": [
+            15
+          ],
+          "Regrowth": [
+            16
+          ],
+          "returned": [
+            17
+          ],
+          "to": [
+            18
+          ],
+          "control": [
+            19
+          ],
+          "levels": [
+            20
+          ],
+          "within": [
+            21
+          ],
+          "days.": [
+            22
+          ]
+        },
+        "publication_year": 2020,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 26,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Microbial Engineering",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363012",
+        "doi": "https://doi.org/10.0000/synth363.012",
+        "title": "Ultrasound fails to prevent recolonization in flow systems",
+        "abstract_inverted_index": {
+          "Contrary": [
+            0
+          ],
+          "to": [
+            1
+          ],
+          "earlier": [
+            2
+          ],
+          "reports,": [
+            3
+          ],
+          "low": [
+            4
+          ],
+          "frequency": [
+            5
+          ],
+          "ultrasound": [
+            6
+          ],
+          "did": [
+            7
+          ],
+          "not": [
+            8
+          ],
+          "reduce": [
+            9
+          ],
+          "biofilm": [
+            10
+          ],
+          "mass": [
+            11
+          ],
+          "in": [
+            12
+          ],
+          "flow": [
+            13
+          ],
+          "systems": [
+            14
+          ],
+          "and": [
+            15
+          ],
+          "recolonization": [
+            16
+          ],
+          "was": [
+            17
+          ],
+          "rapid.": [
+            18
+          ]
+        },
+        "publication_year": 2023,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 9,
+        "primary_location": {
+          "source": {
+            "display_name": "Water Research Communications",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "derivation_hit": {
+    "meta": {
+      "count": 11,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363013",
+        "doi": "https://doi.org/10.0000/synth363.013",
+        "title": "A fundamental bound on nutrient transport into attached cultures",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "derive": [
+            1
+          ],
+          "a": [
+            2
+          ],
+          "fundamental": [
+            3
+          ],
+          "upper": [
+            4
+          ],
+          "bound": [
+            5,
+            18
+          ],
+          "on": [
+            6
+          ],
+          "diffusion": [
+            7
+          ],
+          "limited": [
+            8
+          ],
+          "nutrient": [
+            9
+          ],
+          "transport": [
+            10
+          ],
+          "into": [
+            11
+          ],
+          "attached": [
+            12
+          ],
+          "cultures": [
+            13
+          ],
+          "from": [
+            14,
+            20
+          ],
+          "first": [
+            15
+          ],
+          "principles.": [
+            16
+          ],
+          "The": [
+            17
+          ],
+          "follows": [
+            19
+          ],
+          "the": [
+            21
+          ],
+          "conservation": [
+            22
+          ],
+          "of": [
+            23
+          ],
+          "mass": [
+            24
+          ],
+          "and": [
+            25
+          ],
+          "cannot": [
+            26
+          ],
+          "be": [
+            27
+          ],
+          "exceeded": [
+            28
+          ],
+          "by": [
+            29
+          ],
+          "any": [
+            30
+          ],
+          "surface": [
+            31
+          ],
+          "design.": [
+            32
+          ]
+        },
+        "publication_year": 2017,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 88,
+        "primary_location": {
+          "source": {
+            "display_name": "Physical Review of Transport Phenomena",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363014",
+        "doi": "https://doi.org/10.0000/synth363.014",
+        "title": "Thermodynamic limit of passive mass transfer across thin films",
+        "abstract_inverted_index": {
+          "A": [
+            0
+          ],
+          "thermodynamic": [
+            1
+          ],
+          "derivation": [
+            2
+          ],
+          "shows": [
+            3
+          ],
+          "a": [
+            4
+          ],
+          "hard": [
+            5
+          ],
+          "limit": [
+            6,
+            15
+          ],
+          "on": [
+            7
+          ],
+          "passive": [
+            8
+          ],
+          "mass": [
+            9
+          ],
+          "transfer": [
+            10
+          ],
+          "across": [
+            11
+          ],
+          "thin": [
+            12
+          ],
+          "films.": [
+            13
+          ],
+          "The": [
+            14
+          ],
+          "is": [
+            16
+          ],
+          "set": [
+            17
+          ],
+          "by": [
+            18
+          ],
+          "the": [
+            19,
+            23
+          ],
+          "diffusion": [
+            20
+          ],
+          "coefficient": [
+            21
+          ],
+          "and": [
+            22
+          ],
+          "film": [
+            24
+          ],
+          "thickness.": [
+            25
+          ]
+        },
+        "publication_year": 2015,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 120,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Chemical Physics of Interfaces",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "retest_hit": {
+    "meta": {
+      "count": 9,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363015",
+        "doi": "https://doi.org/10.0000/synth363.015",
+        "title": "Overcoming the assumed limit on transport through thin films",
+        "abstract_inverted_index": {
+          "The": [
+            0
+          ],
+          "long": [
+            1
+          ],
+          "assumed": [
+            2
+          ],
+          "limit": [
+            3
+          ],
+          "on": [
+            4
+          ],
+          "transport": [
+            5
+          ],
+          "through": [
+            6
+          ],
+          "thin": [
+            7
+          ],
+          "films": [
+            8
+          ],
+          "was": [
+            9
+          ],
+          "overcome": [
+            10
+          ],
+          "by": [
+            11,
+            26
+          ],
+          "a": [
+            12,
+            27
+          ],
+          "driven": [
+            13
+          ],
+          "flow": [
+            14
+          ],
+          "that": [
+            15
+          ],
+          "thins": [
+            16
+          ],
+          "the": [
+            17,
+            23
+          ],
+          "boundary": [
+            18
+          ],
+          "layer.": [
+            19
+          ],
+          "Measured": [
+            20
+          ],
+          "flux": [
+            21
+          ],
+          "exceeded": [
+            22
+          ],
+          "earlier": [
+            24
+          ],
+          "estimate": [
+            25
+          ],
+          "factor": [
+            28
+          ],
+          "of": [
+            29
+          ],
+          "three.": [
+            30
+          ]
+        },
+        "publication_year": 2022,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 30,
+        "primary_location": {
+          "source": {
+            "display_name": "Advanced Interface Materials",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363016",
+        "doi": "https://doi.org/10.0000/synth363.016",
+        "title": "Re-testing a textbook constraint on surface fouling rates",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "re-tested": [
+            1
+          ],
+          "a": [
+            2
+          ],
+          "textbook": [
+            3
+          ],
+          "constraint": [
+            4,
+            13
+          ],
+          "on": [
+            5
+          ],
+          "surface": [
+            6
+          ],
+          "fouling": [
+            7
+          ],
+          "rates": [
+            8
+          ],
+          "and": [
+            9
+          ],
+          "report": [
+            10
+          ],
+          "that": [
+            11
+          ],
+          "the": [
+            12
+          ],
+          "does": [
+            14
+          ],
+          "not": [
+            15
+          ],
+          "hold": [
+            16
+          ],
+          "under": [
+            17
+          ],
+          "pulsed": [
+            18
+          ],
+          "conditions.": [
+            19
+          ]
+        },
+        "publication_year": 2024,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 5,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Applied Surface Science",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "scurve_ceiling": {
+    "meta": {
+      "count": 14,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363017",
+        "doi": "https://doi.org/10.0000/synth363.017",
+        "title": "Performance plateau of passive cleaning coatings",
+        "abstract_inverted_index": {
+          "Performance": [
+            0
+          ],
+          "of": [
+            1
+          ],
+          "passive": [
+            2
+          ],
+          "cleaning": [
+            3
+          ],
+          "coatings": [
+            4
+          ],
+          "has": [
+            5
+          ],
+          "plateaued": [
+            6
+          ],
+          "near": [
+            7
+          ],
+          "the": [
+            8
+          ],
+          "theoretical": [
+            9
+          ],
+          "maximum.": [
+            10
+          ],
+          "Successive": [
+            11
+          ],
+          "generations": [
+            12
+          ],
+          "gained": [
+            13
+          ],
+          "less": [
+            14
+          ],
+          "than": [
+            15
+          ],
+          "two": [
+            16
+          ],
+          "percent": [
+            17
+          ],
+          "each.": [
+            18
+          ]
+        },
+        "publication_year": 2020,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 44,
+        "primary_location": {
+          "source": {
+            "display_name": "Coatings Technology Review",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363018",
+        "doi": "https://doi.org/10.0000/synth363.018",
+        "title": "Diminishing returns in surface texture optimization",
+        "abstract_inverted_index": {
+          "Gains": [
+            0
+          ],
+          "from": [
+            1
+          ],
+          "surface": [
+            2
+          ],
+          "texture": [
+            3
+          ],
+          "optimization": [
+            4
+          ],
+          "show": [
+            5
+          ],
+          "diminishing": [
+            6
+          ],
+          "returns": [
+            7
+          ],
+          "and": [
+            8
+          ],
+          "sit": [
+            9
+          ],
+          "close": [
+            10
+          ],
+          "to": [
+            11
+          ],
+          "the": [
+            12
+          ],
+          "physical": [
+            13
+          ],
+          "ceiling": [
+            14
+          ],
+          "for": [
+            15
+          ],
+          "this": [
+            16
+          ],
+          "approach.": [
+            17
+          ]
+        },
+        "publication_year": 2021,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 19,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Surface Engineering",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "scurve_headroom": {
+    "meta": {
+      "count": 17,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363019",
+        "doi": "https://doi.org/10.0000/synth363.019",
+        "title": "Early stage acoustic treatment shows large headroom",
+        "abstract_inverted_index": {
+          "Measured": [
+            0
+          ],
+          "performance": [
+            1
+          ],
+          "of": [
+            2
+          ],
+          "acoustic": [
+            3
+          ],
+          "treatment": [
+            4
+          ],
+          "remains": [
+            5
+          ],
+          "far": [
+            6
+          ],
+          "below": [
+            7
+          ],
+          "the": [
+            8
+          ],
+          "theoretical": [
+            9
+          ],
+          "maximum": [
+            10
+          ],
+          "and": [
+            11
+          ],
+          "improves": [
+            12
+          ],
+          "steeply": [
+            13
+          ],
+          "with": [
+            14
+          ],
+          "each": [
+            15
+          ],
+          "design": [
+            16
+          ],
+          "iteration.": [
+            17
+          ],
+          "Large": [
+            18
+          ],
+          "headroom": [
+            19
+          ],
+          "remains.": [
+            20
+          ]
+        },
+        "publication_year": 2023,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 7,
+        "primary_location": {
+          "source": {
+            "display_name": "Emerging Water Technology Letters",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363020",
+        "doi": "https://doi.org/10.0000/synth363.020",
+        "title": "Steep improvement curve for pulsed flow cleaning",
+        "abstract_inverted_index": {
+          "Pulsed": [
+            0
+          ],
+          "flow": [
+            1
+          ],
+          "cleaning": [
+            2
+          ],
+          "shows": [
+            3
+          ],
+          "a": [
+            4
+          ],
+          "steep": [
+            5
+          ],
+          "improvement": [
+            6
+          ],
+          "curve": [
+            7
+          ],
+          "with": [
+            8
+          ],
+          "no": [
+            9
+          ],
+          "sign": [
+            10
+          ],
+          "of": [
+            11
+          ],
+          "saturation": [
+            12
+          ],
+          "across": [
+            13
+          ],
+          "five": [
+            14
+          ],
+          "design": [
+            15
+          ],
+          "generations.": [
+            16
+          ]
+        },
+        "publication_year": 2024,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 3,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Process Innovation",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "diffusion_adoption": {
+    "meta": {
+      "count": 52,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363021",
+        "doi": "https://doi.org/10.0000/synth363.021",
+        "title": "Adoption of dual use sensing technology across civil and defense users",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "trace": [
+            1
+          ],
+          "the": [
+            2,
+            18,
+            22
+          ],
+          "adoption": [
+            3,
+            25
+          ],
+          "of": [
+            4,
+            17,
+            24
+          ],
+          "a": [
+            5
+          ],
+          "dual": [
+            6
+          ],
+          "use": [
+            7
+          ],
+          "sensing": [
+            8
+          ],
+          "technology": [
+            9
+          ],
+          "across": [
+            10
+          ],
+          "civil": [
+            11
+          ],
+          "and": [
+            12
+          ],
+          "defense": [
+            13
+          ],
+          "users.": [
+            14
+          ],
+          "Absorptive": [
+            15
+          ],
+          "capacity": [
+            16
+          ],
+          "adopting": [
+            19
+          ],
+          "organization": [
+            20
+          ],
+          "predicted": [
+            21
+          ],
+          "order": [
+            23
+          ],
+          "better": [
+            26
+          ],
+          "than": [
+            27
+          ],
+          "price.": [
+            28
+          ]
+        },
+        "publication_year": 2019,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 61,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Technology Diffusion",
+            "is_in_doaj": true
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363022",
+        "doi": "https://doi.org/10.0000/synth363.022",
+        "title": "Organizational capacity and the timing of technology uptake",
+        "abstract_inverted_index": {
+          "Organizational": [
+            0
+          ],
+          "capital": [
+            1
+          ],
+          "and": [
+            2
+          ],
+          "financial": [
+            3
+          ],
+          "intensity": [
+            4
+          ],
+          "jointly": [
+            5
+          ],
+          "shaped": [
+            6
+          ],
+          "the": [
+            7
+          ],
+          "timing": [
+            8
+          ],
+          "of": [
+            9
+          ],
+          "uptake": [
+            10
+          ],
+          "for": [
+            11
+          ],
+          "a": [
+            12
+          ],
+          "deep": [
+            13
+          ],
+          "technology.": [
+            14
+          ],
+          "Early": [
+            15
+          ],
+          "adopters": [
+            16
+          ],
+          "were": [
+            17
+          ],
+          "those": [
+            18
+          ],
+          "with": [
+            19
+          ],
+          "existing": [
+            20
+          ],
+          "integration": [
+            21
+          ],
+          "capacity.": [
+            22
+          ]
+        },
+        "publication_year": 2021,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 38,
+        "primary_location": {
+          "source": {
+            "display_name": "Innovation Studies Quarterly",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9363023",
+        "doi": "https://doi.org/10.0000/synth363.023",
+        "title": "Crossing from defense to civil markets: a diffusion case",
+        "abstract_inverted_index": {
+          "The": [
+            0
+          ],
+          "crossing": [
+            1
+          ],
+          "from": [
+            2
+          ],
+          "defense": [
+            3
+          ],
+          "to": [
+            4
+          ],
+          "civil": [
+            5
+          ],
+          "markets": [
+            6
+          ],
+          "took": [
+            7
+          ],
+          "eleven": [
+            8
+          ],
+          "years": [
+            9
+          ],
+          "and": [
+            10
+          ],
+          "followed": [
+            11
+          ],
+          "an": [
+            12
+          ],
+          "S": [
+            13
+          ],
+          "shaped": [
+            14
+          ],
+          "adoption": [
+            15
+          ],
+          "curve": [
+            16
+          ],
+          "after": [
+            17
+          ],
+          "regulation": [
+            18
+          ],
+          "changed.": [
+            19
+          ]
+        },
+        "publication_year": 2022,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 15,
+        "primary_location": {
+          "source": {
+            "display_name": "Technology Transfer Review",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  },
+  "retracted_one": {
+    "meta": {
+      "count": 1,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9363024",
+        "doi": "https://doi.org/10.0000/synth363.024",
+        "title": "Retracted report of complete biofilm elimination by sound",
+        "abstract_inverted_index": {
+          "We": [
+            0
+          ],
+          "report": [
+            1
+          ],
+          "complete": [
+            2
+          ],
+          "biofilm": [
+            3
+          ],
+          "elimination": [
+            4
+          ],
+          "by": [
+            5
+          ],
+          "sound": [
+            6
+          ],
+          "at": [
+            7
+          ],
+          "low": [
+            8
+          ],
+          "power.": [
+            9
+          ],
+          "The": [
+            10
+          ],
+          "reported": [
+            11
+          ],
+          "data": [
+            12
+          ],
+          "were": [
+            13
+          ],
+          "later": [
+            14
+          ],
+          "withdrawn.": [
+            15
+          ]
+        },
+        "publication_year": 2018,
+        "type": "article",
+        "is_retracted": true,
+        "cited_by_count": 140,
+        "primary_location": {
+          "source": {
+            "display_name": "Journal of Applied Water Science",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  }
+}
