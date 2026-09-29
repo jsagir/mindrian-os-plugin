@@ -195,9 +195,13 @@ leg('frontmatter: web_scope white, Task pre-approved, autonomous_safe true, hitl
 // ============================================================================
 // Leg 2: frontmatter values that must stay exactly as they were.
 // ============================================================================
-leg('frontmatter: frameworks, sensor_triggers, filing, reach_id, sub_mode unchanged', () => {
+leg('frontmatter: frameworks, filing, reach_id, sub_mode unchanged; sensor_triggers per quick-260923-u8v', () => {
   assert.strictEqual(extractTopScalar(fm, 'frameworks'), '["Dominant Design"]', 'frameworks must be unchanged');
-  assert.strictEqual(extractNestedScalar(connectorBlock, 'sensor_triggers'), '[SENS-06]', 'connector.sensor_triggers must be unchanged');
+  // SENS-09 was added on purpose by quick-260923-u8v (commit 8c6771ef5,
+  // "SENS-09 surfaces Dominant Design on Theo ch04 tells") after 361-07
+  // pinned the pre-phase value; this pin tracks that ruling, and every other
+  // value in this leg is still pre-phase.
+  assert.strictEqual(extractNestedScalar(connectorBlock, 'sensor_triggers'), '[SENS-06, SENS-09]', 'connector.sensor_triggers must be [SENS-06, SENS-09]');
   assert.strictEqual(extractNestedScalar(connectorBlock, 'filing'), 'fileEvidenceWithReadback', 'connector.filing must be unchanged');
   assert.strictEqual(extractNestedScalar(connectorBlock, 'reach_id'), 'context_block', 'connector.reach_id must be unchanged');
   assert.strictEqual(extractNestedScalar(connectorBlock, 'sub_mode'), 'dominant-design', 'connector.sub_mode must be unchanged');
