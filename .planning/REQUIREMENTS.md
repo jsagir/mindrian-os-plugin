@@ -3318,13 +3318,13 @@ stated reason, at phase close by `361-08-PLAN.md` Task 3.
       evidence row states, and records `structure_source` and `structure_source_reason` (D-07,
       D-09). Plan 361-07.
 
-- [x] **DDR361-09**: The Dominant Design structure is read from Theo (`framework_step`,
+- [x] **DDR361-09**: The Dominant Design structure is read from Theo (`framework_step`, Amended 2026-09-29 (UAT gap closure 361-09/361-10): Theo 20.1-04 published case_story as exactly one of `case_name` or `framework_name`, so the case_story call sends `{framework_name: "Dominant Design"}` (framework_step and framework_techniques still send `{framework: "Dominant Design"}`), never a case name; a case_story answer with no case is reason `no_case_in_canon` with no cases.
       `framework_techniques`, `case_story`) with ONLY `{framework: "Dominant Design"}` and falls
       back to the local reference on brain unavailable, egress blocked, not served (detected by the
       text `Tool X not found`, never by -32602 alone), shape refused, or served with zero steps,
       naming the source and the reason (D-09, D-15, D-16). Plans 361-05, 361-06, 361-08.
 
-- [x] **DDR361-10**: `_proveKnownToolShape` gains three separate arms (`framework_step`,
+- [x] **DDR361-10**: `_proveKnownToolShape` gains three separate arms (`framework_step`, Amended 2026-09-29 (UAT gap closure 361-09): the case_story arm now matches Theo 20.1-04's exactly-one-of input, `framework_name` proven as a canonical framework handle and `case_name` proven as a safe free label (the find_connections rule) within Theo's name charset; both keys together, or the retired `{framework}` key, are not allowed; tests/test-361-theo-parity.cjs Leg 4a-4d pins the contract.
       `framework_techniques`, `case_story`) after the `recommend_chain` arm, proving exact keys and
       a canonical framework handle; no 361 commit changes the `find_connections` arm; Theo
       input-shape parity is tested read-only against the Theo checkout (D-10, D-14, D-15). Plans
@@ -3608,9 +3608,53 @@ is the scope contract.
       `tests/test-3551-*.cjs` files registered in `lib/memory/run-feynman-tests.cjs`'s `TEST_FILES`
       (355.1-15).
 
+### Phase 362 - Card gate text-dependent relevance false block (CARD362 family)
+
+CARD362-01..06 were minted in the Phase 362 plan set (2026-09-29), one per concrete requirement in
+`362-CONTEXT.md` D-01..D-05 (no SPEC and no RESEARCH were produced: research was skipped because the
+evidence already sits on disk in the Phase 357 replay corpus), scoped to Phase 362 only, and are
+registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open or marked
+not applicable with a stated reason, at phase close by `362-03-PLAN.md` Task 2. Execution is held
+until Phase 359 plans 07-10 are on `main` (D-01).
+
+- [ ] **CARD362-01**: Execution passes a hard gate before anything else runs: the 359-07..10 SUMMARY
+      files exist and are tracked, every commit they name is an ancestor of HEAD, and the card-gate
+      runtime and replay files carry no uncommitted diff; on any failed check the phase halts as
+      "blocked on 359" with zero repo edits (D-01). Plan 362-01.
+
+- [ ] **CARD362-02**: The first execution step replays `dogfood-0f86dd63-092046` through the 357
+      harness on both surfaces on post-359 code, and `362-REPLAY.md` records the verdict
+      (STILL_FALSE_BLOCKS or RESOLVED_BY_359) with the entry result, the pre-359 verdict and the
+      full-corpus counts; RESOLVED_BY_359 closes the phase with no gate code change (D-02).
+      Plan 362-01.
+
+- [ ] **CARD362-03**: When the entry still false-blocks, every D-03 candidate structured signal
+      (continuity-turn metadata, reach timing and consumption, token provenance extending the D-08a
+      chrome strip, relevance against 359 declared options) is measured against the full replay
+      corpus and its 12 anti-vacuity fixtures, and `362-SIGNALS.md` names the smallest signal that
+      clears the entry with zero new misses, or NONE; no user-side word list, no text understanding,
+      no Jev, no egress (D-03). Plan 362-02.
+
+- [ ] **CARD362-04**: The entry's disposition matches the measurement. With a signal: it lands
+      RED-first inside the existing relevance path, the entry's `known_false_block` annotation is
+      removed so it becomes a hard regression leg, the single verdict flip is ratified by id in the
+      359 inertness gate, and a 362 mutation leg proves that reverting the signal reproduces the
+      FALSE_BLOCK. With NONE: the entry stays `known_false_block` with a text-dependence reason that
+      cites the 362 measurement, excluded from the 0 bar exactly as R-C (D-03, D-04). Plan 362-02.
+
+- [ ] **CARD362-05**: After the phase the standing bar holds on both surfaces: replay false_blocks 0,
+      new_misses 0 and parity 0; every entry other than a ratified flip keeps its pre-362 verdict;
+      the 12 anti-vacuity fixtures still block; the 357 mutation leg and the 359 inertness, replay
+      and mutation legs pass; `tests/run-all-362.sh` aggregates them (D-05). Plans 362-02, 362-03.
+
+- [ ] **CARD362-06**: The 0f86dd63 outcome is recorded as exactly one of resolved-by-359,
+      fixed-by-signal (naming the signal) or residual known_false_block, and the reasoning trail is
+      filed in both research homes, cross-linked to `362-CONTEXT.md` (D-05, CLAUDE.md Dev-Research
+      Compositing). Plan 362-03.
+
 ## Traceability
 
-392 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+398 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3621,7 +3665,8 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
-plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1). HIPS-01..10 were minted in the
+plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362).
+HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18
 dev-time measurements and the phase gate, and are registered here at phase close by
@@ -3717,11 +3762,15 @@ DDR361-01..13 were minted in the Phase 361 plan set (2026-09-23), ratifying `361
 proposed family as amended by the navigator rulings D-11..D-17 in `361-CONTEXT.md`; all thirteen are
 registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open with a
 stated reason, at phase close by `361-08-PLAN.md` Task 3.
-Roadmap phases must map all 373 active requirements with no orphans.
+CARD362-01..06 were minted in the Phase 362 plan set (2026-09-29), one per concrete requirement in
+`362-CONTEXT.md` D-01..D-05; all six are registered here at plan time as `- [ ]` rows to be closed
+with measured proof, or left open or marked not applicable with a stated reason, at phase close by
+`362-03-PLAN.md` Task 2.
+Roadmap phases must map all 398 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
 FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361,
-HIPS and AMB
+HIPS, AMB and CARD362
 families
 alike (the
 Phase 266 and 269

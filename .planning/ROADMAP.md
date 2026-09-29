@@ -1368,13 +1368,23 @@ Plans:
 
 **Goal:** Close the one known_false_block Phase 357 left open (replay entry dogfood-0f86dd63-092046: a single overlapping token on a human continuity turn false-blocked the card). Replay it on post-359 code first; if still false-blocking, fix with structured signals only (turn metadata, token provenance, 359 declared options; no text understanding, no Jev in hooks), else record residual known_false_block with evidence. 357 false_blocks = 0 bar holds. Context: `362-CONTEXT.md`.
 **Execution gate:** starts only after Phase 359 plans 07-10 are on main (navigator ruling 2026-09-29).
-**Requirements**: TBD
+**Requirements**: CARD362-01..CARD362-06 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-09-29)
 **Depends on:** Phase 361
-**Plans:** 0 plans
+**Plans:** 3 plans in 3 waves (execution gated on 359-07..10 by 362-01 Task 1)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 362 to break down)
+**Wave 1**
+
+- [ ] 362-01-PLAN.md -- D-01 hard execution gate (359-07..10 SUMMARY files tracked, every named commit an ancestor of HEAD, gate files clean; else BLOCKED ON 359 with zero writes), then the D-02 post-359 replay of dogfood-0f86dd63-092046 on both surfaces, verdict in 362-REPLAY.md
+
+**Wave 2**
+
+- [ ] 362-02-PLAN.md -- only on STILL_FALSE_BLOCKS: pre-362 snapshot, dev-only measurement of the D-03 structured signals (continuity metadata, reach timing and consumption, token provenance, 359 declared options) against the corpus and its 12 anti-vacuity fires, SIGNAL verdict in 362-SIGNALS.md, then the RED-first disposition (mutation-proven signal with the flip ratified in 359 inertness, or residual known_false_block per D-04)
+
+**Wave 3**
+
+- [ ] 362-03-PLAN.md -- tests/run-all-362.sh standing gate (357 bar, 357 and 359 mutation legs, 359 inertness, anti-vacuity, CIRS, em-dash guard), CARD362 rows closed with proof, outcome recorded (resolved-by-359, fixed-by-signal or residual), research trail filed in both homes
 
 ### Phase 363: Deep Research Planner - quick and deep research runs, built on the MCP intelligence services (promotes SEED-097)
 
