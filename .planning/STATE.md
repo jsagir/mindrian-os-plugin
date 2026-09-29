@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: ready_to_plan
-stopped_at: "Phase 363 context gathered (D-00..D-07: PWS commands become research planners, quick/deep, research grant)"
-last_updated: "2026-09-29T05:46:53.276Z"
-last_activity: 2026-09-29 -- Phase 363 added (promotes SEED-097) and discussed; context captured
+status: executing
+stopped_at: "Completed 363-01-PLAN.md - pre-phase baseline, run-all-363 aggregator, D-06 rubric, Semantic Scholar RCA"
+last_updated: "2026-09-29T15:14:03.126Z"
+last_activity: 2026-09-29 -- 363-01 complete; quick 260929-obr (plurai evals retired to Jev) complete
 progress:
   total_phases: 114
-  completed_phases: 43
-  total_plans: 435
-  completed_plans: 412
-  percent: 95
+  completed_phases: 44
+  total_plans: 462
+  completed_plans: 418
+  percent: 90
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 355 — hidden-in-plain-sight-jev-through-theo-cross-connection-engi
+**Current focus:** Phase 363 — deep-research-planner-quick-and-deep-runs
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,8 +5423,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 355 (hidden-in-plain-sight-jev-through-theo-cross-connection-engi) — EXECUTING
-Plan: 3 of 28
+Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
+Plan: 2 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
@@ -5865,7 +5865,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-23 -- Phase 355 execution started
+Last activity: 2026-09-29 -- Phase 363 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -9007,6 +9007,7 @@ Progress: [█████████░] 92%
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
+| 260929-obr | Retire plurai live eval legs; route live judging through Jev (211/212 legs, exit-77 skip, transcript judges retired, baselines no longer rewritten) | 2026-09-29 | 4eaff427a | Complete (3 pre-existing reds noted: part8 guard ambiguous, 212-03, 192-01) | [260929-obr-retire-plurai-eval-legs-to-jev](./quick/260929-obr-retire-plurai-eval-legs-to-jev/) |
 | 260927-vfu | SEED-097: live Theo check of Scientific Roadmapping (data present, typed step seam null, D1-D6) + Theo-side authoring requirement; plant SEED-098 roadmapping command (binds find-bottlenecks/dominant-designs/explore-futures, mid-journey entry) | 2026-09-27 | c626a5160 | Complete (seed-only; technique names withheld as Brain IP) | [260927-vfu-seed-097-theo-scientific-roadmapping-che](./quick/260927-vfu-seed-097-theo-scientific-roadmapping-che/) |
 | 260923-u8v | Teach Larry when to reach for /mos:dominant-designs: SENS-09 dominant-design branch on Theo ch04 tells (ferment, locked, convergence), dispatch map entry, SKILL section, 67-assertion test | 2026-09-23 | 8c6771ef5 | Complete (67/67; pre-existing REDs unchanged) | [260923-u8v-teach-larry-when-to-reach-for-dominant-d](./quick/260923-u8v-teach-larry-when-to-reach-for-dominant-d/) |
 | 260920-bhx | Localhost workspace rethought review and isolated browser audit | 2026-09-20 | 61c0fe266 | Report verified; implementation unbuilt | [260920-bhx-localhost-review](./quick/260920-bhx-localhost-review/) |

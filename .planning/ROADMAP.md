@@ -1395,13 +1395,13 @@ Plans:
 **Depends on:** Phase 355.1 (released in v2.0.0-beta.51). Feeds SEED-098 (Scientific Roadmapping) through its Theo-side authoring requirement.
 **Reuse check (Canon Part 7), first thing in discuss:** the existing surfaces that already reach outward - `/mos:research`, the `mos:research` agent, `/mos:dominant-designs` research mode (Phase 361), `/mos:find-analogies --external`, `/mos:diffusion` (the dual-use diffusion lens, D-19), `rs-query-matrix.cjs`, `eureka/online-pattern-query.cjs`, the OpenAlex adapter. The planner orchestrates them; it does not become a second research stack.
 **Open discuss decisions:** (1) what separates a quick run from a deep run (depth, breadth, budget, iteration count, who triggers it); (2) approval mode per run type - e.g. quick may run under a standing audited policy while deep needs a reviewed plan, or both need exact-string approval; (3) where the plan lives and whether the navigator can edit it before a deep run starts; (4) SEED-097 open decision 6 (Roadmapping direction and well-defined coverage).
-**Plans:** 22 plans in 9 waves (human checkpoints: 363-21 D-06 rubric review, 363-22 research-trail routing)
+**Plans:** 1/22 plans executed
 
 Plans:
 
 **Wave 1** *(foundations and the D-16 blockers)*
 
-- [ ] 363-01-PLAN.md -- pre-phase baseline fixture and test, tests/run-all-363.sh written once (run_if / run_known / no-new-dependency / em-dash legs), 363-D06-RUBRIC.md, Semantic Scholar ungated-egress follow-on RCA
+- [x] 363-01-PLAN.md -- pre-phase baseline fixture and test, tests/run-all-363.sh written once (run_if / run_known / no-new-dependency / em-dash legs), 363-D06-RUBRIC.md, Semantic Scholar ungated-egress follow-on RCA
 - [ ] 363-02-PLAN.md -- two-section cohort fixture room (planted Part 8 marker, role and timing variants) and the routed OpenAlex replay with 429/500/timeout/network sentinels
 - [ ] 363-03-PLAN.md -- D-16: OpenAlex failures never empty_valid; Bearer API key, meta.count and budget headers, quoted phrases unchanged, retraction flag
 - [ ] 363-04-PLAN.md -- D-16: the research cache stores counts and budget meta; fetchSourceCached exported; versioned openalex-v2 namespace

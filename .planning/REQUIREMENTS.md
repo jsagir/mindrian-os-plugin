@@ -3717,7 +3717,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       originating card or node id, result ids and content hashes, and valid-empty versus
       provider-failure. It never egresses and never holds the API key (D-04). Plan 363-09.
 
-- [ ] **DRP363-06**: Corpus honesty (D-16): an OpenAlex HTTP 429, 500, timeout or network error is
+- [x] **DRP363-06**: Corpus honesty (D-16): an OpenAlex HTTP 429, 500, timeout or network error is
       never typed `empty_valid`; `meta.count`, cost and remaining budget are carried on the
       envelope and in the cache under a versioned source key; the optional `OPENALEX_API_KEY` goes
       in an `Authorization: Bearer` header and never reaches a URL, log, telemetry record, cache
@@ -3773,7 +3773,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       classified room rung, and the weakest branch picks the next framework through FEEDS_INTO and
       `commandsForFramework`. Plans 363-10, 363-06.
 
-- [ ] **DRP363-13**: First-wave command research-planner modes (`/mos:map-unknowns`,
+- [x] **DRP363-13**: First-wave command research-planner modes (`/mos:map-unknowns`,
       `/mos:root-cause`, `/mos:whitespace`, `/mos:think-hats`, `/mos:diffusion`) emit a question set through the
       question-set contract and hand it to the one runner; each command's existing flow, including
       the "Quick pass or deep dive?" line, is byte-preserved; the research modes are named "quick
@@ -3797,7 +3797,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       with zero egress, the evidence card is written unfiled, and deep runs never start there
       (D-03, D-05, D-10). Plan 363-16.
 
-- [ ] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
+- [x] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
       modes offline on replay fixtures, and live in a smoke test that exits 77 as ENV GAP without
       network or budget; the floor ledger records measured latency and yield; and a
       `/mos:map-unknowns` research plan is reviewed by a human against the written rubric
@@ -3810,7 +3810,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       string that may leave the machine is an approved, audited query string, and it appears only
       in the outbound request and the audit ledger. Plans 363-02, 363-20.
 
-- [ ] **DRP363-18**: Learn only, rebuild natively (D-01): no runtime dependency, sidecar or MCP wrap of
+- [x] **DRP363-18**: Learn only, rebuild natively (D-01): no runtime dependency, sidecar or MCP wrap of
       any open-source deep-research project, zero new npm dependencies (`package.json` and
       `npm-shrinkwrap.json` dependency sets unchanged), and every borrowed pattern is attributed
       with its project and license in `lib/core/research-planner/CONTEXT.md`. Plans 363-05,
