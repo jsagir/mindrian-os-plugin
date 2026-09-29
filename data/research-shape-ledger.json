@@ -1,0 +1,709 @@
+{
+  "built_from": {
+    "captured_at": "2026-09-29T17:38:52.347Z",
+    "snapshot_schema": "mos.graph-snapshot/1",
+    "source": "neo4j_direct"
+  },
+  "content_gaps": [
+    "Logic Trees steps carry no key_question or gates in the graph (null)",
+    "Six Thinking Hats holds 11 process steps in the graph; not captured (edges-only framework)",
+    "Techniques for Logic Trees: none in the graph",
+    "Alias edges are ALIAS_OF from alias Framework nodes into the canonical Framework"
+  ],
+  "diffusion_set": [
+    "Adoption-Capacity Theory",
+    "Dual-Use Technology",
+    "Diffusion of Innovations (Rogers)",
+    "Diffusion Theory",
+    "Law of Diffusion of Innovation"
+  ],
+  "frameworks": {
+    "Adoption-Capacity Theory": {
+      "aliases": [],
+      "complements": [
+        "Hooked Model"
+      ],
+      "fed_by": [
+        "Dominant Design",
+        "PEST Analysis",
+        "Reverse Salient Analysis",
+        "S-Curve Analysis",
+        "Macro Trends",
+        "PEST",
+        "Sustaining vs Disruptive Innovation"
+      ],
+      "feeds_into": [
+        "Mullins Model",
+        "PWS Triple Validation Compass",
+        "Scenario Planning",
+        "Ansoff Matrix",
+        "John Mullins Framework",
+        "Now, New, Next",
+        "Self-Selling Loop"
+      ],
+      "prerequisite": [],
+      "problem_types": [
+        "IllDefined",
+        "WellDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Adversarial Research Protocol": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Diffusion Theory": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Diffusion of Innovations (Rogers)": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [
+        "S-Curve Analysis"
+      ],
+      "prerequisite": [],
+      "problem_types": [
+        "IllDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Dual-Use Technology": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [
+        "IllDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "HSI Semantic Surprise Analysis Assistant": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [
+        "Reverse Salient Analysis",
+        "Domain Selection"
+      ],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Herbert Simon The Sciences of the Artificial": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Hypothesis-Driven Problem Solving": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [
+        "Six Thinking Hats",
+        "The Pyramid Principle",
+        "Black Hat Analysis",
+        "Green Hat Analysis",
+        "Scientific Roadmapping"
+      ],
+      "feeds_into": [
+        "Red Teaming"
+      ],
+      "prerequisite": [],
+      "problem_types": [
+        "WellDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Knowns and Unknowns Matrix Framework": {
+      "aliases": [],
+      "complements": [
+        "Cynefin-Informed Sequential Innovation Discovery",
+        "Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy"
+      ],
+      "fed_by": [
+        "Scenario Planning",
+        "Shell Scenario Planning Method"
+      ],
+      "feeds_into": [
+        "Cynefin Framework"
+      ],
+      "prerequisite": [],
+      "problem_types": [
+        "UnDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Law of Diffusion of Innovation": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Logic Trees (Issue, Hypothesis, Decision)": {
+      "aliases": [
+        "Logic Trees"
+      ],
+      "complements": [],
+      "fed_by": [
+        "Theory of Change"
+      ],
+      "feeds_into": [],
+      "prerequisite": [
+        "MECE (Mutually Exclusive, Collectively Exhaustive)"
+      ],
+      "problem_types": [],
+      "steps": [
+        {
+          "gates": [],
+          "key_question": null,
+          "name": "Choose tree type based on problem",
+          "order": 1
+        },
+        {
+          "gates": [],
+          "key_question": null,
+          "name": "Apply MECE principle at each level",
+          "order": 2
+        },
+        {
+          "gates": [],
+          "key_question": null,
+          "name": "Break down until actionable",
+          "order": 3
+        },
+        {
+          "gates": [],
+          "key_question": null,
+          "name": "Prioritize branches by impact",
+          "order": 4
+        },
+        {
+          "gates": [],
+          "key_question": null,
+          "name": "Prune low-value branches",
+          "order": 5
+        }
+      ],
+      "techniques": [],
+      "theo_gap": null
+    },
+    "Research Validation and Early Business Framing": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Root Cause Analysis": {
+      "aliases": [],
+      "complements": [
+        "Six Thinking Hats",
+        "Cynefin Framework"
+      ],
+      "fed_by": [
+        "Causal Loop Diagrams"
+      ],
+      "feeds_into": [
+        "Systems Thinking",
+        "Problem Definition Transformation Framework"
+      ],
+      "prerequisite": [
+        "Causal Loop Diagrams"
+      ],
+      "problem_types": [
+        "WellDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Scientific Method": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    },
+    "Scientific Roadmapping": {
+      "aliases": [
+        "Roadmapping",
+        "Technology Roadmapping",
+        "Field Roadmapping",
+        "Tech Tree Mapping"
+      ],
+      "complements": [
+        "Problem Typology Framework / The Taxonomy of Problems",
+        "Reverse Salient Analysis",
+        "Hypothesis-Driven Problem Solving",
+        "Scenario Planning for High Uncertainty"
+      ],
+      "fed_by": [
+        "Problem Typology Framework / The Taxonomy of Problems",
+        "S-Curve Analysis",
+        "Problem Taxonomy (Search Gradient)",
+        "The Innovation Landscape"
+      ],
+      "feeds_into": [
+        "Reverse Salient Analysis",
+        "Hypothesis-Driven Problem Solving",
+        "PWS Value Proposition",
+        "Three-Horizon Framework"
+      ],
+      "prerequisite": [
+        "Problem Taxonomy (Search Gradient)"
+      ],
+      "problem_types": [
+        "UnDefined",
+        "IllDefined",
+        "Wicked"
+      ],
+      "step_loop": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "gates": [
+            "F.1 Tension Gate"
+          ],
+          "key_question": "Is this physically possible, plainly impactful, and still regarded by serious people as out of reach?",
+          "name": "Tension Qualification",
+          "order": 1
+        },
+        {
+          "gates": [],
+          "key_question": "Is success unambiguously measurable, and can the goal be decomposed into necessary or sufficient conditions?",
+          "name": "Goal Quantification",
+          "order": 2
+        },
+        {
+          "gates": [
+            "F.2 Rung Gate"
+          ],
+          "key_question": "Am I reaching for a Technical Roadmap because this domain has a physics, or because it feels more rigorous?",
+          "name": "Rung Placement and Type Selection",
+          "order": 3
+        },
+        {
+          "gates": [],
+          "key_question": "Who has to be in the room before the question can even be posed correctly?",
+          "name": "Forum Construction",
+          "order": 4
+        },
+        {
+          "gates": [],
+          "key_question": "Are these approaches mutually exclusive and collectively exhaustive?",
+          "name": "Path Enumeration",
+          "order": 5
+        },
+        {
+          "gates": [],
+          "key_question": "Is this constraint truly fundamental, or has the field simply never attacked it?",
+          "name": "Constraint Interrogation",
+          "order": 6
+        },
+        {
+          "gates": [
+            "F.3 Catalytic Gate"
+          ],
+          "key_question": "If this one domino falls, how many fall after it?",
+          "name": "Catalytic Ranking",
+          "order": 7
+        }
+      ],
+      "techniques": [
+        "MECE Decomposition",
+        "Productive Tension Test",
+        "Quantified Stretch Goal",
+        "Rung Placement",
+        "Participant Casting",
+        "Trading Zone Construction",
+        "Boundary Object Design",
+        "Polyvocal Synthesis",
+        "10X Resurvey",
+        "Un-Impossible Decomposition",
+        "Fundamental-vs-Assumed Test",
+        "Domino Counting"
+      ],
+      "theo_gap": null
+    },
+    "Six Thinking Hats": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [
+        "Systems Thinking",
+        "BONO-Innovation Framework",
+        "Causal Loop Diagrams",
+        "Resulting",
+        "Wicked Problem Detection Framework",
+        "Psychological Safety"
+      ],
+      "feeds_into": [
+        "Red Hat Analysis",
+        "Beautiful Question Framework",
+        "Red Teaming",
+        "Systems Thinking",
+        "Black Hat Analysis",
+        "Green Hat Analysis",
+        "Hypothesis-Driven Problem Solving",
+        "PWS Value Proposition",
+        "White Hat Analysis",
+        "Yellow Hat Analysis",
+        "Blue Hat Thinking",
+        "Emotional Intelligence in Leadership"
+      ],
+      "prerequisite": [],
+      "problem_types": [
+        "IllDefined",
+        "Wicked"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": null
+    },
+    "The Pyramid Principle": {
+      "aliases": [
+        "Minto Pyramid",
+        "Neo4j-Powered Pyramid Logic Assessment Framework"
+      ],
+      "complements": [],
+      "fed_by": [
+        "MECE (Mutually Exclusive, Collectively Exhaustive)",
+        "PWS Pitch-Craft Distillation",
+        "Neo4j-Powered Pyramid Logic Assessment Framework"
+      ],
+      "feeds_into": [
+        "Hypothesis-Driven Problem Solving",
+        "Problem Definition Transformation Framework"
+      ],
+      "prerequisite": [
+        "MECE (Mutually Exclusive, Collectively Exhaustive)"
+      ],
+      "problem_types": [
+        "WellDefined"
+      ],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "zero_steps"
+    }
+  },
+  "ip_ruling": "IP ruling 2026-09-17: names, edges, short lines only; no descriptions; strings capped at 140 characters.",
+  "problem_types": {
+    "IllDefined": {
+      "frameworks": [
+        "Ackoff Pyramid",
+        "Adoption-Capacity Theory",
+        "Dominant Design",
+        "Jobs to Be Done (JTBD)",
+        "Red Teaming",
+        "Reverse Salient Analysis",
+        "S-Curve Analysis",
+        "Scenario Planning",
+        "Six Thinking Hats",
+        "Systems Thinking",
+        "Algorithmic Generation of Reverse Salient Solutions",
+        "BONO-Innovation Framework",
+        "Beautiful Questions Bias Detection",
+        "Black Hat Analysis",
+        "Business Model Canvas",
+        "Causal Loop Diagrams",
+        "Challenging Orthodoxies",
+        "Changing Terms of Competition",
+        "Continuous Discovery",
+        "Creative Destruction",
+        "Cross-Disciplinary Thinking",
+        "Design Thinking",
+        "Diffusion of Innovations (Rogers)",
+        "Disruptive Innovation",
+        "Diverge-Converge Model",
+        "Dual-Use Technology",
+        "Feedback loops",
+        "Green Hat Analysis",
+        "Hierarchy Mapping",
+        "Innovation of Meaning",
+        "Invention Disclosure Strategic Framework",
+        "Macro-Changes",
+        "Nested Hierarchies",
+        "PWS Value Proposition",
+        "PWS-Bias Devil's Advocate Agent",
+        "PWS-JTBD Innovation Discovery Framework",
+        "Pain Points",
+        "Platform Thinking",
+        "Portfolio Approach",
+        "Problem Taxonomy (Search Gradient)",
+        "Process Mapping",
+        "Process Mapping for Innovation",
+        "Reverse Salients identification",
+        "Risk Assessment",
+        "Sustaining vs Disruptive Innovation",
+        "Tools vs Platforms Innovation",
+        "Trending to the Absurd",
+        "User Journey Mapping",
+        "Wicked Problem Detection Framework",
+        "Yellow Hat Analysis",
+        "Scientific Roadmapping"
+      ]
+    },
+    "UnDefined": {
+      "frameworks": [
+        "Ackoff Pyramid",
+        "Beautiful Question Framework",
+        "Dominant Design",
+        "Jobs to Be Done (JTBD)",
+        "Knowns and Unknowns Matrix Framework",
+        "PEST Analysis",
+        "Red Teaming",
+        "S-Curve Analysis",
+        "Scenario Planning",
+        "Usher's Model of Cumulative Synthesis",
+        "BONO-Innovation Framework",
+        "Beautiful Questions Bias Detection",
+        "Challenging Orthodoxies",
+        "Continuous Discovery",
+        "Cross-Disciplinary Thinking",
+        "Diverge-Converge Model",
+        "Domain Selection",
+        "Effectuation",
+        "Entrepreneurial Method",
+        "Four Lenses of Innovation",
+        "Invention Disclosure Strategic Framework",
+        "Macro-Changes",
+        "Nested Hierarchies",
+        "Opportunity Recognition as Pattern Recognition",
+        "Oracle Foresight Engine",
+        "PWS Methodology",
+        "PWS-JTBD Innovation Discovery Framework",
+        "PWS-Scenario Planning Integration Framework",
+        "Pain Points",
+        "Problem Exploration Framework",
+        "Problem Taxonomy (Search Gradient)",
+        "Process Mapping",
+        "Scenario Analysis Framework",
+        "Scenario Planning for High Uncertainty",
+        "Shell Scenario Planning Method",
+        "Trending to the Absurd",
+        "Scientific Roadmapping"
+      ]
+    },
+    "WellDefined": {
+      "frameworks": [
+        "Adoption-Capacity Theory",
+        "Jobs to Be Done (JTBD)",
+        "MECE (Mutually Exclusive, Collectively Exhaustive)",
+        "PWS Triple Validation Compass",
+        "Red Teaming",
+        "Reverse Salient Analysis",
+        "Root Cause Analysis",
+        "The Pyramid Principle",
+        "Ansoff Matrix",
+        "BONO-Innovation Framework",
+        "Business Model Canvas",
+        "Competitive Advantage",
+        "Five-Step Implementation Process",
+        "Fogg Behavior Model",
+        "Hypothesis-Driven Problem Solving",
+        "Invention Disclosure Strategic Framework",
+        "Opposite Plan",
+        "PWS Pitch-Craft Distillation",
+        "PWS Value Proposition",
+        "Problem Definition Transformation Framework",
+        "Problem Taxonomy (Search Gradient)",
+        "Process Mapping",
+        "Risk Assessment",
+        "Well-Defined Problem Framework",
+        "White Hat Analysis"
+      ]
+    },
+    "Wicked": {
+      "frameworks": [
+        "Scenario Planning",
+        "Six Thinking Hats",
+        "Systems Thinking",
+        "BONO-Innovation Framework",
+        "Causal Loop Diagrams",
+        "Cynefin Framework",
+        "Cynefin-Informed Sequential Innovation Discovery",
+        "Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy",
+        "Feedback loops",
+        "Invention Disclosure Strategic Framework",
+        "PWS Value Proposition",
+        "PWS-Bias Devil's Advocate Agent",
+        "Process Mapping",
+        "Stock and Flow Diagrams",
+        "Systems lens",
+        "Theory of Change",
+        "Wicked Problem Detection Framework",
+        "Scientific Roadmapping"
+      ]
+    }
+  },
+  "schema": "mos.research-shape-ledger/1",
+  "scientific_set": [
+    "Logic Trees (Issue, Hypothesis, Decision)",
+    "Hypothesis-Driven Problem Solving",
+    "Scientific Method",
+    "Adversarial Research Protocol",
+    "Research Validation and Early Business Framing",
+    "Herbert Simon The Sciences of the Artificial",
+    "Scientific Roadmapping"
+  ],
+  "shapes": {
+    "IllDefined": {
+      "default_mode": "deep",
+      "quick_when": "one_lens_named",
+      "shape": "independent_lens_fanout"
+    },
+    "UnDefined": {
+      "default_mode": "deep",
+      "shape": "landscape_scan"
+    },
+    "WellDefined": {
+      "default_mode": "quick",
+      "shape": "hypothesis_test"
+    },
+    "Wicked": {
+      "default_mode": "deep",
+      "shape": "systems_map",
+      "unresolved_valid": true
+    }
+  },
+  "template_frameworks": {
+    "diffusion": "Adoption-Capacity Theory",
+    "map-unknowns": "Knowns and Unknowns Matrix Framework",
+    "root-cause": "Root Cause Analysis",
+    "scientific-roadmapping": "Scientific Roadmapping",
+    "think-hats": "Six Thinking Hats",
+    "whitespace": "HSI Semantic Surprise Analysis Assistant"
+  },
+  "theo_gaps": [
+    {
+      "framework": "Adoption-Capacity Theory",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Adversarial Research Protocol",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Diffusion Theory",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Diffusion of Innovations (Rogers)",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Dual-Use Technology",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "HSI Semantic Surprise Analysis Assistant",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Herbert Simon The Sciences of the Artificial",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Hypothesis-Driven Problem Solving",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Knowns and Unknowns Matrix Framework",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Law of Diffusion of Innovation",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Research Validation and Early Business Framing",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Root Cause Analysis",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "Scientific Method",
+      "gap": "zero_steps"
+    },
+    {
+      "framework": "The Pyramid Principle",
+      "gap": "zero_steps"
+    }
+  ]
+}
