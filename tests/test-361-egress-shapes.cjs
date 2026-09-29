@@ -13,6 +13,15 @@
  * find_connections on purpose, per D-10 -- and that Phase 355's
  * find_connections arm is untouched, byte-for-byte, by every 361 commit.
  *
+ * 361-09 (gap closure, D-15 resolved): the case_story arm mirrors Theo
+ * 20.1-04's case-story.ts, which takes EXACTLY ONE OF case_name or
+ * framework_name (both optional at the wire, the handler refuses neither or
+ * both with EXACTLY_ONE_OF). framework_name is canonical-strict per D-10;
+ * case_name has no local closed vocabulary, so it is proven the same way
+ * find_connections proves its free from/to labels (_isSafeShortLabel) plus
+ * Theo's own FRAMEWORK_NAME_PATTERN charset. The retired D-15 {framework}
+ * guess and the both-keys shape Theo refuses are never allow.
+ *
  * Modeled on tests/test-260906-fda-known-tool-shapes.cjs (expectVerdict,
  * expectNotAllow, the hook-leg spawn shape and exit-code expectations) and
  * reuses tests/test-361-baseline.cjs's shared extraction helpers
@@ -129,8 +138,12 @@ function armA() {
   const t1 = expectVerdict({ framework: 'Dominant Design' }, FRAMEWORK_TECHNIQUES, 'allow', 'known_tool_shape', 'framework_techniques minimal');
   ok(t1.reason === 'framework_techniques canonical framework handle', 'framework_techniques reason literal must be stable, got ' + t1.reason);
 
-  const c1 = expectVerdict({ framework: 'Dominant Design' }, CASE_STORY, 'allow', 'known_tool_shape', 'case_story minimal');
+  const c1 = expectVerdict({ framework_name: 'Dominant Design' }, CASE_STORY, 'allow', 'known_tool_shape', 'case_story by framework_name');
   ok(c1.reason === 'case_story canonical framework handle', 'case_story reason literal must be stable, got ' + c1.reason);
+  expectVerdict({ framework_name: 'dominant design' }, CASE_STORY, 'allow', 'known_tool_shape', 'case_story with a lowercase framework_name');
+
+  const c2 = expectVerdict({ case_name: 'Betamax vs VHS' }, CASE_STORY, 'allow', 'known_tool_shape', 'case_story by case_name');
+  ok(c2.reason === 'case_story case_name label', 'case_story case_name reason literal must be stable, got ' + c2.reason);
 
   // Case rule: exact membership after lowercasing both sides.
   expectVerdict({ framework: 'dominant design' }, FRAMEWORK_STEP, 'allow', 'known_tool_shape', 'framework_step with a lowercase framework name');
@@ -147,10 +160,11 @@ function armB() {
 
   expectNotAllow({ framework: 'Dominant Design', note: 'x' }, FRAMEWORK_STEP, 'framework_step extra key');
   expectNotAllow({ framework: 'Dominant Design', note: 'x' }, FRAMEWORK_TECHNIQUES, 'framework_techniques extra key');
-  expectNotAllow({ framework: 'Dominant Design', note: 'x' }, CASE_STORY, 'case_story extra key');
+  expectNotAllow({ framework_name: 'Dominant Design', note: 'x' }, CASE_STORY, 'case_story extra key');
+  expectNotAllow({ case_name: 'Betamax vs VHS', note: 'x' }, CASE_STORY, 'case_story case_name with an extra key');
 
   expectNotAllow({ framework: 'Dominant Design', step_id: 'dominantdesign::phase::s01' }, FRAMEWORK_TECHNIQUES, 'framework_techniques with a step_id (not an admitted key)');
-  expectNotAllow({ framework: 'Dominant Design', step_id: 'dominantdesign::phase::s01' }, CASE_STORY, 'case_story with a step_id (not an admitted key)');
+  expectNotAllow({ framework_name: 'Dominant Design', step_id: 'dominantdesign::phase::s01' }, CASE_STORY, 'case_story with a step_id (not an admitted key)');
 
   expectNotAllow({ framework: 'Dominant Design', step_id: 'not-a-valid-id' }, FRAMEWORK_STEP, 'framework_step with a malformed step_id');
   expectNotAllow({ framework: 'Dominant Design', step_id: 123 }, FRAMEWORK_STEP, 'framework_step with a numeric step_id');
@@ -166,12 +180,24 @@ function armB() {
 
   expectNotAllow({ framework: 'Some Unlisted Framework' }, FRAMEWORK_STEP, 'framework_step with an off-vocabulary framework name');
   expectNotAllow({ framework: 'Some Unlisted Framework' }, FRAMEWORK_TECHNIQUES, 'framework_techniques with an off-vocabulary framework name');
-  expectNotAllow({ framework: 'Some Unlisted Framework' }, CASE_STORY, 'case_story with an off-vocabulary framework name');
+  expectNotAllow({ framework_name: 'Some Unlisted Framework' }, CASE_STORY, 'case_story with an off-vocabulary framework_name');
+
+  // 361-09: case_story matches Theo 20.1-04's exactly-one-of contract.
+  expectNotAllow({ framework: 'Dominant Design' }, CASE_STORY, 'case_story with the retired D-15 {framework} key');
+  expectNotAllow({ case_name: 'Betamax vs VHS', framework_name: 'Dominant Design' }, CASE_STORY, 'case_story with both keys (Theo refuses EXACTLY_ONE_OF)');
+  expectNotAllow({ case_name: 42 }, CASE_STORY, 'case_story with a numeric case_name');
+  expectNotAllow({ case_name: '' }, CASE_STORY, 'case_story with an empty case_name');
+  expectNotAllow({ case_name: 'Betamax\nVHS' }, CASE_STORY, 'case_story with a multi-line case_name');
+  expectNotAllow({ case_name: 'x'.repeat(121) }, CASE_STORY, 'case_story with a 121-char case_name (over the 120 label cap)');
+  expectNotAllow({ case_name: 'Betamax: the format war' }, CASE_STORY, 'case_story with an off-charset case_name (colon is outside FRAMEWORK_NAME_PATTERN)');
 
   // Tool-name isolation: the new shape must not travel onto the existing arms.
   expectNotAllow({ framework: 'Dominant Design' }, FIND, 'framework shape under find_connections tool name');
   expectNotAllow({ framework: 'Dominant Design' }, TAX, 'framework shape under taxonomy_ladder tool name');
   expectNotAllow({ framework: 'Dominant Design' }, RECOMMEND, 'framework shape under recommend_chain tool name');
+  expectNotAllow({ framework_name: 'Dominant Design' }, FRAMEWORK_STEP, 'case_story framework_name shape under framework_step tool name');
+  expectNotAllow({ framework_name: 'Dominant Design' }, FRAMEWORK_TECHNIQUES, 'case_story framework_name shape under framework_techniques tool name');
+  expectNotAllow({ case_name: 'Betamax vs VHS' }, FIND, 'case_story case_name shape under find_connections tool name');
 
   ok(guard._proveKnownToolShape({ framework: 'Dominant Design' }, 'Write') === null, '_proveKnownToolShape must decline for tool name "Write"');
   ok(guard._proveKnownToolShape({ framework: 'Dominant Design' }, null) === null, '_proveKnownToolShape must decline for a null tool name');
@@ -192,6 +218,20 @@ function armC() {
   const p2 = { framework: 'Dominant Design $2M ARR' };
   expectVerdict(p2, FRAMEWORK_STEP, 'block', 'content_set', 'framework_step with a financial idiom in framework');
   ok(guard._proveKnownToolShape(p2, FRAMEWORK_STEP) === null, '_proveKnownToolShape must independently refuse the ARR payload, out of classify() ordering');
+
+  // 361-09: content in either case_story key is blocked at step 1, and the
+  // recognizer refuses it independently when called out of classify() order.
+  const c1 = { case_name: 'jane@example.com' };
+  expectVerdict(c1, CASE_STORY, 'block', 'content_set', 'case_story with an email case_name');
+  ok(guard._proveKnownToolShape(c1, CASE_STORY) === null, '_proveKnownToolShape must independently refuse an email case_name');
+
+  const c2 = { framework_name: 'jane@example.com' };
+  expectVerdict(c2, CASE_STORY, 'block', 'content_set', 'case_story with an email framework_name');
+  ok(guard._proveKnownToolShape(c2, CASE_STORY) === null, '_proveKnownToolShape must independently refuse an email framework_name');
+
+  const c3 = { case_name: 'Acme Robotics arms' };
+  expectVerdict(c3, CASE_STORY, 'block', 'content_set', 'case_story with a venture proper noun case_name');
+  ok(guard._proveKnownToolShape(c3, CASE_STORY) === null, '_proveKnownToolShape must independently refuse a venture proper noun case_name');
 
   console.log('Arm C ok (' + checks + ' assertions cumulative)');
 }
@@ -253,6 +293,25 @@ function hookLeg() {
   const b = runHook(dirty, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
   ok(b.status === 2, 'HOOK B: a content-carrying framework_step call must exit 2, got ' + b.status);
   ok(b.stderr && b.stderr.trim().length > 0, 'HOOK B: a block must carry gate text on stderr');
+
+  // 361-09: the same two legs for case_story's Theo 20.1-04 shape.
+  const cleanCase = JSON.stringify({
+    tool_name: CASE_STORY,
+    tool_input: { framework_name: 'Dominant Design' },
+    session_id: 'p361-09-a',
+  });
+  const c = runHook(cleanCase, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+  ok(c.status === 0, 'HOOK C: a clean case_story call must exit 0, got ' + c.status + ' stderr=' + JSON.stringify(c.stderr));
+  ok(!/ambiguous/i.test(c.stderr), 'HOOK C: a clean case_story call must render no ambiguous-disclosure text, got stderr=' + JSON.stringify(c.stderr));
+
+  const dirtyCase = JSON.stringify({
+    tool_name: CASE_STORY,
+    tool_input: { case_name: 'jane@example.com' },
+    session_id: 'p361-09-b',
+  });
+  const d = runHook(dirtyCase, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+  ok(d.status === 2, 'HOOK D: a content-carrying case_story call must exit 2, got ' + d.status);
+  ok(d.stderr && d.stderr.trim().length > 0, 'HOOK D: a case_story block must carry gate text on stderr');
 
   console.log('LEG 2 ok (' + checks + ' assertions cumulative)');
 }
