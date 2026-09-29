@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-06-PLAN.md - six planner templates + Minto pyramid over issue-tree (D-00 gate, coverage, MECE, Logic Trees steps, roll-up, opportunity candidates)"
+stopped_at: "Completed 363-07-PLAN.md - research-perspective builder (Scientific Roadmapping engine, physics vs assumed limiters, unlock ranking, ratchet, describeEngine for SEED-098)"
 last_updated: "2026-09-29T18:45:00.000Z"
-last_activity: 2026-09-29 -- 363-06 complete
+last_activity: 2026-09-29 -- 363-07 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 423
-  percent: 91
+  completed_plans: 424
+  percent: 92
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 7 of 22
+Plan: 8 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
