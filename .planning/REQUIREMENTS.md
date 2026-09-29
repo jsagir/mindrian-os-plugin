@@ -3614,13 +3614,14 @@ CARD362-01..06 were minted in the Phase 362 plan set (2026-09-29), one per concr
 `362-CONTEXT.md` D-01..D-05 (no SPEC and no RESEARCH were produced: research was skipped because the
 evidence already sits on disk in the Phase 357 replay corpus), scoped to Phase 362 only, and are
 registered here at plan time as `- [ ]` rows to be closed with measured proof, or left open or marked
-not applicable with a stated reason, at phase close by `362-03-PLAN.md` Task 2. Execution is held
-until Phase 359 plans 07-10 are on `main` (D-01).
+not applicable with a stated reason, at phase close by `362-03-PLAN.md` Task 2. D-01 was amended
+2026-09-29 (navigator): no wait on Phase 359, because 359-07..10 touch neither gate file; execution
+is gated only by a clean-tree check on the three shared files.
 
-- [ ] **CARD362-01**: Execution passes a hard gate before anything else runs: the 359-07..10 SUMMARY
-      files exist and are tracked, every commit they name is an ancestor of HEAD, and the card-gate
-      runtime and replay files carry no uncommitted diff; on any failed check the phase halts as
-      "blocked on 359" with zero repo edits (D-01). Plan 362-01.
+- [ ] **CARD362-01**: Execution passes a hard gate before anything else runs (D-01 AMENDED):
+      `lib/core/gate-relevance.cjs`, `scripts/check-card-fire.cjs` and `tests/test-359-inertness.cjs`
+      carry no uncommitted diff, and GATE_HEAD is recorded; on a dirty file the phase halts as
+      "BLOCKED: uncommitted peer edits on <paths>" with zero repo edits. Plan 362-01.
 
 - [ ] **CARD362-02**: The first execution step replays `dogfood-0f86dd63-092046` through the 357
       harness on both surfaces on post-359 code, and `362-REPLAY.md` records the verdict

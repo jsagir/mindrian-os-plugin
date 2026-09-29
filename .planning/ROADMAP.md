@@ -1367,16 +1367,16 @@ Plans:
 ### Phase 362: Card gate: text-dependent relevance false block (R-C follow-on from Phase 357, dogfood entry dogfood-0f86dd63-092046)
 
 **Goal:** Close the one known_false_block Phase 357 left open (replay entry dogfood-0f86dd63-092046: a single overlapping token on a human continuity turn false-blocked the card). Replay it on post-359 code first; if still false-blocking, fix with structured signals only (turn metadata, token provenance, 359 declared options; no text understanding, no Jev in hooks), else record residual known_false_block with evidence. 357 false_blocks = 0 bar holds. Context: `362-CONTEXT.md`.
-**Execution gate:** starts only after Phase 359 plans 07-10 are on main (navigator ruling 2026-09-29).
+**Execution gate:** D-01 amended (navigator ruling 2026-09-29): no wait on Phase 359 plans 07-10; 362-01 Task 1 requires `lib/core/gate-relevance.cjs`, `scripts/check-card-fire.cjs` and `tests/test-359-inertness.cjs` to carry no uncommitted peer edits, and the 359 owner session is messaged before `tests/test-359-inertness.cjs` is edited.
 **Requirements**: CARD362-01..CARD362-06 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-09-29)
 **Depends on:** Phase 361
-**Plans:** 3 plans in 3 waves (execution gated on 359-07..10 by 362-01 Task 1)
+**Plans:** 3 plans in 3 waves (execution gated by the 362-01 Task 1 clean-tree check, D-01 amended)
 
 Plans:
 
 **Wave 1**
 
-- [ ] 362-01-PLAN.md -- D-01 hard execution gate (359-07..10 SUMMARY files tracked, every named commit an ancestor of HEAD, gate files clean; else BLOCKED ON 359 with zero writes), then the D-02 post-359 replay of dogfood-0f86dd63-092046 on both surfaces, verdict in 362-REPLAY.md
+- [ ] 362-01-PLAN.md -- D-01 amended clean-tree gate (gate-relevance.cjs, check-card-fire.cjs and test-359-inertness.cjs carry no uncommitted peer edits, HEAD recorded; else BLOCKED with zero writes), then the D-02 post-359 replay of dogfood-0f86dd63-092046 on both surfaces, verdict in 362-REPLAY.md
 
 **Wave 2**
 
