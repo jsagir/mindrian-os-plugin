@@ -49,7 +49,7 @@ The outcome comes mechanically from two lines. 362-REPLAY.md line 1 is `VERDICT:
 | CARD362-03 | ticked (in working tree, not committed) | `SIGNAL: NONE` over 24 C1-C4 variants (488722fef) |
 | CARD362-04 | ticked (in working tree, not committed) | residual reason citing 362-SIGNALS.md (4b0f9cf44) after RED 8212e255c; disposition PASS 8/8, mutation SKIP 77 |
 | CARD362-05 | ticked (in working tree, not committed) | run-all-362 PASS=20 FAIL=0 SKIP=3 (fd71df7ff); run-all-357 green; run-all-238 red only on 238-03 |
-| CARD362-06 | Open | the outcome is recorded here; the two research-home files are drafted but not filed (see below) |
+| CARD362-06 | Closed | outcome recorded here; research trail filed in both homes by the orchestrator at bfa0365ab (home repo) after the navigator authorized dev-research writes while motj-ecosystem stayed the active room |
 
 REQUIREMENTS.md was NOT committed. Another session left uncommitted work in the same file: the Phase 363 DRP363 block, the 398 to 418 count change, and the traceability lines. `git commit --only` would have swept that work into this commit. The CARD362 edit is in the working tree beside the peer's hunks. A CARD362-only patch against HEAD is at `/tmp/claude-1000/7d59a600-8107-419a-a226-c737b350feec/scratchpad/research-362/card362-requirements.patch` (single hunk `@@ -3618,40 +3618,55 @@`, applies cleanly to HEAD).
 
