@@ -1370,21 +1370,22 @@ Plans:
 **Execution gate:** D-01 amended (navigator ruling 2026-09-29): no wait on Phase 359 plans 07-10; 362-01 Task 1 requires `lib/core/gate-relevance.cjs`, `scripts/check-card-fire.cjs` and `tests/test-359-inertness.cjs` to carry no uncommitted peer edits, and the 359 owner session is messaged before `tests/test-359-inertness.cjs` is edited.
 **Requirements**: CARD362-01..CARD362-06 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-09-29)
 **Depends on:** Phase 361
+**Progress:** 3/3 plans executed 2026-09-29. OUTCOME: residual-known-false-block (362-REPLAY: STILL_FALSE_BLOCKS on post-359 code; 362-SIGNALS: SIGNAL NONE over 24 structured variants, each clearing variant silences real forks); run-all-362 PASS=20 FAIL=0 SKIP=3; 362-VERIFICATION.md passed 14/14 (b00b1d803). **Phase status: CLOSED 2026-09-29.**
 **Plans:** 3 plans in 3 waves (execution gated by the 362-01 Task 1 clean-tree check, D-01 amended)
 
 Plans:
 
 **Wave 1**
 
-- [ ] 362-01-PLAN.md -- D-01 amended clean-tree gate (gate-relevance.cjs, check-card-fire.cjs and test-359-inertness.cjs carry no uncommitted peer edits, HEAD recorded; else BLOCKED with zero writes), then the D-02 post-359 replay of dogfood-0f86dd63-092046 on both surfaces, verdict in 362-REPLAY.md
+- [x] 362-01-PLAN.md -- D-01 amended clean-tree gate (gate-relevance.cjs, check-card-fire.cjs and test-359-inertness.cjs carry no uncommitted peer edits, HEAD recorded; else BLOCKED with zero writes), then the D-02 post-359 replay of dogfood-0f86dd63-092046 on both surfaces, verdict in 362-REPLAY.md
 
 **Wave 2**
 
-- [ ] 362-02-PLAN.md -- only on STILL_FALSE_BLOCKS: pre-362 snapshot, dev-only measurement of the D-03 structured signals (continuity metadata, reach timing and consumption, token provenance, 359 declared options) against the corpus and its 12 anti-vacuity fires, SIGNAL verdict in 362-SIGNALS.md, then the RED-first disposition (mutation-proven signal with the flip ratified in 359 inertness, or residual known_false_block per D-04)
+- [x] 362-02-PLAN.md -- only on STILL_FALSE_BLOCKS: pre-362 snapshot, dev-only measurement of the D-03 structured signals (continuity metadata, reach timing and consumption, token provenance, 359 declared options) against the corpus and its 12 anti-vacuity fires, SIGNAL verdict in 362-SIGNALS.md, then the RED-first disposition (mutation-proven signal with the flip ratified in 359 inertness, or residual known_false_block per D-04)
 
 **Wave 3**
 
-- [ ] 362-03-PLAN.md -- tests/run-all-362.sh standing gate (357 bar, 357 and 359 mutation legs, 359 inertness, anti-vacuity, CIRS, em-dash guard), CARD362 rows closed with proof, outcome recorded (resolved-by-359, fixed-by-signal or residual), research trail filed in both homes
+- [x] 362-03-PLAN.md -- tests/run-all-362.sh standing gate (357 bar, 357 and 359 mutation legs, 359 inertness, anti-vacuity, CIRS, em-dash guard), CARD362 rows closed with proof, outcome recorded (resolved-by-359, fixed-by-signal or residual), research trail filed in both homes
 
 ### Phase 363: Deep Research Planner - quick and deep research runs, built on the MCP intelligence services (promotes SEED-097)
 
