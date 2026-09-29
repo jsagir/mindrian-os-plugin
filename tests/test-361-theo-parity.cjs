@@ -30,12 +30,26 @@
  *   Leg 3 -- Theo's FRAMEWORK_NAME_PATTERN and PROCESS_STEP_ID_PATTERN regex
  *            source text equals the plugin's FRAMEWORK_NAME_RE and
  *            PROCESS_STEP_ID_RE literals, byte-for-byte.
- *   Leg 4 -- case_story: if a Theo content file named *case-story* exists,
- *            compare its inputShape keys against the plugin's case_story arm
- *            the same way as Legs 1-2 and FAIL on a difference (the D-15
- *            recheck trigger). If no such file exists yet, print a note and
- *            pass -- the plugin arm's {framework} shape is an assumption
- *            until Theo 20.1 publishes the real tool.
+ *   Leg 4 -- case_story, a full pin of Theo 20.1-04's case-story.ts contract
+ *            (361-09). D-15 is resolved by Theo 20.1-04 and pinned here: a
+ *            later Theo change to the shape fails this test and names the leg.
+ *            Leg 4a (keys): the Theo inputShape key set equals the plugin
+ *              case_story arm's _hasExactKeys union {case_name, framework_name}.
+ *            Leg 4b (optionality): the plugin arm's required list is empty,
+ *              both Theo inputShape values start with handle(, and Theo's
+ *              function handle( carries .optional().
+ *            Leg 4c (handle schema): Theo's handle() carries
+ *              .regex(FRAMEWORK_NAME_PATTERN) and .max(128); the plugin guard
+ *              gates case_name on FRAMEWORK_NAME_RE and framework_name on
+ *              _isKnownFrameworkHandle (Leg 3a pins the regex byte-for-byte).
+ *            Leg 4d (exactly-one-of): Theo's case-story.ts carries the
+ *              EXACTLY_ONE_OF refusal, and the plugin guard declines the
+ *              both-keys shape while proving the framework_name shape.
+ *            Informational only (never a pass or fail): whether this Theo
+ *            checkout's src/mcp/content/index.ts registers case_story yet
+ *            (registration is Theo 20.1-16; the arm is correct either way).
+ *            If no case-story file exists (an older checkout), print a note
+ *            and pass.
  *
  * Checkout resolution: MINDRIAN_THEO_CHECKOUT, default /home/jsagi/Theo. If
  * the checkout directory or any file this test needs is missing or cannot be
@@ -182,7 +196,10 @@ function theoInputShapeKeys(filePath, label) {
 // next "return {" (the plan's own slice rule, anchored on the guard-line
 // form rather than a bare substring so a docblock mention of the same tool
 // name earlier in the file cannot be mistaken for the arm itself).
-function pluginArmKeys(guardSrc, toolName) {
+// pluginArmKeyLists returns {required, optional} arrays (null when the arm or
+// its _hasExactKeys call is not found); pluginArmKeys is the thin union
+// wrapper Legs 1-2 and 4a use.
+function pluginArmKeyLists(guardSrc, toolName) {
   const marker = "toolName.indexOf('" + toolName + "')";
   const start = guardSrc.indexOf(marker);
   if (start === -1) return null;
@@ -195,7 +212,13 @@ function pluginArmKeys(guardSrc, toolName) {
     (literal.match(/'([^']*)'/g) || []).map((s) => s.slice(1, -1));
   const required = parseList(callMatch[1]);
   const optional = parseList(callMatch[2]);
-  return new Set(required.concat(optional));
+  return { required: required, optional: optional };
+}
+
+function pluginArmKeys(guardSrc, toolName) {
+  const lists = pluginArmKeyLists(guardSrc, toolName);
+  if (!lists) return null;
+  return new Set(lists.required.concat(lists.optional));
 }
 
 function setsEqual(a, b) {
@@ -275,7 +298,7 @@ function leg3() {
 }
 
 // ---------------------------------------------------------------------------
-// Leg 4: case_story, the D-15 recheck trigger.
+// Leg 4: case_story, a full pin of Theo 20.1-04's contract (361-09).
 // ---------------------------------------------------------------------------
 function leg4() {
   let entries;
@@ -287,18 +310,80 @@ function leg4() {
   }
   const caseStoryFile = entries.find((name) => name.indexOf('case-story') !== -1);
   if (!caseStoryFile) {
-    console.log('case_story: not built in the Theo checkout; {framework} assumed per D-15');
+    console.log("case_story: no case-story file in this Theo checkout; the plugin arm pins Theo 20.1-04's exactly-one-of {case_name | framework_name}");
     checks += 1; // counts as a passing leg (the "print and pass" branch).
     return;
   }
   const filePath = path.join(CONTENT_DIR, caseStoryFile);
+  const caseStoryText = readTextOrGap(filePath, caseStoryFile);
+
+  // Leg 4a: keys.
   const theoKeys = theoInputShapeKeys(filePath, caseStoryFile);
   const pluginKeys = pluginArmKeys(guardSrc, 'case_story');
   ok(
-    'Leg 4: case_story key set matches Theo inputShape (' + caseStoryFile + ' now exists, D-15 recheck fired)',
+    'Leg 4a: case_story key set matches Theo inputShape (' + caseStoryFile + ')',
     pluginKeys && setsEqual(theoKeys, pluginKeys),
     'theo=' + JSON.stringify(setToSortedArray(theoKeys)) + ' plugin=' + JSON.stringify(pluginKeys ? setToSortedArray(pluginKeys) : null)
   );
+
+  // Leg 4b: optionality.
+  const lists = pluginArmKeyLists(guardSrc, 'case_story');
+  const inputShapeBlock = extractBraceBlock(caseStoryText, 'inputShape:') || '';
+  const handleBlock = extractBraceBlock(caseStoryText, 'function handle(') || '';
+  const caseNameIsHandle = /^\s*case_name:\s*handle\(/m.test(inputShapeBlock);
+  const frameworkNameIsHandle = /^\s*framework_name:\s*handle\(/m.test(inputShapeBlock);
+  const handleOptional = handleBlock.indexOf('.optional()') !== -1;
+  ok(
+    'Leg 4b: case_story optionality (plugin required list empty, both Theo keys are handle(), handle() is .optional())',
+    lists !== null && lists.required.length === 0 && caseNameIsHandle && frameworkNameIsHandle && handleOptional,
+    'pluginRequired=' + JSON.stringify(lists ? lists.required : null) +
+      ' case_name=handle(:' + caseNameIsHandle +
+      ' framework_name=handle(:' + frameworkNameIsHandle +
+      ' handle().optional():' + handleOptional
+  );
+
+  // Leg 4c: handle schema.
+  const handleRegex = handleBlock.indexOf('.regex(FRAMEWORK_NAME_PATTERN)') !== -1;
+  const handleMax = handleBlock.indexOf('.max(128)') !== -1;
+  const pluginCaseNameCharset = guardSrc.indexOf('FRAMEWORK_NAME_RE.test(payload.case_name)') !== -1;
+  const pluginFrameworkNameCanonical = guardSrc.indexOf('_isKnownFrameworkHandle(payload.framework_name)') !== -1;
+  ok(
+    'Leg 4c: case_story handle schema (Theo .regex(FRAMEWORK_NAME_PATTERN) and .max(128); plugin gates case_name on FRAMEWORK_NAME_RE and framework_name on _isKnownFrameworkHandle)',
+    handleRegex && handleMax && pluginCaseNameCharset && pluginFrameworkNameCanonical,
+    'theoRegex=' + handleRegex + ' theoMax128=' + handleMax +
+      ' pluginCaseNameCharset=' + pluginCaseNameCharset +
+      ' pluginFrameworkNameCanonical=' + pluginFrameworkNameCanonical
+  );
+
+  // Leg 4d: exactly-one-of.
+  const theoExactlyOneOf = caseStoryText.indexOf('EXACTLY_ONE_OF') !== -1;
+  let bothDeclined = false;
+  let frameworkNameProven = false;
+  try {
+    const guard = require(GUARD_PATH);
+    bothDeclined = guard._proveKnownToolShape({ case_name: 'Betamax vs VHS', framework_name: 'Dominant Design' }, 'case_story') === null;
+    const proven = guard._proveKnownToolShape({ framework_name: 'Dominant Design' }, 'case_story');
+    frameworkNameProven = !!proven && proven.class === 'known_tool_shape';
+  } catch (e) {
+    console.log('Leg 4d: plugin guard could not be loaded (' + (e && e.message) + ')');
+  }
+  ok(
+    'Leg 4d: case_story exactly-one-of (Theo carries EXACTLY_ONE_OF; plugin declines both keys and proves framework_name)',
+    theoExactlyOneOf && bothDeclined && frameworkNameProven,
+    'theoExactlyOneOf=' + theoExactlyOneOf + ' pluginBothDeclined=' + bothDeclined + ' pluginFrameworkNameProven=' + frameworkNameProven
+  );
+
+  // Informational only, never a pass or fail.
+  const indexPath = path.join(CONTENT_DIR, 'index.ts');
+  if (fs.existsSync(indexPath)) {
+    let registered = false;
+    try {
+      registered = /registerCaseStory\(\s*server/.test(fs.readFileSync(indexPath, 'utf8'));
+    } catch (_e) {
+      registered = false;
+    }
+    console.log('case_story registered on this Theo checkout: ' + (registered ? 'yes' : 'no'));
+  }
 }
 
 leg1();
