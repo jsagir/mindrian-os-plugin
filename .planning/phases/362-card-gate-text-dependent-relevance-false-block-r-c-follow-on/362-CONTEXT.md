@@ -9,7 +9,7 @@ canon_parts: [3, 8, 11, 12]
 # Phase 362: Card gate text-dependent relevance false block - Context
 
 **Gathered:** 2026-09-29
-**Status:** Ready for planning (execution gated on Phase 359, see D-01)
+**Status:** Ready to execute (D-01 amended: no wait on 359)
 
 <domain>
 ## Phase Boundary
@@ -35,6 +35,14 @@ declaration contract.
   session; 6 of 12 plans executed at 2026-09-24) still has plans 07-10 to run, and they rewire
   `scripts/check-card-fire.cjs` and `lib/core/gate-relevance.cjs`, the same files a 362 fix would
   touch. 362 may be planned now; execution starts only after 359's plans 07-10 are on main.
+- **D-01 AMENDED (navigator ruling 2026-09-29, after planning evidence):** the wait-for-359 gate is
+  **dropped**. Planning found that 359-07..10 touch neither `scripts/check-card-fire.cjs` nor
+  `lib/core/gate-relevance.cjs` (their `files_modified` lists; the declared-fork rewiring landed in
+  359-03), and the 0f86dd63 replay at HEAD c8bea2800, with 359-03 in, still false-blocks on both
+  surfaces. Replacement gate: before any edit, `gate-relevance.cjs`, `check-card-fire.cjs` and
+  `tests/test-359-inertness.cjs` must have no uncommitted changes from anyone else, and the 359 owner
+  session is messaged before `test-359-inertness.cjs` is edited. D-03 (structured signals only) is
+  unchanged.
 - **D-02:** The **first task** of execution is a replay: run entry `dogfood-0f86dd63-092046` through
   the 357 replay harness (`tests/test-357-replay.cjs`, fixtures under
   `tests/fixtures/card-fire-replay/`) on post-359 code. If it no longer false-blocks, 362 closes as
