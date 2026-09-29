@@ -3675,7 +3675,7 @@ builder) and DRP363-20 (D-19, the diffusion lens) minted at plan time; all twent
 closed with measured proof, or left open with a stated reason, at phase close by
 `363-22-PLAN.md` Task 1. `363-CONTEXT.md` is the scope contract.
 
-- [ ] **DRP363-01**: One Plan object (`mos.research-plan/1`) carries the research perspective (D-18)
+- [x] **DRP363-01**: One Plan object (`mos.research-plan/1`) carries the research perspective (D-18)
       and the Minto pyramid (D-08): SCQA framing, a governing question, a MECE key line, and leaves
       carrying lens, source command, dimension, origin (`user_stated | framework_dimension |
       mece_gap`), falsifier, corpus, audited queries and a researchable flag with a reason when
