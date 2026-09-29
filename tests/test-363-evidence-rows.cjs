@@ -300,6 +300,25 @@ leg('R10 module source carries no em-dash or en-dash', function () {
   return raw.indexOf(EM) === -1 && raw.indexOf(EN) === -1;
 });
 
+// Consumer leg: validated rows feed 363-07 classifyLimiter and 363-06 rollUp.
+leg('C1 validated rows feed classifyLimiter and rollUp with the shared vocabulary', function () {
+  const persp = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'perspective.cjs'));
+  const pyr = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'pyramid.cjs'));
+  const q = function (recs, text, label) { return goodRow(recs[0], text, { label: label }); };
+  const raw = [
+    q(derivation, ER.deterministicTermRows(derivation, 'upper bound', { leafId: 'L1', lane: 'CI', label: 'derivation' })[0].quote, 'derivation'),
+    q(ceiling, ER.deterministicTermRows(ceiling, 'plateaued', { leafId: 'L1', lane: 'CI', label: 'scurve_ceiling' })[0].quote, 'scurve_ceiling'),
+    q(synonym, 'Low frequency sound reduced', 'supports'),
+  ];
+  const out = ER.validateRows(raw, index, { leafIds: ['L1'], lane: 'CI', retrievedAt: opts.retrievedAt });
+  if (out.rows.length !== 3) return 'kept ' + out.rows.length;
+  const c = persp.classifyLimiter({ id: 'LIM1', leaf_id: 'L1' }, out.rows);
+  if (c.column !== 'physics' || c.s_curve !== 'near_ceiling' || c.basis_row_ids.length !== 1) return JSON.stringify(c);
+  const rolled = pyr.rollUp({ key_line: [] }, [{ id: 'L1', researchable: true }], out.rows, {});
+  const leaf = rolled.leaves && rolled.leaves[0];
+  return !!leaf && leaf.status === 'supported' && leaf.support_count === 1 ? true : JSON.stringify(rolled).slice(0, 200);
+});
+
 check('no network attempted', guard.attempts() === 0, String(guard.attempts()));
 guard.restore();
 process.exit(summary());
