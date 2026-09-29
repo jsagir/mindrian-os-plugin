@@ -267,6 +267,17 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
     to problem types (so `recommend_chain` can surface them) is being checked Theo-side by jsagi-87;
     until then selection is by the planner's local relevance judgment (room signals, question
     shape), never by sending the question to Theo.
+  - **Measured 2026-09-29 (direct Neo4j read, framework content only):** Adoption-Capacity Theory
+    ADDRESSES_PROBLEM_TYPE IllDefined and WellDefined, FEEDS_INTO Mullins Model, PWS Triple Validation
+    Compass, Scenario Planning, Ansoff Matrix, Now-New-Next; Diffusion of Innovations (Rogers) ->
+    IllDefined, FEEDS_INTO S-Curve Analysis; Dual-Use Technology -> IllDefined; Diffusion Theory and
+    Law of Diffusion of Innovation have no problem-type edge. Theo's typed tools do not expose
+    ADDRESSES_PROBLEM_TYPE (jsagi-87 check), so the tie exists in the graph but is not reachable via
+    `recommend_chain` today. Canon anchors usable now: stage `timing`, USES_FRAMEWORK from
+    `/mos:diffusion` and `/mos:analyze-timing`. Use exactly these names; "Dual-Use Innovation" and
+    "Diffusion of Innovation" (singular) do not resolve. Selection rule: an adoption / timing question
+    about a dual-use or deep-tech technology selects `/mos:diffusion`; the problem-type tie is a
+    supporting signal carried in the D-17 dev-time ledger, not a runtime Theo call.
 
 ### Opportunities scooped by research
 - **D-07 (navigator, 2026-09-29):** "such research might scoop opportunities to be filed." A run,
