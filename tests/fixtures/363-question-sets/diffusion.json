@@ -1,0 +1,125 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "diffusion",
+  "command": "/mos:diffusion",
+  "stated_question": "Will a dual-use imaging payload spread beyond its first buyers?",
+  "scqa": {
+    "situation": "A payload built for one sector attracts interest elsewhere.",
+    "complication": "Capacity to absorb it differs by sector.",
+    "question": "Who adopts first and what limits the next adopter?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "Reach versus readiness to absorb."
+    },
+    "goal": {
+      "target": "Estimate who follows the first buyers and when.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "First adopters",
+      "dimension": "df:first_adopters"
+    },
+    {
+      "id": "K2",
+      "label": "Absorptive capacity",
+      "dimension": "df:absorptive_capacity"
+    },
+    {
+      "id": "K3",
+      "label": "Civil and defense crossing",
+      "dimension": "df:civil_defense_crossing"
+    },
+    {
+      "id": "K4",
+      "label": "Timing",
+      "dimension": "df:timing"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Will a dual-use imaging payload spread beyond its first buyers?",
+      "origin": "user_stated",
+      "dimension": "df:first_adopters",
+      "lens": "df.first_adopters",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that adoption stayed inside the first sector."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Which sectors show documented first purchases of comparable payloads?",
+      "origin": "framework_dimension",
+      "dimension": "df:first_adopters",
+      "lens": "df.first_adopters",
+      "researchable": true,
+      "falsifier": {
+        "text": "Records showing no cross-sector first purchases."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L3",
+      "parent": "K2",
+      "question": "What technical staffing does a new sector need before it can integrate the payload?",
+      "origin": "framework_dimension",
+      "dimension": "df:absorptive_capacity",
+      "lens": "df.absorptive_capacity",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases where sectors integrated it with no added staffing."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L4",
+      "parent": "K3",
+      "question": "How have earlier dual-use sensors crossed between civil and defense buyers?",
+      "origin": "framework_dimension",
+      "dimension": "df:civil_defense_crossing",
+      "lens": "df.civil_defense_crossing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases where crossing was blocked by policy."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L5",
+      "parent": "K4",
+      "question": "Where do the incumbent and the challenger sit on their adoption curves?",
+      "origin": "framework_dimension",
+      "dimension": "df:timing",
+      "lens": "df.timing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Rate data placing both technologies at the same stage."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

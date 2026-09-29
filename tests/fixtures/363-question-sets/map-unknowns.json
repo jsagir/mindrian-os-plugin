@@ -1,0 +1,139 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "map-unknowns",
+  "command": "/mos:map-unknowns",
+  "stated_question": "Will a passive temperature indicator keep vaccine shipments viable?",
+  "scqa": {
+    "situation": "Vaccine shipments cross several handoffs before delivery.",
+    "complication": "A passive indicator may miss the failures that matter.",
+    "question": "What must be true for a passive indicator to be enough?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A cheap indicator versus an unseen failure."
+    },
+    "goal": {
+      "target": "Know which failures a passive indicator cannot see.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Known knowns",
+      "dimension": "mu:known_known"
+    },
+    {
+      "id": "K2",
+      "label": "Blind spots",
+      "dimension": "mu:blind_spot"
+    },
+    {
+      "id": "K3",
+      "label": "Hidden knowns",
+      "dimension": "mu:hidden_known"
+    },
+    {
+      "id": "K4",
+      "label": "Unknown unknowns",
+      "dimension": "mu:unknown_unknown"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Will a passive temperature indicator keep vaccine shipments viable?",
+      "origin": "user_stated",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that indicator readings and product viability diverge."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Does published calibration data support the stated accuracy of irreversible indicators?",
+      "origin": "framework_dimension",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Calibration studies that contradict the stated accuracy."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L3",
+      "parent": "K2",
+      "question": "Which handoff failures do carriers report that the design team never tracks?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Carrier reports showing none of these failures occur."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L4",
+      "parent": "K2",
+      "question": "What do neighboring product classes require that this design has not read?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "A review showing neighboring classes impose no extra requirement."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L5",
+      "parent": "K3",
+      "question": "What does the team already suspect but has not written down?",
+      "origin": "framework_dimension",
+      "dimension": "mu:hidden_known",
+      "lens": "mu.reveal",
+      "researchable": false,
+      "falsifier": {
+        "text": ""
+      },
+      "slots": {},
+      "not_researchable_reason": "tacit knowledge the team must surface"
+    },
+    {
+      "id": "L6",
+      "parent": "K4",
+      "question": "What adjacent evidence would reveal a failure nobody has named?",
+      "origin": "mece_gap",
+      "dimension": "mu:unknown_unknown",
+      "lens": "mu.reveal",
+      "researchable": true,
+      "falsifier": {
+        "text": "A broad survey finding no unnamed failure class."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

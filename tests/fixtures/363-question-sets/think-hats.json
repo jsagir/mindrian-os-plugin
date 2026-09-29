@@ -1,0 +1,125 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "think-hats",
+  "command": "/mos:think-hats",
+  "stated_question": "Should the lab adopt automated slide scanning?",
+  "scqa": {
+    "situation": "The lab reviews slides by hand at a steady pace.",
+    "complication": "Scanners promise speed but change the workflow.",
+    "question": "What does the evidence say for and against adopting scanning?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "Speed against diagnostic trust."
+    },
+    "goal": {
+      "target": "Decide with the strongest counterevidence in view.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "White hat facts",
+      "dimension": "hat:white"
+    },
+    {
+      "id": "K2",
+      "label": "Black hat counterevidence",
+      "dimension": "hat:black"
+    },
+    {
+      "id": "K3",
+      "label": "Yellow hat prior successes",
+      "dimension": "hat:yellow"
+    },
+    {
+      "id": "K4",
+      "label": "Green hat alternatives",
+      "dimension": "hat:green"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Should the lab adopt automated slide scanning?",
+      "origin": "user_stated",
+      "dimension": "hat:white",
+      "lens": "hat.white",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that the facts on record do not bear on this choice."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "What throughput figures do published pathology workflow studies report?",
+      "origin": "framework_dimension",
+      "dimension": "hat:white",
+      "lens": "hat.white",
+      "researchable": true,
+      "falsifier": {
+        "text": "Studies reporting no measurable throughput change."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L3",
+      "parent": "K2",
+      "question": "Which diagnostic discordance risks appear in validation studies?",
+      "origin": "framework_dimension",
+      "dimension": "hat:black",
+      "lens": "hat.black",
+      "researchable": true,
+      "falsifier": {
+        "text": "Validation studies reporting zero discordance."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L4",
+      "parent": "K3",
+      "question": "Which comparable labs report sustained benefit after a year?",
+      "origin": "framework_dimension",
+      "dimension": "hat:yellow",
+      "lens": "hat.yellow",
+      "researchable": true,
+      "falsifier": {
+        "text": "Follow-up reports of abandonment in comparable labs."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L5",
+      "parent": "K4",
+      "question": "What partial alternatives have labs tried instead of full conversion?",
+      "origin": "framework_dimension",
+      "dimension": "hat:green",
+      "lens": "hat.green",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reports that no partial alternative held up."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

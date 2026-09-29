@@ -1,0 +1,436 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "scientific-roadmapping",
+  "command": "/mos:research",
+  "stated_question": "Can solid-state cells reach 400 Wh/kg at pack level?",
+  "scqa": {
+    "situation": "Product plans assume a step up in stored energy per mass.",
+    "complication": "The ceiling is disputed and each path hits a different wall.",
+    "question": "Which limiter binds first and what unlocks it?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "Stored energy per mass sits below what the product needs."
+    },
+    "goal": {
+      "target": "energy density",
+      "threshold": "400",
+      "unit": "Wh/kg",
+      "quantified": true,
+      "falsifier": "Cells reaching the threshold at pack level would show the goal is met, so a pack-level ceiling below it refutes the path."
+    },
+    "rung_phrase": {
+      "roadmap_type": "technology roadmap",
+      "idea_kind": "new mechanism"
+    },
+    "forum": [
+      {
+        "role": "frustrated_insider",
+        "pass_order": 1,
+        "contributed": [
+          "interface resistance"
+        ]
+      },
+      {
+        "role": "fresh_entrant",
+        "pass_order": 2,
+        "contributed": [
+          "dry electrode processing"
+        ]
+      },
+      {
+        "role": "physics_grounder",
+        "pass_order": 3,
+        "contributed": [
+          "thermodynamic bound"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "id": "P1",
+        "label": "Lithium metal anode",
+        "from_10x": false
+      },
+      {
+        "id": "P2",
+        "label": "Silicon anode",
+        "from_10x": false
+      },
+      {
+        "id": "P3",
+        "label": "Conversion cathode",
+        "from_10x": true
+      }
+    ],
+    "limiters": [
+      {
+        "id": "LM1",
+        "column": "physics",
+        "label": "Cathode theoretical capacity",
+        "path_id": "P3",
+        "s_curve": "near_ceiling",
+        "derivation": {
+          "claim": "The cathode host lattice caps specific capacity by stoichiometry."
+        },
+        "leaf_id": "L8"
+      },
+      {
+        "id": "LM2",
+        "column": "assumed",
+        "label": "Interface resistance at the anode",
+        "path_id": "P1",
+        "s_curve": "unknown",
+        "question": "Is interface resistance truly fixed at current scale?",
+        "leaf_id": "L9"
+      },
+      {
+        "id": "LM3",
+        "column": "assumed",
+        "label": "Volume swing of the host",
+        "path_id": "P2",
+        "s_curve": "unknown",
+        "question": "Can the swing be absorbed without added mass?",
+        "leaf_id": "L10"
+      },
+      {
+        "id": "LM4",
+        "column": "assumed",
+        "label": "Electrolyte cost floor",
+        "path_id": "P1",
+        "s_curve": "headroom",
+        "question": "Is the cost floor set by the process or by the material?",
+        "leaf_id": "L11"
+      }
+    ],
+    "unlock_chains": [
+      {
+        "limiter_id": "LM2",
+        "steps": [
+          {
+            "pushed_by": "field",
+            "kind": "field",
+            "note": "a new interlayer"
+          },
+          {
+            "pushed_by": "self",
+            "kind": "field",
+            "note": "pack redesign"
+          },
+          {
+            "pushed_by": "field",
+            "kind": "adoption",
+            "note": "supplier qualification"
+          }
+        ]
+      },
+      {
+        "limiter_id": "LM3",
+        "steps": [
+          {
+            "pushed_by": "field",
+            "kind": "field",
+            "note": "a compliant binder"
+          }
+        ]
+      },
+      {
+        "limiter_id": "LM4",
+        "steps": [
+          {
+            "pushed_by": "self",
+            "kind": "field",
+            "note": "in-house process change"
+          }
+        ]
+      }
+    ],
+    "ranking": [
+      "LM2",
+      "LM3",
+      "LM1",
+      "LM4"
+    ],
+    "tensions": [
+      {
+        "id": "T1",
+        "statement": "Insiders call the interface fixed while entrants report a workaround.",
+        "voices": [
+          "frustrated_insider",
+          "fresh_entrant"
+        ]
+      }
+    ]
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Tension",
+      "dimension": "sr:tension"
+    },
+    {
+      "id": "K2",
+      "label": "Goal",
+      "dimension": "sr:goal"
+    },
+    {
+      "id": "K3",
+      "label": "Paths",
+      "dimension": "sr:paths"
+    },
+    {
+      "id": "K4",
+      "label": "Paths from a 10X resurvey",
+      "dimension": "sr:paths_10x"
+    },
+    {
+      "id": "K5",
+      "label": "Limiters",
+      "dimension": "sr:limiters"
+    },
+    {
+      "id": "K6",
+      "label": "First adopters",
+      "dimension": "df:first_adopters"
+    },
+    {
+      "id": "K7",
+      "label": "Absorptive capacity",
+      "dimension": "df:absorptive_capacity"
+    },
+    {
+      "id": "K8",
+      "label": "Civil and defense crossing",
+      "dimension": "df:civil_defense_crossing"
+    },
+    {
+      "id": "K9",
+      "label": "Timing",
+      "dimension": "df:timing"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Can solid-state cells reach 400 Wh/kg at pack level?",
+      "origin": "user_stated",
+      "dimension": "sr:tension",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Pack-level results at or above the threshold."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K2",
+      "question": "What baseline pack-level figures are reported for current cells?",
+      "origin": "framework_dimension",
+      "dimension": "sr:goal",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reported baselines already above the threshold."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L3",
+      "parent": "K3",
+      "question": "Which anode routes have reached pack-level demonstration?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths",
+      "lens": "hat.green",
+      "researchable": true,
+      "falsifier": {
+        "text": "A survey finding no route beyond cell level."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L4",
+      "parent": "K3",
+      "question": "Which routes were tried and dropped, and for what stated reason?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths",
+      "lens": "hat.green",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reports that dropped routes were dropped for cost only."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L5",
+      "parent": "K4",
+      "question": "What neighboring fields solved a comparable interface problem by another mechanism?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths_10x",
+      "lens": "hat.green",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that neighboring mechanisms fail at this scale."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L6",
+      "parent": "K5",
+      "question": "Is the cathode capacity limit derived from first principles?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.derivation",
+      "researchable": true,
+      "falsifier": {
+        "text": "A derivation showing the limit is not a bound."
+      },
+      "slots": {
+        "limiter": "cathode host capacity"
+      },
+      "limiter_id": "LM1"
+    },
+    {
+      "id": "L7",
+      "parent": "K5",
+      "question": "Is the same bound restated in independent derivations?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.derivation",
+      "researchable": true,
+      "falsifier": {
+        "text": "An independent derivation giving a higher bound."
+      },
+      "slots": {
+        "limiter": "cathode host capacity"
+      },
+      "limiter_id": "LM1"
+    },
+    {
+      "id": "L8",
+      "parent": "K5",
+      "question": "Do measurements approach the stated cathode bound?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.derivation",
+      "researchable": true,
+      "falsifier": {
+        "text": "Measurements exceeding the stated bound."
+      },
+      "slots": {
+        "limiter": "cathode host capacity"
+      },
+      "limiter_id": "LM1"
+    },
+    {
+      "id": "L9",
+      "parent": "K5",
+      "question": "Has anyone re-tested interface resistance under new interlayers?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.retest",
+      "researchable": true,
+      "falsifier": {
+        "text": "Re-tests reproducing the same resistance."
+      },
+      "slots": {
+        "limiter": "anode interface resistance"
+      },
+      "limiter_id": "LM2"
+    },
+    {
+      "id": "L10",
+      "parent": "K5",
+      "question": "Have compliant binders been tested against the volume swing?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.retest",
+      "researchable": true,
+      "falsifier": {
+        "text": "Binder tests showing the swing is unabsorbed."
+      },
+      "slots": {
+        "limiter": "host volume swing"
+      },
+      "limiter_id": "LM3"
+    },
+    {
+      "id": "L11",
+      "parent": "K5",
+      "question": "Which reviews attack the electrolyte cost floor?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.prior_attack",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reviews confirming the floor as material-bound."
+      },
+      "slots": {
+        "limiter": "electrolyte cost floor"
+      },
+      "limiter_id": "LM4"
+    },
+    {
+      "id": "L12",
+      "parent": "K6",
+      "question": "Which buyers adopt high-density cells first?",
+      "origin": "framework_dimension",
+      "dimension": "df:first_adopters",
+      "lens": "df.first_adopters",
+      "researchable": true,
+      "falsifier": {
+        "text": "Records of adoption starting elsewhere."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L13",
+      "parent": "K7",
+      "question": "What qualification effort do new suppliers face?",
+      "origin": "framework_dimension",
+      "dimension": "df:absorptive_capacity",
+      "lens": "df.absorptive_capacity",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases of qualification with no added effort."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L14",
+      "parent": "K8",
+      "question": "Have earlier cell chemistries crossed between civil and defense use?",
+      "origin": "framework_dimension",
+      "dimension": "df:civil_defense_crossing",
+      "lens": "df.civil_defense_crossing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases where crossing was blocked."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L15",
+      "parent": "K9",
+      "question": "Where do incumbent and challenger chemistries sit on their curves?",
+      "origin": "framework_dimension",
+      "dimension": "df:timing",
+      "lens": "df.timing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Rate data placing both at one stage."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": [
+    {
+      "lens": "diffusion",
+      "reason": "adoption of the winning chemistry is disputed"
+    }
+  ]
+}

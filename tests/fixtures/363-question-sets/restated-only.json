@@ -1,0 +1,80 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "whitespace",
+  "command": "/mos:whitespace",
+  "stated_question": "Is anyone covering thin-film sensors for dairy?",
+  "scqa": {
+    "situation": "The room lists sensing methods.",
+    "complication": "One zone is unclear.",
+    "question": "Is anyone covering the zone?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A zone that looks empty."
+    },
+    "goal": {
+      "target": "Confirm or refute the gap.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Gap claim",
+      "dimension": "ws:gap_claim"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Is anyone covering thin-film sensors for dairy?",
+      "origin": "user_stated",
+      "dimension": "ws:gap_claim",
+      "lens": "ws.gap",
+      "researchable": true,
+      "falsifier": {
+        "text": "Any paper addressing the zone."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Is the zone open in the literature?",
+      "origin": "user_stated",
+      "dimension": "ws:gap_claim",
+      "lens": "ws.gap",
+      "researchable": true,
+      "falsifier": {
+        "text": "Any paper showing the zone is filled."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [
+    {
+      "dimension": "ws:covered_elsewhere",
+      "not_researchable_reason": "navigator judgment on neighboring terms"
+    },
+    {
+      "dimension": "ws:extraction_failure",
+      "not_researchable_reason": "no room artifacts to check yet"
+    }
+  ],
+  "lens_selection": []
+}

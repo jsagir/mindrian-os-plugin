@@ -1,0 +1,91 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "root-cause",
+  "command": "/mos:root-cause",
+  "stated_question": "Why do returns spike after the second firmware update?",
+  "scqa": {
+    "situation": "Returns were flat until the second firmware release.",
+    "complication": "The spike began within days and has not faded.",
+    "question": "What causal chain links the release to the spike?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A release that should have helped seems to hurt."
+    },
+    "goal": {
+      "target": "Name the first link in the chain that breaks.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Causal links",
+      "dimension": "rc:why_link"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Why do returns spike after the second firmware update?",
+      "origin": "user_stated",
+      "dimension": "rc:why_link",
+      "lens": "rc.why_link",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that the spike is unrelated to the release date."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Does the release change connection retry timing that field reports implicate?",
+      "origin": "framework_dimension",
+      "dimension": "rc:why_link",
+      "lens": "rc.why_link",
+      "researchable": true,
+      "falsifier": {
+        "text": "Timing traces showing retry behavior is unchanged."
+      },
+      "slots": {
+        "cause": "retry timing change",
+        "effect": "device returns"
+      }
+    },
+    {
+      "id": "L3",
+      "parent": "K1",
+      "question": "Do battery drain reports correlate with the release across device generations?",
+      "origin": "framework_dimension",
+      "dimension": "rc:why_link",
+      "lens": "rc.why_link",
+      "researchable": true,
+      "falsifier": {
+        "text": "A confound such as batch age explains the correlation."
+      },
+      "slots": {
+        "cause": "battery drain",
+        "effect": "device returns"
+      }
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": [],
+  "multi_cause": false
+}
