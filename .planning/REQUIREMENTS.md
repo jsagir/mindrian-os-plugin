@@ -3805,7 +3805,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       limiters the navigator did not name. Benchmark scores are not acceptance. Plans 363-01,
       363-02, 363-20, 363-21.
 
-- [ ] **DRP363-17**: Part 8 sweep: a planted room marker never reaches argv, stdout or stderr logs,
+- [x] **DRP363-17**: Part 8 sweep: a planted room marker never reaches argv, stdout or stderr logs,
       telemetry, a cache key, a Theo call argument or the audit ledger; the only room-derived
       string that may leave the machine is an approved, audited query string, and it appears only
       in the outbound request and the audit ledger. Plans 363-02, 363-20.

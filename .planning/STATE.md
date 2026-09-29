@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-01-PLAN.md - pre-phase baseline, run-all-363 aggregator, D-06 rubric, Semantic Scholar RCA"
-last_updated: "2026-09-29T15:14:03.126Z"
-last_activity: 2026-09-29 -- 363-01 complete; quick 260929-obr (plurai evals retired to Jev) complete
+stopped_at: "Completed 363-02-PLAN.md - fixture room and OpenAlex replay helpers"
+last_updated: "2026-09-29T15:40:09.391Z"
+last_activity: 2026-09-29 -- 363-02 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 418
+  completed_plans: 419
   percent: 90
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 2 of 22
+Plan: 3 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
