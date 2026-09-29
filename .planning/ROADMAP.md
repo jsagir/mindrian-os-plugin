@@ -1361,7 +1361,8 @@ Plans:
 
 ### Phase 362: Card gate: text-dependent relevance false block (R-C follow-on from Phase 357, dogfood entry dogfood-0f86dd63-092046)
 
-**Goal:** [To be planned]
+**Goal:** Close the one known_false_block Phase 357 left open (replay entry dogfood-0f86dd63-092046: a single overlapping token on a human continuity turn false-blocked the card). Replay it on post-359 code first; if still false-blocking, fix with structured signals only (turn metadata, token provenance, 359 declared options; no text understanding, no Jev in hooks), else record residual known_false_block with evidence. 357 false_blocks = 0 bar holds. Context: `362-CONTEXT.md`.
+**Execution gate:** starts only after Phase 359 plans 07-10 are on main (navigator ruling 2026-09-29).
 **Requirements**: TBD
 **Depends on:** Phase 361
 **Plans:** 0 plans
