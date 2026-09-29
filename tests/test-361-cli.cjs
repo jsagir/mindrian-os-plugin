@@ -230,9 +230,12 @@ function parseJson(stdout) {
   check(!!out && Array.isArray(out.steps) && out.steps.length === 6, 'theo-structure offline leg: six reference steps');
   check(!!out && Array.isArray(out.calls) && out.calls.length === 3, 'theo-structure offline leg: three calls recorded');
   const argsOk = !!out && out.calls.every(function (c) {
-    return c && c.args && Object.keys(c.args).length === 1 && c.args.framework === 'Dominant Design';
+    if (!c || !c.args || Object.keys(c.args).length !== 1) return false;
+    if (Object.prototype.hasOwnProperty.call(c.args, 'case_name')) return false;
+    if (c.tool === 'case_story') return c.args.framework_name === 'Dominant Design';
+    return c.args.framework === 'Dominant Design';
   });
-  check(argsOk, 'theo-structure offline leg: every call arg is exactly {framework: "Dominant Design"}');
+  check(argsOk, 'theo-structure offline leg: every call carries only the generic handle under its tool key (case_story: framework_name), never case_name');
 })();
 
 // ---------------------------------------------------------------------------
