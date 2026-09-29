@@ -116,7 +116,7 @@ leg('A5 ledger path is under .mindrian and audit-ledger.cjs performs no network 
   assert.equal(fs.existsSync(path.join(room, '.mindrian', 'research-audit.jsonl')), true);
   const src = fs.readFileSync(AUDIT_FILE, 'utf8');
   assert.equal(/fetch\(|https?:\/\/|require\('node:https?'\)|require\('https?'\)|node:net|node:dns/.test(src), false);
-  assert.equal(/[—–]/.test(src), false);
+  assert.equal(/[\u2014\u2013]/.test(src), false);
   assert.equal(guard.attempts(), 0);
 });
 

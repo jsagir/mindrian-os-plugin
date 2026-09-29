@@ -483,6 +483,32 @@
       "status": "disclosed",
       "provenance": null,
       "dependent_outputs": []
+    },
+    {
+      "id": "research-planner-grants.GRANT_EXPIRY_DAYS",
+      "file": "lib/core/research-planner/grants.cjs",
+      "line_anchor": "GRANT_EXPIRY_DAYS",
+      "value": 30,
+      "gates": "how many days a standing research grant stays valid before the room must ask again (Phase 363 D-11); mirrors the 30-day research cache TTL; re-measured at 363-20",
+      "kind": "policy",
+      "env_override": null,
+      "env_read": "load",
+      "status": "disclosed",
+      "provenance": null,
+      "dependent_outputs": ["research_run"]
+    },
+    {
+      "id": "research-planner-grants.RESEARCH_RUNS_PER_HOUR",
+      "file": "lib/core/research-planner/grants.cjs",
+      "line_anchor": "RESEARCH_RUNS_PER_HOUR",
+      "value": 1,
+      "gates": "the most room-started quick research runs per room per hour under a standing grant (Phase 363 D-11); reuses the 355.1 ambient throttle value; re-measured at 363-20",
+      "kind": "policy",
+      "env_override": null,
+      "env_read": "load",
+      "status": "disclosed",
+      "provenance": null,
+      "dependent_outputs": ["research_run"]
     }
   ]
 }

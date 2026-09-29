@@ -278,14 +278,14 @@ leg('G11 grantCard is an F.0 card with three options and a complete plain body',
     assert.ok(b.toLowerCase().indexOf(s.toLowerCase()) !== -1, 'body missing: ' + s);
   });
   assert.ok(b.indexOf('2026-10-29') !== -1, 'expiry date shown');
-  assert.equal(/[—–]/.test(JSON.stringify(card)), false);
+  assert.equal(/[\u2014\u2013]/.test(JSON.stringify(card)), false);
   assert.equal(/great|excellent/i.test(b), false);
 });
 
 leg('G12 static: grants.cjs does no network I/O and isRawQueryEdit is reused, not copied', function () {
   const src = fs.readFileSync(GRANTS_FILE, 'utf8');
   assert.equal(/fetch\(|https?:\/\/|require\('node:https?'\)|require\('https?'\)/.test(src), false);
-  assert.equal(/[—–]/.test(src), false);
+  assert.equal(/[\u2014\u2013]/.test(src), false);
   assert.match(src, /^const GRANT_EXPIRY_DAYS = 30;/m);
   assert.match(src, /^const RESEARCH_RUNS_PER_HOUR = 1;/m);
   assert.equal(typeof G.isRawQueryEdit, 'undefined');
