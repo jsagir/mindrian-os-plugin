@@ -359,6 +359,19 @@ leg('S16 no brain-client, no network module, no dash characters', () => {
   assert.ok(!src.includes(em) && !src.includes(en));
 });
 
+leg('S17 tolerates the 363-06 fixture field names (label, derivation.claim, lowercase type)', () => {
+  const f = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', '363-question-sets', 'scientific-roadmapping.json'), 'utf8'));
+  const r = P.buildPerspective(f.perspective, { rung: 'IllDefined', scientific: true, depth: 'full', mode: 'deep' });
+  assert.ok(!r.errors.some((e) => e.startsWith('limiter_statement_missing')), r.errors.join(','));
+  const lm1 = r.perspective.limiters.find((l) => l.id === 'LM1');
+  assert.equal(lm1.column, 'physics');
+  assert.equal(lm1.statement, 'Cathode theoretical capacity');
+  const q = qsFull(); q.rung_phrase.roadmap_type = 'technical roadmap';
+  const r2 = P.buildPerspective(q, OPTS_SCI);
+  assert.equal(r2.perspective.rung_phrase.roadmap_type, 'Technical Roadmap');
+  assert.deepEqual(r2.errors, []);
+});
+
 // ---------------------------------------------------------------- runner
 let failed = 0;
 if (loadError) {
