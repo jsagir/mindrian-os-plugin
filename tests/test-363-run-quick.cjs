@@ -528,6 +528,9 @@ async function main() {
     let markerHits = 0;
     let keyHits = 0;
     files.forEach(function (f) {
+      // room.db is the room's own local store (the fixture seeds the marker into
+      // its claims on purpose); the sweep covers what the run itself wrote.
+      if (/room\.db/.test(path.basename(f))) return;
       let text = '';
       try { text = fs.readFileSync(f, 'utf8'); } catch (_e) { return; }
       if (text.indexOf(room.marker) !== -1) markerHits += 1;
