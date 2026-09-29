@@ -223,6 +223,16 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
   `research/` links to the filed opportunity; the opportunity links back (SEED-097 ICM filing
   rule: links, not copies). The grant (D-04) never authorizes this filing.
 
+### Research open questions: defaults accepted (orchestrator, 2026-09-29, under the navigator's "finish the phases" goal; each follows D-04's caution)
+- **D-10:** A standing quick grant asks **once, before fetching, the first time a new search term** would leave under it (the Part 8 guard only blocks PII-shaped strings, so a confidential technical term would otherwise pass). Later runs reuse the confirmed term set.
+- **D-11:** Grant expiry 30 days; ambient quick throttle 1 run per room per hour. Both are floor-ledger values, measured and revisable in 363-14.
+- **D-12:** Run home is a top-level `research/` folder per run (`eureka/research-filing.cjs::fileResearchArtifact` precedent), confirmed through the icm-architect consult during planning.
+- **D-13:** Contradictions found by research are written as CONTRADICTS edges through `navigation.cjs` (the `held_contradictions` table has no Part 9 writer).
+- **D-14:** One governed runner: `/mos:research` (already has the granted Agent token, `plan_gated: true`, the deep_research reach) is the only surface that runs plans; the D-02 commands produce a checked question set and hand it over. A `research_run` MCP tool exposes quick runs to Desktop/Cowork; deep runs stay CLI with an honest degrade. If an MCP tool cannot declare `hitl_stages`, it declares `hitl_shape: F.6`.
+- **D-15:** Research opportunities are written with `writeOpportunityNode` (a graph node), not the funding-form `file-opportunity` (D-07 amended accordingly); `mos:opportunity-scanner` is checked for real invocation during planning.
+- **D-16:** Wave 0 fixes the two reproduced blockers first: a failed OpenAlex fetch must never read as `empty_valid`, and the adapter must carry an API key, keep `meta.count`, quote phrases, and cache counts. The unaudited `scripts/query-semantic-scholar.cjs` egress is out of scope and filed as a follow-on.
+- **D-17:** Scientific structure (D-09) is built at dev time into `data/research-shape-ledger.json` from anchored Theo reads, with a live refresh that names its source; the runtime never depends on `framework_step` (which returns empty labels today) or on user-install `brain_query` access.
+
 ### Claude's Discretion
 - Plan object schema, module names and where the plan-and-run engine lives (under `lib/core/`
   next to `research-corpus.cjs`, or a new folder with a `ROOM.md`).
