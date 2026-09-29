@@ -191,6 +191,26 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
     `lib/core/feynman-minto-invariants.cjs`, the room's MINTO.md, the `held_contradictions`
     table. The planner writes and updates the pyramid through these; no second reasoning store.
 
+### Scientific research: ask the graph how to structure it
+- **D-09 (navigator, 2026-09-29):** when the research is scientific, the planner **asks Theo (the
+  Neo4j teaching graph) how to structure the research**, because the graph already holds the
+  relevant frameworks. Live anchored reads (2026-09-29, framework handles only):
+  - Scientific-research frameworks present: Scientific Roadmapping (7 process steps), Logic Trees
+    (Issue, Hypothesis, Decision) (5 steps), Hypothesis-Driven Problem Solving (0 steps), Scientific
+    Method (0), Adversarial Research Protocol (0), Research Validation and Early Business Framing,
+    Herbert Simon The Sciences of the Artificial.
+  - FEEDS_INTO: Scientific Roadmapping -> Reverse Salient Analysis, Hypothesis-Driven Problem
+    Solving, PWS Value Proposition, Three-Horizon Framework; Hypothesis-Driven Problem Solving ->
+    Red Teaming.
+  - Logic Trees is the graph's own MECE issue/hypothesis/decision tree: it is the natural Theo-side
+    source for the D-08 pyramid's structure on scientific questions, and it has live steps.
+  - Frameworks with live steps drive the plan's steps directly (D-02b upgrade path); frameworks
+    with zero steps contribute their place in the sequence only, and the gap is logged for the
+    Theo companion work (Theo SEED-015 / SEED-097 Theo-side authoring).
+  - Reads are anchored `MATCH` by framework handle and problem type; the scientific question itself
+    never goes to Theo (Part 8). Freeform `brain_search` / `brain_ask` on such questions is refused
+    (`freeform_unproven`, observed 2026-09-29), so the planner must not depend on them.
+
 ### Opportunities scooped by research
 - **D-07 (navigator, 2026-09-29):** "such research might scoop opportunities to be filed." A run,
   quick or deep, watches for opportunities, not only answers: a gap confirmed in the literature, a
