@@ -248,6 +248,26 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
     `/mos:` Scientific Roadmapping command) stays a separate seed; 363's planner-mode for it must be
     built so SEED-098 can reuse it rather than duplicate it.
 
+### Dual-use / deep-tech diffusion lens
+- **D-19 (navigator requirement relayed by session jsagi-87, 2026-09-29):** "there is the dual use
+  diffusion framework, need to use it when proper for research." When the planner judges a research
+  question to be about a dual-use or deep-tech technology's adoption, diffusion or timing, it
+  selects the **diffusion lens** as part of the plan. This is a lens under the one governed runner,
+  not a new stack (Canon Part 7): the existing surface is `/mos:diffusion` (`commands/diffusion.md`,
+  `skills/diffusion/SKILL.md`, framework Adoption-Capacity Theory, `autonomous_safe: true`,
+  `hitl_shape: F.9`), listed in the reuse check next to `/mos:research`, `/mos:dominant-designs`
+  research mode, `/mos:find-analogies --external` and the rs-* stack. It joins D-02's set of
+  commands that become research planners: its structured questions (who adopts first, absorptive
+  capacity, the civil/defense crossing, timing) become pyramid leaves with falsifiers, and in a
+  scientific-roadmapping pass it supplies the adoption side of step 7's unlock chains and the
+  S-curve reading of step 6.
+  - Graph (direct Neo4j read, 2026-09-29): chapters `diffusion` and `dualuse`; frameworks
+    Adoption-Capacity Theory (anchor chapter `dualuse`), Dual-Use Technology, Diffusion of
+    Innovations (Rogers), Diffusion Theory, Law of Diffusion of Innovation. Whether canon ties them
+    to problem types (so `recommend_chain` can surface them) is being checked Theo-side by jsagi-87;
+    until then selection is by the planner's local relevance judgment (room signals, question
+    shape), never by sending the question to Theo.
+
 ### Opportunities scooped by research
 - **D-07 (navigator, 2026-09-29):** "such research might scoop opportunities to be filed." A run,
   quick or deep, watches for opportunities, not only answers: a gap confirmed in the literature, a
