@@ -3725,7 +3725,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       retracted works are flagged. The ungated `scripts/query-semantic-scholar.cjs` egress is out
       of scope and recorded as a follow-on RCA. Plans 363-01, 363-03, 363-04.
 
-- [ ] **DRP363-07**: Quick research run: one pass, at most 3 audited queries, top 5 rows, one corpus,
+- [x] **DRP363-07**: Quick research run: one pass, at most 3 audited queries, top 5 rows, one corpus,
       cache-first, plus a local room check for the extraction-failure falsifier. Rows are
       quote-first and checked against the fetched record text and its content hash; a code-computed
       verdict of `settled | thin | contested | gap-confirmed | unresolved` puts provider failure

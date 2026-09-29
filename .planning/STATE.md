@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-03-PLAN.md - OpenAlex failures typed never empty_valid, Bearer key, meta.count, query fidelity (D-16)"
-last_updated: "2026-09-29T17:10:00.000Z"
-last_activity: 2026-09-29 -- 363-03 complete
+stopped_at: "Completed 363-04-PLAN.md - research cache stores envelope meta (counts, budget), fetchSourceCached exported, openalex-v2 namespace (D-16)"
+last_updated: "2026-09-29T17:40:00.000Z"
+last_activity: 2026-09-29 -- 363-04 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 420
+  completed_plans: 421
   percent: 91
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 4 of 22
+Plan: 5 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
