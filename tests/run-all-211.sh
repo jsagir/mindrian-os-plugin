@@ -6,15 +6,17 @@
 #
 # The phase gate the ROADMAP names has three legs:
 #   (1) run-all-211 green (this script),
-#   (2) the deployed Cross-Topic Connection judge wired on SYNTHETIC gold-card
-#       text only (test-211-judge-gate.cjs; SKIPs + writes a deferred baseline
-#       when no key resolves or the endpoint is unreachable),
+#   (2) the live gold-card judge, now Jev (usefulness_judge) over SYNTHETIC
+#       gold-card text only (test-211-jev-judge-leg.cjs; exits 77, printed as
+#       SKIPPED (ENV GAP), when no key resolves or the vendor is unreachable,
+#       never PASSED),
 #   (3) the real-room eureka spot-check (a HUMAN reads evals/eureka/211-room-report.md).
 #
-# EGRESS RULE (Part 8, restated): Plurai is BUILD/CI only, synthetic gold-card
-# data only, NEVER on the runtime path and NEVER on real-room content. The
-# eureka-room-report runner makes zero network calls; the real room database is
-# verified by the human spot-check, not by a network judge.
+# EGRESS RULE (Part 8, restated): the live judge is Jev, over synthetic gold-card
+# text only, NEVER on the runtime path and NEVER on real-room content. Plurai was
+# retired 2026-09-29 (hosted endpoint HTTP 404). No leg writes a baseline file.
+# The eureka-room-report runner makes zero network calls; the real room database
+# is verified by the human spot-check, not by a network judge.
 #
 # Each leg is run_if, GUARDED ON A FILE that must exist, so a partially-landed
 # phase exits cleanly with SKIPs rather than RED-failing on absence. bash only.
@@ -36,7 +38,15 @@ SKIP=0
 run() {
   local label="$1"; shift
   echo "--- $label ---"
-  if "$@"; then echo ">>> $label: PASSED"; PASS=$((PASS+1)); else echo ">>> $label: FAILED"; FAIL=$((FAIL+1)); fi
+  "$@"
+  local status=$?
+  if [ "$status" -eq 0 ]; then
+    echo ">>> $label: PASSED"; PASS=$((PASS+1))
+  elif [ "$status" -eq 77 ]; then
+    echo ">>> $label: SKIPPED (ENV GAP)"; SKIP=$((SKIP+1))
+  else
+    echo ">>> $label: FAILED"; FAIL=$((FAIL+1))
+  fi
   echo ""
 }
 run_if() {
@@ -64,10 +74,15 @@ run_if "211-03 measured differential" "tests/test-211-measured-differential.cjs"
 run_if "211-04 case cards (schema + no-real-names)" "tests/test-211-case-cards.cjs" \
   node tests/test-211-case-cards.cjs
 
-# (5) Judge gate (211-05): offline directional contract + key-gated Cross-Topic
-#     Connection judge on SYNTHETIC gold-card text only. SKIPs offline (deferred baseline).
-run_if "211-05 judge gate (offline contract + deployed judge)" "tests/test-211-judge-gate.cjs" \
+# (5) Judge gate (211-05): offline directional contract on scoreMeasured (zero
+#     network, writes nothing), then the Jev gold-card leg: its offline stubbed
+#     contract, and the live key-gated judge (77 = ENV GAP).
+run_if "211-05 judge gate (offline directional contract)" "tests/test-211-judge-gate.cjs" \
   node tests/test-211-judge-gate.cjs
+run_if "211 Jev gold-card leg contract (offline, stubbed)" "tests/test-211-jev-leg-contract.cjs" \
+  node tests/test-211-jev-leg-contract.cjs
+run_if "211 Jev gold-card judge (live, key-gated; 77 = ENV GAP)" "tests/test-211-jev-judge-leg.cjs" \
+  node tests/test-211-jev-judge-leg.cjs
 
 # (6) Vertical-slice runner smoke (211-05): the whole measured pipeline offline
 #     against the real room database. Guarded on the runner script.

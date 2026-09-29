@@ -16,12 +16,13 @@
 #   (b) test-212-negative-corpus.cjs  -- D6: the recorded junk outputs stay rejected
 #   (c) test-212-part8-boundary.cjs   -- Part 8 boundary scan; ALSO carries leg
 #   (d)                                  the D5 per-call-resolution CHECK 4 (same file)
-# Supporting suites: Stage A gates, the Stage B rubric, and the OPTIONAL Plurai leg.
+# Supporting suites: Stage A gates, the Stage B rubric, and the OPTIONAL Jev leg.
 #
-# EGRESS RULE (Part 8, restated): Plurai is BUILD/CI only, synthetic gold-card
-# data only, NEVER the runtime path and NEVER real-room content. The optional
-# Plurai leg degrades to SKIP + a baseline_deferred record when no key resolves
-# or the endpoint 404s; it can never fail this gate (navigator Q3 lock).
+# EGRESS RULE (Part 8, restated): the live judge is Jev, over synthetic gold-card
+# data only, NEVER the runtime path and NEVER real-room content. Plurai was retired
+# 2026-09-29 (hosted endpoint HTTP 404). The optional Jev leg exits 77 (printed as
+# SKIPPED (ENV GAP)) when no key resolves or the vendor is unreachable; no leg
+# writes a baseline file (navigator Q3 lock: it is a calibration signal, not a gate).
 #
 # Each leg is run_if, GUARDED ON A FILE that must exist, so a partially-landed
 # phase (or a plan-03 leg not yet merged in this wave) exits cleanly with SKIPs
@@ -43,7 +44,15 @@ SKIP=0
 run() {
   local label="$1"; shift
   echo "--- $label ---"
-  if "$@"; then echo ">>> $label: PASSED"; PASS=$((PASS+1)); else echo ">>> $label: FAILED"; FAIL=$((FAIL+1)); fi
+  "$@"
+  local status=$?
+  if [ "$status" -eq 0 ]; then
+    echo ">>> $label: PASSED"; PASS=$((PASS+1))
+  elif [ "$status" -eq 77 ]; then
+    echo ">>> $label: SKIPPED (ENV GAP)"; SKIP=$((SKIP+1))
+  else
+    echo ">>> $label: FAILED"; FAIL=$((FAIL+1))
+  fi
   echo ""
 }
 run_if() {
@@ -76,11 +85,10 @@ run_if "212-02 (b) D6 negative corpus" "tests/test-212-negative-corpus.cjs" \
 run_if "212-03 (c+d) Part 8 boundary + D5 per-call-resolution" "tests/test-212-part8-boundary.cjs" \
   node tests/test-212-part8-boundary.cjs
 
-# Optional leg: the deployed Plurai classifier signal. SKIP-degrades on a missing
-# key or an unreachable endpoint (writes evals/plurai/212-baseline.json deferred);
-# it can never fail this gate.
-run_if "212-04 optional Plurai leg (SKIP-degrading)" "tests/test-212-plurai-leg.cjs" \
-  node tests/test-212-plurai-leg.cjs
+# Optional leg: Jev gold-card calibration signal (live, key-gated). Exit 77 with
+# no key or an unreachable vendor is counted SKIPPED (ENV GAP); it writes no file.
+run_if "212-04 optional Jev gold-card leg (live, key-gated; 77 = ENV GAP)" "tests/test-212-jev-leg.cjs" \
+  node tests/test-212-jev-leg.cjs
 
 echo "======================================"
 echo "Phase 212: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"

@@ -2,32 +2,32 @@
 'use strict';
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
- * Phase 211-05 -- the judge-gate test: the deployed Cross-Topic Connection judge
- * wired on the PSEUDONYMOUS gold-card texts, plus the offline directional
- * contract on scoreMeasured.
+ * Phase 211-05 -- the judge-gate test: the offline directional contract on
+ * scoreMeasured over the synthetic gold-card texts.
+ *
+ * MOVED (quick 260929-obr): the old Test B (the deployed Cross-Topic Connection
+ * judge) now lives in tests/test-211-jev-judge-leg.cjs. The live judge is Jev
+ * (usefulness_judge) because Plurai was retired 2026-09-29 (hosted endpoint
+ * returns HTTP 404). This file is offline only: zero network, writes nothing.
  *
  * --------------------------------------------------------------------------
  * PART 8 EGRESS RULE (stated once, enforced structurally):
- * Real-room content NEVER reaches the Plurai endpoint. This test scores ONLY
- * the synthetic-by-construction gold-card texts from evals/eureka/cases/ (the
- * run-all-200.sh precedent: Plurai is BUILD/CI only, synthetic data only, never
- * on the runtime path). It NEVER opens the live room database under the room
- * directory -- grep this source for that local database filename and you find
- * zero hits. The real-room output is verified by the HUMAN spot-check in
- * evals/eureka/211-room-report.md, not by a network judge.
+ * Real-room content NEVER reaches any vendor endpoint. The tests here and in the
+ * live Jev leg use ONLY the synthetic-by-construction gold-card texts from
+ * evals/eureka/cases/ (the run-all-200.sh precedent: vendor judges are BUILD/CI
+ * only, synthetic data only, never on the runtime path). This test NEVER opens
+ * the live room database under the room directory -- grep this source for that
+ * local database filename and you find zero hits. The real-room output is
+ * verified by the HUMAN spot-check in evals/eureka/211-room-report.md, not by a
+ * network judge.
  * --------------------------------------------------------------------------
  *
  * Test A (offline, ALWAYS runs): scoreMeasured directional contract over gold-card
  *   pairs with a deterministic stub encoder. Asserts DIRECTIONAL truths only,
  *   never magnitudes.
- * Test B (network, KEY-GATED): when a Plurai key resolves, POST the darkmatter
- *   transferable connection statement and one unrelated pairing to the
- *   cross-topic-connection endpoint; assert transferable -> Hedged|Confident and
- *   unrelated -> No Connection. On missing key: SKIP and refresh
- *   evals/plurai/211-baseline.json with the baseline_deferred house shape.
  *
  * Pure CJS, node built-ins + gray-matter (house frontmatter parser) + the shipped
- * lib modules. Offline path makes zero network calls.
+ * lib modules. Makes zero network calls and writes no file.
  */
 
 const fs = require('node:fs');
@@ -37,10 +37,8 @@ const matter = require('gray-matter');
 
 const REPO = path.resolve(__dirname, '..');
 const CASES_DIR = path.join(REPO, 'evals', 'eureka', 'cases');
-const BASELINE_PATH = path.join(REPO, 'evals', 'plurai', '211-baseline.json');
 
 const { scoreMeasured } = require(path.join(REPO, 'lib/core/rs-differential-scorer.cjs'));
-const rft = require(path.join(REPO, 'lab/eval/report-from-transcript.cjs'));
 
 // ---------------------------------------------------------------------------
 // Tiny async test harness (matches the house test-211-*.cjs shape).
@@ -98,51 +96,6 @@ function card(stem) {
   return matter(raw).data;
 }
 
-// ---------------------------------------------------------------------------
-// Plurai key resolution (loadApiKey is not exported by report-from-transcript;
-// replicate its contract: env var, then ~/.config/evals/credentials.json).
-// ---------------------------------------------------------------------------
-
-function resolvePluraiKey() {
-  if (process.env.PLURAI_API_KEY) return process.env.PLURAI_API_KEY;
-  try {
-    const p = path.join(require('node:os').homedir(), '.config', 'evals', 'credentials.json');
-    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-    return j.api_key || null;
-  } catch (_e) {
-    return null;
-  }
-}
-
-function writeDeferredBaseline(reason, detail) {
-  const payload = {
-    schema_version: '1.0',
-    artifact_kind: 'ci-baseline',
-    baseline_deferred: true,
-    reason: reason,
-    detail: detail || null,
-    date: new Date().toISOString().slice(0, 10),
-    legs: ['cross-topic-connection'],
-    judge_slug: rft.JUDGES.elevation.slug,
-    judge_labels: rft.JUDGES.elevation.labels,
-    synthetic_only: true,
-    deferred_note: 'The deployed Cross-Topic Connection judge (elevation slug '
-      + rft.JUDGES.elevation.slug + ') scores ONLY the pseudonymous gold-card connection '
-      + 'texts, never real-room content (Part 8 egress rule). '
-      + (reason === 'no_plurai_key'
-        ? 'No Plurai key resolved at build time, so this is an honest deferral in the '
-          + '201-baseline.json house pattern. Re-run with PLURAI_API_KEY (or '
-          + '~/.config/evals/credentials.json) to replace this with a hosted Plurai baseline.'
-        : 'A key resolved but the judge endpoint was unreachable (see detail). The '
-          + 'cross-topic-connection route is not deployed at the expected URL as of build '
-          + 'time; deferred honestly per the 201-baseline.json house pattern. Deploy or '
-          + 'correct the endpoint, then re-run to replace this with a hosted Plurai baseline.'),
-    endpoint: rft.endpointUrl(rft.JUDGES.elevation.slug),
-  };
-  fs.writeFileSync(BASELINE_PATH, JSON.stringify(payload, null, 2) + '\n', 'utf8');
-  return payload;
-}
-
 // ===========================================================================
 
 async function run() {
@@ -181,63 +134,6 @@ async function run() {
     assert(typeof r.lexical === 'number' && !Number.isNaN(r.lexical), 'lexical must be finite');
     assert(typeof r.abs_diff === 'number' && !Number.isNaN(r.abs_diff), 'abs_diff must be finite');
     assert(typeof r.passes === 'boolean', 'passes must be a boolean');
-  });
-
-  // -------------------------------------------------------------------------
-  // TEST B -- deployed judge (key-gated). Only synthetic gold-card text egresses.
-  // -------------------------------------------------------------------------
-
-  await ok('Test B: Cross-Topic Connection judge scores the gold-card connection texts (or deferred baseline)', async function () {
-    const key = resolvePluraiKey();
-    if (!key) {
-      const payload = writeDeferredBaseline('no_plurai_key');
-      assert(payload.baseline_deferred === true, 'deferred baseline must be written');
-      console.log('     (no Plurai key -> wrote deferred baseline ' + path.relative(REPO, BASELINE_PATH) + ')');
-      return 'SKIP';
-    }
-
-    // Build the two judge inputs from SYNTHETIC gold-card text ONLY.
-    const dm = card('archimedes-darkmatter');
-    const nf = card('nichefoods-null');
-    const ll = card('lovelace-lean');
-
-    const transferable = 'Statement A: ' + dm.hypothesis_in + '\nStatement B: ' + dm.destination
-      + '\nClaim: these connect because they share the mechanism of statistical background subtraction.';
-    const unrelated = 'Statement A: ' + nf.hypothesis_in + '\nStatement B: ' + ll.destination
-      + '\nClaim: a specialty-foods growth move and a strong-induction proof restatement are the same insight.';
-
-    const good = await rft.callJudge(rft.JUDGES.elevation.slug, key, transferable, {});
-    const bad = await rft.callJudge(rft.JUDGES.elevation.slug, key, unrelated, {});
-
-    // Network gap tolerance: if either call errored, record deferred, do not red-fail CI.
-    if (good.error || bad.error) {
-      const detail = 'transferable_call=' + (good.reason || good.label) + ' | unrelated_call=' + (bad.reason || bad.label);
-      writeDeferredBaseline('plurai_endpoint_unreachable', detail);
-      console.log('     (judge endpoint unreachable -> wrote deferred baseline; ' + detail + ')');
-      return 'SKIP';
-    }
-
-    assert(good.label === 'Hedged' || good.label === 'Confident',
-      'the transferable darkmatter connection must judge Hedged or Confident (got ' + good.label + ')');
-    assert(bad.label === 'No Connection',
-      'the unrelated pairing must judge No Connection (got ' + bad.label + ')');
-
-    // Persist a live baseline record.
-    const live = {
-      schema_version: '1.0',
-      artifact_kind: 'ci-baseline',
-      baseline_deferred: false,
-      method: 'hosted-plurai',
-      date: new Date().toISOString().slice(0, 10),
-      legs: ['cross-topic-connection'],
-      judge_slug: rft.JUDGES.elevation.slug,
-      synthetic_only: true,
-      results: {
-        transferable_darkmatter: good.label,
-        unrelated_pairing: bad.label,
-      },
-    };
-    fs.writeFileSync(BASELINE_PATH, JSON.stringify(live, null, 2) + '\n', 'utf8');
   });
 
   console.log('\nPhase 211 judge-gate: PASS=' + PASS + ' FAIL=' + FAIL + ' SKIP=' + SKIP);
