@@ -1395,7 +1395,7 @@ Plans:
 **Depends on:** Phase 355.1 (released in v2.0.0-beta.51). Feeds SEED-098 (Scientific Roadmapping) through its Theo-side authoring requirement.
 **Reuse check (Canon Part 7), first thing in discuss:** the existing surfaces that already reach outward - `/mos:research`, the `mos:research` agent, `/mos:dominant-designs` research mode (Phase 361), `/mos:find-analogies --external`, `/mos:diffusion` (the dual-use diffusion lens, D-19), `rs-query-matrix.cjs`, `eureka/online-pattern-query.cjs`, the OpenAlex adapter. The planner orchestrates them; it does not become a second research stack.
 **Open discuss decisions:** (1) what separates a quick run from a deep run (depth, breadth, budget, iteration count, who triggers it); (2) approval mode per run type - e.g. quick may run under a standing audited policy while deep needs a reviewed plan, or both need exact-string approval; (3) where the plan lives and whether the navigator can edit it before a deep run starts; (4) SEED-097 open decision 6 (Roadmapping direction and well-defined coverage).
-**Plans:** 8/22 plans executed
+**Plans:** 9/22 plans executed
 
 Plans:
 
@@ -1412,7 +1412,7 @@ Plans:
 - [x] 363-06-PLAN.md -- six planner templates (map-unknowns, root-cause, think-hats, whitespace, diffusion, scientific-roadmapping) and the pyramid over issue-tree: D-00 gate, coverage, MECE, Logic Trees steps, roll-up, opportunity candidates
 - [x] 363-07-PLAN.md -- the research-perspective builder (D-18): Scientific Roadmapping engine, physics vs assumed limiters, unlock ranking, ratchet, describeEngine for SEED-098
 - [x] 363-08-PLAN.md -- audited query-family composer: whitespace-gap, concept-evidence, causal-link, constraint-interrogation, diffusion
-- [ ] 363-09-PLAN.md -- research grants with two lifetimes, every re-ask reason incl. first new term, append-only audit ledger, D-11 floor rows
+- [x] 363-09-PLAN.md -- research grants with two lifetimes, every re-ask reason incl. first new term, append-only audit ledger, D-11 floor rows
 - [ ] 363-10-PLAN.md -- research-shape ledger from the graph (Neo4j or guarded Theo snapshot, IP-capped), scientific detection, planners by relevance, next framework, diffusion lens selection
 - [ ] 363-11-PLAN.md -- quote-first, hash-anchored evidence rows over the 361 validator; deterministic term rows
 
