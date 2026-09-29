@@ -3739,7 +3739,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       honest synthesis that is the updated perspective and pyramid with row ids and names every
       unresolved branch. Never started unattended (D-03, D-08, D-18). Plan 363-13.
 
-- [ ] **DRP363-09**: Escalation: a thin or contested quick card carries exactly one offer, "run deep on
+- [x] **DRP363-09**: Escalation: a thin or contested quick card carries exactly one offer, "run deep on
       this?", which seeds a deep plan from the quick plan's perspective, pyramid and audited
       strings; it never auto-escalates (D-03). Plan 363-12.
 

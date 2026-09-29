@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-11-PLAN.md - quote-first, hash-anchored evidence rows over the 361 validator, deterministic term rows"
-last_updated: "2026-09-29T18:20:00.000Z"
-last_activity: 2026-09-29 -- 363-11 complete
+stopped_at: "Completed 363-12-PLAN.md - quick research run: grant-checked cache-first fetch, hash-anchored rows, code-computed verdict, evidence card, one deep escalation offer, budget floors disclosed"
+last_updated: "2026-09-29T18:55:00.000Z"
+last_activity: 2026-09-29 -- 363-12 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 428
+  completed_plans: 429
   percent: 93
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 12 of 22
+Plan: 13 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
