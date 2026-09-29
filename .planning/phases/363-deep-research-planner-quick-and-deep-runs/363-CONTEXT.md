@@ -168,6 +168,29 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
   whose questions demonstrably go beyond the user's stated question (D-00 check), reviewed by a
   human against a written rubric. Benchmark scores from the surveyed projects are not acceptance.
 
+### Minto / MECE is the plan's skeleton and the insight's return path
+- **D-08 (navigator, 2026-09-29):** "Minto MECE can derive research: break the context and user
+  intent into its MECE and Minto pyramid structure, understand how to build the research, understand
+  the next framework that is relevant, and bring in insight from the research." Concretely:
+  - **Down (plan):** the room context plus the user's intent becomes a Minto pyramid: the governing
+    thought or question at the top (SCQA framing), a MECE key line of sub-questions beneath it,
+    and leaves that are researchable questions. Each leaf is tagged with the framework lens that
+    asks it (D-02) and its falsifier (D-02c). MECE is checked: no overlap between siblings, no gap
+    that leaves the governing question unanswered. The questions the user did not know to ask
+    (D-00) show up as the MECE gaps the user's own framing left open.
+  - **Across (next framework):** the pyramid shows where support is weakest: an unsupported,
+    contested or empty branch. That branch picks the **next relevant framework** (with Theo's
+    problem-type and FEEDS_INTO reads, D-02b). The plan's sequence comes from the pyramid, not from
+    a fixed chain.
+  - **Up (insight):** evidence rows attach to their leaf as support or contradiction; results roll
+    up the pyramid so the governing thought is restated, strengthened, weakened or split. A deep
+    run's report is the updated pyramid with row citations, not a free-form essay. A contradiction
+    is kept as a held contradiction, never smoothed over.
+  - **Reuse, not rebuild:** `/mos:structure-argument` (Minto + SCQA + MECE), `/mos:mos-reason`
+    and `lib/core/reasoning-ops.cjs` (REASONING.md, confidence, `verification.must_be_true`),
+    `lib/core/feynman-minto-invariants.cjs`, the room's MINTO.md, the `held_contradictions`
+    table. The planner writes and updates the pyramid through these; no second reasoning store.
+
 ### Opportunities scooped by research
 - **D-07 (navigator, 2026-09-29):** "such research might scoop opportunities to be filed." A run,
   quick or deep, watches for opportunities, not only answers: a gap confirmed in the literature, a
@@ -220,6 +243,11 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
 ### Opportunity filing (D-07)
 - `commands/opportunities.md`, `commands/explore-opportunity.md`, `commands/qualify-opportunity.md` - existing opportunity surfaces
 - `lib/mcp/tool-router.cjs` - `room_content file-opportunity` schema and routing (note the 2026-07-06 active-room misroute todo)
+
+### Minto / MECE reasoning layer (D-08)
+- `commands/structure-argument.md` - Minto + SCQA + MECE argument structure
+- `commands/mos-reason.md` and `lib/core/reasoning-ops.cjs` - Feynman-Minto REASONING.md per section, confidence, verification.must_be_true
+- `lib/core/feynman-minto-invariants.cjs` - the invariants a pyramid must hold
 
 ### Canon and contracts
 - `docs/MINDRIAN-CANON.md` Parts 3, 7, 8, 9, 11, 12

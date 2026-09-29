@@ -64,6 +64,7 @@ At promotion the navigator restated the intent: "the initial intent of it was bu
 
 - "remember mindrian pushes users to ask questions he doesn't know to ask. the frameworks do this in structured ways and we need to operate them in accordance and appropriateness to the problem type context and gates [and] user needs we understand. frameworks are basically asking questions as an agentic system." -> D-00 governing principle.
 - "also such research might scoop opportunities to be filed." -> D-07.
+- "Minto MECE can derive research: break the context and user intent into its MECE and Minto pyramid structure, understand how to build the research, the next relevant framework, and bring in insight from the research." -> D-08.
 
 ## Claude's Discretion
 
