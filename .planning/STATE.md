@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: ready_to_release
-stopped_at: Phase 355.1 complete (16/16 plans, code-review criticals CR-01..04 fixed) and Phase 355 closed (28/28, goal-backward verification passed); next is the release cut, then SEED-097
-last_updated: "2026-09-27T16:38:24.336Z"
-last_activity: 2026-09-27 -- Phase 355.1 executed and verified; 355 verified; review fixes landed; release cut pending
+status: ready_to_plan
+stopped_at: "Phase 363 context gathered (D-00..D-07: PWS commands become research planners, quick/deep, research grant)"
+last_updated: "2026-09-29T05:46:53.276Z"
+last_activity: 2026-09-29 -- Phase 363 added (promotes SEED-097) and discussed; context captured
 progress:
-  total_phases: 113
-  completed_phases: 40
+  total_phases: 114
+  completed_phases: 43
   total_plans: 435
-  completed_plans: 376
-  percent: 86
+  completed_plans: 412
+  percent: 95
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -2260,6 +2260,7 @@ progress:
      (left there while peers held STATE writes), and state.advance-plan regressed it during 355.1-01
      (progress 86 -> 37). All 355.1 executors were told to skip state.* and this single reconcile
      replaces their per-plan writes. progress counters left untouched (not recomputed here). -->
+
 # Project State
 
 ## (2026-09-27) -- PHASES 355 + 355.1 CLOSED -- Hidden in Plain Sight (28/28) and the ambient trigger (16/16); release cut next
@@ -2273,10 +2274,10 @@ progress:
 **Suite:** tests/run-all-3551.sh PASS=64 FAIL=4, the 4 documented external reds (pre-existing). doctor --acceptance 20/22 (verify-release-clean-tree, icm-ruling-eval-fresh).
 
 **Open / next:**
+
 - Release cut (scripts/release.sh --prerelease -> v2.0.0-beta.51); main is ahead of origin; the unowned dirty 353-FLEET-REPORT.json (a run-all-353 side effect) blocks the clean-tree gate, navigator's call.
 - After release: the real-Desktop one-card check (navigator).
 - **Next phase: SEED-097 (critical)** Deep Research Designer built with the MCP intelligence services (hats drive what, engines drive queries, problem patterns shape them; per-research context cohort across room sections from the local graph; corpus behind Theo; Theo SEED-015 Jev keyholder). Mandatory consults: icm-architect + local graph. Navigator ruling 2026-09-25: do not narrow the original 355 ask.
-
 
 ## (2026-09-14) -- PHASE 344 CLOSED (9/9 plans) -- The Layer Contract: LAYER-01..15 measured and closed, LAYER-16 open on one room-mirror clause
 
@@ -9129,8 +9130,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-23T18:52:37.451Z
-Stopped at: Completed 355-02-PLAN.md - PWS author phrase ruling recorded, RED cross-producer direction agreement test committed
+Last session: 2026-09-29T05:46:53.103Z
+Stopped at: Phase 363 context gathered (D-00..D-07: PWS commands become research planners, quick/deep, research grant)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
