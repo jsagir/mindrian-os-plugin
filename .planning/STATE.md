@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-07-PLAN.md - research-perspective builder (Scientific Roadmapping engine, physics vs assumed limiters, unlock ranking, ratchet, describeEngine for SEED-098)"
-last_updated: "2026-09-29T18:45:00.000Z"
-last_activity: 2026-09-29 -- 363-07 complete
+stopped_at: "Completed 363-08-PLAN.md - audited query-family composer (five frozen families, typed slots, per-slot and per-string audit, sha256 q_hash, no-echo refusals)"
+last_updated: "2026-09-29T19:20:00.000Z"
+last_activity: 2026-09-29 -- 363-08 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 424
+  completed_plans: 425
   percent: 92
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 8 of 22
+Plan: 9 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently

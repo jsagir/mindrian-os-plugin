@@ -3693,7 +3693,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       and pruning for scientific questions; roll-up, weakest branch and opportunity candidates are
       computed in code (D-00, D-02c, D-08, D-09). Plan 363-06.
 
-- [ ] **DRP363-03**: Query families are composer template ids with typed slots: `whitespace-gap/v1`
+- [x] **DRP363-03**: Query families are composer template ids with typed slots: `whitespace-gap/v1`
       first, plus `concept-evidence/v1`, `causal-link/v1`, `constraint-interrogation/v1` (D-18
       derivation, re-test, S-curve and prior-attack templates) and `diffusion/v1` (D-19). Every outbound string passes
       `auditQueryString` before it can be returned, a refusal never echoes the string, exact
