@@ -1,0 +1,248 @@
+{
+  "anchors": {
+    "commands/research.md": [
+      "**Auto-dispatch rule (open-decision 1, RESOLVED per 4.8):** a calling methodology\nNEVER auto-fires material research. When evidence is below its declared threshold,\nit ASKS via the F.1 selector with a pre-computed confident recommendation\n(\"evidence is thin here -- run /mos:research?\"). This honors the GUIDED-default\nBrain rule (Canon Part 9 role 5): Larry proposes, the human decides."
+    ],
+    "commands/scheduled-tasks.md": [
+      "It is Canon Part 8 zero-egress (inherited from Plan 01): no Brain query, no web fetch."
+    ],
+    "commands/scout.md": [
+      "It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner."
+    ],
+    "commands/whitespace.md": [
+      "| Subcommand | Body Shape | Purpose |",
+      "|------------|-----------|---------|",
+      "| `map` | A (Mondrian Board) | Whitespace zones as density grid |",
+      "| `analyze ZONE_ID` | E (Action Report) | Deep-dive classification + hypothesis for one zone |",
+      "| `hypothesis ZONE_ID` | E (Action Report) | Lazy on-demand hypothesis for one zone |",
+      "| `tree` | B (Semantic Tree) | TopicForest coverage indicators |",
+      "| `score` | E (Action Report) | Per-artifact novelty scores ranked |",
+      "| `external` | E (Action Report) | Cross-domain literature whitespace |",
+      "| `discover` | E (Action Report) | Full Discovery Cycle (HSI/RS/Analogy) |"
+    ]
+  },
+  "base_sha": "551232ba58e1882bed5321c32edbdb7e397dbd6d",
+  "captured_at": "2026-09-29",
+  "commands": {
+    "commands/diffusion.md": {
+      "body_sha256": "dc61b88abc5dd79499bf951483b140bf9354d740e62faa5456b6e962d832a9bd",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "serves_jtbd",
+        "interactive_first_reward",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "requires_evidence",
+        "autonomous_safe",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "a7a5c02d72b50d946e2e4de09add864a449436e2ad5453275819ec69f2410edf"
+    },
+    "commands/map-unknowns.md": {
+      "body_sha256": "3c22c6185550abcffb9f8c8d05b92609dbbb30b25fcbdff73f2557926ac8c2b4",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "serves_jtbd",
+        "interactive_first_reward",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "autonomous_safe",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "47ed4fe7f9cfa30d2e66fdc5255578ca7a8d1bccc5dd48284751e34bc39aba13"
+    },
+    "commands/research.md": {
+      "body_sha256": "2bd4df2128fe178e1c9a343a3ab15bb214fcef1596b61703b6cb4f2192878764",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "interactive_first_reward",
+        "argument-hint",
+        "serves_jtbd",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "autonomous_safe",
+        "emits_evidence_claims",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "4af4da005538c75958457183f30b53e64e4821373ae776301cc0f637854597be"
+    },
+    "commands/root-cause.md": {
+      "body_sha256": "e91e9fc2267ead7afb4b56a8d5eeb5752ed64c711470fff76870859fa0f9c935",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "serves_jtbd",
+        "interactive_first_reward",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "autonomous_safe",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "253b4df7c49262055ed9f2c0508256cbf5901e1037ead48ff427f6f9c6e29c30"
+    },
+    "commands/scheduled-tasks.md": {
+      "body_sha256": "5917f987702c9ee514c7df115714a59bbb8328c678315257b9c4ca6ada94dd8a",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "layer_why",
+        "hitl_shape",
+        "hitl_why",
+        "interactive_first_reward",
+        "serves_jtbd",
+        "teaching",
+        "ui_reference",
+        "surface",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "5f0d086c1c70a065533ce1a026f9b20483cb181846f00b690933f11ad94ce9ac"
+    },
+    "commands/scout.md": {
+      "body_sha256": "c9cf7f44a14dcb821ac21704bfd316d315909bd78bfd9aaf029c9f016bcf233a",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "layer_why",
+        "hitl_shape",
+        "hitl_why",
+        "serves_jtbd",
+        "teaching",
+        "ui_reference",
+        "interactive_first_reward",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "1e8e0dcd4b5b76d4da1b7fdb59e2d3dfbade5af502cee35e39660411883e2346"
+    },
+    "commands/think-hats.md": {
+      "body_sha256": "701e936ef300696f762d7c6c975e76266cfe9799fe833e6f3e9a44ed6d6b41ab",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "interactive_first_reward",
+        "serves_jtbd",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "autonomous_safe",
+        "lens_type",
+        "lens_set",
+        "rotation_mode",
+        "synthesizer",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "854a655daee8bb85ce4e2edc128c4e79e23399a21c4b2975d2e15e13e06482e0"
+    },
+    "commands/whitespace.md": {
+      "body_sha256": "0985b8d80237b59452104ad7df53f8ac341abede4daaee14ca52190fc6db6f51",
+      "frontmatter_keys": [
+        "name",
+        "description",
+        "help_jtbd",
+        "body_shape",
+        "layer",
+        "hitl_shape",
+        "hitl_why",
+        "interactive_first_reward",
+        "serves_jtbd",
+        "teaching",
+        "kind",
+        "frameworks",
+        "produces",
+        "inputs",
+        "autonomous_safe",
+        "ui_reference",
+        "allowed-tools",
+        "connector"
+      ],
+      "sha256": "2acdf7e2fa0290be523d09f68639cc285924d2f6c03eaf4427eae63be21bc441"
+    }
+  },
+  "deps": {
+    "package_json": [
+      "dependencies:@ig3/markdown-it-wikilinks@^1.0.2",
+      "dependencies:@modelcontextprotocol/client@^2.1.0",
+      "dependencies:@modelcontextprotocol/core@^2.1.0",
+      "dependencies:@modelcontextprotocol/ext-apps@^1.5.0",
+      "dependencies:@modelcontextprotocol/sdk@^1.30.1",
+      "dependencies:@modelcontextprotocol/server@^2.1.0",
+      "dependencies:ajv@^8.18.0",
+      "dependencies:asciichart@^1.5.25",
+      "dependencies:chokidar@^4.0.3",
+      "dependencies:chrono-node@^2.9.1",
+      "dependencies:express@^5.1.0",
+      "dependencies:flexsearch@^0.7.43",
+      "dependencies:gray-matter@^4.0.3",
+      "dependencies:markdown-it@^14.1.0",
+      "dependencies:semver@^7.7.4",
+      "dependencies:sqlite-vec@^0.1.9",
+      "dependencies:zod@^4.2.0"
+    ],
+    "package_json_sha256": "7a278333a3f94533db6dc73b809ee610acd631374ca7907839c123f2e292028c",
+    "shrinkwrap_packages_count": 131,
+    "shrinkwrap_packages_sha256": "0812b4879e915fd1cb121c93298c56c7b53d8809524cf5d4e28bdfb53d437ec2"
+  },
+  "note": "Pinned before any Phase 363 edit landed (base_sha = PLAN_BASE of 363-01). Every later 363 test reads this fixture as the pre-phase truth; tests/test-363-baseline.cjs recomputes every value from git objects.",
+  "quick_pass_line_count": 23,
+  "registry": {
+    "data/command-registry.json": "a3fbe501233cf3235679d3c72b186010169275c46580dc4ab2c34d13a39c154b",
+    "data/connector-registry.json": "d0b1591f2bfb3326da9f9592768a323bf5b953108604dc1c71b6331ba09b9e2d",
+    "data/floor-ledger.json": "5741c5c30ec93f64f25d68b121c10c6785d6c25158b5ff4d15f508ee3c7029ff",
+    "data/harness-manifest.json": "eaeca0231287e139442b7df6f9441ee2d2fa64cef9ee80d574501cb919e41d5f",
+    "data/mcp-tool-connectors.json": "35e93328d9567fd8283b3e272eedb637d9ea0330b4d660f72ff50abaa1084bfe"
+  }
+}
