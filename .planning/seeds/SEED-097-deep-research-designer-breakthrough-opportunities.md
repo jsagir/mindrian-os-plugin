@@ -1,9 +1,10 @@
 ---
 id: SEED-097
-status: dormant
+status: promoted
+promoted_to: "Phase 363 (2026-09-29)"
 priority: critical
 planted: 2026-09-27
-updated: 2026-09-27
+updated: 2026-09-29
 planted_during: Phase 355.1 close-out (after execution, before the release cut)
 trigger_when: immediately after the Phase 355.1 release cut; the next phase to discuss, before any other new phase
 scope: large (one critical phase: the MCP intelligence services, research designer and Theo-side companion are built together)
@@ -13,6 +14,13 @@ astra_review: "2026-09-27: independent pathways with a minimal shared layer; des
 ---
 
 # SEED-097: Deep Research Designer for breakthrough opportunities, built with the MCP intelligence services
+
+> **Promoted to Phase 363, 2026-09-29, with a navigator reframe.** The navigator restated the
+> original intent: "the initial intent of it was building it as a deep research planner. deep
+> and quick runs." Phase 363 is framed as a Deep Research Planner with two run modes (quick:
+> one bounded pass; deep: multi-step planned research with iteration and synthesis). Everything
+> below (MOS-CANVAS perspectives, approval policy, the Whitespace + OpenAlex first slice) feeds
+> that planner and is subordinate to it. See the Phase 363 entry in ROADMAP.md.
 
 The critical next phase. A research designer that turns the room's own signals into deliberate,
 literature-scale research, so the breakthrough engine stops being limited to what is already in
