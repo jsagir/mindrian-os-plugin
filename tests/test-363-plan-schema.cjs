@@ -25,8 +25,8 @@ const PLANNER_DIR = path.join(ROOT, 'lib', 'core', 'research-planner');
 const PLAN_FILE = path.join(PLANNER_DIR, 'plan.cjs');
 const CONTEXT_FILE = path.join(PLANNER_DIR, 'CONTEXT.md');
 
-const EM = '—';
-const EN = '–';
+const EM = String.fromCharCode(0x2014);
+const EN = String.fromCharCode(0x2013);
 
 let P = null;
 let loadError = null;
