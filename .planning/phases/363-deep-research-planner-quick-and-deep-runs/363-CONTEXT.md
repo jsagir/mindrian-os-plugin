@@ -211,6 +211,43 @@ runs alongside Theo SEED-015), the SEED-098 Scientific Roadmapping command.
     never goes to Theo (Part 8). Freeform `brain_search` / `brain_ask` on such questions is refused
     (`freeform_unproven`, observed 2026-09-29), so the planner must not depend on them.
 
+### The planner is a research-PERSPECTIVE builder (Scientific Roadmapping as its engine)
+- **D-18 (navigator, 2026-09-29):** "this needs to be a research perspective builder", with the PWS
+  Scientific Roadmapping article as the model (`research/363-SCIENTIFIC-ROADMAPPING-RESEARCH-BUILDER.md`)
+  and the Neo4j graph as the fuller source ("theo knows about it, neo4j more than theo").
+  - **Ideas live in the constraint layer, not the solution layer.** The planner does not generate
+    ideas or answers first. It builds a research perspective: tension -> quantified goal with a
+    stated falsifier -> honest rung -> perspectives (the forum) -> MECE-covered paths -> every
+    limiter sorted **physics vs assumed** -> assumed limiters rewritten as research questions ->
+    ranked by **downstream unlock chains**, not novelty.
+  - **Mapping onto locked decisions:** step 3 rung = D-02b (the rung caps the kind of idea: Un-Defined
+    reframings, Ill-Defined programs, Well-Defined optimizations; climb up honestly); step 4 forum
+    = the lenses (frustrated insider / fresh entrant / physics grounder run solo and serially, next
+    to the hats and SEED-097 perspectives; polyvocal, never forced consensus); step 5 = D-08 MECE
+    coverage with 10X resurvey; step 6 = D-00 made concrete (the questions the user did not know to
+    ask are the assumed constraints) and D-02c falsifiers (each assumed limiter is a falsifiable
+    claim that research tests, handing to Hypothesis-Driven Problem Solving); step 7 = D-07
+    opportunity ranking by unlock chain; the 7 -> 1 loop plus the **ratchet** = the research run
+    memory (version the plan, keep every discarded path with its reason, never re-litigate a
+    settled constraint without new evidence).
+  - **Research's job in this engine:** the literature pass mostly serves step 6: for each limiter,
+    find the derivation that makes it physics, or the evidence that nobody re-tested it (then it is
+    assumed). S-curve position per limiter says route around (near a ceiling) or push (headroom).
+    "Unclear" is filed as assumed until someone produces the derivation.
+  - **Source of the structure:** the Neo4j graph holds the full framework: 7 ordered ProcessSteps
+    (description, key_question, gates, outputs, LEADS_TO loop), 12 Techniques (Fundamental-vs-Assumed
+    Test, Un-Impossible Decomposition, Domino Counting, Participant Casting, MECE Decomposition,
+    Productive Tension Test, Quantified Stretch Goal, 10X Resurvey, Rung Placement, Polyvocal
+    Synthesis, Trading Zone Construction, Boundary Object Design), problem-type edges (UnDefined,
+    IllDefined, Wicked), PREREQUISITE Problem Taxonomy, FEEDS_INTO RS / HDPS / Value Proposition /
+    Three Horizons. D-17's dev-time ledger is built from this graph content (step names, order,
+    key questions, gates, technique handles), within the Brain IP ruling the 353 section-framework
+    ledger followed; runtime reads go through the guarded shim only.
+  - **Scope:** Scientific Roadmapping is the engine for the scientific research perspective in 363
+    (it absorbs the SEED-097 "Scientific Roadmapping perspective"). SEED-098 (a standalone
+    `/mos:` Scientific Roadmapping command) stays a separate seed; 363's planner-mode for it must be
+    built so SEED-098 can reuse it rather than duplicate it.
+
 ### Opportunities scooped by research
 - **D-07 (navigator, 2026-09-29):** "such research might scoop opportunities to be filed." A run,
   quick or deep, watches for opportunities, not only answers: a gap confirmed in the literature, a

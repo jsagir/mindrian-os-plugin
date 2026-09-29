@@ -66,6 +66,7 @@ At promotion the navigator restated the intent: "the initial intent of it was bu
 - "also such research might scoop opportunities to be filed." -> D-07.
 - "Minto MECE can derive research: break the context and user intent into its MECE and Minto pyramid structure, understand how to build the research, the next relevant framework, and bring in insight from the research." -> D-08.
 - "if its scientific research can ask neo4j about how to structure scientific research. it has relevant frameworks in place." -> D-09 (live anchored Theo reads recorded).
+- "this needs to be a research perspective builder" + the PWS Scientific Roadmapping article (constraint layer, not solution layer); "theo knows about it (neo4j more than theo)" -> D-18, with direct Neo4j reads recorded.
 
 ## Claude's Discretion
 
