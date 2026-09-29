@@ -3684,7 +3684,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       object (`mos.research-run/1`) is defined beside it. Both are validated in code, and the F.6
       Plan Review card is built from the Plan (D-04). Plan 363-05.
 
-- [ ] **DRP363-02**: MECE and coverage are checked deterministically: `issue-tree.cjs`
+- [x] **DRP363-02**: MECE and coverage are checked deterministically: `issue-tree.cjs`
       `validateMECE` and `validateFalsifiability` run at every level (warnings shown on the card,
       never suppressed), each planner template's closed dimension set is the exhaustiveness check,
       and the D-00 structural gate fails a plan with no researchable leaf whose origin is not
