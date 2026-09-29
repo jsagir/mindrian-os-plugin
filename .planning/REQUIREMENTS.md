@@ -3761,7 +3761,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       program goes through `fileOpportunity`; `mos:opportunity-scanner` is named, not invoked.
       Plans 363-06, 363-12, 363-14.
 
-- [ ] **DRP363-12**: Structure from the graph (D-02b, D-09, D-17, D-18): `data/research-shape-ledger.json`
+- [x] **DRP363-12**: Structure from the graph (D-02b, D-09, D-17, D-18): `data/research-shape-ledger.json`
       is built at dev time from anchored, handle-only graph reads (the Neo4j framework content for
       Scientific Roadmapping and Logic Trees: step names, order, key questions, gates and technique
       handles, inside the 2026-09-17 IP ruling with no descriptions and every line capped at 140

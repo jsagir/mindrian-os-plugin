@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-09-PLAN.md - research grants (standing and run lifetimes, fixed-order re-ask checks, first-new-term ask, hourly throttle) and append-only audit ledger, D-11 floor rows"
-last_updated: "2026-09-29T19:50:00.000Z"
-last_activity: 2026-09-29 -- 363-09 complete
+stopped_at: "Completed 363-10-PLAN.md - research-shape ledger from the graph (IP-capped), local scientific detection, planners by relevance, next framework, diffusion lens selection"
+last_updated: "2026-09-29T17:55:00.000Z"
+last_activity: 2026-09-29 -- 363-10 complete
 progress:
   total_phases: 114
   completed_phases: 44
   total_plans: 462
-  completed_plans: 426
+  completed_plans: 427
   percent: 92
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 10 of 22
+Plan: 11 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
