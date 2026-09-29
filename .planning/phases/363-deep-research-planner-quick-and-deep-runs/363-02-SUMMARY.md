@@ -78,7 +78,7 @@ Both are ancestors of HEAD.
 **1. [Rule 1 - Bug] Literal dash characters in the test file**
 - **Found during:** aggregator run (em-dash guard flagged tests/test-363-helpers.cjs)
 - **Issue:** the `EM_DASH` and `EN_DASH` constants ended up as literal characters on disk instead of unicode escapes.
-- **Fix:** rewrote both as `'—'` and `'–'`; the test still passes 72/72.
+- **Fix:** rewrote both as JavaScript unicode escapes (U+2014 and U+2013); the test still passes 72/72.
 - **Commit:** 4ac9002f2
 
 **2. [Rule 1 - Bug] room.db path assumption**
