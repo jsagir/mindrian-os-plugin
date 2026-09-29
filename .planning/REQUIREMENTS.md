@@ -3618,44 +3618,234 @@ not applicable with a stated reason, at phase close by `362-03-PLAN.md` Task 2. 
 2026-09-29 (navigator): no wait on Phase 359, because 359-07..10 touch neither gate file; execution
 is gated only by a clean-tree check on the three shared files.
 
-- [ ] **CARD362-01**: Execution passes a hard gate before anything else runs (D-01 AMENDED):
+- [x] **CARD362-01**: Execution passes a hard gate before anything else runs (D-01 AMENDED):
       `lib/core/gate-relevance.cjs`, `scripts/check-card-fire.cjs` and `tests/test-359-inertness.cjs`
       carry no uncommitted diff, and GATE_HEAD is recorded; on a dirty file the phase halts as
       "BLOCKED: uncommitted peer edits on <paths>" with zero repo edits. Plan 362-01.
+      Proof: `git status --short` on the three paths printed nothing, GATE_HEAD 0892259ba, recorded
+      in 362-REPLAY.md (commit 9fb44fc40).
 
-- [ ] **CARD362-02**: The first execution step replays `dogfood-0f86dd63-092046` through the 357
+- [x] **CARD362-02**: The first execution step replays `dogfood-0f86dd63-092046` through the 357
       harness on both surfaces on post-359 code, and `362-REPLAY.md` records the verdict
       (STILL_FALSE_BLOCKS or RESOLVED_BY_359) with the entry result, the pre-359 verdict and the
       full-corpus counts; RESOLVED_BY_359 closes the phase with no gate code change (D-02).
       Plan 362-01.
+      Proof: `replay-card-fire.cjs --surface both --only dogfood-0f86dd63-092046` gave cli block /
+      reached-registry-gate-no-card and mcp block, `VERDICT: STILL_FALSE_BLOCKS`; full corpus 60
+      entries, false_blocks 0; 362-REPLAY.md (commit 9fb44fc40).
 
-- [ ] **CARD362-03**: When the entry still false-blocks, every D-03 candidate structured signal
+- [x] **CARD362-03**: When the entry still false-blocks, every D-03 candidate structured signal
       (continuity-turn metadata, reach timing and consumption, token provenance extending the D-08a
       chrome strip, relevance against 359 declared options) is measured against the full replay
       corpus and its 12 anti-vacuity fixtures, and `362-SIGNALS.md` names the smallest signal that
       clears the entry with zero new misses, or NONE; no user-side word list, no text understanding,
       no Jev, no egress (D-03). Plan 362-02.
+      Proof: `node scripts/measure-relevance-signals-362.cjs --json` scored 24 C1-C4 variants and
+      printed `SIGNAL: NONE`, 362-SIGNALS.md line 1 (commit 488722fef).
 
-- [ ] **CARD362-04**: The entry's disposition matches the measurement. With a signal: it lands
+- [x] **CARD362-04**: The entry's disposition matches the measurement. With a signal: it lands
       RED-first inside the existing relevance path, the entry's `known_false_block` annotation is
       removed so it becomes a hard regression leg, the single verdict flip is ratified by id in the
       359 inertness gate, and a 362 mutation leg proves that reverting the signal reproduces the
       FALSE_BLOCK. With NONE: the entry stays `known_false_block` with a text-dependence reason that
       cites the 362 measurement, excluded from the 0 bar exactly as R-C (D-03, D-04). Plan 362-02.
+      Proof: residual reason citing 362-SIGNALS.md landed in commit 4b0f9cf44 after the RED test
+      8212e255c; `node tests/test-362-disposition.cjs` PASS 8/8, `--mutation` SKIPPED (exit 77).
 
-- [ ] **CARD362-05**: After the phase the standing bar holds on both surfaces: replay false_blocks 0,
+- [x] **CARD362-05**: After the phase the standing bar holds on both surfaces: replay false_blocks 0,
       new_misses 0 and parity 0; every entry other than a ratified flip keeps its pre-362 verdict;
       the 12 anti-vacuity fixtures still block; the 357 mutation leg and the 359 inertness, replay
       and mutation legs pass; `tests/run-all-362.sh` aggregates them (D-05). Plans 362-02, 362-03.
+      Proof: `bash tests/run-all-362.sh` gave `Phase 362: PASS=20 FAIL=0 SKIP=3` (commit fd71df7ff;
+      skips: the residual mutation leg and 359 replay and replay mutation, not on main);
+      run-all-357 PASS=16 FAIL=0; run-all-238 FAIL=1 only on 238-03 (R-J); R-J reds unchanged.
 
-- [ ] **CARD362-06**: The 0f86dd63 outcome is recorded as exactly one of resolved-by-359,
+- [x] **CARD362-06**: The 0f86dd63 outcome is recorded as exactly one of resolved-by-359,
       fixed-by-signal (naming the signal) or residual known_false_block, and the reasoning trail is
       filed in both research homes, cross-linked to `362-CONTEXT.md` (D-05, CLAUDE.md Dev-Research
       Compositing). Plan 362-03.
+      Closed 2026-09-29: outcome `residual-known-false-block` (362-03-SUMMARY.md line 1); research trail filed in both homes at bfa0365ab (home repo), cross-linked to 362-CONTEXT.md; 362-VERIFICATION.md passed 14/14 (b00b1d803).
+
+### Phase 363 - Deep Research Planner (DRP363 family)
+
+DRP363-01..20 were minted in the Phase 363 plan set (2026-09-29), ratifying `363-RESEARCH.md`'s
+proposed DRP363-01..17 as amended by the locked decisions D-00..D-19 in `363-CONTEXT.md`, plus
+DRP363-18 (D-01, learn only, rebuild natively), DRP363-19 (D-18, the research-perspective
+builder) and DRP363-20 (D-19, the diffusion lens) minted at plan time; all twenty are registered here at plan time as `- [ ]` rows to be
+closed with measured proof, or left open with a stated reason, at phase close by
+`363-22-PLAN.md` Task 1. `363-CONTEXT.md` is the scope contract.
+
+- [ ] **DRP363-01**: One Plan object (`mos.research-plan/1`) carries the research perspective (D-18)
+      and the Minto pyramid (D-08): SCQA framing, a governing question, a MECE key line, and leaves
+      carrying lens, source command, dimension, origin (`user_stated | framework_dimension |
+      mece_gap`), falsifier, corpus, audited queries and a researchable flag with a reason when
+      false; plus mode, budget knobs, stop rules, grant reference, return target, a version and
+      revision count with a cap of 3, and a `plan_hash` that changes on any leaf edit. The RunResult
+      object (`mos.research-run/1`) is defined beside it. Both are validated in code, and the F.6
+      Plan Review card is built from the Plan (D-04). Plan 363-05.
+
+- [ ] **DRP363-02**: MECE and coverage are checked deterministically: `issue-tree.cjs`
+      `validateMECE` and `validateFalsifiability` run at every level (warnings shown on the card,
+      never suppressed), each planner template's closed dimension set is the exhaustiveness check,
+      and the D-00 structural gate fails a plan with no researchable leaf whose origin is not
+      `user_stated`. Uncovered dimensions are shown as the questions the navigator did not ask.
+      Logic Trees steps (from the research-shape ledger) drive tree type, depth cap, lane priority
+      and pruning for scientific questions; roll-up, weakest branch and opportunity candidates are
+      computed in code (D-00, D-02c, D-08, D-09). Plan 363-06.
+
+- [ ] **DRP363-03**: Query families are composer template ids with typed slots: `whitespace-gap/v1`
+      first, plus `concept-evidence/v1`, `causal-link/v1`, `constraint-interrogation/v1` (D-18
+      derivation, re-test, S-curve and prior-attack templates) and `diffusion/v1` (D-19). Every outbound string passes
+      `auditQueryString` before it can be returned, a refusal never echoes the string, exact
+      phrases are double-quoted and Boolean operators are uppercase, every string carries a sha256
+      `q_hash`, and a hand-typed raw query string is refused with no send-anyway path (D-01, D-04).
+      Plan 363-08.
+
+- [ ] **DRP363-04**: A research grant with two lifetimes, room-local, versioned, expiring and
+      revocable: a standing grant approved once on an F.0 card (first scope OpenAlex plus
+      `whitespace-gap/v1` only) and a per-run grant approved on the F.6 Plan Review card. Every
+      executed query is validated against a grant before fetch, with the enumerated re-ask reasons
+      (no grant, revoked, expired, re-versioned, provider not in policy, outside family, first use
+      of a new search term, cap exceeded, throttle exceeded, audit tripped, multi-step, hash not
+      approved). Expiry 30 days and the ambient throttle of 1 run per room per hour are disclosed
+      floor-ledger rows. A grant authorizes fetching, never filing (D-04, D-05, D-10, D-11). Plans
+      363-09, 363-17, 363-18.
+
+- [ ] **DRP363-05**: An append-only, room-local audit record (`.mindrian/research-audit.jsonl`) is
+      written for every executed query with every D-04 field: grant id and version, query string,
+      hash, template id, Part 8 verdict, provider, filters and pagination, fallback used, timestamp,
+      originating card or node id, result ids and content hashes, and valid-empty versus
+      provider-failure. It never egresses and never holds the API key (D-04). Plan 363-09.
+
+- [ ] **DRP363-06**: Corpus honesty (D-16): an OpenAlex HTTP 429, 500, timeout or network error is
+      never typed `empty_valid`; `meta.count`, cost and remaining budget are carried on the
+      envelope and in the cache under a versioned source key; the optional `OPENALEX_API_KEY` goes
+      in an `Authorization: Bearer` header and never reaches a URL, log, telemetry record, cache
+      key or ledger; quoted phrases and uppercase Boolean operators reach the provider unchanged;
+      retracted works are flagged. The ungated `scripts/query-semantic-scholar.cjs` egress is out
+      of scope and recorded as a follow-on RCA. Plans 363-01, 363-03, 363-04.
+
+- [ ] **DRP363-07**: Quick research run: one pass, at most 3 audited queries, top 5 rows, one corpus,
+      cache-first, plus a local room check for the extraction-failure falsifier. Rows are
+      quote-first and checked against the fetched record text and its content hash; a code-computed
+      verdict of `settled | thin | contested | gap-confirmed | unresolved` puts provider failure
+      first, so it can never read as gap-confirmed. Returns an evidence card with a one-line answer
+      and hash-anchored rows (D-03). Plans 363-04, 363-11, 363-12.
+
+- [ ] **DRP363-08**: Deep research run: a deterministic controller with decompose, one lane per lens
+      or limiter capped by `resolveFanoutCap`, reflect, a second round with breadth halving, a
+      mandatory counterevidence pass, typed stop checks (cap, saturation, budget, time, plurality)
+      recorded as `stop_reason`, an F.3 extend-or-stop card for any out-of-family follow-up, and an
+      honest synthesis that is the updated perspective and pyramid with row ids and names every
+      unresolved branch. Never started unattended (D-03, D-08, D-18). Plan 363-13.
+
+- [ ] **DRP363-09**: Escalation: a thin or contested quick card carries exactly one offer, "run deep on
+      this?", which seeds a deep plan from the quick plan's perspective, pyramid and audited
+      strings; it never auto-escalates (D-03). Plan 363-12.
+
+- [ ] **DRP363-10**: Filing happens only on the navigator's yes on the F.8 basket: the run home is
+      top-level `research/<dated-slug>/` through `fileResearchArtifact` (D-12, icm-architect
+      consult recorded), leaves become open-question nodes, EvidenceClaims land `proposed` through
+      `fileEvidenceWithReadback`, SUPPORTS and CONTRADICTS edges go to the leaf nodes through
+      `navigation.writeEdge` (contradictions are kept as CONTRADICTS edges, D-13), discarded paths
+      carry REJECTED_BECAUSE reasons, and the pyramid rolls up into the originating section's
+      REASONING.md through `mergeReasoningFrontmatter`; MINTO.md is left to its generator. A grant
+      never authorizes filing (D-04, D-08, D-18). Plan 363-14.
+
+- [ ] **DRP363-11**: Opportunities scooped by research (D-07, D-15, D-18 step 7): quick and deep runs
+      propose opportunity candidates (literature gap, constraint attack ranked by unlock chain,
+      untried intervention, mechanism transfer, trend break, funding signal) linked to the run and
+      its rows; on the navigator's yes they are written with `navigation.writeOpportunityNode`
+      (proposed) plus `linkOpportunityEvidence`, with a markdown card in `opportunity-bank/` linking
+      back to the run home and the run ledger linking forward. Only a funding signal with funder and
+      program goes through `fileOpportunity`; `mos:opportunity-scanner` is named, not invoked.
+      Plans 363-06, 363-12, 363-14.
+
+- [ ] **DRP363-12**: Structure from the graph (D-02b, D-09, D-17, D-18): `data/research-shape-ledger.json`
+      is built at dev time from anchored, handle-only graph reads (the Neo4j framework content for
+      Scientific Roadmapping and Logic Trees: step names, order, key questions, gates and technique
+      handles, inside the 2026-09-17 IP ruling with no descriptions and every line capped at 140
+      characters; problem-type, FEEDS_INTO, PREREQUISITE and COMPLEMENTS edges) and shipped as data,
+      with a `--check` and an optional live refresh through the guarded shim that names its source;
+      the runtime never depends on `framework_step` or `brain_query`. Scientific detection is local
+      (command framework in the scientific set, USER.md researcher role, or the navigator's toggle;
+      never a keyword classifier). Planner templates are offered by relevance to the silently
+      classified room rung, and the weakest branch picks the next framework through FEEDS_INTO and
+      `commandsForFramework`. Plans 363-10, 363-06.
+
+- [ ] **DRP363-13**: First-wave command research-planner modes (`/mos:map-unknowns`,
+      `/mos:root-cause`, `/mos:whitespace`, `/mos:think-hats`, `/mos:diffusion`) emit a question set through the
+      question-set contract and hand it to the one runner; each command's existing flow, including
+      the "Quick pass or deep dive?" line, is byte-preserved; the research modes are named "quick
+      research run" and "deep research run"; no command gains `Task`, `Agent` or a `web_scope`;
+      every generated registry and mirror regenerates born wired (D-02, D-02a). Plans 363-01,
+      363-19.
+
+- [ ] **DRP363-14**: One governed runner (D-14): `/mos:research` gains a plan-run mode declared with
+      Form B `hitl_stages` (deep plan review F.6 gate, deep extend budget F.3 gate, quick policy
+      grant F.0 gate, filing F.8 parallel), dispatches the Read-only `research-lane-analyst` agent
+      for deep lanes, and carries the D-05 amendment; a `research_run` MCP tool exposes quick runs,
+      grants, plan review and filing to Desktop and Cowork with an honest degrade for deep
+      execution and a declared `hitl_shape: F.6`; the CLI door `scripts/research-planner.cjs` reads
+      JSON files only; `commands/scout.md` and `commands/scheduled-tasks.md` point at the grant
+      mechanism (D-05). Plans 363-15, 363-17, 363-18.
+
+- [ ] **DRP363-15**: Ambient quick research runs under a standing grant ride the 355.1 ambient child:
+      the lock is reused, a separate `research-run-ledger.json` holds the throttle, only
+      whitespace findings whose gap spans at least 2 sections qualify (fewer is
+      `context_insufficient`), a new search term or any re-ask reason produces a plan-only card
+      with zero egress, the evidence card is written unfiled, and deep runs never start there
+      (D-03, D-05, D-10). Plan 363-16.
+
+- [ ] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
+      modes offline on replay fixtures, and live in a smoke test that exits 77 as ENV GAP without
+      network or budget; the floor ledger records measured latency and yield; and a
+      `/mos:map-unknowns` research plan is reviewed by a human against the written rubric
+      `363-D06-RUBRIC.md`, showing questions beyond the navigator's stated question and assumed
+      limiters the navigator did not name. Benchmark scores are not acceptance. Plans 363-01,
+      363-02, 363-20, 363-21.
+
+- [ ] **DRP363-17**: Part 8 sweep: a planted room marker never reaches argv, stdout or stderr logs,
+      telemetry, a cache key, a Theo call argument or the audit ledger; the only room-derived
+      string that may leave the machine is an approved, audited query string, and it appears only
+      in the outbound request and the audit ledger. Plans 363-02, 363-20.
+
+- [ ] **DRP363-18**: Learn only, rebuild natively (D-01): no runtime dependency, sidecar or MCP wrap of
+      any open-source deep-research project, zero new npm dependencies (`package.json` and
+      `npm-shrinkwrap.json` dependency sets unchanged), and every borrowed pattern is attributed
+      with its project and license in `lib/core/research-planner/CONTEXT.md`. Plans 363-05,
+      363-22.
+
+- [ ] **DRP363-19**: The planner is a research-perspective builder (D-18): every plan carries a
+      perspective built in the constraint layer through Scientific Roadmapping's operations: a
+      tension (no nameable limiter means a wish, and the plan does not run), a quantified goal with a
+      stated falsifier, an honest rung and roadmap type, a three-role forum written solo and
+      serially (frustrated insider, fresh entrant, physics grounder; polyvocal, never merged), MECE
+      paths with a 10X resurvey, every limiter sorted physics or assumed (unclear is assumed until a
+      derivation row exists), assumed limiters rewritten as research questions, and catalytic
+      ranking by downstream unlock chains that excludes self-pushed dominoes. Deep scientific runs
+      interrogate limiters (derivation, re-test, S-curve position). The 7-to-1 loop and the
+      ratchet version the plan, keep every discarded path with its reason, and refuse to reopen a
+      settled constraint without new evidence. The engine is framework-keyed and exported under a
+      documented reuse contract so SEED-098 reuses it rather than duplicating it. Plans 363-05,
+      363-07, 363-13, 363-14, 363-18, 363-19.
+
+- [ ] **DRP363-20**: The diffusion lens (D-19): when the planner judges a research question to be
+      about a dual-use or deep-tech technology's adoption, diffusion or timing, it selects the
+      diffusion lens through `/mos:diffusion`'s framework (Adoption-Capacity Theory) under the one
+      runner, never a new stack. Selection is local: Larry's recorded judgment with a reason, a room
+      signal (an existing diffusion or timing artifact), a ledger FEEDS_INTO path to Adoption-Capacity
+      Theory, a Scientific Roadmapping pass needing the adoption side, or the navigator's toggle;
+      the question never goes to Theo and no keyword classifier runs. Its dimensions (first adopters,
+      absorptive capacity, the civil and defense crossing, timing) become pyramid leaves with
+      falsifiers composed through `diffusion/v1`; in a Scientific Roadmapping pass it supplies the
+      adoption steps of step 7's unlock chains and the S-curve reading of step 6. A fixture proves
+      the selection rule, and the Part 7 reuse inventory names `/mos:diffusion`. Plans 363-05,
+      363-06, 363-07, 363-08, 363-10, 363-19, 363-20.
 
 ## Traceability
 
-398 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+418 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3666,7 +3856,8 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 346), plus SUPER-01..20 (Phase 348), plus NOTIFY-01..14 (Phase 349), plus RULE-01..29
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
-plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362).
+plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
+plus DRP363-01..20 (Phase 363).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18
@@ -3767,11 +3958,16 @@ CARD362-01..06 were minted in the Phase 362 plan set (2026-09-29), one per concr
 `362-CONTEXT.md` D-01..D-05; all six are registered here at plan time as `- [ ]` rows to be closed
 with measured proof, or left open or marked not applicable with a stated reason, at phase close by
 `362-03-PLAN.md` Task 2.
-Roadmap phases must map all 398 active requirements with no orphans.
+DRP363-01..20 were minted in the Phase 363 plan set (2026-09-29), ratifying `363-RESEARCH.md`'s
+proposed DRP363-01..17 as amended by D-00..D-19 in `363-CONTEXT.md`, plus DRP363-18 (D-01),
+DRP363-19 (D-18) and DRP363-20 (D-19) minted at plan time; all twenty are registered here at plan time as `- [ ]`
+rows to be closed with measured proof, or left open with a stated reason, at phase close by
+`363-22-PLAN.md` Task 1.
+Roadmap phases must map all 418 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
 FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361,
-HIPS, AMB and CARD362
+HIPS, AMB, CARD362 and DRP363
 families
 alike (the
 Phase 266 and 269

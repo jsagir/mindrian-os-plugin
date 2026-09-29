@@ -1391,15 +1391,62 @@ Plans:
 
 **Navigator intent (2026-09-29, governing frame, verbatim):** "the initial intent of it was building it as a deep research planner. deep and quick runs." SEED-097's "research designer" framing (approval mode, MOS-CANVAS perspectives) is subordinate to this: it feeds the planner, it does not replace it.
 **Goal:** A deep research planner. It reads the room's own signals, decides that the room must reach outside itself, and PLANS the research: which question, which lens, which sources and what queries, in what sequence. It then runs that plan in one of two modes. A **quick run** is a single bounded pass: one question, a small query family, one corpus, a fast answer with sourced evidence. A **deep run** is a multi-step plan: decompose the question, fan out across lenses and corpora, iterate on what comes back, run counterevidence, and synthesize a report. Both modes return hash-anchored evidence to the card or section that started them, and both route through the Part 8 guard (no room content to Brain). This is the MCP intelligence layer from the original Phase 355 ask (the April 2025 "Algorithmic Generation of Solutions" deck plus the algorithm-incorporation devpkg), which 355 and 355.1 narrowed to room-local groundwork. SEED-097's proving slice (Whitespace + OpenAlex on a two-section room cohort: is a gap missing from the literature or only from the room) becomes the first acceptance case, run in both modes. A Theo companion phase runs alongside Theo SEED-015. Brief: `.planning/seeds/SEED-097-deep-research-designer-breakthrough-opportunities.md`.
-**Requirements**: TBD (minted at discuss/plan)
+**Requirements**: DRP363-01..DRP363-20 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-09-29; D-00..D-19 in `363-CONTEXT.md`)
 **Depends on:** Phase 355.1 (released in v2.0.0-beta.51). Feeds SEED-098 (Scientific Roadmapping) through its Theo-side authoring requirement.
-**Reuse check (Canon Part 7), first thing in discuss:** the existing surfaces that already reach outward - `/mos:research`, the `mos:research` agent, `/mos:dominant-designs` research mode (Phase 361), `/mos:find-analogies --external`, `rs-query-matrix.cjs`, `eureka/online-pattern-query.cjs`, the OpenAlex adapter. The planner orchestrates them; it does not become a second research stack.
+**Reuse check (Canon Part 7), first thing in discuss:** the existing surfaces that already reach outward - `/mos:research`, the `mos:research` agent, `/mos:dominant-designs` research mode (Phase 361), `/mos:find-analogies --external`, `/mos:diffusion` (the dual-use diffusion lens, D-19), `rs-query-matrix.cjs`, `eureka/online-pattern-query.cjs`, the OpenAlex adapter. The planner orchestrates them; it does not become a second research stack.
 **Open discuss decisions:** (1) what separates a quick run from a deep run (depth, breadth, budget, iteration count, who triggers it); (2) approval mode per run type - e.g. quick may run under a standing audited policy while deep needs a reviewed plan, or both need exact-string approval; (3) where the plan lives and whether the navigator can edit it before a deep run starts; (4) SEED-097 open decision 6 (Roadmapping direction and well-defined coverage).
-**Plans:** 0 plans
+**Plans:** 22 plans in 9 waves (human checkpoints: 363-21 D-06 rubric review, 363-22 research-trail routing)
 
 Plans:
 
-- [ ] TBD (run /gsd-discuss-phase 363, then /gsd-plan-phase 363)
+**Wave 1** *(foundations and the D-16 blockers)*
+
+- [ ] 363-01-PLAN.md -- pre-phase baseline fixture and test, tests/run-all-363.sh written once (run_if / run_known / no-new-dependency / em-dash legs), 363-D06-RUBRIC.md, Semantic Scholar ungated-egress follow-on RCA
+- [ ] 363-02-PLAN.md -- two-section cohort fixture room (planted Part 8 marker, role and timing variants) and the routed OpenAlex replay with 429/500/timeout/network sentinels
+- [ ] 363-03-PLAN.md -- D-16: OpenAlex failures never empty_valid; Bearer API key, meta.count and budget headers, quoted phrases unchanged, retraction flag
+- [ ] 363-04-PLAN.md -- D-16: the research cache stores counts and budget meta; fetchSourceCached exported; versioned openalex-v2 namespace
+
+**Wave 2** *(engine core, parallel, disjoint files under lib/core/research-planner/)*
+
+- [ ] 363-05-PLAN.md -- the Plan object (perspective plus Minto pyramid), RunResult, planHash, capped edits, F.6 Plan Review card; folder CONTEXT.md with reuse inventory, attribution and the SEED-098 reuse contract
+- [ ] 363-06-PLAN.md -- six planner templates (map-unknowns, root-cause, think-hats, whitespace, diffusion, scientific-roadmapping) and the pyramid over issue-tree: D-00 gate, coverage, MECE, Logic Trees steps, roll-up, opportunity candidates
+- [ ] 363-07-PLAN.md -- the research-perspective builder (D-18): Scientific Roadmapping engine, physics vs assumed limiters, unlock ranking, ratchet, describeEngine for SEED-098
+- [ ] 363-08-PLAN.md -- audited query-family composer: whitespace-gap, concept-evidence, causal-link, constraint-interrogation, diffusion
+- [ ] 363-09-PLAN.md -- research grants with two lifetimes, every re-ask reason incl. first new term, append-only audit ledger, D-11 floor rows
+- [ ] 363-10-PLAN.md -- research-shape ledger from the graph (Neo4j or guarded Theo snapshot, IP-capped), scientific detection, planners by relevance, next framework, diffusion lens selection
+- [ ] 363-11-PLAN.md -- quote-first, hash-anchored evidence rows over the 361 validator; deterministic term rows
+
+**Wave 3** *(run engine and filing)*
+
+- [ ] 363-12-PLAN.md -- quick research run with a code-computed verdict, evidence card, one escalation offer; budget floors disclosed
+- [ ] 363-13-PLAN.md -- deep research run controller: lanes, halving, F.3 extend card, mandatory counterevidence, typed stops, constraint interrogation, synthesis as the updated perspective and pyramid
+- [ ] 363-14-PLAN.md -- filing only on the F.8 yes: research/ run home, open questions, proposed evidence, SUPPORTS/CONTRADICTS, limiter claims, opportunities, REASONING roll-up
+
+**Wave 4**
+
+- [ ] 363-15-PLAN.md -- planner facade (one plan-assembly path for every door) and the JSON-only research-planner CLI
+
+**Wave 5**
+
+- [ ] 363-16-PLAN.md -- room-started quick research runs under a standing grant inside the 355.1 ambient child
+- [ ] 363-17-PLAN.md -- research_run MCP tool for Desktop and Cowork (gates, persisted grants, honest deep degrade), registries and tool budget re-baselined
+
+**Wave 6**
+
+- [ ] 363-18-PLAN.md -- /mos:research becomes the one runner: Form B hitl_stages F.6/F.3/F.0/F.8, research-lane-analyst agent, scientific perspective door, D-05 amendments in research.md, scout.md, scheduled-tasks.md
+
+**Wave 7**
+
+- [ ] 363-19-PLAN.md -- five commands become research planners (map-unknowns, root-cause, think-hats, diffusion, whitespace research ZONE_ID), existing flows byte-preserved
+
+**Wave 8**
+
+- [ ] 363-20-PLAN.md -- D-06 acceptance: Whitespace plus OpenAlex slice in both modes, D-19 lens fixture, Part 8 sweep, opt-in live smoke, measured floors
+- [ ] 363-21-PLAN.md -- D-06 human check: navigator scores a map-unknowns research plan against the written rubric (checkpoint)
+
+**Wave 9**
+
+- [ ] 363-22-PLAN.md -- phase close: DRP363 rows with proof, canon map, handoff, SEED-098 reuse pointer, follow-ons, research trail filed in both homes after routing approval (checkpoint)
 
 ### Phase 270: Memory and Context Operator MCP
 
