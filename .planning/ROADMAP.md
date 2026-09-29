@@ -1332,7 +1332,7 @@ Plans:
 **Requirements**: DDR361-01..DDR361-13 (minted by 361-01 in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 360 (numbering only); Theo Phase 20 (framework_step / framework_techniques live); Theo Phase 20.1 for case_story (optional at first ship)
 **Plans:** 10 plans (8 in 5 waves, plus 2 UAT gap-closure plans in 2 waves)
-**Progress:** 8/8 plans executed (361-01..361-08 done, 2026-09-23). **Phase status: CLOSED 2026-09-23.** All 13 DDR361-01..13 requirement rows closed with measured proof in `.planning/REQUIREMENTS.md`; `bash tests/run-all-361.sh` green (PASSED=27, 2 pre-existing peer failures unowned); navigator ratified the dominant-designs Task grant (D-11); carry-forwards recorded in `docs/OPEN-HANDOFFS.md` and `361-08-SUMMARY.md`. **Reopened 2026-09-29 for UAT gap closure** (`361-UAT.md`, 2 gaps): 361-09 and 361-10 planned.
+**Progress:** 10/10 plans executed (361-01..08 done 2026-09-23; UAT 2026-09-29 8/8 passed, gap-closure 361-09/10 done 2026-09-29; 361-VERIFICATION.md passed 11/11, f93349b6a). **Phase status: CLOSED 2026-09-29.** All 13 DDR361-01..13 requirement rows closed with measured proof in `.planning/REQUIREMENTS.md`; `bash tests/run-all-361.sh` green (PASSED=27, 2 pre-existing peer failures unowned); navigator ratified the dominant-designs Task grant (D-11); carry-forwards recorded in `docs/OPEN-HANDOFFS.md` and `361-08-SUMMARY.md`. **Reopened 2026-09-29 for UAT gap closure** (`361-UAT.md`, 2 gaps): 361-09 and 361-10 planned.
 
 Plans:
 
@@ -1361,8 +1361,8 @@ Plans:
 
 **Gap closure (UAT 2026-09-29)**
 
-- [ ] 361-09-PLAN.md -- (wave 1) Part 8 case_story arm matches Theo 20.1-04's exactly-one-of {case_name | framework_name} (framework_name canonical, case_name free label), retired {framework} key and both-keys shape not allowed; Theo parity Leg 4a-4d pins keys, optionality, handle schema and exactly-one-of (D-10, D-14, D-15 resolved)
-- [ ] 361-10-PLAN.md -- (wave 2) theo-structure calls case_story by framework_name and reports no_case_in_canon honestly (D-09); SENS-09 command-contract pin per quick-260923-u8v; DDR361-09/10 amended; full 361 suite PASSED=26 FAILED=3 (three pre-existing non-361 legs)
+- [x] 361-09-PLAN.md -- (wave 1) Part 8 case_story arm matches Theo 20.1-04's exactly-one-of {case_name | framework_name} (framework_name canonical, case_name free label), retired {framework} key and both-keys shape not allowed; Theo parity Leg 4a-4d pins keys, optionality, handle schema and exactly-one-of (D-10, D-14, D-15 resolved)
+- [x] 361-10-PLAN.md -- (wave 2) theo-structure calls case_story by framework_name and reports no_case_in_canon honestly (D-09); SENS-09 command-contract pin per quick-260923-u8v; DDR361-09/10 amended; full 361 suite PASSED=26 FAILED=3 (three pre-existing non-361 legs)
 
 ### Phase 362: Card gate: text-dependent relevance false block (R-C follow-on from Phase 357, dogfood entry dogfood-0f86dd63-092046)
 
