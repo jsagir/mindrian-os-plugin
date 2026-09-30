@@ -1453,7 +1453,7 @@ Plans:
 **Goal:** Fix the beta.51 test-session defects whose common root is the system counting its own scaffold as content (source: `/mnt/c/Users/jsagi/mindrian-beta51-bug-report-2026-09-29.md`, a copy lives in this phase dir as `363.1-BUG-REPORT.md`). Scope: (#1, P0) the Eureka candidate filter must exclude scaffold/structural nodes before scoring (`*/CONTEXT.md`, `MINTO.md`, `ROOM.md`, unmodified seeded `FEYNMAN.md`, `memory_artifact:*`, classifier-bucket domain nodes `unknown|freeform_unmatched|empty_payload|move_set`, low-IDF generic entities); today 0 of 25 ranked rows in both test rooms pair real artifacts. (#2, P0) `isolation: worktree` on `agents/framework-runner.md`, `research.md` and `opportunity-scanner.md` hard-fails outside git, so `/mos:reason` breaks in every non-git room. (#3) The Eureka tail classifier is degenerate (one distinct attention/growth value; `growth_proxy` labels disagree). (#4) The Opportunity Statement template substitutes a file path into 4 prose slots, produces a 'the a' collision, and renders the composite score against D-29. (#5) compute-state counts scaffold files as entries, which inflates `venture_stage`. (#7) Template governing thoughts ('<Section> synthesizes N artifacts') score as health 'check'. Out of scope: the room-lookup quicks (#6, #9, #11, #13) and the parked items (#8, #10, #12, #14-#20).
 **Requirements**: TBD
 **Depends on:** Phase 363
-**Plans:** 1/7 plans executed
+**Plans:** 7/7 plans executed
 
 Plans:
 
@@ -1463,7 +1463,7 @@ Plans:
 - [x] 363.1-04-PLAN.md -- compute-state entry counts and venture stage, MINTO template health
 - [x] 363.1-05-PLAN.md -- Eureka structural-node exclusion before pairing (D-03)
 - [x] 363.1-06-PLAN.md -- tail classifier and Opportunity Statement prose
-- [ ] 363.1-07-PLAN.md -- end-to-end proof: D-10 regressions and beta.51 replay on room copies
+- [x] 363.1-07-PLAN.md -- end-to-end proof: D-10 regressions and beta.51 replay on room copies
 
 ### Phase 270: Memory and Context Operator MCP
 

@@ -5510,6 +5510,15 @@ Previously (363.1-05, same out-of-band arrangement, no state.* writer run, front
   reasoning-mode skips scaffold files; the three 218 pins D-03 supersedes were corrected in
   the same change. Tests 16 legs; run-all-363.1 with regressions PASS=27 FAIL=0. Commits
   cae72b3b8, 85d87e6bf, 39af08710. Next: 363.1-06.
+Previously (363.1-07, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- Phase 363.1 proven end to end. tests/live-363.1-room-check.cjs
+  (copy-only live verifier, outside the aggregator glob); RUN_363_1_REGRESSIONS=1 run-all-363.1
+  PASS=29 FAIL=0; replay on copies of the two beta.51 rooms: 11/11 (sub-room) and 9/9 (parent) PASS,
+  originals byte-unchanged; stage Pre-Opportunity, tail growth 9 distinct, no composite or path in
+  statements, status running/starting right after start. OPEN for the verifier: references/SECTION-SCHEMA
+  (shipped reference doc) still ranks in the sub-room (gap plan needed); doctor coverage-gate red from
+  363-18's stale render registry (bisected, not 363.1); run-feynman-tests is slow (~500 files), not hung,
+  14 failing files pre-existing at baseline. Commit a4d2c3489. Next: /gsd-verify-work 363.1.
 Previously (363.1-06, same out-of-band arrangement, no state.* writer run, frontmatter
   untouched): complete 2026-09-30 -- the Eureka tail and the Opportunity Statement say
   something real: epochSeconds reads integer-ms created_at so the growth axis has spread, one
