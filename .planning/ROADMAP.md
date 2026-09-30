@@ -1476,6 +1476,17 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 364 to break down)
 
+### Phase 365: Verification rung earned not asserted (B2 gate floor, B3 unattended-step constraints, edge-derived rung)
+
+**Goal:** Make a claim's verification rung earned, not asserted. Record today's failures first (the byte, one-week and floor acceptance tests plus the five property falsification tests), then ship B2 (rung shown in words at the approval gate; a room rung floor lands below-floor approvals at needs_evidence), B3 (a room constraints artifact read before any unattended step; halts recorded), and, once the paper author ratifies the ladder, a rung derived from the claim's edges (url + retrieved_at for 3+, locator for 4+, a person node for 5) instead of the self-declared rung shipped in Phase 358. Planning input: 365-INPUT.md.
+**Requirements**: TBD
+**Depends on:** Phase 358 (shipped B1 checking record + frame provenance); rung derivation blocked on ladder ratification
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 365 to break down)
+
 ### Phase 270: Memory and Context Operator MCP
 
 **Goal:** Navigator observation, 2026-08-27: memory and context in this repo are scattered across many discrete MCP tools (`memory_event`, `graph_write`, `artifact_file`, `room_state_bound`, `graph_query`, `whitespace_scan`...) with no single thing owning the memory lifecycle end to end -- surfaced directly by this session's own finding that `~/.mindrian-user.md` (the promised cross-room "who is this user" file) has zero writers anywhere in the repo despite onboarding prose asserting it exists (Phase 267.1's GAP I-1, now Phase 267.2's W2). Theo's own package.json already frames itself as "MindrianOS's *consolidated* MCP server" for the Brain side -- the room side never got the equivalent treatment. Research this phase's actual shape: does consolidating room-side memory operations into one coherent "operator" surface (rather than many small tools) reduce real friction, or is the current fragmentation load-bearing (e.g. each tool's narrow scope is itself a Part 8 safety property, per `lib/mcp/*` tool descriptions -- verify before assuming consolidation is strictly better)? At minimum this phase should determine: (1) whether the cross-room identity write (Phase 267.2 W2's job) should be built as a first tool under this new operator rather than a one-off function, (2) whether Part 8's Brain-boundary enforcement (currently a documented convention, not a schema-level guarantee) can be made structurally enforced by a memory-operator tool's own input/output schema, and (3) how this interacts with Theo eventually becoming the consolidated Brain-side MCP -- does a room-side "memory operator" mirror that architecture, or is the analogy wrong because Brain content and room content have fundamentally different locality guarantees (Part 8: room data never leaves; Brain content is already remote by design).

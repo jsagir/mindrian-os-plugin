@@ -7608,6 +7608,8 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 365 added (2026-10-01): Verification rung earned not asserted, from the paper author's Built or Habituated spec and the Six Properties review; B2 + B3 unblocked, rung derivation blocked on ladder ratification. Input: 365-INPUT.md.
+
 - Phase 364 added (2026-09-30): Scientific Roadmapping command /mos:scientific-roadmap, promoted from SEED-098 on the navigator ruling "own phase after 363 closes"; depends on Phase 363 and on Theo Phase 25 authoring the 7 steps. Input: 364-INPUT.md.
 
 - Phase 363 added (2026-09-29, `/gsd-phase`): "Deep Research Planner - quick and deep research runs" - promotes SEED-097 (the MCP intelligence layer from the original 355 ask) after the beta.51 release. Navigator reframe at promotion: the intent is a deep research PLANNER with quick and deep run modes; SEED-097's designer/approval/MOS-CANVAS material feeds it. Next: /gsd-discuss-phase 363.
