@@ -3,7 +3,6 @@ name: research
 description: Gather and verify external intelligence via Tavily + Brain cross-reference. Files sourced artifacts with provenance.
 model: inherit
 color: blue
-isolation: worktree
 allowed-tools:
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract

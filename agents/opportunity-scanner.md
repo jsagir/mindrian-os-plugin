@@ -3,7 +3,6 @@ name: opportunity-scanner
 description: PROACTIVELY scan grants and funding opportunities when room signals match domain, deadline, or funding-gap triggers.
 model: inherit
 color: orange
-isolation: worktree
 allowed-tools:
   - Read
   - Write
