@@ -478,7 +478,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window.",
+      "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window. It can also plan research on who adopts first, absorptive capacity, the civil and defense crossing, and timing.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
@@ -1153,7 +1153,7 @@
       "serves_jtbd": [
         "validate-idea"
       ],
-      "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives.",
+      "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -1697,7 +1697,7 @@
       "serves_jtbd": [
         "find-problem"
       ],
-      "teaching": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence.",
+      "teaching": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -2113,7 +2113,7 @@
         "explore",
         "compare-options"
       ],
-      "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives.",
+      "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives. Each hat can become a research lane: black for counterevidence, yellow for prior successes, white for missing facts.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
@@ -2281,7 +2281,7 @@
         "connect-domains",
         "find-problem"
       ],
-      "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries.",
+      "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too.",
       "jtbd_label": "Connect Domains",
       "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
     },

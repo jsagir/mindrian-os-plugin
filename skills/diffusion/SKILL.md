@@ -14,7 +14,7 @@ serves_jtbd: ["understand-market"]
 # per-actor capacity profiling at step 4). Same value + same comment shape
 # Phase 265-13 wired onto its four consumers.
 interactive_first_reward: schema_preview
-teaching: "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window."
+teaching: "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window. It can also plan research on who adopts first, absorptive capacity, the civil and defense crossing, and timing."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Adoption-Capacity Theory"]
@@ -124,3 +124,30 @@ The Brain supplies the generic theory only. The specific actors, scores, and for
 ## Output
 
 File the forecast under `room/**/timing/`. End at a Decision Gate offering the natural next steps (Scenario Planning, Mullins 7-Domains, or the Triple Validation Compass per the ACE FEEDS_INTO chain).
+
+## Research planner (quick research run or deep research run)
+
+This is a new way to use the framework: the answers you just worked out become a checked research plan. The command itself fetches nothing and dispatches nothing. It writes a question set, asks the plan step to check it, shows you the card that comes back, and hands the run id to `/mos:research`, the one runner (Phase 363).
+
+1. When to offer it. After the innovation package, the demonstration point and the actor roster are named, or when the navigator asks how to test the adoption story against the literature, offer one line: "Want to plan research on who adopts first and when?" Offer it as one line and never run it on its own. If no navigator can answer (inside `/mos:act`, `chain_run`, or any unattended caller), skip this section entirely.
+2. Pending cards first. A room-started card may already be waiting:
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" pending --room <room dir>
+   ```
+   Show each card it returns before planning anything new.
+3. Write the question set to a scratch directory outside the room (`mkdir -p "${TMPDIR:-/tmp}/mos-rp-$(date +%Y%m%d-%H%M%S)"`) with the Write tool, as `question-set.json`. It holds: `"schema": "mos.research-question-set/1"`, `"template_id": "diffusion"`, `"command": "/mos:diffusion"`, the navigator's own words as `stated_question`, `scqa` framed the way `/mos:structure-argument` frames it (`situation` stable and agreed, `complication` in one sentence, `question` the one the audience now has, `answer_hypothesis` or null), a `key_line` of the branch labels, and one leaf per researchable dimension. A leaf has `id`, `parent`, `question`, `origin`, `dimension`, `lens`, `researchable`, a `falsifier` with `text`, and typed `slots`. Slots hold terms, never query strings: a short noun phrase, no quotes, no parentheses, no AND, OR, NOT; the plan step composes and audits every query. The `origin` is `user_stated` when the leaf restates the navigator's question, `framework_dimension` when the framework's structure raised it, and `mece_gap` when it fills a gap the navigator's framing left open. Every not-researchable dimension gets a `coverage_notes` entry with its reason.
+   Also write the `perspective` block: the tension in one statement; the goal with its falsifier (a number and unit when it can be one, otherwise say plainly that it is not quantified); the roadmap type and idea kind; for a deep research run the three forum passes written one after another, the frustrated insider (`frustrated_insider`), then the fresh entrant (`fresh_entrant`), then the physics grounder (`physics_grounder`), each with what it contributed; the paths; every limiter in the `physics` or `assumed` column, with each assumed limiter rewritten as a question of the form "what if we attacked ..., which this field treats as fixed?"; and `unlock_chains` counting only dominoes the field would push.
+4. This command's dimensions (the checklist the checker holds your question set against). Here the diffusion lens is the template itself, so `lens_selection` stays empty and every leaf uses the `diffusion` family with the slot `technology` (a short noun phrase naming the innovation package):
+   - `df:first_adopters` (lens `df.first_adopters`): who adopts first. Falsifier: evidence that adoption stayed with the first buyers.
+   - `df:absorptive_capacity` (lens `df.absorptive_capacity`): who can absorb it and what that takes. Falsifier: cases where adopters absorbed it without the stated capacity.
+   - `df:civil_defense_crossing` (lens `df.civil_defense_crossing`): whether and how it crosses between civil and defense buyers. Falsifier: cases where the crossing was blocked or never attempted.
+   - `df:timing` (lens `df.timing`): where each technology sits on its adoption curve. Falsifier: rate data placing incumbent and challenger at the same stage.
+   Write the actors and the FI and OC scores from the session in the local perspective and the leaf questions only as short noun phrases in slots; the scores themselves never become search terms. The timing rows feed the Scientific Roadmapping S-curve reading.
+5. Diffusion lens: already this command's template, so there is nothing to select. If the navigator's question turns out to be about something other than a technology's adoption, diffusion or timing, say so and offer `/mos:research` topic mode instead.
+6. Run the plan step. Use `--mode quick` for one question on one lens (a quick research run) and `--mode deep` for anything larger (a deep research run); `--section` names the room section the results return to:
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" plan <scratch>/question-set.json --room <room dir> --mode quick|deep --section <slug>
+   ```
+7. Show the card it returns, unchanged. If the status is incomplete, name each uncovered dimension as a question the navigator has not asked yet, fill it in or mark it not researchable with a reason, and plan again. If the status is wish, say there is no nameable limiter yet and go back to the tension. If it is needs_lens_leaves, write the leaves it lists.
+8. Hand off: "Continue in /mos:research --plan <run_id>." The command itself fetches nothing and dispatches nothing; `/mos:research` asks for the grant or the plan review and runs the plan.
+9. On Claude Desktop and Cowork the same question set goes to the `research_run` MCP tool with op `plan`, and the card comes back there; deep research runs execute in Claude Code.
