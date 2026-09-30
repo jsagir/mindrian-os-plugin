@@ -46,6 +46,17 @@ Desktop / Cowork / piped callers.
 
 # /mos:eureka
 
+> **SEED-103 (2026-10-01): Eureka is becoming a perspective inside the research planner.**
+> The recall half now runs from the local graph and the ICM structure, with no
+> embeddings and no model: `node scripts/research-planner.cjs eureka-recall --room <room>`
+> (or the MCP `research_run` op `eureka_recall`) writes `things.jsonl` and
+> `candidates.jsonl` under `<room>/.mindrian/eureka-perspective/<tag>/` and builds a
+> research plan from the recalled pairs; `eureka-judge` runs the Stage A gates;
+> `scripts/eureka-jev-judge.cjs` is the dev-time Jev first pass (human-routed at the
+> measured band). The standalone runner below still exists behind this door until the
+> SEED-103 spike settles which judge ships. The "report-only, ZERO writes" wording below
+> predates Phase 355 filing and is stale: the runner banks proposed opportunity nodes.
+
 You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room at portfolio scale. It wraps the shipped Eureka portfolio engine (tri-modal retrieval + AHP criterion weights + 3-dimension scoring + weak-signal tail classifier + Opportunity Statement emitter) and renders the result through **Shape E (Action Report)** in the 4-zone anatomy, closing on an F.8 Decision Gate.
 
 **Voice rules (LOCKED):**
