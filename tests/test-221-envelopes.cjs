@@ -652,8 +652,10 @@ console.log('=== 221-01 envelope suite: starting ===');
         'the 219 cache-hit fields are unchanged');
 
       // (b) cache-read FAILURE: falls through to the live fetch with a warning, never an error.
-      const savedGetCached = researchCache.getCached;
-      researchCache.getCached = function () { throw new Error('stubbed cache-read explosion'); };
+      // 363-04: the driver reads through getCachedEntry (meta rides on a hit), so
+      // that is the seam to stub; getCached now only wraps it internally.
+      const savedGetCachedEntry = researchCache.getCachedEntry;
+      researchCache.getCachedEntry = function () { throw new Error('stubbed cache-read explosion'); };
       try {
         const liveItem = corpusItem({ id: 'https://live/1', url: 'https://live/1' });
         const resFallthrough = await driver.runSourceLens({
@@ -676,7 +678,7 @@ console.log('=== 221-01 envelope suite: starting ===');
           'the cache-read failure rides as a WARNING: ' + JSON.stringify(ftEnv.warnings));
         assert.equal(ftEnv.failure_class, null, 'a warning is not a failure');
       } finally {
-        researchCache.getCached = savedGetCached;
+        researchCache.getCachedEntry = savedGetCachedEntry;
       }
     } finally {
       fs.rmSync(tmpRoom, { recursive: true, force: true });
