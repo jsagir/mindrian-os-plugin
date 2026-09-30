@@ -76,9 +76,21 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
   `no_nameable_limiter`; quick mode and the scientific-roadmapping branch are unchanged; C14 now asserts the wish
   for the zero-limiter set and exercises every combination through the new `map-unknowns-limiter` fixture).
   Decision on the scope note below: only `no_nameable_limiter` gates outside scientific-roadmapping; missing forum
-  roles and an unquantified goal stay advisory. Consequence to know: a deep whitespace plan, including the
-  "run deep on this?" escalation, is a wish unless the question set names a limiter; in a researcher room a named
-  limiter switches the deep run to per-limiter lanes. See the quick SUMMARY for the test updates.
+  roles and an unquantified goal stay advisory.
+- **The whitespace dead end is resolved (navigator ruling 2026-10-01, "Ask for the bottleneck first"), quick task
+  261001-btl, RED `8d66997ec`, GREEN `fca0d37d2`.** A quick run that names no limiter now offers "name what blocks
+  this and I'll plan a deep run" instead of "run deep on this?". `escalate` (and `cardFor`) answer a typed
+  `needs_limiter` with a `name_limiter` card for a deep plan that grew from a quick run with no limiter. The
+  navigator's own words go back in through `revise` with the new `add_limiter` edit (stored verbatim, `raised_by`
+  navigator, never derived from room text, never sent to the Brain) and the plan comes back ready for review.
+  `commands/whitespace.md` (step 5a and step 7), `commands/research.md` and both skill mirrors say so. A researcher
+  room that names a limiter still switches the deep run to per-limiter lanes (363-20 isSR fix); that trade-off stands.
+- **The scientific-roadmapping re-gate is closed (same ruling day, same commits).** An SR deep plan that loses its
+  last limiter through `drop_path` is now a wish; every other SR behavior is unchanged, and a wish stays sticky only
+  while the plan still has no limiter.
+- Seen while closing, outside this work: `tests/test-363-pyramid.cjs` Y1 and `tests/test-363-structure.cjs`
+  B1, D3, B4 fail on HEAD since the SEED-103 merge added an `eureka` template (verified red at `8d66997ec` before any
+  of this change). They need their own fix; `tests/run-all-363.sh` reports them.
   The original finding follows, kept as the record.
 
 - **Navigator ruling (2026-10-01, answered via AskUserQuestion): "Apply it to every deep plan."** Any deep plan
