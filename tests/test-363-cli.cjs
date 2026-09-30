@@ -519,6 +519,73 @@ async function main() {
     return true;
   });
 
+  // X1: revise recomposes and audits, drops a stale approval, and refuses raw text.
+  await leg('X1 revise: reword recomposes, stale run approval revoked, raw query refused, started run refused', async function () {
+    const room = newRoom('founder');
+    const built = await PLANNER.buildPlan(room.roomDir, qsFile('whitespace-quick'), { mode: 'quick' });
+    const a = PLANNER.approvePlanReview(room.roomDir, built.run_id, { approvedVia: 'cli' });
+    if (!a.ok) return 'approve ' + JSON.stringify(a);
+    const raw = PLANNER.revisePlan(room.roomDir, built.run_id, { op: 'reword_leaf', leaf_id: 'L1', question: 'Anything?', q: 'free text' }, {});
+    if (raw.ok || raw.reason !== 'raw_query_refused') return 'raw query accepted ' + JSON.stringify(raw);
+    const r = PLANNER.revisePlan(room.roomDir, built.run_id, { op: 'reword_leaf', leaf_id: 'L1', question: 'Has anyone published on thin-film sensors for dairy quality?' }, {});
+    if (!r.ok || r.revision !== 1 || r.plan.parent_plan_hash !== built.plan_hash) return 'revise ' + JSON.stringify(r).slice(0, 200);
+    const onDisk = PLANNER.loadPlan(room.roomDir, built.run_id);
+    if (!onDisk.ok || onDisk.plan.plan_hash !== r.plan.plan_hash) return 'revised plan not saved with a valid hash';
+    if (grants.findActiveGrant(room.roomDir, { lifetime: 'run', run_id: built.run_id })) return 'stale run approval survived the edit';
+    fs.mkdirSync(runDir(room, built.run_id), { recursive: true });
+    fs.writeFileSync(path.join(runDir(room, built.run_id), 'run.json'), '{}', 'utf8');
+    const late = PLANNER.revisePlan(room.roomDir, built.run_id, { op: 'reword_leaf', leaf_id: 'L1', question: 'Again?' }, {});
+    if (late.ok || late.reason !== 'run_started') return 'edit after the run started was accepted';
+    return true;
+  });
+
+  // X2: escalate, validate-rows and grant propose/revoke through the CLI.
+  await leg('X2 CLI escalate, validate-rows, grant propose and revoke', async function () {
+    const room = newRoom('founder');
+    const q = cliQuickRun(room);
+    if (q.error) return q.error;
+    const esc = cli(['escalate', q.runId, '--room', room.roomDir]);
+    if (esc.code !== 0 || !esc.json || esc.json.mode !== 'deep' || esc.json.run_id === q.runId) return 'escalate ' + esc.code + ' ' + esc.stdout.slice(0, 200);
+    if (!fs.existsSync(path.join(runDir(room, esc.json.run_id), 'plan.json'))) return 'deep plan not saved';
+    if (planMod.validatePlan(readJson(path.join(runDir(room, esc.json.run_id), 'plan.json'))).ok !== true) return 'escalated plan invalid';
+    const vr = cli(['validate-rows', q.runId, writeScratch('vr.json', [{ leaf_id: 'L1', record_id: 'https://openalex.org/none', claim: 'c', quote: 'q', label: 'supports' }]), '--room', room.roomDir]);
+    if (vr.code !== 0 || !vr.json || vr.json.kept !== 0 || vr.json.dropped.unknown_record !== 1) return 'validate-rows ' + vr.stdout.slice(0, 200);
+    const prop = cli(['grant', 'propose', '--room', room.roomDir, '--terms', writeScratch('terms.json', [{ term: 'acoustic biofilm disruption', synonyms: [] }])]);
+    if (prop.code !== 0 || !prop.json.proposal || prop.json.proposal.approved_terms.length !== 1 || prop.json.card.shape !== 'F.0') return 'grant propose ' + prop.stdout.slice(0, 200);
+    const gs = cli(['grant', 'status', '--room', room.roomDir]);
+    const gid = gs.json.standing && gs.json.standing.grant_id;
+    if (!gid) return 'no standing grant after the quick flow';
+    const rv = cli(['grant', 'revoke', gid, '--room', room.roomDir]);
+    if (rv.code !== 0 || !rv.json.revoked_at) return 'revoke ' + rv.stdout.slice(0, 200);
+    if (cli(['grant', 'status', '--room', room.roomDir]).json.standing !== null) return 'grant still active after revoke';
+    return true;
+  });
+
+  // X3: a live structure read sends framework handles only and names its source.
+  await leg('X3 buildPlanLive: stub client gets handles only, plan names the live source', async function () {
+    const room = newRoom('researcher');
+    const calls = [];
+    const stub = {
+      query: async function (cypher, params) {
+        calls.push({ cypher: cypher, params: params });
+        if (params && params.n === 'Logic Trees (Issue, Hypothesis, Decision)') {
+          return [{ ord: 1, name: 'Choose the tree type' }, { ord: 2, name: 'Structure the issue' }, { ord: 3, name: 'Break down until actionable' }, { ord: 4, name: 'Test with data' }, { ord: 5, name: 'Prune and prioritize' }];
+        }
+        return [];
+      },
+    };
+    const qs = qsFile('scientific-roadmapping');
+    const r = await PLANNER.buildPlanLive(room.roomDir, qs, { mode: 'deep', liveStructure: true, brainClient: stub });
+    if (r.status !== 'ready' && r.status !== 'incomplete') return 'status ' + r.status;
+    if (r.plan.structure.source !== 'theo_live' || !r.plan.structure.reason) return 'source ' + r.plan.structure.source;
+    if (calls.length === 0) return 'the stub was never asked';
+    const blob = JSON.stringify(calls);
+    if (blob.indexOf(qs.stated_question) !== -1 || blob.indexOf(room.marker) !== -1) return 'room text reached the client';
+    const off = await PLANNER.buildPlanLive(room.roomDir, qs, { mode: 'deep', brainClient: stub });
+    if (off.plan.structure.source === 'theo_live') return 'live read without liveStructure';
+    return true;
+  });
+
   // the em-dash rule holds for the files this plan writes
   await leg('C-dash the facade, the CLI and this test carry no em-dash or en-dash', async function () {
     const files = [PLANNER_PATH, CLI_PATH, __filename];
