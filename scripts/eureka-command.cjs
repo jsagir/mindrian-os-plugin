@@ -473,11 +473,42 @@ function cmdStart(opts) {
   if (opts.offline) forwarded.push('--offline');
   if (opts.graph) forwarded.push('--graph', opts.graph);
 
-  const child = spawn(process.execPath, [__filename, roomDir, 'run'].concat(forwarded), {
-    detached: true,
-    stdio: 'ignore',
+  let child;
+  try {
+    child = spawn(process.execPath, [__filename, roomDir, 'run'].concat(forwarded), {
+      detached: true,
+      stdio: 'ignore',
+    });
+    child.unref();
+  } catch (e) {
+    const now = new Date().toISOString();
+    writeStatus(roomDir, {
+      state: 'failed',
+      started_at: now,
+      finished_at: now,
+      pid: process.pid,
+      out: outMd(roomDir),
+      json: outJson(roomDir),
+      error: String((e && e.message) || e).split('\n')[0],
+    });
+    printError('could not start the background scan', String((e && e.message) || e).split('\n')[0], 'retry, or run the scan in the foreground with: eureka-command.cjs <room> run');
+    return 1;
+  }
+
+  // Phase 363.1 D-09 (B51-07): write a running/starting status synchronously, so
+  // an immediate `status` poll reports an honest running state instead of none.
+  // Order matters: this comes AFTER spawn so `pid` is the child that owns the run.
+  // The child cannot overwrite it first: node boot plus the extraction pre-step
+  // take far longer than this synchronous write. The child then replaces it with
+  // its own running/done/failed payloads (cmdRun is unchanged).
+  writeStatus(roomDir, {
+    state: 'running',
+    phase: 'starting',
+    started_at: new Date().toISOString(),
+    pid: child.pid,
+    out: outMd(roomDir),
+    json: outJson(roomDir),
   });
-  child.unref();
 
   process.stdout.write('eureka scan started (background)\n');
   process.stdout.write('report: ' + outMd(roomDir) + '  status: ' + statusPath(roomDir) + '\n');
