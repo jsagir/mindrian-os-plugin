@@ -1,6 +1,7 @@
 ---
 id: SEED-103
-status: dormant
+status: promoted
+promoted_to: "Phase 366 (2026-10-01)"
 priority: high
 planted: 2026-10-01
 updated: 2026-10-01

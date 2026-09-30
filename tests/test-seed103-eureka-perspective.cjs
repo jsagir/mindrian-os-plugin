@@ -12,6 +12,18 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+// Isolate from the machine's real rooms BEFORE any repo module loads (the
+// test-363-mcp-tool idiom): the MCP room resolver reads the registry's active
+// room before it falls back to the boot room, so without this a run could land
+// in a real room.
+const TMP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-seed103-home-'));
+process.env.HOME = TMP_HOME;
+process.env.USERPROFILE = TMP_HOME;
+process.env.MINDRIAN_ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-seed103-roomshome-'));
+delete process.env.CLAUDE_ACTIVE_ROOM;
+delete process.env.CLAUDE_CODE_SESSION_ID;
+delete process.env.MINDRIAN_MCP_FIRST;
+
 const REPO_ROOT = path.resolve(__dirname, '..');
 const hygiene = require(path.join(REPO_ROOT, 'tests/helpers/hygiene-355.cjs'));
 const roomDb = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
@@ -135,30 +147,43 @@ roomDb.closeRoomDb(db);
   const j3 = await judge.runJudge(roomDir, rec.tag, {});
   C.check('editing candidates.jsonl steers the next stage', j3.rows.length === 1, String(j3.rows.length));
 
-  // 7. MCP ops reachable through the registered handler
-  let mcpOk = false; let mcpDetail = '';
+  // 7. MCP ops through the real registration seam (the test-363-mcp-tool idiom:
+  //    registerCoreTools with fallbackRoomDir, a session id on `extra`).
+  let mcpDetail = '';
   try {
-    const research = require(path.join(REPO_ROOT, 'lib/mcp/tools/research.cjs'));
-    let handler = null;
-    const server = { registerTool: function (_name, _spec, fn) { handler = fn; }, tool: function () {} };
-    const sessionBinding = require(path.join(REPO_ROOT, 'lib/core/session-binding.cjs'));
-    research.register(server, { roomDir: roomDir, resolveRoomDir: function () { return roomDir; } });
-    const out = await handler({ op: 'eureka_recall', room: roomDir, max_candidates: 5 }, {});
-    const text = out && out.content && out.content[0] && out.content[0].text;
-    const parsed = JSON.parse(text);
-    mcpDetail = JSON.stringify(parsed).slice(0, 300);
-    if (parsed.ok === true && parsed.op === 'eureka_recall' && parsed.run_tag && parsed.counts) {
-      const out2 = await handler({ op: 'eureka_judge', room: roomDir, run_tag: parsed.run_tag }, {});
-      const p2 = JSON.parse(out2.content[0].text);
-      mcpDetail += ' | ' + JSON.stringify(p2).slice(0, 200);
-      mcpOk = p2.ok === true && p2.op === 'eureka_judge' && p2.summary.judge === 'none';
-    } else if (parsed.ok === false && /room/.test(String(parsed.reason))) {
-      // the room resolver on this surface needs a bound session; the op path itself was reached
-      mcpOk = true; mcpDetail += ' (room binding refused as expected on an unbound session)';
-    }
-    void sessionBinding;
-  } catch (e) { mcpDetail = String(e && e.stack ? e.stack : e).slice(0, 300); }
-  C.check('MCP eureka_recall and eureka_judge reachable', mcpOk, mcpDetail);
+    const { registerCoreTools } = require(path.join(REPO_ROOT, 'lib/mcp/register-core-tools.cjs'));
+    const captured = new Map();
+    const stub = {
+      tool: function (name, _d, _s, fn) { captured.set(name, fn); },
+      registerTool: function (name, cfg, fn) { captured.set(name, fn); captured.set(name + ':cfg', cfg); },
+    };
+    registerCoreTools(stub, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'desktop' });
+    const call = async function (input) {
+      const raw = await captured.get('research_run')(input, { sessionId: 'sess-seed103' });
+      return JSON.parse(raw.content[0].text);
+    };
+    const cfg = captured.get('research_run:cfg') || {};
+    C.check('research_run declares MCP annotations', cfg.annotations && cfg.annotations.destructiveHint === false && cfg.annotations.openWorldHint === true, JSON.stringify(cfg.annotations));
+    C.check('research_run description names the eureka ops', /eureka_recall/.test(String(cfg.description)) && /eureka_candidates/.test(String(cfg.description)));
+    const r1 = await call({ op: 'eureka_recall', max_candidates: 5 });
+    mcpDetail = JSON.stringify(r1).slice(0, 300);
+    C.check('MCP eureka_recall runs on the bound room', r1.ok === true && r1.op === 'eureka_recall' && !!r1.run_tag && r1.counts.sections === 2, mcpDetail);
+    C.check('MCP eureka_recall returns a plan and a next step', r1.plan && r1.plan.ok === true && typeof r1.next_step === 'string', JSON.stringify(r1.plan).slice(0, 200));
+    const p0 = await call({ op: 'eureka_candidates', run_tag: r1.run_tag, limit: 1, offset: 0 });
+    C.check('MCP eureka_candidates page 1: has_more and next_offset', p0.ok === true && p0.count === 1 && p0.has_more === true && p0.next_offset === 1 && p0.total >= 2, JSON.stringify(p0).slice(0, 200));
+    const pLast = await call({ op: 'eureka_candidates', run_tag: r1.run_tag, limit: 1, offset: p0.total - 1 });
+    C.check('MCP eureka_candidates last page: no more', pLast.ok === true && pLast.has_more === false && pLast.next_offset === null && pLast.judged === false, JSON.stringify(pLast).slice(0, 200));
+    const j = await call({ op: 'eureka_judge', run_tag: r1.run_tag });
+    C.check('MCP eureka_judge runs Stage A with judge none', j.ok === true && j.summary.judge === 'none', JSON.stringify(j).slice(0, 200));
+    const p1 = await call({ op: 'eureka_candidates', run_tag: r1.run_tag, limit: 1 });
+    C.check('MCP eureka_candidates carries verdict fields after the judge', p1.ok === true && p1.judged === true && p1.items[0].stage_a && typeof p1.items[0].stage_a.pass === 'boolean', JSON.stringify(p1.items[0]).slice(0, 200));
+    const bad = await call({ op: 'eureka_judge', run_tag: '20990101T000000Z' });
+    C.check('MCP refusal carries an actionable hint', bad.ok === false && typeof bad.hint === 'string' && /eureka_recall/.test(bad.hint), JSON.stringify(bad));
+    const noTag = await call({ op: 'eureka_candidates' });
+    C.check('MCP eureka_candidates without run_tag refuses with a hint', noTag.ok === false && noTag.reason === 'run_tag_required' && typeof noTag.hint === 'string');
+  } catch (e) {
+    C.check('MCP path threw', false, String(e && e.stack ? e.stack : e).slice(0, 400));
+  }
 
   // 8. zero network
   const attemptCount = (net && typeof net.attempts === 'function') ? net.attempts() : ((net && Array.isArray(net.attempts)) ? net.attempts.length : 0);

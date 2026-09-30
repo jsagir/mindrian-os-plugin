@@ -1,0 +1,52 @@
+<!--
+  SEED-103 / mcp-builder Phase 4: evaluation questions for the Eureka perspective
+  ops of the research_run MCP tool, over the synthetic fixture room that
+  tests/test-seed103-eureka-perspective.cjs builds (two sections, four
+  artifacts, two shared entities, one known edge, one existing opportunity).
+  Every question is read-only (eureka_recall writes only under
+  .mindrian/eureka-perspective/, never to room.db), independent, deterministic,
+  and answerable by string comparison. Answers were verified by running the
+  ops on the fixture on 2026-10-01.
+-->
+<evaluation>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room. How many distinct sections do the recalled things span?</question>
+    <answer>2</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room. Which recall lane appears on the pair joining "Membrane fouling in desalination intake filters" and "Surface coating suppliers for filtration membranes" AND on no other pair? Answer with the lane id.</question>
+    <answer>icm_declared</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room. Name the shared entity recorded on the pair joining "Regulatory timeline for coastal permits" and "Segment sizing for municipal water utilities".</question>
+    <answer>permitting agency</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall with max_candidates 1 on the fixture room. What value does pairs_truncated report?</question>
+    <answer>1</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room, then eureka_candidates with limit 1 and offset 0. What is the value of has_more?</question>
+    <answer>true</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room, then eureka_candidates with limit 1 and offset 1. What is next_offset?</question>
+    <answer>null</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room. Is the pair joining "Membrane fouling in desalination intake filters" and "Segment sizing for municipal water utilities" among the candidates? Answer yes or no.</question>
+    <answer>no</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall on the fixture room. What does counts.known_pairs report?</question>
+    <answer>2</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall, then eureka_judge with the returned run_tag. What is summary.judge?</question>
+    <answer>none</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Run eureka_recall, then eureka_judge with the returned run_tag. What is summary.band?</question>
+    <answer>unknown</answer>
+  </qa_pair>
+</evaluation>
