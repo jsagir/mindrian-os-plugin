@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-20-PLAN.md - D-06 acceptance offline in both modes, D-19 lens fixture, Part 8 sweep clean, live smoke built (77 without MOS_363_LIVE, NOT run), 14 floor rows kept disclosed; next 363-21 human D-06 check"
-last_updated: "2026-09-30T16:00:00.000Z"
-last_activity: 2026-09-30 -- 363-20 complete (363-19 bookkeeping caught up)
+stopped_at: "Completed 363-21-PLAN.md - D-06 human check: navigator ruled PASS (363-21 pass, 2026-10-01) at plan level, no per-leaf scores; next 363-22 phase close (DRP363-16 live smoke still pending, MOS_363_LIVE never run)"
+last_updated: "2026-10-01T00:00:00.000Z"
+last_activity: 2026-10-01 -- 363-21 complete (D-06 navigator PASS)
 progress:
   total_phases: 115
   completed_phases: 44
   total_plans: 469
-  completed_plans: 437
+  completed_plans: 438
   percent: 93
 ---
 
@@ -5424,8 +5424,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 21 of 22
+Plan: 22 of 22
 Status: Ready to execute
+Previously (363-21, no state.* writer run, hand-edited frontmatter and this block only): D-06 human check. Navigator
+  ruled PASS on 2026-10-01, exact words "363-21 pass", at plan level with no per-leaf R1-R7 scores (sheets left
+  blank). Caveats recorded: no live navigator, "[object Object]" ranking line at review time (fixed 8e5015231,
+  05f7aa00d), restatement heuristic flagged 8 of 11 non-stated leaves (warning only, design question for
+  363-22), L11 a stretch for hospital water. Commits cc98541be, c83b59de6. Open: DRP363-16 live smoke still
+  pending (MOS_363_LIVE never run).
 Previously (363-20, executed beside Phase 363.1-07 in the shared tree, no state.* writer run,
   hand-edited counts only): D-06 acceptance. tests/test-363-acceptance-whitespace.cjs (14 checks, both
   modes through the spawned CLI with the replay preload, the MCP register seam and the ambient branch),

@@ -1442,7 +1442,7 @@ Plans:
 **Wave 8**
 
 - [x] 363-20-PLAN.md -- D-06 acceptance: Whitespace plus OpenAlex slice in both modes, D-19 lens fixture, Part 8 sweep, opt-in live smoke, measured floors
-- [ ] 363-21-PLAN.md -- D-06 human check: navigator scores a map-unknowns research plan against the written rubric (checkpoint)
+- [x] 363-21-PLAN.md -- D-06 human check: navigator scores a map-unknowns research plan against the written rubric (checkpoint)
 
 **Wave 9**
 
