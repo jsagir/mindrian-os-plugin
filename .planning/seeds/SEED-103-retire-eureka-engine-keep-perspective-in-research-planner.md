@@ -1,6 +1,7 @@
 ---
 id: SEED-103
-status: dormant
+status: promoted
+promoted_to: "Phase 366 (2026-10-01)"
 priority: high
 planted: 2026-10-01
 updated: 2026-10-01
@@ -56,3 +57,33 @@ evidence document.
 2. Runtime Jev under the planner's grant and audit ledger, or dev-time only?
 3. Entity pre-step: a planner egress line, or a separate producer?
 4. Label the spike rooms?
+
+## Shipped 2026-10-01 on branch `seed-103-eureka-perspective` (worktree, not yet merged)
+
+Steps 2 and part of 4 of the build order, plus the model routing the navigator asked for:
+
+- `lib/core/research-planner/perspectives/eureka-recall.cjs`: stages 01 substrate and 02 recall from
+  the local graph and the ICM structure (lanes shared_entity, lexical, icm_declared from per-section
+  `CONTEXT.md` Inputs), the room graph as the exclusion set, a hard cap with `pairs_truncated`,
+  files as edit surfaces, `STATUS.md` derived, a `canon_resolved` count per run (Theo readiness),
+  and the question set the planner consumes. No embeddings, no model, no network.
+- `lib/core/research-planner/perspectives/eureka-judge.cjs`: stage 03, Stage A gates plus an
+  injected `judgeFn`; the band comes from the measured Phase 355 bucket (73 of 96, `medium`, human-routed).
+- `question-templates.cjs` gains the `eureka` template (`/mos:eureka` door); `families.cjs` gains
+  the `eu.transfer` (ce.pair + ce.counter) and `eu.known` lenses.
+- MCP `research_run` gains ops `eureka_recall` and `eureka_judge` (judge `none` on that surface).
+  CLI door gains `eureka-recall` and `eureka-judge`. `scripts/eureka-jev-judge.cjs` is the dev-time
+  Jev first pass (D-44 honored: nothing under lib/ or hooks/ references the Jev client).
+- `lib/core/claude-routing.cjs`: the one home for Claude model ids under lib/. Every lib caller of
+  api.anthropic.com (entity classifier, MVA classifier, name suggester, edge derivation, briefing,
+  wiki chat) routes through it; default alias opus for every role (the claude-api rule), per-role
+  effort, env overrides `MINDRIAN_MODEL_<ROLE>` / `MINDRIAN_EFFORT_<ROLE>`; request shapes follow
+  the model generation (no sampling params on 5.x, effort only there). A tripwire test forbids any
+  other hardcoded `claude-*` id under lib/.
+- Tests: `tests/test-seed103-claude-routing.cjs`, `tests/test-seed103-eureka-perspective.cjs`
+  (31 checks, hermetic), aggregator `tests/run-all-seed103.sh` (20 legs green on 2026-10-01).
+- Measured on a copy of a real 798-node room: 51 things across 9 sections, 47 candidates, top pairs
+  problem-definition <-> research and competitive-analysis <-> solution-design; canon_resolved 0.
+
+Still open (unchanged): the runtime-Jev ruling, the Haiku entity pre-step as a planner egress line,
+the spike with the navigators

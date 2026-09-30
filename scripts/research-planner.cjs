@@ -71,6 +71,10 @@ const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
 
 // flag name -> value type ('bool' takes no value)
 const FLAGS = Object.freeze({
+  // SEED-103 eureka perspective flags: an integer cap, a timestamp tag, a judge enum.
+  '--max': 'int',
+  '--tag': 'tag',
+  '--judge': 'judge',
   '--room': 'dir',
   '--mode': 'mode',
   '--scientific': 'bool',
@@ -87,6 +91,8 @@ const FLAGS = Object.freeze({
 const COMMANDS = Object.freeze({
   'plan': { pos: ['json'], flags: ['--room', '--mode', '--scientific', '--diffusion', '--live-structure', '--section'], need: ['--room'] },
   'planners': { pos: [], flags: ['--room'], need: ['--room'] },
+  'eureka-recall': { pos: [], flags: ['--room', '--max', '--tag', '--mode'], need: ['--room'] },
+  'eureka-judge': { pos: [], flags: ['--room', '--tag', '--judge'], need: ['--room', '--tag'] },
   'grant propose': { pos: [], flags: ['--room', '--terms'], need: ['--room'] },
   'grant approve': { pos: ['json'], flags: ['--room', '--approved-via', '--terms'], need: ['--room', '--approved-via'] },
   'grant status': { pos: [], flags: ['--room'], need: ['--room'] },
@@ -113,6 +119,9 @@ const TWO_WORD = Object.freeze({ grant: ['propose', 'approve', 'status', 'revoke
 
 function refuse(reason) { return { refuse: reason }; }
 const FREE_TEXT = 'free_text_argv_refused';
+// SEED-103: value shapes for the eureka perspective flags.
+const INT_RE = /^[1-9][0-9]{0,3}$/;
+const TAG_RE = /^[0-9TZ]{1,20}$/;
 
 function isJsonFile(p) {
   if (typeof p !== 'string' || !/\.json$/i.test(p)) return false;
@@ -130,6 +139,9 @@ function valueOk(type, v) {
     case 'mode': return v === 'quick' || v === 'deep';
     case 'via': return v === 'cli';
     case 'slug': return typeof v === 'string' && SLUG_RE.test(v);
+    case 'int': return typeof v === 'string' && INT_RE.test(v);
+    case 'tag': return typeof v === 'string' && TAG_RE.test(v);
+    case 'judge': return v === 'none';
     default: return false;
   }
 }
@@ -210,6 +222,26 @@ async function handle(cmd, pos, flags) {
   const via = flags['--approved-via'] || null;
 
   switch (cmd) {
+    // SEED-103: the Eureka perspective, stages 01-03. No free text on argv:
+    // the room is a path, the tag is a timestamp, the judge is an enum.
+    case 'eureka-recall': {
+      const eurekaRecall = require('../lib/core/research-planner/perspectives/eureka-recall.cjs');
+      const budgets = {};
+      if (flags['--max']) budgets.max_candidates = parseInt(flags['--max'], 10);
+      const rec = eurekaRecall.runRecall(room, { budgets: budgets, tag: flags['--tag'] || undefined });
+      const built = rec.candidates.length ? planner.buildPlan(room, rec.question_set, flags['--mode'] ? { mode: flags['--mode'] } : {}) : null;
+      return {
+        ok: true, run_tag: rec.tag, run_dir: rec.run_dir, counts: rec.counts, pairs_truncated: rec.pairs_truncated, couplings: rec.couplings,
+        top: rec.candidates.slice(0, 10),
+        plan: built ? { ok: built.ok !== false, run_id: built.run_id || null, status: built.status, errors: built.errors || [] } : null,
+      };
+    }
+    case 'eureka-judge': {
+      const eurekaJudge = require('../lib/core/research-planner/perspectives/eureka-judge.cjs');
+      const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none' });
+      if (!res.ok) return { ok: false, reason: res.reason };
+      return { ok: true, run_tag: res.tag, file: res.file, summary: res.summary };
+    }
     case 'plan': {
       const qs = readInput(pos[0]);
       if (!qs || typeof qs !== 'object') return { ok: false, reason: 'bad_json' };

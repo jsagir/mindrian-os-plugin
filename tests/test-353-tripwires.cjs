@@ -124,6 +124,7 @@ const HOOKS_BANNED_LEDGER_SCRIPTS = Object.freeze([
   'score-moonshots-359',
   'calibrate-citation-check',
   'judge-355-usefulness',
+  'eureka-jev-judge', // SEED-103: the Eureka perspective Jev first pass, dev-time only
 ]);
 
 function escapeRe(s) {
