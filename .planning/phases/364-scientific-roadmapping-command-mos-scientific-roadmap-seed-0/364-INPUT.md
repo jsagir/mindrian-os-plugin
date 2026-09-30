@@ -1,0 +1,62 @@
+---
+phase: 364
+kind: planning-input
+recorded: 2026-09-30
+sources:
+  - .planning/seeds/SEED-098-scientific-roadmapping-command-through-theo.md (navigator rulings NR-1..NR-3, 2026-09-27)
+  - Theo commit f101031, .planning/phases/25-scientific-roadmapping-adoption-and-research-plan-route-seed/25-PLUGIN-CONTRACT.md
+  - Theo phase 25 dir, 25-INPUT-command-draft.md (navigator's draft spec, adopt as starting spec)
+  - Navigator requirements relayed by the Theo session (jsagi-f1), 2026-09-30
+status: input only; /gsd-plan-phase 364 turns this into CONTEXT and plans
+---
+
+# Phase 364 planning input: /mos:scientific-roadmap
+
+Working slug: `/mos:scientific-roadmap` (SEED-098 recommendation; `/mos:roadmap` is the
+alternative). The navigator picks the slug.
+
+## Sequencing (hard)
+
+1. Phase 363 closes first. 363-22 writes the engine reuse contract into SEED-098 (D-18).
+2. Step walking starts only after Theo Phase 25 authors the 7 steps. Today `framework_step("Scientific Roadmapping")`
+   returns 7 steps with label, runIt, stepKind, thinkingMode, researchDirective, artifactRubric and source span
+   all NULL: a property-schema mismatch in the out-of-GSD sr-v1 batch. Theo will send the commit when fixed.
+3. Theo's USES_FRAMEWORK sync edge lands after this phase ships in a release.
+
+## Requirements (navigator)
+
+1. Problem-type rooting: enter from the room's problem-type classification (Undefined, Ill-Defined,
+   Well-Defined, Wicked). The plan names its rung. Step 3 places the rung: Landscape or Vision for Un-Defined,
+   Manifesto or Technical for Ill-Defined, Pipeline or Opportunity for Well-Defined.
+2. Researcher starting point: reachable from the researcher persona (role_blend researcher,
+   persona_variants.researcher), from /mos:ignite Researcher or Door 3 Hypothesis (hypothesis_text as goal seed),
+   direct, or `--from-hypothesis`. Mid-journey entry from room state (NR-2), never colliding with explore-opportunity.
+3. Systems-thinking layer: a Systems Thinking pass (/mos:systems-thinking, /mos:analyze-systems, ch06) over the
+   field BEFORE Path Enumeration and Constraint Interrogation.
+4. Hypothesis-driven link: Stage B turns each ranked bottleneck into a falsifiable hypothesis via
+   Hypothesis-Driven Problem Solving, hands HDPS steps 2 and 3 to /mos:research on the 363 engine; a refuted
+   bottleneck drops in the ranking.
+5. Inputs (NR-1): find-bottlenecks, dominant-designs, explore-futures bound as inputs, not duplicated.
+   find_bottlenecks now refuses `not_scored` (Theo 20.2): map it to `not_ready`, never `unreachable`.
+
+## Contract rules (Theo 25-PLUGIN-CONTRACT)
+
+- Walk steps from framework_step in list order; never sort by sourceOrder; never write step text from memory;
+  skip DEFINITION and ASIDE steps; a null label or runIt is refused honestly ("Theo has not authored this step yet").
+- Stage A: the 7 steps (Tension Qualification, Goal Quantification, Rung Placement and Type Selection, Forum
+  Construction, Path Enumeration, Constraint Interrogation, Catalytic Ranking), a human gate each, claims filed
+  as proposed.
+- Output: room/research-plan/PLAN.md, filed through the 363 F.8 basket; the plan names its rung and the steps run.
+- No second engine (D-18): a door on the `scientific-roadmapping` template, plans handed to /mos:research.
+- Wiring via /mos:new-surface then the registry sync (data/command-registry.json, recipe-maps), never a hand MERGE.
+- Draft frontmatter: kind methodology, autonomous_safe false, reach context_block,
+  frameworks [Scientific Roadmapping, Hypothesis-Driven Problem Solving], produces room/research-plan/*.
+- Canon Part 8: only generic handles reach Theo. Theo decides nothing. No skill writes canon.
+
+## Open items for discuss-phase
+
+- hierarchy_rank from connector-registry.json.
+- How a two-framework command is stored in the registry (one primary plus a recipe edge, or two).
+- Slug: /mos:scientific-roadmap vs /mos:roadmap.
+- find-analogies as an optional NEXT_IN_RECIPE (in the draft).
+- Verify NR-3's Hypothesis-Driven Problem Solving edges against canon (the sr-v1 batch was unaudited; Theo 25 verifies).

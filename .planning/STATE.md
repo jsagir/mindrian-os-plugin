@@ -7608,6 +7608,8 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 364 added (2026-09-30): Scientific Roadmapping command /mos:scientific-roadmap, promoted from SEED-098 on the navigator ruling "own phase after 363 closes"; depends on Phase 363 and on Theo Phase 25 authoring the 7 steps. Input: 364-INPUT.md.
+
 - Phase 363 added (2026-09-29, `/gsd-phase`): "Deep Research Planner - quick and deep research runs" - promotes SEED-097 (the MCP intelligence layer from the original 355 ask) after the beta.51 release. Navigator reframe at promotion: the intent is a deep research PLANNER with quick and deep run modes; SEED-097's designer/approval/MOS-CANVAS material feeds it. Next: /gsd-discuss-phase 363.
 - Phase 357 added (2026-09-23, `/gsd-phase`): "Gate-triad ledger" - Jev scores the Stop-hook card gate's three questions (is-fork / answered / relevant) at dev time over a closed local feature vector, shipped as data; then larry-extended gate prose shrinks to "obey the injected verdict". Navigator picked this over all-14-judgments, reopening the egress ruling, or spike-first. Bounded by the 2026-09-17 rulings (zero user text to Jev, no Jev in hooks).
 - Phase 355 added (2026-09-23, `/gsd-phase`): "Hidden in Plain Sight: Jev-through-Theo

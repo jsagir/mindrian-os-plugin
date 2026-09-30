@@ -1465,6 +1465,17 @@ Plans:
 - [x] 363.1-06-PLAN.md -- tail classifier and Opportunity Statement prose
 - [x] 363.1-07-PLAN.md -- end-to-end proof: D-10 regressions and beta.51 replay on room copies
 
+### Phase 364: Scientific Roadmapping command /mos:scientific-roadmap (SEED-098, reuses Phase 363 research-planner engine)
+
+**Goal:** Ship /mos:scientific-roadmap (SEED-098): a constraint-first command rooted in the room problem-type classification, entered from the researcher starting point or a hypothesis, with a systems-thinking pass before path enumeration, walking Theo framework_step content only, turning ranked bottlenecks into falsifiable hypotheses and handing them to /mos:research on the Phase 363 engine (D-18, no second engine). Planning input: 364-INPUT.md.
+**Requirements**: TBD
+**Depends on:** Phase 363
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 364 to break down)
+
 ### Phase 270: Memory and Context Operator MCP
 
 **Goal:** Navigator observation, 2026-08-27: memory and context in this repo are scattered across many discrete MCP tools (`memory_event`, `graph_write`, `artifact_file`, `room_state_bound`, `graph_query`, `whitespace_scan`...) with no single thing owning the memory lifecycle end to end -- surfaced directly by this session's own finding that `~/.mindrian-user.md` (the promised cross-room "who is this user" file) has zero writers anywhere in the repo despite onboarding prose asserting it exists (Phase 267.1's GAP I-1, now Phase 267.2's W2). Theo's own package.json already frames itself as "MindrianOS's *consolidated* MCP server" for the Brain side -- the room side never got the equivalent treatment. Research this phase's actual shape: does consolidating room-side memory operations into one coherent "operator" surface (rather than many small tools) reduce real friction, or is the current fragmentation load-bearing (e.g. each tool's narrow scope is itself a Part 8 safety property, per `lib/mcp/*` tool descriptions -- verify before assuming consolidation is strictly better)? At minimum this phase should determine: (1) whether the cross-room identity write (Phase 267.2 W2's job) should be built as a first tool under this new operator rather than a one-off function, (2) whether Part 8's Brain-boundary enforcement (currently a documented convention, not a schema-level guarantee) can be made structurally enforced by a memory-operator tool's own input/output schema, and (3) how this interacts with Theo eventually becoming the consolidated Brain-side MCP -- does a room-side "memory operator" mirror that architecture, or is the analogy wrong because Brain content and room content have fundamentally different locality guarantees (Part 8: room data never leaves; Brain content is already remote by design).
