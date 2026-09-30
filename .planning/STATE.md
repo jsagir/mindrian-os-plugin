@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-21-PLAN.md - D-06 human check: navigator ruled PASS (363-21 pass, 2026-10-01) at plan level, no per-leaf scores; next 363-22 phase close (DRP363-16 live smoke still pending, MOS_363_LIVE never run)"
+stopped_at: "363-22 Task 1 done (gate PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10, doctor 22/22, DRP363 rows closed 19 of 20, follow-ons, SEED-098 reuse contract, research-trail draft); paused at Task 2 blocking checkpoint: navigator routing approval for the two room filings; nothing written to any room"
 last_updated: "2026-10-01T00:00:00.000Z"
-last_activity: 2026-10-01 -- 363-21 complete (D-06 navigator PASS)
+last_activity: 2026-10-01 -- 363-22 Task 1 complete, awaiting navigator routing approval (Task 2)
 progress:
   total_phases: 115
   completed_phases: 44
