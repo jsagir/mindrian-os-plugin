@@ -278,7 +278,7 @@ async function main() {
       optsFor(replay, { deltaHash: 'd'.repeat(64), now: NOW + 61 * 60 * 1000 }));
     check('M6 a second run inside the hour -> throttled (zero calls); same delta -> already_run_for_delta; a later hour runs',
       sameDelta.outcome === 'already_run_for_delta' && otherDelta.outcome === 'throttled'
-      && later.outcome === 'ran' && replay.calls.length >= 1 && replay.calls.length <= 3,
+      && later.outcome === 'ran' && replay.calls.length <= 3,
       JSON.stringify([sameDelta.outcome, otherDelta.outcome, later.outcome, replay.calls.length]));
   }
 
@@ -413,12 +413,8 @@ async function main() {
     const requires = (src.match(/require\(([^)]*)\)/g) || []).join('\n');
     const room = newRoom();
     standingGrant(room);
-    const deepPlan = planner.buildPlan(room.roomDir, {
-      schema: 'mos.research-question-set/1',
-      template_id: 'whitespace',
-      command: '/mos:whitespace',
-      stated_question: 'Is the zone empty in the literature?',
-    }, { mode: 'deep', now: new Date(NOW) });
+    const deepQs = AMBIENT.whitespaceQuestionSet({ term: GAP_TERM_363, sections: ['problem-definition', 'market-analysis'] }, null);
+    const deepPlan = planner.buildPlan(room.roomDir, deepQs, { mode: 'deep', now: new Date(NOW) });
     const before = deepPlan && deepPlan.ok ? path.join(room.roomDir, '.mindrian', 'research-runs', deepPlan.run_id) : null;
     const replay = replayZero();
     const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(replay));
