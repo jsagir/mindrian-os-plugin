@@ -325,6 +325,9 @@ function run() {
   // Behavior 11: identical created_at across all 36 nodes (a bulk import)
   // -> a uniform growth tie; classifyTail on the 36-tech cohort still
   // returns without throwing (axes stay in [0,1], satisfying assertAxis).
+  // Phase 363.1 D-04: with zero degree AND identical created_at BOTH axes are
+  // degenerate (1 distinct value), so the honest answer is now
+  // insufficient_structure: true, not a fabricated quadrant.
   // ------------------------------------------------------------------
   (function () {
     const stamp = '2026-07-01T00:00:00.000Z';
@@ -352,7 +355,7 @@ function run() {
         threw = true;
       }
       ok(!threw, 'behavior 11: all-tie 36-tech cohort classifies without throwing (axes in [0,1])');
-      ok(result && result.insufficient_structure === false, 'behavior 11: 36 >= MIN_COHORT -> not insufficient_structure');
+      ok(result && result.insufficient_structure === true, 'behavior 11: Phase 363.1 D-04 - both axes degenerate (1 distinct value each) -> insufficient_structure');
     });
   }());
 

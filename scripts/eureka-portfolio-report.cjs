@@ -596,6 +596,9 @@ function renderReport(ctx) {
     + ' / ' + fmt(p.tail_thresholds.growthCut, 3) + ' |');
   L.push('| Tail insufficient_structure | ' + String(p.tail_insufficient_structure) + ' |');
   L.push('| Tail suspect_noise | ' + String(p.tail_suspect_noise) + ' |');
+  L.push('| Tail axis distinct values (attention / growth) | '
+    + (p.tail_axis_distinct && typeof p.tail_axis_distinct === 'object'
+      ? p.tail_axis_distinct.attention + ' / ' + p.tail_axis_distinct.growth : '-') + ' |');
   L.push('| Graph nodes loaded | ' + p.graph_nodes + ' |');
   L.push('| CONVERGES pairs loaded | ' + p.converges_pairs + ' |');
   L.push('| Cohort techs (room-indexed, run time) | ' + p.cohort_techs + ' |');
@@ -1312,7 +1315,8 @@ async function main(argv, deps) {
     }
 
     // (7) Tail: per-TECH axes over the cohort. attention = pair_count percentile,
-    // growth = cnumber-recency percentile. classifyTail owns the degeneracy guards.
+    // growth = recency percentile (cnumber in graph mode, created_at in room mode).
+    // classifyTail owns the degeneracy guards and the growth_proxy label (D-04).
     const pairCounts = cohortTechs.map(function (t) { return finiteOr0(t.pair_count); }).sort(function (a, b) { return a - b; });
     const cnums = cohortTechs.map(function (t) { return cnumberNumeric(t.cnumber); }).sort(function (a, b) { return a - b; });
     const tailItems = cohortTechs.map(function (t) {
@@ -1322,7 +1326,10 @@ async function main(argv, deps) {
         growth: pdims.percentileRank(cnumberNumeric(t.cnumber), cnums),
       };
     });
-    const tailResult = tailmod.classifyTail(tailItems, brokerage ? { brokerage: brokerage } : {});
+    const tailOpts = {};
+    if (brokerage) tailOpts.brokerage = brokerage;
+    if (opts.pairs === 'room') tailOpts.growthProxy = 'created_at-recency (room-native)';
+    const tailResult = tailmod.classifyTail(tailItems, tailOpts);
     const tailIds = new Set(tailResult.tail.map(function (t) { return t.id; }));
 
     // (8) Rank pairs; keep --top; add tail-flagged complementary pairs as candidates.
@@ -1462,13 +1469,15 @@ async function main(argv, deps) {
       ahp_cr: ahpConfig.cr,
       ahp_matrix_source: matrixSource,
       tail_composition: tailResult.composition,
-      // Room mode overrides the growth-proxy label ONLY in provenance (the axis
-      // math in tail-quadrant.cjs is untouched): the recency signal is created_at,
-      // not a catalog cnumber.
-      growth_proxy: opts.pairs === 'room' ? 'created_at-recency (room-native)' : tailResult.growth_proxy,
+      // Phase 363.1 D-04: ONE source for the growth-proxy label. classifyTail
+      // stamps whatever opts.growthProxy the tail step passed (room mode names
+      // created_at recency), and provenance copies it, so it can never disagree
+      // with the JSON tail block.
+      growth_proxy: tailResult.growth_proxy,
       tail_thresholds: tailResult.thresholds,
       tail_insufficient_structure: tailResult.insufficient_structure,
       tail_suspect_noise: tailResult.suspect_noise,
+      tail_axis_distinct: tailResult.axis_distinct,
       cohort_techs: cohortTechs.length,
       graph_nodes: techMap.size,
       converges_pairs: convergesPairs.length,
