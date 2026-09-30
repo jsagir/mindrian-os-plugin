@@ -292,7 +292,8 @@ function nodeData(n) {
 // the gap was invisible until now). Falls back to the raw room id when no catalog
 // token is present (memory_event / persona nodes) so those still enumerate.
 function catalogId(row) {
-  const sp = String(row && row.source_path ? row.source_path : '');
+  // Phase 363.1 D-05: a Windows path uses backslashes; normalize before splitting.
+  const sp = String(row && row.source_path ? row.source_path : '').replace(/\\/g, '/');
   const parts = sp.split(':');
   const last = parts.length ? parts[parts.length - 1].trim() : '';
   const m = last.match(/^([A-Za-z]\d+)/);
@@ -434,7 +435,10 @@ function deriveSharedProblems(a, b, bridgeEdgeType) {
   if (a.primary_problem || b.primary_problem) return [a.primary_problem || b.primary_problem];
   const rel = (typeof bridgeEdgeType === 'string') ? RELATION_BRIDGE_LABEL[bridgeEdgeType] : null;
   const kind = rel ? (rel + ' bridge') : 'cross-domain bridge';
-  return ['a ' + (a.section || 'unknown') + ' x ' + (b.section || 'unknown') + ' ' + kind];
+  // Phase 363.1 D-05: NO leading article here. The statement template supplies its
+  // own ('the ' + firstShared + ' gap ...'); the old 'a ' prefix produced "the a
+  // market-analysis x ..." in prose.
+  return [(a.section || 'unknown') + ' x ' + (b.section || 'unknown') + ' ' + kind];
 }
 
 // ---------------------------------------------------------------------------
@@ -1733,6 +1737,9 @@ const ICM_TYPE_DENY = new Set([
   'causal_claim', 'whitespacezone', 'whitespace_zone', 'breakthrough',
   'opportunity', 'company', 'technology', 'market', 'domain', 'subdomain',
   'focus_area', 'frame', 'unknown',
+  // Phase 363.1 D-05: the substrate's honest fallback for a derived section that
+  // looks like a file or path. It is not a domain, so it is never banked as one.
+  'unsectioned',
 ]);
 
 function isRealSectionSlug(v) {

@@ -141,7 +141,7 @@ function main() {
     //    that leaked 'a Section x Section cross-domain bridge' into prose.
     const ca = tm.get('competitive-analysis');
     const shared = deriveSharedProblems(bm, ca);
-    ok(Array.isArray(shared) && shared[0] === 'a business-model x competitive-analysis cross-domain bridge',
+    ok(Array.isArray(shared) && shared[0] === 'business-model x competitive-analysis cross-domain bridge', // 363.1 D-05: no leading article (template supplies it)
       'fallback: deriveSharedProblems names the real slugs (got ' + JSON.stringify(shared && shared[0]) + ')');
     ok(shared[0].indexOf('Section x Section') === -1,
       "fallback: the bridge label never contains 'Section x Section'");
