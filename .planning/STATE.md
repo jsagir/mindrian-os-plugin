@@ -5440,6 +5440,13 @@ Previously (363.1-02, same out-of-band arrangement, no state.* writer run, front
   write-disjointness contract), and eureka-command start writes a running/starting status
   with the child pid before returning. Tests 6 + 9 assertions, test-216 44 and test-341 12
   unregressed. Commits 6043ee88d, 49ca68c91. Next: 363.1-03.
+Previously (363.1-04, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- scripts/compute-state counts, stages and cross-refs
+  content only (two predicate CLI spawns per run, 14 sections in 1.3s, honest stderr
+  fallback), and a placeholder MINTO governing thought earns no GT health and is capped at
+  0.69 (never check); generator writes governing_thought_placeholder: true and filters
+  scaffold from artifacts; three tier-0 baselines refreshed. Tests 15 + 17 legs. Commits
+  d6d6b9149, 47d7974f2. Next: 363.1-05.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):

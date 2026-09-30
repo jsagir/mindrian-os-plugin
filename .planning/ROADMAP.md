@@ -1460,7 +1460,7 @@ Plans:
 - [x] 363.1-01-PLAN.md -- shared scaffold predicate (library plus bash CLI), room-birth FEYNMAN seed registered as a template, phase baseline and aggregator
 - [x] 363.1-02-PLAN.md -- worktree isolation removal (/mos:reason outside git) and the eureka start/status race
 - [ ] 363.1-03-PLAN.md -- restore the Eureka regression suites (R17-02 epistemic_type fixture drift)
-- [ ] 363.1-04-PLAN.md -- compute-state entry counts and venture stage, MINTO template health
+- [x] 363.1-04-PLAN.md -- compute-state entry counts and venture stage, MINTO template health
 - [ ] 363.1-05-PLAN.md -- Eureka structural-node exclusion before pairing (D-03)
 - [ ] 363.1-06-PLAN.md -- tail classifier and Opportunity Statement prose
 - [ ] 363.1-07-PLAN.md -- end-to-end proof: D-10 regressions and beta.51 replay on room copies
