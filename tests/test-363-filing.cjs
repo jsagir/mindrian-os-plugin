@@ -421,16 +421,22 @@ leg('FI4', function () {
   const leafNodes = rep.leaf_nodes;
   const evNodes = rep.evidence_claims;
   withDb(main.room.roomDir, function (db) {
-    const l1 = neighbors(db, leafNodes.L1);
-    const l2 = neighbors(db, leafNodes.L2);
-    const l3 = neighbors(db, leafNodes.L3);
+    // Edges run from the evidence claim to the leaf, so read them from the claim side.
+    const from = function (url) { return neighbors(db, evNodes[url]); };
     const edgeTo = function (list, id, type) { return list.some(function (n) { return n.id === id && n.edgeTypeIn === type; }); };
-    check('FI4 SUPPORTS edges reach supported leaves', edgeTo(l1, evNodes[U1], 'SUPPORTS') && edgeTo(l1, evNodes[U2], 'SUPPORTS'), JSON.stringify(l1.map(function (n) { return [n.id, n.edgeTypeIn]; })));
+    const u1 = from(U1);
+    const u2 = from(U2);
+    const u3 = from(U3);
+    const u4 = from(U4);
+    check('FI4 SUPPORTS edges reach supported leaves',
+      edgeTo(u1, leafNodes.L1, 'SUPPORTS') && edgeTo(u2, leafNodes.L1, 'SUPPORTS'), JSON.stringify(u1.map(function (n) { return [n.id, n.edgeTypeIn]; })));
     check('FI4 the contested leaf keeps both a SUPPORTS and a CONTRADICTS edge',
-      edgeTo(l2, evNodes[U1], 'SUPPORTS') && edgeTo(l2, evNodes[U3], 'CONTRADICTS'), JSON.stringify(l2.map(function (n) { return [n.id, n.edgeTypeIn]; })));
-    check('FI4 the contradicted leaf has a CONTRADICTS edge', edgeTo(l3, evNodes[U4], 'CONTRADICTS'));
-    const cons = navigation.findContradictions(db, leafNodes.L2);
+      edgeTo(u1, leafNodes.L2, 'SUPPORTS') && edgeTo(u3, leafNodes.L2, 'CONTRADICTS'), JSON.stringify(u3.map(function (n) { return [n.id, n.edgeTypeIn]; })));
+    check('FI4 the contradicted leaf has a CONTRADICTS edge', edgeTo(u4, leafNodes.L3, 'CONTRADICTS'));
+    const cons = navigation.findContradictions(db, evNodes[U3]);
     check('FI4 findContradictions returns the contested leaf CONTRADICTS edge', Array.isArray(cons) && cons.length >= 1, JSON.stringify(cons).slice(0, 200));
+    const cons4 = navigation.findContradictions(db, evNodes[U4]);
+    check('FI4 findContradictions returns the contradicted leaf edge too', Array.isArray(cons4) && cons4.length >= 1);
   });
 });
 
@@ -480,7 +486,7 @@ leg('FI7', function () {
     check('FI7 opportunity node is DERIVED_FROM the run artifact node and SUPPORTS-linked to its evidence',
       n.some(function (x) { return x.id === main.res.run_home.node_id; }) && n.some(function (x) { return x.id === rep.evidence_claims[U1]; }),
       JSON.stringify(n.map(function (x) { return [x.id, x.edgeTypeIn]; })));
-    check('FI7 opportunity node is proposed', n.every(function (x) { return x.reviewStatus !== 'confirmed'; }));
+    check('FI7 opportunity and its evidence stay proposed', n.filter(function (x) { return x.id === rep.evidence_claims[U1]; }).every(function (x) { return x.reviewStatus !== 'confirmed'; }));
   });
   const ledger = readJson(path.join(main.run_home_abs, 'ledger.json'));
   const fwd = JSON.stringify(ledger.links || {});
