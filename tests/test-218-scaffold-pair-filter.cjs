@@ -68,9 +68,10 @@ function seedScaffoldClique(db, nScaffold) {
   for (let i = 0; i < nScaffold; i += 1) {
     const slug = SCAFFOLD_SLUGS[i];
     const id = 'memory_artifact:' + slug + ':FEYNMAN';
+    // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
     insertNode(db, id, 'memory_artifact', JSON.stringify({
       title: slug + ' FEYNMAN', path: slug + '/FEYNMAN.md', section: slug,
-    }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system' });
+    }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system', epistemic_type: 'observation' });
     ids.push(id);
   }
   // Fully-cited CONVERGES clique among the artifacts: every pair here is
@@ -153,7 +154,7 @@ async function main() {
       for (const e of ENTITIES) {
         insertNode(db, e.id, e.type, JSON.stringify({
           name: e.name, section: e.section,
-        }), { source_path: e.section + '/' + e.id, created_by: 'system' });
+        }), { source_path: e.section + '/' + e.id, created_by: 'system', epistemic_type: 'extracted_fact' });
       }
       closeRoomDb(db);
 

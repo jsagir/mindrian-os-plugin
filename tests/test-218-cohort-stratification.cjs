@@ -137,9 +137,10 @@ async function main() {
       const db = openRoomDb(roomDir, { allowExtension: true });
       const ids = ['sec-a', 'sec-b', 'sec-c'].map(function (slug) {
         const id = 'memory_artifact:' + slug + ':FEYNMAN';
+        // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
         insertNode(db, id, 'memory_artifact', JSON.stringify({
           title: slug + ' FEYNMAN', path: slug + '/FEYNMAN.md', section: slug,
-        }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system' });
+        }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system', epistemic_type: 'observation' });
         return id;
       });
       // The non-scaffold, non-entity Claim node (props.text so it indexes with
@@ -150,7 +151,7 @@ async function main() {
       insertNode(db, claimId, 'Claim', JSON.stringify({
         title: 'Uniform cohort claim', text: 'A non-scaffold claim node wired to every artifact.',
         section: 'claims',
-      }), { source_path: 'claims/leg2-uniform', created_by: 'system' });
+      }), { source_path: 'claims/leg2-uniform', created_by: 'system', epistemic_type: 'observation' });
       for (let i = 0; i < ids.length; i += 1) {
         for (let j = i + 1; j < ids.length; j += 1) {
           const r = navigation.writeEdge(db, {

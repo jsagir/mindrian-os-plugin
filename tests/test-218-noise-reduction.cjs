@@ -138,9 +138,11 @@ function seedRoom(roomDir) {
       path: art.slug + '/FEYNMAN.md',
       section: art.slug,
     });
+    // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
     insertNode(db, id, 'memory_artifact', props, {
       source_path: 'memory:' + art.slug + ':FEYNMAN',
       created_by: 'system',
+      epistemic_type: 'observation',
     });
     ids.push(id);
   }
