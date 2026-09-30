@@ -119,9 +119,19 @@ async function main() {
   // this is mathematically guaranteed by construction -- verified here via
   // the real runner end to end, not re-derived by hand.
   //
-  // FIXTURE NOTE (quick task 260715-0nj): a bare 3-artifact CONVERGES clique
-  // now ranks EMPTY, because the both-scaffold candidate-pair filter removes
-  // every memory_artifact-vs-memory_artifact pair. So the fixture gains ONE
+  // FIXTURE NOTE (Phase 363.1 D-03): the three artifact nodes are now CONTENT
+  // Artifacts (id `<slug>/notes`, type Artifact, a real notes file), not
+  // memory_artifact scaffold rows. D-03 excludes every memory_artifact node
+  // before pairing (lib/core/eureka/candidate-exclusion.cjs), so a fixture
+  // built from memory_artifacts has no pair left to rank and the leg could
+  // not reach its real purpose. Content Artifacts keep the identical graph
+  // shape (three nodes, a CONVERGES clique, a Claim wired to each, uniform
+  // degree 3) and the identical assertion (validated_demand === 0.5), so the
+  // uniform-cohort proof is unchanged.
+  //
+  // ORIGINAL FIXTURE NOTE (quick task 260715-0nj): a bare 3-artifact CONVERGES
+  // clique ranks EMPTY, because the both-scaffold candidate-pair filter removes
+  // every Artifact-vs-Artifact pair. So the fixture gains ONE
   // non-scaffold, non-ENTITY node (type 'Claim', the test-215/216 Claim
   // fixture idiom) wired with CONVERGES edges to all three artifacts. This
   // gives the ranker surviving Claim-vs-artifact pairs (exactly ONE scaffold
@@ -136,11 +146,13 @@ async function main() {
     try {
       const db = openRoomDb(roomDir, { allowExtension: true });
       const ids = ['sec-a', 'sec-b', 'sec-c'].map(function (slug) {
-        const id = 'memory_artifact:' + slug + ':FEYNMAN';
+        // Phase 363.1 D-03: content Artifact rows (were memory_artifact scaffold).
+        const id = slug + '/notes';
+        fs.writeFileSync(path.join(roomDir, slug, 'notes.md'), '# Notes ' + slug + '\n\nWorking notes for ' + slug + '.\n', 'utf8');
         // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
-        insertNode(db, id, 'memory_artifact', JSON.stringify({
-          title: slug + ' FEYNMAN', path: slug + '/FEYNMAN.md', section: slug,
-        }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system', epistemic_type: 'observation' });
+        insertNode(db, id, 'Artifact', JSON.stringify({
+          title: slug + ' notes', path: slug + '/notes.md', section: slug,
+        }), { source_path: slug + '/notes.md', created_by: 'system', epistemic_type: 'observation' });
         return id;
       });
       // The non-scaffold, non-entity Claim node (props.text so it indexes with

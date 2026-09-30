@@ -11,16 +11,29 @@
  * structural-share regression quick task 260714-hzx traced: once tier-2 thinned
  * the entity cohort, the memory_artifact CONVERGES clique refilled the top-25.
  *
- * The fix is NARROWLY scoped: a pair with only ONE scaffold side is NOT filtered
- * (the entity-vs-artifact pairs are the real signal and must survive). This test
- * pins both halves: the both-scaffold exclusion AND the one-side survival.
+ * Phase 363.1 D-03: memory_artifact nodes are excluded before pairing
+ * (lib/core/eureka/candidate-exclusion.cjs), which supersedes the 260714-hzx
+ * narrow scope for memory_artifact endpoints. Step 4b still guards
+ * Artifact x Artifact pairs. The two pins below that used to assert the OLD
+ * behavior were corrected in the same commit as that behavior change: the
+ * beta.51 rooms proved a one-sided memory_artifact pair (for example
+ * `memory_artifact:*:ROOM` x an entity) is scaffold ranked as an opportunity,
+ * not a signal. What each leg proves is unchanged; only where the exclusion
+ * is counted moved (pairs -> nodes), and the one-side survival pin became a
+ * one-side EXCLUSION pin.
+ *
+ * ORIGINAL SCOPE (quick 260715-0nj): the both-scaffold pair filter still holds
+ * for any Artifact x Artifact pair. Under D-03 the memory_artifact nodes never
+ * reach pair enumeration at all, so they are counted as
+ * provenance.structural_excluded_by_reason.memory_artifact instead of as
+ * scaffold_pairs_excluded.
  *
  * Two legs, both against the real runner offline (stub encoder, zero network):
  *   Leg 1: a scaffold-only room ranks EMPTY (honest empty, exit 0), and the
- *          provenance counts the exclusions (never silent).
+ *          provenance counts every excluded node (never silent).
  *   Leg 2: a mixed room ranks non-empty, ZERO ranked pairs are both-scaffold,
- *          and at least one ranked pair has exactly ONE scaffold side (the
- *          narrow-scope survival proof).
+ *          and ZERO ranked endpoints are memory_artifact (D-03); the entity
+ *          pair still ranks.
  *
  * Fixture prose avoids K/M/B figures so the Part 8 figure-guard never trips (the
  * 215 fixture idiom). NO em-dashes anywhere (CLAUDE.md HARD RULE).
@@ -129,14 +142,18 @@ async function main() {
         report.ranked.length, 0,
         'a scaffold-only room must rank EMPTY (every candidate pair is both-scaffold, all excluded)'
       );
-      assert.ok(
-        report.provenance.scaffold_pairs_excluded > 0,
-        'provenance must count the excluded scaffold pairs (never silent); got ' +
-        report.provenance.scaffold_pairs_excluded
+      // Phase 363.1 D-03: every memory_artifact node is excluded BEFORE pair
+      // enumeration, so the clique's pairs are never built and are counted as
+      // excluded NODES (was: scaffold_pairs_excluded > 0).
+      assert.equal(
+        report.provenance.structural_excluded_by_reason.memory_artifact, 4,
+        'provenance must count all 4 excluded memory_artifact nodes (never silent); got ' +
+        JSON.stringify(report.provenance.structural_excluded_by_reason)
       );
+      assert.equal(report.provenance.structural_excluded, 4, 'structural_excluded must equal the clique size');
       passed += 1;
-      console.log('  leg 1 (scaffold-only -> honest empty): PASSED -- ' +
-        report.provenance.scaffold_pairs_excluded + ' scaffold pairs excluded, 0 ranked');
+      console.log('  leg 1 (scaffold-only -> honest empty, 363.1 D-03): PASSED -- ' +
+        report.provenance.structural_excluded + ' memory_artifact nodes excluded before pairing, 0 ranked');
     } finally {
       try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
     }
@@ -161,9 +178,11 @@ async function main() {
       const report = await runRoom(roomDir);
       const ranked = Array.isArray(report.ranked) ? report.ranked : [];
       assert.ok(ranked.length > 0, 'a mixed room must rank non-empty (entity pairs survive)');
-      assert.ok(
-        report.provenance.scaffold_pairs_excluded > 0,
-        'the scaffold clique pairs must still be counted as excluded'
+      // Phase 363.1 D-03: the clique is excluded as nodes, not pairs (was:
+      // scaffold_pairs_excluded > 0).
+      assert.equal(
+        report.provenance.structural_excluded_by_reason.memory_artifact, 3,
+        'the 3 scaffold clique nodes must still be counted as excluded (never silent)'
       );
 
       const typeById = typeByIdMap(roomDir);
@@ -181,12 +200,15 @@ async function main() {
         bothScaffold, 0,
         'ZERO ranked pairs may have BOTH sides scaffold-typed (the exclusion held); got ' + bothScaffold
       );
-      assert.ok(
-        oneScaffold > 0,
-        'at least one ranked pair with exactly ONE scaffold side must survive (narrow scope: one-side pairs are untouched); got ' + oneScaffold
+      // Phase 363.1 D-03 (was: oneScaffold > 0, the 260714-hzx narrow scope). A
+      // memory_artifact endpoint is scaffold on ANY side, so zero ranked
+      // endpoints may be memory_artifact.
+      assert.equal(
+        oneScaffold, 0,
+        'ZERO ranked pairs may have a memory_artifact endpoint under 363.1 D-03; got ' + oneScaffold
       );
       passed += 1;
-      console.log('  leg 2 (mixed -> only non-both-scaffold rank, one-side survives): PASSED -- ' +
+      console.log('  leg 2 (mixed -> entity pair ranks, no memory_artifact endpoint, 363.1 D-03): PASSED -- ' +
         ranked.length + ' ranked, ' + bothScaffold + ' both-scaffold, ' + oneScaffold + ' one-side');
     } finally {
       try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
