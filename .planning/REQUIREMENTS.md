@@ -3701,7 +3701,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       `q_hash`, and a hand-typed raw query string is refused with no send-anyway path (D-01, D-04).
       Plan 363-08.
 
-- [ ] **DRP363-04**: A research grant with two lifetimes, room-local, versioned, expiring and
+- [x] **DRP363-04**: A research grant with two lifetimes, room-local, versioned, expiring and
       revocable: a standing grant approved once on an F.0 card (first scope OpenAlex plus
       `whitespace-gap/v1` only) and a per-run grant approved on the F.6 Plan Review card. Every
       executed query is validated against a grant before fetch, with the enumerated re-ask reasons
@@ -3781,7 +3781,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       every generated registry and mirror regenerates born wired (D-02, D-02a). Plans 363-01,
       363-19.
 
-- [ ] **DRP363-14**: One governed runner (D-14): `/mos:research` gains a plan-run mode declared with
+- [x] **DRP363-14**: One governed runner (D-14): `/mos:research` gains a plan-run mode declared with
       Form B `hitl_stages` (deep plan review F.6 gate, deep extend budget F.3 gate, quick policy
       grant F.0 gate, filing F.8 parallel), dispatches the Read-only `research-lane-analyst` agent
       for deep lanes, and carries the D-05 amendment; a `research_run` MCP tool exposes quick runs,

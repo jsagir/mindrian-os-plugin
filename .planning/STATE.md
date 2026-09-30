@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-16-PLAN.md - room-started quick research runs under a standing grant inside the 355.1 ambient child: maybeQuick, 2-section cohort rule, plan-only card on no grant or any re-ask, separate ledger throttle, one additive guarded call in ambient-run.cjs"
+stopped_at: "Completed 363-18-PLAN.md - /mos:research is the one research runner: plan-run mode, Form B hitl_stages F.6/F.3/F.0/F.8, Read-only research-lane-analyst agent, D-05 pointers in scout.md and scheduled-tasks.md"
 last_updated: "2026-09-30T16:00:00.000Z"
-last_activity: 2026-09-30 -- 363-16 complete
+last_activity: 2026-09-30 -- 363-18 complete
 progress:
   total_phases: 115
   completed_phases: 44
   total_plans: 469
-  completed_plans: 434
+  completed_plans: 435
   percent: 92
 ---
 
@@ -5424,8 +5424,18 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 18 of 22
+Plan: 19 of 22
 Status: Ready to execute
+Previously (363-18, executed beside Phase 363.1-07 in the shared tree, no state.* writer run,
+  hand-edited counts only): /mos:research is the one research runner (commands/research.md plan-run
+  mode: pending cards, F.0 quick grant, F.6 deep plan review with revise, deep-next loop, F.3 extend,
+  mandatory counterevidence, F.8 filing basket, next-framework, scientific perspective door). Form B
+  hitl_stages replace hitl_shape F.8; agents/research-lane-analyst.md (tools Read only, born
+  excluded); D-05 exception paragraph in research.md and one pointer each in scout.md and
+  scheduled-tasks.md. Registries regenerated (registry hash moved a3fbe501 to 44c477db, rides the
+  next release theo-resync, no notify); shape-declaration WARN stays 53. tests/test-363-runner-contract.cjs
+  9 checks. Commits a8f3f7a0a, c8616d831. Next: 363-19 (must populate zone_term in
+  whitespace-results.json so ambient runs can start on real rooms).
 Previously (363-16, executed beside 363-17 and Phase 363.1 in the shared tree, no state.* writer run,
   hand-edited counts only): room-started quick research runs under a standing grant
   (lib/core/research-planner/ambient.cjs; one additive guarded call in lib/core/ambient-run.cjs after

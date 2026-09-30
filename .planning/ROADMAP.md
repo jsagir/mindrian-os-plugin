@@ -1433,7 +1433,7 @@ Plans:
 
 **Wave 6**
 
-- [ ] 363-18-PLAN.md -- /mos:research becomes the one runner: Form B hitl_stages F.6/F.3/F.0/F.8, research-lane-analyst agent, scientific perspective door, D-05 amendments in research.md, scout.md, scheduled-tasks.md
+- [x] 363-18-PLAN.md -- /mos:research becomes the one runner: Form B hitl_stages F.6/F.3/F.0/F.8, research-lane-analyst agent, scientific perspective door, D-05 amendments in research.md, scout.md, scheduled-tasks.md
 
 **Wave 7**
 
