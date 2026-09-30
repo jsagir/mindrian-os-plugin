@@ -9,10 +9,11 @@ Date: 2026-09-30. Author: the 363-20 executor. Tests: `tests/test-363-acceptance
 - Offline acceptance: **ACCEPTED**. The Whitespace plus OpenAlex slice works in both modes through the
   real doors, the diffusion lens is chosen by the local rule, and the Part 8 sweep found no leak across
   any door.
-- Live acceptance: **PENDING (ENV GAP, not run)**. The live smoke is built and proven to exit 77
-  without `MOS_363_LIVE=1`. It was NOT run against real OpenAlex in this plan: the flag was unset and
-  the caller instruction was not to turn live calls on. No live number below is invented. The exact
-  command to run it is in "ENV GAPs".
+- Live acceptance: **PASSED, one run (2026-10-01)**. The plan 363-20 built the live smoke and did not run it
+  (flag unset, live spend not yet approved). The navigator then approved it and it was run once at phase
+  close (363-22): `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs`, exit 0, PASS 11, FAIL 0, keyless.
+  See "Live smoke result" below. One run of generic fixture phrases is a contract check and a first
+  latency reading, not a calibration sample.
 - One known limitation stands and is stated plainly: a real `whitespace-results.json` carries no
   `zone_term`, so room-started (ambient) runs on real rooms still answer `context_insufficient`
   (`no_zone_term`). See "Known limitation".
@@ -97,15 +98,16 @@ Yield, from the replay bodies (fixture counts, not real OpenAlex):
 - deep stop reasons seen: `saturation` (whitespace), `cap` (scientific).
 - remaining budget: the replay recorder carries a synthetic $0.10 limit at $0.001 a search, so any
   remaining-budget figure would be the fixture's, not OpenAlex's. Not reported as a measurement.
-- live per-query latency, live counts, live remaining budget: **not measured** (smoke not run).
+- live per-query latency, live counts, live remaining budget: measured once at phase close, see "Live smoke result" below (the offline replay figures above are not live figures).
 
 ## Floor decisions
 
 Every 363 row in `data/floor-ledger.json` was reviewed. The ledger checker allows only `disclosed` or
 `calibrated`, and `calibrated` needs gold labels and a sample size (`provenance.gold`, `provenance.n`).
 Nothing measured here is a gold-labelled sample, so every row stays `disclosed`; each row's `provenance`
-now points here. No value changed: a measurement without live numbers cannot justify moving a
-default, and the offline numbers show no default is the binding limit.
+now points here. No value changed: the offline numbers show no default is the binding limit, and the one
+live run (see "Live smoke result") is too thin to move any floor. The table below was written before that run;
+the decision after it is in "Floor decisions after the live run".
 
 | Row | Value | Decision | Why |
 |-----|-------|----------|-----|
@@ -130,13 +132,14 @@ default, and the offline numbers show no default is the binding limit.
 - Model quality of the lane analyst. Deep runs here use deterministic lane rows quoting fetched
   records; the analyst agent's judgment is what the human D-06 check (363-21) is for, on the plan, not
   on the run.
-- Live OpenAlex behavior (latency, counts, budget). Pending the smoke.
+- Live OpenAlex behavior beyond the single smoke run below: one run of generic phrases is not a labelled sample.
 
 ## ENV GAPs
 
-1. **Live smoke not run.** `MOS_363_LIVE` was unset and the instruction was not to turn on live calls.
-   Recorded as pending human/env, not faked. To run it once (at most 3 quick and 16 deep searches of
-   generic fixture phrases, about $0.02 keyless, under test grants in a scratch room and scratch home):
+1. **Live smoke: was an ENV GAP at 363-20, now closed.** It was not run in 363-20 (flag unset, live spend not
+   approved). The navigator approved it at phase close and it was run once: see "Live smoke result". The command
+   is unchanged for any re-run (at most 3 quick and 16 deep searches of generic fixture phrases, about $0.02
+   keyless, under test grants in a scratch room and scratch home):
 
    ```
    MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs
@@ -144,8 +147,7 @@ default, and the offline numbers show no default is the binding limit.
 
    Outcomes: exit 0 with `LIVE_METRICS {...}` means it ran and passed; exit 77 with `ENV GAP: <typed
    reason>` means no network, a 429, an exhausted budget, a timeout or an HTTP error (never a pass);
-   exit 1 means a live body broke the contract (a parse error) and is a real defect. Paste the
-   `LIVE_METRICS` line here and re-decide GAP_COUNT_FLOOR and the two time budgets from it.
+   exit 1 means a live body broke the contract (a parse error) and is a real defect.
 2. **Deep execution on Desktop and Cowork** is the stated honest degrade: the MCP `deep_plan` op
    returns the plan and says the deep run executes in Claude Code (W8).
 3. **Pre-existing reds** in the phase aggregator (`run_known` legs) are counted KNOWN, not touched.
@@ -183,3 +185,46 @@ When it lands, W9b must be updated to the new behavior.
   room), (the question set's SCQA states both halves). No product text was changed for this.
 - W5 asserts the deep run reports an `unresolved_branches` list (present, may be short) rather than a
   specific count, because the fixture's deterministic rows make the count a property of the fixture.
+
+## Live smoke result (2026-10-01, run at phase close by the orchestrator after the navigator approved live spend)
+
+Command: `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs`. Exit 0, PASS 11, FAIL 0 (typed envelopes, at most
+3 quick and 16 deep searches, one audit record per search, `meta.count` a number on every ok or empty_valid
+search, a stop reason on the deep run, no Bearer text in any audit record, dash guard). Keyless (`keyed:false`).
+The metrics line, verbatim:
+
+```
+LIVE_METRICS {"keyed":false,"quick":{"wall_ms":3204.8,"searches":3,"verdict":"thin","stop_reason":"pass_complete"},"deep":{"wall_ms":1026.4,"searches":3,"stop_reason":"saturation","unresolved_branches":2},"queries":[{"phase":"quick","template_id":"ws.exact","role":"whitespace-gap/v1","outcome":"empty_valid","failure_class":null,"count":0,"results":0,"cost_usd":0.001,"remaining_usd":0.099,"latency_ms":1586},{"phase":"quick","template_id":"ws.prior_attempts","role":"whitespace-gap/v1","outcome":"empty_valid","failure_class":null,"count":0,"results":0,"cost_usd":0.001,"remaining_usd":0.098,"latency_ms":731},{"phase":"quick","template_id":"ws.synonym_cover","role":"whitespace-gap/v1","outcome":"ok","failure_class":null,"count":5,"results":5,"cost_usd":0.001,"remaining_usd":0.097,"latency_ms":958},{"phase":"deep","template_id":"ws.exact","role":"whitespace-gap/v1","outcome":"empty_valid","failure_class":null,"count":0,"results":0,"cost_usd":0.001,"remaining_usd":0.096,"latency_ms":278},{"phase":"deep","template_id":"ws.prior_attempts","role":"whitespace-gap/v1","outcome":"empty_valid","failure_class":null,"count":0,"results":0,"cost_usd":0.001,"remaining_usd":0.095,"latency_ms":283},{"phase":"deep","template_id":"ws.synonym_cover","role":"whitespace-gap/v1","outcome":"ok","failure_class":null,"count":5,"results":5,"cost_usd":0.001,"remaining_usd":0.094,"latency_ms":437}],"budget_remaining_usd_min":0.094}
+```
+
+Read in plain words:
+
+- Quick run: 3 searches, verdict `thin`, stop `pass_complete`, 3.2 s wall (the budget is 60 s).
+- Deep run: 3 searches, stop `saturation`, 2 unresolved branches, 1.0 s wall (the budget is 20 minutes).
+  It matches the offline whitespace shape (3 of 16 searches, saturation).
+- Per-query latency: 278 to 1586 ms; the first call of the run was the slowest (1586 ms, then 731 and 958 ms;
+  the deep run 278, 283, 437 ms), so cold start dominates, not steady state.
+- Counts: the exact-phrase query and the prior-attempts query returned 0 (`empty_valid`, correctly not
+  a failure); the synonym-cover query returned 5 results with `meta.count` 5.
+- Cost: 6 searches at $0.001 each, $0.006 in all; the lowest remaining budget seen was $0.094 of $0.10.
+  No 429, no timeout, no HTTP error.
+
+## Floor decisions after the live run
+
+Decision: **no floor changes; all rows stay `disclosed`.** One run of one generic phrase set is too thin to
+move a default, and `calibrated` needs gold labels and a sample size that this run does not have.
+
+- `plan.QUICK_TIME_BUDGET_MS` (60000) and `plan.DEEP_TIME_BUDGET_MS` (1200000): the live wall times were 3.2 s
+  and 1.0 s, about 5 percent and 0.1 percent of the budgets. That says the budgets are generous for a
+  whitespace run on this phrase set, not that they should shrink: a Scientific Roadmapping deep run uses 15 of
+  16 searches and the lane analyst model time is not in these numbers. Keep.
+- `verdict.GAP_COUNT_FLOOR` (3): worth a second look, not a change. The live run is the first real case
+  where the floor decided the verdict: the exact phrase found 0, the synonym cover found 5, and 5 is above 3,
+  so the verdict is `thin` and not `gap-confirmed`. With a floor of 5 it would have read gap-confirmed on the
+  same data. One observation cannot say which is right. Needed first: a labelled sample (phrases with a known
+  published-or-not answer), then re-decide. Recorded in 363-FOLLOW-ONS.md.
+- `plan.QUICK_TOP_ROWS` and `plan.DEEP_RESULTS_PER_QUERY` (5): the synonym cover returned exactly 5 results,
+  so the cap of 5 may have truncated; `meta.count` (5) equals the result count here, so nothing was hidden in
+  this run. Keep.
+- Grant expiry and the hourly throttle: nothing a single run can measure. Keep.
+

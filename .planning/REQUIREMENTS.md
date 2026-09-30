@@ -3866,27 +3866,26 @@ closed with measured proof, or left open with a stated reason, at phase close by
       `zone_term`, so on real rooms ambient runs answer `context_insufficient` /
       `no_zone_term` (pinned by W9b, see 363-FOLLOW-ONS.md).
 
-- [ ] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
+- [x] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
       modes offline on replay fixtures, and live in a smoke test that exits 77 as ENV GAP without
       network or budget; the floor ledger records measured latency and yield; and a
       `/mos:map-unknowns` research plan is reviewed by a human against the written rubric
       `363-D06-RUBRIC.md`, showing questions beyond the navigator's stated question and assumed
       limiters the navigator did not name. Benchmark scores are not acceptance. Plans 363-01,
       363-02, 363-20, 363-21.
-      **Measured (partial, row left open):** (2026-10-01) Satisfied: offline slice in both
-      modes through the CLI, MCP and ambient doors (`node
-      tests/test-363-acceptance-whitespace.cjs` W1-W9b and `node
-      tests/test-363-acceptance-diffusion.cjs` F1-F4, exit 0), the live smoke
-      `tests/test-363-live-smoke.cjs` built and proven to exit 77 without `MOS_363_LIVE=1`,
-      the 14 research-planner floor rows reviewed and kept (`node
-      scripts/check-floor-ledger.cjs --check`), and the human D-06 review ruled PASS by the
-      navigator on 2026-10-01 (363-D06-REVIEW.md, verbatim "363-21 pass", plan level, no
-      per-leaf scores). Missing: the live OpenAlex smoke was NEVER run (`MOS_363_LIVE`
-      unset, the navigator has not approved live spend), so no live latency, count or budget
-      exists and the floor ledger holds no live measurement. 363-20 had ticked this row; it
-      is reopened here because the row text names the live smoke. Close it by running
-      `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs` once and pasting `LIVE_METRICS`
-      into 363-ACCEPTANCE.md.
+      **Measured:** (2026-10-01) Offline: `node tests/test-363-acceptance-whitespace.cjs`
+      W1-W9b and `node tests/test-363-acceptance-diffusion.cjs` F1-F4, exit 0; the 14
+      research-planner floor rows reviewed and kept (`node scripts/check-floor-ledger.cjs
+      --check`). Live: `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs` was run once at
+      phase close after the navigator approved live spend, exit 0, PASS 11, FAIL 0, keyless:
+      quick run 3 searches, verdict thin, 3.2 s wall; deep run 3 searches, stop saturation,
+      2 unresolved branches, 1.0 s wall; per-query latency 278 to 1586 ms; 6 searches at
+      $0.001 each, lowest remaining budget $0.094 (LIVE_METRICS line verbatim in
+      363-ACCEPTANCE.md). One run is too thin to move a floor, so all rows stay disclosed
+      and GAP_COUNT_FLOOR is flagged for a labelled sample (363-FOLLOW-ONS.md). Human: the
+      navigator ruled the `/mos:map-unknowns` D-06 review PASS on 2026-10-01
+      (363-D06-REVIEW.md, verbatim "363-21 pass", plan level, no per-leaf scores). Row
+      re-ticked after the live run.
 
 - [x] **DRP363-17**: Part 8 sweep: a planted room marker never reaches argv, stdout or stderr logs,
       telemetry, a cache key, a Theo call argument or the audit ledger; the only room-derived
