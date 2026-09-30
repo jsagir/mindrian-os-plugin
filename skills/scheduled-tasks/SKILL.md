@@ -259,7 +259,7 @@ PLUGIN_ROOT="$(dirname "$(readlink -f "$0")")/.."
 node "${PLUGIN_ROOT}/scripts/scout-cadence-runner.cjs" "$ROOM_DIR" --force
 ```
 
-The runner composes the Phase-140-hardened sentinel scripts, the HSI / whitespace / reverse-salient Python pipeline, the opportunity-bank ops, and the competitor query plan -- all behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress (inherited from Plan 01): no Brain query, no web fetch. See `commands/scout.md` (Scheduled Cadence) for the full Tri-Polar cadence model.
+The runner composes the Phase-140-hardened sentinel scripts, the HSI / whitespace / reverse-salient Python pipeline, the opportunity-bank ops, and the competitor query plan -- all behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress (inherited from Plan 01): no Brain query, no web fetch. Grant-covered quick research runs (Phase 363, D-05) execute in the 355.1 ambient child under the navigator's standing research grant, never in this cadence runner, which stays zero-egress. See `commands/scout.md` (Scheduled Cadence) for the full Tri-Polar cadence model.
 
 ### Output
 

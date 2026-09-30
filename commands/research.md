@@ -4,13 +4,25 @@ description: Research the web and wire findings as typed graph evidence
 help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
 layer: "loop"
-hitl_shape: "F.8"
-hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
+hitl_stages:
+  - stage: "deep plan review"
+    shapes: ["F.6"]
+    mode: "gate"
+  - stage: "deep extend budget"
+    shapes: ["F.3"]
+    mode: "gate"
+  - stage: "quick policy grant"
+    shapes: ["F.0"]
+    mode: "gate"
+  - stage: "filing"
+    shapes: ["F.8"]
+    mode: "parallel"
+hitl_why: "Deep research plans are reviewed and edited on an F.6 card before any fetch and extended only on an F.3 card, quick research runs fetch only under an F.0 grant, and findings file as an any-order F.8 basket."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 10, navigator-ruled): first delivery at commands/research.md:256, the top-5 web findings framed and percent match-scored against the room's own existing claim graph.
 interactive_first_reward: methodology_reframe
 argument-hint: "[topic | url]"
 serves_jtbd: ["explore", "understand-market"]
-teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."
+teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Hypothesis-Driven Problem Solving"]
@@ -21,10 +33,13 @@ autonomous_safe: true
 # A calling methodology declares requires_evidence: to auto-dispatch /mos:research
 # (the inbound called-by handle). See "Invocation modes" below.
 emits_evidence_claims: true
+# Write is a pre-approval for writing the JSON input files the research-planner CLI reads
+# (edits, rows, follow-ups, selections), outside the room until filing.
 allowed-tools:
   - Read
   - Bash
   - Agent
+  - Write
   - WebSearch
   - WebFetch
   - AskUserQuestion
@@ -94,6 +109,8 @@ NEVER auto-fires material research. When evidence is below its declared threshol
 it ASKS via the F.1 selector with a pre-computed confident recommendation
 ("evidence is thin here -- run /mos:research?"). This honors the GUIDED-default
 Brain rule (Canon Part 9 role 5): Larry proposes, the human decides.
+
+**Exception (Phase 363, D-05):** inside a standing research grant the navigator approved on an F.0 card, the room itself may start a quick research run in the 355.1 ambient child. Approving the grant is the ask. Anything outside the grant asks again, the grant is visible and revocable, and every query lands in the room's audit ledger. Deep research runs never start this way.
 
 ## URL mode (Phase 220: same command, second argument shape)
 
@@ -349,6 +366,173 @@ through the same extractor / driver / selector / wirer modules as the default mo
 The only difference is the fixed lens_set; presentation, the F.1 gate, and wiring
 are identical. Use `--broad` for comprehensive parallel-angle intelligence (the
 academic + market + patent triple) on a single topic.
+
+## Plan-run mode (the one research runner)
+
+This is the one place research plans run. A first-wave command (a methodology that asked a question set, such as `/mos:map-unknowns`, `/mos:root-cause`, `/mos:diffusion` or `/mos:whitespace`) never fetches on its own: it saves a plan and hands you a run id, and you run it here. The existing topic mode and URL mode above are unchanged; this mode starts when one of three things is true: a command handed you a run id, the navigator asked for a research plan, or a room-started card is waiting.
+
+Two rules hold for every step below. Never write a query string yourself. Every query comes from the composer. There is no send-anyway path. The command below is a thin door: every plan, grant, run and filing goes through one script, and it answers in JSON you read as is.
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" <subcommand> ... --room <room dir>
+```
+
+Exit codes: 0 means ok, 2 means refused (the JSON carries a typed reason, say it plainly and stop that step), 1 means an internal error (say so and stop; never retry with a changed input). Write every input file the script reads (an edit, rows, follow-ups, a selection, a decision) to a scratch directory outside the room, using the Write tool; the room only changes when a step files.
+
+### Start with pending cards
+
+Room-started runs leave cards for you. Before anything else, read them once:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" pending --room <room dir>
+```
+
+Each entry is `{run_id, kind, queued_at, card}` and is marked surfaced when the script returns it. Show each card once. A `kind` of `evidence` is a finished quick research run: show its evidence card and continue at filing. A `kind` of `plan_card_no_grant` is an F.0 grant card for a run the room planned but could not fetch (the card's `payload.reask_reason` says why, and the run's `proposal.json` sits next to its `plan.json`): fire it as the grant card in the next part, approving with the sibling `proposal.json`. When the navigator did not ask for anything else and no card is pending, ask what to research or which command's question set to run.
+
+### Run a quick research run
+
+A quick research run is a bounded pass: at most three searches, one source, no lanes. Get a run id first. When a command handed you one, use it. A run id whose `plan.json` already exists is fine too (the research_run tool saves the plan for a deep run in the same place). Otherwise build the plan from the question set the command wrote:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" plan <question-set.json> --room <room dir> --mode quick
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" status <run_id> --room <room dir>
+```
+
+Read `next` in the answer. `run_quick` means a grant already covers every search. `grant` means the plan needs an F.0 grant card first. `revise` or `local_only` means no run is offered: say what the card lists and stop.
+
+When an F.0 card comes back, fire it with AskUserQuestion (the options exactly as the card gives them, at most 3). On approval, Write the card's `proposal` to a scratch JSON file outside the room and approve it:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" grant approve <proposal.json> --room <room dir> --approved-via cli
+```
+
+Then run it:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" run-quick <run_id> --room <room dir>
+```
+
+`status: done` gives an evidence card: show it in the four zones (header, the answer line and evidence rows, the strip, the footer). A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it. If the card carries an escalation line, offer "run deep on this?" once; on yes:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" escalate <run_id> --room <room dir>
+```
+
+and continue as a deep research run from the plan card. A grant lets the room fetch. It never files anything.
+
+Known limit, stated plainly when a navigator asks why the room never started a run on its own: the room-started path reads a zone term from the whitespace results file, and today's whitespace results carry none, so those runs answer `context_insufficient` (reason `no_zone_term`) until a navigator-approved zone term is stored there (Phase 363 plan 19). A run you start here is unaffected.
+
+### Run a deep research run
+
+A deep research run reads more sources in parallel lanes, reflects, and can extend once more. Build or load the plan first:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" plan <question-set.json> --room <room dir> --mode deep
+```
+
+Deep research runs never start unattended. When no navigator can answer the card (inside /mos:act, chain_run, or any caller that cannot answer), save the plan and fetch nothing.
+
+Fire the F.6 Plan Review card with AskUserQuestion. Its options are Run this deep research run, Edit the plan, and Stop without running. The card shows the leaf questions, the falsifier for each, the sources, the budget and the round-one searches, so the navigator approves exactly what will be sent.
+
+- **Edit the plan:** the navigator says what to change in plain words. Write it as an `edit.json` file (reword a question, drop or add a leaf, toggle a source, set a budget within its caps, toggle the counterevidence pass or the scientific perspective; never a raw query) and send it through `revise`:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" revise <run_id> <edit.json> --room <room dir>
+```
+
+The plan is recomposed and re-audited by the composer, then the F.6 card re-renders from the new plan. A refusal (`raw_query_refused`, `revision_cap`) is said plainly. Fire the card again after every edit.
+
+- **Stop without running:** say nothing more will happen and leave the plan saved.
+- **Run this deep research run:** approve it for this run only:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" review approve <run_id> --room <room dir> --approved-via cli
+```
+
+The approval lasts 20 minutes. If any later step answers `no_grant`, the approval lapsed: ask the navigator again and re-run this same `review approve` line (there is no other way to continue). Then drive the run one step at a time and follow what it says:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" deep-next <run_id> --room <room dir>
+```
+
+The answer is `{ok, step, round, stop_reason, payload}`. Act on `step`, then ask `deep-next` again, until `step` is `done`:
+
+- **fetch_round:** run the fetch. It sends only the searches the approved grant covers.
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" deep-fetch <run_id> --room <room dir>
+```
+
+- **dispatch_lanes:** the fetched records now wait in files, one per lane.
+
+**No agent is dispatched before the navigator approves the deep research run.** That is already true here: the approval and the fetch are done. Say the status block `[RESEARCH] Dispatching N lane analysts` (N is the lane count `deep-next` returned, which the run already clamped with `resolveFanoutCap`), then in the same turn call the Agent tool once per lane, all together, each with `subagent_type: research-lane-analyst`. Each prompt carries only four things from that lane's payload: the records file path (under the room's `.mindrian/research-runs/<run_id>/lanes/`), each leaf's id and leaf question, its falsifier, and the lane id. Nothing else from the room goes into a prompt. If the Agent tool rejects the bare agent name, retry with the scoped name its error lists. Each analyst returns a JSON list of rows. Write each list to a scratch file and record it:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" deep-record <run_id> <lane> <rows.json> --room <room dir>
+```
+
+The script checks every quote against the fetched text and drops any row that fails; say how many were dropped and why, never repair one by hand.
+
+- **validate:** internal. Ask `deep-next` again.
+- **reflect:** read what is still open. Propose follow-ups only as typed slots in a `followups.json` file (each `{leaf_id, lens, slots}`, never a query string; an empty list is fine), then:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" deep-followups <run_id> <followups.json> --room <room dir>
+```
+
+- **extend_card:** a follow-up or falsifier falls outside what the navigator approved. Fire the F.3 extend-or-stop card with AskUserQuestion (Extend the budget and search / Stop here). Write `{"decision":"extend"}` or `{"decision":"stop"}` to a scratch file and run `deep-extend <run_id> <decision.json> --room <room dir> --approved-via cli` (an extend needs the flag; a stop does not).
+- **counterevidence:** this pass is mandatory and only a budget or time stop skips it. Run `deep-counterevidence <run_id> --room <room dir>`. If it hands back a lane, it arrives as one more `dispatch_lanes` step; handle it the same way.
+- **synthesize:** run `deep-synthesize <run_id> --room <room dir>`.
+
+Show the result as the updated perspective and pyramid, in the four zones. Every factual statement ends with its row id (for example `[E-L1-3]`). A statement with no row is phrased as a question or labeled opinion. No number appears unless a row or a count states it. Name every unresolved branch, and say the stop reason plainly (cap, saturation, budget, time, plurality required, or the navigator's stop). Never grade, score or praise the result.
+
+### Filing (F.8, only on approval)
+
+Findings file only when the navigator picks them. Build the basket:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" basket <run_id> --room <room dir>
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (the card's defaults are pre-selected; an empty pick is a valid answer that files nothing). Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room <room dir> --approved-via cli
+```
+
+A selection never carries a grant. Show the filing report as is, including anything that did not land.
+
+### One next move
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" next-framework <run_id> --room <room dir>
+```
+
+If it names a framework, offer that one move (the command it returns) and stop. If it says none, say that nothing maps yet and stop.
+
+### Scientific research perspective (Scientific Roadmapping)
+
+A scientific question with no originating command has a door here: build the question set yourself with `template_id: scientific-roadmapping`, then plan it as a deep research run. Walk the seven operations with the navigator, one at a time, in their words:
+
+1. the tension in the field;
+2. the quantified goal, with the result that would falsify it;
+3. the rung and the roadmap type;
+4. the forum, written as three separate passes in this order: the frustrated insider, the fresh entrant, the physics grounder (never one merged voice);
+5. the paths, with a 10X resurvey of what the field already tried;
+6. every limiter, sorted as physics or assumed; a limiter that is only assumed is rewritten as a question to research, never stated as a fact;
+7. the unlock chains, counting only the dominoes the field would actually push.
+
+Then `plan <question-set.json> --room <room dir> --mode deep` and continue at the F.6 card. If the question is about the adoption, diffusion or timing of a dual-use or deep-tech technology, add the diffusion lens (`--diffusion`) and say why in one sentence.
+
+## Tri-Polar surfaces of plan-run mode
+
+| Surface | What runs |
+|---------|-----------|
+| **Claude Code CLI** | Every stage: the plan, the F.0, F.6, F.3 and F.8 cards, quick and deep research runs, and the lane analysts through the Agent tool. |
+| **Claude Desktop** | The `research_run` MCP tool plans, asks for a grant, runs quick research runs, reviews a deep plan, files findings and lists pending cards through the same engine; each approval is a gate answered with `gate_answer`. Deep research runs execute in Claude Code: Desktop saves the reviewed plan and says so. |
+| **Cowork** | The same `research_run` tool over the shared room; everyone sees the same pending cards and the same audit ledger. Deep research runs execute in Claude Code. |
+
+An approval given through the tool lives in memory for about 30 minutes; after an MCP server restart, ask again. Nothing about a plan-run depends on a surface-specific code path.
 
 ## Tri-Polar surfaces (CLI / Desktop / Cowork)
 

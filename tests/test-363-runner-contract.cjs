@@ -34,8 +34,8 @@ const { spawnSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..');
 const FIXTURE_PATH = path.join(__dirname, 'fixtures', '363-pre-phase.json');
 
-const EM = '—';
-const EN = '–';
+const EM = '\u2014';
+const EN = '\u2013';
 
 // --- Anchors (363-18-PLAN.md <context>) ------------------------------------
 
@@ -109,7 +109,7 @@ function extractNestedScalar(block, key) {
   for (const line of block.split(/\r?\n/)) {
     if (/^\s*#/.test(line)) continue;
     const m = re.exec(line);
-    if (m) return m[1].trim().replace(/^["']|["']$/, '').replace(/["']$/, '');
+    if (m) return m[1].replace(/\s+#.*$/, '').trim().replace(/^["']|["']$/, '').replace(/["']$/, '');
   }
   return null;
 }

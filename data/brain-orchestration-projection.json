@@ -3724,6 +3724,12 @@
       }
     },
     {
+      "id": "agent:research-lane-analyst",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "research-lane-analyst"
+    },
+    {
       "id": "agent:research",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",

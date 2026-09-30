@@ -347,7 +347,7 @@ After all tasks complete, present a unified summary using the E body shape:
 
 ## Scheduled Cadence (LIVE)
 
-The scout suite fires on a cadence across all three Tri-Polar surfaces via the single composer `scripts/scout-cadence-runner.cjs` (Phase 145). The runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors (whitespace recompute, reverse-salient, opportunity-bank scan, competitor watch) behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner.
+The scout suite fires on a cadence across all three Tri-Polar surfaces via the single composer `scripts/scout-cadence-runner.cjs` (Phase 145). The runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors (whitespace recompute, reverse-salient, opportunity-bank scan, competitor watch) behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner. Grant-covered quick research runs (Phase 363, D-05) execute in the 355.1 ambient child under the navigator's standing research grant, never in this cadence runner, which stays zero-egress.
 
 `/mos:scout` remains the manual, on-demand trigger. The cadence below runs the same composition automatically.
 
