@@ -198,7 +198,7 @@ escalation, judge, Theo stamp) in one policy, with `--offline` meaning none of t
 3. C5/C6: make `--offline` disable the Haiku escalation and `--stamp`, and correct the "ZERO writes" and "ZERO network" headers and `commands/eureka.md`.
 4. C7: forward `--no-extract`.
 5. S6: bound the dedupe `Map` (LRU).
-6. S3/S4: delete the dead rerank path (or record why it is kept) and move the non-Eureka modules out of `lib/core/eureka/`.
+6. S3/S4: remove only the ghost functions `hybridRetrieve()`/`rerank()` (or record why they are kept). **Do not delete `hybrid-retrieve.cjs`**: `rrfFuse` is live via `f-selector-ranker` (corrected in section 10.1). Moving the non-Eureka modules out of `lib/core/eureka/` is ADR-E7, gated by reference integrity, not a quick fix.
 
 ## 8. Risks
 
@@ -215,3 +215,92 @@ escalation, judge, Theo stamp) in one policy, with `--offline` meaning none of t
   measurement; the SEED-099 profiling task still stands.
 - Items marked without VERIFIED come from the subagent's map and were not re-read by hand. They
   include: A3's FTS drain path, A4, A5, A7's http in-process detail, S1-S6, C4 and C7.
+
+
+---
+
+## 10. ICM re-review (icm-architect, system-map form), 2026-10-01
+
+Lens: the `icm-architect` skill (ten invariants, `references/core.md`, `references/system-map.md`, `references/reference-integrity.md`), applied to Eureka as a **system map**: a body of code later agents will change. The question it asks is "what is X, and what else moves if I change X".
+
+### 10.1 The headline: product name and folder name mean different things
+
+`lib/core/eureka/` is **not Eureka**. About 40 files outside the folder import from it (VERIFIED by grep). The heaviest users are not the portfolio pipeline:
+
+| Module in `eureka/` | Imported by (outside the folder) |
+|---|---|
+| `embedding-spine` | `hsi-engine.cjs`, `rs-engine.cjs` (other ambient producers) |
+| `tri-modal-index` | `lazygraph-ops.cjs`, `sensors/sensor-content-relevance.cjs` |
+| `fts-index-lifecycle` | `navigation-engine.cjs`, `sensor-content-relevance.cjs` |
+| `eureka-reach-runner` | `navigation-engine.cjs`, `mcp/stop-gate-handler.cjs` |
+| `scaffold-template-index` | `navigation/room-birth.cjs` |
+| `research-filing` | `url-ingest.cjs`, research-planner |
+| `hybrid-retrieve` (`rrfFuse`) | `workflow/f-selector-ranker.cjs` |
+
+In system-map terms, the one-line catalog entry reads: **"Eureka" (the product: `/mos:eureka`, the ranked cross-domain portfolio) = `scripts/eureka-portfolio-report.cjs` + `scripts/eureka-command.cjs` + a subset of `lib/core/eureka/`. `lib/core/eureka/` (the folder) = the plugin's shared semantic-index substrate (embeddings, vectors, FTS), plus the Eureka pipeline stages, plus unrelated features.** Invariant 1 (one folder, one job, stated inside itself) fails on both counts: the folder has three jobs and no `CONTEXT.md` saying so. `lib/core/navigation/` and `lib/core/research-planner/` already carry a `CONTEXT.md`, so the precedent exists.
+
+**Consequence for the seeds, which the first review missed:** the change-impact of SEED-099 and ADR-E2/E3 is wider than Eureka.
+- A thread cap in `embedding-spine` (SEED-099 F3) also changes `hsi-engine` and `rs-engine`. That is the right single place to apply it, but their timings move too.
+- Making `tri-modal-index` incremental (ADR-E2) changes what `lazygraph-ops` and `sensor-content-relevance` see.
+- **Correction to section 7, item 6:** `hybrid-retrieve.cjs` is not dead. `rrfFuse` is live through `f-selector-ranker`, and `sensor-content-relevance` borrows its floor idiom. Only `hybridRetrieve()` and `rerank()` inside it are ghosts. Deleting the file breaks a live caller. This is exactly the reference-integrity failure the skill's gate exists to catch.
+
+### 10.2 Universes (live / leftover / ghost)
+
+| Universe | Members |
+|---|---|
+| **live** | the portfolio runner stages (§2), `embedding-spine`, `vector-store`, `tri-modal-index`, `fts-index-lifecycle`, `opportunity-statement`, `eureka-critic` Stage A, `ahp-weights`, `portfolio-dimensions`, `tail-quadrant`, `candidate-exclusion`, `room-native-substrate`, `eureka-reach-runner` (the side-channel and ledger half), `rrfFuse` |
+| **leftover** | `scripts/eureka-room-report.cjs` (the older runner, still the source of `stubEncode` and the vector loader); the ambient title-only scorer (S2) |
+| **ghost** | `hybridRetrieve()` / `rerank()` (FlashRank); `runEurekaScan` (its header says it never completes in production); `compression-meter`, `eureka-offer`, `lateral-engine-adapter`; Stage B in the live run (wired, never reached); the side channel (C1/C2: wired, never fires); the "ZERO writes" and "ZERO network" doc claims |
+
+The system-map rule is "do not implement against ghosts". **SEED-100 as first planted did exactly that**: its arm A was the FlashRank rerank. The re-aim in `cc262533a` fixed it. The general lesson: **a seed that names a stage should cite the live caller of that stage**, or say which universe it is in.
+
+### 10.3 The ten invariants against the engine
+
+| # | Invariant | Eureka today | Verdict |
+|---|---|---|---|
+| 1 | One folder, one job, stated inside | three jobs in one folder, no `CONTEXT.md` | fails |
+| 1 / principle 1 | One stage, one job | `eureka-portfolio-report.cjs` is one 2570-line module running 13 stages (§2) | fails |
+| 4 | Explicit per-folder contract | none for `eureka/`; `commands/eureka.md` contradicts the code (C6) | fails |
+| 6 | Every output is an edit surface | only the final report is a file. Candidates, scores, statements and critic verdicts live in memory, so no human or test can inspect a stage | fails |
+| 7 | Load only what the step needs | the whole room is re-embedded 2-3 times per run (A3): the compute version of photocopying the library into a backpack | fails |
+| 8 | One home per fact | two scorers (S2), three index writers (A3), the ledger path duplicated in `sensor-eureka.cjs:113`, docs contradicting code | fails |
+| 9 | The filesystem is the state machine; generated indexes rebuilt by script | `eureka_meta` has no content hash; `status.json` is non-atomic; the ledger has no lock (S1) | partial |
+| 5 | Factory vs product | `data/portfolio-ahp-matrix.json` and the models are factory; the reports are product. The split holds | holds |
+| 10 | Instantiate by copying | n/a (code, not a workspace) | n/a |
+
+### 10.4 What ICM adds to the ADRs
+
+- **ADR-E6 (new): make the pipeline stages edit surfaces.** Split the runner along its real
+  stage boundaries, each writing one plain file under `.mindrian/eureka/run-<ts>/`:
+  `01_candidates.jsonl`, then `02_scored.jsonl`, then `03_statements.md`, then
+  `04_verdicts.jsonl`, then the banked nodes. Each stage reads only the previous stage's
+  output. **This is also what makes SEED-100 fair and cheap.** Every judge arm reads the same
+  `01_candidates.jsonl` and writes its own `04_verdicts.jsonl`, and the gold-set comparison
+  becomes a file diff. It also turns ADR-E1's recall question into something that can be
+  checked by opening a file.
+  - *Where ICM loses:* the ambient run is automated, with no human between stages. ICM names
+    automated mid-pipeline branching as a place it loses. So the ambient run writes the same
+    files but does not gate on them; the human check sits only before banking, where it
+    already is (proposed-only).
+- **ADR-E7 (new): split the folder by job, behind a reference-integrity gate.** Target:
+  `lib/core/semantic-index/` (spine, vector-store, tri-modal, fts-lifecycle, rrfFuse),
+  `lib/core/eureka/` (the portfolio stages only), and the unrelated features moved out to
+  their own homes. Each folder gets a `CONTEXT.md`. Process, per `reference-integrity.md`:
+  enumerate every referrer (the ~40 above, plus tests, plus `commands/*.md` path mentions,
+  plus doctor modules); move with copy, verify, then remove; update every referrer in the
+  same change; check case-folded destination collisions on Windows. **This is not a
+  quick fix.** It is the largest item here and needs its own phase.
+- **A system map for the engine, proposed only (slice 0).** A `map/` shelf for Eureka +
+  semantic-index: objects (Pair, Candidate, Statement, Verdict, OpportunityNode, EurekaVec,
+  RunStatus), processes (index, generate, score, judge, bank, ambient-stamp), and an
+  `effects/CONTEXT.md` that walks **inward** from the ~40 outside referrers. Per the skill,
+  this is written only after approval of the tree, one slice at a time.
+
+### 10.5 What the seeds should carry (proposed; not yet applied)
+
+- SEED-099: a **change-impact line**. Items F3 and A3 touch `embedding-spine` and
+  `tri-modal-index`, which `hsi-engine`, `rs-engine`, `lazygraph-ops` and
+  `sensor-content-relevance` also use; re-run their tests.
+- SEED-100: **cite live callers**. Each arm names the live function it replaces or plugs into
+  (Stage B `runRubric`/`judgeFn`, `eureka-critic.cjs:472`). Adopt ADR-E6 as the spike harness.
+- New seed candidate: ADR-E7 (the folder split plus `CONTEXT.md`s), gated by reference integrity.
