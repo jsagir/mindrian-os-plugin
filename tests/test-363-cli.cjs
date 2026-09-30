@@ -140,6 +140,10 @@ function cliQuickRun(room) {
 }
 
 async function leg(name, fn) {
+  if (/^C(9|10|11|12) /.test(name) && !fs.existsSync(CLI_PATH)) {
+    check(name, false, 'scripts/research-planner.cjs missing');
+    return;
+  }
   try {
     const r = await fn();
     if (r === undefined) return;
@@ -165,9 +169,9 @@ const LEG_NAMES = [
 ];
 
 async function main() {
-  if (loadError || !fs.existsSync(CLI_PATH)) {
+  if (loadError) {
     // RED: name every leg as failing so the count is visible.
-    const why = loadError ? loadError.message : 'scripts/research-planner.cjs missing';
+    const why = loadError.message;
     LEG_NAMES.forEach(function (n) { check(n + ' (facade and CLI door not built)', false, why); });
     check('net guard: zero network attempts', guard.attempts() === 0);
     return summary();
