@@ -763,7 +763,7 @@ async function main() {
       if (esc.json.reason !== 'no_nameable_limiter') return tag + ' reason ' + esc.json.reason;
       const ids = optionIds(esc.json.card);
       if (ids.indexOf('name_limiter') === -1 || ids.indexOf('stop') === -1 || ids.some(function (id) { return /run|approve/.test(id); })) return tag + ' card options ' + ids.join(',');
-      if (!/name what blocks this and I'll plan a deep run/.test(esc.json.card.body_md)) return tag + ' card text does not ask for the bottleneck: ' + esc.json.card.body_md.slice(0, 200);
+      if (!/name what blocks this and I'll plan a deep run/i.test(esc.json.card.body_md)) return tag + ' card text does not ask for the bottleneck: ' + esc.json.card.body_md.slice(0, 200);
       const deepId = esc.json.run_id;
 
       // empty words are refused and change nothing

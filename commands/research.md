@@ -412,13 +412,21 @@ Then run it:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" run-quick <run_id> --room <room dir>
 ```
 
-`status: done` gives an evidence card: show it in the four zones (header, the answer line and evidence rows, the strip, the footer). A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it. If the card carries an escalation line, offer "run deep on this?" once; on yes:
+`status: done` gives an evidence card: show it in the four zones (header, the answer line and evidence rows, the strip, the footer). A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it. If the card carries an escalation line, offer it once, word for word as the card gives it. When the plan already names a limiter the line is "run deep on this?"; on yes:
 
 ```
 node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" escalate <run_id> --room <room dir>
 ```
 
-and continue as a deep research run from the plan card. A grant lets the room fetch. It never files anything.
+and continue as a deep research run from the plan card.
+
+When the plan names no limiter, the card line reads "name what blocks this and I'll plan a deep run". A deep run with no nameable limiter is a wish and never runs, so ask the navigator first: "What actually blocks this gap? Say it in your own words." Do not suggest an answer and do not derive one from the room's files. If they name something, run `escalate` as above; it answers `next: needs_limiter`. Write their exact words to a scratch file outside the room with the Write tool, as `{"op": "add_limiter", "statement": "<their words>"}`, never on the command line, and add it:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" revise <deep run_id> <scratch>/edit.json --room <room dir>
+```
+
+The plan then comes back ready for review and the deep run continues from the plan card. The words stay in the room: they are never sent to the Brain or anywhere else. If they name nothing, say "name what blocks this and I'll plan a deep run", leave the quick evidence as it is, and stop; that is an open door, not a dead end. A grant lets the room fetch. It never files anything.
 
 Known limit, stated plainly when a navigator asks why the room never started a run on its own: the room-started path reads a zone term from the whitespace results file, and today's whitespace results carry none, so those runs answer `context_insufficient` (reason `no_zone_term`) until a navigator-approved zone term is stored there (Phase 363 plan 19). A run you start here is unaffected.
 
