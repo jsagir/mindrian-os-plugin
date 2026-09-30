@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-12-PLAN.md - quick research run: grant-checked cache-first fetch, hash-anchored rows, code-computed verdict, evidence card, one deep escalation offer, budget floors disclosed"
-last_updated: "2026-09-29T18:55:00.000Z"
-last_activity: 2026-09-29 -- 363-12 complete
+stopped_at: "Completed 363-13-PLAN.md - deep research run controller: grant-gated state machine, lanes per limiter, halving, F.3 extend card, mandatory counterevidence, typed stops, synthesis as the updated perspective and pyramid"
+last_updated: "2026-09-30T04:06:30.058Z"
+last_activity: 2026-09-30 -- 363-13 complete
 progress:
-  total_phases: 114
+  total_phases: 115
   completed_phases: 44
-  total_plans: 462
-  completed_plans: 429
-  percent: 93
+  total_plans: 469
+  completed_plans: 430
+  percent: 92
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 13 of 22
+Plan: 14 of 22
 Status: Ready to execute
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
@@ -5865,7 +5865,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-29 -- Phase 363 execution started
+Last activity: 2026-09-30 -- 363-13 complete
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node

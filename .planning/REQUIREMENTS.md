@@ -3732,7 +3732,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       first, so it can never read as gap-confirmed. Returns an evidence card with a one-line answer
       and hash-anchored rows (D-03). Plans 363-04, 363-11, 363-12.
 
-- [ ] **DRP363-08**: Deep research run: a deterministic controller with decompose, one lane per lens
+- [x] **DRP363-08**: Deep research run: a deterministic controller with decompose, one lane per lens
       or limiter capped by `resolveFanoutCap`, reflect, a second round with breadth halving, a
       mandatory counterevidence pass, typed stop checks (cap, saturation, budget, time, plurality)
       recorded as `stop_reason`, an F.3 extend-or-stop card for any out-of-family follow-up, and an
@@ -3816,7 +3816,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       with its project and license in `lib/core/research-planner/CONTEXT.md`. Plans 363-05,
       363-22.
 
-- [ ] **DRP363-19**: The planner is a research-perspective builder (D-18): every plan carries a
+- [x] **DRP363-19**: The planner is a research-perspective builder (D-18): every plan carries a
       perspective built in the constraint layer through Scientific Roadmapping's operations: a
       tension (no nameable limiter means a wish, and the plan does not run), a quantified goal with a
       stated falsifier, an honest rung and roadmap type, a three-role forum written solo and
@@ -3830,7 +3830,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       documented reuse contract so SEED-098 reuses it rather than duplicating it. Plans 363-05,
       363-07, 363-13, 363-14, 363-18, 363-19.
 
-- [ ] **DRP363-20**: The diffusion lens (D-19): when the planner judges a research question to be
+- [x] **DRP363-20**: The diffusion lens (D-19): when the planner judges a research question to be
       about a dual-use or deep-tech technology's adoption, diffusion or timing, it selects the
       diffusion lens through `/mos:diffusion`'s framework (Adoption-Capacity Theory) under the one
       runner, never a new stack. Selection is local: Larry's recorded judgment with a reason, a room
