@@ -3,7 +3,7 @@ id: SEED-100
 status: dormant
 priority: high
 planted: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 planted_during: "follow-up to SEED-099 (background eureka/ambient resource exhaustion), same session"
 trigger_when: "when SEED-099's ONNX thread fan-out question is answered by profiling, or before any new Eureka feature work, whichever comes first"
 scope: "spike (measure and compare three architectures on real rooms; no production change; output is a decision memo plus a navigator ruling)"
@@ -90,6 +90,29 @@ What makes this a spike question rather than an obvious swap:
    send room pairs to Claude. Larry's own turns already send room conversation to Claude, but
    the navigator must rule explicitly whether Eureka judgment may do the same. Theo/Brain stays
    out of scope either way.
+
+## ICM and layer-contract reading
+
+Source: `docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md`.
+- **Who verifies (section 2.6).** When Claude judges pairs it proposed itself, a loop is checking
+  its own output. When Jev scores a statement Claude wrote, an independent reviewer node does
+  the checking. That gives arm B3 an architectural reason, not only an empirical one. The spike
+  should report whether that independence shows up as better gold-set accuracy.
+- **Orthogonality (section 3).** The judge belongs to the upper, execution layer and must be
+  swappable. Every arm writes the same output: typed, `proposed` claims with `SOURCED_FROM`
+  provenance into `room.db`, through `node-insert.cjs`. If the arms produce different kinds of
+  output, the arms cannot be compared, and the room's graph would change depending on which
+  judge ran.
+- **Counter-metric rule (Phase 343):** whichever arm wins ships with a declared watcher, for
+  example judged-useful pairs the navigator later declines.
+
+## Corpus grounding (langtalks-graph-expert, citations only)
+
+- LLM-as-a-judge: Vanishing Gradients Ep. 57, "AI Agents and LLM Judges" (Shreya Shankar);
+  LangTalks #61 (Voice Agents, Lemonade); Lex Fridman #490 "State of AI in 2026"; and the
+  navigator's own note "Agent Factory: Deep Dive into Agent Evaluation". Read Ep. 57 before
+  designing the gold set and the judge rubric.
+- reranker: LangTalks #25 "Reranking". This is the baseline case for arm A's FlashRank stage.
 
 ## Deliverables
 

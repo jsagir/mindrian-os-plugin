@@ -3,7 +3,7 @@ id: SEED-099
 status: dormant
 priority: high
 planted: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 planted_during: "field observation on the navigator's laptop (Windows 11 + WSL2), repo HEAD 6c68075c2, plugin 2.0.0-beta.52"
 trigger_when: "before the next public release cut, or immediately if any user reports fan noise, battery drain or memory pressure while MindrianOS is on, whichever comes first"
 scope: "small-medium (resource guards on three existing spawn sites, one global lock, one battery gate, ONNX thread cap, test-216 hygiene; no new engine, no behavior change to what the producers compute)"
@@ -80,6 +80,24 @@ No background spawn site sets any resource guard. A grep for `max-old-space-size
 - [ ] `/mos:eureka start` children die at the budget with `state:'timeout'`.
 - [ ] `test-216` leaves zero surviving children even when behavior 12 times out, and its wall time is bounded.
 - [ ] A regression test pins F1, F2 and F5 through the real trigger with a stub fire script.
+
+## ICM and layer-contract reading
+
+Source: `docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md`.
+- **Counter-metric rule (Phase 343):** every node that optimizes a quantity declares its paired
+  watcher. The ambient run optimizes findings surfaced and declares no watcher on what it costs
+  the machine. CPU-seconds, peak RSS and runs on battery are that watcher. Register them in the
+  same way `sensor-priority.cjs` does, as a `watched_by` entry. Report counts only, never a
+  health claim (SEED-074).
+- **Layer:** the ambient child is a GRAPH-layer node, a detached worker with no reviewer. The
+  layer contract says graph nodes need clean context and fault isolation. Resource isolation
+  (F1-F3, F5) is the fault-isolation half, and it is missing today.
+
+## Corpus grounding (langtalks-graph-expert, citations only)
+
+- reranker: LangTalks #25 "Reranking" (2024-03-25) and SDS 985, "The Four Types of Memory Every
+  AI Agent Needs". Read #25 before deciding whether the local FlashRank rerank is worth its cost
+  (this feeds SEED-100).
 
 ## Open questions
 

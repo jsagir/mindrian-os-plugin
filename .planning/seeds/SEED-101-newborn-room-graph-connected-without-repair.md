@@ -3,7 +3,7 @@ id: SEED-101
 status: dormant
 priority: critical
 planted: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 planted_during: "field session on Windows 11 (Claude Code CLI, plugin 2.0.0-beta.51), a client room born through /mos:ignite; claims re-verified at repo HEAD 2.0.0-beta.52"
 trigger_when: "immediately; P1-1 can wipe the indexer-owned rows of the wrong room. Fix before the next release cut."
 scope: "medium (room resolution in one MCP handler, a path parameter, index-on-file in artifact_file plus a post-write hook, one shared indexable-file predicate, scaffold exclusions, a Stop-hook graph health check)"
@@ -69,21 +69,44 @@ whose graph is empty does not deliver it.
 14. **P3-6:** the session-start context says "NO EMOJI, NO exceptions", while the Larry agent
     requires a colored-square glyph on every turn. Pick one; Part 12 says the glyph wins.
 
-## Graph health check on a cadence (navigator request)
+## Graph checks on a cadence (navigator request): extend Phase 343, do not add a second home
 
-Ship the field-proven read-only check as `scripts/graph-health.cjs`. Run it from the Stop hook
-after any write to the bound room and every N turns, and have it fail loudly. Expose it as
-`/mos:doctor --graph`. The checks:
-1. Every indexable content file has an `Artifact` node.
-2. No `Artifact` node is missing its file.
-3. Every filed claim has a `SOURCED_FROM` edge to an `Artifact` node.
-4. No edge points at a missing node.
-5. No content node is isolated, not counting `BELONGS_TO` and `jtbd:*` anchors.
-6. Every hypothesis has at least one `SUPPORTS` edge.
-7. Node and edge counts by type, compared with the previous run to show drift.
+The navigator asked for graph health checks "every couple of turns". Phase 343 already shipped
+the organ for this. Its statements live in one place,
+`lib/core/navigation/graph-integrity-counts.cjs`. The doctor module is
+`lib/core/doctor/room-graph-integrity-module.cjs` (`/mos:doctor room-graph-integrity`). The
+sensor is SENS-19, `sensor-graph-integrity.cjs`, and its watcher is declared in
+`sensor-priority.cjs`. The field session could not see it and wrote its own
+`.mindrian/graph-health.cjs`. A third script would break ICM invariant 8 (one home per fact).
+**Extend the 343 organ instead.**
 
-The field prototype caught an unindexed file on its first run. Source: `.mindrian/graph-health.cjs`
-in the client room from the session. Port it; do not copy room content.
+The field checks, mapped against the organ:
+
+| Field check | 343 today | Action |
+|---|---|---|
+| Edge points at a missing node | statement: edge rows missing an endpoint | none; already covered |
+| Filed claim has `SOURCED_FROM` to an `Artifact` | the no-anchor statement accepts **any** `SOURCED_FROM`/`DERIVED_FROM` out-edge | **tighten or add a statement:** claims whose only provenance edge targets a non-Artifact anchor (`jtbd:*`). This is why 343 could not see P1-3: every field claim was "anchored" to a jtbd node. |
+| Indexable file on disk has an `Artifact` node | not measured | **new statement.** It is the ICM invariant 9 measurement: the filesystem is the state machine, and `room.db` is its generated index. Use the shared `isIndexableArtifactFile` predicate from item 5. |
+| `Artifact` node has its file | not measured | **new statement** (the reverse of the above) |
+| Hypothesis has at least one `SUPPORTS` | not measured | **new statement** |
+| Isolated content node, excluding `BELONGS_TO` and `jtbd:*` | not measured | **new statement** |
+| Counts by type, drift between runs | not measured | informational count, as the organ already reports for `CONTRADICTS` and self-edges |
+
+Constraints the extension inherits from 343. They are not optional:
+- **Counts only.** SEED-074's hard guard applies: no "healthy", "broken", "dangling" or
+  pass/fail wording in the output, and no health claim in either direction. The field
+  prototype's pass/fail table does not ship as-is.
+- A column a legacy schema cannot answer reports `null`, never `0`.
+- Every new statement gets its own `watched_by` counter-metric entry (the Phase 343 counter-metric rule).
+
+**Cadence.** Today the organ runs when `/mos:doctor` is called and when SENS-19 fires. Add a
+Stop-hook trigger that runs after any write to the bound room and every N turns. It runs the
+same organ read-only and raises a finding only when a count rises from the previous run. On
+Desktop and Cowork there are no hooks, so the trigger becomes part of Larry's
+`stop_gate_check` duty.
+
+Field prototype for reference only: `.mindrian/graph-health.cjs` in the client room. Port the
+query ideas into the organ; do not copy room content.
 
 ## Acceptance
 
@@ -93,8 +116,32 @@ in the client room from the session. Port it; do not copy room content.
 - [ ] A file written by the Write tool inside the room is indexed without a manual call.
 - [ ] A newborn room's STATE reads empty and `Pre-Opportunity`. Nested meeting files count.
 - [ ] No `REVERSE_SALIENT` edge touches a scaffold template. A rebuild leaves zero dangling edges.
-- [ ] `graph-health` passes on a freshly born room and fails on a seeded unindexed file.
+- [ ] The 343 organ reports 0 for the new statements on a freshly born room after filing, and 1 for a seeded unindexed file. No new health script exists outside `graph-integrity-counts.cjs`.
+- [ ] A claim whose only provenance edge targets `jtbd:*` is counted by the tightened statement.
 - [ ] `skills/ignite` uses `CLAUDE_CODE_SESSION_ID`; a birth run from the skill text is not write-blocked.
+
+## ICM and layer-contract reading
+
+Source: `docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md` (the icm-architect reference form).
+The icm-architect skill itself was not loadable in the planting session.
+- **Root cause is an invariant 9 breach.** The filesystem is the state machine; generated
+  indexes are rebuilt by script. `room.db` is the generated index of the room's files. Filing
+  that does not index leaves the index out of step with the state machine. P1-3 and P2-1 are
+  this one defect.
+- **Invariant 8 (one home per fact):** `compute-state` and `section-registry` define "an entry"
+  differently (P2-2). Health checks were about to get a third home (see above).
+- **Invariant 1 / harness layer:** P1-1 is a room-identity leak. The tool must take the room
+  from the session binding, which is the single authority, not from the boot closure.
+- **Prompt layer (2.1):** P3-6 is the known gap "persona text lives in five places with no
+  single source". Fixing the emoji rule once does not close it.
+
+## Corpus grounding (langtalks-graph-expert, citations only)
+
+- knowledge graph + ingestion: one shared source, Memgraph, "From Data to Knowledge Graphs:
+  Building Self Improving AI Memory Systems" (2025-09-30). The grounding for index-on-write is
+  thin; consult the corpus again before designing the PostToolUse indexer.
+- The Phase 343 origin, 168 edges pointing at missing nodes in the langtalks graph itself, is
+  the same class of defect as P2-3.
 
 ## Open questions
 
