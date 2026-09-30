@@ -42,15 +42,37 @@ No background spawn site sets any resource guard. A grep for `max-old-space-size
 | `scripts/eureka-command.cjs:478` (`/mos:eureka start`) | nothing | timeout, priority, heap cap, orphan reaping |
 
 - The throttle and lock are **per room**, so N rooms or N sessions give N concurrent children.
-- **Plausible, profile first:** the 360% CPU in a single node process with 65 GB of virtual
-  memory points at the onnxruntime thread pool. `hybrid-retrieve.cjs:185` and
-  `embedding-spine.cjs` load transformers.js without setting a thread count, and a warm HF cache
-  means the model actually runs.
+- **Plausible, profile first (corrected 2026-10-01 by the architecture review):** the 360% CPU
+  in a single node process with 65 GB of virtual memory points at the onnxruntime thread pool
+  in `embedding-spine.cjs` (`MongoDB/mdbr-leaf-ir`, q8), which sets no thread count. It is
+  **not** the reranker: `hybrid-retrieve.cjs` `rerank` has no production caller. The likely
+  trigger inside an `--offline` test is the **entity pre-step, which `--offline` does not
+  disable**. It embeds the fixture room with the real model from the warm cache.
 - **Dev layer:** `test-216` spawns test-215 with no timeout (`:251`). Its behavior 12 can orphan
   a detached `run` child and `rmSync` that child's room (`:348` + finally). The offline preload
   reaches only spawned children, not the in-process calls.
 
-## Build this
+## Build this first: the algorithm is the dominant cost
+
+Source: `.planning/REVIEWS/2026-10-01-eureka-architecture-review.md` (findings A1-A7, ADR-E1..E3).
+The guards below cap the damage. These items remove most of the load:
+
+- **A1 / ADR-E1: bound candidate generation.** `eureka-portfolio-report.cjs:1178-1183` enumerates
+  every i<j pair with no cap, and `--top` trims only the output. Replace it with the room's own
+  edges ∪ top-k vector neighbours per node, a hard global cap, and a reported `pairs_truncated`
+  count.
+- **A2: compute cohort percentiles once.** `portfolio-dimensions.cjs:155-170` maps and sorts the
+  whole cohort on every `scoreTechDimensions` call, twice per pair.
+- **A3 / ADR-E2: embed once, incrementally.** The room is re-embedded by entity-extract, by the
+  runner, and by the FTS drain. Give `indexNodes` a single owner, a content-hash skip in
+  `eureka_meta`, and one transaction per run (A4).
+- **A6: a bounded tail quota.** The candidates are currently the top 25 plus **every** tail pair.
+- **A7 / ADR-E3: never run in-process on the MCP http daemon.** All entry points go through one
+  bounded spawner, which is where F1-F6 below are applied, once.
+- **C5: `--offline` must disable the Haiku entity escalation and `--stamp`.** Tests must run with
+  `--no-extract` or a stubbed pre-step (and C7: `start` must forward `--no-extract`).
+
+## Then the guards
 
 1. **F1 priority:** call `os.setPriority(child.pid, 10)` after each background spawn. On Windows
    this maps to BELOW_NORMAL.

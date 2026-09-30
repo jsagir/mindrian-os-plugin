@@ -25,17 +25,40 @@ spike tests whether the judgment job belongs to a model like Claude, and at what
 ## Why now
 
 SEED-099 found background eureka children running with unbounded ONNX threads: 360% CPU and
-5.9 GB RSS in one observed process. Guards fix the symptom. This spike asks whether the local
-reranker should exist at all.
+5.9 GB RSS in one observed process. Guards fix the symptom. This spike asks where Eureka's
+judgment should live.
+
+## Re-aimed 2026-10-01 by the architecture review
+
+Source: `.planning/REVIEWS/2026-10-01-eureka-architecture-review.md` (section 5, ADR-E4).
+- **The original arm A named a stage that does not run.** The FlashRank reranker
+  (`hybrid-retrieve.cjs` `rerank`) has no production caller. What actually decides quality today
+  is `scoreMeasured` (a lexical/semantic differential) + the AHP composite + tail flags + the
+  Stage A critic. Stage A calls no LLM, and its Gate 3 novelty check is always skipped in the
+  portfolio run, because no `knnFn` is passed.
+- **The judge slot already exists.** Stage B, `eureka-critic.cjs` `runRubric`, is a two-pass
+  neutral/adversarial rubric through an injected `judgeFn`. Today only reasoning mode reaches it,
+  with the host Claude as judge. The live portfolio run never does. Arms B1-B3 are therefore
+  **`judgeFn` implementations plugged into Stage B and turned on for the top-N survivors**, not
+  new pipeline stages. The output contract stays identical, which keeps orthogonality.
+- **Part 8 question restated.** Eureka is not hermetic today. The entity pre-step escalates to
+  `claude-haiku-4-5` over `api.anthropic.com` with room excerpts, even under `--offline`. The
+  ruling needed is one declared egress policy for all Eureka traffic (entity escalation, judge,
+  Jev, Theo stamp), with `--offline` meaning none of it. The earlier question, "may Eureka talk
+  to Claude at all", is already settled in practice.
+- **New question: candidate generation.** Today's candidates come from an uncapped all-pairs
+  enumeration. The spike should also compare that with ADR-E1 (room edges ∪ top-k vector
+  neighbours per node, capped), and measure gold-set recall for each. A better judge on
+  candidates chosen by a poor generator is still limited by those candidates.
 
 ## Candidate architectures to compare
 
 | Arm | Candidate generation | Pair judgment | When it runs |
 |---|---|---|---|
-| **A. Guarded local** (control) | local embeddings | local FlashRank rerank + existing scoring | ambient + on demand (SEED-099 guards applied) |
-| **B1. Hybrid + Claude** | small local encoder, bounded threads | Claude judges the top 10-25 pairs; local reranker removed | on demand only (`/mos:eureka`), not in the hourly ambient run |
-| **B2. Hybrid + Jev** | same as B1 | Jev `usefulness_judge` scores the same top 10-25 pairs | on demand only |
-| **B3. Hybrid + Claude and Jev** | same as B1 | Claude writes the shared-mechanism statement for each pair, then Jev scores it. The reverse order (Jev pre-filters, Claude judges the survivors) is a sub-arm. | on demand only |
+| **A. Current pipeline** (control) | all-pairs enumeration, uncapped, and the ADR-E1 capped variant as sub-arm A' | `scoreMeasured` + AHP + tail + Stage A critic; Stage B off | ambient + on demand (SEED-099 guards applied) |
+| **B1. Hybrid + Claude** | ADR-E1 candidates | A, plus Stage B on with a Claude `judgeFn` on the top 10-25 | on demand only (`/mos:eureka`), not in the hourly ambient run |
+| **B2. Hybrid + Jev** | same as B1 | Stage B with a Jev `usefulness_judge` `judgeFn` on the same top 10-25 | on demand only |
+| **B3. Hybrid + Claude and Jev** | same as B1 | Stage B `judgeFn` = Claude writes the shared-mechanism statement, then Jev scores it. The reverse order (Jev pre-filters, Claude judges the survivors) is a sub-arm. | on demand only |
 | **C. Claude-native** | Claude reads the room and proposes pairs | Claude | on demand only |
 
 For the Claude arms, test the judge model in this order: **Claude Opus 5.5** (`claude-opus-5-5`)
@@ -86,7 +109,7 @@ What makes this a spike question rather than an obvious swap:
 5. **Billing path.** Inside Claude Code, a judge subagent (`Agent` with `model: opus|fable`) runs
    on the user's own plan with no API key. A background API call needs a key and a budget.
    Which one does each arm need, and does arm B work with the subagent path alone?
-6. **Canon Part 8 ruling.** Eureka is currently specified as hermetic (ZERO network). Arms B and C
+6. **Canon Part 8 ruling** (see the re-aim above: Eureka already egresses to Haiku, so the ruling now covers one declared policy for all Eureka egress). Eureka is currently *documented* as hermetic (ZERO network). Arms B and C
    send room pairs to Claude. Larry's own turns already send room conversation to Claude, but
    the navigator must rule explicitly whether Eureka judgment may do the same. Theo/Brain stays
    out of scope either way.
