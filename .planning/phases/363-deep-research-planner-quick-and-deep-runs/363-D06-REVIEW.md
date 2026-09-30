@@ -11,7 +11,7 @@ decisions: [D-00, D-06, D-18]
 
 # Phase 363 - D-06 Review Sheet: the /mos:map-unknowns research plan
 
-Status: built, NOT scored. The scoring sheets and the Navigator verdict below are blank on purpose
+Status: built, NOT scored by the executor. The navigator ruled PASS on 2026-10-01 (see "Navigator verdict" at the end of this file); no per-leaf scores were given, so the scoring sheets below stay blank.
 (T-363-52: the executor never grades its own output).
 
 ## 1. The stated question (verbatim)
@@ -1157,3 +1157,35 @@ Pass rule (from the rubric), all four must hold:
 
 ## Navigator verdict
 
+
+Verdict: PASS
+
+Date: 2026-10-01
+
+Exact words the navigator typed, verbatim:
+
+> 363-21 pass
+
+The navigator ruled PASS at plan level without per-leaf scoring: no R1-R7 scores were given and no notes
+were given, so the scoring sheets in section 8 are left blank on purpose and no score has been filled in
+or inferred by the executor. The four pass-rule conditions are therefore not individually recorded; the
+PASS is the navigator's plan-level ruling (D-06: the human judges).
+
+### Caveats disclosed to the navigator before the verdict
+
+1. No live navigator. The executor played Larry and the navigator from the stated question, so the matrix
+   answers come from the question and the fixture room, not from a person's own thinking (section 2).
+2. The F.6 card's "Ranked by" line printed "[object Object]" at review time (section 7, observation 1).
+   It has since been fixed in 8e5015231 (the card renders ranked items by label), and the drop_path
+   ranking in 05f7aa00d (one ranking id accessor for every reader). The cards in this file are the
+   pre-fix output, kept verbatim.
+3. The restatement heuristic (`pyramid.cjs` lines 309-316) flagged 8 of 11 non-stated leaves as repeating
+   the stated question (Engine A: L2, L3, L4, L7, L8, L10, L11, L12). This is a warning only and is
+   carried to phase close (363-22) as a design question.
+4. L11 (the civil and defense crossing) is a stretch for hospital water.
+
+### Findings for phase close
+
+No criterion was recorded as failing, so there is no failing-criterion list. The two items above
+(caveat 3, the restatement heuristic as a design question; caveat 4, L11 as a stretch) are carried to
+363-22 for the record. No code was changed in this plan.
