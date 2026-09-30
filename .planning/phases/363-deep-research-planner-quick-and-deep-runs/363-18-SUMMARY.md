@@ -156,3 +156,13 @@ None new. The analyst has only the Read tool (T-363-06); R2 and R5 are pinned be
 ## Self-Check: PASSED
 
 Found: commands/research.md, agents/research-lane-analyst.md, tests/test-363-runner-contract.cjs, commands/scout.md, commands/scheduled-tasks.md. Commits a8f3f7a0a and c8616d831 are ancestors of HEAD. `grep -P '[\x{2013}\x{2014}]'` over every written file: no hits.
+
+## Post-plan regression fix (2026-09-30)
+
+Found by the 363.1-07 verification: `node scripts/doctor.cjs --acceptance` went 22/22 to 21/22 because `coverage-gate` ran `node scripts/check-render-coverage.cjs --check` against a stale `data/render-coverage-registry.json`. Bisect (per 363.1-07): green at `a8f3f7a0a`, red at `c8616d831` (this plan's `feat(363-18)`).
+
+Root cause: this plan moved `commands/research.md` and `skills/research/SKILL.md` from a single-shape F.8 declaration to Form B `hitl_stages` and regenerated the connector and orchestration registries, but not the render-coverage registry, which still listed those two surfaces as `declared_shape: F.8, wired: true`. (`agents/research-lane-analyst.md` is not a render-registry entry.)
+
+Status: already fixed by the sibling commit `8f0dbba00` (363-20, "also regenerates data/render-coverage-registry.json"), whose diff is exactly those two entries removed and `md_declared_wired` 99 to 98, `skill_declared_wired` 105 to 104. Re-verified at HEAD: `check-render-coverage.cjs --check` prints `render-coverage: OK`; running the builder (`node scripts/build-render-coverage.cjs`, 219 entries) leaves a clean tree, so no further commit was needed and none was made. `node scripts/doctor.cjs --acceptance` at HEAD: 22/22 points passed.
+
+Lesson for the next Form B migration: `build-render-coverage.cjs` belongs in the same regeneration sweep as the connector and orchestration builders (the pre-commit render-coverage gate caught it on the next lib/core commit).
