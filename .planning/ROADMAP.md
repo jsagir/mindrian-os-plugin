@@ -1428,7 +1428,7 @@ Plans:
 
 **Wave 5**
 
-- [ ] 363-16-PLAN.md -- room-started quick research runs under a standing grant inside the 355.1 ambient child
+- [x] 363-16-PLAN.md -- room-started quick research runs under a standing grant inside the 355.1 ambient child
 - [x] 363-17-PLAN.md -- research_run MCP tool for Desktop and Cowork (gates, persisted grants, honest deep degrade), registries and tool budget re-baselined
 
 **Wave 6**

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-15-PLAN.md - planner facade and the JSON-only research-planner CLI door: one plan-assembly path, cardFor, approvals as decision nodes, pending cards, nextMove; free-text argv refused"
-last_updated: "2026-09-30T05:00:00.000Z"
-last_activity: 2026-09-30 -- 363-15 complete
+stopped_at: "Completed 363-16-PLAN.md - room-started quick research runs under a standing grant inside the 355.1 ambient child: maybeQuick, 2-section cohort rule, plan-only card on no grant or any re-ask, separate ledger throttle, one additive guarded call in ambient-run.cjs"
+last_updated: "2026-09-30T16:00:00.000Z"
+last_activity: 2026-09-30 -- 363-16 complete
 progress:
   total_phases: 115
   completed_phases: 44
   total_plans: 469
-  completed_plans: 433
+  completed_plans: 434
   percent: 92
 ---
 
@@ -5424,8 +5424,21 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 16 of 22
+Plan: 18 of 22
 Status: Ready to execute
+Previously (363-16, executed beside 363-17 and Phase 363.1 in the shared tree, no state.* writer run,
+  hand-edited counts only): room-started quick research runs under a standing grant
+  (lib/core/research-planner/ambient.cjs; one additive guarded call in lib/core/ambient-run.cjs after
+  composition, under the ambient lock, inside the remaining AMBIENT_TOTAL_BUDGET_MS). Whitespace gaps
+  spanning at least 2 sections only (else context_insufficient); no grant or any re-ask (incl. a new
+  term) records a plan-only card with zero egress; a covering grant runs one quick run under the
+  separate research-run-ledger throttle (1 per room per hour); the unfiled evidence card is queued in
+  pending_cards for the next research touchpoint (planner.pendingCards). The strict 355.1 ambient
+  ledger and delta-state keys are untouched. tests/test-363-ambient.cjs 18 checks. Also
+  tests/run-all-363.sh 219 known signature now PASS=12 FAIL=1 (T-218-VD-5 only). Commits 74a48e7d4,
+  0e52ef8a8, 2fe171c60. Open follow-on: a real whitespace-results.json carries no zone_term, so
+  production rooms answer context_insufficient until a navigator-approved term is populated.
+  Next: 363-18.
 Previously (363-17, executed out of order beside 363-16 in the shared tree, no state.* writer run,
   hand-edited counts only): research_run MCP tool for Desktop and Cowork (lib/mcp/tools/research.cjs).
   Ten ops through the planner facade; grant, deep-plan and basket approvals are single-use
@@ -5919,7 +5932,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-09-30 -- 363-15 complete
+Last activity: 2026-09-30 -- 363-16 complete
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node

@@ -3790,7 +3790,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       JSON files only; `commands/scout.md` and `commands/scheduled-tasks.md` point at the grant
       mechanism (D-05). Plans 363-15, 363-17, 363-18.
 
-- [ ] **DRP363-15**: Ambient quick research runs under a standing grant ride the 355.1 ambient child:
+- [x] **DRP363-15**: Ambient quick research runs under a standing grant ride the 355.1 ambient child:
       the lock is reused, a separate `research-run-ledger.json` holds the throttle, only
       whitespace findings whose gap spans at least 2 sections qualify (fewer is
       `context_insufficient`), a new search term or any re-ask reason produces a plan-only card
