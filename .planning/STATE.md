@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "363-22 Task 1 done (gate PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10, doctor 22/22, DRP363 rows closed 19 of 20, follow-ons, SEED-098 reuse contract, research-trail draft); paused at Task 2 blocking checkpoint: navigator routing approval for the two room filings; nothing written to any room"
+stopped_at: "Completed 363-22-PLAN.md - Phase 363 COMPLETE: gate PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10, doctor 22/22, live smoke run once (exit 0, PASS 11), DRP363 20 of 20 ticked, follow-ons and SEED-098 reuse contract recorded, research trail filed in both homes (home repo a829390aa); next: release cut, /gsd-quick for the wish gate on every deep plan and the zone_term sidecar, Phase 364"
 last_updated: "2026-10-01T00:00:00.000Z"
-last_activity: 2026-10-01 -- 363-22 Task 1 complete, awaiting navigator routing approval (Task 2)
+last_activity: 2026-10-01 -- Phase 363 complete (363-22 closed)
 progress:
   total_phases: 115
-  completed_phases: 44
+  completed_phases: 45
   total_plans: 469
-  completed_plans: 438
+  completed_plans: 439
   percent: 93
 ---
 
@@ -5423,9 +5423,15 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
+Phase: 363 (deep-research-planner-quick-and-deep-runs) - COMPLETE
 Plan: 22 of 22
-Status: Ready to execute
+Status: Phase complete, on main and NOT live until scripts/release.sh cuts a version and users update
+Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
+  SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
+  3.2 s, deep saturation 1.0 s, floors kept), all 20 DRP363 rows ticked with Measured proof, SEED-098 promoted to Phase 364
+  with the reuse contract, research trail filed byte-identical in rethinking-mindrianos and mindrianOS (home repo a829390aa).
+  Navigator ruled: apply the wish gate to every deep plan (a /gsd-quick with a RED leg first, see 363-FOLLOW-ONS.md A5).
+  Commits 777c1eb87, 6d7da83e6, 70e87e6f7, 53c0314cd, 2c0096c7b, c39cb60ff.
 Previously (363-21, no state.* writer run, hand-edited frontmatter and this block only): D-06 human check. Navigator
   ruled PASS on 2026-10-01, exact words "363-21 pass", at plan level with no per-leaf R1-R7 scores (sheets left
   blank). Caveats recorded: no live navigator, "[object Object]" ranking line at review time (fixed 8e5015231,
