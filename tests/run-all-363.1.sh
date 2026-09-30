@@ -188,72 +188,15 @@ BASELINE_RED_REASON=()
 # Canon Part 11 advisory conflict: 13 skills declare hitl_shape and connector.excluded together
 BASELINE_RED+=("run-all-216.sh|216-03 gate: shape declaration (strict)")
 BASELINE_RED_REASON+=("Canon Part 11 advisory conflict: 13 skills declare hitl_shape and connector.excluded together")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|218-01 entity-node writer (proposed-only)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|CR-01 duplicate entity name reconciliation (highest-trust wins, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|REQ-5 noise-reduction (exact, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|T-218-VD cohort stratification (validated_demand hub-skew fix)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
+# pre-existing: leg 5 expects state done or failed but a no-encoder run parks in reasoning_await_mappings (encoder_unavailable degrade), unrelated to R17-02
 BASELINE_RED+=("run-all-218.sh|T-218-VD-5 auto-extract pre-step + extraction-error surfacing")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|quick-260715-0nj scaffold-pair filter (both-scaffold exclusion, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-218.sh|tier-2 two-tier WHAT/WHY classifier + dispatcher second pass (offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# nested 218 suite, same R17-02 cause
+BASELINE_RED_REASON+=("pre-existing: leg 5 expects state done or failed but a no-encoder run parks in reasoning_await_mappings (encoder_unavailable degrade), unrelated to R17-02")
+# nested 218 suite: its only failing leg is T-218-VD-5 (reasoning_await_mappings, see that entry)
 BASELINE_RED+=("run-all-219.sh|218 substrate no-regression")
-BASELINE_RED_REASON+=("nested 218 suite, same R17-02 cause")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|218-01 entity-node writer (proposed-only)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|219 low-confidence disclosure (per-term, quick 260715-cu8)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|219-01 REQ-1 banking (writer + hook + no-bypass)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|219-02 metadata slice (deterministic, zero-egress)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|CR-01 duplicate entity name reconciliation (highest-trust wins, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|REQ-5 noise-reduction (exact, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|T-218-VD cohort stratification (validated_demand hub-skew fix)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
+BASELINE_RED_REASON+=("nested 218 suite: its only failing leg is T-218-VD-5 (reasoning_await_mappings, see that entry)")
+# pre-existing: leg 5 expects state done or failed but a no-encoder run parks in reasoning_await_mappings (encoder_unavailable degrade), unrelated to R17-02
 BASELINE_RED+=("run-all-219.sh|T-218-VD-5 auto-extract pre-step + extraction-error surfacing")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|quick-260715-0nj scaffold-pair filter (both-scaffold exclusion, offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
-# R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it
-BASELINE_RED+=("run-all-219.sh|tier-2 two-tier WHAT/WHY classifier + dispatcher second pass (offline)")
-BASELINE_RED_REASON+=("R17-02 fixture drift (260903-gdm): insertNode now requires epistemic_type; this fixture never passes it")
+BASELINE_RED_REASON+=("pre-existing: leg 5 expects state done or failed but a no-encoder run parks in reasoning_await_mappings (encoder_unavailable degrade), unrelated to R17-02")
 # installed @huggingface/transformers lacks ModelRegistry.is_pipeline_cached
 BASELINE_RED+=("run-all-355.sh|272-cache-probe.test.cjs")
 BASELINE_RED_REASON+=("installed @huggingface/transformers lacks ModelRegistry.is_pipeline_cached")

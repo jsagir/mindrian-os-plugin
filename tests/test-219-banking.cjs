@@ -412,8 +412,9 @@ check('Hook 4 -- 216 field contract: props.section is a real domain slug or unkn
   const db = freshDb();
   // Evidence node whose props carry a REAL section slug + a source_path slug.
   const { insertNode } = require(path.join(REPO_ROOT, 'lib', 'core', 'node-insert.cjs'));
+  // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
   insertNode(db, 'art:1', 'Artifact', JSON.stringify({ section: 'business-model' }), {
-    source_path: 'business-model/2026-05-26-investor-prep.md', created_by: 'system',
+    source_path: 'business-model/2026-05-26-investor-prep.md', created_by: 'system', epistemic_type: 'observation',
   });
   const entries = [
     // sectionA/sectionB leak the ICM type column ('Artifact'/'memory_event'):

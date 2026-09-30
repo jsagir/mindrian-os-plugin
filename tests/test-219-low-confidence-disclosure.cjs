@@ -66,9 +66,11 @@ function seedRoom(roomDir) {
     section: 'analysis',
     kind: 'ROOM',
   });
+  // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
   insertNode(db, NODE_ID, 'memory_artifact', props, {
     source_path: 'memory:analysis:ROOM',
     created_by: 'system',
+    epistemic_type: 'observation',
   });
   closeRoomDb(db);
 }
