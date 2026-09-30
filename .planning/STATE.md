@@ -5453,6 +5453,14 @@ Previously (363.1-03, same out-of-band arrangement, no state.* writer run, front
   FAIL=1) run to real assertions; BASELINE_RED pruned to the T-218-VD-5 leg 5
   (reasoning_await_mappings) plus its two nested 219 labels; run-all-363.1 with regressions
   PASS=26 FAIL=0. Commits 7b6c4466e, 4006c587f, 6c68075c2. Next: 363.1-05.
+Previously (363.1-05, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- Eureka no longer ranks the room's own scaffold: new
+  lib/core/eureka/candidate-exclusion.cjs (memory_artifact, section contracts and seeded
+  FEYNMAN, egress-label domain nodes, generic and half-corpus entities) is asked in the index
+  loop before any pair or cohort, provenance counts structural_excluded by reason, and
+  reasoning-mode skips scaffold files; the three 218 pins D-03 supersedes were corrected in
+  the same change. Tests 16 legs; run-all-363.1 with regressions PASS=27 FAIL=0. Commits
+  cae72b3b8, 85d87e6bf, 39af08710. Next: 363.1-06.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):
