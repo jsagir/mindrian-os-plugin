@@ -120,7 +120,7 @@ Under `<room>/.mindrian/research-runs/<run_id>/`: `plan.json` (as approved), `st
 **3. [Rule 1 - Bug] Literal dash characters in source**
 - **Found during:** review (grep -P on U+2014/U+2013).
 - **Issue:** the `noDash` helper in deep.cjs held literal em/en dash characters inside its regex class, violating the no-dash house rule.
-- **Fix:** replaced with the `—` and `–` escape form (same behavior).
+- **Fix:** replaced with JavaScript unicode escapes (U+2014 and U+2013 written as backslash-u sequences; same behavior).
 - **Commit:** 533e64462 (fixed before the GREEN commit).
 
 No other deviations. Plan-level "never write STATE.md" was superseded by the orchestrator's explicit instruction to update STATE and ROADMAP with the resync-clobber hand-correction.
