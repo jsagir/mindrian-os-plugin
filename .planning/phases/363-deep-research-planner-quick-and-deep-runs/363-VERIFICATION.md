@@ -136,3 +136,16 @@ No blocking gaps. The phase goal is delivered in code on main: planning, quick a
 
 _Verified: 2026-10-01_
 _Verifier: Claude (gsd-verifier)_
+
+## Correction, 2026-10-01 (quick 261001-s103)
+
+The aggregate result in Truth 9 and the phase aggregate row, `PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10`, is true for the
+code state this report names, main at `6c8821fd4` (a pre-merge commit; `2399b245d`, the last pre-merge main commit and only docs
+ahead of it, reproduces that exact line). It is not true of main at the time this report was committed
+(`e7259ae91`), nor of HEAD after it. The SEED-103 merge `ebd9090cf` landed on main at 01:16 while this
+verification was running, added a seventh planner template (`eureka`) and left three legs red: Y1 in
+`test-363-pyramid.cjs`, the structure test (B1, D3, B4) and the "research-shape ledger --check" leg. Running the
+aggregator in detached worktrees gave `PASSED=40 FAILED=3 SKIPPED=1 KNOWN=10` at `ebd9090cf` and at `e7259ae91`.
+The aggregator was not re-run after the merge, and the report notes that other sessions were committing during the
+verification. Repaired by `d321d3f2d` and `3ee0f6a31`; main is back to `PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10`.
+See 363-FOLLOW-ONS.md A10. The verdict above is unchanged: the phase goal was delivered in code.

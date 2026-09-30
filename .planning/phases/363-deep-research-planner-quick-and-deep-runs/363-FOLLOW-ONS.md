@@ -146,6 +146,27 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
   likely omits that family. The close flipped rows only and did not touch the stated count.
 - Checkbox state at close: 368 ticked, 61 open across the whole file (DRP363: 20 ticked, 0 open; DRP363-16 was re-ticked after the live smoke).
 
+### A10. The Phase 363 suite went red after the SEED-103 merge (RESOLVED 2026-10-01, quick 261001-s103)
+
+- Symptom: `bash tests/run-all-363.sh` ended `PASSED=40 FAILED=3`: Y1 in `test-363-pyramid.cjs` ("exactly six
+  template ids"), the structure test (B1, D3, B4) and the "research-shape ledger --check" leg.
+- Root cause: SEED-103 (`00a6e5f85`, merged by `ebd9090cf`) added a seventh planner template, `eureka`
+  (framework handle "Cross-Domain Opportunity Discovery"), to `question-templates.cjs` and did not rebuild
+  `data/research-shape-ledger.json`, whose builder reads `PLANNER_TEMPLATE_IDS`. The pins were written for six.
+  Reproduced at `ebd9090cf` and at `e7259ae91` (`PASSED=40 FAILED=3 SKIPPED=1 KNOWN=10` both); green at
+  `2399b245d`, the last pre-merge main commit (`PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10`). No commit after the merge
+  touched the ledger or the templates file; `fca0d37d2` changed only other research-planner modules.
+- Fix: test pins `d321d3f2d` (Y1 pins the exact seven ids and the eureka dimension ids; B3 pins
+  `template_frameworks` at seven with the eureka mapping; the eureka handle joins the B4 and D6 handle-only
+  allow list). Ledger rebuild `3ee0f6a31` with `scripts/build-research-shape-ledger.cjs`; the diff is 16
+  insertions and 0 deletions, only the eureka addition (framework entry with `theo_gap: name_not_found`,
+  `template_frameworks.eureka`, one `theo_gaps` row).
+- Result: every `tests/test-363-*.cjs` except live-smoke green; `run-all-363.sh` `PASSED=43 FAILED=0 SKIPPED=1
+  KNOWN=10`; connector-registry, orchestration-projection and render-coverage `--check` OK.
+- Note for a live refresh (`refreshLive`): the eureka handle is asked of Theo by name like the other template
+  frameworks and is not in Theo, so it logs as a gap. Recorded, not a defect.
+- Lesson: a change that adds a template must rebuild the ledger and run `run-all-363.sh` before it merges.
+
 ## Part B. Carry-forwards named by the plan
 
 | Item | Reason it is not in 363 | Source |
