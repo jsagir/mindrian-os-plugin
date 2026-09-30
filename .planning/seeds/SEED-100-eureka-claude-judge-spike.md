@@ -4,6 +4,7 @@ status: dormant
 priority: high
 planted: 2026-09-30
 updated: 2026-10-01
+superseded_by: "SEED-103 (2026-10-01): the spike is re-framed inside the research planner, section 9 of .planning/REVIEWS/2026-10-01-eureka-v2-design.md; this seed stays for its Jev and Part 8 notes"
 planted_during: "follow-up to SEED-099 (background eureka/ambient resource exhaustion), same session"
 trigger_when: "when SEED-099's ONNX thread fan-out question is answered by profiling, or before any new Eureka feature work, whichever comes first"
 scope: "spike (measure and compare three architectures on real rooms; no production change; output is a decision memo plus a navigator ruling)"
