@@ -136,3 +136,12 @@ forbidden by the spec), and the frame-provenance mechanic (shipped in Phase 358)
 
 *Phase: 365-verification-rung-earned-not-asserted*
 *Context gathered: 2026-10-01*
+
+## Addendum: planning-time rulings (2026-10-01, after 365-RESEARCH.md)
+
+- **D-20 (resolves D-08):** Add ONE additive transition `needs_evidence -> confirmed` (human-only, through the existing confirm path). A claim released by lowering the room floor lands `confirmed`, not `validated` (validated means evidence attached under the Phase 108 truth-state contract). No Canon Appendix D entry assumed; flag in the plan if a doc rule requires one.
+- **D-21:** The floor applies to CLAIMS only. Opportunity subjects keep today's behavior.
+- **D-22:** Before the derived rung exists, floors above source-document are honored structurally: a primary-source floor requires the source node to carry a `locator` (page, section, DOI, clause); a person floor always holds (no person node yet). Never guessed, never silently downgraded.
+- **D-23:** Weekly portrait snapshots are stored as one memory_event per ISO week in room.db through navigation.cjs (Canon Part 9), not a jsonl file. Stall threshold N = 4 weeks, recorded as a disclosed row in data/floor-ledger.json.
+- **D-24 (from research, adopted):** One shared "standing" reader in verification.cjs (has a source edge / only asked a model / nothing) feeds the floor, the why-line, the portrait, both signals and B5; the edge-derived rung later replaces only that function. The why-line is built by ONE shared helper used by both card builders (gate_render handler and the meeting tool at lib/mcp/tool-router.cjs), carried in a new normalized card field `notice`.
+- **D-25 (from research, adopted):** Ladder-blocked work (derived rung, person node, B4, record migration) moves to follow-on Phase 365.1, fenced by data/verification-ladder.json (`ratified: false`) plus a fence test.
