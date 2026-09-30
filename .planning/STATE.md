@@ -5434,6 +5434,12 @@ Previously (363.1-01, parallel out-of-band plan, Phase 363.1 beta.51 scaffold-as
   in scaffold-template-index, tests/run-all-363.1.sh (PASS=22 with regressions, 27+2
   BASELINE_RED entries measured at c7d8ac12b). Commits 0c5cac760, c7d8ac12b (RED), 8433ed45c,
   f1999ca10 (GREEN). Next: 363.1-02.
+Previously (363.1-02, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- no agents/*.md declares isolation: worktree (so
+  /mos:reason dispatches framework-runner in a non-git room; framework-runner now states the
+  write-disjointness contract), and eureka-command start writes a running/starting status
+  with the child pid before returning. Tests 6 + 9 assertions, test-216 44 and test-341 12
+  unregressed. Commits 6043ee88d, 49ca68c91. Next: 363.1-03.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):
