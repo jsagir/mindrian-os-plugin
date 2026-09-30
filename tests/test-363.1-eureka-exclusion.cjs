@@ -232,6 +232,121 @@ leg('U10 reasoning-mode readRoomMarkdown skips scaffold files, keeps authored FE
 });
 
 // ---------------------------------------------------------------------------
+// END TO END LEGS (Task 2): offline room-mode run over a fixture room
+// ---------------------------------------------------------------------------
+
+async function runE2E() {
+  const { openRoomDb, closeRoomDb } = require(path.join(ROOT, 'lib/core/room-db.cjs'));
+  const { insertNode } = require(path.join(ROOT, 'lib/core/node-insert.cjs'));
+  const RUNNER = require(path.join(ROOT, 'scripts/eureka-portfolio-report.cjs'));
+
+  const roomDir = mkTmp('e2e');
+  // Files on disk: seeded FEYNMAN (scaffold), authored FEYNMAN (content), a real brief.
+  w(path.join(roomDir, 'market-analysis'), 'FEYNMAN.md', seededFeynman('market-analysis'));
+  w(path.join(roomDir, 'problem-definition'), 'FEYNMAN.md', authoredFeynman('problem-definition'));
+  w(path.join(roomDir, 'problem-definition'), 'brief.md', '# Brief\n\nThe working brief describes a lightweight drivetrain housing for delivery robots.\n');
+
+  const db = openRoomDb(roomDir, { allowExtension: true });
+  const ins = (id, type, props, sp, et) => insertNode(db, id, type, JSON.stringify(props), {
+    source_path: sp, created_by: 'system', epistemic_type: et || 'observation',
+  });
+
+  // Structural (nine):
+  ins('memory_artifact:_root:ROOM', 'memory_artifact', { title: 'Room identity scaffold', section: '_root', kind: 'ROOM', path: 'ROOM.md' }, 'memory:_root:ROOM');
+  ins('memory_artifact:market-analysis:MINTO', 'memory_artifact', { title: 'Market analysis MINTO scaffold', section: 'market-analysis', kind: 'MINTO', path: 'market-analysis/MINTO.md' }, 'memory:market-analysis:MINTO');
+  ins('market-analysis/CONTEXT', 'Artifact', { title: 'Market analysis section contract', section: 'market-analysis' }, 'system:rs-engine');
+  ins('market-analysis/FEYNMAN', 'Artifact', { title: 'Market analysis seeded explainer', section: 'market-analysis' }, 'system:rs-engine');
+  for (const label of ['unknown', 'freeform_unmatched', 'empty_payload', 'move_set']) {
+    ins('domain:sess:' + label, 'focus_area', { name: label, domainType: 'focus_area' }, 'domain:sess:' + label);
+  }
+  ins('entity:entity-extract:1296d', 'company', { name: 'Lab', entityType: 'company' }, 'problem-definition\\agreed-structure-working-brief.md', 'extracted_fact');
+
+  // Real content:
+  ins('claim:one', 'Claim', { title: 'Weight claim', text: 'A carbon fibre housing cuts drivetrain weight for delivery robots.', section: 'claims' }, 'claims/one');
+  ins('claim:two', 'Claim', { title: 'Cost claim', text: 'Warehouse operators pay for longer battery life on every route.', section: 'demand' }, 'demand/two');
+  ins('entity:acme', 'company', { name: 'Acme Robotics', entityType: 'company' }, 'firms/acme', 'extracted_fact');
+  ins('entity:cf', 'technology', { name: 'Carbon Fibre Housing', entityType: 'technology' }, 'materials/cf', 'extracted_fact');
+  ins('problem-definition/brief', 'Artifact', { title: 'Working brief', path: 'problem-definition/brief.md', section: 'problem-definition' }, 'problem-definition\\brief.md');
+  ins('problem-definition/FEYNMAN', 'Artifact', { title: 'Problem definition explainer', section: 'problem-definition' }, 'system:rs-engine');
+  closeRoomDb(db);
+
+  const outMd = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.md');
+  const outJson = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.json');
+  const code = await RUNNER.main(['--db', roomDir, '--pairs', 'room', '--offline', '--top', '25', '--out', outMd, '--json', outJson]);
+  assert.equal(code, 0, 'runner should exit 0');
+  const report = JSON.parse(fs.readFileSync(outJson, 'utf8'));
+  const md = fs.readFileSync(outMd, 'utf8');
+  return { report, md, RUNNER };
+}
+
+let e2e = null;
+async function e2eOnce() {
+  if (!e2e) e2e = await runE2E();
+  return e2e;
+}
+
+const STRUCTURAL_IDS = [
+  'memory_artifact:_root:ROOM', 'memory_artifact:market-analysis:MINTO',
+  'market-analysis/CONTEXT', 'market-analysis/FEYNMAN',
+  'domain:sess:unknown', 'domain:sess:freeform_unmatched', 'domain:sess:empty_payload', 'domain:sess:move_set',
+  'entity:entity-extract:1296d',
+];
+
+leg('E1 offline room run ranks pairs, none with a structural endpoint', async () => {
+  const { report } = await e2eOnce();
+  assert.ok(Array.isArray(report.ranked) && report.ranked.length > 0, 'must rank at least one pair');
+  // catalogId falls back to the row id (no C-number in these source_paths), so
+  // the ranked endpoints are the raw ids used below.
+  for (const p of report.ranked) {
+    assert.ok(!STRUCTURAL_IDS.includes(p.a), 'structural endpoint ranked: ' + p.a);
+    assert.ok(!STRUCTURAL_IDS.includes(p.b), 'structural endpoint ranked: ' + p.b);
+  }
+});
+
+leg('E2 provenance counts nine structural exclusions with the per-reason breakdown', async () => {
+  const { report } = await e2eOnce();
+  assert.equal(report.provenance.structural_excluded, 9);
+  assert.deepEqual(report.provenance.structural_excluded_by_reason, {
+    memory_artifact: 2, scaffold_basename: 2, egress_label_domain: 4, low_idf_entity: 1,
+  });
+});
+
+leg('E3 the authored FEYNMAN stays a valid candidate and ranks', async () => {
+  const { report } = await e2eOnce();
+  const hit = report.ranked.some((p) => p.a === 'problem-definition/FEYNMAN' || p.b === 'problem-definition/FEYNMAN');
+  assert.ok(hit, 'authored problem-definition/FEYNMAN must appear as an endpoint');
+});
+
+leg('E4 step 4b counters are still present (unchanged)', async () => {
+  const { report } = await e2eOnce();
+  for (const k of ['scaffold_pairs_excluded', 'container_pairs_excluded', 'low_trust_pairs_excluded']) {
+    assert.ok(Object.prototype.hasOwnProperty.call(report.provenance, k), k + ' must remain in provenance');
+  }
+});
+
+leg('E5 the md report carries the structural exclusion provenance row', async () => {
+  const { md } = await e2eOnce();
+  assert.ok(md.includes('Structural nodes excluded before pairing'), 'md provenance row label missing');
+  assert.ok(/Structural nodes excluded before pairing[^|]*\| 9 \(2 \/ 2 \/ 4 \/ 1\) \|/.test(md), 'md row value should read 9 (2 / 2 / 4 / 1)');
+});
+
+leg('E6 renderReport with a provenance lacking the new keys renders 0, never undefined', async () => {
+  const { report, RUNNER } = await e2eOnce();
+  const prov = Object.assign({}, report.provenance);
+  delete prov.structural_excluded;
+  delete prov.structural_excluded_by_reason;
+  const out = RUNNER.renderReport({
+    provenance: prov, roomDir: 'fixture-room', graphRel: '(room-native: no idea-graph)', offline: true, top: 0,
+    ranked: [], tailIds: new Set(), tail: { insufficient_structure: true, suspect_noise: false, tail: [] },
+    tailPairs: [], statements: [], techFor: () => ({ title: 'unused' }),
+  });
+  assert.ok(typeof out === 'string' && out.includes('Structural nodes excluded before pairing'));
+  const line = out.split('\n').find((l) => l.includes('Structural nodes excluded before pairing'));
+  assert.ok(!/undefined|NaN/.test(line), line);
+  assert.ok(/\| 0 \(0 \/ 0 \/ 0 \/ 0\) \|/.test(line), line);
+});
+
+// ---------------------------------------------------------------------------
 // runner
 // ---------------------------------------------------------------------------
 

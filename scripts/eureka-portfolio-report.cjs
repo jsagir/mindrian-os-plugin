@@ -140,6 +140,12 @@ const { ENTITY_NODE_TYPES } = require(path.join(REPO_ROOT, 'lib/core/navigation/
 // attempt genuinely degraded (idx.embedded !== true or scored.length === 0).
 const reasoningMode = require(path.join(REPO_ROOT, 'lib/core/eureka/reasoning-mode.cjs'));
 
+// Phase 363.1 D-03 (B51-01): the structural-node exclusion. The index loop asks
+// structuralReason for every row BEFORE any pair or cohort is built, so the
+// room's own scaffold (memory_artifact rows, section contracts, seeded FEYNMAN,
+// egress-label domain nodes, generic entities) never becomes a candidate.
+const candidateExclusion = require(path.join(REPO_ROOT, 'lib/core/eureka/candidate-exclusion.cjs'));
+
 // Phase 355-18 (HIPS-04, HIPS-05, D-08, D-16, D-29, D-48, D-56): the eureka
 // pairs' verification stamp. Stamps are computed in main() AFTER `ranked` is
 // final and BEFORE bankStatements opens its transaction (D-56), so 355-20's
@@ -594,6 +600,10 @@ function renderReport(ctx) {
   L.push('| CONVERGES pairs loaded | ' + p.converges_pairs + ' |');
   L.push('| Cohort techs (room-indexed, run time) | ' + p.cohort_techs + ' |');
   L.push('| Pairs scored | ' + p.pairs_scored + ' |');
+  const sbr = p.structural_excluded_by_reason || {};
+  L.push('| Structural nodes excluded before pairing (memory_artifact / scaffold file / egress-label domain / low-IDF entity) | '
+    + (p.structural_excluded || 0) + ' (' + (sbr.memory_artifact || 0) + ' / ' + (sbr.scaffold_basename || 0)
+    + ' / ' + (sbr.egress_label_domain || 0) + ' / ' + (sbr.low_idf_entity || 0) + ') |');
   L.push('| Scaffold pairs excluded (both endpoints memory_artifact / Artifact) | ' + p.scaffold_pairs_excluded + ' |');
   L.push('| Container pairs excluded (either endpoint a Section folder node) | ' + p.container_pairs_excluded + ' |');
   L.push('| Low-trust entity pairs excluded (either endpoint an unverified low_confidence entity) | ' + (p.low_trust_pairs_excluded || 0) + ' |');
@@ -1041,12 +1051,25 @@ async function main(argv, deps) {
     // three tables are keyed by the room id). Last write wins on the (rare, here
     // zero) canonical-id collision.
     const indexed = new Map();
+    // Phase 363.1 D-03: structural nodes removed before pairing, counted by reason.
+    let structuralExcluded = 0;
+    const structuralByReason = { memory_artifact: 0, scaffold_basename: 0, egress_label_domain: 0, low_idf_entity: 0 };
     if (idx.embedded === true) {
+      // Phase 363.1 D-03: built once per run (one room-markdown walk for the IDF
+      // corpus). Runs before cohort and pair building, so it covers full, room
+      // and graph modes; step 4b below stays unchanged.
+      const exclCtx = candidateExclusion.buildExclusionContext({ roomDir: roomDir });
       for (let i = 0; i < rows.length; i += 1) {
         const text = triModal.nodeText(rows[i], { roomDir: roomDir });
         if (!text) continue;
         const vec = vectors.get(rows[i].id);
         if (!vec) continue;
+        const sReason = candidateExclusion.structuralReason(rows[i], exclCtx);
+        if (sReason) {
+          structuralExcluded += 1;
+          structuralByReason[sReason] = (structuralByReason[sReason] || 0) + 1;
+          continue;
+        }
         const canonical = catalogId(rows[i]);
         indexed.set(canonical, {
           id: canonical,
@@ -1450,6 +1473,12 @@ async function main(argv, deps) {
       graph_nodes: techMap.size,
       converges_pairs: convergesPairs.length,
       pairs_scored: scored.length,
+      // Phase 363.1 D-03: how many structural NODES (memory_artifact, scaffold
+      // file, egress-label domain, low-IDF entity) the index loop removed before
+      // any pair was built. Read from the run, never a literal.
+      structural_excluded: structuralExcluded,
+      // Phase 363.1 D-03: the same count split by reason. Read from the run, never a literal.
+      structural_excluded_by_reason: structuralByReason,
       // Quick task 260715-0nj: how many both-scaffold candidate pairs the filter
       // removed before scoring. Read from the run, never a literal (honest nouns).
       scaffold_pairs_excluded: scaffoldPairsExcluded,
