@@ -1,9 +1,10 @@
 ---
 id: SEED-098
-status: dormant
+status: promoted
+promoted_to: "Phase 364 (2026-09-30, commit 4c43ce167; /mos:scientific-roadmap, planning input 364-INPUT.md)"
 priority: high
 planted: 2026-09-27
-updated: 2026-09-27
+updated: 2026-10-01
 planted_during: "quick task 260927-vfu (live Theo check of Scientific Roadmapping), after the Phase 355.1 close-out"
 trigger_when: "when SEED-097's Theo-side authoring requirement passes its acceptance check (framework_step returns non-null label and runIt for all 7 steps on the hosted endpoint through the guarded shim), or when SEED-097's discuss-phase schedules the Scientific Roadmapping perspective fixture, whichever comes first"
 scope: "medium (one new methodology command binding three existing ones, its connector and HITL declarations, a mid-journey entry resolver over navigation.cjs reads, fixtures; no new engine, no parallel roadmap implementation)"
@@ -228,6 +229,39 @@ No new engine and no parallel roadmap implementation.
 - `~/MindrianRooms/mindrianOS/methodology/2026-09-27-mos-canvas-scientific-roadmapping-handoff.md`
 - The article URL: https://www.essentialtechnology.blog/p/scientific-roadmapping
 - `~/Theo/.planning/seeds/SEED-015-judgment-kind-on-the-analytics-seam-theo-as-jev-keyholder.md`
+
+## Promoted to Phase 364 (2026-09-30)
+
+This seed is now Phase 364 (commit 4c43ce167, `.planning/phases/364-*/364-INPUT.md` records the navigator
+requirements and the Theo Phase 25 plugin contract). Phase 364 starts after Phase 363 closes; 363-22 writes
+the reuse contract below. Step walking still waits on Theo Phase 25 authoring the seven steps.
+
+## Reuse contract from Phase 363 (D-18)
+
+Phase 363 built the engine this command needs. Phase 364 reuses it and builds no second one.
+
+- The engine is `lib/core/research-planner/perspective.cjs`. `describeEngine()` returns the contract
+  (`template_id`, `engines`, `operations`, `forum_roles`, `roadmap_types`, `api_version`), and `api_version` is
+  1. A command binds to that number; a breaking change to the engine bumps it.
+- The template id is `scientific-roadmapping`, registered in
+  `lib/core/research-planner/question-templates.cjs`. A plan on that template must carry a perspective
+  (`perspective_missing` otherwise) and is gated by its perspective errors: no nameable limiter makes it a wish
+  and it does not run.
+- The structure comes from `data/research-shape-ledger.json` (built by
+  `scripts/build-research-shape-ledger.cjs`, checked with `--check`), never from `framework_step` at runtime and
+  never from model memory. The ledger carries step names, order, key questions, gates and technique handles
+  only, inside the 2026-09-17 IP ruling.
+- A standalone command registers a door on that template: it writes a question set through the question-set
+  contract and hands the plan to `/mos:research`, the one governed runner. It adds no second engine, ledger,
+  fetcher, cache or approval ledger. Plans are reviewed on the F.6 card, fetched under a grant, and filed
+  through the F.8 basket.
+- Reuse by require: `perspective.cjs` (buildPerspective, rankByUnlock, nextBindingConstraint, loadSettled,
+  srStepGuide, describeEngine), `structure.cjs` for the ledger reads and the local scientific detection, and the
+  plan schema in `plan.cjs`. The folder contract and the Part 7 reuse inventory are in
+  `lib/core/research-planner/CONTEXT.md`.
+- Known limits Phase 364 inherits (see `363-FOLLOW-ONS.md`): the map-unknowns deep plan is `ready` with no
+  limiter because the wish gate fires only on the `scientific-roadmapping` template; the restatement heuristic
+  is noisy; the `not_scored` refusal from Theo 20.2 must map to `not_ready`.
 
 ## Notes
 
