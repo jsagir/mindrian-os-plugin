@@ -1,6 +1,8 @@
 # Phase 363 research trail: close-out draft and routing
 
-Status: DRAFT. Nothing in this file has been written to any room. The navigator approves the routing
+Status: routing approved by the navigator on 2026-10-01 with no edits to the routing. The entry text was then
+updated for two facts that changed after the draft (the live smoke ran once and passed; the navigator ruled the
+wish gate applies to every deep plan). The navigator approved the routing
 below first (nugget routing table rule, CLAUDE.md Dev-Research Compositing). On "approved" or "approved
 with edits" the entry text (everything after the `ENTRY BEGINS` marker, not this header and not the
 Routing table) is filed to the first destination and copied byte-identical to the second. On "hold"
@@ -40,11 +42,11 @@ sources: "the 22 plan summaries of Phase 363; tests/run-all-363.sh final line; s
 ## Governing thought
 
 The planner is finished and on `main`: a research run now starts with a plan the navigator can read and
-approve, searches only with audited strings under a grant, and files only on a yes. What is not finished is
-proof against the real internet. Every measurement below is offline, and the two gaps that matter most
-(the live smoke never ran, and a real room never hands the ambient branch a search term) are exactly the
-kind an offline test cannot see. We say so plainly, because a green board that hides them would be the
-false success this project keeps watching for.
+approve, searches only with audited strings under a grant, and files only on a yes. What is thinly proven is
+the real internet: the live smoke ran once, at the very end, and one run of generic phrases is a contract
+check, not a calibration. One gap that matters (a real room never hands the ambient branch a search term) is
+exactly the kind an offline test cannot see. We say so plainly, because a green board that hides it would be
+the false success this project keeps watching for.
 
 ## What was built, in plain words
 
@@ -92,15 +94,20 @@ the MCP door and the ambient branch on recorded replay fixtures: 14 whitespace c
 20-check Part 8 sweep. The sweep plants a marker and a fake key and finds neither in any argument list, log,
 telemetry record, cache key, Theo call or ledger; a scratch mutation that put the marker in a search term
 made five sweep legs fail, so the sweep can fail. The full phase gate ends `PASSED=43 FAILED=0 SKIPPED=1
-KNOWN=10` (the one skip is the live smoke, the ten KNOWN are old reds outside this phase), and the acceptance
+KNOWN=10` (the one skip is the opt-in live smoke, which is run by hand and passed once, see below; the ten KNOWN are old reds outside this phase), and the acceptance
 roll-up reads 22 of 22.
 
 **The numbers, and what they do not mean.** Offline, with no network time: a quick CLI call took about 100 to
 240 ms, a whole whitespace deep loop about 1.2 to 1.6 s. The engine is not the slow part. A whitespace deep
 run used 3 of its 16 searches and stopped on saturation; a Scientific Roadmapping deep run used 15 of 16 and
 stopped on the cap, so the cap of 16 binds for one and not the other. All 14 floor rows stay disclosed,
-because an offline replay cannot justify moving a default. There is no live latency, no live result count and
-no live budget, because the live smoke was not run.
+because an offline replay cannot justify moving a default. There is only
+one live reading, taken at close once the navigator approved live spend: the live smoke exited 0 (11 of 11
+checks, keyless). The quick run made 3 searches, read `thin` and took 3.2 s; the deep run made 3 searches,
+stopped on saturation with 2 unresolved branches and took 1.0 s; a search took 278 to 1586 ms (the first call
+was the slowest); 6 searches cost $0.006. The exact-phrase and prior-attempts queries returned 0 and the
+synonym cover returned 5, so the floor of 3 (not 5) is what made the verdict `thin`. One run cannot say which
+floor is right, so every floor stays disclosed until a small labelled sample exists.
 
 ## What we learned
 
@@ -118,24 +125,25 @@ no live budget, because the live smoke was not run.
    a one-condition fix.
 4. **A guard that fires on one template is not a rule.** The "no limiter means a wish" gate runs only for the
    `scientific-roadmapping` template. A deep `/mos:map-unknowns` plan with no limiter and an empty ranking is
-   `ready` today. Whether the gate should cover every template that carries a perspective is an open decision
-   for the navigator, not something the close quietly changed.
+   `ready` today. The navigator ruled on 2026-10-01: apply the gate to every deep plan. The close did not
+   change code; the fix is a quick task with a failing test first.
 5. **A warning that fires on most leaves stops being read.** The restatement check flagged 8 of 11 leaves in
    the review, because leaves about one domain share words with the question about that domain. Keep, tighten
    or drop is a design call.
 6. **A caveat you write next to a verdict is worth more than a cleaner verdict.** The review sheet kept its
    scoring blank rather than invent scores the navigator did not give, and the requirement row for the live
-   smoke was re-opened rather than left ticked on the strength of a test that exits 77.
+   smoke was re-opened rather than left ticked on the strength of a test that exits 77; it was re-ticked only
+   after the live run.
 7. **A second engine was avoided by exporting the first.** `describeEngine()` with an api version is the
    whole reuse contract. Phase 364 binds to that number, and a breaking change has to bump it.
 
 ## What stays open
 
 Recorded with reasons in `363-FOLLOW-ONS.md` (Part A is what the close found, Part B what the plan named):
-run the live smoke once when the navigator allows live spend and re-decide the floors from it; the `zone_term`
+a labelled sample to re-decide `GAP_COUNT_FLOOR` and the time budgets (the one live run was too thin); the `zone_term`
 sidecar (a quick task); research cards sitting flat in `opportunity-bank/` with funder, program and deadline
 null, which any consumer that scores every listed item would mistake for funding calls; the restatement
-heuristic; the wish gate; the Theo 20.2 items (`not_scored` must read as `not_ready`, and the doctor stamp
+heuristic; the wish gate on every deep plan (ruled, not yet built); the Theo 20.2 items (`not_scored` must read as `not_ready`, and the doctor stamp
 should key on `recompute_run_id`); the traceability count (stated 418, row census 429, a gap of 11 equal to
 the BIND360 family); migrating dominant-designs onto the engine; more commands; Desktop and Cowork deep
 execution; journal-quality lists; Jev passage filtering. The work is on `main` and NOT live for any user

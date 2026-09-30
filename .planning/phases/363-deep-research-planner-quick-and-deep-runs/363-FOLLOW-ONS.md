@@ -14,18 +14,20 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
 
 ## Part A. Open at close (found or re-confirmed while closing)
 
-### A1. The live OpenAlex smoke was never run (DRP363-16 is partly satisfied)
+### A1. The live OpenAlex smoke (closed at phase close; one run, floors kept)
 
-- What: `MOS_363_LIVE` was never set, so `tests/test-363-live-smoke.cjs` exited 77 (ENV GAP) every time. There is
-  no live latency, no live result count and no live remaining-budget figure anywhere. The navigator has not
-  approved live spend, so the close did not run it.
-- Effect: DRP363-16 is reopened in `.planning/REQUIREMENTS.md` with a stated reason (363-20 had ticked it). The
-  floor ledger keeps all 14 research-planner rows `disclosed`; `verdict.GAP_COUNT_FLOOR` (3) in particular has
-  only fixture evidence.
-- Next: `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs` once (at most 3 quick and 16 deep searches, about
-  $0.02 keyless), paste `LIVE_METRICS` into `363-ACCEPTANCE.md`, re-decide `GAP_COUNT_FLOOR` and the two time
-  budgets, then tick DRP363-16.
-- Source: 363-20 SUMMARY "Live smoke outcome" and 363-ACCEPTANCE.md "ENV GAPs".
+- History: 363-20 built `tests/test-363-live-smoke.cjs` and did not run it (`MOS_363_LIVE` unset, live spend not
+  approved), so DRP363-16 was reopened at the first close pass. The navigator then approved live spend and the
+  smoke was run once on 2026-10-01: exit 0, PASS 11, FAIL 0, keyless. Quick run 3 searches, verdict `thin`,
+  3.2 s wall; deep run 3 searches, stop `saturation`, 2 unresolved branches, 1.0 s wall; per-query latency 278 to
+  1586 ms; 6 searches at $0.001 each. The `LIVE_METRICS` line is verbatim in `363-ACCEPTANCE.md`. DRP363-16 is
+  re-ticked and all 20 DRP363 rows are closed.
+- What stays open from it: one run of one generic phrase set is too thin to move a floor, so all 14 rows stay
+  `disclosed`. `verdict.GAP_COUNT_FLOOR` (3) is the one to revisit: in this run the exact phrase found 0 and the
+  synonym cover found 5, so the floor of 3 decided the verdict (`thin`; a floor of 5 would have read
+  `gap-confirmed`). Next: a small labelled sample (phrases with a known published-or-not answer), then
+  re-decide the floor and the two time budgets (live wall times were about 5 and 0.1 percent of them).
+- Source: 363-20 SUMMARY, 363-ACCEPTANCE.md "Live smoke result" and "Floor decisions after the live run".
 
 ### A2. `zone_term` is missing from production `whitespace-results.json`
 
@@ -67,24 +69,23 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
   PASS with this caveat disclosed.
 - Source: 363-21 SUMMARY caveat 3, 363-05 SUMMARY post-plan fix note.
 
-### A5. A `ready` deep plan with no limiter and an empty ranking (investigate)
+### A5. Navigator-ruled follow-on: the wish gate applies to every deep plan
 
-- What was seen: in `tests/test-363-cli.cjs` leg C14 (`drop_path`), the constraint-layer engine on the
-  `map-unknowns` question set produced an empty `perspective.ranking`, and the leg `continue`s past it, so only 3
-  of the 4 engine and question-set combinations are exercised.
-- Root cause found at close: the fixture `tests/fixtures/363-question-sets/map-unknowns.json` carries no limiters
-  (its perspective has 0 paths, 0 limiters, 0 unlock chains), and `rankByUnlock` ranks every limiter, so no
-  limiters means an empty ranking. That part is the fixture, not a defect in the ranking code.
-- The real question it exposes: `planner.buildPlan(..., {mode: 'deep'})` on that set returns `status: ready` for
-  both the founder (constraint-layer) and the researcher (scientific-roadmapping engine) rooms while the
-  perspective reports `no_nameable_limiter`, `forum_role_missing:*` and (researcher) `goal_not_quantified`. The
-  wish gate in `planner.assess` fires only when `plan.origin.template_id === 'scientific-roadmapping'`. DRP363-19
-  says "no nameable limiter means a wish, and the plan does not run". So a deep `/mos:map-unknowns` plan can start
-  with no limiter to rank.
-- Next: the navigator decides whether the wish gate should cover a deep plan on any template that carries a
-  perspective (then a RED leg first, then the gate), or stays scientific-template only. Until then, treat a deep
-  plan with an empty `ranking` as unproven.
-- Source: reproduced at close with a scratch script over the four engine and set combinations (not committed).
+- **Navigator ruling (2026-10-01, answered via AskUserQuestion): "Apply it to every deep plan."** Any deep plan
+  with no nameable limiter is a wish and does not run, regardless of `template_id`, per DRP363-19.
+- Not implemented in 363-22 (the close is records only). To be fixed through `/gsd-quick` with a RED leg first:
+  a deep plan on the `map-unknowns` question set with no limiter must come back `wish` (not `ready`) for the
+  founder (constraint-layer) and researcher (scientific-roadmapping engine) rooms.
+- The defect: `planner.assess` in `lib/core/research-planner/planner.cjs` gates on perspective errors only when
+  `plan.origin.template_id === 'scientific-roadmapping'`. On `tests/fixtures/363-question-sets/map-unknowns.json`
+  (0 paths, 0 limiters, 0 unlock chains) a deep `buildPlan` returns `status: ready` while the perspective reports
+  `no_nameable_limiter`, `forum_role_missing:*` and (researcher) `goal_not_quantified`. The empty
+  `perspective.ranking` seen in `tests/test-363-cli.cjs` leg C14 is the same fact: `rankByUnlock` ranks every
+  limiter, so no limiters means an empty ranking. C14's `continue` on an empty ranking exercises only 3 of the 4
+  engine and question-set combinations; the quick task should give that combination a limiter-bearing fixture too.
+- Scope note for the quick task: decide in the RED leg whether the other perspective errors (missing forum roles,
+  unquantified goal) also make a deep plan `incomplete`; the ruling covers only "no nameable limiter".
+- Source: reproduced at close with a scratch script over the four engine and question-set combinations (not committed).
 
 ### A6. DRP363-05 (audit ledger) was delivered but left unticked
 
@@ -121,7 +122,7 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
   counting `SEED-A` and `SEED-B`) gives 429 rows, of which 20 are DRP363 and 11 are the BIND360 family. The stated
   number is still 418. The gap of 11 is unchanged and equals the BIND360 family's size, so the prose count very
   likely omits that family. The close flipped rows only and did not touch the stated count.
-- Checkbox state at close: 367 ticked, 62 open across the whole file (DRP363: 19 ticked, 1 open, DRP363-16).
+- Checkbox state at close: 368 ticked, 61 open across the whole file (DRP363: 20 ticked, 0 open; DRP363-16 was re-ticked after the live smoke).
 
 ## Part B. Carry-forwards named by the plan
 
