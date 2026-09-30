@@ -118,3 +118,11 @@ None beyond the plan's register. T-363-04 (raw q edits refused, reword re-audite
 
 - lib/core/research-planner/plan.cjs, lib/core/research-planner/CONTEXT.md, tests/test-363-plan-schema.cjs present.
 - Commits 4c90faf64, bbdf7f0c1 and 742e8a2e0 are ancestors of HEAD.
+
+## Post-plan fix (2026-09-30)
+
+- **Defect:** the deep-mode F.6 card printed "Ranked by what each one unlocks downstream: [object Object], [object Object], ..." on both engines (found in the 363-21 D-06 review run).
+- **Root cause:** `perspective.ranking` is an array of objects (`{limiter_id, length, support, rank}`, from `rankByUnlock()` in perspective.cjs, built by 363-07), while the renderer introduced here did `p.ranking.join(', ')`. The P7 fixture in test-363-plan-schema used plain id strings, so the card test never saw the object shape. After a deep re-rank (deep.cjs) the array holds id strings, so the renderer has to take both shapes.
+- **Fix:** `rankedLabel()` in plan.cjs names each item "id: statement" from the plan's limiters, joined with "; ". Only that one card line changes (verified by diffing the captured 363-21 cards against the re-rendered cards). Commits: test dcfc34fe5 (RED, leg C13 in test-363-cli.cjs), fix 8e5015231 (GREEN).
+- **Noted, not changed:** `applyEdit` `drop_path` (plan.cjs) filters `perspective.ranking` by id string and reads `ranking[0]` as an id, so on a freshly built plan (objects) it will not remove dropped limiters from the ranking. Out of scope for this fix; needs its own fix and test.
+- **Noted, not changed:** the restatement heuristic at pyramid.cjs:309-316 is a design question for phase close.
