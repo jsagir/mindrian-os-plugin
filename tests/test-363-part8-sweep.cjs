@@ -212,13 +212,22 @@ function cli(args, preload) {
   return { code: res.status, stdout: String(res.stdout || ''), stderr: String(res.stderr || ''), json: json };
 }
 
-function wsQs(room) {
+// quick-wish-gate (DRP363-19): a deep plan with no nameable limiter is a wish and never runs, so the
+// deep leg asks for `{ limiter: true }`. Quick plans stay limiter-free.
+function wsQs(room, extra) {
   const qs = qsFile('whitespace-quick');
   qs.stated_question = 'Is there published work on ' + GAP_TERM_363 + '?';
   qs.leaves[0].question = qs.stated_question;
   qs.leaves[0].slots = { term: GAP_TERM_363 };
   qs.leaves[1].slots = { term: GAP_TERM_363, synonyms: [SYN] };
   qs.return_target = { section: room.zones.twoSection.sections[0] };
+  if (extra && extra.limiter === true) {
+    qs.perspective.paths = [{ id: 'P1', label: 'The zone is truly empty', from_10x: false }, { id: 'P2', label: 'The zone is covered under other words', from_10x: false }];
+    qs.perspective.limiters = [
+      { id: 'LM1', column: 'assumed', label: 'The gap term is a vocabulary gap rather than an absence of work', path_id: 'P1', s_curve: 'unknown', question: 'Is the gap a vocabulary gap rather than an absence of work?', leaf_id: 'L1' },
+      { id: 'LM2', column: 'assumed', label: 'Work exists under another term for the same zone', path_id: 'P2', s_curve: 'unknown', question: 'Does the zone appear under synonyms?', leaf_id: 'L2' },
+    ];
+  }
   return qs;
 }
 
@@ -350,9 +359,10 @@ async function main() {
   // A separate room: the quick and deep round-one searches are the same strings,
   // so in one room the deep run would read the local cache and send nothing.
   let deepRunId = null;
-  const deepRoom = newRoom('researcher');
+  // a founder room: a researcher room that names a limiter plans per-limiter lanes (363-20 isSR fix)
+  const deepRoom = newRoom('founder');
   await leg('D2 CLI deep flow runs under the fake key', async function () {
-    const qsPath = writeScratch('qs-deep.json', wsQs(deepRoom));
+    const qsPath = writeScratch('qs-deep.json', wsQs(deepRoom, { limiter: true }));
     const planned = cli(['plan', qsPath, '--room', deepRoom.roomDir, '--mode', 'deep', '--section', deepRoom.zones.twoSection.sections[0]], PRELOAD_THIN);
     if (planned.code !== 0 || !planned.json || planned.json.next !== 'review') return 'plan ' + planned.stdout.slice(0, 300);
     deepRunId = planned.json.run_id;

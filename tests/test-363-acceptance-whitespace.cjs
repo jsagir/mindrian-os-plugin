@@ -110,7 +110,13 @@ function pct(arr, p) {
 // gap term and the two-section cohort from the frozen zone, synonyms as slots,
 // falsifier leaves, the lite perspective (the checked-in fixture), and the
 // irrelevant dimension recorded as a reasoned not-researchable coverage note.
-function whitespaceQs(zone) {
+//
+// quick-wish-gate (navigator ruling 2026-10-01, DRP363-19): a deep plan with no
+// nameable limiter is a wish and does not run. The lite whitespace set names
+// none, so every deep plan in this file asks for `{ limiter: true }`, which adds
+// the one limiter the navigator would name (the gap may be an extraction or
+// terminology failure, not an absence). Quick plans stay limiter-free.
+function whitespaceQs(zone, extra) {
   const z = zone || {};
   const qs = qsFile('whitespace-quick');
   const term = z.zone_term || GAP_TERM_363;
@@ -121,6 +127,15 @@ function whitespaceQs(zone) {
   qs.scqa.situation = 'The room maps ' + (z.sections || []).join(' and ') + '.';
   qs.coverage_notes = [{ dimension: 'ws:irrelevant', not_researchable_reason: 'navigator judgment: whether the zone is worth filling at all' }];
   qs.return_target = { section: (z.sections || ['market-analysis'])[0] };
+  if (extra && extra.limiter === true) {
+    qs.perspective.paths = [{ id: 'P1', label: 'The zone is truly empty', from_10x: false }, { id: 'P2', label: 'The zone is covered under other words', from_10x: false }];
+    // a researcher room plans its deep lanes per limiter (363-20 isSR fix), so each searchable
+    // leaf carries the limiter it tests; L3 is a room-corpus leaf and is never fetched.
+    qs.perspective.limiters = [
+      { id: 'LM1', column: 'assumed', label: 'The gap term is a vocabulary gap rather than an absence of work', path_id: 'P1', s_curve: 'unknown', question: 'Is the gap a vocabulary gap rather than an absence of work?', leaf_id: 'L1' },
+      { id: 'LM2', column: 'assumed', label: 'Work exists under another term for the same zone', path_id: 'P2', s_curve: 'unknown', question: 'Does the zone appear under synonyms?', leaf_id: 'L2' },
+    ];
+  }
   return qs;
 }
 
@@ -389,7 +404,7 @@ async function main() {
     const hit = nr.filter(function (n) { return n.dimension === 'ws:irrelevant'; })[0];
     if (!hit || !/navigator judgment/.test(hit.reason)) return 'coverage did not list ws:irrelevant as not researchable ' + JSON.stringify(nr);
     // "Shown as such": the plan review card (F.6) lists it under its own heading.
-    const qsPath = writeScratch('qs-w4-deep.json', whitespaceQs(room.zones.twoSection));
+    const qsPath = writeScratch('qs-w4-deep.json', whitespaceQs(room.zones.twoSection, { limiter: true }));
     const deepPlanned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep', '--section', 'market-analysis'], { preload: preloadZero() });
     if (deepPlanned.code !== 0 || !deepPlanned.json || !deepPlanned.json.card || deepPlanned.json.card.shape !== 'F.6') return 'deep plan ' + deepPlanned.stdout.slice(0, 300);
     const shown = deepPlanned.json.card.body_md;
@@ -400,10 +415,23 @@ async function main() {
     return true;
   });
 
+  // W4b ------------------------------------------------------------------------
+  await leg('W4b a deep whitespace plan with no nameable limiter is a wish: no review card, no run (quick-wish-gate)', async function () {
+    const room = newRoom('researcher');
+    const qsPath = writeScratch('qs-w4b-deep.json', whitespaceQs(room.zones.twoSection));
+    const p = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep', '--section', 'market-analysis'], { preload: preloadZero() });
+    if (p.code !== 0 || !p.json) return 'deep plan ' + p.stdout.slice(0, 300);
+    if (p.json.status !== 'wish' || p.json.next !== 'revise' || p.json.reason !== 'no_nameable_limiter') return 'expected wish/revise/no_nameable_limiter, got ' + JSON.stringify({ s: p.json.status, n: p.json.next, r: p.json.reason });
+    return true;
+  });
+
   // W5 -------------------------------------------------------------------------
   await leg('W5 thin card offers deep once; escalate, review approve, deep loop to done with counterevidence and a stop reason', async function () {
-    const room = newRoom('researcher');
-    const q = cliQuick(room, whitespaceQs(room.zones.twoSection), preloadThin());
+    // quick-wish-gate: the deep plan needs a named limiter, and a researcher room that names one plans
+    // its deep lanes per limiter (the 363-20 isSR fix), which drops the whitespace plurality and
+    // counterevidence lanes this leg proves. A founder room keeps the lens lanes, so the leg runs there.
+    const room = newRoom('founder');
+    const q = cliQuick(room, whitespaceQs(room.zones.twoSection, { limiter: true }), preloadThin());
     if (q.error) return q.error;
     const r = q.ran.json;
     if (q.ran.code !== 0 || !r || r.status !== 'done') return 'run-quick ' + q.ran.code + ' ' + q.ran.stdout.slice(0, 300);
@@ -448,8 +476,8 @@ async function main() {
     ];
     for (let i = 0; i < cases.length; i += 1) {
       const c = cases[i];
-      const room = newRoom('researcher');
-      const qsPath = writeScratch('qs-w5b-' + c.name + '.json', whitespaceQs(room.zones.twoSection));
+      const room = newRoom('founder'); // founder room keeps the lens lanes once a limiter is named, see W5
+      const qsPath = writeScratch('qs-w5b-' + c.name + '.json', whitespaceQs(room.zones.twoSection, { limiter: true }));
       const planned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep', '--section', 'market-analysis'], { preload: c.preload });
       if (planned.code !== 0 || !planned.json || planned.json.next !== 'review') return c.name + ' plan ' + planned.stdout.slice(0, 300);
       const deepId = planned.json.run_id;

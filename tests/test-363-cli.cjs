@@ -181,7 +181,7 @@ async function main() {
   // C1: the facade assembles the plan the same way for every door.
   await leg('C1 buildPlan: ready plan saved, hashed, rung and structure and engine set', async function () {
     const founder = newRoom('founder');
-    const r = await PLANNER.buildPlan(founder.roomDir, qsFile('map-unknowns'), { mode: 'deep' });
+    const r = await PLANNER.buildPlan(founder.roomDir, qsFile('map-unknowns-limiter'), { mode: 'deep' });
     if (r.status !== 'ready') return 'status ' + r.status + ' ' + JSON.stringify(r.errors);
     if (r.mode !== 'deep') return 'mode ' + r.mode;
     const file = path.join(runDir(founder, r.run_id), 'plan.json');
@@ -198,7 +198,7 @@ async function main() {
     if (quick.mode !== 'quick') return 'default mode ' + quick.mode;
 
     const researcher = newRoom('researcher');
-    const r2 = await PLANNER.buildPlan(researcher.roomDir, qsFile('map-unknowns'), { mode: 'deep' });
+    const r2 = await PLANNER.buildPlan(researcher.roomDir, qsFile('map-unknowns-limiter'), { mode: 'deep' });
     const saved2 = readJson(path.join(runDir(researcher, r2.run_id), 'plan.json'));
     if (saved2.perspective.engine !== 'scientific-roadmapping') return 'researcher engine ' + saved2.perspective.engine;
     if (saved2.context.scientific.signals.indexOf('S2') === -1) return 'no S2 signal ' + JSON.stringify(saved2.context.scientific);
@@ -629,7 +629,10 @@ async function main() {
   // next binding constraint must be a string id, whichever shape the ranking has.
   await leg('C14 drop_path on a freshly built plan removes dropped limiters from the ranking, first ranked id is a string', async function () {
     const engines = [['founder', 'constraint-layer'], ['researcher', 'scientific-roadmapping']];
-    const sets = ['map-unknowns', 'scientific-roadmapping'];
+    // map-unknowns has no limiter, so a deep plan on it is a wish (quick-wish-gate, DRP363-19) and
+    // has an empty ranking: assert that outcome. The limiter-bearing sets exercise drop_path, so
+    // every engine and question-set combination is now asserted, none is skipped.
+    const sets = ['map-unknowns', 'map-unknowns-limiter', 'scientific-roadmapping'];
     let exercised = 0;
     for (let i = 0; i < engines.length; i += 1) {
       for (let j = 0; j < sets.length; j += 1) {
@@ -640,15 +643,24 @@ async function main() {
         if (planned.code !== 0 || !planned.json || planned.json.mode !== 'deep') return tag + ' plan ' + planned.code + ' ' + planned.stdout.slice(0, 200);
         const before = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json')).perspective;
         if (!Array.isArray(before.ranking)) return tag + ' ranking is not an array';
-        if (before.ranking.length === 0) continue;
+        if (sets[j] === 'map-unknowns') {
+          if (planned.json.status !== 'wish') return tag + ' zero-limiter deep plan is ' + planned.json.status + ', expected wish';
+          if (before.ranking.length !== 0 || before.limiters.length !== 0) return tag + ' zero-limiter fixture has limiters or a ranking';
+          exercised += 1;
+          continue;
+        }
+        if (before.ranking.length === 0) return tag + ' limiter-bearing fixture has an empty ranking';
         if (typeof before.ranking[0] !== 'object') return tag + ' fixture is not a fresh object ranking: ' + JSON.stringify(before.ranking).slice(0, 120);
         const victim = before.limiters.find(function (l) { return l && l.path_id; });
-        if (!victim) continue;
+        if (!victim) return tag + ' no limiter sits on a path, drop_path cannot be exercised';
         const gone = before.limiters.filter(function (l) { return l.path_id === victim.path_id; }).map(function (l) { return l.id; });
         const editPath = writeScratch('edit-c14-' + i + '-' + j + '.json', { op: 'drop_path', path_id: victim.path_id, reason: 'not affordable' });
         const revised = cli(['revise', planned.json.run_id, editPath, '--room', room.roomDir], { preload: PRELOAD_DEEP });
         if (revised.code !== 0 || !revised.json || revised.json.ok !== true) return tag + ' revise ' + revised.stdout.slice(0, 200) + revised.stderr.slice(0, 200);
-        const after = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json')).perspective;
+        const afterPlan = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json'));
+        // dropping the only limiter leaves a deep plan with nothing to test: a wish, not a ready plan
+        if (sets[j] === 'map-unknowns-limiter' && afterPlan.status !== 'wish') return tag + ' dropping the only limiter left status ' + afterPlan.status;
+        const after = afterPlan.perspective;
         const ids = after.ranking.map(function (r) { return typeof r === 'string' ? r : r.limiter_id; });
         const still = ids.filter(function (id) { return gone.indexOf(id) !== -1; });
         if (still.length > 0) return tag + ' dropped limiters still ranked: ' + still.join(',');
@@ -659,7 +671,7 @@ async function main() {
         exercised += 1;
       }
     }
-    if (exercised === 0) return 'no fixture had a limiter on a path, nothing exercised';
+    if (exercised !== engines.length * sets.length) return 'exercised ' + exercised + ' of ' + (engines.length * sets.length) + ' combinations';
     return true;
   });
 
