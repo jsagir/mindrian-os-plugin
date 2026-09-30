@@ -61,6 +61,17 @@
       "techniques": [],
       "theo_gap": "zero_steps"
     },
+    "Cross-Domain Opportunity Discovery": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "name_not_found"
+    },
     "Diffusion Theory": {
       "aliases": [],
       "complements": [],
@@ -642,6 +653,7 @@
   },
   "template_frameworks": {
     "diffusion": "Adoption-Capacity Theory",
+    "eureka": "Cross-Domain Opportunity Discovery",
     "map-unknowns": "Knowns and Unknowns Matrix Framework",
     "root-cause": "Root Cause Analysis",
     "scientific-roadmapping": "Scientific Roadmapping",
@@ -656,6 +668,10 @@
     {
       "framework": "Adversarial Research Protocol",
       "gap": "zero_steps"
+    },
+    {
+      "framework": "Cross-Domain Opportunity Discovery",
+      "gap": "name_not_found"
     },
     {
       "framework": "Diffusion Theory",
