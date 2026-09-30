@@ -123,7 +123,7 @@ What this plan does do: `/mos:whitespace research ZONE_ID` reads the zone from t
 - The plan says whitespace's routing and help "gain exactly one line", and also that P1 passes in RED. Both hold if P1 allows zero or one added line and the exact-one assertion lives in P6. Done that way.
 
 **2. [Rule 3 - Blocking] The tool wrote the test's dash constants as literal characters**
-- The first write of the test turned `—` and `–` in `EM` and `EN` into literal characters (P8 caught it). Both are now `String.fromCharCode(0x2014)` and `String.fromCharCode(0x2013)`, fixed before the RED commit.
+- The first write of the test turned the unicode escapes for the em-dash and en-dash in `EM` and `EN` into literal characters (P8 caught it). Both are now `String.fromCharCode(0x2014)` and `String.fromCharCode(0x2013)`, fixed before the RED commit.
 
 **3. [Design] Whitespace step order**
 - Whitespace reads the zone (step 3) before writing the question set (step 4); the plan's shared shape puts the dimension list at step 4. The other four follow the plan's order exactly.
