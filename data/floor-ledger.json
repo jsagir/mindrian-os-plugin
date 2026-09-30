@@ -494,7 +494,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 30 (mirrors the 30-day cache TTL); no offline measure of consent staleness, live use pending; still disclosed, not calibrated",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -507,7 +507,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 1; offline quick run is 108 to 165 ms p50 engine time and 3 searches, so the throttle is cost policy not throughput; live pending",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -520,7 +520,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 3; the whitespace plurality rule needs exactly exact, synonym cover and prior attempts (W1, W2)",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -533,7 +533,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 5; replay bodies hold 5 results so the fixture cannot show a shortfall; live yield pending",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -546,7 +546,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 60000; offline quick run p50 108 to 165 ms (no network time); live latency pending",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -559,7 +559,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 4; the scientific deep run used four limiter lanes in round one (E3, F3)",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -572,7 +572,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 2; round two is where the S-curve and prior-attack reads happen (F3)",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -585,7 +585,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 2; whitespace and scientific lanes both fill it exactly",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -598,7 +598,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 5; same fixture limit as the quick row cap, live yield pending",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -611,7 +611,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 16; binds for scientific runs (15 used, stop cap), not for whitespace (3 used, stop saturation)",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -624,7 +624,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 1200000; offline deep loop is 1.19 to 1.50 s p50 (no network, no analyst model time); live pending",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -637,7 +637,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 3; no measurement bears on it",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -650,7 +650,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 3; no measurement bears on it",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -663,7 +663,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": null,
+      "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 3, still unmeasured on real OpenAlex; fixture counts sit on both sides (gap 0 to 2, hits 9 to 240); live smoke and a labelled sample decide",
       "dependent_outputs": ["research_run"]
     }
   ]
