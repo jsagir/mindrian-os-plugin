@@ -3683,6 +3683,9 @@ closed with measured proof, or left open with a stated reason, at phase close by
       revision count with a cap of 3, and a `plan_hash` that changes on any leaf edit. The RunResult
       object (`mos.research-run/1`) is defined beside it. Both are validated in code, and the F.6
       Plan Review card is built from the Plan (D-04). Plan 363-05.
+      **Measured:** (2026-10-01) `node tests/test-363-plan-schema.cjs` (legs P0-P13,
+      plan/run validators, F.6 card from the Plan, plan_hash changes on a leaf edit), exit 0
+      in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-02**: MECE and coverage are checked deterministically: `issue-tree.cjs`
       `validateMECE` and `validateFalsifiability` run at every level (warnings shown on the card,
@@ -3692,6 +3695,11 @@ closed with measured proof, or left open with a stated reason, at phase close by
       Logic Trees steps (from the research-shape ledger) drive tree type, depth cap, lane priority
       and pruning for scientific questions; roll-up, weakest branch and opportunity candidates are
       computed in code (D-00, D-02c, D-08, D-09). Plan 363-06.
+      **Measured:** (2026-10-01) `node tests/test-363-pyramid.cjs` (Y1-Y15, MECE,
+      falsifiability and the D-00 gate), `node tests/test-363-command-contract.cjs` (P1-P8),
+      exit 0 in `bash tests/run-all-363.sh`. Design question carried to 363-FOLLOW-ONS.md:
+      the restatement heuristic (`pyramid.cjs` 309-316) flagged 8 of 11 leaves in the D-06
+      review.
 
 - [x] **DRP363-03**: Query families are composer template ids with typed slots: `whitespace-gap/v1`
       first, plus `concept-evidence/v1`, `causal-link/v1`, `constraint-interrogation/v1` (D-18
@@ -3700,6 +3708,9 @@ closed with measured proof, or left open with a stated reason, at phase close by
       phrases are double-quoted and Boolean operators are uppercase, every string carries a sha256
       `q_hash`, and a hand-typed raw query string is refused with no send-anyway path (D-01, D-04).
       Plan 363-08.
+      **Measured:** (2026-10-01) `node tests/test-363-families.cjs` (template ids, typed
+      slots, audit before return, no echo on refusal, q_hash), exit 0 in `bash
+      tests/run-all-363.sh`.
 
 - [x] **DRP363-04**: A research grant with two lifetimes, room-local, versioned, expiring and
       revocable: a standing grant approved once on an F.0 card (first scope OpenAlex plus
@@ -3710,12 +3721,25 @@ closed with measured proof, or left open with a stated reason, at phase close by
       approved). Expiry 30 days and the ambient throttle of 1 run per room per hour are disclosed
       floor-ledger rows. A grant authorizes fetching, never filing (D-04, D-05, D-10, D-11). Plans
       363-09, 363-17, 363-18.
+      **Measured:** (2026-10-01) `node tests/test-363-grants.cjs` (G1-G13, both lifetimes,
+      every re-ask reason, fresh-child restart read), `node
+      tests/test-363-runner-contract.cjs` (K1-K9), `node scripts/check-floor-ledger.cjs
+      --check` (expiry 30 days and 1 per hour as disclosed rows), exit 0 in `bash
+      tests/run-all-363.sh`.
 
-- [ ] **DRP363-05**: An append-only, room-local audit record (`.mindrian/research-audit.jsonl`) is
+- [x] **DRP363-05**: An append-only, room-local audit record (`.mindrian/research-audit.jsonl`) is
       written for every executed query with every D-04 field: grant id and version, query string,
       hash, template id, Part 8 verdict, provider, filters and pagination, fallback used, timestamp,
       originating card or node id, result ids and content hashes, and valid-empty versus
       provider-failure. It never egresses and never holds the API key (D-04). Plan 363-09.
+      **Measured:** (2026-10-01) `node tests/test-363-audit-ledger.cjs` A1-A5 PASS (one JSON
+      line with exactly the 23 `AUDIT_KEYS`, append-only, key-shaped values refused so the
+      key never reaches the file, run slice, path under `.mindrian` with no network I/O) and
+      `node tests/test-363-part8-sweep.cjs` S6 PASS (every audit record holds an approved q;
+      no marker, no key). The `AUDIT_KEYS` set in
+      `lib/core/research-planner/audit-ledger.cjs` covers every D-04 field. The row was
+      delivered by 363-09 and left unticked by oversight; ticked at phase close after
+      re-running both tests (363-22).
 
 - [x] **DRP363-06**: Corpus honesty (D-16): an OpenAlex HTTP 429, 500, timeout or network error is
       never typed `empty_valid`; `meta.count`, cost and remaining budget are carried on the
@@ -3724,6 +3748,11 @@ closed with measured proof, or left open with a stated reason, at phase close by
       key or ledger; quoted phrases and uppercase Boolean operators reach the provider unchanged;
       retracted works are flagged. The ungated `scripts/query-semantic-scholar.cjs` egress is out
       of scope and recorded as a follow-on RCA. Plans 363-01, 363-03, 363-04.
+      **Measured:** (2026-10-01) `node tests/test-363-corpus-honesty.cjs` (L1-L16), `node
+      tests/test-363-cache.cjs` (C1-C9), `node tests/test-363-part8-sweep.cjs` S9 (key only
+      as a Bearer header), exit 0 in `bash tests/run-all-363.sh`. The ungated
+      `scripts/query-semantic-scholar.cjs` egress stays out of scope and is recorded in
+      `.planning/debug/whitespace-external-semantic-scholar-ungated-egress.md`.
 
 - [x] **DRP363-07**: Quick research run: one pass, at most 3 audited queries, top 5 rows, one corpus,
       cache-first, plus a local room check for the extraction-failure falsifier. Rows are
@@ -3731,6 +3760,10 @@ closed with measured proof, or left open with a stated reason, at phase close by
       verdict of `settled | thin | contested | gap-confirmed | unresolved` puts provider failure
       first, so it can never read as gap-confirmed. Returns an evidence card with a one-line answer
       and hash-anchored rows (D-03). Plans 363-04, 363-11, 363-12.
+      **Measured:** (2026-10-01) `node tests/test-363-run-quick.cjs` (Q1-Q15), `node
+      tests/test-363-evidence-rows.cjs` (R1-R10 plus C1), `node
+      tests/test-363-acceptance-whitespace.cjs` (W1-W4), exit 0 in `bash
+      tests/run-all-363.sh`.
 
 - [x] **DRP363-08**: Deep research run: a deterministic controller with decompose, one lane per lens
       or limiter capped by `resolveFanoutCap`, reflect, a second round with breadth halving, a
@@ -3738,10 +3771,18 @@ closed with measured proof, or left open with a stated reason, at phase close by
       recorded as `stop_reason`, an F.3 extend-or-stop card for any out-of-family follow-up, and an
       honest synthesis that is the updated perspective and pyramid with row ids and names every
       unresolved branch. Never started unattended (D-03, D-08, D-18). Plan 363-13.
+      **Measured:** (2026-10-01) `node tests/test-363-run-deep.cjs` (E1-E14, stop reasons,
+      counterevidence pass, F.3 card, unresolved branches), `node
+      tests/test-363-acceptance-whitespace.cjs` W5 and W5b, `node
+      tests/test-363-acceptance-diffusion.cjs` F3, exit 0 in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-09**: Escalation: a thin or contested quick card carries exactly one offer, "run deep on
       this?", which seeds a deep plan from the quick plan's perspective, pyramid and audited
       strings; it never auto-escalates (D-03). Plan 363-12.
+      **Measured:** (2026-10-01) `node tests/test-363-run-quick.cjs` (escalation offered
+      exactly once, seeded from the quick plan), `node
+      tests/test-363-acceptance-whitespace.cjs` W5 (thin card, one offer, deep run seeded),
+      exit 0 in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-10**: Filing happens only on the navigator's yes on the F.8 basket: the run home is
       top-level `research/<dated-slug>/` through `fileResearchArtifact` (D-12, icm-architect
@@ -3751,6 +3792,10 @@ closed with measured proof, or left open with a stated reason, at phase close by
       carry REJECTED_BECAUSE reasons, and the pyramid rolls up into the originating section's
       REASONING.md through `mergeReasoningFrontmatter`; MINTO.md is left to its generator. A grant
       never authorizes filing (D-04, D-08, D-18). Plan 363-14.
+      **Measured:** (2026-10-01) `node tests/test-363-filing.cjs` (FI1-FI13: nothing filed
+      before the yes, run home, open-question nodes, proposed EvidenceClaims, CONTRADICTS
+      edges, REJECTED_BECAUSE, REASONING.md roll-up, MINTO.md bytes unchanged), `node
+      tests/test-363-acceptance-whitespace.cjs` W6, exit 0 in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-11**: Opportunities scooped by research (D-07, D-15, D-18 step 7): quick and deep runs
       propose opportunity candidates (literature gap, constraint attack ranked by unlock chain,
@@ -3760,6 +3805,12 @@ closed with measured proof, or left open with a stated reason, at phase close by
       back to the run home and the run ledger linking forward. Only a funding signal with funder and
       program goes through `fileOpportunity`; `mos:opportunity-scanner` is named, not invoked.
       Plans 363-06, 363-12, 363-14.
+      **Measured:** (2026-10-01) `node tests/test-363-filing.cjs` (opportunity items off by
+      default, node plus evidence link plus flat card, funding signal only with funder and
+      program), `node tests/test-363-acceptance-whitespace.cjs` W1 and W5b (`literature_gap`
+      candidate), exit 0 in `bash tests/run-all-363.sh`. Caveat carried to
+      363-FOLLOW-ONS.md: the flat research cards in `opportunity-bank/` list with funder,
+      program and deadline null.
 
 - [x] **DRP363-12**: Structure from the graph (D-02b, D-09, D-17, D-18): `data/research-shape-ledger.json`
       is built at dev time from anchored, handle-only graph reads (the Neo4j framework content for
@@ -3772,6 +3823,10 @@ closed with measured proof, or left open with a stated reason, at phase close by
       never a keyword classifier). Planner templates are offered by relevance to the silently
       classified room rung, and the weakest branch picks the next framework through FEEDS_INTO and
       `commandsForFramework`. Plans 363-10, 363-06.
+      **Measured:** (2026-10-01) `node tests/test-363-structure.cjs` (B1-B4, D0-D7, E1, E2),
+      `node scripts/build-research-shape-ledger.cjs --check`, `node
+      tests/test-363-part8-sweep.cjs` S5 (handle-only reads), exit 0 in `bash
+      tests/run-all-363.sh`.
 
 - [x] **DRP363-13**: First-wave command research-planner modes (`/mos:map-unknowns`,
       `/mos:root-cause`, `/mos:whitespace`, `/mos:think-hats`, `/mos:diffusion`) emit a question set through the
@@ -3780,6 +3835,9 @@ closed with measured proof, or left open with a stated reason, at phase close by
       research run" and "deep research run"; no command gains `Task`, `Agent` or a `web_scope`;
       every generated registry and mirror regenerates born wired (D-02, D-02a). Plans 363-01,
       363-19.
+      **Measured:** (2026-10-01) `node tests/test-363-command-contract.cjs` (P1-P8,
+      quick-pass line preserved, no command gains Task, Agent or web_scope), the quick-pass
+      line count leg and the five generator `--check` gates in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-14**: One governed runner (D-14): `/mos:research` gains a plan-run mode declared with
       Form B `hitl_stages` (deep plan review F.6 gate, deep extend budget F.3 gate, quick policy
@@ -3789,6 +3847,11 @@ closed with measured proof, or left open with a stated reason, at phase close by
       execution and a declared `hitl_shape: F.6`; the CLI door `scripts/research-planner.cjs` reads
       JSON files only; `commands/scout.md` and `commands/scheduled-tasks.md` point at the grant
       mechanism (D-05). Plans 363-15, 363-17, 363-18.
+      **Measured:** (2026-10-01) `node tests/test-363-runner-contract.cjs` (K1-K9), `node
+      tests/test-363-mcp-tool.cjs` (M1-M12), `node tests/test-363-cli.cjs` (C1-C14), `node
+      tests/test-265-declaration-truth.cjs`, `node tests/test-270-tool-schema-budget.cjs`
+      and `node tests/test-234-tool-description-floor.cjs`, exit 0 in `bash
+      tests/run-all-363.sh`.
 
 - [x] **DRP363-15**: Ambient quick research runs under a standing grant ride the 355.1 ambient child:
       the lock is reused, a separate `research-run-ledger.json` holds the throttle, only
@@ -3796,25 +3859,54 @@ closed with measured proof, or left open with a stated reason, at phase close by
       `context_insufficient`), a new search term or any re-ask reason produces a plan-only card
       with zero egress, the evidence card is written unfiled, and deep runs never start there
       (D-03, D-05, D-10). Plan 363-16.
+      **Measured:** (2026-10-01) `node tests/test-363-ambient.cjs` (M0-M11: lock reused,
+      throttle ledger, two-section minimum, plan-only card on a new term, deep never), `node
+      tests/test-363-acceptance-whitespace.cjs` W7 and W9, exit 0 in `bash
+      tests/run-all-363.sh`. Limit: production `whitespace-results.json` carries no
+      `zone_term`, so on real rooms ambient runs answer `context_insufficient` /
+      `no_zone_term` (pinned by W9b, see 363-FOLLOW-ONS.md).
 
-- [x] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
+- [ ] **DRP363-16**: Acceptance (D-06): the Whitespace plus OpenAlex two-section slice runs in both
       modes offline on replay fixtures, and live in a smoke test that exits 77 as ENV GAP without
       network or budget; the floor ledger records measured latency and yield; and a
       `/mos:map-unknowns` research plan is reviewed by a human against the written rubric
       `363-D06-RUBRIC.md`, showing questions beyond the navigator's stated question and assumed
       limiters the navigator did not name. Benchmark scores are not acceptance. Plans 363-01,
       363-02, 363-20, 363-21.
+      **Measured (partial, row left open):** (2026-10-01) Satisfied: offline slice in both
+      modes through the CLI, MCP and ambient doors (`node
+      tests/test-363-acceptance-whitespace.cjs` W1-W9b and `node
+      tests/test-363-acceptance-diffusion.cjs` F1-F4, exit 0), the live smoke
+      `tests/test-363-live-smoke.cjs` built and proven to exit 77 without `MOS_363_LIVE=1`,
+      the 14 research-planner floor rows reviewed and kept (`node
+      scripts/check-floor-ledger.cjs --check`), and the human D-06 review ruled PASS by the
+      navigator on 2026-10-01 (363-D06-REVIEW.md, verbatim "363-21 pass", plan level, no
+      per-leaf scores). Missing: the live OpenAlex smoke was NEVER run (`MOS_363_LIVE`
+      unset, the navigator has not approved live spend), so no live latency, count or budget
+      exists and the floor ledger holds no live measurement. 363-20 had ticked this row; it
+      is reopened here because the row text names the live smoke. Close it by running
+      `MOS_363_LIVE=1 node tests/test-363-live-smoke.cjs` once and pasting `LIVE_METRICS`
+      into 363-ACCEPTANCE.md.
 
 - [x] **DRP363-17**: Part 8 sweep: a planted room marker never reaches argv, stdout or stderr logs,
       telemetry, a cache key, a Theo call argument or the audit ledger; the only room-derived
       string that may leave the machine is an approved, audited query string, and it appears only
       in the outbound request and the audit ledger. Plans 363-02, 363-20.
+      **Measured:** (2026-10-01) `node tests/test-363-part8-sweep.cjs` (setup, D1-D7, S1-S9;
+      a scratch mutation that planted the marker in a search term made S1, S2, S6, S7 and S9
+      fail, so the sweep can fail), `node tests/test-363-acceptance-diffusion.cjs` F4, exit
+      0 in `bash tests/run-all-363.sh`.
 
 - [x] **DRP363-18**: Learn only, rebuild natively (D-01): no runtime dependency, sidecar or MCP wrap of
       any open-source deep-research project, zero new npm dependencies (`package.json` and
       `npm-shrinkwrap.json` dependency sets unchanged), and every borrowed pattern is attributed
       with its project and license in `lib/core/research-planner/CONTEXT.md`. Plans 363-05,
       363-22.
+      **Measured:** (2026-10-01) `tests/run-all-363.sh` leg "no new dependency"
+      (package.json and npm-shrinkwrap.json sets equal `tests/fixtures/363-pre-phase.json`),
+      `node tests/test-363-baseline.cjs`, and the attribution table in
+      `lib/core/research-planner/CONTEXT.md` checked by `node
+      tests/test-363-plan-schema.cjs`.
 
 - [x] **DRP363-19**: The planner is a research-perspective builder (D-18): every plan carries a
       perspective built in the constraint layer through Scientific Roadmapping's operations: a
@@ -3829,6 +3921,12 @@ closed with measured proof, or left open with a stated reason, at phase close by
       settled constraint without new evidence. The engine is framework-keyed and exported under a
       documented reuse contract so SEED-098 reuses it rather than duplicating it. Plans 363-05,
       363-07, 363-13, 363-14, 363-18, 363-19.
+      **Measured:** (2026-10-01) `node tests/test-363-perspective.cjs` (D-18 operations,
+      ratchet, `describeEngine` api_version 1), `node tests/test-363-plan-schema.cjs`, `node
+      tests/test-363-run-deep.cjs` E-legs, `node tests/test-363-command-contract.cjs`, and
+      the human D-06 review: navigator ruled PASS on 2026-10-01 (363-D06-REVIEW.md, verbatim
+      "363-21 pass", plan level, no per-leaf scores). Caveat: the restatement heuristic
+      flagged 8 of 11 leaves; see 363-FOLLOW-ONS.md.
 
 - [x] **DRP363-20**: The diffusion lens (D-19): when the planner judges a research question to be
       about a dual-use or deep-tech technology's adoption, diffusion or timing, it selects the
@@ -3842,6 +3940,10 @@ closed with measured proof, or left open with a stated reason, at phase close by
       adoption steps of step 7's unlock chains and the S-curve reading of step 6. A fixture proves
       the selection rule, and the Part 7 reuse inventory names `/mos:diffusion`. Plans 363-05,
       363-06, 363-07, 363-08, 363-10, 363-19, 363-20.
+      **Measured:** (2026-10-01) `node tests/test-363-acceptance-diffusion.cjs` (F1-F4:
+      local selection rule, `df:` leaves with falsifiers, S-curve and adoption-step read in
+      the deep run, zero Theo calls), `node tests/test-363-families.cjs`, `node
+      tests/test-363-structure.cjs` D5, exit 0 in `bash tests/run-all-363.sh`.
 
 ## Traceability
 
