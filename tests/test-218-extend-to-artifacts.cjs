@@ -65,9 +65,10 @@ function mkTempRoom() {
 function seedRoom(dir) {
   const db = openRoomDb(dir, { allowExtension: true });
   const roomId = 'memory_artifact:competitive-analysis:ROOM';
+  // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
   insertNode(db, roomId, 'memory_artifact', JSON.stringify({
     section: 'competitive-analysis', kind: 'ROOM', path: 'competitive-analysis/ROOM.md', hash: '',
-  }), { source_path: 'memory:competitive-analysis:ROOM', created_by: 'system' });
+  }), { source_path: 'memory:competitive-analysis:ROOM', created_by: 'system', epistemic_type: 'observation' });
   closeRoomDb(db);
   return roomId;
 }

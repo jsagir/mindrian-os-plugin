@@ -154,8 +154,9 @@ check('Test 7 -- linkEntityRelations links to an artifact (DESCRIBES) and reject
   const db = freshDb();
   // Seed a memory_artifact node to link to.
   const { insertNode } = require(path.join(REPO_ROOT, 'lib', 'core', 'node-insert.cjs'));
+  // R17-02 (260903-gdm): insertNode requires epistemic_type; fixture repaired in Phase 363.1-03 so D-10's gate runs
   insertNode(db, 'artifact:sec-01', 'memory_artifact', '{}', {
-    source_path: 'section:overview', created_by: 'system',
+    source_path: 'section:overview', created_by: 'system', epistemic_type: 'observation',
   });
   const ent = writeEntityNode(db, { entityType: 'company', name: 'Prodrive', sessionId: 's1' });
   assert.equal(ent.ok, true);
