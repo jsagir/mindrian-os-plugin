@@ -173,6 +173,19 @@ function resetCritic() { opp._test.setCriticForTest(); }
   ok('Test 5: critic gate provably honest in all three states (pending / pass / fail)');
 }
 
+// ---------- Test 7 (Phase 363.1 D-05, D-29): the text carries the rank only ----------
+{
+  resetCritic();
+  opp._test.setCriticForTest(null);
+  const r = opp.buildOpportunityStatement(wellFormed());
+  assert.equal(opp.CLAUSE_LABELS[10], '. Rank: ', 'Test 7: CLAUSE_LABELS[10] is the rank marker (363.1 D-05)');
+  assert.ok(r.text.endsWith('. Rank: 1'), 'Test 7: text ends ". Rank: 1"');
+  assert.equal(r.fields.score_label, '1', 'Test 7: score_label is the rank only');
+  assert.equal(r.fields.composite, 0.82, 'Test 7: the composite stays in fields as a number, never in the text');
+  assert.ok(r.text.indexOf('composite') === -1, 'Test 7: no composite in the text (D-29)');
+  ok('Test 7: statement text carries rank only; composite stays in fields (363.1 D-05 / D-29)');
+}
+
 // ---------- Test 6: malformed input throws OPP_STATEMENT_INPUT ----------
 {
   resetCritic();

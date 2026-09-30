@@ -91,9 +91,17 @@ function slotBetween(text, beforeIdx, afterIdx, fromPos) {
   return { value: text.slice(valStart, end), end: end };
 }
 
+// Phase 363.1 D-05: CLAUSE_LABELS[10] changed from '. Score: ' to '. Rank: '. The
+// stored graph-mode artifact (a real 2026-07-10 run, gitignored, local) predates
+// that change and still carries the legacy label in its statement text. Only
+// marker 10 accepts either label; markers 0..9 stay strict (T-363.1-24).
+const LEGACY_SCORE_LABEL = '. Score: ';
+
 function everyMarkerPresent(text) {
   for (let i = 0; i < CLAUSE_LABELS.length; i += 1) {
-    if (text.indexOf(CLAUSE_LABELS[i]) === -1) return false;
+    if (text.indexOf(CLAUSE_LABELS[i]) !== -1) continue;
+    if (i === 10 && text.indexOf(LEGACY_SCORE_LABEL) !== -1) continue;
+    return false;
   }
   return true;
 }
