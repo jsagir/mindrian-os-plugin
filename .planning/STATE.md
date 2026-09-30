@@ -5426,6 +5426,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
 Plan: 15 of 22
 Status: Ready to execute
+Previously (363.1-01, parallel out-of-band plan, Phase 363.1 beta.51 scaffold-as-content
+  cluster, executed in the shared tree while Phase 363 is the Current Position; no
+  gsd-tools state.* writer was run, frontmatter untouched): complete 2026-09-30 -- shared
+  scaffold predicate lib/core/scaffold-predicate.cjs (library plus --is-scaffold /
+  --count-content / --list-content CLI), room-birth FEYNMAN_BIRTH_SEED_TEMPLATE registered
+  in scaffold-template-index, tests/run-all-363.1.sh (PASS=22 with regressions, 27+2
+  BASELINE_RED entries measured at c7d8ac12b). Commits 0c5cac760, c7d8ac12b (RED), 8433ed45c,
+  f1999ca10 (GREEN). Next: 363.1-02.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):
