@@ -420,6 +420,25 @@
       "layer_why": "Pulls the full candidate-reach set through the dispatchSensors path; the same reach-dispatch coordination as suggest_next."
     },
     {
+      "surface": "mcp:research_run",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.6",
+      "hitl_why": "Deep research plans are reviewed on an F.6 Plan Review card before any fetch; quick runs ask on an F.0 grant card; filing asks on an F.8 basket.",
+      "layer": "harness",
+      "layer_why": "Mints gate_render payloads through gate-ledger material_step gates and persists grants on approval; a gate-ledger tool, the rubric's own step 3 signal."
+    },
+    {
       "surface": "mcp:room_bind",
       "source": "mcp_tool",
       "connects_to_spine": true,

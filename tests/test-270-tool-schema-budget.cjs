@@ -311,16 +311,40 @@ const AFTER_270_12 = {
  * figures, so that byte growth rides along inside totalBytes here without
  * moving toolCount.
  */
+/*
+ * Plan 363-17 (Phase 363 research planner) -- re-baseline for the one new MCP
+ * tool this plan adds, research_run (lib/mcp/tools/research.cjs), the Desktop
+ * and Cowork door to the planner facade. Same protocol as the 358-10 block
+ * above: measure live with this file's own listToolsOverStdio + measure()
+ * pair, record the numbers, name the percentage.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs) with and without
+ * research_run in the same tree:
+ *   before research_run: 44 tools, 19395 desc bytes, 27950 schema bytes,
+ *     47345 total bytes.
+ *   after research_run:  45 tools, 19892 desc bytes, 28820 schema bytes,
+ *     48712 total bytes, ~12178 approx tokens (router 9 / atomic 36).
+ *   research_run's own cost: +1 tool, +497 desc bytes, +870 schema bytes,
+ *     +1367 total bytes; signed pctChange(47345, 48712) = 2.89 percent
+ *     (this is the tool's true budget effect, and the figure the commit
+ *     message names).
+ *   against the previous recorded AFTER (358-10, totalBytes 48321): signed
+ *     pctChange(48321, 48712) = 0.81 percent, inside DRIFT_TOLERANCE_PCT.
+ *     The 358-10 constant sat 976 bytes above what the tree measured just
+ *     before research_run (schema bytes 28926 recorded vs 27950 measured), so
+ *     part of the gap to the old constant is that earlier, unrelated drift;
+ *     it is recorded here rather than absorbed silently.
+ */
 const AFTER = {
-  measuredAt: '2026-09-23',
-  plan: '358-10',
-  toolCount: 44,
-  totalDescBytes: 19395,
-  totalSchemaBytes: 28926,
-  totalBytes: 48321,
-  approxTokens: 12080,
+  measuredAt: '2026-09-30',
+  plan: '363-17',
+  toolCount: 45,
+  totalDescBytes: 19892,
+  totalSchemaBytes: 28820,
+  totalBytes: 48712,
+  approxTokens: 12178,
   routerCount: 9,
-  atomicCount: 35,
+  atomicCount: 36,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget

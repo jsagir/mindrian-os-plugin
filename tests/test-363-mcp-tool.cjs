@@ -276,7 +276,7 @@ async function main() {
     const room = newRoom('founder');
     const c = client(room, 'sess-m6');
     const before = guard.attempts();
-    const res = await c.call({ op: 'deep_plan', question_set: qsFile('map-unknowns') });
+    const res = await c.call({ op: 'deep_plan', question_set: qsFile('scientific-roadmapping') });
     if (res.ok !== true) return 'deep_plan ' + JSON.stringify(res).slice(0, 300);
     if (!res.card || res.card.shape !== 'F.6') return 'card shape ' + (res.card && res.card.shape);
     if (!res.gate || !res.gate.gate_id) return 'no gate';
