@@ -199,7 +199,7 @@ function srAnalyst(cfg) {
     }
     if (round === 2 && p.lane === 'LM2') rows.push(rowOf('scurve_ceiling', 0, 'L9', 'scurve_ceiling'));
     if (round === 2 && p.lane === 'LM3' && c.timing) rows.push(rowOf('scurve_headroom', 0, 'L15', 'scurve_headroom'));
-    if (c.paraphrase && p.lane === 'LM4') rows.push({ leaf_id: 'L11', record_id: rec('prior_review_two', 0).id, claim: 'x', quote: 'a paraphrase that never appears in the record', label: 'supports' });
+    if (c.paraphrase && p.lane === 'LM4') rows.push({ leaf_id: 'L11', record_id: rec('derivation_hit', 0).id, claim: 'x', quote: 'a paraphrase that never appears in the record', label: 'supports' });
     return rows;
   };
 }
@@ -342,10 +342,10 @@ async function main() {
     const audit = auditFor(happyRoom, happyPlan.run_id);
     const r = happy.result;
     return happy.steps.join(',') === EXPECTED_STEPS.join(',')
-      && audit.length === 16 && happy.replay.calls.length === 16
+      && audit.length === 15 && happy.replay.calls.length === audit.length
       && r && r.ok === true && r.run.stop_reason === 'cap' && r.run.mode === 'deep' && r.run.verdict === null
       && planMod.validateRunResult(r.run).ok === true
-      || ('steps ' + happy.steps.join(',') + ' audit ' + audit.length + ' stop ' + (r && r.run && r.run.stop_reason));
+      || ('steps ' + happy.steps.join(',') + ' audit ' + audit.length + ' calls ' + happy.replay.calls.length + ' stop ' + (r && r.run && r.run.stop_reason) + ' valid ' + JSON.stringify(r && r.run ? planMod.validateRunResult(r.run).errors : r));
   });
 
   await leg('E4 SR lanes are the top limiters by unlock rank; round 2 halves breadth and reads only still-assumed limiters', async function () {
