@@ -5447,6 +5447,12 @@ Previously (363.1-04, same out-of-band arrangement, no state.* writer run, front
   0.69 (never check); generator writes governing_thought_placeholder: true and filters
   scaffold from artifacts; three tier-0 baselines refreshed. Tests 15 + 17 legs. Commits
   d6d6b9149, 47d7974f2. Next: 363.1-05.
+Previously (363.1-03, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- twelve 218/219 test fixtures now pass epistemic_type
+  to insertNode (R17-02 drift), so run-all-218 (PASS=18, FAIL=1) and run-all-219 (PASS=12,
+  FAIL=1) run to real assertions; BASELINE_RED pruned to the T-218-VD-5 leg 5
+  (reasoning_await_mappings) plus its two nested 219 labels; run-all-363.1 with regressions
+  PASS=26 FAIL=0. Commits 7b6c4466e, 4006c587f, 6c68075c2. Next: 363.1-05.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):
