@@ -122,8 +122,8 @@ run "363: existing run-all-130.5"                  bash tests/run-all-130.5.sh
 run_known "363: existing run-all-131 (red at PLAN_BASE: e2e + substrate, outside 363)" \
   "Failed:  2" \
   bash tests/run-all-131.sh
-run_known "363: existing run-all-219 (red at PLAN_BASE, outside 363)" \
-  "Phase 219: PASS=9 FAIL=4 SKIP=0" \
+run_known "363: existing run-all-219 (one red leg: T-218-VD-5 encoder_unavailable, outside 363)" \
+  "Phase 219: PASS=12 FAIL=1 SKIP=0" \
   bash tests/run-all-219.sh
 run_known "363: existing run-all-221 (red at PLAN_BASE, outside 363)" \
   "Phase 221: PASS=11 FAIL=3 SKIP=0" \
