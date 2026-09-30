@@ -624,6 +624,45 @@ async function main() {
     return true;
   });
 
+  // C14: a freshly built deep plan stores ranking as {limiter_id,...} objects.
+  // drop_path must remove the dropped path's limiters from that ranking, and the
+  // next binding constraint must be a string id, whichever shape the ranking has.
+  await leg('C14 drop_path on a freshly built plan removes dropped limiters from the ranking, first ranked id is a string', async function () {
+    const engines = [['founder', 'constraint-layer'], ['researcher', 'scientific-roadmapping']];
+    const sets = ['map-unknowns', 'scientific-roadmapping'];
+    let exercised = 0;
+    for (let i = 0; i < engines.length; i += 1) {
+      for (let j = 0; j < sets.length; j += 1) {
+        const room = newRoom(engines[i][0]);
+        const qsPath = writeScratch('qs-c14-' + i + '-' + j + '.json', qsFile(sets[j]));
+        const planned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep'], { preload: PRELOAD_DEEP });
+        const tag = engines[i][1] + '/' + sets[j];
+        if (planned.code !== 0 || !planned.json || planned.json.mode !== 'deep') return tag + ' plan ' + planned.code + ' ' + planned.stdout.slice(0, 200);
+        const before = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json')).perspective;
+        if (!Array.isArray(before.ranking)) return tag + ' ranking is not an array';
+        if (before.ranking.length === 0) continue;
+        if (typeof before.ranking[0] !== 'object') return tag + ' fixture is not a fresh object ranking: ' + JSON.stringify(before.ranking).slice(0, 120);
+        const victim = before.limiters.find(function (l) { return l && l.path_id; });
+        if (!victim) continue;
+        const gone = before.limiters.filter(function (l) { return l.path_id === victim.path_id; }).map(function (l) { return l.id; });
+        const editPath = writeScratch('edit-c14-' + i + '-' + j + '.json', { op: 'drop_path', path_id: victim.path_id, reason: 'not affordable' });
+        const revised = cli(['revise', planned.json.run_id, editPath, '--room', room.roomDir], { preload: PRELOAD_DEEP });
+        if (revised.code !== 0 || !revised.json || revised.json.ok !== true) return tag + ' revise ' + revised.stdout.slice(0, 200) + revised.stderr.slice(0, 200);
+        const after = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json')).perspective;
+        const ids = after.ranking.map(function (r) { return typeof r === 'string' ? r : r.limiter_id; });
+        const still = ids.filter(function (id) { return gone.indexOf(id) !== -1; });
+        if (still.length > 0) return tag + ' dropped limiters still ranked: ' + still.join(',');
+        if (ids.length !== before.ranking.length - gone.length) return tag + ' ranking size ' + ids.length + ' expected ' + (before.ranking.length - gone.length);
+        if (ids.length > 0 && typeof ids[0] !== 'string') return tag + ' first ranked id is not a string';
+        const nb = after.next_binding_constraint;
+        if (nb !== null && typeof nb !== 'string') return tag + ' next_binding_constraint is ' + typeof nb;
+        exercised += 1;
+      }
+    }
+    if (exercised === 0) return 'no fixture had a limiter on a path, nothing exercised';
+    return true;
+  });
+
   // the em-dash rule holds for the files this plan writes
   await leg('C-dash the facade, the CLI and this test carry no em-dash or en-dash', async function () {
     const files = [PLANNER_PATH, CLI_PATH, __filename];
