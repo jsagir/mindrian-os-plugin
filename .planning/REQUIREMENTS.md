@@ -3743,7 +3743,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       this?", which seeds a deep plan from the quick plan's perspective, pyramid and audited
       strings; it never auto-escalates (D-03). Plan 363-12.
 
-- [ ] **DRP363-10**: Filing happens only on the navigator's yes on the F.8 basket: the run home is
+- [x] **DRP363-10**: Filing happens only on the navigator's yes on the F.8 basket: the run home is
       top-level `research/<dated-slug>/` through `fileResearchArtifact` (D-12, icm-architect
       consult recorded), leaves become open-question nodes, EvidenceClaims land `proposed` through
       `fileEvidenceWithReadback`, SUPPORTS and CONTRADICTS edges go to the leaf nodes through
@@ -3752,7 +3752,7 @@ closed with measured proof, or left open with a stated reason, at phase close by
       REASONING.md through `mergeReasoningFrontmatter`; MINTO.md is left to its generator. A grant
       never authorizes filing (D-04, D-08, D-18). Plan 363-14.
 
-- [ ] **DRP363-11**: Opportunities scooped by research (D-07, D-15, D-18 step 7): quick and deep runs
+- [x] **DRP363-11**: Opportunities scooped by research (D-07, D-15, D-18 step 7): quick and deep runs
       propose opportunity candidates (literature gap, constraint attack ranked by unlock chain,
       untried intervention, mechanism transfer, trend break, funding signal) linked to the run and
       its rows; on the navigator's yes they are written with `navigation.writeOpportunityNode`
