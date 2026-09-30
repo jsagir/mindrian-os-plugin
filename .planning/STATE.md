@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 363-18-PLAN.md - /mos:research is the one research runner: plan-run mode, Form B hitl_stages F.6/F.3/F.0/F.8, Read-only research-lane-analyst agent, D-05 pointers in scout.md and scheduled-tasks.md"
+stopped_at: "Completed 363-20-PLAN.md - D-06 acceptance offline in both modes, D-19 lens fixture, Part 8 sweep clean, live smoke built (77 without MOS_363_LIVE, NOT run), 14 floor rows kept disclosed; next 363-21 human D-06 check"
 last_updated: "2026-09-30T16:00:00.000Z"
-last_activity: 2026-09-30 -- 363-18 complete
+last_activity: 2026-09-30 -- 363-20 complete (363-19 bookkeeping caught up)
 progress:
   total_phases: 115
   completed_phases: 44
   total_plans: 469
-  completed_plans: 435
-  percent: 92
+  completed_plans: 437
+  percent: 93
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5424,8 +5424,25 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
-Plan: 19 of 22
+Plan: 21 of 22
 Status: Ready to execute
+Previously (363-20, executed beside Phase 363.1-07 in the shared tree, no state.* writer run,
+  hand-edited counts only): D-06 acceptance. tests/test-363-acceptance-whitespace.cjs (14 checks, both
+  modes through the spawned CLI with the replay preload, the MCP register seam and the ambient branch),
+  test-363-acceptance-diffusion.cjs (7), test-363-part8-sweep.cjs (20: marker and fake key across every
+  door, key only as a Bearer header), test-363-live-smoke.cjs (exits 77 without MOS_363_LIVE=1). The live
+  smoke was NOT run (pending human or env; command in 363-ACCEPTANCE.md). Defect found and fixed: a
+  lite whitespace plan in a researcher room had no deep lanes (deep.cjs isSR now needs a limiter, E14 in
+  test-363-run-deep, 17/17); render coverage registry regenerated (stale since 363-18). All 14
+  research-planner floor rows kept disclosed with provenance to 363-ACCEPTANCE.md. run-all-363:
+  PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10. Commits 8b97fc028, 8f0dbba00, 9769f1e7f. Open: zone_term still
+  absent from production whitespace-results.json (ambient runs on real rooms are context_insufficient;
+  sidecar follow-on in 363-19 summary and 363-ACCEPTANCE.md); DRP363-16 ticked but live smoke and 363-21
+  pending; DRP363-05 unticked though delivered. Next: 363-21 (human D-06 check), then 363-22 close.
+Previously (363-19, bookkeeping caught up by the 363-20 executor): five PWS commands
+  (/mos:map-unknowns, root-cause, think-hats, diffusion, whitespace research ZONE_ID) became research
+  planners with byte-preserved existing flows; tests/test-363-command-contract.cjs 8 checks. Commits
+  2b0608988, 2af9fea0e.
 Previously (363-18, executed beside Phase 363.1-07 in the shared tree, no state.* writer run,
   hand-edited counts only): /mos:research is the one research runner (commands/research.md plan-run
   mode: pending cards, F.0 quick grant, F.6 deep plan review with revise, deep-next loop, F.3 extend,
