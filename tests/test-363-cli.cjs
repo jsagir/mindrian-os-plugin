@@ -4,7 +4,7 @@
  *
  * Phase 363 Plan 15 -- the planner facade (lib/core/research-planner/
  * planner.cjs) and the JSON-only CLI door (scripts/research-planner.cjs).
- * Legs C1-C12, all offline.
+ * Legs C1-C13, all offline.
  *
  * C1-C8 run the facade in-process under the net guard. C9-C12 spawn the CLI
  * with NODE_OPTIONS=--require <replay preload> (writeReplayPreload, 363-02), so
@@ -140,7 +140,7 @@ function cliQuickRun(room) {
 }
 
 async function leg(name, fn) {
-  if (/^C(9|10|11|12) /.test(name) && !fs.existsSync(CLI_PATH)) {
+  if (/^C(9|10|11|12|13) /.test(name) && !fs.existsSync(CLI_PATH)) {
     check(name, false, 'scripts/research-planner.cjs missing');
     return;
   }
@@ -166,6 +166,7 @@ const LEG_NAMES = [
   'C10 CLI deep loop',
   'C11 argv hygiene',
   'C12 file-run gate',
+  'C13 ranked-by line',
 ];
 
 async function main() {
@@ -583,6 +584,41 @@ async function main() {
     if (blob.indexOf(qs.stated_question) !== -1 || blob.indexOf(room.marker) !== -1) return 'room text reached the client';
     const off = await PLANNER.buildPlanLive(room.roomDir, qs, { mode: 'deep', brainClient: stub });
     if (off.plan.structure.source === 'theo_live') return 'live read without liveStructure';
+    return true;
+  });
+
+  // C13: the F.6 card names each ranked limiter by its label, never as an object.
+  await leg('C13 deep plan card: no rendered line contains [object Object], ranked-by line names limiters, both engines', async function () {
+    const engines = [['founder', 'constraint-layer'], ['researcher', 'scientific-roadmapping']];
+    const sets = ['map-unknowns', 'scientific-roadmapping'];
+    for (let i = 0; i < engines.length; i += 1) {
+      for (let j = 0; j < sets.length; j += 1) {
+        const room = newRoom(engines[i][0]);
+        const qsPath = writeScratch('qs-c13-' + i + '-' + j + '.json', qsFile(sets[j]));
+        const planned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep'], { preload: PRELOAD_DEEP });
+        const tag = engines[i][1] + '/' + sets[j];
+        if (planned.code !== 0 || !planned.json || !planned.json.card || planned.json.card.shape !== 'F.6') return tag + ' plan ' + planned.code + ' ' + planned.stdout.slice(0, 200);
+        if (planned.stdout.indexOf('[object Object]') !== -1) return tag + ' CLI output renders [object Object]';
+        const lines = String(planned.json.card.body_md).split('\n');
+        const bad = lines.filter(function (l) { return l.indexOf('[object Object]') !== -1; });
+        if (bad.length > 0) return tag + ' card line: ' + bad[0].slice(0, 120);
+        const saved = readJson(path.join(runDir(room, planned.json.run_id), 'plan.json'));
+        if (saved.perspective.engine !== engines[i][1]) return tag + ' engine ' + saved.perspective.engine;
+        const ranked = lines.filter(function (l) { return l.indexOf('Ranked by what each one unlocks downstream: ') === 0; });
+        if (saved.perspective.ranking.length > 0) {
+          if (ranked.length !== 1) return tag + ' ranked-by line count ' + ranked.length;
+          const ids = saved.perspective.ranking.map(function (r) { return typeof r === 'string' ? r : r.limiter_id; });
+          const byId = {};
+          saved.perspective.limiters.forEach(function (l) { byId[l.id] = l; });
+          for (let k = 0; k < ids.length; k += 1) {
+            if (ranked[0].indexOf(ids[k]) === -1 || ranked[0].indexOf(byId[ids[k]].statement) === -1) return tag + ' ranked-by line does not name ' + ids[k];
+          }
+          for (let k = 1; k < ids.length; k += 1) {
+            if (ranked[0].indexOf(ids[k - 1]) > ranked[0].indexOf(ids[k])) return tag + ' ranked-by order changed';
+          }
+        }
+      }
+    }
     return true;
   });
 
