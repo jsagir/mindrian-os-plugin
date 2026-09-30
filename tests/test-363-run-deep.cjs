@@ -285,7 +285,7 @@ async function leg(name, fn) {
 }
 
 const EXPECTED_STEPS = ['fetch_round', 'dispatch_lanes', 'validate', 'reflect', 'fetch_round', 'dispatch_lanes', 'validate', 'counterevidence', 'synthesize', 'done'];
-const LEGS = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11', 'E12', 'E13'];
+const LEGS = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10', 'E11', 'E12', 'E13', 'E14'];
 
 async function main() {
   check('module loads (deep.cjs)', loadError === null && !!DEEP, loadError ? loadError.message : '');
@@ -604,6 +604,26 @@ async function main() {
       && leafKeys.every(function (k) { return k === 'falsifier,leaf_id,question'; })
       && happy.replay.violations.length === 0 && dashFree
       || ('markerHits ' + markerHits + ' keys ' + keys + ' dashFree ' + dashFree);
+  });
+
+  // E14 (363-20): a whitespace plan built in a researcher room carries the
+  // scientific-roadmapping engine but has no limiters; it must still get lens
+  // lanes, not "no_lanes". Found by the 363-20 acceptance run (quick thin,
+  // escalate, revise no_search_terms).
+  await leg('E14 a whitespace plan on the scientific-roadmapping engine with no limiters still gets lens lanes and runs to synthesis', async function () {
+    const room = newRoom();
+    const plan = makeWsDeepPlan();
+    plan.perspective.engine = 'scientific-roadmapping';
+    plan.plan_hash = planMod.planHash(plan);
+    if (planMod.validatePlan(plan).ok !== true) return 'plan invalid ' + JSON.stringify(planMod.validatePlan(plan).errors);
+    const lanes = DEEP.roundOneQueries(plan);
+    if (lanes.length === 0) return 'no round-one lanes for a limiter-less scientific plan';
+    if (!lanes.every(function (l) { return l.queries.length > 0; })) return 'a lane has no queries';
+    const out = await drive(room, plan, { analyst: function () { return []; } });
+    if (out.error) return 'drive ' + JSON.stringify(out.error);
+    if (!out.result || out.result.ok !== true) return 'synthesis ' + JSON.stringify(out.result);
+    if (out.result.run.mode !== 'deep' || auditFor(room, plan.run_id).length === 0) return 'no searches ran';
+    return true;
   });
 
   check('net guard: zero network attempts', guard.attempts() === 0);
