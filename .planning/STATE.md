@@ -5470,6 +5470,16 @@ Previously (363.1-05, same out-of-band arrangement, no state.* writer run, front
   reasoning-mode skips scaffold files; the three 218 pins D-03 supersedes were corrected in
   the same change. Tests 16 legs; run-all-363.1 with regressions PASS=27 FAIL=0. Commits
   cae72b3b8, 85d87e6bf, 39af08710. Next: 363.1-06.
+Previously (363.1-06, same out-of-band arrangement, no state.* writer run, frontmatter
+  untouched): complete 2026-09-30 -- the Eureka tail and the Opportunity Statement say
+  something real: epochSeconds reads integer-ms created_at so the growth axis has spread, one
+  growth_proxy label feeds provenance and the tail block, a flat axis reports
+  insufficient_structure with an empty tail (tail_axis_distinct in provenance), sectionFor and
+  catalogId handle Windows paths with an 'unsectioned' fallback that is never banked, the bridge
+  phrase carries no article, and statements render "Rank: N" with the composite kept in
+  fields.composite (CLAUSE_LABELS[10] and its pins moved together, reproduction accepts the legacy
+  label at marker 10 only). Tests 6 + 8 legs; run-all-363.1 with regressions PASS=29 FAIL=0.
+  Commits e72eea033, 2c600cfb6, 8bc36d170. Next: 363.1-07.
 Previously (267-01, parallel out-of-band plan, unrelated to the sequential 348 chain
   or the Phase 355 wave-2 sequence below -- this repo runs many phases concurrently
   across sessions, per the documented multi-session tree-sharing reality):

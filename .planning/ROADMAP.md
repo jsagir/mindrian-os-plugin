@@ -1462,7 +1462,7 @@ Plans:
 - [x] 363.1-03-PLAN.md -- restore the Eureka regression suites (R17-02 epistemic_type fixture drift)
 - [x] 363.1-04-PLAN.md -- compute-state entry counts and venture stage, MINTO template health
 - [x] 363.1-05-PLAN.md -- Eureka structural-node exclusion before pairing (D-03)
-- [ ] 363.1-06-PLAN.md -- tail classifier and Opportunity Statement prose
+- [x] 363.1-06-PLAN.md -- tail classifier and Opportunity Statement prose
 - [ ] 363.1-07-PLAN.md -- end-to-end proof: D-10 regressions and beta.51 replay on room copies
 
 ### Phase 270: Memory and Context Operator MCP
