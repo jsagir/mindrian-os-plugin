@@ -71,6 +71,16 @@ decision. Part A is what the close found or had to re-open. Part B is the list t
 
 ### A5. Navigator-ruled follow-on: the wish gate applies to every deep plan
 
+- **RESOLVED 2026-10-01 by quick task 261001-wgd.** RED `f7c62ea03` (test-363-cli leg C15), GREEN `6c8821fd4`
+  (`planner.assess` now turns a deep, non scientific-roadmapping plan with no limiter into `wish` with
+  `no_nameable_limiter`; quick mode and the scientific-roadmapping branch are unchanged; C14 now asserts the wish
+  for the zero-limiter set and exercises every combination through the new `map-unknowns-limiter` fixture).
+  Decision on the scope note below: only `no_nameable_limiter` gates outside scientific-roadmapping; missing forum
+  roles and an unquantified goal stay advisory. Consequence to know: a deep whitespace plan, including the
+  "run deep on this?" escalation, is a wish unless the question set names a limiter; in a researcher room a named
+  limiter switches the deep run to per-limiter lanes. See the quick SUMMARY for the test updates.
+  The original finding follows, kept as the record.
+
 - **Navigator ruling (2026-10-01, answered via AskUserQuestion): "Apply it to every deep plan."** Any deep plan
   with no nameable limiter is a wish and does not run, regardless of `template_id`, per DRP363-19.
 - Not implemented in 363-22 (the close is records only). To be fixed through `/gsd-quick` with a RED leg first:
