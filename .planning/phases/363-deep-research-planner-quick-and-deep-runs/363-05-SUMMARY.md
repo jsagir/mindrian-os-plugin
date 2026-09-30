@@ -89,8 +89,8 @@ All three commits verified as ancestors of HEAD (`git merge-base --is-ancestor`)
 
 **2. [Rule 1 - Bug] Long-dash characters appeared literally in plan.cjs and the test**
 - **Found during:** Tasks 2 and 3 (P12 failed with "plan.cjs has a long dash", then a byte-level grep found two in the test)
-- **Issue:** The `—–` escapes in the card-body normalizer and the `EM`/`EN` test constants were materialized as literal characters on write.
-- **Fix:** plan.cjs regex restored to escape form (`/[—–]/g`); the test constants now use `String.fromCharCode(0x2014)` and `String.fromCharCode(0x2013)`.
+- **Issue:** The `\u2014\u2013` escapes in the card-body normalizer and the `EM`/`EN` test constants were materialized as literal characters on write.
+- **Fix:** plan.cjs regex restored to escape form (`/[\u2014\u2013]/g`); the test constants now use `String.fromCharCode(0x2014)` and `String.fromCharCode(0x2013)`.
 - **Commits:** bbdf7f0c1 (plan.cjs, fixed before commit), 742e8a2e0 (test)
 
 **3. [Scope note] Task 2 committed on its own**

@@ -124,7 +124,7 @@ Twelve rows appended by string splice (pure addition, 156 inserted lines, 0 remo
 - `node scripts/check-floor-ledger.cjs --check`: exit 0.
 - `grep -c "^const GAP_COUNT_FLOOR = 3;" lib/core/research-planner/verdict.cjs`: 1.
 - `git diff` of data/floor-ledger.json shows 0 removed lines.
-- No em-dash or en-dash literal in verdict.cjs, quick.cjs or the test (byte-level grep; the normalizers use `—` and `–` escapes).
+- No em-dash or en-dash literal in verdict.cjs, quick.cjs or the test (byte-level grep; the normalizers use `\u2014` and `\u2013` escapes).
 - Not run (out of plan scope, per brief): the tests/run-all-* aggregators.
 
 ## Deviations from Plan
@@ -140,7 +140,7 @@ Twelve rows appended by string splice (pure addition, 156 inserted lines, 0 remo
 
 **2. [Rule 1 - Bug] Literal dash characters materialized in source on write**
 - **Found during:** Task 3 verification (byte-level grep)
-- **Issue:** the `[—–]` escapes in the noDash helpers landed as literal characters.
+- **Issue:** the `[\u2014\u2013]` escapes in the noDash helpers landed as literal characters.
 - **Fix:** restored to escape form before commit.
 - **Files modified:** verdict.cjs, quick.cjs
 - **Commit:** 711f9ca18

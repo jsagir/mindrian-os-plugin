@@ -82,3 +82,12 @@ None. No new network endpoint, auth path or trust-boundary file access: the cach
 
 - tests/test-363-cache.cjs, lib/core/research-cache.cjs, lib/lens-engine/source-lens-driver.cjs present.
 - Commits e8413da39 and 24753541c are ancestors of HEAD.
+
+## Post-plan regression fix (2026-09-30)
+
+- **Symptom:** `bash tests/run-all-221.sh` moved from its recorded `PASS=11 FAIL=3` to `PASS=10 FAIL=4`; `tests/run-all-363.sh` flagged both. The failing leg was `tests/test-221-envelopes.cjs` C3 part (b), assertion `the cache-read failure rides as a WARNING: []`.
+- **Root cause (confirmed):** commit 24753541c made `fetchSourceCached` in `lib/lens-engine/source-lens-driver.cjs` read the cache through `researchCache.getCachedEntry` (so the stored meta rides on a hit) and type a read throw as a `cache_read_failed: ...` warning. C3 (b) still stubbed `researchCache.getCached` to throw. `getCached` now wraps `getCachedEntry` by an internal call, so replacing the exported `getCached` never fires on the driver path: no throw, no warning, empty `warnings`. The product kept the warning; the test seam was stale.
+- **Trace:** `getCachedEntry` has exactly one reader in lib/ (the driver). `getCached` callers in lib/ are `domain-insight-sweep.cjs` (its own path) and the doc comment in `futures/orchestrator.cjs`; neither reaches the driver.
+- **Fix:** C3 (b) now saves, stubs and restores `researchCache.getCachedEntry` instead. Every assertion is unchanged (status ok, warning matches `/cache/i`, `failure_class` null). No product change.
+- **Result:** `node tests/test-221-envelopes.cjs` 18 passed, 0 failed; `run-all-221.sh` back to its recorded signature (see the commit trail).
+- **Also:** em-dash and en-dash characters removed from the 05, 09 and 12 SUMMARY files (em-dash guard).

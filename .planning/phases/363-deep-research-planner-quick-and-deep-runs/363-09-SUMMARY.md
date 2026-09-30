@@ -98,7 +98,7 @@ Both are ancestors of HEAD.
 **1. [Rule 1 - Bug] Test literal dash characters**
 - **Found during:** Task 2
 - **Issue:** The test files as first written held literal dash characters inside a regex; the tree-wide dash scan flagged them.
-- **Fix:** Replaced with `—` and `–` escapes (grants.cjs itself uses escapes in its card sanitizer).
+- **Fix:** Replaced with the `\u2014` and `\u2013` escapes (grants.cjs itself uses escapes in its card sanitizer).
 - **Files modified:** tests/test-363-grants.cjs, tests/test-363-audit-ledger.cjs
 - **Commit:** 731e14a9e
 
