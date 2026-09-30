@@ -31,6 +31,17 @@ const {
 const {
   walkAllSections,
 } = require('./vault-section-state-generator.cjs');
+// Phase 363.1 D-07: the placeholder governing-thought shape has ONE definition
+// (lib/core/folder-memory-shared.cjs); the fallback below is rendered through
+// it so the shape the health scorer rejects cannot drift from the shape this
+// generator writes.
+const {
+  renderPlaceholderGoverningThought,
+  isPlaceholderGoverningThought,
+} = require('../lib/core/folder-memory-shared.cjs');
+// Phase 363.1 D-06/D-07: scaffold files (CONTEXT, FEYNMAN seed, ...) are not
+// section artifacts.
+const { isScaffoldFile } = require('../lib/core/scaffold-predicate.cjs');
 
 // ---------- CLI ----------
 
@@ -339,6 +350,7 @@ function collectSectionArtifacts(sectionDir, contentFiles) {
   return contentFiles
     .filter((f) => f.path.startsWith(sectionDir + path.sep))
     .filter((f) => !f.isFiledTo)
+    .filter((f) => !isScaffoldFile(f.path))
     .sort((a, b) => a.relPath.localeCompare(b.relPath));
 }
 
@@ -444,7 +456,7 @@ function readGoverningThoughtFromGraph(roomDir, sectionSlug) {
 function deriveGoverningThought(section, artifacts) {
   const title = slugToTitle(section.name);
   const n = artifacts.length;
-  const fallback = `${title} synthesizes ${n} artifact${n === 1 ? '' : 's'} into a coherent argument for this section of the venture.`;
+  const fallback = renderPlaceholderGoverningThought(title, n);
   // Quick task 260903-i2x: try the graph first (section.parentRoomDir is
   // already in scope at both call sites two lines above their own call, so
   // no signature change is needed). On day one there are zero such nodes in
@@ -615,6 +627,10 @@ function renderSectionMinto(section, artifacts, room, preserved) {
     `related: [${relatedArr.join(', ')}]`,
     'status: active',
     'governing_thought: "' + gtTier0Escaped + '"',
+    // Phase 363.1 D-07: say in the file itself that the thought is the
+    // fallback, so the health scorer never pays it. Conditional spread keeps a
+    // real-GT MINTO byte-identical to before.
+    ...(isPlaceholderGoverningThought(governingThought) ? ['governing_thought_placeholder: true'] : []),
     ...v88Lines,
     '---',
     '',
@@ -1002,6 +1018,7 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
     'related: [' + fm.related.join(', ') + ']',
     'status: ' + fm.status,
     'governing_thought: "' + gtTier1Escaped + '"',
+    ...(isPlaceholderGoverningThought(narrative.governing_thought) ? ['governing_thought_placeholder: true'] : []),
     ...v88Lines,
     '---',
   ];
@@ -1624,6 +1641,8 @@ module.exports = {
   renderSectionMinto,
   collectSectionArtifacts,
   deriveGoverningThought,
+  // Phase 363.1 D-07: re-export of the shared placeholder predicate.
+  isPlaceholderGoverningThought,
   readGoverningThoughtFromGraph,
   deriveClaims,
   deriveMeceTree,

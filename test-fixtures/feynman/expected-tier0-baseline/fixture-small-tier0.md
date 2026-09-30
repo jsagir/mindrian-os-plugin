@@ -10,6 +10,7 @@ sources: [assumption-staleness/assumption-staleness.md, hidden-cascade-failures/
 related: []
 status: active
 governing_thought: "Problem Definition synthesizes 3 artifacts into a coherent argument for this section of the venture."
+governing_thought_placeholder: true
 last_generated_at: "2026-04-14T00:00:00Z"
 last_artifact_write_seen_at: null
 reasoning_health_score: null
@@ -90,7 +91,7 @@ decision_log: []
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
 > **Compression ratio:** 4x
-> **Tokens:** 182 compressed from 725 source
+> **Tokens:** 182 compressed from 734 source
 > **Method:** tier-0-heuristic
 
 ### Assertion
