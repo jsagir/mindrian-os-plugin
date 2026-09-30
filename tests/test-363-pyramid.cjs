@@ -87,10 +87,10 @@ function researchable(leaves) { return leaves.filter(function (l) { return l.res
 // ---------------------------------------------------------------------------
 // Y1 templates
 // ---------------------------------------------------------------------------
-leg('Y1 TEMPLATES has exactly the six ids with full dimension records', function () {
+leg('Y1 TEMPLATES has exactly the seven ids with full dimension records', function () {
   need();
   const ids = Object.keys(T.TEMPLATES).sort();
-  const want = ['diffusion', 'map-unknowns', 'root-cause', 'scientific-roadmapping', 'think-hats', 'whitespace'];
+  const want = ['diffusion', 'eureka', 'map-unknowns', 'root-cause', 'scientific-roadmapping', 'think-hats', 'whitespace'];
   assertTrue(JSON.stringify(ids) === JSON.stringify(want), 'template ids ' + ids.join(','));
   assertTrue(JSON.stringify(T.PLANNER_TEMPLATE_IDS.slice().sort()) === JSON.stringify(want), 'PLANNER_TEMPLATE_IDS');
   const families = ['whitespace-gap/v1', 'concept-evidence/v1', 'causal-link/v1', 'constraint-interrogation/v1', 'diffusion/v1'];
@@ -127,6 +127,7 @@ leg('Y1 TEMPLATES has exactly the six ids with full dimension records', function
     'think-hats': ['hat:white', 'hat:black', 'hat:yellow', 'hat:green', 'hat:red', 'hat:blue'],
     'whitespace': ['ws:gap_claim', 'ws:covered_elsewhere', 'ws:irrelevant', 'ws:extraction_failure'],
     'diffusion': ['df:first_adopters', 'df:absorptive_capacity', 'df:civil_defense_crossing', 'df:timing'],
+    'eureka': ['eu:mechanism_transfer', 'eu:already_known', 'eu:worth_exploring'],
     'scientific-roadmapping': ['sr:tension', 'sr:goal', 'sr:rung', 'sr:forum_insider', 'sr:forum_entrant', 'sr:forum_grounder', 'sr:paths', 'sr:paths_10x', 'sr:limiters', 'sr:ranking'],
   };
   Object.keys(stable).forEach(function (id) {

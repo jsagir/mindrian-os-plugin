@@ -74,6 +74,7 @@ function walkStrings(node, cb, keyPath) {
 const TEMPLATE_FRAMEWORKS = [
   'Knowns and Unknowns Matrix Framework', 'Root Cause Analysis', 'Six Thinking Hats',
   'HSI Semantic Surprise Analysis Assistant', 'Adoption-Capacity Theory', 'Scientific Roadmapping',
+  'Cross-Domain Opportunity Discovery', // SEED-103: the eureka template's framework handle
 ];
 const CONTEXT_NAMES = TEMPLATE_FRAMEWORKS.concat([
   'Logic Trees (Issue, Hypothesis, Decision)', 'Hypothesis-Driven Problem Solving', 'Scientific Method',
@@ -150,7 +151,8 @@ leg('B3 ledger content: problem types, frameworks, steps, shapes, sets, template
   assert.equal(ledger.scientific_set.length, 7);
   assert.ok(ledger.scientific_set.indexOf('Scientific Roadmapping') !== -1);
   assert.equal(ledger.diffusion_set.length, 5);
-  assert.equal(Object.keys(ledger.template_frameworks).length, 6);
+  assert.equal(Object.keys(ledger.template_frameworks).length, 7);
+  assert.equal(ledger.template_frameworks.eureka, 'Cross-Domain Opportunity Discovery');
   assert.equal(ledger.template_frameworks.whitespace, 'HSI Semantic Surprise Analysis Assistant');
   assert.ok(ledger.built_from.source && ledger.built_from.captured_at);
   const gaps = ledger.theo_gaps.map(function (g) { return g.framework; });
