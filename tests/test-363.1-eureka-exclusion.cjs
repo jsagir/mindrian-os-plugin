@@ -130,6 +130,34 @@ leg('U2 section contract and scaffold rows -> scaffold_basename (id, sub-room id
   assert.equal(c.structuralReason(row('x/USER', 'Artifact', {}, 'system:rs-engine'), {}), 'scaffold_basename');
 });
 
+leg('U2b gap: shipped reference docs (SECTION-SCHEMA, SUB-SCHEMAS) are scaffold_basename, real sub-room row shapes', () => {
+  const c = ce();
+  const roomSkeletonScaffold = require(path.join(ROOT, 'lib/core/room-skeleton-scaffold.cjs'));
+  // Row shape read from the beta.51 sub-room room.db: id references/SECTION-SCHEMA,
+  // source_path system:rs-engine, props {title, section: references}.
+  for (const doc of roomSkeletonScaffold.REFERENCE_DOCS) {
+    const stem = doc.replace(/\.md$/, '');
+    const title = stem === 'SECTION-SCHEMA' ? 'Section Schema' : 'Sub Schemas';
+    assert.equal(c.structuralReason(row('references/' + stem, 'Artifact', { title: title, section: 'references', epistemic_type: 'observation' }, 'system:rs-engine'), {}), 'scaffold_basename', 'id references/' + stem);
+    assert.equal(c.structuralReason(row('sub/references/' + stem, 'Artifact', { title: title }, 'system:rs-engine'), {}), 'scaffold_basename', 'sub-room id ' + stem);
+    assert.equal(c.structuralReason(row('a-' + stem, 'Artifact', { title: title }, 'references\\' + doc), {}), 'scaffold_basename', 'Windows source_path ' + doc);
+    assert.equal(c.structuralReason(row('b-' + stem, 'Artifact', { title: title, path: 'references/' + doc }, null), {}), 'scaffold_basename', 'props.path ' + doc);
+  }
+  // A user's own file in references/ is still content.
+  assert.equal(c.structuralReason(row('references/paper-final', 'Artifact', { title: 'Paper', section: 'references' }, 'system:rs-engine'), {}), null);
+  assert.equal(c.structuralReason(row('references/SECTION-SCHEMA-notes', 'Artifact', { title: 'Mine' }, 'system:rs-engine'), {}), null);
+});
+
+leg('U2c gap: reasoning-mode readRoomMarkdown skips the shipped reference docs and keeps other references', () => {
+  const roomDir = mkTmp('refs-rm');
+  const body = 'A body long enough to clear the forty character noise floor for sure.\n';
+  w(path.join(roomDir, 'references'), 'SECTION-SCHEMA.md', '# Section Schema\n\n' + body);
+  w(path.join(roomDir, 'references'), 'SUB-SCHEMAS.md', '# Sub Schemas\n\n' + body);
+  w(path.join(roomDir, 'references'), 'my-reference.md', '# Mine\n\n' + body);
+  const got = reasoningMode.readRoomMarkdown(roomDir).map((e) => e.id.split(path.sep).join('/')).sort();
+  assert.deepEqual(got, ['references/my-reference.md']);
+});
+
 leg('U3 FEYNMAN is body-dependent: seeded -> scaffold, authored -> content, missing file -> content', () => {
   const c = ce();
   const roomDir = mkTmp('feyn');

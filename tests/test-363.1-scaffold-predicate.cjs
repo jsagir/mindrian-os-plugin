@@ -36,6 +36,7 @@ const hygiene = require(path.join(ROOT, 'tests/helpers/hygiene-355.cjs'));
 const timelineRunner = require(path.join(ROOT, 'lib/core/feynman/timeline-runner.cjs'));
 const dialMemory = require(path.join(ROOT, 'lib/core/feynman/dial-memory-renderer.cjs'));
 const feynmanSeedWriter = require(path.join(ROOT, 'lib/core/feynman/feynman-seed-writer.cjs'));
+const roomSkeletonScaffold = require(path.join(ROOT, 'lib/core/room-skeleton-scaffold.cjs'));
 
 let sp = null;
 let loadError = null;
@@ -133,11 +134,62 @@ function runCli(args) {
 // ---------------------------------------------------------------------------
 // SCAFFOLD_BASENAMES / isScaffoldBasename
 // ---------------------------------------------------------------------------
-leg('SCAFFOLD_BASENAMES is a frozen Set of exactly the seven scaffold basenames', () => {
+leg('SCAFFOLD_BASENAMES is a frozen Set of the seven scaffold kinds plus the shipped reference docs', () => {
   assert.ok(sp.SCAFFOLD_BASENAMES instanceof Set);
   assert.equal(Object.isFrozen(sp.SCAFFOLD_BASENAMES), true);
-  assert.deepEqual([...sp.SCAFFOLD_BASENAMES].sort(),
-    ['BRAIN.md', 'CONTEXT.md', 'FEYNMAN.md', 'MINTO.md', 'ROOM.md', 'STATE.md', 'USER.md']);
+  const expected = ['BRAIN.md', 'CONTEXT.md', 'FEYNMAN.md', 'MINTO.md', 'ROOM.md', 'STATE.md', 'USER.md']
+    .concat(roomSkeletonScaffold.REFERENCE_DOCS).sort();
+  assert.deepEqual([...sp.SCAFFOLD_BASENAMES].sort(), expected);
+});
+
+// ---------------------------------------------------------------------------
+// Gap closure (2026-09-30, B51-01 residual): the reference docs room birth
+// copies into references/ (SECTION-SCHEMA.md, SUB-SCHEMAS.md) are scaffold.
+// The list is CONSUMED from room-skeleton-scaffold's REFERENCE_DOCS export
+// (Canon Part 7), never retyped here or in the predicate.
+// ---------------------------------------------------------------------------
+leg('gap: REFERENCE_DOCS export is the two shipped reference docs and every one is scaffold', () => {
+  assert.deepEqual([...roomSkeletonScaffold.REFERENCE_DOCS], ['SECTION-SCHEMA.md', 'SUB-SCHEMAS.md']);
+  for (const n of roomSkeletonScaffold.REFERENCE_DOCS) {
+    assert.equal(sp.SCAFFOLD_BASENAMES.has(n), true, n);
+    assert.equal(sp.isScaffoldBasename(n), true, n);
+    assert.equal(sp.isScaffoldBasename(n.replace(/\.md$/, '')), true, n + ' bare stem');
+    assert.equal(sp.isScaffoldBasename('references/' + n), true, 'references/' + n);
+    assert.equal(sp.isScaffoldBasename('references\\' + n), true, 'backslash ' + n);
+  }
+});
+
+leg('gap: isScaffoldFile and listContentFiles treat the reference docs as scaffold, not content', () => {
+  const dir = mkTmp('refs');
+  for (const n of roomSkeletonScaffold.REFERENCE_DOCS) {
+    fs.writeFileSync(path.join(dir, n), '# ' + n + '\n\nshipped reference text.\n');
+    assert.equal(sp.isScaffoldFile(path.join(dir, n)), true, n);
+  }
+  fs.writeFileSync(path.join(dir, 'my-notes.md'), '# notes\n');
+  assert.deepEqual(sp.listContentFiles(dir), [path.join(dir, 'my-notes.md')]);
+  // A similarly named content file is still content (exact basename match only).
+  fs.writeFileSync(path.join(dir, 'SECTION-SCHEMA-notes.md'), '# mine\n');
+  assert.equal(sp.isScaffoldFile(path.join(dir, 'SECTION-SCHEMA-notes.md')), false);
+});
+
+leg('gap: CLI --is-scaffold and --count-content agree for the reference docs', () => {
+  assert.equal(runCli(['--is-scaffold', '/nonexistent-363-1/references/SECTION-SCHEMA.md']).status, 0);
+  assert.equal(runCli(['--is-scaffold', '/nonexistent-363-1/references/SUB-SCHEMAS.md']).status, 0);
+  const dir = mkTmp('cli-refs');
+  for (const n of roomSkeletonScaffold.REFERENCE_DOCS) fs.writeFileSync(path.join(dir, n), '# ref\n');
+  fs.writeFileSync(path.join(dir, 'deal.md'), '# deal\n');
+  const r = runCli(['--count-content', dir]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stdout, '1\n');
+});
+
+leg('gap: single source of truth, the predicate source does not retype a reference doc name', () => {
+  const src = fs.readFileSync(MODULE_ABS, 'utf8');
+  for (const n of roomSkeletonScaffold.REFERENCE_DOCS) {
+    assert.equal(src.includes(n), false, 'predicate must not copy ' + n);
+    assert.equal(src.includes(n.replace(/\.md$/, '')), false, 'predicate must not copy stem of ' + n);
+  }
+  assert.ok(/room-skeleton-scaffold/.test(src), 'predicate must consume room-skeleton-scaffold');
 });
 
 leg('isScaffoldBasename accepts basename, bare stem and a backslash path', () => {
