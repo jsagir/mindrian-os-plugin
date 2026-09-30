@@ -663,6 +663,48 @@ async function main() {
     return true;
   });
 
+  // C15: quick task quick-wish-gate (navigator ruling 2026-10-01, DRP363-19): any
+  // deep plan with no nameable limiter is a wish and does not run, regardless of
+  // template_id. The map-unknowns set has 0 limiters; it must come back wish in
+  // both engine rooms, cardFor must never offer deep_run, and nothing may fetch.
+  await leg('C15 a deep plan with no nameable limiter is a wish in founder and researcher rooms, no deep_run, no fetch', async function () {
+    const tripwire = path.join(SCRATCH, 'fetch-tripwire.log');
+    const tripPreload = path.join(SCRATCH, 'fetch-tripwire.cjs');
+    fs.writeFileSync(tripPreload, 'const fs = require(\'node:fs\');\nglobalThis.fetch = function () { fs.appendFileSync(' + JSON.stringify(tripwire) + ', \'fetch\\n\'); return Promise.reject(new Error(\'network blocked by test\')); };\n', 'utf8');
+    const before = guard.attempts();
+    const roles = ['founder', 'researcher'];
+    for (let i = 0; i < roles.length; i += 1) {
+      const room = newRoom(roles[i]);
+      const qs = qsFile('map-unknowns');
+      const built = PLANNER.buildPlan(room.roomDir, qs, { mode: 'deep' });
+      const tag = roles[i] + ' in-process';
+      if (!built.ok) return tag + ' buildPlan failed ' + JSON.stringify(built).slice(0, 160);
+      if ((built.plan.perspective.limiters || []).length !== 0) return tag + ' fixture is not limiterless';
+      if (built.status !== 'wish') return tag + ' status is ' + built.status + ', expected wish';
+      if (built.errors.indexOf('no_nameable_limiter') === -1) return tag + ' errors lack no_nameable_limiter: ' + JSON.stringify(built.errors);
+      const card = PLANNER.cardFor(room.roomDir, built.plan, {});
+      if (card.next === 'deep_run' || card.next === 'review') return tag + ' cardFor offers ' + card.next;
+      if (card.next !== 'revise' || card.reason !== 'no_nameable_limiter') return tag + ' cardFor ' + card.next + '/' + card.reason;
+      if (optionIds(card.card).indexOf('revise') === -1 || optionIds(card.card).some(function (id) { return /run|approve/.test(id); })) return tag + ' card options ' + optionIds(card.card).join(',');
+      // quick mode is unaffected by the ruling
+      const quick = PLANNER.buildPlan(room.roomDir, qs, { mode: 'quick' });
+      if (!quick.ok || quick.status === 'wish') return tag + ' quick plan became ' + quick.status;
+
+      // the same through the CLI door
+      const room2 = newRoom(roles[i]);
+      const qsPath = writeScratch('qs-c15-' + i + '.json', qsFile('map-unknowns'));
+      const planned = cli(['plan', qsPath, '--room', room2.roomDir, '--mode', 'deep'], { preload: tripPreload });
+      const ctag = roles[i] + ' cli';
+      if (planned.code !== 0 || !planned.json) return ctag + ' plan ' + planned.code + ' ' + planned.stdout.slice(0, 200) + planned.stderr.slice(0, 200);
+      if (planned.json.status !== 'wish') return ctag + ' status ' + planned.json.status;
+      if (planned.json.next === 'deep_run' || planned.json.next === 'review') return ctag + ' next ' + planned.json.next;
+      if (planned.json.reason !== 'no_nameable_limiter') return ctag + ' reason ' + planned.json.reason;
+    }
+    if (fs.existsSync(tripwire)) return 'a fetch was attempted: ' + fs.readFileSync(tripwire, 'utf8').trim();
+    if (guard.attempts() !== before) return 'net guard saw ' + (guard.attempts() - before) + ' attempts';
+    return true;
+  });
+
   // the em-dash rule holds for the files this plan writes
   await leg('C-dash the facade, the CLI and this test carry no em-dash or en-dash', async function () {
     const files = [PLANNER_PATH, CLI_PATH, __filename];
