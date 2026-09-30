@@ -74,15 +74,33 @@ PY_EOF
 
 # Collect section data
 declare -a section_names=()
+declare -a section_dirs=()
 declare -a section_entries=()
 declare -a section_statuses=()
 declare -a section_dates=()
 total_entries=0
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Phase 363.1 D-06 (B51-05): entry counts, section status, the venture stage
+# and the cross-reference scan count CONTENT files only. CONTEXT/ROOM/MINTO/
+# STATE/USER/BRAIN and an unmodified seeded FEYNMAN.md are scaffold that room
+# birth wrote, not something the navigator filed; counting them reported
+# "Investment" for a room that held nothing. The one definition of "scaffold"
+# lives in lib/core/scaffold-predicate.cjs; bash stays authoritative and asks
+# it through the predicate's CLI.
+#
+# Spawn budget: a node process that loads the predicate costs ~0.15s on WSL
+# (more on native Windows) and state-ops.cjs runs this script under a 10s
+# execSync timeout. So the CLI is spawned a CONSTANT number of times per run
+# (once for counts, once for the cross-reference file list) with every
+# section dir passed as quoted argv. Never spawn it per section or per file.
+
 # Plan 80-05 Task 2: dynamic section discovery confirmed.
 # This glob walks every top-level folder under room/, so inbox/ (with its
 # suggested/ and unclassified/ sub-branches added by Phase 80 vault-import)
 # is picked up automatically without any hard-coded section list.
+# Pass 1: collect section names and their dirs.
 for section_dir in "$ROOM_DIR"/*/; do
   [ -d "$section_dir" ] || continue
   section_name=$(basename "$section_dir")
@@ -91,10 +109,40 @@ for section_dir in "$ROOM_DIR"/*/; do
   [[ "$section_name" == .* ]] && continue
 
   section_names+=("$section_name")
+  section_dirs+=("$section_dir")
+done
 
-  # Count .md files excluding ROOM.md
-  entry_count=$(find "$section_dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l)
-  entry_count=$(echo "$entry_count" | tr -d ' ')
+# One CLI spawn for every section's content count (argument order).
+counts_ok=false
+declare -a predicate_counts=()
+if [ ${#section_dirs[@]} -gt 0 ]; then
+  counts_out=$(node "$SCRIPT_DIR/../lib/core/scaffold-predicate.cjs" --count-content "${section_dirs[@]}" 2>/dev/null) || counts_out=""
+  if [ -n "$counts_out" ]; then
+    counts_ok=true
+    while IFS= read -r count_line; do
+      case "$count_line" in
+        ''|*[!0-9]*) counts_ok=false; break ;;
+      esac
+      predicate_counts+=("$count_line")
+    done <<< "$counts_out"
+    [ "${#predicate_counts[@]}" -eq "${#section_dirs[@]}" ] || counts_ok=false
+  fi
+  if ! $counts_ok; then
+    echo "compute-state: scaffold predicate unavailable; entry counts include scaffold files" >&2
+  fi
+fi
+
+# Pass 2: status, totals and last-modified date per section.
+for i in "${!section_names[@]}"; do
+  section_dir="${section_dirs[$i]}"
+
+  if $counts_ok; then
+    entry_count="${predicate_counts[$i]}"
+  else
+    # Pre-fix counting: every .md except ROOM.md (honest, loud degrade).
+    entry_count=$(find "$section_dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l)
+    entry_count=$(echo "$entry_count" | tr -d ' ')
+  fi
   section_entries+=("$entry_count")
   total_entries=$((total_entries + entry_count))
 
@@ -171,7 +219,6 @@ if [ -d "$ROOM_DIR/team" ]; then
 fi
 
 # Compute team intelligence (writes TEAM-STATE.md)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -d "$ROOM_DIR/team" ] && [ "$team_count" -gt 0 ]; then
   bash "$SCRIPT_DIR/compute-team" "$ROOM_DIR" 2>/dev/null || true
 fi
@@ -182,26 +229,55 @@ if [ -d "$ROOM_DIR/meetings" ] && [ "$meeting_count" -gt 0 ]; then
 fi
 
 # Detect cross-references
+# Phase 363.1 D-06: only CONTENT files are scanned. A scaffold CONTEXT.md that
+# names a neighbouring section is a contract, not a reference the navigator
+# wrote. One CLI spawn lists every section's content files (absolute paths).
 declare -a cross_refs=()
-for section_dir in "$ROOM_DIR"/*/; do
-  [ -d "$section_dir" ] || continue
-  section_name=$(basename "$section_dir")
-  [[ "$section_name" == .* ]] && continue
+declare -a content_files=()
+content_list_ok=false
+if [ ${#section_dirs[@]} -gt 0 ]; then
+  if content_list=$(node "$SCRIPT_DIR/../lib/core/scaffold-predicate.cjs" --list-content "${section_dirs[@]}" 2>/dev/null); then
+    content_list_ok=true
+    while IFS= read -r content_path; do
+      [ -n "$content_path" ] && content_files+=("$content_path")
+    done <<< "$content_list"
+  fi
+fi
 
-  for md_file in "$section_dir"/*.md; do
-    [ -f "$md_file" ] || continue
-    fname=$(basename "$md_file")
-    [ "$fname" = "ROOM.md" ] && continue
+# scan_cross_refs <section_name> <md_file>: append a cross_refs entry for every
+# other section the file mentions as [[section]] or room/section.
+scan_cross_refs() {
+  local scan_section="$1" scan_file="$2" scan_fname target
+  scan_fname="${scan_file##*/}"
+  for target in "${section_names[@]}"; do
+    [ "$target" = "$scan_section" ] && continue
+    if grep -qE "\[\[$target\]\]|room/$target" "$scan_file" 2>/dev/null; then
+      cross_refs+=("${scan_section}/${scan_fname} references ${target}")
+    fi
+  done
+}
 
-    # Look for [[section-name]] or room/section-name references
-    for target in "${section_names[@]}"; do
-      [ "$target" = "$section_name" ] && continue
-      if grep -qE "\[\[$target\]\]|room/$target" "$md_file" 2>/dev/null; then
-        cross_refs+=("${section_name}/${fname} references ${target}")
-      fi
+if $content_list_ok; then
+  if [ ${#content_files[@]} -gt 0 ]; then
+    for md_file in "${content_files[@]}"; do
+      md_dir="${md_file%/*}"
+      scan_cross_refs "${md_dir##*/}" "$md_file"
+    done
+  fi
+else
+  # Pre-fix iteration (predicate unavailable): every .md except ROOM.md.
+  for section_dir in "$ROOM_DIR"/*/; do
+    [ -d "$section_dir" ] || continue
+    section_name=$(basename "$section_dir")
+    [[ "$section_name" == .* ]] && continue
+
+    for md_file in "$section_dir"/*.md; do
+      [ -f "$md_file" ] || continue
+      [ "$(basename "$md_file")" = "ROOM.md" ] && continue
+      scan_cross_refs "$section_name" "$md_file"
     done
   done
-done
+fi
 
 # ── Visual output generation (graceful degradation if visual-ops unavailable) ──
 SECTIONS_JSON="["
