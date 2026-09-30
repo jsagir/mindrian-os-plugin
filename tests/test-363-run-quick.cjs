@@ -89,6 +89,9 @@ function makePlan(opts) {
   const qs = JSON.parse(JSON.stringify(QS));
   qs.leaves[0].slots = { term: term };
   qs.leaves[1].slots = { term: term, synonyms: [SYN] };
+  if (o.limiter === true) {
+    qs.perspective.limiters = [{ id: 'LM1', column: 'assumed', label: 'The gap term is a vocabulary gap', path_id: null, s_curve: 'unknown', question: 'Is the gap a vocabulary gap?', leaf_id: 'L1', raised_by: 'navigator' }];
+  }
   const bp = pyramid.buildPyramid(qs, {});
   if (!bp.ok) throw new Error('pyramid failed: ' + JSON.stringify(bp.errors));
   const pp = perspective.buildPerspective(qs.perspective, { mode: 'quick', depth: 'lite' });
@@ -248,11 +251,39 @@ async function main() {
       || ('verdict ' + r.verdict + ' sup ' + sup.length);
   });
 
-  // Q3 contested
-  await leg('Q3 contested: support and contradict the same leaf, exactly one deep offer', async function () {
+  // Q3 contested. quick-whitespace-bottleneck: a plan that names no limiter asks for the bottleneck
+  // first, so the offer is never a dead end (navigator ruling 2026-10-01).
+  await leg('Q3 contested with no named limiter: exactly one offer, and it asks what blocks the gap', async function () {
     const room = newRoom();
     standingGrant(room);
     const plan = makePlan();
+    const replay = replayFor({ primary: 'contested_rows', cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
+    const out = await run(room, plan, replay, {
+      rowsProvider: async function () {
+        return [
+          rowFrom('contested_rows', 0, 'L1', 'supports'),
+          rowFrom('contested_rows', 3, 'L1', 'contradicts'),
+        ];
+      },
+    });
+    if (out.status !== 'done') return 'status ' + out.status + ' ' + out.reason;
+    const r = out.run;
+    const lines = out.card.body_md.split('\n').filter(function (l) { return /name what blocks this and I'll plan a deep run/i.test(l); });
+    const ids = out.card.options.map(function (o) { return o.id; });
+    return r.verdict === 'contested'
+      && r.escalation_offer && r.escalation_offer.text === "name what blocks this and I'll plan a deep run"
+      && r.escalation_offer.kind === 'needs_limiter'
+      && lines.length === 1
+      && ids.indexOf('name_limiter') !== -1 && ids.indexOf('run_deep') === -1
+      && r.contradictions.length === 1
+      || ('verdict ' + r.verdict + ' offer ' + JSON.stringify(r.escalation_offer) + ' lines ' + lines.length);
+  });
+
+  // Q3b the same contested run on a plan that already names a limiter keeps the plain offer
+  await leg('Q3b contested with a named limiter: exactly one deep offer, run deep on this?', async function () {
+    const room = newRoom();
+    standingGrant(room);
+    const plan = makePlan({ limiter: true });
     const replay = replayFor({ primary: 'contested_rows', cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay, {
       rowsProvider: async function () {

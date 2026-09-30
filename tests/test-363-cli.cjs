@@ -717,6 +717,76 @@ async function main() {
     return true;
   });
 
+  // C16: quick task quick-sr-regate (navigator ruling 2026-10-01): a scientific-roadmapping
+  // deep plan that loses its last limiter through revise (drop_path) is a wish too.
+  await leg('C16 a scientific-roadmapping deep plan that loses its last limiter through drop_path becomes a wish', async function () {
+    const roles = ['founder', 'researcher'];
+    for (let i = 0; i < roles.length; i += 1) {
+      const room = newRoom(roles[i]);
+      const built = PLANNER.buildPlan(room.roomDir, qsFile('scientific-roadmapping'), { mode: 'deep' });
+      const tag = roles[i];
+      if (!built.ok || built.status !== 'ready') return tag + ' build ' + built.status;
+      const pathIds = built.plan.perspective.paths.map(function (x) { return x.id; });
+      let last = null;
+      for (let k = 0; k < pathIds.length; k += 1) {
+        last = PLANNER.revisePlan(room.roomDir, built.run_id, { op: 'drop_path', path_id: pathIds[k], reason: 'not affordable' }, {});
+        if (!last.ok) return tag + ' revise ' + pathIds[k] + ' ' + JSON.stringify(last).slice(0, 160);
+        const left = last.plan.perspective.limiters.length;
+        if (left > 0 && last.status !== 'ready') return tag + ' plan with ' + left + ' limiters left is ' + last.status;
+      }
+      if (last.plan.perspective.limiters.length !== 0) return tag + ' limiters remain ' + last.plan.perspective.limiters.length;
+      if (last.status !== 'wish') return tag + ' plan with no limiter left is ' + last.status + ', expected wish';
+      if (last.errors.indexOf('no_nameable_limiter') === -1) return tag + ' errors ' + JSON.stringify(last.errors);
+      if (last.next === 'deep_run' || last.next === 'review') return tag + ' offers ' + last.next;
+    }
+    return true;
+  });
+
+  // C17: quick task quick-whitespace-bottleneck (navigator ruling 2026-10-01, "Ask for the
+  // bottleneck first"): escalating a limiterless quick run answers a typed needs_limiter, never a
+  // bare wish; the navigator's own words become the limiter through revise add_limiter.
+  await leg('C17 escalate from a limiterless quick run answers needs_limiter; add_limiter turns it into a reviewable deep plan', async function () {
+    const tripwire = path.join(SCRATCH, 'fetch-tripwire-c17.log');
+    const tripPreload = path.join(SCRATCH, 'fetch-tripwire-c17.cjs');
+    fs.writeFileSync(tripPreload, 'const fs = require(\'node:fs\');\nglobalThis.fetch = function () { fs.appendFileSync(' + JSON.stringify(tripwire) + ', \'fetch\\n\'); return Promise.reject(new Error(\'network blocked by test\')); };\n', 'utf8');
+    const roles = ['founder', 'researcher'];
+    const WORDS = 'the indicator cannot see brief warm excursions';
+    for (let i = 0; i < roles.length; i += 1) {
+      const room = newRoom(roles[i]);
+      const q = cliQuickRun(room);
+      const tag = roles[i];
+      if (q.error) return tag + ' ' + q.error;
+      const esc = cli(['escalate', q.runId, '--room', room.roomDir]);
+      if (esc.code !== 0 || !esc.json || esc.json.mode !== 'deep') return tag + ' escalate ' + esc.code + ' ' + esc.stdout.slice(0, 200);
+      if (esc.json.status !== 'wish') return tag + ' status ' + esc.json.status;
+      if (esc.json.next !== 'needs_limiter') return tag + ' next is ' + esc.json.next + ', expected needs_limiter';
+      if (esc.json.reason !== 'no_nameable_limiter') return tag + ' reason ' + esc.json.reason;
+      const ids = optionIds(esc.json.card);
+      if (ids.indexOf('name_limiter') === -1 || ids.indexOf('stop') === -1 || ids.some(function (id) { return /run|approve/.test(id); })) return tag + ' card options ' + ids.join(',');
+      if (!/name what blocks this and I'll plan a deep run/.test(esc.json.card.body_md)) return tag + ' card text does not ask for the bottleneck: ' + esc.json.card.body_md.slice(0, 200);
+      const deepId = esc.json.run_id;
+
+      // empty words are refused and change nothing
+      const blank = cli(['revise', deepId, writeScratch('c17-blank-' + i + '.json', { op: 'add_limiter', statement: '   ' }), '--room', room.roomDir], { preload: tripPreload });
+      if (blank.json && blank.json.ok === true) return tag + ' a blank limiter was accepted';
+
+      const edit = writeScratch('c17-edit-' + i + '.json', { op: 'add_limiter', statement: WORDS });
+      const rev = cli(['revise', deepId, edit, '--room', room.roomDir], { preload: tripPreload });
+      if (rev.code !== 0 || !rev.json || rev.json.ok !== true) return tag + ' add_limiter ' + rev.stdout.slice(0, 200) + rev.stderr.slice(0, 200);
+      if (rev.json.status === 'wish') return tag + ' still a wish after the navigator named a limiter';
+      if (rev.json.next === 'needs_limiter') return tag + ' still asks for a limiter';
+      const saved = readJson(path.join(runDir(room, deepId), 'plan.json'));
+      if (planMod.validatePlan(saved).ok !== true) return tag + ' plan invalid after add_limiter';
+      if (saved.perspective.limiters.length !== 1) return tag + ' limiters ' + saved.perspective.limiters.length;
+      const lim = saved.perspective.limiters[0];
+      if (lim.statement !== WORDS) return tag + ' limiter text is not the navigator\'s own words: ' + lim.statement;
+      if (lim.raised_by !== 'navigator') return tag + ' raised_by ' + lim.raised_by;
+      if (saved.perspective.tension.status === 'wish') return tag + ' tension is still a wish';
+    }
+    if (fs.existsSync(tripwire)) return 'a fetch was attempted: ' + fs.readFileSync(tripwire, 'utf8').trim();
+    return true;
+  });
+
   // the em-dash rule holds for the files this plan writes
   await leg('C-dash the facade, the CLI and this test carry no em-dash or en-dash', async function () {
     const files = [PLANNER_PATH, CLI_PATH, __filename];
