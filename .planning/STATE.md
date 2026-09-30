@@ -10,7 +10,7 @@ progress:
   total_phases: 115
   completed_phases: 44
   total_plans: 469
-  completed_plans: 432
+  completed_plans: 433
   percent: 92
 ---
 
@@ -5426,6 +5426,15 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 363 (deep-research-planner-quick-and-deep-runs) — EXECUTING
 Plan: 16 of 22
 Status: Ready to execute
+Previously (363-17, executed out of order beside 363-16 in the shared tree, no state.* writer run,
+  hand-edited counts only): research_run MCP tool for Desktop and Cowork (lib/mcp/tools/research.cjs).
+  Ten ops through the planner facade; grant, deep-plan and basket approvals are single-use
+  material_step gates answered through the existing gate_answer, grants persisted before the
+  resumeFn returns, filing needs a consumed basket gate minted by the tool; deep execution
+  degrades honestly to Claude Code. Registries regenerated (research_run only), test-270
+  re-baselined to 45 tools (+2.89 percent). tests/test-363-mcp-tool.cjs 15 checks. Commits
+  09e587528, 12ca953a0. Next for 363-18: /mos:research runs a saved plan; a Desktop run grant
+  lapses after about 20 minutes.
 Previously (363.1-01, parallel out-of-band plan, Phase 363.1 beta.51 scaffold-as-content
   cluster, executed in the shared tree while Phase 363 is the Current Position; no
   gsd-tools state.* writer was run, frontmatter untouched): complete 2026-09-30 -- shared
