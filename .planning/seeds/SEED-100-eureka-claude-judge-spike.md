@@ -13,7 +13,7 @@ canon_parts: [8, 10, 12]
 navigator_ruling: "2026-09-30: do not redesign Eureka yet. Seed it as a research spike that compares the options on a real room before deciding."
 ---
 
-# SEED-100: Spike - should Eureka do its judging with Claude instead of local ONNX?
+# SEED-100: Spike - should Eureka judge pairs with Claude, Jev, or both, instead of local ONNX?
 
 **Governing thought:** Eureka runs two different jobs through one local ONNX stack.
 **Candidate generation** (out of all entry pairs, which few are worth a look) is cheap
@@ -33,12 +33,37 @@ reranker should exist at all.
 | Arm | Candidate generation | Pair judgment | When it runs |
 |---|---|---|---|
 | **A. Guarded local** (control) | local embeddings | local FlashRank rerank + existing scoring | ambient + on demand (SEED-099 guards applied) |
-| **B. Hybrid** | small local encoder, bounded threads | Claude judges the top 10-25 pairs; local reranker removed | on demand only (`/mos:eureka`), not in the hourly ambient run |
+| **B1. Hybrid + Claude** | small local encoder, bounded threads | Claude judges the top 10-25 pairs; local reranker removed | on demand only (`/mos:eureka`), not in the hourly ambient run |
+| **B2. Hybrid + Jev** | same as B1 | Jev `usefulness_judge` scores the same top 10-25 pairs | on demand only |
+| **B3. Hybrid + Claude and Jev** | same as B1 | Claude writes the shared-mechanism statement for each pair, then Jev scores it. The reverse order (Jev pre-filters, Claude judges the survivors) is a sub-arm. | on demand only |
 | **C. Claude-native** | Claude reads the room and proposes pairs | Claude | on demand only |
 
-For arms B and C, test the judge model in this order: **Claude Opus 5.5** (`claude-opus-5-5`)
+For the Claude arms, test the judge model in this order: **Claude Opus 5.5** (`claude-opus-5-5`)
 first, then **Claude Fable 5.1** (`claude-fable-5-1`) only if Opus misses connections that
 Fable finds.
+
+### Jev is already a pair judge in this repo
+
+`scripts/jev-devtime-client.cjs` (the Typesafe `systemone` endpoint) already declares a
+`usefulness_judge` egress profile (model `jev-1.13.0`). Its state is `a_excerpt`, `b_excerpt`
+(max 2400 chars each), `direction_phrase` and `verification`. It asks one `choice` question
+with the criteria `useful` / `not_useful` / `already_known` / `none`. That is the Eureka pair
+judgment in its current form. `eureka-critic.cjs::confidenceFromBucket` is already the one
+function that turns measured gold-set accuracy into a calibration band for Jev records.
+
+What makes this a spike question rather than an obvious swap:
+- **Jev is dev-time only by rule.** Tripwires forbid any `lib/` or `hooks/` file from requiring
+  the client. Arms B2 and B3 run in the spike harness only. Using Jev in production needs a
+  runtime client, a per-profile egress guard carried over from the dev client, and a navigator
+  ruling.
+- **Part 8 covers Jev as well as Claude.** Room excerpts would leave the machine for a third-party
+  endpoint. The existing guards refuse any payload field outside the profile and never strip
+  it; keep that.
+- **Jev scores; Claude explains.** Jev returns a category or a level. Claude can also write the
+  Opportunity-Statement prose. B3 tests whether combining them beats either one alone.
+- **One gold set for every judge.** Score all arms against the same navigator-labelled gold pairs,
+  and derive each judge's band through `confidenceFromBucket`. Never use a model's
+  self-reported confidence (D-46).
 
 ## Facts that constrain the design (from the claude-api reference, cached 2026-09-25)
 
@@ -52,8 +77,10 @@ Fable finds.
 1. **Quality.** On 2-3 real rooms, do the arms differ in the findings a navigator would act on?
    Use a blind navigator ranking of the top-N findings per arm. Record which cross-domain
    structural matches each arm catches or misses.
-2. **Cost per run.** Measured `usage` tokens and dollars for B and C, at Opus 5.5 and Fable 5.1,
-   on each test room.
+2. **Cost per run.** Measured `usage` tokens and dollars for the Claude arms at Opus 5.5 and
+   Fable 5.1, and measured Jev calls and cost for B2 and B3, on each test room.
+   **Agreement:** how often Claude and Jev agree on the same pairs, and which of the two is
+   right when they disagree, checked against the gold set.
 3. **Laptop cost.** Peak RSS, CPU-seconds and wall time per arm, on battery and on AC.
 4. **Latency.** Time until the navigator sees the first finding.
 5. **Billing path.** Inside Claude Code, a judge subagent (`Agent` with `model: opus|fable`) runs
