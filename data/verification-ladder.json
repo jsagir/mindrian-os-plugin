@@ -1,0 +1,22 @@
+{
+  "schema": "mos.verification-ladder/1",
+  "ratified": false,
+  "ratified_at": null,
+  "ratified_by_role": null,
+  "draft": [
+    { "rung": 0, "id": "unchecked", "label": "Unchecked. Filed and not tested." },
+    { "rung": 1, "id": "recall", "label": "Navigator recall or intuition." },
+    { "rung": 2, "id": "model_internal", "label": "Model-internal: asked a model, got agreement." },
+    { "rung": 3, "id": "secondary_document", "label": "Secondary document: summary, aggregator, abstract, plain-language version." },
+    { "rung": 4, "id": "primary_source_located", "label": "Primary source, located: the specific part that decides the claim." },
+    { "rung": 5, "id": "person", "label": "A person with standing who disagreed, or who could have and did not." }
+  ],
+  "structural_predicates": {
+    "rung_3_and_above": "The claim has an outbound provenance edge to a node that carries a non-empty url and a retrieved_at.",
+    "rung_4_and_above": "As rung 3, and the source node also carries a locator that names the deciding part (page, section, DOI, clause).",
+    "rung_5": "The claim has an edge to a person node that records standing and a disagreement, or a recorded chance to disagree that was not taken."
+  },
+  "provisional_constant": "lib/core/navigation/verification.cjs VERIFICATION_RUNGS (TODO(358))",
+  "follow_on_phase": "365.1",
+  "note": "Draft for the paper author to ratify. Do not freeze wording or numbering until ratified. Flipping ratified to true is the act that opens Phase 365.1."
+}
