@@ -50,7 +50,11 @@ analogies and two plugin fixes. Every Theo observation below was measured live, 
    frontmatter, MCP tool definitions with a description budget, the website list, SEED-036), Theo's
    command layer would be one more generated target instead of a resync, and drift (insight 2) becomes
    a build error. This also covers the 2,048-character MCP description/instructions cap (Claude Code
-   2.1.280), which already truncates the mindrian-os and Brain server instructions in sessions.
+   2.1.280). CORRECTED 2026-10-02 (radar plan 261002-30x, measured): mindrian-os server instructions
+   are 1984 bytes, under the cap, and `lib/mcp/no-instructions.test.cjs` enforces it. The truncation seen
+   in sessions is the user-level `pws-brain-mcp` entry in `~/.claude.json`, which this repo does not ship.
+   Open question for Theo: a user-level Brain server also bypasses the plugin's guarded shim (THEO-04),
+   the same shape as the known mindrian-brain shadow rule.
 8. **The research planner and Theo's grant loop share a failure shape.** SEED-104's family mismatch
    (a plan family the grant could not cover) is the same class as Theo's D-10 exact-match canon handles:
    a scope minted in one place and checked in another. Any future Theo lane under a grant (366-15)
