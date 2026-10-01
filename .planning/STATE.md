@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Completed 366-05-PLAN.md
-last_updated: "2026-10-01T16:10:17.685Z"
+stopped_at: Completed 366-06-PLAN.md
+last_updated: "2026-10-01T16:24:07.255Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 121
   completed_phases: 47
   total_plans: 513
-  completed_plans: 468
+  completed_plans: 469
   percent: 39
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) — EXECUTING
-Plan: 5 of 27
+Plan: 6 of 27
 Status: Ready to execute
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
@@ -7399,6 +7399,7 @@ Progress: [█████████░] 91%
 | Phase 366 P02 | 50min | 2 tasks | 7 files |
 | Phase 366 P03 | 35min | 2 tasks | 7 files |
 | Phase 366 P05 | 30min | 2 tasks | 6 files |
+| Phase 366 P06 | 45min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -9109,6 +9110,7 @@ Progress: [█████████░] 91%
 - [Phase ?]: 366-03: legacy-path suggested-next and Fix text carry the legacy flag; array context parses to no flags
 - [Phase ?]: 366-05: one canon resolver; room translation rows are ratified-only, exact, and must still name a snapshot framework
 - [Phase ?]: 366-05: linkThingToFramework mints framework node before USES_FRAMEWORK edge and refuses a missing thing; caller owns the transaction
+- [Phase ?]: 366-06: RULE 5 place 9 canon snapshot freshness (offline LAGGING gate on data/framework-names.json theo_stamp.mapped_by) plus release.sh suite gate over tests/run-all-366.sh; suite gate previewed under --dry-run (doctor 30s budget); next release refuses until refresh-framework-names.cjs --live runs after Theo re-emit
 
 ### Pending Todos
 
@@ -9267,8 +9269,8 @@ Progress: [█████████░] 91%
 ## Session Continuity
 
 Last activity: 2026-10-01 - Phase 365 executed 17/17 plans + 365-REPAIR-01 (full run PASSED=66 FAILED=0 KNOWN=6 at f2ffc10cc); verification human_needed (365-UAT.md); code review issues_found (CR-01 blocker). Previous: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-10-01T16:10:17.596Z
-Stopped at: Completed 366-05-PLAN.md
+Last session: 2026-10-01T16:24:07.172Z
+Stopped at: Completed 366-06-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

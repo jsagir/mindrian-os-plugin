@@ -4290,7 +4290,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       ratified translations, reports counts per room, and a second run changes nothing (D-16).
       Plan 366-10.
 
-- [ ] **EPV366-21**: Canon snapshot lockstep: `data/framework-names.json` carries a `theo_stamp`
+- [x] **EPV366-21**: Canon snapshot lockstep: `data/framework-names.json` carries a `theo_stamp`
       written by `refresh-framework-names.cjs --live`; `scripts/release-lib/canon-snapshot-gate.sh`
       makes `release.sh` refuse a cut when the stamp lags the current version (dry-run reports,
       audited opt-out); RULE 5 place 9 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` and
