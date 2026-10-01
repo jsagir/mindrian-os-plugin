@@ -12,7 +12,7 @@
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through accumulated academic teaching experience and pedagogical rigor.
   Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/version-2.0.0--beta.51-1E3A6E)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/version-2.0.0--beta.53-1E3A6E)](CHANGELOG.md)
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
@@ -40,6 +40,14 @@ This is the whole mental model. You do not need more than this to use MindrianOS
 5. **The room remembers.** Next time, it is already there, checking today's input against it.
 
 When the graph genuinely has nothing structured for what you asked, Larry says so plainly instead of making something up, and queues the gap for enrichment. He never improvises methodology. See "What an honest refusal looks like" below: that is not an error message, it is the whole point.
+
+## New in 2.0.0-beta.53
+
+- **A claim only counts as confirmed once it was checked against a source.** Every claim card says what it was checked against before you click. Approve something that was only checked by asking a model and the room holds it as "needs evidence" until you add a source. Ask `/mos:status --checks` for the plain-words picture of the whole room.
+- **Your room can have a never-do list.** Name the steps that must never run on their own. Unattended runs stop at them before anything goes out, and you can add a new one right from the halt with "Reject and never do this".
+- **Research is one planned, gated runner.** `/mos:research` shows you every search before it is sent, runs only after you approve, and files findings only when you say yes. A failed search can never read as "nothing found". Five more commands (`/mos:map-unknowns`, `/mos:root-cause`, `/mos:think-hats`, `/mos:diffusion`, `/mos:whitespace`) can plan their own research.
+- **`/mos:eureka` now plans before it searches.** It recalls a short list of cross-domain pairs from your own graph, skips pairs the room already connects, and files an approved one as a proposed opportunity. The old runner stays behind `/mos:eureka --legacy`.
+- **The room warns you when its checks are thin.** Two quiet signals, each with the one thing to do next. See the [CHANGELOG](CHANGELOG.md) for the full list and the honest known gaps.
 
 ---
 

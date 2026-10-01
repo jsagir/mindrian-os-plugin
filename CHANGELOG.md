@@ -1,7 +1,150 @@
 ## [Unreleased] -- v2.0.0-beta.52 (in progress)
 
 ### Added
-- 
+- **A claim is confirmed only when it was checked against a source (Phase 365).** Every claim
+  card now says "Checked against:" before you click, in words, never a score. Your room has a
+  verification floor (set it in ROOM.md; if you set nothing it is "secondary document"). If you
+  approve a claim that sits below the floor, it is filed as "needs evidence" and held, not
+  confirmed. It moves on when you add a source and approve again, or lower the floor. Only a
+  person releases a held claim, never a model.
+- **The room has a never-do list that stops unattended steps (Phase 365).** Name a command, a
+  section, a path, a provider or a term the room must never touch on its own. A chain run and a
+  room-started research pass both stop at a named step before any request goes out, and say
+  which entry stopped them and why. If the list file is unreadable, they stop too, rather than
+  carry on. Every halt and every Reject offers one more gate, "Reject and never do this",
+  pre-filled from what tripped; the entry lands in `.mindrian/never-do.json` only after you
+  approve that gate.
+- **`/mos:status --checks` shows what your claims were checked against (Phase 365).** One
+  plain-words portrait of the room: how many claims were checked against a located source,
+  against a source link, only by asking a model, or not at all, what would move each group, and
+  the never-do list. Asking about a single claim a week later gives the same honest answer, on
+  the CLI and on Desktop and Cowork. Nothing is scored or graded.
+- **The room tells you, unprompted, when its checks are thin (Phase 365).** Two signals, each
+  ending with the one thing to do next. One: a decision rests on a claim that was checked only
+  by asking a model. Two: four weeks of recorded checks have moved no claim past asking a model.
+  The room keeps one counts-only snapshot per week to know this; the second signal stays quiet
+  until there are at least two snapshots.
+- **Room home, the graph and findings name each claim's standing in words (Phase 365).** A
+  claim held at "needs evidence" shows on room home with the move that would release it.
+  The words come from one shared list, so every surface says the same thing.
+- **Research is now one planned, gated runner (Phase 363).** `/mos:research` plans a run before
+  it searches. The plan card prints every search string exactly as it would be sent, you can
+  edit the plan (up to 3 revisions), and nothing is fetched until you approve a research grant.
+  A quick run makes 3 searches of the published literature (OpenAlex) and gives a verdict that
+  code computes, so a failed fetch can never read as "nothing found". A deep run goes up to 16
+  searches over up to 4 lanes in 2 rounds, always runs a pass looking for evidence against your
+  idea, and stops with a stated reason. Findings reach the room only when you say yes to a
+  filing basket, as proposed items.
+- **Five commands can plan their own research (Phase 363).** `/mos:map-unknowns`,
+  `/mos:root-cause`, `/mos:think-hats`, `/mos:diffusion` and `/mos:whitespace` each write a
+  checked question set from their own framework's dimensions, show you the plan card and hand
+  the run to `/mos:research --plan`. Their existing flows are unchanged.
+- **Desktop and Cowork can run the quick research pass too (Phase 363).** Plan, grant, quick
+  run, review and filing all work there, and each approval is a single gate that is saved to
+  the room before it returns. A deep run still executes in Claude Code, and Desktop tells you so
+  instead of starting it.
+- **The room can start one quick research pass on its own, inside a grant you already gave
+  (Phase 363).** For a whitespace gap that spans two sections, the background run answers "is
+  this zone empty in the literature, or only empty in this room?". It runs only when your
+  standing grant covers every search term; otherwise it leaves a plan-only card and nothing
+  leaves your machine. Grants expire after 30 days, you can revoke one, and the cap is one
+  research run per hour.
+- **A deep research run asks what blocks the gap first (Phase 363, quick tasks 261001-btl and
+  261001-wgd).** If you cannot name a bottleneck, the plan is treated as a wish, not a plan,
+  and no deep run starts. When a thin quick run offers to go deeper, it now asks "name what
+  blocks this" and stores your own words, unchanged, as the bottleneck. Dropping the last
+  bottleneck from a Scientific Roadmapping plan makes it a wish again.
+- **`/mos:eureka` now runs through the research planner (Phase 366, partly shipped).** The old
+  all-pairs runner scored every pair in the room. The new run recalls a short list of
+  cross-domain pairs from the local graph, skips any pair your room already connects, shows the
+  plan, and files an approved pair as one proposed opportunity with the verification stamp and a
+  link to both ends. Nothing is written to the room before your yes. The old runner is still
+  there behind `/mos:eureka --legacy`, and prints one deprecation line when you use it.
+- **The background Eureka run now only offers (Phase 366, partly shipped).** When the room
+  changes in a way that matters, it leaves one plan-only card naming up to 3 pairs worth a look.
+  It never fetches, files or scores on its own for that offer.
+- **`/mos:dominant-designs` can open its deep dive with a sourced research pass (Phase 361).**
+  Larry writes four evidence queries (how many variants exist, signs the market is converging,
+  where the S-curve runs out, signs of a discontinuity), and nothing is searched until you
+  approve them. The four lanes run side by side, every claim row is sourced or dropped, and
+  findings file only after your yes. The quick pass is unchanged, and an unattended run takes
+  the quick pass. This reached beta.51 without a note; it is described here for the first time.
+- **`/mos:trending-to-absurd` now names both frameworks it runs (quick task 261001-tta).** It
+  declares Trending to the Absurd first and S-Curve Analysis second, and `/mos:explore-domains`
+  (Domain Selection) is now the recommended step before it and before scenario analysis.
+
+### Changed
+- **Which Claude model does which background job now lives in one place (SEED-103).** Entity
+  labelling, name suggestions, edge derivation, briefings and wiki chat all read one routing
+  table, and requests are shaped for the model that answers them. Every job defaults to Opus
+  5.5; you can pick a cheaper model per job with `MINDRIAN_MODEL_<ROLE>` (and an effort with
+  `MINDRIAN_EFFORT_<ROLE>`) or a room's model overrides.
+- **The generic Claude-directory and Zed skill bundles are rebuilt (quick task 261001-rdv).**
+  They were stamped 2.0.0-beta.36; all 126 skills now match the current release.
+- **The Theo census in the README is refreshed (quick task 261001-thc).** It now reads 28,131
+  nodes, 53,313 relationships and 457 frameworks (it was 27,951 nodes and 452 frameworks).
+- **The capability radar is refreshed to Claude Code 2.1.287.** Six dormant rows (2.1.281 to
+  2.1.287) were added so the release gate reads current.
+
+### Fixed
+- **A never-do entry for a section never fired on the real chain run (Phase 365, review
+  CR-01).** The list said "1 named" and the step ran anyway. The section is now read from what
+  the step itself declares, including when a run resumes after a gate, so a section you named
+  really stops the step.
+- **Eureka no longer ranks the room's own scaffolding (Phase 363.1).** Section contracts, the
+  seeded FEYNMAN file, reference documents, placeholder labels such as `unknown` and generic
+  entities such as `Lab` are removed before any pair is made, and the findings report how many
+  were removed and why.
+- **A room with only scaffolding no longer reads as having progressed (Phase 363.1).** A room
+  holding only birth files now reports Pre-Opportunity with empty sections. A MINTO whose
+  governing thought is the placeholder "X synthesizes N artifacts" fallback can no longer show a
+  `check` glyph.
+- **Eureka status now says "running" the instant you start a run (Phase 363.1).** Before, a
+  status call straight after a start could show nothing.
+- **Eureka opportunity statements read cleanly (Phase 363.1).** They carry a rank only, with no
+  composite score, no Windows path and no "the a". The growth axis now has real spread, and a
+  flat axis says "insufficient structure" instead of inventing one.
+- **`/mos:reason` and other agents no longer need a git worktree (Phase 363.1).** The setting
+  that failed in rooms outside a git repository was removed from the three agents that carried
+  it. See Known gaps for the one check still owed.
+- **A dominant-design worked case is now asked for the way Theo accepts it (Phase 361).** A
+  missing case is reported as "no case in the canon" instead of an empty case passed off as one.
+
+### Known gaps
+- **Some approve paths skip the verification floor (Phase 365, review WR-03).** The floor lives
+  in the gate. A few approvals that do not go through the gate (the next-move selector, the
+  futures wheel, the sensor suggestions, and opportunity qualification or the goal gate if they
+  meet a held claim) can release a "needs evidence" claim with no floor check and no "Checked
+  against:" line. Whether to close that or accept it in writing is still open.
+- **The wording of the standing words is provisional (Phase 365).** The words, and the six-rung
+  ladder behind them, wait for ratification. The graph panel reads awkwardly for a model-only
+  claim ("recorded as checked only by asking a model").
+- **A claim's rung is not yet derived from its own links (Phase 365.1, blocked).** Deriving the
+  rung from a claim's own edges, a person record, splitting the unsupported-claim scan and
+  migrating earlier records all wait for the ladder to be ratified. The ask is drafted and not
+  yet sent.
+- **A never-do entry for a path matches on one command only today (Phase 365).** Command,
+  section, provider and term entries are enforced; path entries are read from just the one
+  command that declares what it produces.
+- **Phase 366 is partly shipped (7 of 27 plans).** The Eureka alias, filing and ambient
+  offer above are live. The Reverse Salient, HSI, analogies and connections perspectives exist
+  as plan templates only, so `/mos:find-bottlenecks`, `/mos:scout hsi`, `/mos:find-analogies`
+  and `/mos:find-connections` do not run through the planner yet. The head-to-head test of the
+  new Eureka against the old engine's measured 43 of 96 useful (44.8 percent) has not been run,
+  so the old runner stays reachable.
+- **Room-started research on a real room still answers "not enough context" (Phase 363).** The
+  gap file a real room writes carries no zone term, so the background run sends nothing. Research
+  cards also sit flat in `opportunity-bank/` with no funder, program or deadline. The 3-match
+  floor that separates a thin result from a confirmed gap is a disclosed default; the one live
+  run decided on it, and it is not yet checked on a labelled sample.
+- **One card-gate false block remains (Phase 362).** A single recorded case still blocks without
+  showing a card. All 24 candidate structured fixes were measured and none cleared it without
+  a new miss, so it is recorded as known, not patched.
+- **Two checks are owed on a real host (Phase 363.1).** Running `/mos:reason` in a room outside
+  a git repository on Claude Code, to confirm the worktree error is gone, and a single-word
+  real entity such as `Drive` can still rank in a parent room.
+- **The capability radar has a hole.** The fetched Claude Code changelog had no entries for
+  2.1.247 to 2.1.280, so those versions are not covered.
 
 ## [2.0.0-beta.51] - 2026-09-27
 
