@@ -287,6 +287,20 @@ async function caseNoOutcomeEventForPlainClaim() {
     check('file-meeting returned a claim node id', !!claimId, text.slice(0, 300));
     if (!claimId) return;
 
+    // Phase 365 (D-01, D-03): the verification floor is on by default; this
+    // case pins that a plain claim's approve confirms and logs no gate-outcome
+    // event, so the claim is seeded with a source edge that meets the default
+    // floor (a bare claim would now land needs_evidence, see test-365-floor-gate).
+    {
+      const sdb = openRoomDb(scratch.room);
+      try {
+        require(path.join(REPO, 'tests', 'helpers', 'fixture-room-365.cjs')).addSourceEdge(
+          sdb, claimId, { url: 'https://example.org/355-e', retrieved_at: '2026-09-30', variant: 'gop-e' });
+      } finally {
+        closeRoomDb(sdb);
+      }
+    }
+
     const rendered = await renderCard(handlers, extra, claimId);
     check('gate_render minted a gate_id for the claim card', !!rendered && !!rendered.gate_id, JSON.stringify(rendered));
     if (!rendered || !rendered.gate_id) return;
