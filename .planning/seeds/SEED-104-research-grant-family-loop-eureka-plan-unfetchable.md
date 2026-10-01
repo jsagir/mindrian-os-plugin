@@ -122,3 +122,48 @@ this research grant?: ▸ not set / This field is required", with Accept and Dec
 - **Fix:** on the CLI, prefer the AskUserQuestion rung and never also elicit for the same gate;
   if elicitation is kept anywhere, set `default` to the recommended option and title the field
   as an instruction ("Choose: approve standing / this run / not now").
+
+## Quick fix 261002-0n4 (2026-10-02)
+
+Status field above is left as it was. The three parts below shipped together as one change set.
+
+What shipped (commits: golden 3c38f9d25; code b1de87556, 0b52711f3, and the Task 3 commit that carries this note):
+- **Part 1, the family loop.** A standing grant proposal built for a plan now covers that plan's own
+  query families (`grants.planFamilies`), bounded by `question-templates` FAMILY_IDS. The default
+  scope (`STANDING_SCOPE`, whitespace-gap/v1) is unchanged when no plan is in view, and a
+  whitespace-only plan gives a byte-identical proposal, card, grant and queries (golden in
+  `tests/fixtures/seed104/whitespace-golden.json`). Re-approving onto an existing standing grant
+  widens its families with one version bump; a re-approval that adds nothing leaves the version
+  alone and mints no decision node. `termsForProposal` now carries every slot term of the plan
+  (term2, cause, effect, limiter, technology), so one approval covers the whole plan.
+- **Part 2, egress safety (Canon Part 8).** `families.composableTerm` refuses markdown emphasis,
+  table pipes, heading, blockquote and list markers, word-wrapping underscores and sentence
+  boundaries with the typed reason `term_not_composed` (no echo). The gate sits in the composer, in
+  `writeGrant` and `extendTerms` (before any write), in `proposeGrant`, and as a pre-fetch check in
+  `runQuick` and `coverFor` (so a stale stored plan such as rp-2026-10-01-1bd61cf3 can never send
+  prose). `eureka_recall` now hands the composer an abstracted term: the field title, else a
+  side-unique entity handle, else a canon handle, never first-sentence text. A pair with no clean
+  term becomes a local-only leaf (researchable false, corpus room).
+- **Part 3, the loop guard.** When the active standing grant already holds every family, provider
+  and term the reask card would approve, `run_quick`, `coverFor`, `cardFor` and `grant_request`
+  return the typed error `grant_scope_cannot_cover_plan` with `plan_families`, `grant_families`
+  and `reask_reason`, and mint no gate. The CLI door and the ambient offer give the same answer.
+- Regression: `tests/test-seed104-grant-family-loop.cjs`, registered in the release-gated
+  `tests/run-all-366.sh` block (2b).
+
+Out of scope, recorded here:
+- The navigator RULED 2026-10-02 "Normal card on CLI": on the CLI the grant card is the
+  AskUserQuestion rung and is never also an MCP elicitation for the same gate. This reverses the
+  earlier "let elicitation take over on CLI" ruling cited at `lib/mcp/tools/gate.cjs` (the ladder
+  header comment near line 12 and the `detectClientCapabilities` comment near line 311). The
+  elicitation `requestedSchema` default (no `default` on the choice enum) is also still open.
+- The `ws:extraction_failure` room-only false negative (exact-phrase match on a long zone term).
+- The long exact-phrase OpenAlex zero (a quoted seven-word term reads as "gap confirmed").
+- The Theo egress-guard false block (SEED-019).
+
+Residuals:
+- Grants that already stored prose `approved_terms` (the egain room's grant g-c922a05a) stay inert:
+  an approved term only allows a composed query, and every outbound query is now gated by
+  `composableTerm`. The navigator may revoke and re-grant. That room was not touched.
+- The run-grant reuse path (`approvePlanReview` returns an active run grant) is not covered by the
+  standing-scope guard.

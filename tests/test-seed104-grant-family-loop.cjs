@@ -53,6 +53,10 @@ const families = require(path.join(RP, 'families.cjs'));
 const planMod = require(path.join(RP, 'plan.cjs'));
 const Q = require(path.join(RP, 'question-templates.cjs'));
 const corpus = require(path.join(ROOT, 'lib', 'core', 'research-corpus.cjs'));
+const roomDb = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+const { insertNode } = require(path.join(ROOT, 'lib', 'core', 'node-insert.cjs'));
+const eurekaRecall = require(path.join(RP, 'perspectives', 'eureka-recall.cjs'));
+const { registerCoreTools } = require(path.join(ROOT, 'lib', 'mcp', 'register-core-tools.cjs'));
 
 const QS_DIR = path.join(ROOT, 'tests', 'fixtures', '363-question-sets');
 function qsFile(name) { return JSON.parse(fs.readFileSync(path.join(QS_DIR, name + '.json'), 'utf8')); }
@@ -104,6 +108,82 @@ function countingSeam(route) {
   fn.state = st;
   return fn;
 }
+
+// -- the Eureka room (inline, like test-seed103): two sections, two titled
+// artifacts sharing one entity, and two untitled markdown claims whose
+// first-sentence "title" is prose. C1 and C2 carry no entity of their own, so no
+// clean term exists for them (SEED-104 part 2: they become a local-only leaf).
+const C1_TEXT = '**Claim.** A stable, flowable emulsion of eutectic gallium-indium EGaIn microdroplets in a deep eutectic solvent';
+const C2_TEXT = '1. **Tension in the field.** Liquid-metal emulsions of gallium-indium microdroplets become conductive only after sintering';
+function buildEurekaRoom(opts) {
+  const withEntities = !!(opts && opts.withEntities);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos104-eureka-'));
+  const roomDir = path.join(root, 'room');
+  fs.mkdirSync(roomDir, { recursive: true });
+  fs.writeFileSync(path.join(roomDir, 'ROOM.md'), '---\nname: seed104-fixture\n---\n');
+  ['problem-definition', 'market-analysis'].forEach(function (sec) {
+    fs.mkdirSync(path.join(roomDir, sec), { recursive: true });
+    fs.writeFileSync(path.join(roomDir, sec, 'CONTEXT.md'), '# ' + sec + '\n\nOne job: hold ' + sec + '.\n\n## Inputs\n- none\n\n## Process\n1. read\n\n## Outputs\n- out.md\n\n## Human check\nRead it.\n');
+  });
+  const db = roomDb.openRoomDb(roomDir);
+  function node(id, type, props) { insertNode(db, id, type, JSON.stringify(props), { source_path: 'test:seed104', epistemic_type: 'observation' }); }
+  function edge(a, b, type) { db.prepare('INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?)').run(a, b, type, '{}'); }
+  node('section:problem-definition', 'Section', { slug: 'problem-definition' });
+  node('section:market-analysis', 'Section', { slug: 'market-analysis' });
+  node('pd/A1', 'Artifact', { title: 'Membrane fouling in desalination intake filters', body: 'Biofilm growth on membrane surfaces raises pressure drop; periodic backwash and coating reduce fouling and extend service life.' });
+  node('ma/M1', 'Artifact', { title: 'Surface coating suppliers for filtration membranes', body: 'Suppliers of anti-fouling coating for membrane filters; pricing tiers and biofilm resistance claims.' });
+  node('pd/C1', 'claim', { text: C1_TEXT, section: 'problem-definition' });
+  node('ma/C2', 'claim', { text: C2_TEXT, section: 'market-analysis' });
+  node('ent/coating', 'technology', { name: 'anti-fouling coating' });
+  edge('pd/A1', 'section:problem-definition', 'BELONGS_TO');
+  edge('ma/M1', 'section:market-analysis', 'BELONGS_TO');
+  edge('pd/A1', 'ent/coating', 'DESCRIBES');
+  edge('ma/M1', 'ent/coating', 'DESCRIBES');
+  if (withEntities) {
+    // side-unique entity handles: each claim has one entity no other thing cites
+    node('ent/egain', 'technology', { name: 'EGaIn microdroplets' });
+    node('ent/sinter', 'technology', { name: 'sintering process' });
+    edge('pd/C1', 'ent/egain', 'DESCRIBES');
+    edge('ma/C2', 'ent/sinter', 'DESCRIBES');
+  }
+  roomDb.closeRoomDb(db);
+  const room = { roomDir: roomDir, cleanup: function () { try { fs.rmSync(root, { recursive: true, force: true }); } catch (_e) { /* ignore */ } } };
+  rooms.push(room);
+  return room;
+}
+
+function bootClient(room) {
+  const captured = new Map();
+  const stub = {
+    tool: function (name, description, schema, handler) { captured.set(name, { handler: handler }); },
+    registerTool: function (name, config, handler) { captured.set(name, { handler: handler }); },
+  };
+  registerCoreTools(stub, { fallbackRoomDir: room.roomDir, pluginRoot: ROOT, surface: 'desktop' });
+  const reg = captured.get('research_run');
+  const answerReg = captured.get('gate_answer');
+  const extra = { sessionId: 'seed104-session' };
+  function parse(raw) {
+    const text = raw && raw.content && raw.content[0] && raw.content[0].text;
+    try { return JSON.parse(text); } catch (_e) { return { _unparsed: String(text).slice(0, 300) }; }
+  }
+  return {
+    call: async function (input) { return parse(await reg.handler(input, extra)); },
+    answer: async function (gateId, chosen) { return parse(await answerReg.handler({ gate_id: gateId, chosen: chosen, verdict: 'approve' }, extra)); },
+  };
+}
+async function withReplay(replay, fn) {
+  globalThis.fetch = replay;
+  try { return await fn(); } finally { globalThis.fetch = NET_GUARD_FETCH; }
+}
+function readPlanFile(room, runId) {
+  const file = path.join(room.roomDir, '.mindrian', 'research-runs', runId, 'plan.json');
+  return { file: file, plan: JSON.parse(fs.readFileSync(file, 'utf8')) };
+}
+function writePlanFile(file, plan) {
+  plan.plan_hash = planMod.planHash(plan);
+  fs.writeFileSync(file, JSON.stringify(plan, null, 2) + '\n', 'utf8');
+}
+function activeStanding(room) { return grants.findActiveGrant(room.roomDir, { now: Date.now(), lifetime: 'standing' }); }
 
 // ---------------------------------------------------------------------------
 // S0 -- the whitespace snapshot (captured on the unedited tree)
@@ -383,6 +463,196 @@ async function main() {
     assert.equal(b.grant.version, 2);
     assert.equal(b.decision_node_id, null);
     assert.equal(quick.coverFor(room, cePlan, { now: NOW }).covered, true);
+  });
+
+  // -- E1 no grant: recall -> grant -> one approval -> done ----------------------
+  const E1 = {};
+  await leg('E1 eureka_recall, grant_request, one approval, run_quick done; no reask, no prose term', async function () {
+    const room = buildEurekaRoom();
+    E1.room = room;
+    const c = bootClient(room);
+    const rec = await c.call({ op: 'eureka_recall', run_tag: 'e1' });
+    assert.equal(rec.ok, true, JSON.stringify(rec).slice(0, 300));
+    assert.equal(rec.plan.ok, true, JSON.stringify(rec.plan).slice(0, 300));
+    assert.equal(rec.plan.next, 'grant');
+    E1.runId = rec.plan.run_id;
+    E1.tag = rec.run_tag;
+    const cands = eurekaRecall.readCandidates(room.roomDir, rec.run_tag).candidates;
+    assert.ok(cands.some(function (x) { return /\/C[12]$/.test(x.a) || /\/C[12]$/.test(x.b); }), 'a claim appears in a recalled pair');
+    const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
+    assert.equal(req.ok, true, JSON.stringify(req).slice(0, 300));
+    assert.ok(req.card.body_md.indexOf('concept-evidence/v1') !== -1, 'card names concept-evidence/v1');
+    const ans = await c.answer(req.gate.gate_id, ['approve_standing']);
+    assert.equal(ans.ok !== false, true, JSON.stringify(ans).slice(0, 300));
+    const g = activeStanding(room);
+    assert.ok(g, 'standing grant written');
+    assert.ok(g.families.indexOf('concept-evidence/v1') !== -1);
+    g.approved_terms.forEach(function (t) {
+      assert.equal(families.proseShaped(t.term), false, t.term);
+      assert.equal(JSON.stringify(t).indexOf('flowable'), -1);
+    });
+    const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
+    E1.replay = replay;
+    const run = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
+    assert.equal(run.status, 'done', JSON.stringify(run).slice(0, 300));
+  });
+
+  // -- E3 no prose reaches a query ------------------------------------------------
+  await leg('E3 a claim pair is a local-only leaf; every query and slot term is composable; no prose in any URL', function () {
+    assert.ok(E1.runId, 'E1 ran');
+    const plan = readPlanFile(E1.room, E1.runId).plan;
+    const claimLeaves = plan.leaves.filter(function (l) { return l.pair && (/\/C[12]$/.test(l.pair.a) || /\/C[12]$/.test(l.pair.b)); });
+    assert.ok(claimLeaves.length >= 1, 'a leaf pairs a claim');
+    claimLeaves.forEach(function (l) {
+      assert.equal(l.researchable, false);
+      assert.equal(l.corpus, 'room');
+    });
+    let seen = 0;
+    plan.leaves.forEach(function (l) {
+      (l.queries || []).forEach(function (q) {
+        seen += 1;
+        assert.equal(q.q.indexOf('flowable'), -1);
+        assert.equal(q.q.indexOf('Tension'), -1);
+        (q.slot_terms || []).forEach(function (t) { assert.notEqual(families.composableTerm(t), null, t); });
+      });
+    });
+    assert.ok(seen > 0);
+    assert.ok(E1.replay.calls.length > 0);
+    E1.replay.calls.forEach(function (call) {
+      const u = String(call.url) + ' ' + String(call.q);
+      assert.equal(u.indexOf('%2A'), -1);
+      assert.equal(u.indexOf('*'), -1);
+      assert.equal(u.indexOf('flowable'), -1);
+    });
+  });
+
+  // -- E2 whitespace-only standing grant ------------------------------------------
+  const E2 = {};
+  await leg('E2 a whitespace-only grant widens on one approval to concept-evidence at version 2; run_quick done', async function () {
+    const room = buildEurekaRoom();
+    E2.room = room;
+    const wsP = grants.buildStandingProposal(room.roomDir, { terms: [{ term: 'thin-film sensors', synonyms: [] }] });
+    const wsW = grants.writeGrant(room.roomDir, wsP, { approved_via: VIA });
+    assert.equal(wsW.ok, true);
+    assert.deepEqual(wsW.grant.families, ['whitespace-gap/v1']);
+    const c = bootClient(room);
+    E2.client = c;
+    const rec = await c.call({ op: 'eureka_recall', run_tag: 'e2' });
+    assert.equal(rec.plan.ok, true, JSON.stringify(rec.plan).slice(0, 300));
+    const loaded = planner.loadPlan(room.roomDir, rec.plan.run_id);
+    const before = planner.cardFor(room.roomDir, loaded.plan, {});
+    assert.equal(before.next, 'grant');
+    assert.equal(before.reason, 'outside_family');
+    const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
+    assert.equal(req.ok, true, JSON.stringify(req).slice(0, 300));
+    const ans = await c.answer(req.gate.gate_id, ['approve_standing']);
+    assert.equal(ans.ok !== false, true, JSON.stringify(ans).slice(0, 300));
+    const g = activeStanding(room);
+    assert.deepEqual(g.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
+    assert.equal(g.version, 2);
+    E2.grant = g;
+    const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
+    const run = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
+    assert.equal(run.status, 'done', JSON.stringify(run).slice(0, 300));
+    assert.notEqual(run.reason, 'outside_family');
+  });
+
+  // -- E4 stuck scope, MCP door ---------------------------------------------------
+  await leg('E4 a stuck standing scope gives the typed refusal at run_quick and grant_request; no gate, no fetch', async function () {
+    assert.ok(E2.grant, 'E2 ran');
+    const room = E2.room;
+    const c = E2.client;
+    const rec = await c.call({ op: 'eureka_recall', run_tag: 'e4' });
+    assert.equal(rec.plan.ok, true);
+    const loc = readPlanFile(room, rec.plan.run_id);
+    const q = firstFetchQuery(loc.plan);
+    assert.equal(q.family, 'concept-evidence/v1');
+    q.template_id = 'ws.exact';
+    writePlanFile(loc.file, loc.plan);
+    const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
+    const res = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
+    assert.equal(res.ok, false, JSON.stringify(res).slice(0, 300));
+    assert.equal(res.reason, 'grant_scope_cannot_cover_plan');
+    assert.ok(res.plan_families.indexOf('concept-evidence/v1') !== -1);
+    assert.deepEqual(res.grant_families, activeStanding(room).families);
+    assert.equal(Object.prototype.hasOwnProperty.call(res, 'gate'), false);
+    assert.equal(replay.calls.length, 0);
+    const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
+    assert.equal(req.ok, false);
+    assert.equal(req.reason, 'grant_scope_cannot_cover_plan');
+    assert.equal(Object.prototype.hasOwnProperty.call(req, 'gate'), false);
+  });
+
+  // -- E5 stale prose plan, MCP door ----------------------------------------------
+  await leg('E5 a stored plan with a prose term is refused term_not_composed at run_quick with zero fetches', async function () {
+    assert.ok(E2.grant, 'E2 ran');
+    const room = E2.room;
+    const c = E2.client;
+    const rec = await c.call({ op: 'eureka_recall', run_tag: 'e5' });
+    assert.equal(rec.plan.ok, true);
+    const loc = readPlanFile(room, rec.plan.run_id);
+    const q = firstFetchQuery(loc.plan);
+    q.slot_terms = [PROSE];
+    q.q = '"' + PROSE + '"';
+    q.q_hash = families.qHash(q.q);
+    writePlanFile(loc.file, loc.plan);
+    const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
+    const res = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
+    assert.equal(res.ok, false, JSON.stringify(res).slice(0, 300));
+    assert.equal(res.reason, 'term_not_composed');
+    assert.equal(replay.calls.length, 0);
+    assert.equal(JSON.stringify(res).indexOf('Claim'), -1);
+  });
+
+  // -- E6 eureka_recall hands the composer abstracted terms (SEED-104 part 2) ----
+  await leg('E6 abstractTerm: field title first, then a side-unique entity handle, then a canon handle; never first-sentence prose', function () {
+    const at = eurekaRecall._test.abstractTerm;
+    assert.equal(typeof at, 'function');
+    const titled = { id: 't', title: 'Membrane fouling in desalination intake filters', title_from_field: true, canon_handle: null };
+    assert.equal(at(titled, {}, []), 'Membrane fouling in desalination intake filters');
+    const claim = { id: 'c', title: '**Claim.** A stable, flowable emulsion', title_from_field: false, canon_handle: null };
+    assert.equal(at(claim, {}, []), null);
+    assert.equal(at(claim, { c: ['EGaIn microdroplets', 'anti-fouling coating'] }, ['anti-fouling coating']), 'EGaIn microdroplets');
+    assert.equal(at(claim, { c: ['anti-fouling coating'] }, ['anti-fouling coating']), null);
+    const canon = { id: 'k', title: '1. Something. Else here', title_from_field: false, canon_handle: 'Six Thinking Hats' };
+    assert.equal(at(canon, {}, []), 'Six Thinking Hats');
+    const st = eurekaRecall._test.slotTerm;
+    assert.equal(st('**Claim.** A stable'), null);
+    assert.equal(st('  thin film   sensors '), 'thin film sensors');
+    assert.equal(st('a "quoted" AND (paren) term'), 'a quoted paren term');
+    assert.equal(st('x'.repeat(81)), null);
+  });
+  await leg('E7 questionSetFor: a pair with no clean term is a local-only leaf; a side-unique entity gives it a term', function () {
+    const bare = buildEurekaRoom();
+    const r1 = eurekaRecall.runRecall(bare.roomDir, { tag: 'e7a' });
+    const claimLeaf = r1.question_set.leaves.filter(function (l) { return l.pair && (/\/C[12]$/.test(l.pair.a) || /\/C[12]$/.test(l.pair.b)); });
+    assert.ok(claimLeaf.length >= 1);
+    claimLeaf.forEach(function (l) {
+      assert.equal(l.researchable, false);
+      assert.equal(l.corpus, 'room');
+      assert.equal(Object.prototype.hasOwnProperty.call(l, 'slots'), false);
+      assert.equal(typeof l.not_researchable_reason, 'string');
+      assert.equal(l.lens, 'eu.transfer');
+      assert.ok(l.pair && l.lanes);
+    });
+    r1.question_set.leaves.forEach(function (l) {
+      const slots = l.slots || {};
+      Object.keys(slots).forEach(function (k) { assert.notEqual(families.composableTerm(slots[k]), null, k); });
+    });
+    const rich = buildEurekaRoom({ withEntities: true });
+    const r2 = eurekaRecall.runRecall(rich.roomDir, { tag: 'e7b' });
+    const both = r2.question_set.leaves.filter(function (l) { return l.pair && l.pair.a === 'ma/C2' && l.pair.b === 'pd/C1' || l.pair && l.pair.a === 'pd/C1' && l.pair.b === 'ma/C2'; })[0];
+    assert.ok(both, 'the claim pair is a leaf');
+    assert.equal(both.researchable, true);
+    assert.equal(both.corpus, 'openalex');
+    const terms = [both.slots.term, both.slots.term2].sort();
+    assert.deepEqual(terms, ['EGaIn microdroplets', 'sintering process']);
+    // the plan builds and composes from handles only
+    const built = planner.buildPlan(rich.roomDir, r2.question_set, { mode: 'quick' });
+    assert.equal(built.ok, true);
+    built.plan.leaves.forEach(function (l) {
+      (l.queries || []).forEach(function (q) { assert.equal(q.q.indexOf('flowable'), -1); });
+    });
   });
 
   // LEGS_HERE

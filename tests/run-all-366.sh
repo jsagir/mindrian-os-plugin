@@ -117,6 +117,11 @@ run_if "366 gated term release"                          tests/test-366-gated-te
 run_if "366 runner retired"                              tests/test-366-runner-retired.cjs            node tests/test-366-runner-retired.cjs
 run_if "366 semantic index integrity"                    tests/test-366-semantic-index-integrity.cjs  node tests/test-366-semantic-index-integrity.cjs
 
+# --- (2b) SEED-104 quick fix 261002-0n4 (grant family loop, egress-safe terms, loop guard) ---
+run_if "seed104 grant family loop"             tests/test-seed104-grant-family-loop.cjs       node tests/test-seed104-grant-family-loop.cjs
+run_if "pin 363 grants"                        tests/test-363-grants.cjs                      node tests/test-363-grants.cjs
+run_if "pin 363 run quick"                     tests/test-363-run-quick.cjs                   node tests/test-363-run-quick.cjs
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
@@ -161,6 +166,8 @@ run "no em-dash or en-dash in phase 366 files" bash -c '
     scripts/release-lib/canon-snapshot-gate.sh \
     scripts/release-lib/suite-gate.sh \
     tests/test-366-*.cjs \
+    tests/test-seed104-*.cjs \
+    tests/fixtures/seed104 \
     tests/helpers/fixture-366.cjs \
     tests/run-all-366.sh 2>/dev/null)
   [ -z "$files" ] && exit 0
