@@ -29,11 +29,14 @@ These are the allowed transitions. Any transition not in this table is a violati
 | proposed | needs_evidence | Larry detects principle-confirmed-but-evidence-thin | None at transition |
 | proposed | rejected | User REJECT at Decision Gate | Reason captured per Canon Part 4 |
 | needs_evidence | validated | Evidence node attached + SUPPORTS edge created | Academic OR Operational tier required |
+| needs_evidence | confirmed | A person approves at a gate once the room's verification floor is met, or after the room's floor was lowered in ROOM.md (Phase 365 D-20) | The room floor, checked at approval |
 | confirmed | validated | Evidence node attached after confirmation | Same as needs_evidence -> validated |
 | validated | invalidated | Contradicting Academic/Operational evidence attached + CONTRADICTS edge | New evidence at Academic or Operational tier |
 | confirmed | superseded | REPLACES edge from successor (successor must be confirmed) | Successor node must be confirmed |
 | confirmed | stale | Auto-marker job fires | None (system-triggered) |
 | validated | stale | Auto-marker job fires | None (system-triggered) |
+
+Phase 365 note: the verification-floor hold lands a below-floor approval through the existing proposed -> needs_evidence row; the needs_evidence -> confirmed row above is the human-only exit from that hold (additive, navigator-ruled 2026-10-01).
 
 ### Forbidden transitions (each one is a violation Phase 109 MUST refuse)
 
