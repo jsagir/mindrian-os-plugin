@@ -9,9 +9,10 @@
   ],
   "ledger_covers": {
     "from": "2.1.128",
-    "to": "2.1.246",
-    "fetched_at": "2026-08-27T06:05:17Z",
-    "installed_claude_version": "2.1.247"
+    "to": "2.1.287",
+    "fetched_at": "2026-10-01T19:24:21Z",
+    "installed_claude_version": "2.1.287",
+    "coverage_gap": "The fetched changelog carried no entries for 2.1.247 through 2.1.280 (fetch of 2026-10-01); those versions are NOT screened. Rows below cover only 2.1.281 through 2.1.287."
   },
   "entries": [
     {
@@ -386,6 +387,66 @@
       "status": "shipped",
       "evidence": "265-RESEARCH-mcp-layer-audit.md D-7 (previously reported 2026-08-10 in docs/brain-audit-2026-08-10/2026-08-10-HANDOFF-brain-service-audit.md, still live at audit time). Closed by 265-09-SUMMARY.md (RADAR-14): 'Rewrote four Brain MCP tool descriptions to name the live Memgraph plus locally-embedded multilingual-e5-large backend instead of the retired Pinecone/Neo4j stack.'",
       "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "claude-mods-for-plugins-builtin-mod",
+      "version": "2.1.287",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Claude Mods for plugins, including a built-in mod, were added; a possible new extension point for the plugin, scope and shape not yet read from primary docs.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.287. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "mcp-url-mode-elicitation-and-url-prompts",
+      "version": "2.1.287",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "MCP URL-mode elicitation (2.1.281) and MCP URL prompts (2.1.287) arrived; could affect gate_render and the Brain key or auth handoff flow, not yet triaged.",
+      "destination": "bin/mindrian-mcp-server.cjs",
+      "status": "dormant",
+      "evidence": "Version 2.1.287. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "sonnet-5-5-default-model-and-1m-context-default",
+      "version": "2.1.284",
+      "date": null,
+      "domain": "models",
+      "leverage": "Sonnet 5.5 became the default model (2.1.284), and Opus/Sonnet 1M context became the default on multiple providers (2.1.287); alias-based model-profiles likely absorb this unchanged.",
+      "destination": "lib/core/model-profiles.cjs",
+      "status": "dormant",
+      "evidence": "Version 2.1.284. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "plugin-configuration-via-cli",
+      "version": "2.1.285",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Plugin configuration can be set via the CLI, and a plugin dependency install bug was fixed (2.1.285); may simplify tester setup docs for the plugin options surface.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.285. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "claude-ai-name-reservation-skills-workflows-mcp",
+      "version": "2.1.282",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "The name claude-ai is reserved for skills, workflows and MCP servers (2.1.282); no repo surface found using it in a first grep, so likely a no-op, pending a proper check.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.282. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "plugin-validate-and-mcp-server-validation-reporting",
+      "version": "2.1.281",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Plugin checks now validate MCP servers and plugin validate reports more (2.1.281); may overlap the release-gate manifest validation already tracked in the capability index.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.281. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
     }
   ]
 }
