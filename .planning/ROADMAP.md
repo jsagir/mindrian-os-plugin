@@ -1522,34 +1522,70 @@ Plans:
 **Deliverables.** (1) Merge the branch and register its tests in the release gate. (2) The spike (design section 9): the three Phase 355 fixture rooms, the same blind-label protocol, the bar fixed before the run (useful rate above 44.8% with a Wilson interval that clears it, three repeats), arms Stage A only / Jev / Claude / Claude-then-Jev over the SAME candidates file, plus graph+lexical vs graph+lexical+vector recall. (3) The navigator's four rulings recorded: retire the standalone runner; runtime Jev under the planner's grant and audit ledger or dev-time only (D-44); the Haiku entity pre-step as a planner egress line or a separate producer; the gold labels. (4) One declared egress policy file read by the planner's audit ledger; `--offline` means none of it; `commands/eureka.md` rewritten so `/mos:eureka` is the quick-run alias and the stale "ZERO writes / ZERO network" wording is gone. (5) Theo readiness: room nodes carry canon Framework handles under the D-10 exact-match rule so `find_connections` can be asked; `canon_resolved` per run is the count to move (0 on the measured room). (6) MCP canvas tooling for the other perspectives (RS, HSI, whitespace) as planner ops with the same shape (recall file, judge file, paginated read, annotations, actionable refusals), replacing the reference-only stubs the tool router carries today. (7) Retire the standalone runner per the spike; the semantic index moves to `lib/core/semantic-index/` behind a reference-integrity gate (ADR-E12) as its own plan. Counter-metrics per Phase 343 on every stage; counts only (SEED-074).
 **Requirements**: EPV366-01..EPV366-30 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-01; D-01..D-17 in `366-CONTEXT.md`)
 **Depends on:** Phase 363 (the planner), Phase 355 (the measured record and fixture rooms). Feeds Phase 364 (the same engine) and SEED-101 (claims carry a section column). Consults icm-architect, mcp-builder and langtalks-graph-expert before any design assumption.
-**Plans:** 26 plans in 12 waves
+**Plans:** 27 plans in 12 waves
 
 Plans:
+**Wave 1**
+
 - [ ] 366-01-PLAN.md -- Wave 0: tests/run-all-366.sh written once (seed103 legs carried), the planted perspective fixture, the spike substrate preparer
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 366-02-PLAN.md -- one filer: pyramid cross_domain_transfer kind through one template-driven pair branch, closed leaf pair, filing-stamped.cjs, DERIVED_FROM to both things plus the 355 stamp
 - [ ] 366-03-PLAN.md -- /mos:eureka is the quick-run alias; --legacy and {"legacy":true} reach the runner; ZERO wording gone; mirrors regenerated
-- [ ] 366-04-PLAN.md -- rs, hsi, analogies, connections templates with falsifiers and lenses; 363 pins and research-shape ledger moved by script
 - [ ] 366-05-PLAN.md -- one canon resolver with ratified translations (references/canon-translations.md); framework node before USES_FRAMEWORK edge
 - [ ] 366-06-PLAN.md -- canon snapshot Theo stamp and the LAGGING gate (RULE 5 place 9); release.sh shells tests/run-all-366.sh (suite gate)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 366-04-PLAN.md -- rs, hsi, analogies, connections templates with falsifiers and lenses; 363 pins and research-shape ledger moved by script
 - [ ] 366-07-PLAN.md -- ambient eureka producer is the perspective recall, offer only, plan-only card, never a fetch; SENS-13 finding
-- [ ] 366-08-PLAN.md -- perspective interface and registry (PERSPECTIVE_IDS), shared.cjs, judge takes the module (STAGE_A_LANES), eureka byte-stable, one resolver in recall
+- [ ] 366-08-PLAN.md -- perspective interface and registry (PERSPECTIVE_IDS), shared.cjs, the one substrate and exclusion-set contract (edges, framework_nodes, whitespace_zones, makeCandidateStore, writeRunFiles), judge takes the module (STAGE_A_LANES), eureka byte-stable, one resolver in recall
 - [ ] 366-09-PLAN.md -- canon handles at artifact_file and in the indexer
 - [ ] 366-10-PLAN.md -- canon coverage statement (counts only) and the /mos:doctor --fix canon-backfill module
-- [ ] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 366-12-PLAN.md -- research_run perspective_recall / perspective_candidates / perspective_judge with deprecated eureka_* aliases; CLI perspective-recall / perspective-judge
 - [ ] 366-13-PLAN.md -- RS and HSI recall from the local graph; classifyGraph in direction-convention.cjs
 - [ ] 366-14-PLAN.md -- whitespace and analogies recall; SAPPhIRE statement template
 - [ ] 366-15-PLAN.md -- connections recall and the Theo lateral-path lane under a grant, audited
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 366-16-PLAN.md -- router stubs point at the perspective ops; six-perspective offline proof; counter-metrics per stage; floors on the ledger
 - [ ] 366-17-PLAN.md -- one declared egress policy read by the audit ledger; --offline completes
 - [ ] 366-18-PLAN.md -- spike harness and the bar fixed before the run
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
 - [ ] 366-19-PLAN.md -- spike arms run on indexed fixture copies; navigator blind labels (checkpoint)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 366-20-PLAN.md -- spike record, direction and floor re-measure, navigator rulings (checkpoint)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 366-21-PLAN.md -- runner retirement A: runner ruling asserted, inventory decided and sliced, static gate, slice A (215/216/226) tests migrated or retired
-- [ ] 366-25-PLAN.md -- runner retirement A2: slices B (218/219/223/343) and C (355/3551) tests migrated or retired, aggregators green
-- [ ] 366-26-PLAN.md -- runner retirement A3: slice D (341/363.1, live check, eureka MCP test) migrated or retired; inventory closed
-- [ ] 366-22-PLAN.md -- runner retirement B: runner deleted, legacy doors removed, doctor smoke on the perspective
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 366-25-PLAN.md -- runner retirement A2: slice B (218/219/223/343) tests migrated or retired, aggregators green
+- [ ] 366-27-PLAN.md -- runner retirement A2b: slice C (355/3551) tests migrated or retired, the 355 record kept on filing-stamped.cjs, aggregators green
+- [ ] 366-26-PLAN.md -- runner retirement A3: slice D (341/363.1, live check, eureka MCP test) migrated or retired; phase-366 handover list (global closure grep is 366-22's preflight)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 366-22-PLAN.md -- runner retirement B: global closure preflight, runner deleted, legacy doors removed, doctor smoke on the perspective
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 366-23-PLAN.md -- semantic-index split (ADR-E12) behind a reference-integrity gate
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 366-24-PLAN.md -- phase close: EPV366 proof, folded todos, handoff, Theo-side intent-led resolver request
 
 ### Phase 367: A newborn room ends up with a connected graph, with no repair pass (promotes SEED-101)
