@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1.0
-milestone_name: milestone
-status: executing
-stopped_at: "Completed 363-22-PLAN.md - Phase 363 COMPLETE: gate PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10, doctor 22/22, live smoke run once (exit 0, PASS 11), DRP363 20 of 20 ticked, follow-ons and SEED-098 reuse contract recorded, research trail filed in both homes (home repo a829390aa); next: release cut, /gsd-quick for the wish gate on every deep plan and the zone_term sidecar, Phase 364"
-last_updated: "2026-10-01T00:00:00.000Z"
-last_activity: 2026-10-01 -- Phase 363 complete (363-22 closed)
+milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
+status: completed
+stopped_at: Phase 366 context gathered
+last_updated: "2026-10-01T05:46:51.821Z"
+last_activity: 2026-09-30 -- 363-16 complete
 progress:
-  total_phases: 115
-  completed_phases: 45
-  total_plans: 469
-  completed_plans: 439
-  percent: 93
+  total_phases: 120
+  completed_phases: 46
+  total_plans: 486
+  completed_plans: 446
+  percent: 38
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -9250,8 +9250,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-29T05:46:53.103Z
-Stopped at: Phase 363 context gathered (D-00..D-07: PWS commands become research planners, quick/deep, research grant)
+Last session: 2026-10-01T05:46:51.552Z
+Stopped at: Phase 366 context gathered
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
