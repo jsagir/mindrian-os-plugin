@@ -107,3 +107,18 @@ family; asked back, not acted on.
   Ga electrodeposition from ChCl DES (Reline, ChCl-EG) and oxide solubility in ChCl DES. The
   whitespace composer should split long zone terms or add an unquoted keyword pass, or "0" will
   read as "gap confirmed".
+
+## Update 2026-10-02: the elicitation card can't be approved (navigator screenshot)
+
+The navigator: "this can't be approved, keeps looping... it's endless, not a good card."
+What the CLI shows for every `grant_request`: an MCP elicitation, "Research grant: Approve
+this research grant?: ▸ not set / This field is required", with Accept and Decline below it.
+- **No default value.** The `requestedSchema` `choice` enum has no `default`, even though
+  `approve_standing` is marked recommended, so Accept is dead until the user finds
+  "→ to expand". Nothing on screen says the field has to be opened first.
+- **It fires on every `grant_request` call** (the gate ladder picks the `elicitation` rung on the
+  CLI), even when the same decision is also being taken through AskUserQuestion and `gate_answer`.
+  Combined with the family loop, the navigator sees the same unapprovable dialog over and over.
+- **Fix:** on the CLI, prefer the AskUserQuestion rung and never also elicit for the same gate;
+  if elicitation is kept anywhere, set `default` to the recommended option and title the field
+  as an instruction ("Choose: approve standing / this run / not now").
