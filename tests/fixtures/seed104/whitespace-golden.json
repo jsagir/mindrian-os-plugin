@@ -1,0 +1,184 @@
+{
+  "queries": [
+    {
+      "leaf": "L1",
+      "template_id": "ws.exact",
+      "family": "whitespace-gap/v1",
+      "q": "\"thin-film sensors\"",
+      "q_hash": "sha256:4369ebc2e8030b81d443a59c8c4474d9187971ddd74642da9cfe8e7e2db2a279",
+      "slot_terms": [
+        "thin-film sensors"
+      ]
+    },
+    {
+      "leaf": "L1",
+      "template_id": "ws.prior_attempts",
+      "family": "whitespace-gap/v1",
+      "q": "\"thin-film sensors\" AND (review OR survey OR \"systematic review\")",
+      "q_hash": "sha256:14962257eec639b8aa57caf5cb34154c2e86fadb488c5ffe3081b6d23b0cddb2",
+      "slot_terms": [
+        "thin-film sensors"
+      ]
+    },
+    {
+      "leaf": "L2",
+      "template_id": "ws.synonym_cover",
+      "family": "whitespace-gap/v1",
+      "q": "\"thin-film sensors\" OR \"dielectric probes\"",
+      "q_hash": "sha256:1a76fb9054779430bee5253a980a26f100fb75f64bd244c3e1b2c1c56bac280e",
+      "slot_terms": [
+        "thin-film sensors",
+        "dielectric probes"
+      ]
+    },
+    {
+      "leaf": "L2",
+      "template_id": "ws.prior_attempts",
+      "family": "whitespace-gap/v1",
+      "q": "\"thin-film sensors\" AND (review OR survey OR \"systematic review\")",
+      "q_hash": "sha256:14962257eec639b8aa57caf5cb34154c2e86fadb488c5ffe3081b6d23b0cddb2",
+      "slot_terms": [
+        "thin-film sensors"
+      ]
+    }
+  ],
+  "cover": {
+    "covered": false,
+    "reason": "no_grant",
+    "new_terms": [],
+    "proposal": {
+      "schema": "mos.research-grant/1",
+      "lifetime": "standing",
+      "policy_version": "drp363-grant/1",
+      "room_id": "<room_id>",
+      "providers": [
+        "openalex"
+      ],
+      "fallback": null,
+      "families": [
+        "whitespace-gap/v1"
+      ],
+      "approved_terms": [
+        {
+          "term": "thin-film sensors",
+          "synonyms": [
+            "dielectric probes"
+          ]
+        }
+      ],
+      "caps": {
+        "queries_per_run": 3,
+        "results_per_query": 5,
+        "max_searches": 3
+      },
+      "throttle": {
+        "runs_per_hour": 1
+      },
+      "approved_at": null,
+      "approved_via": null,
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "card": {
+      "shape": "F.0",
+      "title": "Research grant",
+      "question": "Approve this research grant?",
+      "options": [
+        {
+          "id": "approve_standing",
+          "label": "Approve this standing grant (Recommended)",
+          "recommended": true
+        },
+        {
+          "id": "approve_run",
+          "label": "Approve this one run only"
+        },
+        {
+          "id": "not_now",
+          "label": "Not now"
+        }
+      ],
+      "body_md": "## Let this room look things up in OpenAlex?\n\nOpenAlex is a public index of scholarly papers. A grant lets the room send short search strings there. It covers fetching only; filing still asks each time.\n\n- Provider: openalex; fallback: none (if it is down, the run says so and stops)\n- What is searched: OpenAlex titles, abstracts and metadata; nothing else leaves the room\n- Search shapes allowed (by template id): whitespace-gap/v1: ws.exact, ws.synonym_cover, ws.prior_attempts, ws.absence_reason\n- Caps per run: 3 searches, 5 results per search\n- Throttle: 1 room-started run per hour\n- Expires: 2026-11-01 (30 days from today)\n- Room scope: only this room (<room_id>); it does not carry to any other room\n- Policy version: drp363-grant/1\n- Revoke: tell Larry \"revoke the research grant\" at any time; the next search stops\n\nA grant never files anything. Anything worth keeping comes back as its own yes or no.",
+      "payload": {
+        "grant_lifetime": "standing",
+        "policy_version": "drp363-grant/1",
+        "new_terms": []
+      }
+    }
+  },
+  "card_for": {
+    "next": "grant",
+    "reason": "no_grant"
+  },
+  "grant": {
+    "schema": "mos.research-grant/1",
+    "grant_id": "<volatile>",
+    "version": 1,
+    "lifetime": "standing",
+    "policy_version": "drp363-grant/1",
+    "room_id": "<room_id>",
+    "providers": [
+      "openalex"
+    ],
+    "fallback": null,
+    "families": [
+      "whitespace-gap/v1"
+    ],
+    "approved_terms": [
+      {
+        "term": "thin-film sensors",
+        "synonyms": [
+          "dielectric probes"
+        ],
+        "approved_at": "<volatile>",
+        "approved_via": {
+          "surface": "cli",
+          "decision_node_id": "<volatile>"
+        }
+      }
+    ],
+    "caps": {
+      "queries_per_run": 3,
+      "results_per_query": 5,
+      "max_searches": 3
+    },
+    "throttle": {
+      "runs_per_hour": 1
+    },
+    "approved_at": "<volatile>",
+    "approved_via": {
+      "surface": "cli",
+      "decision_node_id": "<volatile>"
+    },
+    "expires_at": "<volatile>",
+    "revoked_at": null
+  },
+  "g11_card": {
+    "shape": "F.0",
+    "title": "Research grant",
+    "question": "Approve this research grant?",
+    "options": [
+      {
+        "id": "approve_standing",
+        "label": "Approve this standing grant (Recommended)",
+        "recommended": true
+      },
+      {
+        "id": "approve_run",
+        "label": "Approve this one run only"
+      },
+      {
+        "id": "not_now",
+        "label": "Not now"
+      }
+    ],
+    "body_md": "## Let this room look things up in OpenAlex?\n\nOpenAlex is a public index of scholarly papers. A grant lets the room send short search strings there. It covers fetching only; filing still asks each time.\n\n- Provider: openalex; fallback: none (if it is down, the run says so and stops)\n- What is searched: OpenAlex titles, abstracts and metadata; nothing else leaves the room\n- Search shapes allowed (by template id): whitespace-gap/v1: ws.exact, ws.synonym_cover, ws.prior_attempts, ws.absence_reason\n- Caps per run: 3 searches, 5 results per search\n- Throttle: 1 room-started run per hour\n- Expires: 2026-11-01 (30 days from today)\n- Room scope: only this room (<room_id>); it does not carry to any other room\n- Policy version: drp363-grant/1\n- Revoke: tell Larry \"revoke the research grant\" at any time; the next search stops\n\nNew terms that would leave the room the first time (approving covers these):\n- thin-film sensors\n\nA grant never files anything. Anything worth keeping comes back as its own yes or no.",
+    "payload": {
+      "grant_lifetime": "standing",
+      "policy_version": "drp363-grant/1",
+      "new_terms": [
+        "thin-film sensors"
+      ]
+    }
+  }
+}
