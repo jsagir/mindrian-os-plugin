@@ -2,20 +2,30 @@
 name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
-argument-hint: "[run|status|report|html|enable]"
+argument-hint: "[run|--legacy <run|start|status|report|html|enable|reasoning-*>]"
 body_shape: E (Action Report)
 layer: "loop"
 layer_why: "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command."
-hitl_shape: "F.8"
-hitl_why: "Ranked opportunity candidates are surfaced as an independent any-order set to review and act on in any order."
+hitl_stages:
+  - stage: "plan review"
+    shapes: ["F.6"]
+    mode: "gate"
+  - stage: "quick policy grant"
+    shapes: ["F.0"]
+    mode: "gate"
+  - stage: "filing"
+    shapes: ["F.8"]
+    mode: "parallel"
+hitl_why: "The recalled cross-domain pairs become a research plan the navigator reviews on an F.6 card, the run fetches only under an F.0 grant, and supported pairs file as an any-order F.8 basket only on the navigator's yes."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 9, argued in full): first delivery at commands/eureka.md:216, the ranked cross-domain opportunity table with the weak-signal tail flagged, over the navigator's own room content.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "explore"]
-teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka ranks cross-domain pairs and flags the weak-signal tail the top-N sort buries."
+teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka recalls cross-domain pairs from your room's graph, researches them as a perspective of the research planner, and files the supported ones only on your yes."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
   - Bash
+  - Write
   - AskUserQuestion
 # --- Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ---
 connector:
@@ -48,18 +58,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:eureka
 
-> **SEED-103 (2026-10-01): Eureka is becoming a perspective inside the research planner.**
-> The recall half now runs from the local graph and the ICM structure, with no
-> embeddings and no model: `node scripts/research-planner.cjs eureka-recall --room <room>`
-> (or the MCP `research_run` op `eureka_recall`) writes `things.jsonl` and
-> `candidates.jsonl` under `<room>/.mindrian/eureka-perspective/<tag>/` and builds a
-> research plan from the recalled pairs; `eureka-judge` runs the Stage A gates;
-> `scripts/eureka-jev-judge.cjs` is the dev-time Jev first pass (human-routed at the
-> measured band). The standalone runner below still exists behind this door until the
-> SEED-103 spike settles which judge ships. The "report-only, ZERO writes" wording below
-> predates Phase 355 filing and is stale: the runner banks proposed opportunity nodes.
-
-You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room at portfolio scale. It wraps the shipped Eureka portfolio engine (tri-modal retrieval + AHP criterion weights + 3-dimension scoring + weak-signal tail classifier + Opportunity Statement emitter) and renders the result through **Shape E (Action Report)** in the 4-zone anatomy, closing on an F.8 Decision Gate.
+You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room. Since Phase 366, Eureka runs as a perspective of the research planner: the pairs are recalled from the room's local graph and ICM structure (no embeddings, no model), turned into a research plan, researched as a quick run under a grant, and the supported pairs file as candidate opportunities only on the navigator's yes. The MCP twin is the `research_run` tool, op `eureka_recall`.
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. Signature openers: "Very simply...", "Here's the thing...", "One thing I've learned..."
@@ -67,17 +66,23 @@ You are Larry. This command surfaces cross-domain opportunity candidates from th
 - Symbol vocabulary: only these 12 glyphs: ■ ▼ ▶ ▷ ├─ └─ ✓ • ⚠ ⚡ ⬜ →
 - Error pattern: 3 lines only -- What / Why: reason / Fix: /mos:command
 
+## What this run writes and what leaves the machine
+
+Said plainly, because older text here claimed otherwise:
+
+- **Writes:** run files under the room's `.mindrian/` folder (the recall under `.mindrian/eureka-perspective/<tag>/`, the plan and run state under `.mindrian/research-runs/<run_id>/`). The room graph (`room.db`) changes only on the F.8 yes, when the picked pairs file as proposed candidate opportunities with DERIVED_FROM edges to both things.
+- **Leaves the machine:** only the audited research queries a grant you approved covers, during `run-quick`. Recall, the Stage A gates and the plan are local. Room prose never rides argv (the planner refuses free text with exit 2).
+
 ## Subcommand Routing
 
-Parse the user's input after `/mos:eureka`. The primary job IS the scan, so **no args behaves as `run`** (unlike the multi-tool help commands).
+Parse the user's input after `/mos:eureka`. The primary job IS the run, so **no args behaves as `run`**.
 
 | Subcommand | Body Shape | Purpose |
 |------------|-----------|---------|
-| `run` (default) | E (Action Report) | Fire the portfolio scan, then render the ranked report |
-| `status` | E (Action Report) | Report the current scan state for this room |
-| `report` | E (Action Report) | Re-render the last completed report without re-scanning |
-| `html` | E (Action Report) | Render the last report to a shareable De Stijl html export (the mode banner rides with it) |
-| `enable` | E (Action Report) | Install the local embedding stack on demand |
+| `run` (default) | E (Action Report) | The perspective quick run: recall, Stage A, plan review, grant, run, prose, F.8 filing |
+| `--legacy <subcommand>` | E (Action Report) | The standalone Eureka runner (`run`, `start`, `status`, `report`, `html`, `enable`, `reasoning-prompts`, `reasoning-score`), retired when the Phase 366 spike closes |
+
+Anything after `--legacy` routes to the "Legacy runner (--legacy)" section below. Without `--legacy`, never call `scripts/eureka-command.cjs`.
 
 ## Pre-flight: Room Check
 
@@ -99,9 +104,96 @@ STOP. Never re-guess the room from another resolver.
 
 ## Subcommand: run (default)
 
-**Body Shape:** E (Action Report). This is the D-05 fire-and-return flow: start the scan, confirm it is running, and return the rendered report as the durable artifact. A large room must never hold the conversation hostage.
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text.
 
-### Step 1: Start the scan
+### Step 1: Recall the pairs and build the plan
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" eureka-recall --room ROOM_DIR --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room recalled no cross-domain pair: say so in one line, name `counts`, and stop. When `plan.ok` is false, say the plan was refused and quote `plan.errors`, then stop. Otherwise keep `plan.run_id`.
+
+### Step 2: Stage A gates
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" eureka-judge --room ROOM_DIR --tag <run_tag> --judge none
+```
+
+This runs the Stage A gates with no model judge. You, the host, read the summary it returns and judge what comes back; the Jev judge stays a dev-time tool (355 D-44), never called here.
+
+### Step 3: Plan review (F.6)
+
+Show the plan: the pairs as leaf questions, the falsifier for each, the sources and the budget. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). On a yes:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Step 4: Grant (F.0)
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" status <run_id> --room ROOM_DIR
+```
+
+When `next` is `run_quick`, a grant already covers the searches: go to Step 5. When it is `grant`, propose one:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" grant propose --room ROOM_DIR
+```
+
+Fire the F.0 card with AskUserQuestion, options exactly as the card gives them. On approval, Write the card's `proposal` to a scratch JSON file outside the room and approve it:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" grant approve <proposal.json> --room ROOM_DIR --approved-via cli
+```
+
+A grant lets the run fetch. It never files anything.
+
+### Step 5: Run
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it.
+
+### Step 6: Write the prose
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line with the supported pairs and their evidence rows, the strip, the footer). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a pair.
+
+### Step 7: File (F.8, only on the navigator's yes)
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Each picked pair files as one proposed candidate opportunity carrying the verification stamp. Show the filing report as is, including anything that did not land.
+
+**Zone 4 -- Action Footer (NEVER omit):**
+```
+  > /mos:eureka                     Run the next recall
+  > /mos:find-connections           Trace one pair deeper
+  > /mos:whitespace map             See where the gaps cluster
+```
+
+## Legacy runner (--legacy)
+
+The standalone Eureka runner is retired when the Phase 366 spike closes; this path exists only until then.
+
+Print that line once, verbatim, before running any `--legacy` subcommand. Everything below in this section is the old runner, unchanged. It runs the all-pairs embedding scan and banks proposed opportunity nodes from its own report path.
+
+### Legacy subcommand: run
+
+Start the scan:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR start
@@ -111,9 +203,7 @@ The dispatcher spawns the scan detached and prints the report path plus the stat
 
 Include the first-run honesty note, once:
 
-> Very simply: the first scan downloads the local embedding model once (only the model id crosses the wire, no bytes from your room leave the machine -- Canon Part 8). When the encoder is unavailable (a cold machine) or the graph is too thin, the scan does NOT dead-end: it names the real cause (`encoder_unavailable` or `below_floor`, never the bare "not enough entries" symptom) and degrades to an honest short REASONING-MODE list, upgradeable to embedded mode on a later re-run. See "Reasoning mode (lower-confidence fallback)" below.
-
-### Step 2: Poll for completion (bounded)
+> Very simply: the first scan downloads the local embedding model once (only the model id crosses the wire). When the encoder is unavailable (a cold machine) or the graph is too thin, the scan does NOT dead-end: it names the real cause (`encoder_unavailable` or `below_floor`) and degrades to an honest short REASONING-MODE list. See "Legacy reasoning mode" below.
 
 Poll status up to 3 times over roughly 15 seconds:
 
@@ -121,15 +211,11 @@ Poll status up to 3 times over roughly 15 seconds:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR status
 ```
 
-- If the state becomes `done`, proceed to Step 3.
+- If the state becomes `done`, render the report.
 - If the state is `failed`, render the 3-line error quoting the `error` field from status.json and STOP.
-- If it is still `running` after the third poll, STOP with:
+- If it is still `running` after the third poll, STOP with: "The scan is running in the background. Run /mos:eureka --legacy report in a minute to render it."
 
-> The scan is running in the background. The report will land at the named path. Run /mos:eureka again in a minute to render it.
-
-Never busy-wait past the third poll (D-05: fire-and-return, not block-and-wait).
-
-### Step 3: Render the report
+Render the report:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR report
@@ -137,196 +223,99 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR report
 
 Read the JSON on stdout and render the 4-zone output (spec below).
 
-## Subcommand: status
-
-**Body Shape:** E (Action Report).
-
-Run the status call:
+### Legacy subcommand: status
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR status
 ```
 
-Render ONE Shape E block translating the reported state:
+Render ONE Shape E block: `none` (no scan has run), `running` (name the report path), `failed` (3-line error quoting `error`), `done` (suggest `> /mos:eureka --legacy report`).
 
-- `none` -- no scan has run for this room. Suggest `> /mos:eureka run`.
-- `running` -- say so, and name the report path from the status JSON.
-- `failed` -- 3-line error quoting the `error` field from status.json.
-- `done` -- the scan finished. Suggest `> /mos:eureka report`.
+### Legacy subcommand: report
 
-## Subcommand: report
-
-**Body Shape:** E (Action Report).
-
-Skip straight to Step 3: run the `report` call and render the 4-zone output. If the dispatcher returns "no eureka report yet", render:
+Run the `report` call above and render the 4-zone output. If the dispatcher returns "no eureka report yet":
 
 ```
 x No eureka report yet
   Why: No completed scan for this room
-  Fix: /mos:eureka run
+  Fix: /mos:eureka --legacy run
 ```
 
-## Subcommand: html
-
-**Body Shape:** E (Action Report).
-
-Render the last completed report to a shareable, self-contained De Stijl html export:
+### Legacy subcommand: html
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR html
 ```
 
-The dispatcher reads the existing `portfolio-report.json` (it invents no second data shape), renders `portfolio-report.html` under `.mindrian/eureka/`, and prints the path plus the mode line. The export is zero-network (inline CSS only, no CDN, Canon Part 8) so it never phones home from a second reader's machine.
+Renders `portfolio-report.html` under `.mindrian/eureka/` from the existing `portfolio-report.json` (inline CSS only, no CDN). The mode banner rides WITH the export: a reasoning-mode html opens with a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner.
 
-Tell the navigator: **the mode banner rides WITH the export.** A reasoning-mode html opens with a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner and the full caveat; an embedded-mode html names its mode verbatim. A second reader who did not run the scan cannot mistake a reasoning result for an embedded one.
+### Legacy subcommand: enable
 
-## Subcommand: enable
-
-**Body Shape:** E (Action Report).
-
-Install the local embedding stack (about 380 MB, one-time) into `~/.mindrian/eureka-deps/`, platform-scoped so a Mac never downloads a Windows-only binary and vice versa. This subcommand is room-independent -- it never touches the active room -- so it runs the same way whether or not a room is bound:
+Install the local embedding stack (about 380 MB, one-time) into `~/.mindrian/eureka-deps/`. Room-independent:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR enable
 ```
 
-Render ONE Shape E block per outcome:
+Render ONE Shape E block per outcome: already installed, installed now, or the 3-line error quoting the reason (Fix: `/mos:eureka --legacy enable`). The same install is reachable through `/mos:doctor --fix eureka`.
 
-- **Already installed:** "Very simply: the embedding stack is already installed. Nothing to do -- /mos:eureka run will use it directly."
-- **Installed now:** "Very simply: the embedding stack is installed. The model weights download once on the first real embedding call."
-- **Failed:** the 3-line error pattern, quoting the reason the dispatcher printed:
-  ```
-  x Eureka enable failed
-    Why: [reason from the enable command's output]
-    Fix: /mos:eureka enable
-  ```
+### Legacy reasoning mode
 
-The SAME install is also reachable through `/mos:doctor --fix eureka` (Task 3 of this plan), so a navigator who meets the gap through the doctor never has to learn a second command.
+You know you are here when `/mos:eureka --legacy status` reads `reasoning_await_mappings`. Drive this loop:
 
-## Reasoning mode (lower-confidence fallback)
-
-When the local embedding encoder is unavailable or the room's graph is too thin to score, `/mos:eureka run` does NOT dead-end at "not enough entries". It degrades to an HONEST short reasoning-mode list: it names the cause, seeds candidate pairs, and hands Larry a governed loop to answer. This is the SAME command, one mental model -- never a separate fallback command.
-
-You know you are here when `/mos:eureka status` reads `reasoning_await_mappings`. Drive this loop:
-
-1. **Read the seeded pairs.** Open `.mindrian/eureka/reasoning/pairs.json`. Each candidate is a cross-domain pair the degrade proposed from the raw room markdown.
-2. **Write the mappings.** For each candidate, write `.mindrian/eureka/reasoning/mappings.json` keyed by candidate id: a one-line `mappingStatement` naming the shared relational schema WITHOUT either domain's nouns, and a `mechanismText` selected from the pair's own entry prose -- never invented.
-3. **Emit the rubric prompts.**
+1. **Read the seeded pairs** in `.mindrian/eureka/reasoning/pairs.json`.
+2. **Write the mappings** to `.mindrian/eureka/reasoning/mappings.json` keyed by candidate id: a one-line `mappingStatement` naming the shared relational schema WITHOUT either domain's nouns, and a `mechanismText` selected from the pair's own entry prose, never invented.
+3. **Emit the rubric prompts:**
 
    ```bash
    node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-prompts
    ```
 
-   This writes a `<id>.neutral.txt` and a `<id>.adversarial.txt` per candidate. Status advances to `reasoning_await_answers`.
-4. **Answer EVERY prompt faithfully** into `.mindrian/eureka/reasoning/answers.json`, keyed by candidate id, shaped `{ "<id>": { neutral: {a..f: "yes"|"no"}, adversarial: {a..f: "yes"|"no"} } }`.
-
-   **The faithful-judge protocol (LOCKED):**
-   - Answer each of the six items **yes or no with one sentence of evidence**.
-   - Take the **skeptical reading** when unsure on the adversarial pass (argue the analogy is generic filler and try to complete a counter-mapping).
-   - **NEVER estimate a semantic-similarity score. NEVER estimate a differential score. NEVER invent a number.** Those fields are structurally null in reasoning mode and the writer refuses to emit a non-null encoder leg. Your job is the six binary structure-mapping items, nothing more. Asking yourself for a made-up similarity number re-opens the exact sycophancy channel the two-pass adversarial rubric was built to close.
-5. **Score.**
+4. **Answer EVERY prompt faithfully** into `.mindrian/eureka/reasoning/answers.json`, shaped `{ "<id>": { neutral: {a..f: "yes"|"no"}, adversarial: {a..f: "yes"|"no"} } }`. Each item yes or no with one sentence of evidence; the skeptical reading when unsure on the adversarial pass. **NEVER estimate a similarity or differential score. NEVER invent a number.**
+5. **Score:**
 
    ```bash
    node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-score
    ```
 
-   The runner replays your answers through the REAL rubric (verdict computed by code, biased to reject) and writes the SAME `{ provenance, ranked, tail, statements }` md+json labeled `mode:reasoning`. If it exits with a re-answer request (status `reasoning_await_answers` with `retry:true`), re-answer ONLY the named pairs faithfully and run `reasoning-score` again (one retry allowed) -- never guess to make it pass.
-6. **Render.** Render the report through Shape E with the caveat in the TOP zone (Zone 1), stated once, prominently -- never a footer (SEED req 4). The ranked table shows `verdict` + `mode` only, never a lexical-overlap number and never a differential column (Phase 355-18, D-29). Nothing is banked (`banked:false` on every row, Canon Part 9 human-only promotion).
+   On a re-answer request (`retry:true`), re-answer ONLY the named pairs and score again (one retry allowed).
+6. **Render** through Shape E with the caveat in the TOP zone, stated once. The table shows `verdict` + `mode` only.
 
-## The 4-Zone Render Spec
+### Legacy 4-zone render spec
 
-Zone 2 reads the report JSON fields by name. Render exactly this anatomy.
+**Zone 1 -- Header Panel:** `-- [Room Name] -- Eureka Portfolio Scan (legacy) -- [Stage] --`
 
-**Zone 1 -- Header Panel:**
-```
--- [Room Name] -- Eureka Portfolio Scan -- [Stage] --
-```
+**Zone 2 -- Content Body:**
 
-**Zone 2 -- Content Body (Shape E: Action Report):**
-
-(a) Provenance one-liner from the JSON provenance object: the **Mode field renders on EVERY result** (embedded or reasoning), never defaulted, never hidden -- it is the reader's entire calibration signal (D6/G-4). Read it from `provenance.run_mode`.
+(a) Provenance one-liner; the Mode field renders on EVERY result, read from `provenance.run_mode`:
 
 ```
   Scan: mode=[run_mode]  pairs=[pairs_mode]  encoder=[encoder]  scored=[N] pairs
 ```
 
-When `provenance.run_mode` is `reasoning`, render the caveat FIRST, in the TOP zone (Zone 1), stated once, prominently -- never a footer. See the reasoning-mode section below.
+(b) Ranked table from `json.ranked`. Never render a score, similarity, differential or percentage (Phase 355-18, D-27, D-29).
 
-(b) Ranked table from `json.ranked` -- one row per pair. The columns depend on the mode. Phase
-355-18 (D-27, D-29): never render a score, similarity, differential or percentage anywhere in
-this table -- the composite score stays data in the JSON, never rendered; reproduce the stamp
-block verbatim under each row instead.
+- **Embedded** (`run_mode` is `live`/`offline`): rank, A, B, weak dimensions (or `-`), a tail-flag glyph (`⚡`) only when tail-flagged, and mode, then `json.ranked[i].stamp` reproduced verbatim under that row. A row with no stored `stamp` renders "Not yet checked; run the CLI to verify."
+- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `verdict`, `mode`. No number of any kind.
 
-- **Embedded** (`run_mode` is `live`/`offline`): rank, A, B, weak dimensions (or `-`), a
-  tail-flag glyph (`⚡`) only when the pair is tail-flagged, and mode -- then `json.ranked[i].stamp`
-  reproduced verbatim as the stamp block under that row (the path check, or the honest
-  unverified reason; `formatStampLines` shape). A row with no stored `stamp` (the report was
-  never run with `--stamp`) renders "Not yet checked; run the CLI to verify." instead of a block.
+Reasoning and embedded pairs are NEVER merged into one ranked list.
 
-```
-  Rank  A                         B                         Weak dims        Tail   Mode
-  1     [A title]                 [B title]                 validated_demand        embedded
-  ✓ strong · same meaning in different words · theo
-  path   [A title] -- FEEDS_INTO -- [B title]
-  tier   strong, one step in the methodology graph
-  judge  none, path check only
+(c) Tail read: when `json.tail.insufficient_structure` is true, render exactly "Not enough entries for a tail read (below the 30-entry floor)". Otherwise the tail items from `json.tail`, with `⚠` on `suspect_noise`.
 
-  2     [A title]                 [B title]                 -                ⚡      embedded
-  ⚠ unverified · same words with different meaning · theo unavailable
-  reason methodology graph unreachable
-  may be novel or hallucinated - verify with a domain expert
-  judge  none, path check only
-```
+(d) Opportunity Statements from `json.statements`: a `pending` critic state renders as `NOT YET BANKED (critic pending)`.
 
-- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `verdict`, and `mode`. NEVER
-  render a lexical-overlap column, a `differential_score` column or a `semantic_similarity`
-  column -- reasoning-mode pairs have no rs pair to verify against the methodology graph, so this
-  table carries no number of any kind (D-29, the D1 lie in render form).
-
-```
-  Rank  A                         B                         Verdict        Mode
-  1     [A title]                 [B title]                 transferable   reasoning
-```
-
-Reasoning and embedded pairs are NEVER merged into one ranked list (D6 never-merge).
-
-Never render a score, similarity, differential or percentage anywhere on this card; reproduce a
-stamp block verbatim, exactly as printed. On Desktop/Cowork, when a finding's stamp was never
-computed this run, say exactly "Not yet checked; run the CLI to verify." (D-50) -- never guess
-what the path check would have said.
-
-(c) Tail read:
-- When `json.tail.insufficient_structure` is true, render EXACTLY this honest line and nothing more for the tail:
-  ```
-  Not enough entries for a tail read (below the 30-entry floor)
-  ```
-- Otherwise render the tail items table from `json.tail`. When the tail carries a `suspect_noise` flag, mark it with a `⚠` signal (surfaced in Zone 3).
-
-(d) Opportunity Statements from `json.statements` -- the statement text plus its honest critic state:
-- A statement whose critic state is `pending` renders as `NOT YET BANKED (critic pending)`. NEVER describe a pending statement as banked (D-03, the Pitfall-4 invariant).
-
-**Zone 3 -- Intelligence Strip** (conditional, max 3 signals, only when real):
-```
-  ⚠ Tail flagged suspect_noise -- attention/growth axes may be degenerate
-  ⚡ [statement] sits in the weak-signal tail -- a gem the top-N sort buries
-```
-Omit the strip entirely when there are no real signals.
+**Zone 3 -- Intelligence Strip** (conditional, max 3 real signals).
 
 **Zone 4 -- Action Footer (NEVER omit):**
 ```
-  > /mos:eureka report              Re-render this scan
+  > /mos:eureka                     Run the perspective quick run
+  > /mos:eureka --legacy report     Re-render this scan
   > /mos:find-connections           Trace one pair deeper
-  > /mos:whitespace map             See where the gaps cluster
 ```
-Exactly one primary (`▶` in render) -- `> /mos:eureka report` or the strongest follow-up -- plus the two grounded alternates.
 
 ## Decision Gate Close (F.8)
 
-After rendering, IF there is a genuine unanswered fork -- which candidate should the navigator pursue -- FIRE the AskUserQuestion card in F.8 form (an unordered basket of options). Build the options from the top Opportunity Statements plus the standard discovery next-steps (trace a pair, map whitespace, defer). Never draw a numbered selector box. Skip the card entirely when the navigator already said which candidate they want -- acknowledge and proceed in prose.
-
-## Report-only note (D-03)
-
-Very simply: in v1 the Opportunity Statements render in the report only. They are NOT written to the room graph as nodes; banking an accepted statement is a later governed phase. Critic state renders honestly as pending, never claimed as banked.
+On the default run, the F.8 basket in Step 7 is the close. On a legacy report, IF there is a genuine unanswered fork (which candidate to pursue), FIRE the AskUserQuestion card in F.8 form from the top Opportunity Statements plus the standard next steps. Skip the card when the navigator already said which candidate they want.
 
 ## Error Handling
 
@@ -341,12 +330,11 @@ x [What failed]
 Common errors:
 
 - **No room:** `x No Data Room found / Why: No room under ~/MindrianRooms/ / Fix: /mos:new-project`
-- **No report yet:** `x No eureka report yet / Why: No completed scan for this room / Fix: /mos:eureka run`
-- **Scan failed:** `x Eureka scan failed / Why: [error field from status.json] / Fix: /mos:eureka run`
-- **Encoder unavailable (offline):** `x Encoder unavailable / Why: The local embedding model is not cached and the machine is offline / Fix: Reconnect once to fetch the model, then /mos:eureka run`
+- **No pairs recalled:** `x No cross-domain pair recalled / Why: The room graph has no two things in different domains to pair yet / Fix: /mos:file-meeting`
+- **Argv refused:** `x Planner refused the call / Why: free_text_argv_refused (room text never rides argv) / Fix: /mos:eureka`
+- **No legacy report yet:** `x No eureka report yet / Why: No completed scan for this room / Fix: /mos:eureka --legacy run`
 
 ## Cross-Surface Adaptation
 
-- **CLI:** Full power. The dispatcher runs via Bash; the 4-zone output is formatted for the terminal.
-- **Desktop:** Larry renders the SAME report JSON conversationally -- ranked pairs, the tail read, and the Opportunity Statements described in natural language, never a score or similarity number (D-29). Reproduce a stored stamp block's evidence in prose; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).
-- **Cowork:** Same as CLI. The report file under `.mindrian/eureka/` is shareable via `00_Context/` for team visibility.
+- **CLI:** Full power. The perspective quick run drives the research planner via Bash; the legacy runner is reachable only with `--legacy`.
+- **Desktop / Cowork:** call the `research_run` MCP tool with op `eureka_recall` for the bound room, and answer each card with `gate_answer`. The MCP `intelligence eureka-run` command answers with a pointer to `research_run` unless the context carries `{"legacy":true}`. Never render a score or similarity number; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).
