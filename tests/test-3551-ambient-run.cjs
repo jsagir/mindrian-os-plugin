@@ -14,7 +14,7 @@
  *
  *   producer          | seam called                                        | argument form                                                    | return form
  *   ------------------|-----------------------------------------------------|-------------------------------------------------------------------|------------------------------------------------------
- *   eureka            | lib/core/eureka/room-native-substrate.cjs::buildRoomNativeSubstrate(db, opts) + scripts/eureka-portfolio-report.cjs::stampRankedPairs(ranked, ctx, deps) + ::eurekaEndpoints(pair, ctx) | db: a caller-owned read-only handle; ranked rows shaped { idA, idB, techA, techB, rs } | { meta, techMap, convergesPairs } from the substrate; stampRankedPairs mutates ranked[i].stamp in place and returns Stamp[]
+ *   eureka            | lib/core/research-planner/perspectives/eureka-recall.cjs::buildSubstrate(db, { roomDir }) + ::recallCandidates(substrate, roomDir, { max_candidates: AMBIENT_TOP_N }) (Phase 366-07, D-03: offer only) | db: a caller-owned read-only handle | { outcome: 'offered', findings: [{ producer, a, b, rank, offer_only: true }] (no stamp, empty text), offer: [{ a, b, section_a, section_b }] }; never stamped, guarded or filed
  *   find-connections  | lib/core/verification-stamp.cjs::resolveEndpoint({framework}) + ::stampFindings(findings, deps) | findings: [{ fromHandle, toHandle, fromVia, toVia, direction }] over the distinct resolved pairs the other four producers surfaced | Stamp[] aligned to findings order
  *   find-bottlenecks  | lib/core/rs-engine.cjs::runModeInternal(roomDir, opts) with opts.stampFn | opts: { topk, stampFn(pairDicts) -> Promise<Map<pairKey, flatProps>> } | { metadata, pairs: [{ source_artifact_id, target_artifact_id, source_title, target_title, direction, abs_diff, ... }] }; writeReverseSalientEdges runs inside, keyed by opts.stampsByPairKey
  *   hsi               | scripts/hsi-to-graph.cjs::main(argv, deps) with --stamp --top | argv: [roomDir, '--stamp', '--top', n]; deps: { callTool } | undefined (writes HSI_CONNECTION edges with toNodeProps(stamp) merged in, may call process.exit on a missing/malformed .hsi-results.json)
@@ -23,7 +23,9 @@
  *   The filing seam: lib/core/eureka/eureka-reach-runner.cjs::measureAndGuardPair(a, b, opts)
  *     -> Promise<{ ok:true, score, guard } | { ok:false, reason }>, reason in
  *     'guard_unavailable'|'below_floor'|'guard_not_cleared' (Phase 355.1-07 extraction).
- *   The writer seam: scripts/eureka-portfolio-report.cjs::fileStampedOpportunity(db, params)
+ *   The writer seam: lib/core/research-planner/filing-stamped.cjs::fileStampedOpportunity(db, params)
+ *     (relocated by 366-02, called from ambient-run.cjs since 366-07; the legacy
+ *     scripts/eureka-portfolio-report.cjs re-exports the same function)
  *     -> node id string | null (Phase 355.1-07 extraction; never opens/commits a
  *     transaction itself).
  *   The side-channel seam: lib/core/eureka/eureka-reach-runner.cjs::writeStampedSideChannel(roomDir, opts)
@@ -443,6 +445,8 @@ try {
       const eurekaPortfolioReport = require('../scripts/eureka-portfolio-report.cjs');
       assert.strictEqual(typeof eurekaReachRunner.measureAndGuardPair, 'function', 'measureAndGuardPair must be exported from eureka-reach-runner.cjs');
       assert.strictEqual(typeof eurekaPortfolioReport.fileStampedOpportunity, 'function', 'fileStampedOpportunity must be exported from eureka-portfolio-report.cjs');
+      const filingStamped = require('../lib/core/research-planner/filing-stamped.cjs');
+      assert.strictEqual(typeof filingStamped.fileStampedOpportunity, 'function', 'fileStampedOpportunity must be exported from research-planner/filing-stamped.cjs (the filer ambient-run.cjs calls, 366-07)');
       ok('extraction regressions: measureAndGuardPair and fileStampedOpportunity are both exported (test-355-filing.cjs, test-355-side-channel-v2.cjs, test-213-sensor-eureka.cjs and test-213-part8-boundary.cjs are run directly by the executor, unchanged)');
     })();
 
@@ -470,6 +474,9 @@ try {
         assert.ok(res.producers[id] && AMBIENT_PRODUCER_OUTCOMES.indexOf(res.producers[id].outcome) !== -1,
           'producers.' + id + '.outcome must be a member of AMBIENT_PRODUCER_OUTCOMES, got ' + JSON.stringify(res.producers[id]));
       }
+      // 366-07 (D-03): the eureka producer only offers; it is never the card.
+      assert.ok(['offered', 'no_candidate', 'error', 'skipped'].indexOf(res.producers.eureka.outcome) !== -1, 'eureka outcome must be an offer outcome, got ' + res.producers.eureka.outcome);
+      assert.ok(!res.card || res.card.producer !== 'eureka', 'the eureka offer must never become the filed card');
       if (res.card) {
         verificationStamp.Stamp.parse({
           verification: res.card.verification, backend: 'theo', direction: 'none', judge: 'none',

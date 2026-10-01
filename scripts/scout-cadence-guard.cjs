@@ -367,7 +367,9 @@ const AMBIENT_THROTTLE_WINDOW_MS = 60 * 60 * 1000;
 const AMBIENT_LOCK_STALE_MS = 8 * 60 * 1000;
 const STAMPED_MATERIALS_MAX = 32;
 const AMBIENT_PRODUCER_IDS = Object.freeze(['eureka', 'find-connections', 'find-bottlenecks', 'hsi', 'whitespace']);
-const AMBIENT_PRODUCER_OUTCOMES = Object.freeze(['filed', 'no_candidate', 'below_floor', 'guard_not_cleared', 'error', 'skipped', 'deps_missing']);
+// 366-07 (D-03): 'offered' (appended last) is the ambient eureka producer's
+// outcome: the perspective recall handed the planner an offer, nothing filed.
+const AMBIENT_PRODUCER_OUTCOMES = Object.freeze(['filed', 'no_candidate', 'below_floor', 'guard_not_cleared', 'error', 'skipped', 'deps_missing', 'offered']);
 const AMBIENT_POSTURES = Object.freeze(['run', 'halt']);
 const SHOULD_RUN_REASONS = Object.freeze(['ok', 'same_hash', 'in_flight', 'throttled', 'locked', 'ledger_corrupt']);
 

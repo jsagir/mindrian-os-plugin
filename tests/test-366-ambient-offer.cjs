@@ -225,7 +225,7 @@ async function main() {
         deps: {
           adapters: adaptersWithRealEureka({ hsi: async function () { return { outcome: 'no_candidate', findings: [hsiFinding] }; } }),
           callTool: countingCallTool(),
-          measureAndGuard: async function () { return { ok: true, score: 0.9, guard: { cleared: true } }; },
+          measureAndGuard: async function () { return { ok: true, score: { direction: 'structural_transfer', abs_diff: 0.5, band: 'opportunity', passes: true, semantic: 0.1, lexical: 0.1 }, guard: { cleared: true, verdict: 'transferable', confidence: 'high', tags: [] } }; },
         },
       });
     } finally {
