@@ -2545,6 +2545,27 @@
       "to": "Futures Wheel",
       "confidence": 0.66,
       "transform": "scenario-to-cascades"
+    },
+    {
+      "kind": "prerequisite",
+      "from": "Domain Selection",
+      "to": "Trending to the Absurd",
+      "confidence": 0.66,
+      "transform": "domains-prereq-trends"
+    },
+    {
+      "kind": "prerequisite",
+      "from": "Domain Selection",
+      "to": "Scenario Planning",
+      "confidence": 0.66,
+      "transform": "domains-prereq-scenario"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Domain Selection",
+      "to": "Trending to the Absurd",
+      "confidence": 0.64,
+      "transform": "domain-to-trends"
     }
   ]
 }
