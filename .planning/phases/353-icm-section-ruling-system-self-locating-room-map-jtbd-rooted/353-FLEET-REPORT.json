@@ -1,6 +1,6 @@
 {
-  "measured_at": "2026-09-24T20:55:12.302Z",
-  "rooms_scanned": 54,
+  "measured_at": "2026-10-01T07:22:40.674Z",
+  "rooms_scanned": 56,
   "per_room": [
     {
       "slug": "polygon",
@@ -904,6 +904,40 @@
       "registry_drift": 0
     },
     {
+      "slug": "my-room",
+      "kinds": {
+        "root": 1,
+        "section": 12,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
+      "slug": "idem-room",
+      "kinds": {
+        "root": 1,
+        "section": 12,
+        "structural": 2,
+        "sub-room": 0,
+        "artifact": 0
+      },
+      "missing_room_md_by_kind": {
+        "root": 0,
+        "section": 0,
+        "structural": 0,
+        "sub-room": 0
+      },
+      "registry_drift": 0
+    },
+    {
       "slug": "axiom",
       "kinds": {
         "root": 1,
@@ -922,9 +956,9 @@
     }
   ],
   "totals": {
-    "root": 54,
-    "section": 572,
-    "structural": 58,
+    "root": 56,
+    "section": 596,
+    "structural": 62,
     "sub-room": 19,
     "artifact": 407,
     "missing_room_md": {
