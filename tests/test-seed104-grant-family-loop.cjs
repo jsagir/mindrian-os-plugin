@@ -52,6 +52,7 @@ const grants = require(path.join(RP, 'grants.cjs'));
 const families = require(path.join(RP, 'families.cjs'));
 const planMod = require(path.join(RP, 'plan.cjs'));
 const Q = require(path.join(RP, 'question-templates.cjs'));
+const corpus = require(path.join(ROOT, 'lib', 'core', 'research-corpus.cjs'));
 
 const QS_DIR = path.join(ROOT, 'tests', 'fixtures', '363-question-sets');
 function qsFile(name) { return JSON.parse(fs.readFileSync(path.join(QS_DIR, name + '.json'), 'utf8')); }
@@ -66,6 +67,42 @@ function newRoom(role) {
   const r = buildRoom363({ role: role || 'founder' });
   rooms.push(r);
   return r;
+}
+
+// A concept-evidence quick plan: the think-hats set with a term on the white
+// hat (ce.exact) and the black hat (ce.counter). Both queries use one term.
+const CE_TERM = 'automated slide scanning';
+function ceQuestionSet() {
+  const qs = qsFile('think-hats');
+  qs.leaves.forEach(function (l) { if (l.id === 'L1' || l.id === 'L3') l.slots = { term: CE_TERM }; });
+  return qs;
+}
+function buildCePlan(roomDir) {
+  const built = planner.buildPlan(roomDir, ceQuestionSet(), { mode: 'quick', now: new Date(NOW) });
+  assert.equal(built.ok, true, JSON.stringify(built).slice(0, 300));
+  assert.equal(built.status, 'ready');
+  return built.plan;
+}
+function clonePlan(plan) { return JSON.parse(JSON.stringify(plan)); }
+function firstFetchQuery(plan) {
+  for (let i = 0; i < plan.leaves.length; i += 1) {
+    const l = plan.leaves[i];
+    if (l.researchable === true && l.corpus === 'openalex' && Array.isArray(l.queries) && l.queries.length > 0) return l.queries[0];
+  }
+  return null;
+}
+// A fetch seam that counts calls and answers from the OpenAlex replay.
+function countingSeam(route) {
+  const replay = makeReplayFetch({ route: route || function () { return 'gap_primary_zero'; } });
+  const st = { calls: 0 };
+  const fn = async function (args) {
+    st.calls += 1;
+    const prev = globalThis.fetch;
+    globalThis.fetch = replay;
+    try { return await corpus.fetchCorpusEnvelope(args); } finally { globalThis.fetch = prev; }
+  };
+  fn.state = st;
+  return fn;
 }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +292,97 @@ async function main() {
     assert.equal(grants.writeGrant(room2, bad, { approved_via: VIA, now: NOW }).reason, 'unknown_family');
     const prov = Object.assign({}, p, { providers: ['openalex', 'crossref'] });
     assert.equal(grants.writeGrant(room2, prov, { approved_via: VIA, now: NOW }).reason, 'standing_scope_exceeded');
+  });
+
+  // -- S7 loop guard, core (SEED-104 part 3) ------------------------------------
+  await leg('S7 a stuck standing scope returns grant_scope_cannot_cover_plan, no card, no fetch; an untampered plan runs', async function () {
+    const room = newRoom('founder').roomDir;
+    const plan = buildCePlan(room);
+    const cover = quick.coverFor(room, plan, { now: NOW });
+    assert.equal(cover.covered, false);
+    assert.equal(cover.reason, 'no_grant');
+    assert.deepEqual(cover.proposal.families, ['concept-evidence/v1']);
+    const ap = planner.approveStandingGrant(room, cover.proposal, { approvedVia: 'cli', terms: cover.new_terms });
+    assert.equal(ap.ok, true, JSON.stringify(ap));
+    assert.ok(ap.grant.families.indexOf('concept-evidence/v1') !== -1);
+
+    const clone = clonePlan(plan);
+    const tampered = firstFetchQuery(clone);
+    assert.equal(tampered.family, 'concept-evidence/v1');
+    tampered.template_id = 'ws.exact';
+    const spy = countingSeam();
+    const res = await quick.runQuick(room, clone, { fetchEnvelopeFn: spy, now: NOW });
+    assert.equal(res.status, 'refused', JSON.stringify(res).slice(0, 300));
+    assert.equal(res.reason, 'grant_scope_cannot_cover_plan');
+    assert.equal(res.reask_reason, 'outside_family');
+    assert.ok(res.plan_families.indexOf('concept-evidence/v1') !== -1);
+    assert.deepEqual(res.grant_families, ap.grant.families);
+    assert.equal(res.card, undefined);
+    assert.equal(spy.state.calls, 0);
+    const cv = quick.coverFor(room, clone, { now: NOW });
+    assert.equal(cv.covered, false);
+    assert.equal(cv.reason, 'grant_scope_cannot_cover_plan');
+    assert.equal(cv.card, undefined);
+    assert.equal(cv.proposal, undefined);
+    const card = planner.cardFor(room, clone, { now: NOW });
+    assert.equal(card.card, null);
+    assert.equal(card.reason, 'grant_scope_cannot_cover_plan');
+
+    const okSpy = countingSeam();
+    const done = await quick.runQuick(room, plan, { fetchEnvelopeFn: okSpy, now: NOW });
+    assert.equal(done.status, 'done', JSON.stringify(done).slice(0, 300));
+    assert.ok(okSpy.state.calls > 0);
+  });
+
+  // -- S8 stale prose plan -------------------------------------------------------
+  await leg('S8 a stored plan carrying a prose term is refused before any fetch; proposeGrant refuses prose', async function () {
+    const room = newRoom('founder').roomDir;
+    const plan = buildCePlan(room);
+    const clone = clonePlan(plan);
+    const q = firstFetchQuery(clone);
+    q.slot_terms = [PROSE];
+    q.q = '"' + PROSE + '"';
+    q.q_hash = families.qHash(q.q);
+    const spy = countingSeam();
+    const res = await quick.runQuick(room, clone, { fetchEnvelopeFn: spy, now: NOW });
+    assert.equal(res.status, 'refused');
+    assert.equal(res.reason, 'term_not_composed');
+    assert.equal(spy.state.calls, 0);
+    const cv = quick.coverFor(room, clone, { now: NOW });
+    assert.equal(cv.covered, false);
+    assert.equal(cv.reason, 'term_not_composed');
+    assert.equal(cv.card, undefined);
+    const prop = planner.proposeGrant(room, { terms: ['**Claim.** x y'] });
+    assert.equal(prop.ok, false);
+    assert.equal(prop.reason, 'term_not_composed');
+  });
+
+  // -- S9 re-approval widening ---------------------------------------------------
+  await leg('S9 re-approving onto a whitespace grant widens families once; the identical call is a no-op', function () {
+    const room = newRoom('founder').roomDir;
+    const wsBuilt = planner.buildPlan(room, qsFile('whitespace-quick'), { mode: 'quick', now: new Date(NOW) });
+    const wsCover = quick.coverFor(room, wsBuilt.plan, { now: NOW });
+    const first = planner.approveStandingGrant(room, wsCover.proposal, { approvedVia: 'cli', terms: wsCover.new_terms });
+    assert.equal(first.ok, true);
+    assert.deepEqual(first.grant.families, ['whitespace-gap/v1']);
+    assert.equal(first.grant.version, 1);
+
+    const cePlan = buildCePlan(room);
+    const ceCover = quick.coverFor(room, cePlan, { now: NOW });
+    assert.equal(ceCover.reason, 'outside_family');
+    assert.ok(ceCover.card, 'a card is offered once');
+    assert.deepEqual(ceCover.proposal.families, ['concept-evidence/v1']);
+    const a = planner.approveStandingGrant(room, ceCover.proposal, { approvedVia: 'cli', terms: ceCover.new_terms });
+    assert.equal(a.ok, true, JSON.stringify(a));
+    assert.deepEqual(a.grant.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
+    assert.equal(a.grant.version, 2);
+    assert.equal(typeof a.decision_node_id, 'string');
+    const b = planner.approveStandingGrant(room, ceCover.proposal, { approvedVia: 'cli', terms: ceCover.new_terms });
+    assert.equal(b.ok, true);
+    assert.equal(b.unchanged, true);
+    assert.equal(b.grant.version, 2);
+    assert.equal(b.decision_node_id, null);
+    assert.equal(quick.coverFor(room, cePlan, { now: NOW }).covered, true);
   });
 
   // LEGS_HERE

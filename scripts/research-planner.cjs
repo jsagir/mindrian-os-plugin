@@ -371,7 +371,10 @@ async function handle(cmd, pos, flags) {
       if (res.status === 'reask') {
         return { ok: true, status: 'reask', reason: res.reason, card: res.card, proposal: res.proposal, new_terms: res.new_terms };
       }
-      return { ok: false, status: 'refused', reason: res.reason, errors: res.errors || [] };
+      const refusedOut = { ok: false, status: 'refused', reason: res.reason, errors: res.errors || [] };
+      // SEED-104: the CLI door gives the same typed answer as the MCP door.
+      ['reask_reason', 'plan_families', 'grant_families'].forEach(function (k) { if (res[k] !== undefined) refusedOut[k] = res[k]; });
+      return refusedOut;
     }
     case 'validate-rows': {
       const rows = readInput(pos[1]);
