@@ -43,6 +43,10 @@
  *   --stale-only      render only sections flagged is_stale.
  *   <section>         render only that section's full triple (no 80-char
  *                     truncation on governing_thought).
+ *   --checks          print what this room's claims were checked against, in
+ *                     words, with what would move each count, and the room's
+ *                     never-do list (Phase 365-15). Pulled, never pushed: the
+ *                     normal render prints none of it. Nothing is scored.
  *
  * Pure CJS, node built-ins only, zero npm dependencies. Three-surface
  * compatible by construction (CLI + Desktop MCP + Cowork).
@@ -87,12 +91,13 @@ try {
 // ---------- Argument parsing ----------
 
 function parseArgs(argv) {
-  const out = { staleOnly: false, section: null };
+  const out = { staleOnly: false, section: null, checks: false };
   // argv[0] is node, argv[1] is this script; user args start at argv[2].
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (!a) continue;
     if (a === '--stale-only') { out.staleOnly = true; continue; }
+    if (a === '--checks') { out.checks = true; continue; }
     if (a.indexOf('--') === 0) continue; // ignore unknown flags
     if (out.section === null) { out.section = a; }
   }
@@ -574,10 +579,70 @@ function emitSpineRead(roomDir, payload) {
   }
 }
 
+// ---------- /mos:status --checks (Phase 365-15, D-16) ----------
+
+/**
+ * neverDoLine(roomDir) -> string
+ *
+ * One line naming how many never-do entries the room has and that the list is
+ * a floor (room-constraints.FLOOR_SENTENCE). An unreadable list is reported
+ * with its fix, never skipped (D-15, INV-SL-4).
+ */
+function neverDoLine(roomDir) {
+  const rc = require(path.join(__dirname, '..', 'lib', 'core', 'room-constraints.cjs'));
+  const sum = rc.listSummary(roomDir);
+  if (sum && sum.ok) {
+    return 'Never-do list: ' + sum.count + ' named. ' + rc.FLOOR_SENTENCE;
+  }
+  return 'Never-do list: could not be read (' + rc.FILE_REL + '). ' +
+    'Until it is fixed, every unattended step in this room stops. ' + rc.FLOOR_SENTENCE;
+}
+
+/**
+ * renderChecks(roomDir) -> string
+ *
+ * The pulled portrait: the shared renderer's lines (one row per standing plus
+ * the held row), the never-do line just before the closing line, and the
+ * closing line last. Reads through navigation only; closes the db handle.
+ */
+function renderChecks(roomDir) {
+  if (!navigation || typeof navigation.readStandingPortrait !== 'function') {
+    return 'The checking picture could not be read here.';
+  }
+  const db = navigation.openRoomDbForCaller(roomDir);
+  if (!db) return 'No room database found for this room yet, so nothing has been checked.';
+  let lines;
+  try {
+    const portrait = navigation.readVerificationPortrait(db);
+    const standing = navigation.readStandingPortrait(db);
+    lines = navigation.renderVerificationPortraitLines(portrait, standing);
+  } finally {
+    navigation.closeRoomDbForCaller(db);
+  }
+  const closing = lines.pop();
+  lines.push(neverDoLine(roomDir));
+  lines.push(closing);
+  return lines.join('\n');
+}
+
 // ---------- Entry point ----------
 
 function main() {
   const args = parseArgs(process.argv);
+  if (args.checks) {
+    try {
+      let roomDir = resolveRoomRoot(process.cwd());
+      if (!roomDir && navigation && typeof navigation.detectActiveRoom === 'function') {
+        const active = navigation.detectActiveRoom();
+        if (active && typeof active.roomDir === 'string') roomDir = active.roomDir;
+      }
+      process.stdout.write((roomDir ? renderChecks(roomDir)
+        : 'no active room; /mos:rooms to list available rooms') + '\n');
+    } catch (_e) {
+      process.stdout.write('The checking picture could not be read right now.\n');
+    }
+    process.exit(0);
+  }
   try {
     const out = renderStatus({
       cwd: process.cwd(),
@@ -619,4 +684,6 @@ module.exports = {
   // Phase 129-02: spine_read emission via navigation.logSpineRead (exported for
   // in-process tests; the live path calls it at the end of main() post-stdout).
   emitSpineRead: emitSpineRead,
+  renderChecks: renderChecks,
+  neverDoLine: neverDoLine,
 };

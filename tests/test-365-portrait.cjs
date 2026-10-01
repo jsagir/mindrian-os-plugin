@@ -8,6 +8,10 @@
  * byte-identical to the 358 lines, the standing rows (counts in words, each
  * naming what would move it), no score words, the standing on the claim view
  * and list, and the one-week acceptance test green.
+ * Task 2 legs Q7..Q11: claim_read carries the rows (descriptions and schemas
+ * unchanged), `/mos:status --checks` prints the pulled portrait with the
+ * never-do line, an unreadable never-do list is reported with its fix, the
+ * normal status never prints any of it, and the argument docs plus the mirror.
  *
  * Plain node:assert/strict. No em-dash or en-dash in this file: the dash
  * checks spell the two characters as escapes. Exit 0 pass, 1 fail, 77 env gap.
@@ -19,11 +23,15 @@ const net = hygiene.installNetGuard();
 
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const fx = require('./helpers/fixture-room-365.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+const claimVerify = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tools', 'claim-verify.cjs'));
+const roomConstraints = require(path.join(REPO_ROOT, 'lib', 'core', 'room-constraints.cjs'));
 
 const CLOSING = 'A count is not a verdict. Only a person confirms a claim.';
 const NO_SCORE = /score|percent|pct|ratio|grade|coverage|%|verified|fail/i;
@@ -74,7 +82,43 @@ function seedFourStandings(db) {
   return ids;
 }
 
-function main() {
+// sha256 of the registered title, description and input field names, field
+// descriptions and zod type names for claim_read and claim_verify, captured from
+// PLAN_BASE (5b9b0e0a7). The portrait change must not move any of them.
+const BASE_SCHEMA_SHA = '15b5df27b72864c4897fc928feb71add52fa9947a7bcd02e2c0632b3a575cdab';
+
+function schemaSignature(handlersServer) {
+  const cfgs = {};
+  const server = { tool() {}, registerTool(n, c) { cfgs[n] = c; } };
+  claimVerify.register(server, { fallbackRoomDir: '/nonexistent', pluginRoot: REPO_ROOT, surface: 'cli' });
+  const out = {};
+  for (const n of Object.keys(cfgs)) {
+    const c = cfgs[n];
+    const shape = (c.inputSchema && c.inputSchema.shape) || {};
+    out[n] = {
+      title: c.title,
+      description: c.description,
+      fields: Object.keys(shape).sort().map((k) => [k, shape[k].description || null, shape[k]._def && shape[k]._def.typeName]),
+    };
+  }
+  return crypto.createHash('sha256').update(JSON.stringify(out)).digest('hex');
+}
+
+function runStatus(cwd, args) {
+  return spawnSync(process.execPath, [path.join(REPO_ROOT, 'scripts', 'mos-status.cjs')].concat(args),
+    { cwd: cwd, encoding: 'utf8', timeout: 60000, env: Object.assign({}, process.env, { CLAUDE_ACTIVE_ROOM: '' }) });
+}
+
+function textOf(raw) { return (raw && raw.content && raw.content[0] && raw.content[0].text) || ''; }
+
+async function mcpLeg(roomDir) {
+  const { server, handlers } = fx.captureToolServer();
+  claimVerify.register(server, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'cli' });
+  const raw = await handlers.get('claim_read')({}, { sessionId: 'test-365-portrait' });
+  return JSON.parse(textOf(raw));
+}
+
+async function main() {
   let room;
   try {
     room = fx.makeRoom365('portrait');
@@ -181,6 +225,102 @@ function main() {
     fx.cleanup(room);
   }
 
+  // Q7..Q11 use a second scratch room seeded with one claim per standing and one held claim.
+  let room2;
+  try {
+    room2 = fx.makeRoom365('portrait2');
+  } catch (e) {
+    process.stdout.write('ENV GAP: cannot make a scratch room: ' + String(e && e.message) + '\n');
+    return fx.SKIP_EXIT_CODE;
+  }
+  try {
+    const db2 = fx.openFresh(room2.room);
+    try { seedFourStandings(db2); } finally { fx.closeFresh(db2); }
+    fs.writeFileSync(path.join(room2.room, '.room-root'), '', 'utf8');
+
+    const payload = await mcpLeg(room2.room);
+    const portraitText = String(payload && payload.rendered && payload.rendered.portrait);
+    check('Q7 claim_read rendered.portrait carries the standing rows and ends with the closing line', () => {
+      assert.equal(payload.ok, true);
+      const W = navigation.STANDING_WORDS;
+      for (const id of navigation.STANDING_IDS) {
+        assert.ok(portraitText.indexOf(W[id].label + ': 1 - moves when ' + W[id].moves_when) !== -1, 'row ' + id);
+      }
+      assert.ok(portraitText.indexOf(navigation.HELD_WORDS.label + ': 1 - moves when') !== -1);
+      assert.ok(portraitText.endsWith(CLOSING));
+      assert.deepEqual(payload.standing_portrait.claims_by_standing, { located_source: 1, source_edge: 1, model_only: 1, none: 1 });
+      for (const l of portraitText.split('\n')) assert.ok(!NO_SCORE.test(l), 'score-like word in: ' + l);
+    });
+    check('Q7b claim_read and claim_verify descriptions and input schemas equal PLAN_BASE', () => {
+      assert.equal(schemaSignature(), BASE_SCHEMA_SHA);
+    });
+
+    // Q8: the pulled portrait with a named never-do entry.
+    const added = roomConstraints.writeNeverDoEntry(room2.room,
+      { kind: 'term', value: 'forbidden term', why: 'a test entry' },
+      { approved_via: { surface: 'mcp', decision_node_id: 'decision:test-365-15' } });
+    assert.ok(added && added.ok === true, 'writeNeverDoEntry: ' + JSON.stringify(added));
+    const checks = runStatus(room2.room, ['--checks']);
+    const out = String(checks.stdout);
+    check('Q8 --checks prints the header, five rows, the never-do line, then the closing line; exit 0', () => {
+      assert.equal(checks.status, 0, String(checks.stderr).slice(0, 200));
+      const lines = out.trim().split('\n');
+      const W = navigation.STANDING_WORDS;
+      const at = lines.indexOf("What this room's claims were checked against");
+      assert.ok(at !== -1, out);
+      const rows = lines.slice(at + 1, at + 6);
+      navigation.STANDING_IDS.forEach((id, i) => {
+        assert.equal(rows[i], '  ' + W[id].label + ': 1 - moves when ' + W[id].moves_when);
+      });
+      assert.ok(rows[4].indexOf(navigation.HELD_WORDS.label + ': 1 - moves when') !== -1);
+      assert.equal(lines[at + 6], 'Never-do list: 1 named. ' + roomConstraints.FLOOR_SENTENCE);
+      assert.equal(lines[at + 7], CLOSING);
+      assert.equal(lines.length, at + 8);
+      for (const l of lines) assert.ok(!NO_SCORE.test(l), 'score-like word in: ' + l);
+    });
+
+    // Q9: an unreadable never-do list is reported with its fix.
+    fs.writeFileSync(path.join(room2.room, '.mindrian', 'never-do.json'), '{ not json', 'utf8');
+    const bad = runStatus(room2.room, ['--checks']);
+    check('Q9 a malformed never-do list is reported with its fix, then the floor sentence', () => {
+      assert.equal(bad.status, 0);
+      const lines = String(bad.stdout).trim().split('\n');
+      const nd = lines.filter((l) => l.indexOf('Never-do list:') === 0);
+      assert.equal(nd.length, 1);
+      assert.equal(nd[0], 'Never-do list: could not be read (.mindrian/never-do.json). '
+        + 'Until it is fixed, every unattended step in this room stops. ' + roomConstraints.FLOOR_SENTENCE);
+      assert.equal(lines[lines.length - 1], CLOSING);
+    });
+
+    // Q10: never pushed. The normal status shows none of it.
+    const plain = runStatus(room2.room, []);
+    const plainText = String(plain.stdout);
+    check('Q10 /mos:status without --checks prints no standing label and no never-do line', () => {
+      assert.equal(plain.status, 0);
+      for (const id of navigation.STANDING_IDS) {
+        assert.ok(plainText.indexOf(navigation.STANDING_WORDS[id].label) === -1, id);
+      }
+      assert.ok(plainText.indexOf(navigation.HELD_WORDS.label) === -1);
+      assert.ok(plainText.indexOf('Never-do list') === -1);
+      assert.ok(plainText.indexOf(CLOSING) === -1);
+    });
+  } finally {
+    fx.cleanup(room2);
+  }
+
+  // Q11: the argument docs and the mirror.
+  check('Q11 status.md documents --checks and its mirror matches (argument-hint and Arguments only)', () => {
+    const md = fs.readFileSync(path.join(REPO_ROOT, 'commands', 'status.md'), 'utf8');
+    assert.ok(/^argument-hint: "\[section\] \[--stale-only\] \[--checks\]"$/m.test(md));
+    assert.ok(/^- `--checks` -- .*nothing is scored\.$/m.test(md));
+    assert.ok((md.match(/checks/g) || []).length >= 2);
+    const m = spawnSync(process.execPath, [path.join(REPO_ROOT, 'scripts', 'build-skill-mirrors.cjs'), '--check'],
+      { encoding: 'utf8', timeout: 120000 });
+    assert.equal(m.status, 0, String(m.stdout).slice(-200));
+    const dash = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']');
+    assert.ok(!dash.test(md.split('--checks')[1] || ''));
+  });
+
   check('Q6 the one-week acceptance test exits 0', () => {
     const r = spawnSync(process.execPath, [path.join(REPO_ROOT, 'tests', 'test-365-acceptance-one-week.cjs')],
       { encoding: 'utf8', timeout: 120000 });
@@ -194,4 +334,7 @@ function main() {
   return 0;
 }
 
-process.exitCode = main();
+main().then((c) => { process.exitCode = c; }, (e) => {
+  process.stdout.write('UNCAUGHT: ' + String((e && e.stack) || e) + '\n');
+  process.exitCode = 1;
+});
