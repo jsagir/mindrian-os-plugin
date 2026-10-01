@@ -20,9 +20,9 @@
   "render_counts": {
     "card_emission": 17,
     "render_only_excluded": 0,
-    "md_declared_wired": 98,
+    "md_declared_wired": 97,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 104,
+    "skill_declared_wired": 103,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -238,11 +238,6 @@
     {
       "surface": "commands/dominant-designs.md",
       "declared_shape": "F.1",
-      "wired": true
-    },
-    {
-      "surface": "commands/eureka.md",
-      "declared_shape": "F.8",
       "wired": true
     },
     {
@@ -738,11 +733,6 @@
     {
       "surface": "skills/dominant-designs/SKILL.md",
       "declared_shape": "F.1",
-      "wired": true
-    },
-    {
-      "surface": "skills/eureka/SKILL.md",
-      "declared_shape": "F.8",
       "wired": true
     },
     {
