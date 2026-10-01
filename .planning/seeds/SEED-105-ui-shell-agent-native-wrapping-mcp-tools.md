@@ -32,8 +32,8 @@ What it unlocks:
 1. **No second store for room state.** The room graph is SQLite per room, the filesystem is the source
    of truth, and writes go only through `navigation.cjs`. agent-native's Postgres/PGlite may hold UI
    session data at most; every room read or write is an MCP tool call.
-2. **The plugin stays CJS-only.** The UI is a separate repo/app that talks to the MCP server; no
-   TypeScript enters the plugin.
+2. ~~The plugin stays CJS-only.~~ SUPERSEDED 2026-10-02 by SEED-107 (CJS-only lifted plugin-wide). The UI
+   still talks to room data only through the MCP server.
 3. **The in-app agent is not Larry-with-hooks.** Gates, the Part 8 egress guard and card enforcement must
    hold server-side (Phase 198 MCP-first). Every Brain/Theo call goes through the guarded shim.
 4. **Hooked model** is the mandatory lens for the first screen.
@@ -112,3 +112,13 @@ one-click gate, prior-art lanes, Larry panel; plus room-graph and Cowork two-use
 Before any UI/UX work on SEED-104..107: read and discuss
 `.planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md` (every prior UI/UX seed, phase, command,
 doc and memory entry). Discussion first; no design, spike or plan skips this step.
+
+## Gap found by the prior-art inventory (2026-10-02)
+
+This seed never weighed existing work: **BlockNote already ships** in `/mos:wiki` (Phase 232, editor walled
+off in `lib/wiki/editor-src/`, `@blocknote/*` 0.51.4), and **`~/dev/mindrian-workroom`** (Next 16 + React 19 +
+BlockNote) is called "the real UI, already built, just missing auth and a tenant DB" in SEED-091. Also
+SEED-066 (BlockNote `xl-*` packages are GPL-3.0), SEED-072 (collaboration direction, Yjs), SEED-073
+(BlockNote and RxDB stay disposable projections over the filesystem). The first discussion question is
+which codebase is the UI: revive the workroom, build the agent-native app, or merge them. See
+`.planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md`.
