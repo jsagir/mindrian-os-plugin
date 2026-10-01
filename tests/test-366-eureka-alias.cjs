@@ -66,7 +66,7 @@ const NOTICE = 'The standalone Eureka runner is retired when the Phase 366 spike
 
 const roomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-366-alias-room-'));
 const handlers = {};
-const server = { registerTool: function (name, cfg, fn) { handlers[name] = fn; } };
+const server = { registerTool: function (name, cfg, fn) { handlers[name] = fn; }, tool: function () {} };
 toolRouter.registerRouterTools(server, roomDir, REPO_ROOT, { compact: '' }, 'cli');
 
 function text(resp) { return resp && resp.content && resp.content[0] ? String(resp.content[0].text) : ''; }
@@ -131,7 +131,7 @@ async function main() {
   const defaultRun = door.split('## Subcommand: run (default)')[1] ? door.split('## Subcommand: run (default)')[1].split('## Legacy runner (--legacy)')[0] : '';
   C.check('A4 the default run never calls scripts/eureka-command.cjs', defaultRun.length > 0 && defaultRun.indexOf('eureka-command.cjs') === -1);
   C.check('A4 the door declares the Form B stages F.6, F.0 and F.8', /hitl_stages:/.test(door) && /"F\.6"/.test(door) && /"F\.0"/.test(door) && /"F\.8"/.test(door));
-  C.check('A4 the door carries no em-dash or en-dash', !/[–—]/.test(door));
+  C.check('A4 the door carries no em-dash or en-dash', !new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']').test(door));
 
   // A5: surface pins and network.
   const uniq = new Set(toolRouter.ALL_TOOL_COMMANDS.map(function (c) { return String(c).toLowerCase(); }));
