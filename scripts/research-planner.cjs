@@ -39,6 +39,8 @@
  *   deep-synthesize <run_id> --room <dir>
  *   basket <run_id> --room <dir>
  *   file-run <run_id> <selection.json> --room <dir> --approved-via cli
+ *   never-do add <entry.json> --room <dir> --approved-via cli
+ *   never-do list --room <dir>
  *   pending --room <dir>
  *   status <run_id> --room <dir>
  *   next-framework <run_id> --room <dir>
@@ -63,6 +65,9 @@ const quick = require(path.join(RP, 'quick.cjs'));
 const deep = require(path.join(RP, 'deep.cjs'));
 const grants = require(path.join(RP, 'grants.cjs'));
 const structure = require(path.join(RP, 'structure.cjs'));
+const roomConstraints = require(path.join(ROOT, 'lib', 'core', 'room-constraints.cjs'));
+const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+const crypto = require('node:crypto');
 
 const RUN_ID_RE = planner.RUN_ID_RE;
 const GRANT_ID_RE = planner.GRANT_ID_RE;
@@ -111,11 +116,15 @@ const COMMANDS = Object.freeze({
   'deep-synthesize': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'basket': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'file-run': { pos: ['runid', 'json'], flags: ['--room', '--approved-via'], need: ['--room', '--approved-via'] },
+  // 365-14: --approved-via is NOT in `need` for never-do add: a missing one is
+  // answered by the handler as approval_required (the writer's own reason).
+  'never-do add': { pos: ['json'], flags: ['--room', '--approved-via'], need: ['--room'] },
+  'never-do list': { pos: [], flags: ['--room'], need: ['--room'] },
   'pending': { pos: [], flags: ['--room'], need: ['--room'] },
   'status': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'next-framework': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
 });
-const TWO_WORD = Object.freeze({ grant: ['propose', 'approve', 'status', 'revoke'], review: ['approve'] });
+const TWO_WORD = Object.freeze({ grant: ['propose', 'approve', 'status', 'revoke'], review: ['approve'], 'never-do': ['add', 'list'] });
 
 function refuse(reason) { return { refuse: reason }; }
 const FREE_TEXT = 'free_text_argv_refused';
@@ -214,6 +223,41 @@ function listOf(v, key) {
 
 function refusedResult(r) {
   return r && (r.ok === false || r.status === 'refused');
+}
+
+// approveNeverDoEntry(room, entry): mint the decision node the way planner.cjs
+// mintDecision does, then write the entry with approved_via {surface:'cli',
+// decision_node_id}. The node records the navigator's yes, so it stays when the
+// writer then refuses (decision_recorded_but_not_written).
+function approveNeverDoEntry(room, entry) {
+  let db = null;
+  try { db = navigation.openRoomDbForCaller(room); } catch (_e) { db = null; }
+  if (!db) return { ok: false, reason: 'room_db_unavailable' };
+  let nodeId;
+  try {
+    nodeId = navigation.REASONING_NODE_ID('decision', 'never-do-' + crypto.randomBytes(5).toString('hex'));
+    const kind = typeof entry.kind === 'string' ? entry.kind : 'unknown';
+    const value = typeof entry.value === 'string' ? entry.value.trim().slice(0, 200) : 'unnamed';
+    const node = navigation.writeReasoningNode(db, {
+      nodeId: nodeId,
+      nodeType: 'decision',
+      epistemicType: 'decision',
+      text: 'Approved never-do entry ' + kind + ' ' + value + ' via cli.',
+      sourcePath: 'never-do:' + nodeId,
+      origin: 'research-planner',
+    });
+    if (!node || node.ok !== true) return { ok: false, reason: 'decision_node_failed' };
+  } finally {
+    try { navigation.closeRoomDbForCaller(db); } catch (_e) { /* ignore */ }
+  }
+  const written = roomConstraints.writeNeverDoEntry(
+    room,
+    { kind: entry.kind, value: entry.value, why: entry.why },
+    { approved_via: { surface: 'cli', decision_node_id: nodeId } }
+  );
+  if (!written.ok) return { ok: false, reason: written.reason, decision_node_id: nodeId, decision_recorded_but_not_written: true };
+  if (written.duplicate) return { ok: true, duplicate: true, decision_node_id: nodeId };
+  return { ok: true, decision_node_id: nodeId, entry: written.entry };
 }
 
 // -- handlers -----------------------------------------------------------------
@@ -388,6 +432,30 @@ async function handle(cmd, pos, flags) {
       const selection = readInput(pos[1]);
       if (!selection || typeof selection !== 'object') return { ok: false, reason: 'bad_json' };
       return planner.fileFromState(room, pos[0], selection, { approvedVia: via });
+    }
+    case 'never-do add': {
+      // D-10: an entry lands only after the navigator's yes. Larry runs this door
+      // after the AskUserQuestion yes and says so with --approved-via cli.
+      if (via !== 'cli') return { ok: false, reason: 'approval_required' };
+      const entry = readInput(pos[0]);
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return { ok: false, reason: 'bad_json' };
+      return approveNeverDoEntry(room, entry);
+    }
+    case 'never-do list': {
+      const cur = roomConstraints.readNeverDo(room);
+      if (!cur.ok) {
+        return {
+          ok: false,
+          reason: 'malformed',
+          fix: '.mindrian/never-do.json could not be read; fix or remove it. Until then every unattended step in this room stops.',
+        };
+      }
+      return {
+        ok: true,
+        count: cur.entries.length,
+        entries: cur.entries.map(function (e) { return { kind: e.kind, value: e.value, why: e.why }; }),
+        note: roomConstraints.FLOOR_SENTENCE,
+      };
     }
     case 'pending': {
       const cards = planner.pendingCards(room);
