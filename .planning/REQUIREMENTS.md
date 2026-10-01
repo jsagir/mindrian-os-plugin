@@ -4252,7 +4252,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       `{"legacy":true}` and otherwise points at `research_run`; the "ZERO writes / ZERO network"
       wording is gone; the skill mirror is regenerated (D-01, D-02). Plan 366-03.
 
-- [ ] **EPV366-14**: The ambient Eureka producer uses the perspective's substrate and recall and
+- [x] **EPV366-14**: The ambient Eureka producer uses the perspective's substrate and recall and
       hands its top candidates to `research-planner/ambient.cjs` as a plan-only offer with no
       judge, no Theo stamp, no fetch and no filing; the title-only scorer retires; the other
       producers still file through the relocated filer (D-03). Plan 366-07.
