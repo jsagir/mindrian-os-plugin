@@ -1,0 +1,33 @@
+{
+  "base_sha": "9ada13b799c616d178cb29bdfa60956d7c2fd18c",
+  "captured_at": "2026-10-01T07:08:29.126Z",
+  "observed_at_base": {
+    "tests/test-365-acceptance-byte.cjs": [
+      "RED-365-BYTE"
+    ],
+    "tests/test-365-acceptance-byte-derived.cjs": [
+      "RED-365-BYTE-DERIVED"
+    ],
+    "tests/test-365-acceptance-one-week.cjs": [
+      "RED-365-ONEWEEK-STANDING",
+      "RED-365-ONEWEEK-STATUS"
+    ],
+    "tests/test-365-acceptance-floor.cjs": [
+      "RED-365-FLOOR",
+      "RED-365-FLOOR-NOTICE"
+    ]
+  },
+  "confirm_node_body_sha256": "eb9544dff8c5b5afd853b652d70bbdb1ab13155c366b9f28f6e73c12009a2d3d",
+  "gate_fn_first_statement": "if (isIrreversibleStep(step)) return 'halt';",
+  "files_at_base": {
+    "lib/mcp/tools/gate.cjs": "280ccf672bea22213041578ffde9bfbe3ccdbff38448c4f9f4604efdc49e68f8",
+    "lib/mcp/gate-render.cjs": "80ef79b593bb5dc4cb1d71b4b2e4166a0157696632fa97280a03b59939b98fe5",
+    "lib/mcp/tool-router.cjs": "f686edc9da05ffa687d03fe1a398da077577ae75e0056eb26094e8af6aa211ab",
+    "lib/core/navigation/verification.cjs": "6eb6230884aa9cf7107d56a45b06eb815284815496751e6cc3f52f43217eb86f",
+    "lib/core/navigation/transitions.cjs": "5be96cf516b34082cca2ee6df39df04db594099a1f79f6d11d2d86b8b6bd642c",
+    "lib/core/navigation/confirm-node.cjs": "7c4be908e051afe40d8217e9429d12f8b8ac07af9dc9d137f438564d9994d4a4",
+    "lib/core/chain-executor.cjs": "827bd7e66c6b69d175204ddcf594c4f3d72369c6c496808a399e31e2f20a16fb",
+    "lib/core/research-planner/ambient.cjs": "d0a38037a05645c3bdca9665e2c92d63b9d4f1dba46adc5e71e56859ca56ea1b",
+    "lib/mcp/tools/chain.cjs": "2e16b6faded893a51cdcbfc32efd0a357ea5e223e95789b0024c671ea74d0840"
+  }
+}
