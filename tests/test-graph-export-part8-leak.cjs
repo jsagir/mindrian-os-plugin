@@ -58,6 +58,9 @@ async function seedDb(roomDir, nodes, edges) {
 // others. A future field-addition leak (someone adds source_path to node.data)
 // is caught by asserting the exact key set per node.
 const ALLOWED_NODE_DATA_KEYS = ['id', 'label', 'type', 'knowledge_type', 'color', 'degree', 'review_status'];
+// Phase 365-12 (D-19): claim-type rows alone carry exactly two more whitelisted
+// render fields (an enum id and a fixed label from the one STANDING_WORDS map).
+const CLAIM_EXTRA_KEYS = ['verification_standing', 'verification_words'];
 
 (async () => {
   console.log('SEED-026 graph-export Part 8 adversarial leak test (boundary-scan)');
@@ -137,8 +140,8 @@ const ALLOWED_NODE_DATA_KEYS = ['id', 'label', 'type', 'knowledge_type', 'color'
     );
     const r = await getGraphExport(room);
     assert.ok(r.elements.nodes.length >= 3, 'all seeded knowledge nodes rendered');
-    const want = ALLOWED_NODE_DATA_KEYS.slice().sort();
     for (const n of r.elements.nodes) {
+      const want = ALLOWED_NODE_DATA_KEYS.concat(n.data.type === 'claim' ? CLAIM_EXTRA_KEYS : []).sort();
       const got = Object.keys(n.data).sort();
       assert.deepStrictEqual(got, want,
         'node ' + n.data.id + ' data keys must equal the whitelist exactly (got ' + JSON.stringify(got) + ')');
