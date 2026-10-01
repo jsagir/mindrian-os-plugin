@@ -10,9 +10,9 @@
   "ledger_covers": {
     "from": "2.1.128",
     "to": "2.1.287",
-    "fetched_at": "2026-10-01T19:24:21Z",
+    "fetched_at": "2026-10-01T23:20:45Z",
     "installed_claude_version": "2.1.287",
-    "coverage_gap": "The fetched changelog carried no entries for 2.1.247 through 2.1.280 (fetch of 2026-10-01); those versions are NOT screened. Rows below cover only 2.1.281 through 2.1.287."
+    "coverage_gap": "Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range."
   },
   "entries": [
     {
@@ -447,6 +447,166 @@
       "destination": "none",
       "status": "dormant",
       "evidence": "Version 2.1.281. CHANGELOG.md, anthropics/claude-code main, fetched 2026-10-01 via https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md; fields-only summary, not yet verified against repo files."
+    },
+    {
+      "capability": "mcp-description-and-instructions-cap-env-override",
+      "version": "2.1.280",
+      "date": "2026-09-22",
+      "domain": "plugins_mcp",
+      "leverage": "CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH sets the 2,048-char cap on MCP tool descriptions and server instructions. mindrian-os serves 1984 bytes, under it; the remote pws-brain-mcp (user-level config, not shipped here) arrives truncated.",
+      "destination": "lib/mcp/runtime-instructions.cjs, lib/mcp/no-instructions.test.cjs, tests/test-234-tool-description-floor.cjs",
+      "status": "dormant",
+      "evidence": "Version 2.1.280 (released 2026-09-22). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.280, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "subagent-output-framing-and-auto-mode-hand-back",
+      "version": "2.1.277",
+      "date": "2026-09-18",
+      "domain": "code",
+      "leverage": "Subagent results now arrive under a subagent-output header, indented (2.1.277); in auto mode a subagent hands back via a reviewed call (2.1.271). commands/research.md consumes research-lane-analyst JSON, unchecked under the framing.",
+      "destination": "agents/research-lane-analyst.md, commands/research.md",
+      "status": "dormant",
+      "evidence": "Versions 2.1.271 and 2.1.277. GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.271 and https://github.com/anthropics/claude-code/releases/tag/v2.1.277, fetched 2026-10-02; fields-only, repo-checked."
+    },
+    {
+      "capability": "npm-source-plugin-fetch-ignore-scripts",
+      "version": "2.1.275",
+      "date": "2026-09-17",
+      "domain": "plugins_mcp",
+      "leverage": "npm-source plugins are now fetched with npm pack --ignore-scripts and integrity-verified. The marketplace ships mos as npm @mindrian_os/cli; package.json has no install scripts, so nothing is lost; the dependency install path is unread.",
+      "destination": "package.json, npm-shrinkwrap.json, lib/core/mcp-dep-heal.cjs",
+      "status": "dormant",
+      "evidence": "Version 2.1.275 (released 2026-09-17). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.275, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "claude-ai-account-plugin-and-skill-sync",
+      "version": "2.1.275",
+      "date": "2026-09-17",
+      "domain": "desktop_cowork",
+      "leverage": "Skills and plugins enabled on a claude.ai account now sync into terminal sessions signed in with it (opt-out settings exist; sign-in requests plugin access since 2.1.273). Touches the Desktop/Cowork-to-CLI install story; untriaged.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.275 (released 2026-09-17). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.275, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "askuserquestion-preview-note-fixes",
+      "version": "2.1.274",
+      "date": "2026-09-17",
+      "domain": "plugins_mcp",
+      "leverage": "AskUserQuestion preview notes attach to the highlighted option; Enter no longer drops it. lib/hmi/dial-presenter.cjs fills the option preview field with the De Stijl reach panel, so dial cards benefit passively; no code change expected.",
+      "destination": "lib/hmi/dial-presenter.cjs",
+      "status": "dormant",
+      "evidence": "Version 2.1.274 (released 2026-09-17). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.274, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "omitclaudemd-agent-frontmatter",
+      "version": "2.1.271",
+      "date": "2026-09-14",
+      "domain": "code",
+      "leverage": "Agent frontmatter omitClaudeMd runs a plugin subagent without user, project and local CLAUDE.md. agents/research-lane-analyst.md lists the key as supported but does not set it; a candidate for its never-see-room-content (Part 8) isolation.",
+      "destination": "agents/research-lane-analyst.md",
+      "status": "dormant",
+      "evidence": "Version 2.1.271 (released 2026-09-14). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.271, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "plugin-cli-json-output-and-accept-command",
+      "version": "2.1.271",
+      "date": "2026-09-14",
+      "domain": "plugins_mcp",
+      "leverage": "claude plugin install, update, uninstall, enable and disable gained --json (2.1.268); install and update gained --accept-command taking a prior --json run sha256 (2.1.271). scripts/release.sh prints the user install lines.",
+      "destination": "scripts/release.sh",
+      "status": "dormant",
+      "evidence": "Versions 2.1.268 and 2.1.271. GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.268 and https://github.com/anthropics/claude-code/releases/tag/v2.1.271, fetched 2026-10-02; fields-only, repo-checked."
+    },
+    {
+      "capability": "claude-plugin-eval-scored-suites",
+      "version": "2.1.269",
+      "date": "2026-09-11",
+      "domain": "plugins_mcp",
+      "leverage": "claude plugin eval runs a plugin eval suite against Claude Code with scored, reproducible JSON and HTML results. Standing rule: MindrianOS evals run through Jev (scripts/jev-devtime-client.cjs); a watch item, not a replacement.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Version 2.1.269 (released 2026-09-11). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.269, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "marketplace-metadata-precedence-over-plugin-json",
+      "version": "2.1.265",
+      "date": "2026-09-08",
+      "domain": "plugins_mcp",
+      "leverage": "The Installed tab and plugin details now prefer the marketplace entry over plugin.json. The marketplace description is stale (73 commands, 8 agents, 13 hooks) and release.sh Step 4 bumps only versions, so users now see the stale text.",
+      "destination": "scripts/release.sh, .claude-plugin/plugin.json",
+      "status": "dormant",
+      "evidence": "Version 2.1.265 (released 2026-09-08). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.265, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "skill-doctor-context-cost",
+      "version": "2.1.261",
+      "date": "2026-09-04",
+      "domain": "plugins_mcp",
+      "leverage": "/skill-doctor shows which loaded skills go unused and what each costs in context. The plugin ships 126 skills under skills/, so this is a ready host-side read on their context cost for a pruning pass.",
+      "destination": "skills/",
+      "status": "dormant",
+      "evidence": "Version 2.1.261 (released 2026-09-04). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.261, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "plugin-validate-json-report",
+      "version": "2.1.259",
+      "date": "2026-09-02",
+      "domain": "plugins_mcp",
+      "leverage": "claude plugin validate gained --json for a machine-readable report. scripts/verify-release (lines 38, 52) and scripts/release.sh (lines 577, 1632) parse its text output today; the JSON form would make that gate structural.",
+      "destination": "scripts/verify-release, scripts/release.sh",
+      "status": "dormant",
+      "evidence": "Version 2.1.259 (released 2026-09-02). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.259, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "managed-mcp-servers-http-only",
+      "version": "2.1.259",
+      "date": "2026-09-02",
+      "domain": "desktop_cowork",
+      "leverage": "managedMcpServers lets an organization push HTTP/SSE MCP servers to every user; entries that run a command are skipped. Both plugin servers are stdio commands, and a raw HTTP Brain entry would bypass the mindrian-brain shim Part 8 guard.",
+      "destination": ".mcp.json",
+      "status": "dormant",
+      "evidence": "Version 2.1.259 (released 2026-09-02). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.259, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "subagent-model-env-default-and-force",
+      "version": "2.1.257",
+      "date": "2026-09-01",
+      "domain": "models",
+      "leverage": "CLAUDE_CODE_SUBAGENT_MODEL became a default that agent model: overrides (2.1.251); a _FORCE variant overrides every agent (2.1.257). All 17 plugin agents declare model: inherit; model-profiles.cjs and claude-routing.cjs never read the env.",
+      "destination": "agents/",
+      "status": "dormant",
+      "evidence": "Versions 2.1.251 and 2.1.257. GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.251 and https://github.com/anthropics/claude-code/releases/tag/v2.1.257, fetched 2026-10-02; fields-only, repo-checked."
+    },
+    {
+      "capability": "model-switch-hook-events-and-resume-staleness",
+      "version": "2.1.251",
+      "date": "2026-08-28",
+      "domain": "plugins_mcp",
+      "leverage": "PreModelSwitch and PostModelSwitch hook events can block, confirm or annotate a model switch; SessionStart resume hooks now receive staleness and re-cache cost. hooks/hooks.json registers 12 events, neither switch event.",
+      "destination": "hooks/hooks.json",
+      "status": "dormant",
+      "evidence": "Version 2.1.251 (released 2026-08-28). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.251, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "statusline-prompt-cache-field",
+      "version": "2.1.251",
+      "date": "2026-08-28",
+      "domain": "code",
+      "leverage": "Status line scripts now receive a prompt_cache object (hit ratio, misses, warm or cold; a likely miss cause was added in 2.1.260). scripts/statusline-mos does not read it; a candidate cockpit signal.",
+      "destination": "scripts/statusline-mos",
+      "status": "dormant",
+      "evidence": "Version 2.1.251 (released 2026-08-28). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.251, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "agent-frontmatter-experimental-cachettl",
+      "version": "2.1.248",
+      "date": "2026-08-27",
+      "domain": "code",
+      "leverage": "Agent frontmatter experimental.cacheTtl (5m or 1h) sets a per-agent prompt cache TTL when no subagent TTL setting is configured. None of the 17 plugin agents set it; the long research lanes are the candidates.",
+      "destination": "agents/",
+      "status": "dormant",
+      "evidence": "Version 2.1.248 (released 2026-08-27). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.248, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
     }
   ]
 }
