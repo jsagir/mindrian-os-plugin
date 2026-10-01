@@ -1,0 +1,122 @@
+{
+ "mode": "settle",
+ "rounds": [
+  {
+   "round": 0,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 554,
+   "converged": true,
+   "converge_ms": 64,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 1,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 510,
+   "converged": true,
+   "converge_ms": 92,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 2,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 411,
+   "converged": true,
+   "converge_ms": 97,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 3,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 500,
+   "converged": true,
+   "converge_ms": 94,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 4,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 453,
+   "converged": true,
+   "converge_ms": 102,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 5,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 420,
+   "converged": true,
+   "converge_ms": 91,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 6,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 469,
+   "converged": true,
+   "converge_ms": 126,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 7,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 433,
+   "converged": true,
+   "converge_ms": 93,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 8,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 465,
+   "converged": true,
+   "converge_ms": 77,
+   "missing": 0,
+   "missedDocs": []
+  },
+  {
+   "round": 9,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 509,
+   "converged": true,
+   "converge_ms": 72,
+   "missing": 0,
+   "missedDocs": []
+  }
+ ],
+ "started": "2026-10-01T23:44:08.875Z",
+ "teardown": {
+  "pull": "killed",
+  "mcp": "killed",
+  "after": {
+   ".": 1790898212100.2004,
+   ".mindrian": 1790898213524.2256,
+   ".mindrian/room.db": 1790898213420.2236,
+   ".mindrian/room.db-wal": null
+  },
+  "real_room_untouched": true
+ },
+ "summary": {
+  "rounds": 10,
+  "rounds_with_miss": 0,
+  "total_missing": 0
+ }
+}

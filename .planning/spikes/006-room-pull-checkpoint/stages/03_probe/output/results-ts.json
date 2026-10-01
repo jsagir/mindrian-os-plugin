@@ -1,0 +1,502 @@
+[
+ {
+  "ts": "2026-10-01T23:47:43.152Z",
+  "label": "stack_up",
+  "mode": "ts",
+  "home": "/tmp/spike006-IRQOFx",
+  "mcpPort": 3847,
+  "pullPort": 3871,
+  "mcp_bound_to": "/tmp/spike006-IRQOFx/egain-des-liquid-conductor",
+  "bound_is_tmp": true
+ },
+ {
+  "ts": "2026-10-01T23:47:43.315Z",
+  "label": "room_bind",
+  "ok": true,
+  "ms": 49,
+  "body": "{\"_text\":\"{\\n  \\\"ok\\\": true,\\n  \\\"bound\\\": true,\\n  \\\"primary\\\": \\\"egain-des-liquid-conductor\\\",\\n  \\\"source\\\": \\\"explicit\\\",\\n  \\\"effective\\\": true,\\n  \\\"resolved_dir\\\": \\\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\\\",\\n  \\\"resolved_source\\\": \\\"session.primary\\\"\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_state`\\n**Args:** `{\\\"command\\\":\\\"status\\\"}`\\n**Rationale:** Session bound - check room status for the newly bound room\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:43.319Z",
+  "label": "census_initial",
+  "nodes_total": 202,
+  "nodes_live": 202,
+  "edges_total": 30,
+  "edges_live": 30,
+  "data_version": 2,
+  "mode": "ts",
+  "epoch": "99f3fe61e5b0",
+  "seq": 0
+ },
+ {
+  "ts": "2026-10-01T23:47:43.881Z",
+  "label": "P1_cold_catchup",
+  "ready": true,
+  "nav_to_ready_ms": 454,
+  "in_page_catchup_ms": 144,
+  "pull_requests": 3,
+  "converge": {
+   "ok": true,
+   "ms": 12,
+   "room_nodes_live": 202,
+   "room_edges_live": 30,
+   "browser_nodes": 202,
+   "browser_edges": 30
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:43.901Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 19,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:d6fc294b\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:44.088Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:30d7e9e2\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:44.275Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:8ab35b85\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:44.461Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:e48ecd0e\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:44.644Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:3e6a3e95\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:44.827Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:9845b01d\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.008Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:f221708f\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.190Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:4bfcdf8a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.374Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:a5d85113\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.555Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:ffb3c29a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.734Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:1f554c04\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:45.913Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:7930bd88\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:46.341Z",
+  "label": "P2_live_single",
+  "ok": "12/12",
+  "call_ms": {
+   "n": 12,
+   "min": 5,
+   "p50": 7,
+   "p95": 8,
+   "max": 19
+  },
+  "return_to_render_ms": {
+   "n": 12,
+   "min": 5,
+   "p50": 10,
+   "p95": 17,
+   "max": 265
+  },
+  "write_to_render_ms": {
+   "n": 12,
+   "min": 13,
+   "p50": 17,
+   "p95": 36,
+   "max": 270
+  },
+  "write_to_received_ms": {
+   "n": 12,
+   "min": 8,
+   "p50": 10,
+   "p95": 22,
+   "max": 243
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:46.348Z",
+  "label": "gate_render",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-d8bc85ea6edc3f50\",\"renderer\":\"askuserquestion\",\"rendered\":{\"zones\":{\"header\":\"Spike 006: confirm the probe claim?\",\"body\":\"▢ 1. Approve, mark as needs evidence\\n▢ 2. Not yet\",\"signals\":\"Checked against: nothing outside the conversation yet. This room asks for at least a source document, so approving files it as needs evidence.\",\"footer\":\"[AskUserQuestion contract: shape=F.8 verbs=0]\\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conver"
+ },
+ {
+  "ts": "2026-10-01T23:47:46.373Z",
+  "label": "gate_answer",
+  "ok": true,
+  "ms": 10,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-d8bc85ea6edc3f50\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898466367:da5d09a5\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-d8bc85ea6edc3f50\",\"edges_written\":1,\"framework_edge\":false,\"confirmed\":true,\"subject_node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:d6fc294b\",\"subject_confirmed\":false,\"subject_skip_reason\":\"below_floor\",\"subject_held\":true,\"landed_sta"
+ },
+ {
+  "ts": "2026-10-01T23:47:46.410Z",
+  "label": "P3_gate_answer_update",
+  "gate_id": "gate-d8bc85ea6edc3f50",
+  "ratified": true,
+  "gate_answer_body": "{\"ok\":true,\"gate_id\":\"gate-d8bc85ea6edc3f50\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898466367:da5d09a5\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-d8bc85ea6edc3f50\",\"edges_written\":1,\"fram",
+  "subject": "claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:d6fc294b",
+  "status_before": "proposed",
+  "status_after_browser": "needs_evidence",
+  "status_in_room": "needs_evidence",
+  "update_seen_ms_after_return": 29,
+  "decisions_before": 6,
+  "decisions_after": 7,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:47.157Z",
+  "label": "P4_burst",
+  "writes": 200,
+  "ok": 200,
+  "distinct_ids": 200,
+  "all_calls_ms": 668,
+  "converge_after_last_return_ms": 69,
+  "converged": true,
+  "stream_items_during_burst": 171,
+  "room_nodes": 419,
+  "browser_nodes": 419,
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:47.166Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.548Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 84,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:d483ec62\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.601Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 53,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:2e5f5a2a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.645Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 44,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:883ac7a9\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.683Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 38,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:e216326a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.751Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 67,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:3bf19d25\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:47.802Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 51,
+  "body": "{\"room_dir\":\"/tmp/spike006-IRQOFx/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:bc11ceb2-1a5e-4c7d-9733-063b4e6a9a48:95cd0ac8\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:48.167Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:47:49.169Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:47:50.519Z",
+  "label": "P5_reconnect",
+  "kill": "killed",
+  "ui_showed_disconnected": true,
+  "writes_while_down": 6,
+  "restart_to_converged_ms": 1214,
+  "converged": true,
+  "offline_writes_missing_in_browser": 0,
+  "epoch_reconcile_done": true,
+  "epoch_reconcile_ms": 285,
+  "resyncs": 2,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:50.628Z",
+  "label": "P6_superseded_soft_delete",
+  "old": "memory_artifact:_root:MINTO",
+  "supersede_ok": true,
+  "left_browser_view": true,
+  "ms": 28,
+  "kept_as_rxdb_tombstone": true,
+  "room_census": {
+   "nodes_total": 426,
+   "nodes_live": 425,
+   "edges_total": 32,
+   "edges_live": 32,
+   "data_version": 4,
+   "mode": "ts",
+   "epoch": "949b2eedd2cb",
+   "seq": 0
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:50.671Z",
+  "label": "room_graph.graph-rebuild",
+  "ok": true,
+  "ms": 42,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:58.201Z",
+  "label": "P7_hard_delete_gap",
+  "rebuild_ok": true,
+  "converged": false,
+  "room_nodes": 420,
+  "browser_nodes": 430,
+  "room_edges": 45,
+  "browser_edges": 45,
+  "id_diff": {
+   "nodes_only_in_browser": 10,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [
+    "business-model",
+    "financial-model",
+    "funding"
+   ],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:58.211Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:47:58.580Z",
+  "label": "room_graph.graph-rebuild.while_down",
+  "ok": true,
+  "ms": 76,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:47:59.571Z",
+  "label": "P7b_hard_delete_while_down",
+  "rebuild_ok": true,
+  "stale_before_restart": null,
+  "reconcile_done": true,
+  "reconcile_ms_after_restart": 871,
+  "converged": true,
+  "converge_ms": 5,
+  "reconciles": 2,
+  "reconcile_events": [
+   {
+    "t": 1790898470500,
+    "label": "reconcile",
+    "why": "epoch_change",
+    "removed": 0
+   },
+   {
+    "t": 1790898479542,
+    "label": "reconcile",
+    "why": "epoch_change",
+    "removed": 10
+   }
+  ],
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:47:59.649Z",
+  "label": "P8_warm_reload",
+  "nav_to_ready_ms": 77,
+  "in_page_catchup_ms": 31,
+  "docs_per_pull": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:24.691Z",
+  "label": "P11_scale",
+  "writes": 2000,
+  "calls_ms": 5019,
+  "converged": false,
+  "converge_after_last_return_ms": 20019,
+  "room_nodes": 2420,
+  "browser_nodes": 2399,
+  "scans": 1720,
+  "scan_ms": {
+   "n": 1720,
+   "min": 0,
+   "p50": 1,
+   "p95": 1,
+   "max": 3
+  },
+  "journal_refresh_ms": {
+   "n": 0,
+   "min": null,
+   "p50": null,
+   "p95": null,
+   "max": null
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:24.779Z",
+  "label": "P11_warm_reload_at_scale",
+  "nav_to_ready_ms": 86,
+  "in_page_catchup_ms": 32,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:25.945Z",
+  "label": "P11_cold_catchup_at_scale",
+  "nav_to_ready_ms": 1104,
+  "in_page_catchup_ms": 507,
+  "converged": true,
+  "nodes": 2420,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:25.970Z",
+  "label": "P9_egress_and_push",
+  "hosts": [
+   "127.0.0.1:3871",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "allowed": true,
+  "non_get_requests_to_pull_server": 0,
+  "server_answer_to_POST": 405,
+  "total_requests": 203,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:25.971Z",
+  "label": "P10_plugin_sse_bus",
+  "status": 200,
+  "error": null,
+  "frames": 0,
+  "kinds": [],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:48:25.975Z",
+  "label": "pull_server_scans",
+  "scans": 1925,
+  "by_trigger": {
+   "fs.watch": 1919,
+   "poll": 6
+  },
+  "scan_ms": {
+   "n": 1925,
+   "min": 0,
+   "p50": 1,
+   "p95": 1,
+   "max": 3
+  },
+  "pull_nodes_ms": {
+   "n": 55,
+   "min": 0,
+   "p50": 1,
+   "p95": 2,
+   "max": 2
+  },
+  "scan_errors": 0
+ },
+ {
+  "ts": "2026-10-01T23:48:27.423Z",
+  "label": "teardown",
+  "pull": "killed",
+  "mcp": "killed",
+  "after": {
+   ".": 1790898383294.6548,
+   ".mindrian": 1790898353122.215,
+   ".mindrian/room.db": 1790898338193.9968,
+   ".mindrian/room.db-wal": null
+  },
+  "real_room_untouched": true,
+  "real_room_files_changed_since_last_phase": []
+ }
+]

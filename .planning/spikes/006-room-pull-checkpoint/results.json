@@ -1,0 +1,498 @@
+[
+ {
+  "ts": "2026-10-01T23:49:17.367Z",
+  "label": "stack_up",
+  "mode": "journal",
+  "home": "/tmp/spike006-j3N4WM",
+  "mcpPort": 3847,
+  "pullPort": 3871,
+  "mcp_bound_to": "/tmp/spike006-j3N4WM/egain-des-liquid-conductor",
+  "bound_is_tmp": true
+ },
+ {
+  "ts": "2026-10-01T23:49:17.520Z",
+  "label": "room_bind",
+  "ok": true,
+  "ms": 41,
+  "body": "{\"_text\":\"{\\n  \\\"ok\\\": true,\\n  \\\"bound\\\": true,\\n  \\\"primary\\\": \\\"egain-des-liquid-conductor\\\",\\n  \\\"source\\\": \\\"explicit\\\",\\n  \\\"effective\\\": true,\\n  \\\"resolved_dir\\\": \\\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\\\",\\n  \\\"resolved_source\\\": \\\"session.primary\\\"\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_state`\\n**Args:** `{\\\"command\\\":\\\"status\\\"}`\\n**Rationale:** Session bound - check room status for the newly bound room\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:17.524Z",
+  "label": "census_initial",
+  "nodes_total": 202,
+  "nodes_live": 202,
+  "edges_total": 30,
+  "edges_live": 30,
+  "data_version": 2,
+  "mode": "journal",
+  "epoch": "2625421c03e0",
+  "seq": 232
+ },
+ {
+  "ts": "2026-10-01T23:49:18.051Z",
+  "label": "P1_cold_catchup",
+  "ready": true,
+  "nav_to_ready_ms": 439,
+  "in_page_catchup_ms": 110,
+  "pull_requests": 3,
+  "converge": {
+   "ok": true,
+   "ms": 16,
+   "room_nodes_live": 202,
+   "room_edges_live": 30,
+   "browser_nodes": 202,
+   "browser_edges": 30
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:18.087Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 35,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:d8a511df\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:18.274Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:328083c6\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:18.460Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:8c5bf566\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:18.643Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:e63766ee\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:18.826Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:4012d875\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.010Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 9,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:99ee98e7\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.192Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:f3ca07e5\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.376Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:4da57984\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.558Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:a780eb0c\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.740Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:15c5c93\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:19.927Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:20fde618\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:20.108Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:7ae3323f\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:20.286Z",
+  "label": "P2_live_single",
+  "ok": "12/12",
+  "call_ms": {
+   "n": 12,
+   "min": 5,
+   "p50": 7,
+   "p95": 9,
+   "max": 35
+  },
+  "return_to_render_ms": {
+   "n": 12,
+   "min": 9,
+   "p50": 20,
+   "p95": 22,
+   "max": 23
+  },
+  "write_to_render_ms": {
+   "n": 12,
+   "min": 25,
+   "p50": 28,
+   "p95": 29,
+   "max": 44
+  },
+  "write_to_received_ms": {
+   "n": 12,
+   "min": 10,
+   "p50": 13,
+   "p95": 15,
+   "max": 40
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:20.294Z",
+  "label": "gate_render",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-a35ffb13115e4967\",\"renderer\":\"askuserquestion\",\"rendered\":{\"zones\":{\"header\":\"Spike 006: confirm the probe claim?\",\"body\":\"▢ 1. Approve, mark as needs evidence\\n▢ 2. Not yet\",\"signals\":\"Checked against: nothing outside the conversation yet. This room asks for at least a source document, so approving files it as needs evidence.\",\"footer\":\"[AskUserQuestion contract: shape=F.8 verbs=0]\\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conver"
+ },
+ {
+  "ts": "2026-10-01T23:49:20.323Z",
+  "label": "gate_answer",
+  "ok": true,
+  "ms": 13,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-a35ffb13115e4967\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898560314:7c7e4d73\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-a35ffb13115e4967\",\"edges_written\":1,\"framework_edge\":false,\"confirmed\":true,\"subject_node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:d8a511df\",\"subject_confirmed\":false,\"subject_skip_reason\":\"below_floor\",\"subject_held\":true,\"landed_sta"
+ },
+ {
+  "ts": "2026-10-01T23:49:20.372Z",
+  "label": "P3_gate_answer_update",
+  "gate_id": "gate-a35ffb13115e4967",
+  "ratified": true,
+  "gate_answer_body": "{\"ok\":true,\"gate_id\":\"gate-a35ffb13115e4967\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898560314:7c7e4d73\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-a35ffb13115e4967\",\"edges_written\":1,\"fram",
+  "subject": "claim:7243c827-398f-44b7-a409-344ab424c692:d8a511df",
+  "status_before": "proposed",
+  "status_after_browser": "needs_evidence",
+  "status_in_room": "needs_evidence",
+  "update_seen_ms_after_return": 28,
+  "decisions_before": 6,
+  "decisions_after": 7,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:21.083Z",
+  "label": "P4_burst",
+  "writes": 200,
+  "ok": 200,
+  "distinct_ids": 200,
+  "all_calls_ms": 658,
+  "converge_after_last_return_ms": 43,
+  "converged": true,
+  "stream_items_during_burst": 155,
+  "room_nodes": 419,
+  "browser_nodes": 419,
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:21.094Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.432Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 44,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:d6360748\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.455Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 23,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:301174a9\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.477Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 22,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:89ecdf2b\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.496Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 19,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:e3c849ac\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.518Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 22,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:3da3b42a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:21.544Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 26,
+  "body": "{\"room_dir\":\"/tmp/spike006-j3N4WM/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:7243c827-398f-44b7-a409-344ab424c692:977f2136\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:22.096Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:49:23.098Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:49:24.462Z",
+  "label": "P5_reconnect",
+  "kill": "killed",
+  "ui_showed_disconnected": true,
+  "writes_while_down": 6,
+  "restart_to_converged_ms": 1413,
+  "converged": true,
+  "offline_writes_missing_in_browser": 0,
+  "epoch_reconcile_done": true,
+  "epoch_reconcile_ms": 245,
+  "resyncs": 2,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:24.574Z",
+  "label": "P6_superseded_soft_delete",
+  "old": "memory_artifact:_root:MINTO",
+  "supersede_ok": true,
+  "left_browser_view": true,
+  "ms": 28,
+  "kept_as_rxdb_tombstone": true,
+  "room_census": {
+   "nodes_total": 426,
+   "nodes_live": 425,
+   "edges_total": 32,
+   "edges_live": 32,
+   "data_version": 4,
+   "mode": "journal",
+   "epoch": "6dd181cfcebf",
+   "seq": 459
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:24.606Z",
+  "label": "room_graph.graph-rebuild",
+  "ok": true,
+  "ms": 30,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:27.123Z",
+  "label": "P7_hard_delete_gap",
+  "rebuild_ok": true,
+  "converged": true,
+  "room_nodes": 420,
+  "browser_nodes": 420,
+  "room_edges": 45,
+  "browser_edges": 45,
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:27.134Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:49:27.451Z",
+  "label": "room_graph.graph-rebuild.while_down",
+  "ok": true,
+  "ms": 25,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:49:28.492Z",
+  "label": "P7b_hard_delete_while_down",
+  "rebuild_ok": true,
+  "stale_before_restart": null,
+  "reconcile_done": true,
+  "reconcile_ms_after_restart": 915,
+  "converged": true,
+  "converge_ms": 5,
+  "reconciles": 2,
+  "reconcile_events": [
+   {
+    "t": 1790898564448,
+    "label": "reconcile",
+    "why": "epoch_change",
+    "removed": 0
+   },
+   {
+    "t": 1790898568459,
+    "label": "reconcile",
+    "why": "epoch_change",
+    "removed": 0
+   }
+  ],
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:28.571Z",
+  "label": "P8_warm_reload",
+  "nav_to_ready_ms": 78,
+  "in_page_catchup_ms": 36,
+  "docs_per_pull": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:32.517Z",
+  "label": "P11_scale",
+  "writes": 2000,
+  "calls_ms": 3837,
+  "converged": true,
+  "converge_after_last_return_ms": 107,
+  "room_nodes": 2420,
+  "browser_nodes": 2420,
+  "scans": 503,
+  "scan_ms": {
+   "n": 503,
+   "min": 2,
+   "p50": 5,
+   "p95": 13,
+   "max": 18
+  },
+  "journal_refresh_ms": {
+   "n": 503,
+   "min": 2,
+   "p50": 5,
+   "p95": 13,
+   "max": 18
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:32.619Z",
+  "label": "P11_warm_reload_at_scale",
+  "nav_to_ready_ms": 99,
+  "in_page_catchup_ms": 58,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:33.542Z",
+  "label": "P11_cold_catchup_at_scale",
+  "nav_to_ready_ms": 871,
+  "in_page_catchup_ms": 530,
+  "converged": true,
+  "nodes": 2420,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:33.549Z",
+  "label": "P9_egress_and_push",
+  "hosts": [
+   "127.0.0.1:3871",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "allowed": true,
+  "non_get_requests_to_pull_server": 0,
+  "server_answer_to_POST": 405,
+  "total_requests": 88,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:33.550Z",
+  "label": "P10_plugin_sse_bus",
+  "status": 200,
+  "error": null,
+  "frames": 0,
+  "kinds": [],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:49:33.552Z",
+  "label": "pull_server_scans",
+  "scans": 681,
+  "by_trigger": {
+   "fs.watch": 680,
+   "poll": 1
+  },
+  "scan_ms": {
+   "n": 681,
+   "min": 1,
+   "p50": 4,
+   "p95": 12,
+   "max": 18
+  },
+  "pull_nodes_ms": {
+   "n": 43,
+   "min": 1,
+   "p50": 6,
+   "p95": 13,
+   "max": 14
+  },
+  "scan_errors": 0
+ },
+ {
+  "ts": "2026-10-01T23:49:34.064Z",
+  "label": "teardown",
+  "pull": "killed",
+  "mcp": "killed",
+  "after": {
+   ".": 1790898383294.6548,
+   ".mindrian": 1790898353122.215,
+   ".mindrian/room.db": 1790898338193.9968,
+   ".mindrian/room.db-wal": null
+  },
+  "real_room_untouched": true,
+  "real_room_files_changed_since_last_phase": []
+ }
+]

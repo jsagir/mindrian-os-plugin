@@ -1,0 +1,18 @@
+{
+  "name": "spike-006-room-pull-checkpoint",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Spike 006: room.db -> RxDB one-way pull replication (throwaway)",
+  "scripts": {
+    "build": "node stages/02_browser-replica/build.cjs",
+    "probe": "node stages/03_probe/run.cjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "rxdb": "^17.5.0",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

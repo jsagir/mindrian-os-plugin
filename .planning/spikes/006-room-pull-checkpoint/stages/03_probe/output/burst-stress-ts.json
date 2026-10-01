@@ -1,0 +1,484 @@
+{
+ "mode": "ts",
+ "rounds": [
+  {
+   "round": 0,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 565,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 1,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 442,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 3,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 410,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 7,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 394,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 13,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 417,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 16,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 419,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 22,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 6,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 412,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 27,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 7,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 438,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 28,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 8,
+   "sessions": 1,
+   "writes": 200,
+   "calls_ms": 540,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 30,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  },
+  {
+   "round": 9,
+   "sessions": 2,
+   "writes": 200,
+   "calls_ms": 473,
+   "converged": false,
+   "converge_ms": null,
+   "missing": 32,
+   "missedDocs": [
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:39d98921",
+     "type": "claim",
+     "ts": 1790898183312,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:45d24ac0",
+     "type": "claim",
+     "ts": 1790898189717,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:2ffa3907-a9d0-4701-9e74-8ce60f622466:cc19c23c",
+     "type": "claim",
+     "ts": 1790898189764,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:200fe7aa",
+     "type": "claim",
+     "ts": 1790898195977,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    },
+    {
+     "id": "claim:36ab4b87-b079-4f0a-8ca7-725608b070c0:301c7c24",
+     "type": "claim",
+     "ts": 1790898196125,
+     "lm": 0,
+     "status": "proposed",
+     "same_ms_neighbours": 1
+    }
+   ]
+  }
+ ],
+ "started": "2026-10-01T23:43:02.123Z",
+ "teardown": {
+  "pull": "killed",
+  "mcp": "killed",
+  "after": {
+   ".": 1790898212100.2004,
+   ".mindrian": 1790898213524.2256,
+   ".mindrian/room.db": 1790898213420.2236,
+   ".mindrian/room.db-wal": null
+  },
+  "real_room_untouched": false
+ },
+ "summary": {
+  "rounds": 10,
+  "rounds_with_miss": 10,
+  "total_missing": 179
+ }
+}

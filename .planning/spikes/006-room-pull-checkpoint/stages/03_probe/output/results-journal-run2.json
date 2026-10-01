@@ -1,0 +1,494 @@
+[
+ {
+  "ts": "2026-10-01T23:46:04.095Z",
+  "label": "stack_up",
+  "mode": "journal",
+  "home": "/tmp/spike006-WYfzcD",
+  "mcpPort": 3847,
+  "pullPort": 3871,
+  "mcp_bound_to": "/tmp/spike006-WYfzcD/egain-des-liquid-conductor",
+  "bound_is_tmp": true
+ },
+ {
+  "ts": "2026-10-01T23:46:04.326Z",
+  "label": "room_bind",
+  "ok": true,
+  "ms": 69,
+  "body": "{\"_text\":\"{\\n  \\\"ok\\\": true,\\n  \\\"bound\\\": true,\\n  \\\"primary\\\": \\\"egain-des-liquid-conductor\\\",\\n  \\\"source\\\": \\\"explicit\\\",\\n  \\\"effective\\\": true,\\n  \\\"resolved_dir\\\": \\\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\\\",\\n  \\\"resolved_source\\\": \\\"session.primary\\\"\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_state`\\n**Args:** `{\\\"command\\\":\\\"status\\\"}`\\n**Rationale:** Session bound - check room status for the newly bound room\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:04.331Z",
+  "label": "census_initial",
+  "nodes_total": 202,
+  "nodes_live": 202,
+  "edges_total": 30,
+  "edges_live": 30,
+  "data_version": 2,
+  "mode": "journal",
+  "epoch": "3bc91af890f1",
+  "seq": 232
+ },
+ {
+  "ts": "2026-10-01T23:46:04.935Z",
+  "label": "P1_cold_catchup",
+  "ready": true,
+  "nav_to_ready_ms": 488,
+  "in_page_catchup_ms": 164,
+  "pull_requests": 3,
+  "converge": {
+   "ok": true,
+   "ms": 16,
+   "room_nodes_live": 202,
+   "room_edges_live": 30,
+   "browser_nodes": 202,
+   "browser_edges": 30
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:05.043Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 106,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:d547c835\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:05.240Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 10,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:2f238c88\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:05.426Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:88fefe15\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:05.608Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:e2da6fb2\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:05.792Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:3cb5deaf\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:05.975Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:96915037\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:06.159Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 7,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:f06d10ab\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:06.339Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:4a488230\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:06.521Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:a423f3b8\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:06.701Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:fdff62b3\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:06.883Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 6,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:1da0ec1e\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:07.064Z",
+  "label": "claim_write.single",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:777cac7a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:07.259Z",
+  "label": "P2_live_single",
+  "ok": "12/12",
+  "call_ms": {
+   "n": 12,
+   "min": 5,
+   "p50": 7,
+   "p95": 10,
+   "max": 108
+  },
+  "return_to_render_ms": {
+   "n": 12,
+   "min": 12,
+   "p50": 15,
+   "p95": 21,
+   "max": 24
+  },
+  "write_to_render_ms": {
+   "n": 12,
+   "min": 19,
+   "p50": 23,
+   "p95": 29,
+   "max": 120
+  },
+  "write_to_received_ms": {
+   "n": 12,
+   "min": 10,
+   "p50": 13,
+   "p95": 18,
+   "max": 115
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:07.265Z",
+  "label": "gate_render",
+  "ok": true,
+  "ms": 5,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-967f84e099d1f5d0\",\"renderer\":\"askuserquestion\",\"rendered\":{\"zones\":{\"header\":\"Spike 006: confirm the probe claim?\",\"body\":\"▢ 1. Approve, mark as needs evidence\\n▢ 2. Not yet\",\"signals\":\"Checked against: nothing outside the conversation yet. This room asks for at least a source document, so approving files it as needs evidence.\",\"footer\":\"[AskUserQuestion contract: shape=F.8 verbs=0]\\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conver"
+ },
+ {
+  "ts": "2026-10-01T23:46:07.288Z",
+  "label": "gate_answer",
+  "ok": true,
+  "ms": 8,
+  "body": "{\"ok\":true,\"gate_id\":\"gate-967f84e099d1f5d0\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898367284:6574034c\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-967f84e099d1f5d0\",\"edges_written\":1,\"framework_edge\":false,\"confirmed\":true,\"subject_node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:d547c835\",\"subject_confirmed\":false,\"subject_skip_reason\":\"below_floor\",\"subject_held\":true,\"landed_sta"
+ },
+ {
+  "ts": "2026-10-01T23:46:07.318Z",
+  "label": "P3_gate_answer_update",
+  "gate_id": "gate-967f84e099d1f5d0",
+  "ratified": true,
+  "gate_answer_body": "{\"ok\":true,\"gate_id\":\"gate-967f84e099d1f5d0\",\"chosen\":[\"approve\"],\"verdict\":\"approve\",\"ratified\":true,\"memory_event\":{\"ok\":true,\"eventId\":\"memory_event:mcp_client_event_logged:1790898367284:6574034c\"},\"reasoning_node\":{\"ok\":true,\"node_id\":\"decision:gate:gate-967f84e099d1f5d0\",\"edges_written\":1,\"fram",
+  "subject": "claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:d547c835",
+  "status_before": "proposed",
+  "status_after_browser": "needs_evidence",
+  "status_in_room": "needs_evidence",
+  "update_seen_ms_after_return": 22,
+  "decisions_before": 6,
+  "decisions_after": 7,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:07.991Z",
+  "label": "P4_burst",
+  "writes": 200,
+  "ok": 200,
+  "distinct_ids": 200,
+  "all_calls_ms": 623,
+  "converge_after_last_return_ms": 42,
+  "converged": true,
+  "stream_items_during_burst": 163,
+  "room_nodes": 419,
+  "browser_nodes": 419,
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:08.000Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.341Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 45,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:d2cf80ff\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.364Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 23,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:2caaee61\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.391Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 27,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:868658e3\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.413Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 22,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:e061c37e\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.445Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 32,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:3a3d308a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:08.475Z",
+  "label": "claim_write.offline",
+  "ok": true,
+  "ms": 30,
+  "body": "{\"room_dir\":\"/tmp/spike006-WYfzcD/egain-des-liquid-conductor\",\"anchor_edge\":null,\"ok\":true,\"node_id\":\"claim:8493c719-f7aa-4b6f-bb17-1eef34a5a970:94189b2a\",\"knowledge_type\":\"assumption\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:09.002Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:46:10.004Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ },
+ {
+  "ts": "2026-10-01T23:46:11.128Z",
+  "label": "P5_reconnect",
+  "kill": "killed",
+  "ui_showed_disconnected": true,
+  "writes_while_down": 6,
+  "restart_to_converged_ms": 1149,
+  "converged": true,
+  "offline_writes_missing_in_browser": 0,
+  "resyncs": 2,
+  "same_page_load": true,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:11.263Z",
+  "label": "P6_superseded_soft_delete",
+  "old": "memory_artifact:_root:MINTO",
+  "supersede_ok": true,
+  "left_browser_view": true,
+  "ms": 38,
+  "kept_as_rxdb_tombstone": true,
+  "room_census": {
+   "nodes_total": 426,
+   "nodes_live": 425,
+   "edges_total": 32,
+   "edges_live": 32,
+   "data_version": 4,
+   "mode": "journal",
+   "epoch": "e91d2ea7c28a",
+   "seq": 459
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:11.302Z",
+  "label": "room_graph.graph-rebuild",
+  "ok": true,
+  "ms": 38,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:13.814Z",
+  "label": "P7_hard_delete_gap",
+  "rebuild_ok": true,
+  "converged": true,
+  "room_nodes": 420,
+  "browser_nodes": 420,
+  "room_edges": 45,
+  "browser_edges": 45,
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": [
+   "/STATE.md"
+  ]
+ },
+ {
+  "ts": "2026-10-01T23:46:13.822Z",
+  "label": "page_console_error",
+  "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+ },
+ {
+  "ts": "2026-10-01T23:46:14.178Z",
+  "label": "room_graph.graph-rebuild.while_down",
+  "ok": true,
+  "ms": 63,
+  "body": "{\"_text\":\"{\\n  \\\"success\\\": true,\\n  \\\"artifacts\\\": 13,\\n  \\\"sections\\\": 6\\n}\\n\\n## Suggested Next\\n\\n**Tool:** `room_graph`\\n**Args:** `{\\\"command\\\":\\\"graph-stats\\\"}`\\n**Rationale:** Graph rebuilt - review stats to verify relationship coverage\"}"
+ },
+ {
+  "ts": "2026-10-01T23:46:14.304Z",
+  "label": "P7b_hard_delete_while_down",
+  "rebuild_ok": true,
+  "converged": true,
+  "converge_ms": 11,
+  "reconciles": 1,
+  "reconcile_events": [
+   {
+    "t": 1790898371342,
+    "label": "reconcile",
+    "why": "epoch_change",
+    "removed": 10
+   }
+  ],
+  "id_diff": {
+   "nodes_only_in_browser": 0,
+   "nodes_only_in_room": 0,
+   "edges_only_in_browser": 0,
+   "edges_only_in_room": 0,
+   "sample_only_in_browser": [],
+   "sample_only_in_room": []
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:14.438Z",
+  "label": "P8_warm_reload",
+  "nav_to_ready_ms": 133,
+  "in_page_catchup_ms": 94,
+  "docs_per_pull": [
+   200,
+   45,
+   200,
+   21,
+   0
+  ],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:18.444Z",
+  "label": "P11_scale",
+  "writes": 2000,
+  "calls_ms": 3895,
+  "converged": true,
+  "converge_after_last_return_ms": 109,
+  "room_nodes": 2420,
+  "browser_nodes": 2420,
+  "scans": 449,
+  "scan_ms": {
+   "n": 449,
+   "min": 2,
+   "p50": 5,
+   "p95": 11,
+   "max": 18
+  },
+  "journal_refresh_ms": {
+   "n": 449,
+   "min": 2,
+   "p50": 5,
+   "p95": 11,
+   "max": 18
+  },
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:18.571Z",
+  "label": "P11_warm_reload_at_scale",
+  "nav_to_ready_ms": 125,
+  "in_page_catchup_ms": 81,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:20.470Z",
+  "label": "P11_cold_catchup_at_scale",
+  "nav_to_ready_ms": 1678,
+  "in_page_catchup_ms": 1078,
+  "converged": true,
+  "nodes": 2420,
+  "real_room_files_changed_since_last_phase": [
+   "/STATE.md"
+  ]
+ },
+ {
+  "ts": "2026-10-01T23:46:20.492Z",
+  "label": "P9_egress_and_push",
+  "hosts": [
+   "127.0.0.1:3871",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "allowed": true,
+  "non_get_requests_to_pull_server": 0,
+  "server_answer_to_POST": 405,
+  "total_requests": 92,
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:20.493Z",
+  "label": "P10_plugin_sse_bus",
+  "status": 200,
+  "error": null,
+  "frames": 0,
+  "kinds": [],
+  "real_room_files_changed_since_last_phase": []
+ },
+ {
+  "ts": "2026-10-01T23:46:20.495Z",
+  "label": "pull_server_scans",
+  "scans": 631,
+  "by_trigger": {
+   "fs.watch": 629,
+   "poll": 2
+  },
+  "scan_ms": {
+   "n": 631,
+   "min": 1,
+   "p50": 4,
+   "p95": 11,
+   "max": 18
+  },
+  "pull_nodes_ms": {
+   "n": 47,
+   "min": 1,
+   "p50": 7,
+   "p95": 24,
+   "max": 37
+  },
+  "scan_errors": 0
+ },
+ {
+  "ts": "2026-10-01T23:46:23.370Z",
+  "label": "teardown",
+  "pull": "killed",
+  "mcp": "killed",
+  "after": {
+   ".": 1790898383294.6548,
+   ".mindrian": 1790898353122.215,
+   ".mindrian/room.db": 1790898338193.9968,
+   ".mindrian/room.db-wal": null
+  },
+  "real_room_untouched": false,
+  "real_room_files_changed_since_last_phase": [
+   "/STATE.md"
+  ]
+ }
+]

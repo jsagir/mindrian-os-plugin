@@ -1,0 +1,30 @@
+/* M:OS Design Canon v3: Workshop Modernism (mindrian-website docs/DESIGN-CANON.md, D-29).
+   Layer 3 reference for spikes 006 and 007. Colour only as meaning; radius 0; motion only
+   as a change of state; one decision per view. No em-dashes. */
+:root {
+  --paper: #F5F0E6;
+  --paper-deep: #E9DFCF;
+  --paper-light: #FCF9F2;
+  --ink: #14202B;
+  --ink-soft: #46535D;
+  --line: #14202B;
+  --rust: #A8462D;    /* fixed, complete, structure */
+  --cobalt: #2457A5;  /* current, live, you are here */
+  --ochre: #D49A20;   /* next action; never text on paper; ink outline on paper */
+  --success: #2F6849;
+  --error: #A12E2E;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "DM Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; border-radius: 0 !important; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-ui); }
+.mark { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 8px; }
+.mark.square { background: var(--rust); }
+.mark.circle { background: var(--cobalt); border-radius: 50% !important; }
+.mark.triangle { width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 12px solid var(--ochre); filter: drop-shadow(0 0 0 var(--ink)); }
+.mark.black { background: var(--ink); }
+.mark.white { background: var(--paper-light); outline: 1px solid var(--ink); }
+.mark.error { background: var(--error); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
