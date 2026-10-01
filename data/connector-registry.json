@@ -1330,7 +1330,7 @@
       ],
       "reach_id": "context_block",
       "sub_mode": "trending-to-absurd",
-      "framework": "S-Curve Analysis",
+      "framework": "Trending to the Absurd",
       "posture": "push_forward",
       "hierarchy_rank": 33,
       "filing": "fileEvidenceWithReadback",
@@ -2674,7 +2674,7 @@
       "sensor_triggers": [],
       "reach_id": "context_block",
       "sub_mode": "trending-to-absurd",
-      "framework": "S-Curve Analysis",
+      "framework": "Trending to the Absurd",
       "posture": "push_forward",
       "hierarchy_rank": 11,
       "filing": "fileEvidenceWithReadback",
@@ -3649,10 +3649,8 @@
     "S-Curve Analysis": [
       "/mos:analyze-timing",
       "/mos:explore-trends",
-      "/mos:trending-to-absurd",
       "skill:analyze-timing",
-      "skill:explore-trends",
-      "skill:trending-to-absurd"
+      "skill:explore-trends"
     ],
     "Domain Selection": [
       "/mos:auto-explore",
@@ -3787,6 +3785,10 @@
       "/mos:research",
       "skill:research",
       "agent:research"
+    ],
+    "Trending to the Absurd": [
+      "/mos:trending-to-absurd",
+      "skill:trending-to-absurd"
     ]
   }
 }

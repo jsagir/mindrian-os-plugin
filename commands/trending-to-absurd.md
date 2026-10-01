@@ -23,7 +23,7 @@ serves_jtbd: ["understand-market", "explore"]
 teaching: "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["S-Curve Analysis"]
+frameworks: ["Trending to the Absurd", "S-Curve Analysis"]
 produces: "room/opportunity-bank/trending-to-absurd/*"
 inputs: []
 autonomous_safe: true
@@ -38,7 +38,7 @@ connector:
   sensor_triggers: [SENS-04]
   reach_id: context_block
   sub_mode: trending-to-absurd
-  framework: "S-Curve Analysis"
+  framework: "Trending to the Absurd"
   posture: push_forward
   hierarchy_rank: 33
   filing: fileEvidenceWithReadback
@@ -77,7 +77,7 @@ This command ships FULL variance in v1: all four persona lenses and all three pa
 
 ### Act 0 -- the persona + path Decision Gate (HITL judgment point)
 
-Call `surfacePersonaPathGate(roomDir)`. Render the returned descriptor through the Shape F selector (F.2 path-control for the path choice, F.1 next-move for the persona) with the tri-context panels (LOCAL the room / BRAIN generic S-Curve Analysis handle only / SIGNAL none this turn). The navigator picks one persona and one path. Then record the selection as graph data via `recordPersonaPathSelection(db, { persona, path, focusNodeId })` -- it writes a SELECTED_REACH typed edge with enum-only props (persona + path), so the choice becomes graph data (Part 4) the next scan can read. The chosen path sets the ring depth (`PATH_VARIANTS[path].rings`) and the gate policy (`PATH_VARIANTS[path].gate_policy`); the chosen persona sets the Larry framing for the rest of the run.
+Call `surfacePersonaPathGate(roomDir)`. Render the returned descriptor through the Shape F selector (F.2 path-control for the path choice, F.1 next-move for the persona) with the tri-context panels (LOCAL the room / BRAIN generic Trending to the Absurd handle only / SIGNAL none this turn). The navigator picks one persona and one path. Then record the selection as graph data via `recordPersonaPathSelection(db, { persona, path, focusNodeId })` -- it writes a SELECTED_REACH typed edge with enum-only props (persona + path), so the choice becomes graph data (Part 4) the next scan can read. The chosen path sets the ring depth (`PATH_VARIANTS[path].rings`) and the gate policy (`PATH_VARIANTS[path].gate_policy`); the chosen persona sets the Larry framing for the rest of the run.
 
 When the path is Expert, the `multi_agent` flag dispatches the economic / technological / social / environmental refinement sub-agents -- these ride the EXISTING Canon Part 2 SUB-AGENT SPAWN affordance (a sub-agent inherits the persona context and returns a structured finding), NOT a new mechanism.
 
@@ -118,7 +118,7 @@ Call `seedFromDomains(roomDir, { db })`. It reads the connective taxonomy via `n
 
 ### Act 2 -- the trend-selection Decision Gate (HITL judgment point 1)
 
-Call `surfaceTrendSelectionGate(roomDir, trends)`. Render the returned descriptor through the Shape F.1 AskUserQuestion selector with the tri-context panels (LOCAL extracted trends / BRAIN generic S-Curve Analysis handle only / SIGNAL none this turn). The navigator picks WHICH trends to push to the absurd extreme via APPROVE / REJECT / DEFER. This is the first of the two D-163-05 gates.
+Call `surfaceTrendSelectionGate(roomDir, trends)`. Render the returned descriptor through the Shape F.1 AskUserQuestion selector with the tri-context panels (LOCAL extracted trends / BRAIN generic Trending to the Absurd handle only / SIGNAL none this turn). The navigator picks WHICH trends to push to the absurd extreme via APPROVE / REJECT / DEFER. This is the first of the two D-163-05 gates.
 
 ### Act 3 -- extrapolate to the absurd (autonomous_safe)
 
@@ -144,7 +144,7 @@ A roadmap step that asserts a venture truth lands `review_status: proposed` (Par
 
 ## Canon boundaries
 
-- Part 8: zero Brain egress. The only external leg is the inherited `runSignalResearch` generic-handle path (a domain keyword only, never room content). The connector `framework` is a generic S-Curve Analysis handle.
+- Part 8: zero Brain egress. The only external leg is the inherited `runSignalResearch` generic-handle path (a domain keyword only, never room content). The connector `framework` is a generic Trending to the Absurd handle.
 - Part 9: every graph write routes through `navigation.writeEdge` / `confirmNode`. The harness opens no raw room.db writes.
 
 ## When complete

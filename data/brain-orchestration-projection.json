@@ -2541,9 +2541,9 @@
       "sensor_triggers": [
         "SENS-04"
       ],
-      "framework": "S-Curve Analysis",
+      "framework": "Trending to the Absurd",
       "chain_provenance": {
-        "framework": "S-Curve Analysis",
+        "framework": "Trending to the Absurd",
         "command": "/mos:trending-to-absurd",
         "reach_id": "context_block",
         "sub_mode": "trending-to-absurd",
@@ -2559,7 +2559,7 @@
         "sensor_triggers": [
           "SENS-04"
         ],
-        "framework": "S-Curve Analysis"
+        "framework": "Trending to the Absurd"
       }
     },
     {
@@ -3967,6 +3967,12 @@
       "name": "The Pyramid Principle"
     },
     {
+      "id": "framework:Trending to the Absurd",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Trending to the Absurd"
+    },
+    {
       "id": "framework:Usher's Model of Cumulative Synthesis",
       "kind": "framework",
       "methodology_tier": "pws",
@@ -4836,6 +4842,11 @@
       "type": "OPERATES",
       "from": "command:/mos:trending-to-absurd",
       "to": "framework:S-Curve Analysis"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:trending-to-absurd",
+      "to": "framework:Trending to the Absurd"
     },
     {
       "type": "OPERATES",

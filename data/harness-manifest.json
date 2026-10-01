@@ -7,20 +7,20 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "fda868e5a4e316421891428e1716033c76eebabe0f2a04c60e86799228de9064",
+      "digest": "a208c7bc47c541877e6a82e904239b8a4875019122afa4aa75bc1c8f3b8f235a",
       "source_count": 113
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "abc0cc6ffcc32945f32214426ce659a927f590ee74a2e42277b81bc73b1f3590",
+      "digest": "c54a87768238cd4cf463832217ae37fa8468c6190136cad573f3d7749d90d2bc",
       "source_count": 214
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "3f0a3b8a28112e3246818979489d41efacf60b17d78da66276de60a026cb0d6a",
-      "source_count": 387
+      "digest": "f2c2b63ba649ef90b5a020437c218cab05a6e53ef8a87ac4e2a351857dda3836",
+      "source_count": 388
     }
   ],
   "runtime_surfaces": [

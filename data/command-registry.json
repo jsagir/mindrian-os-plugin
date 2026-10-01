@@ -2123,6 +2123,7 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
+        "Trending to the Absurd",
         "S-Curve Analysis"
       ],
       "produces": "room/opportunity-bank/trending-to-absurd/*",
@@ -2413,6 +2414,9 @@
     ],
     "MECE (Mutually Exclusive, Collectively Exhaustive)": [
       "/mos:structure-argument"
+    ],
+    "Trending to the Absurd": [
+      "/mos:trending-to-absurd"
     ]
   },
   "curated_chains": [
