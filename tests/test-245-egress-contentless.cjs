@@ -115,12 +115,17 @@ function unitLeg() {
   );
 
   // 354-06 (D-354-EGR): the free-form allow path now requires structural
-  // proof, not keyword presence. 'lean startup methodology' carries
-  // 'methodology' (a methodology-vocabulary hit) next to 'lean' and
-  // 'startup', neither of which is closed-vocabulary -- ambiguous
+  // proof, not keyword presence. 'pottery kiln methodology' carries
+  // 'methodology' (a methodology-vocabulary hit) next to 'pottery' and
+  // 'kiln', neither of which is closed-vocabulary -- ambiguous
   // (freeform_unproven), never allow. Was: 'allow' / 'move_set'.
+  // Quick 261001-lsd re-pin: the fixture used to be 'lean startup methodology',
+  // but 355-08 (f55f004f6) regenerated data/framework-names.json and 'lean
+  // startup' became a canonical framework phrase, so that payload now proves
+  // closed-vocabulary and is correctly allowed. 'pottery' and 'kiln' are
+  // absent from data/ (grep-verified), keeping this the unproven-token case.
   expectVerdict(
-    { question: 'lean startup methodology' },
+    { question: 'pottery kiln methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
     'ambiguous',
     'freeform_unproven',

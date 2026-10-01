@@ -185,11 +185,15 @@ function armE() {
   expectVerdict({}, FIND, 'allow', 'empty_payload', 'empty payload under find_connections tool name');
   expectVerdict({ a: 1 }, FIND, 'ambiguous', 'unknown', 'generic {a:1} under find_connections tool name');
   // 354-06 (D-354-EGR): keyword presence no longer proves "generic"; every
-  // token must be structurally proven closed-vocabulary. 'lean' and
-  // 'startup' are not, so this is ambiguous (freeform_unproven), never
+  // token must be structurally proven closed-vocabulary. 'pottery' and
+  // 'kiln' are not, so this is ambiguous (freeform_unproven), never
   // allow. Was: 'allow' / 'move_set'.
+  // Quick 261001-lsd re-pin: was 'lean startup methodology'; 355-08 (f55f004f6)
+  // made 'lean startup' a canonical framework phrase in
+  // data/framework-names.json, so that payload is now correctly allowed.
+  // 'pottery' and 'kiln' are absent from data/ (grep-verified).
   expectVerdict(
-    { question: 'lean startup methodology' },
+    { question: 'pottery kiln methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
     'ambiguous',
     'freeform_unproven',
