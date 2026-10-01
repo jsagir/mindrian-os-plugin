@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.52 (in progress)
+## [2.0.0-beta.53] - 2026-10-01
 
 ### Added
 - **A claim is confirmed only when it was checked against a source (Phase 365).** Every claim
