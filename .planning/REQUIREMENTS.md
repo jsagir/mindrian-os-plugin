@@ -4181,7 +4181,7 @@ resolver request of D-13 c) minted at plan time; all thirty are registered here 
 `- [ ]` rows to be closed with measured proof, or left open with a stated reason, at phase close
 by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
 
-- [ ] **EPV366-01**: Wave 1 of SEED-103 (on main: 00a6e5f85, 3c3b3d923, 0184220d4, merge
+- [x] **EPV366-01**: Wave 1 of SEED-103 (on main: 00a6e5f85, 3c3b3d923, 0184220d4, merge
       ebd9090cf) is carried into `tests/run-all-366.sh`, written once in Wave 0 with every seed103
       leg verbatim, and the release gate shells that aggregator through
       `scripts/release-lib/suite-gate.sh` sourced by `scripts/release.sh` (fails closed,
@@ -4304,7 +4304,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       Claude's Discretion: Jev dev-time only, entity extraction off inside the pipeline.
       Plan 366-17.
 
-- [ ] **EPV366-23**: Spike harness: indexed fixture copies, per-arm candidates files, the union
+- [x] **EPV366-23**: Spike harness: indexed fixture copies, per-arm candidates files, the union
       converted to the 355 items shape, blind labels through `label-355-gold.cjs`, the bar fixed
       in a committed file before any run (Wilson 95% lower bound above 0.448 on each of three
       repeats), a record whose `--check` recomputes byte for byte; the 44.8% figure reported as the

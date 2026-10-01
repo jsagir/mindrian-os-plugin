@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phase 366 context gathered
-last_updated: "2026-10-01T14:51:43.854Z"
-last_activity: 2026-10-01 -- Phase 366 planning complete
+last_updated: "2026-10-01T15:05:55.315Z"
+last_activity: 2026-10-01
 progress:
   total_phases: 121
   completed_phases: 47
   total_plans: 513
-  completed_plans: 464
+  completed_plans: 465
   percent: 39
 ---
 
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 365 executed 17/17 (verification human_needed, code review CR-01 open); Phase 365.1 blocked on ladder ratification
+**Current focus:** Phase 366 — eureka-perspective-in-research-planner-mcp-canvas-tooling
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,8 +5423,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 363 (deep-research-planner-quick-and-deep-runs) - COMPLETE
-Plan: 22 of 22
+Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) — EXECUTING
+Plan: 2 of 27
 Status: Ready to execute
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
@@ -5980,7 +5980,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-01 -- Phase 366 planning complete
+Last activity: 2026-10-01
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -7032,7 +7032,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-07-02 -- Completed quick task 20260702-statusline-context-aware: cockpit persona chip dropped, binary brain chip, context-aware Next with honest "--" fallback, native ctx% (4 commits, all regression suites green)
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -9098,6 +9098,8 @@ Progress: [█████████░] 92%
 - [Phase 355] 355-02: RED cross-producer agreement test (legs A-H) committed on 35 module-computed fixture pairs; A and B pass now, C-H fail and name the exact plan (355-09/10/11) that turns each green
 - [Phase 355] 355-05: scout-hsi's honest sentence added as a net-new clause to the orchestration description (not a rewrite); the NOT EXECUTED banner gained a scout-hsi-only second line, since it is uniquely compute-shaped among UNIMPLEMENTED_MUTATING_ORCHESTRATION
 - [Phase 355] 355-05: whitespace_scan description kept the accurate findOpenQuestions/findUnsupportedClaims naming, cut only the 'closest to whitespace' framing; data/mcp-tool-connectors.json and data/connector-registry.json left untouched since hitl_why was already accurate
+- [Phase ?]: 366-01: run-all-366 carries test-355-direction-agreement as run_known_if keyed on the exact pre-existing hit list (baseline red)
+- [Phase ?]: 366-01: spike preparer enforces offline entity-extract via a node -e wrapper until Phase 368 ships --offline; 355 fixture copies yield zero DESCRIBES edges offline
 
 ### Pending Todos
 
@@ -9253,7 +9255,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-10-01 - Phase 365 executed 17/17 plans + 365-REPAIR-01 (full run PASSED=66 FAILED=0 KNOWN=6 at f2ffc10cc); verification human_needed (365-UAT.md); code review issues_found (CR-01 blocker). Previous: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-10-01T05:46:51.552Z
+Last session: 2026-10-01T15:05:49.757Z
 Stopped at: Phase 366 context gathered
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
