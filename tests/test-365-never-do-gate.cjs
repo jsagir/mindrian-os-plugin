@@ -292,7 +292,283 @@ async function main() {
       gateLedger._internal._ledger.has(m.gate_id) && neverDoBytes(room) === null);
   }
 
-  // TASK2-MARKER
+  // =================== Task 2: reject, ambient plan-only and halted_constraint ====================
+  const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8'));
+  const safeCmds = registry.commands.filter(function (c) { return c && c.autonomous_safe === true && typeof c.command === 'string'; })
+    .map(function (c) { return c.command; });
+  const materialCmd = registry.commands.filter(function (c) { return c && c.autonomous_safe !== true && typeof c.command === 'string'; })
+    .map(function (c) { return c.command; }).find(function (c) { return !exec.isIrreversibleStep({ command: c }); });
+  function mkSteps(cmds) {
+    return cmds.map(function (c, i) { return { step: i + 1, framework: 'fixture-' + (i + 1), command: c, optional: false }; });
+  }
+  async function stubOnStep() { return { chain_output: { ran: true }, quality: 'high' }; }
+  function chainOpts(room, extra) {
+    return Object.assign({
+      roomDir: room.roomDir, sessionId: SESSION, onStep: stubOnStep, targetSection: 'market-analysis',
+      gateRenderCtx: { capabilities: { elicitation: false, claudeCode: true } },
+    }, extra || {});
+  }
+  function putList(room, entries, raw) {
+    fs.mkdirSync(path.join(room.roomDir, '.mindrian'), { recursive: true });
+    const full = (entries || []).map(function (e) {
+      return { kind: e.kind, value: e.value, why: e.why || 'The navigator ruled this out of unattended work.', approved_via: { surface: 'cli', decision_node_id: 'd-365-13-seed' }, approved_at: '2026-10-01T09:00:00.000Z' };
+    });
+    fs.writeFileSync(neverDoFile(room), raw !== undefined ? raw : JSON.stringify({ schema: rc.SCHEMA, entries: full }, null, 2), 'utf8');
+  }
+
+  // ---- N9 a Reject on an ordinary material step grows the list ----------------------------
+  {
+    const room = newRoom();
+    const app = boot(room);
+    const steps = mkSteps([materialCmd]);
+    const run = await chainTool.chainRun(steps, chainOpts(room));
+    check('N9 FIXTURE: the chain halts at the material step as an ordinary gate_halt', run.halted === true && run.halted_at.reason === 'gate_halt', JSON.stringify(run.halted_at && run.halted_at.reason));
+    const want = rc.proposalFromFields(rc.declaredFieldsOfChainStep(steps[0], { targetSection: 'market-analysis' }), { surface: 'chain_run' });
+    const rej = await app.answer(run.gate.gate_id, ['reject'], 'reject');
+    const cr = rej.chain_result || {};
+    const ndg = cr.never_do_gate;
+    check('N9 reject returns never_do_gate {gate_id, renderer, rendered, proposal, next_step} in chain_result',
+      cr.ok === true && cr.executed === false && !!ndg && typeof ndg.gate_id === 'string' && typeof ndg.renderer === 'string'
+      && !!ndg.rendered && !!ndg.proposal && typeof ndg.next_step === 'string' && ndg.next_step.indexOf(FLOOR) !== -1, JSON.stringify(cr).slice(0, 300));
+    check('N9 the proposal kind and value come from the halted step declared fields',
+      !!want && !!ndg && ndg.proposal.kind === want.kind && ndg.proposal.value === want.value, JSON.stringify(ndg && ndg.proposal));
+    check('N9 nothing is written until the follow-up is approved', neverDoBytes(room) === null);
+    const ok = await app.answer(ndg.gate_id, ['approve'], 'approve');
+    const list = rc.readNeverDo(room.roomDir);
+    check('N9 approving the follow-up writes the entry with an mcp approval trail',
+      ok.ok === true && list.ok && list.entries.length === 1 && list.entries[0].value === want.value
+      && list.entries[0].approved_via.surface === 'mcp' && list.entries[0].approved_via.decision_node_id === 'decision:gate:' + ndg.gate_id
+      && !!nodeRow(room, 'decision:gate:' + ndg.gate_id), JSON.stringify(list));
+    const again = await chainTool.chainRun(mkSteps([materialCmd]), chainOpts(room));
+    check('N9 the next unattended run of that step halts as constraint_named (the list grew from what tripped)',
+      again.halted === true && again.halted_at.reason === 'constraint_named' && again.halted_at.constraint.value === want.value, JSON.stringify(again.halted_at && again.halted_at.reason));
+
+    // defer carries no offer
+    const room2 = newRoom();
+    const app2 = boot(room2);
+    const run2 = await chainTool.chainRun(mkSteps([materialCmd]), chainOpts(room2));
+    const def = await app2.answer(run2.gate.gate_id, ['defer'], 'defer');
+    check('N9 defer carries no never_do_gate', def.chain_result && def.chain_result.never_do_gate === undefined && neverDoBytes(room2) === null);
+    // the direct chain_run resume path offers it the same way
+    const room3 = newRoom();
+    const run3 = await chainTool.chainRun(mkSteps([materialCmd]), chainOpts(room3));
+    const direct = await chainTool.chainRun(null, { sessionId: SESSION, gateAnswer: { gate_id: run3.gate.gate_id, chosen: ['reject'], verdict: 'reject' } });
+    check('N9 the direct chain_run gate_answer path offers the same follow-up', !!direct.never_do_gate && typeof direct.never_do_gate.gate_id === 'string', JSON.stringify(direct).slice(0, 200));
+  }
+
+  // ---- N10 a constraint halt carries no follow-up -------------------------------------------
+  {
+    const room = newRoom();
+    const app = boot(room);
+    putList(room, [{ kind: 'command', value: safeCmds[0] }]);
+    const run = await chainTool.chainRun(mkSteps([safeCmds[0]]), chainOpts(room, { postureFn: function () { return { autonomous_safe: true, posture: 'run' }; } }));
+    check('N10 FIXTURE: the list halts the chain as constraint_named', run.halted === true && run.halted_at.reason === 'constraint_named');
+    const rej = await app.answer(run.gate.gate_id, ['reject'], 'reject');
+    check('N10 a reject on a constraint_named card carries no never_do_gate', rej.chain_result && rej.chain_result.ok === true && rej.chain_result.never_do_gate === undefined, JSON.stringify(rej.chain_result));
+    const room2 = newRoom();
+    const app2 = boot(room2);
+    putList(room2, null, '{ broken');
+    const run2 = await chainTool.chainRun(mkSteps([safeCmds[0]]), chainOpts(room2));
+    const rej2 = await app2.answer(run2.gate.gate_id, ['reject'], 'reject');
+    check('N10 a reject on a constraints_malformed card carries no never_do_gate', run2.halted_at.reason === 'constraints_malformed' && rej2.chain_result.never_do_gate === undefined);
+  }
+
+  // ---- ambient fixtures (the 365-10 runner) -------------------------------------------------
+  const NOW = Date.parse('2026-09-30T10:00:00Z');
+  function fetchingRoom() {
+    const r = newRoom();
+    const proposal = grants.buildStandingProposal(r.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [] }] });
+    const w = grants.writeGrant(r.roomDir, proposal, { approved_via: { surface: 'cli', decision_node_id: 'd-365-13-grant' } });
+    if (!w.ok) throw new Error('grant failed: ' + JSON.stringify(w));
+    return r;
+  }
+  function compWithWhitespace() {
+    return { producers: { whitespace: { outcome: 'no_candidate', posture: 'run' } }, tier_counts: { strong: 0, indirect: 0, unverified: 0 }, card: null, surfaced_via: 'none' };
+  }
+  let fetchCalls = 0;
+  async function ambient(room) {
+    return AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), {
+      budgetMs: 4 * 60 * 1000, now: NOW, deltaHash: 'a'.repeat(64),
+      deps: { fetchEnvelopeFn: async function () { fetchCalls += 1; throw new Error('no fetch in this test'); } },
+    });
+  }
+  async function haltedRoom(entries, raw) {
+    const room = fetchingRoom();
+    putList(room, entries, raw);
+    const out = await ambient(room);
+    return { room: room, out: out };
+  }
+
+  // ---- N11 surfaced ambient plan-only cards carry the follow-up -------------------------------
+  {
+    const room = newRoom();
+    const app = boot(room);
+    const out = await ambient(room);
+    check('N11 FIXTURE: an ambient plan-only card is pending', out.outcome === 'plan_card_no_grant');
+    const pend = await app.call('research_run', { op: 'pending' });
+    const card = (pend.cards || [])[0];
+    const ndg = card && card.never_do_gate;
+    check('N11 the pending entry carries never_do_gate with the card proposal (term, the zone term)',
+      !!card && card.kind === 'plan_card_no_grant' && !!ndg && ndg.proposal.kind === 'term' && ndg.proposal.value === GAP_TERM_363
+      && typeof ndg.gate_id === 'string' && !!ndg.rendered && typeof ndg.next_step === 'string', JSON.stringify(card && Object.keys(card)));
+    check('N11 the card itself is unchanged (payload still has the proposal) and nothing is written yet',
+      card.card.payload.never_do_proposal.value === GAP_TERM_363 && neverDoBytes(room) === null);
+    const ok = await app.answer(ndg.gate_id, ['approve'], 'approve');
+    const list = rc.readNeverDo(room.roomDir);
+    check('N11 approving it writes the entry', ok.ok === true && list.ok && list.entries.length === 1 && list.entries[0].kind === 'term'
+      && list.entries[0].value === GAP_TERM_363 && list.entries[0].approved_via.surface === 'mcp', JSON.stringify(list));
+
+    // ride-along on another op, exactly once
+    const room2 = newRoom();
+    const app2 = boot(room2);
+    await ambient(room2);
+    const status = await app2.call('research_run', { op: 'grant_status' });
+    const ride = (status.pending_cards || [])[0];
+    check('N11 the same card riding along on another op gets the same treatment',
+      !!ride && ride.kind === 'plan_card_no_grant' && !!ride.never_do_gate && ride.never_do_gate.proposal.value === GAP_TERM_363, JSON.stringify(status.pending_cards));
+    const status2 = await app2.call('research_run', { op: 'grant_status' });
+    check('N11 and exactly once: the next op carries no card and mints no second gate', Array.isArray(status2.pending_cards) && status2.pending_cards.length === 0);
+  }
+
+  // ---- N13 halted_constraint cards rendered as gates (D-26) -------------------------------------
+  {
+    // (a) approve: the attended run_quick next step
+    const a = await haltedRoom([{ kind: 'command', value: '/mos:whitespace' }]);
+    const appA = boot(a.room);
+    check('N13 FIXTURE: the room-started run halts before any request', a.out.outcome === 'halted_constraint' && fetchCalls === 0);
+    const pendA = await appA.call('research_run', { op: 'pending' });
+    const cardA = (pendA.cards || [])[0];
+    const gateA = cardA && cardA.gate;
+    const bodyA = JSON.stringify(gateA && gateA.rendered);
+    const headerA = cardA && cardA.card && cardA.card.header;
+    const live = gateA && gateLedger._internal._ledger.get(gateA.gate_id);
+    check('N13 the entry carries gate {gate_id, renderer, rendered} minted as a single-use material_step gate',
+      !!cardA && cardA.kind === 'halted_constraint' && !!gateA && typeof gateA.gate_id === 'string' && typeof gateA.renderer === 'string'
+      && !!live && live.kind === 'material_step' && typeof live.resumeFn === 'function' && live.sessionId === SESSION, JSON.stringify(cardA && Object.keys(cardA)));
+    check('N13 the rendered gate holds the header, the notice and exactly the three options',
+      !!gateA && gateA.rendered.zones.header === headerA && bodyA.indexOf(FLOOR) !== -1
+      && JSON.stringify(gateA.rendered.contract.superset_options.map(function (o) { return o.id; })) === JSON.stringify(['approve', 'reject', 'defer'])
+      && gateA.rendered.contract.options.length === 3, bodyA.slice(0, 300));
+    const resA = await appA.answer(gateA.gate_id, ['approve'], 'approve');
+    const crA = resA.chain_result || {};
+    check('N13 approve answers with the attended run_quick next step for that run_id',
+      resA.ok === true && crA.ok === true && crA.executed === false && /research_run with op run_quick/.test(crA.next_step)
+      && crA.next_step.indexOf(a.out.run_id) !== -1 && neverDoBytes(a.room) !== null && rc.readNeverDo(a.room.roomDir).entries.length === 1, JSON.stringify(crA));
+    const replay = await appA.answer(gateA.gate_id, ['approve'], 'approve');
+    check('N13 a replay is refused', replay.ok === false && replay.reason === 'unknown_or_expired_gate');
+
+    // (b) reject: the Reject and never do this follow-up from the card's own proposal
+    const b = await haltedRoom([{ kind: 'command', value: '/mos:whitespace' }]);
+    const appB = boot(b.room);
+    const cardB = ((await appB.call('research_run', { op: 'pending' })).cards || [])[0];
+    const resB = await appB.answer(cardB.gate.gate_id, ['reject'], 'reject');
+    const ndgB = resB.chain_result && resB.chain_result.never_do_gate;
+    check('N13 reject mints the follow-up from the card never_do_proposal (term, the zone term)',
+      !!ndgB && ndgB.proposal.kind === 'term' && ndgB.proposal.value === GAP_TERM_363 && typeof ndgB.gate_id === 'string', JSON.stringify(resB.chain_result));
+    const okB = await appB.answer(ndgB.gate_id, ['approve'], 'approve');
+    const listB = rc.readNeverDo(b.room.roomDir);
+    check('N13 approving the follow-up adds the entry beside the one that caused the halt',
+      okB.ok === true && listB.ok && listB.entries.length === 2 && listB.entries.some(function (e) { return e.kind === 'term' && e.value === GAP_TERM_363 && e.approved_via.surface === 'mcp'; }), JSON.stringify(listB));
+
+    // (c) defer leaves it
+    const c = await haltedRoom([{ kind: 'command', value: '/mos:whitespace' }]);
+    const appC = boot(c.room);
+    const cardC = ((await appC.call('research_run', { op: 'pending' })).cards || [])[0];
+    const resC = await appC.answer(cardC.gate.gate_id, ['defer'], 'defer');
+    check('N13 defer -> {ok:true, executed:false} and no follow-up', resC.chain_result.ok === true && resC.chain_result.executed === false && resC.chain_result.never_do_gate === undefined);
+
+    // (d) omission 1: the halt was caused by the very entry the proposal names
+    const d = await haltedRoom([{ kind: 'term', value: GAP_TERM_363 }]);
+    const appD = boot(d.room);
+    const cardD = ((await appD.call('research_run', { op: 'pending' })).cards || [])[0];
+    check('N13 FIXTURE: the card still carries a proposal naming the listed term', !!cardD.card.payload.never_do_proposal && cardD.card.payload.never_do_proposal.value === GAP_TERM_363);
+    const resD = await appD.answer(cardD.gate.gate_id, ['reject'], 'reject');
+    check('N13 omitted: a halt caused by an existing entry never offers to add it again',
+      resD.chain_result.ok === true && resD.chain_result.never_do_gate === undefined);
+
+    // (e) omission 2: a malformed list has nothing sensible to propose
+    const e = await haltedRoom(null, '{ broken');
+    const appE = boot(e.room);
+    const cardE = ((await appE.call('research_run', { op: 'pending' })).cards || [])[0];
+    const resE = await appE.answer(cardE.gate.gate_id, ['reject'], 'reject');
+    check('N13 omitted: a constraints_malformed halt offers no follow-up and the file is untouched',
+      e.out.reason === 'constraints_malformed' && resE.chain_result.ok === true && resE.chain_result.never_do_gate === undefined && neverDoBytes(e.room) === '{ broken');
+
+    // (f) omission 3: a card whose payload carries no proposal
+    const f = await haltedRoom([{ kind: 'command', value: '/mos:whitespace' }]);
+    const rawCard = JSON.parse(fs.readFileSync(path.join(f.room.roomDir, '.mindrian', 'research-runs', f.out.run_id, 'card.json'), 'utf8'));
+    delete rawCard.payload.never_do_proposal;
+    const mintedF = await neverDoGate.mintHaltedConstraintGate(rawCard, { roomDir: f.room.roomDir, sessionId: SESSION, capabilities: {} });
+    const resF = await boot(f.room).answer(mintedF.gate_id, ['reject'], 'reject');
+    check('N13 omitted: no proposal in the payload means no follow-up', mintedF.ok === true && resF.chain_result.ok === true && resF.chain_result.never_do_gate === undefined);
+    check('N13 a non-halted card is refused by the helper', (await neverDoGate.mintHaltedConstraintGate({ header: 'x', payload: {} }, { roomDir: f.room.roomDir })).ok === false);
+  }
+
+  // ---- N12 parity: gate, chain and research registrations equal PLAN_BASE -------------------------
+  {
+    const Module = require('node:module');
+    const PLAN_BASE = 'ab5e1d16b1a6e6622a8e98db92263649f5487749';
+    const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
+    if (probe.status !== 0) {
+      console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
+    } else {
+      const loadBase = function (rel) {
+        const file = path.join(ROOT, rel);
+        const src = spawnSync('git', ['show', PLAN_BASE + ':' + rel.split(path.sep).join('/')], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout;
+        const m = new Module(file, module);
+        m.filename = file;
+        m.paths = Module._nodeModulePaths(path.dirname(file));
+        m._compile(src, file);
+        return m.exports;
+      };
+      const shape = function (z) {
+        if (!z || !z._def) return String(z);
+        const d = z._def;
+        const o = { t: d.typeName, desc: z.description || null };
+        if (d.typeName === 'ZodObject') {
+          const sh = typeof d.shape === 'function' ? d.shape() : d.shape;
+          o.f = Object.keys(sh).sort().map(function (k) { return [k, shape(sh[k])]; });
+        } else if (d.typeName === 'ZodArray') {
+          o.el = shape(d.type);
+        } else if (d.typeName === 'ZodOptional') {
+          o.inner = shape(d.innerType);
+        } else if (d.typeName === 'ZodEnum') {
+          o.v = d.values;
+        } else if (d.typeName === 'ZodString' || d.typeName === 'ZodNumber') {
+          o.checks = d.checks;
+        } else if (d.typeName === 'ZodUnion') {
+          o.u = d.options.map(shape);
+        } else if (d.typeName === 'ZodRecord') {
+          o.k = shape(d.keyType);
+          o.v = shape(d.valueType);
+        }
+        return o;
+      };
+      const capture = function (mod) {
+        const got = {};
+        mod.register({ registerTool: function (name, opts) { got[name] = opts; }, server: {} }, {});
+        return got;
+      };
+      [['lib/mcp/tools/gate.cjs', gateModule, ['gate_render', 'gate_answer']],
+        ['lib/mcp/tools/chain.cjs', chainTool, ['chain_run']],
+        ['lib/mcp/tools/research.cjs', researchTool, ['research_run']]].forEach(function (row) {
+        const base = capture(loadBase(row[0]));
+        const now = capture(row[1]);
+        row[2].forEach(function (name) {
+          check('N12 ' + name + ' is registered on both', !!base[name] && !!now[name]);
+          check('N12 ' + name + ' description and title are byte-identical to PLAN_BASE',
+            base[name].description === now[name].description && base[name].title === now[name].title);
+          check('N12 ' + name + ' input schema (fields, requiredness, descriptions) is identical to PLAN_BASE',
+            JSON.stringify(shape(base[name].inputSchema)) === JSON.stringify(shape(now[name].inputSchema)));
+        });
+      });
+      check('N12 lib/mcp/tools/gate.cjs is byte-identical to PLAN_BASE',
+        spawnSync('git', ['diff', '--quiet', PLAN_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
+    }
+  }
+
+  check('Part 8: the helper has no network token in its code lines',
+    hygiene.nonCommentLines(path.join(ROOT, 'lib', 'mcp', 'never-do-gate.cjs')).every(function (l) { return !/brain-client|brain_query|pws-brain|fetch\(|https?:\/\/|node:https?|curl |wget /.test(l); }));
 
   check('net guard: zero real fetch attempts', guard.attempts() === 0, 'attempts=' + guard.attempts());
   {
