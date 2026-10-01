@@ -1,7 +1,7 @@
 'use strict';
 // Phase 349-05 -- assertions over the three documentation edits this plan
 // lands: docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 5 place 8 (amended in
-// place, still exactly eight numbered places), .claude/includes/release-
+// place; Phase 366 Plan 06 added place 9, so nine numbered places now), .claude/includes/release-
 // process.md (names the step, carries no lockstep count of its own), and
 // the reconciliation of the VERSION-BUMP-CHECKLIST.md contradiction (WD-14
 // stands, cited by id).
@@ -52,17 +52,37 @@ function sliceRule5(doc) {
 
 const rule5Slice = sliceRule5(ruleDoc);
 
-ok('RULE 5 still has exactly eight numbered places', function () {
+// Phase 366 Plan 06 (D-17) moved this pin from eight to nine: place 9 is
+// canon snapshot freshness (scripts/release-lib/canon-snapshot-gate.sh).
+ok('RULE 5 has exactly nine numbered places', function () {
   const lines = rule5Slice.split('\n');
   const numbered = lines.filter(function (l) { return /^[0-9]+\. /.test(l); });
-  assert.equal(numbered.length, 8, 'RULE 5 region must contain exactly 8 lines matching ^[0-9]+\\. , got ' + numbered.length);
+  assert.equal(numbered.length, 9, 'RULE 5 region must contain exactly 9 lines matching ^[0-9]+\\. , got ' + numbered.length);
 
   const numbers = numbered.map(function (l) { return parseInt(l.match(/^([0-9]+)\. /)[1], 10); });
   const highest = Math.max.apply(null, numbers);
-  assert.equal(highest, 8, 'the highest numbered place must be 8, got ' + highest);
+  assert.equal(highest, 9, 'the highest numbered place must be 9, got ' + highest);
 
-  const hasNine = lines.some(function (l) { return /^9\. /.test(l); });
-  assert.equal(hasNine, false, 'no line in RULE 5 may start with "9. "');
+  const hasTen = lines.some(function (l) { return /^10\. /.test(l); });
+  assert.equal(hasTen, false, 'no line in RULE 5 may start with "10. "');
+});
+
+ok('place 9 names canon snapshot freshness, its gate, its flag and the refresh command', function () {
+  const item9 = rule5Slice.split('\n').find(function (l) { return /^9\. /.test(l); }) || '';
+  const required = [
+    'Canon snapshot freshness',
+    'data/framework-names.json',
+    'theo_stamp.mapped_by',
+    'canon-snapshot-gate.sh',
+    'Step 0.6',
+    'LAGGING',
+    'node scripts/refresh-framework-names.cjs --live',
+    '--no-canon-snapshot-check',
+    'delivered form of D-17',
+  ];
+  required.forEach(function (token) {
+    assert.ok(item9.indexOf(token) !== -1, 'item 9 must contain "' + token + '", extracted text was:\n' + item9);
+  });
 });
 
 // ---------------------------------------------------------------------------
