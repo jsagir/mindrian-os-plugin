@@ -21,6 +21,18 @@
  *   O5 static: ambient-run.cjs no longer requires room-native-substrate,
  *      rs-differential-scorer or scripts/eureka-portfolio-report.cjs.
  *   O6 zero network and the injected callTool is never called for eureka.
+ *   O7 maybeQuick with an eureka offer and no whitespace card records
+ *      plan_card_eureka_offer: a run_id and a pending plan-only card.
+ *   O8 with a standing grant that covers the plan's terms the branch still
+ *      returns plan_card_eureka_offer and fetchEnvelopeFn is never called.
+ *   O9 a whitespace card produced in the same pass wins: no eureka card.
+ *   O10 an unsurfaced plan-only card already pending dedupes the offer
+ *      (deduped true) and leaves no new run dir.
+ *   O11 the offered plan validates (mos.research-plan/1) and its leaves carry
+ *      the closed pair shape.
+ *   O12 leaf questions name both titles (no "undefined"); the offer in
+ *      compResult stays ids and slugs; an unresolved endpoint row is dropped
+ *      and counted.
  *
  * Isolation: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME point at temp dirs and
  * the session env is cleared BEFORE any repo module loads. Hyphens only.
@@ -62,6 +74,10 @@ const eurekaRecall = require(path.join(REPO_ROOT, 'lib/core/research-planner/per
 const filingStamped = require(path.join(REPO_ROOT, 'lib/core/research-planner/filing-stamped.cjs'));
 const cadenceGuard = require(path.join(REPO_ROOT, 'scripts/scout-cadence-guard.cjs'));
 const ambientRun = require(path.join(REPO_ROOT, 'lib/core/ambient-run.cjs'));
+const plannerAmbient = require(path.join(REPO_ROOT, 'lib/core/research-planner/ambient.cjs'));
+const planner = require(path.join(REPO_ROOT, 'lib/core/research-planner/planner.cjs'));
+const planMod = require(path.join(REPO_ROOT, 'lib/core/research-planner/plan.cjs'));
+const grants = require(path.join(REPO_ROOT, 'lib/core/research-planner/grants.cjs'));
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-366-offer-'));
 const cleanups = [];
@@ -255,6 +271,143 @@ async function main() {
     const callTool = countingCallTool();
     await ambientRun.runAmbientComposition(roomDir, { deps: { adapters: adaptersWithRealEureka(), callTool: callTool } });
     return (callTool.calls.length === 0 && net.attempts() === 0) || JSON.stringify({ calls: callTool.calls.length, net: net.attempts() });
+  });
+  // ---------------------------------------------------------------------------
+  // O7-O12 the planner's ambient step: the offer becomes one plan-only card
+  // ---------------------------------------------------------------------------
+  const NOW = Date.now();
+  let roomSeq = 0;
+  function freshRoom() {
+    roomSeq += 1;
+    return buildPerspectiveRoom(path.join(root, 'r-plan-' + roomSeq)).roomDir;
+  }
+  function runDirsOf(dir) {
+    try { return fs.readdirSync(path.join(dir, '.mindrian', 'research-runs')); } catch (_e) { return []; }
+  }
+  function compWith(offer, whitespaceOutcome) {
+    return {
+      producers: {
+        eureka: { outcome: 'offered', posture: 'run', offer: offer },
+        whitespace: { outcome: whitespaceOutcome || 'deps_missing', posture: 'run' },
+      },
+      tier_counts: { strong: 0, indirect: 0, unverified: 0 },
+      card: null,
+      surfaced_via: 'none',
+    };
+  }
+  function fetchSpy() {
+    const calls = [];
+    const fn = async function (args) { calls.push(args); return { status: 'error' }; };
+    fn.calls = calls;
+    return fn;
+  }
+  const OFFER = adapterRes && Array.isArray(adapterRes.offer) ? adapterRes.offer : [];
+  const optsWith = function (spy) { return { now: NOW, budgetMs: 4 * 60 * 1000, deps: { fetchEnvelopeFn: spy } }; };
+
+  await leg('O7 an eureka offer with no whitespace card records plan_card_eureka_offer and a pending plan-only card', async function () {
+    const dir = freshRoom();
+    const spy = fetchSpy();
+    const out = await plannerAmbient.maybeQuick(dir, compWith(OFFER), optsWith(spy));
+    const pending = planner.pendingCards(dir).filter(function (p) { return p.run_id === out.run_id; })[0];
+    const run = out.run_id ? path.join(dir, '.mindrian', 'research-runs', out.run_id) : null;
+    return (plannerAmbient.AMBIENT_OUTCOMES.indexOf('plan_card_eureka_offer') !== -1
+      && out.outcome === 'plan_card_eureka_offer' && /^rp-/.test(String(out.run_id)) && !out.deduped
+      && !!pending && pending.kind === 'plan_card_no_grant'
+      && fs.existsSync(path.join(run, 'plan.json')) && fs.existsSync(path.join(run, 'card.json'))
+      && !fs.existsSync(path.join(run, 'run.json')) && spy.calls.length === 0)
+      || JSON.stringify({ out: out, pending: !!pending, fetch: spy.calls.length });
+  });
+
+  await leg('O8 a standing grant, and even a forced covering cover, still yield the plan-only offer and zero fetches', async function () {
+    const quickMod = require(path.join(REPO_ROOT, 'lib/core/research-planner/quick.cjs'));
+    // (a) a real standing grant over every recalled title: the standing scope
+    // (whitespace family only) never covers an eureka plan, so the card shows
+    // the family re-ask text; either way nothing is fetched.
+    const dirA = freshRoom();
+    const terms = TITLES.filter(Boolean).map(function (t) { return { term: t, synonyms: [] }; });
+    const w = grants.writeGrant(dirA, grants.buildStandingProposal(dirA, { terms: terms }), { approved_via: { surface: 'cli', decision_node_id: 'd-366-07-test' } });
+    if (!w.ok) return 'grant failed ' + JSON.stringify(w);
+    const spyA = fetchSpy();
+    const outA = await plannerAmbient.maybeQuick(dirA, compWith(OFFER), optsWith(spyA));
+    // (b) cover forced to covered:true (what a run grant would give): the branch
+    // must still end at the plan-only card and never reach runQuick.
+    const dirB = freshRoom();
+    const realCover = quickMod.coverFor;
+    const realRun = quickMod.runQuick;
+    let runQuickCalls = 0;
+    quickMod.coverFor = function () { return { covered: true, grant: { lifetime: 'standing' } }; };
+    quickMod.runQuick = async function () { runQuickCalls += 1; return { status: 'refused', reason: 'test' }; };
+    const spyB = fetchSpy();
+    let outB;
+    try {
+      outB = await plannerAmbient.maybeQuick(dirB, compWith(OFFER), optsWith(spyB));
+    } finally {
+      quickMod.coverFor = realCover;
+      quickMod.runQuick = realRun;
+    }
+    const ledgerB = grants.readRunLedger(dirB, { now: NOW });
+    const pendB = planner.pendingCards(dirB).filter(function (p) { return p.run_id === outB.run_id; })[0];
+    return (outA.outcome === 'plan_card_eureka_offer' && !outA.deduped && spyA.calls.length === 0
+      && outB.outcome === 'plan_card_eureka_offer' && outB.reason === 'eureka_offer' && !!pendB
+      && spyB.calls.length === 0 && runQuickCalls === 0 && (ledgerB.runs || []).length === 0 && net.attempts() === 0)
+      || JSON.stringify({ outA: outA, outB: outB, fetchA: spyA.calls.length, fetchB: spyB.calls.length, runQuickCalls: runQuickCalls, pendB: !!pendB });
+  });
+
+  await leg('O9 a whitespace card produced in the same pass wins; no eureka card is recorded', async function () {
+    const dir = freshRoom();
+    fs.writeFileSync(path.join(dir, '.mindrian', 'whitespace-results.json'), JSON.stringify({
+      metadata: { frozen_for: 'phase-366-07-test' },
+      gaps: [{ zone_id: 'z1', zone_term: 'municipal crew dispatch', density_score: 0.1, sections: ['market-analysis', 'solution-design'] }],
+    }), 'utf8');
+    const spy = fetchSpy();
+    const out = await plannerAmbient.maybeQuick(dir, compWith(OFFER, 'no_candidate'), optsWith(spy));
+    const pend = planner.pendingCards(dir);
+    return (out.outcome === 'plan_card_no_grant' && pend.length === 1 && runDirsOf(dir).length === 1 && spy.calls.length === 0)
+      || JSON.stringify({ out: out, pending: pend.length, dirs: runDirsOf(dir).length });
+  });
+
+  await leg('O10 an unsurfaced plan-only card already pending dedupes the offer and leaves no run dir behind', async function () {
+    const dir = freshRoom();
+    const spy = fetchSpy();
+    const first = await plannerAmbient.maybeQuick(dir, compWith(OFFER), optsWith(spy));
+    const dirsAfterFirst = runDirsOf(dir).length;
+    const second = await plannerAmbient.maybeQuick(dir, compWith(OFFER), optsWith(spy));
+    return (first.outcome === 'plan_card_eureka_offer' && second.outcome === 'plan_card_eureka_offer'
+      && second.deduped === true && second.run_id === first.run_id
+      && runDirsOf(dir).length === dirsAfterFirst && planner.pendingCards(dir).length === 1)
+      || JSON.stringify({ first: first, second: second, dirs: runDirsOf(dir) });
+  });
+
+  await leg('O11 the offered plan validates and its leaves carry the closed pair shape', async function () {
+    const dir = freshRoom();
+    const out = await plannerAmbient.maybeQuick(dir, compWith(OFFER), optsWith(fetchSpy()));
+    const plan = JSON.parse(fs.readFileSync(path.join(dir, '.mindrian', 'research-runs', out.run_id, 'plan.json'), 'utf8'));
+    const v = planMod.validatePlan(plan);
+    const pairLeaves = plan.leaves.filter(function (l) { return l.pair; });
+    const shapeOk = pairLeaves.length > 0 && pairLeaves.length <= plannerAmbient.EUREKA_OFFER_PAIRS && pairLeaves.every(function (l) {
+      return JSON.stringify(Object.keys(l.pair).sort()) === JSON.stringify(['a', 'b', 'perspective', 'run_tag']) && l.pair.perspective === 'eureka';
+    });
+    return (v.ok === true && plan.mode === 'quick' && shapeOk && plannerAmbient.EUREKA_OFFER_PAIRS === 3)
+      || JSON.stringify({ valid: v, shapeOk: shapeOk, n: pairLeaves.length });
+  });
+
+  await leg('O12 leaf questions name both titles, the offer stays ids and slugs, an unresolved row is dropped and counted', async function () {
+    const dir = freshRoom();
+    const ghost = { a: 'ghost-node-1', b: 'ghost-node-2', section_a: 'market-analysis', section_b: 'solution-design' };
+    const comp = compWith([ghost].concat(OFFER));
+    const offerBefore = JSON.stringify(comp.producers.eureka.offer);
+    // the ghost row sits first, so with EUREKA_OFFER_PAIRS = 3 two real rows remain
+    const out = await plannerAmbient.maybeQuick(dir, comp, optsWith(fetchSpy()));
+    const plan = JSON.parse(fs.readFileSync(path.join(dir, '.mindrian', 'research-runs', out.run_id, 'plan.json'), 'utf8'));
+    const questions = plan.leaves.filter(function (l) { return l.pair; }).map(function (l) { return String(l.question); });
+    const noUndef = questions.length > 0 && questions.every(function (q) { return q.indexOf('undefined') === -1; });
+    const namesTitles = questions.every(function (q) { return TITLES.filter(Boolean).filter(function (t) { return q.indexOf(t) !== -1; }).length >= 2; });
+    const offerRowsOk = comp.producers.eureka.offer.every(function (r) {
+      return JSON.stringify(Object.keys(r).sort()) === JSON.stringify(['a', 'b', 'section_a', 'section_b']);
+    }) && JSON.stringify(comp.producers.eureka.offer) === offerBefore;
+    const ghostLeaf = plan.leaves.some(function (l) { return l.pair && (l.pair.a === 'ghost-node-1' || l.pair.b === 'ghost-node-2'); });
+    return (out.outcome === 'plan_card_eureka_offer' && out.dropped === 1 && noUndef && namesTitles && offerRowsOk && !ghostLeaf)
+      || JSON.stringify({ out: out, noUndef: noUndef, namesTitles: namesTitles, offerRowsOk: offerRowsOk, ghostLeaf: ghostLeaf, questions: questions });
   });
 }
 
