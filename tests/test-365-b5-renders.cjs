@@ -21,6 +21,9 @@ hygiene.installNetGuard();
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
+const vm = require('node:vm');
+const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const fx = require('./helpers/fixture-room-365.cjs');
 
@@ -244,6 +247,108 @@ async function runTaskTwoLegs(room) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Task 3 legs: B8..B10
+// ---------------------------------------------------------------------------
+
+// Load lib/graph/graph-detail-panel.js in a vm context with a minimal document
+// stub. esc() builds a div, sets textContent and reads innerHTML, so the stub
+// escapes on textContent assignment.
+function loadPanel() {
+  const content = { innerHTML: '' };
+  function makeEl() {
+    const el = {
+      style: {},
+      className: '',
+      classList: { add() {}, remove() {} },
+      appendChild() {},
+      addEventListener() {},
+      querySelector(sel) { return sel === '.gdp-content' ? content : { addEventListener() {} }; },
+      _html: '',
+    };
+    Object.defineProperty(el, 'textContent', {
+      set(v) {
+        this._html = String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      },
+      get() { return ''; },
+    });
+    Object.defineProperty(el, 'innerHTML', {
+      set(v) { this._html = String(v); },
+      get() { return this._html; },
+    });
+    return el;
+  }
+  const sandbox = {
+    document: { createElement: makeEl, body: makeEl(), addEventListener() {} },
+  };
+  const ctx = vm.createContext(sandbox);
+  const src = fs.readFileSync(path.join(REPO_ROOT, 'lib', 'graph', 'graph-detail-panel.js'), 'utf8');
+  vm.runInContext(src, ctx);
+  const panel = vm.runInContext('GraphDetailPanel', ctx);
+  return { panel, content };
+}
+
+async function runTaskThreeLegs() {
+  await check('B8 the node detail panel shows a Checked against row from verification_words (escaped); absent field adds nothing', () => {
+    const label = STANDING_WORDS.model_only.label;
+    const withRow = loadPanel();
+    withRow.panel.show({ id: 'claim:1', label: 'A claim', type: 'claim', verification_words: label }, []);
+    const htmlWith = withRow.content.innerHTML;
+    const row = '<div class="gdp-section-row">Checked against: <span>' + label + '</span></div>';
+    assert.ok(htmlWith.indexOf(row) !== -1, 'the row is rendered with the words');
+    const noRow = loadPanel();
+    noRow.panel.show({ id: 'claim:1', label: 'A claim', type: 'claim' }, []);
+    const htmlWithout = noRow.content.innerHTML;
+    assert.ok(htmlWithout.indexOf('Checked against') === -1, 'no row without the field');
+    assert.equal(htmlWith.replace(row, ''), htmlWithout, 'the rest of the panel is unchanged');
+    const esc = loadPanel();
+    esc.panel.show({ id: 'claim:2', label: 'x', verification_words: '<img src=x onerror=alert(1)>' }, []);
+    assert.ok(esc.content.innerHTML.indexOf('<img') === -1, 'the words are escaped');
+    assert.ok(esc.content.innerHTML.indexOf('&lt;img') !== -1);
+    const src = fs.readFileSync(path.join(REPO_ROOT, 'lib', 'graph', 'graph-detail-panel.js'), 'utf8');
+    const block = src.slice(src.indexOf('Phase 365-12'), src.indexOf('// Cross-section connections'));
+    const code = block.split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
+    assert.ok(code.indexOf('verification_words') !== -1, 'the block reads verification_words');
+    assert.ok(!/score|percent|badge|color|%/i.test(code), 'no score, percent, badge or color in the new code');
+  });
+
+  await check('B9 generate-presentation carries a claim node verification_words into graph.html end to end', () => {
+    let room;
+    try {
+      room = fx.makeRoom365('b5-pres');
+    } catch (e) {
+      return 'skipped: ' + ((e && e.message) || e);
+    }
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-365-b5-pres-'));
+    try {
+      const db = fx.openFresh(room.room);
+      try {
+        const id = fx.seedClaim(db, { text: 'A model-only claim for the presentation.', variant: 'b5-pres' });
+        fx.recordAsk(db, id, { rung: 2 });
+      } finally {
+        try { db.close(); } catch (_e) { /* ignore */ }
+      }
+      const r = spawnSync(process.execPath, [
+        path.join(REPO_ROOT, 'scripts', 'generate-presentation.cjs'), room.room, '--output', out,
+      ], { encoding: 'utf8', timeout: 60000 });
+      assert.equal(r.status, 0, 'generate-presentation exits 0: ' + String(r.stderr || '').slice(0, 200));
+      const html = fs.readFileSync(path.join(out, 'graph.html'), 'utf8');
+      const want = '"verification_words":' + JSON.stringify(STANDING_WORDS.model_only.label);
+      assert.ok(html.indexOf(want) !== -1, 'graph.html ROOM_DATA carries the words');
+      assert.ok(html.indexOf('"verification_standing":"model_only"') !== -1);
+    } finally {
+      try { fs.rmSync(out, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+      fx.cleanup(room);
+    }
+  });
+
+  await check('B10 the dashboard template renders no claim node detail, so it needs no hook', () => {
+    const dash = fs.readFileSync(path.join(REPO_ROOT, 'templates', 'presentation', 'dashboard.html'), 'utf8');
+    assert.ok(!/GraphDetailPanel|onNodeClick/.test(dash),
+      'dashboard.html gained a node detail; it must show the same verification_words row');
+  });
+}
+
 async function main() {
   let room;
   try {
@@ -269,6 +374,7 @@ async function main() {
   } finally {
     fx.cleanup(room2);
   }
+  await runTaskThreeLegs();
   if (failures > 0) {
     process.stdout.write('FAILED: ' + failures + ' leg(s)\n');
     return 1;
