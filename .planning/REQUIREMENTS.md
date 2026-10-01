@@ -4206,13 +4206,13 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       a missing `--perspective` refuses with `perspective_required`; an off-enum value or any
       free text on argv refuses with exit 2 (D-07, Claude's Discretion). Plan 366-12.
 
-- [ ] **EPV366-05**: RS perspective recall from local graph structure with no embeddings
+- [x] **EPV366-05**: RS perspective recall from local graph structure with no embeddings
       (section-level lag over INFORMS / ENABLES / USES_COMPONENT / SUPPLIES_TO / DERIVED_FROM flow
       plus ICM declared couplings), its `rs` question template on the canon framework `Reverse
       Salient Analysis` with a falsifier, and lenses on the causal-link family (D-06, D-08).
       Plans 366-04, 366-13.
 
-- [ ] **EPV366-06**: HSI perspective recall from lexical versus graph co-occurrence divergence,
+- [x] **EPV366-06**: HSI perspective recall from lexical versus graph co-occurrence divergence,
       labeled only through a graph-variant classifier `classifyGraph(lexical, relational)` in
       `lib/core/direction-convention.cjs` with its own phrase hash; the legacy direction tests stay
       green (D-08). Plans 366-04, 366-13.
@@ -4220,12 +4220,12 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
 - [ ] **EPV366-07**: Whitespace perspective recall (zone borders and declared-but-unlinked section
       couplings) reusing the shipped `whitespace` template and `ws.*` lenses (D-06). Plan 366-14.
 
-- [ ] **EPV366-08**: Analogies perspective: recall from the eureka cross-domain candidates keeping
+- [x] **EPV366-08**: Analogies perspective: recall from the eureka cross-domain candidates keeping
       relational-signal, low-lexical pairs, with the SAPPhIRE structural template (function,
       behavior, structure per side) declared on the template and filled at the statement stage,
       never in recall (D-09). Plans 366-04, 366-14.
 
-- [ ] **EPV366-09**: Connections perspective: recall over resolved-handle pairs and local thing ->
+- [x] **EPV366-09**: Connections perspective: recall over resolved-handle pairs and local thing ->
       framework -> thing walks; the Theo lateral-path check (`find_connections`, canon names only)
       runs only as an audited planner evidence lane under a grant, never inside recall (D-09).
       Plans 366-04, 366-15.
