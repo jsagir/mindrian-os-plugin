@@ -1801,47 +1801,16 @@ function _resolveBankStamp(entry, stampsByKey) {
   return (p && p.stamp) ? p.stamp : null;
 }
 
-// _sourcedFromTarget(db, entityId) -- D-38's "the two source artifact nodes":
-// the entity's own DESCRIBES target (the SAME provenance link scripts/
-// entity-extract.cjs writes), else the entity node id itself when no
-// DESCRIBES edge exists. READ-only; never throws.
-function _sourcedFromTarget(db, entityId) {
-  if (typeof entityId !== 'string' || entityId.length === 0 || !db) return entityId;
-  try {
-    const row = db.prepare("SELECT target FROM edges WHERE source = ? AND type = 'DESCRIBES' LIMIT 1").get(entityId);
-    if (row && typeof row.target === 'string' && row.target.length > 0) return row.target;
-  } catch (_e) {
-    // fall through to the entity id itself
-  }
-  return entityId;
-}
-
-// _readPwsStage(roomDir) -- D-40/D-37: the room root ROOM.md frontmatter's
-// own `pws_stage:` value, read ONCE (a filesystem read, never inside the
-// write transaction), restricted to the two D-40 values. Mirrors lib/core/
-// cross-room-aggregator.cjs's isRoomOptedOut idiom (first 2KB only;
-// frontmatter is always at the top). Absence, an unreadable file, or any
-// other value all degrade to null (omitted from extraProps).
-function _readPwsStage(roomDir) {
-  if (typeof roomDir !== 'string' || roomDir.length === 0) return null;
-  try {
-    const rp = path.join(roomDir, 'ROOM.md');
-    const st = fs.statSync(rp);
-    if (!st.isFile()) return null;
-    const fd = fs.openSync(rp, 'r');
-    try {
-      const buf = Buffer.alloc(2048);
-      const bytes = fs.readSync(fd, buf, 0, 2048, 0);
-      const head = buf.slice(0, bytes).toString('utf8');
-      const m = head.match(/^pws_stage\s*:\s*["']?(ill_defined|extend_opportunity)["']?\s*$/mi);
-      return m ? m[1].toLowerCase() : null;
-    } finally {
-      try { fs.closeSync(fd); } catch (_e) { /* best effort */ }
-    }
-  } catch (_e) {
-    return null;
-  }
-}
+// Phase 366-02 (D-04): fileStampedOpportunity, _readPwsStage and
+// _sourcedFromTarget moved, unchanged in behavior, to the planner-owned
+// lib/core/research-planner/filing-stamped.cjs, the ONE stamped filer. This
+// runner re-exports the same function objects so bankStatements and
+// lib/core/ambient-run.cjs keep resolving them until plan 366-07 switches
+// ambient over and the runner retires.
+const filingStamped = require(path.join(REPO_ROOT, 'lib/core/research-planner/filing-stamped.cjs'));
+const _sourcedFromTarget = filingStamped.sourcedFromTarget;
+const _readPwsStage = filingStamped.readPwsStage;
+const fileStampedOpportunity = filingStamped.fileStampedOpportunity;
 
 // _theoMsBucket(ms) -- one of the four AI-SPEC Section 7 latency buckets.
 function _theoMsBucket(ms) {
@@ -1855,92 +1824,6 @@ function _theoMsBucket(ms) {
 // The sensor-eureka FIRING_BANDS the side channel only fires on (mirrors
 // lib/core/eureka/eureka-reach-runner.cjs's own frozen FIRING_BANDS).
 const SIDE_CHANNEL_FIRING_BANDS = Object.freeze(['opportunity', 'high', 'breakthrough']);
-
-// fileStampedOpportunity(db, params) -- Phase 355.1-07 extraction: "one
-// writer, two callers". params = { a, b, stamp, producer, roomDir, runMode,
-// reason, name?, sessionId?, jtbd?, score?, section?, evidenceIds?,
-// extraProps? }. a/b are { handle, text }. This is the SAME writeOpportunityNode
-// call bankStatements' own stamped branch already made (extraProps merges
-// verificationStamp.toNodeProps(stamp) plus pws_stage and engine_mode,
-// formula_version 'stamp-v1'; the lifecycle-state column NEVER carries an
-// explicit value -- the mint default lands, Part 9 role 5, no confirm path),
-// plus the two SOURCED_FROM writeEdge calls (origin 'eureka-355') --
-// extracted so the ambient composition and bankStatements share ONE writer
-// instead of two. Never opens or closes its own write transaction (the
-// caller owns the transaction boundary) and never throws: returns the
-// minted node id on success, or null on ANY failure (invalid params, a
-// writeOpportunityNode/writeEdge rejection). A
-// caller with the pair's full statement context (bankStatements) supplies
-// name/sessionId/jtbd/score/section/evidenceIds/extraProps explicitly so its
-// own output stays byte-identical to before this extraction; a caller with
-// only the bare pair (the ambient composition) gets sensible defaults: name
-// is `${aText} x ${bText}`, sessionId defaults to 'ambient', section/jtbd/
-// score are omitted, evidenceIds default to [a.handle, b.handle].
-function fileStampedOpportunity(db, params) {
-  try {
-    if (!db || !params || typeof params !== 'object') return null;
-    const { a, b, stamp } = params;
-    if (!a || !b || typeof a.handle !== 'string' || !a.handle
-      || typeof b.handle !== 'string' || !b.handle || !stamp) {
-      return null;
-    }
-    const aText = (typeof a.text === 'string' && a.text) ? a.text : a.handle;
-    const bText = (typeof b.text === 'string' && b.text) ? b.text : b.handle;
-    const name = (typeof params.name === 'string' && params.name) ? params.name : (aText + ' x ' + bText);
-    const sessionId = (typeof params.sessionId === 'string' && params.sessionId) ? params.sessionId : 'ambient';
-    const roomDirResolved = (typeof params.roomDir === 'string' && params.roomDir) ? params.roomDir : '';
-    const runModeResolved = (typeof params.runMode === 'string' && params.runMode) ? params.runMode : 'unknown';
-    const reasonResolved = (typeof params.reason === 'string' && params.reason) ? params.reason : 'stamped finding';
-
-    // D-40: a filesystem read, never a write-transaction read (the caller's
-    // own transaction boundary, if any, is unaffected either way).
-    const pwsStage = _readPwsStage(roomDirResolved);
-
-    const extraProps = Object.assign(
-      {},
-      (params.extraProps && typeof params.extraProps === 'object') ? params.extraProps : {}
-    );
-    Object.assign(extraProps, verificationStamp.toNodeProps(stamp));
-    if (pwsStage) extraProps.pws_stage = pwsStage;
-    extraProps.engine_mode = runModeResolved;
-
-    const evidenceIds = Array.isArray(params.evidenceIds)
-      ? params.evidenceIds.filter(function (x) { return typeof x === 'string' && x.length > 0; })
-      : [a.handle, b.handle].filter(function (x) { return typeof x === 'string' && x.length > 0; });
-
-    const w = navigation.writeOpportunityNode(db, {
-      name: name,
-      sessionId: sessionId,
-      lifecycle: 'candidate',
-      jtbd: (typeof params.jtbd === 'string' && params.jtbd) ? params.jtbd : undefined,
-      score: (typeof params.score === 'number' && Number.isFinite(params.score)) ? params.score : undefined,
-      section: (typeof params.section === 'string' && params.section) ? params.section : undefined,
-      actor: 'system',
-      reason: reasonResolved,
-      evidence_ids: evidenceIds,
-      formula_version: 'stamp-v1',
-      extraProps: extraProps,
-    });
-    if (!w || w.ok !== true) return null;
-
-    // D-38: SOURCED_FROM provenance to each end's source artifact node
-    // (falling back to the entity node id itself), origin 'eureka-355'.
-    const sourcedTargets = [a.handle, b.handle].map(function (id) { return _sourcedFromTarget(db, id); });
-    for (const targetId of sourcedTargets) {
-      const r2 = navigation.writeEdge(db, {
-        source_id: w.node_id,
-        target_id: targetId,
-        edge_type: 'SOURCED_FROM',
-        properties: { relation: 'sourced_from', origin: 'eureka-355' },
-      });
-      if (!r2 || r2.ok !== true) return null;
-    }
-
-    return w.node_id;
-  } catch (_e) {
-    return null;
-  }
-}
 
 // bankStatements(db, sessionId, statements, opts?) -- the REQ-1 governed write.
 //

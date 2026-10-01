@@ -201,12 +201,146 @@ leg('F3c the same leaves without pair yield exactly the pre-edit goldens', funct
   return (JSON.stringify(gap) === JSON.stringify(GOLDEN_GAP) && JSON.stringify(ca) === JSON.stringify(GOLDEN_CA)) || JSON.stringify([gap, ca]);
 });
 
-// @@TASK2_LEGS@@
+// ---------------------------------------------------------------------------
+// F4-F9 one stamped filer in the planner; filing writes the pair edges and stamp
+// ---------------------------------------------------------------------------
+// A counting spy on the ONE wire door: verification-stamp requires brain-client
+// lazily and reads .callTool at call time, so patching the export catches any
+// Theo call made anywhere in this process.
+let theoCalls = 0;
+try {
+  const brainClient = require(path.join(REPO_ROOT, 'lib/core/brain-client.cjs'));
+  brainClient.callTool = async function spyCallTool() { theoCalls += 1; return null; };
+} catch (_e) { /* no brain client: zero calls is still asserted below */ }
+
+const navigation = require(path.join(REPO_ROOT, 'lib/core/navigation.cjs'));
+const stamped = require(path.join(REPO_ROOT, 'lib/core/research-planner/filing-stamped.cjs'));
+const CN = built.planted.connections;
+
+function withReadDb(fn) {
+  const db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+  try { return fn(db); } finally { try { db.close(); } catch (_e) { /* read-only */ } }
+}
+function nodeRow(db, id) {
+  const r = db.prepare('SELECT id, type, review_status, properties FROM nodes WHERE id = ?').get(id);
+  return r ? { id: r.id, type: r.type, review_status: r.review_status, props: JSON.parse(r.properties || '{}') } : null;
+}
+
+leg('F4 filing-stamped.fileStampedOpportunity is the same function object the runner exports', function () {
+  const runner = require(path.join(REPO_ROOT, 'scripts/eureka-portfolio-report.cjs'));
+  return (typeof stamped.fileStampedOpportunity === 'function' && runner.fileStampedOpportunity === stamped.fileStampedOpportunity
+    && typeof stamped.readPwsStage === 'function' && typeof stamped.sourcedFromTarget === 'function') || 'identity broken';
+});
+
+leg('F5 stampForPair with an unresolved endpoint stamps unverified / not_called / handle_unresolved, zero calls', function () {
+  const before = theoCalls;
+  const s = withReadDb(function (db) { return stamped.stampForPair({ a: EU[0], b: EU[1] }, { db: db, roomDir: roomDir, runHomes: [] }); });
+  return (s.verification === 'unverified' && s.backend === 'not_called' && s.reason === 'handle_unresolved' && theoCalls === before) || JSON.stringify(s);
+});
+
+leg('F6 stampForPair returns a recorded theo-lane.json stamp unchanged; bad or outside files degrade', function () {
+  const runHomeRel = path.join('.mindrian', 'research-runs', 'rp-2026-10-01-0000aaaa');
+  const laneDir = path.join(roomDir, runHomeRel);
+  fs.mkdirSync(laneDir, { recursive: true });
+  const verified = { verification: 'strong', backend: 'theo', direction: 'none', judge: 'none', path: { nodes: [built.ids.canon.rs, built.ids.canon.lenses], labels: ['Framework', 'Framework'], edges: ['COMPLEMENTS'] } };
+  const stamps = {}; stamps[stamped.pairKey(CN[0], CN[1])] = verified;
+  fs.writeFileSync(path.join(laneDir, 'theo-lane.json'), JSON.stringify({ schema: 'mos.theo-lane/1', stamps: stamps }));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-366-outside-'));
+  fs.writeFileSync(path.join(outside, 'theo-lane.json'), JSON.stringify({ schema: 'mos.theo-lane/1', stamps: stamps }));
+  const badDir = path.join(roomDir, '.mindrian', 'research-runs', 'rp-2026-10-01-0000bbbb');
+  fs.mkdirSync(badDir, { recursive: true });
+  fs.writeFileSync(path.join(badDir, 'theo-lane.json'), '{ not json');
+  const before = theoCalls;
+  const got = withReadDb(function (db) {
+    return {
+      hit: stamped.stampForPair({ a: CN[1], b: CN[0] }, { db: db, roomDir: roomDir, runHomes: [runHomeRel] }),
+      none: stamped.stampForPair({ a: CN[0], b: CN[1] }, { db: db, roomDir: roomDir, runHomes: [] }),
+      out: stamped.stampForPair({ a: CN[0], b: CN[1] }, { db: db, roomDir: roomDir, runHomes: [outside] }),
+      bad: stamped.stampForPair({ a: CN[0], b: CN[1] }, { db: db, roomDir: roomDir, runHomes: [path.relative(roomDir, badDir)] }),
+    };
+  });
+  try { fs.rmSync(outside, { recursive: true, force: true }); } catch (_e) { /* tmp */ }
+  const degraded = function (s) { return s.verification === 'unverified' && s.backend === 'not_called' && s.reason === 'handle_unresolved'; };
+  return (JSON.stringify(got.hit) === JSON.stringify(verified) && degraded(got.none) && degraded(got.out) && degraded(got.bad) && theoCalls === before)
+    || JSON.stringify(got).slice(0, 500);
+});
+
+// Drive the planner path: recall -> plan (saved by buildPlan) -> a replayed
+// supported verdict through the real rollUp and opportunityCandidates -> run.json
+// -> basket -> file with an approved selection (the test-363-filing seams).
+let filed = null;
+let oppItemId = null;
+const runId = plan.ok ? plan.run_id : null;
+function writeRun() {
+  const v = {}; v[euLeaf.id] = 'settled';
+  const rolled = Y.rollUp(plan.plan.pyramid, plan.plan.leaves, [], { verdictByLeaf: v });
+  const opps = Y.opportunityCandidates(rolled.pyramid, rolled.leaves, [], {});
+  const run = {
+    schema: planMod.RUN_SCHEMA, run_id: runId, mode: 'quick', plan_hash: plan.plan_hash, trigger: 'navigator',
+    started_at: '2026-10-01T12:00:00.000Z', finished_at: '2026-10-01T12:00:01.000Z', stop_reason: 'complete',
+    queries: [], rows: [], dropped: {}, leaves: rolled.leaves, verdict: 'settled', answer_line: 'Replayed supported verdict.',
+    pyramid: rolled.pyramid, perspective: plan.plan.perspective, governing_status: rolled.governing_status,
+    unresolved_branches: rolled.unresolved_branches, opportunity_candidates: opps, contradictions: rolled.contradictions,
+    escalation_offer: null, local_checks: [], filed: false,
+  };
+  const dir = path.join(roomDir, '.mindrian', 'research-runs', runId);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(run, null, 2));
+  return run;
+}
+
+leg('F7 approving the cross_domain_transfer item files one proposed candidate opportunity carrying the stamp', function () {
+  if (!plan.ok || !euLeaf) return 'no plan';
+  writeRun();
+  const basket = planner.basketFor(roomDir, runId);
+  if (!basket.ok) return 'basket: ' + JSON.stringify(basket);
+  const item = basket.items.filter(function (i) { return i.kind === 'opportunity' && i.candidate_kind === 'cross_domain_transfer'; });
+  if (item.length !== 1) return 'basket items: ' + JSON.stringify(basket.items.map(function (i) { return i.id + ':' + (i.candidate_kind || ''); }));
+  if (item[0].default_on !== false) return 'opportunity item must default off';
+  oppItemId = item[0].id;
+  filed = planner.fileFromState(roomDir, runId, { approved: true, items: [oppItemId] }, { approvedVia: 'cli' });
+  if (!filed || filed.ok !== true) return 'file: ' + JSON.stringify(filed).slice(0, 400);
+  const opps = filed.report.opportunities.filter(function (o) { return o.kind === 'cross_domain_transfer'; });
+  if (opps.length !== 1) return 'report: ' + JSON.stringify(filed.report).slice(0, 400);
+  const n = withReadDb(function (db) { return nodeRow(db, opps[0].node_id); });
+  if (!n) return 'node missing';
+  const p = n.props;
+  return (n.type === 'opportunity' && n.review_status === 'proposed' && p.lifecycle === 'candidate' && p.candidate_kind === 'cross_domain_transfer'
+    && p.verification === 'unverified' && p.backend === 'not_called' && p.reason === 'handle_unresolved' && p.judge === 'none'
+    && p.path_len === 0 && Array.isArray(p.path) && p.engine_mode === 'navigator' && p.direction === 'none')
+    || JSON.stringify(n).slice(0, 600);
+});
+
+leg('F8 the filed node has DERIVED_FROM edges to pair.a, pair.b and the run home; Theo asked zero times; the pair leaves recall', function () {
+  if (!filed || !filed.ok) return 'not filed';
+  const nodeId = filed.report.opportunities[0].node_id;
+  const targets = withReadDb(function (db) {
+    return db.prepare("SELECT target FROM edges WHERE source = ? AND type = 'DERIVED_FROM'").all(nodeId).map(function (r) { return r.target; });
+  });
+  const okEdges = targets.indexOf(EU[0]) !== -1 && targets.indexOf(EU[1]) !== -1 && targets.indexOf(filed.run_home.node_id) !== -1;
+  const again = recall.runRecall(roomDir, { tag: '20261001T130000Z' });
+  const stillThere = again.candidates.some(function (c) { return samePair({ a: c.a, b: c.b }, EU[0], EU[1]); });
+  return (okEdges && theoCalls === 0 && !stillThere) || JSON.stringify({ targets: targets, theoCalls: theoCalls, stillThere: stillThere });
+});
+
+leg('F9 filing the same approved basket twice writes one opportunity node (single-use approval)', function () {
+  if (!filed || !filed.ok) return 'not filed';
+  const second = planner.fileFromState(roomDir, runId, { approved: true, items: [oppItemId] }, { approvedVia: 'cli' });
+  const basket2 = planner.basketFor(roomDir, runId);
+  const count = withReadDb(function (db) {
+    return db.prepare("SELECT properties FROM nodes WHERE type = 'opportunity'").all().filter(function (r) {
+      const p = JSON.parse(r.properties || '{}');
+      return p.candidate_kind === 'cross_domain_transfer' && p.run_id === runId;
+    }).length;
+  });
+  return (second.ok === false && second.reason === 'already_filed' && basket2.ok === false && count === 1) || JSON.stringify({ second: second, count: count });
+});
 
 // ---------------------------------------------------------------------------
 // zero network
 // ---------------------------------------------------------------------------
 C.check('zero network attempts', net.attempts() === 0, String(net.attempts()));
+C.check('zero Theo calls across the whole test', typeof theoCalls === 'number' && theoCalls === 0, String(theoCalls));
 net.restore();
 try { fs.rmSync(root, { recursive: true, force: true }); } catch (_e) { /* tmp */ }
 process.exit(C.summary());
