@@ -111,6 +111,17 @@
       "techniques": [],
       "theo_gap": "zero_steps"
     },
+    "Four Lenses of Innovation": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "name_not_found"
+    },
     "HSI Semantic Surprise Analysis Assistant": {
       "aliases": [],
       "complements": [],
@@ -247,6 +258,17 @@
       "steps": [],
       "techniques": [],
       "theo_gap": "zero_steps"
+    },
+    "Reverse Salient Analysis": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "name_not_found"
     },
     "Root Cause Analysis": {
       "aliases": [],
@@ -469,6 +491,17 @@
       "steps": [],
       "techniques": [],
       "theo_gap": "zero_steps"
+    },
+    "Usher's Model of Cumulative Synthesis": {
+      "aliases": [],
+      "complements": [],
+      "fed_by": [],
+      "feeds_into": [],
+      "prerequisite": [],
+      "problem_types": [],
+      "steps": [],
+      "techniques": [],
+      "theo_gap": "name_not_found"
     }
   },
   "ip_ruling": "IP ruling 2026-09-17: names, edges, short lines only; no descriptions; strings capped at 140 characters.",
@@ -652,10 +685,14 @@
     }
   },
   "template_frameworks": {
+    "analogies": "Four Lenses of Innovation",
+    "connections": "Usher's Model of Cumulative Synthesis",
     "diffusion": "Adoption-Capacity Theory",
     "eureka": "Cross-Domain Opportunity Discovery",
+    "hsi": "HSI Semantic Surprise Analysis Assistant",
     "map-unknowns": "Knowns and Unknowns Matrix Framework",
     "root-cause": "Root Cause Analysis",
+    "rs": "Reverse Salient Analysis",
     "scientific-roadmapping": "Scientific Roadmapping",
     "think-hats": "Six Thinking Hats",
     "whitespace": "HSI Semantic Surprise Analysis Assistant"
@@ -686,6 +723,10 @@
       "gap": "zero_steps"
     },
     {
+      "framework": "Four Lenses of Innovation",
+      "gap": "name_not_found"
+    },
+    {
       "framework": "HSI Semantic Surprise Analysis Assistant",
       "gap": "zero_steps"
     },
@@ -710,6 +751,10 @@
       "gap": "zero_steps"
     },
     {
+      "framework": "Reverse Salient Analysis",
+      "gap": "name_not_found"
+    },
+    {
       "framework": "Root Cause Analysis",
       "gap": "zero_steps"
     },
@@ -720,6 +765,10 @@
     {
       "framework": "The Pyramid Principle",
       "gap": "zero_steps"
+    },
+    {
+      "framework": "Usher's Model of Cumulative Synthesis",
+      "gap": "name_not_found"
     }
   ]
 }
