@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: completed
 stopped_at: Phase 366 context gathered
 last_updated: "2026-10-01T05:46:51.821Z"
-last_activity: 2026-09-30 -- 363-16 complete
+last_activity: 2026-10-01 -- Phase 365 executed (17/17 plans), verification human_needed
 progress:
   total_phases: 120
   completed_phases: 46
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 363 — deep-research-planner-quick-and-deep-runs
+**Current focus:** Phase 365 executed 17/17 (verification human_needed, code review CR-01 open); Phase 365.1 blocked on ladder ratification
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -9246,10 +9246,13 @@ Progress: [█████████░] 92%
 | 260917-o1y | release.sh Step 9.7: the registry-propagation poll aborted the ceremony on the first npm E404 under set -euo pipefail (beta.43 and beta.45 both died one line after the sandbox line, zero waiting lines; the beta.43 RCA timeout reading retracted). Poll extracted into scripts/release-lib/npm-propagation-poll.sh (errexit-safe, rc 0/10/1, MOS_NPM_PROP_SEEN), defaults 48 x 15s, fixture rebaselined (28 -> 30 blocks), RCA resolved + knowledge-base + RULE 7 + CHANGELOG beta.46. | 2026-09-17 | a07a15120, cc97620b5, 05ce8dd41 | Verified (suite RED then 13/13; run-all-310 PASS=10 FAIL=1 pre-existing leg 7 SKIP=1; both dry-runs 16/16 step names; acceptance 20/20) | [260917-o1y-release-sh-step-9-7-propagation-poll-abo](./quick/260917-o1y-release-sh-step-9-7-propagation-poll-abo/) |
 | 260917-o1e | graph-derive-health: a stale encoder_unavailable skip locked a room forever (Lawrence report 2026-09-17, cle-europe; reproduced on axiom). Root cause: one-sided memory (drain and backfill logged derivation_skipped on failure, nothing on success) plus a self-locking heal (fix() skipped encoder-blocked rooms before the only counter-evidence, the heal marker, could be written). Fix: derivation_completed event added to EVENT_TYPES and written by both derive writers on success; detectRoomHealth clears the verdict when a completion or marker is newer than the skip; --heal-room runs a sync encoder presence probe (one owner in class-s-eureka-smoke) and, when present, enqueues and writes the marker ("stale encoder skip cleared"); drain header + docs/ENV-TUNING.md state the no-stdin contract and the MOS_NO_DETACHED_DERIVE=1 manual run; CHANGELOG beta.46 Fixed bullet retires the hand-written-marker workaround. check-substrate ALLOWED_DIRECT_IMPORT gained the drain (room-db handle only, write still through navigation). | 2026-09-17 | ad7b1466e, 7a44a2bda, 68ed02a73 | Verified (new five-leg suite RED 4/6 then 6/6; test-233-graph-derive-health 14/14, heal-retrofit 10/10, 224 per-write 11/11, sweep 8/8, backfill 16/16, eureka-smoke 4/4; run-all-233 PASS=9 FAIL=4 all four pre-existing by worktree control; live: /mos:doctor --heal-room on axiom printed "stale encoder skip cleared for axiom: encoder present now, derive re-enqueued" and wrote the marker) | [260917-o1e-graph-derive-health-stale-encoder-unavai](./quick/260917-o1e-graph-derive-health-stale-encoder-unavai/) |
 | 260924-ohd | label-355-gold.cjs sitting UX: raw mode turns off the terminal's own echo, so the navigator judging 96 pairings could not tell whether a key registered. The CLI now echoes every accepted answer (`useful? y`, `label: analytical`), prefixes each item with a `[labeled/total]` counter, and names the cleared item on undo; ignored keys still write nothing; entries, save points, seed and hash refusals, emit, import and the six-key session shape unchanged (a copy of the live sitting resumed under the new code as `[11/96]`, sha unchanged). TDD: B12 block (24 checks) RED then GREEN. | 2026-09-24 | d4dc94154 | Verified (test-355-label-cli 96/96; em-dash grep clean; LIVE-COMPAT-OK N=11; run-all-355 advisory PASS=54 FAIL=5 SKIP=2, the five reds pre-existing and outside the two owned files) | [260924-ohd-label-355-gold-sitting-ux-echo-accepted-](./quick/260924-ohd-label-355-gold-sitting-ux-echo-accepted-/) |
+| 261001-tta | /mos:trending-to-absurd declares frameworks ["Trending to the Absurd", "S-Curve Analysis"] (primary first, navigator ruling) and explore-domains (Domain Selection) is the governed pre-step of trending-to-absurd and scenario analysis via curated_chains (prerequisite 0.66 x2, feeds_into 0.64). command-registry sha256 PRE fda868e5 POST 6df925df; rides the next release's theo-resync. | 2026-10-01 | df84da280, b7a446691, 714ed60df, b32ad0a1a, 688381306, af23fd487, 748532076 | Verified (run-all-363 43/0, run-all-163 13/13, run-all-176 5/5, tta orchestrator 6/6) | [261001-tta-trending-to-absurd-framework](./quick/261001-tta-trending-to-absurd-framework/) |
+| 261001-l8x | README refresh (peer session jsagi-a6, docs only) | 2026-10-01 | dde3ae9fb | Docs only | [261001-l8x](./quick/) |
+| 261001-thc | README graph numbers + regenerated docs/BRAIN-GRAPH-CENSUS.generated.md and data/brain-census.generated.json (peer session jsagi-a6) | 2026-10-01 | 699ace33a | Docs/generated only; peer notes run-all-246 census-guard and test-262 B3-B5 fail, not reading the changed files | [261001-thc](./quick/) |
 
 ## Session Continuity
 
-Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
+Last activity: 2026-10-01 - Phase 365 executed 17/17 plans + 365-REPAIR-01 (full run PASSED=66 FAILED=0 KNOWN=6 at f2ffc10cc); verification human_needed (365-UAT.md); code review issues_found (CR-01 blocker). Previous: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
 Last session: 2026-10-01T05:46:51.552Z
 Stopped at: Phase 366 context gathered
 
