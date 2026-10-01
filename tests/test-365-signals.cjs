@@ -244,6 +244,135 @@ function runTaskOneLegs(room) {
   }
 }
 
+const proactive = require(path.join(REPO_ROOT, 'lib', 'core', 'proactive-intelligence.cjs'));
+const GAP_LINE = 'GAP:STRUCTURAL:market-analysis:high:Market analysis section is empty';
+
+function readIntel(roomDir) {
+  return JSON.parse(fs.readFileSync(path.join(roomDir, '.proactive-intelligence.json'), 'utf8'));
+}
+
+function withDb(roomDir, fn) {
+  const db = fx.openFresh(roomDir);
+  try { return fn(db); } finally { fx.closeFresh(db); }
+}
+
+function runTaskTwoLegs() {
+  // P1 + P2: signal 1 enters the strip alongside existing insights; one snapshot a week.
+  let room;
+  try { room = fx.makeRoom365('signals-p12'); } catch (e) { throw new Error('scratch room: ' + e.message); }
+  try {
+    const claimId = withDb(room.room, (db) => {
+      const c = fx.seedClaim(db, { text: 'The market is growing faster than any incumbent can serve.', variant: 'p1' });
+      fx.recordAsk(db, c, { rung: 2 });
+      seedDecision(db, 'decision:plan:p1', c);
+      return c;
+    });
+    check('P1 persistIntelligence writes the signal-1 insight at medium confidence next to existing insights; insightKey returns its key', () => {
+      const res = proactive.persistIntelligence(room.room, GAP_LINE);
+      assert.ok(res.persisted >= 2, JSON.stringify(res));
+      const data = readIntel(room.room);
+      const v = data.insights.find((i) => i.type === 'verification');
+      assert.ok(v, 'verification insight present');
+      assert.equal(v.confidence, 'medium');
+      assert.equal(v.key, 'verification:decision_on_model_check:' + claimId);
+      assert.equal(proactive.insightKey(v), v.key);
+      assert.ok(data.insights.some((i) => i.type === 'gap'), 'the existing gap insight is still there');
+      assert.ok(!SCORE_WORDS.test(v.message), v.message);
+    });
+    check('P2 persistIntelligence writes this week\'s snapshot once; a second call the same week adds none', () => {
+      assert.equal(withDb(room.room, eventCount), 1);
+      proactive.persistIntelligence(room.room, GAP_LINE);
+      assert.equal(withDb(room.room, eventCount), 1);
+      const snap = withDb(room.room, (db) => signals.readSnapshots(db))[0];
+      assert.equal(snap.week, signals.isoWeekKey(Date.now()));
+    });
+    check('P2b a signal that no longer holds is dropped from the strip', () => {
+      withDb(room.room, (db) => {
+        fx.addSourceEdge(db, claimId, { url: 'https://example.org/p2b', retrieved_at: '2026-09-30', variant: 'p2b' });
+      });
+      proactive.persistIntelligence(room.room, GAP_LINE);
+      const data = readIntel(room.room);
+      assert.ok(!data.insights.some((i) => i.type === 'verification'), 'the stale verification insight was pruned');
+      assert.ok(data.insights.some((i) => i.type === 'gap'));
+    });
+  } finally {
+    fx.cleanup(room);
+  }
+
+  // P3: the stall signal through the strip.
+  let room3;
+  try { room3 = fx.makeRoom365('signals-p3'); } catch (e) { throw new Error('scratch room: ' + e.message); }
+  try {
+    withDb(room3.room, (db) => {
+      const c = fx.seedClaim(db, { text: 'A claim that only a model was ever asked about.', variant: 'p3' });
+      const now = Date.now();
+      for (let k = 4; k >= 1; k--) {
+        fx.recordAsk(db, c, { rung: 2 }); // one more record each week; standing never moves
+        const r = signals.snapshotWeek(db, now - k * WEEK_MS);
+        assert.equal(r.written, true, 'seed week ' + k);
+      }
+    });
+    check('P3 four flat snapshots with growing records_total raise the stall insight through persistIntelligence', () => {
+      proactive.persistIntelligence(room3.room, '');
+      const data = readIntel(room3.room);
+      const stall = data.insights.find((i) => i.key === 'verification:stall');
+      assert.ok(stall, JSON.stringify(data.insights));
+      assert.equal(stall.confidence, 'medium');
+      assert.ok(stall.message.startsWith('Checks in the last 4 weeks moved no claim past asking a model.'));
+      assert.ok(!SCORE_WORDS.test(stall.message));
+    });
+  } finally {
+    fx.cleanup(room3);
+  }
+
+  let room3b;
+  try { room3b = fx.makeRoom365('signals-p3b'); } catch (e) { throw new Error('scratch room: ' + e.message); }
+  try {
+    withDb(room3b.room, (db) => {
+      const c = fx.seedClaim(db, { text: 'Another claim only a model was asked about.', variant: 'p3b' });
+      fx.recordAsk(db, c, { rung: 2 });
+    });
+    check('P3b with a single snapshot the stall insight is absent', () => {
+      proactive.persistIntelligence(room3b.room, GAP_LINE);
+      const data = readIntel(room3b.room);
+      assert.ok(!data.insights.some((i) => i.key === 'verification:stall'));
+      assert.equal(withDb(room3b.room, eventCount), 1);
+    });
+    // P4: a thrown error inside the signal path leaves the existing output intact.
+    check('P4 a fault inside the signal path leaves persistIntelligence output intact', () => {
+      const original = navigation.readVerificationSignals;
+      navigation.readVerificationSignals = function boom() { throw new Error('planted signal fault'); };
+      try {
+        fs.rmSync(path.join(room3b.room, '.proactive-intelligence.json'), { force: true });
+        const res = proactive.persistIntelligence(room3b.room, GAP_LINE);
+        assert.equal(res.persisted, 1);
+        const data = readIntel(room3b.room);
+        assert.equal(data.insights.length, 1);
+        assert.equal(data.insights[0].type, 'gap');
+      } finally {
+        navigation.readVerificationSignals = original;
+      }
+    });
+  } finally {
+    fx.cleanup(room3b);
+  }
+
+  // P5: the threshold is a disclosed floor-ledger row and the ledger check passes.
+  check('P5 floor ledger discloses STALL_WEEKS = 4, anchored in verification-signals.cjs; check-floor-ledger --check passes', () => {
+    const ledger = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'floor-ledger.json'), 'utf8'));
+    const row = ledger.rows.find((r) => r.id === 'verification-signals.STALL_WEEKS');
+    assert.ok(row, 'ledger row present');
+    assert.equal(row.value, 4);
+    assert.equal(row.status, 'disclosed');
+    assert.equal(row.file, 'lib/core/navigation/verification-signals.cjs');
+    const src = fs.readFileSync(path.join(REPO_ROOT, row.file), 'utf8');
+    assert.ok(/^const STALL_WEEKS = 4;$/m.test(src));
+    assert.equal(signals.STALL_WEEKS, row.value);
+    const res = spawnSync(process.execPath, [path.join(REPO_ROOT, 'scripts', 'check-floor-ledger.cjs'), '--check'], { encoding: 'utf8' });
+    assert.equal(res.status, 0, (res.stdout + res.stderr).slice(0, 300));
+  });
+}
+
 function main() {
   let room;
   try {
@@ -256,6 +385,12 @@ function main() {
     runTaskOneLegs(room);
   } finally {
     fx.cleanup(room);
+  }
+  try {
+    runTaskTwoLegs();
+  } catch (e) {
+    failures += 1;
+    process.stdout.write('  FAIL - task 2 setup :: ' + String((e && e.message) || e) + '\n');
   }
   check('no network attempt was made', () => { assert.equal(net.attempts(), 0); });
   net.restore();

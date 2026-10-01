@@ -665,6 +665,19 @@
       "status": "disclosed",
       "provenance": "363-ACCEPTANCE.md 2026-09-30: kept at 3, still unmeasured on real OpenAlex; fixture counts sit on both sides (gap 0 to 2, hits 9 to 240); live smoke and a labelled sample decide",
       "dependent_outputs": ["research_run"]
+    },
+    {
+      "id": "verification-signals.STALL_WEEKS",
+      "file": "lib/core/navigation/verification-signals.cjs",
+      "line_anchor": "STALL_WEEKS",
+      "value": 4,
+      "gates": "the number of flat weekly verification snapshots, with checks still being recorded, before the room says checks moved no claim past asking a model (Phase 365 D-17)",
+      "kind": "floor",
+      "env_override": null,
+      "env_read": "load",
+      "status": "disclosed",
+      "provenance": "365-CONTEXT.md D-23 navigator ruling (N = 4 weeks), unmeasured; the signal is suppressed below 2 snapshots (D-17)",
+      "dependent_outputs": ["room_proactive"]
     }
   ]
 }
