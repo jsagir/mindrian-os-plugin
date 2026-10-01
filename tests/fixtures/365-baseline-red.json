@@ -7,12 +7,6 @@
       "signatures": [
         { "id": "RED-365-BYTE-DERIVED", "healed_by_plan": "365.1" }
       ]
-    },
-    {
-      "leg": "tests/test-365-acceptance-one-week.cjs",
-      "signatures": [
-        { "id": "RED-365-ONEWEEK-STANDING", "healed_by_plan": "365-15" }
-      ]
     }
   ]
 }
