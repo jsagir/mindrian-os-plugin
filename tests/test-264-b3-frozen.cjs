@@ -111,6 +111,17 @@ console.log('test-264-b3-frozen');
 // never clear one). Previous pin
 // 037f9515aeff1b5123956b4dfda515ee3076f20fd4423f5cc0e92f65b4c3bc3d. The
 // other five pins are unchanged. First re-pin of a Canon Part 3 gate surface.
+//
+// Re-pin (Phase 365 D-12, plan 365-09, 2026-10-01): makeGateFn gained ONE
+// add-only block, "(1b)", directly after the irreversible check: the room's
+// never-do list can only turn a would-run into a halt. Previous pin
+// 381924999134538d049cb7f214e5d49016936372c9e8dbb690c83ed23022eaa2 (base
+// c7c33eea). New pin c4f8099cb5bb08f993f091aeaf601e238a41e459e2555490be872ed6a60fde62.
+// The protective intent is kept by ARM 1b below: with the (1b) block cut out
+// (from its "// (1b) Phase 365" comment to the "// (2) Quality carry" comment)
+// the function must still hash to the PREVIOUS pin, so any edit to statements
+// (1), (2), (3), (4) is still caught byte-for-byte. The other five pins are
+// unchanged.
 // ---------------------------------------------------------------------------
 const PINNED_HASHES = {
   _defaultPostureFn: '43a27cb8c87e781f309a0a2c409fd2ff28f27ed759ca2c33280ff7f5076ef116',
@@ -118,7 +129,7 @@ const PINNED_HASHES = {
   _isMaterialStep: 'c644e445d27d31390e8abf561108213a02a641635906bba8cba3d23734308a9b',
   _critiqueFailed: '6f356837ac5229a5fce69ea0e27ae9db17412aff625c7e8a67165fbbdc3a664d',
   _ralphSafeRetry: 'da7cbfedb260924bd88f1a3cc031b2c7db3e964976429e84587c5da3480314d7',
-  makeGateFn: '381924999134538d049cb7f214e5d49016936372c9e8dbb690c83ed23022eaa2',
+  makeGateFn: 'c4f8099cb5bb08f993f091aeaf601e238a41e459e2555490be872ed6a60fde62',
 };
 
 const extracted = {};
@@ -129,6 +140,20 @@ for (const name of Object.keys(PINNED_HASHES)) {
   check(
     s.length > 0 && sha256(s) === PINNED_HASHES[name],
     'Arm 1: ' + name + ' sha256 matches the base-commit pin'
+  );
+}
+
+// ARM 1b -- makeGateFn minus the Phase 365 (1b) add-only block must equal the
+// PRE-365 pin. Proves 365-09 only added; every older statement is byte-identical.
+const MAKEGATE_PRE_365 = '381924999134538d049cb7f214e5d49016936372c9e8dbb690c83ed23022eaa2';
+{
+  const f = extracted.makeGateFn.split('\n');
+  const a = f.findIndex((x) => x.indexOf('// (1b) Phase 365') !== -1);
+  const b = f.findIndex((x) => x.indexOf('// (2) Quality carry') !== -1);
+  check(a > 0 && b > a, 'Arm 1b: makeGateFn carries the (1b) block before statement (2)');
+  check(
+    a > 0 && b > a && sha256(f.slice(0, a).concat(f.slice(b)).join('\n')) === MAKEGATE_PRE_365,
+    'Arm 1b: makeGateFn with the add-only (1b) block removed is byte-identical to the pre-365 pin'
   );
 }
 

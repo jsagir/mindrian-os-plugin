@@ -163,12 +163,20 @@ ok('exactly one file exports a function named supersede, and it is lib/core/temp
 // scan) still runs against this file unmodified and stays green, which is
 // the actual claim SUPER-01 makes: nothing outside promoteNodeStatus WRITES
 // review_status = 'superseded'.
+//
+// 365-11 addition (repair 365-REPAIR-01): lib/core/navigation/verification-signals.cjs
+// decisionOnModelCheck reads the literal in a SELECT ... WHERE clause
+// (COALESCE(review_status, '') NOT IN ('rejected', 'superseded'), a read-side
+// exclusion so retired decisions are not flagged). Same shape as insights.cjs
+// above: a read filter, never an assignment; the file has no UPDATE/INSERT/DELETE,
+// and Assertion 3 (hardcoded UPDATE scan) still runs over it.
 const STATUS_SETTER_ALLOW_LIST = Object.freeze([
   'lib/core/navigation/transitions.cjs',
   'lib/core/node-insert.cjs',
   'lib/core/migrations/phase-109-nodes-provenance.cjs',
   'lib/core/temporal/supersession.cjs',
   'lib/core/navigation/insights.cjs',
+  'lib/core/navigation/verification-signals.cjs',
 ]);
 
 ok("the set of files carrying the 'superseded' review_status literal is a subset of the named allow-list", function () {

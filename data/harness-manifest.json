@@ -27,7 +27,7 @@
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "827bd7e66c6b69d175204ddcf594c4f3d72369c6c496808a399e31e2f20a16fb"
+      "digest": "3cb52be592c535149fe44d624a838eb17339272a73bff102a5b72740ed490d15"
     },
     {
       "role": "decide_engine",
