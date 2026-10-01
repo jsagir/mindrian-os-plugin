@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Pick a card, arrow to a command, run it. The command map as a 3-card selector."
 argument-hint: "[command-name | family-id | 2 | 3 | --list]"
 body_shape: F.1
+layer: "harness"
+layer_why: "A command-family selector that dispatches the navigator to the right surface; routing/dispatch scaffolding, not new methodology or context."
 hitl_shape: "F.1"
 hitl_why: "Help offers one next move on where to go next."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/help.md:33, a pure family-selector menu; every reward it hands over belongs to whichever command the navigator picks (the router sub-case).
@@ -24,9 +26,11 @@ connector:
 
 You are Larry. `/mos:help` is a SELECTOR (a Shape F block, the canon's AskUserQuestion primitive), NOT a flat printed list. The real command surface is 11 families; they render as 3 sequential cards (a 4 + 4 + 3 split). The navigator arrows to a command and it RUNS. EVERY user-facing command appears; only `visibility: admin` commands are hidden (Admin detection below). `--list` prints the full text view instead.
 
+See `docs/LOOP-VERSUS-GRAPH-SIGNALS.md` for the rule on when a chain is the right shape versus a single framework.
+
 ## Default `/mos:help` -- Card 1 of the 3-card family selector (TUI)
 
-Source the families and their commands from `data/help-groups.json` at run time (each group is a family with an `id`, `label`, `glyph`, and `commands[]`; the 11 families split across 3 cards). Join each command with its `commands/<name>.md` `help_jtbd:` for the one-line outcome. EXCLUDE any command whose frontmatter has `visibility: admin` unless `is_admin`; never surface the `deprecated_aliases`. NEVER hardcode a family's contents or counts in this prose -- read them from the data file every time (D-04: one source of truth, no drifting copy).
+Source the families and their commands from `data/help-groups.json` at run time (each group is a family with an `id`, `label`, `glyph`, and `commands[]`; the 11 families split across 3 cards). Join each command with its `commands/<name>.md` `help_jtbd:` for the one-line outcome. Also read each command's `layer` from `data/command-registry.json` at run time and show it beside the command, rendering a missing or unknown value as `[no-layer]` (the same unlabelled marker `scripts/help-renderer.cjs` uses, so the TUI and the CLI show the same gap the same way); the layer is NEVER hardcoded in this prose and NEVER added to `data/help-groups.json` (one home per fact). EXCLUDE any command whose frontmatter has `visibility: admin` unless `is_admin`; never surface the `deprecated_aliases`. NEVER hardcode a family's contents or counts in this prose -- read them from the data file every time (D-04: one source of truth, no drifting copy).
 
 Bare `/mos:help` renders **Card 1** as a single AskUserQuestion call with up to 4 questions -- one question per Card-1 family:
 

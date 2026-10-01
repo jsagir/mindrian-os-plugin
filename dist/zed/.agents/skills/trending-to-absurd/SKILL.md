@@ -20,7 +20,7 @@ chains_to: /mos:futures            # at the Stage 5-6 boundary, via the Phase 12
 extends: /mos:explore-trends       # the 6-stage absurd-trend reference (zero change to it)
 seed_reader: lib/core/navigation/get-domains-for-trends.cjs::getDomainsForTrendExtrapolation
 reach_id: context_block            # one of the frozen 6 - NEVER a 7th
-framework: "S-Curve Analysis"      # the generic Brain handle (Part 8); equals the command frameworks:
+framework: "Trending to the Absurd"      # the generic Brain handle (Part 8); equals the command frameworks[0] (primary)
 filing: fileEvidenceWithReadback
 allowed-tools: Read Write Bash Glob
 # --- Phase 143.3 connector frontmatter ---
@@ -29,7 +29,7 @@ connector:
   sensor_triggers: []
   reach_id: context_block
   sub_mode: trending-to-absurd
-  framework: "S-Curve Analysis"
+  framework: "Trending to the Absurd"
   posture: push_forward
   hierarchy_rank: 11
   filing: fileEvidenceWithReadback
@@ -44,6 +44,7 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "ordered"
 hitl_why: "Two ordered Shape F Decision Gates per its own frontmatter description: trend selection then opportunity pick, never collapsed into one silent choice."
+layer: "graph"
 ---
 
 # Trending-to-the-Absurd -- The Visionary Innovation Companion
@@ -93,7 +94,7 @@ ONLY on an EXPLICIT request to push a specific trend to its absurd extreme:
 
 - **Part 8 (Graph Boundary):** zero Brain egress. The only external leg is the inherited
   `runSignalResearch` generic-handle path (a domain keyword only). The connector `framework` is a
-  generic S-Curve Analysis handle.
+  generic Trending to the Absurd handle.
 - **Part 9 (Memory Locality):** every write routes through `navigation.writeEdge` / `confirmNode`.
   A consequence is `proposed` until a human APPROVE at the opportunity-pick gate promotes it.
 - **UI (skills/ui-system):** the two gates render as Shape F selectors only -- the 12 glyphs, no

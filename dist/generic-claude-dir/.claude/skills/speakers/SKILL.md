@@ -4,6 +4,8 @@ description: Show who spoke in your meetings and their roles
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface speaker profiles from filed meetings."
 body_shape: C (Room Card)
+layer: "none"
+layer_why: "Shows a filed meeting's participants, roles and attendance; a read-only diagnostic display."
 hitl_shape: "F.1"
 hitl_why: "Speaker attribution resolves to a single next-move confirmation."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 18): first delivery at commands/speakers.md:103, each card's judged "Key contribution" selection, extracted live from the navigator's own filed meeting profiles.

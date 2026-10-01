@@ -4,6 +4,7 @@ description: Validate ideas via importance-satisfaction scoring
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Validate a specific claim or hypothesis against evidence."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
 serves_jtbd: ["validate-idea"]

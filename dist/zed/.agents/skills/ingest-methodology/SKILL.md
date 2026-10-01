@@ -7,6 +7,8 @@ help_jtbd: "Add a new methodology to the Brain so every user can reach it - with
 serves_jtbd: ["build"]
 teaching: "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress."
 body_shape: "action-report"
+layer: "graph"
+layer_why: "Runs the maintainer's named 7-step pipeline (encode, Part-8 bound, and on) end to end, a multi-step coordinated flow over shared state."
 hitl_shape: "F.9"
 hitl_why: "A methodology is parsed and registered through ordered steps, a fixed-order walk."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 19): first delivery at commands/ingest-methodology.md:123, the pipeline's own "action report" of gate/write/registration results; a maintainer-only status of GENERIC teaching knowledge, never a navigator's venture data.

@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Publish your room to a live URL."
 body_shape: E
+layer: "harness"
+layer_why: "Deploys the presentation to Vercel hosting infrastructure with a one-click link; wiring a real external tool, not merely rendering a view."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one publish action for a single approve-or-defer decision."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 13): first delivery at commands/publish.md:149, the parsed deploy output hands over the live shareable URL for the whole Data Room.

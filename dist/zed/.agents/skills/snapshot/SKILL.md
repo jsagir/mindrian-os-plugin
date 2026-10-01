@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Capture a snapshot of your room at this moment."
 body_shape: E
+layer: "none"
+layer_why: "Packages the Data Room into a portable frozen bundle for sharing; a render/export of existing content, engineering no new rung."
 hitl_shape: "F.0"
 hitl_why: "It offers one snapshot action to approve or defer."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/snapshot.md:148, two persisted self-contained HTML files (lobby plus hub) explicitly shareable via email or Vercel deploy.

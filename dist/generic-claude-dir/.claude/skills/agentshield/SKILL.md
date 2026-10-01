@@ -4,6 +4,8 @@ description: "Scan the plugin's own agent-config surfaces (MCP, hooks, skills, C
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scan the plugin's own agent-config surfaces for known attack patterns before you trust a fresh MCP server, hook, or skill."
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Scans the plugin's own MCP tools, hooks, skills, CLAUDE.md and dependencies for known attack patterns, a measurement pass over the harness itself."
 hitl_shape: "none"
 hitl_why: "A read-only security scan that reports per-surface status and takes no navigator decision, so it reaches no genuine fork (mirrors doctor as a deliberately-run diagnostic, but pure report with no repair gate)."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/agentshield.md:38, a per-surface status row (clean / ambiguous / flagged), the same shape as doctor's already-ruled diagnostic surface.

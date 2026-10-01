@@ -4,6 +4,7 @@ description: Consolidate Six Hats briefings from hat memory
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a per-hat briefing from the AI team on your venture."
 body_shape: C (Dashboard Grid)
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Hat perspectives are consolidated from an independent set gathered in any order."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery at commands/hat-briefing.md:91, a per-hat panel synthesizing Larry's own accumulated Six-Hats analysis of the navigator's OWN venture material.

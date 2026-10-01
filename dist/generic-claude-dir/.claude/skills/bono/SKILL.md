@@ -4,6 +4,7 @@ description: Run a BONO research debate over a what-if hypothesis
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Spawn a parallel research swarm, debate it as inter-hat arguments over a graph-proposed what-if, and land a navigator-confirmed synthesis."
 body_shape: B (Semantic Tree)
+layer: "graph"
 hitl_stages:
   - stage: "topic-confirm"
     shapes: ["F.1"]

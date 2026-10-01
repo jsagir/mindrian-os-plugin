@@ -4,6 +4,7 @@ description: Compare against ventures that tried this before
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Set two or more ventures side-by-side, scored."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.5"
 hitl_why: "Ventures are compared as parallel branches the navigator resolves among."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/compare-ventures.md:89, similar ventures, the framework sequences they used, and the patterns that correlated with outcomes.

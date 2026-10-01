@@ -16,6 +16,8 @@ connector:
   surface: F.1
 hitl_shape: "F.1"
 hitl_why: "Each of the six discovery movements closes with an F.1 Next Move choice (continue the movement, reframe, or move to the Discovery Brief), never silently auto-advancing."
+layer: "loop"
+layer_why: "Runs a fixed six-movement discovery interview to a stopping condition, filing a Discovery Brief artifact with an F.1 next-move gate between movements; a single agent cycle, not a multi-step coordination graph."
 ---
 
 <!-- mos:firing-block v2 -->

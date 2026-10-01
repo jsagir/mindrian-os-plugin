@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "List, switch, archive, or organize rooms in ~/MindrianRooms/."
 argument-hint: "[list|switch|archive|park]"
 body_shape: B (Semantic Tree)
+layer: "harness"
+layer_why: "Manages the multi-room registry (switch, list, archive); a registry operation over the harness, the rubric's own step 3 signal verbatim."
 hitl_shape: "F.1"
 hitl_why: "Room switch or archive offers a single next move to pick one room."
 serves_jtbd: ["audit-room"]

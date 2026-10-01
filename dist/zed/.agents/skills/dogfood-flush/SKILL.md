@@ -6,6 +6,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Manually flush captured plugin edits into the mindrian dataroom."
 body_shape: E
+layer: "context"
 hitl_shape: "F.0"
 hitl_why: "It offers one dogfood-flush action to approve or defer."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/dogfood-flush.md:77, an F.0 Action Report of events flushed, the maintainer's own internal bookkeeping.

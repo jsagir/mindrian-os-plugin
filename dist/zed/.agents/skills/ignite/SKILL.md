@@ -4,6 +4,8 @@ description: "Start or excavate a room through one front door."
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Start (or excavate) a room through one front door."
 body_shape: E
+layer: "graph"
+layer_why: "Walks three sequential birth gates (starting point, blueprint approve, first win), each an independent human-ratified checkpoint -- the rubric's own step 1 signal for halting at a material step for an independent reviewer, repeated three times."
 hitl_shape: "F.1"
 hitl_why: "The front door offers a small set of starting moves for the navigator to pick one."
 argument-hint: "[--express | --from-brief <sha8> | --from-opportunity <ref>]"

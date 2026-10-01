@@ -4,6 +4,7 @@ description: Run the full Reverse Salient discovery pipeline for a topic
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Fetch the latest reverse salient analysis for your room."
 body_shape: E (Action Report)
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

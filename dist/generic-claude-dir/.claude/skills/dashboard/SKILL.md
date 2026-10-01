@@ -4,6 +4,8 @@ description: Open the Data Room dashboard (live or snapshot)
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Open your room as a browser dashboard, De Stijl grid + graph."
 body_shape: E
+layer: "none"
+layer_why: "Opens the live or snapshot De Stijl view; a render-only view of already-produced room state, the rubric's own literal none example."
 hitl_shape: "F.1"
 hitl_why: "The dashboard offers one next move on what to act on."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/dashboard.md:126, an ephemeral live rendering of already-filed room state, not a filed artifact or new analysis.

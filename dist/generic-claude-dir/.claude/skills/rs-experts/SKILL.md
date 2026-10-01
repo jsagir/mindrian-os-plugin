@@ -4,6 +4,7 @@ description: Resolve the expert network for a topic from the local room mirror
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface the expert profiles for a reverse salient."
 body_shape: D (Comparison Matrix)
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]

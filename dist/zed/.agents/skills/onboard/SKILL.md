@@ -4,6 +4,8 @@ description: Walk through MindrianOS and build your first room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
+layer: "loop"
+layer_why: "A single guided walkthrough cycle that builds the navigator's first room to a stopping condition, the same shape as a methodology command's cycle-to-artifact."
 hitl_shape: "F.1"
 hitl_why: "Onboarding presents each step and offers one next move to continue."
 body_shape_detail: Steps as conversational flow, context building as nested nodes

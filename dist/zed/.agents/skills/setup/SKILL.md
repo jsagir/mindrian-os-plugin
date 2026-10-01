@@ -4,6 +4,8 @@ description: Configure optional integrations (Brain, Velma)
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
+layer: "harness"
+layer_why: "Walks through wiring optional integrations (Brain, Velma); a configuration/tool-wiring operation over the harness."
 interactive_first_reward: schema_preview
 hitl_shape: "F.8"
 hitl_why: "Integrations are configured as an independent set the navigator connects in any order."

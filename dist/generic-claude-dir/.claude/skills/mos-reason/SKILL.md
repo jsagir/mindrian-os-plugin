@@ -5,6 +5,7 @@ description: Generate Feynman-MINTO reasoning for a section
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get Larry's reasoning trace on a specific question."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Within one section the four Feynman stages still proceed in a fixed order (F.9, an ordered walk); across sections the room's populated sections are now an independently dispatched, any-order set of jobs (Phase 265-14), so F.9 describes the intra-section walk only, not the cross-section topology."
 # Phase 265-14 reward-before-investment declaration (backfilling a pre-existing

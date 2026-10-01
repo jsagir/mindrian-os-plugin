@@ -4,6 +4,7 @@ description: Run the Ten-Questions investment thesis gate
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Compose the investment-grade thesis from your room's evidence."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
 serves_jtbd: ["decide-pursue", "prepare-pitch"]

@@ -4,6 +4,7 @@ description: Decompose a system into layers and leverage points
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See how subsystems connect, where they break, where they leverage each other."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "System elements and leverage points are surfaced as an independent set examined in any order."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/analyze-systems.md:64, the system decomposed into layers with its leverage points named.

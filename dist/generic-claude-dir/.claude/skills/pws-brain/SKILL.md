@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Ask one generic methodology question and see how the production Brain and the experimental Aura Agent each answer it, side by side."
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Runs the same methodology question against the experimental Aura Agent next to the production Brain and shows both; a diagnostic comparison view."
 body_shape_detail: two labeled answer blocks (A production Brain, B Aura Agent) plus a short observed-differences note
 hitl_shape: "none"
 hitl_why: "A read-only comparison report that runs one question through two backends and takes no navigator decision, so it reaches no genuine fork."

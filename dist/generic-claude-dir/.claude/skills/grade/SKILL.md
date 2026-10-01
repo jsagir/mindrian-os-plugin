@@ -4,6 +4,7 @@ description: Grade problem-discovery quality (6 components)
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a fast grade on your room with feedback."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The six grading components are scored independently, an unordered basket of scoring jobs."
 serves_jtbd: ["audit-room"]

@@ -7,6 +7,8 @@ help_jtbd: "Export your room as an Obsidian vault."
 argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape: E
+layer: "none"
+layer_why: "Exports the Data Room as a nested Obsidian vault for offline reading; a render/export of existing content."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one vault action for a single approve-or-defer decision."
 body_shape_overview: E (Mini Report)

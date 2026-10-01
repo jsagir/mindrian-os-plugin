@@ -4,6 +4,8 @@ description: Run sentinel scans across the room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scout the competitive landscape for a specific axis."
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Fires the sentinel background checks proactively across the room, a measurement/scanning mechanism over the harness, the same job class as a doctor organ."
 hitl_shape: "F.8"
 hitl_why: "Sentinel scans run as an independent set of watches with no ordering constraint."
 serves_jtbd: ["explore", "understand-market"]
@@ -258,23 +260,31 @@ If dependencies are available:
 # Step 1: Compute HSI scores
 python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR" --output "$ROOM_DIR/.hsi-results.json"
 
-# Step 2: Detect reverse salients (lagging subsystems)
-python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
+# Step 2: Reverse salients from the CJS RS engine (the engine /mos:find-bottlenecks uses)
+node -e "require('${PLUGIN_ROOT}/lib/core/rs-engine.cjs').runModeInternal(process.argv[1], {}).then(() => process.exit(0)).catch((e) => { console.error(e && e.message); process.exit(1); });" "$ROOM_DIR"
 
 # Step 3: Write HSI edges to room graph (if available)
 # D-03: do NOT swallow the HSI-to-graph stderr/exit. A silent scout is how
 # HARD-02 hid for weeks. stderr surfaces; a non-zero exit prints a visible
 # degraded-step advisory but stays non-fatal to the overall scout run.
-if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR"; then
+# Phase 355-16 (HIPS-04, HIPS-05): --stamp is the interactive path -- it
+# stamps the top shown HSI pairs against the methodology graph before the
+# graph write, and prints them after. Background/scheduled callers (the
+# cadence runner, the cascade) never pass --stamp and stay Theo-free.
+if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR" --stamp; then
   echo "ADVISORY: HSI-to-graph step failed (room graph not updated this run); scout continues in degraded mode" >&2
 fi
 ```
 
+Phase 355: the Python detector is reference only; direction labels in `.hsi-results.json` are re-derived from the stored similarity pair, never trusted as written.
+
 Report:
 - Number of HSI pairs scored
-- Top 3 highest-scoring connections
+- The stamped lines `hsi-to-graph.cjs --stamp` printed for the top connections -- reproduce them VERBATIM (the glyph line, the path line, the tier line, the judge line, or the unverified reason + advice line), never restate a number from `.hsi-results.json` in their place
+- The disclosure line naming `data/floor-ledger.json` (D-27), reproduced exactly
 - Any new reverse salients detected
 - Whether room graph was updated
+- On Desktop / Cowork, a connection with no stored stamp says exactly: "Not yet checked; run the CLI to verify." (D-50)
 
 ## Step 5b: Query Efficiency Telemetry (SENT-08)
 
@@ -337,7 +347,7 @@ After all tasks complete, present a unified summary using the E body shape:
 
 ## Scheduled Cadence (LIVE)
 
-The scout suite fires on a cadence across all three Tri-Polar surfaces via the single composer `scripts/scout-cadence-runner.cjs` (Phase 145). The runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors (whitespace recompute, reverse-salient, opportunity-bank scan, competitor watch) behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner.
+The scout suite fires on a cadence across all three Tri-Polar surfaces via the single composer `scripts/scout-cadence-runner.cjs` (Phase 145). The runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors (whitespace recompute, reverse-salient, opportunity-bank scan, competitor watch) behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner. Grant-covered quick research runs (Phase 363, D-05) execute in the 355.1 ambient child under the navigator's standing research grant, never in this cadence runner, which stays zero-egress.
 
 `/mos:scout` remains the manual, on-demand trigger. The cadence below runs the same composition automatically.
 

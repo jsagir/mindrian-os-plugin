@@ -3,8 +3,10 @@ name: status
 description: Show governing thought per section + health glyphs
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See your room's section-by-section status at a glance."
-argument-hint: "[section] [--stale-only]"
+argument-hint: "[section] [--stale-only] [--checks]"
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Shows the governing thought per section plus health glyphs for a fast read; a read-only diagnostic display."
 hitl_shape: "F.1"
 hitl_why: "Status offers one next move based on where the room stands."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 21): first delivery at commands/status.md:51, quoting docs/reward-before-investment-rule.md:59 verbatim, "A /mos:status output is not a reward (predictable report)."
@@ -72,6 +74,7 @@ If `CLAUDE_PLUGIN_ROOT` is not set, resolve the script relative to the plugin's 
 - `(no args)` -- render every section in the active room.
 - `<section>` -- render one section's full triple (governing_thought NOT truncated, plus arguments/MECE/artifacts/identity). Example: `/mos:status market-analysis`.
 - `--stale-only` -- render only sections flagged stale.
+- `--checks` -- show what this room's claims were checked against, in words, with what would move each count, and the room's never-do list; nothing is scored.
 
 ## Expected Output Shape
 

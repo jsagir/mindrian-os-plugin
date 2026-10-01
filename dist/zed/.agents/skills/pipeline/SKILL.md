@@ -4,6 +4,7 @@ description: Chain a multi-step methodology pipeline
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

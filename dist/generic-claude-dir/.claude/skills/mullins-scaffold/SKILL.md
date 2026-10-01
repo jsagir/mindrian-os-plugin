@@ -26,6 +26,8 @@ connector:
   surface: F.1
 hitl_shape: "F.1"
 hitl_why: "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
+layer: "harness"
+layer_why: "Creates the Seven Domains room-scaffolding folders on the navigator's F.1 confirmation; adding room scaffolding is the rubric's own step 3 signal verbatim."
 ---
 
 <!-- mos:firing-block v2 -->

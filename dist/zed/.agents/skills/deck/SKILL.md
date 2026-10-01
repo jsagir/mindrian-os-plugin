@@ -4,6 +4,8 @@ description: Build an on-brand, source-cited deck through one governed flow
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Pick a deck style; Larry builds it section by section from your room and binds the brand."
 body_shape: F.1
+layer: "loop"
+layer_why: "One governed flow (pick a shape, Feynman or HEART) that runs to completion and files a deck artifact, the same single-cycle shape as a methodology command, kind:mechanical only because it composes existing content rather than analyzing new content."
 hitl_shape: "F.1"
 hitl_why: "The governed deck flow closes with a single Next Move gate."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/deck.md:92, each section built from the navigator's own room content and surfaced at an accept / reshape / skip gate (rests on rubric rule TB-4).

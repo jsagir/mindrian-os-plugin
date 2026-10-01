@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Turn a qualified opportunity into a deep-researched, Minto-shaped, evidence-backed analysis."
 argument-hint: "[opportunity]"
 body_shape: E (Action Report)
+layer: "graph"
+layer_why: "Explicitly runs the analysis chain (deep dive across multiple methodology steps) for a qualified opportunity -- a command that dispatches a chain, the rubric's own step 1 signal."
 hitl_shape: "F.1"
 hitl_why: "Exploration spends navigator-controlled research cost and crosses material gates; explicit per-opportunity trigger only - never auto-fired on qualify."
 # Phase 265-04 reward-before-investment declaration (blocking-gate auto-fix, not

@@ -35,6 +35,8 @@ connector:
   surface: F.1
 hitl_shape: "F.1"
 hitl_why: "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own."
+layer: "loop"
+layer_why: "Runs a single 6-stage Feynman simplification cycle end to end and files a deck artifact; one continuous methodology run, not a multi-agent or multi-gate coordination."
 ---
 
 # mos-deck-engine -- DEPRECATED, consolidated into /mos:deck

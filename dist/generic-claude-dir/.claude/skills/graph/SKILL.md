@@ -4,6 +4,8 @@ description: Explore the knowledge graph by asking questions
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Ask your room a question; get the answer as graph paths."
 body_shape: C (Room Card)
+layer: "none"
+layer_why: "Translates a plain-English question into a graph traversal and displays the result; a read-only query/render view, not new engineering."
 hitl_shape: "F.1"
 hitl_why: "Graph exploration offers one next move from the current node."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/graph.md:87, the bare-invocation node/edge/section count, a status readout of the room's graph size.

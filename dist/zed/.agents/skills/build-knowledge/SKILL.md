@@ -4,6 +4,7 @@ description: Climb Ackoff's DIKW pyramid across the room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn your room into a knowledge graph you can query."
 body_shape: "methodology"
+layer: "graph"
 hitl_stages:
   - stage: "climb-dikw-ladder"
     shapes: ["F.9", "F.2"]

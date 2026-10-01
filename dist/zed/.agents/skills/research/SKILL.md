@@ -4,13 +4,32 @@ description: Research the web and wire findings as typed graph evidence
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
-hitl_shape: "F.8"
-hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
+layer: "loop"
+hitl_stages:
+  - stage: "deep plan review"
+    shapes: ["F.6"]
+    mode: "gate"
+  - stage: "deep extend budget"
+    shapes: ["F.3"]
+    mode: "gate"
+  - stage: "quick policy grant"
+    shapes: ["F.0"]
+    mode: "gate"
+  - stage: "filing"
+    shapes: ["F.8"]
+    mode: "parallel"
+  - stage: "constraint halt"
+    shapes: ["F.1"]
+    mode: "gate"
+  - stage: "never-do offer"
+    shapes: ["F.1"]
+    mode: "gate"
+hitl_why: "Deep research plans are reviewed and edited on an F.6 card before any fetch and extended only on an F.3 card, quick research runs fetch only under an F.0 grant, and findings file as an any-order F.8 basket; a room-started run the never-do list stopped is shown on an F.1 card at the next touchpoint, and a declined room-started run can be added to the room's never-do list only on an F.1 approval."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 10, navigator-ruled): first delivery at commands/research.md:256, the top-5 web findings framed and percent match-scored against the room's own existing claim graph.
 interactive_first_reward: methodology_reframe
 argument-hint: "[topic | url]"
 serves_jtbd: ["explore", "understand-market"]
-teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."
+teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Hypothesis-Driven Problem Solving"]
@@ -21,7 +40,9 @@ autonomous_safe: true
 # A calling methodology declares requires_evidence: to auto-dispatch /mos:research
 # (the inbound called-by handle). See "Invocation modes" below.
 emits_evidence_claims: true
-allowed-tools: Read Bash Agent WebSearch WebFetch AskUserQuestion
+# Write is a pre-approval for writing the JSON input files the research-planner CLI reads
+# (edits, rows, follow-ups, selections), outside the room until filing.
+allowed-tools: Read Bash Agent Write WebSearch WebFetch AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -88,6 +109,8 @@ NEVER auto-fires material research. When evidence is below its declared threshol
 it ASKS via the F.1 selector with a pre-computed confident recommendation
 ("evidence is thin here -- run /mos:research?"). This honors the GUIDED-default
 Brain rule (Canon Part 9 role 5): Larry proposes, the human decides.
+
+**Exception (Phase 363, D-05):** inside a standing research grant the navigator approved on an F.0 card, the room itself may start a quick research run in the 355.1 ambient child. Approving the grant is the ask. Anything outside the grant asks again, the grant is visible and revocable, and every query lands in the room's audit ledger. Deep research runs never start this way.
 
 ## URL mode (Phase 220: same command, second argument shape)
 
@@ -343,6 +366,191 @@ through the same extractor / driver / selector / wirer modules as the default mo
 The only difference is the fixed lens_set; presentation, the F.1 gate, and wiring
 are identical. Use `--broad` for comprehensive parallel-angle intelligence (the
 academic + market + patent triple) on a single topic.
+
+## Plan-run mode (the one research runner)
+
+This is the one place research plans run. A first-wave command (a methodology that asked a question set, such as `/mos:map-unknowns`, `/mos:root-cause`, `/mos:diffusion` or `/mos:whitespace`) never fetches on its own: it saves a plan and hands you a run id, and you run it here. The existing topic mode and URL mode above are unchanged; this mode starts when one of three things is true: a command handed you a run id, the navigator asked for a research plan, or a room-started card is waiting.
+
+Two rules hold for every step below. Never write a query string yourself. Every query comes from the composer. There is no send-anyway path. The command below is a thin door: every plan, grant, run and filing goes through one script, and it answers in JSON you read as is.
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" <subcommand> ... --room <room dir>
+```
+
+Exit codes: 0 means ok, 2 means refused (the JSON carries a typed reason, say it plainly and stop that step), 1 means an internal error (say so and stop; never retry with a changed input). Write every input file the script reads (an edit, rows, follow-ups, a selection, a decision) to a scratch directory outside the room, using the Write tool; the room only changes when a step files.
+
+### Start with pending cards
+
+Room-started runs leave cards for you. Before anything else, read them once:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" pending --room <room dir>
+```
+
+Each entry is `{run_id, kind, queued_at, card}` and is marked surfaced when the script returns it. Show each card once. A `kind` of `evidence` is a finished quick research run: show its evidence card and continue at filing. A `kind` of `plan_card_no_grant` is an F.0 grant card for a run the room planned but could not fetch (the card's `payload.reask_reason` says why, and the run's `proposal.json` sits next to its `plan.json`): fire it as the grant card in the next part, approving with the sibling `proposal.json`. When the navigator did not ask for anything else and no card is pending, ask what to research or which command's question set to run.
+
+A `kind` of `halted_constraint` means the room's never-do list named what a room-started run was about to do. The run stopped before any request, so nothing ran and nothing left this machine. Fire it as a gate card at this touchpoint: in Claude Code, call `gate_render` with the card's `header`, `kind` and three `options` exactly as the card gives them (the header already carries the entry, its reason and the line that the list catches only what has been named), then answer with `gate_answer`. On Desktop and Cowork the `research_run` pending op already returns it rendered as the entry's `gate`: show that card and answer it with `gate_answer`. On "Run it now, attended", run it through the quick research run below; the navigator's yes is the sanction, because the list governs unattended steps only. On "Leave it stopped", offer "Reject and never do this" as described next (on Desktop and Cowork the reject answer already returns it as `never_do_gate`). A card whose header says the list could not be read means every room-started run stops until `.mindrian/never-do.json` is fixed: say that, and name the file.
+
+When the navigator declines a plan-only card (`plan_card_no_grant`) or a `halted_constraint` card and `card.payload.never_do_proposal` is set, make the never-do offer once. In Claude Code, fire it with AskUserQuestion, with the options exactly "Reject and never do this", "Just reject this time" and "Decide later". Show the proposal's kind, value and reason, and say that the list catches only what has been named; it is a floor, not a guarantee. On the first option, Write the proposal's `{kind, value, why}` to a scratch JSON file outside the room and run:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" never-do add <entry.json> --room <room dir> --approved-via cli
+```
+
+The script records the decision and then writes the entry; without `--approved-via cli` it refuses. `never-do list --room <room dir>` shows what is on the list. On Desktop and Cowork the `research_run` pending op returns the same offer as `never_do_gate`: show its card and answer it with `gate_answer`. Nothing is added to the list without that yes.
+
+### Run a quick research run
+
+A quick research run is a bounded pass: at most three searches, one source, no lanes. Get a run id first. When a command handed you one, use it. A run id whose `plan.json` already exists is fine too (the research_run tool saves the plan for a deep run in the same place). Otherwise build the plan from the question set the command wrote:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" plan <question-set.json> --room <room dir> --mode quick
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" status <run_id> --room <room dir>
+```
+
+Read `next` in the answer. `run_quick` means a grant already covers every search. `grant` means the plan needs an F.0 grant card first. `revise` or `local_only` means no run is offered: say what the card lists and stop.
+
+When an F.0 card comes back, fire it with AskUserQuestion (the options exactly as the card gives them, at most 3). On approval, Write the card's `proposal` to a scratch JSON file outside the room and approve it:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" grant approve <proposal.json> --room <room dir> --approved-via cli
+```
+
+Then run it:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room <room dir>
+```
+
+`status: done` gives an evidence card: show it in the four zones (header, the answer line and evidence rows, the strip, the footer). A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it. If the card carries an escalation line, offer it once, word for word as the card gives it. When the plan already names a limiter the line is "run deep on this?"; on yes:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" escalate <run_id> --room <room dir>
+```
+
+and continue as a deep research run from the plan card.
+
+When the plan names no limiter, the card line reads "name what blocks this and I'll plan a deep run". A deep run with no nameable limiter is a wish and never runs, so ask the navigator first: "What actually blocks this gap? Say it in your own words." Do not suggest an answer and do not derive one from the room's files. If they name something, run `escalate` as above; it answers `next: needs_limiter`. Write their exact words to a scratch file outside the room with the Write tool, as `{"op": "add_limiter", "statement": "<their words>"}`, never on the command line, and add it:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" revise <deep run_id> <scratch>/edit.json --room <room dir>
+```
+
+The plan then comes back ready for review and the deep run continues from the plan card. The words stay in the room: they are never sent to the Brain or anywhere else. If they name nothing, say "name what blocks this and I'll plan a deep run", leave the quick evidence as it is, and stop; that is an open door, not a dead end. A grant lets the room fetch. It never files anything.
+
+Known limit, stated plainly when a navigator asks why the room never started a run on its own: the room-started path reads a zone term from the whitespace results file, and today's whitespace results carry none, so those runs answer `context_insufficient` (reason `no_zone_term`) until a navigator-approved zone term is stored there (Phase 363 plan 19). A run you start here is unaffected.
+
+### Run a deep research run
+
+A deep research run reads more sources in parallel lanes, reflects, and can extend once more. Build or load the plan first:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" plan <question-set.json> --room <room dir> --mode deep
+```
+
+Deep research runs never start unattended. When no navigator can answer the card (inside /mos:act, chain_run, or any caller that cannot answer), save the plan and fetch nothing.
+
+Fire the F.6 Plan Review card with AskUserQuestion. Its options are Run this deep research run, Edit the plan, and Stop without running. The card shows the leaf questions, the falsifier for each, the sources, the budget and the round-one searches, so the navigator approves exactly what will be sent.
+
+- **Edit the plan:** the navigator says what to change in plain words. Write it as an `edit.json` file (reword a question, drop or add a leaf, toggle a source, set a budget within its caps, toggle the counterevidence pass or the scientific perspective; never a raw query) and send it through `revise`:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" revise <run_id> <edit.json> --room <room dir>
+```
+
+The plan is recomposed and re-audited by the composer, then the F.6 card re-renders from the new plan. A refusal (`raw_query_refused`, `revision_cap`) is said plainly. Fire the card again after every edit.
+
+- **Stop without running:** say nothing more will happen and leave the plan saved.
+- **Run this deep research run:** approve it for this run only:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room <room dir> --approved-via cli
+```
+
+The approval lasts 20 minutes. If any later step answers `no_grant`, the approval lapsed: ask the navigator again and re-run this same `review approve` line (there is no other way to continue). Then drive the run one step at a time and follow what it says:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" deep-next <run_id> --room <room dir>
+```
+
+The answer is `{ok, step, round, stop_reason, payload}`. Act on `step`, then ask `deep-next` again, until `step` is `done`:
+
+- **fetch_round:** run the fetch. It sends only the searches the approved grant covers.
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" deep-fetch <run_id> --room <room dir>
+```
+
+- **dispatch_lanes:** the fetched records now wait in files, one per lane.
+
+**No agent is dispatched before the navigator approves the deep research run.** That is already true here: the approval and the fetch are done. Say the status block `[RESEARCH] Dispatching N lane analysts` (N is the lane count `deep-next` returned, which the run already clamped with `resolveFanoutCap`), then in the same turn call the Agent tool once per lane, all together, each with `subagent_type: research-lane-analyst`. Each prompt carries only four things from that lane's payload: the records file path (under the room's `.mindrian/research-runs/<run_id>/lanes/`), each leaf's id and leaf question, its falsifier, and the lane id. Nothing else from the room goes into a prompt. If the Agent tool rejects the bare agent name, retry with the scoped name its error lists. Each analyst returns a JSON list of rows. Write each list to a scratch file and record it:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" deep-record <run_id> <lane> <rows.json> --room <room dir>
+```
+
+The script checks every quote against the fetched text and drops any row that fails; say how many were dropped and why, never repair one by hand.
+
+- **validate:** internal. Ask `deep-next` again.
+- **reflect:** read what is still open. Propose follow-ups only as typed slots in a `followups.json` file (each `{leaf_id, lens, slots}`, never a query string; an empty list is fine), then:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" deep-followups <run_id> <followups.json> --room <room dir>
+```
+
+- **extend_card:** a follow-up or falsifier falls outside what the navigator approved. Fire the F.3 extend-or-stop card with AskUserQuestion (Extend the budget and search / Stop here). Write `{"decision":"extend"}` or `{"decision":"stop"}` to a scratch file and run `deep-extend <run_id> <decision.json> --room <room dir> --approved-via cli` (an extend needs the flag; a stop does not).
+- **counterevidence:** this pass is mandatory and only a budget or time stop skips it. Run `deep-counterevidence <run_id> --room <room dir>`. If it hands back a lane, it arrives as one more `dispatch_lanes` step; handle it the same way.
+- **synthesize:** run `deep-synthesize <run_id> --room <room dir>`.
+
+Show the result as the updated perspective and pyramid, in the four zones. Every factual statement ends with its row id (for example `[E-L1-3]`). A statement with no row is phrased as a question or labeled opinion. No number appears unless a row or a count states it. Name every unresolved branch, and say the stop reason plainly (cap, saturation, budget, time, plurality required, or the navigator's stop). Never grade, score or praise the result.
+
+### Filing (F.8, only on approval)
+
+Findings file only when the navigator picks them. Build the basket:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" basket <run_id> --room <room dir>
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (the card's defaults are pre-selected; an empty pick is a valid answer that files nothing). Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room <room dir> --approved-via cli
+```
+
+A selection never carries a grant. Show the filing report as is, including anything that did not land.
+
+### One next move
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" next-framework <run_id> --room <room dir>
+```
+
+If it names a framework, offer that one move (the command it returns) and stop. If it says none, say that nothing maps yet and stop.
+
+### Scientific research perspective (Scientific Roadmapping)
+
+A scientific question with no originating command has a door here: build the question set yourself with `template_id: scientific-roadmapping`, then plan it as a deep research run. Walk the seven operations with the navigator, one at a time, in their words:
+
+1. the tension in the field;
+2. the quantified goal, with the result that would falsify it;
+3. the rung and the roadmap type;
+4. the forum, written as three separate passes in this order: the frustrated insider, the fresh entrant, the physics grounder (never one merged voice);
+5. the paths, with a 10X resurvey of what the field already tried;
+6. every limiter, sorted as physics or assumed; a limiter that is only assumed is rewritten as a question to research, never stated as a fact;
+7. the unlock chains, counting only the dominoes the field would actually push.
+
+Then `plan <question-set.json> --room <room dir> --mode deep` and continue at the F.6 card. If the question is about the adoption, diffusion or timing of a dual-use or deep-tech technology, add the diffusion lens (`--diffusion`) and say why in one sentence.
+
+## Tri-Polar surfaces of plan-run mode
+
+| Surface | What runs |
+|---------|-----------|
+| **Claude Code CLI** | Every stage: the plan, the F.0, F.6, F.3 and F.8 cards, quick and deep research runs, and the lane analysts through the Agent tool. |
+| **Claude Desktop** | The `research_run` MCP tool plans, asks for a grant, runs quick research runs, reviews a deep plan, files findings and lists pending cards through the same engine; each approval is a gate answered with `gate_answer`. A constraint halt comes back as an already rendered `gate`, and its Reject can return `never_do_gate`. Deep research runs execute in Claude Code: Desktop saves the reviewed plan and says so. |
+| **Cowork** | The same `research_run` tool over the shared room; everyone sees the same pending cards and the same audit ledger. Deep research runs execute in Claude Code. |
+
+An approval given through the tool lives in memory for about 30 minutes; after an MCP server restart, ask again. Nothing about a plan-run depends on a surface-specific code path.
 
 ## Tri-Polar surfaces (CLI / Desktop / Cowork)
 

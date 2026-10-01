@@ -4,6 +4,7 @@ description: Find lagging components via Reverse Salient
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find the lagging component blocking your venture (Hughes reverse salient)."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]
@@ -66,6 +67,12 @@ Procedure (CLI / Desktop / Cowork):
    - On REJECT: REJECTED_BECAUSE typed edge captures the reason; `reverse_salient_acted_on` records reason_present=true.
    - On DEFER: DEFERRED memory_event records the deferral for Phase 116 unresolved-tension-hook consumption.
 4. If the agent returns `{ ok: false }` OR finds nothing OR is suppressed (tier 0 / JUST_TALK), fall back to the standard Setup + Session Flow below.
+
+### Verification stamp (Phase 355-17, HIPS-04, HIPS-05, D-16, D-27, D-29, D-50)
+
+Every surfaced finding's F.0 body already carries a verification stamp block, appended by the agent itself (`renderBottleneckFinding`, right after the finding text and the framework chain, ending in the disclosure line). Reproduce that block VERBATIM -- never summarize it, never add a number, never restate a differential or similarity score of your own. The finding is lagging relative to another artifact by construction (that is what Reverse Salient found); the stamp says whether the methodology graph can independently verify a path between the two frameworks involved, not how "similar" they are.
+
+On Desktop or Cowork, if a finding's stamp was never computed (the CLI has not run this path there), say exactly: "Not yet checked; run the CLI to verify." (D-50). Never invent a tier or a path for it.
 
 ### Empty-result UX (Phase 127.2 Plan 03 -- Finding F7)
 
