@@ -240,8 +240,43 @@ check('Test 5 -- surfaceTrendSelectionGate returns a Shape F.1 trend-selection g
   assert.ok(Array.isArray(gate.trends) && gate.trends.length === 2, 'the trends are surfaced for selection');
   // Tri-context panels present; BRAIN carries a GENERIC handle only (Part 8).
   assert.ok(gate.contexts && gate.contexts.local && gate.contexts.brain && gate.contexts.signal, 'tri-context panels present');
-  assert.equal(gate.contexts.brain.methodology, 'S-Curve Analysis', 'BRAIN panel carries the generic framework handle only');
+  assert.equal(gate.contexts.brain.methodology, 'Trending to the Absurd', 'BRAIN panel carries the generic framework handle only (the tool\'s own Theo framework name)');
   assert.ok(/generic framework handle only/.test(gate.contexts.brain.note), 'Part 8 note present on the BRAIN panel');
+});
+
+// ---------------------------------------------------------------------------
+// Test 6 (quick 261001-tta): the declared primary framework is "Trending to the
+// Absurd" (the Un-Defined tool per the lecture notes and framework-catalog-343),
+// NOT "S-Curve Analysis". Theo's registry sync copies the plugin declaration, so
+// a wrong declaration maps the command to the wrong framework in Theo. The body
+// runs no S-curve step, so S-Curve Analysis is not declared at all.
+// ---------------------------------------------------------------------------
+check('Test 6 -- command, skill, and registries declare "Trending to the Absurd" as the primary framework', () => {
+  const PRIMARY = 'Trending to the Absurd';
+  const cmd = fs.readFileSync(path.join(REPO_ROOT, 'commands', 'trending-to-absurd.md'), 'utf8');
+  const fm = cmd.split(/^---\s*$/m)[1];
+  const fmLine = fm.match(/^frameworks:\s*(\[.*\])\s*$/m);
+  assert.ok(fmLine, 'command frontmatter declares frameworks');
+  const fws = JSON.parse(fmLine[1]);
+  assert.equal(fws[0], PRIMARY, 'frameworks[0] (primary) is the exact Theo framework name');
+  assert.ok(!fws.includes('S-Curve Analysis'), 'S-Curve Analysis is not declared: the body runs no S-curve step');
+  assert.ok(new RegExp('^  framework: "' + PRIMARY + '"\\s*$', 'm').test(fm), 'connector framework is the primary framework');
+
+  const skill = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'trending-to-absurd', 'SKILL.md'), 'utf8');
+  assert.ok(new RegExp('^framework: "' + PRIMARY + '"', 'm').test(skill), 'skill framework equals the command primary');
+
+  const reg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'command-registry.json'), 'utf8'));
+  const entry = reg.commands.find((c) => c.command === '/mos:trending-to-absurd' || c.command === 'trending-to-absurd');
+  assert.ok(entry, 'registry carries the command');
+  assert.equal(entry.frameworks[0], PRIMARY, 'registry primary framework');
+  assert.ok(reg.framework_index[PRIMARY].some((c) => /trending-to-absurd$/.test(c)), 'framework_index leads the framework to the command');
+  assert.ok(!(reg.framework_index['S-Curve Analysis'] || []).some((c) => /trending-to-absurd$/.test(c)), 'S-Curve Analysis no longer maps to the command');
+
+  const conn = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'connector-registry.json'), 'utf8'));
+  const rows = (conn.entries || conn.connectors || conn.surfaces || Object.values(conn).find(Array.isArray) || [])
+    .filter((r) => r.sub_mode === 'trending-to-absurd');
+  assert.ok(rows.length >= 1, 'connector registry carries the command rows');
+  for (const r of rows) assert.equal(r.framework, PRIMARY, 'connector row ' + r.surface + ' framework');
 });
 
 // ---------------------------------------------------------------------------
