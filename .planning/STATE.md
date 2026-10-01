@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Phase 366 context gathered
-last_updated: "2026-10-01T15:05:55.315Z"
+stopped_at: Completed 366-02-PLAN.md
+last_updated: "2026-10-01T15:40:26.179Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 121
   completed_phases: 47
   total_plans: 513
-  completed_plans: 465
+  completed_plans: 466
   percent: 39
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) — EXECUTING
-Plan: 2 of 27
+Plan: 3 of 27
 Status: Ready to execute
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
@@ -7396,6 +7396,7 @@ Progress: [█████████░] 91%
 | Phase 355 P04 | 90min | 2 tasks | 4 files |
 | Phase 355 P02 | 55min | 2 tasks | 5 files |
 | Phase 355 P05 | 40min | 2 tasks | 3 files |
+| Phase 366 P02 | 50min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -9100,6 +9101,8 @@ Progress: [█████████░] 91%
 - [Phase 355] 355-05: whitespace_scan description kept the accurate findOpenQuestions/findUnsupportedClaims naming, cut only the 'closest to whitespace' framing; data/mcp-tool-connectors.json and data/connector-registry.json left untouched since hitl_why was already accurate
 - [Phase ?]: 366-01: run-all-366 carries test-355-direction-agreement as run_known_if keyed on the exact pre-existing hit list (baseline red)
 - [Phase ?]: 366-01: spike preparer enforces offline entity-extract via a node -e wrapper until Phase 368 ships --offline; 355 fixture copies yield zero DESCRIBES edges offline
+- [Phase ?]: 366-02: one generic pair branch in opportunityCandidates (pairLeafSupported) serves every perspective; dedicated branches skip pair leaves
+- [Phase ?]: 366-02: filing-stamped.cjs is the one stamped filer (runner re-exports); stampForPair reads theo-lane.json from .mindrian/research-runs/<run_id> then the run home, degraded stamp is not_called/handle_unresolved
 
 ### Pending Todos
 
@@ -9255,8 +9258,8 @@ Progress: [█████████░] 91%
 ## Session Continuity
 
 Last activity: 2026-10-01 - Phase 365 executed 17/17 plans + 365-REPAIR-01 (full run PASSED=66 FAILED=0 KNOWN=6 at f2ffc10cc); verification human_needed (365-UAT.md); code review issues_found (CR-01 blocker). Previous: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-10-01T15:05:49.757Z
-Stopped at: Phase 366 context gathered
+Last session: 2026-10-01T15:40:26.075Z
+Stopped at: Completed 366-02-PLAN.md
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

@@ -4239,7 +4239,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       enums so `ALL_TOOL_COMMANDS` stays 65 and the gear-shift exits stay reachable (D-06).
       Plan 366-16.
 
-- [ ] **EPV366-12**: One filer: the pyramid produces a `cross_domain_transfer` opportunity
+- [x] **EPV366-12**: One filer: the pyramid produces a `cross_domain_transfer` opportunity
       candidate from a supported `eu:mechanism_transfer` leaf, the leaf carries a closed
       `pair: {a, b, perspective, run_tag}`, and `filing.cjs` files it with `writeOpportunityNode`
       (lifecycle `candidate`, review_status `proposed`), `DERIVED_FROM` to both things and the 355
