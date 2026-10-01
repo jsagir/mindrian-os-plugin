@@ -74,6 +74,48 @@
         "lib/core/graph-backfill.cjs CUE_MAP via graph-derivation.runDerivation"
       ],
       "recorded_at": "2026-10-01T07:13:49.865Z"
+    },
+    {
+      "test": "remove_destination",
+      "property": "remove the destination (governing thought and active JTBD): does next-move confidence stay unchanged",
+      "predicted": "UNKNOWN",
+      "observed": "no_confidence_emitted",
+      "observed_detail": {
+        "user_text": "What should we do next on the launch plan?",
+        "destination": {
+          "governing_thought_in_every_section": true,
+          "active_jtbd": "decide-pursue"
+        },
+        "with": {
+          "top_reach_id": "context_block",
+          "top_signal": "jtbd_changed",
+          "ok": true,
+          "confidence_or_score_fields": []
+        },
+        "without": {
+          "top_reach_id": null,
+          "top_signal": null,
+          "ok": true,
+          "confidence_or_score_fields": []
+        },
+        "top_reach_changed_by_destination": true,
+        "governing_thought_only": {
+          "top_reach_id": null,
+          "top_signal": null,
+          "ok": true,
+          "confidence_or_score_fields": []
+        },
+        "active_jtbd_only": {
+          "top_reach_id": "context_block",
+          "top_signal": "jtbd_changed",
+          "ok": true,
+          "confidence_or_score_fields": []
+        }
+      },
+      "writers_driven": [
+        "lib/mcp/tools/sensors.cjs suggest_next (real handler) over dispatchSensors"
+      ],
+      "recorded_at": "2026-10-01T07:15:00.605Z"
     }
   ]
 }
