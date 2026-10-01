@@ -19,6 +19,7 @@ A real release also tells Theo. `release.sh` Step 5.6 fires a `repository_dispat
 - `--no-theo-notify` is the audited opt-out, a SEPARATE flag from `--no-theo-check`; the release log names the flag and the consequence when engaged.
 - `--dry-run` prints the step and sends nothing.
 - The release lockstep count lives in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8; this line carries no number of its own. See `docs/THEO-NOTIFY-CONTRACT.md` for the rulings and the working-decision ledger.
+- The canon snapshot `data/framework-names.json` is in the lockstep too: `release.sh` refuses a cut until `node scripts/refresh-framework-names.cjs --live` has stamped it after Theo's re-emit (`--no-canon-snapshot-check` is the audited opt-out); the rule lives in RULE 5 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
 ## Entry Point
 

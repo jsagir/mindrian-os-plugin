@@ -29,6 +29,14 @@
 #        under --dry-run performs the read and reports without aborting
 #        (WD-20). See docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 5 for the
 #        single enumeration of the release lockstep this gate is a part of.
+#   0.6b. Canon snapshot freshness gate (Phase 366 Plan 06, D-17, RULE 5
+#        place 9): data/framework-names.json theo_stamp.mapped_by must equal
+#        the CURRENT version, offline. LAGGING like place 8; dry-run reports;
+#        --no-canon-snapshot-check is the audited opt-out.
+#   0.6c. Phase suite gate (Phase 366 Plan 06, EPV366-01): shells every
+#        aggregator in scripts/release-lib/suite-gate.sh RELEASE_GATE_SUITES
+#        (tests/run-all-366.sh), fail closed; previewed, not run, under
+#        --dry-run; --no-suite-check is the audited opt-out.
 #   1. Compute NEW_VERSION via semver.inc() in a node one-liner.
 #   2. Pre-release verification (scripts/verify-release).
 #   3-6. Bump plugin.json + package.json + marketplace.json (+ npm source pinned
@@ -126,6 +134,22 @@ if [ ! -f "$RELEASE_LIB_DIR/theo-notify-gate.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/theo-notify-gate.sh"
 
+# Phase 366 Plan 06 (D-17, EPV366-01): the canon snapshot freshness gate
+# (RULE 5 place 9) and the phase suite gate, sourced here for the same
+# reason as the two Theo gates above: a missing library fails before any
+# mutation starts. Both are CALLED at Step 0.6, right after the theo stamp gate.
+if [ ! -f "$RELEASE_LIB_DIR/canon-snapshot-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/canon-snapshot-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/canon-snapshot-gate.sh"
+
+if [ ! -f "$RELEASE_LIB_DIR/suite-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/suite-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/suite-gate.sh"
+
 # Quick task 260917-o1y (2026-09-17): source the Step 9.7 propagation-poll
 # library here too, in the preamble -- a library missing at its Step 9.7
 # call site would fail AFTER npm publish has already happened, the worst
@@ -147,7 +171,9 @@ STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by def
 NO_THEO_CHECK=0 # Phase 343 Plan 07 (WD-13/T-343-06): Theo stamp gate is ON by default; --no-theo-check is the audited opt-out (--no-minisite / --no-website precedent), never silent
 NO_THEO_NOTIFY=0 # Phase 349 Plan 04 (NOTIFY-04): the Theo NOTIFY gate (LEADING half of place 8) is ON by default; --no-theo-notify is the audited opt-out, following the --no-theo-check / --no-minisite / --no-website precedent, never silent
 NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-ledger offline staleness check (Step 2.4) is ON by default; --no-ledger-check is the audited opt-out, following the --no-theo-check precedent, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--no-ledger-check] [--dry-run]"
+NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshness gate (RULE 5 place 9, Step 0.6b) is ON by default; --no-canon-snapshot-check is the audited opt-out, never silent
+NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -166,6 +192,8 @@ for arg in "$@"; do
     --no-theo-check)     NO_THEO_CHECK=1 ;;
     --no-theo-notify)    NO_THEO_NOTIFY=1 ;;
     --no-ledger-check)   NO_LEDGER_CHECK=1 ;;
+    --no-canon-snapshot-check) NO_CANON_SNAPSHOT_CHECK=1 ;;
+    --no-suite-check)    NO_SUITE_CHECK=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -194,6 +222,30 @@ fi
 # script with --dry-run). See docs/RELEASE-CEREMONY-RULING-SYSTEM.md
 # RULE 5 (place 8) and docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md WD-13/WD-20.
 if ! mos_theo_stamp_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_THEO_CHECK"; then
+  exit 1
+fi
+
+# --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
+# RULE 5 place 9, LAGGING like place 8 and offline: data/framework-names.json
+# theo_stamp.mapped_by must equal the CURRENT version, proving the snapshot
+# was refreshed after Theo's re-emit. Recovery is the one documented command,
+# `node scripts/refresh-framework-names.cjs --live`, run after the re-emit.
+# Under --dry-run it reports the verdict without aborting.
+if ! mos_canon_snapshot_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_CANON_SNAPSHOT_CHECK"; then
+  echo "  Recovery: once Theo has re-emitted for the current version, run node scripts/refresh-framework-names.cjs --live, commit data/framework-names.json, then re-run."
+  exit 1
+fi
+
+# --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
+# Shells every aggregator in RELEASE_GATE_SUITES (tests/run-all-366.sh, which
+# carries every seed103 leg), fail closed. Under --dry-run the gate is
+# PREVIEWED, not run: scripts/doctor.cjs's release-dry-run-output self-test
+# gives `release.sh patch --dry-run` a 30s budget (RULE 4) and the aggregator
+# takes longer, so running it there would red the acceptance roll-up.
+if [ "$DRY_RUN" = "1" ] && [ "$NO_SUITE_CHECK" != "1" ]; then
+  echo -e "${YELLOW}  [DRY RUN] suite-gate: would run ${RELEASE_GATE_SUITES[*]} (fail closed on a real release; not executed under --dry-run).${NC}"
+elif ! mos_suite_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_SUITE_CHECK"; then
+  echo "  Recovery: make the phase suites green, then re-run."
   exit 1
 fi
 
