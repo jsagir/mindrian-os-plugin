@@ -17,8 +17,14 @@
  *           subject only), the relabelled approve reaches all rungs, and the
  *           render-time prediction rides the ledger so a standing that moved
  *           before the click is reported as floor_changed_since_render.
- *   H6a,H7  the one flagged describe string keeps the zod4 contract check (a)
- *           green, and the floor acceptance test names only the meeting leg.
+ *   H3,H5   the meeting file-meeting card goes through the SAME composer (the
+ *           notice and the relabel reach it, the ledger entry carries the
+ *           prediction) and its response text no longer promises that an
+ *           approve always confirms.
+ *   H6a,H6b the two intentional description strings (gate_render subject_node_id,
+ *           the meeting tool) keep the zod4 contract check (a) green.
+ *   H7,H8   the floor acceptance test passes outright: no FLOOR or FLOOR-NOTICE
+ *           token on any rung or on the meeting card.
  *
  * Every verdict is read back through a FRESH room.db handle, never from the
  * tool response alone. Plain Node, node:assert/strict, hygiene-355 first.
@@ -46,6 +52,7 @@ const { spawnSync } = require('node:child_process');
 const fx = require('./helpers/fixture-room-365.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
+const gateLedger = require(path.join(REPO_ROOT, 'lib', 'mcp', 'gate-ledger.cjs'));
 const { registerRouterTools } = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tool-router.cjs'));
 const gateTool = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tools', 'gate.cjs'));
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
@@ -397,22 +404,59 @@ async function h1h2h4() {
   }
 }
 
+async function h3h5() {
+  process.stdout.write('\n-- H3, H5: the meeting card uses the same composer and honest text --\n');
+  const h = makeHarness('h3');
+  try {
+    const extra = { sessionId: nextSession('meeting') };
+    const raw = await h.handlers.get('meeting')(
+      { command: 'file-meeting', knowledge_type: 'fact', claim_text: 'H3 meeting claim with no source.' }, extra);
+    const text = textOf(raw);
+    const gateId = (/gate_id[:*"\s]+\**\s*([A-Za-z0-9._-]+)/.exec(text) || [])[1];
+    const claimId = (/Claim node (\S+) was written/.exec(text) || [])[1];
+    check('H3 meeting returned a gate_id and a claim id', !!gateId && !!claimId, text.slice(0, 200));
+    check('H3 the card carries the standing none why-line',
+      text.indexOf('Checked against: nothing outside the conversation yet.') !== -1, text.slice(0, 400));
+    check('H3 the card carries the relabelled approve', text.indexOf('Approve, mark as needs evidence') !== -1);
+    const entry = gateLedger._internal._ledger.get(gateId);
+    check('H3 the ledger entry carries floor_prediction needs_evidence',
+      !!entry && entry.floor_prediction === 'needs_evidence', JSON.stringify(entry && entry.floor_prediction));
+    check('H5 the response no longer promises an unconditional promotion',
+      !/promotes it to confirmed/.test(text));
+    check('H5 the response names the floor and needs evidence',
+      text.indexOf('verification floor') !== -1 && text.indexOf('needs evidence') !== -1);
+    check('H5 no card text reads like confirm anyway', !/confirm anyway/i.test(text));
+
+    // The meeting gate is answerable and honest end to end.
+    const raw2 = await h.handlers.get('gate_answer')(
+      { gate_id: gateId, chosen: ['approve'], verdict: 'approve' }, extra);
+    const rn = (jsonOf(raw2) || {}).reasoning_node;
+    check('H3 approve on the meeting gate holds the claim', fx.readStatus(h.room.room, claimId) === 'needs_evidence',
+      JSON.stringify(rn));
+    check('H3 nothing moved between render and click', !!rn && rn.floor_changed_since_render === false, JSON.stringify(rn));
+  } finally {
+    h.room.cleanup();
+  }
+}
+
 function runNode(file) {
   return spawnSync(process.execPath, [path.join(REPO_ROOT, 'tests', file)], {
     cwd: REPO_ROOT, encoding: 'utf8', timeout: 240000,
   });
 }
 
-async function h6aH7() {
-  process.stdout.write('\n-- H6a, H7: zod4 contract check (a) and the floor acceptance leg --\n');
+async function h6h7h8() {
+  process.stdout.write('\n-- H6a, H6b, H7, H8: zod4 contract check (a) and the floor acceptance test --\n');
   const c = runNode('test-267-mcpv2-zod4-contract.cjs');
   const out = (c.stdout || '') + (c.stderr || '');
-  check('H6a zod4 contract check (a) still passes', /^PASS: Check \(a\)/m.test(out), out.slice(0, 300));
+  check('H6a/H6b zod4 contract check (a) passes with both reworded descriptions',
+    /^PASS: Check \(a\)/m.test(out), out.slice(0, 300));
   const acc = runNode('test-365-acceptance-floor.cjs');
   const accOut = (acc.stdout || '') + (acc.stderr || '');
-  const noticeReds = accOut.split('\n').filter((l) => l.indexOf('RED-365-FLOOR-NOTICE') === 0);
-  check('H7 no RED-365-FLOOR-NOTICE on rungs a, b or c', noticeReds.every((l) => l.indexOf('meeting') !== -1), noticeReds.join(' | '));
-  check('H7 no RED-365-FLOOR token for the below-floor approve', accOut.split('\n').every((l) => l.indexOf('RED-365-FLOOR:') !== 0), accOut.slice(0, 300));
+  const reds = accOut.split('\n').filter((l) => /^RED-365-FLOOR/.test(l));
+  check('H7 no RED-365-FLOOR or RED-365-FLOOR-NOTICE token on any rung or the meeting card',
+    reds.length === 0, reds.join(' | '));
+  check('H8 the floor acceptance test exits 0', acc.status === 0, 'status=' + acc.status + ' ' + accOut.slice(-300));
 }
 
 async function main() {
@@ -422,7 +466,8 @@ async function main() {
   await g6();
   await g7();
   await h1h2h4();
-  await h6aH7();
+  await h3h5();
+  await h6h7h8();
 
   check('net guard saw no network attempts', netGuard.attempts() === 0, 'attempts=' + netGuard.attempts());
   return checker.summary();
