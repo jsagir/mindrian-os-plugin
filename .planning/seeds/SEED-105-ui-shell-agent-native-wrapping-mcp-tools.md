@@ -106,3 +106,9 @@ one-click gate, prior-art lanes, Larry panel; plus room-graph and Cowork two-use
   `docs/superpowers/specs/2026-10-01-design-canon-v3-workshop-modernism.md`): paper/ink palette, rust,
   cobalt and ochre as meaning only, Fraunces / DM Sans / Bodoni Moda, radius 0, one decision per view.
   The 2026-10-02 quick mockup's ad-hoc primary palette is superseded and gets restyled when touched.
+
+## Pre-step (navigator, 2026-10-02)
+
+Before any UI/UX work on SEED-104..107: read and discuss
+`.planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md` (every prior UI/UX seed, phase, command,
+doc and memory entry). Discussion first; no design, spike or plan skips this step.
