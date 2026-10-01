@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-10-01T05:58:02.285Z",
+  "phase": "365",
+  "phase_name": "verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt",
+  "phase_dir": ".planning/phases/365-verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt",
+  "plan": 1,
+  "task": 0,
+  "total_tasks": 17,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": "363", "name": "Phase 363 deep research planner", "status": "done", "commit": "e7259ae91"},
+    {"id": "363.1", "name": "Phase 363.1 beta.51 bug cluster", "status": "done_human_uat_pending", "commit": "e1e9221f8"},
+    {"id": "365-plan", "name": "Phase 365 planned (17 plans, 7 waves)", "status": "done", "commit": "fa95ce146"}
+  ],
+  "remaining_tasks": [
+    {"id": "quick-261001-tta", "name": "trending-to-absurd frameworks + domains pre-step", "status": "in_progress", "progress": "RED df84da280 committed; GREEN uncommitted in tree"},
+    {"id": "365-exec", "name": "/gsd-execute-phase 365", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Ladder ratification by the paper author", "type": "human_action", "workaround": "ladder-blocked work fenced to Phase 365.1"},
+    {"description": "Theo Phase 25 must author Scientific Roadmapping steps and type links", "type": "external", "workaround": "Phase 364 waits"}
+  ],
+  "human_actions_pending": [
+    {"action": "Phase 363.1 UAT: /mos:reason in a non-git room, confirm no worktree error", "context": "B51-02", "blocking": false},
+    {"action": "Answer 365-05 D-20 checkpoint and 365-17 routing/ladder-ask checkpoint", "context": "phase 365 execution", "blocking": true},
+    {"action": "Cut a release when ready; then send release id to the Theo session", "context": "nothing on main is live", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "Navigator sources are supreme for problem-type mapping", "rationale": "navigator ruling 2026-09-30", "phase": "all"},
+    {"decision": "Floor on by default, no confirm-anyway, claims only", "rationale": "D-01..D-04, D-21", "phase": "365"},
+    {"decision": "Scientific Roadmapping rooted at WellDefined, bridge from innovation of meaning", "rationale": "navigator ruling 2026-10-01 with course citations", "phase": "364"}
+  ],
+  "uncommitted_files": [
+    "commands/trending-to-absurd.md", "skills/trending-to-absurd/SKILL.md",
+    "lib/core/trending-to-absurd/orchestrator.cjs", "lib/core/trending-to-absurd/variance.cjs",
+    "data/command-registry.json", "data/connector-registry.json",
+    "data/brain-orchestration-projection.json", "data/harness-manifest.json"
+  ],
+  "next_action": "Check whether quick 261001-tta finished (git log, git status); if its files are still uncommitted, review and finish it with --only commits. Then run /gsd-execute-phase 365.",
+  "context_notes": "Shared tree with other sessions; commit only owned paths; never use gsd-tools state writers; re-run aggregators at HEAD before claiming green."
+}
