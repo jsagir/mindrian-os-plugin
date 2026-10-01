@@ -66,3 +66,33 @@ the MCP server without duplicating room state, or the license blocks commercial 
 - `lib/mcp/tools/*.cjs` (zod tool schemas), `lib/mcp/tools/gate*.cjs` (gate ladder; elicitation rung)
 - MCP inline views: `room-dashboard`, `room-graph`, `room-wiki`
 - Pattern sibling: Cloudflare Forge (one description, every surface generated), see SEED-106 insight 7
+
+## Enrichment 2026-10-02: the read-copy layer (RxDB) and the one-way sync rule
+
+**Stack, one job per layer:**
+- **agent-native**: actions only. The MCP tools, exposed as UI calls and agent tools. This is the
+  only write path.
+- **RxDB in the browser**: a cached, offline-capable copy of the room for instant views. Free IndexedDB
+  storage. It replaces agent-native's own Postgres data layer for room views; never run both.
+- **`room.db` + `navigation.cjs`**: the only truth.
+
+**Rule: sync flows one way, from the room to the browser. Writes go only through the MCP actions.**
+- Implement RxDB's replication protocol on the room server: a `pullHandler` answering "changes since
+  checkpoint {last_modified_at, id}" read through `navigation.cjs` (nodes already carry
+  `last_modified_at`, the CAS token `graph_write` uses); superseded claims map to RxDB's soft-delete
+  flag (they are closed, never deleted, Canon Part 9). A `pullStream` emits on the existing SSE bus,
+  with `RESYNC` on reconnect.
+- **No `pushHandler` for room data.** A browser can never push a confirmed claim; truth claims pass gates
+  and human approval as today. RxDB's default conflict rule (the master copy wins) matches: the room is
+  always the master.
+- Cowork (several users on one room) is the only case where a WebSocket stream is worth adding.
+- Part 8: replication stays on the machine or the team's server; it never reaches the Brain.
+
+**Do not use RxDB as the room store** (measured 2026-10-02 from rxdb.info): it stores documents as JSON
+in its own table layout and cannot read an existing SQLite schema; production SQLite storage is a paid
+Premium plugin; the free trial caps at 500 non-deleted documents, uses no indexes and runs queries in
+memory. Its Node SQLite driver list includes `node:sqlite` (Node 22+), which matters only if that ever
+changes.
+
+**Mockup:** https://claude.ai/artifact/XDbDX2i2jC8CUxGWmNQdEt (De Stijl room workspace: next move, the
+one-click gate, prior-art lanes, Larry panel; plus room-graph and Cowork two-user views).
