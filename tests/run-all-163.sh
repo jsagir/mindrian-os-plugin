@@ -83,9 +83,10 @@ if [[ ! -f "$TTA_CMD" ]]; then
   echo "    MISSING commands/trending-to-absurd.md"; CONN_OK=0
 else
   grep -q "connects_to_spine: true" "$TTA_CMD" || { echo "    connects_to_spine not true"; CONN_OK=0; }
-  # The connector framework MUST equal the frameworks: value (S-Curve Analysis).
-  grep -q 'frameworks: \["S-Curve Analysis"\]' "$TTA_CMD" || { echo "    frameworks: drift"; CONN_OK=0; }
-  grep -q 'framework: "S-Curve Analysis"' "$TTA_CMD" || { echo "    connector framework drift"; CONN_OK=0; }
+  # The connector framework MUST equal frameworks[0], the primary (quick 261001-tta:
+  # Trending to the Absurd primary, S-Curve Analysis secondary).
+  grep -q 'frameworks: \["Trending to the Absurd", "S-Curve Analysis"\]' "$TTA_CMD" || { echo "    frameworks: drift"; CONN_OK=0; }
+  grep -q '^  framework: "Trending to the Absurd"' "$TTA_CMD" || { echo "    connector framework drift"; CONN_OK=0; }
 fi
 if [[ ! -f "$TTA_SKILL" ]]; then
   echo "    MISSING skills/trending-to-absurd/SKILL.md"; CONN_OK=0
