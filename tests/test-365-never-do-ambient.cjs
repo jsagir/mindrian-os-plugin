@@ -175,9 +175,12 @@ async function main() {
     const earlier = ['skipped_no_whitespace', 'context_insufficient', 'plan_card_no_grant', 'plan_card_reask',
       'throttled', 'already_run_for_delta', 'ran', 'budget_exhausted', 'error'];
     const o = AMBIENT.AMBIENT_OUTCOMES;
-    check('A1 AMBIENT_OUTCOMES ends with halted_constraint and keeps every earlier outcome in order',
-      o[o.length - 1] === 'halted_constraint' && earlier.every(function (n, i) { return o[i] === n; })
-      && o.length === earlier.length + 1, JSON.stringify(o));
+    // Append-only list: halted_constraint is appended right after the nine earlier outcomes.
+    // Later phases may append after it (366-07 appended plan_card_eureka_offer), so pin the
+    // prefix and the position, never the list length or the last slot.
+    check('A1 AMBIENT_OUTCOMES keeps every earlier outcome in order and appends halted_constraint right after them',
+      earlier.every(function (n, i) { return o[i] === n; })
+      && o[earlier.length] === 'halted_constraint', JSON.stringify(o));
   }
 
   // ---- A2 ------------------------------------------------------------------
