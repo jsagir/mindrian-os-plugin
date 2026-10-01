@@ -1522,7 +1522,7 @@ Plans:
 **Deliverables.** (1) Merge the branch and register its tests in the release gate. (2) The spike (design section 9): the three Phase 355 fixture rooms, the same blind-label protocol, the bar fixed before the run (useful rate above 44.8% with a Wilson interval that clears it, three repeats), arms Stage A only / Jev / Claude / Claude-then-Jev over the SAME candidates file, plus graph+lexical vs graph+lexical+vector recall. (3) The navigator's four rulings recorded: retire the standalone runner; runtime Jev under the planner's grant and audit ledger or dev-time only (D-44); the Haiku entity pre-step as a planner egress line or a separate producer; the gold labels. (4) One declared egress policy file read by the planner's audit ledger; `--offline` means none of it; `commands/eureka.md` rewritten so `/mos:eureka` is the quick-run alias and the stale "ZERO writes / ZERO network" wording is gone. (5) Theo readiness: room nodes carry canon Framework handles under the D-10 exact-match rule so `find_connections` can be asked; `canon_resolved` per run is the count to move (0 on the measured room). (6) MCP canvas tooling for the other perspectives (RS, HSI, whitespace) as planner ops with the same shape (recall file, judge file, paginated read, annotations, actionable refusals), replacing the reference-only stubs the tool router carries today. (7) Retire the standalone runner per the spike; the semantic index moves to `lib/core/semantic-index/` behind a reference-integrity gate (ADR-E12) as its own plan. Counter-metrics per Phase 343 on every stage; counts only (SEED-074).
 **Requirements**: EPV366-01..EPV366-30 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-01; D-01..D-17 in `366-CONTEXT.md`)
 **Depends on:** Phase 363 (the planner), Phase 355 (the measured record and fixture rooms). Feeds Phase 364 (the same engine) and SEED-101 (claims carry a section column). Consults icm-architect, mcp-builder and langtalks-graph-expert before any design assumption.
-**Plans:** 2/27 plans executed
+**Plans:** 3/27 plans executed
 
 Plans:
 **Wave 1**
@@ -1532,7 +1532,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 366-02-PLAN.md -- one filer: pyramid cross_domain_transfer kind through one template-driven pair branch, closed leaf pair, filing-stamped.cjs, DERIVED_FROM to both things plus the 355 stamp
-- [ ] 366-03-PLAN.md -- /mos:eureka is the quick-run alias; --legacy and {"legacy":true} reach the runner; ZERO wording gone; mirrors regenerated
+- [x] 366-03-PLAN.md -- /mos:eureka is the quick-run alias; --legacy and {"legacy":true} reach the runner; ZERO wording gone; mirrors regenerated
 - [ ] 366-05-PLAN.md -- one canon resolver with ratified translations (references/canon-translations.md); framework node before USES_FRAMEWORK edge
 - [ ] 366-06-PLAN.md -- canon snapshot Theo stamp and the LAGGING gate (RULE 5 place 9); release.sh shells tests/run-all-366.sh (suite gate)
 

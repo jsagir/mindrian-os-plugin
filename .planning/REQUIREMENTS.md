@@ -4246,7 +4246,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       stamp fields on `extraProps`; `fileStampedOpportunity` moves out of the runner into the
       planner (D-04). Plan 366-02.
 
-- [ ] **EPV366-13**: `/mos:eureka` is the quick-run alias on the perspective path (recall, Stage A,
+- [x] **EPV366-13**: `/mos:eureka` is the quick-run alias on the perspective path (recall, Stage A,
       plan, grant, run, prose, F.8 filing); `/mos:eureka --legacy <subcommand>` reaches the
       standalone runner with one deprecation line; MCP `intelligence eureka-run` honors
       `{"legacy":true}` and otherwise points at `research_run`; the "ZERO writes / ZERO network"
