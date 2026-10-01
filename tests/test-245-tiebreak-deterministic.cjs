@@ -36,7 +36,11 @@ const ranker = require(path.join(REPO_ROOT, 'lib', 'workflow', 'reach-hedge-rank
 const sensorTypes = require(path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-types.cjs'));
 const sensorPriority = require(path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-priority.cjs'));
 
+// Since 343-04 (d90c7a46f) SENS_PRIORITY holds frozen { id, optimizes,
+// watched_by, why } records, not bare id strings, so membership is read off the
+// derived SENS_PRIORITY_IDS (built once from SENS_PRIORITY, same doctrine order).
 const SENS_PRIORITY = sensorPriority.SENS_PRIORITY;
+const SENS_PRIORITY_IDS = sensorPriority.SENS_PRIORITY_IDS;
 
 let passed = 0;
 function check(name, fn) {
@@ -103,8 +107,10 @@ console.log('test-245-tiebreak-deterministic.cjs: SENS_PRIORITY resolves same-re
 // (0) PRECONDITIONS -- the fixture is a genuine collision with distinct ranks.
 // ---------------------------------------------------------------------------
 check('(0) preconditions: three DISTINCT SENS_PRIORITY members with three distinct ranks', () => {
+  assert.equal(SENS_PRIORITY_IDS.length, SENS_PRIORITY.length,
+    'FIXTURE DRIFT: SENS_PRIORITY_IDS no longer mirrors SENS_PRIORITY one-to-one');
   for (const id of COLLIDERS) {
-    assert.ok(SENS_PRIORITY.indexOf(id) !== -1,
+    assert.ok(SENS_PRIORITY_IDS.indexOf(id) !== -1,
       'FIXTURE DRIFT: ' + id + ' is no longer a SENS_PRIORITY member');
   }
   const ranks = COLLIDERS.map(sensorPriority.sensorPriorityRank);
