@@ -1,0 +1,79 @@
+{
+  "schema": "mos.365-falsification-record/1",
+  "base_sha": "2ec0e555a7118b32d6751484065741ebdef11951",
+  "records": [
+    {
+      "test": "missing_five",
+      "property": "claims covering items 1-4 and 6-7 of a continuous seven-item set: does any gap scan name item 5",
+      "predicted": "FALSIFIED",
+      "observed": "FALSIFIED",
+      "observed_detail": {
+        "missing_item": "friday",
+        "scans_naming_missing_item": {
+          "find_unsupported_claims": false,
+          "preflight_evidence_gaps": false,
+          "analyze_room": false
+        },
+        "gap_counts": {
+          "find_unsupported_claims": 6,
+          "preflight_evidence_gaps": 6,
+          "analyze_room_gap_lines": 3
+        },
+        "analyze_room_gap_lines": [
+          "GAP:STRUCTURAL:business-model:HIGH:Section is empty",
+          "GAP:STRUCTURAL:competitive-analysis:HIGH:Section is empty",
+          "GAP:STRUCTURAL:team-execution:HIGH:Section is empty"
+        ]
+      },
+      "writers_driven": [
+        "lib/core/navigation/insights.cjs findUnsupportedClaims",
+        "lib/core/navigation/research-preflight.cjs getResearchPreflight evidence_gaps",
+        "scripts/analyze-room Section 1 gap lines"
+      ],
+      "recorded_at": "2026-10-01T07:13:03.411Z"
+    },
+    {
+      "test": "contradiction_no_shared_wording",
+      "property": "two artifacts that contradict with no shared wording: do the lexical CONTRADICTS writers record it",
+      "predicted": "FALSIFIED",
+      "observed": "FALSIFIED",
+      "observed_detail": {
+        "real_pair": {
+          "analyze_room_contradict_lines": 0,
+          "analyze_room_contradicts_edge_lines": 0,
+          "backfill_candidates_via_pair": 0,
+          "backfill_candidates_via_room_scan": 0,
+          "contradicts_edges_written": 0
+        },
+        "positive_control_live": true,
+        "positive_control": {
+          "analyze_room_contradict_lines": 1,
+          "analyze_room_contradicts_edge_lines": 1,
+          "backfill_candidates_via_pair": 1,
+          "backfill_candidates_via_room_scan": 1,
+          "contradicts_edges_written": 1
+        },
+        "writers_not_driven": {
+          "needs_a_live_model": [
+            "graph-derivation LLM or score producer (graph-candidate-producer, graph-derive-classifier scoreBasedDeriveFn): the writer that COULD pass this property, untested here because it needs a live model or the local semantic encoder, and the spec forbids a model grading these properties"
+          ],
+          "record_a_contradiction_someone_already_named": [
+            "findings-wirer",
+            "reified-claim",
+            "unknowns/verdict",
+            "workflow reconcile and memory-cascade adapters",
+            "temporal supersession-gate",
+            "research-planner filing",
+            "typed-frame",
+            "close-loop-writer"
+          ]
+        }
+      },
+      "writers_driven": [
+        "scripts/analyze-room Sections 3 and 3b",
+        "lib/core/graph-backfill.cjs CUE_MAP via graph-derivation.runDerivation"
+      ],
+      "recorded_at": "2026-10-01T07:13:49.865Z"
+    }
+  ]
+}
