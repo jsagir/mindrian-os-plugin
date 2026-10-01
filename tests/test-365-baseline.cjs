@@ -184,7 +184,8 @@ function main() {
     }
   }
   check('5 every red-list signature was observed at base, has a healing plan, and none is unlisted',
-    redOk && sigCount === 6, 'signatures=' + sigCount + ' ' + redBad.join(' '));
+    // The list may only SHRINK as healing plans land (each drops what it heals); it never grows past the 6 seen at base.
+    redOk && sigCount <= 6, 'signatures=' + sigCount + ' ' + redBad.join(' '));
 
   // 6. no dash characters in either fixture.
   check('6 no U+2014 or U+2013 in either fixture',

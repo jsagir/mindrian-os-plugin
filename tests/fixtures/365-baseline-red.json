@@ -3,12 +3,6 @@
   "base_sha": "9ada13b799c616d178cb29bdfa60956d7c2fd18c",
   "legs": [
     {
-      "leg": "tests/test-365-acceptance-byte.cjs",
-      "signatures": [
-        { "id": "RED-365-BYTE", "healed_by_plan": "365-04" }
-      ]
-    },
-    {
       "leg": "tests/test-365-acceptance-byte-derived.cjs",
       "signatures": [
         { "id": "RED-365-BYTE-DERIVED", "healed_by_plan": "365.1" }
