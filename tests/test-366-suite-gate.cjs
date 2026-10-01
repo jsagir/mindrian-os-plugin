@@ -119,7 +119,7 @@ function main() {
   assert.strictEqual((lib.match(/\bexit /g) || []).length, 0, 'suite-gate.sh never terminates the caller shell');
   const snapLib = fs.readFileSync(SNAP_LIB, 'utf8');
   for (const [label, text] of [['suite-gate.sh', lib], ['canon-snapshot-gate.sh', snapLib]]) {
-    assert.ok(!/[–—]/.test(text), label + ' carries no em-dash or en-dash');
+    assert.ok(!new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']').test(text), label + ' carries no em-dash or en-dash');
   }
   ok('static: default list is tests/run-all-366.sh, no exit in the lib, hyphens only');
 
