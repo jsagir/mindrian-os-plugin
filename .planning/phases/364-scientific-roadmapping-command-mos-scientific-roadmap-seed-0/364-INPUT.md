@@ -60,3 +60,27 @@ alternative). The navigator picks the slug.
 - Slug: /mos:scientific-roadmap vs /mos:roadmap.
 - find-analogies as an optional NEXT_IN_RECIPE (in the draft).
 - Verify NR-3's Hypothesis-Driven Problem Solving edges against canon (the sr-v1 batch was unaudited; Theo 25 verifies).
+
+## Navigator ruling: where Scientific Roadmapping is rooted (2026-10-01)
+
+Navigator's words: "is related to innovation throw meanining, innovation throe needed solution
+statment criterea. if a problem has a shape and or a solution statemnt knows what there to be
+delivered not how, then a scintific process can begone to unlock the how"
+
+Reading: Scientific Roadmapping starts where the WHAT is known and the HOW is not. Its entry
+condition is a problem with a shape, or a solution statement that says what must be delivered
+(the needs or solution-criteria statement), and it runs the scientific process that unlocks how.
+
+Supreme-source grounding (PWS course text, PWS-Book/notes/notion-export/reference-library/
+ppt-lecture-notes-text-only-docx-converted-2024-05-14-01-59.md):
+- l.2254: "A needs statement can be used to formulate a well-defined problem, thus making the criteria for a successful solution clear"
+- l.2256: "Even if the solution is hard to devise and requires magical thinking"
+- l.2259: "Critical: any solution must be falsifiable"
+- l.4161-4162: "Being well-defined says nothing about the particular solution, which may be easy to come by or hard; think about radar and sonar ... Only what the solution needs to deliver"
+- l.4168: "For these well-defined problems, the solution criteria were clear from the start, but incredibly difficult to find"
+- Innovation of meaning (l.1815 "Give People a New Reason to Buy", the Ill-Defined meaning lens): a new meaning defines a new WHAT, which then hands Scientific Roadmapping its delivery criteria.
+
+Consequences for planning:
+- Primary rooting: Well-Defined, with the solution criteria known and the how unknown. A secondary bridge comes from Ill-Defined innovation of meaning, where meaning produces the what.
+- Entry check: the room has a needs or solution-criteria statement (what to deliver). If not, route back to define it first, never improvise the what.
+- This replaces the generic "enter from the room's problem-type classification" with a precise rung, and gives Theo Phase 25 a supreme-source citation for the type link.
