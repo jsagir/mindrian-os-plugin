@@ -12,7 +12,7 @@
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through accumulated academic teaching experience and pedagogical rigor.
   Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/version-2.0.0--beta.41-1E3A6E)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/version-2.0.0--beta.51-1E3A6E)](CHANGELOG.md)
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
@@ -92,6 +92,8 @@ Sometimes the graph does not have what you need yet, and that is not hidden from
 
 That is a feature, not an outage. A tool that quietly guesses when it does not know is worse than one that tells you and keeps a list. A keyless or unreachable session gets the same treatment: an honest refusal and a visible path forward, never an imitation of an answer it does not have.
 
+The room also looks for connections you did not ask about. When it changes in a way that matters (new claims, a contradiction, a new sub-room, a newly filed artifact), MindrianOS quietly runs its cross-connection search in the background and brings back at most one card, only when the finding holds up. Every finding says how sure it is: strong, indirect, or unverified, checked against the methodology graph rather than guessed from a similarity score.
+
 ---
 
 ## The three layers
@@ -118,7 +120,7 @@ The rule Theo lives inside is the one the whole project holds itself to: a gener
 
 Semantic search stays home too: e5 (multilingual-e5-large, 1024-dim), embedded locally on your machine, no network egress.
 
-Read more: what the Brain holds and its six tools ([`docs/THE-BRAIN.md`](docs/THE-BRAIN.md)), Desktop and Cowork connector setup ([`docs/install/BRAIN-SETUP.md`](docs/install/BRAIN-SETUP.md)), and the opaque per-install identifier ([`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md)).
+Read more: what the Brain holds and the six tools Larry calls on it ([`docs/THE-BRAIN.md`](docs/THE-BRAIN.md)), Desktop and Cowork connector setup ([`docs/install/BRAIN-SETUP.md`](docs/install/BRAIN-SETUP.md)), and the opaque per-install identifier ([`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md)).
 
 ---
 
@@ -155,7 +157,7 @@ Talk. That is the whole interface. Larry reaches for the right command on your b
 /mos:grade                # honest assessment against real ventures
 ```
 
-That is a slice of over a hundred commands across the skills, agents, and pipelines this plugin ships. If you do not know which one to run, that is the normal case. Just talk.
+That is a slice of the 113 commands this plugin ships, alongside 126 skills and 17 agents. If you do not know which one to run, that is the normal case. Just talk.
 
 ---
 
