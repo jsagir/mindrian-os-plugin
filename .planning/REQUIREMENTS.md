@@ -3944,9 +3944,116 @@ closed with measured proof, or left open with a stated reason, at phase close by
       the deep run, zero Theo calls), `node tests/test-363-families.cjs`, `node
       tests/test-363-structure.cjs` D5, exit 0 in `bash tests/run-all-363.sh`.
 
+### Phase 365 - Verification rung earned not asserted (V365 family)
+
+V365-01..18 were minted in the Phase 365 plan set (2026-10-01), ratifying `365-RESEARCH.md`'s
+proposed V365-01..18 as amended by the locked decisions D-01..D-25 in `365-CONTEXT.md`; all
+eighteen are registered here at plan time as `- [ ]` rows to be closed with measured proof, or
+left open with a stated reason, at phase close by `365-16-PLAN.md` Task 2. `365-CONTEXT.md` is
+the scope contract; the ladder-blocked work (derived rung, person node, B4, record migration) is
+Phase 365.1, not this family.
+
+- [ ] **V365-01**: Baseline first: the acceptance tests (byte, one-week, floor) and the automatable
+      falsification tests (remove the destination, the missing five, contradiction without shared
+      wording) are written and run at the phase base before any `lib/` edit; the base sha, each red
+      leg's `RED-365-*` signature and the falsification outcomes are recorded in
+      `tests/fixtures/365-pre-phase.json`, `365-baseline-red.json` and
+      `365-falsification-record.json`; the two-navigators test is recorded as a manual protocol in
+      `365-BASELINE.md`; `tests/run-all-365.sh` is written once, and a listed red that turns green
+      or changes signature fails the run. Plans 365-01, 365-02, 365-03.
+- [ ] **V365-02**: Byte test, structural half (D-03, D-24): identical-text claims, one with an
+      outbound provenance edge (SOURCED_FROM; CONTRADICTS and other non-provenance edges never
+      count) to a node carrying a non-empty `url` and `retrieved_at`, one checked only by asking a
+      model, differ in a computed, filterable `standing` field (`listClaimsForChecking` rows and its
+      `standing` filter), never a caller-declared rung; the derived-rung half stays red and is
+      handed to Phase 365.1. Plans 365-02, 365-04.
+- [ ] **V365-03**: One-week test (D-01, D-04, D-16): a model-checked claim approved at the default
+      floor never reaches `confirmed`; a fresh process asking the room through `claim_read` gets
+      back what it was checked against and its standing in words. Plans 365-02, 365-08, 365-15.
+- [ ] **V365-04**: Floor test (D-04, D-05): with `verification_floor` set in ROOM.md a below-floor
+      approve lands `needs_evidence`; the why-line and the relabelled approve option ("Approve,
+      mark as needs evidence") show before the answer on the elicitation, AskUserQuestion and
+      headless-text rungs and on the meeting file-meeting card; there is no "confirm anyway"
+      option. Plans 365-02, 365-06, 365-08.
+- [ ] **V365-05**: Floor configuration (D-01, D-02, D-22): optional ROOM.md key
+      `verification_floor` holding a draft ladder id, never a number; a frontmatter-only head-read
+      of the room-root ROOM.md; an absent key or file means the default floor
+      `secondary_document`, applied by the reader and never written (no migration); provisional
+      aliases map to draft ids; an unknown value falls back to the default and is reported.
+      Plan 365-04.
+- [ ] **V365-06**: Floor enforcement for claim subjects only (D-06, D-20, D-21, D-22): in
+      `gate.cjs` `_promoteCardSubject` a below-floor approve moves `proposed -> needs_evidence`
+      through a `holdForEvidence` sibling; a held claim re-approved at or above the floor, or after
+      the floor is lowered, moves `needs_evidence -> confirmed` through the one additive
+      transition; `primary_source_located` requires a `locator` on the source node and `person`
+      always holds; confirmNode's body is byte-unchanged; opportunity subjects behave exactly as
+      before; the four suites that pinned approve-to-confirmed are updated with written reasons.
+      Plans 365-05, 365-08.
+- [ ] **V365-07**: One why-line (D-05, D-24): one shared composer called by both claim-subject card
+      builders (the gate_render handler and meeting file-meeting), carried in the additive
+      normalized card field `notice`, printed by all three renderer rungs; the decision node text
+      is unchanged; `gate-render.cjs` opens no database. Plans 365-04, 365-06, 365-08.
+- [ ] **V365-08**: Floor audit (D-07): every approve on a claim subject writes one
+      `approval_floor_checked` memory_event through `navigation.cjs` with the floor id, floor
+      source, standing, floor met, landed and prior status and declared max rung, enums and
+      scalars only. Plans 365-04, 365-08.
+- [ ] **V365-09**: Never-do reader and matcher (D-09, D-11, D-13): `lib/core/room-constraints.cjs`
+      reads `.mindrian/never-do.json` (schema `mos.room-constraints/1`) fresh on every run, never
+      cached; a closed `kind` enum {command, section, path, provider, term}; exact or whole-segment
+      path-prefix match over declared step fields only; `why` is never matched; a missing file is
+      an empty list; a malformed file halts every unattended step. Plan 365-07.
+- [ ] **V365-10**: Approval-gated writes (D-10): the writer refuses without `approved_via
+      {surface, decision_node_id}` and never overwrites an unreadable file; the production writers
+      are a proposal-gate resumeFn after gate_answer minted its decision node (MCP) and a CLI door
+      that mints its own decision node after the navigator's yes. Plans 365-07, 365-13, 365-14.
+- [ ] **V365-11**: chain_run enforcement (D-11, D-12, D-15): the check sits in `makeGateFn` right
+      after `isIrreversibleStep` (which stays first) and only adds halts; `runChain`,
+      `_runChainResilient` and `explore-chain.cjs` pass `roomDir`; the halt carries reason
+      `constraint_named` or `constraints_malformed` and the matched entry; the Shape F halt card
+      shows the entry's `why` and the sentence that the list catches only what has been named; one
+      line is appended to `.mindrian/constraint-trips.jsonl`. Plan 365-09.
+- [ ] **V365-12**: Ambient enforcement (D-12, D-13): the check runs after the plan is built and
+      before the grant cover check, `grants.recordRun` and any fetch; new outcome
+      `halted_constraint`; a trip line; a pending card that the next research touchpoint renders as
+      a Shape F gate through the gate-render ladder and the gate ledger (D-26; the ledger is
+      in-process only, so the detached child just queues it); zero network requests on a match or
+      a malformed file. Plans 365-10, 365-13, 365-14.
+- [ ] **V365-13**: Growth (D-14): every unattended halt carries a pre-filled never-do proposal
+      built from the step's declared fields; a Reject on a material-step card, a surfaced ambient
+      plan-only card and a halted_constraint card (D-26) each offer "Reject and never do this" as
+      one follow-up gate; nothing lands until that gate is approved. Plans 365-09, 365-10, 365-13,
+      365-14.
+- [ ] **V365-14**: Pulled portrait (D-15, D-16): `/mos:status --checks` (CLI) and `claim_read`
+      (Desktop, Cowork) print standing rows in words, each naming what would move it, plus the
+      never-do line saying the list catches only what has been named; no scores, percents, ratios,
+      badges or colors; the closing line "A count is not a verdict. Only a person confirms a
+      claim." stays last. Plan 365-15.
+- [ ] **V365-15**: Two Zone 3 signals (D-17, D-18, D-23): a decision resting on a model-only
+      claim, and checks stalled for N weeks while at least one claim still sits at asking a model
+      or not checked (never when every claim is sourced), each carrying the move that closes it,
+      at medium confidence; one `verification_distribution_snapshot` memory_event per ISO week in
+      room.db; the stall signal is suppressed below 2 snapshots; N = 4 is recorded as a disclosed
+      row in `data/floor-ledger.json`. Plan 365-11.
+- [ ] **V365-16**: B5 (D-19): one shared provisional words map (`STANDING_WORDS`) in
+      `verification.cjs`; every enumerated per-claim renderer (claim view and list, gate card, room
+      home facts plus held claims, graph export claim rows and the presentation graph's node detail
+      panel, unsupported-claim findings, research preflight evidence gaps) names the standing from
+      it; the label strings appear in no other source file. Plans 365-04, 365-08, 365-12, 365-15.
+- [ ] **V365-17**: Ladder fence (D-25): `data/verification-ladder.json` (`ratified: false`) plus
+      `tests/test-365-ladder-fence.cjs` fail if the derived rung, a person node, the B4 split or
+      the record migration lands while unratified; the ladder-blocked work is opened as Phase 365.1
+      with the ratification ask recorded as its blocker. Plans 365-01, 365-16, 365-17.
+- [ ] **V365-18**: Guardrails: the Part 8 source sweep over every new file, the dash fence,
+      `build-connector-registry --check`, `check-shape-declaration`, `check-floor-ledger --check`,
+      `check-render-coverage`, `check-tool-honesty --check`, the tool schema budget and
+      description tests, and run-all-354/355/356/358/363 no redder than at the phase base; any
+      change to the input schema or description of the five Theo-mirrored tools (gate_render,
+      gate_answer, chain_run, graph_write, room_bind) is named in its plan and carried to the
+      close follow-ons as a Theo schema-parity sync item. Plans 365-01, 365-16.
+
 ## Traceability
 
-418 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+436 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -3958,7 +4065,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
 plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
-plus DRP363-01..20 (Phase 363).
+plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18
@@ -4064,11 +4171,15 @@ proposed DRP363-01..17 as amended by D-00..D-19 in `363-CONTEXT.md`, plus DRP363
 DRP363-19 (D-18) and DRP363-20 (D-19) minted at plan time; all twenty are registered here at plan time as `- [ ]`
 rows to be closed with measured proof, or left open with a stated reason, at phase close by
 `363-22-PLAN.md` Task 1.
-Roadmap phases must map all 418 active requirements with no orphans.
+V365-01..18 were minted in the Phase 365 plan set (2026-10-01), ratifying `365-RESEARCH.md`'s
+proposed V365-01..18 as amended by D-01..D-25 in `365-CONTEXT.md`; all eighteen are registered here
+at plan time as `- [ ]` rows to be closed with measured proof, or left open with a stated reason,
+at phase close by `365-16-PLAN.md` Task 2.
+Roadmap phases must map all 436 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
 FLIP, CANON, SHARED, STRAT, ARB, SUPER, NOTIFY, RULE, SYS, THEO, GATE357, FORK359, BIND360, DDR361,
-HIPS, AMB, CARD362 and DRP363
+HIPS, AMB, CARD362, DRP363 and V365
 families
 alike (the
 Phase 266 and 269
