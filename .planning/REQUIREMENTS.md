@@ -4257,12 +4257,12 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       judge, no Theo stamp, no fetch and no filing; the title-only scorer retires; the other
       producers still file through the relocated filer (D-03). Plan 366-07.
 
-- [ ] **EPV366-15**: Canon handle resolution has one resolver: `verification-stamp.resolveEndpoint`
+- [x] **EPV366-15**: Canon handle resolution has one resolver: `verification-stamp.resolveEndpoint`
       (framework, then methodology through the command registry, then title, then ratified
       translations, exact match only) used by `artifact_file`, the indexer, the recall substrate
       and the backfill; a miss stays null and is counted (D-10, D-14). Plans 366-05, 366-08, 366-09.
 
-- [ ] **EPV366-16**: A local `framework` node (`FRAMEWORK_NODE_ID`) is minted before every
+- [x] **EPV366-16**: A local `framework` node (`FRAMEWORK_NODE_ID`) is minted before every
       `USES_FRAMEWORK` edge in the same transaction, through `insertNode` and
       `navigation.writeEdge`; `things.jsonl` `canon_handle` mirrors the edge (D-11). Plans 366-05,
       366-08, 366-09.
@@ -4280,7 +4280,7 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       the navigator confirms; a miss stays null and is counted; no call happens without the yes
       (D-13, D-15). Plan 366-11.
 
-- [ ] **EPV366-19**: `<room>/references/canon-translations.md` format (YAML rows `{term,
+- [x] **EPV366-19**: `<room>/references/canon-translations.md` format (YAML rows `{term,
       canon_name, ratified_at}`, `ratified_at: null` while proposed), a parser with path
       containment, a writer for proposed and ratified rows, read by the resolver after the exact
       checks (D-14). Plans 366-05, 366-11.
