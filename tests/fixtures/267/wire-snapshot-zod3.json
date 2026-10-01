@@ -757,7 +757,7 @@
             "subject_node_id": {
               "type": "string",
               "minLength": 1,
-              "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer promotes that claim to confirmed through navigation.confirmNode; evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content."
+              "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer confirms that claim through navigation.confirmNode when the room's verification floor is met, and otherwise files it as needs_evidence; the card says which before the click. Evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content."
             },
             "evidence_node_ids": {
               "type": "array",
