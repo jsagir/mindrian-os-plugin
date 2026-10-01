@@ -178,12 +178,13 @@ function main() {
       if (observed.indexOf(s.id) === -1) { redOk = false; redBad.push('not-observed:' + leg.leg + ':' + s.id); }
       if (!healRe.test(String(s.healed_by_plan))) { redOk = false; redBad.push('bad-healer:' + s.id); }
     }
-    // The converse: no observed signature is left out of the list.
-    for (const o of observed) {
-      if (!(leg.signatures || []).some((s) => s.id === o)) { redOk = false; redBad.push('unlisted:' + leg.leg + ':' + o); }
-    }
+    // Plan 365-08: the converse (no observed signature left out of a listed leg)
+    // is gone because a healing plan may drop ONE signature from a leg that still
+    // carries another (the one-week leg keeps RED-365-ONEWEEK-STANDING after its
+    // status half heals). A signature that is red but unlisted is still caught,
+    // louder, by tests/run-all-365.sh (unlisted red -> FAILED).
   }
-  check('5 every red-list signature was observed at base, has a healing plan, and none is unlisted',
+  check('5 every red-list signature was observed at base and has a healing plan (the list only shrinks)',
     // The list may only SHRINK as healing plans land (each drops what it heals); it never grows past the 6 seen at base.
     redOk && sigCount <= 6, 'signatures=' + sigCount + ' ' + redBad.join(' '));
 

@@ -375,6 +375,16 @@ async function runK3() {
       assert.ok(filed2.claimId, 'no claim id in: ' + filed2.text.slice(0, 200));
     });
     if (filed2.gateId && filed2.claimId) {
+      // Phase 365 (D-01, D-03): the verification floor is on by default; this check is about session-keyed ratification, so the claim gets a source edge that meets the floor first (a bare claim would land needs_evidence).
+      {
+        const sdb = openRoomDb(scratch.room);
+        try {
+          require(path.join(__dirname, 'helpers', 'fixture-room-365.cjs')).addSourceEdge(
+            sdb, filed2.claimId, { url: 'https://example.org/354-k3', retrieved_at: '2026-09-30', variant: 'k3' });
+        } finally {
+          closeRoomDb(sdb);
+        }
+      }
       const answered2 = await answerGate(S1, filed2.gateId, 'approve');
       await checkThat('K3: the correct session (S1) approving its OWN fresh gate confirms the exact claim', () => {
         assert.strictEqual(answered2.json && answered2.json.ok, true, JSON.stringify(answered2.json));

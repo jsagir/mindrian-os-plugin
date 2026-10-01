@@ -11,15 +11,7 @@
     {
       "leg": "tests/test-365-acceptance-one-week.cjs",
       "signatures": [
-        { "id": "RED-365-ONEWEEK-STATUS", "healed_by_plan": "365-08" },
         { "id": "RED-365-ONEWEEK-STANDING", "healed_by_plan": "365-15" }
-      ]
-    },
-    {
-      "leg": "tests/test-365-acceptance-floor.cjs",
-      "signatures": [
-        { "id": "RED-365-FLOOR", "healed_by_plan": "365-08" },
-        { "id": "RED-365-FLOOR-NOTICE", "healed_by_plan": "365-08" }
       ]
     }
   ]

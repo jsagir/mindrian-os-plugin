@@ -94,6 +94,22 @@ function readNode(roomDir, nodeId) {
   }
 }
 
+// Phase 365 (D-01, D-03): the verification floor is on by default, so a bare
+// claim now lands needs_evidence on an approve (see test-365-floor-gate). The
+// cases below that pin "approve promotes the exact subject claim to confirmed"
+// are about the promotion door itself, so each seeds its subject claim with a
+// source edge (url + retrieved_at) that meets the default floor. No fixture
+// lowers the floor.
+function seedSourceEdge(roomDir, claimId, variant) {
+  const sdb = openRoomDb(roomDir);
+  try {
+    require(path.join(REPO_ROOT, 'tests', 'helpers', 'fixture-room-365.cjs')).addSourceEdge(
+      sdb, claimId, { url: 'https://example.org/354-' + variant, retrieved_at: '2026-09-30', variant: variant });
+  } finally {
+    closeRoomDb(sdb);
+  }
+}
+
 function extractGateId(text) {
   const m = /gate_id[:*"\s]+\**\s*([A-Za-z0-9._-]+)/.exec(text);
   return m ? m[1] : null;
@@ -134,6 +150,8 @@ async function caseApprove() {
     check('file-meeting returned a claim node id', !!filed.claimId, filed.text.slice(0, 300));
     if (!filed.gateId || !filed.claimId) return;
 
+    // Phase 365 (D-01, D-03): the verification floor is on by default; this case is about the promotion door, so the claim gets a source edge that meets the floor (see seedSourceEdge).
+    seedSourceEdge(scratch.room, filed.claimId, 'gsp-a');
     const answered = await answerGate(handlers, extra, filed.gateId, 'approve');
     check('gate_answer response is ok', !!answered.json && answered.json.ok === true,
       JSON.stringify(answered.json));
@@ -201,6 +219,9 @@ async function caseEvidenceNeverPromoted() {
     check('first file-meeting returned a claim node id', !!first.claimId, first.text.slice(0, 300));
     check('second file-meeting returned a claim node id', !!second.claimId, second.text.slice(0, 300));
     if (!first.claimId || !second.claimId) return;
+
+    // Phase 365 (D-01, D-03): the verification floor is on by default; the SUBJECT (second) gets its own source edge to meet it. The card's evidence_node_ids (first) stay a decoy on purpose: card evidence never satisfies the floor, only the subject's own outbound edge does.
+    seedSourceEdge(scratch.room, second.claimId, 'gsp-d');
 
     const renderRaw = await handlers.get('gate_render')(
       {
