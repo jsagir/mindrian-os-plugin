@@ -51,6 +51,7 @@ const planner = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'plan
 const roomConstraints = require(path.join(ROOT, 'lib', 'core', 'room-constraints.cjs'));
 const AMBIENT_FILE = path.join(ROOT, 'lib', 'core', 'research-planner', 'ambient.cjs');
 const AMBIENT = require(AMBIENT_FILE);
+const quickMod = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'quick.cjs'));
 
 const NOW = Date.parse('2026-09-30T10:00:00Z');
 const BIG_BUDGET = 4 * 60 * 1000;
@@ -329,6 +330,76 @@ async function main() {
       a.outcome === 'ran' && spy1.calls >= 1 && b.outcome === 'plan_card_no_grant' && spy2.calls === 0
       && c.outcome === 'ran' && readTrips(withGrant).length === 0 && readTrips(other).length === 0,
       JSON.stringify([a.outcome, b.outcome, c.outcome]));
+  }
+
+  // ---- A9 / A9b / A10 / A11 (D-14, D-26: every halt carries a proposal) --------
+  {
+    const wantProposal = { kind: 'term', value: GAP_TERM_363 };
+
+    // A9: a plan-only card (no grant)
+    const room = newRoom();
+    const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(spyFetch()));
+    const card = readCard(room, out.run_id);
+    const pr = card && card.payload && card.payload.never_do_proposal;
+    const altKinds = pr && Array.isArray(pr.alternatives) ? pr.alternatives.map(function (a) { return a.kind; }) : null;
+    check('A9 a no-grant plan-only card carries never_do_proposal: kind term, the zone term, at most 2 alternatives from other fields',
+      out.outcome === 'plan_card_no_grant' && !!pr && pr.kind === wantProposal.kind && pr.value === wantProposal.value
+      && typeof pr.why === 'string' && pr.why.length > 0 && !!altKinds && altKinds.length <= 2
+      && altKinds.every(function (k) { return ['section', 'provider', 'command'].indexOf(k) !== -1; })
+      && altKinds.indexOf('section') !== -1,
+      JSON.stringify(pr));
+
+    // A9b: the halted_constraint card carries it too
+    const hcard = readCard(haltRoom, haltOut.run_id);
+    const hp = hcard && hcard.payload && hcard.payload.never_do_proposal;
+    check('A9b the halted_constraint card.json also carries a never_do_proposal built from the same fields',
+      !!hp && hp.kind === 'term' && hp.value === GAP_TERM_363 && Array.isArray(hp.alternatives)
+      && hp.alternatives.length <= 2, JSON.stringify(hp));
+
+    // A10: the re-ask call site (runQuick returns reask after a covering cover check)
+    const room10 = fetchingRoom();
+    const origRun = quickMod.runQuick;
+    const reaskProposal = grants.buildStandingProposal(room10.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [] }] });
+    let reaskOut = null;
+    let runCalls = 0;
+    quickMod.runQuick = async function () {
+      runCalls += 1;
+      return {
+        status: 'reask',
+        reason: 'new_term',
+        card: grants.grantCard(reaskProposal, { newTerms: [GAP_TERM_363] }),
+        proposal: reaskProposal,
+        new_terms: [GAP_TERM_363],
+      };
+    };
+    try {
+      reaskOut = await AMBIENT.maybeQuick(room10.roomDir, compWithWhitespace(), optsFor(spyFetch()));
+    } finally {
+      quickMod.runQuick = origRun;
+    }
+    const rcard = reaskOut && reaskOut.run_id ? readCard(room10, reaskOut.run_id) : null;
+    const rp = rcard && rcard.payload && rcard.payload.never_do_proposal;
+    check('A10 a re-ask plan-only card (runQuick reask) carries the same proposal',
+      runCalls === 1 && !!reaskOut && reaskOut.outcome === 'plan_card_reask' && !!rp
+      && rp.kind === 'term' && rp.value === GAP_TERM_363 && rcard.payload.reask_reason === 'new_term'
+      && rcard.payload.plan_only === true && rcard.payload.ambient === true,
+      JSON.stringify({ o: reaskOut, rp: rp }));
+
+    // A11: every other payload key and proposal.json are unchanged
+    const without = Object.assign({}, card.payload);
+    delete without.never_do_proposal;
+    const expectKeys = ['ambient', 'grant_lifetime', 'new_terms', 'plan_only', 'policy_version', 'reask_reason', 'run_id'];
+    const planDir = path.join(room.roomDir, '.mindrian', 'research-runs', out.run_id);
+    let propJson = null;
+    try { propJson = JSON.parse(fs.readFileSync(path.join(planDir, 'proposal.json'), 'utf8')); } catch (_e) { propJson = null; }
+    const baseCard = grants.grantCard(grants.buildStandingProposal(room.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [] }] }), { newTerms: [GAP_TERM_363] });
+    check('A11 plan-only payload keys (ambient, plan_only, run_id, reask_reason, grant fields) and proposal.json are unchanged',
+      JSON.stringify(Object.keys(without).sort()) === JSON.stringify(expectKeys)
+      && without.ambient === true && without.plan_only === true && without.run_id === out.run_id
+      && without.reask_reason === 'no_grant' && without.grant_lifetime === 'standing'
+      && Object.keys(card).filter(function (k) { return k !== 'payload'; }).sort().join() === Object.keys(baseCard).filter(function (k) { return k !== 'payload'; }).sort().join()
+      && !!propJson && Object.keys(propJson).sort().join() === 'new_terms,proposal',
+      JSON.stringify({ keys: Object.keys(without).sort(), prop: propJson && Object.keys(propJson) }));
   }
 
   // ---- source order (T-365-07): the check sits before coverFor and recordRun --
