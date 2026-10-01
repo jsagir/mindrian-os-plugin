@@ -18,7 +18,13 @@ hitl_stages:
   - stage: "filing"
     shapes: ["F.8"]
     mode: "parallel"
-hitl_why: "Deep research plans are reviewed and edited on an F.6 card before any fetch and extended only on an F.3 card, quick research runs fetch only under an F.0 grant, and findings file as an any-order F.8 basket."
+  - stage: "constraint halt"
+    shapes: ["F.1"]
+    mode: "gate"
+  - stage: "never-do offer"
+    shapes: ["F.1"]
+    mode: "gate"
+hitl_why: "Deep research plans are reviewed and edited on an F.6 card before any fetch and extended only on an F.3 card, quick research runs fetch only under an F.0 grant, and findings file as an any-order F.8 basket; a room-started run the never-do list stopped is shown on an F.1 card at the next touchpoint, and a declined room-started run can be added to the room's never-do list only on an F.1 approval."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 10, navigator-ruled): first delivery at commands/research.md:256, the top-5 web findings framed and percent match-scored against the room's own existing claim graph.
 interactive_first_reward: methodology_reframe
 argument-hint: "[topic | url]"
@@ -383,6 +389,16 @@ node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 Each entry is `{run_id, kind, queued_at, card}` and is marked surfaced when the script returns it. Show each card once. A `kind` of `evidence` is a finished quick research run: show its evidence card and continue at filing. A `kind` of `plan_card_no_grant` is an F.0 grant card for a run the room planned but could not fetch (the card's `payload.reask_reason` says why, and the run's `proposal.json` sits next to its `plan.json`): fire it as the grant card in the next part, approving with the sibling `proposal.json`. When the navigator did not ask for anything else and no card is pending, ask what to research or which command's question set to run.
 
+A `kind` of `halted_constraint` means the room's never-do list named what a room-started run was about to do. The run stopped before any request, so nothing ran and nothing left this machine. Fire it as a gate card at this touchpoint: in Claude Code, call `gate_render` with the card's `header`, `kind` and three `options` exactly as the card gives them (the header already carries the entry, its reason and the line that the list catches only what has been named), then answer with `gate_answer`. On Desktop and Cowork the `research_run` pending op already returns it rendered as the entry's `gate`: show that card and answer it with `gate_answer`. On "Run it now, attended", run it through the quick research run below; the navigator's yes is the sanction, because the list governs unattended steps only. On "Leave it stopped", offer "Reject and never do this" as described next (on Desktop and Cowork the reject answer already returns it as `never_do_gate`). A card whose header says the list could not be read means every room-started run stops until `.mindrian/never-do.json` is fixed: say that, and name the file.
+
+When the navigator declines a plan-only card (`plan_card_no_grant`) or a `halted_constraint` card and `card.payload.never_do_proposal` is set, make the never-do offer once. In Claude Code, fire it with AskUserQuestion, with the options exactly "Reject and never do this", "Just reject this time" and "Decide later". Show the proposal's kind, value and reason, and say that the list catches only what has been named; it is a floor, not a guarantee. On the first option, Write the proposal's `{kind, value, why}` to a scratch JSON file outside the room and run:
+
+```
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" never-do add <entry.json> --room <room dir> --approved-via cli
+```
+
+The script records the decision and then writes the entry; without `--approved-via cli` it refuses. `never-do list --room <room dir>` shows what is on the list. On Desktop and Cowork the `research_run` pending op returns the same offer as `never_do_gate`: show its card and answer it with `gate_answer`. Nothing is added to the list without that yes.
+
 ### Run a quick research run
 
 A quick research run is a bounded pass: at most three searches, one source, no lanes. Get a run id first. When a command handed you one, use it. A run id whose `plan.json` already exists is fine too (the research_run tool saves the plan for a deep run in the same place). Otherwise build the plan from the question set the command wrote:
@@ -531,7 +547,7 @@ Then `plan <question-set.json> --room <room dir> --mode deep` and continue at th
 | Surface | What runs |
 |---------|-----------|
 | **Claude Code CLI** | Every stage: the plan, the F.0, F.6, F.3 and F.8 cards, quick and deep research runs, and the lane analysts through the Agent tool. |
-| **Claude Desktop** | The `research_run` MCP tool plans, asks for a grant, runs quick research runs, reviews a deep plan, files findings and lists pending cards through the same engine; each approval is a gate answered with `gate_answer`. Deep research runs execute in Claude Code: Desktop saves the reviewed plan and says so. |
+| **Claude Desktop** | The `research_run` MCP tool plans, asks for a grant, runs quick research runs, reviews a deep plan, files findings and lists pending cards through the same engine; each approval is a gate answered with `gate_answer`. A constraint halt comes back as an already rendered `gate`, and its Reject can return `never_do_gate`. Deep research runs execute in Claude Code: Desktop saves the reviewed plan and says so. |
 | **Cowork** | The same `research_run` tool over the shared room; everyone sees the same pending cards and the same audit ledger. Deep research runs execute in Claude Code. |
 
 An approval given through the tool lives in memory for about 30 minutes; after an MCP server restart, ask again. Nothing about a plan-run depends on a surface-specific code path.
