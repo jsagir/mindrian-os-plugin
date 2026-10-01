@@ -134,8 +134,10 @@ run_known "363: existing run-all-164 (red at PLAN_BASE: canon-version assertion,
 run_known "363: existing run-all-3551 (red at PLAN_BASE, outside 363)" \
   "Phase 355.1: PASS=63 FAIL=5 SKIP=0" \
   bash tests/run-all-3551.sh
-run_known "363: existing run-all-361 (its 3 known reds, outside 363)" \
-  "PASSED=26 FAILED=3 SKIPPED=0" \
+# 366-04: one of the three known reds healed before plan 04 (not by it); the two
+# left are the part8-egress-guard self-test and 209 declared-implies-wired.
+run_known "363: existing run-all-361 (its 2 known reds, outside 363)" \
+  "PASSED=27 FAILED=2 SKIPPED=0" \
   bash tests/run-all-361.sh
 run "363: existing 221 envelopes"                  node tests/test-221-envelopes.cjs
 run "363: existing 270 tool schema budget"         node tests/test-270-tool-schema-budget.cjs
