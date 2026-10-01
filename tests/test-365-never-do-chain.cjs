@@ -259,7 +259,150 @@ function mkSteps(cmds) {
     }
   }
 
-  // <!-- task-2-tests -->
+  // ======================= Task 2: the card and the proposal ===================
+  const chainTool = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tools', 'chain.cjs'));
+  const FLOOR = rc.FLOOR_SENTENCE;
+  const bodyOf = (run) => String(run.gate && run.gate.rendered && run.gate.rendered.zones && run.gate.rendered.zones.body);
+
+  // ---- K1 constraint halt through chain_run -----------------------------------
+  {
+    const r = room();
+    putFile(r, [entry('command', safeCmds[0], 'Nothing leaves this room unreviewed.')]);
+    const ran = [];
+    const run = await chainTool.chainRun(mkSteps([safeCmds[0]]), {
+      roomDir: r, onStep: async (s) => { ran.push(s.command); return { chain_output: {}, quality: 'high' }; }, runId: 'run-365-k1',
+    });
+    check('K1 the chain halts and nothing ran', run.ok === true && run.halted === true && ran.length === 0);
+    check('K1 halted_at.reason is constraint_named with kind and value only',
+      run.halted_at.reason === 'constraint_named' && run.halted_at.constraint.kind === 'command'
+      && run.halted_at.constraint.value === safeCmds[0] && run.halted_at.constraint.why === undefined);
+    const body = bodyOf(run);
+    check('K1 the card says the list names this step', body.includes("This room's never-do list names this step"));
+    check('K1 the card shows the entry why', body.includes('Nothing leaves this room unreviewed.'));
+    check('K1 the card carries the floor sentence', body.includes(FLOOR));
+    const contract = run.gate.rendered.contract;
+    check('K1 the card has exactly the three options approve, reject, defer',
+      JSON.stringify(contract.options) === JSON.stringify(['approve', 'reject', 'defer']));
+    check('K1 a constraint halt carries no proposal (already listed)', run.never_do_proposal === undefined);
+
+    // a long why still leaves the floor sentence whole inside the 400 character notice
+    const r2 = room();
+    putFile(r2, [entry('command', safeCmds[0], 'w'.repeat(300))]);
+    const long = await chainTool.chainRun(mkSteps([safeCmds[0]]), { roomDir: r2, onStep: stubOnStep });
+    check('K1 a 300 character why still ends with the whole floor sentence',
+      bodyOf(long).includes(FLOOR) && long.gate.rendered.contract.notice.length <= 400);
+  }
+
+  // ---- K2 malformed -------------------------------------------------------------
+  {
+    const r = room();
+    putFile(r, null, '{ broken');
+    const run = await chainTool.chainRun(mkSteps([safeCmds[0]]), { roomDir: r, onStep: stubOnStep });
+    const body = bodyOf(run);
+    check('K2 a malformed list halts with constraints_malformed', run.halted === true && run.halted_at.reason === 'constraints_malformed');
+    check('K2 the notice says the list could not be read and names the file as the fix',
+      body.includes('could not be read') && body.includes('.mindrian/never-do.json'));
+    check('K2 the notice carries the floor sentence', body.includes(FLOOR));
+    check('K2 no constraint object and no proposal on a malformed halt', !run.halted_at.constraint && run.never_do_proposal === undefined);
+  }
+
+  // ---- K3 approve runs the step attended; the entry stays ------------------------
+  {
+    const r = room();
+    putFile(r, [entry('command', safeCmds[1], 'Needs a human look.')]);
+    const ran = [];
+    const run = await chainTool.chainRun(mkSteps([safeCmds[0], safeCmds[1]]), {
+      roomDir: r, onStep: async (s) => { ran.push(s.command); return { chain_output: {}, quality: 'high' }; },
+    });
+    check('K3 FIXTURE: the first step ran, the named one halted', ran.length === 1 && run.halted === true && run.halted_at.step.command === safeCmds[1]);
+    const res = await chainTool.chainRun(null, { gateAnswer: { gate_id: run.gate.gate_id, chosen: ['approve'], verdict: 'approve' } });
+    check('K3 approve executes the halted step attended', res.executed === true && ran.length === 2 && ran[1] === safeCmds[1]);
+    const after = rc.readNeverDo(r);
+    check('K3 the entry stays on the list after the approval', after.ok === true && after.entries.length === 1 && after.entries[0].value === safeCmds[1]);
+  }
+
+  // ---- K4 an ordinary halt carries a pre-filled proposal -------------------------
+  {
+    const r = room();
+    const run = await chainTool.chainRun(mkSteps([materialCmd]), { roomDir: r, onStep: stubOnStep, targetSection: 'market-analysis' });
+    const p = run.never_do_proposal;
+    check('K4 an ordinary material halt keeps the gate_halt reason', run.halted === true && run.halted_at.reason === 'gate_halt');
+    check('K4 it carries a never_do_proposal {kind, value, why, alternatives}',
+      p && typeof p.kind === 'string' && typeof p.value === 'string' && typeof p.why === 'string' && Array.isArray(p.alternatives), JSON.stringify(p));
+    check('K4 the proposal is pre-filled from the declared fields (command, section)',
+      p && ((p.kind === 'section' && p.value === 'market-analysis') || (p.kind === 'command' && p.value === materialCmd)));
+    check('K4 the ordinary halt card carries no notice', !run.gate.rendered.contract.notice);
+    check('K4 a proposal is a proposal only: nothing was written', !fs.existsSync(path.join(r, '.mindrian', 'never-do.json')));
+  }
+
+  // ---- K5 chain_run registration is unchanged ----------------------------------
+  {
+    const { execFileSync } = require('node:child_process');
+    const Module = require('node:module');
+    const PLAN_BASE = 'ac137411efe083ba7677d209bc10bfece8579904';
+    const file = path.join(REPO_ROOT, 'lib', 'mcp', 'tools', 'chain.cjs');
+    let baseSrc = null;
+    try {
+      baseSrc = execFileSync('git', ['show', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+    } catch (_e) { baseSrc = null; }
+    if (baseSrc === null) {
+      process.stdout.write('  SKIP - K5 PLAN_BASE object not available (shallow clone)\n');
+    } else {
+      const loadBase = () => {
+        const m = new Module(file, module);
+        m.filename = file;
+        m.paths = Module._nodeModulePaths(path.dirname(file));
+        m._compile(baseSrc, file);
+        return m.exports;
+      };
+      const shape = (z) => {
+        if (!z || !z._def) return String(z);
+        const d = z._def;
+        const o = { t: d.typeName, desc: z.description || null };
+        if (d.typeName === 'ZodObject') {
+          const sh = typeof d.shape === 'function' ? d.shape() : d.shape;
+          o.f = Object.keys(sh).sort().map((k) => [k, shape(sh[k])]);
+        } else if (d.typeName === 'ZodArray') {
+          o.el = shape(d.type);
+        } else if (d.typeName === 'ZodOptional') {
+          o.inner = shape(d.innerType);
+        } else if (d.typeName === 'ZodEnum') {
+          o.v = d.values;
+        } else if (d.typeName === 'ZodString') {
+          o.checks = d.checks;
+        }
+        return o;
+      };
+      const capture = (mod) => {
+        const got = {};
+        const server = { registerTool(name, opts) { got[name] = opts; }, server: {} };
+        mod.register(server, {});
+        return got;
+      };
+      const base = capture(loadBase());
+      const now = capture(chainTool);
+      check('K5 FIXTURE: chain_run is registered on both', !!base.chain_run && !!now.chain_run);
+      check('K5 the description is byte-identical to PLAN_BASE', base.chain_run.description === now.chain_run.description);
+      check('K5 the input schema is identical to PLAN_BASE',
+        JSON.stringify(shape(base.chain_run.inputSchema)) === JSON.stringify(shape(now.chain_run.inputSchema)));
+      check('K5 the title is identical to PLAN_BASE', base.chain_run.title === now.chain_run.title);
+    }
+  }
+
+  // ---- K6 run_id reaches the gate and the trip line -----------------------------
+  {
+    const r = room();
+    putFile(r, [entry('command', safeCmds[0])]);
+    await chainTool.chainRun(mkSteps([safeCmds[0]]), { roomDir: r, onStep: stubOnStep, runId: 'run-365-k6' });
+    const t = tripLines(r);
+    check('K6 the trip line carries the chain run_id', t.length === 1 && t[0].run_id === 'run-365-k6', JSON.stringify(t));
+    const r2 = room();
+    putFile(r2, [entry('command', safeCmds[0])]);
+    await chainTool.chainRun(mkSteps([safeCmds[0]]), { roomDir: r2, onStep: stubOnStep });
+    const t2 = tripLines(r2);
+    check('K6 a minted run_id is used when none is passed', t2.length === 1 && /^run:/.test(String(t2[0].run_id)), JSON.stringify(t2));
+  }
+
 
   check('the run made no network attempt', net.attempts() === 0);
   rooms.forEach((r) => { try { fs.rmSync(r, { recursive: true, force: true }); } catch (_e) { /* best effort */ } });
