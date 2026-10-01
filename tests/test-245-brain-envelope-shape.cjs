@@ -35,10 +35,13 @@
  *       defects live in surface-agnostic code, so one fix lands on all three
  *       surfaces by construction; these two legs are the construction proof.
  *
- *   (c) CONTENT-FREE CYPHER ALLOWS. A Cypher label census carrying zero user
- *       bytes classifies as allow, and explicitly NOT as freeform_unmatched, so
- *       a future vocabulary regression reddens here instead of silently
- *       re-gating a contentless introspection call.
+ *   (c) CONTENT-FREE CYPHER IS NOT BLOCKED. A Cypher label census carrying
+ *       zero user bytes has no CONTENT-SET hit, never classifies block, and
+ *       never falls back to freeform_unmatched. Since D-354-EGR (commit
+ *       8f87980e5) its verdict is exactly ambiguous/freeform_unproven (Cypher
+ *       tokens sit outside the closed natural-language vocabulary), and the
+ *       PreToolUse hook still exits 0 on the shim-backed plugin scope. A
+ *       generic methodology brain_search stays allow (typed_question).
  *
  *   (d) CANON PART 8 GUARD-RAIL. A payload carrying real user content is STILL
  *       blocked by step 1 on BOTH brain_query and brain_search. This is the
@@ -65,10 +68,12 @@
 
 const assert = require('assert');
 const path = require('path');
+const os = require('os');
 const { spawnSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const HOOK = path.join(ROOT, 'scripts', 'brain-response-sanitize-hook.cjs');
+const GUARD_HOOK = path.join(ROOT, 'scripts', 'part8-egress-guard-hook.cjs');
 const sanitizer = require(path.join(ROOT, 'lib', 'core', 'brain-response-sanitize.cjs'));
 const guard = require(path.join(ROOT, 'lib', 'core', 'part8-egress-guard.cjs'));
 
@@ -356,30 +361,60 @@ function claimB() {
 // CLAIM (c): a content-free Cypher label census ALLOWS.
 // ---------------------------------------------------------------------------
 function claimC() {
-  console.log('--- CLAIM (c): content-free graph introspection classifies as allow ---');
+  console.log('--- CLAIM (c): content-free graph introspection is never blocked (ambiguous/freeform_unproven) ---');
 
-  const census = guard.classify(
-    { cypher: 'MATCH (n) RETURN labels(n) AS labels, count(*) AS c' },
+  // Re-pinned for D-354-EGR (commit 8f87980e5, 354-06). Before it, these two
+  // Cypher strings classified allow; a free-form string is now allow only when
+  // every token is closed natural-language vocabulary, which Cypher can never
+  // be. The boundary itself (the CONTENT-SET scan) is unchanged and still
+  // reports no hit; the live disposition on the shim-backed scope is unchanged
+  // (hook exit 0). Pinning the exact class means a future widen or narrow
+  // turns this red for a conscious review instead of drifting.
+  const introspection = [
+    ['label census', 'MATCH (n) RETURN labels(n) AS labels, count(*) AS c'],
+    ['schema introspection', 'CALL db.schema.nodeTypeProperties()'],
+  ];
+  for (let i = 0; i < introspection.length; i++) {
+    const label = introspection[i][0];
+    const cypher = introspection[i][1];
+
+    const scan = guard.scanForContent({ cypher: cypher });
+    ok(scan.hit === false, 'CLAIM c: ' + label + ' must carry no CONTENT-SET pattern, got ' + JSON.stringify(scan));
+
+    const v = guard.classify({ cypher: cypher }, { toolName: PLUGIN_SCOPED_QUERY });
+    ok(v.verdict !== 'block', 'CLAIM c: ' + label + ' must never classify block, got ' + JSON.stringify(v));
+    // Asserted EXPLICITLY, not folded into the verdict check: a future vocabulary
+    // regression must redden HERE rather than silently re-gating the call.
+    ok(
+      v.class !== 'freeform_unmatched',
+      'CLAIM c: ' + label + ' must not fall back to freeform_unmatched, got ' + JSON.stringify(v)
+    );
+    ok(
+      v.verdict === 'ambiguous' && v.class === 'freeform_unproven',
+      'CLAIM c: ' + label + ' must classify ambiguous/freeform_unproven under D-354-EGR, got ' + JSON.stringify(v)
+    );
+
+    const hook = spawnSync(process.execPath, [GUARD_HOOK], {
+      input: JSON.stringify({ tool_name: PLUGIN_SCOPED_QUERY, tool_input: { cypher: cypher }, session_id: 'h5s-claim-c-' + i }),
+      encoding: 'utf8',
+      timeout: 10000,
+      cwd: os.tmpdir(),
+      env: Object.assign({}, process.env, { PART8_FORCE_BRAIN_AVAILABLE: '1' }),
+    });
+    ok(
+      hook.status === 0,
+      'CLAIM c: ' + label + ' must pass the PreToolUse hook on the shim-backed plugin scope (exit 0), got ' + hook.status
+    );
+  }
+
+  // Negative control so this claim can fail: Cypher carrying user content blocks.
+  const poisoned = guard.classify(
+    { cypher: "MATCH (f:Framework) WHERE f.owner = 'someone@example.com' RETURN f" },
     { toolName: PLUGIN_SCOPED_QUERY }
   );
   ok(
-    census.verdict === 'allow',
-    'CLAIM c: a content-free label census must classify as allow, got ' + JSON.stringify(census)
-  );
-  // Asserted EXPLICITLY, not folded into the verdict check: a future vocabulary
-  // regression must redden HERE rather than silently re-gating the call.
-  ok(
-    census.class !== 'freeform_unmatched',
-    'CLAIM c: the label census must not fall back to freeform_unmatched, got ' + JSON.stringify(census)
-  );
-
-  const schemaCensus = guard.classify(
-    { cypher: 'CALL db.schema.nodeTypeProperties()' },
-    { toolName: PLUGIN_SCOPED_QUERY }
-  );
-  ok(
-    schemaCensus.verdict === 'allow' && schemaCensus.class !== 'freeform_unmatched',
-    'CLAIM c: a schema introspection call must classify as allow, got ' + JSON.stringify(schemaCensus)
+    poisoned.verdict === 'block',
+    'CLAIM c: negative control, Cypher with embedded user content must classify block, got ' + JSON.stringify(poisoned)
   );
 
   // The brain_search recognizer widening, so the documented brain_ask to

@@ -21,8 +21,12 @@
  * Canon Part 8 (The Graph Boundary): every CENSUS_QUERIES string is static
  * and content-free (no interpolation of any user input, ever). Framework
  * names come from repo frontmatter (generic methodology handles, Part 8
- * permitted). tests/test-246-census-guard.cjs proves every string classifies
- * allow under lib/core/part8-egress-guard.cjs classify().
+ * permitted). tests/test-246-census-guard.cjs proves every string is
+ * content-free at the Part 8 boundary: no CONTENT-SET hit, never block, and
+ * exactly ambiguous/freeform_unproven under lib/core/part8-egress-guard.cjs
+ * classify() since D-354-EGR (commit 8f87980e5). This builder POSTs through
+ * its own brainCall() and never consults classify(), so the live census run
+ * does not depend on that verdict.
  *
  * Usage:
  *   node scripts/build-brain-census.cjs --lane-a
@@ -1017,8 +1021,8 @@ function _isRefused(value) {
 // brainCall('brain_query', ...), recording { refused: true, error } for any
 // id Theo refuses (either refusal shape, via _theoQueryOutcome) instead of
 // throwing (tests/test-246-census-guard.cjs pins all 13 query ids as Part 8
-// allow-classified; nothing here removes or rewords a query, only how a
-// refusal is recorded).
+// content-free, ambiguous/freeform_unproven; nothing here removes or rewords
+// a query, only how a refusal is recorded).
 // ---------------------------------------------------------------------------
 async function _runLaneBTheo(key, brainStats) {
   const results = {};
