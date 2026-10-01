@@ -86,3 +86,24 @@ family; asked back, not acted on.
 - `scripts/part8-egress-guard-hook.cjs`, `lib/core/part8-egress-guard.cjs`
 - Room evidence: `~/MindrianRooms/egain-des-liquid-conductor/.mindrian/research-grants.json`,
   `.mindrian/research-runs/rp-2026-10-01-1bd61cf3/plan.json`
+
+## Update 2026-10-02 (same session, after planting)
+
+- **Workaround confirmed.** A whitespace question set built with `ambient.whitespaceQuestionSet`
+  (family `whitespace-gap/v1`) planned, got its new-term grant (grant `g-c922a05a` v3) and ran to
+  `status: done` (run `rp-2026-10-01-c14921e5`). So the loop is specific to non-whitespace families,
+  which confirms the root cause.
+- **The room-started path hits it too, on its own.** The room's ambient producer queued
+  `rp-2026-10-01-b2743104` as a `plan_card_no_grant` card with `reask_reason: outside_family`. So
+  this isn't only a manual-run bug: every ambient Eureka offer reaches the navigator as an
+  approval that can never work.
+- **New defect: room-only extraction check gives a false negative.** Leaf L3
+  (`ws:extraction_failure`, `corpus: room`) reported "0 room artifacts already mention the zone",
+  while `opportunity-bank/gap-oxide-stability-in-chcl-des.md` names that exact zone (Ga2O3 skin
+  stability in choline chloride DES). It looks like exact-phrase matching on a seven-word term.
+  The check is supposed to stop the room from paying for research it already holds.
+- **Exact-phrase search on a long term gives a meaningless zero.** The 7-word term returned an
+  OpenAlex exact-phrase count of 0 and verdict `thin`, but a plain web search the same hour found
+  Ga electrodeposition from ChCl DES (Reline, ChCl-EG) and oxide solubility in ChCl DES. The
+  whitespace composer should split long zone terms or add an unquoted keyword pass, or "0" will
+  read as "gap confirmed".
