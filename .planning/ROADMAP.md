@@ -1479,13 +1479,29 @@ Plans:
 ### Phase 365: Verification rung earned not asserted (B2 gate floor, B3 unattended-step constraints, edge-derived rung)
 
 **Goal:** Make a claim's verification rung earned, not asserted. Record today's failures first (the byte, one-week and floor acceptance tests plus the five property falsification tests), then ship B2 (rung shown in words at the approval gate; a room rung floor lands below-floor approvals at needs_evidence), B3 (a room constraints artifact read before any unattended step; halts recorded), and, once the paper author ratifies the ladder, a rung derived from the claim's edges (url + retrieved_at for 3+, locator for 4+, a person node for 5) instead of the self-declared rung shipped in Phase 358. Planning input: 365-INPUT.md.
-**Requirements**: TBD
-**Depends on:** Phase 358 (shipped B1 checking record + frame provenance); rung derivation blocked on ladder ratification
-**Plans:** 0 plans
+**Requirements**: V365-01..V365-18 (minted at plan time, 365-01)
+**Depends on:** Phase 358 (shipped B1 checking record + frame provenance); rung derivation blocked on ladder ratification (moved to Phase 365.1, D-25)
+**Plans:** 17 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 365 to break down)
+- [ ] 365-01-PLAN.md -- mint V365 rows, ladder data plus D-25 fence, run-all-365 aggregator and regression base (wave 1)
+- [ ] 365-02-PLAN.md -- byte, one-week and floor acceptance tests red at base, red list, pre-phase pin (wave 1)
+- [ ] 365-03-PLAN.md -- falsification characterization tests and 365-BASELINE.md with the manual two-navigators protocol (wave 1)
+- [ ] 365-04-PLAN.md -- one standing reader, provisional words map, floor reader and why-line composer (wave 2)
+- [ ] 365-05-PLAN.md -- D-20 audit, navigator checkpoint, needs_evidence->confirmed and holdForEvidence (wave 3, checkpoint)
+- [ ] 365-06-PLAN.md -- gate card carries a notice and approve relabel on all three rungs (wave 2)
+- [ ] 365-07-PLAN.md -- room never-do list core: fail-shut reader, matcher, trips, proposals, approval-trail writer (wave 2)
+- [ ] 365-08-PLAN.md -- floor enforced at gate_answer, one composer for gate_render and meeting cards, four suites updated (wave 4)
+- [ ] 365-09-PLAN.md -- chain_run halts at room-named steps after the irreversible check; Shape F card shows why (wave 3)
+- [ ] 365-10-PLAN.md -- ambient research halts before any request; halted_constraint pending card; proposals (wave 3)
+- [ ] 365-11-PLAN.md -- weekly snapshots and the two Zone 3 verification signals; stall threshold in the floor ledger (wave 3)
+- [ ] 365-12-PLAN.md -- B5 standing words on room home, graph export and its node detail panel, unsupported findings and preflight gaps (wave 3)
+- [ ] 365-13-PLAN.md -- Reject and never do this proposal gate on MCP surfaces; halted_constraint cards rendered as gates (wave 4)
+- [ ] 365-14-PLAN.md -- CLI never-do door and research.md instructions with the declared F.1 stage (wave 4)
+- [ ] 365-15-PLAN.md -- pulled portrait: /mos:status --checks and claim_read rows in words (wave 5)
+- [ ] 365-16-PLAN.md -- open Phase 365.1, draft the ratification ask, full gate, close rows, follow-ons incl. Theo parity sync (wave 6)
+- [ ] 365-17-PLAN.md -- navigator routes the research trail and rules on the ask; file in both homes (wave 7, checkpoint)
 
 ### Phase 366: Eureka becomes a perspective of the research planner; the MCP canvas tooling; one home for Claude model routing (promotes SEED-103)
 

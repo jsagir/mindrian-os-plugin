@@ -499,18 +499,25 @@ fs.appendFileSync(path.join(roomDir, '.mindrian', 'constraint-trips.jsonl'),
 | A5 | Weekly snapshots as memory_event are acceptable under D-18 ("record" is unspecified) | Signals | If jsonl is wanted, swap the writer; the stall logic is unchanged |
 | A6 | Floors above `secondary_document` can be honored before derivation by `locator` on the target node (rung 4) and by "always hold" (rung 5, no person node exists) | Open Question 2 | If the navigator prefers rejecting such floors, the reader treats them as invalid and falls back |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **D-08: which exit for a held claim?**
    - Known: option A has no honest target for the "lower the floor" route; option B is additive and guarded.
    - Recommendation: option B (Pattern 3), with a navigator checkpoint on the transitions.cjs edit.
+   - RESOLVED: D-20 (one additive needs_evidence -> confirmed transition, behind the 365-05 navigator checkpoint).
 2. **Floors above what the pre-ratification predicate can check.**
    - Recommendation: `secondary_document` = source edge; `primary_source_located` = source edge whose target also carries a non-empty `locator` (structural, no model); `person` = always hold, with the card saying no person check can be recorded yet. The copy must never imply a check the code did not run.
+   - RESOLVED: D-22 (honored structurally; locator for a primary-source floor; person always holds).
 3. **Floor on opportunity subjects?** Recommendation: no, claim only (A2).
+   - RESOLVED: D-21 (claims only; opportunity subjects keep today's behavior).
 4. **Snapshot store format** (A5). Recommendation: memory_event in room.db.
+   - RESOLVED: D-23 (one memory_event per ISO week through navigation.cjs; N = 4 in data/floor-ledger.json).
 5. **MAX_K and a 4th card option.** MAX_K=3 bounds ranked 1-of-N candidate sets (MINDRIAN-CANON.md:181), arguably not a verdict card. Recommendation: sidestep by using the follow-up proposal card (Pitfall 7).
+   - RESOLVED: plan 365-13's follow-up "Reject and never do this" card (three options; no fourth option on the verdict card).
 6. **Other runChain callers** (explore-chain, debate-composition). Recommendation: thread roomDir into explore-chain; debate and act out of scope with reasons.
+   - RESOLVED: plan 365-09 (explore-chain passes roomDir; debate-composition and act-command recorded out of scope with reasons).
 7. **Phase 358 frame-provenance timing check** (deferred): not in the build; keep as a separate quick task.
+   - RESOLVED: deferred to 365.1 and the follow-ons (365-FOLLOW-ONS.md, written by plan 365-16); not built in 365.
 
 ## Environment Availability
 
