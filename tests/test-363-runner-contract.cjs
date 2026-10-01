@@ -217,6 +217,9 @@ leg('K1 frontmatter: no hitl_shape, Form B hitl_stages exact, hitl_why, Agent an
     { stage: 'deep extend budget', shapes: ['F.3'], mode: 'gate' },
     { stage: 'quick policy grant', shapes: ['F.0'], mode: 'gate' },
     { stage: 'filing', shapes: ['F.8'], mode: 'parallel' },
+    // Phase 365-14: the constraint halt and the never-do offer are two more F.1 gates.
+    { stage: 'constraint halt', shapes: ['F.1'], mode: 'gate' },
+    { stage: 'never-do offer', shapes: ['F.1'], mode: 'gate' },
   ]);
   const why = extractTopScalar(fm, 'hitl_why');
   assert.ok(why && why.length > 20, 'hitl_why must be non-empty');
