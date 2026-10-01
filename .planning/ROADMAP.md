@@ -1509,8 +1509,37 @@ Plans:
 **Goal:** Retire Eureka as a standalone engine and finish the Eureka PERSPECTIVE inside the one research planner (Phase 363), with proper MCP tooling for every MOS-CANVAS perspective. Phase 355 measured today's engine at 43 of 96 useful (44.8%), direction right 16 of 96, Theo not asked for 80.2% of pairings, and 45 of 96 pairings already known to the navigator; the 2026-10-01 architecture review found the engine's cost is algorithmic (uncapped all-pairs, per-pair cohort re-sort, whole-room re-embeds) and its documented "ZERO network" claim false. The perspective ships recall from the local graph and the ICM structure (no embeddings), the room graph as the exclusion set, files as edit surfaces, Jev as the human-routed first-pass judge at the measured band, research and prose and filing through the planner, and one declared egress policy. Design: `.planning/REVIEWS/2026-10-01-eureka-v2-design.md` (ADRs E12-E16). Research trail: `rethinking-mindrianos/research/2026-10-01-eureka-rethink-perspective-and-mcp-canvas.md`.
 **Already on branch `seed-103-eureka-perspective` (commit 00a6e5f85 plus the mcp-builder pass), to merge as this phase's first wave:** `lib/core/research-planner/perspectives/eureka-recall.cjs` and `eureka-judge.cjs`; the `eureka` question template and `eu.transfer` / `eu.known` lenses; MCP `research_run` ops `eureka_recall`, `eureka_candidates` (paginated), `eureka_judge`, with tool annotations; the CLI door `eureka-recall` / `eureka-judge`; the dev-time Jev first pass `scripts/eureka-jev-judge.cjs`; `lib/core/claude-routing.cjs` (every lib caller of api.anthropic.com routes through it; Opus default per role; a tripwire forbids other hardcoded ids); `tests/run-all-seed103.sh` green; `tests/fixtures/seed103-mcp-eval.xml`.
 **Deliverables.** (1) Merge the branch and register its tests in the release gate. (2) The spike (design section 9): the three Phase 355 fixture rooms, the same blind-label protocol, the bar fixed before the run (useful rate above 44.8% with a Wilson interval that clears it, three repeats), arms Stage A only / Jev / Claude / Claude-then-Jev over the SAME candidates file, plus graph+lexical vs graph+lexical+vector recall. (3) The navigator's four rulings recorded: retire the standalone runner; runtime Jev under the planner's grant and audit ledger or dev-time only (D-44); the Haiku entity pre-step as a planner egress line or a separate producer; the gold labels. (4) One declared egress policy file read by the planner's audit ledger; `--offline` means none of it; `commands/eureka.md` rewritten so `/mos:eureka` is the quick-run alias and the stale "ZERO writes / ZERO network" wording is gone. (5) Theo readiness: room nodes carry canon Framework handles under the D-10 exact-match rule so `find_connections` can be asked; `canon_resolved` per run is the count to move (0 on the measured room). (6) MCP canvas tooling for the other perspectives (RS, HSI, whitespace) as planner ops with the same shape (recall file, judge file, paginated read, annotations, actionable refusals), replacing the reference-only stubs the tool router carries today. (7) Retire the standalone runner per the spike; the semantic index moves to `lib/core/semantic-index/` behind a reference-integrity gate (ADR-E12) as its own plan. Counter-metrics per Phase 343 on every stage; counts only (SEED-074).
-**Requirements**: TBD (minted at plan time)
+**Requirements**: EPV366-01..EPV366-30 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-01; D-01..D-17 in `366-CONTEXT.md`)
 **Depends on:** Phase 363 (the planner), Phase 355 (the measured record and fixture rooms). Feeds Phase 364 (the same engine) and SEED-101 (claims carry a section column). Consults icm-architect, mcp-builder and langtalks-graph-expert before any design assumption.
+**Plans:** 26 plans in 12 waves
+
+Plans:
+- [ ] 366-01-PLAN.md -- Wave 0: tests/run-all-366.sh written once (seed103 legs carried), the planted perspective fixture, the spike substrate preparer
+- [ ] 366-02-PLAN.md -- one filer: pyramid cross_domain_transfer kind through one template-driven pair branch, closed leaf pair, filing-stamped.cjs, DERIVED_FROM to both things plus the 355 stamp
+- [ ] 366-03-PLAN.md -- /mos:eureka is the quick-run alias; --legacy and {"legacy":true} reach the runner; ZERO wording gone; mirrors regenerated
+- [ ] 366-04-PLAN.md -- rs, hsi, analogies, connections templates with falsifiers and lenses; 363 pins and research-shape ledger moved by script
+- [ ] 366-05-PLAN.md -- one canon resolver with ratified translations (references/canon-translations.md); framework node before USES_FRAMEWORK edge
+- [ ] 366-06-PLAN.md -- canon snapshot Theo stamp and the LAGGING gate (RULE 5 place 9); release.sh shells tests/run-all-366.sh (suite gate)
+- [ ] 366-07-PLAN.md -- ambient eureka producer is the perspective recall, offer only, plan-only card, never a fetch; SENS-13 finding
+- [ ] 366-08-PLAN.md -- perspective interface and registry (PERSPECTIVE_IDS), shared.cjs, judge takes the module (STAGE_A_LANES), eureka byte-stable, one resolver in recall
+- [ ] 366-09-PLAN.md -- canon handles at artifact_file and in the indexer
+- [ ] 366-10-PLAN.md -- canon coverage statement (counts only) and the /mos:doctor --fix canon-backfill module
+- [ ] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
+- [ ] 366-12-PLAN.md -- research_run perspective_recall / perspective_candidates / perspective_judge with deprecated eureka_* aliases; CLI perspective-recall / perspective-judge
+- [ ] 366-13-PLAN.md -- RS and HSI recall from the local graph; classifyGraph in direction-convention.cjs
+- [ ] 366-14-PLAN.md -- whitespace and analogies recall; SAPPhIRE statement template
+- [ ] 366-15-PLAN.md -- connections recall and the Theo lateral-path lane under a grant, audited
+- [ ] 366-16-PLAN.md -- router stubs point at the perspective ops; six-perspective offline proof; counter-metrics per stage; floors on the ledger
+- [ ] 366-17-PLAN.md -- one declared egress policy read by the audit ledger; --offline completes
+- [ ] 366-18-PLAN.md -- spike harness and the bar fixed before the run
+- [ ] 366-19-PLAN.md -- spike arms run on indexed fixture copies; navigator blind labels (checkpoint)
+- [ ] 366-20-PLAN.md -- spike record, direction and floor re-measure, navigator rulings (checkpoint)
+- [ ] 366-21-PLAN.md -- runner retirement A: runner ruling asserted, inventory decided and sliced, static gate, slice A (215/216/226) tests migrated or retired
+- [ ] 366-25-PLAN.md -- runner retirement A2: slices B (218/219/223/343) and C (355/3551) tests migrated or retired, aggregators green
+- [ ] 366-26-PLAN.md -- runner retirement A3: slice D (341/363.1, live check, eureka MCP test) migrated or retired; inventory closed
+- [ ] 366-22-PLAN.md -- runner retirement B: runner deleted, legacy doors removed, doctor smoke on the perspective
+- [ ] 366-23-PLAN.md -- semantic-index split (ADR-E12) behind a reference-integrity gate
+- [ ] 366-24-PLAN.md -- phase close: EPV366 proof, folded todos, handoff, Theo-side intent-led resolver request
 
 ### Phase 367: A newborn room ends up with a connected graph, with no repair pass (promotes SEED-101)
 

@@ -448,14 +448,23 @@ const adopted = lo > 0.448;   // bar fixed before the run (D-05)
 | A6 | Proposed translation rows use `ratified_at: null` | Pattern 10 | Schema rework |
 | A7 | "Thing" for the coverage count is `Artifact` + `claim` | Pattern 9 | Count disagrees with recall's thing set |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All six were settled at plan time (2026-10-01); each RESOLVED line names the plan that carries the
+answer. The navigator may overturn any of them at plan review.
 
 1. **What is "the release gate" for test registration?** No phase aggregator (`run-all-355.sh`, `run-all-363.sh`, `run-all-seed103.sh`) is shelled by `scripts/release.sh`, `scripts/verify-release` or `scripts/doctor.cjs --acceptance` (grep this session). Recommendation: `tests/run-all-366.sh` that includes every seed103 leg, plus ask the navigator whether a doctor acceptance point should shell it.
+   RESOLVED: `tests/run-all-366.sh` (written in plan 366-01 with every seed103 leg) is shelled by `scripts/release.sh` through `scripts/release-lib/suite-gate.sh`, fail closed, with an audited `--no-suite-check` opt-out (plan 366-06, Task 2; EPV366-01). No doctor acceptance point is added in this phase.
 2. **Fold D-17 into RULE 5 place 8 or add place 9?** Place 8 is the Theo coupling; RULE 5 warns against restating the count. Recommendation: add place 9 ("canon snapshot freshness"), since D-17 says "one more lockstep place".
+   RESOLVED: RULE 5 gains place 9 "canon snapshot freshness" in docs/RELEASE-CEREMONY-RULING-SYSTEM.md, never VERSION-BUMP-CHECKLIST.md (plan 366-06, Task 2; D-17).
 3. **Which Theo call answers "nearest canon name"?** `normalize_framework_name` is exact plus alias walk only; `brain_search` fulltext exists behind a freeform gate. Recommendation: `normalize_framework_name` first, then a top-1 fulltext suggestion presented as proposed; consult Theo (`/home/jsagi/Theo`) on whether a Theo-side `suggest_framework_name` op belongs to the Theo companion work.
+   RESOLVED: `normalize_framework_name` only, per term, behind a navigator yes on an F.8 card and an audited row; no `brain_search` / fulltext suggestion (plan 366-11, D-13; its acceptance greps `brain_search` to 0). The intent-led nearest-name resolver is filed as a Theo-side request (plan 366-24, Task 3; D-13 c).
 4. **Where does the snapshot's Theo stamp come from?** `list_frameworks` rows carry no version. Options: the snapshot records the plugin version it was refreshed for plus Theo's `command_neighborhood` `mappedBy`; the gate compares to the current version.
+   RESOLVED: `data/framework-names.json` carries `theo_stamp { mapped_by, plugin_version, refreshed_at }`, written only by `refresh-framework-names.cjs --live`; `scripts/release-lib/canon-snapshot-gate.sh` refuses a cut when `theo_stamp.mapped_by` is absent or differs from the current plugin version (LAGGING, like place 8) (plan 366-06, Task 1; D-17).
 5. **Eureka offer vs whitespace card precedence in ambient** (`hasPendingPlanOnly`).
+   RESOLVED: one pending plan-only card per room stays the rule (`hasPendingPlanOnly` unchanged); within one ambient pass the whitespace card goes first, and the eureka offer is recorded as a plan-only card only when that pass produced no whitespace card; never a fetch (plan 366-07, Task 2; D-03).
 6. **Does SENS-13 still fire?** The eureka producer stops filing, so its SENS-13 side channel stops for eureka; the other producers still file through the relocated `fileStampedOpportunity`. Close the F7 todo with that finding.
+   RESOLVED: yes for every producer except eureka. The eureka producer becomes offer-only and stops filing (so it no longer feeds SENS-13); the other producers file through the relocated `filing-stamped.cjs` `fileStampedOpportunity` and still feed SENS-13 (plan 366-07, finding recorded in its SUMMARY; plan 366-02 relocates the filer). The F7 todo is closed with that finding by plan 366-24, Task 2.
 
 ## Environment Availability
 
