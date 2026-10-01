@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "census-guard test failure: tests/run-all-246.sh test-246-census-guard.cjs FAILED"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-10-01T00:00:00Z
-updated: 2026-10-01T12:00:00Z
+updated: 2026-10-01T18:30:00Z
 ---
 
 ## Current Focus
@@ -16,7 +16,7 @@ updated: 2026-10-01T12:00:00Z
 hypothesis: CONFIRMED. Commit 8f87980e5 (354-06, D-354-EGR) made classify() step 3 require a closed NATURAL-LANGUAGE vocabulary proof for every free-form string, and the `cypher` key rides that path, so no census Cypher string can classify allow any more. The guard did not regress in the security sense; tests/test-246-census-guard.cjs (and claim (c) of tests/test-245-brain-envelope-shape.cjs) are stale against that intentional change. The 354-06 commit updated four sibling tests and missed these two.
 test: delta over commits (guard at 8f87980e5^ vs 8f87980e5, same test file), plus a hook-disposition probe across three Brain tool scopes.
 expecting: test passes at 8f87980e5^ and fails at 8f87980e5 (observed: yes, 15 of 15 queries).
-next_action: HUMAN POLICY DECISION needed before any edit (see Required Code Changes, Decision D-1). Recommended: Option A (re-pin the two stale tests, guard untouched). No repo file other than this debug file has been modified.
+next_action: none. RESOLVED. Human approved D-1 Option A on 2026-10-01 (relayed by the coordinator); fix landed in d97beaaf8 (tests re-pinned, guard untouched).
 
 ## Meta
 
@@ -181,7 +181,7 @@ next_action: HUMAN POLICY DECISION needed before any edit (see Required Code Cha
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: Commit 8f87980e5 (354-06, D-354-EGR) intentionally narrowed classify() step 3 so a free-form string is allowed only if every token is closed natural-language vocabulary; the `cypher` key rides that path, so every census Cypher string now classifies ambiguous/freeform_unproven instead of allow/move_set. tests/test-246-census-guard.cjs (and claim (c) of tests/test-245-brain-envelope-shape.cjs) were not updated by that commit and are stale. The census script never calls classify() (direct fetch), which is why the live run still works.
-fix: PENDING human decision D-1. Recommended Option A (re-pin the two tests, guard untouched). No repo file other than this debug file has been modified.
-verification: delta run: test-246 PASS at 8f87980e5^, FAIL at 8f87980e5 (15 of 15). Prototype re-pinned test-246 (scratchpad only, not applied): PASS 105 assertions on the current guard, FAIL on the 8f87980e5^ guard. Hook probe E6 shows exit codes unchanged on both plugin-registered scopes.
-files_changed: []
-commits: []
+fix: Human approved Decision D-1 Option A (re-pin the two stale tests, lib/core/part8-egress-guard.cjs untouched). tests/test-246-census-guard.cjs and claim (c) of tests/test-245-brain-envelope-shape.cjs now assert, per census/introspection Cypher string: no CONTENT-SET hit, never block, never freeform_unmatched, exactly ambiguous/freeform_unproven, PreToolUse hook exit 0 on the shim-backed plugin scope (PART8_FORCE_BRAIN_AVAILABLE=1, cwd os.tmpdir()), plus a negative control (email literal inside Cypher) that still blocks. scripts/build-brain-census.cjs: comment-only reword (it POSTs via brainCall() and never consults classify()). The brain_search `lean startup methodology` assertion in claim (c) was left exactly as is.
+verification: bash tests/run-all-246.sh PASS=3 FAIL=0 (was PASS=2 FAIL=1). test-246 105 assertions over 15 census queries; test-245-brain-envelope-shape 66 assertions, claims a-d green. Mutation proof: both re-pinned tests FAIL on a git-archive of the 8f87980e5^ guard (verdict allow/move_set) and PASS on the current guard, so the pin detects a change in either direction. run-all-245.sh PASS=17 FAIL=2: the two remaining reds (test-245-egress-contentless lean startup fixture drift after f55f004f6; test-245-tiebreak-deterministic SENS-08 fixture drift) are out of scope and were red before this change. Guard sibling tests green: test-239 (4 liveness/canary/parked), test-257-envelope-passthrough, test-257-refusal-egress-kind, test-339 (theo-ask-compose, enrichment-theo-shapes, origin-single-source). Pre-existing reds, identical on a clean git-archive of HEAD before this change and untouched by it (none import the files changed): test-257-brain-tool-egress-invariant (Arm 2, theo_health socket opened on a blocked brain_query), test-257-shim-honest-refusal (Arm 4, egress_disclosure key), test-257-strict-input-shapes, test-260906-fda-known-tool-shapes (same lean startup drift as 245-egress-contentless). No em-dashes in any touched file. Nothing pushed.
+files_changed: [tests/test-246-census-guard.cjs, tests/test-245-brain-envelope-shape.cjs, scripts/build-brain-census.cjs]
+commits: [d97beaaf8]
