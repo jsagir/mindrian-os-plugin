@@ -12,3 +12,8 @@
 ## From plan 366-05
 
 - **tests/run-all-355.sh is not FAILED=0 on the base commit, for reasons outside 366-05.** Reds observed: test-355-direction-agreement leg H (the known baseline above); `lib/core/part8-egress-guard.test.cjs` PB8-03 ("generic framework question must ALLOW"); `272-cache-probe.test.cjs` (the installed @huggingface/transformers does not expose ModelRegistry.is_pipeline_cached); the 356 chain-executor verdict legs (run-all-356). None loads canon-translations.cjs or framework-node.cjs, and every leg that exercises verification-stamp.cjs stays green. A fifth red, `check-render-coverage --check`, was stale since the 366-03 eureka surface change (commands/eureka.md and skills/eureka/SKILL.md no longer declare F.8); the pre-commit gate blocked the 366-05 commit, so the registry was regenerated with scripts/build-render-coverage.cjs and committed with Task 1 (da43d4042).
+
+## From plan 366-06
+
+- **tests/test-310-release-step55-wiring.cjs is a pre-existing red.** Case 1 dies with `DRY_RUN: unbound variable` in its extracted Step 5.5 to 9.8 driver (Step 5.6 reads `$DRY_RUN`, which the driver never defines). Reproduced with the base commit's release.sh, so 366-06's Step 0.6b/0.6c wiring did not cause it. Owner: whoever next touches the 310 driver (define DRY_RUN=0 in it).
+- **tests/test-release-bump-algebra.cjs is a pre-existing red** (legs F, H, I: @mindrian_os/install publish, Step 7.5 marketplace bump, Step 9.7 HOME override), all assertions about retired release shapes. Reproduced with the base commit's release.sh.
