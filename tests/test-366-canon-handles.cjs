@@ -187,7 +187,80 @@ function writeTable(roomDir, rows) {
   }
 }
 
-// __TASK2_LEGS__
+// ---------------------------------------------------------------------------
+// C8-C12: the node-then-edge framework writer
+// ---------------------------------------------------------------------------
+{
+  const roomDb = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
+  const { insertNode } = require(path.join(REPO_ROOT, 'lib/core/node-insert.cjs'));
+  const navigation = require(path.join(REPO_ROOT, 'lib/core/navigation.cjs'));
+  const integrity = require(path.join(REPO_ROOT, 'lib/core/navigation/graph-integrity-counts.cjs'));
+
+  const { roomDir } = mkRoom('c8');
+  const db = roomDb.openRoomDb(roomDir);
+  insertNode(db, 'pd/T1', 'Artifact', JSON.stringify({ title: 'thing one' }), { epistemic_type: 'observation', source_path: 'test:366-05' });
+  const FW_ID = 'framework:reverse-salient-analysis';
+  const nodeCount = (id) => db.prepare('SELECT count(*) AS c FROM nodes WHERE id = ?').get(id).c;
+  const edgeCount = () => db.prepare("SELECT count(*) AS c FROM edges WHERE source = ? AND target = ? AND type = 'USES_FRAMEWORK'").get('pd/T1', FW_ID).c;
+  const totalEdges = () => db.prepare('SELECT count(*) AS c FROM edges').get().c;
+  const totalNodes = () => db.prepare('SELECT count(*) AS c FROM nodes').get().c;
+
+  C.check('C8 navigation re-exports linkThingToFramework', typeof navigation.linkThingToFramework === 'function');
+  C.check('C8 navigation re-exports mintFrameworkNode', typeof navigation.mintFrameworkNode === 'function');
+
+  // C8: one framework node of type framework and one USES_FRAMEWORK edge
+  const r1 = navigation.linkThingToFramework(db, 'pd/T1', CANON, 'test');
+  C.check('C8 link ok', r1 && r1.ok === true && r1.node_id === FW_ID, JSON.stringify(r1));
+  const fwRow = db.prepare('SELECT type, properties FROM nodes WHERE id = ?').get(FW_ID);
+  C.check('C8 framework node has type framework', fwRow && fwRow.type === 'framework', JSON.stringify(fwRow));
+  C.check('C8 framework node carries the canon name', fwRow && JSON.parse(fwRow.properties).name === CANON);
+  C.check('C8 one USES_FRAMEWORK edge', edgeCount() === 1);
+  const eRow = db.prepare("SELECT properties FROM edges WHERE source = ? AND target = ? AND type = 'USES_FRAMEWORK'").get('pd/T1', FW_ID);
+  const eProps = eRow ? JSON.parse(eRow.properties) : {};
+  C.check('C8 edge properties relation/framework/origin',
+    eProps.relation === 'uses_framework' && eProps.framework === 'reverse-salient-analysis' && eProps.origin === 'test', JSON.stringify(eProps));
+
+  // C9: idempotent
+  const r2 = navigation.linkThingToFramework(db, 'pd/T1', CANON, 'test');
+  C.check('C9 second link ok', r2 && r2.ok === true, JSON.stringify(r2));
+  C.check('C9 still one framework node row', nodeCount(FW_ID) === 1);
+  C.check('C9 still one edge row', edgeCount() === 1);
+  const m2 = navigation.mintFrameworkNode(db, CANON);
+  C.check('C9 re-mint ok and still one node', m2.ok === true && nodeCount(FW_ID) === 1);
+
+  // C10: no edge ever lacks its endpoint
+  insertNode(db, 'pd/T2', 'Artifact', JSON.stringify({ title: 'thing two' }), { epistemic_type: 'observation', source_path: 'test:366-05' });
+  for (let i = 0; i < 3; i += 1) {
+    navigation.linkThingToFramework(db, 'pd/T2', CANON, 'test');
+    navigation.linkThingToFramework(db, 'pd/T1', CANON, 'test');
+  }
+  const counts = integrity.countGraphIntegrity(db);
+  C.check('C10 edge_rows_missing_endpoint is 0', counts.edge_rows_missing_endpoint === 0, JSON.stringify(counts.edge_rows_missing_endpoint));
+  C.check('C10 two things, one shared framework node', nodeCount(FW_ID) === 1 && totalEdges() === 2, 'edges=' + totalEdges());
+
+  // C11: refusals write nothing
+  const nBefore = totalNodes();
+  const eBefore = totalEdges();
+  const bad = navigation.linkThingToFramework(db, 'pd/T1', 'Not A Real Framework 366', 'test');
+  C.check('C11 non-canon refused', bad && bad.ok === false && typeof bad.reason === 'string', JSON.stringify(bad));
+  const empty = navigation.linkThingToFramework(db, '', CANON, 'test');
+  C.check('C11 empty thing id refused', empty && empty.ok === false && typeof empty.reason === 'string', JSON.stringify(empty));
+  const ghost = navigation.linkThingToFramework(db, 'pd/NOPE', CANON, 'test');
+  C.check('C11 missing thing refused (no dangling source)', ghost && ghost.ok === false && ghost.reason === 'thing_missing', JSON.stringify(ghost));
+  C.check('C11 refusals wrote nothing', totalNodes() === nBefore && totalEdges() === eBefore);
+
+  // C12: never throws, closed db reports write_failed
+  db.close();
+  let threw = false;
+  let closed = null;
+  try { closed = navigation.linkThingToFramework(db, 'pd/T1', CANON, 'test'); } catch (_e) { threw = true; }
+  C.check('C12 closed db does not throw', threw === false);
+  C.check('C12 closed db returns write_failed', closed && closed.ok === false && closed.reason === 'write_failed', JSON.stringify(closed));
+  let threw2 = false;
+  let mintClosed = null;
+  try { mintClosed = navigation.mintFrameworkNode(db, CANON); } catch (_e) { threw2 = true; }
+  C.check('C12 mint on closed db does not throw', threw2 === false && mintClosed && mintClosed.ok === false);
+}
 
 C.check('no network attempted', net.attempts() === 0);
 net.restore();
