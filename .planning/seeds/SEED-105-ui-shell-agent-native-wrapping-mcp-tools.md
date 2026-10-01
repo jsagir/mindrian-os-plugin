@@ -96,3 +96,13 @@ changes.
 
 **Mockup:** https://claude.ai/artifact/XDbDX2i2jC8CUxGWmNQdEt (De Stijl room workspace: next move, the
 one-click gate, prior-art lanes, Larry panel; plus room-graph and Cowork two-user views).
+
+## Navigator rule 2026-10-02 (binding for every UI task on this route)
+
+- Stack, always together: `/icm-workspace-architect` (structure), `/fullstack-dev-skills:websocket-engineer`
+  (realtime), RxDB (browser read copy, one-way), agent-native (shell; actions = MCP tools).
+- Styling and design: ONLY the M:OS **Design Canon v3: Workshop Modernism** from mindrian-website
+  (`~/dev/mindrian-website/docs/DESIGN-CANON.md`, D-29; source spec
+  `docs/superpowers/specs/2026-10-01-design-canon-v3-workshop-modernism.md`): paper/ink palette, rust,
+  cobalt and ochre as meaning only, Fraunces / DM Sans / Bodoni Moda, radius 0, one decision per view.
+  The 2026-10-02 quick mockup's ad-hoc primary palette is superseded and gets restyled when touched.
