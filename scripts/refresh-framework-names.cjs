@@ -41,6 +41,14 @@
  * with a note. Either way the decision is written down in `stale_review`,
  * never silent.
  *
+ * THEO STAMP (Phase 366 Plan 06, D-17): --live also reads Theo's
+ * command-registry `mappedBy` (the same command_neighborhood call the
+ * place-8 theo-stamp gate makes) and writes `theo_stamp {mapped_by,
+ * plugin_version, refreshed_at}`. The release gate
+ * scripts/release-lib/canon-snapshot-gate.sh (RULE 5 place 9) refuses a cut
+ * when that stamp is absent or names an older version. --check accepts a
+ * snapshot with or without the stamp.
+ *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
 
@@ -194,7 +202,52 @@ function validateSnapshot(snapshot) {
     }
   }
 
+  // Phase 366 Plan 06 (D-17): theo_stamp is optional (a snapshot refreshed
+  // before this plan carries none, and --check must still pass it); when
+  // present, its three fields must be non-empty strings. The release gate
+  // (scripts/release-lib/canon-snapshot-gate.sh, RULE 5 place 9) is what
+  // refuses an absent or lagging stamp, not this offline shape check.
+  if (Object.prototype.hasOwnProperty.call(snapshot, 'theo_stamp')) {
+    const st = snapshot.theo_stamp;
+    if (!st || typeof st !== 'object' || Array.isArray(st)) {
+      errors.push('theo_stamp is present but not an object');
+    } else {
+      for (const field of ['mapped_by', 'plugin_version', 'refreshed_at']) {
+        if (typeof st[field] !== 'string' || st[field].length === 0) {
+          errors.push('theo_stamp.' + field + ' must be a non-empty string');
+        }
+      }
+    }
+  }
+
   return { valid: errors.length === 0, errors };
+}
+
+// ---------------------------------------------------------------------------
+// readDefaultMappedBy() -- Theo's command-registry stamp (`mappedBy`), read
+// with the SAME call scripts/release-lib/theo-stamp-gate.sh's default reader
+// makes: callTool('command_neighborhood', { command: '/mos:act' }), rows[0].
+// No new Theo op. Generic handle only (a command name), never room content
+// (Part 8). Returns the raw stamp string, or '' on any failure.
+// ---------------------------------------------------------------------------
+async function readDefaultMappedBy() {
+  try {
+    const bc = require(path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs'));
+    const r = await bc.callTool('command_neighborhood', { command: '/mos:act' });
+    const rows = (r && r.rows) || [];
+    const row = rows[0] || {};
+    return typeof row.mappedBy === 'string' ? row.mappedBy.trim() : '';
+  } catch (_e) {
+    return '';
+  }
+}
+
+function readRepoVersionSafe() {
+  try {
+    return require(path.join(REPO_ROOT, 'lib', 'core', 'repo-version.cjs')).readRepoVersion().version || '';
+  } catch (_e) {
+    return '';
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -356,6 +409,31 @@ async function runLive(deps) {
 
   const snapshot = buildSnapshot({ rows, prior, date, referencedBy });
 
+  // Phase 366 Plan 06 (D-17): stamp the snapshot with Theo's own mappedBy so
+  // the release gate (RULE 5 place 9) can prove, offline, that this refresh
+  // ran after Theo's re-emit for the current version. The default reader is
+  // used only on the real wire path (no injected askOp); a test that injects
+  // askOp without readMappedBy never stamps and never dials Theo.
+  let readMappedBy = null;
+  if (typeof d.readMappedBy === 'function') readMappedBy = d.readMappedBy;
+  else if (typeof d.askOp !== 'function') readMappedBy = readDefaultMappedBy;
+  let stampMissing = false;
+  if (readMappedBy) {
+    let mappedBy = '';
+    try {
+      mappedBy = await readMappedBy();
+    } catch (_e) {
+      mappedBy = '';
+    }
+    mappedBy = typeof mappedBy === 'string' ? mappedBy.trim() : '';
+    const pluginVersion = typeof d.pluginVersion === 'string' && d.pluginVersion ? d.pluginVersion : readRepoVersionSafe();
+    if (mappedBy && pluginVersion) {
+      snapshot.theo_stamp = { mapped_by: mappedBy, plugin_version: pluginVersion, refreshed_at: now.toISOString() };
+    } else {
+      stampMissing = true;
+    }
+  }
+
   const validation = validateSnapshot(snapshot);
   if (!validation.valid) {
     return {
@@ -368,6 +446,21 @@ async function runLive(deps) {
 
   const write = typeof d.write === 'function' ? d.write : (p, s) => atomicWriteJSON(p, s);
   write(fwNamesPath, snapshot);
+
+  if (stampMissing) {
+    return {
+      ok: false,
+      code: 3,
+      reason: 'theo_stamp_unreadable',
+      snapshot,
+      usedFallback,
+      message:
+        'Wrote ' +
+        fwNamesPath +
+        ' names WITHOUT a theo_stamp: Theo mappedBy (or the repo version) could not be read. ' +
+        'The release gate (RULE 5 place 9) will refuse until this command runs again with Theo reachable.',
+    };
+  }
 
   return {
     ok: true,
@@ -434,7 +527,9 @@ function printHelp() {
       '',
       '  --live   one live Theo list_frameworks read through',
       '           lib/core/brain-client.cjs askOp; regenerates',
-      '           data/framework-names.json (names only, D-51)',
+      '           data/framework-names.json (names only, D-51) and',
+      '           stamps theo_stamp {mapped_by, plugin_version,',
+      '           refreshed_at} from Theo mappedBy (366 D-17)',
       '  --check  offline: validates the committed snapshot and',
       '           recomputes its hash; never loads brain-client',
       '  --help   this message',
