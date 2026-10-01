@@ -577,7 +577,7 @@ leg('Y13a whitespace gap-confirmed gives literature_gap', function () {
   c.forEach(function (x) { assertTrue(Array.isArray(x.leaf_ids) && Array.isArray(x.row_ids), 'candidate carries leaf_ids and row_ids'); assertTrue(Y.OPPORTUNITY_KINDS.indexOf(x.kind) !== -1, 'kind in OPPORTUNITY_KINDS'); });
   const none = Y.opportunityCandidates(b.built.pyramid, b.built.leaves, [], { verdict: 'thin', perspective: b.qs.perspective, template: b.template });
   assertTrue(none.filter(function (x) { return x.kind === 'literature_gap'; }).length === 0, 'thin verdict gives no literature_gap');
-  assertTrue(JSON.stringify(Y.OPPORTUNITY_KINDS) === JSON.stringify(['literature_gap', 'constraint_attack', 'untried_intervention', 'mechanism_transfer', 'trend_break', 'funding_signal']), 'OPPORTUNITY_KINDS');
+  assertTrue(JSON.stringify(Y.OPPORTUNITY_KINDS) === JSON.stringify(['literature_gap', 'constraint_attack', 'untried_intervention', 'mechanism_transfer', 'trend_break', 'funding_signal', 'cross_domain_transfer']), 'OPPORTUNITY_KINDS');
 });
 
 leg('Y13b assumed limiter with unlock length >= 1 gives constraint_attack; self steps do not count', function () {
