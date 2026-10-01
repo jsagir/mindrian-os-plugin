@@ -1,0 +1,266 @@
+[
+ {
+  "ts": "2026-10-01T23:26:43.982Z",
+  "label": "arm_start",
+  "arm": "stateless (default Cowork HTTP)"
+ },
+ {
+  "ts": "2026-10-01T23:26:44.604Z",
+  "label": "server_up",
+  "arm": "stateless (default Cowork HTTP)",
+  "up": true
+ },
+ {
+  "ts": "2026-10-01T23:26:44.668Z",
+  "label": "arm_error",
+  "arm": "stateless (default Cowork HTTP)",
+  "error": "Error: Streamable HTTP error: Error POSTing to endpoint: \n    at StreamableHTTPClientTransport.send (/home/jsagi/dev/MindrianOS-Plugin/node_modules/@modelcontextprotocol/sdk/dist/cjs/client/streamableHttp.js:369:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async Client.notification (/home/jsagi/dev/MindrianOS-Plugin/node_modules/@modelcontextprotocol/sdk/dist/cjs/shared/protocol.js:883:9)\n    at async Client.connect (/home/jsagi/dev/MindrianOS-Plu"
+ },
+ {
+  "ts": "2026-10-01T23:26:45.870Z",
+  "label": "server_tail",
+  "arm": "stateless (default Cowork HTTP)",
+  "out": "[mindrian-os] Capabilities: active=[apps, tasks] inactive=[hooks, scripts]\n[mindrian-os] MCP Apps registered: room-dashboard, room-wiki, room-graph\n(node:3492158) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n[mindrian-os] MCP server v2.0.0-beta.54 started (cowork, HTTP on 127.0.0.1:3847, room: /tmp/spike005-Ch9dho/egain-des-liquid-conductor)\n[mindrian-os] Session catch-up: first session or no changes detected.\n[session-catchup] Session state saved on shutdown.\n"
+ },
+ {
+  "ts": "2026-10-01T23:26:45.870Z",
+  "label": "arm_start",
+  "arm": "per-connection sessions (MINDRIAN_MCP_FIRST=cowork)"
+ },
+ {
+  "ts": "2026-10-01T23:26:46.488Z",
+  "label": "server_up",
+  "arm": "per-connection sessions (MINDRIAN_MCP_FIRST=cowork)",
+  "up": true
+ },
+ {
+  "ts": "2026-10-01T23:26:46.515Z",
+  "label": "connect_A",
+  "ms": 26,
+  "sessionId": "8c469684-f432-4b25-9829-25c7812b2c5e"
+ },
+ {
+  "ts": "2026-10-01T23:26:46.530Z",
+  "label": "tools",
+  "count": 45,
+  "has": [
+   "room_state",
+   "graph_query",
+   "gate_render",
+   "gate_answer",
+   "room_bind"
+  ]
+ },
+ {
+  "ts": "2026-10-01T23:26:46.578Z",
+  "label": "A.room_bind",
+  "ok": true,
+  "ms": 48,
+  "sid": null,
+  "body": "{\n  \"ok\": true,\n  \"bound\": true,\n  \"primary\": \"egain-des-liquid-conductor\",\n  \"source\": \"explicit\",\n  \"effective\": true,\n  \"resolved_dir\": \"/tmp/spike005-23tmNs/egain-des-liquid-conductor\",\n  \"resolved_source\": \"session.primary\"\n}\n\n## Suggested Next\n\n**Tool:** `room_state`\n**Args:** `{\"command\":\"status\"}`\n**Rationale:** Session bound - check room status for the newly bound room"
+ },
+ {
+  "ts": "2026-10-01T23:26:46.585Z",
+  "label": "A.room_state",
+  "ok": true,
+  "ms": 7,
+  "sid": null,
+  "body": {
+   "command": "analyze"
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.593Z",
+  "label": "A.graph_query",
+  "ok": true,
+  "ms": 7,
+  "sid": null,
+  "body": {
+   "ok": true,
+   "results": [],
+   "note": "No focus node. Pass node_id, or set a session focus first."
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.600Z",
+  "label": "A.gate_render",
+  "ok": true,
+  "ms": 7,
+  "sid": null,
+  "body": {
+   "ok": true,
+   "gate_id": "gate-924a4532839b6848",
+   "renderer": "askuserquestion",
+   "rendered": {
+    "zones": {
+     "header": "spike005 test gate",
+     "body": "▢ 1. Approve\n▢ 2. Not now",
+     "signals": "",
+     "footer": "[AskUserQuestion contract: shape=F.8 verbs=0]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 0 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]"
+    },
+    "contract": {
+     "shape": "F.8",
+     "keyboard": "askuserquestion",
+     "multiSelect": false,
+     "recommended": null,
+     "freeTextOffered": false,
+     "options": [
+      "Approve",
+      "Not now"
+     ],
+     "paged": false,
+     "pages": 1,
+     "maxToggleN": 4,
+     "preChecked": [],
+     "personaContext": null,
+     "superset_options": [
+      {
+       "id": "yes",
+       "label": "Approve",
+       "description": null,
+       "rank": 1,
+       "preview": null
+      },
+      {
+       "id": "no",
+       "label": "Not now",
+       "description": null,
+       "rank": 2,
+       "preview": null
+      }
+     ]
+    },
+    "askuserquestion_marker": "[AskUserQuestion contract: shape=F.8 verbs=0]",
+    "askuserquestion_binding": "[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 0 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]"
+   }
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.600Z",
+  "label": "gate_minted",
+  "gid1": "gate-924a4532839b6848"
+ },
+ {
+  "ts": "2026-10-01T23:26:46.636Z",
+  "label": "A.gate_answer_same_connection",
+  "ok": true,
+  "ms": 36,
+  "sid": null,
+  "body": {
+   "ok": true,
+   "gate_id": "gate-924a4532839b6848",
+   "chosen": [
+    "yes"
+   ],
+   "verdict": "approve",
+   "ratified": true,
+   "memory_event": {
+    "ok": true,
+    "eventId": "memory_event:mcp_client_event_logged:1790897206605:38d526ba"
+   },
+   "reasoning_node": {
+    "ok": true,
+    "node_id": "decision:gate:gate-924a4532839b6848",
+    "edges_written": 0,
+    "framework_edge": false,
+    "confirmed": true,
+    "subject_node_id": null,
+    "subject_confirmed": false,
+    "subject_skip_reason": "no_subject"
+   }
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.642Z",
+  "label": "A.gate_render_2",
+  "ok": true,
+  "ms": 6,
+  "sid": null,
+  "body": {
+   "ok": true,
+   "gate_id": "gate-3cfad87a7d964408",
+   "renderer": "askuserquestion",
+   "rendered": {
+    "zones": {
+     "header": "spike005 cross gate",
+     "body": "▢ 1. Approve",
+     "signals": "",
+     "footer": "[AskUserQuestion contract: shape=F.8 verbs=0]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 0 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]"
+    },
+    "contract": {
+     "shape": "F.8",
+     "keyboard": "askuserquestion",
+     "multiSelect": false,
+     "recommended": null,
+     "freeTextOffered": false,
+     "options": [
+      "Approve"
+     ],
+     "paged": false,
+     "pages": 1,
+     "maxToggleN": 4,
+     "preChecked": [],
+     "personaContext": null,
+     "superset_options": [
+      {
+       "id": "yes",
+       "label": "Approve",
+       "description": null,
+       "rank": 1,
+       "preview": null
+      }
+     ]
+    },
+    "askuserquestion_marker": "[AskUserQuestion contract: shape=F.8 verbs=0]",
+    "askuserquestion_binding": "[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 0 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]"
+   }
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.654Z",
+  "label": "connect_B",
+  "ms": 11,
+  "sessionId": "9799470b-bc08-45e4-8982-afde63852f53"
+ },
+ {
+  "ts": "2026-10-01T23:26:46.656Z",
+  "label": "B.gate_answer_cross_connection",
+  "ok": false,
+  "ms": 2,
+  "sid": null,
+  "body": {
+   "ok": false,
+   "reason": "session_mismatch",
+   "gate_id": "gate-3cfad87a7d964408"
+  }
+ },
+ {
+  "ts": "2026-10-01T23:26:46.701Z",
+  "label": "latency_room_state",
+  "p50": 4,
+  "p90": 5,
+  "max": 6
+ },
+ {
+  "ts": "2026-10-01T23:26:46.710Z",
+  "label": "throwaway_room_files",
+  "dbs": [
+   "ambient-run-ledger.json",
+   "decision-traces",
+   "eureka-perspective",
+   "graph-derive-queue.json",
+   "invariant-report.json"
+  ]
+ },
+ {
+  "ts": "2026-10-01T23:26:47.913Z",
+  "label": "server_tail",
+  "arm": "per-connection sessions (MINDRIAN_MCP_FIRST=cowork)",
+  "out": "gs ...` to show where the warning was created)\n[mindrian-os] MCP server v2.0.0-beta.54 started (cowork, HTTP on 127.0.0.1:3847, room: /tmp/spike005-23tmNs/egain-des-liquid-conductor)\n[mindrian-os] Session catch-up: first session or no changes detected.\n[mindrian-os] Capabilities: active=[apps, tasks] inactive=[hooks, scripts]\n[mindrian-os] MCP Apps registered: room-dashboard, room-wiki, room-graph\n[mindrian-os] Capabilities: active=[apps, tasks] inactive=[hooks, scripts]\n[mindrian-os] MCP Apps registered: room-dashboard, room-wiki, room-graph\n[session-catchup] Session state saved on shutdown.\n"
+ },
+ {
+  "ts": "2026-10-01T23:26:47.913Z",
+  "label": "real_room_untouched",
+  "same_mtime": true
+ }
+]
