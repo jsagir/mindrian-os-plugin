@@ -245,38 +245,39 @@ check('Test 5 -- surfaceTrendSelectionGate returns a Shape F.1 trend-selection g
 });
 
 // ---------------------------------------------------------------------------
-// Test 6 (quick 261001-tta): the declared primary framework is "Trending to the
-// Absurd" (the Un-Defined tool per the lecture notes and framework-catalog-343),
-// NOT "S-Curve Analysis". Theo's registry sync copies the plugin declaration, so
-// a wrong declaration maps the command to the wrong framework in Theo. The body
-// runs no S-curve step, so S-Curve Analysis is not declared at all.
+// Test 6 (quick 261001-tta, navigator ruling "Both TTA and S-Curve"): the
+// declared PRIMARY framework is "Trending to the Absurd" (the Un-Defined tool per
+// the lecture notes and framework-catalog-343), with "S-Curve Analysis" kept as
+// the SECONDARY framework, in that order. Theo's registry sync copies the plugin
+// declaration, so a wrong primary maps the command to the wrong framework in
+// Theo. frameworks[0] is the primary: the registry stores the declared array in
+// order, framework_index is the inverse, and the connector `framework:` carries
+// the primary only.
 // ---------------------------------------------------------------------------
-check('Test 6 -- command, skill, and registries declare "Trending to the Absurd" as the primary framework', () => {
+check('Test 6 -- command, skill, and registries declare ["Trending to the Absurd", "S-Curve Analysis"] with the former primary', () => {
   const PRIMARY = 'Trending to the Absurd';
+  const SECONDARY = 'S-Curve Analysis';
   const cmd = fs.readFileSync(path.join(REPO_ROOT, 'commands', 'trending-to-absurd.md'), 'utf8');
   const fm = cmd.split(/^---\s*$/m)[1];
   const fmLine = fm.match(/^frameworks:\s*(\[.*\])\s*$/m);
   assert.ok(fmLine, 'command frontmatter declares frameworks');
-  const fws = JSON.parse(fmLine[1]);
-  assert.equal(fws[0], PRIMARY, 'frameworks[0] (primary) is the exact Theo framework name');
-  assert.ok(!fws.includes('S-Curve Analysis'), 'S-Curve Analysis is not declared: the body runs no S-curve step');
+  assert.deepEqual(JSON.parse(fmLine[1]), [PRIMARY, SECONDARY], 'frameworks is the primary then the secondary, in that order');
   assert.ok(new RegExp('^  framework: "' + PRIMARY + '"\\s*$', 'm').test(fm), 'connector framework is the primary framework');
 
   const skill = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'trending-to-absurd', 'SKILL.md'), 'utf8');
   assert.ok(new RegExp('^framework: "' + PRIMARY + '"', 'm').test(skill), 'skill framework equals the command primary');
 
   const reg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'command-registry.json'), 'utf8'));
-  const entry = reg.commands.find((c) => c.command === '/mos:trending-to-absurd' || c.command === 'trending-to-absurd');
+  const entry = reg.commands.find((c) => c.command === '/mos:trending-to-absurd');
   assert.ok(entry, 'registry carries the command');
-  assert.equal(entry.frameworks[0], PRIMARY, 'registry primary framework');
-  assert.ok(reg.framework_index[PRIMARY].some((c) => /trending-to-absurd$/.test(c)), 'framework_index leads the framework to the command');
-  assert.ok(!(reg.framework_index['S-Curve Analysis'] || []).some((c) => /trending-to-absurd$/.test(c)), 'S-Curve Analysis no longer maps to the command');
+  assert.deepEqual(entry.frameworks, [PRIMARY, SECONDARY], 'registry stores the declared order');
+  assert.ok(reg.framework_index[PRIMARY].includes('/mos:trending-to-absurd'), 'framework_index leads the primary framework to the command');
+  assert.ok(reg.framework_index[SECONDARY].includes('/mos:trending-to-absurd'), 'framework_index keeps the secondary framework');
 
   const conn = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'connector-registry.json'), 'utf8'));
-  const rows = (conn.entries || conn.connectors || conn.surfaces || Object.values(conn).find(Array.isArray) || [])
-    .filter((r) => r.sub_mode === 'trending-to-absurd');
+  const rows = conn.connectors.filter((r) => r.sub_mode === 'trending-to-absurd');
   assert.ok(rows.length >= 1, 'connector registry carries the command rows');
-  for (const r of rows) assert.equal(r.framework, PRIMARY, 'connector row ' + r.surface + ' framework');
+  for (const r of rows) assert.equal(r.framework, PRIMARY, 'connector row ' + r.surface + ' framework is the primary');
 });
 
 // ---------------------------------------------------------------------------
