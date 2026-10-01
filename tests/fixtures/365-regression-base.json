@@ -1,0 +1,88 @@
+{
+  "schema": "mos.365-regression-base/1",
+  "base_sha": "74853207683c1dc5cf5b449050002a35a1805525",
+  "captured_at": "2026-10-01T06:47:49.109Z",
+  "captured_on_head": "ba678e542c278088dfceb171bd72c6540211742c",
+  "note": "Captured at the 365-01 plan base. Plan 365-01 commits (docs REQUIREMENTS rows, ladder data and fence test) preceded the capture and touch no suite input. A peer session had an uncommitted .planning/REQUIREMENTS.md hunk in the shared tree during capture (the doctor verify-release-clean-tree point). The 363 failing_legs include nested-suite lines that run-all-363 prints from its known-red wrappers; run-all-365 normalizes the same way when it compares.",
+  "suites": {
+    "354": {
+      "exit": 1,
+      "failing_legs": [
+        "354: framework command ledger (THEO-01)"
+      ],
+      "summary_line": "PASSED=18 FAILED=1 SKIPPED=1"
+    },
+    "355": {
+      "exit": 1,
+      "failing_legs": [
+        "272-cache-probe.test.cjs",
+        "no-regression: part8-egress-guard.test.cjs",
+        "no-regression: run-all-272.sh",
+        "test-355-direction-agreement.cjs"
+      ],
+      "summary_line": "Phase 355: PASS=70 FAIL=3 SKIP=0"
+    },
+    "356": {
+      "exit": 0,
+      "failing_legs": [],
+      "summary_line": "PASSED=25 FAILED=0 SKIPPED=0"
+    },
+    "358": {
+      "exit": 1,
+      "failing_legs": [
+        "358: B2 Part 8 (B2-09)",
+        "358: MCP surfaces (B1-02/B1-04/B1-05/B1-06)",
+        "358: claim-write primitive (run only, never edited by 358)",
+        "358: filing gate (run only, never edited by 358)",
+        "358: new-session persistence (B1-03)",
+        "358: tool honesty findings closed (run only, never edited by 358)"
+      ],
+      "summary_line": "PASSED=33 FAILED=6 SKIPPED=0"
+    },
+    "363": {
+      "exit": 0,
+      "failing_legs": [
+        "216 no-regression (chains 215 + 211)",
+        "218 substrate no-regression",
+        "220 no-regression",
+        "test-131-e2e.cjs"
+      ],
+      "summary_line": "PASSED=43 FAILED=0 SKIPPED=1 KNOWN=10"
+    }
+  },
+  "known_reds": [
+    {
+      "leg": "tests/test-238-chosen-validation.cjs",
+      "exit": 1,
+      "signature": "expected memory_event count to increase by exactly 1 (before=0, after=2)"
+    },
+    {
+      "leg": "tests/test-237-approve-executes.cjs",
+      "exit": 1,
+      "signature": "7: MUTATION -- could not build the mutated copy (dispatcher-call needle not found"
+    },
+    {
+      "leg": "tests/test-345-gate-ratify.cjs",
+      "exit": 1,
+      "signature": "FAIL: test-345-gate-ratify"
+    },
+    {
+      "leg": "tests/test-267-mcpv2-zod4-contract.cjs",
+      "exit": 1,
+      "signature": "tool:research_run:membership"
+    },
+    {
+      "leg": "tests/test-198-contract-schema.test.cjs",
+      "exit": 1,
+      "signature": "AssertionError [ERR_ASSERTION]: contract_version registers (flag off)"
+    }
+  ],
+  "doctor_failing_points": [
+    {
+      "name": "verify-release-clean-tree",
+      "message": "verify-release Step 12 reports clean git tree (tracked files only)",
+      "detail": "tracked-file drift: 1 file(s)"
+    }
+  ],
+  "doctor_summary": "Acceptance full: 21/22 points passed; failed: verify-release-clean-tree."
+}
