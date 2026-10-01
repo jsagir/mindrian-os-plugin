@@ -1503,6 +1503,17 @@ Plans:
 - [ ] 365-16-PLAN.md -- open Phase 365.1, draft the ratification ask, full gate, close rows, follow-ons incl. Theo parity sync (wave 6)
 - [ ] 365-17-PLAN.md -- navigator routes the research trail and rules on the ask; file in both homes (wave 7, checkpoint)
 
+### Phase 365.1: Edge-derived verification rung after ladder ratification (B1 derivation, B1a person node, B4, record migration)
+
+**Goal:** Derive a claim's verification rung from its own edges (never from the filer), add the person node for rung 5, split the unsupported scan by kind of silence, and migrate Phase 358 records to the ratified ladder, all behind the paper author's ratification of the ladder. Planning input: 365.1-INPUT.md.
+**Requirements**: TBD (minted at plan time)
+**Depends on:** Phase 365; BLOCKED until the paper author ratifies the verification ladder (data/verification-ladder.json ratified: true)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 365.1 after ratification)
+
 ### Phase 366: Eureka becomes a perspective of the research planner; the MCP canvas tooling; one home for Claude model routing (promotes SEED-103)
 
 **Navigator intent (2026-10-01, verbatim):** "eurika might be redundant. and the better approach is to do the mcp based mos:canvas layer properly with jev and research etc"; "the canvas can utilize the local graph and icm structure instead of embeddings"; "let's make sure we properly route the current claude models, maybe haiku wrong for what we want"; "we might need to reform the nodes in the local graph in rooms to play better with Theo's".
