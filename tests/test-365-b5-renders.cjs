@@ -29,6 +29,10 @@ const verification = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', '
 const { STANDING_WORDS, claimStanding } = verification;
 const { getRoomHomeView } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'room-home.cjs'));
 const { getGraphExport } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'graph-export.cjs'));
+const insights = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'insights.cjs'));
+const { renderExplanation } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'explanation.cjs'));
+const { getResearchPreflight } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'research-preflight.cjs'));
+const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
 
 const DASHES = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']');
 
@@ -186,6 +190,60 @@ async function runTaskOneLegs(room) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Task 2 legs: B5..B7
+// ---------------------------------------------------------------------------
+async function runTaskTwoLegs(room) {
+  const db = fx.openFresh(room.room);
+  try {
+    const c = seedStandings(db);
+
+    await check('B5 findUnsupportedClaims rows gain standing and standing_words; the explanation string is unchanged', () => {
+      const rows = insights.findUnsupportedClaims(db, 'room:b5');
+      const byId = new Map(rows.map((r) => [r.claim.id, r]));
+      for (const id of [c.none, c.ask, c.src, c.loc]) {
+        const row = byId.get(id);
+        assert.ok(row, 'claim ' + id + ' is unsupported (no SUPPORTS edge)');
+        const st = claimStanding(db, id).standing;
+        assert.equal(row.standing, st);
+        assert.equal(row.standing_words, STANDING_WORDS[st].label);
+        const want = renderExplanation('unsupported', {
+          claim: row.claim.id, reviewStatus: row.claim.reviewStatus, lastSeenAt: row.claim.lastSeenAt,
+        });
+        assert.equal(row.explanation, want, 'explanation is byte-identical to the template output');
+        assert.ok(row.explanation.indexOf(STANDING_WORDS[st].label) === -1, 'the explanation does not carry the new words');
+      }
+      assert.deepEqual(Object.keys(byId.get(c.ask)).sort(),
+        ['claim', 'explanation', 'missingEvidenceFor', 'standing', 'standing_words']);
+    });
+
+    await check('B6 research preflight evidence_gaps claim entries carry standing_words', () => {
+      const pre = getResearchPreflight(db, { roomDir: room.room });
+      const gaps = pre.evidence_gaps.filter((g) => g && g.claim && g.claim.id === c.ask);
+      assert.equal(gaps.length, 1, 'the held model-only claim shows up as one gap');
+      assert.equal(gaps[0].standing_words, STANDING_WORDS.model_only.label);
+      assert.equal(gaps[0].standing, 'model_only');
+    });
+
+    await check('B7 the Brain packet unsupported projection keys are unchanged and carry no standing words', async () => {
+      const mocks = { jtbd: { getCurrent: () => ({ current: null }) }, operator: { getCurrent: () => ({ current: null }) } };
+      const packet = await navigation.buildBrainPacket(db, 'suggest_next_move', c.none, { _mocks: mocks, roomId: 'b5' });
+      const un = packet.local_graph_summary.unsupported_claims;
+      assert.ok(Array.isArray(un) && un.length >= 1, 'the packet lists unsupported claims');
+      // The key list captured from the PLAN_BASE version of safeUnsupportedProjection.
+      const BASE_KEYS = ['claimId', 'explanation', 'lastSeenAt', 'reviewStatus', 'type'];
+      for (const u of un) assert.deepEqual(Object.keys(u).sort(), BASE_KEYS);
+      const wire = JSON.stringify(packet);
+      for (const w of Object.values(STANDING_WORDS)) {
+        assert.ok(wire.indexOf(w.label) === -1, 'no standing label crosses to the Brain');
+      }
+      assert.ok(wire.indexOf('standing_words') === -1 && wire.indexOf('verification_words') === -1);
+    });
+  } finally {
+    try { db.close(); } catch (_e) { /* ignore */ }
+  }
+}
+
 async function main() {
   let room;
   try {
@@ -198,6 +256,18 @@ async function main() {
     await runTaskOneLegs(room);
   } finally {
     fx.cleanup(room);
+  }
+  let room2;
+  try {
+    room2 = fx.makeRoom365('b5-renders-2');
+  } catch (e) {
+    process.stdout.write('SKIP: scratch room unavailable: ' + ((e && e.message) || e) + '\n');
+    return fx.SKIP_EXIT_CODE;
+  }
+  try {
+    await runTaskTwoLegs(room2);
+  } finally {
+    fx.cleanup(room2);
   }
   if (failures > 0) {
     process.stdout.write('FAILED: ' + failures + ' leg(s)\n');
