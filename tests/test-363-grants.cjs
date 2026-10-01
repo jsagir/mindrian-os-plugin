@@ -227,8 +227,16 @@ leg('G8 revokeGrant makes later queries grant_revoked; a foreign policy is grant
 leg('G9 writeGrant refuses out-of-scope standing, filing keys; room_mismatch across rooms', function () {
   const room = mkRoom('g9');
   const p = G.buildStandingProposal(room, { terms: [{ term: WS.term, synonyms: WS.synonyms }], now: NOW });
+  // SEED-104 supersedes the Phase 363 D-04 single-family standing scope; the
+  // bound is question-templates FAMILY_IDS, so a plan-scoped standing grant may
+  // cover the families the plan queries. Providers stay openalex-only.
   const wide = Object.assign({}, p, { families: ['whitespace-gap/v1', 'concept-evidence/v1'] });
-  assert.equal(G.writeGrant(room, wide, { approved_via: VIA, now: NOW }).reason, 'standing_scope_exceeded');
+  const wideRoom = mkRoom('g9w');
+  const wroteWide = G.writeGrant(wideRoom, wide, { approved_via: VIA, now: NOW });
+  assert.equal(wroteWide.ok, true, JSON.stringify(wroteWide));
+  assert.deepEqual(wroteWide.grant.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
+  const unknownFam = Object.assign({}, p, { families: ['whitespace-gap/v1', 'made-up/v1'] });
+  assert.equal(G.writeGrant(room, unknownFam, { approved_via: VIA, now: NOW }).reason, 'unknown_family');
   const prov = Object.assign({}, p, { providers: ['openalex', 'crossref'] });
   assert.equal(G.writeGrant(room, prov, { approved_via: VIA, now: NOW }).reason, 'standing_scope_exceeded');
   ['file', 'filing', 'file_on_approve'].forEach(function (k) {

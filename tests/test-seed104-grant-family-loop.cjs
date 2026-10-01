@@ -138,6 +138,125 @@ async function main() {
     assert.deepEqual(whitespaceSnapshot(), golden);
   });
 
+  // -- S1 composer term gate (SEED-104 part 2) ---------------------------------
+  await leg('S1 composer refuses prose terms with term_not_composed, no echo; plain overlength stays bad_slot', function () {
+    const long = '**Claim.** A stable, flowable emulsion of eutectic gallium-indium EGaIn';
+    const r = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: long, term2: 'gallium oxide' } });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'term_not_composed');
+    assert.equal(r.degrade, 'local-only');
+    const s = JSON.stringify(r);
+    assert.equal(s.indexOf('Claim'), -1);
+    assert.equal(s.indexOf('flowable'), -1);
+    ['1. Tension in the field', 'Claim. A stable emulsion'].forEach(function (t) {
+      const x = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: t, term2: 'gallium oxide' } });
+      assert.equal(x.reason, 'term_not_composed', t);
+    });
+    const syn = families.composeFamily('whitespace-gap/v1', { term: 'thin-film sensors', synonyms: ['a `code` span'] });
+    assert.equal(syn.reason, 'term_not_composed');
+    assert.equal(families.composeFamily('whitespace-gap/v1', { term: 'a'.repeat(81) }).reason, 'bad_slot');
+    const ok = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: 'gallium oxide choline chloride deep eutectic solvent', term2: 'liquid metal' } });
+    assert.equal(ok.ok, true);
+    assert.equal(families.stripMarkdown('**Claim.** A stable'), 'Claim. A stable');
+    assert.equal(families.composableTerm('Claim. A stable'), null);
+    assert.equal(families.composableTerm('thin-film sensors'), 'thin-film sensors');
+    assert.equal(families.composableTerm('a_b snake_case'), 'a_b snake_case');
+    ['| x |', '> quote text', '# heading', '- item', '2) item', '_lead word', 'trail_ word', 'a ~~b~~ c'].forEach(function (t) {
+      assert.equal(families.proseShaped(t), true, t);
+    });
+  });
+
+  // -- S2 grant writers refuse prose --------------------------------------------
+  await leg('S2 writeGrant and extendTerms refuse prose terms before any write', function () {
+    const room = newRoom('founder').roomDir;
+    const p = grants.buildStandingProposal(room, { terms: [{ term: PROSE, synonyms: [] }] });
+    const w = grants.writeGrant(room, p, { approved_via: VIA, now: NOW });
+    assert.equal(w.ok, false);
+    assert.equal(w.reason, 'term_not_composed');
+    assert.equal(fs.existsSync(path.join(room, '.mindrian', 'research-grants.json')), false);
+    const goodP = grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }] });
+    const g = grants.writeGrant(room, goodP, { approved_via: VIA, now: NOW });
+    assert.equal(g.ok, true);
+    const ext = grants.extendTerms(room, g.grant.grant_id, [{ term: PROSE, synonyms: [] }], VIA, { now: NOW });
+    assert.equal(ext.ok, false);
+    assert.equal(ext.reason, 'term_not_composed');
+    assert.equal(grants.readGrants(room).grants[0].version, 1);
+    const ext2 = grants.extendTerms(room, g.grant.grant_id, [{ term: 'fine term', synonyms: ['bad. sentence here'] }], VIA, { now: NOW });
+    assert.equal(ext2.reason, 'term_not_composed');
+    assert.equal(grants.readGrants(room).grants[0].approved_terms.length, 1);
+  });
+
+  // -- S3 planFamilies and the proposal families option -------------------------
+  await leg('S3 planFamilies keeps researchable openalex round-1 families in FAMILY_IDS order; proposal families option', function () {
+    function ql(family, template) { return { family: family, template_id: template, round: 1, q: 'x', q_hash: 'h' }; }
+    const plan = {
+      leaves: [
+        { id: 'a', researchable: true, corpus: 'openalex', queries: [ql('concept-evidence/v1', 'ce.exact'), ql('whitespace-gap/v1', 'ws.exact')] },
+        { id: 'b', researchable: true, corpus: 'room', queries: [ql('diffusion/v1', 'df.adoption')] },
+        { id: 'c', researchable: true, corpus: 'openalex', queries: [ql('made-up/v1', 'mu.x'), { family: 'causal-link/v1', template_id: 'cl.link', round: 2 }] },
+        { id: 'd', researchable: false, corpus: 'openalex', queries: [ql('constraint-interrogation/v1', 'ci.derivation')] },
+      ],
+    };
+    assert.deepEqual(grants.planFamilies(plan), ['whitespace-gap/v1', 'concept-evidence/v1']);
+    assert.deepEqual(grants.planFamilies({ leaves: [] }), []);
+    const room = newRoom('founder').roomDir;
+    assert.deepEqual(grants.buildStandingProposal(room, { terms: [], families: ['concept-evidence/v1'] }).families, ['concept-evidence/v1']);
+    assert.deepEqual(grants.buildStandingProposal(room, { terms: [] }).families, ['whitespace-gap/v1']);
+    assert.deepEqual(grants.buildStandingProposal(room, { terms: [], families: ['made-up/v1'] }).families, ['whitespace-gap/v1']);
+  });
+
+  // -- S4 extendTerms widening and no-op ----------------------------------------
+  await leg('S4 extendTerms widens families with one version bump; the identical call is a no-op', function () {
+    const room = newRoom('founder').roomDir;
+    const g = grants.writeGrant(room, grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: [] }] }), { approved_via: VIA, now: NOW }).grant;
+    const a = grants.extendTerms(room, g.grant_id, [], VIA, { now: NOW, families: ['concept-evidence/v1'] });
+    assert.equal(a.ok, true, JSON.stringify(a));
+    assert.deepEqual(a.grant.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
+    assert.equal(a.grant.version, 2);
+    const b = grants.extendTerms(room, g.grant_id, [], VIA, { now: NOW, families: ['concept-evidence/v1'] });
+    assert.equal(b.ok, true);
+    assert.equal(b.unchanged, true);
+    assert.equal(b.grant.version, 2);
+    assert.equal(grants.readGrants(room).grants[0].version, 2);
+    assert.equal(grants.extendTerms(room, g.grant_id, [], VIA, { now: NOW }).reason, 'no_terms');
+  });
+
+  // -- S5 scopeGain -------------------------------------------------------------
+  await leg('S5 scopeGain names only what approving would add', function () {
+    const room = newRoom('founder').roomDir;
+    const g = grants.writeGrant(room, grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }] }), { approved_via: VIA, now: NOW }).grant;
+    const ce = grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: [] }], families: ['concept-evidence/v1'] });
+    const gain = grants.scopeGain(g, ce, []);
+    assert.deepEqual(gain.families, ['concept-evidence/v1']);
+    assert.deepEqual(gain.providers, []);
+    assert.deepEqual(gain.terms, []);
+    const same = grants.buildStandingProposal(room, { terms: [{ term: 'Thin-Film Sensors', synonyms: ['dielectric probes'] }] });
+    const none = grants.scopeGain(g, same, []);
+    assert.deepEqual(none, { families: [], providers: [], terms: [] });
+    const more = grants.scopeGain(g, same, ['brand new term', { term: 'thin-film sensors', synonyms: ['new syn'] }]);
+    assert.deepEqual(more.terms.sort(), ['brand new term', 'new syn']);
+  });
+
+  // -- S6 FAMILY_IDS parity -----------------------------------------------------
+  await leg('S6 question-templates FAMILY_IDS equals the families module keys', function () {
+    assert.deepEqual(Q.FAMILY_IDS.slice(), Object.keys(families.FAMILIES));
+  });
+
+  // -- G9 (rewrite of test-363-grants G9 scope assertions) ----------------------
+  await leg('G9b SEED-104 supersedes the Phase 363 D-04 single-family standing scope; bound is FAMILY_IDS', function () {
+    const room = newRoom('founder').roomDir;
+    const p = grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }] });
+    const wide = Object.assign({}, p, { families: ['whitespace-gap/v1', 'concept-evidence/v1'] });
+    const w = grants.writeGrant(room, wide, { approved_via: VIA, now: NOW });
+    assert.equal(w.ok, true, JSON.stringify(w));
+    assert.deepEqual(w.grant.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
+    const room2 = newRoom('founder').roomDir;
+    const bad = Object.assign({}, p, { families: ['whitespace-gap/v1', 'made-up/v1'] });
+    assert.equal(grants.writeGrant(room2, bad, { approved_via: VIA, now: NOW }).reason, 'unknown_family');
+    const prov = Object.assign({}, p, { providers: ['openalex', 'crossref'] });
+    assert.equal(grants.writeGrant(room2, prov, { approved_via: VIA, now: NOW }).reason, 'standing_scope_exceeded');
+  });
+
   // LEGS_HERE
 
   await leg('Z net guard counted zero fetch attempts', function () {
