@@ -65,6 +65,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { spawnSync } = require('node:child_process');
+// The update-path command comes from its single source (339-06, D-08), never retyped here.
+const { PLUGIN_UPDATE_COMMAND } = require(path.join(__dirname, '..', 'lib', 'core', 'update-path.cjs'));
 
 const SCHEMA = 'mos-cold-install-evidence/1';
 
@@ -362,7 +364,7 @@ function collectEvidence(opts) {
     longest_relative_path: longestPath,
     first_install_seconds: opts.firstInstallSeconds != null ? opts.firstInstallSeconds : null,
     notes: opts.firstInstallSeconds == null
-      ? notes.concat(['first_install_seconds is null by default -- the human operator records the wall-clock seconds the "claude plugin update mos@mindrian-marketplace" command took, per 341-RESEARCH Open Question 1'])
+      ? notes.concat(['first_install_seconds is null by default -- the human operator records the wall-clock seconds the "' + PLUGIN_UPDATE_COMMAND + '" command took, per 341-RESEARCH Open Question 1'])
       : notes,
   };
 
