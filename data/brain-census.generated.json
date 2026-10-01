@@ -1,70 +1,115 @@
 {
   "meta": {
-    "census_date": "2026-09-11",
+    "census_date": "2026-10-01",
     "brain_url": "https://theo-mcp.onrender.com",
     "brain_stats": {
-      "nodes": 27951,
-      "relationships": 39732,
+      "nodes": 28131,
+      "relationships": 53313,
       "labels": [
         {
           "label": "BrainRecord",
-          "count": 147
+          "count": 148,
+          "declared": true
+        },
+        {
+          "label": "CaseStudy",
+          "count": 93,
+          "declared": true
         },
         {
           "label": "Chapter",
-          "count": 35
+          "count": 35,
+          "declared": true
         },
         {
           "label": "Chunk",
-          "count": 210
+          "count": 210,
+          "declared": true
+        },
+        {
+          "label": "Concept",
+          "count": 0,
+          "declared": true
         },
         {
           "label": "DomainConcept",
-          "count": 6
+          "count": 6,
+          "declared": true
+        },
+        {
+          "label": "Example",
+          "count": 47,
+          "declared": true
         },
         {
           "label": "Framework",
-          "count": 452
+          "count": 457,
+          "declared": true
+        },
+        {
+          "label": "GraphRagMeta",
+          "count": 1,
+          "declared": true
         },
         {
           "label": "Mention",
-          "count": 13273
+          "count": 13273,
+          "declared": true
         },
         {
           "label": "MethodologyChunk",
-          "count": 12401
+          "count": 12401,
+          "declared": true
         },
         {
           "label": "MindrianCommand",
-          "count": 113
+          "count": 113,
+          "declared": true
         },
         {
           "label": "Phase",
-          "count": 6
+          "count": 6,
+          "declared": true
         },
         {
           "label": "ProcessStep",
-          "count": 728
+          "count": 735,
+          "declared": true
         },
         {
           "label": "Reach",
-          "count": 6
+          "count": 6,
+          "declared": true
         },
         {
           "label": "Root",
-          "count": 1
+          "count": 1,
+          "declared": true
+        },
+        {
+          "label": "Sensor",
+          "count": 15,
+          "declared": true
+        },
+        {
+          "label": "Stage",
+          "count": 0,
+          "declared": true
         },
         {
           "label": "TaxonomyRecord",
-          "count": 270
+          "count": 270,
+          "declared": true
         },
         {
           "label": "Technique",
-          "count": 304
+          "count": 315,
+          "declared": true
         },
         {
           "label": "ToolType",
-          "count": 6
+          "count": 6,
+          "declared": true
         }
       ],
       "diagnostics": {
@@ -89,7 +134,7 @@
   "canon_discrepancy": {
     "canon_prose_count": 25,
     "scanned_count": 50,
-    "scanned_at": "2026-09-11",
+    "scanned_at": "2026-10-01",
     "enumeration_source": "frontmatter scan of commands/*.md (kind: methodology)"
   },
   "gap_table": [
@@ -283,6 +328,13 @@
       "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
+      "framework": "Trending to the Absurd",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
       "framework": "Usher's Model of Cumulative Synthesis",
       "uses": 1,
       "readiness_score": null,
@@ -303,7 +355,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -343,7 +395,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -392,7 +444,7 @@
             },
             "coverage": {
               "matched": 1,
-              "total": 22,
+              "total": 23,
               "status": "partial"
             },
             "diagnostics": {
@@ -413,15 +465,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:11.183Z"
+            "date": "2026-10-01T12:22:15.708Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:11.183Z"
+            "date": "2026-10-01T12:22:15.708Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:11.183Z"
+            "date": "2026-10-01T12:22:15.708Z"
           }
         ]
       },
@@ -435,7 +487,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -475,7 +527,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -508,7 +560,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -529,15 +581,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:15.818Z"
+            "date": "2026-10-01T12:22:20.365Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:15.818Z"
+            "date": "2026-10-01T12:22:20.365Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:15.818Z"
+            "date": "2026-10-01T12:22:20.365Z"
           }
         ]
       },
@@ -551,7 +603,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -591,7 +643,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -680,7 +732,7 @@
             },
             "coverage": {
               "matched": 1,
-              "total": 22,
+              "total": 23,
               "status": "partial"
             },
             "diagnostics": {
@@ -701,15 +753,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:20.243Z"
+            "date": "2026-10-01T12:22:24.745Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:20.243Z"
+            "date": "2026-10-01T12:22:24.745Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:20.243Z"
+            "date": "2026-10-01T12:22:24.745Z"
           }
         ]
       },
@@ -723,7 +775,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -763,7 +815,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -796,7 +848,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -817,15 +869,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:25.576Z"
+            "date": "2026-10-01T12:22:29.056Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:25.576Z"
+            "date": "2026-10-01T12:22:29.056Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:25.576Z"
+            "date": "2026-10-01T12:22:29.056Z"
           }
         ]
       },
@@ -839,7 +891,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -879,7 +931,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -912,7 +964,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -933,15 +985,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:29.904Z"
+            "date": "2026-10-01T12:22:33.516Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:29.904Z"
+            "date": "2026-10-01T12:22:33.516Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:29.904Z"
+            "date": "2026-10-01T12:22:33.516Z"
           }
         ]
       },
@@ -955,7 +1007,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -995,7 +1047,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1028,7 +1080,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1049,15 +1101,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:34.057Z"
+            "date": "2026-10-01T12:22:37.835Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:34.057Z"
+            "date": "2026-10-01T12:22:37.835Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:34.057Z"
+            "date": "2026-10-01T12:22:37.835Z"
           }
         ]
       },
@@ -1071,7 +1123,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1111,7 +1163,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1144,7 +1196,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1165,15 +1217,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:38.412Z"
+            "date": "2026-10-01T12:22:42.290Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:38.412Z"
+            "date": "2026-10-01T12:22:42.290Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:38.412Z"
+            "date": "2026-10-01T12:22:42.290Z"
           }
         ]
       },
@@ -1187,7 +1239,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1227,7 +1279,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1260,7 +1312,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1281,15 +1333,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:42.583Z"
+            "date": "2026-10-01T12:22:46.560Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:42.583Z"
+            "date": "2026-10-01T12:22:46.560Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:42.583Z"
+            "date": "2026-10-01T12:22:46.560Z"
           }
         ]
       },
@@ -1303,7 +1355,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1343,7 +1395,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1376,7 +1428,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1397,15 +1449,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:46.902Z"
+            "date": "2026-10-01T12:22:50.992Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:46.902Z"
+            "date": "2026-10-01T12:22:50.992Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:46.902Z"
+            "date": "2026-10-01T12:22:50.992Z"
           }
         ]
       },
@@ -1419,7 +1471,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1459,7 +1511,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1492,7 +1544,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1513,15 +1565,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:51.108Z"
+            "date": "2026-10-01T12:22:55.259Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:51.108Z"
+            "date": "2026-10-01T12:22:55.259Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:51.108Z"
+            "date": "2026-10-01T12:22:55.259Z"
           }
         ]
       },
@@ -1535,7 +1587,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1575,7 +1627,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1608,7 +1660,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1629,15 +1681,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:40:56.459Z"
+            "date": "2026-10-01T12:22:59.505Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:40:56.459Z"
+            "date": "2026-10-01T12:22:59.505Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:40:56.459Z"
+            "date": "2026-10-01T12:22:59.505Z"
           }
         ]
       },
@@ -1651,7 +1703,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1691,7 +1743,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1724,7 +1776,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1745,15 +1797,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:00.835Z"
+            "date": "2026-10-01T12:23:03.912Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:00.836Z"
+            "date": "2026-10-01T12:23:03.912Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:00.836Z"
+            "date": "2026-10-01T12:23:03.912Z"
           }
         ]
       },
@@ -1767,7 +1819,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1807,7 +1859,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1840,7 +1892,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1861,15 +1913,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:05.120Z"
+            "date": "2026-10-01T12:23:08.252Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:05.120Z"
+            "date": "2026-10-01T12:23:08.252Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:05.120Z"
+            "date": "2026-10-01T12:23:08.252Z"
           }
         ]
       },
@@ -1883,7 +1935,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1923,7 +1975,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -1956,7 +2008,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -1977,15 +2029,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:09.537Z"
+            "date": "2026-10-01T12:23:12.726Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:09.537Z"
+            "date": "2026-10-01T12:23:12.726Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:09.537Z"
+            "date": "2026-10-01T12:23:12.726Z"
           }
         ]
       },
@@ -1999,7 +2051,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2039,7 +2091,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2072,7 +2124,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2093,15 +2145,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:13.750Z"
+            "date": "2026-10-01T12:23:17.020Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:13.750Z"
+            "date": "2026-10-01T12:23:17.020Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:13.750Z"
+            "date": "2026-10-01T12:23:17.020Z"
           }
         ]
       },
@@ -2115,7 +2167,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2155,7 +2207,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2188,7 +2240,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2209,15 +2261,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:18.138Z"
+            "date": "2026-10-01T12:23:21.536Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:18.138Z"
+            "date": "2026-10-01T12:23:21.536Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:18.138Z"
+            "date": "2026-10-01T12:23:21.536Z"
           }
         ]
       },
@@ -2231,7 +2283,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2271,7 +2323,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2304,7 +2356,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2325,15 +2377,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:22.466Z"
+            "date": "2026-10-01T12:23:25.777Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:22.466Z"
+            "date": "2026-10-01T12:23:25.778Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:22.466Z"
+            "date": "2026-10-01T12:23:25.778Z"
           }
         ]
       },
@@ -2347,7 +2399,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2387,7 +2439,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2420,7 +2472,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2441,15 +2493,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:27.868Z"
+            "date": "2026-10-01T12:23:30.020Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:27.868Z"
+            "date": "2026-10-01T12:23:30.020Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:27.868Z"
+            "date": "2026-10-01T12:23:30.020Z"
           }
         ]
       },
@@ -2463,7 +2515,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2503,7 +2555,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2536,7 +2588,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2557,15 +2609,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:32.242Z"
+            "date": "2026-10-01T12:23:34.415Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:32.242Z"
+            "date": "2026-10-01T12:23:34.415Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:32.242Z"
+            "date": "2026-10-01T12:23:34.415Z"
           }
         ]
       },
@@ -2579,7 +2631,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2619,7 +2671,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2652,7 +2704,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2673,15 +2725,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:36.611Z"
+            "date": "2026-10-01T12:23:38.708Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:36.611Z"
+            "date": "2026-10-01T12:23:38.708Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:36.611Z"
+            "date": "2026-10-01T12:23:38.708Z"
           }
         ]
       },
@@ -2695,7 +2747,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2735,7 +2787,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2768,7 +2820,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2789,15 +2841,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:40.798Z"
+            "date": "2026-10-01T12:23:43.146Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:40.798Z"
+            "date": "2026-10-01T12:23:43.146Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:40.798Z"
+            "date": "2026-10-01T12:23:43.146Z"
           }
         ]
       },
@@ -2811,7 +2863,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2851,7 +2903,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2884,7 +2936,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -2905,15 +2957,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:45.023Z"
+            "date": "2026-10-01T12:23:47.408Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:45.023Z"
+            "date": "2026-10-01T12:23:47.408Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:45.023Z"
+            "date": "2026-10-01T12:23:47.408Z"
           }
         ]
       },
@@ -2927,7 +2979,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -2967,7 +3019,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3000,7 +3052,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -3021,15 +3073,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:49.371Z"
+            "date": "2026-10-01T12:23:51.687Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:49.371Z"
+            "date": "2026-10-01T12:23:51.687Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:49.371Z"
+            "date": "2026-10-01T12:23:51.687Z"
           }
         ]
       },
@@ -3041,7 +3093,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 452,
+              "total": 457,
               "status": "empty"
             },
             "refusal": {
@@ -3068,7 +3120,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 452,
+              "total": 457,
               "status": "empty"
             },
             "refusal": {
@@ -3095,7 +3147,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "refusal": {
@@ -3120,15 +3172,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:41:55.319Z"
+            "date": "2026-10-01T12:23:57.843Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:41:55.319Z"
+            "date": "2026-10-01T12:23:57.843Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:41:55.319Z"
+            "date": "2026-10-01T12:23:57.843Z"
           }
         ]
       },
@@ -3142,7 +3194,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3182,7 +3234,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3215,7 +3267,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -3236,15 +3288,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:42:00.759Z"
+            "date": "2026-10-01T12:24:02.128Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:42:00.759Z"
+            "date": "2026-10-01T12:24:02.128Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:42:00.759Z"
+            "date": "2026-10-01T12:24:02.128Z"
           }
         ]
       },
@@ -3258,7 +3310,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3298,7 +3350,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3331,7 +3383,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -3352,15 +3404,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:42:05.016Z"
+            "date": "2026-10-01T12:24:06.553Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:42:05.016Z"
+            "date": "2026-10-01T12:24:06.553Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:42:05.016Z"
+            "date": "2026-10-01T12:24:06.553Z"
           }
         ]
       },
@@ -3374,7 +3426,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3414,7 +3466,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3447,7 +3499,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -3468,15 +3520,131 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:42:09.440Z"
+            "date": "2026-10-01T12:24:10.861Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:42:09.440Z"
+            "date": "2026-10-01T12:24:10.861Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:42:09.440Z"
+            "date": "2026-10-01T12:24:10.861Z"
+          }
+        ]
+      },
+      {
+        "name": "Trending to the Absurd",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "canonical": "Trending to the Absurd",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 457,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "framework": "Trending to the Absurd",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 457,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "framework": "Trending to the Absurd",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 23,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-10-01T12:24:15.274Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-10-01T12:24:15.274Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-10-01T12:24:15.274Z"
           }
         ]
       },
@@ -3490,7 +3658,7 @@
             "matched_via": "exact",
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3530,7 +3698,7 @@
             ],
             "coverage": {
               "matched": 1,
-              "total": 452,
+              "total": 457,
               "status": "partial"
             },
             "diagnostics": {
@@ -3563,7 +3731,7 @@
             },
             "coverage": {
               "matched": 0,
-              "total": 22,
+              "total": 23,
               "status": "empty"
             },
             "diagnostics": {
@@ -3584,15 +3752,15 @@
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-09-11T05:42:13.642Z"
+            "date": "2026-10-01T12:24:19.536Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-09-11T05:42:13.642Z"
+            "date": "2026-10-01T12:24:19.536Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-09-11T05:42:13.642Z"
+            "date": "2026-10-01T12:24:19.536Z"
           }
         ]
       }
@@ -3605,7 +3773,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 452,
+              "total": 457,
               "status": "empty"
             },
             "refusal": {
@@ -3635,7 +3803,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 452,
+              "total": 457,
               "status": "empty"
             },
             "refusal": {
@@ -3665,7 +3833,7 @@
           "result": {
             "coverage": {
               "matched": 0,
-              "total": 452,
+              "total": 457,
               "status": "empty"
             },
             "refusal": {
@@ -3693,13 +3861,17 @@
   "lane_b": {
     "results": {
       "C1": {
-        "frameworks": 452,
+        "frameworks": 457,
         "source": "brain_stats.labels (not a Cypher count; Theo refuses the whole-graph plan C1 shares)"
       },
       "C5": [
         {
           "label": "BrainRecord",
-          "c": 147
+          "c": 148
+        },
+        {
+          "label": "CaseStudy",
+          "c": 93
         },
         {
           "label": "Chapter",
@@ -3710,12 +3882,24 @@
           "c": 210
         },
         {
+          "label": "Concept",
+          "c": 0
+        },
+        {
           "label": "DomainConcept",
           "c": 6
         },
         {
+          "label": "Example",
+          "c": 47
+        },
+        {
           "label": "Framework",
-          "c": 452
+          "c": 457
+        },
+        {
+          "label": "GraphRagMeta",
+          "c": 1
         },
         {
           "label": "Mention",
@@ -3735,7 +3919,7 @@
         },
         {
           "label": "ProcessStep",
-          "c": 728
+          "c": 735
         },
         {
           "label": "Reach",
@@ -3746,12 +3930,20 @@
           "c": 1
         },
         {
+          "label": "Sensor",
+          "c": 15
+        },
+        {
+          "label": "Stage",
+          "c": 0
+        },
+        {
           "label": "TaxonomyRecord",
           "c": 270
         },
         {
           "label": "Technique",
-          "c": 304
+          "c": 315
         },
         {
           "label": "ToolType",
@@ -3771,11 +3963,13 @@
           "EXTENDS",
           "FEEDS_INTO",
           "FOLLOWS",
+          "GUARDED_BY",
           "HAS_CHUNK",
           "HAS_PHASE",
           "HAS_PROCESS_STEP",
           "HAS_STEP",
           "HAS_TECHNIQUE",
+          "ILLUSTRATES",
           "IMPLEMENTED_AS",
           "INCORPORATES",
           "INSTANCE_OF",
@@ -3795,12 +3989,13 @@
           "SOURCED_FROM",
           "SUPPORTS",
           "TEACHES",
+          "TRIGGERS",
           "USES_FRAMEWORK",
           "USES_TECHNIQUE",
           "USES_TOOL",
           "WIRED_TO"
         ],
-        "property_keys_count": 492
+        "property_keys_count": 546
       },
       "C2": {
         "refused": true,

@@ -34,7 +34,7 @@ That is the job MindrianOS is hired for. Not "take my notes" and not "chat with 
 This is the whole mental model. You do not need more than this to use MindrianOS well.
 
 1. **You talk.** Whatever is in your room right now, the venture, the decision, the meeting you just filed, becomes context.
-2. **Your context triggers a question to the Brain**, running today on Theo, the methodology graph: 27,951 nodes and 452 frameworks built from accumulated academic teaching expertise, holding WHEN to use WHICH method and in WHAT sequence.
+2. **Your context triggers a question to the Brain**, running today on Theo, the methodology graph: 28,131 nodes, 53,313 relationships and 457 frameworks built from accumulated academic teaching expertise, holding WHEN to use WHICH method and in WHAT sequence.
 3. **Larry joins the answer to your situation.** Not a lecture pulled from a textbook. Your problem, run through real methodology.
 4. **You ratify what matters.** Approve it, reject it with a reason, or defer it. Your call becomes part of the room.
 5. **The room remembers.** Next time, it is already there, checking today's input against it.
@@ -80,7 +80,7 @@ mindrian-os doctor --all     # diagnose drift, suggest fixes
 
 ## What talking to Larry feels like
 
-Most of the time it feels like a sharp colleague who happens to know 452 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from, including a readiness score (how complete the graph's material on this topic is, out of 4):
+Most of the time it feels like a sharp colleague who happens to know 457 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from, including a readiness score (how complete the graph's material on this topic is, out of 4):
 
 > ■ BRAIN: Jobs to Be Done · framework · readiness 4/4
 
@@ -101,12 +101,12 @@ The room also looks for connections you did not ask about. When it changes in a 
 | Layer | What | Who owns it |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
-| **Brain** | Theo, the graph-native teaching backend: 27,951 nodes, 452 frameworks, accumulated teaching expertise, served over MCP (the standard way Claude reaches an outside service) | Served remotely, never distributed |
+| **Brain** | Theo, the graph-native teaching backend: 28,131 nodes, 53,313 relationships, 457 frameworks, accumulated teaching expertise, served over MCP (the standard way Claude reaches an outside service) | Served remotely, never distributed |
 | **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
 The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
 
-Node and framework counts are from a live [census of the Theo graph](docs/BRAIN-GRAPH-CENSUS.generated.md) dated 2026-09-11.
+Node, relationship and framework counts are from a live [census of the Theo graph](docs/BRAIN-GRAPH-CENSUS.generated.md) dated 2026-10-01.
 
 ---
 
