@@ -1,42 +1,107 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-01T05:58:02.285Z",
-  "phase": "365",
-  "phase_name": "verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt",
-  "phase_dir": ".planning/phases/365-verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt",
-  "plan": 1,
+  "timestamp": "2026-10-01T23:30:00Z",
+  "phase": "366",
+  "phase_name": "eureka-perspective-in-research-planner-mcp-canvas-tooling",
+  "phase_dir": ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling",
+  "plan": 0,
   "task": 0,
-  "total_tasks": 17,
+  "total_tasks": 0,
   "status": "paused",
+  "workflow": "plan-phase",
+  "workflow_position": {
+    "step": "12 revision loop",
+    "iteration_count": 1,
+    "prev_issue_count": 12,
+    "stall_reentry_count": 0,
+    "last_checker_verdict": "ISSUES FOUND (2 BLOCKER, 10 WARNING, 3 INFO)",
+    "last_planner_return": "PLANNING COMPLETE (revision 1: 15 of 15 addressed; 26 plans in 12 waves)",
+    "next_step": "10: spawn gsd-plan-checker (sonnet) over 366-01..26, iteration 2 of 3"
+  },
+  "init_values": {
+    "researcher_model": "claude-opus-5-5",
+    "planner_model": "claude-opus-5-5",
+    "checker_model": "sonnet",
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "text_mode": false,
+    "mode": "yolo",
+    "security_enforcement": "default on (ASVS L1, block on high)",
+    "ui_gate": "treated as --skip-ui (false-positive keyword hits, no frontend)",
+    "mvp_mode": false,
+    "phase_req_ids": "EPV366-01..30 (minted by the planner in REQUIREMENTS.md)"
+  },
   "completed_tasks": [
-    {"id": "363", "name": "Phase 363 deep research planner", "status": "done", "commit": "e7259ae91"},
-    {"id": "363.1", "name": "Phase 363.1 beta.51 bug cluster", "status": "done_human_uat_pending", "commit": "e1e9221f8"},
-    {"id": "365-plan", "name": "Phase 365 planned (17 plans, 7 waves)", "status": "done", "commit": "fa95ce146"}
+    {"id": 1, "name": "discuss-phase 366: CONTEXT.md + DISCUSSION-LOG.md", "status": "done", "commit": "96515d02a"},
+    {"id": 2, "name": "STATE session recorded", "status": "done", "commit": "26d396d34"},
+    {"id": 3, "name": "research 366-RESEARCH.md", "status": "done", "commit": "0c1b2bae4"},
+    {"id": 4, "name": "context amendments (D-05, D-11, D-13, D-17) + 366-VALIDATION.md", "status": "done", "commit": "376dba148"},
+    {"id": 5, "name": "pattern map 366-PATTERNS.md", "status": "done", "commit": "94b7892e1"},
+    {"id": 6, "name": "planner: 24 plans; revision 1: 26 plans / 12 waves; EPV366-01..30 minted; ROADMAP plan list", "status": "done", "commit": "94b7892e1"},
+    {"id": 7, "name": "checker iteration 1", "status": "done", "commit": null}
   ],
   "remaining_tasks": [
-    {"id": "quick-261001-tta", "name": "trending-to-absurd frameworks + domains pre-step", "status": "in_progress", "progress": "RED df84da280 committed; GREEN uncommitted in tree"},
-    {"id": "365-exec", "name": "/gsd-execute-phase 365", "status": "not_started"}
+    {"id": 8, "name": "checker iteration 2 (gsd-plan-checker, sonnet) over 26 plans", "status": "not_started"},
+    {"id": 9, "name": "revision 2 + checker 3 only if ISSUES FOUND and count < 12 (stall rule)", "status": "not_started"},
+    {"id": 10, "name": "step 13 requirements coverage (EPV366-01..30 in plan requirements)", "status": "not_started"},
+    {"id": 11, "name": "step 13a decision coverage gate: gsd-sdk query check.decision-coverage-plan <phase_dir> <context_path> (blocking)", "status": "not_started"},
+    {"id": 12, "name": "step 13b gsd-sdk query state.planned-phase --phase 366 --name eureka-perspective-in-research-planner-mcp-canvas-tooling --plans 26", "status": "not_started"},
+    {"id": 13, "name": "step 13c gsd-sdk query roadmap.annotate-dependencies 366", "status": "not_started"},
+    {"id": 14, "name": "step 13d commit docs(366): create phase plan (WSL git, node 22 on PATH, git add -f)", "status": "not_started"},
+    {"id": 15, "name": "step 13e gsd-tools.cjs gap-analysis --phase-dir <phase_dir> (non-blocking)", "status": "not_started"},
+    {"id": 16, "name": "step 14 offer_next; then /gsd:execute-phase 366", "status": "not_started"},
+    {"id": 17, "name": "then /gsd:discuss-phase 367 and 368 (briefs exist, no CONTEXT.md)", "status": "not_started"}
   ],
-  "blockers": [
-    {"description": "Ladder ratification by the paper author", "type": "human_action", "workaround": "ladder-blocked work fenced to Phase 365.1"},
-    {"description": "Theo Phase 25 must author Scientific Roadmapping steps and type links", "type": "external", "workaround": "Phase 364 waits"}
-  ],
+  "blockers": [],
   "human_actions_pending": [
-    {"action": "Phase 363.1 UAT: /mos:reason in a non-git room, confirm no worktree error", "context": "B51-02", "blocking": false},
-    {"action": "Answer 365-05 D-20 checkpoint and 365-17 routing/ladder-ask checkpoint", "context": "phase 365 execution", "blocking": true},
-    {"action": "Cut a release when ready; then send release id to the Theo session", "context": "nothing on main is live", "blocking": false}
+    {"action": "During execution: 366-11 T3 verify the gated release shape and one live Theo round trip", "context": "D-13 checkpoint, autonomous: false", "blocking": false},
+    {"action": "During execution: 366-19 T2 blind gold labeling, one sitting per recall arm", "context": "D-05, the navigator is the labeler by ruling", "blocking": false},
+    {"action": "During execution: 366-20 T2 six rulings (judge, vector lane, rs/hsi engine fate, runner, runtime Jev, Haiku pre-step)", "context": "the spike ends in rulings, never auto-adoption", "blocking": false}
   ],
   "decisions": [
-    {"decision": "Navigator sources are supreme for problem-type mapping", "rationale": "navigator ruling 2026-09-30", "phase": "all"},
-    {"decision": "Floor on by default, no confirm-anyway, claims only", "rationale": "D-01..D-04, D-21", "phase": "365"},
-    {"decision": "Scientific Roadmapping rooted at WellDefined, bridge from innovation of meaning", "rationale": "navigator ruling 2026-10-01 with course citations", "phase": "364"}
+    {"decision": "Eureka keeps the action name; the standalone engine retires behind a legacy flag; /mos:eureka is the quick-run alias", "rationale": "navigator ruling D-01, D-02", "phase": "366"},
+    {"decision": "All five canvas perspectives share one op set on research_run with a perspective enum; eureka_* stay as deprecated aliases", "rationale": "D-06, D-07; keeps the 45-tool pin", "phase": "366"},
+    {"decision": "RS and HSI re-derived from the local graph with no embeddings, re-measured against the 355 gold", "rationale": "D-08; the canvas uses the local graph and ICM structure instead of embeddings", "phase": "366"},
+    {"decision": "Gated per-term, intent-led Theo name release with a navigator-consent allow in the Part 8 guard; Theo takes only raw today, intent-led resolver is a Theo-side request", "rationale": "D-13 as ruled: the guard can change; JTBD explains intent; intent and context must lead", "phase": "366"},
+    {"decision": "The 44.8% baseline is the HSI/RS engine figure; Eureka was substrate_unavailable; the spike indexes fixture copies first and never claims Eureka improved from 44.8%", "rationale": "research correction on D-05", "phase": "366"}
   ],
-  "uncommitted_files": [
-    "commands/trending-to-absurd.md", "skills/trending-to-absurd/SKILL.md",
-    "lib/core/trending-to-absurd/orchestrator.cjs", "lib/core/trending-to-absurd/variance.cjs",
-    "data/command-registry.json", "data/connector-registry.json",
-    "data/brain-orchestration-projection.json", "data/harness-manifest.json"
-  ],
-  "next_action": "Check whether quick 261001-tta finished (git log, git status); if its files are still uncommitted, review and finish it with --only commits. Then run /gsd-execute-phase 365.",
-  "context_notes": "Shared tree with other sessions; commit only owned paths; never use gsd-tools state writers; re-run aggregators at HEAD before claiming green."
+  "uncommitted_files": [],
+  "next_action": "cd //wsl.localhost/Ubuntu/home/jsagi/dev/MindrianOS-Plugin && gsd-sdk query init.plan-phase 366 (expect has_plans true, plan_count 26); then spawn gsd-plan-checker (sonnet) with checker_prompt_outline; continue plan-phase.md from step 11",
+  "context_notes": "Resume inside /gsd:plan-phase 366 at the revision loop, iteration 2. Do not re-run discuss or research. The repo is a WSL checkout; from a Windows session use the UNC root for every path and WSL with node 22 for every node or git command (see agent_environment_block). Other sessions commit to main concurrently; never git stash mid-merge.",
+  "agent_environment_block": "The repository is a WSL checkout reachable from this Windows session only through the UNC root \\\\wsl.localhost\\Ubuntu\\home\\jsagi\\dev\\MindrianOS-Plugin (Git Bash form //wsl.localhost/Ubuntu/home/jsagi/dev/MindrianOS-Plugin). Every relative path is relative to that root; use absolute UNC paths in Read/Grep/Glob/Edit/Write and in Bash (the Bash cwd resets to C:\\Users\\jsagi after every call). To RUN node (>= 22 with node:sqlite is required) use WSL: wsl -e bash -c 'export PATH=$HOME/.nvm/versions/node/v22.23.1/bin:$PATH; cd /home/jsagi/dev/MindrianOS-Plugin && <command>'. Never run /usr/bin/node (v20). Do not run git; the orchestrator commits. If the Write tool refuses a UNC path, write with a Bash heredoc redirected to the //wsl.localhost/... form.",
+  "checker_prompt_outline": {
+    "subagent_type": "gsd-plan-checker",
+    "model": "sonnet",
+    "phase_goal": "Retire Eureka as a standalone engine and finish the Eureka PERSPECTIVE inside the one research planner (Phase 363), with proper MCP tooling for every MOS-CANVAS perspective (RS, HSI, whitespace, find-analogies, find-connections): recall from the local graph and the ICM structure (no embeddings), the room graph as the exclusion set, files as edit surfaces, Jev as the human-routed first-pass judge at the measured band, research and prose and filing through the planner, one declared egress policy, Theo readiness through canon Framework handles as local framework nodes and USES_FRAMEWORK edges with a gated intent-led per-term Theo lookup, and the spike that picks the judge against the Phase 355 baseline.",
+    "files_to_read": [
+      ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling/366-01-PLAN.md .. 366-26-PLAN.md",
+      ".planning/ROADMAP.md (Phase 366 card)",
+      ".planning/REQUIREMENTS.md (EPV366-01..30)",
+      ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling/366-CONTEXT.md",
+      ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling/366-RESEARCH.md",
+      ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling/366-PATTERNS.md",
+      ".planning/phases/366-eureka-perspective-in-research-planner-mcp-canvas-tooling/366-VALIDATION.md",
+      "CLAUDE.md",
+      ".claude/skills/spike-findings-MindrianOS-Plugin/SKILL.md"
+    ],
+    "specific_checks": [
+      "every plan has a <threat_model> block (security gate ON, ASVS L1, block on high)",
+      "every D-01..D-17 cited in at least one plan's must_haves.truths (decision-coverage gate is blocking)",
+      "pins stay green by construction: test-270 (45 tools, totalBytes within 10% of 48712), test-234, test-205 (ALL_TOOL_COMMANDS 65; stubs redirected not removed), test-353 tripwires, test-363-pyramid Y1 and test-363-structure B3/B4/D6 with research-shape-ledger rebuilt in the same commit, seed103 tests (eureka_* aliases return op eureka_recall; description keeps eureka_recall and eureka_candidates tokens)",
+      "the spike ends in a record and navigator rulings (autonomous: false on 11, 19, 20), never auto-adoption; 44.8% framed as the HSI/RS engine baseline",
+      "framework nodes minted before USES_FRAMEWORK edges everywhere, including the 366-01 fixture",
+      "the four PATTERNS.md discrepancies resolved (classifyGraph(lexical, relational); navigator_released in the guard verdict with audit part8_verdict pass; perspective_required refusal; Stage A per-module STAGE_A_LANES)",
+      "revision-1 fixes hold: research Open Questions (RESOLVED) with per-question lines; plan 21 split into 21/25/26 with per-slice inventories; 07 passes roomDir and 08 defaults safely; no duplicate candidates for pair-carrying whitespace leaves (W7); Z4 plan validation for all six perspectives; 04 pins repaired in Task 1's commit; 11 card states intent is not sent today; 24 mirrors research to the room; 22 asserts runner: retire before deleting; 23 codemod in batches; 17 providers derived from the policy file; LC_ALL=C dash fences",
+      "same-wave plans touch no common files; shared files ordered by depends_on across the new 12-wave layout: 1 (01) -> 2 (02,03,05,06) -> 3 (04,07,08,09,10) -> 4 (12,13,14,15) -> 5 (16,17,18) -> 6 (11,19) -> 7 (20) -> 8 (21) -> 9 (25,26) -> 10 (22) -> 11 (23) -> 12 (24)"
+    ],
+    "expected_output": "## VERIFICATION PASSED or ## ISSUES FOUND with a YAML issues block (dimension, severity, finding, affected_field, suggested_fix)"
+  },
+  "revision_prompt_outline": {
+    "subagent_type": "gsd-planner",
+    "model": "opus",
+    "mode": "revision",
+    "files_to_read": ["<phase_dir>/*-PLAN.md", "<phase_dir>/366-CONTEXT.md", "<phase_dir>/366-RESEARCH.md", "<phase_dir>/366-VALIDATION.md", "<phase_dir>/366-PATTERNS.md"],
+    "instructions": "pass the checker's YAML issues verbatim inside <checker_issues>; address all BLOCKER and WARNING; do not replan from scratch; keep VALIDATION rows and the ROADMAP plan list in sync; state 'This is revision iteration N of max 3. Previous iteration had <prev_issue_count> issues.'; return what changed and ## PLANNING COMPLETE"
+  }
 }
