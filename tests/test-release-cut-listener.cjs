@@ -521,14 +521,12 @@ const CHECKLIST = [
   '- `src/components/layout/Footer.tsx` version meta',
   '- `src/lib/version.ts` -> `FALLBACK_VERSION` constant',
   '- `src/data/commands-canon.json` -> `version` field',
+  '- `src/lib/truth-claims.ts` -> `RELEASE` constant',
   '- `src/app/roadmap/page.tsx` -> milestone labels',
   '- `src/app/about/page.tsx` -> Today entry',
   '- `src/app/page.tsx` (the live home)',
   '- `src/app/pricing/page.tsx`',
   '- `src/app/layout.tsx`',
-  '- `src/components/brain/BrainPublicPage.tsx`',
-  '- `src/components/home/` - `MoatLadder.tsx`, `CTASection.tsx`',
-  '- `src/app/researchers/page.tsx`',
   '',
 ].join('\n');
 
@@ -543,6 +541,7 @@ function makeWebsiteFixture(n, opts) {
   writeFile(plugin, 'data/command-registry.json', JSON.stringify({ commands: cmds }));
   writeFile(repo, 'docs/VERSION-BUMP-CHECKLIST.md', opts.checklist || CHECKLIST);
   writeFile(web, 'src/lib/version.ts', 'export const FALLBACK_VERSION = "v' + (opts.fallback || '2.0.0-beta.55') + '";\n');
+  writeFile(web, 'src/lib/truth-claims.ts', '// truth ledger\nexport const X = 1;\nconst RELEASE = "v' + (opts.release || '2.0.0-beta.55') + '";\n');
   const half = Math.floor(n / 2);
   writeFile(web, 'src/data/commands-canon.json', JSON.stringify({
     version: opts.canonVersion || '2.0.0-beta.55',
@@ -551,9 +550,7 @@ function makeWebsiteFixture(n, opts) {
       { id: 'b', label: 'B', glyph: 'y', lane: 'core', commands: cmds.slice(half, opts.canonCount === undefined ? n : opts.canonCount) },
     ],
   }, null, 2));
-  const counts = ['src/app/page.tsx', 'src/app/pricing/page.tsx', 'src/app/layout.tsx', 'src/components/brain/BrainPublicPage.tsx',
-    'src/components/home/MoatLadder.tsx', 'src/components/home/CTASection.tsx', 'src/components/home/EngineSection.tsx',
-    'src/components/home/SurfacesGrid.tsx', 'src/app/researchers/page.tsx'];
+  const counts = ['src/app/page.tsx', 'src/app/pricing/page.tsx', 'src/app/layout.tsx'];
   counts.forEach(function (rel) { writeFile(web, rel, 'export const X = "' + n + ' commands, one room";\n'); });
   writeFile(web, 'src/app/roadmap/page.tsx', 'export const R = "v2.0 milestone";\n');
   writeFile(web, 'src/app/about/page.tsx', 'export const A = "Today: v2.0 shipped";\n');
@@ -643,12 +640,12 @@ function rowsBy(leg, pred) { return leg.rows.filter(pred); }
 {
   const fx = makeWebsiteFixture(113);
   try {
-    fs.rmSync(path.join(fx.web, 'src/components/home/MoatLadder.tsx'));
+    fs.rmSync(path.join(fx.web, 'src/app/pricing/page.tsx'));
     const w = webDeps();
     let leg = L.runWebsiteLeg({ pluginRoot: fx.plugin, version: '2.0.0-beta.55', websiteDir: fx.web }, w.deps);
     assert.equal(leg.outcome, 'RAN-OK', 'GONE does not flip the outcome');
     const gone = rowsBy(leg, function (r) { return r.status === 'GONE'; });
-    assert.equal(gone.length, 1); assert.equal(gone[0].file, 'src/components/home/MoatLadder.tsx');
+    assert.equal(gone.length, 1); assert.equal(gone[0].file, 'src/app/pricing/page.tsx');
     assert.equal(leg.counts.gone, 1);
     ok('deleting a listed count file -> GONE row that does not flip the outcome');
 
@@ -660,7 +657,7 @@ function rowsBy(leg, pred) { return leg.rows.filter(pred); }
     ok('deleting src/lib/version.ts -> MISSING row that flips the outcome');
   } finally { fs.rmSync(fx.tmp, { recursive: true, force: true }); }
 
-  const fx2 = makeWebsiteFixture(113, { canonCount: 100, fallback: '2.0.0-beta.54', checklist: CHECKLIST + '- `src/lib/facts.ts` new constants\n' });
+  const fx2 = makeWebsiteFixture(113, { canonCount: 100, fallback: '2.0.0-beta.54', release: '2.0.0-beta.53', checklist: CHECKLIST + '- `src/lib/facts.ts` new constants\n' });
   try {
     const w = webDeps();
     const leg = L.runWebsiteLeg({ pluginRoot: fx2.plugin, version: '2.0.0-beta.55', websiteDir: fx2.web }, w.deps);
@@ -668,10 +665,12 @@ function rowsBy(leg, pred) { return leg.rows.filter(pred); }
     assert.equal(cnt.length, 1); assert.equal(cnt[0].status, 'DRIFT'); assert.equal(Number(cnt[0].found), 100); assert.equal(Number(cnt[0].expected), 113);
     const fb = rowsBy(leg, function (r) { return r.surface === 'FALLBACK_VERSION'; });
     assert.equal(fb[0].status, 'DRIFT'); assert.equal(fb[0].found, 'v2.0.0-beta.54'); assert.equal(fb[0].expected, 'v2.0.0-beta.55'); assert.equal(fb[0].line, 1);
+    const tc = rowsBy(leg, function (r) { return r.surface === 'truth-claims RELEASE'; });
+    assert.equal(tc.length, 1); assert.equal(tc[0].status, 'DRIFT'); assert.equal(tc[0].found, 'v2.0.0-beta.53'); assert.equal(tc[0].expected, 'v2.0.0-beta.55'); assert.equal(tc[0].line, 3);
     const un = rowsBy(leg, function (r) { return r.status === 'UNMIRRORED'; });
     assert.equal(un.length, 1); assert.equal(un[0].file, 'src/lib/facts.ts');
     assert.equal(leg.counts.unmirrored, 1);
-    ok('canon command count vs plugin count DRIFT, FALLBACK_VERSION DRIFT, an unlisted checklist path -> UNMIRRORED');
+    ok('canon command count vs plugin count DRIFT, FALLBACK_VERSION DRIFT, truth-claims RELEASE DRIFT (1-based line), an unlisted checklist path -> UNMIRRORED');
 
     fs.writeFileSync(path.join(fx2.plugin, 'data/command-registry.json'), '{ not json');
     const leg2 = L.runWebsiteLeg({ pluginRoot: fx2.plugin, version: '2.0.0-beta.55', websiteDir: fx2.web }, w.deps);

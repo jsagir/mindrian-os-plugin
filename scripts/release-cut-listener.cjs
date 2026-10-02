@@ -155,22 +155,18 @@ const VERSION_MAY_BE_NULL = Object.freeze([1, 2]);
 
 // ---------------------------------------------------------------------------
 // Website surfaces. Mirrors the mindrian-website repo's
-// docs/VERSION-BUMP-CHECKLIST.md as of 2026-10-02. Paths are relative to the
+// docs/VERSION-BUMP-CHECKLIST.md as of website commit ac84cee (2026-10-02:
+// six deleted count pages dropped, src/lib/truth-claims.ts RELEASE added as a
+// version surface; quick 261002-byh). Paths are relative to the
 // Next root (WEBSITE_DIR). A checklist path missing here shows up as an
 // UNMIRRORED row on every run, so this list cannot fall behind silently.
 // ---------------------------------------------------------------------------
 const SURFACES = Object.freeze({
-  version: ['src/lib/version.ts', 'src/data/commands-canon.json'],
+  version: ['src/lib/version.ts', 'src/data/commands-canon.json', 'src/lib/truth-claims.ts'],
   counts: [
     'src/app/page.tsx',
     'src/app/pricing/page.tsx',
     'src/app/layout.tsx',
-    'src/components/brain/BrainPublicPage.tsx',
-    'src/components/home/MoatLadder.tsx',
-    'src/components/home/CTASection.tsx',
-    'src/components/home/EngineSection.tsx',
-    'src/components/home/SurfacesGrid.tsx',
-    'src/app/researchers/page.tsx',
   ],
   review: [
     ['src/app/roadmap/page.tsx', 'milestone labels and the Ahead section'],
@@ -552,6 +548,20 @@ function runWebsiteLeg(opts, deps) {
       const m = /FALLBACK_VERSION\s*=\s*["'`]([^"'`]+)["'`]/.exec(text);
       if (!m) add({ surface: 'FALLBACK_VERSION', file: rel, status: 'DRIFT', expected: 'v' + version, found: '(no FALLBACK_VERSION literal)' });
       else add({ surface: 'FALLBACK_VERSION', file: rel, status: m[1] === 'v' + version ? 'OK' : 'DRIFT', expected: 'v' + version, found: m[1], line: lineOf(text, m.index) });
+    }
+  }
+
+  // truth-claims.ts RELEASE: the plugin release every truth claim was checked
+  // against, checked exactly like FALLBACK_VERSION.
+  {
+    const rel = 'src/lib/truth-claims.ts';
+    const text = readText(deps, abs(rel));
+    if (text == null) {
+      add({ surface: 'truth-claims RELEASE', file: rel, status: 'MISSING', expected: 'v' + version });
+    } else {
+      const m = /\bconst\s+RELEASE\s*=\s*["'`]([^"'`]+)["'`]/.exec(text);
+      if (!m) add({ surface: 'truth-claims RELEASE', file: rel, status: 'DRIFT', expected: 'v' + version, found: '(no const RELEASE literal)' });
+      else add({ surface: 'truth-claims RELEASE', file: rel, status: m[1] === 'v' + version ? 'OK' : 'DRIFT', expected: 'v' + version, found: m[1], line: lineOf(text, m.index) });
     }
   }
 
