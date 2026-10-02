@@ -8,7 +8,7 @@
  *
  *   A1  intelligence eureka-run with no context (and with a malformed or
  *       non-true legacy flag) answers with a pointer to research_run op
- *       eureka_recall and starts nothing: zero spawns, zero in-process runs,
+ *       perspective_recall (perspective "eureka", plan 366-16) and starts nothing: zero spawns, zero in-process runs,
  *       no .mindrian/eureka state, on both the http and stdio transports.
  *   A2  eureka-run with context {"legacy":true} reaches the existing runner
  *       (in-process on http, one detached spawn on stdio) and the response
@@ -72,8 +72,8 @@ toolRouter.registerRouterTools(server, roomDir, REPO_ROOT, { compact: '' }, 'cli
 function text(resp) { return resp && resp.content && resp.content[0] ? String(resp.content[0].text) : ''; }
 function isPointer(resp) {
   const t = text(resp);
-  return resp && resp.isError !== true && t.indexOf('research_run') !== -1 && t.indexOf('eureka_recall') !== -1
-    && t.indexOf('{"legacy":true}') !== -1 && t.indexOf(NOTICE) === -1;
+  return resp && resp.isError !== true && t.indexOf('research_run') !== -1 && t.indexOf('perspective_recall') !== -1
+    && t.indexOf('perspective "eureka"') !== -1 && t.indexOf('{"legacy":true}') !== -1 && t.indexOf(NOTICE) === -1;
 }
 function eurekaStateAbsent() { return !fs.existsSync(path.join(roomDir, '.mindrian', 'eureka')); }
 

@@ -123,7 +123,9 @@ c.check('whitespace_scan tool registered under its exact name (D-26)', !!whitesp
   }
 
   c.check('scout-hsi handler response contains NOT EXECUTED', scoutHsiText.indexOf('NOT EXECUTED') !== -1);
-  c.check('scout-hsi handler response contains "reference only, no compute"', scoutHsiText.indexOf('reference only, no compute') !== -1);
+  // Phase 366-16 (D-06): the "reference only, no compute" line was replaced by a
+  // pointer to the real compute (research_run op perspective_recall, perspective hsi).
+  c.check('scout-hsi handler response points at research_run perspective_recall for hsi', scoutHsiText.indexOf('research_run') !== -1 && scoutHsiText.indexOf('perspective_recall') !== -1 && scoutHsiText.indexOf('perspective "hsi"') !== -1);
   c.check('scout-hsi handler response contains "/mos:scout hsi"', scoutHsiText.indexOf('/mos:scout hsi') !== -1);
 
   // No .hsi-results.json anywhere under the tmp room afterwards.
@@ -163,9 +165,9 @@ c.check('whitespace_scan tool registered under its exact name (D-26)', !!whitesp
   const orchestrationDescription = orchestration ? orchestration.description : '';
   c.check('orchestration description names scout-hsi', orchestrationDescription.indexOf('scout-hsi') !== -1);
   const scoutHsiSentenceMatch = orchestrationDescription.match(/[^.]*\bscout-hsi\b[^.]*\./g) || [];
-  const scoutHsiSentenceHasHonestWording = scoutHsiSentenceMatch.some((s) => s.indexOf('reference only, no compute') !== -1);
+  const scoutHsiSentenceHasHonestWording = scoutHsiSentenceMatch.some((s) => s.indexOf('perspective_recall') !== -1 && s.indexOf('/mos:scout hsi') !== -1);
   c.check(
-    "orchestration description's scout-hsi sentence contains 'reference only, no compute'",
+    "orchestration description's scout-hsi sentence names perspective_recall and the CLI pipeline (366-16)",
     scoutHsiSentenceHasHonestWording,
     JSON.stringify(scoutHsiSentenceMatch)
   );
