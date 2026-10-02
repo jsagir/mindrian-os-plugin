@@ -508,13 +508,18 @@ async function main() {
   {
     const Module = require('node:module');
     const PLAN_BASE = 'ab5e1d16b1a6e6622a8e98db92263649f5487749';
+    // 366-12 (D-07) deliberately changed research_run (the perspective op set, its enum and its
+    // description), so its parity pin moves to the commit that landed that change; gate and chain
+    // stay pinned to PLAN_BASE. Any later edit to research_run's registration must re-pin this.
+    const RESEARCH_BASE = 'ee034f0a84e961e3f0d0a0b99a3441bf3cb9d973';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
     } else {
       const loadBase = function (rel) {
         const file = path.join(ROOT, rel);
-        const src = spawnSync('git', ['show', PLAN_BASE + ':' + rel.split(path.sep).join('/')], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout;
+        const baseRef = rel === 'lib/mcp/tools/research.cjs' ? RESEARCH_BASE : PLAN_BASE;
+        const src = spawnSync('git', ['show', baseRef + ':' + rel.split(path.sep).join('/')], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout;
         const m = new Module(file, module);
         m.filename = file;
         m.paths = Module._nodeModulePaths(path.dirname(file));
