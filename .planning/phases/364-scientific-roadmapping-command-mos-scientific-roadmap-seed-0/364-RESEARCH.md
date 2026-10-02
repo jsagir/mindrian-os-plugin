@@ -686,7 +686,9 @@ const ENTRY_RULES = Object.freeze([
 | A5 | The refresh moves other names too and the dependent tests stay green | F1 | A red egress/stamp test after refresh needs its own fix inside Wave 0 |
 | A6 | Membership-only `recommend_chain` read is an acceptable coverage check under SEED-106 | F11 | If not, coverage disclosure becomes a static statement citing the ruling |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four resolved 2026-10-02: Q1-Q3 by the navigator rulings in 364-CONTEXT.md ("Navigator rulings 2026-10-02 (post-research)": stand-ins at the F.1 gate; entry then refuse at step 1 and offer /mos:research; executor runs the refresh, navigator reviews the diff); Q4 by the THEO-NOTIFY doc in plan 364-10.
 
 1. **What counts as the "needs or solution-criteria statement"?**
    - Known: no typed node exists; ratified goal, governing question and Door 3 claim are available.
