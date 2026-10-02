@@ -150,7 +150,11 @@ async function main() {
   // -------------------------------------------------------------------
   // Check (a): zero description diffs, tools or prompts, either zod state.
   // -------------------------------------------------------------------
-  const descriptionDiffs = rawDiffs.filter((d) => d.field === 'description');
+  // 267-09 (RCA 4): the three runtime-loop prompts previously advertised NO
+  // description (metadata sat in the argsSchema slot); their now-correct
+  // description is the one intentional exception, pinned in prompts_fix.
+  const promptsFixKeys = new Set((acceptedDeltas.prompts_fix || []).map(tripletKey));
+  const descriptionDiffs = rawDiffs.filter((d) => d.field === 'description' && !promptsFixKeys.has(tripletKey(d)));
   if (descriptionDiffs.length > 0) {
     fail(
       'Check (a) (zero description diffs)',

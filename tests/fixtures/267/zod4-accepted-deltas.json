@@ -350,5 +350,42 @@
     }
   ],
   "app_views_schema_fix": [],
-  "prompts_fix": []
+  "prompts_fix": [
+    {
+      "kind": "prompt",
+      "name": "act",
+      "field": "description",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    },
+    {
+      "kind": "prompt",
+      "name": "act",
+      "field": "arguments",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    },
+    {
+      "kind": "prompt",
+      "name": "bind-room",
+      "field": "description",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    },
+    {
+      "kind": "prompt",
+      "name": "bind-room",
+      "field": "arguments",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    },
+    {
+      "kind": "prompt",
+      "name": "status",
+      "field": "description",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    },
+    {
+      "kind": "prompt",
+      "name": "status",
+      "field": "arguments",
+      "note": "RCA 4 (runtime-loop-prompts-bogus-args-schema): 267-09 fixes the v1 server.prompt() metadata-in-argsSchema-slot bug"
+    }
+  ]
 }
