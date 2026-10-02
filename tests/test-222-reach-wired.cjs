@@ -175,6 +175,11 @@ async function main() {
           const handler = typeof maybeHandler === 'function' ? maybeHandler : schemaOrHandler;
           registered.push({ name: name, handler: handler });
         },
+        // Phase 267-08: sensors.cjs registers through server.registerTool(name,
+        // {title, description, inputSchema}, handler).
+        registerTool(name, _config, handler) {
+          registered.push({ name: name, handler: handler });
+        },
         server: { getClientCapabilities() { return {}; } },
       };
       sensorsTool.register(fakeServer, { fallbackRoomDir: dir });

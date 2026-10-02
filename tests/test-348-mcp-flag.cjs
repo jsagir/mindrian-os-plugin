@@ -61,6 +61,13 @@ function fakeMcpServer() {
         const schema = typeof maybeHandler === 'function' ? schemaOrHandler : {};
         registered.push({ name: name, schema: schema, handler: handler });
       },
+      // Phase 267-08: sensors.cjs registers through server.registerTool(name,
+      // {title, description, inputSchema}, handler); schema unwrapped back to
+      // the raw shape the variadic form handed over.
+      registerTool(name, config, handler) {
+        const cfg = config || {};
+        registered.push({ name: name, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, handler: handler });
+      },
       server: { getClientCapabilities() { return {}; } },
     },
   };

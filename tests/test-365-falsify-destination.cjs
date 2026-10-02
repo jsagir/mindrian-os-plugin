@@ -150,6 +150,11 @@ async function suggestNext(roomDir) {
       tool(name, _desc, schemaOrHandler, maybeHandler) {
         registered.push({ name, handler: typeof maybeHandler === 'function' ? maybeHandler : schemaOrHandler });
       },
+      // Phase 267-08: sensors.cjs registers through server.registerTool(name,
+      // {title, description, inputSchema}, handler).
+      registerTool(name, _config, handler) {
+        registered.push({ name, handler });
+      },
       server: { getClientCapabilities() { return {}; } },
     };
     sensorsTool.register(fakeServer, { fallbackRoomDir: roomDir });

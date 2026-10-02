@@ -138,6 +138,11 @@ function fakeMcpServer() {
         const handler = typeof maybeHandler === 'function' ? maybeHandler : schemaOrHandler;
         registered.push({ name, handler });
       },
+      // Phase 267-08: sensors.cjs registers through server.registerTool(name,
+      // {title, description, inputSchema}, handler).
+      registerTool(name, _config, handler) {
+        registered.push({ name, handler });
+      },
       server: { getClientCapabilities() { return {}; } },
     },
   };
