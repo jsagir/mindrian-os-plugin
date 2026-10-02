@@ -236,3 +236,18 @@ so; the fix (bump the hardcoded 102 to the current true count, or name
 which new EVENT_TYPES members were added and by which phase) belongs to
 whoever owns `test-353-filing-gate.cjs` and `memory-events.cjs`'s own
 EVENT_TYPES ledger -- out of scope for a registration-API migration phase.
+
+## 267-08: check-tool-honesty scanner gap RESOLVED; new peer drift logged
+
+RESOLVED in 267-08 (commit 471320b3a): `scripts/check-tool-honesty.cjs` now recognizes
+`server.registerTool(` call sites (new exported `normalizeToolCallArgs`), the honesty
+ledger `tests/fixtures/tool-honesty/276-dispositions.json` was re-frozen to 42 tools /
+136 branches (extra row: `research_run`, Phase 363-17), and
+`tests/test-276-tool-honesty-switch-branches.cjs` was taught both forms. This closes the
+267-07 entry above ("belongs to whichever later plan finishes the 51-site migration").
+
+STILL OPEN (peer-phase drift, identical at 267-08's PLAN_BASE, not a 267 defect):
+- `tests/test-267-mcpv2-cirs-gates.cjs` Check (c): baseline 31 connector descriptors, tree has 32 (research_run, 363-17).
+- `tests/test-267-mcpv2-zod4-contract.cjs` Check (b) extra `tool:research_run:membership` and Check (d) new zod importer `scripts/fork359-permission-probe.cjs` (359-05).
+- `tests/test-267-mcpv2-registration-api.cjs` full mode compares live tools/list (45) to `wire-snapshot-zod4.json` (44); the snapshot needs a research_run refresh.
+Whoever refreshes the pinned baselines (likely 267-11 or the next plan touching them) should re-measure all three together.
