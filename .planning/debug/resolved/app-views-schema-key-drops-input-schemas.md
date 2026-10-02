@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "app-views-schema-key-drops-input-schemas"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-10-02T00:00:00Z
 ---
 
 ## Current Focus
@@ -17,7 +17,7 @@ updated: 2026-09-24T07:43:32Z
 hypothesis: CONFIRMED. `lib/mcp/app-views.cjs:242,267,296` pass a `schema:` config key to `registerAppTool`; `registerAppTool` forwards its config object to `server.registerTool`, which destructures `inputSchema` (not `schema`). The key is silently ignored, so all three MCP Apps tools (`room-dashboard`, `room-wiki`, `room-graph`) publish an empty input schema and their `room_path`/`section`/`layout` arguments can never arrive from a caller.
 test: Live `tools/list` against the unchanged tree, hermetic stdio.
 expecting: (met) all three tools report `{"type":"object","properties":{}}`.
-next_action: NONE for this plan (267-02 is RCA-filing only, no code change). Fix owned by 267-10 (per `267-CONTEXT.md` "found while reading this code for the migration ... fix it in the same commit that touches app-views.cjs for the registration-API rewrite").
+next_action: RESOLVED by 267-10 (commits 7e2eac5ef RED test, 8a4aeba43 fix). Originally: fix owned by 267-10 (per `267-CONTEXT.md` "found while reading this code for the migration ... fix it in the same commit that touches app-views.cjs for the registration-API rewrite").
 
 ## Meta
 
@@ -151,8 +151,11 @@ started: Pre-existing since these three tools were first registered (unrelated t
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-10
-verification: PENDING
-files_changed: []
-commits: PENDING
+root_cause: CONFIRMED -- see Technical Root Cause above. The config key `schema:` is never read by `server.registerTool`, which destructures `inputSchema`.
+fix: Phase 267 plan 10. `lib/mcp/app-views.cjs`: `schema:` renamed to `inputSchema:` at all three registerAppTool configs (shapes verbatim), moved to `@modelcontextprotocol/ext-apps` 2.0.3 in the same commit, and a new `resolveAppRoomDir(roomPathArg, bootRoomDir)` guard honors `room_path` only when its realpath is STRICTLY INSIDE the rooms home (`isRealpathContained` from lib/core/room-path-containment.cjs plus `listRoomRoots()` from lib/core/icm-forest.cjs, and a separate refusal when the realpath equals the rooms home itself, plan-checker W2 / T-267-03b). Refusal is `{ isError: true, content: [{ type: 'text', text: <reason> }] }` before any read; omitted room_path keeps the boot-room fallback.
+verification: |
+  RED first (7e2eac5ef): `node tests/test-267-mcpv2-app-views.cjs` -> PASS=9 FAIL=13 on the unchanged tree (schema arm `{}`, section/layout never delivered, outside/symlink/rooms-home room_path served the boot room with isError absent).
+  GREEN (8a4aeba43): `node tests/test-267-mcpv2-app-views.cjs` -> PASS=22 FAIL=0, covering: schemas publish room_path / section / layout enum [cose, circle, grid, breadthfirst]; room-wiki receives room_path + section; room-graph receives layout; room_path OUTSIDE the home -> isError true and APPVIEW-OUTSIDE-SENTINEL absent; symlink inside the home pointing outside -> refused; room_path = rooms home itself (also via `..`) -> isError true with a distinct reason, rooms-home sentinel absent; no room_path -> boot room; in-home room path honored.
+  `node tests/test-267-mcpv2-lockstep.cjs` PASS=6 FAIL=0; `node tests/test-267-mcpv2-registration-api.cjs` PASS=67 FAIL=1 (the only remaining red is `live tools/list count (45) != wire-snapshot-zod4.json local.tools count (44)`, the research_run snapshot gap owned by 267-11; app-views no longer reds); `node tests/test-267-mcpv2-zod4-contract.cjs` Check (b) extras reduced to `tool:research_run:membership` only (the three app tools are pinned in `app_views_schema_fix`).
+files_changed: [lib/mcp/app-views.cjs, package.json, package-lock.json, npm-shrinkwrap.json, references/security/cve-db.json, tests/fixtures/267/zod4-accepted-deltas.json, tests/test-267-mcpv2-app-views.cjs]
+commits: [7e2eac5ef, 8a4aeba43]
