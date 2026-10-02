@@ -307,6 +307,9 @@ function armD() {
   const files = dirs.flatMap((d) => walkFiles(d, ['.cjs', '.js']));
   const hits = [];
   for (const file of files) {
+    // This file's own Arm D matcher spells the patterns it searches for as
+    // string literals; scanning itself would always self-flag (plan 267-17).
+    if (file === __filename) continue;
     let source;
     try {
       source = fs.readFileSync(file, 'utf8');
