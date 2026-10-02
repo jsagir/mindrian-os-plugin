@@ -1594,11 +1594,11 @@ Plans:
 **Goal:** A plugin release cut drives the Theo command-registry resync and the mindrian-website version-fact reconcile, with a visible report and no silent skips. Closing evidence (SEED-106 item 2, re-measured live 2026-10-02 through `theo_health`): `sync_drift.baseline_stamp` = `command-registry@2.0.0-beta.51`, `releases_cut_since: 0`, `finding: within-threshold`, `measured_at` 2026-09-30, `build_stamp` 2026-09-17 and dirty, while `v2.0.0-beta.53` and `v2.0.0-beta.55` are tagged and `package.json` reads `2.0.0-beta.56`: either the Step 5.6 `theo-resync` dispatch did not land or the probe does not count it; drift is measured against the live plugin version at call time, never a cached probe. Closes against quick 261002-5v9 (`scripts/release-cut-listener.cjs` plus the release.sh wiring). Scope is NOT widened by the 2026-10-02 fold: SEED-106 item 7 (the command registry as the one description every surface generates from) is weighed in Phase 369 and SEED-036, not here.
 **Requirements**: TBD
 **Depends on:** Phase 366
-**Plans:** 0 plans
+**Plans:** closed against quick 261002-5v9 (see 366.1-SUMMARY.md, 366.1-VERIFICATION.md: passed 7/7)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 366.1 to break down)
+- [x] quick 261002-5v9 - release-cut listener (scripts/release-cut-listener.cjs, release.sh Step 0.55 + 9.6c, --no-cut-listener) (completed 2026-10-02)
 
 ### Phase 367: A newborn room ends up with a connected graph, with no repair pass (promotes SEED-101)
 
