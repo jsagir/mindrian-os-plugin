@@ -206,17 +206,19 @@ async function main() {
     try {
       assert.equal(conn.client.getNegotiatedProtocolVersion(), '2025-11-25', 'default-mode client must negotiate 2025-11-25');
       await assertSurface(conn.client);
+      console.log('    negotiated ' + conn.client.getNegotiatedProtocolVersion() + ' (era ' + conn.client.getProtocolEra() + ')');
     } finally {
       await closeClient(conn);
     }
   });
 
-  await test('era 2026 (auto-negotiating v2 client): negotiates 2026-07-28; same instructions and surface -- RED before the swap', async () => {
+  await test('era 2026 (auto-negotiating v2 client): negotiates 2026-07-28; same instructions and surface', async () => {
     const conn = await connectClient({ clientOptions: AUTO });
     try {
       assert.equal(conn.client.getProtocolEra(), 'modern', 'auto-mode client must land on the modern era once the server serves 2026-07-28');
       assert.equal(conn.client.getNegotiatedProtocolVersion(), '2026-07-28', 'auto-mode client must negotiate 2026-07-28');
       await assertSurface(conn.client);
+      console.log('    negotiated ' + conn.client.getNegotiatedProtocolVersion() + ' (era ' + conn.client.getProtocolEra() + ')');
     } finally {
       await closeClient(conn);
     }
@@ -237,6 +239,7 @@ async function main() {
       assert.equal(conn.client.getNegotiatedProtocolVersion(), '2025-11-25');
       const result = await conn.client.callTool({ name: 'gate_render', arguments: GATE_CARD });
       const body = parseToolText(result);
+      console.log('    negotiated ' + conn.client.getNegotiatedProtocolVersion() + '; elicitation requests seen: ' + seen.length + '; renderer ' + body.renderer);
       assert.equal(seen.length, 1, 'exactly one elicitation request must reach the client, saw ' + seen.length);
       assert.equal(body.ok, true, 'gate_render must succeed');
       assert.equal(body.renderer, 'elicitation', 'renderer must be rung (a)');
@@ -246,7 +249,7 @@ async function main() {
     }
   });
 
-  await test('elicitation, era 2026: gate_render causes NO elicitation request; falls to rung (b)/(c) with a usable gate_id -- RED before the swap', async () => {
+  await test('elicitation, era 2026: gate_render causes NO elicitation request; falls to rung (b)/(c) with a usable gate_id', async () => {
     const seen = [];
     const conn = await connectClient({
       clientOptions: Object.assign({ capabilities: { elicitation: {} } }, AUTO),
@@ -261,6 +264,7 @@ async function main() {
       assert.equal(conn.client.getNegotiatedProtocolVersion(), '2026-07-28', 'auto-mode client must negotiate 2026-07-28');
       const result = await conn.client.callTool({ name: 'gate_render', arguments: GATE_CARD });
       const body = parseToolText(result);
+      console.log('    negotiated ' + conn.client.getNegotiatedProtocolVersion() + '; elicitation requests seen: ' + seen.length + '; renderer ' + body.renderer);
       assert.equal(seen.length, 0, 'no elicitation request may reach the client on a 2026 connection, saw ' + seen.length);
       assert.equal(body.ok, true, 'gate_render must still succeed');
       assert.notEqual(body.renderer, 'elicitation', 'renderer must be rung (b) or (c), not (a)');

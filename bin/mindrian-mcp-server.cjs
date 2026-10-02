@@ -25,6 +25,12 @@
  *
  * Override with MINDRIAN_TRANSPORT=stdio|http env var.
  *
+ * SDK split (Phase 267 Plan 11): the McpServer comes from the v2 package
+ * (@modelcontextprotocol/server) everywhere createServer() builds one. The
+ * stdio branch (and the express-missing fallback) is served by serveStdio
+ * from @modelcontextprotocol/server/stdio. The Streamable HTTP branch still
+ * uses the v1 StreamableHTTPServerTransport until Phase 267 Plans 12 and 14.
+ *
  * Configuration:
  *   MINDRIAN_ROOM env var sets the Data Room path (default: ./room)
  *
@@ -83,8 +89,14 @@ if (depHealOutcome && depHealOutcome.ok === false) {
   );
 }
 
-const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog, connectPath: true });
-const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog, connectPath: true });
+// Phase 267 Plan 11: the v2 SDK builds the McpServer and serves stdio
+// (serveStdio owns the era decision, 2025-11-25 or 2026-07-28, from ONE
+// factory). The HTTP branch below still uses the v1 StreamableHTTPServerTransport
+// until plans 267-12/267-14; a v2 McpServer serves correctly over it.
+const { McpServer } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
+const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
+// Module-level handle from serveStdio, kept for a future shutdown path.
+let stdioHandle = null;
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
@@ -156,6 +168,8 @@ if (!fs.existsSync(roomDir)) {
 // multi-session HTTP branch (further below) calls createServer() again, per
 // new session.
 function createServer() {
+  // Phase 267 Plan 11: McpServer here is the v2 class (@modelcontextprotocol/server),
+  // served over stdio by serveStdio and, until Plan 14, over the v1 HTTP transport.
   // 2026-08-19: serve the Desktop/Cowork runtime protocol at the MCP handshake.
   // Hookless surfaces get the Larry loop from the CONNECTION itself (the SDK
   // delivers `instructions` to the client model at initialize) instead of
@@ -255,8 +269,7 @@ async function main() {
       express = require('express');
     } catch (err) {
       process.stderr.write(`[mindrian-os] Express not available, falling back to stdio transport.\n`);
-      const transport = new StdioServerTransport();
-      await server.connect(transport);
+      stdioHandle = serveStdio(() => server);
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
       return;
     }
@@ -433,8 +446,7 @@ async function main() {
     });
   } else {
     // stdio for CLI and Desktop
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
+    stdioHandle = serveStdio(() => server);
     process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);
   }
 }
