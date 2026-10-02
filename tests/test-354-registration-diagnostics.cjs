@@ -48,9 +48,8 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const Module = require('node:module');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
-const { InMemoryTransport } = require('@modelcontextprotocol/sdk/inMemory.js');
+const { McpServer, InMemoryTransport } = require('@modelcontextprotocol/server');
+const { Client } = require('@modelcontextprotocol/client');
 
 const REPO = path.resolve(__dirname, '..');
 const { makeScratchRoom } = require(path.join(__dirname, 'helpers', 'fixture-room-354.cjs'));
