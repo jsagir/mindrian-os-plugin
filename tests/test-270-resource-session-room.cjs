@@ -58,6 +58,12 @@ function makeStubServer() {
     tool(name, description, schema, cb) {
       this.tools.set(name, { description, schema, cb });
     },
+    // Phase 267-08: room.cjs registers through server.registerTool(name,
+    // {title, description, inputSchema}, cb); capture the same shape.
+    registerTool(name, config, cb) {
+      const cfg = config || {};
+      this.tools.set(name, { description: cfg.description, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, cb });
+    },
     sendResourceListChanged() {
       this.listChangedCount += 1;
     },
