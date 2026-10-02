@@ -5,8 +5,9 @@ unless the question requires otherwise.
 
 ## Stack
 
-- Node 22 CJS, zero npm deps, native `fetch`. No SDK inside a spike; the SDK is a
-  real-build decision.
+- Node 22 (>=22.18.0); CJS or erasable-only TypeScript (Phase 369 D-17); zero npm deps unless the
+  question is about a library, in which case a spike-local package.json (spikes 006 and 007
+  precedent) that never touches the root manifest; native `fetch`; no SDK inside a spike.
 - Any Brain/Theo read goes through `lib/core/brain-client.cjs` (`query(cypher, params)`),
   never a second wire. Cypher is a FIXED text with `$params`; never assembled by
   concatenation (substrate rule m4 refuses the commit otherwise).

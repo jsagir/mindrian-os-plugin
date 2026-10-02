@@ -18,3 +18,4 @@
 | 14 | Bidirectional stage progression | Ventures can regress; history is preserved. |
 | 15 | ICM Layer 0 everywhere | Every directory gets a ROOM.md; folders without identity cause misfiling. |
 | 16 | Obsidian Vault Nested Structure (v1.9.7) | Every .mos artifact sits in its own folder (`section/name/name.md`); the folder IS the artifact (graph view, attachments, wikilinks). |
+| 17 | TypeScript allowed plugin-wide: erasable-only in core, hooks and the MCP server stay .cjs, the UI is a walled package built for the release (Phase 369 D-17, 2026-10-02) | The UI is worth the rule (navigator, SEED-107); what CJS-only protected (no build on the user's machine, hook cold start, inspectable source, release lockstep) is kept by erasable-only stripping, walled packages and release-built assets. |
