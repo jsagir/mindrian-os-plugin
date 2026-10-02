@@ -12,6 +12,37 @@
   `birthRoom` now reports `registry_guard_refused` instead of a false success, and the leaking test
   (`test-section-nodes-birth-and-migration`) runs against its own sandbox. Deliberate override:
   `MINDRIAN_ALLOW_TMP_ROOM=1`.
+- **The Cowork-routed HTTP path answers every request, not just the first** (`mcp-http-flag-off-one-request-per-process`).
+  The server built one connection per process and then refused all later calls; it now serves many
+  sequential requests in both protocol eras, and refuses a foreign Host or Origin on loopback.
+- **The three MCP Apps views accept their arguments** (`app-views-schema-key-drops-input-schemas`). The
+  dashboard, wiki and graph views published an empty input schema, so a host could never pass a room;
+  they now publish real schemas and keep `room_path` inside the rooms home.
+- **The runtime-loop prompts `bind-room`, `status` and `act` run** (`runtime-loop-prompts-bogus-args-schema`);
+  they used to fail with -32603.
+- **The server exits on SIGTERM and says so when it cannot listen** (`mcp-server-sigterm-no-exit`,
+  `mcp-http-listen-error-false-started`): no more stuck processes holding a port, and no "started"
+  message after a failed bind.
+- **The gate code comment no longer says hosts never declare elicitation** (`gate-elicitation-premise-stale-comment`);
+  Claude Code 2.1.280 and later do. Comment only, no behavior change.
+
+### Changed
+- **MCP SDK moved from v1 to the v2 package family** (`@modelcontextprotocol/server`, `/client`, `/node`,
+  `/core`, `ext-apps` 2.x; zod 4). The local server and the Brain stdio shim now serve both the 2025-11-25
+  and the 2026-07-28 protocol eras over stdio (`serveStdio`) and HTTP (`createMcpHandler`). The v1
+  `@modelcontextprotocol/sdk` is removed from the manifest, both lockfiles and `node_modules`. The Brain
+  boundary is unchanged: six tools, same wire, same egress guard.
+- **On a 2026-era host the decision gate renders as an in-chat card, not an inline dialog.** Claude Code 2.1.287
+  already opens with the 2026 handshake, which carries no initialize-time client capabilities, so the gate
+  uses its second rung. Nothing breaks; the card still works (navigator ruling 2026-10-02).
+
+### Known issues
+- Claude Desktop with no session id: `room_bind` still answers `no_session_id` and state reads fall back to the
+  registry's active room (`.planning/debug/desktop-session-binding-fallback.md`, unchanged by this work).
+- With `MINDRIAN_MCP_FIRST` on and a hook-set `MINDRIAN_SESSION_ID`, the shim cannot connect to the daemon
+  (`mcp-shim-preseeded-session-id-rejected`, fix pending a decision, SEED-108). The flag is off by default.
+- The migration was not smoke-tested by a person on Claude Desktop or Cowork; automated wire checks cover both
+  (`267-TRIPOLAR-PROBES.md`).
 
 ## [2.0.0-beta.55] - 2026-10-02
 
