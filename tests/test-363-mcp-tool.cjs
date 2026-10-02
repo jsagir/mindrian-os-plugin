@@ -392,7 +392,7 @@ async function main() {
     if (JSON.stringify(b.error.issues).indexOf(MARK) !== -1) return 'question_set echoed in the error';
     const ok = schema.safeParse({ op: 'planners' });
     if (!ok.success) return 'a valid op was rejected';
-    const ops = ['planners', 'plan', 'grant_request', 'grant_status', 'grant_revoke', 'run_quick', 'deep_plan', 'basket', 'file', 'pending'];
+    const ops = ['planners', 'plan', 'grant_request', 'grant_status', 'grant_revoke', 'run_quick', 'deep_plan', 'basket', 'file', 'pending', 'perspective_recall', 'perspective_candidates', 'perspective_judge'];
     for (let i = 0; i < ops.length; i += 1) {
       if (!schema.safeParse({ op: ops[i] }).success) return 'op ' + ops[i] + ' not in the schema';
     }

@@ -335,6 +335,19 @@ const AFTER_270_12 = {
  *     part of the gap to the old constant is that earlier, unrelated drift;
  *     it is recorded here rather than absorbed silently.
  */
+/*
+ * Plan 366-12 (Phase 366, D-07) -- research_run grows one op enum (six new
+ * op names), one perspective enum and a longer description (the perspective
+ * op set plus the deprecated eureka_* aliases). No tool is added. Measured
+ * live (node tests/test-270-tool-schema-budget.cjs) before the plan and after:
+ *   before 366-12: 45 tools, 20344 desc bytes, 29796 schema bytes,
+ *     50140 total bytes (this tree also carries peer work since 363-17).
+ *   after 366-12:  45 tools, 20540 desc bytes, 29962 schema bytes,
+ *     50502 total bytes, ~12626 approx tokens (router 9 / atomic 36).
+ *   this plan's own cost: +196 desc bytes, +166 schema bytes, +362 total bytes.
+ *   signed pctChange(48712, 50502) = 3.67 percent against the recorded AFTER,
+ *     inside DRIFT_TOLERANCE_PCT; the baseline below is NOT moved.
+ */
 const AFTER = {
   measuredAt: '2026-09-30',
   plan: '363-17',
