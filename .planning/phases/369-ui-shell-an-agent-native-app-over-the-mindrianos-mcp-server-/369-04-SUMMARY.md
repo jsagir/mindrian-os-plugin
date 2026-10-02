@@ -83,7 +83,7 @@ completed: 2026-10-02
 ## Findings (not caused by this plan)
 
 1. **Regression leg `198 local only` is RED on the unchanged tree.** `tests/test-198-local-only.test.cjs` fails: `lib/mcp/tools/sensors.cjs: forbidden token 'brain-client.cjs'`. Neither file is touched by this plan or by any 369 file; `lib/mcp/sse-event-bus.cjs` itself passes the same floor (pinned in the vocab test). The leg is kept because the plan names it; it will show FAILED in the aggregator until that pre-existing red is fixed or the leg is retired by a plan that owns it (the aggregator leg list must not be edited, so a later fix lands in the test or in sensors.cjs).
-2. **The long-dash guard FAILS on a peer's file.** `tests/test-369-canon-scope-docs.cjs` (peer plan, not this one) holds literal U+2014 and U+2013 characters on its lines 17-18 (`const EM = ...; const EN = ...`). The fix is the escaped form (`'—'`, `'–'`), as that test needs the characters at run time. Reported to the caller; not edited here (shared-tree rule).
+2. **The long-dash guard FAILS on a peer's file.** `tests/test-369-canon-scope-docs.cjs` (peer plan, not this one) holds literal U+2014 and U+2013 characters on its lines 17-18 (`const EM = ...; const EN = ...`). The fix is the escaped form (the backslash-u escapes for U+2014 and U+2013), as that test needs the characters at run time. Reported to the caller; not edited here (shared-tree rule).
 
 ## Deviations from Plan
 
