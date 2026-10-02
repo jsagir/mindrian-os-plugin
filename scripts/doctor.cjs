@@ -1853,7 +1853,9 @@ function buildAcceptanceChecklist(ctx) {
           }
           if (payload.ok !== true) {
             // A non-advisory (blocker) failure -- capability itself is unreachable.
-            const firstFail = payload.layers.find(function (l) { return l && !l.ok && !l.advisory; });
+            // Phase 366-22: the perspective probe is a blocker beside the layers.
+            const firstFail = payload.layers.find(function (l) { return l && !l.ok && !l.advisory; })
+              || (payload.perspective && payload.perspective.ok === false ? payload.perspective : null);
             return {
               ok: false,
               finding: 'eureka stack not ready: ' + (firstFail ? (firstFail.name + ' -- ' + firstFail.reason) : 'unknown layer'),
@@ -4669,6 +4671,11 @@ async function classSEurekaSmoke(flags) {
     for (const layer of result.layers) {
       const marker = layer.ok ? 'PASS' : 'FAIL';
       console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
+    }
+    // Phase 366-22: the Eureka perspective probe rides beside the five layers.
+    if (result.perspective) {
+      const p = result.perspective;
+      console.log('    [' + (p.ok ? 'PASS' : 'FAIL') + '] ' + p.name + ' -- ' + p.reason + ' (' + p.ms + 'ms)');
     }
     if (fixResult) {
       console.log('  Fix: ' + fixResult.reason);

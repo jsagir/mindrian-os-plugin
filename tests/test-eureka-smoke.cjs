@@ -13,6 +13,10 @@
  *     deps are installed in this repo and L3 is cache-state-agnostic (a cache
  *     miss is a graceful PASS), so this is deterministic offline.
  *
+ * Phase 366-22: the Eureka perspective probe (payload.perspective, a blocker
+ * beside the five layers) passes over its temp room and fails the verdict when
+ * mocked broken.
+ *
  * Phase 341 Plan 03 (D-11): L5 (model_installed) is ADVISORY -- it is mocked
  * alongside L1-L4 in every unit arm below, but its ok:false never flips the
  * overall verdict; see tests/test-341-class-s-layer-split.cjs for the
@@ -111,6 +115,36 @@ async function main() {
     assert.strictEqual(payload.layers.length, 5, 'exactly 5 layers (cache-state-agnostic)');
     assert.strictEqual(payload.layers[4].id, 'model_installed', 'L5 is model_installed');
     assert.strictEqual(typeof payload.ok, 'boolean', 'overall ok is a boolean');
+  });
+
+  // ----- Phase 366-22: the Eureka perspective probe (the runner is deleted) -----
+  await test('unit: the perspective probe recalls the one unconnected pair over its temp room', async function () {
+    const os = require('node:os');
+    const fs = require('node:fs');
+    const before = fs.readdirSync(os.tmpdir()).filter(function (f) { return f.indexOf('mos-eureka-smoke-') === 0; }).length;
+    const r = await smoke.checkEurekaSmoke({
+      mockL1: okLayer('deps ok'), mockL2: okLayer('vec ok'), mockL3: okLayer('cache hit'),
+      mockL4: okLayer('degrades'), mockL5: okLayer('model installed'),
+    });
+    assert.strictEqual(r.layers.length, 5, 'the five layers stay wire-locked');
+    assert.ok(r.perspective && r.perspective.id === 'perspective_recall', 'perspective block present');
+    assert.strictEqual(r.perspective.ok, true, 'probe passes: ' + r.perspective.reason);
+    assert.ok(/candidates 1, known_pairs 1, excluded_known [1-9]/.test(r.perspective.reason), 'counts in the reason line: ' + r.perspective.reason);
+    assert.strictEqual(r.ok, true, 'overall ok');
+    const after = fs.readdirSync(os.tmpdir()).filter(function (f) { return f.indexOf('mos-eureka-smoke-') === 0; }).length;
+    assert.strictEqual(after, before, 'the temp room was removed');
+  });
+
+  await test('unit: a failing perspective probe fails the overall verdict (blocker)', async function () {
+    const r = await smoke.checkEurekaSmoke({
+      mockL1: okLayer('deps ok'), mockL2: okLayer('vec ok'), mockL3: okLayer('cache hit'),
+      mockL4: okLayer('degrades'), mockL5: okLayer('model installed'),
+      mockPerspective: failLayer('recall broke'),
+    });
+    assert.strictEqual(r.layers.length, 5);
+    assert.strictEqual(r.perspective.ok, false);
+    assert.strictEqual(r.perspective.reason, 'recall broke');
+    assert.strictEqual(r.ok, false, 'a broken perspective fails the run');
   });
 
   console.log('\neureka-smoke: PASS=' + PASS + ' FAIL=' + FAIL);
