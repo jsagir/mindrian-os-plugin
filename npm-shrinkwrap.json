@@ -12,7 +12,7 @@
         "@ig3/markdown-it-wikilinks": "^1.0.2",
         "@modelcontextprotocol/client": "^2.1.0",
         "@modelcontextprotocol/core": "^2.1.0",
-        "@modelcontextprotocol/ext-apps": "^1.5.0",
+        "@modelcontextprotocol/ext-apps": "^2.0.3",
         "@modelcontextprotocol/sdk": "^1.30.1",
         "@modelcontextprotocol/server": "^2.1.0",
         "ajv": "^8.18.0",
@@ -89,23 +89,31 @@
       }
     },
     "node_modules/@modelcontextprotocol/ext-apps": {
-      "version": "1.5.0",
-      "resolved": "https://registry.npmjs.org/@modelcontextprotocol/ext-apps/-/ext-apps-1.5.0.tgz",
-      "integrity": "sha512-q4fut89TOoP2LEPHSGfZErIf1K1xOTTzV+41h/bB2BqKw2gKb0uLKbHusOy1UtbY0puS16zBho/vFp3f5XMVbQ==",
+      "version": "2.0.3",
+      "resolved": "https://registry.npmjs.org/@modelcontextprotocol/ext-apps/-/ext-apps-2.0.3.tgz",
+      "integrity": "sha512-Tn+4+cyhO4f4cQSDxNyLiIfEE+qlTTuIbWBJB8JTinEXOhDYgCT4wDTQplxD9MBYZH5pCYGC59GaxiwIT4bu8w==",
       "license": "MIT",
       "workspaces": [
         "examples/*"
       ],
+      "dependencies": {
+        "@standard-schema/spec": "^1.1.0"
+      },
       "engines": {
         "node": ">=20"
       },
       "peerDependencies": {
-        "@modelcontextprotocol/sdk": "^1.29.0",
+        "@modelcontextprotocol/client": "^2.0.0",
+        "@modelcontextprotocol/core": "^2.0.0",
+        "@modelcontextprotocol/server": "^2.0.0",
         "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
         "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0",
-        "zod": "^3.25.0 || ^4.0.0"
+        "zod": "^4.2.0"
       },
       "peerDependenciesMeta": {
+        "@modelcontextprotocol/server": {
+          "optional": true
+        },
         "react": {
           "optional": true
         },
@@ -166,6 +174,12 @@
       "engines": {
         "node": ">=20"
       }
+    },
+    "node_modules/@standard-schema/spec": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz",
+      "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==",
+      "license": "MIT"
     },
     "node_modules/accepts": {
       "version": "2.0.0",
