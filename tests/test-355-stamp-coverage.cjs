@@ -12,6 +12,15 @@
  * Theo capture (148 recorded pairs) proving every verified stamp's path is
  * exactly what Theo returned, never invented.
  *
+ * Phase 366 Plan 27 (D-02, slice C): the standalone eureka runner
+ * (stampRankedPairs + renderReport) is retired, so its producer leaves this
+ * sweep. Eureka findings now file through the research planner's one stamped
+ * filer, so the eureka coverage leg stamps the same fixture pairs through
+ * lib/core/research-planner/filing-stamped.cjs stampForPair and keeps the
+ * produced == parsed integer equality and the judge none uniformity. The
+ * rendered-block count retires with the runner's report renderer (the
+ * planner's report renders rows, not stamp blocks).
+ *
  * Per this plan's own action text: the capture-replay leg exits 77 with a
  * loud message ONLY if tests/fixtures/355-theo-find-connections-responses.json
  * is genuinely absent (it exists after 355-14; this is a hard requirement,
@@ -41,7 +50,7 @@ const whitespaceCommand = require(path.join(REPO, 'scripts', 'whitespace-command
 const hsiToGraph = require(path.join(REPO, 'scripts', 'hsi-to-graph.cjs'));
 const reverseSalientAgent = require(path.join(REPO, 'lib', 'agents', 'reverse-salient-agent.cjs'));
 const stampConnections = require(path.join(REPO, 'scripts', 'stamp-connections.cjs'));
-const eurekaRunner = require(path.join(REPO, 'scripts', 'eureka-portfolio-report.cjs'));
+const filingStamped = require(path.join(REPO, 'lib', 'core', 'research-planner', 'filing-stamped.cjs'));
 const verificationStamp = require(path.join(REPO, 'lib', 'core', 'verification-stamp.cjs'));
 const verificationStampFormat = require(path.join(REPO, 'lib', 'core', 'verification-stamp-format.cjs'));
 const directionConvention = require(path.join(REPO, 'lib', 'core', 'direction-convention.cjs'));
@@ -84,51 +93,6 @@ async function captureStdoutAsync(fn) {
   } finally {
     process.stdout.write = original;
   }
-}
-
-const minimalProvenanceEmbedded = {
-  run_mode: 'live',
-  pairs_mode: 'graph',
-  encoder_model: 'fixture-stub',
-  encoder_dtype: 'stub',
-  vec_backend: 'fixture',
-  ahp_weights: { strategic_fit: 0.5, validated_demand: 0.3, tech_econ_feasibility: 0.2 },
-  ahp_cr: 0.0,
-  ahp_matrix_source: 'fixture',
-  tail_composition: 'fixture',
-  growth_proxy: 'fixture',
-  tail_thresholds: { attnCut: 0.5, growthCut: 0.5 },
-  tail_insufficient_structure: true,
-  tail_suspect_noise: false,
-  graph_nodes: 6,
-  converges_pairs: 6,
-  cohort_techs: 6,
-  pairs_scored: 6,
-  scaffold_pairs_excluded: 0,
-  container_pairs_excluded: 0,
-  low_trust_pairs_excluded: 0,
-  figure_guard_skipped: 0,
-  critic_resolution: 'fixture',
-  honest_nouns: 'a fixture report, not a real room',
-  run_date: '2026-09-24',
-  encoder_unavailable: false,
-  degrade_cause: null,
-};
-
-function makeMdCtx(ranked) {
-  return {
-    provenance: minimalProvenanceEmbedded,
-    roomDir: 'fixture-room',
-    graphRel: 'fixture-graph.json',
-    offline: true,
-    top: ranked.length,
-    ranked: ranked,
-    tailIds: new Set(eurekaFixture.embedded.tailIds),
-    tail: { insufficient_structure: true, suspect_noise: false, tail: [] },
-    tailPairs: [],
-    statements: [],
-    techFor: () => ({ title: 'unused' }),
-  };
 }
 
 // ---------------------------------------------------------------------------
@@ -235,23 +199,21 @@ function cloneEurekaRanked() {
 
 async function coverageEureka() {
   const ranked = cloneEurekaRanked();
-  const callTool = makeReplayCallTool(stubFixture);
-  const stamps = await eurekaRunner.stampRankedPairs(ranked, {}, { callTool });
-  const md = eurekaRunner.renderReport(makeMdCtx(ranked));
-  const rankedSection = md.split('## Ranked top')[1].split('## Tail quadrant')[0];
+  // The planner's filer stamps each pair synchronously and never calls a
+  // tool (366 D-15): a pair whose endpoints resolve to canon handles but has
+  // no recorded Theo lane stamp, and a non-canon endpoint (D-10 honest miss),
+  // both stamp unverified / not_called. Still a STAMP, still Stamp-parseable.
+  const stamps = ranked.map(function (r) {
+    return filingStamped.stampForPair({ a: r.idA, b: r.idB }, {
+      carried: { a: { title: r.techA && r.techA.title }, b: { title: r.techB && r.techB.title } },
+    });
+  });
 
   const produced = ranked.length;
-  const rendered = countStampBlocks(rankedSection);
   const parsed = stamps.filter((s) => verificationStamp.Stamp.safeParse(s).success).length;
-  // Two of the six fixture rows are non-canon titles (D-10 honest miss ->
-  // not_called/handle_unresolved) -- still a STAMP (unverified), still
-  // Stamp-parseable, still ONE rendered block. All six produce == render
-  // == parse, exactly like every other producer, per SPEC AC5's own
-  // "produced == rendered == parsed" wording (never "produced == verified").
-  check('eureka coverage: produced == rendered == parsed (integer equality)', produced === rendered && rendered === parsed, produced + '/' + rendered + '/' + parsed);
+  check('eureka coverage: produced == parsed through filing-stamped.stampForPair (integer equality)', produced === parsed && produced === stamps.length, produced + '/' + parsed);
   check('eureka coverage: every stamp carries judge none', allJudgeNone(stamps));
-  check('eureka coverage: every rendered block ends "judge  none, path check only"', countJudgeLines(rankedSection) === produced, countJudgeLines(rankedSection) + ' vs ' + produced);
-  check("eureka coverage: ends with disclosureLine('eureka')", rankedSection.indexOf(floorDisclosure.disclosureLine('eureka')) !== -1);
+  check('eureka coverage: no stamp at filing time claims a Theo call (backend not_called)', stamps.every((s) => s.backend === 'not_called'), JSON.stringify(stamps.map((s) => s.backend)));
 }
 
 // ---------------------------------------------------------------------------

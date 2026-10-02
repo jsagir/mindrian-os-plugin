@@ -25,6 +25,14 @@
  * the net guard via tests/helpers/hygiene-355.cjs BEFORE requiring any repo
  * module; assert attempts() === 0 as the last check.
  *
+ * Phase 366 Plan 27 (D-02, slice C): the standalone eureka runner is
+ * retired, so its Markdown report writer (renderReport) leaves the sweep with
+ * it, and the stamps the eureka HTML export and qualify card render now come
+ * from the research planner's one stamped filer
+ * (lib/core/research-planner/filing-stamped.cjs stampForPair) instead of the
+ * runner's stampRankedPairs. Every surviving eureka render keeps its sweep
+ * and its planted-0.87 negative control.
+ *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
 
@@ -45,7 +53,7 @@ const whitespaceCommand = require(path.join(REPO, 'scripts', 'whitespace-command
 const hsiToGraph = require(path.join(REPO, 'scripts', 'hsi-to-graph.cjs'));
 const reverseSalientAgent = require(path.join(REPO, 'lib', 'agents', 'reverse-salient-agent.cjs'));
 const stampConnections = require(path.join(REPO, 'scripts', 'stamp-connections.cjs'));
-const eurekaRunner = require(path.join(REPO, 'scripts', 'eureka-portfolio-report.cjs'));
+const filingStamped = require(path.join(REPO, 'lib', 'core', 'research-planner', 'filing-stamped.cjs'));
 const reportHtml = require(path.join(REPO, 'lib', 'core', 'eureka', 'report-html.cjs'));
 const qualifyOpportunity = require(path.join(REPO, 'lib', 'core', 'eureka', 'qualify-opportunity.cjs'));
 const verificationStamp = require(path.join(REPO, 'lib', 'core', 'verification-stamp.cjs'));
@@ -134,20 +142,15 @@ const minimalProvenanceEmbedded = {
   degrade_cause: null,
 };
 
-function makeMdCtx(ranked) {
-  return {
-    provenance: minimalProvenanceEmbedded,
-    roomDir: 'fixture-room',
-    graphRel: 'fixture-graph.json',
-    offline: true,
-    top: ranked.length,
-    ranked: ranked,
-    tailIds: new Set(eurekaFixture.embedded.tailIds),
-    tail: { insufficient_structure: true, suspect_noise: false, tail: [] },
-    tailPairs: [],
-    statements: [],
-    techFor: () => ({ title: 'unused' }),
-  };
+// stampEurekaRanked(ranked): attach the planner filer's stamp to each fixture
+// row in place (the seam the retired runner's stampRankedPairs filled).
+function stampEurekaRanked(ranked) {
+  for (const r of ranked) {
+    r.stamp = filingStamped.stampForPair({ a: r.idA, b: r.idB }, {
+      carried: { a: { title: r.techA && r.techA.title }, b: { title: r.techB && r.techB.title } },
+    });
+  }
+  return ranked;
 }
 
 // ---------------------------------------------------------------------------
@@ -271,27 +274,16 @@ async function runFindConnections() {
 }
 
 // ---------------------------------------------------------------------------
-// eureka: the Markdown writer, the HTML export, and the F.1 qualify card.
+// eureka: the HTML export and the F.1 qualify card. (The runner's Markdown
+// writer retired with the runner in 366-27.)
 // ---------------------------------------------------------------------------
 
 async function runEureka() {
-  // Markdown: the fixture's own rank-4 techA title already plants "0.87"
+  // HTML: the fixture's own rank-4 techA title already plants "0.87"
   // (tests/fixtures/355/producers/eureka-report.json), reused here as the
-  // eureka negative control rather than re-planting a second one.
-  for (const [label, callTool] of [['eureka report (replay)', makeReplayCallTool(stubFixture)], ['eureka report (null)', makeNullCallTool()]]) {
-    const ranked = cloneEurekaRanked();
-    await eurekaRunner.stampRankedPairs(ranked, {}, { callTool });
-    const md = eurekaRunner.renderReport(makeMdCtx(ranked));
-    const rankedSection = md.split('## Ranked top')[1].split('## Tail quadrant')[0];
-    sweepText(label, rankedSection);
-    check(label + ': the planted eureka-report.json 0.87 title is caught and withheld', rankedSection.indexOf('0.87') === -1 && rankedSection.indexOf('[withheld]') !== -1);
-  }
-
-  // HTML: the same planted-0.87 fixture row, swept over the ranked-table
-  // region only.
+  // eureka negative control, swept over the ranked-table region only.
   {
-    const ranked = cloneEurekaRanked();
-    await eurekaRunner.stampRankedPairs(ranked, {}, { callTool: makeReplayCallTool(stubFixture) });
+    const ranked = stampEurekaRanked(cloneEurekaRanked());
     const jsonRanked = ranked.map((r) => ({ rank: r.rank, a: r.idA, b: r.idB, a_title: r.techA.title, b_title: r.techB.title, mode: 'embedded', banked: r.banked === true, stamp: r.stamp }));
     const html = reportHtml.renderReportHtml({ provenance: Object.assign({}, minimalProvenanceEmbedded), ranked: jsonRanked, statements: [] });
     const rankedTableHtml = html.split('<h2>Ranked')[1].split('<h2>Opportunity Statements')[0];

@@ -39,6 +39,15 @@
  * the net guard via tests/helpers/hygiene-355.cjs BEFORE requiring any repo
  * module; assert attempts() === 0 as the last check.
  *
+ * Phase 366 Plan 27 (D-02, slice C): the standalone eureka runner and its
+ * stampRankedPairs are retired. The eureka leg of (b) now follows the
+ * planner's path: the one stamped filer
+ * (lib/core/research-planner/filing-stamped.cjs stampForPair) stamps the
+ * fixture pairs with ZERO tool calls, and the only eureka wire is the Theo
+ * lane's stamp producer (verificationStamp.stampFinding over endpoints
+ * resolved through resolveEndpoint, the same resolution stampForPair uses),
+ * whose captured calls join the (b) wire-shape sweep.
+ *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
 
@@ -61,7 +70,7 @@ const directionConvention = require(path.join(REPO, 'lib', 'core', 'direction-co
 const part8EgressGuard = require(path.join(REPO, 'lib', 'core', 'part8-egress-guard.cjs'));
 const whitespaceCommand = require(path.join(REPO, 'scripts', 'whitespace-command.cjs'));
 const hsiToGraph = require(path.join(REPO, 'scripts', 'hsi-to-graph.cjs'));
-const eurekaRunner = require(path.join(REPO, 'scripts', 'eureka-portfolio-report.cjs'));
+const filingStamped = require(path.join(REPO, 'lib', 'core', 'research-planner', 'filing-stamped.cjs'));
 const stampConnections = require(path.join(REPO, 'scripts', 'stamp-connections.cjs'));
 const { makeReplayCallTool } = require(path.join(REPO, 'tests', 'helpers', 'theo-replay-355.cjs'));
 
@@ -91,6 +100,9 @@ const PART8_TARGETS = [
   'scripts/ambient-stop.cjs',
   'scripts/scout-cadence-guard.cjs',
   'scripts/auto-explore-fire.cjs',
+  // Phase 366-27: the planner's one stamped filer, where eureka findings file
+  // now that the standalone runner is retired.
+  'lib/core/research-planner/filing-stamped.cjs',
 ];
 
 function legA() {
@@ -185,13 +197,33 @@ async function legB() {
     allCalls.push(...callTool.calls);
   }
 
-  // eureka (the embedded ranked pairs, via the module's own stampRankedPairs).
+  // eureka (the embedded ranked pairs). Filing: the planner's one stamped
+  // filer stamps every pair with zero tool calls (366 D-15). Wire: the Theo
+  // lane's stamp producer over the same resolved endpoints; its calls join
+  // the sweep.
   {
     const ranked = JSON.parse(JSON.stringify(
       JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'eureka-report.json'), 'utf8')).embedded.ranked
     ));
+    const carriedOf = (r) => ({ a: { title: r.techA && r.techA.title }, b: { title: r.techB && r.techB.title } });
+    const filerStamps = ranked.map((r) => filingStamped.stampForPair({ a: r.idA, b: r.idB }, { carried: carriedOf(r) }));
+    check('B: the eureka filer (stampForPair) makes no tool call at filing (backend not_called on every pair)',
+      filerStamps.length === ranked.length && filerStamps.every((st) => st.backend === 'not_called'));
+    const findings = ranked.map((r) => {
+      const c = carriedOf(r);
+      const ra = verificationStamp.resolveEndpoint(c.a);
+      const rb = verificationStamp.resolveEndpoint(c.b);
+      return {
+        fromHandle: ra ? ra.name : null,
+        toHandle: rb ? rb.name : null,
+        fromVia: ra ? ra.via : null,
+        toVia: rb ? rb.via : null,
+        direction: (r.rs && r.rs.direction) || directionConvention.NONE,
+      };
+    });
     const callTool = makeReplayCallTool(stubFixture);
-    await eurekaRunner.stampRankedPairs(ranked, {}, { callTool });
+    await verificationStamp.stampFindings(findings, { callTool });
+    check('B: the eureka Theo-lane wire made at least one call for the resolvable pairs', callTool.calls.length > 0, 'got ' + callTool.calls.length);
     allCalls.push(...callTool.calls);
   }
 

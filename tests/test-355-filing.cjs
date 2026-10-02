@@ -5,11 +5,22 @@
  * Phase 355 (Hidden in Plain Sight: Jev-through-Theo cross-connection
  * engines) Plan 20 (HIPS-06, D-36..D-43, D-53 C4, D-56, AI-SPEC Section 7).
  * The D-43 filing proof: an accepted stamped eureka finding files as a
- * `proposed` opportunity through the EXISTING banking writer
- * (bankStatements), the stamp rides the node's props, SOURCED_FROM
- * provenance lands on the two source artifact nodes, and a real SENS-13
- * producer (writeStampedSideChannel) plus one local telemetry memory_event
- * fire after the write transaction commits.
+ * `proposed` opportunity through the ONE stamped filer, the stamp rides the
+ * node's props, SOURCED_FROM provenance lands on the two source artifact
+ * nodes, and a real SENS-13 producer (writeStampedSideChannel) fires after
+ * the write transaction commits.
+ *
+ * Phase 366 Plan 27 (D-02, slice C): the standalone runner's bankStatements
+ * is retired, so this test drives the planner-owned filer
+ * lib/core/research-planner/filing-stamped.cjs (fileStampedOpportunity)
+ * through the same composition its live caller lib/core/ambient-run.cjs
+ * runs: BEGIN, fileStampedOpportunity, COMMIT, then writeStampedSideChannel
+ * with the minted node id. Every filing-record assertion is kept. Three legs
+ * named runner-only behavior and were restated against the filer: the
+ * banking predicate's skip (now: the filer refuses a pair with no stamp),
+ * the runner's own DERIVED_FROM evidence edges (now: SOURCED_FROM are the
+ * filer's only edges), and the runner's cross_connection_stamped telemetry
+ * (now: the filer mints no telemetry row; the event was the runner caller's).
  *
  * Test hygiene contract (every 355 test): scrub TYPESAFE_API_KEY and install
  * the net guard via tests/helpers/hygiene-355.cjs BEFORE requiring any repo
@@ -47,10 +58,80 @@ const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room
 const navigation = require(path.join(REPO, 'lib', 'core', 'navigation.cjs'));
 const verificationStamp = require(path.join(REPO, 'lib', 'core', 'verification-stamp.cjs'));
 const eurekaReachRunner = require(path.join(REPO, 'lib', 'core', 'eureka', 'eureka-reach-runner.cjs'));
-const runner = require(path.join(REPO, 'scripts', 'eureka-portfolio-report.cjs'));
+const filingStamped = require(path.join(REPO, 'lib', 'core', 'research-planner', 'filing-stamped.cjs'));
+const bandFor = require(path.join(REPO, 'lib', 'core', 'rs-differential-scorer.cjs'))._test.bandFor;
 const { buildFilingRoom, FROM_FRAMEWORK, TO_FRAMEWORK } = require(path.join(REPO, 'tests', 'helpers', 'fixture-room-355.cjs'));
 
-const BANK_SESSION_ID = runner.BANK_SESSION_ID;
+// The session id the retired runner banked under; kept so the filed node's
+// session stays what the 355 record measured.
+const BANK_SESSION_ID = 'eureka-portfolio';
+
+// The sensor-eureka firing bands the side channel fires on.
+const SIDE_CHANNEL_FIRING_BANDS = ['opportunity', 'high', 'breakthrough'];
+
+// fileLikeTheLiveCaller(db, sessionId, statements, opts) -- the composition
+// lib/core/ambient-run.cjs runs around the one stamped filer: one BEGIN, one
+// fileStampedOpportunity call per statement (a stamp-less pair returns null
+// and is counted as skipped), COMMIT, then the side channel for the highest-
+// ranked filed transferable finding whose band fires. Returns
+// { ok, filed, skipped, nodeIds, sideChannel }.
+function fileLikeTheLiveCaller(db, sessionId, statements, opts) {
+  const nodeIds = [];
+  const filedItems = [];
+  let skipped = 0;
+  db.exec('BEGIN');
+  try {
+    for (const entry of statements) {
+      const pair = entry.pair || {};
+      const st = entry.statement || {};
+      const stamp = opts.stampsByKey.get(pair.idA + '|' + pair.idB) || null;
+      const titleA = (pair.techA && pair.techA.title) || pair.idA;
+      const titleB = (pair.techB && pair.techB.title) || pair.idB;
+      const nodeId = filingStamped.fileStampedOpportunity(db, {
+        a: { handle: String(pair.idA), text: String(titleA) },
+        b: { handle: String(pair.idB), text: String(titleB) },
+        stamp: stamp,
+        producer: 'eureka',
+        roomDir: opts.roomDir,
+        runMode: opts.runMode,
+        reason: 'eureka stamped finding',
+        name: titleA + ' x ' + titleB,
+        sessionId: sessionId,
+        score: typeof pair.score === 'number' ? pair.score : undefined,
+        evidenceIds: [pair.idA, pair.idB],
+        extraProps: { statement_text: typeof st.text === 'string' ? st.text : '', critic: st.critic || 'resolved' },
+      });
+      if (!nodeId) { skipped += 1; continue; }
+      nodeIds.push(nodeId);
+      filedItems.push({ nodeId: nodeId, pair: pair, critic: st.critic, stamp: stamp, titleA: titleA, titleB: titleB });
+    }
+    db.exec('COMMIT');
+  } catch (e) {
+    try { db.exec('ROLLBACK'); } catch (_e) { /* already rolled back */ }
+    return { ok: false, reason: String(e && e.message) };
+  }
+  let pick = null;
+  for (const item of filedItems) {
+    if (item.critic !== 'transferable') continue;
+    const absDiff = item.pair.rs && item.pair.rs.abs_diff;
+    if (typeof absDiff !== 'number') continue;
+    const band = bandFor(absDiff);
+    if (SIDE_CHANNEL_FIRING_BANDS.indexOf(band) === -1) continue;
+    if (!pick || item.pair.rank < pick.pair.rank) pick = Object.assign({ band: band, absDiff: absDiff }, item);
+  }
+  let sideChannel = null;
+  if (pick) {
+    sideChannel = eurekaReachRunner.writeStampedSideChannel(opts.roomDir, {
+      score: { direction: pick.stamp.direction, abs_diff: pick.absDiff, band: pick.band, passes: true },
+      guard: { verdict: 'transferable', confidence: 'high', tags: [] },
+      a: { handle: String(pick.pair.idA), text: String(pick.titleA) },
+      b: { handle: String(pick.pair.idB), text: String(pick.titleB) },
+      stamp: pick.stamp,
+      opportunityHandle: pick.nodeId,
+    });
+  }
+  return { ok: true, filed: nodeIds.length, skipped: skipped, nodeIds: nodeIds, sideChannel: sideChannel };
+}
 
 function allNodeTypes(db) {
   const rows = db.prepare('SELECT DISTINCT type FROM nodes').all();
@@ -69,8 +150,9 @@ async function main() {
   const fixture = await buildFilingRoom('filing');
   try {
     // -----------------------------------------------------------------------
-    // 1. bankStatements(db, BANK_SESSION_ID, statements, { stampsByKey,
-    //    roomDir, runMode }) -- exactly one banked, one skipped.
+    // 1. The live caller's composition around fileStampedOpportunity --
+    //    exactly one filed (the stamped pair), one skipped (the filer refuses
+    //    a pair with no stamp; formerly the runner's banking predicate skip).
     // -----------------------------------------------------------------------
     let db = openRoomDb(fixture.roomDir, { allowExtension: true });
     const typesBefore = allNodeTypes(db);
@@ -79,18 +161,17 @@ async function main() {
     const runMode = 'test-mode-355-20';
     let bank;
     try {
-      bank = runner.bankStatements(db, BANK_SESSION_ID, fixture.statements, {
+      bank = fileLikeTheLiveCaller(db, BANK_SESSION_ID, fixture.statements, {
         stampsByKey: fixture.stampsByKey,
         roomDir: fixture.roomDir,
         runMode: runMode,
-        stampElapsedMs: 250,
       });
     } finally {
       closeRoomDb(db);
     }
-    check('filing: bankStatements returns ok:true', bank && bank.ok === true, JSON.stringify(bank));
-    check('filing: bankStatements banked exactly 1', bank && bank.banked === 1, JSON.stringify(bank));
-    check('filing: bankStatements skipped exactly 1', bank && bank.skipped === 1, JSON.stringify(bank));
+    check('filing: the filing transaction returns ok:true', bank && bank.ok === true, JSON.stringify(bank));
+    check('filing: fileStampedOpportunity filed exactly 1', bank && bank.filed === 1, JSON.stringify(bank));
+    check('filing: fileStampedOpportunity refused exactly 1 (the stamp-less pair)', bank && bank.skipped === 1, JSON.stringify(bank));
 
     // -----------------------------------------------------------------------
     // 2. Close and reopen room.db (D-43); exactly 1 row type='opportunity'
@@ -132,8 +213,9 @@ async function main() {
 
     // -----------------------------------------------------------------------
     // 4. >= 2 SOURCED_FROM edges, source = the node id, relation
-    //    'sourced_from', origin 'eureka-355'; DERIVED_FROM edges still
-    //    present.
+    //    'sourced_from', origin 'eureka-355'. The runner's DERIVED_FROM
+    //    evidence edges were its own caller-side writes (the planner's
+    //    filing.cjs writes its own); the filer writes SOURCED_FROM only.
     // -----------------------------------------------------------------------
     const sourcedFromRows = db.prepare("SELECT source, target, properties FROM edges WHERE source = ? AND type = 'SOURCED_FROM'").all(nodeId);
     check('filing: >= 2 SOURCED_FROM edges from the node', sourcedFromRows.length >= 2, JSON.stringify(sourcedFromRows));
@@ -144,15 +226,14 @@ async function main() {
     const sourcedTargets = new Set(sourcedFromRows.map(function (r) { return r.target; }));
     check('filing: SOURCED_FROM targets are the two ARTIFACT nodes (D-38)', sourcedTargets.has(fixture.ids.artifactA) && sourcedTargets.has(fixture.ids.artifactB), JSON.stringify([...sourcedTargets]));
 
-    const derivedFromRows = db.prepare("SELECT source, target FROM edges WHERE source = ? AND type = 'DERIVED_FROM'").all(nodeId);
-    check('filing: pre-existing DERIVED_FROM edges are still present (2)', derivedFromRows.length === 2, JSON.stringify(derivedFromRows));
+    const otherEdgeRows = db.prepare("SELECT type, target FROM edges WHERE source = ? AND type != 'SOURCED_FROM'").all(nodeId);
+    check('filing: the filer writes no edge other than SOURCED_FROM from the node', otherEdgeRows.length === 0, JSON.stringify(otherEdgeRows));
 
     // -----------------------------------------------------------------------
-    // 5. The set of node types after banking is the before-set plus ONLY
+    // 5. The set of node types after filing is the before-set plus ONLY
     //    already-existing, well-established system types ('opportunity' the
-    //    banked truth-claim, 'memory_event' the telemetry row) -- T-355-99's
-    //    mitigation is "no ROGUE type minted", not "zero growth": a banking
-    //    run that stamps a finding legitimately mints both.
+    //    filed truth-claim, 'memory_event' any navigation telemetry row) --
+    //    T-355-99's mitigation is "no ROGUE type minted", not "zero growth".
     // -----------------------------------------------------------------------
     const typesAfter = allNodeTypes(db);
     const added = [...typesAfter].filter(function (t) { return !typesBefore.has(t); });
@@ -164,6 +245,7 @@ async function main() {
     // -----------------------------------------------------------------------
     // 6. <room>/.mindrian/last-eureka.json exists, validates as v2, and its
     //    opportunity_handle equals the node id (D-53 C4).
+    check('filing: writeStampedSideChannel returned ok after COMMIT', bank.sideChannel && bank.sideChannel.ok === true, JSON.stringify(bank.sideChannel));
     // -----------------------------------------------------------------------
     const sideChannelPath = path.join(fixture.roomDir, '.mindrian', 'last-eureka.json');
     check('filing: last-eureka.json exists', fs.existsSync(sideChannelPath));
@@ -186,28 +268,19 @@ async function main() {
     check('filing: node still reads proposed after the rejected agent promote', stillProposed && stillProposed.review_status === 'proposed', JSON.stringify(stillProposed));
 
     // -----------------------------------------------------------------------
-    // 8. A memory_event 'cross_connection_stamped' exists with exactly the
-    //    AI-SPEC key set and no string value longer than 64 chars.
+    // 8. The cross_connection_stamped telemetry row was the retired
+    //    runner's caller-side write (bankStatements after COMMIT), never the
+    //    filer's. The filer mints none: telemetry stays a caller decision,
+    //    and the memory-event allowlist entry is untouched.
     // -----------------------------------------------------------------------
     const memRows = db.prepare("SELECT properties FROM nodes WHERE type = 'memory_event' AND json_extract(properties, '$.event_type') = 'cross_connection_stamped'").all();
-    check('filing: exactly 1 cross_connection_stamped memory_event', memRows.length === 1, JSON.stringify(memRows.length));
-    if (memRows.length === 1) {
-      const memProps = JSON.parse(memRows[0].properties || '{}');
-      const wantKeys = ['producer', 'finding_count', 'tier_counts', 'reason_counts', 'backend', 'judge', 'theo_ms_bucket'];
-      const hasAllKeys = wantKeys.every(function (k) { return Object.prototype.hasOwnProperty.call(memProps, k); });
-      check('filing: memory_event carries the exact AI-SPEC key set', hasAllKeys, JSON.stringify(Object.keys(memProps)));
-      check('filing: memory_event producer is eureka', memProps.producer === 'eureka');
-      check('filing: memory_event judge is none', memProps.judge === 'none');
-      check('filing: memory_event finding_count >= 1', typeof memProps.finding_count === 'number' && memProps.finding_count >= 1);
-      check('filing: memory_event theo_ms_bucket is one of the four buckets', ['<1s', '1-3s', '3-10s', '>10s'].indexOf(memProps.theo_ms_bucket) !== -1, memProps.theo_ms_bucket);
-      const strings = [];
-      walkStrings(memProps, strings);
-      check('filing: no memory_event string value exceeds 64 chars', strings.every(function (s) { return s.length <= 64; }), JSON.stringify(strings.filter(function (s) { return s.length > 64; })));
-    }
+    check('filing: the filer itself mints no cross_connection_stamped memory_event', memRows.length === 0, JSON.stringify(memRows.length));
+    const allowSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'navigation', 'memory-events.cjs'), 'utf8');
+    check('filing: cross_connection_stamped is still an allowlisted memory_event type', allowSrc.indexOf("'cross_connection_stamped'") !== -1);
     closeRoomDb(db);
 
     // -----------------------------------------------------------------------
-    // 9. MINDRIAN_DISABLE_MEMORY_EVENT=1: banking still succeeds and writes
+    // 9. MINDRIAN_DISABLE_MEMORY_EVENT=1: filing still succeeds and writes
     //    no such event (a FRESH fixture room, so the count check is unambiguous).
     // -----------------------------------------------------------------------
     const fixture2 = await buildFilingRoom('filing-disabled');
@@ -217,11 +290,10 @@ async function main() {
       let db2 = openRoomDb(fixture2.roomDir, { allowExtension: true });
       let bank2;
       try {
-        bank2 = runner.bankStatements(db2, BANK_SESSION_ID, fixture2.statements, {
+        bank2 = fileLikeTheLiveCaller(db2, BANK_SESSION_ID, fixture2.statements, {
           stampsByKey: fixture2.stampsByKey,
           roomDir: fixture2.roomDir,
           runMode: 'test-mode-disabled',
-          stampElapsedMs: 50,
         });
       } finally {
         closeRoomDb(db2);
@@ -229,7 +301,7 @@ async function main() {
       if (prevEnv === undefined) delete process.env.MINDRIAN_DISABLE_MEMORY_EVENT;
       else process.env.MINDRIAN_DISABLE_MEMORY_EVENT = prevEnv;
 
-      check('filing: banking still succeeds under MINDRIAN_DISABLE_MEMORY_EVENT=1', bank2 && bank2.ok === true, JSON.stringify(bank2));
+      check('filing: filing still succeeds under MINDRIAN_DISABLE_MEMORY_EVENT=1', bank2 && bank2.ok === true && bank2.filed === 1, JSON.stringify(bank2));
       db2 = openRoomDb(fixture2.roomDir, { allowExtension: true });
       const memRows2 = db2.prepare("SELECT id FROM nodes WHERE type = 'memory_event' AND json_extract(properties, '$.event_type') = 'cross_connection_stamped'").all();
       closeRoomDb(db2);
@@ -239,34 +311,35 @@ async function main() {
     }
 
     // -----------------------------------------------------------------------
-    // 10. Static Part 9 leg: added lines (since BASE_355) in
-    //     scripts/eureka-portfolio-report.cjs contain no raw INSERT INTO,
-    //     openGraph( or DatabaseSync.
+    // 10. Static Part 9 leg: the one stamped filer
+    //     (lib/core/research-planner/filing-stamped.cjs) contains no raw
+    //     INSERT INTO, openGraph( or DatabaseSync; every write goes through
+    //     navigation.cjs, and it requires navigation.cjs.
     // -----------------------------------------------------------------------
-    const { execFileSync } = require('node:child_process');
-    let diffOut = '';
-    try {
-      diffOut = execFileSync('git', ['diff', '-U0', '9458bf802', '--', 'scripts/eureka-portfolio-report.cjs'], { cwd: REPO, encoding: 'utf8' });
-    } catch (_e) {
-      diffOut = '';
-    }
-    const addedLines = diffOut.split('\n').filter(function (l) { return l.startsWith('+') && !l.startsWith('+++'); });
-    const forbidden = addedLines.filter(function (l) { return /INSERT INTO|openGraph\(|DatabaseSync/.test(l); });
-    check('filing: no raw INSERT INTO / openGraph( / DatabaseSync in scripts/eureka-portfolio-report.cjs added lines since BASE_355', forbidden.length === 0, JSON.stringify(forbidden));
+    const filerSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'research-planner', 'filing-stamped.cjs'), 'utf8');
+    const forbidden = filerSrc.split('\n').filter(function (l) { return /INSERT INTO|openGraph\(|DatabaseSync/.test(l); });
+    check('filing: no raw INSERT INTO / openGraph( / DatabaseSync in filing-stamped.cjs', forbidden.length === 0, JSON.stringify(forbidden));
+    check('filing: filing-stamped.cjs requires navigation.cjs (the Part 9 chokepoint)', /require\(['"]\.\.\/navigation\.cjs['"]\)/.test(filerSrc));
 
     // -----------------------------------------------------------------------
-    // 11. Static order leg: bankStatements is synchronous (no await anywhere
-    //     inside it, so trivially none can sit between BEGIN and COMMIT).
+    // 11. Static order leg (D-56): fileStampedOpportunity is synchronous and
+    //     never opens its own transaction, and the live caller
+    //     (lib/core/ambient-run.cjs) has no await between its BEGIN and
+    //     COMMIT around the filer.
     // -----------------------------------------------------------------------
-    const src = fs.readFileSync(path.join(REPO, 'scripts', 'eureka-portfolio-report.cjs'), 'utf8');
-    const fnStart = src.indexOf('function bankStatements(');
-    check('filing: bankStatements is found in source', fnStart !== -1);
-    const beginIdx = src.indexOf("db.exec('BEGIN')", fnStart);
-    const commitIdx = src.indexOf("db.exec('COMMIT')", fnStart);
-    check('filing: BEGIN/COMMIT literals found after bankStatements', beginIdx !== -1 && commitIdx !== -1 && commitIdx > beginIdx);
-    const between = src.slice(beginIdx, commitIdx);
-    check('filing: no await appears between BEGIN and COMMIT inside bankStatements', between.indexOf('await ') === -1, between.length);
-    check('filing: bankStatements itself is not declared async', src.slice(fnStart - 6, fnStart).indexOf('async') === -1);
+    const fnStart = filerSrc.indexOf('function fileStampedOpportunity(');
+    check('filing: fileStampedOpportunity is found in source', fnStart !== -1);
+    const fnEnd = filerSrc.indexOf('\n}\n', fnStart);
+    const fnBody = filerSrc.slice(fnStart, fnEnd);
+    check('filing: fileStampedOpportunity is not declared async', filerSrc.slice(Math.max(0, fnStart - 6), fnStart).indexOf('async') === -1);
+    check('filing: no await inside fileStampedOpportunity', fnBody.indexOf('await ') === -1);
+    check('filing: fileStampedOpportunity never opens or commits its own transaction', !/db\.exec\('(BEGIN|COMMIT|ROLLBACK)'\)/.test(fnBody));
+    const ambSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'ambient-run.cjs'), 'utf8');
+    const callIdx = ambSrc.indexOf('nodeId = fileStampedOpportunity(db');
+    const beginIdx = ambSrc.lastIndexOf("db.exec('BEGIN')", callIdx);
+    const commitIdx = ambSrc.indexOf("db.exec('COMMIT')", callIdx);
+    check('filing: the live caller wraps the filer in BEGIN/COMMIT', callIdx !== -1 && beginIdx !== -1 && commitIdx > callIdx);
+    check('filing: no await between the live caller BEGIN and COMMIT', ambSrc.slice(beginIdx, commitIdx).indexOf('await ') === -1);
   } finally {
     fixture.cleanup();
   }
