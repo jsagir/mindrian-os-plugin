@@ -238,6 +238,13 @@ try {
   assert.equal(r3.stdout.indexOf('release_sync.py'), -1, 'no release_sync.py call under --no-cut-listener');
   assert.equal(fs.existsSync(tmp.theoSentinel), false);
   ok('--no-cut-listener -> exit 0, "--no-cut-listener opt-out engaged" printed, no release_sync.py call');
+
+  // Review IN-03: the dry-run listing's opt-out line renders its colors
+  // (echo -e) instead of printing a literal backslash-033 escape.
+  const listing = r3.stdout.split('\n').filter(function (l) { return l.indexOf('--no-cut-listener opt-out engaged (audit-logged; Theo sync not proposed') !== -1; });
+  assert.equal(listing.length, 1, 'one dry-run listing opt-out line: ' + JSON.stringify(listing));
+  assert.equal(listing[0].indexOf('\\033['), -1, 'no literal \\033[ escape in the listing line: ' + JSON.stringify(listing[0]));
+  ok('IN-03: the dry-run --no-cut-listener listing line prints no literal \\033[ escape');
 } finally {
   if (tmp && tmp.dir) fs.rmSync(tmp.dir, { recursive: true, force: true });
 }

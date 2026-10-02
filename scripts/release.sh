@@ -452,7 +452,7 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   echo "  Step 9.6c : release-cut listener, website leg -- read-only drift scan of mindrian-website version, command-count and banned-content surfaces vs v$NEW_VERSION (never aborts: runs after npm publish; report under \$HOME/.mindrian/release-cut-listener/)"
   if [ "$NO_CUT_LISTENER" = "1" ]; then
-    echo "              ${YELLOW}--no-cut-listener opt-out engaged (audit-logged; Theo sync not proposed at Step 0.55, website scan skipped at Step 9.6c)${NC}"
+    echo -e "              ${YELLOW}--no-cut-listener opt-out engaged (audit-logged; Theo sync not proposed at Step 0.55, website scan skipped at Step 9.6c)${NC}"
   fi
   echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"

@@ -106,7 +106,10 @@
 # Quick 261002-5v9 FIX-PASS REBASELINE (2026-10-02, code-review fix pass): only
 # the "# --- Step 0.55: ..." block hash is re-pinned (review WR-03: the fail-open
 # wording branches on NO_THEO_CHECK via CUT_LISTENER_GATE_NOTE). No exit code
-# changed, so the exit-1 floor stays 61; the header count stays 34.
+# changed, so the exit-1 floor stays 61; the header count stays 34. Review IN-03
+# then re-pinned the "# --- Step 1: ..." block hash (the dry-run listing's
+# --no-cut-listener opt-out line now uses echo -e; the pre-existing --no-website
+# line is left as it was).
 
 9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f  PREAMBLE(1-79)
 61  EXIT1_NONCOMMENT_COUNT
@@ -116,7 +119,7 @@
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
 c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
-aa2efb16a3fa5ad1c52fa272973f110721f2dfd831d9928eba920f53ebcac2e7  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+6899429e140f714cf969768c60c21dee514fa949611e7af400ab5db8c6d6e058  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
