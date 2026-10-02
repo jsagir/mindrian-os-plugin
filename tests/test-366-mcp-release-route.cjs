@@ -8,7 +8,7 @@
  *
  *   C1   replay transport on, theo line on: op basket lists one release offer with a minted gate id and
  *        an F.8 card (release / not_now); canon ids never appear on the filing gate or in items
- *   C1b  a session-less caller also gets a release gate id
+ *   C1b  mint and consume agree through the one shared ledger resolver, for a session-less caller too
  *   C2   nothing answered yet: zero theo audit rows
  *   C3   gate_answer release + approve sends exactly {raw: term} once; guard navigator_released
  *   C4   exactly one 23-key audit row (q the term, grant_id the gate id, part8_verdict pass, transport replay)
@@ -209,12 +209,26 @@ function filingOptionIds(basket) {
       && !canonOnFiling && Array.isArray(basket1.confirm_items) && basket1.confirm_items.length === 0) || JSON.stringify(basket1).slice(0, 500);
   });
 
-  await leg('C1b a session-less caller also gets a release gate id', async function () {
+  await leg('C1b mint and consume agree through the one shared resolver, session-less caller included', async function () {
+    const sessionBinding = require(path.join(REPO_ROOT, 'lib/core/session-binding.cjs'));
+    const gateLedger = require(path.join(REPO_ROOT, 'lib/mcp/gate-ledger.cjs'));
+    // what gate_answer hands consumeGate for each caller, then through the ledger's own resolver
+    const wantNo = gateLedger.ledgerSessionKey(sessionBinding.resolveEffectiveSessionId(undefined, {}));
+    const wantA = gateLedger.ledgerSessionKey(sessionBinding.resolveEffectiveSessionId(undefined, { sessionId: 'sess-cud-a' }));
     setReplay();
     let b = null;
-    try { b = await NOSESS.call({ op: 'basket', run_id: RUN2 }); } finally { clearTransport(); }
+    let bA = null;
+    try { b = await NOSESS.call({ op: 'basket', run_id: RUN2 }); bA = await A.call({ op: 'basket', run_id: RUN2 }); } finally { clearTransport(); }
     const o = b && offerFor(b, TERM2);
-    return (!!o && GATE_RE.test(o.gate_id)) || JSON.stringify(b).slice(0, 400);
+    const oA = bA && offerFor(bA, TERM2);
+    if (!o || !GATE_RE.test(o.gate_id) || !oA || !GATE_RE.test(oA.gate_id)) return JSON.stringify(b).slice(0, 400);
+    const ledger = gateLedger._internal._ledger;
+    const keyNo = ledger.get(o.gate_id) && ledger.get(o.gate_id).sessionKey;
+    const keyA = ledger.get(oA.gate_id) && ledger.get(oA.gate_id).sessionKey;
+    if (keyNo !== wantNo || keyA !== wantA) return 'keys ' + JSON.stringify([keyNo, wantNo, keyA, wantA]);
+    // and the real consume agrees: the session-less caller answers its own gate through gate_answer
+    const out = await NOSESS.answer(o.gate_id, ['not_now'], 'reject');
+    return (out.resumed === true && theoRows().length === 0) || JSON.stringify(out).slice(0, 300);
   });
 
   await leg('C2 nothing answered yet: zero theo audit rows', function () {
