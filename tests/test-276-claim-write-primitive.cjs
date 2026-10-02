@@ -277,7 +277,8 @@ async function run() {
     // Layer 1: the z.enum schema boundary. Validated against the ACTUAL
     // captured schema shape (not a re-derived guess), the same shape the
     // real MCP SDK wraps in z.object(...) and parses before ever calling
-    // the handler (node_modules/@modelcontextprotocol/sdk .../mcp.js:175-181).
+    // the handler (the v2 McpServer in @modelcontextprotocol/server validates
+    // arguments against the registered inputSchema before invoking the callback).
     const schemaShape = reg.schema && typeof reg.schema === 'object' ? reg.schema : {};
     const parseResult = z.object(schemaShape).safeParse({ knowledge_type: 'not_a_real_type', text: 'refused' });
     check(
