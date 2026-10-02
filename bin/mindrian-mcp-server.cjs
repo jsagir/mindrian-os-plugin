@@ -99,8 +99,14 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // Plan 12: createMcpHandler serves the flag-OFF HTTP route per request.
 const { McpServer, createMcpHandler } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
 const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
-// Module-level handle from serveStdio, kept for a future shutdown path.
+// Module-level handle from serveStdio, closed by exitAfterTeardown.
 let stdioHandle = null;
+// Phase 267 Plan 13: shutdown seam. httpServer is the net.Server app.listen
+// returns; mcpHandlers lists every createMcpHandler handler this process owns
+// (flag-OFF today, Plan 14 appends the flag-ON modern handler). Both are closed
+// by exitAfterTeardown.
+let httpServer = null;
+const mcpHandlers = [];
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
@@ -279,6 +285,38 @@ if (fs.existsSync(roomDir)) {
   registerShutdownHandler(null, stopTreeWatcher);
 }
 
+// Phase 267 Plan 13 (RCA 5, mcp-server-sigterm-no-exit): the terminal signal
+// listener. registerShutdownHandler (session-catchup.cjs, shared with the brain
+// shim, so it stays exit-free) snapshots and tears down but never exits, and
+// installing any SIGTERM/SIGINT listener removes Node's default exit-on-signal.
+// So THIS entry point owns the exit: it is registered LAST on every branch, so
+// Node runs the snapshot/teardown listener (and the flag-ON pidfile clear)
+// first, then this one closes what it owns and exits 0. An unref'd 2000 ms
+// timer is the backstop so a stuck close cannot bring the hang back.
+let exiting = false;
+function exitAfterTeardown(signal) {
+  if (exiting) return;
+  exiting = true;
+  const backstop = setTimeout(() => process.exit(0), 2000);
+  if (typeof backstop.unref === 'function') backstop.unref();
+  (async () => {
+    if (httpServer) {
+      try { httpServer.close(() => {}); } catch (_e) { /* best effort */ }
+    }
+    for (const h of mcpHandlers) {
+      try { await h.close(); } catch (_e) { /* best effort */ }
+    }
+    if (stdioHandle) {
+      try { await stdioHandle.close(); } catch (_e) { /* best effort */ }
+    }
+    process.exit(0);
+  })().catch(() => process.exit(0));
+}
+function registerTerminalSignalListeners() {
+  process.on('SIGTERM', () => exitAfterTeardown('SIGTERM'));
+  process.on('SIGINT', () => exitAfterTeardown('SIGINT'));
+}
+
 // Connect transport based on detected surface
 async function main() {
   if (surface.transport === 'http') {
@@ -291,6 +329,7 @@ async function main() {
       stdioHandle = serveStdio(() => getServer());
       startTreeWatcherOnce(getServer());
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
+      registerTerminalSignalListeners();
       return;
     }
 
@@ -369,6 +408,7 @@ async function main() {
         process.stderr.write('[mindrian-os] mcp handler: ' + (e && e.message ? e.message : String(e)) + '\n');
       };
       flagOffMcpHandler = createMcpHandler(() => createServer(), { legacy: 'stateless', onerror: onHandlerError });
+      mcpHandlers.push(flagOffMcpHandler);
       flagOffNodeHandler = toNodeHandler(flagOffMcpHandler, { onerror: onHandlerError });
       flagOffHost = localhostHostValidation();
       flagOffOrigin = localhostOriginValidation();
@@ -463,7 +503,16 @@ async function main() {
     // THIS process. Flag-OFF keeps port 3847 exactly as shipped -- no
     // pidfile, no discovery, byte-identical legacy.
     const listenPort = mcpFirstOn ? daemonLifecycle.discoverPort() : 3847;
-    app.listen(listenPort, '127.0.0.1', () => {
+    // Phase 267 Plan 13 (RCA 6, mcp-http-listen-error-false-started): Express 5
+    // hands a bind failure to this callback as its first argument. Read it: a
+    // failed bind is reported honestly and exits 1, with no "started" line, no
+    // pidfile and no catch-up.
+    httpServer = app.listen(listenPort, '127.0.0.1', (listenErr) => {
+      if (listenErr) {
+        process.stderr.write(`[mindrian-os] HTTP listen failed on 127.0.0.1:${listenPort}: ${listenErr.code || listenErr.message}\n`);
+        process.exit(1);
+        return;
+      }
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:${listenPort}, room: ${roomDir})\n`);
 
       if (mcpFirstOn) {
@@ -492,12 +541,17 @@ async function main() {
           process.stderr.write(`[mindrian-os] Session catch-up failed (non-fatal): ${e.message}\n`);
         }
       }
+
+      // Registered last (after registerShutdownHandler at module scope and the
+      // flag-ON clearOnce above) so snapshot and teardown run before the exit.
+      registerTerminalSignalListeners();
     });
   } else {
     // stdio for CLI and Desktop
     stdioHandle = serveStdio(() => getServer());
     startTreeWatcherOnce(getServer());
     process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);
+    registerTerminalSignalListeners();
   }
 }
 
