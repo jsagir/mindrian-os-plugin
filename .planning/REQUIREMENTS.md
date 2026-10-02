@@ -4343,9 +4343,109 @@ by `366-24-PLAN.md` Task 1. `366-CONTEXT.md` is the scope contract.
       `hsi-engine`), and the close-out handoff files the Theo-side intent-led resolver request
       (D-13 c). Plans 366-20, 366-24.
 
+### Phase 267 - MCP SDK v2 migration (MCPV2 family) (minted at plan time 2026-09-23)
+
+These nineteen IDs extend `267-RESEARCH.md`'s own MCPV2-01..14 Validation Architecture table (rows 15 to
+19 were added by the planner for the seven RCAs, the runtime-loop prompts, the loopback guards, the
+v1 removal and the manifest lockstep). They are registered here at phase close by `267-18-PLAN.md`,
+per the Phase 254/257/265/267.2/340 precedent. A row is `[x]` only when `267-VERIFICATION-GATES.md`
+(measured 2026-10-02) shows its proving test green; the three `[ ]` rows say why.
+
+- [x] **MCPV2-01**: Protocol-era adoption is checked by what the installed package implements, not by a
+      version number. Proof: `tests/test-267-mcpv2-sdk-era.cjs` (PASS=7, one SKIP by design: the v1
+      falsification arm, v1 is gone). Plans 267-01, 267-05, 267-15, 267-17.
+
+- [x] **MCPV2-02**: The local server's `tools/list` is the runtime count (45), every tool has a non-empty
+      title and description, in both eras over stdio. Proof: `tests/test-267-mcpv2-registration-api.cjs`
+      (PASS=68) and `tests/test-267-mcpv2-dual-era.cjs` (PASS=5). Plans 267-06 to 267-11.
+
+- [ ] **MCPV2-03**: zod 4 with the accepted looser strictness pinned as data. Substance shipped (zod 4.6.5,
+      the measured delta pinned in `tests/fixtures/267/zod4-accepted-deltas.json`, plan 267-03) but the
+      proving test `tests/test-267-mcpv2-zod4-contract.cjs` is RED today (PASS=1 FAIL=3) from peer drift,
+      not from this phase: `tool:orchestration` wording (Phase 366-16), `tool:research_run:membership`,
+      and the `scripts/fork359-permission-probe.cjs` importer (359-05). Flip to `[x]` when the pinned
+      baselines are refreshed together after Phase 366 lands.
+
+- [x] **MCPV2-04**: The three MCP Apps views publish real input schemas, receive their arguments, and
+      contain `room_path` inside the rooms home. Proof: `tests/test-267-mcpv2-app-views.cjs` (PASS=22).
+      Plan 267-10. A scripted Desktop-shaped client also read the dashboard resource and hit the
+      containment refusal (surrogate section of `267-TRIPOLAR-PROBES.md`; not a human check).
+
+- [x] **MCPV2-05**: The HTTP branch with the flag OFF serves many sequential requests in both eras (it used
+      to answer one per process). Proof: `tests/test-267-mcpv2-http-flag-off.cjs` (PASS=6). Plan 267-12.
+
+- [x] **MCPV2-06**: The flag-ON daemon routes by era with session binding intact, and the in-repo clients
+      (shim, adapter) stay on the 2025 default. Proof: `tests/test-267-mcpv2-flag-on.cjs` (PASS=6) and
+      `tests/test-267-mcpv2-clients.cjs` (PASS=5). Plans 267-14, 267-15. Not covered: a hook-set
+      `MINDRIAN_SESSION_ID` through the flag-ON shim is still RCA 7 (below, MCPV2-15).
+
+- [x] **MCPV2-07**: The elicitation premise is current and the gate ladder is pinned: rung (a) fires once on
+      a 2025-era connection and not at all on a 2026-era one, which renders at rung (b). Proof:
+      `tests/test-267-mcpv2-gate-premise.cjs` (PASS=5) and the elicitation arms of
+      `tests/test-267-mcpv2-dual-era.cjs`. Plans 267-07, 267-11. Navigator ruling 2026-10-02: the CLI
+      host moving to the 2026 era (Claude Code 2.1.287 opens with `server/discover`) is accepted at rung (b).
+
+- [ ] **MCPV2-08**: The CIRS gates (born-wired registry, shape declarations, connector count) hold after
+      every registrar rewrite. Held per commit during the phase and today: registry `--check` OK, zero
+      shape violations under `lib/mcp/`, registration test PASS=68. The proving test
+      `tests/test-267-mcpv2-cirs-gates.cjs` is RED on Check (c) only: baseline says 31 connector
+      descriptors, the tree has 32 (`research_run`, Phase 363-17, a peer addition). Flip to `[x]` when
+      the baseline is refreshed to 32 together with the zod4 pins (MCPV2-03).
+
+- [x] **MCPV2-09**: Dependency self-heal probes the real packages and no longer names the removed v1 SDK.
+      Proof: `lib/core/mcp-dep-heal.test.cjs` (9/9). Plans 267-05, 267-17.
+
+- [x] **MCPV2-10**: The supply-chain allowlist covers every `@modelcontextprotocol/*` dependency (five,
+      all VETTED). Proof: Check 6 of `tests/test-267-mcpv2-lockstep.cjs`. Plan 267-05. (`run-all-199`
+      stays at its two baseline reds, unrelated.)
+
+- [x] **MCPV2-11**: The Brain shim's wire is unchanged (six tools, Part 8 guard intact). Proof:
+      `tests/test-267-mcpv2-brain-shim.cjs` (PASS=6, both eras) plus a zero diff on `brain-client.cjs`
+      and `part8-egress-guard.cjs`. Plan 267-05. The older before-versus-after arms in
+      `tests/test-257-strict-input-shapes.cjs` were retired by the navigator's ruling (quick 261002-by3).
+
+- [x] **MCPV2-12**: The release payload ceiling and shrinkwrap hold after the dependency swap. Proof:
+      `scripts/check-release-payload-ceiling.cjs --check` (1982 entries, 32,873,598 bytes unpacked, 0
+      findings) and `tests/test-341-shrinkwrap-no-dev.cjs` (4/4). Plans 267-03, 267-05, 267-17.
+
+- [ ] **MCPV2-13**: Tri-Polar probes record the wire era and capabilities per surface. Done: CLI by the
+      automated probe, before (2.1.281) and after (2.1.287) the migration; Desktop pre-migration by the
+      navigator's human probe (commit c5add6eb6); a scripted Desktop-shaped client post-migration (not a
+      human check). OPEN: no human post-migration Desktop smoke and no Cowork probe at all, both
+      DEFERRED by navigator ruling 2026-10-02. Proof so far: `tests/test-267-mcpv2-cli-probe.cjs`
+      (opt-in), `tests/test-267-mcpv2-tee.cjs`, `267-TRIPOLAR-PROBES.md`. Plans 267-04, 267-18.
+
+- [x] **MCPV2-14**: The HTTP-mode process exits on SIGTERM and reports a failed listen honestly. Proof:
+      `tests/test-267-mcpv2-lifecycle.cjs` (PASS=5). Plan 267-13.
+
+- [x] **MCPV2-15**: The seven RCAs for the phase's new failures were filed before any fix. Six are
+      resolved and moved to `.planning/debug/resolved/` (`mcp-http-flag-off-one-request-per-process`,
+      `app-views-schema-key-drops-input-schemas`, `gate-elicitation-premise-stale-comment`,
+      `runtime-loop-prompts-bogus-args-schema`, `mcp-server-sigterm-no-exit`,
+      `mcp-http-listen-error-false-started`). The seventh, `mcp-shim-preseeded-session-id-rejected`
+      (RCA 7), is filed, pinned by `tests/test-267-mcpv2-clients.cjs`, and deliberately OPEN with its
+      fix pending a navigator decision (seed `SEED-108`). Plans 267-02 and the fixing plans.
+
+- [x] **MCPV2-16**: The runtime-loop prompts (`bind-room`, `status`, `act`) accept their arguments (they
+      failed with -32603 before). Proof: `tests/test-267-mcpv2-prompts.cjs` (PASS=26); also answered OK
+      by a scripted Desktop-shaped client. Plan 267-09.
+
+- [x] **MCPV2-17**: The loopback HTTP surfaces refuse a foreign Host or Origin. Proof: the guard arms of
+      `tests/test-267-mcpv2-http-flag-off.cjs` and `tests/test-267-mcpv2-flag-on.cjs`. Plans 267-12,
+      267-14.
+
+- [x] **MCPV2-18**: The v1 `@modelcontextprotocol/sdk` is removed from the manifest, both lockfiles and
+      `node_modules`, and no repo code requires it. Proof: Arm D of
+      `tests/test-267-mcpv2-sdk-era.cjs`; the test-248/257/265/276/354 files and the fork359 probe
+      moved to the v2 packages. Plans 267-15, 267-16, 267-17 and quick 261002-by3.
+
+- [x] **MCPV2-19**: Manifest, lockfile and shrinkwrap move in lockstep (17 dependencies agree, one
+      `core` instance, one zod instance). Proof: `tests/test-267-mcpv2-lockstep.cjs` (PASS=6). Plans
+      267-01, 267-03, 267-05, 267-17.
+
 ## Traceability
 
-466 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+485 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
@@ -4357,7 +4457,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
 plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
-plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366).
+plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; 16 `[x]`, three `[ ]` with reasons: MCPV2-03 and MCPV2-08 await the combined baseline refresh, MCPV2-13 awaits the deferred human Desktop and Cowork probes).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18
