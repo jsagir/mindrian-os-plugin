@@ -19,6 +19,11 @@
 // body (the pre-198-04 grouped-router path), not the tools/ seam this harness
 // exercises -- a different registration surface, out of this test's reach.
 //
+// quick 261002-by3 (F-B, 267-VERIFICATION-GATES.md row 26): the fake server now
+// implements the v2 registerTool(name, config, handler) (the v1 tool() is gone),
+// each registerCoreTools() call is followed by a getRegistrationHealth() zero-
+// failure check, and schemas are parsed through the REGISTERED z.object.
+//
 // SKIP-safe until lib/mcp/contract-version.cjs exists. Node built-in assert
 // only. No em-dashes.
 'use strict';
@@ -43,14 +48,13 @@ if (!hasVersionApi) {
 }
 
 let registerCoreTools;
+let getRegistrationHealth;
 try {
-  ({ registerCoreTools } = require('../lib/mcp/register-core-tools.cjs'));
+  ({ registerCoreTools, getRegistrationHealth } = require('../lib/mcp/register-core-tools.cjs'));
 } catch (e) {
   console.log('SKIP: test-198-contract-schema -- lib/mcp/register-core-tools.cjs not present yet. ' + (e.code || e.message));
   process.exit(0);
 }
-
-const { z } = require('zod');
 
 let passed = 0;
 function check(label, cond) {
@@ -66,12 +70,12 @@ passed += 2;
 console.log('  ok - CONTRACT_VERSION is semver-shaped (' + contractVersion.CONTRACT_VERSION + ')');
 console.log('  ok - getContractVersion() matches CONTRACT_VERSION');
 
-// --- (2) a minimal fake MCP server that captures every server.tool() call,
-// mirroring the real McpServer.tool(name, description, schemaShape, handler)
-// 4-arg shape used throughout this codebase (tool-router.cjs, room.cjs,
-// graph.cjs, gate.cjs, sensors.cjs, views.cjs, status.cjs, contract-version.cjs).
-// Also accepts the 3-arg (name, description, handler) form contract_version
-// uses with an empty {} schema shape, and exposes a fake `.server.
+// --- (2) a minimal fake MCP server that captures every server.registerTool()
+// call, mirroring the v2 McpServer.registerTool(name, {title, description,
+// inputSchema: z.object(...)}, cb) shape every registrar uses since
+// 267-06/07/08 migrated them. The v2 McpServer has no tool(), so this fake
+// deliberately has none either: a regression back to the v1 call must fail
+// here the way it fails on the real server. It also exposes a fake `.server.
 // getClientCapabilities()` / `.server.elicitInput()` pair (gate.cjs's/
 // sensors.cjs's real elicitation-capability read) that reports NO elicitation
 // support -- exercising the headless-text renderer rung deterministically,
@@ -80,17 +84,19 @@ console.log('  ok - getContractVersion() matches CONTRACT_VERSION');
 function makeFakeServer() {
   const registered = [];
   return {
-    tool(name, description, schemaOrHandler, maybeHandler) {
-      let schema = {};
-      let handler = schemaOrHandler;
-      if (typeof maybeHandler === 'function') {
-        schema = schemaOrHandler || {};
-        handler = maybeHandler;
-      }
+    registerTool(name, config, handler) {
       if (registered.some((r) => r.name === name)) {
         throw new Error('DUPLICATE_TOOL_NAME: ' + name);
       }
-      registered.push({ name, description, schema, handler });
+      const cfg = config || {};
+      const inputSchema = cfg.inputSchema;
+      registered.push({
+        name,
+        description: cfg.description,
+        inputSchema,
+        schema: (inputSchema && inputSchema.shape) || {},
+        handler,
+      });
     },
     _registered: registered,
     server: {
@@ -105,7 +111,7 @@ fs.mkdirSync(fallbackRoom, { recursive: true });
 
 // --- (3) flag-OFF: EVERY tool registers, including the three write tools. No
 // duplicate-name crash (the fake server throws on a repeat name, exactly like
-// the real MCP SDK's McpServer.tool()).
+// the real MCP SDK's McpServer.registerTool()).
 //
 // CONTRACT CHANGE, Phase 234-05 (D-05): this section used to assert the
 // OPPOSITE for graph_write / memory_event / artifact_file -- that they did NOT
@@ -130,6 +136,9 @@ delete process.env.MINDRIAN_MCP_FIRST;
 const serverOff = makeFakeServer();
 registerCoreTools(serverOff, { fallbackRoomDir: fallbackRoom, pluginRoot: path.resolve(__dirname, '..'), surface: 'cli' });
 const namesOff = serverOff._registered.map((r) => r.name);
+const healthOff = getRegistrationHealth();
+check('registration health is complete with zero failed modules (flag off): ' + (healthOff.failed || []).map((f) => f.module + ':' + f.message).join('; '),
+  healthOff.complete === true && healthOff.failed.length === 0);
 
 check('contract_version registers (flag off)', namesOff.includes('contract_version'));
 check('room_list registers (flag off, read-only)', namesOff.includes('room_list'));
@@ -159,6 +168,9 @@ process.env.MINDRIAN_MCP_FIRST = 'all';
 const serverOn = makeFakeServer();
 registerCoreTools(serverOn, { fallbackRoomDir: fallbackRoom, pluginRoot: path.resolve(__dirname, '..'), surface: 'cli' });
 const namesOn = serverOn._registered.map((r) => r.name);
+const healthOn = getRegistrationHealth();
+check('registration health is complete with zero failed modules (flag on): ' + (healthOn.failed || []).map((f) => f.module + ':' + f.message).join('; '),
+  healthOn.complete === true && healthOn.failed.length === 0);
 
 check('graph_write registers (flag on)', namesOn.includes('graph_write'));
 check('memory_event registers (flag on)', namesOn.includes('memory_event'));
@@ -174,6 +186,8 @@ else delete process.env.MINDRIAN_MCP_FIRST;
 // value exposes .safeParse (a duck-typed zod schema check, since z.ZodType
 // instances all expose it). ---
 for (const r of serverOn._registered) {
+  check(`${r.name} inputSchema is a zod object`,
+    !!r.inputSchema && typeof r.inputSchema.safeParse === 'function' && !!r.inputSchema.shape && typeof r.inputSchema.shape === 'object');
   for (const [key, val] of Object.entries(r.schema)) {
     check(`${r.name}.${key} is a zod schema`, val && typeof val.safeParse === 'function');
   }
@@ -183,7 +197,7 @@ for (const r of serverOn._registered) {
 // data/mcp-tool-connectors.json (the born-wired source of truth, minus the
 // documented room_bind exclusion) is registered by THIS seam. Catches a
 // future lib/mcp/tools/*.cjs module that ships a `connectors` export but
-// forgets to call server.tool() for one of its declared surfaces. ---
+// forgets to call server.registerTool() for one of its declared surfaces. ---
 const connectorsPath = path.resolve(__dirname, '..', 'data', 'mcp-tool-connectors.json');
 let mcpToolSurfaces = [];
 try {
@@ -214,13 +228,13 @@ for (const surface of mcpToolSurfaces) {
 // with a TypeError before this rewrite (267-RESEARCH.md Pitfall 2 "Test
 // infra"). Both vocabularies are mapped onto the SAME sample generator below
 // -- what this test asserts is unchanged, only how it reads the schema kind.
-// Known pre-existing gap, NOT fixed here (out of this plan's scope, see
-// 267-BASELINE.md): the generator always samples the bare type (e.g. `1` for
-// any number), ignoring `.min()`/`.max()` constraints, so a field like
-// context_assemble's `fragment_char_cap: z.number().int().min(50).max(4000)`
-// still synthesizes an out-of-range sample and still fails its PARSES check
-// under either zod version -- the same "context_assemble schema PARSES a
-// synthesized sample input" failure named in 267-BASELINE.md. ---
+// Closed by quick 261002-by3 (it was a known gap recorded in 267-BASELINE.md):
+// numbers now sample at their minimum, so a field like context_assemble's
+// `fragment_char_cap: z.number().int().min(50).max(4000)` synthesizes 50 and
+// parses. An optional top-level field the generator cannot satisfy (planning
+// measured research_run.run_tag, a regex-constrained optional) is left absent
+// and printed as a visible note, never skipped silently. Required fields are
+// always included. ---
 function sampleForZodType(zType, depth) {
   if (!zType || depth > 4) return 'sample';
   const v4def = zType._zod && zType._zod.def;
@@ -234,7 +248,9 @@ function sampleForZodType(zType, depth) {
     return sampleForZodType(inner, depth);
   }
   if (kind === 'string' || kind === 'ZodString') return 'sample-text';
-  if (kind === 'number' || kind === 'ZodNumber') return 1;
+  if (kind === 'number' || kind === 'ZodNumber') {
+    return (typeof zType.minValue === 'number' && Number.isFinite(zType.minValue)) ? zType.minValue : 1;
+  }
   if (kind === 'boolean' || kind === 'ZodBoolean') return true;
   if (kind === 'enum' || kind === 'ZodEnum') {
     if (v4def) {
@@ -264,9 +280,21 @@ for (const r of serverOn._registered) {
   const keys = Object.keys(r.schema);
   if (keys.length === 0) continue; // e.g. contract_version, whitespace_scan -- {} schema, nothing to sample
   const sampleObj = {};
-  for (const key of keys) sampleObj[key] = sampleForZodType(r.schema[key], 0);
-  const shape = z.object(r.schema);
-  const result = shape.safeParse(sampleObj);
+  const omitted = [];
+  for (const key of keys) {
+    const field = r.schema[key];
+    const sample = sampleForZodType(field, 0);
+    const acceptsUndefined = field.safeParse(undefined).success;
+    if (acceptsUndefined && !field.safeParse(sample).success) {
+      omitted.push(key);
+      continue;
+    }
+    sampleObj[key] = sample;
+  }
+  if (omitted.length > 0) {
+    console.log(`    note - ${r.name}: optional field(s) the generator cannot satisfy, left absent: ${omitted.join(', ')}`);
+  }
+  const result = r.inputSchema.safeParse(sampleObj);
   check(`${r.name} schema PARSES a synthesized sample input`, result.success === true);
 }
 
@@ -274,25 +302,25 @@ for (const r of serverOn._registered) {
 // field REJECTS an empty/missing value; a valid payload PARSES. ---
 const roomSearchTool = serverOn._registered.find((r) => r.name === 'room_search');
 assert.ok(roomSearchTool, 'room_search tool found for schema round-trip');
-const roomSearchShape = z.object(roomSearchTool.schema);
+const roomSearchShape = roomSearchTool.inputSchema;
 check('room_search schema REJECTS a missing query', roomSearchShape.safeParse({}).success === false);
 check('room_search schema PARSES a valid query', roomSearchShape.safeParse({ query: 'hello' }).success === true);
 
 const graphWriteTool = serverOn._registered.find((r) => r.name === 'graph_write');
 assert.ok(graphWriteTool, 'graph_write tool found for schema round-trip');
-const graphWriteShape = z.object(graphWriteTool.schema);
+const graphWriteShape = graphWriteTool.inputSchema;
 check('graph_write schema REJECTS a missing target_id', graphWriteShape.safeParse({ source_id: 'a', edge_type: 'INFORMS' }).success === false);
 check('graph_write schema PARSES a valid edge write payload', graphWriteShape.safeParse({ source_id: 'a', target_id: 'b', edge_type: 'INFORMS' }).success === true);
 
 const frameworkRunTool = serverOn._registered.find((r) => r.name === 'framework_run');
 assert.ok(frameworkRunTool, 'framework_run tool found for schema round-trip');
-const frameworkRunShape = z.object(frameworkRunTool.schema);
+const frameworkRunShape = frameworkRunTool.inputSchema;
 check('framework_run schema REJECTS an empty chain', frameworkRunShape.safeParse({ chain: [] }).success === false);
 check('framework_run schema PARSES a valid chain', frameworkRunShape.safeParse({ chain: ['lean-canvas'] }).success === true);
 
 const artifactFileTool = serverOn._registered.find((r) => r.name === 'artifact_file');
 assert.ok(artifactFileTool, 'artifact_file tool found for schema round-trip');
-const artifactFileShape = z.object(artifactFileTool.schema);
+const artifactFileShape = artifactFileTool.inputSchema;
 check('artifact_file schema REJECTS a missing content', artifactFileShape.safeParse({ section: 'problem-definition', filename: 'note.md' }).success === false);
 check('artifact_file schema PARSES a valid filing payload', artifactFileShape.safeParse({ section: 'problem-definition', filename: 'note.md', content: '# Note' }).success === true);
 
