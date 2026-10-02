@@ -44,6 +44,13 @@ function stubServer() {
   return {
     tools: new Map(),
     tool(nameArg, description, schema, cb) { this.tools.set(nameArg, { description, schema, cb }); },
+    // Phase 267-08: identity.cjs registers through server.registerTool(name,
+    // {title, description, inputSchema}, cb); capture the same shape (schema
+    // unwrapped back to the raw shape the variadic form handed over).
+    registerTool(name, config, cb) {
+      const cfg = config || {};
+      this.tools.set(name, { description: cfg.description, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, cb });
+    },
   };
 }
 
