@@ -1239,10 +1239,10 @@
       },
       {
         "name": "research_run",
-        "description": "Research planner for the bound room: plan a quick or deep research run, ask for a grant that lets the room search a public scholarly index, run quick research here and get an evidence card, review a deep plan, and file findings only after the navigator approves. Approvals are gates answered through gate_answer. Quick runs execute in this server; the deep research run itself executes in Claude Code, where the approved plan is saved. Six perspectives live here too (eureka, rs, hsi, whitespace, analogies, connections): pass perspective with op perspective_recall, which reads the local graph and the ICM structure (no embeddings, no network) and proposes candidate pairs plus a plan; op perspective_candidates pages through them (limit, offset); op perspective_judge runs the local Stage A gates and leaves judgment to you. The ops eureka_recall, eureka_candidates and eureka_judge are deprecated aliases of the perspective ops for one release. Nothing leaves the room except grant-approved search strings.",
+        "description": "Research planner for the bound room: plan a quick or deep research run, ask for a grant that lets the room search a public scholarly index, run quick research here and get an evidence card, review a deep plan, and file findings only after the navigator approves. Approvals are gates answered through gate_answer. Quick runs execute in this server; the deep research run itself executes in Claude Code, where the approved plan is saved. Six perspectives live here too (eureka, rs, hsi, whitespace, analogies, connections): pass perspective with op perspective_recall, which reads the local graph and the ICM structure (no embeddings, no network) and proposes candidate pairs plus a plan; op perspective_candidates pages through them (limit, offset); op perspective_judge runs the local Stage A gates and leaves judgment to you. The ops eureka_recall, eureka_candidates and eureka_judge are deprecated aliases of the perspective ops for one release. op run_quick takes offline true to answer with the plan only and send nothing. op basket can also list release offers: a room word that names no canon framework is sent, as the term only, to the remote canon-name lookup after its own gate_answer yes. Nothing else leaves the room except grant-approved search strings.",
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
+          "$schema": "http://json-schema.org/draft-07/schema#",
           "properties": {
             "op": {
               "type": "string",
@@ -1359,6 +1359,10 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 9007199254740991
+            },
+            "offline": {
+              "description": "run_quick only: true plans the run and sends nothing (every egress line off).",
+              "type": "boolean"
             }
           },
           "required": [
@@ -1971,5 +1975,5 @@
     "resources": [],
     "templates": []
   },
-  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed"
+  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire"
 }
