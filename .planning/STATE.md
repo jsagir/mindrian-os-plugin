@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: complete
-stopped_at: Phase 366 complete (27/27, verified eff331496)
-last_updated: "2026-10-02T17:01:42.068Z"
-last_activity: 2026-10-01
+stopped_at: Phase 366 complete (27/27, verified eff331496); Phase 369 planned 2026-10-02 (32 plans, 15 waves, not executing; waves 10-14 wait on Phase 289)
+last_updated: "2026-10-02T18:41:39.245Z"
+last_activity: 2026-10-02 -- Phase 369 planning complete
 progress:
   total_phases: 121
   completed_phases: 47
@@ -5426,6 +5426,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) - COMPLETE (2026-10-02)
 Plan: 27 of 27
 Status: Phase complete; verification eff331496 human_needed (2 live-surface checks); EPV366-21 release-lockstep (handoff F1)
+Next: Phase 369 planned 2026-10-02 (32 plans, 15 waves, 76 tasks; plan checker 2 iterations; waves 10-14 wait on Phase 289, which has 0 plans). Phase 289 planning is the agreed follow-on.
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
   3.2 s, deep saturation 1.0 s, floors kept), all 20 DRP363 rows ticked with Measured proof, SEED-098 promoted to Phase 364
@@ -5980,7 +5981,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-01
+Last activity: 2026-10-02 -- Phase 369 planning complete
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node

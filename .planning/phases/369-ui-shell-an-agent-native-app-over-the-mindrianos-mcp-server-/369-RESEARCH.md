@@ -1037,14 +1037,28 @@ function installChangeLog(db) {
 | A9 | Claude Code always runs the plugin from `cache/<marketplace>/<plugin>/<version>/`, never from `npm-cache/node_modules/` (observed for beta.53, undocumented) | Pattern 1 | `.ts` in `lib/core` would fail on install; the installed-layout test is the guard |
 | A10 | The `room_tx_context` single-row table is a safe way to stamp `transaction_id` across processes (writes are serialized by SQLite) | Pattern 2 | leave `transaction_id` NULL for trigger rows and stamp only inside the helper |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+Resolution markers added at plan revision (2026-10-02). Each question names the plan that settles it; nothing here is left for an executor to decide.
 
 1. **Single-document read through MCP.** BlockNote display (D-13) needs one artifact's markdown; no MCP surface returns one file (the `room://section/{sectionName}` resource returns every `.md` in a section, `lib/mcp/resources.cjs:113-198`; `room_content` manages entities). Recommendation: a `room://artifact/{section}/{file}` resource template reusing the same `isRealpathContained` guard, or a read op on the feed tool; decide in the feed plan.
+   RESOLVED: a `room_artifact` MCP read tool in the status.cjs shape (lexical then realpath containment, `.md` only, byte cap with truncation), born wired with its baselines refreshed (plan 13).
 2. **Where the shell server lives.** A plugin-side CJS server (express already a root dep) serving release-built static assets plus actions keeps root deps unchanged; a Next standalone or agent-native Nitro server ships its own runtime. The bake-off's packaging measure decides; the plan should name both.
+   RESOLVED: the bake-off's packaging measure feeds the navigator's Decision Gate and 369-BAKEOFF-DECISION.md records the `Shell server:` line under RULE 8 and the walled-manifest rule (plan 18); plan 19's build-output arm and plan 28's build enforce it, with the plugin-side Node server over a static client export as the named fallback (plan 28).
 3. **Shell launch surface.** A new command adds a surface (Part 7 justification, Part 11 born-wired, website command count 113) versus extending `/mos:dashboard` (`[live|stop|open]`, `hitl_shape: F.1`). Navigator call.
+   RESOLVED: ruled by the navigator at plan 22's blocking checkpoint (default: extend /mos:dashboard), recorded in 369-LAUNCH-RULING.md, born wired with a HITL shape; the same checkpoint rules whether Claude Desktop needs the exact D-03 sentences (`Desktop delivery:` line) (plan 22).
 4. **The shell's host identity.** Add the shell to `HOST_TIER_MAP`, or rely on the flag? Only matters if v1 writes beyond `gate_answer`.
+   RESOLVED: not added to HOST_TIER_MAP; the launcher starts the daemon with MINDRIAN_MCP_FIRST=cowork and the review-and-decision scope writes only through gate_answer; settled in 369-SESSION-CONTRACT.md item 2 (plan 07).
 5. **Artifact changes and the feed.** Artifact files change on disk; they reach the log only when an indexer writes their nodes (the PostToolUse graph hooks). Files written outside Claude Code without indexing never appear. Acceptable for v1 review-and-decision; state it.
+   RESOLVED: stated, not hidden: feed.cjs's header and plan 13's must-haves record that an unindexed file reaches the feed only when indexed, which the D-08 review-and-decision scope accepts (plan 13).
 6. **Retention numbers.** No measurement exists for log growth per day in a real room (rebuildGraph logs a delete and an upsert per indexer node per run). Measure on a fixture room in the feed plan before choosing a window.
+   RESOLVED: measured on a fixture room first (rows per 2,000 writes, rows per rebuild), RETENTION chosen so 20 rebuilds plus 10,000 writes fit before the first compaction (arm f), and compaction timed at the shipped maxRows to keepRows ratio against the 2000 ms hook budget (plan 12).
+
+Related items from the Assumptions Log and the folded todos, resolved by plans:
+
+- A1 (headless `claude -p` acceptable under the terms): RESOLVED by the navigator at plan 14's blocking checkpoint; 369-ADAPTER-RULING.md records headless-claude or room-proposal, and plan 18's measure 3 scores either source (plan 14, plan 18).
+- A3 (single-use bootstrap code as local auth): RESOLVED in 369-SESSION-CONTRACT.md item 3 with the login-CSRF and DNS-rebinding refusal (plan 07), implemented and tested in the shell server (plan 19).
+- registerCapability (F7 todo, still in `.planning/todos/pending/`): CARRIED as recorded absence: the kernel is not in lib/, so the adapter registers through the existing action layer as the agent-exposed proposeDecision action; the todo stays pending (plans 08, 14 and 32).
 
 ## Risks (deferred items that may press in)
 
