@@ -113,19 +113,16 @@ function extractHandlerBodyViaPrimitives(handlerArgText) {
 // exact primitives scanAll's own findServerToolCalls uses.
 function locateToolCallHandlerBody(fileText, toolName) {
   const masked = checker.maskNonCode(fileText);
-  const re = /server\.tool\s*\(/g;
-  let m;
-  while ((m = re.exec(masked)) !== null) {
-    const openParen = masked.indexOf('(', m.index);
-    if (openParen === -1) continue;
-    const closeParen = checker.scanBalanced(masked, openParen);
-    if (closeParen === -1) continue;
-    const innerText = fileText.slice(openParen + 1, closeParen);
-    const args = checker.splitTopLevelArgs(innerText);
-    if (args.length < 4) continue;
-    const name = checker.extractStringLiteralConcat(args[0]);
+  // Phase 267-08: both registration forms (server.tool variadic and
+  // server.registerTool config object) are located through the checker's own
+  // findServerToolCalls / normalizeToolCallArgs, so this helper cannot drift
+  // from what scanAll sees.
+  for (const call of checker.findServerToolCalls(fileText, masked)) {
+    const norm = checker.normalizeToolCallArgs(call);
+    if (!norm) continue;
+    const name = checker.extractStringLiteralConcat(norm.nameArg);
     if (name !== toolName) continue;
-    return extractHandlerBodyViaPrimitives(args[3]);
+    return extractHandlerBodyViaPrimitives(norm.handlerArg);
   }
   return null;
 }

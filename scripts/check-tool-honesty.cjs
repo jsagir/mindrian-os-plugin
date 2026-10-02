@@ -556,16 +556,47 @@ function extractCommandVocabulary(schemaText, fileText, fileMasked) {
 // ---------------------------------------------------------------------------
 function findServerToolCalls(fileText, fileMasked) {
   const calls = [];
-  const re = /server\.tool\s*\(/g;
+  // Phase 267-08: the MCP SDK v2-compatible registration form
+  // `server.registerTool(name, { title, description, inputSchema }, cb)`
+  // replaced the variadic `server.tool(name, desc, shape, cb)` across
+  // lib/mcp/. Both forms are recognized so the scan never goes blind to a
+  // migrated tool (a silent drop in toolCount would read as "all honest").
+  const re = /server\.(tool|registerTool)\s*\(/g;
   let m;
   while ((m = re.exec(fileMasked)) !== null) {
     const openParen = fileMasked.indexOf('(', m.index);
     if (openParen === -1) continue;
     const closeParen = scanBalanced(fileMasked, openParen);
     if (closeParen === -1) continue;
-    calls.push({ innerText: fileText.slice(openParen + 1, closeParen) });
+    calls.push({ innerText: fileText.slice(openParen + 1, closeParen), form: m[1] });
   }
   return calls;
+}
+
+// normalizeToolCallArgs(call) -- returns { nameArg, descArg, schemaArg,
+// handlerArg } for either registration form, or null when the call does not
+// have the expected shape. For registerTool the description is the value of
+// the config object's top-level `description:` key, and the whole config
+// object text stands in as the schema text (extractCommandVocabulary only
+// looks for a `command: z.enum(` inside it).
+function normalizeToolCallArgs(call) {
+  const args = splitTopLevelArgs(call.innerText);
+  if (call.form === 'registerTool') {
+    if (args.length < 3) return null;
+    const [nameArg, configArg, handlerArg] = args;
+    const cfg = configArg.trim();
+    if (cfg[0] !== '{' || cfg[cfg.length - 1] !== '}') return null;
+    const parts = splitTopLevelArgs(cfg.slice(1, -1));
+    let descArg = null;
+    for (const part of parts) {
+      const dm = /^(?:\s*\/\/[^\n]*\n)*\s*description\s*:\s*/.exec(part);
+      if (dm) { descArg = part.slice(dm[0].length); break; }
+    }
+    if (descArg === null) return null;
+    return { nameArg, descArg, schemaArg: configArg, handlerArg };
+  }
+  if (args.length < 4) return null;
+  return { nameArg: args[0], descArg: args[1], schemaArg: args[2], handlerArg: args[3] };
 }
 
 // extractHandlerBody(handlerArgText) -- the 4th server.tool( argument is
@@ -1380,7 +1411,7 @@ function classifyBranch(ctx) {
 // ---------------------------------------------------------------------------
 // defaultScanFiles(repoRoot) -- the complete scan set, enumerated at run
 // time: lib/mcp/tool-router.cjs, lib/mcp/tools/*.cjs (sorted), and
-// lib/mcp/contract-version.cjs. Nothing else in lib/mcp/ calls server.tool(
+// lib/mcp/contract-version.cjs. Nothing else in lib/mcp/ registers tools
 // (verified by grep during planning).
 // ---------------------------------------------------------------------------
 function defaultScanFiles(repoRoot) {
@@ -1432,9 +1463,9 @@ function scanAll(opts) {
     const toolCalls = findServerToolCalls(fileText, fileMasked);
 
     for (const call of toolCalls) {
-      const args = splitTopLevelArgs(call.innerText);
-      if (args.length < 4) continue;
-      const [nameArg, descArg, schemaArg, handlerArg] = args;
+      const norm = normalizeToolCallArgs(call);
+      if (!norm) continue;
+      const { nameArg, descArg, schemaArg, handlerArg } = norm;
       const toolName = extractStringLiteralConcat(nameArg);
       if (!toolName) continue;
       const description = extractStringLiteralConcat(descArg);
@@ -1598,4 +1629,6 @@ module.exports = {
   locateFunctionBody,
   followReexportHop,
   resolveRepoLocalPath,
+  findServerToolCalls,
+  normalizeToolCallArgs,
 };
