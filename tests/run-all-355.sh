@@ -44,9 +44,11 @@
 #       a missing target FAILS -- HIPS-10, plan 355-27)
 #   (3) Part 9 sweep: no node:sqlite / DatabaseSync / INSERT INTO in the same
 #       list (hard `run`), plus the navigation-chokepoint check on
-#       scripts/eureka-portfolio-report.cjs (still requires navigation.cjs,
-#       the one write door) and lib/core/eureka/opportunity-harvest.cjs
-#       (still zero INSERT/UPDATE/DELETE -- read-only by contract)
+#       lib/core/research-planner/filing-stamped.cjs (the one stamped filer
+#       since Phase 366-27 retired the standalone runner; still requires
+#       navigation.cjs, the one write door) and
+#       lib/core/eureka/opportunity-harvest.cjs (still zero
+#       INSERT/UPDATE/DELETE -- read-only by contract)
 #   (4) package.json / package-lock.json unchanged (zero new dependencies)
 #   (5) --check replays of the 355 dev-time scripts (run_if per script existing)
 #   (6) structural gates (connector registry, orchestration projection,
@@ -168,25 +170,27 @@ done
 
 # ---------------------------------------------------------------------------
 # (3b) Part 9 navigation-chokepoint check (plan 355-27, HIPS-02/HIPS-04): the
-#      two banking-adjacent files named in the plan's action text still route
-#      every write through lib/core/navigation.cjs, the one SQL write door
-#      (architecture.md). scripts/eureka-portfolio-report.cjs performs the
-#      actual banking mutation and must still `require` navigation.cjs;
+#      two banking-adjacent files still route every write through
+#      lib/core/navigation.cjs, the one SQL write door (architecture.md).
+#      Phase 366-27 retargeted the first leg: the standalone runner that
+#      banked findings is retired, and the stamped opportunity mutation now
+#      lives in lib/core/research-planner/filing-stamped.cjs
+#      (fileStampedOpportunity), which must still `require` navigation.cjs;
 #      lib/core/eureka/opportunity-harvest.cjs is READ-ONLY BY CONTRACT
 #      (T-219-10, its own docstring) and must carry zero INSERT/UPDATE/DELETE
 #      on an executable line, exactly like the Part 9 sweep above.
 # ---------------------------------------------------------------------------
-echo "--- Part 9 navigation chokepoint: eureka-portfolio-report.cjs + opportunity-harvest.cjs ---"
+echo "--- Part 9 navigation chokepoint: filing-stamped.cjs + opportunity-harvest.cjs ---"
 nav_chokepoint_report() {
-  local tgt="scripts/eureka-portfolio-report.cjs"
+  local tgt="lib/core/research-planner/filing-stamped.cjs"
   if [ ! -f "$tgt" ]; then echo "    MISSING: $tgt"; return 1; fi
   if strip_comments "$tgt" | grep -nE "require\(.*navigation\.cjs" >/dev/null 2>&1; then
     return 0
   fi
-  echo "    $tgt no longer requires navigation.cjs -- the banking write path may have bypassed the chokepoint"
+  echo "    $tgt no longer requires navigation.cjs -- the stamped filing write path may have bypassed the chokepoint"
   return 1
 }
-run "Part 9 navigation chokepoint: eureka-portfolio-report.cjs requires navigation.cjs" nav_chokepoint_report
+run "Part 9 navigation chokepoint: filing-stamped.cjs requires navigation.cjs" nav_chokepoint_report
 nav_chokepoint_harvest() {
   local tgt="lib/core/eureka/opportunity-harvest.cjs"
   if [ ! -f "$tgt" ]; then echo "    MISSING: $tgt"; return 1; fi

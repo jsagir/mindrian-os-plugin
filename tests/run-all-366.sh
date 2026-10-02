@@ -136,7 +136,7 @@ run_known_if "pin 355 direction agreement"     tests/test-355-direction-agreemen
 run_if "pin 355 direction convention"          tests/test-355-direction-convention.cjs        node tests/test-355-direction-convention.cjs
 run_if "pin 355 direction readers"             tests/test-355-direction-readers.cjs           node tests/test-355-direction-readers.cjs
 run_if "pin 355 floor sweep"                   tests/test-355-floor-sweep.cjs                 node tests/test-355-floor-sweep.cjs
-run_if "pin 355 eureka ranking"                tests/test-355-eureka-ranking-pin.cjs          node tests/test-355-eureka-ranking-pin.cjs
+# 366-27: the 355 eureka ranking pin retired with the standalone runner (it byte-pinned the runner-only composite ranking step).
 run_if "pin 3551 ambient run"                  tests/test-3551-ambient-run.cjs                node tests/test-3551-ambient-run.cjs
 run_if "pin doctor module contract parity"     tests/test-doctor-module-contract-parity.cjs   node tests/test-doctor-module-contract-parity.cjs
 run_if "pin 349 docs lockstep"                 tests/test-349-docs-lockstep.cjs               node tests/test-349-docs-lockstep.cjs

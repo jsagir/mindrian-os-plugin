@@ -24,8 +24,8 @@
  *     -> Promise<{ ok:true, score, guard } | { ok:false, reason }>, reason in
  *     'guard_unavailable'|'below_floor'|'guard_not_cleared' (Phase 355.1-07 extraction).
  *   The writer seam: lib/core/research-planner/filing-stamped.cjs::fileStampedOpportunity(db, params)
- *     (relocated by 366-02, called from ambient-run.cjs since 366-07; the legacy
- *     scripts/eureka-portfolio-report.cjs re-exports the same function)
+ *     (relocated by 366-02, called from ambient-run.cjs since 366-07; the one
+ *     stamped filer since the standalone runner retired in 366-27)
  *     -> node id string | null (Phase 355.1-07 extraction; never opens/commits a
  *     transaction itself).
  *   The side-channel seam: lib/core/eureka/eureka-reach-runner.cjs::writeStampedSideChannel(roomDir, opts)
@@ -442,11 +442,11 @@ try {
     // -----------------------------------------------------------------
     (function test_extractionsExported() {
       const eurekaReachRunner = require('../lib/core/eureka/eureka-reach-runner.cjs');
-      const eurekaPortfolioReport = require('../scripts/eureka-portfolio-report.cjs');
       assert.strictEqual(typeof eurekaReachRunner.measureAndGuardPair, 'function', 'measureAndGuardPair must be exported from eureka-reach-runner.cjs');
-      assert.strictEqual(typeof eurekaPortfolioReport.fileStampedOpportunity, 'function', 'fileStampedOpportunity must be exported from eureka-portfolio-report.cjs');
       const filingStamped = require('../lib/core/research-planner/filing-stamped.cjs');
       assert.strictEqual(typeof filingStamped.fileStampedOpportunity, 'function', 'fileStampedOpportunity must be exported from research-planner/filing-stamped.cjs (the filer ambient-run.cjs calls, 366-07)');
+      const ambientSrc = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'ambient-run.cjs'), 'utf8');
+      assert.ok(/require\(['"]\.\/research-planner\/filing-stamped\.cjs['"]\)\.fileStampedOpportunity/.test(ambientSrc), 'ambient-run.cjs must resolve fileStampedOpportunity from research-planner/filing-stamped.cjs (366-27: no runner re-export remains)');
       ok('extraction regressions: measureAndGuardPair and fileStampedOpportunity are both exported (test-355-filing.cjs, test-355-side-channel-v2.cjs, test-213-sensor-eureka.cjs and test-213-part8-boundary.cjs are run directly by the executor, unchanged)');
     })();
 

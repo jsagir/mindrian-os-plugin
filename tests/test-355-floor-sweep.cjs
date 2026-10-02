@@ -15,6 +15,13 @@
  * run BEFORE any repo module is required, and attempts() === 0 is asserted
  * last.
  *
+ * Phase 366 Plan 27 (D-02, slice C): the standalone eureka runner and its
+ * Markdown report renderer are retired, so leg 4b drops the eureka render.
+ * The sweep, the anchors and the negative control are unchanged; leg 4b now
+ * names the producers it renders and asserts that eureka (whose runner render
+ * is gone) is the ONLY dependent producer without one, so no other producer
+ * can silently skip.
+ *
  * No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
  */
 
@@ -258,7 +265,6 @@ async function legDependentOutputRenders() {
   const hsiToGraph = require('../scripts/hsi-to-graph.cjs');
   const reverseSalientAgent = require('../lib/agents/reverse-salient-agent.cjs');
   const stampConnections = require('../scripts/stamp-connections.cjs');
-  const eurekaRunner = require('../scripts/eureka-portfolio-report.cjs');
   const verificationStamp = require('../lib/core/verification-stamp.cjs');
   const directionConvention = require('../lib/core/direction-convention.cjs');
   const floorDisclosure = require('../lib/core/floor-disclosure.cjs');
@@ -266,7 +272,6 @@ async function legDependentOutputRenders() {
 
   const stubFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'theo-stub-responses.json'), 'utf8'));
   const gapsFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'whitespace-gaps.json'), 'utf8'));
-  const eurekaFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'eureka-report.json'), 'utf8'));
   const rsFixture = JSON.parse(fs.readFileSync(path.join(REPO, 'tests', 'fixtures', '355', 'producers', 'rs-pairs.json'), 'utf8'));
 
   async function captureStdoutAsync(fn) {
@@ -279,25 +284,6 @@ async function legDependentOutputRenders() {
     } finally {
       process.stdout.write = original;
     }
-  }
-
-  const minimalProvenanceEmbedded = {
-    run_mode: 'live', pairs_mode: 'graph', encoder_model: 'fixture-stub', encoder_dtype: 'stub', vec_backend: 'fixture',
-    ahp_weights: { strategic_fit: 0.5, validated_demand: 0.3, tech_econ_feasibility: 0.2 }, ahp_cr: 0.0, ahp_matrix_source: 'fixture',
-    tail_composition: 'fixture', growth_proxy: 'fixture', tail_thresholds: { attnCut: 0.5, growthCut: 0.5 },
-    tail_insufficient_structure: true, tail_suspect_noise: false, graph_nodes: 6, converges_pairs: 6, cohort_techs: 6,
-    pairs_scored: 6, scaffold_pairs_excluded: 0, container_pairs_excluded: 0, low_trust_pairs_excluded: 0, figure_guard_skipped: 0,
-    critic_resolution: 'fixture', honest_nouns: 'a fixture report, not a real room', run_date: '2026-09-24',
-    encoder_unavailable: false, degrade_cause: null,
-  };
-
-  function makeMdCtx(ranked) {
-    return {
-      provenance: minimalProvenanceEmbedded, roomDir: 'fixture-room', graphRel: 'fixture-graph.json', offline: true,
-      top: ranked.length, ranked: ranked, tailIds: new Set(eurekaFixture.embedded.tailIds),
-      tail: { insufficient_structure: true, suspect_noise: false, tail: [] }, tailPairs: [], statements: [],
-      techFor: () => ({ title: 'unused' }),
-    };
   }
 
   // Render text once per producer, reusing the exact same render seams
@@ -341,12 +327,9 @@ async function legDependentOutputRenders() {
     renders['find-connections'] = rawLines.join('');
   }
 
-  {
-    const ranked = JSON.parse(JSON.stringify(eurekaFixture.embedded.ranked));
-    await eurekaRunner.stampRankedPairs(ranked, {}, { callTool: makeReplayCallTool(stubFixture) });
-    const md = eurekaRunner.renderReport(makeMdCtx(ranked));
-    renders.eureka = md.split('## Ranked top')[1].split('## Tail quadrant')[0];
-  }
+  // eureka: no render. The runner's Markdown report (the only eureka render
+  // that carried disclosureLine('eureka')) retired with the runner (366-27).
+  const RETIRED_RENDERS = ['eureka'];
 
   const raw = loadRawLedger();
   const disclosedWithDeps = raw.rows.filter((r) => r.status === 'disclosed' && Array.isArray(r.dependent_outputs) && r.dependent_outputs.length > 0);
@@ -361,13 +344,20 @@ async function legDependentOutputRenders() {
     return decimals;
   }
 
+  // Every 355 producer except the retired eureka render is rendered, so none
+  // of them can silently skip below. (Non-355 dependent ids such as
+  // research_run and room_proactive were never rendered by this leg.)
+  const liveProducers = floorDisclosure.PRODUCER_IDS.filter((id) => RETIRED_RENDERS.indexOf(id) === -1);
+  check('leg 4b: every 355 producer except the retired eureka render is rendered (' + liveProducers.join(', ') + ')',
+    liveProducers.length === 4 && liveProducers.every((id) => typeof renders[id] === 'string'), JSON.stringify(Object.keys(renders)));
+
   const disclosureMisses = [];
   const decimalLeaks = [];
 
   for (const row of disclosedWithDeps) {
     for (const producerId of row.dependent_outputs) {
       const text = renders[producerId];
-      if (typeof text !== 'string') continue; // every one of the five producers is covered above; defensive only
+      if (typeof text !== 'string') continue; // eureka (retired render) or a non-355 dependent id; the four live producers are asserted above
       if (text.indexOf(floorDisclosure.disclosureLine(producerId)) === -1) {
         disclosureMisses.push(row.id + ' -> ' + producerId);
       }
