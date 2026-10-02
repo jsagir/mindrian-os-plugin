@@ -511,7 +511,8 @@ async function main() {
     // 366-12 (D-07) deliberately changed research_run (the perspective op set, its enum and its
     // description), so its parity pin moves to the commit that landed that change; gate and chain
     // stay pinned to PLAN_BASE. Any later edit to research_run's registration must re-pin this.
-    const RESEARCH_BASE = 'ee034f0a84e961e3f0d0a0b99a3441bf3cb9d973';
+    // quick 261002-cud re-pinned it for the offline field and the offline and canon-release description sentences.
+    const RESEARCH_BASE = '0b39f852828022f67e56993b94539c5757dca207';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
