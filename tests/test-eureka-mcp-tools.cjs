@@ -1,38 +1,48 @@
 'use strict';
 /*
- * Quick-260717-2vf Task 2 -- the hermetic proof for the three eureka compute
- * subcommands (eureka-run / eureka-status / eureka-report) on the intelligence
- * router tool.
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * The hermetic proof for the Eureka MCP surface.
+ *
+ * History: Quick-260717-2vf Task 2 wrote this file for the three intelligence
+ * compute subcommands (eureka-run / eureka-status / eureka-report), which drove
+ * the standalone Eureka runner in-process or as a detached child. Phase 366
+ * plan 16 turned those subcommands into a pointer at research_run (pinned by
+ * tests/test-366-router-redirects.cjs), and Phase 366 (D-02) retires the
+ * runner. Plan 366-26 migrated this file to the research_run perspective ops
+ * (perspective_recall, perspective_candidates, perspective_judge) and their
+ * deprecated eureka_* aliases, keeping the tool-shape assertions. The legacy
+ * branch's source-shape checks (the in-flight Map, the detached spawn) retired
+ * with the branch; see 366-26-SUMMARY.md.
  *
  * Follows the tests/test-212-part8-boundary.cjs idiom: node:assert/strict,
- * ok/fail counters, named check functions (the async ones awaited in a serial
- * async main), a summary line, process.exit(failed === 0 ? 0 : 1). No em-dashes,
- * no emoji.
+ * ok/fail counters, named check functions awaited in a serial async main, a
+ * summary line, process.exit(failed === 0 ? 0 : 1). No em-dashes, no emoji.
  *
  * WHAT IT PROVES:
- *   CHECK 1 -- enum + parity: EUREKA_COMPUTE_COMMANDS is the three names, spread
- *              into the intelligence z.enum, and NONE of them leak into
- *              ALL_TOOL_COMMANDS (unique membership pinned at 65).
- *   CHECK 2 -- fire-and-return + in-process pid: on http transport eureka-run
- *              returns state:'started' mode:'in-process' immediately, the scan
- *              reaches a terminal state (observability), and status.json's pid ===
- *              process.pid (the decisive warm-cache residency proof -- the scan ran
- *              inside THIS process, exactly what keeps _pipelineCache warm).
- *   CHECK 3 -- status/report output contract: eureka-status deep-equals the
- *              status.json on disk; eureka-report returns the report json verbatim
- *              (or the What/Why/Fix no-report error); a room with no .mindrian
- *              returns {"state":"none"}.
- *   CHECK 4 -- already_running guard: the branch carries the _eurekaScanInFlight
- *              set/has/delete tokens and the module declares the Map at top level.
- *   CHECK 5 -- stdio detach shape: the non-http path spawns detached with
- *              stdio 'ignore' via pluginRoot; the http path calls .main( without
- *              await (fire-and-return).
- *   CHECK 6 -- unknown-room guard: a boot roomDir that does not exist, with every
- *              resolver leg missing, returns the 'room directory not found' error.
+ *   CHECK 1 - enum + parity: eureka-run / eureka-status / eureka-report never
+ *             leak into ALL_TOOL_COMMANDS (unique membership pinned at 65), and
+ *             research_run's op enum carries the three perspective ops and the
+ *             three deprecated eureka_* aliases (read-only: the tool description
+ *             and schema are not changed here).
+ *   CHECK 2 - in-process recall: perspective_recall (eureka) answers ok and its
+ *             candidates file is already on disk under
+ *             <room>/.mindrian/eureka-perspective/<tag>/ when the call returns
+ *             (no detached child, no status poll, zero network).
+ *   CHECK 3 - candidates/judge output contract: perspective_candidates pages the
+ *             candidates file verbatim (same pairs, same order, total equal to
+ *             the file); perspective_judge returns a Stage A summary; an unknown
+ *             run_tag refuses candidates_missing with a hint naming
+ *             perspective_recall (the old {"state":"none"} analog).
+ *   CHECK 4 - deprecated aliases: eureka_recall, eureka_candidates and
+ *             eureka_judge answer under their legacy op name with deprecated
+ *             true and use_instead naming the perspective op.
+ *   CHECK 5 - unknown-room guard: a boot room that does not exist, with every
+ *             resolver leg missing, refuses no_bound_room and writes nothing.
  *
- * Hermetic: a tmp fixture room, the offline stub encoder (zero network, zero model
- * load), CLAUDE_ACTIVE_ROOM + MINDRIAN_ROOMS_HOME env-pinned with MINDRIAN_MCP_FIRST
- * cleared, cleanup in a finally block.
+ * Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are temp dirs set before
+ * any repo module loads; CLAUDE_ACTIVE_ROOM, CLAUDE_CODE_SESSION_ID and
+ * MINDRIAN_MCP_FIRST are cleared; the network guard counts every attempt.
  */
 
 const assert = require('node:assert/strict');
@@ -40,9 +50,31 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+const TMP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-mcp-home-'));
+const ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-mcp-roomshome-'));
+process.env.HOME = TMP_HOME;
+process.env.USERPROFILE = TMP_HOME;
+process.env.MINDRIAN_ROOMS_HOME = ROOMS_HOME;
+delete process.env.CLAUDE_ACTIVE_ROOM;
+delete process.env.CLAUDE_CODE_SESSION_ID;
+delete process.env.MINDRIAN_MCP_FIRST;
+
+try { require('node:sqlite'); } catch (_e) {
+  process.stdout.write('ENV GAP: node:sqlite unavailable (node ' + process.version + '); need node >= 22\n');
+  process.exit(77);
+}
+
 const REPO_ROOT = path.resolve(__dirname, '..');
 const TOOL_ROUTER_PATH = path.join(REPO_ROOT, 'lib', 'mcp', 'tool-router.cjs');
-const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+const hygiene = require(path.join(REPO_ROOT, 'tests/helpers/hygiene-355.cjs'));
+if (hygiene.scrubVendorKey) hygiene.scrubVendorKey();
+delete process.env.ANTHROPIC_API_KEY;
+const net = hygiene.installNetGuard ? hygiene.installNetGuard() : { attempts: function () { return 0; }, restore: function () {} };
+
+const fixture = require(path.join(REPO_ROOT, 'tests/helpers/fixture-366.cjs'));
+const recall = require(path.join(REPO_ROOT, 'lib/core/research-planner/perspectives/eureka-recall.cjs'));
+const research = require(path.join(REPO_ROOT, 'lib/mcp/tools/research.cjs'));
+const { registerCoreTools } = require(path.join(REPO_ROOT, 'lib/mcp/register-core-tools.cjs'));
 
 let passed = 0;
 let failed = 0;
@@ -53,355 +85,182 @@ function fail(name, err) {
   if (err) process.stdout.write('    ' + (err.stack || err.message || String(err)) + '\n');
 }
 
-function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+const TAG = '20261002T000026Z';
 
-// ---------------------------------------------------------------------------
-// Fixture helpers -- the REAL makeFixtureRoom / makeFixtureGraph from
-// tests/test-226-mode-disclosure.cjs (lines 56 and 78), copied verbatim so this
-// test owns its fixtures. makeFixtureGraph is called with the DEFAULT substrate
-// path (<ROOM_DIR>/.mindrian/idea-graph.json, eureka-command.cjs roomGraphPath)
-// so resolveSubstrate picks graph mode and the offline run is deterministic.
-// ---------------------------------------------------------------------------
-
-const POOL_A = ['photon', 'lattice', 'entropy', 'plasma', 'quantum', 'resonance'];
-const POOL_B = ['enzyme', 'protein', 'membrane', 'genome', 'mitosis', 'receptor'];
-
-function bodyFor(idx, pool) {
-  const a = pool[idx % pool.length];
-  const b = pool[(idx + 2) % pool.length];
-  return 'The ' + a + ' governs the ' + b + ' behavior under load, exploring how ' + a
-    + ' and ' + b + ' couple across the boundary of this domain in several sentences.';
+// A stub server that captures both registration shapes (server.tool and
+// server.registerTool), then a caller that parses the JSON text body.
+function harness(roomDir) {
+  const captured = new Map();
+  const stub = {
+    tool: function (name) { const rest = Array.prototype.slice.call(arguments, 1); captured.set(name, rest[rest.length - 1]); },
+    registerTool: function (name, cfg, fn) { captured.set(name, fn); captured.set(name + ':cfg', cfg); },
+  };
+  registerCoreTools(stub, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'desktop' });
+  return {
+    captured: captured,
+    call: async function (input) {
+      const fn = captured.get('research_run');
+      assert.equal(typeof fn, 'function', 'research_run is registered');
+      const raw = await fn(input, { sessionId: 'sess-eureka-mcp' });
+      return JSON.parse(raw.content[0].text);
+    },
+  };
 }
 
-function makeFixtureRoom() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-mcp-'));
-  const db = openRoomDb(dir, { allowExtension: true });
-  const now = new Date().toISOString();
-  const ins = db.prepare(
-    'INSERT INTO nodes(id,type,properties,source_path,created_by,created_at,last_seen_at) VALUES (?,?,?,?,?,?,?)'
-  );
-  for (let i = 1; i <= 6; i += 1) {
-    const id = 'C' + String(i).padStart(5, '0');
-    const inA = i <= 3;
-    const section = inA ? 'physics' : 'biology';
-    const body = bodyFor(i, inA ? POOL_A : POOL_B);
-    ins.run(id, 'Claim', JSON.stringify({ text: body, section: section, parentId: inA ? 'DOM_A' : 'DOM_B' }),
-      'fixture://' + id, 'import', now, now);
-    const secDir = path.join(dir, section);
-    fs.mkdirSync(secDir, { recursive: true });
-    fs.writeFileSync(path.join(secDir, id + '.md'), '# ' + section + ' tech ' + i + '\n\n' + body + '\n', 'utf8');
-  }
-  closeRoomDb(db);
-  return dir;
-}
-
-function makeFixtureGraph(graphPath) {
-  const nodes = [];
-  for (let i = 1; i <= 6; i += 1) {
-    const id = 'C' + String(i).padStart(5, '0');
-    const inA = i <= 3;
-    nodes.push({
-      data: {
-        id: id, cnumber: id, title: (inA ? 'physics tech ' : 'biology tech ') + i,
-        primary_tier: 1, pair_count: 5 + i, degree: 10 + i,
-        section: inA ? 'physics' : 'biology',
-        primary_problem: (inA ? 'energy transport gap ' : 'cell signaling gap ') + i,
-        problems: [(inA ? 'energy transport gap ' : 'cell signaling gap ') + i],
-      },
-    });
-  }
-  const edges = [
-    { data: { type: 'CONVERGES', source: 'C00001', target: 'C00004', shared_problems: ['cross-domain bridge'] } },
-    { data: { type: 'CONVERGES', source: 'C00002', target: 'C00005', shared_problems: ['boundary coupling'] } },
-  ];
-  fs.mkdirSync(path.dirname(graphPath), { recursive: true });
-  fs.writeFileSync(graphPath,
-    JSON.stringify({ meta: { honest_nouns: 'hermetic eureka mcp fixture' }, elements: { nodes: nodes, edges: edges } }),
-    'utf8');
-}
+function pairOf(c) { return c.a + '|' + c.b; }
 
 // ---------------------------------------------------------------------------
-// Source-region helpers (the test-212 line-window + comment-strip idiom).
+// CHECK 1 - enum + parity (module + schema, read-only).
 // ---------------------------------------------------------------------------
-
-function stripComments(src) {
-  return src
-    .split(/\r?\n/)
-    .map(function (raw) {
-      const t = raw.trim();
-      if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) return '';
-      return raw.replace(/\/\/.*$/, '');
-    })
-    .join('\n');
-}
-
-// The eureka compute branch region: from the `EUREKA_COMPUTE_COMMANDS.includes(command)`
-// line to (but not including) the `if (command === 'research')` line. Both lines are
-// unique in the file.
-function extractEurekaBranchRegion(src) {
-  const lines = src.split(/\r?\n/);
-  let startIdx = -1;
-  for (let i = 0; i < lines.length; i += 1) {
-    if (/EUREKA_COMPUTE_COMMANDS\.includes\(command\)/.test(lines[i])) { startIdx = i; break; }
-  }
-  assert.ok(startIdx !== -1, 'could not locate the eureka branch start line');
-  let endIdx = -1;
-  for (let i = startIdx; i < lines.length; i += 1) {
-    if (/command === 'research'/.test(lines[i])) { endIdx = i; break; }
-  }
-  assert.ok(endIdx !== -1, 'could not locate the research branch (branch region end)');
-  return lines.slice(startIdx, endIdx).join('\n');
-}
-
-// Split a tool response body on the Suggested Next chaining section, returning
-// the primary payload the CLI contract preserves byte-for-byte.
-function bodyBeforeSuggestedNext(resp) {
-  const text = resp && resp.content && resp.content[0] && resp.content[0].text;
-  assert.equal(typeof text, 'string', 'response carries a text body');
-  return text.split('\n\n## Suggested Next')[0];
-}
-
-// ---------------------------------------------------------------------------
-// Env isolation seam (the load-bearing hermeticity). CLAUDE_ACTIVE_ROOM routes
-// every handler call to the fixture (resolveActiveRoom precedence leg 1, the
-// documented test/operator seam); MINDRIAN_ROOMS_HOME points every registry leg
-// at a fresh empty home so a leg-1 miss can never reach the developer's real
-// active room; MINDRIAN_MCP_FIRST is cleared so resolveWriteTargetDir takes the
-// flag-OFF resolveActiveRoom branch under test. All four saved and restored.
-// ---------------------------------------------------------------------------
-
-const SAVED = {
-  CLAUDE_ACTIVE_ROOM: process.env.CLAUDE_ACTIVE_ROOM,
-  MINDRIAN_ROOMS_HOME: process.env.MINDRIAN_ROOMS_HOME,
-  MINDRIAN_MCP_FIRST: process.env.MINDRIAN_MCP_FIRST,
-  MINDRIAN_TRANSPORT: process.env.MINDRIAN_TRANSPORT,
-};
-function restoreEnv(key) {
-  if (SAVED[key] === undefined) delete process.env[key];
-  else process.env[key] = SAVED[key];
-}
-
-// ---------------------------------------------------------------------------
-// CHECK 1 -- enum + parity (source + module).
-// ---------------------------------------------------------------------------
-function check1_enumAndParity() {
-  const label = 'CHECK 1 - enum + parity (EUREKA_COMPUTE_COMMANDS on the intelligence enum, not in ALL_TOOL_COMMANDS)';
+function check1_enumAndParity(ctx) {
+  const label = 'CHECK 1 - enum + parity (eureka compute names not in ALL_TOOL_COMMANDS; research_run carries the perspective ops and aliases)';
   try {
-    const src = fs.readFileSync(TOOL_ROUTER_PATH, 'utf8');
-    // (a) the const is declared with exactly the three subcommand names.
-    assert.ok(
-      /const\s+EUREKA_COMPUTE_COMMANDS\s*=\s*\[\s*'eureka-run'\s*,\s*'eureka-status'\s*,\s*'eureka-report'\s*\]/.test(src),
-      label + ': EUREKA_COMPUTE_COMMANDS is not declared with exactly the three subcommand names');
-    // (b) it is spread into the intelligence command z.enum.
-    assert.ok(
-      /z\.enum\(\[\s*\.\.\.INTELLIGENCE_COMMANDS\s*,\s*\.\.\.EUREKA_COMPUTE_COMMANDS\s*\]\)/.test(src),
-      label + ': EUREKA_COMPUTE_COMMANDS is not spread into the intelligence z.enum');
-    // (c) via the required module: none of the three leak into ALL_TOOL_COMMANDS,
-    //     and its unique membership is pinned at 65.
-    const toolRouter = require(TOOL_ROUTER_PATH);
-    const cmds = toolRouter.ALL_TOOL_COMMANDS;
+    const cmds = require(TOOL_ROUTER_PATH).ALL_TOOL_COMMANDS;
     for (const c of ['eureka-run', 'eureka-status', 'eureka-report']) {
       assert.ok(cmds.indexOf(c) === -1, label + ': ' + c + ' leaked into ALL_TOOL_COMMANDS');
     }
     const uniq = new Set(cmds.map(function (c) { return String(c).toLowerCase(); }));
     assert.equal(uniq.size, 65, label + ': ALL_TOOL_COMMANDS unique membership is ' + uniq.size + ', expected 65');
-    ok(label);
-  } catch (e) { fail(label, e); }
-}
 
-// ---------------------------------------------------------------------------
-// CHECK 2 -- fire-and-return + in-process pid (the warm-cache residency proof).
-// ---------------------------------------------------------------------------
-async function check2_fireAndReturnPid(ctx) {
-  const label = 'CHECK 2 - fire-and-return + in-process pid (state started, terminal reached, status.pid === process.pid)';
-  try {
-    process.env.MINDRIAN_TRANSPORT = 'http'; // flip the transport gate (per-call env read)
-    const resp = await ctx.handlers.intelligence(
-      { command: 'eureka-run', context: JSON.stringify({ offline: true, noExtract: true, top: 5 }) },
-      {}
-    );
-    const first = bodyBeforeSuggestedNext(resp);
-    const started = JSON.parse(first);
-    assert.equal(started.state, 'started', label + ': state is ' + started.state + ', expected started');
-    assert.equal(started.mode, 'in-process', label + ': mode is ' + started.mode + ', expected in-process');
-    const eurekaBase = path.join(ctx.tmpRoom, '.mindrian', 'eureka');
-    assert.ok(started.status.indexOf(eurekaBase) === 0,
-      label + ': status path ' + started.status + ' is not inside ' + eurekaBase);
-
-    // Poll for a terminal state (fire-and-return + observability).
-    const statusFile = path.join(eurekaBase, 'status.json');
-    const terminalStates = ['done', 'failed', 'reasoning_await_mappings'];
-    let status = null;
-    const deadline = Date.now() + 60000;
-    while (Date.now() < deadline) {
-      if (fs.existsSync(statusFile)) {
-        try {
-          const s = JSON.parse(fs.readFileSync(statusFile, 'utf8'));
-          if (terminalStates.indexOf(s.state) !== -1) { status = s; break; }
-        } catch (_e) { /* status.json mid-write, keep polling */ }
-      }
-      await sleep(250);
+    const OPS = research._internal.OPS;
+    const schema = research._internal.inputSchema;
+    for (const op of ['perspective_recall', 'perspective_candidates', 'perspective_judge', 'eureka_recall', 'eureka_candidates', 'eureka_judge']) {
+      assert.ok(OPS.indexOf(op) !== -1, label + ': research_run OPS is missing ' + op);
+      assert.equal(schema.safeParse({ op: op }).success, true, label + ': the research_run schema rejects op ' + op);
     }
-    assert.ok(status, label + ': the scan never reached a terminal state within 60s');
-    ctx.terminalStatus = status;
-    // The decisive in-process proof.
-    assert.equal(status.pid, process.pid,
-      label + ': status.json pid ' + status.pid + ' !== process.pid ' + process.pid + ' (scan did not run in-process)');
-    ok(label);
-  } catch (e) { fail(label, e); }
-}
-
-// ---------------------------------------------------------------------------
-// CHECK 3 -- status / report output contract.
-// ---------------------------------------------------------------------------
-async function check3_statusReportContract(ctx) {
-  const label = 'CHECK 3 - status/report output contract (verbatim status + report, none-fallback)';
-  try {
-    const eurekaBase = path.join(ctx.tmpRoom, '.mindrian', 'eureka');
-    const statusFile = path.join(eurekaBase, 'status.json');
-    const jsonFile = path.join(eurekaBase, 'portfolio-report.json');
-
-    // (a) eureka-status deep-equals the status.json on disk.
-    const statusResp = await ctx.handlers.intelligence({ command: 'eureka-status', context: '' }, {});
-    const statusBody = bodyBeforeSuggestedNext(statusResp);
-    assert.deepEqual(JSON.parse(statusBody), JSON.parse(fs.readFileSync(statusFile, 'utf8')),
-      label + ': eureka-status payload does not deep-equal status.json on disk');
-
-    // (b) eureka-report. On a terminal 'done' run the report json exists and is
-    //     returned verbatim with a provenance field. If the run degraded so no
-    //     report was written, the What/Why/Fix no-report error is returned.
-    const reportResp = await ctx.handlers.intelligence({ command: 'eureka-report', context: '' }, {});
-    if (fs.existsSync(jsonFile)) {
-      const reportBody = bodyBeforeSuggestedNext(reportResp);
-      assert.equal(reportBody, fs.readFileSync(jsonFile, 'utf8'),
-        label + ': eureka-report body is not byte-equal to portfolio-report.json');
-      assert.ok(JSON.parse(reportBody).provenance, label + ': report json has no provenance field');
-    } else {
-      assert.equal(reportResp.isError, true, label + ': eureka-report should be isError when no report exists');
-      const reportText = reportResp.content[0].text;
-      assert.ok(reportText.indexOf('no eureka report yet') !== -1,
-        label + ': no-report error missing the What/Why/Fix triple');
+    for (const legacy of ['eureka-run', 'eureka-status', 'eureka-report']) {
+      assert.equal(schema.safeParse({ op: legacy }).success, false, label + ': research_run accepts the legacy subcommand ' + legacy);
     }
-
-    // (c) a room that exists but has NO .mindrian returns {"state":"none"} (leg 1
-    //     has an fs.existsSync gate, so the pinned dir must actually exist on disk).
-    const emptyRoom = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-empty-'));
-    process.env.CLAUDE_ACTIVE_ROOM = emptyRoom;
-    try {
-      const noneResp = await ctx.handlers.intelligence({ command: 'eureka-status', context: '' }, {});
-      assert.equal(bodyBeforeSuggestedNext(noneResp), JSON.stringify({ state: 'none' }),
-        label + ': a room with no .mindrian did not return {"state":"none"}');
-    } finally {
-      process.env.CLAUDE_ACTIVE_ROOM = ctx.tmpRoom;
-      try { fs.rmSync(emptyRoom, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
-    }
+    assert.equal(schema.safeParse({ op: 'perspective_recall', perspective: 'eureka' }).success, true, label + ': perspective eureka is not in the schema enum');
+    const cfg = ctx.h.captured.get('research_run:cfg') || {};
+    assert.equal(cfg.inputSchema, schema, label + ': the registered research_run inputSchema is not the module schema');
     ok(label);
   } catch (e) { fail(label, e); }
 }
 
 // ---------------------------------------------------------------------------
-// CHECK 4 -- already_running guard tokens (no live race, timing-flaky).
+// CHECK 2 - in-process recall, run files on disk at return.
 // ---------------------------------------------------------------------------
-function check4_alreadyRunningGuard() {
-  const label = 'CHECK 4 - already_running guard (_eurekaScanInFlight set/has/delete + module-level Map)';
+async function check2_inProcessRecall(ctx) {
+  const label = 'CHECK 2 - in-process recall (perspective_recall answers ok; candidates on disk at return; zero network)';
   try {
-    const src = fs.readFileSync(TOOL_ROUTER_PATH, 'utf8');
-    // module-level declaration.
-    assert.ok(/const\s+_eurekaScanInFlight\s*=\s*new Map\(\)/.test(src),
-      label + ': _eurekaScanInFlight is not declared as a module-level Map');
-    // the branch uses set / has / delete.
-    const region = stripComments(extractEurekaBranchRegion(src));
-    for (const token of ['_eurekaScanInFlight.set(', '_eurekaScanInFlight.has(', '_eurekaScanInFlight.delete(']) {
-      assert.ok(region.indexOf(token) !== -1, label + ': the eureka branch is missing "' + token + '"');
-    }
+    const before = net.attempts();
+    const r = await ctx.h.call({ op: 'perspective_recall', perspective: 'eureka', run_tag: TAG });
+    assert.equal(r.ok, true, label + ': recall not ok: ' + JSON.stringify(r).slice(0, 300));
+    assert.equal(r.op, 'perspective_recall');
+    assert.equal(r.perspective, 'eureka');
+    assert.equal(r.run_tag, TAG);
+    assert.ok(r.deprecated === undefined, label + ': the perspective op must not be marked deprecated');
+    assert.ok(Array.isArray(r.top) && r.top.length > 0, label + ': the fixture room must recall at least one pair');
+    const runDir = recall.runDirFor(ctx.roomDir, TAG);
+    assert.ok(runDir.indexOf(path.join(ctx.roomDir, '.mindrian', 'eureka-perspective')) === 0,
+      label + ': run dir ' + runDir + ' is not under .mindrian/eureka-perspective');
+    const onDisk = recall.readCandidates(ctx.roomDir, TAG);
+    assert.ok(onDisk && Array.isArray(onDisk.candidates) && onDisk.candidates.length > 0,
+      label + ': no candidates file on disk when the call returned');
+    assert.deepEqual(r.top.map(pairOf), onDisk.candidates.slice(0, r.top.length).map(pairOf),
+      label + ': the recall top list is not the head of the candidates file');
+    assert.equal(net.attempts() - before, 0, label + ': recall attempted the network');
+    ctx.total = onDisk.candidates.length;
+    ctx.disk = onDisk.candidates;
     ok(label);
   } catch (e) { fail(label, e); }
 }
 
 // ---------------------------------------------------------------------------
-// CHECK 5 -- stdio detach shape + http fire-and-return (source scan).
+// CHECK 3 - candidates / judge output contract, and the none analog.
 // ---------------------------------------------------------------------------
-function check5_detachShape() {
-  const label = 'CHECK 5 - stdio detach (spawn detached stdio ignore via pluginRoot) + http .main( without await';
+async function check3_candidatesJudgeContract(ctx) {
+  const label = 'CHECK 3 - candidates/judge contract (verbatim page, Stage A summary, candidates_missing for an unknown run_tag)';
   try {
-    const src = fs.readFileSync(TOOL_ROUTER_PATH, 'utf8');
-    const region = stripComments(extractEurekaBranchRegion(src));
-    // stdio detach shape (today's CLI start shape).
-    assert.ok(/\bspawn\(/.test(region), label + ': the branch does not spawn a child on the stdio path');
-    assert.ok(/detached:\s*true/.test(region), label + ': the spawn is not detached');
-    assert.ok(/stdio:\s*'ignore'/.test(region), label + ": the spawn does not use stdio 'ignore'");
-    assert.ok(/pluginRoot/.test(region) && /eureka-command\.cjs/.test(region),
-      label + ': the detached child does not reference scripts/eureka-command.cjs via pluginRoot');
-    // http fire-and-return: a `.main(` call statement with no await keyword.
-    const mainLine = region.split('\n').filter(function (l) { return l.indexOf('.main(') !== -1; });
-    assert.ok(mainLine.length >= 1, label + ': the branch never calls .main(');
-    assert.ok(mainLine.some(function (l) { return l.indexOf('await') === -1; }),
-      label + ': every .main( call is awaited (must be fire-and-return on the http path)');
+    assert.ok(Array.isArray(ctx.disk), label + ': CHECK 2 did not leave a candidates file');
+    const page = await ctx.h.call({ op: 'perspective_candidates', perspective: 'eureka', run_tag: TAG, limit: 50, offset: 0 });
+    assert.equal(page.ok, true, label + ': candidates not ok: ' + JSON.stringify(page).slice(0, 300));
+    assert.equal(page.total, ctx.total, label + ': total ' + page.total + ' is not the file length ' + ctx.total);
+    assert.deepEqual(page.items.map(pairOf), ctx.disk.slice(0, page.items.length).map(pairOf),
+      label + ': the page is not the candidates file in order');
+    assert.equal(page.offset, 0);
+    assert.equal(page.has_more, page.items.length < ctx.total);
+
+    const judged = await ctx.h.call({ op: 'perspective_judge', perspective: 'eureka', run_tag: TAG });
+    assert.equal(judged.ok, true, label + ': judge not ok: ' + JSON.stringify(judged).slice(0, 300));
+    assert.equal(judged.op, 'perspective_judge');
+    assert.ok(judged.summary && typeof judged.summary === 'object', label + ': judge carries no Stage A summary');
+    const after = await ctx.h.call({ op: 'perspective_candidates', perspective: 'eureka', run_tag: TAG, limit: 5 });
+    assert.equal(after.judged, true, label + ': the verdicts do not show up in the next page');
+
+    const none = await ctx.h.call({ op: 'perspective_candidates', perspective: 'eureka', run_tag: '19990101T000000Z' });
+    assert.equal(none.ok, false, label + ': an unknown run_tag answered ok');
+    assert.equal(none.reason, 'candidates_missing', label + ': reason is ' + none.reason);
+    assert.ok(/perspective_recall/.test(String(none.hint || '')), label + ': the hint does not name perspective_recall');
     ok(label);
   } catch (e) { fail(label, e); }
 }
 
 // ---------------------------------------------------------------------------
-// CHECK 6 -- unknown-room guard via the total-miss fallback leg.
+// CHECK 4 - the deprecated eureka_* aliases.
 // ---------------------------------------------------------------------------
-async function check6_unknownRoomGuard(ctx) {
-  const label = "CHECK 6 - unknown-room guard (nonexistent boot roomDir returns 'room directory not found')";
+async function check4_deprecatedAliases(ctx) {
+  const label = 'CHECK 4 - deprecated aliases (eureka_recall / eureka_candidates / eureka_judge: legacy op, deprecated true, use_instead)';
   try {
-    // Drive the guard through the fallback leg: with CLAUDE_ACTIVE_ROOM deleted and
-    // MINDRIAN_ROOMS_HOME pinned at the empty home, every resolver leg misses, so
-    // resolveWriteTargetDir returns the boot roomDir -- which for this second stub
-    // does not exist, tripping the guard.
-    delete process.env.CLAUDE_ACTIVE_ROOM;
-    const missingDir = path.join(os.tmpdir(), 'mos-eureka-missing-' + Date.now());
-    const handlers2 = {};
-    const server2 = { tool: function (name) { const rest = Array.prototype.slice.call(arguments, 1); handlers2[name] = rest[rest.length - 1]; } };
-    require(TOOL_ROUTER_PATH).registerRouterTools(server2, missingDir, REPO_ROOT, { compact: '' }, 'cli');
-    const resp = await handlers2.intelligence({ command: 'eureka-run', context: '' }, {});
-    assert.equal(resp.isError, true, label + ': a nonexistent room should be an isError response');
-    assert.ok(resp.content[0].text.indexOf('room directory not found') !== -1,
-      label + ': the error text is missing "room directory not found"');
+    const tag2 = '20261002T000027Z';
+    const rec = await ctx.h.call({ op: 'eureka_recall', run_tag: tag2 });
+    assert.equal(rec.ok, true, label + ': eureka_recall not ok: ' + JSON.stringify(rec).slice(0, 300));
+    assert.equal(rec.op, 'eureka_recall');
+    assert.equal(rec.perspective, 'eureka');
+    assert.equal(rec.deprecated, true);
+    assert.equal(rec.use_instead, 'perspective_recall');
+    const cand = await ctx.h.call({ op: 'eureka_candidates', run_tag: tag2 });
+    assert.equal(cand.ok, true, label + ': eureka_candidates not ok');
+    assert.equal(cand.op, 'eureka_candidates');
+    assert.equal(cand.deprecated, true);
+    assert.equal(cand.use_instead, 'perspective_candidates');
+    const jud = await ctx.h.call({ op: 'eureka_judge', run_tag: tag2 });
+    assert.equal(jud.ok, true, label + ': eureka_judge not ok');
+    assert.equal(jud.op, 'eureka_judge');
+    assert.equal(jud.deprecated, true);
+    assert.equal(jud.use_instead, 'perspective_judge');
     ok(label);
-  } catch (e) {
-    fail(label, e);
-  } finally {
-    process.env.CLAUDE_ACTIVE_ROOM = ctx.tmpRoom;
-  }
+  } catch (e) { fail(label, e); }
+}
+
+// ---------------------------------------------------------------------------
+// CHECK 5 - unknown-room guard via the total-miss fallback leg.
+// ---------------------------------------------------------------------------
+async function check5_unknownRoomGuard() {
+  const label = 'CHECK 5 - unknown-room guard (nonexistent boot room refuses no_bound_room and writes nothing)';
+  try {
+    const missingDir = path.join(os.tmpdir(), 'mos-eureka-missing-' + process.pid + '-' + Date.now());
+    const h2 = harness(missingDir);
+    const resp = await h2.call({ op: 'perspective_recall', perspective: 'eureka', run_tag: TAG });
+    assert.equal(resp.ok, false, label + ': a nonexistent room answered ok');
+    assert.equal(resp.reason, 'no_bound_room', label + ': reason is ' + resp.reason);
+    assert.equal(fs.existsSync(missingDir), false, label + ': the guard created the missing room dir');
+    ok(label);
+  } catch (e) { fail(label, e); }
 }
 
 // ---------------------------------------------------------------------------
 // Serial async main.
 // ---------------------------------------------------------------------------
 async function main() {
-  const tmpRoom = makeFixtureRoom();
-  makeFixtureGraph(path.join(tmpRoom, '.mindrian', 'idea-graph.json'));
-  const emptyHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-home-'));
-
-  // Env pins (isolation).
-  process.env.CLAUDE_ACTIVE_ROOM = tmpRoom;
-  process.env.MINDRIAN_ROOMS_HOME = emptyHome;
-  delete process.env.MINDRIAN_MCP_FIRST;
-
-  // Stub server harness.
-  const handlers = {};
-  const server = { tool: function (name) { const rest = Array.prototype.slice.call(arguments, 1); handlers[name] = rest[rest.length - 1]; } };
-  require(TOOL_ROUTER_PATH).registerRouterTools(server, tmpRoom, REPO_ROOT, { compact: '' }, 'cli');
-
-  const ctx = { tmpRoom: tmpRoom, handlers: handlers };
-
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-eureka-mcp-'));
+  const built = fixture.buildPerspectiveRoom(root, { name: 'room' });
+  const ctx = { roomDir: built.roomDir, h: harness(built.roomDir) };
   try {
-    check1_enumAndParity();
-    await check2_fireAndReturnPid(ctx);
-    await check3_statusReportContract(ctx);
-    check4_alreadyRunningGuard();
-    check5_detachShape();
-    await check6_unknownRoomGuard(ctx);
+    check1_enumAndParity(ctx);
+    await check2_inProcessRecall(ctx);
+    await check3_candidatesJudgeContract(ctx);
+    await check4_deprecatedAliases(ctx);
+    await check5_unknownRoomGuard();
+    const attempts = net.attempts();
+    if (attempts === 0) ok('zero network attempts over the whole run');
+    else fail('zero network attempts over the whole run', new Error(attempts + ' attempt(s)'));
   } finally {
-    restoreEnv('CLAUDE_ACTIVE_ROOM');
-    restoreEnv('MINDRIAN_ROOMS_HOME');
-    restoreEnv('MINDRIAN_MCP_FIRST');
-    restoreEnv('MINDRIAN_TRANSPORT');
-    try { fs.rmSync(tmpRoom, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
-    try { fs.rmSync(emptyHome, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    try { net.restore(); } catch (_e) { /* best effort */ }
+    for (const d of [root, TMP_HOME, ROOMS_HOME]) {
+      try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    }
   }
 
   process.stdout.write('\n');
