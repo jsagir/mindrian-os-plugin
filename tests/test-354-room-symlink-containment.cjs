@@ -57,9 +57,8 @@ const { makeScratchRoom } = require(path.join(__dirname, 'helpers', 'fixture-roo
 const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
 const views = require(path.join(REPO, 'lib', 'mcp', 'tools', 'views.cjs'));
 const reasoningOps = require(path.join(REPO, 'lib', 'core', 'reasoning-ops.cjs'));
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
-const { InMemoryTransport } = require('@modelcontextprotocol/sdk/inMemory.js');
+const { McpServer, InMemoryTransport } = require('@modelcontextprotocol/server');
+const { Client } = require('@modelcontextprotocol/client');
 const { registerResources } = require(path.join(REPO, 'lib', 'mcp', 'resources.cjs'));
 
 console.log('test-354-room-symlink-containment');
