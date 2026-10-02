@@ -29,6 +29,7 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const http = require('node:http');
 const net = require('node:net');
 const path = require('node:path');
 const cp = require('node:child_process');
@@ -113,6 +114,37 @@ async function post(body, headers) {
     json = null;
   }
   return { status: res.status, text, json };
+}
+
+// node:http request, because fetch (undici) will not let a caller override the
+// Host header, which the DNS-rebinding arm needs.
+function rawPost(body, headers) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+    const req = http.request(
+      {
+        host: '127.0.0.1',
+        port: PORT,
+        path: '/mcp',
+        method: 'POST',
+        headers: Object.assign(
+          {
+            'Content-Type': 'application/json',
+            Accept: 'application/json, text/event-stream',
+            'Content-Length': Buffer.byteLength(data),
+          },
+          headers || {}
+        ),
+      },
+      (res) => {
+        let text = '';
+        res.on('data', (c) => (text += c.toString('utf8')));
+        res.on('end', () => resolve({ status: res.statusCode, text }));
+      }
+    );
+    req.on('error', reject);
+    req.end(data);
+  });
 }
 
 const INIT = {
@@ -205,13 +237,13 @@ async function main() {
     });
 
     await test('DNS rebinding: bad Host 403, bad Origin 403, loopback Host without Origin 200, localhost Origin 200', async () => {
-      const badHost = await post(INIT, { Host: 'evil.example:' + PORT });
+      const badHost = await rawPost(INIT, { Host: 'evil.example:' + PORT });
       assert.equal(badHost.status, 403, 'Host evil.example must be 403, got ' + badHost.status);
-      const badOrigin = await post(INIT, { Origin: 'http://evil.example' });
+      const badOrigin = await rawPost(INIT, { Origin: 'http://evil.example' });
       assert.equal(badOrigin.status, 403, 'Origin evil.example must be 403, got ' + badOrigin.status);
-      const noOrigin = await post(INIT, { Host: '127.0.0.1:' + PORT });
+      const noOrigin = await rawPost(INIT, { Host: '127.0.0.1:' + PORT });
       assert.equal(noOrigin.status, 200, 'Host 127.0.0.1 with no Origin must be 200, got ' + noOrigin.status);
-      const okOrigin = await post(INIT, { Origin: 'http://localhost:' + PORT });
+      const okOrigin = await rawPost(INIT, { Origin: 'http://localhost:' + PORT });
       assert.equal(okOrigin.status, 200, 'Origin http://localhost must be 200, got ' + okOrigin.status);
     });
 

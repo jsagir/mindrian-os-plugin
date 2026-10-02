@@ -28,8 +28,11 @@
  * SDK split (Phase 267 Plan 11): the McpServer comes from the v2 package
  * (@modelcontextprotocol/server) everywhere createServer() builds one. The
  * stdio branch (and the express-missing fallback) is served by serveStdio
- * from @modelcontextprotocol/server/stdio. The Streamable HTTP branch still
- * uses the v1 StreamableHTTPServerTransport until Phase 267 Plans 12 and 14.
+ * from @modelcontextprotocol/server/stdio. The Streamable HTTP flag-OFF branch
+ * (Plan 12) is served per request by createMcpHandler behind toNodeHandler
+ * (@modelcontextprotocol/node), with localhost Host/Origin guards. The
+ * flag-ON (session-keyed) branch still uses the v1 StreamableHTTPServerTransport
+ * until Phase 267 Plan 14.
  *
  * Configuration:
  *   MINDRIAN_ROOM env var sets the Data Room path (default: ./room)
@@ -93,7 +96,8 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // (serveStdio owns the era decision, 2025-11-25 or 2026-07-28, from ONE
 // factory). The HTTP branch below still uses the v1 StreamableHTTPServerTransport
 // until plans 267-12/267-14; a v2 McpServer serves correctly over it.
-const { McpServer } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
+// Plan 12: createMcpHandler serves the flag-OFF HTTP route per request.
+const { McpServer, createMcpHandler } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
 const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
 // Module-level handle from serveStdio, kept for a future shutdown path.
 let stdioHandle = null;
@@ -212,17 +216,10 @@ function createServer() {
   const { registerResources } = require('../lib/mcp/resources.cjs');
   registerResources(s, { fallbackRoomDir: roomDir, pluginRoot: pluginRoot, surface: surface.surface });
 
-  // Start the tree watcher (plan 270-08): debounced sendResourceListChanged
-  // when a directory appears or disappears under the rooms home, so
-  // mos://tree stays live with no per-turn cost. Wrapped in try/catch, and
-  // startTreeWatcher itself degrades to {ok:false} rather than throwing on
-  // a missing rooms home -- a watcher failure must never fail server boot,
-  // matching the dep-heal additive-degradation discipline.
-  try {
-    startTreeWatcher(s, {});
-  } catch (e) {
-    process.stderr.write('[mindrian-os] tree watcher failed to start: ' + (e && e.message ? e.message : String(e)) + '\n');
-  }
+  // The tree watcher (plan 270-08) is NOT started here. Plan 267-12: this
+  // factory runs once per HTTP request on the flag-OFF branch, so it must be
+  // free of process-level side effects. main() starts the watcher once per
+  // process with a per-branch target (see the once-per-process helper below).
 
   // Register MCP Prompts (methodology workflows with Larry personality)
   const { registerPrompts } = require('../lib/mcp/prompts.cjs');
@@ -234,10 +231,32 @@ function createServer() {
   return s;
 }
 
-// Build the module-level singleton -- the stdio branch and the flag-OFF
-// stateless HTTP branch both reach for this SAME `server` const, exactly as
-// shipped before this factory refactor (byte-identical legacy, SPEC-7).
-const server = createServer();
+// Module-level singleton for the stdio branch and the express-missing stdio
+// fallback only (a single process serves exactly one client there). Plan
+// 267-12: built lazily, so HTTP mode never constructs an unused server with a
+// full set of registrations at boot. The flag-OFF HTTP branch builds one
+// server per request through createMcpHandler(() => createServer()).
+let server = null;
+function getServer() {
+  if (!server) server = createServer();
+  return server;
+}
+
+// Start the tree watcher (plan 270-08): debounced resource-list-changed over
+// directory churn under the rooms home, so mos://tree stays live with no
+// per-turn cost. Called ONCE per process from main() with a per-branch target
+// (an object exposing sendResourceListChanged): the stdio singleton, or the
+// flag-OFF handler's notify.resourcesChanged. Wrapped in try/catch, and
+// startTreeWatcher itself degrades to {ok:false} rather than throwing on a
+// missing rooms home -- a watcher failure must never fail server boot,
+// matching the dep-heal additive-degradation discipline.
+function startTreeWatcherOnce(target) {
+  try {
+    startTreeWatcher(target, {});
+  } catch (e) {
+    process.stderr.write('[mindrian-os] tree watcher failed to start: ' + (e && e.message ? e.message : String(e)) + '\n');
+  }
+}
 
 // Session catch-up: register shutdown handler to save session state (all
 // surfaces). registerShutdownHandler already no-ops after its first call
@@ -269,7 +288,8 @@ async function main() {
       express = require('express');
     } catch (err) {
       process.stderr.write(`[mindrian-os] Express not available, falling back to stdio transport.\n`);
-      stdioHandle = serveStdio(() => server);
+      stdioHandle = serveStdio(() => getServer());
+      startTreeWatcherOnce(getServer());
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
       return;
     }
@@ -323,12 +343,35 @@ async function main() {
     // exactly once at boot; only the transport is per-session). Flag-OFF's
     // stateless transport never hits this state machine -- untouched,
     // byte-identical legacy.
-    let statelessTransport;
+    //
+    // Phase 267 Plan 12 (RCA 1, mcp-http-flag-off-one-request-per-process):
+    // the flag-OFF branch no longer holds ONE shared stateless transport (the
+    // SDK throws "Stateless transport cannot be reused across requests" on
+    // the second request, surfacing as a bare 500). It serves every request
+    // through createMcpHandler(() => createServer(), { legacy: 'stateless' })
+    // behind toNodeHandler: a fresh server per request, both protocol eras
+    // (a 2025 client takes the legacy stateless leg, a 2026-07-28 client the
+    // modern leg). The already-parsed req.body is passed through (express.json
+    // has consumed the stream, and its 100 KB limit is stricter than the SDK's
+    // 4 MiB default, which does not apply to a passed parsedBody). The
+    // loopback endpoint also refuses DNS rebinding: the Host and Origin guards
+    // answer 403 before any MCP handling.
     let sessionTransports;
+    let flagOffNodeHandler = null;
+    let flagOffHost = null;
+    let flagOffOrigin = null;
+    let flagOffMcpHandler = null;
     if (mcpFirstOn) {
       sessionTransports = new Map();
     } else {
-      statelessTransport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+      const { toNodeHandler, localhostHostValidation, localhostOriginValidation } = require('@modelcontextprotocol/node');
+      const onHandlerError = (e) => {
+        process.stderr.write('[mindrian-os] mcp handler: ' + (e && e.message ? e.message : String(e)) + '\n');
+      };
+      flagOffMcpHandler = createMcpHandler(() => createServer(), { legacy: 'stateless', onerror: onHandlerError });
+      flagOffNodeHandler = toNodeHandler(flagOffMcpHandler, { onerror: onHandlerError });
+      flagOffHost = localhostHostValidation();
+      flagOffOrigin = localhostOriginValidation();
     }
 
     app.all('/mcp', async (req, res) => {
@@ -344,7 +387,10 @@ async function main() {
       // proving lib/mcp/adapter-client.cjs's queryDaemon() actually completes
       // a real tool call round trip (not just a transport-level connect).
       if (!mcpFirstOn) {
-        await statelessTransport.handleRequest(req, res, req.body);
+        // The guards answer 403 themselves when they return false.
+        if (!flagOffHost(req, res)) return;
+        if (!flagOffOrigin(req, res)) return;
+        await flagOffNodeHandler(req, res, req.body);
         return;
       }
 
@@ -401,10 +447,13 @@ async function main() {
         sseEventBus.subscribe(res);
       });
     } else {
-      // Flag-OFF: the ONE shared stateless transport connects once, exactly
-      // as shipped -- byte-identical legacy. Flag-ON connects a fresh
-      // transport per NEW session, lazily, inside the /mcp handler above.
-      await server.connect(statelessTransport);
+      // Flag-OFF: one tree watcher per process, targeting the handler's
+      // notifier (the per-request servers have no long-lived connection to
+      // notify through). Flag-ON deliberately starts NO watcher in Plan 12:
+      // before this change its only watcher was bound to the boot singleton,
+      // which flag-ON never connects, so it delivered nothing; Plan 14 wires
+      // it to the modern handler.
+      startTreeWatcherOnce({ sendResourceListChanged: () => flagOffMcpHandler.notify.resourcesChanged() });
     }
 
     // Phase 198-03 (D-01, SPEC-1/SPEC-7): flag-ON discovers a free loopback
@@ -446,7 +495,8 @@ async function main() {
     });
   } else {
     // stdio for CLI and Desktop
-    stdioHandle = serveStdio(() => server);
+    stdioHandle = serveStdio(() => getServer());
+    startTreeWatcherOnce(getServer());
     process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);
   }
 }
