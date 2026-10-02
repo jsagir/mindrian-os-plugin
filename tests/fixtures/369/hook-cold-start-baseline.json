@@ -1,0 +1,898 @@
+{
+  "machine": "6.18.33.2-microsoft-standard-WSL2",
+  "platform": "linux arm64",
+  "node": "v22.23.1",
+  "measured_at": "2026-10-02T19:35:40.111Z",
+  "n": 10,
+  "percentile_rule": "index floor(q*(n-1)) of ascending samples; at n=10 p95 is the second-largest sample",
+  "timing_rule": "p50/p95/max are wall time to process EXIT; close_p95_ms/close_max_ms are wall time until the stdout/stderr pipes closed (a backgrounded child holding the pipe past exit shows as pipe_held_after_exit > 0)",
+  "node_empty_process_ms": {
+    "p50_ms": 22.5,
+    "p95_ms": 23.3,
+    "max_ms": 23.6
+  },
+  "entries": [
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs\"",
+      "timeout_ms": 120000,
+      "async": false,
+      "not_measured": "budget over 30 s, network-capable"
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-post-update-preflight.cjs\"",
+      "timeout_ms": 12000,
+      "async": false,
+      "p50_ms": 28.1,
+      "p95_ms": 29.6,
+      "max_ms": 31.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 29.7,
+      "close_max_ms": 31.3
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start",
+      "timeout_ms": 10000,
+      "async": false,
+      "p50_ms": 762.3,
+      "p95_ms": 771.9,
+      "max_ms": 784.6,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 10,
+      "close_breaches": 10,
+      "close_p95_ms": 11014.1,
+      "close_max_ms": 11014.4
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-coordinator.cjs\"",
+      "timeout_ms": 10000,
+      "async": false,
+      "p50_ms": 224.3,
+      "p95_ms": 227.4,
+      "max_ms": 227.4,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 227.4,
+      "close_max_ms": 227.5
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-reference-now-seed.cjs\"",
+      "timeout_ms": 5000,
+      "async": false,
+      "p50_ms": 88.2,
+      "p95_ms": 91.9,
+      "max_ms": 256.2,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 91.9,
+      "close_max_ms": 256.2
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-breakthrough.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 27.8,
+      "p95_ms": 29.6,
+      "max_ms": 30.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 29.6,
+      "close_max_ms": 30.3
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-ambiguous.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 27.1,
+      "p95_ms": 29.4,
+      "max_ms": 29.4,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 29.4,
+      "close_max_ms": 29.4
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-drain.cjs\"",
+      "timeout_ms": 5000,
+      "async": false,
+      "p50_ms": 90.4,
+      "p95_ms": 92.7,
+      "max_ms": 92.9,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 92.8,
+      "close_max_ms": 92.9
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "startup|clear|compact",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/agentshield-sessionstart-scan.cjs\"",
+      "timeout_ms": 8000,
+      "async": false,
+      "p50_ms": 101.9,
+      "p95_ms": 102.3,
+      "max_ms": 104.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 102.3,
+      "close_max_ms": 104.6
+    },
+    {
+      "event": "PreCompact",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" pre-compact",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 13.8,
+      "p95_ms": 15.2,
+      "max_ms": 15.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 15.2,
+      "close_max_ms": 15.4
+    },
+    {
+      "event": "PostCompact",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-compact",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 772,
+      "p95_ms": 781.1,
+      "max_ms": 794,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 10,
+      "close_breaches": 10,
+      "close_p95_ms": 4007,
+      "close_max_ms": 4007.1
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-stop",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 115.5,
+      "p95_ms": 119.1,
+      "max_ms": 121.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 119.1,
+      "close_max_ms": 121.5
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 30.6,
+      "p95_ms": 33.7,
+      "max_ms": 34.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.8,
+      "close_max_ms": 34.7
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-update.cjs\" stop",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 30.3,
+      "p95_ms": 31.6,
+      "max_ms": 32.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 31.6,
+      "close_max_ms": 32.5
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hmi-compliance-poll.cjs\" --hook",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 33.4,
+      "p95_ms": 36.5,
+      "max_ms": 38.1,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 36.5,
+      "close_max_ms": 38.1
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-sweep.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 21.4,
+      "p95_ms": 22.8,
+      "max_ms": 26.8,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 22.8,
+      "close_max_ms": 26.8
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-card-fire.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 36.2,
+      "p95_ms": 38.2,
+      "max_ms": 38.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 38.2,
+      "close_max_ms": 38.3
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-voice-style.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 27.3,
+      "p95_ms": 28.5,
+      "max_ms": 28.8,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 28.5,
+      "close_max_ms": 28.8
+    },
+    {
+      "event": "Stop",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/ambient-stop.cjs\" --stop",
+      "timeout_ms": 5000,
+      "async": true,
+      "timeout_unit_note": "declared 5 read as seconds",
+      "p50_ms": 88.7,
+      "p95_ms": 91.4,
+      "max_ms": 97.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 91.5,
+      "close_max_ms": 97.6
+    },
+    {
+      "event": "SessionEnd",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-end-presence.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 21.6,
+      "p95_ms": 22.7,
+      "max_ms": 23.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 22.7,
+      "close_max_ms": 23.3
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" write-scope-check",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 35,
+      "p95_ms": 36.4,
+      "max_ms": 37.6,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 36.4,
+      "close_max_ms": 37.6
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/part8-egress-guard-hook.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 88.2,
+      "p95_ms": 90.2,
+      "max_ms": 91.2,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 90.3,
+      "close_max_ms": 91.2
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-write",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 30.3,
+      "p95_ms": 33.2,
+      "max_ms": 33.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.3,
+      "close_max_ms": 33.7
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/frontmatter-schema-validator.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 21,
+      "p95_ms": 21.1,
+      "max_ms": 21.4,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 21.1,
+      "close_max_ms": 21.4
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/async-artifact-auto-commit.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 27.6,
+      "p95_ms": 31.1,
+      "max_ms": 32.9,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 31.1,
+      "close_max_ms": 33
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-completion-detector.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 20.6,
+      "p95_ms": 24.8,
+      "max_ms": 24.9,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 24.8,
+      "close_max_ms": 24.9
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-explore-fingerprint.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 32.5,
+      "p95_ms": 34,
+      "max_ms": 34.4,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 34,
+      "close_max_ms": 34.4
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-artifact-graph-hook.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 22.1,
+      "p95_ms": 23.5,
+      "max_ms": 24.4,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 23.5,
+      "close_max_ms": 24.4
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-artifact-graph-hook.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 22.2,
+      "p95_ms": 23.5,
+      "max_ms": 24,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 23.5,
+      "close_max_ms": 24.1
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Read|Grep|Glob",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/query-efficiency-telemetry.cjs\"",
+      "timeout_ms": 1500,
+      "async": false,
+      "p50_ms": 28,
+      "p95_ms": 29.2,
+      "max_ms": 29.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 29.2,
+      "close_max_ms": 29.4
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit|Read|Grep|Glob|AskUserQuestion|Bash|Task|TodoWrite",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 31.8,
+      "p95_ms": 33.3,
+      "max_ms": 39,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.3,
+      "close_max_ms": 39
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-response-sanitize-hook.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 31.7,
+      "p95_ms": 33.5,
+      "max_ms": 34.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.6,
+      "close_max_ms": 34.5
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "SlashCommand",
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command-invocation.cjs\"",
+      "timeout_ms": 5000,
+      "async": false,
+      "p50_ms": 28.6,
+      "p95_ms": 30.7,
+      "max_ms": 31.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 30.7,
+      "close_max_ms": 31.7
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/admin-command-gate.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 20.6,
+      "p95_ms": 21.9,
+      "max_ms": 23,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 21.9,
+      "close_max_ms": 23
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" intent-classifier",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 44.3,
+      "p95_ms": 45.9,
+      "max_ms": 49.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 45.9,
+      "close_max_ms": 49.8
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/mva-detect.cjs\"",
+      "timeout_ms": 1500,
+      "async": false,
+      "p50_ms": 32.4,
+      "p95_ms": 33.7,
+      "max_ms": 36.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.7,
+      "close_max_ms": 36.3
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/first-install-router.cjs\"",
+      "timeout_ms": 1500,
+      "async": false,
+      "p50_ms": 32.8,
+      "p95_ms": 40.8,
+      "max_ms": 73.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 40.8,
+      "close_max_ms": 73.3
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-derivation-drain.cjs\"",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 28.1,
+      "p95_ms": 29,
+      "max_ms": 29.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 29,
+      "close_max_ms": 29.5
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 32.4,
+      "p95_ms": 33.6,
+      "max_ms": 38.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.6,
+      "close_max_ms": 38.3
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-update.cjs\" userprompt",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 30.7,
+      "p95_ms": 33.2,
+      "max_ms": 34.5,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 33.2,
+      "close_max_ms": 34.5
+    },
+    {
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-explore-drain.cjs\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 32.3,
+      "p95_ms": 34.8,
+      "max_ms": 35.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 34.8,
+      "close_max_ms": 35.3
+    },
+    {
+      "event": "FileChanged",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-file-changed",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 9.2,
+      "p95_ms": 10.6,
+      "max_ms": 10.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 10.6,
+      "close_max_ms": 10.7
+    },
+    {
+      "event": "CwdChanged",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-cwd-changed",
+      "timeout_ms": 2000,
+      "async": false,
+      "p50_ms": 16,
+      "p95_ms": 16.5,
+      "max_ms": 17.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 16.5,
+      "close_max_ms": 17.3
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-agent-complete",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 12.3,
+      "p95_ms": 13.3,
+      "max_ms": 13.7,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 13.3,
+      "close_max_ms": 13.7
+    },
+    {
+      "event": "TaskCompleted",
+      "matcher": null,
+      "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-task-complete",
+      "timeout_ms": 3000,
+      "async": false,
+      "p50_ms": 12.5,
+      "p95_ms": 13,
+      "max_ms": 13.3,
+      "exit_codes": [
+        0
+      ],
+      "timeout_breaches": 0,
+      "pipe_held_after_exit": 0,
+      "close_breaches": 0,
+      "close_p95_ms": 13,
+      "close_max_ms": 13.4
+    }
+  ],
+  "first_session_probe": {
+    "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-coordinator.cjs\"",
+    "note": "bare HOME (no statusLine block, no onboarding touch-file): the one-time first-session self-heal path, n=1",
+    "timeout_ms": 10000,
+    "exit_ms": 11023,
+    "close_ms": 11023,
+    "killed_at_limit": true
+  },
+  "aggregates": {
+    "SessionStart": {
+      "hooks": 8,
+      "sum_p50_ms": 1350.1,
+      "sum_p95_ms": 1374.8
+    },
+    "PreCompact": {
+      "hooks": 1,
+      "sum_p50_ms": 13.8,
+      "sum_p95_ms": 15.2
+    },
+    "PostCompact": {
+      "hooks": 1,
+      "sum_p50_ms": 772,
+      "sum_p95_ms": 781.1
+    },
+    "Stop": {
+      "hooks": 8,
+      "sum_p50_ms": 383.4,
+      "sum_p95_ms": 401.8
+    },
+    "SessionEnd": {
+      "hooks": 1,
+      "sum_p50_ms": 21.6,
+      "sum_p95_ms": 22.7
+    },
+    "PreToolUse": {
+      "hooks": 2,
+      "sum_p50_ms": 123.2,
+      "sum_p95_ms": 126.6
+    },
+    "PostToolUse": {
+      "hooks": 11,
+      "sum_p50_ms": 296.4,
+      "sum_p95_ms": 317.9
+    },
+    "UserPromptSubmit": {
+      "hooks": 8,
+      "sum_p50_ms": 253.6,
+      "sum_p95_ms": 272.9
+    },
+    "FileChanged": {
+      "hooks": 1,
+      "sum_p50_ms": 9.2,
+      "sum_p95_ms": 10.6
+    },
+    "CwdChanged": {
+      "hooks": 1,
+      "sum_p50_ms": 16,
+      "sum_p95_ms": 16.5
+    },
+    "SubagentStop": {
+      "hooks": 1,
+      "sum_p50_ms": 12.3,
+      "sum_p95_ms": 13.3
+    },
+    "TaskCompleted": {
+      "hooks": 1,
+      "sum_p50_ms": 12.5,
+      "sum_p95_ms": 13
+    }
+  },
+  "user_prompt_submit_per_prompt": {
+    "hooks": 8,
+    "sum_p50_ms": 253.6,
+    "sum_p95_ms": 272.9,
+    "note": "sequential sum; Claude Code may run hooks of one event concurrently, so this is the worst-case ceiling"
+  },
+  "tree_unchanged": true,
+  "tree_diff": {
+    "added": [],
+    "removed": []
+  }
+}
