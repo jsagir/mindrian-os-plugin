@@ -1115,7 +1115,7 @@ def _embed_topic_via_signal_cache(topic: str) -> Optional[List[float]]:
     """Embed `topic` through rs_cache's local encoder (Plan 296-05).
 
     Reuses the SAME local encoder (rs_cache._embed_via_bridge, which wraps
-    scripts/rs-vector-bridge.cjs -> lib/core/eureka/embedding-spine.cjs) that
+    scripts/rs-vector-bridge.cjs -> lib/core/semantic-index/embedding-spine.cjs) that
     produced the record vectors this topic vector is compared against. This
     is the load-bearing part of the reroute: after the repoint, records carry
     local 384-dim vectors, so a topic vector from ANY other encoder either

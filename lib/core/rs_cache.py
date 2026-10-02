@@ -7,7 +7,7 @@ Fetch-once, embed-once, read-forever cache for the RS external/hybrid
 signal corpus. Documents come from `lib.core.rs_corpus.fetch_corpus`
 (OpenAlex, arXiv, Tavily -- untouched by this module). Embedding goes
 through `scripts/rs-vector-bridge.cjs`, which wraps the single shipped
-local encoder (`lib/core/eureka/embedding-spine.cjs::embedTexts`). This
+local encoder (`lib/core/semantic-index/embedding-spine.cjs::embedTexts`). This
 module never instantiates a second encoder and never talks to a remote
 vector service.
 

@@ -40,7 +40,7 @@ Search before build. Everything below already exists and is reused, not rewritte
 | `/mos:diffusion` | the diffusion lens: Adoption-Capacity Theory as a question source for any research plan where adoption is disputed (D-19) |
 | `/mos:structure-argument` and `/mos:mos-reason` | SCQA and REASONING.md; the pyramid rolls up into them |
 | `lib/core/rs-query-matrix.cjs` | query family shapes |
-| `lib/core/eureka/online-pattern-query.cjs` | the no-echo degrade shape for refused strings |
+| `lib/core/semantic-index/online-pattern-query.cjs` | the no-echo degrade shape for refused strings |
 | `lib/core/research-corpus.cjs` | corpus access (OpenAlex adapter and the room corpus) |
 | `lib/core/research-cache.cjs` | content-hash cache; free reuse of an identical fetch |
 | `lib/core/rs-fetcher-academic.cjs` | the academic fetcher |
@@ -48,7 +48,7 @@ Search before build. Everything below already exists and is reused, not rewritte
 | `lib/core/issue-tree.cjs` | tree shapes for the pyramid |
 | `lib/core/ambient-framing.cjs` `resolveRoomRung` | the honest rung, read silently |
 | `lib/core/futures/orchestrator.cjs` `resolveFanoutCap` | the clamp on requested lanes at run time |
-| `lib/core/eureka/research-filing.cjs` `fileResearchArtifact` | the one filing door |
+| `lib/core/semantic-index/research-filing.cjs` `fileResearchArtifact` | the one filing door |
 | `lib/core/navigation.cjs` writers | typed edges and nodes, only through the chokepoint |
 | `lib/mcp/gate-ledger.cjs` and `lib/mcp/gate-render.cjs` | the approval ledger and the card renderer |
 | the 355.1 ambient child | the trigger for an ambient offer |

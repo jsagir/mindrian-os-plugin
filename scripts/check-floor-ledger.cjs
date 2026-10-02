@@ -49,6 +49,9 @@ const SCAN_FAMILIES = Object.freeze([
   'lib/core/rs-*.cjs',
   'lib/core/hsi-*.cjs',
   'lib/core/eureka/*.cjs',
+  // Phase 366-23 (ADR-E12): the shared semantic index moved out of
+  // lib/core/eureka/; its floors stay under the same pattern pass.
+  'lib/core/semantic-index/*.cjs',
   'lib/core/eureka-critic.cjs',
   'scripts/*whitespace*.cjs',
   'scripts/hsi-*.cjs',

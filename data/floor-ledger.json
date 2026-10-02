@@ -265,7 +265,7 @@
     },
     {
       "id": "analogy-fitness.thresholds",
-      "file": "lib/core/eureka/analogy-fitness.cjs",
+      "file": "lib/core/semantic-index/analogy-fitness.cjs",
       "line_anchor": "re:resolveFloat\\('MINDRIAN_ANALOGY_",
       "value": [0.5, 0.5, 0.8],
       "gates": "the three env-tunable analogy-fitness gates: layer threshold, text weight, restatement floor",
@@ -278,7 +278,7 @@
     },
     {
       "id": "analogy-fitness.bands",
-      "file": "lib/core/eureka/analogy-fitness.cjs",
+      "file": "lib/core/semantic-index/analogy-fitness.cjs",
       "line_anchor": "BANDS",
       "value": [0, 0.1, 0.2, 0.3, 0.5, 0.6, 0.8, 1.0],
       "gates": "the five fitness-band ranges (none/surface/behavioral/structural/deep) an analogy pair's composite score is bucketed into",
@@ -317,7 +317,7 @@
     },
     {
       "id": "embedding-classifier.DEFAULT_MARGIN",
-      "file": "lib/core/eureka/embedding-classifier.cjs",
+      "file": "lib/core/semantic-index/embedding-classifier.cjs",
       "line_anchor": "DEFAULT_MARGIN",
       "value": 0.10,
       "gates": "the default classification margin the embedding classifier requires between top two candidates",
