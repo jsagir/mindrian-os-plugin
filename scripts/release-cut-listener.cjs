@@ -136,6 +136,23 @@ const THEO_EXIT_MAP = Object.freeze({
     next: "Theo's own pre-write checks refused the payload. Stop and report the message to the navigator." },
 });
 
+// The contract's exit table labels some statuses with the one mode that can
+// produce them ("Propose:" / "Verify:" in docs/RELEASE-SYNC-CONTRACT.md
+// section 3). Two rows share code 0 because they belong to different modes, so
+// a status that does not belong to the answer's own mode is inconsistent.
+const STATUS_MODE = Object.freeze({
+  'already-current': 'propose',
+  'verified': 'verify',
+  'verified-record-uncommitted': 'verify',
+  'not-yet-applied': 'verify',
+  'plugin-ref-moved': 'verify',
+});
+
+// Codes Theo can return before it has recorded --version in its answer
+// (release_sync.py main(): a usage error raised while parsing, or an
+// unexpected exception). Only these may carry `version: null`.
+const VERSION_MAY_BE_NULL = Object.freeze([1, 2]);
+
 // ---------------------------------------------------------------------------
 // Website surfaces. Mirrors the mindrian-website repo's
 // docs/VERSION-BUMP-CHECKLIST.md as of 2026-10-02. Paths are relative to the
@@ -263,7 +280,19 @@ function stopResult(reason, extra) {
   return Object.assign({ outcome: 'STOP', decision: 'STOP', reason: reason, theo_exit_code: null, theo: null, actions: [] }, extra || {});
 }
 
-function mapTheoResult(res) {
+// mapTheoResult(res, expect)
+//   res     {status, stdout, error, signal} from the spawn
+//   expect  {version, ref, mode} the listener asked for. runTheoLeg always
+//           passes it (mode 'propose'); when present, the answer must be
+//           about exactly that call (review WR-02): `mode` equals
+//           expect.mode, `version` equals expect.version (null tolerated only
+//           on codes 1 and 2, which can precede Theo recording it),
+//           `plugin_ref_sha` equals expect.ref whenever Theo filled it in (and
+//           it must be filled in on code 20, whose apply line is bound to that
+//           sha). Any mismatch is an inconsistent answer: STOP, never a pass.
+//           Omitting expect maps the exit table alone (unit tests of the
+//           contract rows); the mode-vs-status consistency check runs either way.
+function mapTheoResult(res, expect) {
   res = res || {};
   const status = res.status;
   const err = res.error || null;
@@ -296,6 +325,28 @@ function mapTheoResult(res) {
   if (obj.contract !== THEO_CONTRACT) return violation('contract field is ' + JSON.stringify(obj.contract) + ', expected ' + THEO_CONTRACT);
   if (obj.exit_code !== status) return violation('JSON exit_code ' + JSON.stringify(obj.exit_code) + ' differs from the process exit code');
   if (entry.statuses.indexOf(obj.status) === -1) return violation('status ' + JSON.stringify(obj.status) + ' does not belong to code ' + status);
+  if (obj.mode !== 'propose' && obj.mode !== 'verify') return violation('mode is ' + JSON.stringify(obj.mode) + ', expected propose or verify');
+  if (STATUS_MODE[obj.status] && STATUS_MODE[obj.status] !== obj.mode) {
+    return violation('status ' + JSON.stringify(obj.status) + ' is a ' + STATUS_MODE[obj.status] + '-mode answer but mode is ' + JSON.stringify(obj.mode));
+  }
+  if (expect) {
+    if (expect.mode != null && obj.mode !== expect.mode) {
+      return violation('answer is for mode ' + JSON.stringify(obj.mode) + ', but the listener asked for ' + JSON.stringify(expect.mode));
+    }
+    if (expect.version != null && obj.version !== expect.version &&
+        !(obj.version === null && VERSION_MAY_BE_NULL.indexOf(status) !== -1)) {
+      return violation('answer is for version ' + JSON.stringify(obj.version) + ', but the listener asked about ' + JSON.stringify(expect.version));
+    }
+    if (expect.ref != null) {
+      const sha = obj.plugin_ref_sha;
+      if (sha != null && sha !== expect.ref) {
+        return violation('answer resolved plugin_ref_sha ' + JSON.stringify(sha) + ', but the listener passed --ref ' + expect.ref);
+      }
+      if (sha == null && status === 20) {
+        return violation('code 20 must name the plugin_ref_sha its apply line is bound to (expected ' + expect.ref + ')');
+      }
+    }
+  }
 
   let reason = entry.next;
   const actions = [];
@@ -399,7 +450,9 @@ function runTheoLeg(opts, deps) {
       reason: 'SKIPPED: the Theo venv python at ' + p.python + ' could not be run (' + res.error.code + '); Theo was NOT asked to sync. The Step 0.6 stamp gate still guards this cut.',
     });
   }
-  return Object.assign(leg, mapTheoResult({ status: res.status, stdout: res.stdout, error: res.error, signal: res.signal }));
+  return Object.assign(leg, mapTheoResult(
+    { status: res.status, stdout: res.stdout, error: res.error, signal: res.signal },
+    { version: version, ref: ref, mode: 'propose' }));
 }
 
 // ---------------------------------------------------------------------------

@@ -181,13 +181,13 @@ function mapCode(code, status, extra) {
     [2, 'usage-error', /fix the call/i],
     [3, 'input-error', /sha and version/i],
     [5, 'canon-read-failure', /never treated as current/i],
-    [23, 'plugin-ref-moved', /full sha/i],
+    [23, 'plugin-ref-moved', /full sha/i, { mode: 'verify' }],
     [30, 'needs-mapping-review', /Theo phase/i],
     [31, 'spent-seam', /Theo phase/i],
     [40, 'dry-run-refused', /navigator/i],
   ];
   stops.forEach(function (s) {
-    const m = mapCode(s[0], s[1]);
+    const m = mapCode(s[0], s[1], s[3]);
     assert.equal(m.outcome, 'STOP', 'code ' + s[0]);
     assert.equal(m.decision, 'STOP', 'code ' + s[0]);
     assert.ok(s[2].test(m.reason), 'code ' + s[0] + ' reason: ' + m.reason);
@@ -243,6 +243,66 @@ function mapCode(code, status, extra) {
   assert.equal(r.outcome, 'STOP');
   assert.ok(/THEO_SYNC_TIMEOUT_MS/.test(r.reason), r.reason);
   ok('spawn timeout (ETIMEDOUT or a signal) -> STOP naming THEO_SYNC_TIMEOUT_MS');
+}
+
+// ---------------------------------------------------------------------------
+// mapTheoResult: the answer must be about the call the listener made (WR-02)
+// ---------------------------------------------------------------------------
+{
+  const EXP = { version: VER, ref: SHA, mode: 'propose' };
+  const OTHER = 'b'.repeat(40);
+  const viaExpect = function (code, status, extra) {
+    return L.mapTheoResult({ status: code, stdout: theoLine(code, status, extra) + '\n', error: null, signal: null }, EXP);
+  };
+  const isViolation = function (r, re) {
+    assert.equal(r.outcome, 'STOP'); assert.equal(r.decision, 'STOP');
+    assert.ok(/contract violation/.test(r.reason) && /never treated as current/.test(r.reason), r.reason);
+    if (re) assert.ok(re.test(r.reason), r.reason);
+  };
+
+  let r = viaExpect(0, 'already-current');
+  assert.equal(r.outcome, 'RAN-OK');
+  r = viaExpect(0, 'already-current', { plugin_ref: null, plugin_ref_sha: null });
+  assert.equal(r.outcome, 'RAN-OK', 'plugin_ref_sha null (canon current, no sync record) is allowed');
+  ok('WR-02 control: a matching propose answer still maps RAN-OK, plugin_ref_sha null allowed on code 0');
+
+  isViolation(viaExpect(0, 'already-current', { version: '1.0.0' }), /version "1\.0\.0"/);
+  ok('WR-02: answer for a different version -> STOP (inconsistent answer)');
+
+  isViolation(viaExpect(0, 'already-current', { plugin_ref_sha: OTHER }), /plugin_ref_sha/);
+  ok('WR-02: answer resolved a different plugin_ref_sha than --ref -> STOP');
+
+  isViolation(viaExpect(0, 'verified', { mode: 'verify' }), /mode "verify"/);
+  isViolation(viaExpect(0, 'verified'), /verify-mode answer/);
+  ok('WR-02: verify-mode code 0 (verified) answering a propose call -> STOP; propose-mode code 0 is already-current only');
+
+  isViolation(viaExpect(21, 'verified-record-uncommitted', { mode: 'verify' }));
+  isViolation(viaExpect(22, 'not-yet-applied', { mode: 'verify', verify_command: 'V' }));
+  isViolation(viaExpect(23, 'plugin-ref-moved', { mode: 'verify' }));
+  ok('WR-02: verify-only codes 21 / 22 / 23 answering a propose call -> STOP (21 no longer continues)');
+
+  isViolation(viaExpect(0, 'already-current', { mode: null }), /mode is null/);
+  ok('WR-02: a missing mode -> STOP');
+
+  r = viaExpect(20, 'awaiting-navigator-apply', { apply_command: 'A', verify_command: 'V' });
+  assert.equal(r.decision, 'STOP-WITH-ACTION');
+  isViolation(viaExpect(20, 'awaiting-navigator-apply', { apply_command: 'A', verify_command: 'V', plugin_ref_sha: null }), /code 20 must name the plugin_ref_sha/);
+  isViolation(viaExpect(20, 'awaiting-navigator-apply', { apply_command: 'A', verify_command: 'V', plugin_ref_sha: OTHER }));
+  ok('WR-02: code 20 keeps its apply lines only when bound to the sha the listener passed');
+
+  r = viaExpect(2, 'usage-error', { version: null, plugin_ref_sha: null });
+  assert.ok(/fix the call/.test(r.reason), 'code 2 with version null keeps its contract sentence: ' + r.reason);
+  r = viaExpect(1, 'internal-error', { version: null });
+  assert.ok(/navigator/.test(r.reason), r.reason);
+  isViolation(viaExpect(3, 'input-error', { version: null }));
+  r = viaExpect(10, 'deferred-window-open', { plugin_ref: null, plugin_ref_sha: null, windows: [{ id: 'w', file: 'f', ends_when: 'e' }] });
+  assert.ok(/Open window/.test(r.reason), r.reason);
+  ok('WR-02: version null tolerated only on codes 1 and 2; code 10 with no resolved sha keeps its window reason');
+
+  const fw2 = theoFake({ spawn: function () { return { status: 0, stdout: theoLine(0, 'already-current', { version: '2.0.0-beta.1' }) + '\n' }; } });
+  assert.equal(L.main(['theo', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], fw2.deps), 10);
+  assert.ok(/contract violation/.test(fw2.out()), 'runTheoLeg passes the expectation through to mapTheoResult');
+  ok('WR-02: main / runTheoLeg pass {version, ref, mode: propose}; a wrong-version exit 0 stops the cut (listener exit 10)');
 }
 
 // ---------------------------------------------------------------------------
@@ -315,9 +375,11 @@ function mapCode(code, status, extra) {
   assert.ok(out6.indexOf('VERIFY LINE') !== -1, 'verify line printed on its own line, unwrapped');
   const f7 = theoFake({ spawn: function () { return { status: 3, stdout: theoLine(3, 'input-error') }; } });
   assert.equal(L.main(['theo', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], f7.deps), 10);
+  // Code 21 is a verify-mode answer; the listener only ever proposes, so a 21
+  // reaching it is an inconsistent answer and stops (review WR-02).
   const f8 = theoFake({ spawn: function () { return { status: 21, stdout: theoLine(21, 'verified-record-uncommitted', { mode: 'verify' }) }; } });
-  assert.equal(L.main(['theo', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], f8.deps), 4);
-  ok('main exit codes: 20 -> 11 (actions printed verbatim on their own lines), 3 -> 10, 21 -> 4');
+  assert.equal(L.main(['theo', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], f8.deps), 10);
+  ok('main exit codes: 20 -> 11 (actions printed verbatim on their own lines), 3 -> 10, a verify-mode 21 answer to a propose call -> 10');
 
   const f9 = theoFake();
   L.main(['theo', '--report-dir', '/fake/reports'], f9.deps);
