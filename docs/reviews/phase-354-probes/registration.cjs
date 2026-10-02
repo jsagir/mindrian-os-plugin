@@ -2,7 +2,7 @@
 // Fault injection at the real auto-registration seam. No files are changed.
 const path = require('node:path');
 const Module = require('node:module');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+const { McpServer } = require('@modelcontextprotocol/server');
 const repo = path.resolve(__dirname, '../../..');
 const { registerCoreTools } = require(path.join(repo, 'lib/mcp/register-core-tools.cjs'));
 const healthy = new McpServer({ name: 'healthy-fixture', version: '1' });

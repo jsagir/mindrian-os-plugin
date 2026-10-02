@@ -14,9 +14,8 @@ fs.writeFileSync(path.join(room, 'normal', 'note.md'), 'INSIDE_SYNTHETIC');
 fs.writeFileSync(path.join(outside, 'note.md'), 'OUTSIDE_SYNTHETIC');
 fs.writeFileSync(path.join(outside, 'REASONING.md'), 'OUTSIDE_REASONING_SYNTHETIC');
 fs.symlinkSync(outside, path.join(room, 'linked'), 'dir');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
-const { InMemoryTransport } = require('@modelcontextprotocol/sdk/inMemory.js');
+const { McpServer, InMemoryTransport } = require('@modelcontextprotocol/server');
+const { Client } = require('@modelcontextprotocol/client');
 const { registerResources } = require(path.join(root, 'lib/mcp/resources.cjs'));
 (async () => {
   const server = new McpServer({ name: 'research-fixture', version: '1' });
