@@ -1,0 +1,222 @@
+'use strict';
+/*
+ * tests/test-release-cut-listener-wiring.cjs -- quick 261002-5v9
+ * (navigator ruling 2026-10-02).
+ *
+ * Proves scripts/release.sh wires the release-cut listener the way the
+ * ruling says:
+ *   - STATIC: the --no-cut-listener flag (var, case arm, USAGE_BLOCK), the
+ *     preamble refusal, Step 0.55 between Step 0.5 and Step 0.6 (reads
+ *     repo-version.cjs and rev-parse HEAD, calls the theo leg, stops only in
+ *     the 10|11 arm), Step 9.6c between Step 9.6b and Step 9.7 (website leg
+ *     at $NEW_VERSION, no non-comment exit), and Step 5.6 untouched.
+ *   - LIVE, hermetic: `bash scripts/release.sh patch --dry-run` with a fake
+ *     Theo checkout whose python stub would touch a sentinel. The dry-run
+ *     must print the call, never run the stub, never fire the notify
+ *     command, write no report, keep every doctor.cjs expectedSteps member,
+ *     and leave git status byte-identical. Two more runs: Theo absent ->
+ *     loud SKIPPED naming the path; --no-cut-listener -> audited line, no call.
+ *
+ * Safe by construction: --dry-run exits before any mutation (the same
+ * property tests/test-349-dry-run-never-sends.cjs relies on), HOME is a temp
+ * dir, and every seam env var points at a temp path.
+ *
+ * Bare node script: assert, an ok(label) counter, no framework, non-zero
+ * exit on any assertion failure (uncaught throw), temp dirs removed in finally.
+ * House rule: hyphens only, no em-dashes.
+ */
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const cp = require('node:child_process');
+
+const REPO = path.resolve(__dirname, '..');
+const RELEASE_SH = path.join(REPO, 'scripts', 'release.sh');
+const DOCTOR_CJS = path.join(REPO, 'scripts', 'doctor.cjs');
+
+let checks = 0;
+function ok(label) {
+  checks += 1;
+  console.log('  ok - ' + label);
+}
+
+console.log('test-release-cut-listener-wiring:');
+
+const src = fs.readFileSync(RELEASE_SH, 'utf8');
+
+function headerIdx(prefix) {
+  const re = new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'm');
+  const m = re.exec(src);
+  return m ? m.index : -1;
+}
+
+function blockOf(prefix) {
+  const start = headerIdx(prefix);
+  assert.ok(start !== -1, 'header not found: ' + prefix);
+  const rest = src.slice(start + 1);
+  const next = rest.search(/^# --- Step/m);
+  return next === -1 ? src.slice(start) : src.slice(start, start + 1 + next);
+}
+
+function nonComment(text) {
+  return text.split('\n').filter(function (l) { return !/^\s*#/.test(l); });
+}
+
+// ---------------------------------------------------------------------------
+// STATIC
+// ---------------------------------------------------------------------------
+{
+  assert.ok(/^NO_CUT_LISTENER=0\b/m.test(src), 'NO_CUT_LISTENER=0 initialized');
+  ok('flag: NO_CUT_LISTENER=0 initialized');
+
+  assert.ok(/--no-cut-listener\)\s*NO_CUT_LISTENER=1\s*;;/.test(src), 'case arm sets NO_CUT_LISTENER=1');
+  ok('flag: --no-cut-listener) NO_CUT_LISTENER=1 ;; present in the arg loop');
+
+  const usage = (src.match(/^USAGE_BLOCK="[^\n]*"$/m) || [''])[0];
+  assert.ok(usage.indexOf('[--no-cut-listener]') !== -1, 'single-line USAGE_BLOCK contains [--no-cut-listener]');
+  assert.ok(usage.indexOf('[--no-cut-listener] [--dry-run]') !== -1, '[--no-cut-listener] sits immediately before [--dry-run]');
+  ok('flag: [--no-cut-listener] in the single-line USAGE_BLOCK, right before [--dry-run]');
+
+  const step0 = headerIdx('# --- Step 0:');
+  const refusal = src.indexOf('release-cut-listener.cjs" ]; then');
+  assert.ok(refusal !== -1 && refusal < step0, 'preamble refuses a missing listener before Step 0');
+  assert.ok(/release-cut-listener\.cjs missing -- refusing to run a release from an incomplete checkout/.test(src));
+  ok('preamble: refuses a missing scripts/release-cut-listener.cjs before Step 0 (incomplete-checkout wording)');
+
+  const i05 = headerIdx('# --- Step 0.5:');
+  const i055 = headerIdx('# --- Step 0.55');
+  const i06 = headerIdx('# --- Step 0.6:');
+  assert.ok(i05 !== -1 && i055 !== -1 && i06 !== -1);
+  assert.ok(i05 < i055 && i055 < i06, 'Step 0.55 sits after Step 0.5 and before Step 0.6');
+  ok('Step 0.55 header sits after Step 0.5 and before Step 0.6');
+
+  const b055 = blockOf('# --- Step 0.55');
+  assert.ok(b055.indexOf('repo-version.cjs') !== -1, 'Step 0.55 reads repo-version.cjs');
+  assert.ok(b055.indexOf('rev-parse HEAD') !== -1, 'Step 0.55 resolves the full HEAD sha');
+  assert.ok(b055.indexOf('release-cut-listener.cjs" theo') !== -1, 'literal theo call site');
+  assert.ok(b055.indexOf('NEW_VERSION') === -1 || nonComment(b055).join('\n').indexOf('NEW_VERSION') === -1, 'Step 0.55 code never uses NEW_VERSION');
+  assert.ok(b055.indexOf('RELEASE_SHA') === -1, 'Step 0.55 does not reuse RELEASE_SHA');
+  const arm = b055.slice(b055.indexOf('10|11)'));
+  const armEnd = arm.indexOf(';;');
+  assert.ok(b055.indexOf('10|11)') !== -1 && armEnd !== -1);
+  assert.ok(/\bexit 1\b/.test(arm.slice(0, armEnd)), 'exit 1 inside the 10|11 arm');
+  const exitsElsewhere = nonComment(b055.slice(0, b055.indexOf('10|11)')) + '\n' + arm.slice(armEnd)).filter(function (l) { return /\bexit\b/.test(l); });
+  assert.deepEqual(exitsElsewhere, [], 'no exit outside the 10|11 arm');
+  ok('Step 0.55: repo-version.cjs + rev-parse HEAD + `release-cut-listener.cjs" theo`, exit 1 only inside the 10|11 arm');
+
+  const i96b = headerIdx('# --- Step 9.6b');
+  const i96c = headerIdx('# --- Step 9.6c');
+  const i97 = headerIdx('# --- Step 9.7');
+  assert.ok(i96b !== -1 && i96c !== -1 && i97 !== -1);
+  assert.ok(i96b < i96c && i96c < i97, 'Step 9.6c sits after Step 9.6b and before Step 9.7');
+  ok('Step 9.6c header sits after Step 9.6b and before Step 9.7');
+
+  const b96c = blockOf('# --- Step 9.6c');
+  assert.ok(b96c.indexOf('release-cut-listener.cjs" website') !== -1, 'website call site');
+  assert.ok(b96c.indexOf('$NEW_VERSION') !== -1, 'website leg is checked against $NEW_VERSION');
+  const exits = nonComment(b96c).filter(function (l) { return /\bexit\b/.test(l); });
+  assert.deepEqual(exits, [], 'Step 9.6c has zero non-comment lines matching \\bexit\\b: ' + JSON.stringify(exits));
+  assert.ok(b96c.indexOf('plugin.json') === -1 && b96c.indexOf('repo-version.cjs') === -1, 'Step 9.6c reads neither plugin.json nor repo-version.cjs');
+  assert.ok(/NO_CUT_LISTENER/.test(b96c), 'Step 9.6c honors --no-cut-listener');
+  ok('Step 9.6c: website leg at $NEW_VERSION, no non-comment exit, no version re-read, honors --no-cut-listener');
+
+  const b56 = blockOf('# --- Step 5.6');
+  assert.ok(/mos_theo_notify_gate/.test(b56), 'Step 5.6 still calls mos_theo_notify_gate');
+  ok('Step 5.6 block still calls mos_theo_notify_gate (untouched)');
+}
+
+// ---------------------------------------------------------------------------
+// LIVE hermetic dry-runs
+// ---------------------------------------------------------------------------
+const doctorSrc = fs.readFileSync(DOCTOR_CJS, 'utf8');
+const arrayMatch = doctorSrc.match(/const expectedSteps = \[([^\]]*)\]/);
+assert.ok(arrayMatch, 'scripts/doctor.cjs must define an expectedSteps array literal');
+const expectedSteps = JSON.parse('[' + arrayMatch[1].replace(/'/g, '"') + ']');
+
+function gitPorcelain() {
+  const r = cp.spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8', cwd: REPO });
+  return r.stdout || '';
+}
+
+function makeTmp() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-cutl-wiring-'));
+  const theoDir = path.join(dir, 'Theo');
+  const venvBin = path.join(theoDir, '.theo-graph', '.venv', 'bin');
+  fs.mkdirSync(venvBin, { recursive: true });
+  const theoSentinel = path.join(dir, 'theo-spawned-sentinel');
+  fs.writeFileSync(path.join(theoDir, '.theo-graph', 'release_sync.py'), '# fake release_sync.py, never run\n');
+  const py = path.join(venvBin, 'python3');
+  fs.writeFileSync(py, '#!/bin/sh\ntouch "' + theoSentinel + '"\nexit 0\n');
+  fs.chmodSync(py, 0o755);
+  const home = path.join(dir, 'home');
+  fs.mkdirSync(home);
+  const reports = path.join(dir, 'reports');
+  fs.mkdirSync(reports);
+  return {
+    dir: dir, theoDir: theoDir, theoSentinel: theoSentinel, home: home, reports: reports,
+    notifySentinel: path.join(dir, 'dispatch-sentinel'),
+    notifyLog: path.join(dir, 'theo-notify-log.txt'),
+  };
+}
+
+function runDryRun(tmp, extraArgs, theoDirOverride) {
+  const env = Object.assign({}, process.env);
+  env.HOME = tmp.home;
+  env.MINDRIAN_THEO_STAMP_CMD = "printf ''";
+  env.MINDRIAN_THEO_NOTIFY_CMD = 'touch "' + tmp.notifySentinel + '"; exit 0';
+  env.MINDRIAN_THEO_NOTIFY_LOG = tmp.notifyLog;
+  env.MINDRIAN_CUT_LISTENER_REPORT_DIR = tmp.reports;
+  env.THEO_DIR = theoDirOverride || tmp.theoDir;
+  delete env.THEO_PYTHON;
+  const args = [RELEASE_SH, 'patch', '--dry-run'].concat(extraArgs || []);
+  const r = cp.spawnSync('bash', args, { encoding: 'utf8', timeout: 60000, env: env, cwd: REPO });
+  return { status: r.status, stdout: r.stdout || '', stderr: r.stderr || '' };
+}
+
+let tmp;
+try {
+  tmp = makeTmp();
+
+  const before = gitPorcelain();
+  const r1 = runDryRun(tmp, []);
+  const after = gitPorcelain();
+  assert.equal(r1.status, 0, 'release.sh patch --dry-run must exit 0: ' + r1.stderr.slice(-800));
+  ok('dry-run exits 0');
+
+  assert.ok(r1.stdout.indexOf('Step 0.55') !== -1 && r1.stdout.indexOf('Step 9.6c') !== -1, 'stdout lists Step 0.55 and Step 9.6c');
+  assert.ok(r1.stdout.indexOf('release_sync.py') !== -1, 'stdout prints the release_sync.py call');
+  assert.ok(/--ref [0-9a-f]{40}\b/.test(r1.stdout), 'the printed call carries --ref <40 hex>');
+  ok('dry-run stdout lists Step 0.55 + Step 9.6c and prints the release_sync.py call with --ref <40 hex>');
+
+  const missing = expectedSteps.filter(function (s) { return r1.stdout.indexOf(s) === -1; });
+  assert.deepEqual(missing, [], 'every doctor.cjs expectedSteps member must appear in dry-run stdout, missing: ' + missing.join(', '));
+  ok('every member of the extracted doctor.cjs expectedSteps array appears in the dry-run stdout');
+
+  assert.equal(fs.existsSync(tmp.theoSentinel), false, 'the Theo python stub must never run under --dry-run');
+  assert.equal(fs.existsSync(tmp.notifySentinel), false, 'the notify command must never run under --dry-run');
+  assert.deepEqual(fs.readdirSync(tmp.reports), [], 'no listener report under --dry-run');
+  ok('dry-run spawns no Theo process, fires no notify, writes no report');
+
+  assert.equal(after, before, 'git status --porcelain byte-identical before and after');
+  ok('working tree byte-identical before and after the dry-run (git status --porcelain)');
+
+  const absent = path.join(tmp.dir, 'no-such-theo');
+  const r2 = runDryRun(tmp, [], absent);
+  assert.equal(r2.status, 0, 'dry-run with Theo absent still exits 0: ' + r2.stderr.slice(-500));
+  assert.ok(r2.stdout.indexOf('SKIPPED') !== -1 && r2.stdout.indexOf(absent) !== -1, 'loud SKIPPED naming the absent path');
+  ok('Theo absent -> exit 0, loud SKIPPED naming the path');
+
+  const r3 = runDryRun(tmp, ['--no-cut-listener']);
+  assert.equal(r3.status, 0, '--no-cut-listener dry-run exits 0');
+  assert.ok(r3.stdout.indexOf('--no-cut-listener opt-out engaged') !== -1, 'audited opt-out line');
+  assert.equal(r3.stdout.indexOf('release_sync.py'), -1, 'no release_sync.py call under --no-cut-listener');
+  assert.equal(fs.existsSync(tmp.theoSentinel), false);
+  ok('--no-cut-listener -> exit 0, "--no-cut-listener opt-out engaged" printed, no release_sync.py call');
+} finally {
+  if (tmp && tmp.dir) fs.rmSync(tmp.dir, { recursive: true, force: true });
+}
+
+console.log(checks + ' checks passed.');
+process.exit(0);

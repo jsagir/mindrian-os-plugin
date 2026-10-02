@@ -80,13 +80,38 @@
 # quick 260917-o1y rebaseline above (this note deliberately never spells
 # that label verbatim, same reason the note below states). The header count
 # stays 30; no block was added or renamed.
+#
+# Quick 261002-5v9 REBASELINE (2026-10-02, navigator ruling 2026-10-02: the
+# release-cut listener). Regenerated wholesale with the exact generating command
+# above (no normalization), per tests/run-all-310.sh's own protocol (the next
+# change that touches release.sh mints a fresh fixture). This absorbs two sets of
+# regions:
+#   1. Phase 366 Plan 06 (commit 6d4053e09, never rebaselined here): its Step 0
+#      flags (NO_CANON_SNAPSHOT_CHECK / NO_SUITE_CHECK + case arms + USAGE_BLOCK),
+#      the two NEW blocks "# --- Step 0.6b: ..." and "# --- Step 0.6c: ...", and
+#      its change to the top-of-file preamble comment (lines 1-79), which is why
+#      the preamble hash below moved.
+#   2. This task's own regions: the "# --- Step 0: ..." block (NO_CUT_LISTENER=0
+#      + the --no-cut-listener case arm + USAGE_BLOCK), the "# --- Step 1: ..."
+#      block (dry-run listing lines for Step 0.55 and Step 9.6c), and two NEW
+#      blocks, "# --- Step 0.55: ..." (Theo leg, inserted right before Step 0.6
+#      so the Step 0.5 hash is unchanged) and "# --- Step 9.6c: ..." (website
+#      leg, inserted right before Step 9.7 so the Step 9.6b hash is unchanged).
+#      The listener's existence check sits in the unhashed region after line 79
+#      and before the Step 0 header.
+# Every other block hash is byte-identical to the previous baseline. The header
+# count is now 34 (32 existing + 2 new). The gate-count floor below is re-pinned
+# to the post-edit non-comment exit-1 count (61).
 
-92da4abfaa63fdabcafc4b4e2055c940b797d208095e8202bc5e0c90ce17e389  PREAMBLE(1-79)
-49  EXIT1_NONCOMMENT_COUNT
-1c036be81ee9272602d48a4379a72b71b760a5851adaaf890f534b67b5c4e66b  # --- Step 0: Parse bump type + flags ---
+9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f  PREAMBLE(1-79)
+61  EXIT1_NONCOMMENT_COUNT
+044dd339d6229b8a0336abb1ef4de687bbf23486869ec9f6d16a6b5ff25e9e18  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
+dbe9df9c77da04ba1386d10cb591a5248bbd5c9e66d20b883b7d5fa8430db386  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
-77fd77595fba5ff1fbb071331cdb8c22c7803296bcf7b58a0cc7eb1a098a90f2  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
+c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
+aa2efb16a3fa5ad1c52fa272973f110721f2dfd831d9928eba920f53ebcac2e7  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
@@ -104,6 +129,7 @@ d249466f5de96ee2c0658e82d32465cbaa699e0d81edf5b715a40195a2327b5c  # --- Step 7: 
 8ca05b5251db5f818c87af1f42af16e32ff08a42337e528fff75d7b35a260cd2  # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 20370c7537cc97536740af536aee61007557cac94883a1bba4087e0461e50f12  # --- Step 9.6a: Sync install minisite to NEW_VERSION (HARD lockstep, vercel-CLI deploy) ---
 17ec90feebcd1dd9aee35588898e00a46c52d34c09228f51969264704a802697  # --- Step 9.6b: Sync Mindrian website FALLBACK_VERSION to NEW_VERSION ---
+a78daaa7d75f0e27d89d7c665ec1a61b637d7bb0a073f1059979ab2596173845  # --- Step 9.6c: release-cut listener, website leg (quick 261002-5v9) ---
 084b326171a9014ff86e73999bb8d4a878c6cc742d76828c90291bec6225d126  # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
 e8cf01a8843222d55618df9d132bd9c4f4ca9b82522a8bc3a79055eb8fc33530  # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
 d8ebd65d1682a2653b13b4e403cc693c3be0f563002fd4f27a30fd4ecbc59e44  # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---

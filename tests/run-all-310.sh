@@ -144,14 +144,19 @@ leg3_step_block_tripwire() {
   # 2dde2ecc1, Phase 349 Plan 04). This task's own fixture rebaseline absorbed both
   # (tests/fixtures/310-release-step-block-hashes.txt), so the count check is raised to 30
   # to match; the tripwire logic itself is unchanged.
-  if [[ "${#cur_headers[@]}" -ne 30 ]]; then
-    echo "expected 30 step-block headers, found ${#cur_headers[@]}"
+  # Quick 261002-5v9 (2026-10-02, navigator ruling 2026-10-02): raised 30 -> 34. Phase 366
+  # Plan 06 (commit 6d4053e09) added Step 0.6b and Step 0.6c without rebaselining here
+  # (32 headers); this task adds Step 0.55 (release-cut listener, Theo leg) and Step 9.6c
+  # (website leg) and absorbs all four in a fresh wholesale fixture regeneration
+  # (tests/fixtures/310-release-step-block-hashes.txt). Tripwire logic unchanged.
+  if [[ "${#cur_headers[@]}" -ne 34 ]]; then
+    echo "expected 34 step-block headers, found ${#cur_headers[@]}"
     mismatch=1
   fi
 
   return "$mismatch"
 }
-run "310 leg 3: exhaustive step-block scope tripwire (30 blocks, uniform hash match against the quick-260917-o1y rebaseline)" leg3_step_block_tripwire
+run "310 leg 3: exhaustive step-block scope tripwire (34 blocks, uniform hash match against the quick-261002-5v9 rebaseline)" leg3_step_block_tripwire
 
 # --- Leg 4: gate-count tripwire ---------------------------------------------
 
@@ -166,7 +171,7 @@ leg4_gate_count() {
   echo "baseline=$baseline actual=$actual (>=, OK)"
   return 0
 }
-run "310 leg 4: gate-count tripwire (non-comment exit 1 >= 49)" leg4_gate_count
+run "310 leg 4: gate-count tripwire (non-comment exit 1 >= 61)" leg4_gate_count
 
 # --- Leg 5: literal preservation (constraint C1) ----------------------------
 

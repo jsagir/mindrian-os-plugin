@@ -87,6 +87,12 @@ run_if "349: release wiring"           tests/test-349-release-wiring.cjs        
 run_if "349: dry-run never sends"      tests/test-349-dry-run-never-sends.cjs      node tests/test-349-dry-run-never-sends.cjs
 run_if "349: docs lockstep"            tests/test-349-docs-lockstep.cjs            node tests/test-349-docs-lockstep.cjs
 
+# quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener
+# (Step 0.55 Theo leg, Step 9.6c website leg) is release infrastructure on
+# the same script, so its two suites join this aggregator deliberately.
+run_if "quick 261002-5v9: release-cut listener units"  tests/test-release-cut-listener.cjs        node tests/test-release-cut-listener.cjs
+run_if "quick 261002-5v9: release-cut listener wiring" tests/test-release-cut-listener-wiring.cjs node tests/test-release-cut-listener-wiring.cjs
+
 # --- Unguarded regression legs (always run, must stay green all phase) -----
 # This phase edits the single highest-blast-radius script in the repo, so
 # these seven legs guard release infrastructure from day one, before this
@@ -115,6 +121,9 @@ PHASE_349_SURFACES=(
   ".claude/includes/release-process.md"
   "docs/OPEN-HANDOFFS.md"
   "tests/run-all-349.sh"
+  "scripts/release-cut-listener.cjs"
+  "tests/test-release-cut-listener.cjs"
+  "tests/test-release-cut-listener-wiring.cjs"
 )
 
 echo "--- 349: em-dash guard ---"

@@ -160,6 +160,15 @@ if [ ! -f "$RELEASE_LIB_DIR/npm-propagation-poll.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/npm-propagation-poll.sh"
 
+# Quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener
+# is CALLED at Step 0.55 (Theo leg) and Step 9.6c (website leg). Checked
+# here for the same reason as the libraries above: a missing script found
+# at Step 9.6c would surface after npm publish, the worst abort point.
+if [ ! -f "$PLUGIN_DIR/scripts/release-cut-listener.cjs" ]; then
+  echo -e "${RED}scripts/release-cut-listener.cjs missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+
 # --- Step 0: Parse bump type + flags ---
 BUMP_MODE=""
 ALLOW_AHEAD=0
@@ -173,7 +182,8 @@ NO_THEO_NOTIFY=0 # Phase 349 Plan 04 (NOTIFY-04): the Theo NOTIFY gate (LEADING 
 NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-ledger offline staleness check (Step 2.4) is ON by default; --no-ledger-check is the audited opt-out, following the --no-theo-check precedent, never silent
 NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshness gate (RULE 5 place 9, Step 0.6b) is ON by default; --no-canon-snapshot-check is the audited opt-out, never silent
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--dry-run]"
+NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-theo-notify] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-cut-listener] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -194,6 +204,7 @@ for arg in "$@"; do
     --no-ledger-check)   NO_LEDGER_CHECK=1 ;;
     --no-canon-snapshot-check) NO_CANON_SNAPSHOT_CHECK=1 ;;
     --no-suite-check)    NO_SUITE_CHECK=1 ;;
+    --no-cut-listener)   NO_CUT_LISTENER=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -210,6 +221,49 @@ if [ ! -d "$PLUGIN_DIR/node_modules/semver" ]; then
   echo "  release.sh needs the semver package for pre-release bump algebra."
   echo "  (Do NOT run 'npm install' from inside this script -- the operator must do it.)"
   exit 1
+fi
+
+# --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
+# Navigator ruling 2026-10-02. Theo's contract (docs/RELEASE-SYNC-CONTRACT.md
+# in the Theo repo) says: call the release bridge BEFORE the stamp gates,
+# from the full sha of the commit about to be tagged, and branch on its exit
+# code. --version is lib/core/repo-version.cjs (CURRENT), never NEW_VERSION:
+# Theo refuses (its code 3) unless plugin.json at that sha says that exact
+# version, and both lagging gates (Step 0.6 and Step 0.6b) compare against
+# it. A missing Theo checkout is a loud SKIPPED and the Step 0.6 stamp gate
+# still guards the cut. Only listener exit 10 or 11 (Theo says STOP) stops a
+# real cut; everything else fails open with a printed reason.
+echo ""
+echo "=== Step 0.55: release-cut listener, Theo leg (Theo release sync for the current version at HEAD) ==="
+if [ "$NO_CUT_LISTENER" = "1" ]; then
+  echo -e "${YELLOW}  ! --no-cut-listener opt-out engaged (audit-logged): Theo was NOT asked to sync the current version; the Step 0.6 stamp gate still guards this cut; the website scan at Step 9.6c is skipped too.${NC}"
+else
+  CUT_LISTENER_VERSION="$(node "$PLUGIN_DIR/lib/core/repo-version.cjs" || true)"
+  CUT_LISTENER_SHA="$(git -C "$PLUGIN_DIR" rev-parse HEAD || true)"
+  CUT_LISTENER_ARGS=(--plugin-root "$PLUGIN_DIR" --version "$CUT_LISTENER_VERSION" --ref "$CUT_LISTENER_SHA")
+  if [ "$DRY_RUN" = "1" ]; then
+    CUT_LISTENER_ARGS+=(--dry-run)
+  fi
+  CUT_LISTENER_RC=0
+  node "$PLUGIN_DIR/scripts/release-cut-listener.cjs" theo "${CUT_LISTENER_ARGS[@]}" || CUT_LISTENER_RC=$?
+  case "$CUT_LISTENER_RC" in
+    0) ;;
+    3|4)
+      echo -e "${YELLOW}  ! release-cut-listener: Theo leg exited $CUT_LISTENER_RC; continuing (fail open); the Step 0.6 stamp gate still guards.${NC}"
+      ;;
+    10|11)
+      if [ "$DRY_RUN" = "1" ]; then
+        echo -e "${YELLOW}  [DRY RUN] release-cut-listener: the Theo leg says STOP; a real release would STOP here.${NC}"
+      else
+        echo -e "${RED}x release-cut-listener: the Theo leg says STOP (see the report above)${NC}"
+        echo "  Recovery: follow the printed lines, then re-run. Audited opt-out: --no-cut-listener (the Step 0.6 stamp gate still runs)."
+        exit 1
+      fi
+      ;;
+    *)
+      echo -e "${YELLOW}  ! release-cut-listener exited $CUT_LISTENER_RC (usage error or crash); the Theo leg did not complete; continuing (fail open), the Step 0.6 stamp gate still guards.${NC}"
+      ;;
+  esac
 fi
 
 # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
@@ -331,6 +385,11 @@ if [ "$DRY_RUN" = "1" ]; then
   echo ""
   echo "Planned release sequence for: $CURRENT -> $NEW_VERSION (mode: $BUMP_MODE)"
   echo ""
+  if [ "$NO_CUT_LISTENER" = "1" ]; then
+    echo "  Step 0.55 : release-cut listener, Theo leg -- SKIPPED (--no-cut-listener; Theo sync for v$CURRENT not proposed)"
+  else
+    echo "  Step 0.55 : release-cut listener, Theo leg -- previewed above (prints the release_sync.py call for v$CURRENT at HEAD; runs nothing under --dry-run)"
+  fi
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
   echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
@@ -377,6 +436,10 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "              WEBSITE_DIR resolution -> sed src/lib/version.ts -> grep verify -> git push origin main -> live-poll mindrian-os.com"
   if [ "$NO_WEBSITE" = "1" ]; then
     echo "              ${YELLOW}--no-website opt-out engaged (audit-logged; mindrian-os.com NOT bumped)${NC}"
+  fi
+  echo "  Step 9.6c : release-cut listener, website leg -- read-only drift scan of mindrian-website version, command-count and banned-content surfaces vs v$NEW_VERSION (never aborts: runs after npm publish; report under \$HOME/.mindrian/release-cut-listener/)"
+  if [ "$NO_CUT_LISTENER" = "1" ]; then
+    echo "              ${YELLOW}--no-cut-listener opt-out engaged (audit-logged; Theo sync not proposed at Step 0.55, website scan skipped at Step 9.6c)${NC}"
   fi
   echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
@@ -1221,6 +1284,37 @@ else
 
     cd "$ORIG_DIR"
   fi
+fi
+
+# --- Step 9.6c: release-cut listener, website leg (quick 261002-5v9) ---
+# Navigator ruling 2026-10-02. A read-only scan of the website repo's own
+# docs/VERSION-BUMP-CHECKLIST.md surfaces (FALLBACK_VERSION, commands-canon
+# version and count, literal "N commands" lines, banned content) against
+# the version this cut just published. It FAILS OPEN: npm publish already
+# happened at Step 9.5, so an abort here would split the release (RULE 7
+# split-brain). It still runs under --no-website, so the report shows what
+# that opt-out left behind. Drift and skips are printed, never silent.
+echo ""
+echo "=== Step 9.6c: release-cut listener, website version-fact scan vs v$NEW_VERSION (read-only, fail open) ==="
+if [ "$NO_CUT_LISTENER" = "1" ]; then
+  echo -e "${YELLOW}  ! --no-cut-listener opt-out engaged (audit-logged): website version-fact scan skipped; reconcile mindrian-website by hand per its docs/VERSION-BUMP-CHECKLIST.md.${NC}"
+else
+  CUT_WEB_RC=0
+  node "$PLUGIN_DIR/scripts/release-cut-listener.cjs" website --plugin-root "$PLUGIN_DIR" --version "$NEW_VERSION" || CUT_WEB_RC=$?
+  case "$CUT_WEB_RC" in
+    0)
+      echo -e "${GREEN}  ✓ website version-fact scan: every surface matches v$NEW_VERSION${NC}"
+      ;;
+    3)
+      echo -e "${YELLOW}  ! website scan skipped (reason above); reconcile by hand.${NC}"
+      ;;
+    4)
+      echo -e "${YELLOW}  ! website drift reported above; the cut continues because npm publish already happened (RULE 7); reconcile via the website GSD workflow per its docs/VERSION-BUMP-CHECKLIST.md.${NC}"
+      ;;
+    *)
+      echo -e "${YELLOW}  ! release-cut-listener website leg exited $CUT_WEB_RC (usage error or crash); continuing (fail open); reconcile the website by hand.${NC}"
+      ;;
+  esac
 fi
 
 # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
