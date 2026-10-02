@@ -330,7 +330,9 @@ function mapCode(code, status, extra) {
     assert.equal(leg.outcome, 'SKIPPED', c[0]);
     assert.ok(leg.reason.indexOf(c[2]) !== -1, 'reason names the missing path: ' + leg.reason);
     assert.ok(/^SKIPPED: /.test(leg.reason));
-    assert.ok(/Step 0\.6 stamp gate still guards/.test(leg.reason));
+    // Review WR-03: the listener cannot know release.sh's flags, so it makes
+    // no claim about the Step 0.6 stamp gate.
+    assert.ok(!/stamp gate/i.test(leg.reason), 'no stamp-gate claim in the listener reason: ' + leg.reason);
     assert.equal(f.calls.length, 0, 'spawnSync never called when ' + c[0] + ' missing');
     const code = L.main(['theo', '--plugin-root', REPO, '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], f.deps);
     assert.equal(code, 3, 'listener exit 3 when ' + c[0] + ' missing');
@@ -377,7 +379,8 @@ function mapCode(code, status, extra) {
   const f5 = theoFake({ spawn: function () { const e = new Error('spawnSync ENOENT'); e.code = 'ENOENT'; return { status: null, stdout: '', error: e }; } });
   const leg5 = L.runTheoLeg({ pluginRoot: REPO, version: VER, ref: SHA, dryRun: false }, f5.deps);
   assert.equal(leg5.outcome, 'SKIPPED');
-  ok('spawn error ENOENT -> SKIPPED (venv unusable)');
+  assert.ok(!/stamp gate/i.test(leg5.reason), 'no stamp-gate claim in the ENOENT reason: ' + leg5.reason);
+  ok('spawn error ENOENT -> SKIPPED (venv unusable), no stamp-gate claim (WR-03)');
 
   const f6 = theoFake({ spawn: function () { return { status: 20, stdout: theoLine(20, 'awaiting-navigator-apply', { apply_command: 'APPLY LINE', verify_command: 'VERIFY LINE' }) }; } });
   const c6 = L.main(['theo', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], f6.deps);

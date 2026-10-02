@@ -106,6 +106,21 @@ function nonComment(text) {
   assert.deepEqual(exitsElsewhere, [], 'no exit outside the 10|11 arm');
   ok('Step 0.55: repo-version.cjs + rev-parse HEAD + `release-cut-listener.cjs" theo`, exit 1 only inside the 10|11 arm');
 
+  // Review WR-03: no Step 0.55 output line may claim the stamp gate guards
+  // unconditionally; the claim lives only in the NO_THEO_CHECK=0 branch of
+  // CUT_LISTENER_GATE_NOTE, and every fail-open echo uses that note.
+  const code055 = nonComment(b055);
+  const guardLines = code055.filter(function (l) { return /stamp gate still guards/.test(l); });
+  assert.deepEqual(guardLines.map(function (l) { return l.trim(); }),
+    ['CUT_LISTENER_GATE_NOTE="the Step 0.6 stamp gate still guards this cut"'],
+    'the only unconditional-looking guard claim is the NO_THEO_CHECK=0 note: ' + JSON.stringify(guardLines));
+  assert.ok(/if \[ "\$NO_THEO_CHECK" = "1" \]; then\n\s*CUT_LISTENER_GATE_NOTE="[^"]*ALSO opted out \(--no-theo-check\): nothing guards Theo freshness/.test(b055),
+    'NO_THEO_CHECK=1 picks the "ALSO opted out ... nothing guards" note');
+  const yellowEchoes = code055.filter(function (l) { return /echo -e "\$\{YELLOW\}  ! /.test(l); });
+  assert.equal(yellowEchoes.length, 3, 'three fail-open / opt-out echoes: ' + JSON.stringify(yellowEchoes));
+  yellowEchoes.forEach(function (l) { assert.ok(l.indexOf('$CUT_LISTENER_GATE_NOTE') !== -1, 'echo uses the branched note: ' + l); });
+  ok('WR-03: Step 0.55 gate wording branches on NO_THEO_CHECK; every fail-open echo uses $CUT_LISTENER_GATE_NOTE');
+
   const i96b = headerIdx('# --- Step 9.6b');
   const i96c = headerIdx('# --- Step 9.6c');
   const i97 = headerIdx('# --- Step 9.7');
@@ -206,7 +221,16 @@ try {
   const r2 = runDryRun(tmp, [], absent);
   assert.equal(r2.status, 0, 'dry-run with Theo absent still exits 0: ' + r2.stderr.slice(-500));
   assert.ok(r2.stdout.indexOf('SKIPPED') !== -1 && r2.stdout.indexOf(absent) !== -1, 'loud SKIPPED naming the absent path');
-  ok('Theo absent -> exit 0, loud SKIPPED naming the path');
+  assert.ok(r2.stdout.indexOf('the Step 0.6 stamp gate still guards this cut') !== -1, 'without --no-theo-check the fail-open line says the stamp gate still guards');
+  ok('Theo absent -> exit 0, loud SKIPPED naming the path, "the Step 0.6 stamp gate still guards this cut"');
+
+  // Review WR-03: with --no-theo-check the same path must never claim a guard.
+  const r2b = runDryRun(tmp, ['--no-theo-check'], absent);
+  assert.equal(r2b.status, 0, 'dry-run with --no-theo-check and Theo absent exits 0: ' + r2b.stderr.slice(-500));
+  assert.ok(r2b.stdout.indexOf(absent) !== -1, 'still a loud SKIPPED naming the path');
+  assert.equal(r2b.stdout.indexOf('stamp gate still guards'), -1, 'no "stamp gate still guards" claim under --no-theo-check');
+  assert.ok(r2b.stdout.indexOf('ALSO opted out (--no-theo-check): nothing guards Theo freshness') !== -1, 'says nothing guards Theo freshness');
+  ok('WR-03: --no-theo-check + Theo absent -> "ALSO opted out (--no-theo-check): nothing guards Theo freshness", no guard claim');
 
   const r3 = runDryRun(tmp, ['--no-cut-listener']);
   assert.equal(r3.status, 0, '--no-cut-listener dry-run exits 0');

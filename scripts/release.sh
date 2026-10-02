@@ -230,13 +230,22 @@ fi
 # code. --version is lib/core/repo-version.cjs (CURRENT), never NEW_VERSION:
 # Theo refuses (its code 3) unless plugin.json at that sha says that exact
 # version, and both lagging gates (Step 0.6 and Step 0.6b) compare against
-# it. A missing Theo checkout is a loud SKIPPED and the Step 0.6 stamp gate
-# still guards the cut. Only listener exit 10 or 11 (Theo says STOP) stops a
-# real cut; everything else fails open with a printed reason.
+# it. A missing Theo checkout is a loud SKIPPED. Only listener exit 10 or 11
+# (Theo says STOP) stops a real cut; everything else fails open with a
+# printed reason. Every fail-open line says whether the Step 0.6 stamp gate
+# still guards: under --no-theo-check that gate skips, so the line must say
+# nothing guards Theo freshness instead of claiming a guard that is off
+# (review WR-03). --no-theo-check does NOT skip this step; only
+# --no-cut-listener does.
+if [ "$NO_THEO_CHECK" = "1" ]; then
+  CUT_LISTENER_GATE_NOTE="the Step 0.6 stamp gate is ALSO opted out (--no-theo-check): nothing guards Theo freshness on this cut"
+else
+  CUT_LISTENER_GATE_NOTE="the Step 0.6 stamp gate still guards this cut"
+fi
 echo ""
 echo "=== Step 0.55: release-cut listener, Theo leg (Theo release sync for the current version at HEAD) ==="
 if [ "$NO_CUT_LISTENER" = "1" ]; then
-  echo -e "${YELLOW}  ! --no-cut-listener opt-out engaged (audit-logged): Theo was NOT asked to sync the current version; the Step 0.6 stamp gate still guards this cut; the website scan at Step 9.6c is skipped too.${NC}"
+  echo -e "${YELLOW}  ! --no-cut-listener opt-out engaged (audit-logged): Theo was NOT asked to sync the current version; $CUT_LISTENER_GATE_NOTE; the website scan at Step 9.6c is skipped too.${NC}"
 else
   CUT_LISTENER_VERSION="$(node "$PLUGIN_DIR/lib/core/repo-version.cjs" || true)"
   CUT_LISTENER_SHA="$(git -C "$PLUGIN_DIR" rev-parse HEAD || true)"
@@ -249,19 +258,23 @@ else
   case "$CUT_LISTENER_RC" in
     0) ;;
     3|4)
-      echo -e "${YELLOW}  ! release-cut-listener: Theo leg exited $CUT_LISTENER_RC; continuing (fail open); the Step 0.6 stamp gate still guards.${NC}"
+      echo -e "${YELLOW}  ! release-cut-listener: Theo leg exited $CUT_LISTENER_RC; continuing (fail open); $CUT_LISTENER_GATE_NOTE.${NC}"
       ;;
     10|11)
       if [ "$DRY_RUN" = "1" ]; then
         echo -e "${YELLOW}  [DRY RUN] release-cut-listener: the Theo leg says STOP; a real release would STOP here.${NC}"
       else
         echo -e "${RED}x release-cut-listener: the Theo leg says STOP (see the report above)${NC}"
-        echo "  Recovery: follow the printed lines, then re-run. Audited opt-out: --no-cut-listener (the Step 0.6 stamp gate still runs)."
+        if [ "$NO_THEO_CHECK" = "1" ]; then
+          echo "  Recovery: follow the printed lines, then re-run. --no-theo-check does not skip this step; the audited opt-out here is --no-cut-listener, and with --no-theo-check also set nothing would guard Theo freshness on the cut."
+        else
+          echo "  Recovery: follow the printed lines, then re-run. Audited opt-out: --no-cut-listener (the Step 0.6 stamp gate still runs)."
+        fi
         exit 1
       fi
       ;;
     *)
-      echo -e "${YELLOW}  ! release-cut-listener exited $CUT_LISTENER_RC (usage error or crash); the Theo leg did not complete; continuing (fail open), the Step 0.6 stamp gate still guards.${NC}"
+      echo -e "${YELLOW}  ! release-cut-listener exited $CUT_LISTENER_RC (usage error or crash); the Theo leg did not complete; continuing (fail open), $CUT_LISTENER_GATE_NOTE.${NC}"
       ;;
   esac
 fi

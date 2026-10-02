@@ -102,12 +102,17 @@
 # Every other block hash is byte-identical to the previous baseline. The header
 # count is now 34 (32 existing + 2 new). The gate-count floor below is re-pinned
 # to the post-edit non-comment exit-1 count (61).
+#
+# Quick 261002-5v9 FIX-PASS REBASELINE (2026-10-02, code-review fix pass): only
+# the "# --- Step 0.55: ..." block hash is re-pinned (review WR-03: the fail-open
+# wording branches on NO_THEO_CHECK via CUT_LISTENER_GATE_NOTE). No exit code
+# changed, so the exit-1 floor stays 61; the header count stays 34.
 
 9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f  PREAMBLE(1-79)
 61  EXIT1_NONCOMMENT_COUNT
 044dd339d6229b8a0336abb1ef4de687bbf23486869ec9f6d16a6b5ff25e9e18  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
-dbe9df9c77da04ba1386d10cb591a5248bbd5c9e66d20b883b7d5fa8430db386  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
+93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
 c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---

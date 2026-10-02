@@ -433,7 +433,10 @@ function runTheoLeg(opts, deps) {
     if (!deps.existsSync(c[1])) {
       return Object.assign(leg, {
         outcome: 'SKIPPED', decision: 'CONTINUE',
-        reason: 'SKIPPED: ' + c[0] + ' not found at ' + c[1] + '; Theo was NOT asked to sync. The Step 0.6 stamp gate still guards this cut.',
+        // No claim about the Step 0.6 stamp gate here (review WR-03): the
+        // listener cannot see release.sh's flags (--no-theo-check turns that
+        // gate off), so release.sh's own Step 0.55 line says what guards.
+        reason: 'SKIPPED: ' + c[0] + ' not found at ' + c[1] + '; Theo was NOT asked to sync.',
       });
     }
   }
@@ -456,7 +459,7 @@ function runTheoLeg(opts, deps) {
   if (res.error && (res.error.code === 'ENOENT' || res.error.code === 'EACCES')) {
     return Object.assign(leg, {
       outcome: 'SKIPPED', decision: 'CONTINUE',
-      reason: 'SKIPPED: the Theo venv python at ' + p.python + ' could not be run (' + res.error.code + '); Theo was NOT asked to sync. The Step 0.6 stamp gate still guards this cut.',
+      reason: 'SKIPPED: the Theo venv python at ' + p.python + ' could not be run (' + res.error.code + '); Theo was NOT asked to sync.',
     });
   }
   return Object.assign(leg, mapTheoResult(
