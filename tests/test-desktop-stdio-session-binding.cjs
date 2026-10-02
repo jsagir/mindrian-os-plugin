@@ -22,13 +22,16 @@
  *   1. bind then act: room_bind {room:'room-b'} with NO sessionId succeeds
  *      (effective, session.primary); status_read, room_state_bound and
  *      room_state read room-b; claim_write lands in room-b's room.db (read
- *      directly) under a non-nosession id; room-a's db was never created. A
+ *      directly) under a non-nosession id; room-a's db is unchanged. A
  *      gate_render -> gate_answer round trip approves in the same process (the
  *      gate-ledger key resolves the same on mint and consume).
  *   2. nothing bound: every write refuses with the typed reason no_bound_room
  *      ("bind a room first") and room-a is byte-for-byte unchanged; reads may
  *      still show room-a but label it as the registry fallback, never a binding;
  *      a binding-card gate (kind binding) still ratifies without a room write.
+ *      The one carve-out: a CLAUDE_ACTIVE_ROOM env pin is a room the operator
+ *      chose for this server process (not the shared registry pointer), so it
+ *      stays a write target and is labelled operator_pinned.
  *   3. two Desktop windows (two server processes, one rooms home): a bind in
  *      one is invisible to the other (distinct process keys).
  *   4. explicit sessionId still wins: the binding lands under that key, and the
@@ -241,12 +244,23 @@ const GATE_CARD = {
 };
 
 // Every write tool the unbound session must be refused on, with minimal valid args.
+const navigation = require('../lib/core/navigation.cjs');
 const WRITE_CALLS = [
   ['claim_write', CLAIM],
   ['memory_event', { label: 'unbound-probe' }],
   ['artifact_file', { section: 'notes', filename: 'unbound-probe', content: '# probe\n' }],
   ['graph_write', { source_id: 'node-x', target_id: 'node-y', edge_type: 'INFORMS' }],
-  ['room_content', { command: 'file-opportunity', section: JSON.stringify({ title: 'probe-opportunity', funder: 'probe-funder' }) }],
+  ['meeting', { command: 'file-meeting', knowledge_type: 'fact', claim_text: 'unbound meeting claim', context: 'seg-meeting-1' }],
+  ['claim_verify', {
+    claim_id: 'claim:x:1',
+    against_id: 'doc-1',
+    against_kind: Array.from(navigation.VERIFICATION_AGAINST_KINDS)[0],
+    method: Array.from(navigation.VERIFICATION_METHODS)[0],
+    result: Array.from(navigation.VERIFICATION_RESULTS)[0],
+    rung: 1,
+  }],
+  ['question_set', { text: 'What is the question worth solving?', origin: navigation.FRAME_ORIGINS_ORDERED[0].id }],
+  ['chain_run', { chain: ['unbound-framework-probe'] }],
 ];
 
 function leaksIntoRoom(dir) {
@@ -391,7 +405,7 @@ async function main() {
     }
   });
 
-  await test('2b. nothing bound: every write tool refuses with no_bound_room (claim_write, memory_event, artifact_file, graph_write, room_content file-opportunity)', async () => {
+  await test('2b. nothing bound: every write tool refuses with no_bound_room (claim_write, memory_event, artifact_file, graph_write, meeting file-meeting, claim_verify, question_set, chain_run)', async () => {
     const world = makeWorld();
     const conn = await connectDesktop(world);
     try {
@@ -468,6 +482,25 @@ async function main() {
       assert.equal(answered.isError, true, 'must refuse when unbound');
       assert.equal(toolJson(answered).reason, 'no_bound_room');
       assert.deepEqual(roomSnapshot(world.roomA), world.baseA, 'room-a must stay untouched');
+    } finally {
+      await closeConn(conn);
+    }
+  });
+
+  await test('2f. operator pin: CLAUDE_ACTIVE_ROOM (a per-process env pin, not the shared registry pointer) stays a write target and is labelled', async () => {
+    const world = makeWorld();
+    const conn = await connectDesktop(world, { CLAUDE_ACTIVE_ROOM: world.roomB });
+    try {
+      const status = toolJson(await call(conn, 'status_read', {}));
+      assert.equal(realpath(status.segments.room_dir), realpath(world.roomB));
+      assert.equal(status.segments.room_binding.bound, false, 'a pin is still not a binding');
+      assert.equal(status.segments.room_binding.operator_pinned, true);
+      assert.equal(status.segments.room_binding.registry_fallback, false, 'it is not the registry pointer');
+      const w = await call(conn, 'claim_write', CLAIM);
+      assert.notEqual(w.isError, true, 'the operator chose this room for this process: ' + bodyText(w));
+      assert.equal(realpath(toolJson(w).room_dir), realpath(world.roomB));
+      assert.equal(roomSnapshot(world.roomB).claims.length, 1);
+      assert.deepEqual(roomSnapshot(world.roomA), world.baseA, 'the registry active room (room-a) stays untouched');
     } finally {
       await closeConn(conn);
     }

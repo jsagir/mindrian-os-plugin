@@ -84,6 +84,7 @@ run_if "regression: 265 gate-render elicit schema" tests/test-265-gate-render-el
 run_if "regression: 265 mcp surface organ" tests/test-265-mcp-surface-organ.cjs node tests/test-265-mcp-surface-organ.cjs
 run_if "regression: 248 surface probes" tests/test-248-surface-probes.cjs node tests/test-248-surface-probes.cjs
 run_if "regression: 248 resolver census" tests/test-248-resolver-census.cjs node tests/test-248-resolver-census.cjs
+run_if "regression: desktop stdio session binding (Desktop surrogate, process key + refuse)" tests/test-desktop-stdio-session-binding.cjs node tests/test-desktop-stdio-session-binding.cjs
 run_if "regression: 354 concurrency surfaces" tests/test-354-concurrency-surfaces.cjs node tests/test-354-concurrency-surfaces.cjs
 run_if "regression: 354 egress typed question" tests/test-354-egress-typed-question.cjs node tests/test-354-egress-typed-question.cjs
 run_if "regression: 354 extract shallow contract" tests/test-354-extract-shallow-contract.cjs node tests/test-354-extract-shallow-contract.cjs

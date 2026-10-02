@@ -4,6 +4,21 @@
 - 
 
 ### Fixed
+- **Claude Desktop now remembers the room you bound, and refuses to write when none is bound**
+  (`desktop-session-binding-fallback`). Desktop gives the server no session id, so `room_bind` failed with
+  `no_session_id`, a bind under an id the model made up was never seen by later calls, and the next write
+  quietly went to the registry's active room, filing `claim:nosession:...` into a room you never chose. A
+  stdio server now mints one session key per process (one process is one Desktop window), so `room_bind`
+  works with no arguments and every later read and write follows it; two windows do not share a binding.
+  When no room is bound, room writes (`claim_write`, `memory_event`, `artifact_file`, `graph_write`,
+  `gate_answer`, `claim_verify`, `question_set`, `chain_run`, `meeting` file-meeting, and the room-content
+  writes) refuse with `no_bound_room` and say to bind a room first. Reads still show the registry's active
+  room but now label it a fallback, not a binding. A claim from a connection with no session identity is
+  refused (`no_session_id`) instead of minting `claim:nosession:...`. A bound session, an explicit
+  `sessionId`, `CLAUDE_CODE_SESSION_ID` and the HTTP routes behave as before; `room_bind` now says when its
+  binding will not carry to later calls (`carries_to_later_calls`). One behavior change to know: a Claude
+  Code session that never bound a room and used to write into the registry's active room now gets
+  `no_bound_room` until it binds (`room_bind`, or `/mos:rooms open`, which binds the session).
 - **A throwaway test room can no longer become your active room.** The room registry now refuses to
   register a room that lives in the system temp folder when the registry itself is not in a temp folder
   (`REGISTRY_GUARD_REFUSED`, exit 3, nothing written). Before this, a test that created a room under
@@ -37,8 +52,6 @@
   uses its second rung. Nothing breaks; the card still works (navigator ruling 2026-10-02).
 
 ### Known issues
-- Claude Desktop with no session id: `room_bind` still answers `no_session_id` and state reads fall back to the
-  registry's active room (`.planning/debug/desktop-session-binding-fallback.md`, unchanged by this work).
 - With `MINDRIAN_MCP_FIRST` on and a hook-set `MINDRIAN_SESSION_ID`, the shim cannot connect to the daemon
   (`mcp-shim-preseeded-session-id-rejected`, fix pending a decision, SEED-108). The flag is off by default.
 - The migration was not smoke-tested by a person on Claude Desktop or Cowork; automated wire checks cover both

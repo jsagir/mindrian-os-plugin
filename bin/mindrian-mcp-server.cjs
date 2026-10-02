@@ -111,6 +111,15 @@ const mcpHandlers = [];
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
+// RCA desktop-session-binding-fallback (navigator ruling 2026-10-02): a stdio
+// server process serves exactly one client connection, so ONE process-scoped
+// session key minted at serve time is that conversation's identity. Claude
+// Desktop supplies no session id anywhere (no env var, no SDK session), which
+// left room_bind failing with no_session_id and every later write falling
+// through to the machine-wide registry `active` room. Registered ONLY on the two
+// stdio serve paths below, never on an HTTP branch (a daemon serving many
+// clients must stay session-less so a binding is never shared across clients).
+const { registerStdioProcessSession } = require('../lib/core/session-binding.cjs');
 // Phase 270-08: debounced sendResourceListChanged over directory churn
 // under the rooms home (mos://tree, plan 270-08 Task 1). Wired at boot
 // below and torn down via registerShutdownHandler's extraTeardown seam
@@ -327,6 +336,7 @@ async function main() {
       express = require('express');
     } catch (err) {
       process.stderr.write(`[mindrian-os] Express not available, falling back to stdio transport.\n`);
+      registerStdioProcessSession();
       stdioHandle = serveStdio(() => getServer());
       startTreeWatcherOnce(getServer());
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
@@ -574,6 +584,7 @@ async function main() {
     });
   } else {
     // stdio for CLI and Desktop
+    registerStdioProcessSession();
     stdioHandle = serveStdio(() => getServer());
     startTreeWatcherOnce(getServer());
     process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);

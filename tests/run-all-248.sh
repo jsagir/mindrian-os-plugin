@@ -76,6 +76,18 @@ run_if "CTX-03 surface probes" \
   node tests/test-248-surface-probes.cjs
 
 # ---------------------------------------------------------------------------
+# RCA desktop-session-binding-fallback (navigator ruling 2026-10-02, process key
+# + refuse) -- the Desktop-surrogate end-to-end proof that room_bind works with
+# no sessionId on stdio, reads and writes follow it, an unbound write refuses
+# with no_bound_room, and the CLI / explicit-sessionId / HTTP flag-OFF paths are
+# unchanged. Own-file run_if gate.
+# ---------------------------------------------------------------------------
+
+run_if "RCA desktop-session-binding: process key + refuse (Desktop surrogate)" \
+  tests/test-desktop-stdio-session-binding.cjs \
+  node tests/test-desktop-stdio-session-binding.cjs
+
+# ---------------------------------------------------------------------------
 # Always-run legacy legs -- exercise the shared core ladder and the
 # resolver-collapse's blast radius. Their files already exist today, so a
 # SKIP here would be a lie.
@@ -111,6 +123,7 @@ em_dash_sweep() {
     "tests/test-248-room-bind-session-authoritative.cjs"
     "tests/test-248-room-bind-honest-return.cjs"
     "tests/test-248-surface-probes.cjs"
+    "tests/test-desktop-stdio-session-binding.cjs"
     "tests/run-all-248.sh"
   )
   local t f
