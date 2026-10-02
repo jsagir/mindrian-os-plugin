@@ -988,7 +988,7 @@
       },
       {
         "name": "meeting",
-        "description": "Turn a raw meeting transcript into structured Data Room content. By default this tool writes nothing: it returns protocol and room context only, so call artifact_file to actually file what it hands back. On file-meeting, when you also supply knowledge_type and claim_text, it instead writes that one typed claim at review_status proposed through the same writeClaimNode primitive claim_write uses, then renders a gate_render confirmation card; call gate_answer with the returned gate_id to ratify it, since only a human approval promotes a claim to confirmed. pipeline returns the meeting-intelligence pipeline reference and speakers returns the speaker-identification reference, both write nothing. The five-perspective subagent fan-out (Step 3a Dispatch) has no Agent tool or subagent registry to dispatch into on this surface, so it remains unavailable and unreachable here; for that fuller pipeline, use /mos:file-meeting on the CLI. Reach for this whenever the user pastes or points at a conversation: institutional knowledge lives in meetings rather than documents.",
+        "description": "Turn a raw meeting transcript into structured Data Room content. By default this tool writes nothing: it returns protocol and room context only, so call artifact_file to actually file what it hands back. On file-meeting, when you also supply knowledge_type and claim_text, it instead writes that one typed claim at review_status proposed through the same writeClaimNode primitive claim_write uses, then renders a gate_render confirmation card; call gate_answer with the returned gate_id to ratify it, since only a human approval promotes a claim to confirmed, and only when the room's verification floor is met; below it an approval files the claim as needs evidence and the card says why first. pipeline returns the meeting-intelligence pipeline reference and speakers returns the speaker-identification reference, both write nothing. The five-perspective subagent fan-out (Step 3a Dispatch) has no Agent tool or subagent registry to dispatch into on this surface, so it remains unavailable and unreachable here; for that fuller pipeline, use /mos:file-meeting on the CLI. Reach for this whenever the user pastes or points at a conversation: institutional knowledge lives in meetings rather than documents.",
         "inputSchema": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
@@ -1235,6 +1235,135 @@
               "pattern": "^[a-z0-9-]+$"
             }
           }
+        }
+      },
+      {
+        "name": "research_run",
+        "description": "Research planner for the bound room: plan a quick or deep research run, ask for a grant that lets the room search a public scholarly index, run quick research here and get an evidence card, review a deep plan, and file findings only after the navigator approves. Approvals are gates answered through gate_answer. Quick runs execute in this server; the deep research run itself executes in Claude Code, where the approved plan is saved. Six perspectives live here too (eureka, rs, hsi, whitespace, analogies, connections): pass perspective with op perspective_recall, which reads the local graph and the ICM structure (no embeddings, no network) and proposes candidate pairs plus a plan; op perspective_candidates pages through them (limit, offset); op perspective_judge runs the local Stage A gates and leaves judgment to you. The ops eureka_recall, eureka_candidates and eureka_judge are deprecated aliases of the perspective ops for one release. Nothing leaves the room except grant-approved search strings.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "planners",
+                "plan",
+                "grant_request",
+                "grant_status",
+                "grant_revoke",
+                "run_quick",
+                "deep_plan",
+                "basket",
+                "file",
+                "pending",
+                "perspective_recall",
+                "perspective_candidates",
+                "perspective_judge",
+                "eureka_recall",
+                "eureka_judge",
+                "eureka_candidates"
+              ]
+            },
+            "room": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "question_set": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            },
+            "run_id": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "grant_id": {
+              "type": "string",
+              "maxLength": 32
+            },
+            "gate_id": {
+              "type": "string",
+              "maxLength": 96
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "quick",
+                "deep"
+              ]
+            },
+            "terms": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "term": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "synonyms": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      }
+                    },
+                    "required": [
+                      "term"
+                    ]
+                  }
+                ]
+              }
+            },
+            "max_candidates": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "perspective": {
+              "type": "string",
+              "enum": [
+                "eureka",
+                "rs",
+                "hsi",
+                "whitespace",
+                "analogies",
+                "connections"
+              ]
+            },
+            "run_tag": {
+              "type": "string",
+              "pattern": "^[0-9TZ]{1,20}$"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "op"
+          ]
         }
       },
       {
@@ -1841,5 +1970,6 @@
     "prompts": [],
     "resources": [],
     "templates": []
-  }
+  },
+  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed"
 }
