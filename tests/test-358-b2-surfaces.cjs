@@ -117,6 +117,12 @@ function registerAndCapture(roomDir) {
     tool: (name, description, schema, handler) => {
       captured.set(name, { description, schema, handler });
     },
+    // Phase 267-08: lib/mcp/tools/*.cjs register through server.registerTool(
+    // name, {title, description, inputSchema}, handler).
+    registerTool: (name, config, handler) => {
+      const cfg = config || {};
+      captured.set(name, { description: cfg.description, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, handler });
+    },
     server: { getClientVersion: () => currentClient },
   };
   const report = registerCoreTools(stubServer, { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'desktop' });
