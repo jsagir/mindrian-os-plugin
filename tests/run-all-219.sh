@@ -97,7 +97,9 @@ gate_zero_network() {
 #     a partially-landed tree). Wave/plan ownership per 219-VALIDATION.md.
 # ---------------------------------------------------------------------------
 
-# Plan 01 (Wave 1): REQ-1 banking -- typed-opportunity writer + bankStatements.
+# Plan 01 (Wave 1): REQ-1 banking -- typed-opportunity writer + the filed
+# opportunity shape (since Phase 366 plan 25 through the ONE stamped filer,
+# research-planner/filing-stamped.cjs; the runner's bankStatements is retired).
 run_if "219-01 REQ-1 banking (writer + hook + no-bypass)" "tests/test-219-banking.cjs" \
   node tests/test-219-banking.cjs
 
@@ -153,7 +155,7 @@ run "no raw node/edge INSERT (comment-filtered)" \
   lib/core/explored-artifact.cjs \
   lib/core/eureka/research-filing.cjs \
   lib/core/research-filing.cjs \
-  scripts/eureka-portfolio-report.cjs \
+  lib/core/research-planner/filing-stamped.cjs \
   scripts/entity-extract.cjs
 
 # ---------------------------------------------------------------------------

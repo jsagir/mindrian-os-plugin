@@ -3,8 +3,9 @@
  * Phase 343 Plan 03 -- test-343-path-hygiene.
  *
  * Pins the navigation folder contract, its routing row, the corrected
- * docs/lazygraph-schema.md path, and the five annotated .room-graph
- * skip-list sites. Bare node script, no framework, exits non-zero on
+ * docs/lazygraph-schema.md path, and the annotated .room-graph
+ * skip-list sites (five at Phase 343; four since Phase 366 plan 25 retired
+ * the standalone Eureka runner, the fifth site's file). Bare node script, no framework, exits non-zero on
  * failure, self-contained (the test-245-priority-complete.cjs convention).
  *
  * Arm 4 asserts PROXIMITY (an annotation within two lines of the entry it
@@ -108,14 +109,15 @@ assert.ok(
 ok('docs/lazygraph-schema.md names the real .mindrian/room.db path');
 
 // ---------------------------------------------------------------------------
-// Arm 4: the five annotated in-code sites, checked by PROXIMITY.
+// Arm 4: the annotated in-code sites, checked by PROXIMITY. Phase 366 plan 25
+// (D-02) dropped the fifth site with its file: the standalone Eureka runner
+// dispatcher is retired, so there is no skip-list left there to annotate.
 // ---------------------------------------------------------------------------
 const ANNOTATED_FILES = [
   'lib/core/rs-engine.cjs',
   'lib/core/rs_corpus_exclude.py',
   'lib/core/cross-room-aggregator.cjs',
   'lib/core/eureka/reasoning-mode.cjs',
-  'scripts/eureka-command.cjs',
 ];
 
 const PROXIMITY_WINDOW = 2;
