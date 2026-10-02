@@ -1,0 +1,48 @@
+{
+  "schema": "mos.egress-policy/1",
+  "note": "One list of every line the research planner can send anything out on (Phase 366, ADR-E16). The audit ledger reads it: a record for a provider whose line is off is refused. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
+  "lines": {
+    "vector_model_download": {
+      "endpoint": "huggingface.co",
+      "default": false,
+      "scope": "model id only",
+      "providers": ["huggingface"]
+    },
+    "judge_jev": {
+      "endpoint": "api.typesafe.ai usefulness_judge",
+      "default": false,
+      "scope": "dev-time only until the navigator rules (355 D-44)",
+      "providers": ["typesafe"]
+    },
+    "research": {
+      "endpoint": "OpenAlex and registered research adapters",
+      "default": true,
+      "scope": "per grant",
+      "providers": ["openalex"]
+    },
+    "citation_check": {
+      "endpoint": "api.typesafe.ai citation_check",
+      "default": false,
+      "scope": "off until the same navigator ruling",
+      "providers": ["typesafe_citation"]
+    },
+    "prose": {
+      "endpoint": "host session; api.anthropic.com only with a key",
+      "default": true,
+      "scope": "host",
+      "providers": ["anthropic"]
+    },
+    "theo": {
+      "endpoint": "Theo find_connections and the gated normalize_framework_name",
+      "default": true,
+      "scope": "canon handles and released terms only, per run grant",
+      "providers": ["theo"]
+    },
+    "entity_extraction": {
+      "endpoint": "api.anthropic.com Haiku",
+      "default": false,
+      "scope": "off inside this pipeline; its own producer owns its own line",
+      "providers": ["anthropic_haiku"]
+    }
+  }
+}

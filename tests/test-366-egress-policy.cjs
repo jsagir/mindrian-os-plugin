@@ -152,7 +152,7 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
     const room = mkRoom();
     writeOverride(room, { lines: { research: { default: false } } });
     const res = auditLedger.appendAudit(room, auditRecord('openalex'));
-    const wrote = fs.existsSync(auditLedger.auditPath ? auditLedger.auditPath(room) : path.join(room, '.mindrian', 'research-audit.jsonl'));
+    const wrote = fs.existsSync(path.join(room, '.mindrian', 'research-audit.jsonl'));
     return (res.ok === false && res.reason === 'egress_line_off' && !wrote) || JSON.stringify({ res: res, wrote: wrote });
   });
   await leg('E5b an allowed line writes; an injected policy is honored; an unknown provider is refused', function () {
