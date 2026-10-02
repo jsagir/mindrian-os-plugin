@@ -21,8 +21,8 @@
  *   plan <question-set.json> --room <dir> [--mode quick|deep] [--scientific]
  *        [--diffusion] [--live-structure] [--section <slug>]
  *   planners --room <dir>
- *   perspective-recall --room <dir> --perspective <id> [--max <n>] [--tag <ts>] [--mode quick|deep]
- *   perspective-judge --room <dir> --perspective <id> --tag <ts> [--judge none]
+ *   perspective-recall --room <dir> --perspective <id> [--max <n>] [--tag <ts>] [--mode quick|deep] [--offline]
+ *   perspective-judge --room <dir> --perspective <id> --tag <ts> [--judge none] [--offline]
  *        (ids: eureka, rs, hsi, whitespace, analogies, connections; the list is the
  *        perspective registry's, never free text)
  *   eureka-recall / eureka-judge: the same two with --perspective eureka fixed
@@ -32,7 +32,9 @@
  *   grant revoke <grant_id> --room <dir>
  *   review approve <run_id> --room <dir> --approved-via cli
  *   revise <run_id> <edit.json> --room <dir>
- *   run-quick <run_id> --room <dir> [--rows <rows.json>]
+ *   run-quick <run_id> --room <dir> [--rows <rows.json>] [--offline]
+ *   (--offline, Phase 366 plan 17: every egress line of the declared policy is off; recall and
+ *    judge are offline already, run-quick answers plan only, not sent, and still exits 0)
  *   validate-rows <run_id> <rows.json> --room <dir>
  *   escalate <run_id> --room <dir>
  *   deep-next <run_id> --room <dir>
@@ -94,6 +96,8 @@ const FLAGS = Object.freeze({
   '--scientific': 'bool',
   '--diffusion': 'bool',
   '--live-structure': 'bool',
+  // Phase 366 plan 17 (ADR-E16): every egress line off. Valueless.
+  '--offline': 'bool',
   '--terms': 'json',
   '--rows': 'json',
   '--approved-via': 'via',
@@ -107,15 +111,15 @@ const COMMANDS = Object.freeze({
   'planners': { pos: [], flags: ['--room'], need: ['--room'] },
   'eureka-recall': { pos: [], flags: ['--room', '--max', '--tag', '--mode'], need: ['--room'] },
   'eureka-judge': { pos: [], flags: ['--room', '--tag', '--judge'], need: ['--room', '--tag'] },
-  'perspective-recall': { pos: [], flags: ['--room', '--perspective', '--max', '--tag', '--mode'], need: ['--room', '--perspective'] },
-  'perspective-judge': { pos: [], flags: ['--room', '--perspective', '--tag', '--judge'], need: ['--room', '--perspective', '--tag'] },
+  'perspective-recall': { pos: [], flags: ['--room', '--perspective', '--max', '--tag', '--mode', '--offline'], need: ['--room', '--perspective'] },
+  'perspective-judge': { pos: [], flags: ['--room', '--perspective', '--tag', '--judge', '--offline'], need: ['--room', '--perspective', '--tag'] },
   'grant propose': { pos: [], flags: ['--room', '--terms'], need: ['--room'] },
   'grant approve': { pos: ['json'], flags: ['--room', '--approved-via', '--terms'], need: ['--room', '--approved-via'] },
   'grant status': { pos: [], flags: ['--room'], need: ['--room'] },
   'grant revoke': { pos: ['grantid'], flags: ['--room'], need: ['--room'] },
   'review approve': { pos: ['runid'], flags: ['--room', '--approved-via'], need: ['--room', '--approved-via'] },
   'revise': { pos: ['runid', 'json'], flags: ['--room'], need: ['--room'] },
-  'run-quick': { pos: ['runid'], flags: ['--room', '--rows'], need: ['--room'] },
+  'run-quick': { pos: ['runid'], flags: ['--room', '--rows', '--offline'], need: ['--room'] },
   'validate-rows': { pos: ['runid', 'json'], flags: ['--room'], need: ['--room'] },
   'escalate': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'deep-next': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
@@ -291,6 +295,9 @@ function perspectiveRecall(room, id, flags) {
     plan: built ? { ok: built.ok !== false, run_id: built.run_id || null, status: built.status, errors: built.errors || [] } : null,
   };
   if (rec.statement_template !== undefined && rec.statement_template !== null) out.statement_template = rec.statement_template;
+  // 366-17: recall reads the room only, so --offline changes nothing here; the flag is accepted and
+  // recorded in the output header for one-flag-everywhere ergonomics
+  if (flags['--offline'] === true) out.offline = true;
   return out;
 }
 
@@ -300,7 +307,9 @@ async function perspectiveJudge(room, id, flags) {
   const eurekaJudge = require('../lib/core/research-planner/perspectives/eureka-judge.cjs');
   const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none', module: mod });
   if (!res.ok) return { ok: false, reason: res.reason };
-  return { ok: true, perspective: id, run_tag: res.tag, file: res.file, summary: res.summary };
+  const out = { ok: true, perspective: id, run_tag: res.tag, file: res.file, summary: res.summary };
+  if (flags['--offline'] === true) out.offline = true;
+  return out;
 }
 
 async function handle(cmd, pos, flags) {
@@ -378,6 +387,7 @@ async function handle(cmd, pos, flags) {
       const loaded = planner.loadPlan(room, pos[0]);
       if (!loaded.ok) return loaded;
       const opts = {};
+      if (flags['--offline'] === true) opts.offline = true;
       if (flags['--rows']) {
         const rows = listOf(readInput(flags['--rows']), 'rows');
         if (rows === null) return { ok: false, reason: 'bad_json' };
@@ -395,6 +405,10 @@ async function handle(cmd, pos, flags) {
           card: res.card,
           state_dir: res.state_dir,
         };
+      }
+      if (res.status === 'plan_only') {
+        // 366-17: an off egress line is an honest answer, not a refusal: exit 0, nothing sent
+        return { ok: true, status: 'plan_only', reason: res.reason, line: res.line, offline: res.offline, sent: false, run_id: res.run_id, answer_line: res.answer_line, card: res.card };
       }
       if (res.status === 'reask') {
         return { ok: true, status: 'reask', reason: res.reason, card: res.card, proposal: res.proposal, new_terms: res.new_terms };
