@@ -317,3 +317,55 @@ the next decision. The canon's four orientation questions fit that composition; 
 The next milestone should prove one recoverable journey: open the correct room, inspect evidence, make a human
 decision, observe its persisted result, restart and recover it correctly. That would provide much stronger evidence for
 choosing the shell than another isolated visual or latency demo.
+---
+
+## Part 3: third pass (same day, run against the committed Phase 369 as of HEAD 541222787 with uncommitted peer changes in the tree)
+
+Provenance: `/codex:rescue`, 2026-10-02, task "third pass on Phase 369 as committed". Read-only; no files changed, no spikes rerun. Verbatim below; the fold is `369-INPUT.md` section 13 tables 3 and 4 and the Phase 369 and 289 roadmap cards (every code citation re-verified at HEAD before folding). Hyphens only.
+
+The fold is substantially faithful, but several older passages still contradict the adopted corrections. Phase 267 is closed, so Phase 369 should ship no discovery shim.
+
+Codex reviewed the current main working tree, which reported HEAD 9048d82a3 rather than the a8badaae3 you gave, with uncommitted changes. No files changed and no spikes were rerun.
+
+Citation shorthand:
+- INPUT = /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369-ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server-/369-INPUT.md
+- REVIEW = 369-SECOND-OPINION-2026-10-02.md in that same directory.
+- 267-TRIPOLAR-PROBES.md is in the Phase 267 directory under .planning/phases/.
+
+**A. Faithfulness of the fold**
+
+The main recommendations survived: task-shaped actions, transactional change log, disposable projection, human approval boundary, recovery, cross-process observation, explicit v1 scope, written tile statuses, and installed-layout validation. The Phase 267 correction is appropriate. (INPUT:371-394; .planning/ROADMAP.md:1620-1623)
+
+Three things were weakened or misread:
+- **Chassis-test requirements.** INPUT says the second review's additions were merged. The card still says "four things only" and omits production build, defer, reconnect, dependency removal, startup errors and packaging from the comparison. The later recovery journey does not fully restore the comparative test. (REVIEW:304-307; INPUT:394; .planning/ROADMAP.md:1619)
+- **Selective agent exposure.** The review said not to expose every primitive wrapper to both humans and agents. Task-shaped operations and human-only confirmation keep much of that. A per-action authorization and exposure policy is still missing. A caller-supplied `principal` must not count as proof of human approval. (REVIEW:258-263,292-294; .planning/ROADMAP.md:1620-1621)
+- **Q1 framework choice is still prejudged.** The card invites a Workroom-versus-agent-native comparison while mandating Vite. Make release-built UI assets binding. Let the chassis decision determine the build framework, or include conversion costs explicitly. (INPUT:178-183; .planning/ROADMAP.md:1619-1620)
+
+**B. Wrong or inconsistent now**
+
+- **Historical transport failures read as current facts.** INPUT says agent-native cannot connect "today" and prescribes the shim. Section 9 still rejects flag-OFF mode on the old failure. Keep these as dated spike findings, marked superseded by 267. The server now has a flag-OFF handler and routes flag-ON traffic by protocol era. (INPUT:152-155,336,341; bin/mindrian-mcp-server.cjs:436-443,497-507; .planning/ROADMAP.md:648)
+- **Discovery success does not prove sessionful behavior.** Modern requests bypass the legacy session map. Re-run bind, mint, answer, reconnect and cross-client isolation, not just connect and list-tools. Either choose legacy sessionful operation or prove modern request identity. This is an open acceptance requirement, not a demonstrated failure. (bin/mindrian-mcp-server.cjs:416-423,503-507; .planning/ROADMAP.md:1620)
+- **The CLI ruling is still needed, but its diagnosis is out of date.** Capability detection still prioritizes elicitation. The recorded post-migration CLI connection uses discovery and lacks initialize-time capabilities, so the dual-era test predicts rung (b). Do not say the current CLI necessarily uses elicitation. (lib/mcp/tools/gate.cjs:321-333; 267-TRIPOLAR-PROBES.md:69-87)
+- **The ledger problem persists and goes beyond session mismatch.** Consumption happens before session validation, chosen-option validation, resume-owner validation and bound-room checks. Recovery should define when consumption becomes durable, including refused answers and persistence failures. The working tree already contains unbound-write refusal, so separate pending implementation from pending validation. (lib/mcp/gate-ledger.cjs:97-105; lib/mcp/tools/gate.cjs:450-515)
+- **The SSE contract contradicts itself.** "Carries only `room.changed`" must mean the new replication notification, not a replacement of existing events, because the bus is additive-only. INPUT also spells it `room-changed`, so choose one spelling. State that the HTTP-looking pull API is an MCP-backed adapter, consistent with deliverable (12). (lib/mcp/sse-event-bus.cjs:7-15; INPUT:337; .planning/ROADMAP.md:1620-1621)
+- **Navigation is an API boundary, not one universal transaction.** It re-exports writers, and the shared node-insert helper documents exclusions. Logging selected chokepoint functions cannot establish coverage of every canonical mutation. Require a writer inventory covering edges, deletes, bulk paths and transaction ownership. Server-side composition alone does not guarantee atomicity. (lib/core/navigation.cjs:24-35,125-132; lib/core/node-insert.cjs:3-8; lib/core/navigation/transitions.cjs:256-300; INPUT:372)
+- **Earlier input text overrides later decisions if read literally.** Section 1 describes one-to-one public actions. Section 8 declares native core TS resolved. Section 6 keeps the chokepoint-only realtime default. Reconcile these with task-shaped actions, installed-layout gating and cross-process cursor observation. (INPUT:50-59,271-274,323-327,371,387,392)
+
+**C. Defaults for the 14 open questions**
+
+| Q | Recommended default and reason |
+|---|---|
+| 1 | Workroom is the provisional chassis, subject to the same production-built slice in both candidates. Retained useful code, governed access, reconnect behavior, startup cleanliness and packaging should decide. (INPUT:375,394) |
+| 2 | BlockNote displays documents in v1; governed editing follows unless explicitly included. This keeps the review-and-decision scope coherent and avoids another direct-save path. (INPUT:248-250; .planning/ROADMAP.md:1621) |
+| 3 | Agree with section 6: prove the local Claude Code adapter first. Show it can receive selected context and return governed proposals before accepting another model loop and cost model. (INPUT:251-252,273-274) |
+| 4 | Apply v3 to the new shell, with an explicit scoped rule amendment. A plugin-wide restyle would enlarge the phase beyond its new surface. (INPUT:253-254; .planning/ROADMAP.md:1620) |
+| 5 | Agree: normal CLI card, with Phase 289 first. The shared recommendation contract and ledger fix should precede browser approval work, with both protocol eras tested. (INPUT:255-256,271-272; lib/mcp/tools/gate.cjs:321-333) |
+| 6 | Adopt the task-centered IA and adapter-proof gate. Do not treat executable-workspace implementation as already approved. The recorded review approves direction but withholds implementation approval. (INPUT:185-192,257-258) |
+| 7 | Use a task-centered room view and keep tiles as labeled illustration pending usability proof. The fold already separates visual vocabulary from a proven evidence interface. (INPUT:259-260,390) |
+| 8 | Agree: constitution edit in wave 0; UI builds at release; hooks and server stay JS initially. Permission to use TS should come first, and installed-layout validation controls any runtime migration. (INPUT:261,392) |
+| 9 | Keep the existing MCP Apps and share suitable components later. Explicitly park the orphan page. This keeps the fourth-surface commitment without forcing simultaneous host-view rewrites. (INPUT:197-199,262-263; .planning/ROADMAP.md:1620) |
+| 10 | Agree with a durable feed before RxDB, but amend the realtime default to cursor polling plus SSE hints, with no multi-user in v1. Cross-process writes need more than chokepoint publication. Neither flag removal nor every publisher is a prerequisite. (INPUT:264-265,272-274,387) |
+| 11 | Agree: CLI/localhost v1, with clear unsupported-execution messaging elsewhere. Hosting brings a separate tenancy and identity scope. (INPUT:266,273; .planning/ROADMAP.md:1620) |
+| 12 | Show the current question, meaningful changes since the last visit, and the next decision. On a first-ever visit, show present evidence and the next decision rather than inventing a change history. (INPUT:267,393) |
+| 13 | Graph is secondary. Typed room.db edges gate graph correctness, not the whole shell, so evidence inspection can lead. (INPUT:268; .planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md:401) |
+| 14 | Yes, co-design the session indicator. The inventory applies the existing co-design rule to that reuse candidate. (.planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md:403) |

@@ -49,10 +49,14 @@ the conflict is numbered (section 5). Counts and citations only; no room content
 
 BuilderIO agent-native (TypeScript/React) defines each capability once as a zod-schema **action**: the agent
 calls it as a tool, the UI calls it from code, and it is exposed over HTTP, MCP, A2A and CLI. MindrianOS already
-defines its MCP tools with zod schemas, so every tool maps one-to-one onto an action. The UI is an agent-native
-app whose actions are thin wrappers over the existing MindrianOS MCP server (Streamable HTTP, already served).
+defines its MCP tools with zod schemas, so a GENERATED one-to-one adapter layer keeps the schemas single-sourced; that
+layer is never the public surface (superseded 2026-10-02, section 13 row 1 and P3-2: the public actions are task-shaped
+and compose primitives server-side). The UI is an agent-native app over the existing MindrianOS MCP server (Streamable
+HTTP, already served).
 
-- **agent-native**: actions only; the MCP tools exposed as UI calls and agent tools. The only write path.
+- **agent-native**: actions only, task-shaped (approveDecision, fileArtifact, reviseClaim, attachEvidence, openRoom,
+  publishDeliverable), each under a per-action authorization and exposure policy (agent-callable, human-only, or
+  both; the 1:1 adapter layer is exposed to neither). The only write path.
 - **RxDB in the browser**: a cached, offline-capable copy of the room for instant views (Dexie/IndexedDB, free).
   It replaces agent-native's own Postgres data layer for room views; never run both for room data.
 - **`room.db` + `navigation.cjs`**: the only truth. Sync flows one way, room to browser. Writes go only through
@@ -137,7 +141,7 @@ From spike 006:
    scale). The real build needs a writer-side monotonic change sequence (`change_seq` or a change log) written
    inside the navigation chokepoint's own transaction; the spike's server-side journal is the stand-in.
 2. The existing SSE bus does not fire on room writes; only `status_read` publishes. Either the chokepoint publishes
-   a `room-changed` kind on commit (the bus lives in the MCP server process, so only that process's writes reach
+   a `room.changed` kind on commit (the bus lives in the MCP server process, so only that process's writes reach
    it) or the UI server watches `room.db`.
 3. Hard deletes exist (`lazygraph-ops` reindex, `typed-entity` legacy purge, `rs-engine`); "superseded maps to
    `_deleted`" is not the whole delete story; tombstones or an id reconcile are required.
@@ -149,13 +153,23 @@ From spike 006:
 From spike 007:
 6. "PGlite may hold UI session data" is a dev-only truth; production requires a hosted Postgres for agent-native's
    own tables, or the UI drops its chat/automation features and uses actions and routes only.
-7. agent-native cannot consume the MindrianOS MCP server as agent tools today: its SDK v2 client opens with a
-   session-less `server/discover`, the v1 per-connection server answers HTTP 400, and the connect guard records the
-   failure. A loopback shim answering that probe with JSON-RPC `-32601` over HTTP 200 makes it work (45 tools, a
-   gate minted and ratified through `McpClientManager`). An HTTP 404 still fails.
-8. A refused cross-session answer cancels the owner's gate: `lib/mcp/gate-ledger.cjs` `consumeGate` deletes the
-   entry before the session check (scripted in `stages/02_actions/burn-probe.cjs`). Anyone who learns a gate id can
-   cancel someone else's decision. (Folded into Phase 289.)
+7. SUPERSEDED by Phase 267 (closed 2026-10-02), kept as a dated spike finding: on the pre-267 v1 server, agent-native's
+   SDK v2 client opened with a session-less `server/discover`, the per-connection server answered HTTP 400, and the
+   connect guard recorded the failure; a loopback shim answering that probe with JSON-RPC `-32601` over HTTP 200 made
+   it work (45 tools, a gate minted and ratified through `McpClientManager`); an HTTP 404 still failed. The shipped
+   server handles `server/discover` and routes flag-ON traffic by protocol era (`bin/mindrian-mcp-server.cjs`
+   416-423, 497-507); 369 ships no shim. What 267 did NOT prove is sessionful behaviour for a modern client: modern
+   requests bypass the legacy session map that `session-binding.cjs` keys room binding on, so the re-run is an
+   acceptance test of bind, mint, answer, reconnect and cross-client isolation, not connect-and-list-tools (third
+   pass, section 13 P3-5).
+8. A refused answer cancels the owner's gate: `lib/mcp/gate-ledger.cjs` `consumeGate` (97-105) deletes the entry
+   before the TTL and session checks, and `gate_answer` (`lib/mcp/tools/gate.cjs` 450-515) runs the chosen-option,
+   resume-owner and bound-room checks after that consumption, so EVERY refusal burns the gate, not only
+   `session_mismatch` (scripted in `stages/02_actions/burn-probe.cjs`; widened by the third pass, P3-7). Anyone who
+   learns a gate id can cancel someone else's decision. The fix is consume-only-after-every-check plus a rule for when
+   consumption becomes durable, including refused answers and persistence failures (deliverable 11). The unbound-write
+   refusal (`resolveMcpWriteRoom`, the 2026-10-02 desktop-session-binding RCA) is already in the tree: pending
+   validation, not implementation. (Ledger fix folded into Phase 289; durability rule owned here.)
 9. The gate contract does not carry the recommendation (`recommended: null`, `preChecked: []`); only
    `card.options[].recommended` holds it. Same gap behind SEED-104's "not set" dialog. (Phase 289.)
 10. The scaffold's CLAUDE.md bleeds into Claude sessions, its CLI phones home by default, and its dev server
@@ -261,17 +275,21 @@ three inline views register only on Desktop/Cowork. Reuse candidates for the she
 8. TypeScript timing: does SEED-107's constitution edit land before the shell build (this phase's wave 0 says yes)?
 9. Where do MCP Apps stand: keep the three inline views as the Desktop/Cowork face, retire them, or rebuild them on
    the new UI's components? What happens to the orphan `mindrian-platform.html`?
-10. Realtime scope for v1: enable the SSE bus without the MCP-first flag and give it `room-changed`, `gate-fired`
+10. Realtime scope for v1: enable the SSE bus without the MCP-first flag and give it `room.changed` (one spelling, chosen 2026-10-02), `gate-fired`
     and `reconcile-raised` publishers before RxDB? Is Cowork multi-user (WebSockets, the 005 hand-off action) in v1?
 11. Desktop/Cowork: CLI/localhost only, reporting unsupported execution elsewhere, or hosted (SEED-091 tenant DB)?
 12. Hooked first screen: the one variable reward on first open (bhx central question or v3 four questions).
 13. Graph: a secondary tab (232, bhx) or a first-class view (sketch 001 variant B, xyflow)? Does SEED-026 gate it?
 14. Statusline co-design: does the UI's session indicator fall under the statusline co-design rule?
 
-Evidence-backed defaults the planner may propose (the navigator rules): Q5 yes, Phase 289 first (two spikes hit the
-same ledger and contract gaps); Q8 yes, wave 0; Q10 publish `room-changed` from the chokepoint and add
-`change_seq` (006 contradictions 1 and 2) before any RxDB code; Q11 CLI/localhost v1 (bhx item 8); Q3 adapter proof
-first unless the navigator accepts a second model key (SEED-067).
+Evidence-backed defaults the planner may propose (the navigator rules; the full Q1-Q14 slate with the third pass's
+reasons is section 13, table 4, and where it differs from this paragraph the third pass wins): Q1 the workroom as
+provisional chassis, decided by the same production-built slice in both candidates; Q5 yes, Phase 289 first (two spikes
+hit the same ledger and contract gaps); Q8 yes, wave 0; Q10 a durable `room_change_log` with `change_seq` before any
+RxDB code, realtime = cursor polling plus `room.changed` SSE hints (CLI hooks and scripts write room.db outside the MCP
+server, so "the chokepoint publishes" alone was never enough: superseded 2026-10-02, P3-8 and R2-2), no multi-user in
+v1; Q11 CLI/localhost v1 (bhx item 8); Q3 adapter proof first unless the navigator accepts a second model key
+(SEED-067).
 
 ## 7. Design Canon v3 Workshop Modernism (the only styling source; `~/dev/mindrian-website/docs/DESIGN-CANON.md`)
 
@@ -324,21 +342,25 @@ RESOLVED 2026-10-02 (second opinion, `369-SECOND-OPINION-2026-10-02.md`, citing 
 release notes): at 22.16.0 type stripping still needs the experimental flag; it runs unflagged from 22.18.0. The
 floor rises to `>=22.18.0` at wave 0 (release-note-level). Core rule: erasable-only `.ts` (no enum, no namespaces,
 no parameter properties, no TS path aliases, explicit extensions, `import type`, no TSX, `erasableSyntaxOnly` and
-`verbatimModuleSyntax`); UI is a Vite build with TSX; hooks stay `.cjs` until measured.
+`verbatimModuleSyntax`); the UI is a package built at release time, its build tool following the Q1 chassis decision
+(Next for the workroom, Vite for the agent-native scaffold; neither is mandated before Q1, P3-3); hooks AND the MCP
+server stay `.cjs` initially, and erasable `.ts` enters `lib/core` only after the installed-layout test passes
+(R2-7). "Resolved" here means the Node floor and the erasable rule list, not permission for native TS in core yet
+(P3-10).
 
 ## 9. MCP-side work the shell needs first (files named)
 
 | Fix | Where | Evidence |
 |---|---|---|
-| Session check before consume | `lib/mcp/gate-ledger.cjs` `consumeGate` (about line 100) | 007 trail 3, `burn-probe.cjs`; Phase 289 |
+| Consume only after every check passes (TTL, session, chosen option, resume owner, bound room), plus a durable-consumption rule for refused answers and persistence failures | `lib/mcp/gate-ledger.cjs` `consumeGate` 97-105; `lib/mcp/tools/gate.cjs` 450-515 | 007 trail 3, `burn-probe.cjs`; third pass P3-7; Phase 289 (ledger), deliverable (11) (durability) |
 | `recommended` in the gate contract | gate render contract (`recommended: null`, `preChecked: []`) | 007 trail 5; SEED-104 "not set"; Phase 289 |
-| Normal card on CLI, no double elicitation | `lib/mcp/tools/gate.cjs:9-14`, `detectClientCapabilities` about line 311 | SEED-104; Phase 289 |
+| Normal card on CLI, no double elicitation; the ruling stands, the diagnosis is updated: `detectClientCapabilities` (321-333) still prefers elicitation whenever the client declares it, but Claude Code 2.1.287 opens with `server/discover` and no initialize-time capabilities, so the CLI already renders at rung (b); this document nowhere claims the current CLI uses elicitation | `lib/mcp/tools/gate.cjs:9-14`, `detectClientCapabilities` 321-333 | SEED-104; 267-TRIPOLAR-PROBES.md 69-87; third pass P3-6; Phase 289 |
 | SDK-v2 `server/discover` handshake: shipped by Phase 267 (closed 2026-10-02, 18 of 18, 72f16523e); 369 re-runs the agent-native connect against the shipped server | Phase 267 plans; `bin/mindrian-mcp-server.cjs` | 007 trail 6, `discover-shim.cjs` (retires with 267) |
-| `room-changed` on the SSE bus from the chokepoint | `lib/core/navigation.cjs`, `lib/mcp/sse-event-bus.cjs` | 006 contradiction 2 (0 frames) |
-| Writer-side `change_seq` in the chokepoint's transaction | `lib/core/node-insert.cjs`, `lib/core/navigation/transitions.cjs` | 006 contradiction 1 |
+| `room.changed {roomId, latestSeq}` as ONE NEW additive SSE kind, a wake-up hint only (the bus vocabulary is frozen additive-only; `status-segment`, `gate-fired`, `reconcile-raised` stay); the wake-up must see cross-process writes, so room.db/WAL watch or a cursor poll, never the in-process bus alone | `lib/mcp/sse-event-bus.cjs` 7-15, `lib/core/navigation.cjs` | 006 contradiction 2 (0 frames); R2-2; third pass P3-8 |
+| Writer-side `room_change_log` row (`change_seq`) in the SAME transaction as each canonical mutation; `navigation.cjs` is an API boundary that re-exports writers (24-35, 125-132), not one transaction, and `node-insert.cjs` names two exclusions (3-8: memory-events dedupe, `rs-sqlite-mirror` bulk path), so coverage is proven against a writer INVENTORY (nodes, edges, deletes, bulk paths, transaction ownership), never a list of chokepoint functions | `lib/core/node-insert.cjs`, `lib/core/navigation/transitions.cjs` 256-300, `lib/core/navigation/edges.cjs`, `lib/core/rs-sqlite-mirror.cjs` | 006 contradiction 1; third pass P3-9 |
 | Tombstones or id reconcile for hard deletes | `lazygraph-ops`, `typed-entity` purge, `rs-engine` | 006 contradiction 3 |
 | A governed path to `supersede()` from a UI | `supersession-gate.cjs` WD-348-3 | 006 contradiction 5 |
-| Do not build on default (session-less) HTTP mode | `MINDRIAN_MCP_FIRST=cowork` per-connection mode | 005 results |
+| SUPERSEDED (005 measured the pre-267 server): flag-OFF now has a stateless v2 handler and flag-ON routes by era, modern requests bypassing the legacy session map (`bin/mindrian-mcp-server.cjs` 416-423, 436-443, 497-507). Open ACCEPTANCE requirement, not a demonstrated failure: prove sessionful behaviour (bind, mint, answer, reconnect, cross-client isolation) for the shell's client, or choose the legacy sessionful path explicitly | `bin/mindrian-mcp-server.cjs`, `lib/core/session-binding.cjs` | 005 results (dated); Phase 267; third pass P3-5 |
 
 ## 10. One description, many surfaces (SEED-106 item 7; weighed here, not in 366.1)
 
@@ -372,7 +394,7 @@ Full text: `369-SECOND-OPINION-2026-10-02.md`. Consulted by the navigator with t
 | 2 | One append-only `room_change_log` + `change_seq` in the same transaction; SSE = wake-up only; pull = delta; `checkpoint_expired` + snapshot on compaction | ADOPTED | solves spike 006 contradictions 1-3 in one structure; sits on the single write path Phases 273 and 348 already made; deliverable (2) rewritten |
 | 3 | Fix `server/discover` semantics in 369; migrate to SDK v2 later as its own change | CORRECTED | the migration is Phase 267, closed 2026-10-02 (18 of 18 plans, 72f16523e: local MCP server family on SDK v2, v2 McpServer + `serveStdio` on stdio, flag-ON HTTP routed by protocol era, `server/discover` handled; Claude Code 2.1.287 already opens stdio with `server/discover`, 267-TRIPOLAR-PROBES.md); 369 ships no shim and inherits two 267 follow-ons: MCPV2-13 (human Desktop/Cowork smoke) and the desktop session-binding fallback (process-scoped stdio session key; writes refuse when unbound) |
 | 4 | RxDB as a UI projection schema (about six collections), disposable by constitution | ADOPTED | SEED-073 verbatim, independently re-derived; removes the 13-collection concern; deliverable (4) rewritten |
-| 5 | Workroom as chassis, agent-native as donor; decide by the same vertical slice built twice, judged on four things | ADOPTED WITH TWO GUARDS | the slice must force every read and write through the action layer (the workroom reads `~/MindrianRooms` directly via Next API routes today) and drop the GPL-3.0 `xl-*` exporters (SEED-066); now the discuss Q1 default |
+| 5 | Workroom as chassis, agent-native as donor; decide by the same vertical slice built twice, judged on four things (widened by R2-9 and P3-1: production-built in BOTH candidates, reconnect, startup errors, dependency removal, direct-file-write replacement, packaging) | ADOPTED WITH TWO GUARDS | the slice must force every read and write through the action layer (the workroom reads `~/MindrianRooms` directly via Next API routes today) and drop the GPL-3.0 `xl-*` exporters (SEED-066); now the discuss Q1 default |
 | 6 | Node floor: unflagged type stripping needs `>=22.18.0`, not 22.16.0; erasable-only rule list; UI Vite build; hooks stay JS | ADOPTED | our brief hedged ("verify the exact Node line") where it should have checked; section 8 and deliverable (1) corrected |
 | P0 | ledger consume-before-session bug, shared `recommended` field and gate superset, then `change_seq + log + room.changed` | ADOPTED | matches Phase 289 as the dependency plus deliverable (2) |
 
@@ -393,6 +415,43 @@ A second, independent Codex review (same day, run against the exported bundle; i
 | R2-8 | UX: Work / Evidence / Decisions / Deliverables with Rooms as the context selector and graph secondary; opening screen = current question, changes since last visit, next decision | ADOPTED as the Q6, Q12 and Q13 defaults | matches the 2026-09-20 review and gives the Hooked first screen its variable reward ("what changed since you were here") |
 | R2-9 | Chassis test: the same production-built slice in each (bind room, show evidence, render gate, approve or defer, reconnect); compare retained code, direct-file-write replacement, dependency removal, startup errors, packaging; spike 007's database-error toast means the scaffold is not a clean baseline | ADOPTED, merged into the Q1 default | adds reconnect and packaging to the first review's four judgments |
 
+A third Codex pass (same day, against HEAD 541222787's working tree with uncommitted peer changes; read-only, no spikes
+rerun; verbatim in `369-SECOND-OPINION-2026-10-02.md` part 3). Every code citation below was re-verified at HEAD before
+folding:
+
+| # | Finding | Verdict | What changed in this document and the card |
+|---|---|---|---|
+| P3-1 | Chassis-test criteria weakened: the card said "four things only" while R2-9 was recorded as merged | ADOPTED | card and row 5 now carry the full comparative test: production build in both, reconnect, startup errors, dependency removal, direct-file-write replacement, packaging |
+| P3-2 | A per-action authorization and exposure policy is missing; a caller-supplied `principal` is not proof of a human | ADOPTED, deliverable (10) widened | every action declares who may call it (agent, human, both) and how human origin is established (a session bound to a browser interaction, never a request field); section 1 rewritten |
+| P3-3 | Vite was mandated before the Q1 chassis decision | ADOPTED | the binding rule is release-built UI assets; the build tool follows Q1 (Next for the workroom, Vite for the agent-native scaffold); section 8 and deliverable (1) corrected |
+| P3-4 | Spike transport failures read as current facts (fact 7; section 9 last row) | ADOPTED | both marked SUPERSEDED by Phase 267 and kept as dated findings |
+| P3-5 | Discovery success does not prove sessionful behaviour: modern requests bypass the legacy session map (`bin/mindrian-mcp-server.cjs` 416-423, 503-507) | ADOPTED, acceptance test | the re-run is bind, mint, answer, reconnect, cross-client isolation; or the legacy sessionful path is chosen explicitly |
+| P3-6 | The CLI ruling stands but its diagnosis is stale: on a 2026-era connection the CLI already lands at rung (b) (`gate.cjs` 321-333; 267-TRIPOLAR-PROBES.md 69-87) | ADOPTED | section 9 row and the Phase 289 card say so; this document nowhere claims the current CLI uses elicitation |
+| P3-7 | Ledger consumption precedes TTL, session, chosen-option, resume-owner and bound-room checks (`gate-ledger.cjs` 97-105; `gate.cjs` 450-515), not only the session check | ADOPTED | fact 8 and section 9 widened; deliverable (11) owns when consumption becomes durable, including refused answers and persistence failures; the unbound-write refusal already in the tree is pending validation, not implementation |
+| P3-8 | The SSE contract contradicted itself (`room.changed` vs `room-changed`; "carries only" on an additive-only bus, `sse-event-bus.cjs` 7-15) and the pull API read as HTTP | ADOPTED | one spelling, `room.changed`; ONE new additive kind, existing kinds stay; the pull contract is served through the `room_changes` MCP read surface of deliverable (12) |
+| P3-9 | `navigation.cjs` is an API boundary that re-exports writers (24-35, 125-132), not one transaction; `node-insert.cjs` names exclusions (3-8) | ADOPTED | change-log coverage is proven against a writer inventory (nodes, edges, deletes, bulk paths, transaction ownership); server-side composition alone does not give atomicity |
+| P3-10 | Sections 1, 6 and 8 overrode later decisions when read literally | ADOPTED | all three rewritten in place with dated superseded notes |
+
+Defaults for the 14 open questions as the third pass recommends them (the navigator rules at discuss; where this table
+differs from section 6, this table wins):
+
+| Q | Default |
+|---|---|
+| 1 | Workroom is the provisional chassis, subject to the same production-built slice in both candidates; retained useful code, governed access, reconnect behaviour, startup cleanliness and packaging decide |
+| 2 | BlockNote displays documents in v1; governed editing follows unless explicitly included (no second direct-save path) |
+| 3 | Local Claude Code adapter proof first: receive selected context, return governed proposals, before any second model loop and cost model |
+| 4 | Canon v3 on the new shell only, with an explicit scoped amendment to `skills/ui-system/SKILL.md`; no plugin-wide restyle in this phase |
+| 5 | Normal CLI card; Phase 289 first; the shared recommendation contract and ledger fix precede browser approval work, tested on both protocol eras |
+| 6 | Task-centered IA and adapter-proof gate adopted as DIRECTION; executable-workspace implementation is NOT already approved (the 2026-09-20 review withheld it) |
+| 7 | Task-centered room view; tiles stay labeled illustration pending usability proof |
+| 8 | Constitution edit in wave 0; UI builds at release; hooks and server stay JS initially; installed-layout validation controls any runtime migration |
+| 9 | Keep the existing MCP Apps; share suitable components later; park the orphan `mindrian-platform.html` explicitly |
+| 10 | Durable feed before RxDB; realtime = cursor polling plus SSE hints; no multi-user in v1; neither flag removal nor every publisher is a prerequisite |
+| 11 | CLI/localhost v1 with clear unsupported-execution messaging elsewhere; hosting is a separate tenancy and identity scope |
+| 12 | Current question, meaningful changes since last visit, next decision; on a first-ever visit show present evidence and the next decision, never an invented history |
+| 13 | Graph secondary; typed room.db edges (SEED-026) gate graph correctness, not the shell |
+| 14 | Yes: the session indicator is co-designed under the statusline rule |
+
 ## 12. Source index
 
 `.planning/seeds/SEED-105-ui-shell-agent-native-wrapping-mcp-tools.md`; `SEED-107-cjs-only-lifted-typescript-adoption.md`;
@@ -405,4 +464,5 @@ stages/); `.planning/spikes/MANIFEST.md` line 15; `.planning/research/2026-10-02
 `docs/research/MCP-APPS-STRATEGIC-RESEARCH.md`; seeds 006, 020 (shape-f), 036, 066, 067, 071, 072, 073, 091, 104, 106;
 `rethinking-mindrianos/research/2026-10-02-ui-shell-and-theo-relationship-from-a-science-session.md`,
 `2026-10-02-seeds-101-107-fold-map.md`; the Downloads bundle `MindrianOS-UIUX-seeds-2026-10-02/` (seed and spike
-exports, byte-identical to the repo copies on 2026-10-02).
+exports, byte-identical to the repo copies on 2026-10-02); `369-SECOND-OPINION-2026-10-02.md` (three Codex passes,
+verbatim, same day).
