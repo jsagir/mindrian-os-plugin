@@ -23,12 +23,12 @@
  * annotations branch and throws. `server.registerTool(name, {description,
  * inputSchema}, cb)`'s `inputSchema` goes through `getZodSchemaObject`, which
  * returns a ZodObject unchanged -- this is the form that preserves strictness
- * on the pinned SDK. Both these branches are read directly from
- * `node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js` (verbatim
- * source path pinned in the Arm Z4 comments below, not asserted by grep).
+ * on the v1 SDK. (Plan 267-17: the v1 SDK is removed. v2's McpServer has no
+ * positional overload at all, so Arm Z4a is restated below as a wire-level
+ * proof of the same security claim, not deleted.)
  *
  * VERSIONS ARE DERIVED, NEVER FROZEN (257-RESEARCH.md Pitfall 4). This file
- * reads `node_modules/@modelcontextprotocol/sdk/package.json` and
+ * reads `node_modules/@modelcontextprotocol/server/package.json` and
  * `node_modules/zod/package.json` at run time and prints what it finds; it
  * does not assert against a frozen version literal, so a future dependency
  * bump does not require an edit here to stay honest -- if a bump silently
@@ -41,9 +41,11 @@
  *   Arm Z2 - a plain z.object({question}) silently drops an undeclared key.
  *   Arm Z3 - z.strictObject({question}) rejects an undeclared key with
  *            unrecognized_keys naming it.
- *   Arm Z4 - the three-way registration mechanism: positional tool() with a
- *            ZodObject throws; registerTool() with a ZodObject inputSchema is
- *            accepted; registerTool() with a raw shape is accepted.
+ *   Arm Z4 - registration mechanism on the v2 McpServer: registerTool() with
+ *            a strictObject inputSchema rejects an undeclared key on the wire
+ *            before the handler runs (Z4a, restated from the v1 positional
+ *            overload throw); registerTool() with a ZodObject inputSchema is
+ *            accepted (Z4b); registerTool() with a raw shape is accepted (Z4c).
  *
  * Task 3 arms (the wire proof, spawns the real shim, drives real JSON-RPC,
  * per lib/mcp/no-instructions.test.cjs doctrine -- ground truth, not a grep):
@@ -225,7 +227,28 @@ function parseToolResult(resp) {
 // exactly as they did when it was the live file. Never touches a tracked
 // file.
 // ---------------------------------------------------------------------------
+// Plan 267-17: the v1 SDK is no longer a dependency of this repo, but the
+// pre-migration shim is a v1 program and needs a v1 SDK to run. The only v1
+// copy left on disk is mcp-server-brain/node_modules (dead service, out of
+// scope for removal). The scratch node_modules is therefore a real directory
+// of symlinks into the repo's node_modules, plus an @modelcontextprotocol/sdk
+// symlink to that fixture copy. Returns null when no v1 copy exists (a fresh
+// checkout), and the "before" legs then print an explicit SKIP; they are
+// never silently counted as passes.
+function findV1SdkFixture() {
+  const candidates = [
+    path.join(REPO, 'mcp-server-brain', 'node_modules', '@modelcontextprotocol', 'sdk'),
+    path.join(REPO, 'node_modules', '@modelcontextprotocol', 'sdk'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(path.join(c, 'package.json'))) return c;
+  }
+  return null;
+}
+
 function buildPreMigrationScratchShim() {
+  const v1Sdk = findV1SdkFixture();
+  if (!v1Sdk) return null;
   const source = cp.execFileSync('git', ['show', PRE_MIGRATION_COMMIT + ':bin/mindrian-brain-mcp-client.cjs'], {
     cwd: REPO,
     encoding: 'utf8',
@@ -238,7 +261,15 @@ function buildPreMigrationScratchShim() {
   fs.writeFileSync(scratchShimPath, source, 'utf8');
   fs.symlinkSync(path.join(REPO, 'lib'), path.join(scratchDir, 'lib'), 'dir');
   fs.symlinkSync(path.join(REPO, '.claude-plugin'), path.join(scratchDir, '.claude-plugin'), 'dir');
-  fs.symlinkSync(path.join(REPO, 'node_modules'), path.join(scratchDir, 'node_modules'), 'dir');
+  const scratchModules = path.join(scratchDir, 'node_modules');
+  fs.mkdirSync(scratchModules);
+  const repoModules = path.join(REPO, 'node_modules');
+  for (const entry of fs.readdirSync(repoModules)) {
+    if (entry === '@modelcontextprotocol') continue;
+    fs.symlinkSync(path.join(repoModules, entry), path.join(scratchModules, entry), 'dir');
+  }
+  fs.mkdirSync(path.join(scratchModules, '@modelcontextprotocol'));
+  fs.symlinkSync(v1Sdk, path.join(scratchModules, '@modelcontextprotocol', 'sdk'), 'dir');
   return scratchShimPath;
 }
 
@@ -282,16 +313,17 @@ async function main() {
   // -----------------------------------------------------------------------
   // Arm Z1: installed versions, derived from node_modules at run time.
   // -----------------------------------------------------------------------
-  const sdkPkg = require(path.join(REPO, 'node_modules', '@modelcontextprotocol', 'sdk', 'package.json'));
+  // v2 packages do not export ./package.json, so read the file from disk.
+  const sdkPkg = JSON.parse(fs.readFileSync(path.join(REPO, 'node_modules', '@modelcontextprotocol', 'server', 'package.json'), 'utf8'));
   const zodPkg = require(path.join(REPO, 'node_modules', 'zod', 'package.json'));
   const rootPkg = require(path.join(REPO, 'package.json'));
   record('Arm Z1: installed SDK/zod versions derived from node_modules (not frozen)', () => {
     assert.ok(typeof sdkPkg.version === 'string' && sdkPkg.version.length > 0, 'expected an installed SDK version string');
     assert.ok(typeof zodPkg.version === 'string' && zodPkg.version.length > 0, 'expected an installed zod version string');
     process.stdout.write(
-      '    package.json pin: @modelcontextprotocol/sdk ' + rootPkg.dependencies['@modelcontextprotocol/sdk'] +
+      '    package.json pin: @modelcontextprotocol/server ' + rootPkg.dependencies['@modelcontextprotocol/server'] +
       ', zod ' + rootPkg.dependencies.zod + '\n' +
-      '    installed:        @modelcontextprotocol/sdk ' + sdkPkg.version + ', zod ' + zodPkg.version + '\n'
+      '    installed:        @modelcontextprotocol/server ' + sdkPkg.version + ', zod ' + zodPkg.version + '\n'
     );
   });
 
@@ -321,24 +353,43 @@ async function main() {
   // -----------------------------------------------------------------------
   // Arm Z4: the three-way registration mechanism.
   // -----------------------------------------------------------------------
-  await recordAsync('Arm Z4a: positional tool() with a strictObject schema THROWS', async () => {
-    const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+  // Arm Z4a, restated for v2 (plan 267-17). v1 reason: v1 had a positional
+  // tool(name, desc, schema, cb) overload that misread a ZodObject and threw,
+  // and the arm pinned that throw. v2 has no positional overload, so that
+  // mechanism no longer exists. The security claim the arm protected is
+  // unchanged: a strictObject schema must reject an undeclared key before
+  // the handler runs. Proved here on the wire over InMemoryTransport.
+  await recordAsync('Arm Z4a: registerTool() with a strictObject inputSchema REJECTS an undeclared key on the wire and the handler never runs', async () => {
+    const { McpServer, InMemoryTransport } = require('@modelcontextprotocol/server');
+    const { Client } = require('@modelcontextprotocol/client');
     const s = new McpServer({ name: 'test-257-08-arm-z4a', version: '1.0.0' });
-    let threw = null;
-    try {
-      s.tool('probe', 'desc', z.strictObject({ question: z.string() }), async () => ({ content: [] }));
-    } catch (e) {
-      threw = e && e.message;
-    }
-    assert.ok(threw, 'expected positional tool() with a ZodObject to throw, it did not');
-    assert.ok(
-      /expected a Zod schema or ToolAnnotations, but received an unrecognized object/.test(threw),
-      'expected the specific isZodRawShapeCompat-branch message, got: ' + threw
+    let handlerRan = false;
+    s.registerTool(
+      'probe',
+      { description: 'desc', inputSchema: z.strictObject({ question: z.string() }) },
+      async () => { handlerRan = true; return { content: [{ type: 'text', text: 'ran' }] }; }
     );
+    const client = new Client({ name: 'test-257-08-arm-z4a-client', version: '1.0.0' });
+    const [serverSide, clientSide] = InMemoryTransport.createLinkedPair();
+    await s.connect(serverSide);
+    await client.connect(clientSide);
+    let rejected = null;
+    try {
+      const r = await client.callTool({ name: 'probe', arguments: { question: 'x', roomSecret: 'LEAK' } });
+      rejected = r && r.isError === true ? (r.content || []).map((c) => c.text || '').join(' ') : null;
+    } catch (e) {
+      rejected = e && e.message;
+    } finally {
+      await client.close();
+      await s.close();
+    }
+    assert.ok(rejected, 'expected the undeclared key to be rejected (isError result or protocol error), it was accepted');
+    assert.ok(/Unrecognized key|unrecognized/i.test(rejected), 'expected an unrecognized-key rejection, got: ' + rejected);
+    assert.strictEqual(handlerRan, false, 'the handler must never run for a call carrying an undeclared key');
   });
 
   await recordAsync('Arm Z4b: registerTool() with a strictObject inputSchema is ACCEPTED', async () => {
-    const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+    const { McpServer } = require('@modelcontextprotocol/server');
     const s = new McpServer({ name: 'test-257-08-arm-z4b', version: '1.0.0' });
     s.registerTool(
       'probe',
@@ -349,7 +400,7 @@ async function main() {
   });
 
   await recordAsync('Arm Z4c: registerTool() with a raw shape is ALSO accepted (uniform migration path)', async () => {
-    const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+    const { McpServer } = require('@modelcontextprotocol/server');
     const s = new McpServer({ name: 'test-257-08-arm-z4c', version: '1.0.0' });
     s.registerTool(
       'probe',
@@ -366,20 +417,34 @@ async function main() {
   // =========================================================================
   const { server: captureServer, url: captureUrl } = await startCaptureServer();
   const after = spawnShimAt(SHIM, captureUrl);
-  const before = spawnShimAt(buildPreMigrationScratchShim(), captureUrl);
+  const scratchShimPath = buildPreMigrationScratchShim();
+  const before = scratchShimPath ? spawnShimAt(scratchShimPath, captureUrl) : null;
+  if (!before) {
+    process.stdout.write('  NOTE no v1 SDK fixture on disk (mcp-server-brain/node_modules absent): the before-vs-after legs (Arms E, F, G) are SKIPPED, not passed\n');
+  }
+  // Arms that need the v1 "before" shim: explicit SKIP when it is unavailable.
+  async function recordNeedsBefore(name, fn) {
+    if (!before) {
+      process.stdout.write('  SKIP ' + name + ' (no v1 SDK fixture)\n');
+      return;
+    }
+    await recordAsync(name, fn);
+  }
 
   try {
     await initShim(after);
-    await initShim(before);
+    if (before) await initShim(before);
 
     const afterListResp = await after.request('tools/list', {});
     const liveNames = ((afterListResp.result && afterListResp.result.tools) || []).map((t) => t.name);
     const afterToolsList = {};
     (afterListResp.result.tools || []).forEach((t) => { afterToolsList[t.name] = t; });
 
-    const beforeListResp = await before.request('tools/list', {});
     const beforeToolsList = {};
-    (beforeListResp.result.tools || []).forEach((t) => { beforeToolsList[t.name] = t; });
+    if (before) {
+      const beforeListResp = await before.request('tools/list', {});
+      (beforeListResp.result.tools || []).forEach((t) => { beforeToolsList[t.name] = t; });
+    }
 
     // -----------------------------------------------------------------
     // Arm A + Arm B data collection: one undeclared-key call per live
@@ -468,7 +533,7 @@ async function main() {
     const zeroParamTools = liveNames.filter((n) => n === 'brain_schema' || n === 'brain_stats');
     assert.ok(zeroParamTools.length > 0, 'expected at least one zero-parameter tool (brain_schema/brain_stats) in the live catalog');
 
-    await recordAsync('Arm E: zero-parameter tools, both call shapes, before vs after (' + zeroParamTools.join(', ') + ')', async () => {
+    await recordNeedsBefore('Arm E: zero-parameter tools, both call shapes, before vs after (' + zeroParamTools.join(', ') + ')', async () => {
       for (const toolName of zeroParamTools) {
         const beforeAbsent = await callToolShape(before, toolName, 'absent');
         const afterAbsent = await callToolShape(after, toolName, 'absent');
@@ -519,7 +584,7 @@ async function main() {
     // declared parameter names, and the advertised
     // additionalProperties:false, all compared.
     // -----------------------------------------------------------------
-    await recordAsync('Arm F: catalog parity, before vs after (names, descriptions, declared parameters, additionalProperties:false)', async () => {
+    await recordNeedsBefore('Arm F: catalog parity, before vs after (names, descriptions, declared parameters, additionalProperties:false)', async () => {
       const beforeNames = Object.keys(beforeToolsList).sort();
       const afterNames = Object.keys(afterToolsList).sort();
       assert.deepStrictEqual(afterNames, beforeNames, 'tool name set changed by the migration: before=' + JSON.stringify(beforeNames) + ' after=' + JSON.stringify(afterNames));
@@ -557,7 +622,7 @@ async function main() {
     // a second scratch mutation, since Arm A's assertion is evaluated
     // per-tool and brain_ask alone is sufficient to prove the point.
     // -----------------------------------------------------------------
-    await recordAsync('Arm G: mutation leg -- the pre-migration brain_ask registration does NOT reject an undeclared key', async () => {
+    await recordNeedsBefore('Arm G: mutation leg -- the pre-migration brain_ask registration does NOT reject an undeclared key', async () => {
       const args = Object.assign({}, VALID_ARGS.brain_ask, { roomSecret: CANARY_TOKEN });
       const resp = await before.request('tools/call', { name: 'brain_ask', arguments: args });
       const parsed = parseToolResult(resp);
@@ -571,7 +636,7 @@ async function main() {
     });
   } finally {
     after.cleanup();
-    before.cleanup();
+    if (before) before.cleanup();
     scratchDirs.forEach((d) => { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ } });
     await stopCaptureServer(captureServer);
   }
