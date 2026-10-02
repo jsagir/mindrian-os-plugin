@@ -183,8 +183,35 @@ asked a navigator to rule on for Desktop; it now applies to the CLI.
 | run-all-363 "no new dependency" | known, fixture stale |
 | doctor hermetic-HOME 16/22 | ENV GAP (needs the real install state) |
 
+## After the navigator's rulings (re-measured 2026-10-02, same hygiene)
+
+Rulings: (a) the CLI at rung (b) on the 2026-era host is accepted (F-C); (b) the test-257 v1
+before-versus-after legs are RETIRED (F-A, option 3); (c) the human Desktop smoke and the Cowork probe
+are deferred. Quick 261002-by3 (122766d8a, e4733065e, fc7c6c552) carried out (b) and also fixed F-B
+and the test-270 stubs.
+
+| Row | Before the rulings | After | Delta |
+|-----|--------------------|-------|-------|
+| `test-257-strict-input-shapes.cjs` (row 13) | aborts after Z4c, Arms A to G dark | Z1 to Z4c, A, C, D, E, E2 run and pass; only Arm B fails (the baseline's flaky `theo_health` boot race, recorded since 267-01); the v1 before-legs are gone and no stray `npm install` fires | F-A closed by retirement; back to the baseline red |
+| `test-198-contract-schema.test.cjs` (row 26) | FAIL at line 57 (stub knows only `tool()`) | exit 0 | fixed (F-B closed) |
+| `bash tests/run-all-198.sh` (row 4) | 13 pass, 3 fail | 14 pass, 2 fail (Part 8 local-only floor, SPEC-5), SPEC-2 green | fixed (one leg better than baseline) |
+| `test-270-dynamic-tree.cjs` | FAIL `registerResource` stub | exit 0 | fixed |
+| `bash tests/run-all-267.sh` (row 1) | PASS=29 FAIL=3 SKIP=1 | PASS=29 FAIL=3 SKIP=1: CIRS (c), zod4 (a)(b)(d), 354 concurrency K4 (ENV GAP). Same three, same reasons | same + peer drift, carried forward |
+
+Zero NEW RED rows remain. The only reds left in the phase's own aggregator are the two peer-drift
+baselines (MCPV2-08 and MCPV2-03 stay `[ ]` until a combined refresh after Phase 366 lands) and the
+Playwright ENV GAP.
+
 ## Tri-Polar and research trail
 
 - CLI post-migration: `267-TRIPOLAR-PROBES.md`, "## CLI (post-migration)".
-- Desktop and Cowork post-migration: pending the navigator's smoke (267-18 Task 2).
-- Research trail (dual home): written by 267-18 Task 3; the link is added here when it exists.
+- Desktop-surrogate (automated, not a human probe): `267-TRIPOLAR-PROBES.md`, "## Desktop-surrogate".
+- Desktop and Cowork post-migration: DEFERRED 2026-10-02 by navigator ruling, recorded in
+  `267-TRIPOLAR-PROBES.md` ("## Desktop (post-migration)", "## Cowork (post-migration)"). MCPV2-13 stays open.
+- Research trail (dual home): the room write to `~/MindrianRooms/rethinking-mindrianos/research/` was
+  REFUSED by the write-scope-check hook (active room `egain-des-liquid-conductor`) and was not routed around.
+  Filed instead at `/home/jsagi/MindrianOS/research/2026-10-02-mcp-sdk-v2-migration-closeout-267.md`
+  with `mirror_status: PENDING` (commit b5db689fa in the `/home/jsagi` repository, precedent 55e077bef).
+  Follow-up: `/mos:rooms switch rethinking-mindrianos`, then file the identical content at
+  `research/2026-10-02-phase-267-mcp-v2-closeout/phase-267-mcp-v2-closeout.md`.
+- Follow-up seeds: `.planning/seeds/SEED-108` to `SEED-111`.
