@@ -134,15 +134,14 @@ const THREE_OPTION_CARD_BASE = {
     const singleSchema = buildElicitRequestedSchema(card);
     const multiSchema = buildElicitRequestedSchema(multiCard);
 
-    // The package's own "exports" map does not expose this subpath, so this
-    // reaches the vendored file directly by relative path (same file the
-    // plan's read_first cites: node_modules/@modelcontextprotocol/sdk/dist/
-    // cjs/types.js), not through the package specifier.
+    // The v2 core package exports these schemas at its package root
+    // (@modelcontextprotocol/core), so no relative dist path is needed.
+    // Plan 267-17 moved this arm off the v1 dist/cjs/types.js file.
     let sdkTypes;
     try {
-      sdkTypes = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/types.js');
+      sdkTypes = require('@modelcontextprotocol/core');
     } catch (e) {
-      fail(arm, 'could not require the vendored SDK types module', e.message);
+      fail(arm, 'could not require the v2 core package (@modelcontextprotocol/core)', e.message);
     }
 
     let singleSchemaZod = sdkTypes.TitledSingleSelectEnumSchemaSchema;
@@ -152,7 +151,7 @@ const THREE_OPTION_CARD_BASE = {
       usedFallback = true;
       singleSchemaZod = sdkTypes.EnumSchemaSchema;
       multiSchemaZod = sdkTypes.EnumSchemaSchema;
-      console.log('sdk arm fallback: TitledSingleSelectEnumSchemaSchema/TitledMultiSelectEnumSchemaSchema not reachable from the CJS build; validating against the EnumSchemaSchema union instead.');
+      console.log('sdk arm fallback: TitledSingleSelectEnumSchemaSchema/TitledMultiSelectEnumSchemaSchema not reachable from the core package; validating against the EnumSchemaSchema union instead.');
     }
 
     const singleResult = singleSchemaZod.safeParse(card ? singleSchema.properties.choice : null);
