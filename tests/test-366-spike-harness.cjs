@@ -262,6 +262,15 @@ function makeSpikeRoot(prefix, rooms) {
   const claudeUseful = goldUseful[ARM][0] ? 1 : 0;
   check('S5 a judge arm useful rate is the gold-useful share among the pairs it passed', claudeRep.passed === 1 && claudeRep.useful === claudeUseful && claudeRep.shown === 1 && JSON.stringify(claudeRep.wilson95) === JSON.stringify(m355.wilson95(claudeUseful, 1).map(r4)) && itemsDoc.items[0].pair_id === claudePassId);
   check('S5 the cost block is recorded as counts per arm', typeof ea.cost.wall_ms === 'number' && typeof claudeRep.cost.wall_ms === 'number' && ja.jev.repeats[0].cost.vendor_calls === 0);
+  check('S5 (366-20) every labeled arm carries a direction block: phrase_shown + phrase_absent = shown, direction_ok counted only where a phrase was shown', Object.keys(rec.recall_arms).every(function (a) { const d = rec.recall_arms[a].direction; return d && d.phrase_shown + d.phrase_absent === rec.recall_arms[a].shown && d.direction_ok === 0 && d.direction_ok <= d.phrase_shown; }));
+  check('S5 (366-20) label_consistency counts pairs labeled in more than one sitting and how many useful labels agree', rec.label_consistency && rec.label_consistency.arms.join() === 'eureka-graph-lexical,hsi-graph,rs-graph' && rec.label_consistency.useful_agree + rec.label_consistency.useful_disagree.length === rec.label_consistency.pairs_labeled_more_than_once);
+  check('S5 (366-20) direction and consistency helpers: NONE_MEANING items are never counted; a disagreement is listed by pair id', (function () {
+    const raw = Buffer.from(JSON.stringify({ items: [{ pair_id: 'p1', direction_phrase: 'no wording signal measured' }, { pair_id: 'p2', direction_phrase: 'x phrase' }, { pair_id: 'p3', direction_phrase: 'x phrase' }] }));
+    const d = spike.directionAgreement(raw, { items: [{ pair_id: 'p1', direction_ok: true }, { pair_id: 'p2', direction_ok: true }, { pair_id: 'p3', direction_ok: false }] });
+    const c = spike.labelConsistency({ a: new Map([['p1', true], ['p2', false]]), b: new Map([['p1', true], ['p2', true], ['p3', true]]) });
+    return d.phrase_shown === 2 && d.direction_ok === 1 && d.phrase_absent === 1 && d.by_phrase['x phrase'].shown === 2 &&
+      c.pairs_labeled_more_than_once === 2 && c.useful_agree === 1 && c.useful_disagree.join() === 'p2';
+  })());
   check('S5 a gold file labeled against a different items file is refused (fixture_sha256)', (function () {
     const g = path.join(ROOT, 'gold', 'rs-graph.json');
     const orig = fs.readFileSync(g, 'utf8');

@@ -689,7 +689,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": "wave 1 recall budget, SEED-103 (Phase 366); no measured bucket yet, re-measured by the 366 spike",
+      "provenance": "wave 1 recall budget, SEED-103 (Phase 366); the 366 spike (tests/fixtures/366-spike/record.json, 2026-10-02) measured eureka-graph-lexical at 3 useful of 7 shown, all above the floor by construction, so no below-floor bucket could be measured",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -702,7 +702,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": "wave 1 recall budget, SEED-103 (Phase 366); no measured bucket yet, re-measured by the 366 spike",
+      "provenance": "wave 1 recall budget, SEED-103 (Phase 366); the 366 spike (tests/fixtures/366-spike/record.json, 2026-10-02) showed 7 pairs on the 355 fixture copies, far under every cap, so no cap-edge bucket could be measured",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -715,7 +715,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": "capped recall budget, no measured bucket yet; re-measured by the 366 spike",
+      "provenance": "capped recall budget; the 366 spike (tests/fixtures/366-spike/record.json, 2026-10-02) could not measure a bucket: rs-graph surfaced 0 pairs on the 355 fixture copies (no INFORMS-style flow edges, no declared feeds), and the lag score has no absolute floor to bucket against",
       "dependent_outputs": ["research_run"]
     },
     {
@@ -728,7 +728,7 @@
       "env_override": null,
       "env_read": "load",
       "status": "disclosed",
-      "provenance": "capped recall budget, no measured bucket yet; re-measured by the 366 spike",
+      "provenance": "capped recall budget; the 366 spike (tests/fixtures/366-spike/record.json, 2026-10-02) measured hsi-graph at 4 useful of 7 shown (navigator blind gold) but no above/below bucket exists: there is no divergence floor, and every shown pair sits inside the caps (7 pairs, far under max_candidates and per_thing_top_k)",
       "dependent_outputs": ["research_run"]
     },
     {

@@ -506,6 +506,51 @@ function rateBlock(k, n, threshold, baselineN) {
   };
 }
 
+// Direction agreement for an arm (366-20, D-08): the navigator's direction_ok,
+// counted only over items that showed a direction phrase. An item showing the
+// NONE_MEANING sentinel carries no direction claim, so its direction_ok is not
+// a judgment and is never counted.
+function directionAgreement(itemsRaw, gold) {
+  const parsed = JSON.parse(itemsRaw);
+  const items = Array.isArray(parsed) ? parsed : (parsed.items || []);
+  const okOf = new Map();
+  (gold.items || []).forEach(function (g) { if (typeof g.direction_ok === 'boolean') okOf.set(g.pair_id, g.direction_ok); });
+  const byPhrase = {};
+  let shown = 0;
+  let ok = 0;
+  items.forEach(function (it) {
+    const phrase = it.direction_phrase;
+    if (typeof phrase !== 'string' || !phrase || phrase === directionConvention.NONE_MEANING) return;
+    shown += 1;
+    const b = byPhrase[phrase] || (byPhrase[phrase] = { shown: 0, direction_ok: 0 });
+    b.shown += 1;
+    if (okOf.get(it.pair_id) === true) { ok += 1; b.direction_ok += 1; }
+  });
+  const sorted = {};
+  Object.keys(byPhrase).sort().forEach(function (k) { sorted[k] = byPhrase[k]; });
+  return { phrase_shown: shown, direction_ok: ok, phrase_absent: items.length - shown, by_phrase: sorted };
+}
+
+// Label consistency (366-20): a pair that appears in more than one arm's items
+// file is labeled once per appearance, blind; count how often the useful
+// labels agree. Counts only, pair ids listed for the disagreements.
+function labelConsistency(usefulByArm) {
+  const seen = new Map();
+  Object.keys(usefulByArm).sort().forEach(function (arm) {
+    usefulByArm[arm].forEach(function (u, id) { (seen.get(id) || seen.set(id, []).get(id)).push(u); });
+  });
+  let multi = 0;
+  let agree = 0;
+  const disagree = [];
+  Array.from(seen.keys()).sort().forEach(function (id) {
+    const v = seen.get(id);
+    if (v.length < 2) return;
+    multi += 1;
+    if (v.every(function (x) { return x === v[0]; })) agree += 1; else disagree.push(id);
+  });
+  return { arms: Object.keys(usefulByArm).sort(), pairs_labeled_more_than_once: multi, useful_agree: agree, useful_disagree: disagree };
+}
+
 function computeRecord(root) {
   const rootDir = root || SPIKE_FIXTURES;
   const barInfo = loadBar(rootDir);
@@ -517,6 +562,7 @@ function computeRecord(root) {
   const recallOut = {};
   const judgeOut = {};
   const awaiting = [];
+  const usefulByArm = {};
   RECALL_ARMS.forEach(function (arm) {
     const dir = path.join(rootDir, 'arms', arm);
     if (!fs.existsSync(path.join(dir, 'recall.json'))) return;
@@ -549,6 +595,8 @@ function computeRecord(root) {
       repeats: repeats, clears_bar_all_repeats: repeats.every(function (r) { return r.clears_bar; }),
       per_room: perRoom, recall_counts: recall.rooms, cost: recall.cost,
     };
+    entry.direction = directionAgreement(itemsRaw, gold);
+    usefulByArm[arm] = usefulOf;
     if (SLICE_OF[arm]) {
       const sl = base.slices[SLICE_OF[arm]];
       const lo = wilson95(k, pairs.length)[0];
@@ -598,6 +646,7 @@ function computeRecord(root) {
     },
     recall_arms: recallOut,
     judge_arms: judgeOut,
+    label_consistency: labelConsistency(usefulByArm),
     awaiting_gold: awaiting,
   };
 }
@@ -728,5 +777,6 @@ module.exports = {
   SCHEMA, RECALL_ARMS, JUDGE_ARMS, VERDICTS, SPIKE_FIXTURES,
   loadBar, loadManifest, buildVectorLane, recallArm, itemsFor, judgeArm,
   computeRecord, serializeRecord, recordSpike, checkRecord, baselineFrom355, minUsefulToClear,
+  directionAgreement, labelConsistency,
   cliMain,
 };
