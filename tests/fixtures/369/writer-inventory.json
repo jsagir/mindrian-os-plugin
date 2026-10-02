@@ -1,0 +1,446 @@
+{
+  "generated_from": "369-RESEARCH.md Pattern 2, reconciled 2026-10-02 against a live scan",
+  "scan_regex": "(INSERT( OR [A-Z]+)? INTO|UPDATE|DELETE FROM|REPLACE INTO)\\s+\"?(nodes|edges)\\b",
+  "scan_regex_flags": "case-insensitive, applied to whole file content (a statement split across lines still counts); pure comment lines (leading //, *, /*, #) are not statements",
+  "scan_roots": [
+    "lib",
+    "scripts",
+    "bin",
+    "hooks"
+  ],
+  "scan_extensions": [
+    ".cjs",
+    ".js",
+    ".mjs",
+    ".ts",
+    ".py",
+    ".sh"
+  ],
+  "scan_excludes": [
+    "files matching *.test.cjs, *.test.js, *.test.mjs, *.test.ts",
+    "files whose basename starts with test-",
+    "everything under tests/",
+    "lib/core/migrations/ (migration rebuilds are row M1)",
+    "every node_modules"
+  ],
+  "non_write_hits": [
+    {
+      "file": "lib/core/navigation/graph-integrity-counts.cjs",
+      "needle": "issue raw INSERT INTO edges statements",
+      "why": "a string inside a message describing the bypass, not a write"
+    }
+  ],
+  "rows": [
+    {
+      "id": "N1",
+      "class": "node insert (THE chokepoint)",
+      "file": "lib/core/node-insert.cjs",
+      "function": "insertNode",
+      "statement_lines": [
+        250,
+        263
+      ],
+      "tx_owner": "caller (autocommit by default)",
+      "exercise": "call",
+      "how": "Call insertNode(db, id, type, properties, provenance) on a fixture room of each schema variant (wide takes the wide insert, mid and legacy the 3-column branch)."
+    },
+    {
+      "id": "N2",
+      "class": "node insert, named exclusion 1",
+      "file": "lib/core/navigation/memory-events.cjs",
+      "function": "logEvent",
+      "statement_lines": [
+        898
+      ],
+      "tx_owner": "caller",
+      "exercise": "call",
+      "how": "Call navigation.logMemoryEvent(db, event) on a migrated fixture room; the memory_event node is a graph node and IS logged."
+    },
+    {
+      "id": "N3",
+      "class": "node insert, named exclusion 2 (bulk)",
+      "file": "lib/core/rs-sqlite-mirror.cjs",
+      "function": "writeDiscovery",
+      "statement_lines": [
+        407
+      ],
+      "tx_owner": "own handle via the room-db.cjs opener",
+      "exercise": "call",
+      "how": "Call rs-sqlite-mirror.writeDiscovery(discovery, { roomDir }) with a minimal discovery payload; it opens its own handle through the write door."
+    },
+    {
+      "id": "N4",
+      "class": "node insert, UNNAMED bypass (INSERT OR IGNORE)",
+      "file": "lib/core/navigation/spine-events.cjs",
+      "function": "_emitWithOperatorEdge",
+      "statement_lines": [
+        293
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Emit a spine event through the exported spine-events emitter that routes to _emitWithOperatorEdge on a migrated fixture room; an ignored duplicate must log nothing."
+    },
+    {
+      "id": "N5",
+      "class": "node insert, UNNAMED bypass (INSERT OR IGNORE)",
+      "file": "lib/core/navigation/room-birth.cjs",
+      "function": "drainBirthGateAnswers",
+      "statement_lines": [
+        206,
+        226
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call room-birth.drainBirthGateAnswers(roomDir) after queueing birth gate answers in a fixture room."
+    },
+    {
+      "id": "U1",
+      "class": "node update (truth state)",
+      "file": "lib/core/navigation/transitions.cjs",
+      "function": "promoteNodeStatus",
+      "statement_lines": [
+        264,
+        268,
+        271
+      ],
+      "tx_owner": "OWN BEGIN at line 256, unconditional (adopt the owns idiom)",
+      "exercise": "call",
+      "how": "Call navigation.confirmNode(db, id, opts) on a proposed claim (reaches promoteNodeStatus), standalone and inside an outer transaction."
+    },
+    {
+      "id": "U2",
+      "class": "node update",
+      "file": "lib/core/navigation/typed-domain.cjs",
+      "function": "writeDomainNode",
+      "statement_lines": [
+        156
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call navigation.writeDomainNode(db, spec) twice with the same id so the second call takes the UPDATE branch."
+    },
+    {
+      "id": "U3",
+      "class": "node update",
+      "file": "lib/core/navigation/typed-frame.cjs",
+      "function": "writeFrameNode",
+      "statement_lines": [
+        392
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call writeFrameNode(db, spec) twice with the same frame so the second call takes the UPDATE branch."
+    },
+    {
+      "id": "U4",
+      "class": "node update",
+      "file": "lib/core/navigation/abstraction-claim.cjs",
+      "function": "persistAbstractionLevel",
+      "statement_lines": [
+        172
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call persistAbstractionLevel(db, claimId, level) on an existing claim node."
+    },
+    {
+      "id": "U5",
+      "class": "node update",
+      "file": "lib/core/navigation/grant-rubric.cjs",
+      "function": "writeGrantRubricGraph",
+      "statement_lines": [
+        121
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call writeGrantRubricGraph(db, rubric) twice so the second call updates the rubric node."
+    },
+    {
+      "id": "U6",
+      "class": "node update",
+      "file": "lib/core/navigation/room-birth.cjs",
+      "function": "writeSectionNodes",
+      "statement_lines": [
+        297
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call the room-birth section writer on a fixture room whose Section node exists, so review_status is set to confirmed."
+    },
+    {
+      "id": "U7",
+      "class": "node update",
+      "file": "lib/core/breakthrough/verb-dispatch.cjs",
+      "function": "dispatchVerb",
+      "statement_lines": [
+        206
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call dispatchVerb(db, verb, nodeId) for a breakthrough verb on a surfaced node."
+    },
+    {
+      "id": "U8",
+      "class": "node update",
+      "file": "lib/core/breakthrough/scanner.cjs",
+      "function": "surfaceBreakthrough",
+      "statement_lines": [
+        422
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call surfaceBreakthrough(db, candidate) on an existing node."
+    },
+    {
+      "id": "U9",
+      "class": "node update, SessionStart HOOK",
+      "file": "scripts/check-pending-ambiguous.cjs",
+      "function": "throttleAndCollect",
+      "statement_lines": [
+        154
+      ],
+      "tx_owner": "autocommit, other process",
+      "exercise": "script",
+      "how": "Run node scripts/check-pending-ambiguous.cjs as the SessionStart hook does against a fixture room holding a pending ambiguous node, in a separate process."
+    },
+    {
+      "id": "E1",
+      "class": "edge insert (THE chokepoint)",
+      "file": "lib/core/navigation/edges.cjs",
+      "function": "writeEdge",
+      "statement_lines": [
+        1104,
+        1115
+      ],
+      "tx_owner": "caller",
+      "exercise": "call",
+      "how": "Call navigation.writeEdge(db, { source_id, target_id, edge_type, properties }) on the wide and the base-edges variants."
+    },
+    {
+      "id": "E2",
+      "class": "edge insert (INSERT OR IGNORE)",
+      "file": "lib/core/navigation/ingestion.cjs",
+      "function": "storeBrainSuggestions",
+      "statement_lines": [
+        83
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call ingestion.storeBrainSuggestions(db, suggestions) with fixture suggestion rows."
+    },
+    {
+      "id": "E3",
+      "class": "edge upsert",
+      "file": "lib/core/graph-ops.cjs",
+      "function": "persistDecisionEdge, indexOpportunity",
+      "statement_lines": [
+        196,
+        250,
+        262
+      ],
+      "tx_owner": "open-use-close via lazygraph",
+      "exercise": "call",
+      "how": "Call graph-ops.persistDecisionEdge(roomDir, ...) and graph-ops.indexOpportunity(roomDir, ...) on a fixture room."
+    },
+    {
+      "id": "E4",
+      "class": "edge upserts (11 functions)",
+      "file": "lib/core/lazygraph-ops.cjs",
+      "function": "_indexArtifactBody, createAnalogyEdge, createIsomorphismEdge, createResolutionEdge, createExtractedFromEdge, createCascadesToEdge, enrichContradictionWithTRIZ, linkWhitespaceToArtifact, linkWhitespaceToSection, linkDiscoveryCycleSource, upsertEdge",
+      "statement_lines": [
+        577,
+        1061,
+        1086,
+        1113,
+        1175,
+        1202,
+        1304,
+        1376,
+        1393,
+        1412,
+        1461
+      ],
+      "tx_owner": "indexArtifact owns BEGIN at 626; the rest autocommit",
+      "exercise": "call",
+      "how": "Call lazygraph-ops.indexArtifact(db, roomDir, file) for _indexArtifactBody and each exported create*/link*/upsertEdge function on a migrated fixture room."
+    },
+    {
+      "id": "E5",
+      "class": "edge bulk script",
+      "file": "scripts/build-ecosystem-graph.cjs",
+      "function": "buildEcosystemGraph",
+      "statement_lines": [
+        352,
+        393,
+        415,
+        423,
+        443,
+        477
+      ],
+      "tx_owner": "script, other process",
+      "exercise": "script",
+      "how": "Run node scripts/build-ecosystem-graph.cjs against a fixture room in a separate process and assert log rows for every edge it wrote."
+    },
+    {
+      "id": "E6",
+      "class": "edge bulk script",
+      "file": "scripts/hsi-to-graph.cjs",
+      "function": "main",
+      "statement_lines": [
+        197,
+        198,
+        202
+      ],
+      "tx_owner": "script, other process",
+      "exercise": "script",
+      "how": "Run node scripts/hsi-to-graph.cjs against a fixture room with an HSI result file in a separate process (DELETE then INSERT)."
+    },
+    {
+      "id": "D1",
+      "class": "HARD DELETE (reindex)",
+      "file": "lib/core/lazygraph-ops.cjs",
+      "function": "clearIndexerOwnedRows via rebuildGraph",
+      "statement_lines": [
+        139,
+        150,
+        158
+      ],
+      "tx_owner": "rebuildGraph owns BEGIN 732 / COMMIT 895",
+      "exercise": "call",
+      "how": "Call lazygraph-ops.rebuildGraph(roomDir) on a fixture room with indexed artifacts; deletes must appear as delete rows."
+    },
+    {
+      "id": "D2",
+      "class": "HARD DELETE (legacy purge)",
+      "file": "lib/core/navigation/typed-entity.cjs",
+      "function": "purgeLegacySelfReferentialEntities",
+      "statement_lines": [
+        303,
+        304
+      ],
+      "tx_owner": "OWN BEGIN (run at 376-385)",
+      "exercise": "call",
+      "how": "Seed legacy self-referential entity rows then call purgeLegacySelfReferentialEntities(db)."
+    },
+    {
+      "id": "D3",
+      "class": "HARD DELETE",
+      "file": "lib/core/rs-engine.cjs",
+      "function": "writeReverseSalientEdges",
+      "statement_lines": [
+        412
+      ],
+      "tx_owner": "autocommit",
+      "exercise": "call",
+      "how": "Call rs-engine.writeReverseSalientEdges(db, edges) twice so the second call deletes the prior reverse-salient edges."
+    },
+    {
+      "id": "D4",
+      "class": "HARD DELETE strings",
+      "file": "lib/core/rs-sqlite-mirror.cjs",
+      "function": "buildRollbackSql",
+      "statement_lines": [
+        336,
+        337,
+        338,
+        339,
+        340,
+        341
+      ],
+      "tx_owner": "caller (returned SQL, run by the dispatch caller)",
+      "exercise": "call",
+      "how": "Call writeDiscovery with a failing step so the returned rollback SQL runs, then assert delete rows and an unchanged final graph."
+    },
+    {
+      "id": "P1",
+      "class": "PYTHON writer",
+      "file": "scripts/rs-engine.py",
+      "function": "main (behind the rs backend flag; commands/find-bottlenecks.md:67)",
+      "statement_lines": [
+        460,
+        477,
+        534,
+        539
+      ],
+      "tx_owner": "sqlite3.connect, other process",
+      "exercise": "python",
+      "how": "Run python3 scripts/rs-engine.py --mode internal --room <fixture room> and assert log rows from the trigger-installed room.db (SQLite JSON functions are never used in triggers)."
+    },
+    {
+      "id": "R1",
+      "class": "whole-room removal",
+      "file": "lib/core/room-discard-cascade.cjs",
+      "function": "discardPlaceholderRoom",
+      "statement_lines": [],
+      "tx_owner": "own BEGIN, then the db file is removed",
+      "exercise": "room-removal",
+      "how": "Call room-discard-cascade.discardPlaceholderRoom(roomDir) on a placeholder fixture room; the room.db file is gone, so the epoch and room-removed handling is asserted instead of log rows."
+    },
+    {
+      "id": "M1",
+      "class": "table rebuild (drops triggers)",
+      "file": "lib/core/migrations/phase-109-nodes-provenance.cjs",
+      "function": "runPhase109NodesProvenance (builds nodes_new at 292, renames it)",
+      "statement_lines": [],
+      "tx_owner": "own BEGIN 377",
+      "exercise": "migration",
+      "how": "Open a legacy-variant fixture room through openRoomDb (the write door) and assert the triggers are reinstalled after the rebuild and the change log epoch is re-minted."
+    },
+    {
+      "id": "X1",
+      "class": "external writer (to be REPLACED, D-06)",
+      "file": "~/dev/mindrian-workroom/scripts/graph-sync-worker.cjs",
+      "function": "graph-sync-worker (calls plugin graph-ops.indexArtifact after a direct file write)",
+      "statement_lines": [],
+      "tx_owner": "out of the slice",
+      "exercise": "external-note",
+      "how": "Outside this repo; replaced by the action layer in the bake-off slice. The plugin side is covered by E3 and E4 (indexArtifact), so no test drives it here."
+    }
+  ],
+  "per_file_statement_counts": {
+    "lib/core/breakthrough/scanner.cjs": 1,
+    "lib/core/breakthrough/verb-dispatch.cjs": 1,
+    "lib/core/graph-ops.cjs": 3,
+    "lib/core/lazygraph-ops.cjs": 14,
+    "lib/core/navigation/abstraction-claim.cjs": 1,
+    "lib/core/navigation/edges.cjs": 2,
+    "lib/core/navigation/grant-rubric.cjs": 1,
+    "lib/core/navigation/ingestion.cjs": 1,
+    "lib/core/navigation/memory-events.cjs": 1,
+    "lib/core/navigation/room-birth.cjs": 3,
+    "lib/core/navigation/spine-events.cjs": 1,
+    "lib/core/navigation/transitions.cjs": 3,
+    "lib/core/navigation/typed-domain.cjs": 1,
+    "lib/core/navigation/typed-entity.cjs": 2,
+    "lib/core/navigation/typed-frame.cjs": 1,
+    "lib/core/node-insert.cjs": 2,
+    "lib/core/rs-engine.cjs": 1,
+    "lib/core/rs-sqlite-mirror.cjs": 7,
+    "scripts/build-ecosystem-graph.cjs": 6,
+    "scripts/check-pending-ambiguous.cjs": 1,
+    "scripts/hsi-to-graph.cjs": 3,
+    "scripts/rs-engine.py": 4
+  },
+  "excluded_tables": {
+    "tables": [
+      "identity",
+      "facts",
+      "fragments",
+      "assumptions",
+      "stakeholders",
+      "session_focus",
+      "decisions_index",
+      "calibration_observations",
+      "ranker_weights"
+    ],
+    "reason": "non-graph tables are not in the change log; the projection reads nodes and edges; memory_event rows are nodes and ARE logged",
+    "not_matched_by_scan": "memory-ops.cjs identity/facts/fragments/assumptions, scripts/memory-lifecycle.cjs fragments, lazygraph-ops.cjs stakeholders, navigation/focus.cjs session_focus, decisions_index, calibration_observations, ranker_weights"
+  },
+  "reconciliation_notes": [
+    "Wave 0 live scan found no writer that RESEARCH Pattern 2 did not list; no unlisted-found-at-wave-0 row was needed.",
+    "N2 statement line is 898 (RESEARCH said 895): the INSERT is a concatenated string and the match starts on its first line.",
+    "scripts/check-substrate.cjs RE_RAW_WRITE misses INSERT OR IGNORE INTO (rows N4, N5, E2); this inventory scan does not.",
+    "Comment-only hits (close-loop-writer, graph-backfill, navigation.cjs, node-insert header, reified-claim, sensor-graph-integrity, supersession-gate, check-substrate, graph-heal-pipeline, lazygraph-ops comments) are not writers and are filtered out of the counts.",
+    "Raw string-built or templated table names were searched for and none exist."
+  ]
+}
