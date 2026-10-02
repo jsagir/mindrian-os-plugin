@@ -53,6 +53,10 @@ const SCAN_FAMILIES = Object.freeze([
   'scripts/*whitespace*.cjs',
   'scripts/hsi-*.cjs',
   'scripts/compute-whitespace-gaps.py',
+  // Phase 366 plan 16 (355 D-46, Pitfall 8): every perspective module and the ambient
+  // offer carry recall floors and budgets; none ships without a ledger row.
+  'lib/core/research-planner/perspectives/*.cjs',
+  'lib/core/research-planner/ambient.cjs',
 ]);
 
 // ---------------------------------------------------------------------------
