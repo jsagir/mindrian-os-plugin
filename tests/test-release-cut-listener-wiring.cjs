@@ -14,7 +14,8 @@
  *     Theo checkout whose python stub would touch a sentinel. The dry-run
  *     must print the call, never run the stub, never fire the notify
  *     command, write no report, keep every doctor.cjs expectedSteps member,
- *     and leave git status byte-identical. Two more runs: Theo absent ->
+ *     and leave every release-owned file byte-identical (scoped, not the
+ *     whole tree: peer sessions share it; review WR-06). More runs: Theo absent ->
  *     loud SKIPPED naming the path; --no-cut-listener -> audited line, no call.
  *
  * Safe by construction: --dry-run exits before any mutation (the same
@@ -150,9 +151,47 @@ const arrayMatch = doctorSrc.match(/const expectedSteps = \[([^\]]*)\]/);
 assert.ok(arrayMatch, 'scripts/doctor.cjs must define an expectedSteps array literal');
 const expectedSteps = JSON.parse('[' + arrayMatch[1].replace(/'/g, '"') + ']');
 
-function gitPorcelain() {
-  const r = cp.spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8', cwd: REPO });
-  return r.stdout || '';
+// Review WR-06: the read-only proof is scoped to the files a release cut
+// writes in this repo, never the whole tree. Two other sessions edit and
+// stage files in this shared tree during the several-second dry-run window, so
+// a whole-repo `git status --porcelain` comparison flaked red with nothing to
+// do with release.sh. RELEASE_OWNED is every plugin-repo path release.sh
+// writes or stages (Step 3 / 7 / 7.5 plugin.json, package.json, CHANGELOG.md;
+// Step 4 / 7 marketplace.json; Step 6.7 npm-shrinkwrap.json and the lockfile
+// `npm shrinkwrap` consumes); a static assert below keeps it in step with the
+// `git add` lines in release.sh.
+const RELEASE_OWNED = [
+  '.claude-plugin/plugin.json',
+  '.claude-plugin/marketplace.json',
+  'package.json',
+  'CHANGELOG.md',
+  'npm-shrinkwrap.json',
+  'package-lock.json',
+];
+
+function releaseOwnedSnapshot() {
+  const crypto = require('node:crypto');
+  const files = RELEASE_OWNED.map(function (rel) {
+    const p = path.join(REPO, rel);
+    const h = fs.existsSync(p) ? crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex') : 'ABSENT';
+    return rel + ' ' + h;
+  });
+  const r = cp.spawnSync('git', ['status', '--porcelain', '--'].concat(RELEASE_OWNED), { encoding: 'utf8', cwd: REPO });
+  return files.join('\n') + '\n--- git status --porcelain (scoped) ---\n' + (r.stdout || '');
+}
+
+{
+  const added = [];
+  src.split('\n').forEach(function (l) {
+    const m = /^\s*git add (.+)$/.exec(l);
+    if (m) m[1].trim().split(/\s+/).forEach(function (t) { added.push(t); });
+  });
+  assert.ok(added.length > 0, 'release.sh has git add lines');
+  // Paths staged in OTHER repos (minisite, website) do not exist here.
+  const pluginAdded = added.filter(function (t) { return fs.existsSync(path.join(REPO, t)); });
+  const uncovered = pluginAdded.filter(function (t) { return RELEASE_OWNED.indexOf(t) === -1; });
+  assert.deepEqual(uncovered, [], 'every plugin-repo path release.sh stages is in RELEASE_OWNED: ' + JSON.stringify(uncovered));
+  ok('WR-06: the read-only snapshot covers every plugin-repo path release.sh stages (' + pluginAdded.filter(function (t, i, a) { return a.indexOf(t) === i; }).join(', ') + ')');
 }
 
 function makeTmp() {
@@ -194,9 +233,9 @@ let tmp;
 try {
   tmp = makeTmp();
 
-  const before = gitPorcelain();
+  const before = releaseOwnedSnapshot();
   const r1 = runDryRun(tmp, []);
-  const after = gitPorcelain();
+  const after = releaseOwnedSnapshot();
   assert.equal(r1.status, 0, 'release.sh patch --dry-run must exit 0: ' + r1.stderr.slice(-800));
   ok('dry-run exits 0');
 
@@ -214,8 +253,8 @@ try {
   assert.deepEqual(fs.readdirSync(tmp.reports), [], 'no listener report under --dry-run');
   ok('dry-run spawns no Theo process, fires no notify, writes no report');
 
-  assert.equal(after, before, 'git status --porcelain byte-identical before and after');
-  ok('working tree byte-identical before and after the dry-run (git status --porcelain)');
+  assert.equal(after, before, 'release-owned files and their scoped git status byte-identical before and after');
+  ok('WR-06: every release-owned file (sha256) and its scoped git status byte-identical before and after the dry-run');
 
   const absent = path.join(tmp.dir, 'no-such-theo');
   const r2 = runDryRun(tmp, [], absent);
