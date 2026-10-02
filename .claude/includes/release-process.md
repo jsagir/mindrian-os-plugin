@@ -21,6 +21,12 @@ A real release also tells Theo. `release.sh` Step 5.6 fires a `repository_dispat
 - The release lockstep count lives in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8; this line carries no number of its own. See `docs/THEO-NOTIFY-CONTRACT.md` for the rulings and the working-decision ledger.
 - The canon snapshot `data/framework-names.json` is in the lockstep too: `release.sh` refuses a cut until `node scripts/refresh-framework-names.cjs --live` has stamped it after Theo's re-emit (`--no-canon-snapshot-check` is the audited opt-out); the rule lives in RULE 5 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
+## Release-cut listener
+
+- Step 0.55, Theo leg: `scripts/release-cut-listener.cjs` calls Theo's release bridge before the stamp gates, stops the cut on the contract's stop codes and prints the apply line on code 20. This is what actually re-syncs Theo, since the Step 5.6 dispatch has no Theo-side receiver today.
+- Step 9.6c, website leg: read-only, never aborts, reports each website version and count surface plus banned content.
+- `--no-cut-listener` is the audited opt-out; `--dry-run` prints and runs nothing; report files land under `$HOME/.mindrian/release-cut-listener/`; details in RULE 5.
+
 ## Entry Point
 
 Run `scripts/release.sh <version>` to enforce all five gates. Never bump versions by hand.
