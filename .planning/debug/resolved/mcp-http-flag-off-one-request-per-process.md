@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "mcp-http-flag-off-one-request-per-process"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cowork]
 brain_mode: full-loop
 canon_parts: [11]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-10-02T00:00:00Z
 ---
 
 ## Current Focus
@@ -156,8 +156,19 @@ The real underlying cause in implementation terms.
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-12
-verification: PENDING
-files_changed: []
-commits: PENDING
+root_cause: CONFIRMED -- see Technical Root Cause above. One stateless transport shared by every request; the SDK's reuse guard throws on the second request and hono turns it into a bare 500.
+fix: Phase 267 plan 12 (commit a3e09b249). The flag-OFF `/mcp` route now runs `toNodeHandler(createMcpHandler(() => createServer(), { legacy: 'stateless' }))` from `@modelcontextprotocol/server` and `@modelcontextprotocol/node` 2.1.0 (VETTED, commit 96a4eba39), passing the already-parsed `req.body`. A fresh server is built per request, so the reuse guard cannot fire by construction. Same commit: `createServer()` is side-effect free (the tree watcher starts once per process in `main()`, flag-OFF target = `handler.notify.resourcesChanged`), and `localhostHostValidation()` + `localhostOriginValidation()` answer 403 before any MCP handling (T-267-04, DNS rebinding). The flag-ON branch is untouched except that it starts no watcher (it never delivered one: the old watcher bound to the boot singleton, which flag-ON never connects); 267-14 owns it.
+verification: |
+  Real HTTP, hermetic env, same sequence before and after (request: status).
+  BEFORE (RED run, pre-fix tree, commit b16e31824): initialize 200; notifications/initialized 500; every later request 500 (bare, empty body); 2026 v2 Client: "Version negotiation failed: the server answered the probe with HTTP 500".
+  AFTER (commit a3e09b249): initialize 200; notifications/initialized 202; tools/list 200; tools/call contract_version 200; tools/list #2 200.
+  `node tests/test-267-mcpv2-http-flag-off.cjs` (fresh HOME and MINDRIAN_ROOMS_HOME): PASS=6 FAIL=0.
+    - legacy 2025: initialize, initialized, tools/list (45 tools, equals the zod4 snapshot), tools/call, then 5 more tools/list, all 2xx.
+    - era 2026: v2 Client over StreamableHTTPClientTransport negotiates 2026-07-28, same 45 tool names.
+    - rebinding (node:http, because fetch cannot override Host): Host evil.example 403; Origin http://evil.example 403; Host 127.0.0.1 no Origin 200; Origin http://localhost:3847 200.
+    - latency: 10 sequential tools/list, p50=13 ms, p95=24 ms, max 24 ms (bound 5000 ms).
+    - port 3847 free after the run.
+  Regression: `test-267-mcpv2-dual-era` PASS 5/5 (stdio unaffected by the watcher hoist), `test-248-surface-probes` 25/25 (flag-ON HTTP legs), `test-267-mcpv2-lockstep` 6/6, `test-266-connect-path-process-budget` 7/7, `run-all-198` 13 pass / 3 fail (same three as 267-BASELINE), `run-all-199` 3 pass / 2 fail (same two as baseline), payload ceiling OK.
+  A7 (does real Cowork reach this branch): still PENDING in 267-TRIPOLAR-PROBES.md (Cowork probe not run). The bug is fixed regardless; if Cowork never reaches the branch the fix is latent, not wasted.
+files_changed: [bin/mindrian-mcp-server.cjs, package.json, package-lock.json, npm-shrinkwrap.json, references/security/cve-db.json, tests/test-267-mcpv2-http-flag-off.cjs]
+commits: [b16e31824 (RED test), 96a4eba39 (@modelcontextprotocol/node 2.1.0 VETTED), a3e09b249 (the fix)]
