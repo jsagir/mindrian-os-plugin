@@ -121,8 +121,9 @@ function makeSpikeRoot(prefix, rooms) {
   const KEYS = ['a_excerpt', 'a_path', 'b_excerpt', 'b_path', 'direction_phrase', 'pair_id', 'producer', 'room'];
   check('S1 each item has exactly the 355 keys', itemsDoc.items.every(function (i) { return JSON.stringify(Object.keys(i).sort()) === JSON.stringify(KEYS); }));
   check('S1 pair_id is the 355 pairId over room and the two paths; paths are room-relative .md', itemsDoc.items.every(function (i) { return i.pair_id === m355.pairId(i.room, i.a_path, i.b_path) && /\.md$/.test(i.a_path) && /\.md$/.test(i.b_path); }));
-  const planted = itemsDoc.items.find(function (i) { return i.room === 'room-a' && i.a_path === 'pd/P3.md' && i.b_path === 'ma/M1.md'; });
-  check('S1 the planted eureka pair is present with a buildExcerpt-shaped excerpt (title first, capped)', !!planted && planted.a_excerpt.indexOf('Antifouling coating chemistry') === 0 && planted.a_excerpt.length <= 'Antifouling coating chemistry for seawater membranes'.length + 2 + 600);
+  const planted = itemsDoc.items.find(function (i) { return i.room === 'room-a' && [i.a_path, i.b_path].sort().join() === 'ma/M1.md,pd/P3.md'; });
+  const pSide = planted && (planted.a_path === 'pd/P3.md' ? planted.a_excerpt : planted.b_excerpt);
+  check('S1 the planted eureka pair is present with a buildExcerpt-shaped excerpt (title first, capped)', !!planted && pSide.indexOf('Antifouling coating chemistry') === 0 && pSide.length <= 'Antifouling coating chemistry for seawater membranes'.length + 2 + 600, JSON.stringify(planted && [planted.a_path, planted.b_path]));
   check('S1 an eureka row with no measured direction gets the honest phrase from directionPhraseFor(null)', itemsDoc.items.every(function (i) { return i.direction_phrase === m355.directionPhraseFor(null); }));
   const rsDoc = JSON.parse(fs.readFileSync(path.join(S.W, 'arms', 'rs-graph', 'items.json'), 'utf8'));
   const hsiDoc = JSON.parse(fs.readFileSync(path.join(S.W, 'arms', 'hsi-graph', 'items.json'), 'utf8'));
@@ -162,20 +163,41 @@ function makeSpikeRoot(prefix, rooms) {
   fs.writeFileSync(badPath, idsAll.concat(['f'.repeat(12)]).map(function (id) { return JSON.stringify({ pair_id: id, verdict: 'useful' }); }).join('\n') + '\n');
   check('S3 claude rejects a pair that is not in the items (exit 3)', await code(function () { return spike.judgeArm(M, { arm: 'claude', recallArm: ARM, repeat: 1, verdictsPath: badPath }); }) === 3);
 
-  // Jev replay: one recorded response, in each room's derived run folder (zero network, zero key)
+  // Jev replay (zero network, zero key): one recorded response PER PAIR, keyed the way eureka-jev-judge keys them
+  // (sha256 over a stable stringify of the request body). A pair with no recorded response stays unjudged, which
+  // proves the key is per pair (366-18 fixed a key that collapsed every pair onto one).
   const crit = Object.keys(Q.USEFULNESS_QUESTIONS.usefulness.criteria);
-  const probs = {}; crit.forEach(function (k) { probs[k] = k === 'useful' ? 1 - 0.01 * (crit.length - 1) : 0.01; });
-  const body = { model: Q.PINNED_MODEL, state: { a_excerpt: 'x', b_excerpt: 'y', direction_phrase: 'z', verification: 'unverified' }, questions: Q.USEFULNESS_QUESTIONS };
-  const replayKey = sha256(Buffer.from(JSON.stringify(body, Object.keys(body).sort()), 'utf8'));
-  const replayResponse = {}; replayResponse[replayKey] = { status: 200, json: { model: Q.PINNED_MODEL, answers: { usefulness: { type: 'choice', choice: 'useful', probabilities: probs, confidence: 0.9 } }, usage: { input_tokens: 10, output_tokens: 1 } } };
-  function seedReplay(tag) {
+  function stable(v) {
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    return JSON.stringify(v);
+  }
+  function respFor(choice) {
+    const probs = {}; crit.forEach(function (k) { probs[k] = k === choice ? 1 - 0.01 * (crit.length - 1) : 0.01; });
+    return { status: 200, json: { model: Q.PINNED_MODEL, answers: { usefulness: { type: 'choice', choice: choice, probabilities: probs, confidence: 0.9 } }, usage: { input_tokens: 10, output_tokens: 1 } } };
+  }
+  function jevKey(db, c) {
+    function ex(id) {
+      const p = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(id).properties);
+      return ['title', 'name', 'text', 'summary', 'body', 'content', 'excerpt'].filter(function (k) { return typeof p[k] === 'string' && p[k].trim(); }).map(function (k) { return p[k].trim(); }).join('\n').slice(0, 2400);
+    }
+    const body = { model: Q.PINNED_MODEL, state: { a_excerpt: ex(c.a), b_excerpt: ex(c.b), direction_phrase: 'same mechanism, different domain', verification: 'unverified' }, questions: Q.USEFULNESS_QUESTIONS };
+    return sha256(Buffer.from(stable(body), 'utf8'));
+  }
+  // picks: global candidate index (items order) -> choice; others are left unrecorded
+  function seedReplay(tag, picks) {
+    let idx = 0;
     S.rooms.forEach(function (r) {
+      const read = eurekaRecall.readCandidates(r.room_dir, 'spike-' + ARM);
+      const db = navigation.openRoomDbReadOnlyForCaller(r.room_dir);
+      const rec = {};
+      try { read.candidates.forEach(function (c) { if (picks[idx] !== undefined) rec[jevKey(db, c)] = respFor(picks[idx]); idx += 1; }); } finally { db.close(); }
       const f = path.join(eurekaRecall.runDirFor(r.room_dir, tag), '03_judge', 'jev-responses.json');
       fs.mkdirSync(path.dirname(f), { recursive: true });
-      fs.writeFileSync(f, JSON.stringify(replayResponse));
+      fs.writeFileSync(f, JSON.stringify(rec));
     });
   }
-  seedReplay('spike-cj-' + ARM + '-r1');
+  seedReplay('spike-cj-' + ARM + '-r1', { 0: 'useful' });
   const cj = await spike.judgeArm(M, { arm: 'claude-then-jev', recallArm: ARM, repeat: 1, verdictsPath: claudePath, replay: true });
   let fed = 0;
   S.rooms.forEach(function (r) {
@@ -183,10 +205,11 @@ function makeSpikeRoot(prefix, rooms) {
     if (read) fed += read.candidates.length;
   });
   check('S3 claude-then-jev feeds Jev only the pairs Claude called useful (replay, no network)', cj.ok && fed === 1 && cj.passed === 1, JSON.stringify({ fed: fed, cj: cj }));
-  seedReplay('spike-jev-' + ARM + '-r1');
+  seedReplay('spike-jev-' + ARM + '-r1', { 0: 'useful', 1: 'not_useful' });
   const jv = await spike.judgeArm(M, { arm: 'jev', recallArm: ARM, repeat: 1, replay: true });
   const jvDoc = JSON.parse(fs.readFileSync(path.join(S.W, 'arms', ARM, 'judge', 'jev-r1.json'), 'utf8'));
-  check('S3 jev (replay) runs over every candidate and records replayed:true', jv.ok && jv.candidates === idsAll.length && jvDoc.replayed === true && jv.passed >= 1 && jv.passed <= idsAll.length);
+  const jvKinds = jvDoc.verdicts.map(function (v) { return v.verdict; }).sort().join();
+  check('S3 jev (replay) judges per pair: one recorded useful passes, one not_useful does not, unrecorded pairs stay unjudged', jv.ok && jv.candidates === idsAll.length && jvDoc.replayed === true && jv.passed === 1 && jvDoc.passes[0] === idsAll[0] && jvKinds === ['jev:useful', 'jev:not_useful'].concat(new Array(idsAll.length - 2).fill('jev:unjudged')).sort().join(), jvKinds);
   check('S3 jev with no key and no replay is an ENV GAP (exit 77), not a fetch', await code(function () { return spike.judgeArm(M, { arm: 'jev', recallArm: ARM, repeat: 2 }); }) === 77);
 
   // ===== S4 refusals =====
@@ -280,7 +303,7 @@ function makeSpikeRoot(prefix, rooms) {
   check('S7 no extraLanes (or an empty list) leaves the output identical', JSON.stringify(base) === JSON.stringify(withEmpty) && base.counts.vector === undefined);
   const known = seam.planted.known; const newPair = ['pd/P2', 'ma/M3'];
   const withLane = eurekaRecall.recallCandidates(substrate, seam.roomDir, {}, { extraLanes: [function () { return [{ a: known[0], b: known[1], lane: 'vector', score: 0.99 }, { a: newPair[0], b: newPair[1], lane: 'vector', score: 0.9 }, { a: 7, b: 'x', lane: 'vector' }, null]; }] });
-  const vrow = withLane.candidates.find(function (c) { return c.a === newPair[0] && c.b === newPair[1]; });
+  const vrow = withLane.candidates.find(function (c) { return [c.a, c.b].sort().join() === newPair.slice().sort().join(); });
   check('S7 an injected proposal lands as a row with its lane and score; junk proposals are ignored', !!vrow && vrow.lanes.indexOf('vector') !== -1 && vrow.vector === 0.9 && withLane.counts.vector === 1);
   check('S7 the injected lane goes through the exclusion upsert (the known pair is dropped and counted)', !withLane.candidates.some(function (c) { return c.a === known[0] && c.b === known[1]; }) && withLane.counts.excluded_known === base.counts.excluded_known + 1 + 0);
   const capped = eurekaRecall.recallCandidates(substrate, seam.roomDir, { max_candidates: 1 }, { extraLanes: [function () { return [{ a: newPair[0], b: newPair[1], lane: 'vector', score: 0.9 }]; }] });
