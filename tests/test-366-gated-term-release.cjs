@@ -428,6 +428,21 @@ async function main() {
     return (mixed.ok === true && Array.isArray(mixed.ignored_items) && mixed.ignored_items.length === 2 && b.ok === true) || JSON.stringify(mixed).slice(0, 400);
   });
 
+  await leg('R13 the recorded live answer (366-theo-replay) replays offline as a counted miss with the same audit shape', async function () {
+    const fx = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tests/fixtures/366-theo-replay/bottleneck-hunt.json'), 'utf8'));
+    if (fx.schema !== 'mos.theo-replay/1' || !fx.responses || !Object.prototype.hasOwnProperty.call(fx.responses, TERM1)) return 'fixture shape';
+    if (JSON.stringify(fx).indexOf('venture') !== -1 || JSON.stringify(Object.keys(fx.responses)) !== JSON.stringify([TERM1])) return 'fixture holds more than the term and the answer';
+    const item = { id: canonRelease.termItemId(TERM1), kind: 'canon_release', term: TERM1, section: 'problem-definition', perspective: 'eureka', run_id: RUN1 };
+    const replayCall = async function (tool, args) { calls.push({ tool: tool, args: args }); return Object.prototype.hasOwnProperty.call(fx.responses, args.raw) ? fx.responses[args.raw] : null; };
+    const rowsBefore = canonTranslations.listRows(roomDir).length;
+    const auditBefore = theoRows().length;
+    const out = await canonRelease.answerRelease(roomDir, item, { sessionId: 'sess-replay', deps: { callTool: replayCall, transport: 'replay' } });
+    const last = theoRows().slice(-1)[0];
+    return (out.ok === true && out.outcome === 'miss' && out.proposed === false && out.release_miss === 1
+      && canonTranslations.listRows(roomDir).length === rowsBefore && theoRows().length === auditBefore + 1
+      && last.outcome === 'empty_valid' && JSON.stringify(Object.keys(last).sort()) === JSON.stringify(auditLedger.AUDIT_KEYS.slice().sort())) || JSON.stringify(out).slice(0, 400);
+  });
+
   await leg('R11 the module reaches Theo by normalize_framework_name only and never offers a title', function () {
     const src = fs.readFileSync(path.join(RP, 'canon-release.cjs'), 'utf8');
     return ((src.match(/normalize_framework_name/g) || []).length >= 1 && !/brain_search|framework_search/.test(src) && dashFree(src)) || 'source check';

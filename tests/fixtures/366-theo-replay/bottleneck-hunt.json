@@ -1,0 +1,9 @@
+{
+  "schema": "mos.theo-replay/1",
+  "recorded": "2026-10-02",
+  "tool": "normalize_framework_name",
+  "transport_note": "Recorded from one navigator-approved live call (MOS_366_LIVE=1, gate gate-279684576db21bb1). Only the term and Theo's classified answer are kept; no room text. The client classified the live answer as a miss (an object with no canonical key and no error). The raw payload was not captured at the time, so the answer below is the minimal object that classifies the same way (no canonical, no error), not a byte copy.",
+  "responses": {
+    "Bottleneck Hunt": {}
+  }
+}
