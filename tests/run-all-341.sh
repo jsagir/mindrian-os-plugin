@@ -75,7 +75,6 @@ PHASE_341_SURFACES=(
   "scripts/release.sh"
   "scripts/check-release-payload-ceiling.cjs"
   "scripts/check-registry-drift.cjs"
-  "scripts/eureka-command.cjs"
   "scripts/migrate-legacy-install-location.cjs"
   "lib/core/eureka-deps-resolver.cjs"
   "lib/core/eureka/eureka-enable.cjs"

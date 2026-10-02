@@ -21,14 +21,11 @@
  *   U3  classifyTail stamps opts.growthProxy on every return, default kept
  *   U4  a flat growth (or attention) axis reports insufficient_structure
  *       with an empty tail and axis_distinct on every return path
- *   E1  offline room-mode run: one growth_proxy label, axis_distinct >= 2,
- *       tail sufficient, the JSON tail block keeps exactly six keys
- *   E2  renderReport without tail_axis_distinct renders '-', never undefined
+ *   (E1 and E2, the runner room-mode report legs, retired with the runner
+ *   in Phase 366-26; see the note above main())
  *
  * created_at has SECOND resolution on the growth axis (epochSeconds floors to
- * seconds), so the end to end fixture spaces its batches by minutes via an
- * UPDATE of created_at (integer ms, the real column shape) instead of a
- * millisecond busy-wait, which would land every node in the same second.
+ * seconds), so U2 crosses a real second boundary between its two batches.
  *
  * Zero network, zero deps, mkdtemp only. NO em-dashes (hyphens only; dash
  * characters are spelled with \u escapes where a test needs one).
@@ -152,84 +149,13 @@ leg('U4 a flat axis reports insufficient_structure with an empty tail and axis_d
 });
 
 // ---------------------------------------------------------------------------
-// END TO END (offline room mode)
+// END TO END legs E1 and E2 retired (Phase 366-26, D-02): they ran the
+// standalone runner in room mode and read its report's provenance and tail
+// block (growth_proxy, tail_axis_distinct, the md row, renderReport). The
+// runner is retired and the Eureka perspective has no tail quadrant; the unit
+// legs above keep the substrate and tail-quadrant fixes pinned. Reason in
+// 366-26-SUMMARY.md.
 // ---------------------------------------------------------------------------
-
-async function runE2E() {
-  const RUNNER = require(path.join(ROOT, 'scripts/eureka-portfolio-report.cjs'));
-  const roomDir = mkTmp('e2e');
-  const db = openRoomDb(roomDir, { allowExtension: true });
-  const sections = ['market-analysis', 'problem-definition', 'business-model'];
-  const words = ['drivetrain', 'battery', 'warehouse', 'sensor', 'housing', 'route', 'payload', 'charging',
-    'fleet', 'lidar', 'gripper', 'conveyor'];
-  const ids = [];
-  for (let i = 0; i < 39; i += 1) {
-    const sec = sections[i % 3];
-    const id = 'claim:' + sec + ':' + i;
-    ids.push(id);
-    const text = 'Operators of ' + words[i % words.length] + ' systems report ' + words[(i * 5 + 3) % words.length]
-      + ' limits number ' + i + ' in ' + sec + ' work.';
-    insertNode(db, id, 'Claim', JSON.stringify({ title: 'Claim ' + i, text, section: sec }), {
-      source_path: sec + '/claim-' + i, created_by: 'system', epistemic_type: 'observation',
-    });
-  }
-  // Three birth batches, minutes apart, stored as integer epoch ms (the real column shape).
-  const base = 1790000000000;
-  const upd = db.prepare('UPDATE nodes SET created_at = ?, last_seen_at = ? WHERE id = ?');
-  for (let i = 0; i < ids.length; i += 1) {
-    const t = base + (i % 3) * 3600000 + i * 1000;
-    upd.run(t, t, ids[i]);
-  }
-  // Varied degree: node i links to the next (i % 4) nodes.
-  const ei = db.prepare('INSERT INTO edges(source,target,type,properties) VALUES (?,?,?,?)');
-  for (let i = 0; i < ids.length; i += 1) {
-    for (let k = 1; k <= (i % 4); k += 1) {
-      if (i + k < ids.length) ei.run(ids[i], ids[i + k], 'CONVERGES', '{}');
-    }
-  }
-  closeRoomDb(db);
-
-  const outMd = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.md');
-  const outJson = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.json');
-  const code = await RUNNER.main(['--db', roomDir, '--pairs', 'room', '--offline', '--top', '25', '--out', outMd, '--json', outJson]);
-  assert.equal(code, 0, 'runner should exit 0');
-  return { report: JSON.parse(fs.readFileSync(outJson, 'utf8')), md: fs.readFileSync(outMd, 'utf8'), RUNNER };
-}
-
-let e2e = null;
-async function e2eOnce() {
-  if (!e2e) e2e = await runE2E();
-  return e2e;
-}
-
-leg('E1 one growth_proxy label, real axes, sufficient structure, six-key tail block', async () => {
-  const { report } = await e2eOnce();
-  assert.equal(report.provenance.growth_proxy, ROOM_PROXY);
-  assert.equal(report.tail.growth_proxy, ROOM_PROXY, 'tail block must carry the same label');
-  assert.equal(report.provenance.growth_proxy, report.tail.growth_proxy);
-  const d = report.provenance.tail_axis_distinct;
-  assert.ok(d && d.growth >= 2, 'growth axis must have >= 2 distinct values, got ' + JSON.stringify(d));
-  assert.ok(d.attention >= 2, 'attention axis must have >= 2 distinct values, got ' + JSON.stringify(d));
-  assert.equal(report.tail.insufficient_structure, false);
-  assert.deepEqual(Object.keys(report.tail).sort(),
-    ['composition', 'growth_proxy', 'insufficient_structure', 'items', 'suspect_noise', 'thresholds']);
-});
-
-leg('E2 the md row shows axis_distinct; renderReport without it renders "-", never undefined', async () => {
-  const { report, md, RUNNER } = await e2eOnce();
-  assert.ok(md.includes('Tail axis distinct values (attention / growth)'), 'md provenance row missing');
-  const prov = Object.assign({}, report.provenance);
-  delete prov.tail_axis_distinct;
-  const out = RUNNER.renderReport({
-    provenance: prov, roomDir: 'fixture-room', graphRel: '(room-native: no idea-graph)', offline: true, top: 0,
-    ranked: [], tailIds: new Set(), tail: { insufficient_structure: true, suspect_noise: false, tail: [] },
-    tailPairs: [], statements: [], techFor: () => ({ title: 'unused' }),
-  });
-  const line = out.split('\n').find((l) => l.includes('Tail axis distinct values'));
-  assert.ok(line, 'row must render even when the key is absent');
-  assert.ok(!/undefined|NaN/.test(line), line);
-  assert.ok(/\| - \|/.test(line), 'absent value renders "-": ' + line);
-});
 
 // ---------------------------------------------------------------------------
 // runner

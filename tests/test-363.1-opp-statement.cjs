@@ -14,9 +14,9 @@
  *
  * Legs:
  *   S1  sectionFor: backslash paths, root files, handles, props.section
- *   S2  catalogId normalizes backslashes
- *   S3  deriveBankSection never files under the 'unsectioned' pseudo-section
- *   S4  deriveSharedProblems fallback has no leading article
+ *   (S2 catalogId, S3 deriveBankSection and S4 deriveSharedProblems were
+ *   standalone-runner functions; they retired with the runner in Phase
+ *   366-26, D-02. The pure opportunity-statement legs below stay.)
  *   R1  CLAUSE_LABELS[10] is '. Rank: ' and 0..9 are byte-identical
  *   R2  rank 1 / score 0.5464: score_label '1', fields.composite the number,
  *       text ends '. Rank: 1'
@@ -37,7 +37,6 @@ const ROOT = path.resolve(__dirname, '..');
 const roomNative = require(path.join(ROOT, 'lib/core/eureka/room-native-substrate.cjs'));
 const oppmod = require(path.join(ROOT, 'lib/core/eureka/opportunity-statement.cjs'));
 const reasoningMode = require(path.join(ROOT, 'lib/core/eureka/reasoning-mode.cjs'));
-const RUNNER = require(path.join(ROOT, 'scripts/eureka-portfolio-report.cjs'));
 
 let failures = 0;
 const pending = [];
@@ -63,29 +62,6 @@ leg('S1 sectionFor: backslash first folder, unsectioned fallback, handles stay u
   assert.equal(sf({}, {}), 'unknown');
 });
 
-leg('S2 catalogId normalizes backslashes and still falls back to the row id', () => {
-  assert.equal(RUNNER.catalogId({ id: 'raw', source_path: 'meeting:jhu\\tech:C16796' }), 'C16796');
-  assert.equal(RUNNER.catalogId({ id: 'raw', source_path: 'problem-definition\\brief.md' }), 'raw');
-  assert.equal(RUNNER.catalogId({ id: 'raw', source_path: 'meeting:jhu-tech-import:jhu-tech:C16796' }), 'C16796');
-});
-
-leg('S3 deriveBankSection never files under the unsectioned pseudo-section', () => {
-  const bank = RUNNER.deriveBankSection;
-  assert.equal(bank(null, { pair: { techA: { section: 'unsectioned' }, techB: { section: 'problem-definition' } } }), 'problem-definition');
-  assert.equal(bank(null, { pair: { techA: { section: 'unsectioned' }, techB: { section: 'unsectioned' } } }), 'unknown');
-});
-
-leg('S4 deriveSharedProblems fallback carries no leading article', () => {
-  const dsp = RUNNER.deriveSharedProblems;
-  assert.deepEqual(dsp({ section: 'market-analysis' }, { section: 'problem-definition' }),
-    ['market-analysis x problem-definition cross-domain bridge']);
-  assert.deepEqual(dsp({ section: 'market-analysis' }, { section: 'problem-definition' }, 'COMPETES_WITH'),
-    ['market-analysis x problem-definition competes-with bridge']);
-  // A real primary_problem or shared problem passes through unchanged.
-  assert.deepEqual(dsp({ section: 'x', primary_problem: 'battery drain' }, { section: 'y' }), ['battery drain']);
-  assert.deepEqual(dsp({ problems: ['p1', 'p2'] }, { problems: ['p2'] }), ['p2']);
-});
-
 // ---------------------------------------------------------------------------
 // TASK 3 LEGS: statement text carries rank only (D-05, part 2, D-29)
 // ---------------------------------------------------------------------------
@@ -99,9 +75,16 @@ leg('R1 CLAUSE_LABELS[10] is ". Rank: " and markers 0..9 are byte-identical', ()
   assert.deepEqual(oppmod.CLAUSE_LABELS.slice(0, 10), PRE_D05_LABELS);
 });
 
+// The retired runner's deriveSharedProblems fallback for two sections with no
+// shared problem, frozen as the literal it returned (its S4 leg pinned exactly
+// this string, no leading article). Phase 366-26 moved the seam off the runner.
+function fallbackBridge(secA, secB) {
+  return [secA + ' x ' + secB + ' cross-domain bridge'];
+}
+
 function beta51Candidate(score, rank) {
-  // Assembled the way the report does: sections derived through sectionFor from
-  // a Windows path, shared_problems from deriveSharedProblems' fallback.
+  // Assembled the way the report did: sections derived through sectionFor from
+  // a Windows path, shared_problems from the cross-domain bridge fallback.
   const secA = roomNative._test.sectionFor({ source_path: 'market-analysis\\who-has-it-2026-09-28.md' }, {});
   const secB = roomNative._test.sectionFor({ source_path: 'problem-definition\\agreed-structure-working-brief-2026-09-28.md' }, {});
   const techA = { title: 'market-analysis - who has it, how many, doing what', section: secA, primary_problem: '' };
@@ -110,7 +93,7 @@ function beta51Candidate(score, rank) {
   const a = Object.assign({}, techA, { primary_problem: 'unclassified problem for idA', weak_dimensions: [] });
   const b = Object.assign({}, techB, { primary_problem: 'unclassified problem for idB', weak_dimensions: [] });
   return {
-    a, b, shared_problems: RUNNER.deriveSharedProblems(techA, techB),
+    a, b, shared_problems: fallbackBridge(techA.section, techB.section),
     dims: { strategic_fit: 0.6, validated_demand: 0.3, tech_econ_feasibility: 0.7 },
     score: score, rank: rank, tail: false,
   };

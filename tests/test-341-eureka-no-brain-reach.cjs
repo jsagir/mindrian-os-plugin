@@ -20,9 +20,12 @@
  *   1. eureka_critic is registered on the LOCAL server (lib/mcp/tool-
  *      router.cjs's registerRouterTools, wired from bin/mindrian-mcp-server.cjs),
  *      never on the brain-client surface (bin/mindrian-brain-mcp-client.cjs).
- *   2. No Brain or Theo reach in seven named Eureka-surface files (comment
- *      lines excluded from the match, so a future explanatory comment
- *      mentioning "brain-client" in prose cannot break this gate).
+ *   2. No Brain or Theo reach in the Eureka surface: six named files plus
+ *      every perspective module under lib/core/research-planner/
+ *      perspectives/ (comment lines excluded from the match, so a future
+ *      explanatory comment mentioning "brain-client" in prose cannot break
+ *      this gate). Phase 366-26 (D-02) moved this arm off the retired
+ *      standalone runner and onto the perspective modules that replaced it.
  *   3. The ONE legitimate egress -- eureka-enable.cjs's npm registry spawn,
  *      reached only from enableEureka -- is named and bounded. This is a
  *      DELIBERATE, user-initiated exception (the operator ran /mos:eureka
@@ -123,8 +126,23 @@ const EUREKA_SURFACE_FILES = [
   'lib/core/eureka/report-html.cjs',
   'lib/core/eureka-deps-resolver.cjs',
   'lib/core/eureka/eureka-enable.cjs',
-  'scripts/eureka-command.cjs',
-];
+].concat(
+  // Phase 366-26 (D-02): the perspective modules replace the retired
+  // standalone runner as the Eureka compute surface. Discovered from disk
+  // (sorted) so a new perspective joins the guard without a list edit; the
+  // floor below fails closed if the directory ever goes missing or empty.
+  fs.readdirSync(path.join(REPO, 'lib', 'core', 'research-planner', 'perspectives'))
+    .filter(function (f) { return /\.cjs$/.test(f); })
+    .sort()
+    .map(function (f) { return 'lib/core/research-planner/perspectives/' + f; })
+);
+
+ok('the perspective modules are in the guarded Eureka surface (eureka-recall and eureka-judge at least)', function () {
+  assert.ok(EUREKA_SURFACE_FILES.indexOf('lib/core/research-planner/perspectives/eureka-recall.cjs') !== -1,
+    'perspectives/eureka-recall.cjs must be guarded');
+  assert.ok(EUREKA_SURFACE_FILES.indexOf('lib/core/research-planner/perspectives/eureka-judge.cjs') !== -1,
+    'perspectives/eureka-judge.cjs must be guarded');
+});
 const BRAIN_REACH_PATTERNS = [
   /brain-client/,
   /brain_query/,
@@ -151,10 +169,8 @@ EUREKA_SURFACE_FILES.forEach(function (rel) {
 // ---------------------------------------------------------------------------
 ok('the ONLY network-capable call in the Eureka surface is the npm spawn in enableEureka (deliberate, user-initiated)', function () {
   // NETWORK_PATTERN excludes db.exec(...) (a sqlite call, false positive on
-  // a naive '.exec(' match) and the local self-respawn in
-  // scripts/eureka-command.cjs (spawn(process.execPath, [__filename, ...]) --
-  // that re-invokes THIS SAME script as a detached background job, no
-  // network, no npm, no registry).
+  // a naive '.exec(' match). The perspective modules run in-process and
+  // spawn nothing, so the one bounded egress below stays the only hit.
   const NETWORK_PATTERN = /\bspawnSync\(|\bexecSync\(|\bfetch\(|http\.request|https\.request|https?:\/\//;
   const hits = [];
   EUREKA_SURFACE_FILES.forEach(function (rel) {

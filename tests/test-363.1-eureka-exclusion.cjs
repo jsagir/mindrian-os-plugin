@@ -12,17 +12,20 @@
  * pair when BOTH sides are memory_artifact/Artifact, so one-sided scaffold,
  * egress-label domains and generic entities all passed.
  *
- * The fix is lib/core/eureka/candidate-exclusion.cjs, applied in the index
- * loop of scripts/eureka-portfolio-report.cjs before any pair or cohort is
- * built. This file pins it at two levels:
+ * The fix was lib/core/eureka/candidate-exclusion.cjs, applied in the index
+ * loop of the standalone runner before any pair or cohort was built. The
+ * runner is retired (Phase 366 D-02); the Eureka perspective's recall drops
+ * the same structural rows when it builds its substrate. This file pins it at
+ * two levels:
  *   UNIT       structuralReason over every real row shape (memory_artifact,
  *              section contract, seeded vs authored FEYNMAN, egress-label
  *              domain, generic and high-document-share entity, plain content,
  *              malformed props), the egress-vocabulary text parity, the Part 8
  *              source fence, and reasoning-mode's scaffold skip.
- *   END TO END an offline room-mode run over a fixture room: none of the nine
- *              structural nodes ranks, the authored FEYNMAN does, and
- *              provenance counts every exclusion by reason.
+ *   END TO END an offline eureka-recall run over a fixture room: none of the
+ *              nine structural nodes is recalled or admitted as a thing, and a
+ *              pair the room already connects is excluded and counted
+ *              (migrated off the runner by plan 366-26).
  *
  * Seeded FEYNMAN bodies are built from room-birth's FEYNMAN_BIRTH_SEED_TEMPLATE
  * plus the timeline-runner and dial-memory-renderer exports, never hard-coded
@@ -260,56 +263,64 @@ leg('U10 reasoning-mode readRoomMarkdown skips scaffold files, keeps authored FE
 });
 
 // ---------------------------------------------------------------------------
-// END TO END LEGS (Task 2): offline room-mode run over a fixture room
+// END TO END LEGS: offline recall over a fixture room
 // ---------------------------------------------------------------------------
+// Phase 366-26 (D-02): these legs ran the standalone runner (room mode) and read
+// its report. The runner is retired; the Eureka perspective's recall
+// (lib/core/research-planner/perspectives/eureka-recall.cjs) is the live path,
+// so the legs now run runRecall over the same nine structural rows. Each
+// structural row carries the SAME drivetrain text as the real content, so only
+// the exclusion keeps it out of the candidate list (a vacuous fixture would pass
+// without any exclusion at all). The known-pair leg pins the exclusion-set
+// upsert (shared.makeCandidateStore). The runner's report-only legs (per-reason
+// provenance counts, step 4b counters, the md provenance row, renderReport) and
+// the authored-FEYNMAN leg retired with the runner; reasons in 366-26-SUMMARY.md.
 
-async function runE2E() {
+const RECALL = require(path.join(ROOT, 'lib/core/research-planner/perspectives/eureka-recall.cjs'));
+const SHARED_TEXT = 'A carbon fibre drivetrain housing cuts weight for warehouse delivery robots and extends battery life.';
+
+function buildE2ERoom() {
   const { openRoomDb, closeRoomDb } = require(path.join(ROOT, 'lib/core/room-db.cjs'));
   const { insertNode } = require(path.join(ROOT, 'lib/core/node-insert.cjs'));
-  const RUNNER = require(path.join(ROOT, 'scripts/eureka-portfolio-report.cjs'));
 
   const roomDir = mkTmp('e2e');
-  // Files on disk: seeded FEYNMAN (scaffold), authored FEYNMAN (content), a real brief.
+  // Files on disk: seeded FEYNMAN (scaffold), authored FEYNMAN, a real brief.
   w(path.join(roomDir, 'market-analysis'), 'FEYNMAN.md', seededFeynman('market-analysis'));
   w(path.join(roomDir, 'problem-definition'), 'FEYNMAN.md', authoredFeynman('problem-definition'));
-  w(path.join(roomDir, 'problem-definition'), 'brief.md', '# Brief\n\nThe working brief describes a lightweight drivetrain housing for delivery robots.\n');
+  w(path.join(roomDir, 'problem-definition'), 'brief.md', '# Brief\n\n' + SHARED_TEXT + '\n');
 
   const db = openRoomDb(roomDir, { allowExtension: true });
   const ins = (id, type, props, sp, et) => insertNode(db, id, type, JSON.stringify(props), {
     source_path: sp, created_by: 'system', epistemic_type: et || 'observation',
   });
 
-  // Structural (nine):
-  ins('memory_artifact:_root:ROOM', 'memory_artifact', { title: 'Room identity scaffold', section: '_root', kind: 'ROOM', path: 'ROOM.md' }, 'memory:_root:ROOM');
-  ins('memory_artifact:market-analysis:MINTO', 'memory_artifact', { title: 'Market analysis MINTO scaffold', section: 'market-analysis', kind: 'MINTO', path: 'market-analysis/MINTO.md' }, 'memory:market-analysis:MINTO');
-  ins('market-analysis/CONTEXT', 'Artifact', { title: 'Market analysis section contract', section: 'market-analysis' }, 'system:rs-engine');
-  ins('market-analysis/FEYNMAN', 'Artifact', { title: 'Market analysis seeded explainer', section: 'market-analysis' }, 'system:rs-engine');
+  // Structural (nine), each carrying the shared content text:
+  ins('memory_artifact:_root:ROOM', 'memory_artifact', { title: 'Room identity scaffold', text: SHARED_TEXT, section: '_root', kind: 'ROOM', path: 'ROOM.md' }, 'memory:_root:ROOM');
+  ins('memory_artifact:market-analysis:MINTO', 'memory_artifact', { title: 'Market analysis MINTO scaffold', text: SHARED_TEXT, section: 'market-analysis', kind: 'MINTO', path: 'market-analysis/MINTO.md' }, 'memory:market-analysis:MINTO');
+  ins('market-analysis/CONTEXT', 'Artifact', { title: 'Market analysis section contract', text: SHARED_TEXT, section: 'market-analysis' }, 'system:rs-engine');
+  ins('market-analysis/FEYNMAN', 'Artifact', { title: 'Market analysis seeded explainer', text: SHARED_TEXT, section: 'market-analysis' }, 'system:rs-engine');
   for (const label of ['unknown', 'freeform_unmatched', 'empty_payload', 'move_set']) {
-    ins('domain:sess:' + label, 'focus_area', { name: label, domainType: 'focus_area' }, 'domain:sess:' + label);
+    ins('domain:sess:' + label, 'focus_area', { name: label, text: SHARED_TEXT, domainType: 'focus_area' }, 'domain:sess:' + label);
   }
   ins('entity:entity-extract:1296d', 'company', { name: 'Lab', entityType: 'company' }, 'problem-definition\\agreed-structure-working-brief.md', 'extracted_fact');
 
-  // Real content:
-  ins('claim:one', 'Claim', { title: 'Weight claim', text: 'A carbon fibre housing cuts drivetrain weight for delivery robots.', section: 'claims' }, 'claims/one');
-  ins('claim:two', 'Claim', { title: 'Cost claim', text: 'Warehouse operators pay for longer battery life on every route.', section: 'demand' }, 'demand/two');
+  // Real content, three sections, all sharing the drivetrain vocabulary:
+  ins('claim:one', 'Claim', { title: 'Weight claim', text: SHARED_TEXT, section: 'claims' }, 'claims/one');
+  ins('claim:two', 'Claim', { title: 'Cost claim', text: 'Warehouse operators pay for longer battery life on every delivery robot route. ' + SHARED_TEXT, section: 'demand' }, 'demand/two');
   ins('entity:acme', 'company', { name: 'Acme Robotics', entityType: 'company' }, 'firms/acme', 'extracted_fact');
   ins('entity:cf', 'technology', { name: 'Carbon Fibre Housing', entityType: 'technology' }, 'materials/cf', 'extracted_fact');
-  ins('problem-definition/brief', 'Artifact', { title: 'Working brief', path: 'problem-definition/brief.md', section: 'problem-definition' }, 'problem-definition\\brief.md');
-  ins('problem-definition/FEYNMAN', 'Artifact', { title: 'Problem definition explainer', section: 'problem-definition' }, 'system:rs-engine');
+  ins('problem-definition/brief', 'Artifact', { title: 'Working brief', text: SHARED_TEXT, path: 'problem-definition/brief.md', section: 'problem-definition' }, 'problem-definition\\brief.md');
+  ins('problem-definition/FEYNMAN', 'Artifact', { title: 'Problem definition explainer', text: AUTHORED_LINE + ' ' + SHARED_TEXT, section: 'problem-definition' }, 'system:rs-engine');
   closeRoomDb(db);
-
-  const outMd = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.md');
-  const outJson = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.json');
-  const code = await RUNNER.main(['--db', roomDir, '--pairs', 'room', '--offline', '--top', '25', '--out', outMd, '--json', outJson]);
-  assert.equal(code, 0, 'runner should exit 0');
-  const report = JSON.parse(fs.readFileSync(outJson, 'utf8'));
-  const md = fs.readFileSync(outMd, 'utf8');
-  return { report, md, RUNNER };
+  return roomDir;
 }
 
 let e2e = null;
-async function e2eOnce() {
-  if (!e2e) e2e = await runE2E();
+function e2eOnce() {
+  if (!e2e) {
+    const roomDir = buildE2ERoom();
+    e2e = { roomDir: roomDir, rec: RECALL.runRecall(roomDir, { tag: '20261002T000001Z' }) };
+  }
   return e2e;
 }
 
@@ -319,59 +330,45 @@ const STRUCTURAL_IDS = [
   'domain:sess:unknown', 'domain:sess:freeform_unmatched', 'domain:sess:empty_payload', 'domain:sess:move_set',
   'entity:entity-extract:1296d',
 ];
+const CONTENT_IDS = ['claim:one', 'claim:two', 'problem-definition/brief'];
 
-leg('E1 offline room run ranks pairs, none with a structural endpoint', async () => {
-  const { report } = await e2eOnce();
-  assert.ok(Array.isArray(report.ranked) && report.ranked.length > 0, 'must rank at least one pair');
-  // catalogId falls back to the row id (no C-number in these source_paths), so
-  // the ranked endpoints are the raw ids used below.
-  for (const p of report.ranked) {
-    assert.ok(!STRUCTURAL_IDS.includes(p.a), 'structural endpoint ranked: ' + p.a);
-    assert.ok(!STRUCTURAL_IDS.includes(p.b), 'structural endpoint ranked: ' + p.b);
+function hasPair(cands, x, y) {
+  return cands.some((c) => (c.a === x && c.b === y) || (c.a === y && c.b === x));
+}
+
+leg('E1 offline recall proposes pairs, none with a structural endpoint', () => {
+  const { rec } = e2eOnce();
+  assert.equal(rec.ok, true);
+  assert.ok(Array.isArray(rec.candidates) && rec.candidates.length > 0, 'must recall at least one pair');
+  for (const p of rec.candidates) {
+    assert.ok(!STRUCTURAL_IDS.includes(p.a), 'structural endpoint recalled: ' + p.a);
+    assert.ok(!STRUCTURAL_IDS.includes(p.b), 'structural endpoint recalled: ' + p.b);
   }
 });
 
-leg('E2 provenance counts nine structural exclusions with the per-reason breakdown', async () => {
-  const { report } = await e2eOnce();
-  assert.equal(report.provenance.structural_excluded, 9);
-  assert.deepEqual(report.provenance.structural_excluded_by_reason, {
-    memory_artifact: 2, scaffold_basename: 2, egress_label_domain: 4, low_idf_entity: 1,
-  });
+leg('E2 the substrate holds the real content and none of the nine structural rows', () => {
+  const { roomDir } = e2eOnce();
+  const navigation = require(path.join(ROOT, 'lib/core/navigation.cjs'));
+  const db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+  let sub;
+  try { sub = RECALL.buildSubstrate(db, { roomDir: roomDir }); } finally { try { db.close(); } catch (_e) { /* read-only */ } }
+  const ids = sub.things.map((t) => t.id);
+  for (const id of STRUCTURAL_IDS) assert.ok(!ids.includes(id), 'structural row admitted as a thing: ' + id);
+  for (const id of CONTENT_IDS) assert.ok(ids.includes(id), 'content row missing from the things: ' + id);
 });
 
-leg('E3 the authored FEYNMAN stays a valid candidate and ranks', async () => {
-  const { report } = await e2eOnce();
-  const hit = report.ranked.some((p) => p.a === 'problem-definition/FEYNMAN' || p.b === 'problem-definition/FEYNMAN');
-  assert.ok(hit, 'authored problem-definition/FEYNMAN must appear as an endpoint');
-});
-
-leg('E4 step 4b counters are still present (unchanged)', async () => {
-  const { report } = await e2eOnce();
-  for (const k of ['scaffold_pairs_excluded', 'container_pairs_excluded', 'low_trust_pairs_excluded']) {
-    assert.ok(Object.prototype.hasOwnProperty.call(report.provenance, k), k + ' must remain in provenance');
-  }
-});
-
-leg('E5 the md report carries the structural exclusion provenance row', async () => {
-  const { md } = await e2eOnce();
-  assert.ok(md.includes('Structural nodes excluded before pairing'), 'md provenance row label missing');
-  assert.ok(/Structural nodes excluded before pairing[^|]*\| 9 \(2 \/ 2 \/ 4 \/ 1\) \|/.test(md), 'md row value should read 9 (2 / 2 / 4 / 1)');
-});
-
-leg('E6 renderReport with a provenance lacking the new keys renders 0, never undefined', async () => {
-  const { report, RUNNER } = await e2eOnce();
-  const prov = Object.assign({}, report.provenance);
-  delete prov.structural_excluded;
-  delete prov.structural_excluded_by_reason;
-  const out = RUNNER.renderReport({
-    provenance: prov, roomDir: 'fixture-room', graphRel: '(room-native: no idea-graph)', offline: true, top: 0,
-    ranked: [], tailIds: new Set(), tail: { insufficient_structure: true, suspect_noise: false, tail: [] },
-    tailPairs: [], statements: [], techFor: () => ({ title: 'unused' }),
-  });
-  assert.ok(typeof out === 'string' && out.includes('Structural nodes excluded before pairing'));
-  const line = out.split('\n').find((l) => l.includes('Structural nodes excluded before pairing'));
-  assert.ok(!/undefined|NaN/.test(line), line);
-  assert.ok(/\| 0 \(0 \/ 0 \/ 0 \/ 0\) \|/.test(line), line);
+leg('E3 a pair the room already connects is excluded and counted (the exclusion-set upsert)', () => {
+  const { roomDir, rec } = e2eOnce();
+  assert.ok(hasPair(rec.candidates, 'claim:one', 'claim:two'), 'claim:one x claim:two must be recalled before the edge exists');
+  const { openRoomDb, closeRoomDb } = require(path.join(ROOT, 'lib/core/room-db.cjs'));
+  const db = openRoomDb(roomDir, { allowExtension: true });
+  try {
+    db.prepare('INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?)').run('claim:one', 'claim:two', 'INFORMS', JSON.stringify({ reason: 'known' }));
+  } finally { closeRoomDb(db); }
+  const again = RECALL.runRecall(roomDir, { tag: '20261002T000002Z' });
+  assert.ok(!hasPair(again.candidates, 'claim:one', 'claim:two'), 'a connected pair must not be recalled');
+  assert.ok(again.counts.known_pairs >= 1, 'known_pairs must count the edge: ' + JSON.stringify(again.counts));
+  assert.ok(again.counts.excluded_known >= 1, 'excluded_known must count the caught proposal: ' + JSON.stringify(again.counts));
 });
 
 // ---------------------------------------------------------------------------
