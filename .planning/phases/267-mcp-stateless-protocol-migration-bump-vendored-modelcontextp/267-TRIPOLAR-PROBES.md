@@ -38,7 +38,7 @@ wire tee found: Claude Code opens stdio connections with a plain
 
 ## Desktop (human probe)
 
-**Status:** PENDING (Task 3)
+**Status:** DONE 2026-10-02 (navigator probe)
 
 Steps for the navigator (about 5 minutes):
 
@@ -78,14 +78,51 @@ Steps for the navigator (about 5 minutes):
    Desktop (the probe entry is temporary; the tee log is never committed --
    only the summarized fields recorded here are).
 
-**Reported result:** _(fill in verbatim from the navigator's paste, or
-`desktop-deferred` with today's date if this could not be run now)_
+**Reported result (2026-10-02, navigator ran it; tee log read directly from
+`/tmp/mos-tee-desktop.jsonl`, 22 lines, by the orchestrating session):**
+
+- Host: Claude Desktop on Windows 11, server launched via `wsl.exe -d Ubuntu`
+  (same pattern as the user's standing `mindrian-os` entry).
+- First c2s method: `initialize` (NO `server/discover` anywhere in the log).
+- `protocolVersion`: `2025-11-25` (client) / `2025-11-25` (server reply).
+- `clientInfo`: `{"name":"claude-ai","version":"0.1.0"}`.
+- `capabilityKeys`: `["extensions"]` only -- `extensions` carries
+  `io.modelcontextprotocol/ui` (`text/html;profile=mcp-app`). **No
+  `elicitation` key.**
+- Methods observed: initialize x2, notifications/initialized x2,
+  notifications/roots/list_changed x2, tools/list x2, prompts/list x1,
+  resources/list x1, tools/call x3.
+- Server: `mindrian-os` `2.0.0-beta.56` (dev tree, pre-267-11 v1 McpServer).
+
+**Reading against the 267-11 decision rule:** Desktop is 2025-era with no
+`server/discover`, so the "Desktop opens with server/discover or a
+2026-07-28 initialize" STOP branch does NOT fire. Desktop never declared
+`elicitation`, so its gate ladder is already rung (b)/(c) today; adopting
+`serveStdio` cannot move it off rung (a). **267-11 is unblocked on the
+Desktop leg.** No dialog-vs-card observation was possible: the gate prompt
+produced no gate because of finding F-2 below.
+
+**Side findings from the same Desktop session (routed to their own RCAs, not
+267 scope):**
+
+- F-1: "list my rooms" first returned a reference doc rather than data; the
+  model fell back to a second call.
+- F-2: `room_bind` fails on Desktop stdio with `no_session_id`; the model
+  re-bound under an explicit sessionId, but `claim_write` and room-state reads
+  ignore that binding and fall back to the global registry `active` room.
+  `claim_write` wrote `claim:nosession:8e71dd1e` into that fallback room and
+  reported the location truthfully (tool text matched room.db).
+- F-3 (root cause of the fallback target): `tests/test-section-nodes-birth-and-migration.cjs`
+  calls `birthRoom()` without sandboxing the room registry, so a test run
+  registered `/tmp/birth-*` rooms in the real `~/MindrianRooms/.rooms/registry.json`
+  and set `active: "idem-room"` (stamped 2026-10-02T01:21:38Z). Registry
+  repaired by the navigator the same day (backup `registry.json.bak-idem`).
 
 ---
 
 ## Cowork (human probe)
 
-**Status:** PENDING (Task 3)
+**Status:** PENDING (Task 3; Desktop leg done, Cowork re-asked at 267-18)
 
 Steps for the navigator (about 5 minutes):
 
@@ -111,8 +148,9 @@ env | grep -E "CLAUDE_SURFACE|COWORK_SESSION_ID"
    block shape from the Desktop section applies, adjusted for however
    Cowork registers MCP servers on that VM.)
 
-**Reported result:** _(fill in verbatim from the navigator's paste, or
-`cowork-deferred` with today's date if this could not be run now)_
+**Reported result:** not run on 2026-10-02 (Desktop leg only that session).
+Still PENDING; 267-18 re-asks. Per the rule below, RCA 1 is fixed by 267-12
+regardless of this leg.
 
 ---
 
