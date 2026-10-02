@@ -13,9 +13,9 @@
  * script is the build/CI tripwire that fails the commit if the schema drifts.
  *
  * Canon Part 7 (Reuse Before Build): mirrors scripts/build-command-registry.cjs
- * verbatim (the Phase 122 generated-checked pattern). Reuses the transitive
- * ajv@8.18.0 already on disk via @modelcontextprotocol/sdk; do NOT add ajv to
- * package.json (CLAUDE.md "What NOT to Use" - ajv is bundled, never direct).
+ * verbatim (the Phase 122 generated-checked pattern). Reuses ajv@8.18.0,
+ * a declared direct dependency in package.json (it stopped being transitive
+ * when the v1 SDK was removed in Phase 267 Plan 17).
  *
  * Canon Part 9 (Memory Locality): the schema is the typed-packet wire the Brain
  * reasons over. Brain never receives raw memory; it receives shapes this
