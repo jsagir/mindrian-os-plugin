@@ -32,7 +32,7 @@
         "mindrian-os": "bin/cli.js"
       },
       "engines": {
-        "node": ">=22.16.0"
+        "node": ">=22.18.0"
       }
     },
     "node_modules/@hono/node-server": {

@@ -27,6 +27,14 @@
  * live by a PRAGMA busy_timeout readback: 0 with an unrecognised option name,
  * 5000 with the real one. See 236-RESEARCH.md Evidence E and Pitfall 5.
  *
+ * WHY 22.18.0 (Phase 369 D-17, TS369-02). The floor was raised from 22.16.0 to
+ * 22.18.0 because v22.18.0 is the first Node 22 line where TypeScript type
+ * stripping runs unflagged and without an experimental warning (Node 22.18.0
+ * release notes). Erasable-only .ts files in lib/core and the UI tooling rely on
+ * it. The 22.16.0 rationale above is NOT retired: it is the still-true sub-floor
+ * that sits underneath 22.18.0 (the `timeout` option reason), so both reasons
+ * stay recorded and neither is silently dropped.
+ *
  * Run: node tests/test-236-engines-floor.cjs
  */
 
@@ -39,9 +47,9 @@ const REPO = path.resolve(__dirname, '..');
 // Pinned by name so a future INTENTIONAL change to the floor breaks here loudly
 // and visibly, forcing the person making it to restate the reason, rather than
 // letting the number drift silently on one surface.
-const EXPECTED_FLOOR = '>=22.16.0';
+const EXPECTED_FLOOR = '>=22.18.0';
 const FLOOR_MAJOR = 22;
-const FLOOR_MINOR = 16;
+const FLOOR_MINOR = 18;
 const FLOOR_PATCH = 0;
 
 // ---------- harness (the repo convention: plain counters, nonzero exit tail) ----------
@@ -129,8 +137,8 @@ scenario('2. the runtime running this test satisfies the declared floor', () => 
 scenario('3. CLAUDE.md states the same floor (the lockstep held)', () => {
   const claudeMd = readRepoFile('CLAUDE.md');
   assert.ok(
-    claudeMd.includes('22.16.0'),
-    'CLAUDE.md does not mention 22.16.0. package.json and CLAUDE.md are the two surfaces a ' +
+    claudeMd.includes('22.18.0'),
+    'CLAUDE.md does not mention 22.18.0. package.json and CLAUDE.md are the two surfaces a ' +
     'reader trusts for the floor; if only one moved they now disagree.'
   );
   assert.ok(
@@ -140,7 +148,7 @@ scenario('3. CLAUDE.md states the same floor (the lockstep held)', () => {
   );
 });
 
-scenario('4. the two reasons the 22.16.0 floor exists are both still true', () => {
+scenario('4. the 22.16.0 sub-floor reasons are both still true', () => {
   const roomDbSrc = stripComments(readRepoFile('lib/core/room-db.cjs'));
 
   // Reason one: the require is UNGUARDED. No try/catch, no feature detection.
@@ -213,6 +221,36 @@ scenario('4. the two reasons the 22.16.0 floor exists are both still true', () =
       rel + ' sets --experimental-sqlite through NODE_OPTIONS: ' + offending.join(' | ')
     );
   }
+});
+
+scenario('5. the stack source and the CLAUDE.md stack block agree on the type-stripping floor', () => {
+  const claudeMd = readRepoFile('CLAUDE.md');
+  const stackSrc = readRepoFile('.planning/codebase/STACK.md');
+  const nodeRow = (text) => text.split('\n').find((l) => l.startsWith('| Node.js CJS shared core'));
+
+  for (const [label, text] of [['CLAUDE.md', claudeMd], ['.planning/codebase/STACK.md', stackSrc]]) {
+    const row = nodeRow(text);
+    assert.ok(row, label + ' has no "Node.js CJS shared core" table row');
+    assert.ok(row.includes('type stripping'), label + ' Node row does not name type stripping');
+    assert.ok(row.includes('22.18.0'), label + ' Node row does not name 22.18.0');
+    assert.ok(row.includes('22.16.0'), label + ' Node row dropped the 22.16.0 history');
+  }
+
+  assert.ok(
+    claudeMd.includes('<!-- GSD:stack-start source:codebase/STACK.md -->'),
+    'the CLAUDE.md stack sentinel does not read source:codebase/STACK.md, so a regeneration would ' +
+    'fall back to the unrelated .planning/research/STACK.md'
+  );
+
+  const start = claudeMd.indexOf('<!-- GSD:stack-start');
+  const startEnd = claudeMd.indexOf('-->', start) + 3;
+  const end = claudeMd.indexOf('<!-- GSD:stack-end -->', startEnd);
+  assert.ok(start >= 0 && end > startEnd, 'CLAUDE.md stack sentinel block not found');
+  const kept = (text) => text.split('\n').filter((l) => l.startsWith('## ') || l.startsWith('|'));
+  const block = kept(claudeMd.slice(startEnd, end));
+  // The generator adds its own "## Technology Stack" heading in front of the source's lines.
+  assert.equal(block[0], '## Technology Stack', 'generator heading missing from the stack block');
+  assert.deepEqual(block.slice(1), kept(stackSrc));
 });
 
 // ---------- tail ----------

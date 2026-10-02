@@ -50,6 +50,8 @@
 - **On a 2026-era host the decision gate renders as an in-chat card, not an inline dialog.** Claude Code 2.1.287
   already opens with the 2026 handshake, which carries no initialize-time client capabilities, so the gate
   uses its second rung. Nothing breaks; the card still works (navigator ruling 2026-10-02).
+- **Node floor raised to >=22.18.0** (first Node 22 line with unflagged TypeScript type stripping; Phase 369).
+  Users on Node 22.16 or 22.17 must upgrade Node before updating.
 
 ### Known issues
 - With `MINDRIAN_MCP_FIRST` on and a hook-set `MINDRIAN_SESSION_ID`, the shim cannot connect to the daemon
