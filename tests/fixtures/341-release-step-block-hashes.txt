@@ -21,8 +21,10 @@
 # line below (labeled with the literal string tests/run-all-341.sh's parser looks for).
 #
 # Companion PREAMBLE(1-79) and EXIT1_NONCOMMENT_COUNT baselines for this same generation live in
-# tests/fixtures/310-release-step-block-hashes.txt (16c188a4da7649e33b7f7787db343f436c4d690fbb1912b31c812199b26f0946
-# and 49 respectively, measured on this identical post-341-edit release.sh) -- not duplicated here
+# tests/fixtures/310-release-step-block-hashes.txt (at the 2026-09-10 mint they were
+# 16c188a4da7649e33b7f7787db343f436c4d690fbb1912b31c812199b26f0946 and 49; as of the quick
+# 261002-r41 rebaseline below they are 9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f
+# and 59, pinned there by quick 261002-byh on this identical release.sh) -- not duplicated here
 # as bare data lines because tests/run-all-341.sh's step-block leg only special-cases the one
 # header-count label below; a second unlabeled pinned line would be mis-parsed as an expected
 # (and therefore missing) `# --- Step` header.
@@ -43,10 +45,40 @@
 # nothing else, per its own instruction not to renumber that header-count
 # line or absorb unrelated drift.
 
-28  STEP_BLOCK_COUNT
-1c036be81ee9272602d48a4379a72b71b760a5851adaaf890f534b67b5c4e66b  # --- Step 0: Parse bump type + flags ---
+#
+# Quick 261002-r41 REBASELINE (2026-10-02, navigator approval 2026-10-02: re-mint the
+# drifted 341 fixture). Regenerated wholesale with the exact generating command above on
+# release.sh at HEAD (post 00b433917). The data lines below are byte-identical to the step
+# lines of tests/fixtures/310-release-step-block-hashes.txt (quick 261002-byh rebaseline).
+# Every delta against the 28-header pin was attributed to a release.sh commit by
+# regenerating per commit and diffing the block bodies; none was unexplained:
+#   - "# --- Step 0.6: ..." added: 886e9854d (Phase 343 Plan 07).
+#   - "# --- Step 0.6b: ..." and "# --- Step 0.6c: ..." added: 6d4053e09 (Phase 366 Plan 06).
+#   - "# --- Step 0.55: ..." and "# --- Step 9.6c: ..." added: a290afda3 (quick 261002-5v9),
+#     Step 0.55 re-touched by 9344a8a78 (5v9 WR-03).
+#   - "# --- Step 0: ..." moved: NO_CANON_SNAPSHOT_CHECK, NO_SUITE_CHECK and their arms
+#     (6d4053e09), NO_CUT_LISTENER and its arm (a290afda3), USAGE_BLOCK for all three, and
+#     NO_THEO_NOTIFY plus its arm removed (00b433917, quick 261002-byh).
+#   - "# --- Step 1: ..." moved: the Step 0.55 / Step 9.6c dry-run listing lines (a290afda3,
+#     d81cb0629 5v9 IN-03). The Step 5.6 listing lines 2dde2ecc1 (Phase 349 Plan 04) added
+#     were removed again by 00b433917, so they net to zero.
+#   - "# --- Step 9.7: ..." moved: cc97620b5 (quick 260917-o1y, npm-propagation-poll
+#     extraction). This one is outside the Phase 343/366 and 5v9/byh set; it was already
+#     authorized and absorbed into the 310 fixture on 2026-09-17, and the block body at HEAD
+#     equals the body at cc97620b5.
+#   - "# --- Step 5.6: ..." was added (2dde2ecc1) and retired (00b433917) after this fixture
+#     was pinned, so it never entered it and does not appear here.
+# STEP_BLOCK_COUNT 28 -> 33, the only floor this fixture carries. Every other block hash
+# is unchanged from the 28-header pin.
+
+33  STEP_BLOCK_COUNT
+f7e2c032a8a82bfe593baadb29363a1525a920b9e23c389b08b6ae56f4484590  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
-38459c14075ddbc148682221d28e4ef03a96e8d71417a3a41954e034e1fdbff4  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
+381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
+06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
+c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
+db0089d5adbb9afd7a4bece84bafffb1f4a69bdcc4ed05ebfe24c9218f7e7eeb  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
@@ -64,7 +96,8 @@ d249466f5de96ee2c0658e82d32465cbaa699e0d81edf5b715a40195a2327b5c  # --- Step 7: 
 8ca05b5251db5f818c87af1f42af16e32ff08a42337e528fff75d7b35a260cd2  # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 20370c7537cc97536740af536aee61007557cac94883a1bba4087e0461e50f12  # --- Step 9.6a: Sync install minisite to NEW_VERSION (HARD lockstep, vercel-CLI deploy) ---
 17ec90feebcd1dd9aee35588898e00a46c52d34c09228f51969264704a802697  # --- Step 9.6b: Sync Mindrian website FALLBACK_VERSION to NEW_VERSION ---
-27d1a9732c53f856857498f7c79930550bb5a09f948cba077dd19f940fc0467a  # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
+a78daaa7d75f0e27d89d7c665ec1a61b637d7bb0a073f1059979ab2596173845  # --- Step 9.6c: release-cut listener, website leg (quick 261002-5v9) ---
+084b326171a9014ff86e73999bb8d4a878c6cc742d76828c90291bec6225d126  # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
 e8cf01a8843222d55618df9d132bd9c4f4ca9b82522a8bc3a79055eb8fc33530  # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
 d8ebd65d1682a2653b13b4e403cc693c3be0f563002fd4f27a30fd4ecbc59e44  # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---
 a6be87ffa237c13d06dee29a95f119b0d12e1a0e97b67c82a403afe4f9209376  # --- Step 9: Push both ---
