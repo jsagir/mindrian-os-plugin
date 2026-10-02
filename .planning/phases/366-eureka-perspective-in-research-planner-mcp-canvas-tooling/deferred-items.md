@@ -17,3 +17,8 @@
 
 - **tests/test-310-release-step55-wiring.cjs is a pre-existing red.** Case 1 dies with `DRY_RUN: unbound variable` in its extracted Step 5.5 to 9.8 driver (Step 5.6 reads `$DRY_RUN`, which the driver never defines). Reproduced with the base commit's release.sh, so 366-06's Step 0.6b/0.6c wiring did not cause it. Owner: whoever next touches the 310 driver (define DRY_RUN=0 in it).
 - **tests/test-release-bump-algebra.cjs is a pre-existing red** (legs F, H, I: @mindrian_os/install publish, Step 7.5 marketplace bump, Step 9.7 HOME override), all assertions about retired release shapes. Reproduced with the base commit's release.sh.
+
+## From plan 366-10
+
+- **tests/test-doctor-doc-parity.cjs is red on a flag unrelated to this plan:** "flag --none is documented in commands/doctor.md but NOT parsed by doctor.cjs" (the `interactive_first_reward: "--none (diagnostic surface)"` frontmatter line). Not touched by 366-10 (no module or flag change in doctor.cjs or commands/doctor.md).
+- **Two 343 legs read FAILED only while the shared tree is dirty:** `test-343-counter-metric-declaration.cjs` and `test-298-contract-parity.cjs` assert `git status --porcelain` is empty after their tamper restore. Peer-owned uncommitted files (lib/mcp/tools/graph.cjs, scripts/check-tool-honesty.cjs) trip them; they hold no assertion about 366-10 files. Re-run on a clean tree.
