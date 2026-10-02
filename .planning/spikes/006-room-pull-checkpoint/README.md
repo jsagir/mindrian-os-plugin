@@ -106,7 +106,9 @@ claim every 5 seconds. Ctrl-C stops both servers and checks the real room was no
    opening a file) showed the changed files are exactly the `scripts/on-stop` set (STATE.md,
    session-close.log, session-snapshot.json, invariant-report.json): another Claude session's Stop hook,
    whose active room is this room. A stack-only control (start, idle, stop) changed nothing, and the final
-   journal run reports `real_room_untouched: true`.
+   journal run reports `real_room_untouched: true`. During spike 007 the same writer touched `.mindrian/`
+   at 03:11:34, before that stack started (03:11:53), which settles the attribution. The real room is not
+   a quiet fixture: it is live in other sessions.
 
 ## Results
 Headline run `results.json` (journal mode), repeated three times (`stages/03_probe/output/results-journal-run1/2.json`); ts comparison in `output/results-ts.json`.

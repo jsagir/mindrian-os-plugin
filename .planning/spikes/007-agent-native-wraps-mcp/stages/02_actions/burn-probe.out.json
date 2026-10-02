@@ -1,0 +1,16 @@
+{
+ "control_owner_only.owner": {
+  "answered": true,
+  "ratified": true,
+  "refused": null
+ },
+ "other_answers_first.other": {
+  "answered": false,
+  "refused": "session_mismatch"
+ },
+ "other_answers_first.owner": {
+  "answered": false,
+  "ratified": false,
+  "refused": "unknown_or_expired_gate"
+ }
+}

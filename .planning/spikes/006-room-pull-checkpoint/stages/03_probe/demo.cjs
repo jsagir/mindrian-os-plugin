@@ -10,7 +10,7 @@ const L = require('./launch.cjs');
 (async () => {
   process.env.PULL_MODE = process.env.PULL_MODE || 'journal';
   const stack = await L.startStack({ pullPort: 3871, prefix: 'spike006demo-' });
-  const info = { home: stack.home, roomDir: stack.roomDir, mcpUrl: stack.mcpUrl, pullUrl: stack.pullUrl, mode: process.env.PULL_MODE, started: new Date().toISOString(), pid: process.pid };
+  const info = { home: stack.home, roomDir: stack.roomDir, mcpUrl: stack.mcpUrl, pullUrl: stack.pullUrl, mode: process.env.PULL_MODE, before: stack.before, started: new Date().toISOString(), pid: process.pid };
   fs.writeFileSync(path.resolve(__dirname, 'output/stack.json'), JSON.stringify(info, null, 1));
   console.log('\nRoom copy:   ' + stack.roomDir + '\nMCP server:  ' + stack.mcpUrl + '\nOpen this:   ' + stack.pullUrl + '/\n\nWrite a claim from another terminal:\n  node .planning/spikes/006-room-pull-checkpoint/stages/03_probe/write.cjs "Your claim text"\nCtrl-C stops everything.\n');
   let tick = null;

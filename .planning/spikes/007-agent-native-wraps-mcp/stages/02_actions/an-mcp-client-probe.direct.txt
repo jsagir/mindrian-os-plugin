@@ -1,0 +1,11 @@
+[mcp-client] failed to connect to mindrian: HTTP 400: Error POSTing to endpoint: {"jsonrpc":"2.0","error":{"code":-32000,"message":"Bad Request: Server not initialized"},"id":null}
+/home/jsagi/dev/MindrianOS-Plugin/.planning/spikes/007-agent-native-wraps-mcp/mos-ui/node_modules/.pnpm/@agent-native+core@0.198.8_09e78692fe9a22e10b67bccda5e886f6/node_modules/@agent-native/core/dist/mcp-client/manager.js:540
+            throw new Error(`MCP server "${parsed.serverId}" is not connected${entry?.error ? `: ${entry.error}` : ""}`);
+                  ^
+
+Error: MCP server "mindrian" is not connected: HTTP 400: Error POSTing to endpoint: {"jsonrpc":"2.0","error":{"code":-32000,"message":"Bad Request: Server not initialized"},"id":null}
+    at McpClientManager.callTool (/home/jsagi/dev/MindrianOS-Plugin/.planning/spikes/007-agent-native-wraps-mcp/mos-ui/node_modules/.pnpm/@agent-native+core@0.198.8_09e78692fe9a22e10b67bccda5e886f6/node_modules/@agent-native/core/dist/mcp-client/manager.js:540:19)
+    at <anonymous> (/home/jsagi/dev/MindrianOS-Plugin/.planning/spikes/007-agent-native-wraps-mcp/mos-ui/scripts/an-mcp-client-probe.ts:20:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.23.1

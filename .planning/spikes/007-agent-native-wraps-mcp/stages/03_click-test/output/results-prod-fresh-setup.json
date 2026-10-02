@@ -1,0 +1,159 @@
+[
+ {
+  "ts": "2026-10-02T00:12:54.206Z",
+  "label": "room_view_ready",
+  "url": "http://127.0.0.1:3871",
+  "grant_before": {
+   "standing": null
+  }
+ },
+ {
+  "ts": "2026-10-02T00:12:56.365Z",
+  "label": "arm_A_grant_one_click",
+  "gate_shown_ms": 1388,
+  "options": [
+   {
+    "id": "approve_standing",
+    "checked": true,
+    "rec": true
+   },
+   {
+    "id": "not_now",
+    "checked": false,
+    "rec": false
+   }
+  ],
+  "preselected": "approve_standing",
+  "preselected_is_recommended": true,
+  "clicked": "preselected",
+  "mint_session": "c4a9aad6-8ce6-4e3c-87a2-3d599f3b31ff",
+  "click_to_answer_ms": 98,
+  "answered": true,
+  "ratified": true,
+  "executed": true,
+  "refused": null,
+  "decision_node_id": "decision:research-grant-e95f39b7fb",
+  "click_to_room_view_ms": 106,
+  "room_view_same_load": true,
+  "room_view_decisions_before": 6,
+  "room_view_decisions_after": 8,
+  "success_view_shown": true,
+  "grant_after": {
+   "standing": {
+    "grant_id": "g-44a32218",
+    "lifetime": "standing",
+    "terms": 0
+   }
+  },
+  "browser_hosts": [
+   "127.0.0.1:8090",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "server_non_loopback_peers": []
+ },
+ {
+  "ts": "2026-10-02T00:12:58.171Z",
+  "label": "arm_B_gate_render_one_click",
+  "gate_shown_ms": 1140,
+  "options": [
+   {
+    "id": "approve_standing",
+    "checked": true,
+    "rec": true
+   },
+   {
+    "id": "not_now",
+    "checked": false,
+    "rec": false
+   }
+  ],
+  "preselected": "approve_standing",
+  "preselected_is_recommended": true,
+  "clicked": "preselected",
+  "mint_session": "3cbcd35e-ce3e-4785-81ec-bf9a2e2542ca",
+  "click_to_answer_ms": 64,
+  "answered": true,
+  "ratified": true,
+  "executed": null,
+  "refused": null,
+  "decision_node_id": "decision:gate:gate-e44bf5ac134d08c7",
+  "click_to_room_view_ms": 68,
+  "room_view_same_load": true,
+  "room_view_decisions_before": 8,
+  "room_view_decisions_after": 9,
+  "success_view_shown": true,
+  "grant_after": {
+   "standing": {
+    "grant_id": "g-44a32218",
+    "lifetime": "standing",
+    "terms": 0
+   }
+  },
+  "browser_hosts": [
+   "127.0.0.1:8090",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "server_non_loopback_peers": []
+ },
+ {
+  "ts": "2026-10-02T00:12:59.983Z",
+  "label": "arm_C_grant_not_now",
+  "gate_shown_ms": 1082,
+  "options": [
+   {
+    "id": "approve_standing",
+    "checked": true,
+    "rec": true
+   },
+   {
+    "id": "not_now",
+    "checked": false,
+    "rec": false
+   }
+  ],
+  "preselected": "approve_standing",
+  "preselected_is_recommended": true,
+  "clicked": "not_now",
+  "mint_session": "8d1c656b-3074-45a2-b2b6-116a86d3ec61",
+  "click_to_answer_ms": 65,
+  "answered": true,
+  "ratified": false,
+  "executed": false,
+  "refused": null,
+  "decision_node_id": null,
+  "click_to_room_view_ms": null,
+  "room_view_same_load": true,
+  "room_view_decisions_before": 9,
+  "room_view_decisions_after": 9,
+  "success_view_shown": true,
+  "grant_after": {
+   "standing": {
+    "grant_id": "g-44a32218",
+    "lifetime": "standing",
+    "terms": 0
+   }
+  },
+  "browser_hosts": [
+   "127.0.0.1:8090",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ],
+  "server_non_loopback_peers": []
+ },
+ {
+  "ts": "2026-10-02T00:13:00.030Z",
+  "label": "room_view_hosts",
+  "hosts": [
+   "127.0.0.1:3871",
+   "fonts.googleapis.com",
+   "fonts.gstatic.com"
+  ]
+ },
+ {
+  "ts": "2026-10-02T00:13:00.071Z",
+  "label": "real_room",
+  "untouched_vs_stack_start": false
+ }
+]
