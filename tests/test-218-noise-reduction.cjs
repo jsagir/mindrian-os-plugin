@@ -6,28 +6,41 @@
  * THE CLAIM (REQ-5, strengthened): a "structural" pair is one whose BOTH
  * endpoints are memory_artifact nodes -- the one-node-per-file scaffolding that
  * carries no domain signal (the noise this phase exists to remove). Quick task
- * 260715-0nj excludes every both-scaffold pair from the ranked-pair candidate
- * set at the pair-candidate generation layer, so the top-N structural share is
- * now 0 BY CONSTRUCTION, independent of entity-cohort density (this supersedes
- * the earlier REQ-5 directional "share must DROP" claim, which was satisfiable
- * only when the scaffold clique still scored). The invariant is now two-sided:
+ * 260715-0nj excluded every both-scaffold pair at the pair-candidate layer, and
+ * Phase 363.1 D-03 moved the exclusion to the node: a memory_artifact row is
+ * never a candidate endpoint at all. So the structural share is 0 BY
+ * CONSTRUCTION, independent of entity-cohort density (this supersedes the
+ * earlier REQ-5 directional "share must DROP" claim). The invariant is two-sided:
  *
- *   PRE  (artifact-only room): the ranked list is EMPTY -- every candidate pair
- *        is both-scaffold, all excluded, honest empty instead of a confident
+ *   PRE  (artifact-only room): the candidate list is EMPTY -- every possible
+ *        pair is scaffold, all excluded, honest empty instead of a confident
  *        100 percent structural top-N.
  *   POST (after minting company / technology / market entity nodes via
- *        scripts/entity-extract.cjs): the ranked list is NON-EMPTY (real entity
- *        pairs survive) AND the top-N structural share is EXACTLY 0.
+ *        scripts/entity-extract.cjs): the minted entities reach the recall
+ *        substrate as bridges AND the structural share is EXACTLY 0.
+ *
+ * Phase 366 plan 25 (D-02, runner retirement, slice B): the standalone Eureka
+ * runner script is retired, so the ranking seam is now
+ * the Eureka perspective's recall stage
+ * (lib/core/research-planner/perspectives/eureka-recall.cjs runRecall), which
+ * drops memory_artifact rows in buildSubstrate before any lane proposes a pair.
+ * One half of the old POST leg changes with the seam: the runner paired entity
+ * nodes with each other, so its POST list was non-empty; the perspective pairs
+ * content things and uses entities as the bridges between them (lane
+ * shared_entity), so a room that holds nothing but scaffold rows stays honestly
+ * empty after extraction. POST therefore asserts that the minted entities are
+ * present in the substrate (extraction reached the perspective) instead of a
+ * non-empty list; the "real pairs survive" half lives in
+ * test-218-scaffold-pair-filter leg 2 (an entity-bridged content pair ranks).
  *
  * WHY A SYNTHETIC FIXTURE (not the live aion room): this leg must be HERMETIC,
- * FAST and DETERMINISTIC in CI. A full offline re-rank over a real tens-of-
- * thousands-of-pairs room is too heavy for CI (218-03-PLAN Task 2 escape hatch),
- * so the ACCEPTANCE NUMBER (< 50% on aion-eureka-synergy) is the Task 3 human-
- * verify leg's job. This test proves the MECHANISM on a tiny seeded room: a
- * handful of memory_artifact nodes wired into a 100%-structural CONVERGES baseline,
- * extraction run in-process, and the post-extraction top-N structural share proven
- * strictly lower. Everything runs --offline (stub encoder) with the zero-network
- * preload required below, so no model download and no network reach.
+ * FAST and DETERMINISTIC in CI. The ACCEPTANCE NUMBER (< 50% on
+ * aion-eureka-synergy) was the Task 3 human-verify leg's job. This test proves
+ * the MECHANISM on a tiny seeded room: a handful of memory_artifact nodes wired
+ * into a 100%-structural CONVERGES baseline, extraction run in-process, and the
+ * structural share proven 0 before and after. Everything runs offline with the
+ * zero-network preload required below, so no model download and no network
+ * reach; recall itself never embeds and never calls a model.
  *
  * NO em-dashes anywhere (CLAUDE.md HARD RULE).
  */
@@ -43,10 +56,18 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+// Hermetic: never read the operator's real home, rooms or session.
+const TMP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-218-noise-home-'));
+process.env.HOME = TMP_HOME;
+process.env.USERPROFILE = TMP_HOME;
+process.env.MINDRIAN_ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-218-noise-roomshome-'));
+delete process.env.CLAUDE_ACTIVE_ROOM;
+delete process.env.CLAUDE_CODE_SESSION_ID;
+
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
 const navigation = require('../lib/core/navigation.cjs');
-const RUNNER = require('../scripts/eureka-portfolio-report.cjs');
+const recall = require('../lib/core/research-planner/perspectives/eureka-recall.cjs');
 const entityExtract = require('../scripts/entity-extract.cjs');
 
 // ---------------------------------------------------------------------------
@@ -161,42 +182,44 @@ function seedRoom(roomDir) {
   closeRoomDb(db);
 }
 
-// Run the shipped portfolio engine OFFLINE in room-native mode and return the
-// top-N structural share (both endpoints memory_artifact) plus the raw counts.
-async function structuralShare(roomDir) {
-  const outMd = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.md');
-  const outJson = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.json');
-  const code = await RUNNER.main([
-    '--db', roomDir,
-    '--pairs', 'room',
-    '--offline',
-    '--top', '25',
-    '--out', outMd,
-    '--json', outJson,
-  ]);
-  assert.equal(code, 0, 'portfolio runner should exit 0');
-  const report = JSON.parse(fs.readFileSync(outJson, 'utf8'));
-  const ranked = Array.isArray(report.ranked) ? report.ranked : [];
+// Run the Eureka perspective's recall stage (read-only on room.db, no model,
+// no network) and return the structural share (both endpoints memory_artifact),
+// the raw counts, and the substrate's entity bridges.
+let runSeq = 0;
+function structuralShare(roomDir) {
+  runSeq += 1;
+  const rec = recall.runRecall(roomDir, { tag: '20261002T00000' + runSeq + 'Z' });
+  assert.equal(rec.ok, true, 'eureka recall should run');
+  const ranked = Array.isArray(rec.candidates) ? rec.candidates : [];
 
-  // Classify each ranked endpoint by node TYPE. The runner keys pair ids by
-  // catalogId(row); build the same id -> type map so a pair is "structural" iff
-  // BOTH endpoints resolve to a memory_artifact node.
+  // Classify each candidate endpoint by node TYPE (candidates carry node ids).
   const db = openRoomDb(roomDir, { allowExtension: true });
-  const rows = db.prepare('SELECT id, type, source_path FROM nodes').all();
+  const rows = db.prepare('SELECT id, type FROM nodes').all();
   const typeById = new Map();
-  for (const row of rows) {
-    typeById.set(RUNNER.catalogId(row), row.type);
-  }
+  for (const row of rows) typeById.set(row.id, row.type);
   closeRoomDb(db);
 
   let structural = 0;
+  let artifactEndpoints = 0;
   for (const p of ranked) {
-    if (typeById.get(p.a) === 'memory_artifact' && typeById.get(p.b) === 'memory_artifact') {
-      structural += 1;
-    }
+    const aArt = typeById.get(p.a) === 'memory_artifact';
+    const bArt = typeById.get(p.b) === 'memory_artifact';
+    if (aArt && bArt) structural += 1;
+    if (aArt || bArt) artifactEndpoints += 1;
+  }
+  // The substrate's entity bridges, read through the same read-only door recall uses.
+  const ro = navigation.openRoomDbReadOnlyForCaller(path.resolve(roomDir));
+  let entities;
+  try {
+    entities = Object.keys(recall.buildSubstrate(ro, { roomDir: path.resolve(roomDir) }).entities);
+  } finally {
+    try { ro.close(); } catch (_e) { /* read-only handle */ }
   }
   const total = ranked.length;
-  return { structural: structural, total: total, share: total > 0 ? structural / total : 0 };
+  return {
+    structural: structural, artifactEndpoints: artifactEndpoints, total: total,
+    share: total > 0 ? structural / total : 0, counts: rec.counts, entities: entities, roomDir: roomDir,
+  };
 }
 
 async function main() {
@@ -206,11 +229,11 @@ async function main() {
     seedRoom(roomDir);
 
     // PRE: the seeded room has ONLY memory_artifact CONVERGES pairs, so every
-    // candidate pair is both-scaffold and the both-scaffold filter (quick
-    // 260715-0nj) excludes all of them -> the ranked list is honestly EMPTY,
+    // possible pair is scaffold and the exclusion (quick 260715-0nj, 363.1
+    // D-03) removes all of them -> the candidate list is honestly EMPTY,
     // instead of the pre-filter 100 percent-structural top-N.
-    const pre = await structuralShare(roomDir);
-    assert.equal(pre.total, 0, 'pre-extraction ranking must be EMPTY (every pair is both-scaffold, all excluded)');
+    const pre = structuralShare(roomDir);
+    assert.equal(pre.total, 0, 'pre-extraction recall must be EMPTY (every pair is both-scaffold, all excluded)');
     assert.equal(pre.structural, 0, 'an empty ranked list has zero structural pairs by construction');
     console.log('  pre : ' + pre.structural + '/' + pre.total + ' structural (honest empty)');
     passed += 1;
@@ -236,20 +259,25 @@ async function main() {
     console.log('  minted ' + totalEnt + ' proposed entity nodes');
     passed += 1;
 
-    // POST: the same offline re-rank now sees entity content to pair, so the
-    // ranked list is non-empty (real entity pairs survive) AND the structural
-    // (memory_artifact-vs-memory_artifact) share is EXACTLY 0 by construction
-    // (the both-scaffold filter removes every scaffold pair, quick 260715-0nj).
-    const post = await structuralShare(roomDir);
+    // POST: the same offline recall now sees the minted entities as bridges in
+    // its substrate, and the structural (memory_artifact-vs-memory_artifact)
+    // share is EXACTLY 0 by construction: no candidate endpoint is a
+    // memory_artifact row on either side (quick 260715-0nj, 363.1 D-03).
+    const post = structuralShare(roomDir);
     console.log('  post: ' + post.structural + '/' + post.total + ' structural = ' + (post.share * 100).toFixed(1) + '%');
-    assert.ok(
-      post.total > 0,
-      'REQ-5: post-extraction ranked list must be NON-EMPTY (real entity pairs survive)'
-    );
     assert.equal(
       post.structural, 0,
       'REQ-5 exact: post-extraction structural share must be EXACTLY 0 (' + post.structural +
-      ' both-scaffold pairs ranked; the filter must remove all of them)'
+      ' both-scaffold pairs recalled; the filter must remove all of them)'
+    );
+    assert.equal(
+      post.artifactEndpoints, 0,
+      'REQ-5 exact (363.1 D-03): no candidate endpoint may be a memory_artifact row; got ' + post.artifactEndpoints
+    );
+    assert.ok(
+      Array.isArray(post.entities) && post.entities.length >= totalEnt,
+      'REQ-5: every minted entity must reach the recall substrate as a bridge (' +
+      (post.entities ? post.entities.length : 'none') + ' of ' + totalEnt + ')'
     );
     passed += 1;
 

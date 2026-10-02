@@ -2,27 +2,24 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * RCA handoff-eureka-entity-noise-2026-07-19 -- the low-trust entity provenance
- * split. Two moving parts, tested here end to end, all offline/hermetic:
+ * split, the STAMPING half (offline/hermetic):
  *
- *   (1) STAMPING (scripts/entity-extract.cjs): a surviving WHAT entity that arrived
- *       via the two-tier NO-LLM embedding best-guess is stamped
- *       props.evidenceTier = 'low_confidence'; one from the encoder-and-key-absent
- *       degrade is stamped 'fallback'; a confident (embedding or model) WHAT is left
- *       unstamped so writeEntityNode defaults evidenceTier to 'None' (trusted).
+ *   STAMPING (scripts/entity-extract.cjs): a surviving WHAT entity that arrived
+ *   via the two-tier NO-LLM embedding best-guess is stamped
+ *   props.evidenceTier = 'low_confidence'; one from the encoder-and-key-absent
+ *   degrade is stamped 'fallback'; a confident (embedding or model) WHAT is left
+ *   unstamped so writeEntityNode defaults evidenceTier to 'None' (trusted).
  *
- *   (2) EXCLUSION (scripts/eureka-portfolio-report.cjs 4b pass): a candidate pair
- *       with EITHER endpoint stamped low_confidence/fallback is dropped from ranking
- *       (unverified tier-1 regex hits like "Windows"/"CSFs" stop surfacing as
- *       opportunities), counted honestly as low_trust_pairs_excluded -- BUT ONLY
- *       when the room has at least one VERIFIED entity to surface instead. A pure
- *       Tier-0 room (every entity unverified) keeps ranking so Decision 8 ("Tier 0
- *       fully functional; graceful degradation everywhere") and the REQ-5 non-empty
- *       contract hold.
- *
- * WHY the guard: without it, a keyless + encoder-unavailable room degrades every
- * entity to 'fallback', and suppressing all of them ranks the room EMPTY. That is
- * the exact regression test-218-noise-reduction (REQ-5) would catch; this suite
- * pins BOTH directions so neither can silently break.
+ * Phase 366 plan 25 (D-02, runner retirement, slice B): this file used to carry
+ * two more legs on the EXCLUSION half, the standalone Eureka runner's 4b pass
+ * (a candidate pair touching a low_confidence/fallback entity dropped from
+ * ranking, counted as low_trust_pairs_excluded, plus the pure-Tier-0 guard that
+ * skipped the exclusion when no verified entity existed). The runner is retired
+ * and the Eureka perspective that replaces it has no low-trust pair filter
+ * (entities there are bridges between content things, not ranked endpoints),
+ * so those two legs retired with their subject. The stamping leg stays: the
+ * extractor still writes evidenceTier and other readers (the 219 disclosure
+ * and metadata legs) depend on it.
  *
  * NO em-dashes anywhere (CLAUDE.md HARD RULE).
  */
@@ -34,10 +31,17 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+// Hermetic: never read the operator's real home, rooms or session.
+const TMP_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-lowtrust-home-'));
+process.env.HOME = TMP_HOME;
+process.env.USERPROFILE = TMP_HOME;
+process.env.MINDRIAN_ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-lowtrust-roomshome-'));
+delete process.env.CLAUDE_ACTIVE_ROOM;
+delete process.env.CLAUDE_CODE_SESSION_ID;
+
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
 const navigation = require('../lib/core/navigation.cjs');
-const RUNNER = require('../scripts/eureka-portfolio-report.cjs');
 const { runExtraction } = require('../scripts/entity-extract.cjs');
 
 let pass = 0;
@@ -67,35 +71,6 @@ function buildRoom(artifacts) {
   }
   closeRoomDb(db);
   return roomDir;
-}
-
-// Seed typed entity nodes with an explicit evidenceTier via the real writer, plus a
-// DESCRIBES edge to a memory_artifact so the node has room provenance + degree.
-function seedEntities(roomDir, specs) {
-  const db = openRoomDb(roomDir, { allowExtension: true });
-  for (const s of specs) {
-    const r = navigation.writeEntityNode(db, {
-      entityType: s.entityType, name: s.name, sessionId: 'sess', evidenceTier: s.evidenceTier,
-    });
-    assert.ok(r && r.ok, 'entity write should succeed: ' + JSON.stringify(r));
-    if (s.describes) {
-      const entityId = navigation.ENTITY_NODE_ID('sess', s.name);
-      navigation.writeEdge(db, {
-        source_id: entityId, target_id: s.describes, edge_type: 'DESCRIBES',
-        properties: { relation: 'describes' },
-      });
-    }
-  }
-  closeRoomDb(db);
-}
-
-// Run the shipped ranker offline in room-native mode; return the parsed report.
-async function rank(roomDir) {
-  const outMd = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.md');
-  const outJson = path.join(roomDir, '.mindrian', 'eureka', 'portfolio-report.json');
-  const code = await RUNNER.main(['--db', roomDir, '--pairs', 'room', '--offline', '--top', '25', '--out', outMd, '--json', outJson]);
-  assert.equal(code, 0, 'ranker should exit 0');
-  return JSON.parse(fs.readFileSync(outJson, 'utf8'));
 }
 
 // A tier-2a surrogate: mark the named terms confident WHAT, everything else
@@ -158,69 +133,7 @@ async function main() {
     }
   });
 
-  // -------------------------------------------------------------------------
-  // Leg 2 (MIXED-ROOM EXCLUSION): a room with 2 verified entities + 1 low-trust
-  // entity. The verified pair ranks; every pair touching the low-trust entity is
-  // excluded and counted; no ranked pair references the low-trust node.
-  // -------------------------------------------------------------------------
-  await check('leg2 exclusion: mixed room drops low-trust pairs, verified pair survives', async () => {
-    const roomDir = buildRoom([
-      { slug: 'companies', body: '# Companies\n\nAcme and Globex compete in the market.' },
-      { slug: 'tech', body: '# Technology\n\nWidget is the core platform component.' },
-      { slug: 'noise', body: '# Notes\n\nWindows is the deployment target for the build.' },
-    ]);
-    seedEntities(roomDir, [
-      { entityType: 'company', name: 'Acme', evidenceTier: 'None', describes: 'memory_artifact:companies:FEYNMAN' },
-      { entityType: 'technology', name: 'Widget', evidenceTier: 'None', describes: 'memory_artifact:tech:FEYNMAN' },
-      { entityType: 'market', name: 'Windows', evidenceTier: 'low_confidence', describes: 'memory_artifact:noise:FEYNMAN' },
-    ]);
-    const report = await rank(roomDir);
-    const ranked = Array.isArray(report.ranked) ? report.ranked : [];
-    assert.ok((report.provenance.low_trust_pairs_excluded || 0) > 0,
-      'low_trust_pairs_excluded must be > 0 in a mixed room, got ' + report.provenance.low_trust_pairs_excluded);
-    assert.ok(ranked.length > 0, 'verified entities must still rank (non-empty)');
-
-    // Map ranked pair ids back to node titles/names; no ranked endpoint may be the
-    // low-trust "Windows" entity.
-    const db = openRoomDb(roomDir, { allowExtension: true });
-    const rows = db.prepare('SELECT id, type, properties FROM nodes').all();
-    const nameById = new Map();
-    for (const row of rows) {
-      let nm = null; try { nm = JSON.parse(row.properties).name; } catch (_e) { nm = null; }
-      nameById.set(RUNNER.catalogId(row), nm);
-    }
-    closeRoomDb(db);
-    for (const p of ranked) {
-      assert.notEqual(nameById.get(p.a), 'Windows', 'no ranked pair endpoint may be the low-trust entity: ' + JSON.stringify(p));
-      assert.notEqual(nameById.get(p.b), 'Windows', 'no ranked pair endpoint may be the low-trust entity: ' + JSON.stringify(p));
-    }
-    fs.rmSync(roomDir, { recursive: true, force: true });
-  });
-
-  // -------------------------------------------------------------------------
-  // Leg 3 (PURE-TIER-0 GUARD): a room whose ONLY entities are low-trust. The
-  // exclusion is SKIPPED (no verified entity to surface instead), nothing is
-  // counted as low_trust_pairs_excluded, and the room still ranks non-empty
-  // (Decision 8 graceful degradation preserved).
-  // -------------------------------------------------------------------------
-  await check('leg3 guard: pure Tier-0 room keeps ranking (exclusion skipped)', async () => {
-    const roomDir = buildRoom([
-      { slug: 'a', body: '# A\n\nAcme competes in the market.' },
-      { slug: 'b', body: '# B\n\nWidget is the platform.' },
-    ]);
-    seedEntities(roomDir, [
-      { entityType: 'company', name: 'Acme', evidenceTier: 'fallback', describes: 'memory_artifact:a:FEYNMAN' },
-      { entityType: 'technology', name: 'Widget', evidenceTier: 'fallback', describes: 'memory_artifact:b:FEYNMAN' },
-    ]);
-    const report = await rank(roomDir);
-    const ranked = Array.isArray(report.ranked) ? report.ranked : [];
-    assert.equal(report.provenance.low_trust_pairs_excluded || 0, 0,
-      'pure Tier-0 room must NOT exclude any low-trust pair (guard skips), got ' + report.provenance.low_trust_pairs_excluded);
-    assert.ok(ranked.length > 0, 'pure Tier-0 room must still rank non-empty (Decision 8 graceful degradation)');
-    fs.rmSync(roomDir, { recursive: true, force: true });
-  });
-
-  console.log('\n' + pass + '/' + total + ' low-trust exclusion checks passed');
+  console.log('\n' + pass + '/' + total + ' low-trust stamping checks passed');
   if (pass !== total) process.exit(1);
 }
 

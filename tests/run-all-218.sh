@@ -90,25 +90,16 @@ run "218-02 tier-1 extractor (zero egress)" \
 run "tier-2 two-tier WHAT/WHY classifier + dispatcher second pass (offline)" \
   node tests/test-218-what-why-classifier.cjs
 
-# (a.1) T-218-VD: post-checkpoint fix. The live REQ-5 human-verify run (Task 3)
-#     found the noise-reduction hermetic fixture couldn't reproduce a real,
-#     months-old room's accumulated node-degree skew, so eureka-portfolio-report.cjs
-#     pooling entity nodes into the SAME percentile cohort as long-lived
-#     memory_artifact hubs floor-pinned every entity node's validated_demand.
-#     This proves the stratification fix + the zero-entity-node regression guard.
-run "T-218-VD cohort stratification (validated_demand hub-skew fix)" \
-  node tests/test-218-cohort-stratification.cjs
+# (a.1) T-218-VD-4: the extractor also walks non-memory-kinded analysis files.
+#     Phase 366 plan 25 (D-02, runner retirement, slice B) retired two legs that
+#     lived here, both on the standalone Eureka runner, which is gone:
+#     T-218-VD (cohort stratification, a percentile fix inside the runner's
+#     all-pairs scoring loop; the Eureka perspective has no percentile cohort)
+#     and T-218-VD-5 (the runner dispatcher's auto-extract-before-run pre-step;
+#     entity extraction itself stays covered by the extractor, tier-2 and
+#     noise-reduction legs here). Reasons recorded in 366-25-SUMMARY.md.
 run "T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)" \
   node tests/test-218-extend-to-artifacts.cjs
-# T-218-VD-5 (quick-task 260714-jjm): the auto-extract pre-step, plus the
-# silent-extraction-failure surfacing fix. The David-session incident
-# (.planning/debug/interns-round-eureka-david-session-2026-07-14.md) showed a
-# pre-step failure leaving exit 0, state done, and zero surfaced trace -- the
-# fourth confirmed instance of today's silent-skip-false-success pattern. This
-# test was previously wired into NO aggregator; legs 5-7 pin the fix so it can
-# never silently regress. Offline-safe (it requires eureka-offline-preload).
-run "T-218-VD-5 auto-extract pre-step + extraction-error surfacing" \
-  node tests/test-218-eureka-auto-extract.cjs
 
 # (b) REQ-3 zero-touch gate: no second embedding path, no vector-store signature
 #     change. The re-embed rides the EXISTING tri-modal indexNodes path.
@@ -138,26 +129,30 @@ run "no command surface leaked" \
   node scripts/build-connector-registry.cjs --check
 
 # (f) REQ-5 exact: the noise-reduction mechanism on a hermetic seeded room. With
-#     the quick-260715-0nj both-scaffold candidate-pair filter the top-N
-#     structural share is 0 by construction (empty pre, exactly-0 post).
+#     the quick-260715-0nj / 363.1 D-03 scaffold exclusion (now in the Eureka
+#     perspective's substrate stage, eureka-recall.cjs) the structural share is
+#     0 by construction (empty pre, exactly-0 post, minted entities reach the
+#     substrate as bridges).
 run "REQ-5 noise-reduction (exact, offline)" \
   node tests/test-218-noise-reduction.cjs
 
-# (f.1) quick-260715-0nj both-scaffold candidate-pair filter: scaffold-only room
-#       ranks empty; mixed room ranks only non-both-scaffold pairs and one-side
-#       pairs survive (the narrow-scope proof). The live re-verification on the
-#       aion-eureka-synergy tier2-verified substrate (72.0 percent -> 0.0 percent)
-#       is the quick task's Task 2 leg, recorded in 218-VERIFICATION.md.
-run "quick-260715-0nj scaffold-pair filter (both-scaffold exclusion, offline)" \
+# (f.1) quick-260715-0nj both-scaffold candidate-pair filter, at the Eureka
+#       perspective's recall seam: scaffold-only room recalls empty; mixed room
+#       recalls only content pairs, no scaffold endpoint on either side (363.1
+#       D-03), and the entity-bridged content pair ranks. The live
+#       re-verification on the aion-eureka-synergy tier2-verified substrate
+#       (72.0 percent -> 0.0 percent) is the quick task's Task 2 leg, recorded in
+#       218-VERIFICATION.md.
+run "quick-260715-0nj scaffold-pair filter (scaffold exclusion at recall, offline)" \
   node tests/test-218-scaffold-pair-filter.cjs
 
 # (f.2) RCA handoff-eureka-entity-noise-2026-07-19: the low-trust entity provenance
-#       split. Proves both directions of the load-bearing fix -- the unverified
-#       (low_confidence/fallback) evidenceTier stamp on WHAT entities, the eureka
-#       pairing exclusion of any pair touching one, AND the Decision-8 guard that
-#       keeps a pure Tier-0 room (every entity unverified) ranking non-empty instead
-#       of emptying it. Offline/hermetic (injected embedding verdicts + seeded nodes).
-run "RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offline)" \
+#       split, the stamping half -- the unverified (low_confidence/fallback)
+#       evidenceTier stamp on WHAT entities. The exclusion half (the runner's pair
+#       filter and its Tier-0 guard) retired with the standalone runner in Phase
+#       366 plan 25; the Eureka perspective has no low-trust pair filter.
+#       Offline/hermetic (injected embedding verdicts + seeded nodes).
+run "RCA-260719 low-trust entity stamping (offline)" \
   node tests/test-218-low-trust-exclusion.cjs
 
 # (f.3) CR-01 (code review, phase 231, 2026-07-19): the same entity name can
