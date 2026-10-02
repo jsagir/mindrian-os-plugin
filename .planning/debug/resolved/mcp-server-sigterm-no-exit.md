@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "mcp-server-sigterm-no-exit"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cowork, cli]
 brain_mode: full-loop
 canon_parts: [9]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-10-02T00:00:00Z
 ---
 
 ## Current Focus
@@ -17,7 +17,7 @@ updated: 2026-09-24T07:43:32Z
 hypothesis: CONFIRMED. `lib/mcp/session-catchup.cjs`'s `registerShutdownHandler` (`:310-339`) installs SIGTERM/SIGINT/`beforeExit` listeners that snapshot session state and run teardown callbacks but never call `process.exit()`. Installing any listener for SIGTERM/SIGINT removes Node's own default terminate-on-signal behavior, so the process survives the signal indefinitely. In HTTP mode the listening socket keeps the event loop alive on top of that. Confirmed for BOTH the HTTP-mode and stdio-mode server.
 test: Live SIGTERM against a hermetically-spawned server, both HTTP-mode and stdio-mode, polling for exit for 5000ms.
 expecting: (met) neither case exits within 5000ms; the HTTP case leaves port 3847 still bound.
-next_action: NONE for this plan (267-02 is RCA-filing only, no code change). Fix owned by 267-13, scoped to `bin/mindrian-mcp-server.cjs` only (`session-catchup.cjs` stays shared and unchanged, per the plan).
+next_action: NONE - resolved by 267-13.
 
 ## Meta
 
@@ -174,7 +174,24 @@ started: Present since `registerShutdownHandler`'s SIGTERM/SIGINT listeners were
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-13
-verification: PENDING
-files_changed: []
-commits: PENDING
+
+fix: test-first. `tests/test-267-mcpv2-lifecycle.cjs` committed RED (a48130a04), then `bin/mindrian-mcp-server.cjs` (eb6893bf9) gained `exitAfterTeardown(signal)` plus `registerTerminalSignalListeners()`, registered LAST on every branch (HTTP listen callback after the flag-ON clearOnce, stdio after serveStdio, express-missing fallback). It runs once, arms an unref'd 2000 ms `process.exit(0)` backstop, closes `httpServer`, every handler in the module-level `mcpHandlers` list and the serveStdio handle (each in its own try/catch), then `process.exit(0)`. Node runs listeners in registration order, so registerShutdownHandler (session snapshot, tree-watcher stop) and the pidfile clear run first. `lib/mcp/session-catchup.cjs` is unchanged (shared with the brain shim). stdio was confirmed to hang pre-fix too (the lifecycle stdio arm failed RED), so the guard is a real fix there, not only a regression arm.
+
+verification:
+```
+$ node tests/test-267-mcpv2-lifecycle.cjs   (HOME and MINDRIAN_ROOMS_HOME isolated)
+PRE-FIX (a48130a04): PASS=1 FAIL=4 (flag-OFF, flag-ON, stdio SIGTERM arms all "did not exit within 3000 ms"; listen-error arm "still alive")
+POST-FIX (eb6893bf9):
+    flag-OFF exit after 13 ms, code 0
+  ok HTTP flag-OFF: SIGTERM exits 0 within 3000 ms, snapshot saved, port released
+    flag-ON exit after 12 ms, code 0
+  ok HTTP flag-ON: pidfile written, SIGTERM exits 0 within 3000 ms, pidfile cleared
+    stdio exit after 12 ms, code 0
+  ok stdio: initialize sent, stdin open, SIGTERM exits within 3000 ms
+  ok listen error: port held by a foreign listener -> exit 1 within 5000 ms, honest EADDRINUSE line, no started line, no pidfile
+  ok process hygiene: no spawned server alive and port 3847 free
+RESULT: PASS=5 FAIL=0
+```
+
+files_changed: [bin/mindrian-mcp-server.cjs, tests/test-267-mcpv2-lifecycle.cjs]
+commits: a48130a04 (RED test), eb6893bf9 (fix)

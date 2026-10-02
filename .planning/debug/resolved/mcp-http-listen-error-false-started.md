@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "mcp-http-listen-error-false-started"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cowork]
 brain_mode: full-loop
 canon_parts: [11]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-10-02T00:00:00Z
 ---
 
 ## Current Focus
@@ -17,7 +17,7 @@ updated: 2026-09-24T07:43:32Z
 hypothesis: CONFIRMED. `bin/mindrian-mcp-server.cjs:404` calls `app.listen(listenPort, '127.0.0.1', () => {...})` with a zero-argument callback. Express 5 (installed: `express@5.2.1`) invokes that callback with a bind-error argument (e.g. `EADDRINUSE`) when the listen fails, but the callback signature here takes no parameter, so the error is silently dropped and the "success" branch runs unconditionally -- the server logs a false "started" line and, flag-ON, would write a pidfile for a port it does not own.
 test: Held port 3847 with a test-owned `net` listener, then spawned the flag-OFF HTTP server and captured its stderr for 5000ms.
 expecting: (met) the false "started" line prints anyway, and the process stays alive rather than exiting on the bind failure.
-next_action: NONE for this plan (267-02 is RCA-filing only, no code change). Fix owned by 267-13 (shared with RCA 5).
+next_action: NONE - resolved by 267-13.
 
 ## Meta
 
@@ -158,7 +158,24 @@ started: Present since `app.listen(port, host, callback)` was first written with
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-13
-verification: PENDING
-files_changed: []
-commits: PENDING
+
+fix: test-first, same RED test (a48130a04). Fix eb6893bf9: `app.listen(listenPort, '127.0.0.1', (listenErr) => {...})` now reads its first argument; on error it writes `[mindrian-os] HTTP listen failed on 127.0.0.1:<port>: <code>` to stderr and calls `process.exit(1)` before the "started" line, the flag-ON pidfile write, the clearOnce registration and session catch-up. The returned http.Server is kept in `httpServer` for shutdown.
+
+verification:
+```
+$ node tests/test-267-mcpv2-lifecycle.cjs   (HOME and MINDRIAN_ROOMS_HOME isolated)
+PRE-FIX (a48130a04): PASS=1 FAIL=4 (flag-OFF, flag-ON, stdio SIGTERM arms all "did not exit within 3000 ms"; listen-error arm "still alive")
+POST-FIX (eb6893bf9):
+    flag-OFF exit after 13 ms, code 0
+  ok HTTP flag-OFF: SIGTERM exits 0 within 3000 ms, snapshot saved, port released
+    flag-ON exit after 12 ms, code 0
+  ok HTTP flag-ON: pidfile written, SIGTERM exits 0 within 3000 ms, pidfile cleared
+    stdio exit after 12 ms, code 0
+  ok stdio: initialize sent, stdin open, SIGTERM exits within 3000 ms
+  ok listen error: port held by a foreign listener -> exit 1 within 5000 ms, honest EADDRINUSE line, no started line, no pidfile
+  ok process hygiene: no spawned server alive and port 3847 free
+RESULT: PASS=5 FAIL=0
+```
+
+files_changed: [bin/mindrian-mcp-server.cjs, tests/test-267-mcpv2-lifecycle.cjs]
+commits: a48130a04 (RED test), eb6893bf9 (fix)

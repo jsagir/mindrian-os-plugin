@@ -4,6 +4,26 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 
 ---
 
+## mcp-server-sigterm-no-exit - installing a SIGTERM/SIGINT listener removed Node's default exit-on-signal, so the local MCP server survived SIGTERM in every transport and held port 3847
+- **Date:** 2026-09-24 (filed 267-02), resolved 2026-10-02 (267-13)
+- **Error patterns:** SIGTERM, SIGINT, registerShutdownHandler, did not exit, still bound, port 3847 held, SIGKILL required, beforeExit, process.exit
+- **Root cause:** `lib/mcp/session-catchup.cjs` `registerShutdownHandler` installs SIGTERM/SIGINT/beforeExit listeners that snapshot session state and run teardown callbacks but never call `process.exit()`. Any listener on those signals replaces Node's built-in terminate action, so the process lived on (HTTP: socket kept the loop alive and the port bound; stdio: stdin/stdout did the same). Not caused by Phase 267; surfaced as false test readings in its research (Pitfall 9).
+- **Fix:** Test-first: `tests/test-267-mcpv2-lifecycle.cjs` RED (a48130a04, PASS=1 FAIL=4), then `exitAfterTeardown` in `bin/mindrian-mcp-server.cjs` registered last on every branch (eb6893bf9): closes the http server, the `mcpHandlers` list and the stdio handle, then exits 0, with an unref'd 2000 ms backstop. The shared `session-catchup.cjs` stays exit-free because the brain shim also uses it.
+- **Verification:** `node tests/test-267-mcpv2-lifecycle.cjs` PASS=5 FAIL=0 (flag-OFF, flag-ON, stdio each exit 0 in about 12 ms, snapshot line present, pidfile cleared, port released); http-flag-off, dual-era, brain-shim, test-248 surface probes green; run-all-198 13 pass / 3 fail (baseline).
+- **Files changed:** `bin/mindrian-mcp-server.cjs`, `tests/test-267-mcpv2-lifecycle.cjs` (new). Full record: `.planning/debug/resolved/mcp-server-sigterm-no-exit.md`.
+- **Pattern lesson:** installing a signal listener removes Node's default exit, so the listener owns the exit. A shared module that registers signal handlers must either exit itself or document that each entry point must; here the entry point owns it, registered last so teardown listeners run first.
+---
+
+## mcp-http-listen-error-false-started - Express 5 moved listen errors into the app.listen callback, and a callback that ignored its first argument turned every bind failure into a success report
+- **Date:** 2026-09-24 (filed 267-02), resolved 2026-10-02 (267-13)
+- **Error patterns:** EADDRINUSE, app.listen, listen callback, false started, MCP server started, pidfile for a port not owned, express 5
+- **Root cause:** `bin/mindrian-mcp-server.cjs` called `app.listen(port, '127.0.0.1', () => {...})` with a zero-argument callback. Express 5 invokes that callback with the bind error on failure, so the "MCP server ... started" line printed on a failed bind, and flag-ON wrote a pidfile for a port the process did not own, so daemon clients could be pointed at a foreign listener.
+- **Fix:** Same RED test, then the callback reads `listenErr` (eb6893bf9): one stderr line `HTTP listen failed on 127.0.0.1:<port>: <code>`, no started line, no pidfile, no catch-up, `process.exit(1)`.
+- **Verification:** lifecycle listen-error arm: port held by a test-owned net server, server exits 1 well inside 5000 ms, stderr names EADDRINUSE and 3847, no started line, no pidfile; PASS=5 FAIL=0.
+- **Files changed:** `bin/mindrian-mcp-server.cjs`, `tests/test-267-mcpv2-lifecycle.cjs` (new). Full record: `.planning/debug/resolved/mcp-http-listen-error-false-started.md`.
+- **Pattern lesson:** when a framework moves error delivery from an event to a callback argument, a callback that declares no parameters silently converts every failure into a success path. A success log line must be gated on the actual outcome, and any state written on success (pidfile) must be written after it.
+---
+
 ## runtime-loop-prompts-bogus-args-schema - three prompts passed metadata in the argsSchema slot of a variadic registration API and have never worked since their introduction
 - **Date:** 2026-09-24 (filed 267-02), resolved 2026-10-02 (267-09)
 - **Error patterns:** server.prompt, argsSchema, keyValidator._parse, -32603, prompts/get, bind-room, status, act, runtime-loop prompts, bogus required arguments description arguments
