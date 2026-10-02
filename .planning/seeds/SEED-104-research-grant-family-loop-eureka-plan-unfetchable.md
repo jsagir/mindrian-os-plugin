@@ -189,3 +189,12 @@ defects ("Normal card on CLI" not in `gate.cjs:9-14`; no elicitation `default`; 
 the session check; the contract carries `recommended: null`) are Phase 289; the Theo egress-guard false block is
 a Phase 366 note under SEED-019 (plan 11 guard arm). Phase 369 depends on 289 for the same gate contract. Fold map:
 `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.
+
+## Quick 261002-cud (2026-10-02)
+
+- The room-only `ws:extraction_failure` false negative is fixed: `localRoomCheck` (lib/core/research-planner/quick.cjs)
+  backs the exact phrase with strict-majority content-token coverage, so a long zone term the room names in other
+  words is no longer "0 room artifacts". The regression is `tests/test-seed104-room-check-tokens.cjs`.
+- The long exact-phrase OpenAlex zero was already handled by 366-14 (`max_term_words` 4) and is untouched here.
+- The MCP release route (op basket mints a session-keyed release gate per unresolved room word) and the MCP
+  `plan_only` answer for `run_quick` shipped in the same quick.

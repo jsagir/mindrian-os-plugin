@@ -114,11 +114,14 @@ run_if "366 egress policy"                               tests/test-366-egress-p
 run_if "366 spike harness"                               tests/test-366-spike-harness.cjs             node tests/test-366-spike-harness.cjs
 run_if "366 guard navigator release"                     tests/test-366-guard-navigator-release.cjs   node tests/test-366-guard-navigator-release.cjs
 run_if "366 gated term release"                          tests/test-366-gated-term-release.cjs        node tests/test-366-gated-term-release.cjs
+run_if "366 mcp release route"                          tests/test-366-mcp-release-route.cjs         node tests/test-366-mcp-release-route.cjs
+run_if "366 mcp plan only"                              tests/test-366-mcp-plan-only.cjs             node tests/test-366-mcp-plan-only.cjs
 run_if "366 runner retired"                              tests/test-366-runner-retired.cjs            node tests/test-366-runner-retired.cjs
 run_if "366 semantic index integrity"                    tests/test-366-semantic-index-integrity.cjs  node tests/test-366-semantic-index-integrity.cjs
 
 # --- (2b) SEED-104 quick fix 261002-0n4 (grant family loop, egress-safe terms, loop guard) ---
 run_if "seed104 grant family loop"             tests/test-seed104-grant-family-loop.cjs       node tests/test-seed104-grant-family-loop.cjs
+run_if "seed104 room check tokens"            tests/test-seed104-room-check-tokens.cjs       node tests/test-seed104-room-check-tokens.cjs
 run_if "pin 363 grants"                        tests/test-363-grants.cjs                      node tests/test-363-grants.cjs
 run_if "pin 363 run quick"                     tests/test-363-run-quick.cjs                   node tests/test-363-run-quick.cjs
 
