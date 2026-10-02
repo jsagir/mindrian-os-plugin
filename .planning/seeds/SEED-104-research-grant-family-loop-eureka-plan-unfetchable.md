@@ -167,3 +167,14 @@ Residuals:
   `composableTerm`. The navigator may revoke and re-grant. That room was not touched.
 - The run-grant reuse path (`approvePlanReview` returns an active run grant) is not covered by the
   standing-scope guard.
+
+## Update 2026-10-02: two more gate defects (found by spike 007)
+
+- **A refused cross-session answer destroys the owner's gate.** `consumeGate` (`lib/mcp/gate-ledger.cjs`
+  around line 100) deletes the ledger entry before checking the session, so a `session_mismatch` refusal
+  still consumes the gate and the rightful owner then gets `unknown_or_expired_gate`. Any second connection
+  can cancel someone else's pending decision. Fix: check the session first, delete only on a valid consume;
+  add a test where the owner answers after a refused cross-session attempt.
+- **The gate contract drops the recommendation.** The rendered contract carries `recommended: null`; only
+  `card.options[].recommended` holds it. Likely the same gap behind the elicitation card opening on
+  "not set". Fix: carry the recommended option id into the contract (and the elicitation `default`).
