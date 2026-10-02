@@ -1,0 +1,114 @@
+{
+  "rows": [
+    {
+      "name": "Scientific Roadmapping",
+      "orchestrationStatus": "draft",
+      "steps": [
+        {
+          "stepId": "sr-v1-step-1",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 1,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-2",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 2,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-3",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 3,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-4",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 4,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-5",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 5,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-6",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 6,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-7",
+          "label": null,
+          "runIt": null,
+          "stepKind": null,
+          "thinkingMode": null,
+          "researchDirective": null,
+          "artifactRubric": null,
+          "charStart": null,
+          "sourceOrder": 7,
+          "orchestrationStatus": null,
+          "sourceConstruct": null
+        }
+      ]
+    }
+  ],
+  "frameworkIdentities": {
+    "resolved": [
+      "Field Roadmapping",
+      "Roadmapping",
+      "Tech Tree Mapping",
+      "Technology Roadmapping"
+    ]
+  },
+  "diagnostics": {},
+  "egress_disclosure": {
+    "verdict": "ambiguous",
+    "disposition": "proceeded"
+  }
+}

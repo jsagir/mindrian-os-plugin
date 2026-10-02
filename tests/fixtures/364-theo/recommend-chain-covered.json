@@ -1,0 +1,32 @@
+{
+  "tool": "recommend_chain",
+  "backend": "theo",
+  "grounded": true,
+  "problem_type": "Well-Defined Problem",
+  "seed_candidates": [],
+  "chain": [
+    {
+      "step": 1,
+      "framework": "Business Model Canvas",
+      "pagerank": 0.5,
+      "edge_confidence": 0.7,
+      "commands": []
+    },
+    {
+      "step": 2,
+      "framework": "Scientific Roadmapping",
+      "pagerank": 0.45,
+      "edge_confidence": 0.7,
+      "commands": []
+    },
+    {
+      "step": 3,
+      "framework": "Unit Economics Review",
+      "pagerank": 0.4,
+      "edge_confidence": 0.7,
+      "commands": []
+    }
+  ],
+  "note": null,
+  "execution_hint": null
+}

@@ -1,0 +1,140 @@
+{
+  "rows": [
+    {
+      "name": "Scientific Roadmapping",
+      "orchestrationStatus": "draft",
+      "steps": [
+        {
+          "stepId": "sr-v1-step-1",
+          "label": "Tension Qualification",
+          "runIt": "FIXTURE runIt for sr-v1-step-1, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-1, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 100,
+          "sourceOrder": 9,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-def-1",
+          "label": "FIXTURE DEFINITION row",
+          "runIt": "FIXTURE runIt for sr-v1-step-def-1, not canon",
+          "stepKind": "DEFINITION",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-def-1, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": null,
+          "sourceOrder": 8,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-2",
+          "label": "Goal Quantification",
+          "runIt": "FIXTURE runIt for sr-v1-step-2, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-2, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 200,
+          "sourceOrder": 7,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-3",
+          "label": "Rung Placement and Type Selection",
+          "runIt": "FIXTURE runIt for sr-v1-step-3, not canon",
+          "stepKind": null,
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-3, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 300,
+          "sourceOrder": 6,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-4",
+          "label": "Forum Construction",
+          "runIt": "FIXTURE runIt for sr-v1-step-4, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-4, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 400,
+          "sourceOrder": 5,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-5",
+          "label": "Path Enumeration",
+          "runIt": "FIXTURE runIt for sr-v1-step-5, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-5, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 500,
+          "sourceOrder": 4,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-aside-1",
+          "label": "FIXTURE ASIDE row",
+          "runIt": "FIXTURE runIt for sr-v1-step-aside-1, not canon",
+          "stepKind": "ASIDE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-aside-1, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": null,
+          "sourceOrder": 3,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-6",
+          "label": "Constraint Interrogation",
+          "runIt": "FIXTURE runIt for sr-v1-step-6, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-6, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 600,
+          "sourceOrder": 2,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        },
+        {
+          "stepId": "sr-v1-step-7",
+          "label": "Catalytic Ranking",
+          "runIt": "FIXTURE runIt for sr-v1-step-7, not canon",
+          "stepKind": "PROCEDURE",
+          "thinkingMode": "FIXTURE thinkingMode, not canon",
+          "researchDirective": "FIXTURE researchDirective for sr-v1-step-7, not canon",
+          "artifactRubric": "FIXTURE artifactRubric, not canon",
+          "charStart": 700,
+          "sourceOrder": 1,
+          "orchestrationStatus": "draft",
+          "sourceConstruct": null
+        }
+      ]
+    }
+  ],
+  "frameworkIdentities": {
+    "resolved": [
+      "Field Roadmapping",
+      "Roadmapping",
+      "Tech Tree Mapping",
+      "Technology Roadmapping"
+    ]
+  },
+  "diagnostics": {},
+  "egress_disclosure": {
+    "verdict": "allow",
+    "disposition": "proceeded"
+  }
+}
