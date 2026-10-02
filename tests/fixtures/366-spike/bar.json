@@ -1,0 +1,34 @@
+{
+  "schema": "mos.spike-366-bar/1",
+  "fixed_at": "2026-10-02T02:05:00.000Z",
+  "baseline": {
+    "useful": 43,
+    "shown": 96,
+    "rate": 0.448,
+    "wilson95": [0.352, 0.547],
+    "slices": { "hsi": 47, "rs": 49 },
+    "source": "355-VERIFICATION.md",
+    "note": "engine-output baseline from rs-engine and hsi-engine; Eureka was substrate_unavailable on the bare fixtures"
+  },
+  "rule": "adopt an arm only if wilson95(useful, shown)[0] > 0.448 on each of 3 repeats",
+  "repeats": 3,
+  "per_room_cap": 32,
+  "min_useful_at_n": { "30": 19, "50": 30, "96": 53, "150": 80, "200": 104 },
+  "arms": {
+    "recall": ["eureka-graph-lexical", "eureka-graph-lexical-vector", "rs-graph", "hsi-graph"],
+    "judge": ["stage-a", "jev", "claude", "claude-then-jev"]
+  },
+  "definitions": {
+    "useful_rate": "gold-useful share of the pairs an arm shows (recall arms) or passes (judge arms), labeled blind by the navigator with scripts/label-355-gold.cjs on the pairings-unstamped set",
+    "passes": "stage-a: Stage A gate passes; jev: choice is useful (Stage A runs first inside the judge); claude: verdict is useful (all pairs, no Stage A); claude-then-jev: Jev choice is useful over Claude's useful subset only",
+    "repeats": "recall arms are deterministic so the three repeats are recorded as identical runs; judge arms jev, claude and claude-then-jev run three times each",
+    "comparability": "every arm reports its shown count n beside the rate; an arm with n below the baseline n of 96 is flagged n_below_baseline_n in the record and the navigator rules on comparability at 366-20",
+    "slice_rule": "rs-graph and hsi-graph are also read against the RS slice (16 of 49) and the HSI slice (27 of 47) of the baseline; slice figures are reported, they do not gate the bar"
+  },
+  "vector_lane": {
+    "source": "local embeddings only (lib/core/eureka/embedding-spine.cjs), cross-section cosine top-k per thing, no similarity floor",
+    "top_k": 5,
+    "requires": "a cached local model; with none cached the arm exits 77 (ENV GAP) and never downloads"
+  },
+  "out_of_scope": "Q2 known-ness and Q4 research-lift arms of design section 9 are not in D-05; the navigator may add them at the 366-20 ruling"
+}
