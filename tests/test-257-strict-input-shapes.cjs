@@ -9,7 +9,7 @@
  * silently DROPS an undeclared key (`{framework:'x', roomSecret:'LEAK'}` is
  * ACCEPTED, the handler receives only the declared field, nothing logs,
  * rejects, or traces the extra one). Theo measured this on
- * `@modelcontextprotocol/sdk` 1.30.0 with zod 4.4.3 -- a different zod major
+ * the v1 MCP SDK (1.30.0) with zod 4.4.3 -- a different zod major
  * than this repo pins. 257-RESEARCH.md's Assumption A3 explicitly gated
  * Recommendation 8 on re-measuring against THIS repo's own installed pins
  * before acting. This file's first four arms (Task 1) are that
@@ -57,28 +57,31 @@
  *   Arm C - declared arguments alone still pass validation (non-error).
  *   Arm D - brain_query's params stays permissive for arbitrary sibling keys
  *           INSIDE params (only the top level is strict).
- *   Arm E - the zero-parameter risk case: brain_schema/brain_stats, both
- *           call shapes (arguments absent, arguments:{}), before vs after.
- *   Arm F - catalog parity: names, descriptions, declared parameters and the
- *           advertised additionalProperties:false, before vs after.
- *   Arm G - mutation leg: the pre-migration registration form (all six
- *           tools, including brain_ask) does NOT reject an undeclared key --
- *           proving Arm A is a meaningful, failable check, not a tautology.
+ *   Arm E (post-only) - the zero-parameter risk case: brain_schema/brain_stats
+ *           accept both call shapes (arguments absent, arguments:{}) on the
+ *           migrated shim.
+ *   Arm E2 - a required-field tool (brain_ask) still rejects arguments-absent,
+ *           so Arm E's normalization is not a validation bypass.
  *
- * THE "BEFORE" FIXTURE. Arms E/F/G need the pre-migration shim to compare
- * against. This file spawns it from the EXACT pre-migration source via
- * `git show 7093e79b:bin/mindrian-brain-mcp-client.cjs` -- commit 7093e79b is
- * this same plan's own Task 1 commit (test-only, the shim was untouched at
- * that point), an immutable object already reachable from this repo's `main`
- * history, so this reference stays valid forever regardless of how many
- * commits land afterward (it is provenance, not a behavioral prediction --
- * not the frozen-tool-list class Pitfall 4 warns about). The pre-migration
- * source is spawned from a scratch directory OUTSIDE the repo tree
- * (os.tmpdir()), with lib/, .claude-plugin/ and node_modules/ SYMLINKED back
- * to this repo so its relative requires resolve identically to the real
- * file -- it never touches or mutates any tracked file. Both the "before"
- * and "after" shims stay connected simultaneously for the Arm E/F/G
- * comparisons; both are cleaned up in a shared `finally`.
+ * RETIRED 2026-10-02 (navigator ruling, quick 261002-by3).
+ *   (a) What was retired: the before-vs-after Arms E, F and G, and the scratch
+ *       pre-migration shim built from `git show 7093e79b:bin/mindrian-brain-mcp-client.cjs`.
+ *   (b) Why: plan 267-17 removed the v1 SDK. The scratch shim's symlinked lib/
+ *       made lib/core/mcp-dep-heal.cjs resolve its v1 requires against the
+ *       repo's node_modules, which raised MODULE_NOT_FOUND. requireWithHeal then
+ *       fired a live npm install in the dev repo on every run, and the run
+ *       aborted right after Arm Z4c, so Arms A to G never executed
+ *       (267-VERIFICATION-GATES.md Finding F-A).
+ *   (c) The ruling: F-A option 3, retire the before-vs-after legs and keep the
+ *       strict-shape arms.
+ *   (d) Where each guarantee lives now: Arm G's "Arm A is a failable check"
+ *       proof is carried by Arm Z2 (a plain z.object silently accepts the
+ *       undeclared key) together with Arm Z4a (a strictObject rejects it on the
+ *       wire and the handler never runs). Arm F's catalog parity is carried by
+ *       tests/test-267-mcpv2-brain-shim.cjs, which byte-compares name,
+ *       description and normalized inputSchema for all 6 tools against
+ *       tests/fixtures/267/wire-snapshot-zod4.json in both eras. Arm E is
+ *       restated post-only.
  *
  * No em-dashes (hyphens only).
  */
@@ -91,7 +94,6 @@ const path = require('node:path');
 
 const REPO = path.resolve(__dirname, '..');
 const SHIM = path.join(REPO, 'bin', 'mindrian-brain-mcp-client.cjs');
-const PRE_MIGRATION_COMMIT = '7093e79b'; // Plan 08 Task 1 commit; shim untouched there.
 
 const {
   startCaptureServer,
@@ -127,7 +129,6 @@ async function recordAsync(name, fn) {
 // established for this phase.
 // ---------------------------------------------------------------------------
 const spawnedPids = [];
-const scratchDirs = [];
 
 function spawnShimAt(shimPath, url) {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-257-08-home-'));
@@ -221,59 +222,6 @@ function parseToolResult(resp) {
 }
 
 // ---------------------------------------------------------------------------
-// The pre-migration scratch fixture. Written to os.tmpdir() (outside the
-// repo tree) with lib/, .claude-plugin/ and node_modules/ SYMLINKED back to
-// this repo so the pre-migration file's own relative requires resolve
-// exactly as they did when it was the live file. Never touches a tracked
-// file.
-// ---------------------------------------------------------------------------
-// Plan 267-17: the v1 SDK is no longer a dependency of this repo, but the
-// pre-migration shim is a v1 program and needs a v1 SDK to run. The only v1
-// copy left on disk is mcp-server-brain/node_modules (dead service, out of
-// scope for removal). The scratch node_modules is therefore a real directory
-// of symlinks into the repo's node_modules, plus an @modelcontextprotocol/sdk
-// symlink to that fixture copy. Returns null when no v1 copy exists (a fresh
-// checkout), and the "before" legs then print an explicit SKIP; they are
-// never silently counted as passes.
-function findV1SdkFixture() {
-  const candidates = [
-    path.join(REPO, 'mcp-server-brain', 'node_modules', '@modelcontextprotocol', 'sdk'),
-    path.join(REPO, 'node_modules', '@modelcontextprotocol', 'sdk'),
-  ];
-  for (const c of candidates) {
-    if (fs.existsSync(path.join(c, 'package.json'))) return c;
-  }
-  return null;
-}
-
-function buildPreMigrationScratchShim() {
-  const v1Sdk = findV1SdkFixture();
-  if (!v1Sdk) return null;
-  const source = cp.execFileSync('git', ['show', PRE_MIGRATION_COMMIT + ':bin/mindrian-brain-mcp-client.cjs'], {
-    cwd: REPO,
-    encoding: 'utf8',
-  });
-  assert.ok(source.indexOf("server.tool(\n  'brain_ask'") !== -1, 'pre-migration fixture sanity check failed -- expected the OLD positional brain_ask registration in commit ' + PRE_MIGRATION_COMMIT);
-  const scratchDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-257-08-premigration-'));
-  scratchDirs.push(scratchDir);
-  fs.mkdirSync(path.join(scratchDir, 'bin'));
-  const scratchShimPath = path.join(scratchDir, 'bin', 'mindrian-brain-mcp-client.cjs');
-  fs.writeFileSync(scratchShimPath, source, 'utf8');
-  fs.symlinkSync(path.join(REPO, 'lib'), path.join(scratchDir, 'lib'), 'dir');
-  fs.symlinkSync(path.join(REPO, '.claude-plugin'), path.join(scratchDir, '.claude-plugin'), 'dir');
-  const scratchModules = path.join(scratchDir, 'node_modules');
-  fs.mkdirSync(scratchModules);
-  const repoModules = path.join(REPO, 'node_modules');
-  for (const entry of fs.readdirSync(repoModules)) {
-    if (entry === '@modelcontextprotocol') continue;
-    fs.symlinkSync(path.join(repoModules, entry), path.join(scratchModules, entry), 'dir');
-  }
-  fs.mkdirSync(path.join(scratchModules, '@modelcontextprotocol'));
-  fs.symlinkSync(v1Sdk, path.join(scratchModules, '@modelcontextprotocol', 'sdk'), 'dir');
-  return scratchShimPath;
-}
-
-// ---------------------------------------------------------------------------
 // Per-tool fixtures. VALID_ARGS supplies only the data payload shape needed
 // to drive a call, keyed by a name Arm A first asserts present in a live
 // tools/list response -- the tool LIST itself is never frozen (Pitfall 4).
@@ -293,15 +241,6 @@ async function callToolShape(shim, toolName, shape) {
     return parseToolResult(await shim.requestRaw('tools/call', { name: toolName }));
   }
   return parseToolResult(await shim.requestRaw('tools/call', { name: toolName, arguments: {} }));
-}
-
-function schemaFieldNames(toolEntry) {
-  const props = (toolEntry && toolEntry.inputSchema && toolEntry.inputSchema.properties) || {};
-  return Object.keys(props).sort();
-}
-function schemaRequiredNames(toolEntry) {
-  const req = (toolEntry && toolEntry.inputSchema && toolEntry.inputSchema.required) || [];
-  return req.slice().sort();
 }
 
 async function main() {
@@ -411,40 +350,17 @@ async function main() {
   });
 
   // =========================================================================
-  // TASK 3: THE WIRE PROOF. Both the real (post-migration) shim and the
-  // pre-migration scratch shim are spawned and stay connected simultaneously
-  // so Arms E/F/G can compare them directly; both are cleaned up together.
+  // TASK 3: THE WIRE PROOF. Only the real (migrated) shim is spawned.
   // =========================================================================
   const { server: captureServer, url: captureUrl } = await startCaptureServer();
   const after = spawnShimAt(SHIM, captureUrl);
-  const scratchShimPath = buildPreMigrationScratchShim();
-  const before = scratchShimPath ? spawnShimAt(scratchShimPath, captureUrl) : null;
-  if (!before) {
-    process.stdout.write('  NOTE no v1 SDK fixture on disk (mcp-server-brain/node_modules absent): the before-vs-after legs (Arms E, F, G) are SKIPPED, not passed\n');
-  }
-  // Arms that need the v1 "before" shim: explicit SKIP when it is unavailable.
-  async function recordNeedsBefore(name, fn) {
-    if (!before) {
-      process.stdout.write('  SKIP ' + name + ' (no v1 SDK fixture)\n');
-      return;
-    }
-    await recordAsync(name, fn);
-  }
-
   try {
     await initShim(after);
-    if (before) await initShim(before);
 
     const afterListResp = await after.request('tools/list', {});
     const liveNames = ((afterListResp.result && afterListResp.result.tools) || []).map((t) => t.name);
     const afterToolsList = {};
     (afterListResp.result.tools || []).forEach((t) => { afterToolsList[t.name] = t; });
-
-    const beforeToolsList = {};
-    if (before) {
-      const beforeListResp = await before.request('tools/list', {});
-      (beforeListResp.result.tools || []).forEach((t) => { beforeToolsList[t.name] = t; });
-    }
 
     // -----------------------------------------------------------------
     // Arm A + Arm B data collection: one undeclared-key call per live
@@ -504,57 +420,24 @@ async function main() {
     });
 
     // -----------------------------------------------------------------
-    // Arm E: the zero-parameter risk case, both call shapes, before vs
-    // after.
-    //
-    // Phase 267 Plan 05 (MEASURED, ACCEPTED DELTA): "before" (still
-    // requiring @modelcontextprotocol/sdk v1) and "after" (current HEAD,
-    // migrated to @modelcontextprotocol/server v2's serveStdio) now run on
-    // genuinely different major SDK versions for the first time this test
-    // exists -- it was written in Phase 257-08 to compare two registration
-    // FORMS on the same v1 SDK, and the v1 -> v2 migration is an incidental
-    // change in what "after" now means, not a coincidental one.
-    //
-    // Live-measured on this tree: v1's registerTool passes an OMITTED
-    // `arguments` field straight to zod as `undefined`, which every schema
-    // rejects outright ("expected object, received undefined") -- a raw
-    // top-level type mismatch, not required-field enforcement. v2's
-    // registerTool normalizes an omitted `arguments` field to `{}` BEFORE
-    // validation, for every tool. Against an EMPTY schema (brain_schema,
-    // brain_stats) that normalizes-and-passes (isError flips true ->
-    // false). Against a schema with a required field it still correctly
-    // fails required-field validation -- VERIFIED by Arm E2 immediately
-    // below. This is a spec-compliance improvement (MCP's
-    // CallToolRequestParams.arguments is OPTIONAL), not a validation
-    // bypass: the undeclared-key rejection (Arm A/G) and the
-    // declared-arguments-pass (Arm C) checks are unaffected, since both
-    // send an explicit `arguments` object.
+    // Arm E (post-only): the zero-parameter risk case, both call shapes, on
+    // the migrated shim. v2 normalizes an omitted `arguments` field to {}
+    // BEFORE validation, and MCP's CallToolRequestParams.arguments is
+    // OPTIONAL, so both shapes must succeed against an empty schema
+    // (brain_schema, brain_stats). Arm E2 below proves this normalization is
+    // not a validation bypass.
     // -----------------------------------------------------------------
     const zeroParamTools = liveNames.filter((n) => n === 'brain_schema' || n === 'brain_stats');
     assert.ok(zeroParamTools.length > 0, 'expected at least one zero-parameter tool (brain_schema/brain_stats) in the live catalog');
 
-    await recordNeedsBefore('Arm E: zero-parameter tools, both call shapes, before vs after (' + zeroParamTools.join(', ') + ')', async () => {
+    await recordAsync('Arm E (post-only): zero-parameter tools accept both call shapes on the migrated shim (' + zeroParamTools.join(', ') + ')', async () => {
       for (const toolName of zeroParamTools) {
-        const beforeAbsent = await callToolShape(before, toolName, 'absent');
-        const afterAbsent = await callToolShape(after, toolName, 'absent');
-        const beforeEmpty = await callToolShape(before, toolName, 'empty');
-        const afterEmpty = await callToolShape(after, toolName, 'empty');
-        process.stdout.write('    ' + toolName + ' (arguments absent): before.isError=' + beforeAbsent.isError + ' after.isError=' + afterAbsent.isError + '\n');
-        process.stdout.write('    ' + toolName + ' (arguments:{}):    before.isError=' + beforeEmpty.isError + ' after.isError=' + afterEmpty.isError + '\n');
-
-        // arguments:{} must behave identically before vs after -- this
-        // shape was never touched by the SDK migration and any drift here
-        // is a genuine regression.
-        assert.strictEqual(afterEmpty.isError, beforeEmpty.isError, toolName + ' (arguments:{}): isError flipped by the migration -- before=' + JSON.stringify(beforeEmpty) + ' after=' + JSON.stringify(afterEmpty));
-
-        // arguments absent: accept ONLY the one measured, documented
-        // direction (v1 errors, v2 normalizes-and-succeeds). Any other
-        // divergence, including the reverse direction or a flip on a shim
-        // that used to succeed, still fails loudly.
-        if (afterAbsent.isError !== beforeAbsent.isError) {
-          assert.strictEqual(beforeAbsent.isError, true, toolName + ' (arguments absent): unexpected before-shape -- expected v1 to error, got: ' + JSON.stringify(beforeAbsent));
-          assert.strictEqual(afterAbsent.isError, false, toolName + ' (arguments absent): unexpected after-shape -- expected v2 to succeed (normalized to {}), got: ' + JSON.stringify(afterAbsent));
-        }
+        const absent = await callToolShape(after, toolName, 'absent');
+        const empty = await callToolShape(after, toolName, 'empty');
+        process.stdout.write('    ' + toolName + ' (arguments absent): isError=' + absent.isError + '\n');
+        process.stdout.write('    ' + toolName + ' (arguments:{}):    isError=' + empty.isError + '\n');
+        assert.strictEqual(absent.isError, false, toolName + ' (arguments absent): expected success (v2 normalizes to {}), got: ' + JSON.stringify(absent));
+        assert.strictEqual(empty.isError, false, toolName + ' (arguments:{}): expected success, got: ' + JSON.stringify(empty));
       }
     });
 
@@ -578,66 +461,8 @@ async function main() {
         );
       });
     }
-
-    // -----------------------------------------------------------------
-    // Arm F: catalog parity, before vs after. Names, descriptions,
-    // declared parameter names, and the advertised
-    // additionalProperties:false, all compared.
-    // -----------------------------------------------------------------
-    await recordNeedsBefore('Arm F: catalog parity, before vs after (names, descriptions, declared parameters, additionalProperties:false)', async () => {
-      const beforeNames = Object.keys(beforeToolsList).sort();
-      const afterNames = Object.keys(afterToolsList).sort();
-      assert.deepStrictEqual(afterNames, beforeNames, 'tool name set changed by the migration: before=' + JSON.stringify(beforeNames) + ' after=' + JSON.stringify(afterNames));
-
-      afterNames.forEach((name) => {
-        const b = beforeToolsList[name];
-        const a = afterToolsList[name];
-        assert.strictEqual(a.description, b.description, name + ': description string changed (must be byte-identical): before=' + JSON.stringify(b.description) + ' after=' + JSON.stringify(a.description));
-        assert.deepStrictEqual(schemaFieldNames(a), schemaFieldNames(b), name + ': declared field-name set changed: before=' + JSON.stringify(schemaFieldNames(b)) + ' after=' + JSON.stringify(schemaFieldNames(a)));
-        assert.deepStrictEqual(schemaRequiredNames(a), schemaRequiredNames(b), name + ': required field-name set changed: before=' + JSON.stringify(schemaRequiredNames(b)) + ' after=' + JSON.stringify(schemaRequiredNames(a)));
-
-        const afterAP = a.inputSchema && a.inputSchema.additionalProperties;
-        assert.strictEqual(afterAP, false, name + ': expected the AFTER advertised schema to carry additionalProperties:false, got: ' + JSON.stringify(a.inputSchema));
-
-        // Honest finding, recorded not gated: zodToJsonSchema (the SDK's own
-        // JSON-Schema converter) already emits additionalProperties:false for
-        // a PLAIN z.object shape too -- so this specific advertised-schema
-        // property is NOT new evidence of the hardening on its own; the real
-        // hardening is the RUNTIME validation behavior Arm A proves (a plain
-        // shape's own safeParse call still silently drops the extra key per
-        // Arm Z2, even though its generated JSON Schema also already said
-        // additionalProperties:false). Printed for the record, not asserted
-        // either way.
-        const beforeAP = b.inputSchema && b.inputSchema.additionalProperties;
-        process.stdout.write('    ' + name + ': additionalProperties:false present before=' + beforeAP + ' after=' + afterAP + '\n');
-      });
-    });
-
-    // -----------------------------------------------------------------
-    // Arm G: mutation leg. The pre-migration registration form does NOT
-    // reject an undeclared key on brain_ask -- proving Arm A is a
-    // meaningful, failable check rather than a tautology. This reuses
-    // the "before" shim (all six registrations reverted, a strict
-    // superset of "one registration reverted") rather than constructing
-    // a second scratch mutation, since Arm A's assertion is evaluated
-    // per-tool and brain_ask alone is sufficient to prove the point.
-    // -----------------------------------------------------------------
-    await recordNeedsBefore('Arm G: mutation leg -- the pre-migration brain_ask registration does NOT reject an undeclared key', async () => {
-      const args = Object.assign({}, VALID_ARGS.brain_ask, { roomSecret: CANARY_TOKEN });
-      const resp = await before.request('tools/call', { name: 'brain_ask', arguments: args });
-      const parsed = parseToolResult(resp);
-      process.stdout.write('    pre-migration brain_ask + undeclared key: isError=' + parsed.isError + '\n');
-      process.stdout.write('    pre-migration brain_ask + undeclared key: response text (truncated): ' + parsed.text.slice(0, 300) + '\n');
-      assert.strictEqual(
-        parsed.isError,
-        false,
-        'expected the PRE-MIGRATION brain_ask registration to silently ACCEPT the undeclared key (this is precisely the vulnerability Task 2 closes); got isError=true, which would mean Arm A never had anything real to catch'
-      );
-    });
   } finally {
     after.cleanup();
-    if (before) before.cleanup();
-    scratchDirs.forEach((d) => { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ } });
     await stopCaptureServer(captureServer);
   }
 
