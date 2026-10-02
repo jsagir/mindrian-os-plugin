@@ -8,15 +8,17 @@ files:
   - scripts/generate-deck.cjs
   - commands/deck.md
   - data/mva-deck-template.html
+status: deferred
+resolution: "Re-deferred by plan 366-24 (2026-10-02): the fix needs at least two sites (the mos-deck-engine slide architecture prompt and the deck command door that passes the request, plus the fixed 10-slide renderer), outside 366-24's one-site rule."
 ---
 
 ## Problem
 
 Live intern QA (2026-07-28 check-in call, filed in
-`~/MindrianRooms/jonathan-sagir/team/2026-07-05-interns-homework-tracker.md`): David explicitly
+the navigator's team room (interns homework tracker, 2026-07-05)): An intern explicitly
 asked Mindry for a 3-slide presentation (an IND-class worksheet exercise, explicit constraint
 stated up front). The first generation pass produced 7 slides instead. It was only corrected
-after David told it, and the correction rebuilt the deck as a new copy rather than editing the
+after the intern told it, and the correction rebuilt the deck as a new copy rather than editing the
 existing one in place.
 
 This is a confirmed bug, not a preference mismatch: the user stated an unambiguous numeric
@@ -41,3 +43,24 @@ only reproduced by the live report.
 Not yet scoped into a phase - this is a narrow, single-behavior fix, lower severity than the
 onboarding-bottleneck cluster (see SEED-078), but a real, live-reported, first-pass instruction-
 following miss worth fixing independently of any larger deck-engine work.
+
+## Re-deferred (2026-10-02, plan 366-24, Phase 366 close-out)
+
+Traced the three candidate sites:
+
+- `scripts/generate-deck.cjs` renders a fixed 10-slide deck (hard-coded slide blocks, the
+  closing log line says `Slides: 10`); it takes only a room path and `--output`, so it has no
+  slide-count input at all.
+- `skills/mos-deck-engine/SKILL.md` "Slide Architecture (10-12 slides)" gives the model a fixed
+  eleven-row slide list and no instruction that an explicit count in the request overrides it.
+- `data/mva-deck-template.html` is a template; it does not decide the count.
+
+The reported first pass (7 slides for a 3-slide request) matches neither the renderer (10) nor
+the architecture (10 to 12), so it came from the model path: the deck command door
+(`commands/deck.md` / `skills/deck/SKILL.md`) does not carry a requested count into the engine
+prompt, and the engine prompt has no override rule. An honest fix touches at least two sites
+(the engine's slide architecture, the deck door that passes the request through, and, for the
+scripted render, a `--slides N` option on generate-deck.cjs), and the model path cannot be
+proven by a deterministic single-call test. That is outside this plan's one-site rule, so the
+todo stays pending for a small deck phase or a /gsd-quick that owns the door, the engine prompt
+and the renderer together.

@@ -5,6 +5,8 @@ area: tooling
 files:
   - CLAUDE.md
   - .git/MERGE_HEAD (the marker at risk)
+status: completed
+resolution: "Closed by plan 366-24 (2026-10-02): every Phase 366 merge and commit followed the rule; no exception found."
 ---
 
 ## Problem
@@ -53,3 +55,18 @@ Never touch the working tree of the merge itself for a side-investigation. Consi
 defensive check too: before any `git stash` call, a quick `test -f .git/MERGE_HEAD && echo
 "REFUSING: merge in progress"` guard would have caught this immediately rather than relying
 on noticing a wrong parent count after the fact.
+
+## Finding (2026-10-02, plan 366-24, Phase 366 close-out)
+
+Every Phase 366 merge followed the rule. The phase had one merge, `ebd9090cf` (Merge branch
+'seed-103-eureka-perspective', 2026-10-01), and it is a proper two-parent commit
+(`git log -1 --format=%P ebd9090cf` names 2399b245d and 0184220d4). All 27 plans then committed
+straight to main with `git add -f <paths>` and `git commit --only <paths>`, never `git stash`,
+`git reset` or `git add -A`; the plan threat registers that name it (for example T-366-89 in
+366-21) record it as held, and no 366 SUMMARY records a stash. Where a plan needed the base tree
+to compare a red (366-23), it used a separate detached worktree, which is the alternative this
+todo prescribes. No exception to name.
+
+The standing rule itself already lives where every executor reads it (the GSD executor's
+destructive-git prohibition forbids every `git stash` subcommand in shared trees and names
+`git show <ref>:<path>` and a scratch worktree as the sanctioned alternatives). Closed.

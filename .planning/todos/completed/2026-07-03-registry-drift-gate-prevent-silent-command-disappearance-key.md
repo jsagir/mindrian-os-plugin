@@ -9,6 +9,8 @@ files:
   - data/command-registry.json
   - data/help-groups.json
   - tests/test-connector-exhaustive-coverage.cjs
+status: completed
+resolution: "Closed by plan 366-24 (2026-10-02): check-registry-drift --check is OK for /mos:eureka and every 366 command surface; MCP op names stay outside the gate (the known 355 D-26 gap), held instead by deprecated aliases and test-366-mcp-perspective-ops."
 ---
 
 ## Problem
@@ -52,3 +54,23 @@ resolves, with a deprecation notice) because nothing structural in this
 repo would otherwise catch the break. `355-CONTEXT.md` D-26 is the source
 of this ruling; `.planning/REQUIREMENTS.md` HIPS-03's Measured line cites
 it.
+
+## Finding (2026-10-02, plan 366-24, Phase 366 close-out)
+
+- `node scripts/check-registry-drift.cjs --check` prints `OK (0 findings, baseline=git-tag)`
+  against v2.0.0-beta.55, measured at 366-03 (the `/mos:eureka` door rewrite), at 366-12 (the
+  perspective ops) and again at this close-out. `/mos:eureka` passes the gate: the command key
+  stays in `data/command-registry.json`, only its body and argument hint changed.
+- The gate still compares only the `command` keys of `data/command-registry.json`. It does not
+  see MCP tool or op names, so a renamed or removed `research_run` op is invisible to it. This is
+  the known 355 D-26 gap, unchanged by Phase 366.
+- Phase 366 honored the D-26 ruling for every MCP-side change: `eureka_recall`,
+  `eureka_candidates` and `eureka_judge` stay as deprecated aliases (`deprecated: true`,
+  `use_instead`), and the `intelligence eureka-run/status/report` and the three reference-only
+  router names stay on their enums and answer with a pointer (`ALL_TOOL_COMMANDS` stays 65).
+  The alias discipline is held by tests/test-366-mcp-perspective-ops.cjs (M2),
+  tests/test-366-router-redirects.cjs and tests/test-366-eureka-alias.cjs, all green in
+  `bash tests/run-all-366.sh`.
+- The release-time snapshot diff this todo sketches (command, hitl_shape, connects_to_spine)
+  is not built, and it would still not cover MCP op names. Closed as a finding; a future
+  release-diff gate that covers MCP ops is a new seed, not this todo.
