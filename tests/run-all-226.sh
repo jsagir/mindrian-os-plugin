@@ -25,20 +25,18 @@
 #
 #   test-226-null-legs        -- D1 / G-1 (REQ-1): fabricated-number prohibition (FIRST, hardest)
 #   test-226-rubric-parity    -- D3 / G-2 (REQ-2): the analogy bar not relaxed encoder-free
-#   test-226-field-contract   -- D4 / G-5 (REQ-3): four-key byte-parity output shape
-#   test-226-degrade-cause    -- D7        (REQ-6/8): honest cause named, no speculative trigger
-#   test-226-mode-disclosure  -- D6 / G-4 (REQ-5): the mode label across md + json + html
-#   test-226-posture          -- D5 / G-3 (REQ-4): banked-false, zero opportunity nodes, upgrade delta, field-parity
-#   test-226-pair-cap         -- D8 / G-6 (REQ-7): end-to-end cap on a synthetic 200-entry room
 #   test-226-rejection-replay -- D3        (REQ-2): the 212 junk classes stay rejected encoder-free
 #
+# Retired with the standalone runner (Phase 366 plan 21, runner: retire): the D4
+# field-contract, D7 degrade-cause, D6 mode-disclosure, D5 posture and D8 pair-cap
+# legs, which drove only the retired runner's reasoning stages and html export.
+#
 # SEED req 7 regression legs: the reasoning path must not have disturbed the
-# EMBEDDED output contract. We run the field-contract LEGS of the embedded suites
-# directly (test-215-field-contract.cjs, test-216-field-contract.cjs) rather than
-# nesting whole run-all-215/216 suites: the whole suites pull the embedding spine
-# and add tens of seconds, while the field-contract legs are the exact byte-parity
-# oracle this phase's D4 mirrors, so they are the targeted regression fence at a
-# fraction of the runtime.
+# EMBEDDED output contract. We run the field-contract LEG of the embedded suite
+# directly (test-216-field-contract.cjs) rather than nesting whole run-all-216:
+# the whole suite pulls the embedding spine and adds tens of seconds, while the
+# field-contract leg is the targeted regression fence at a fraction of the
+# runtime.
 #
 # Each leg is run_if, GUARDED ON A FILE that must exist, so a partially-landed
 # phase (a leg from a not-yet-merged wave) exits cleanly with a SKIP counter rather
@@ -82,37 +80,14 @@ run_if "226-01 (D1/G-1) null-legs: fabricated-number prohibition [HARDEST GATE]"
 run_if "226-01 (D3/G-2) rubric-parity: critic bar not relaxed" "tests/test-226-rubric-parity.cjs" \
   node tests/test-226-rubric-parity.cjs
 
-# D4 / G-5 (REQ-3): the four-key { provenance, ranked, tail, statements } byte-parity.
-run_if "226-02 (D4/G-5) field-contract: output-shape byte-parity" "tests/test-226-field-contract.cjs" \
-  node tests/test-226-field-contract.cjs
-
-# D7 (REQ-6/REQ-8): the honest degrade cause (encoder_unavailable / below_floor),
-# never the bare not-enough-entries symptom; no speculative reasoning trigger.
-run_if "226-02 (D7) degrade-cause: honest cause, no speculative trigger" "tests/test-226-degrade-cause.cjs" \
-  node tests/test-226-degrade-cause.cjs
-
-# D6 / G-4 (REQ-5): the mode label present in md AND json AND html for one run.
-run_if "226-03 (D6/G-4) mode-disclosure: label across three surfaces" "tests/test-226-mode-disclosure.cjs" \
-  node tests/test-226-mode-disclosure.cjs
-
-# D5 / G-3 (REQ-4): banked-false, zero opportunity nodes in room.db, upgrade delta,
-# short-list rule, and the field-parity live diff.
-run_if "226-04 (D5/G-3) posture: banked-false + zero-bank + upgrade + field-parity" "tests/test-226-posture.cjs" \
-  node tests/test-226-posture.cjs
-
-# D8 / G-6 (REQ-7): the end-to-end cap on a synthetic 200-entry room.
-run_if "226-04 (D8/G-6) pair-cap: bounded fan-out end to end" "tests/test-226-pair-cap.cjs" \
-  node tests/test-226-pair-cap.cjs
-
 # D3 (REQ-2, negative half): the Phase 212 junk classes stay rejected encoder-free.
 run_if "226-04 (D3) rejection-replay: 212 negative corpus stays rejected" "tests/test-226-rejection-replay.cjs" \
   node tests/test-226-rejection-replay.cjs
 
 # SEED req 7 regression: the embedded output contract is undisturbed. The
-# field-contract LEGS of the embedded suites, run directly (not the whole suites,
-# which pull the embedding spine and cost tens of seconds - see the header note).
-run_if "SEED-req-7 embedded regression: 215 field-contract" "tests/test-215-field-contract.cjs" \
-  node tests/test-215-field-contract.cjs
+# field-contract LEG of the 216 suite, run directly (not the whole suite, which
+# pulls the embedding spine and costs tens of seconds - see the header note).
+# The 215 field-contract leg retired with the standalone runner (Phase 366).
 run_if "SEED-req-7 embedded regression: 216 field-contract" "tests/test-216-field-contract.cjs" \
   node tests/test-216-field-contract.cjs
 

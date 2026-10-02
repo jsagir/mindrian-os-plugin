@@ -328,8 +328,7 @@ if [ "${RUN_363_1_REGRESSIONS:-0}" = "1" ]; then
     lib/memory/folder-memory.test.cjs \
     tests/test-connector-agents-walk.cjs \
     tests/test-216-room-substrate.cjs \
-    tests/test-215-opp-statement.cjs \
-    tests/test-216-eureka-command.cjs; do
+    tests/test-215-opp-statement.cjs; do
     regress_file "$f"
   done
   for f in scripts/vault-section-minto-generator.test.cjs scripts/vault-section-minto-generator.integration.test.cjs; do

@@ -5,7 +5,8 @@
  * Phase 215-05 -- the REPRODUCTION acceptance assertion.
  *
  * The single most load-bearing gate of the 212-215 Eureka arc: does the
- * AUTOMATED portfolio pipeline (scripts/eureka-portfolio-report.cjs, run LIVE
+ * AUTOMATED portfolio pipeline (the standalone portfolio runner, retired in
+ * Phase 366 with its frozen graph-mode JSON kept under evals/eureka/, run LIVE
  * against the real 2117-tech jhtv-oliver-kuntz room) surface the TWO manually
  * drafted Opportunity Statements as scored, ranked, canonical candidates?
  *

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Phase 215 verification aggregator -- the single PASS/FAIL/SKIP gate for the
 # eureka-portfolio-scale-fusion cluster (AHP criterion weights + the two
-# deterministic classifiers + the Opportunity Statement emitter + the composed
-# portfolio batch runner). Pure composition of shipped engines (Canon Part 7).
+# deterministic classifiers + the Opportunity Statement emitter; the composed
+# portfolio batch runner retired in Phase 366). Pure composition of shipped
+# engines (Canon Part 7).
 #
 # The phase gate has TWO legs (the 211-05 pattern):
 #   (1) this aggregator green (all offline, hermetic, zero network), AND
@@ -61,17 +62,9 @@ run "215-02 tail quadrant" \
 run "215-03 opportunity statement" \
   node tests/test-215-opp-statement.cjs
 
-# (5) Composed portfolio runner (215-04): offline structural e2e, both pair modes.
-run "215-04 portfolio report (offline e2e)" \
-  node tests/test-215-portfolio-report.cjs
-
-# (5b) Field contract (215-05): the emitter shape (csv-to-idea-graph edge_count/
-#      primary_label/labels) must be reconciled by loadGraph into the scorer
-#      contract (pair_count/primary_problem/problems). Hermetic, offline; the
-#      permanent regression guard for the degenerate-tie bug fixed in 215-05.
-run "215-05 field contract (emitter <-> scorer)" \
-  node tests/test-215-field-contract.cjs
-
+# (5, 5b) Retired with the standalone runner (Phase 366 plan 21, runner: retire):
+#     the composed portfolio runner offline e2e (215-04) and the emitter <-> scorer
+#     field contract (215-05) drove only the retired runner's main() and loadGraph.
 # (6) Plan 05 reproduction leg: reads the REAL-room GRAPH-MODE portfolio JSON
 #     (DG-2 navigator call: graph is the canonical acceptance substrate; the
 #     full-catalog sibling is a supplementary, non-gating sweep -- see

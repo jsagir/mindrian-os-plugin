@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Phase 216 verification aggregator -- the single PASS/FAIL/SKIP gate for the
 # eureka-user-facing-command cluster (the room-native substrate adapter + the
-# additive --pairs room runner mode + the fire-and-return dispatcher + the
-# born-wired /mos:eureka command and its six CIRS governance gates). Pure
+# born-wired /mos:eureka command and its six CIRS governance gates; the runner
+# room mode and its dispatcher retired in Phase 366). Pure
 # composition + governed wiring over the shipped 215 engine (Canon Part 7/11).
 #
 # The phase gate has TWO legs (the 211-05 / 215-05 pattern):
@@ -17,8 +17,8 @@
 # model-weight fetch by model id; the real room is verified by the human
 # spot-check, not by any automated judge.
 #
-# This phase edited the shipped scripts/eureka-portfolio-report.cjs (additive
-# --pairs room mode), so 216-R6 requires the 215 and 211 engines proven
+# This phase edited the shipped portfolio runner (additive --pairs room mode,
+# retired in Phase 366), so 216-R6 required the 215 and 211 engines proven
 # UNREGRESSED. The 215 aggregator (leg 9) itself chains run-all-211 as its own
 # leg 7, so 211 coverage rides along -- no duplicate standalone 211 leg here.
 #
@@ -32,7 +32,7 @@ cd "$ROOT"
 
 # ZERO-network guard (inherited from Phase 211/215): the offline preload flips
 # transformers.js env.allowRemoteModels=false in every spawned leg (AND its
-# children -- the dispatcher's detached-start leg spawns child processes), so an
+# children), so an
 # uncached model load fails fast and degrades instead of reaching the network.
 # No-op when the eureka dep is absent.
 export NODE_OPTIONS="${NODE_OPTIONS:-} --require ${ROOT}/tests/eureka-offline-preload.cjs"
@@ -61,11 +61,9 @@ run_if() {
 run "216-01 room-native substrate" \
   node tests/test-216-room-substrate.cjs
 
-# (2) Room mode + dispatcher (216-02): the additive --pairs room runner mode and
-#     the fire-and-return dispatcher (run|start|status|report|help), offline e2e.
-run "216-02 room mode + dispatcher (offline e2e)" \
-  node tests/test-216-eureka-command.cjs
-
+# (2) Retired with the standalone runner (Phase 366 plan 21, runner: retire):
+#     the room mode + fire-and-return dispatcher offline e2e (216-02) drove only
+#     the retired runner and its dispatcher.
 # (3-8) The six CIRS governance gates (216-03): the born-wired command must clear
 #       all six for /mos:eureka to be a legal invocable surface (Canon Part 11).
 run "216-03 gate: connector registry" \
@@ -86,8 +84,7 @@ run "216-03 gate: skill mirror" \
 run "216-03 gate: render coverage" \
   node scripts/check-render-coverage.cjs
 
-# (9) 215 engine no-regression (216-R6): this phase edited the shipped
-#     scripts/eureka-portfolio-report.cjs, so the 215 acceptance path must stay
+# (9) 215 engine no-regression (216-R6): the 215 acceptance path must stay
 #     green. The 215 aggregator chains run-all-211 as its own leg 7, so the 211
 #     engine rides along -- do NOT add a duplicate standalone 211 leg. Guarded
 #     on the 215 aggregator so a partial tree SKIPs cleanly.
@@ -96,7 +93,8 @@ run_if "215 engine no-regression" "tests/run-all-215.sh" \
 
 # (10) Field contract (216-05 gap closure): the room-native substrate section
 #      field must carry a real domain label (or the honest unknown), never the
-#      ICM schema type column; no statement text may read Section x Section.
+#      ICM schema type column (the adapter legs; the runner fallback leg retired
+#      in Phase 366).
 run "216-05 field contract" \
   node tests/test-216-field-contract.cjs
 

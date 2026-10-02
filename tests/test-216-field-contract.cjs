@@ -3,7 +3,7 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * Phase 216-05 -- the FIELD-CONTRACT test for the room-native substrate path,
- * mirroring tests/test-215-field-contract.cjs onto the room.db adapter.
+ * originally mirroring the Phase 215 field-contract test onto the room.db adapter.
  *
  * WHY THIS TEST EXISTS (the bug it would have caught):
  *   buildRoomNativeSubstrate's `section` field fell back to the room.db node's
@@ -21,10 +21,15 @@
  *   the source_path first path segment everywhere else.
  *
  * This test reproduces the exact ador vintage room shape hermetically, then
- * drives the REAL substrate adapter, the REAL deriveSharedProblems fallback,
- * and the REAL buildOpportunityStatement emitter, asserting no ICM type value
- * ever reaches a section field or statement text. Hermetic (temp dir),
- * offline, node built-ins + shipped modules only. No em-dashes.
+ * drives the REAL substrate adapter, asserting no ICM type value ever reaches
+ * a section field. Hermetic (temp dir), offline, node built-ins + shipped
+ * modules only. No em-dashes.
+ *
+ * Phase 366 plan 21 (runner: retire): the leg that drove the standalone
+ * runner's deriveSharedProblems fallback and its candidate assembly into the
+ * Opportunity Statement emitter retired with the runner (both were runner
+ * code). The adapter legs (source contract, per-entry section, ICM type-leak
+ * sweep) stay: lib/core/eureka/room-native-substrate.cjs is not the runner.
  */
 
 const os = require('node:os');
@@ -34,8 +39,6 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
 const { buildRoomNativeSubstrate } = require(path.join(REPO_ROOT, 'lib/core/eureka/room-native-substrate.cjs'));
-const { deriveSharedProblems } = require(path.join(REPO_ROOT, 'scripts/eureka-portfolio-report.cjs'));
-const oppmod = require(path.join(REPO_ROOT, 'lib/core/eureka/opportunity-statement.cjs'));
 
 let PASS = 0;
 let FAIL = 0;
@@ -134,46 +137,6 @@ function main() {
     });
     ok(noSelfTypeLeak, "leak sweep: no techMap entry's section equals its own node's type column value");
     ok(noAnyTypeLeak, "leak sweep: no techMap entry's section is any ICM type literal ('Section'/'Artifact'/'memory_event')");
-
-    // -- 4. Drive the REAL fallback + REAL emitter (the user-facing prose leg).
-    //    Both Section-anchor techs have problems [] and primary_problem '', so
-    //    deriveSharedProblems' bridge fallback fires - the exact code path
-    //    that leaked 'a Section x Section cross-domain bridge' into prose.
-    const ca = tm.get('competitive-analysis');
-    const shared = deriveSharedProblems(bm, ca);
-    ok(Array.isArray(shared) && shared[0] === 'business-model x competitive-analysis cross-domain bridge', // 363.1 D-05: no leading article (template supplies it)
-      'fallback: deriveSharedProblems names the real slugs (got ' + JSON.stringify(shared && shared[0]) + ')');
-    ok(shared[0].indexOf('Section x Section') === -1,
-      "fallback: the bridge label never contains 'Section x Section'");
-
-    // The runner's own candidate assembly (eureka-portfolio-report.cjs
-    // statements loop), mirrored field for field.
-    const candidate = {
-      a: {
-        title: bm.title || bm.id,
-        primary_problem: bm.primary_problem || ('unclassified problem for ' + bm.id),
-        section: bm.section || 'unknown',
-        weak_dimensions: [],
-      },
-      b: {
-        title: ca.title || ca.id,
-        primary_problem: ca.primary_problem || ('unclassified problem for ' + ca.id),
-        section: ca.section || 'unknown',
-        weak_dimensions: [],
-      },
-      shared_problems: shared,
-      score: 0.5,
-      rank: 1,
-      tail: false,
-    };
-    const st = oppmod.buildOpportunityStatement(candidate);
-    // The critic gate resolves pending offline; banked stays false; the text
-    // still assembles (the 215-03 contract). The text is the user-facing
-    // surface under guard.
-    ok(st && typeof st.text === 'string' && st.text.indexOf('Section x Section') === -1,
-      "emitter: statement text contains ZERO 'Section x Section'");
-    ok(st && st.text.indexOf('business-model x competitive-analysis') !== -1,
-      "emitter: statement text names the real slugs 'business-model x competitive-analysis' (text: " + JSON.stringify(st && st.text ? st.text.slice(0, 120) : st) + ')');
   } finally {
     closeRoomDb(db);
     fs.rmSync(dir, { recursive: true, force: true });
@@ -183,7 +146,7 @@ function main() {
     process.stderr.write('test-216-field-contract: ' + FAIL + ' FAILED, ' + PASS + ' passed\n');
     process.exit(1);
   }
-  process.stdout.write('test-216-field-contract: ' + PASS + ' assertions passed - the room-native section field carries real domain labels (or the honest unknown) all the way into statement prose, never the ICM type column.\n');
+  process.stdout.write('test-216-field-contract: ' + PASS + ' assertions passed - the room-native section field carries real domain labels (or the honest unknown), never the ICM type column.\n');
 }
 
 main();

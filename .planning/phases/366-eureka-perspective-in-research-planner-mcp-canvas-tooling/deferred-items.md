@@ -35,3 +35,7 @@
 - **Closed: 366-17 "MCP door ... opRunQuick has no branch for plan_only ... cannot pass offline."** `run_quick` answers the typed `plan_only` status and takes an `offline` boolean.
 - **Closed: SEED-104 room-only `ws:extraction_failure` false negative.** `localRoomCheck` backs the exact phrase with strict-majority content-token coverage.
 - **Still open (owed):** an MCP confirm route for `canon_confirm` items (CLI `canon-confirm` only today); `op grant_request` on an egress-off plan still answers `plan_not_ready` with `reason_detail` `egress_line_off`; the plan review card "overturn a line" affordance; gate-ledger consume-before-session-check (Phase 289); any navigator ruling to make the MCP release live by default.
+
+## From plan 366-21
+
+- **run-all-216 leg "216-03 gate: shape declaration (strict)" is a pre-existing red.** `node scripts/check-shape-declaration.cjs --check --strict` exits 1 on the base tree because many skills declare a hitl_shape AND connector.excluded:true (the advisory conflicts CLAUDE.md Part 11 names as open; non-strict mode only WARNs). 366-21 touched no skill or command file, so the result is the same before and after. run-all-216 therefore ends FAIL=1 on that leg only; every other leg is green. Owner: whoever closes the Part 11 shape-declaration conflicts.
