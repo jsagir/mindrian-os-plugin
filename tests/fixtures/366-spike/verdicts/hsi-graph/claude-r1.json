@@ -1,0 +1,50 @@
+{
+  "schema": "mos.spike-366-judge/1",
+  "recall_arm": "hsi-graph",
+  "judge_arm": "claude",
+  "repeat": 1,
+  "replayed": false,
+  "candidates": 7,
+  "passes": [
+    "ca988c187c01"
+  ],
+  "verdicts": [
+    {
+      "pair_id": "c33a0cd3317b",
+      "verdict": "not_useful"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "verdict": "not_useful"
+    },
+    {
+      "pair_id": "0712f99a3f82",
+      "verdict": "not_useful"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "verdict": "not_useful"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "verdict": "not_useful"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "verdict": "useful"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "verdict": "not_useful"
+    }
+  ],
+  "cost": {
+    "wall_ms": 0,
+    "cpu_user_ms": 0,
+    "cpu_system_ms": 0,
+    "max_rss_kb": 71776,
+    "vendor_calls": 0,
+    "input_tokens": null,
+    "dollars": null
+  }
+}

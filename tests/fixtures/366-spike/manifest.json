@@ -1,0 +1,128 @@
+{
+  "schema": "mos.spike-366-substrate/1",
+  "prepared_at": "2026-10-02T02:15:52.515Z",
+  "out_dir": "<spike-temp-root>",
+  "source": "tests/fixtures/355-rooms",
+  "rooms": [
+    {
+      "name": "room-control",
+      "fixture_sha256": "37ecf0e5e1e18914c26640e89d5f3b8ab6edda493a70d3649beed8dcd95865d0",
+      "room_dir": "<spike-temp-root>/room-control",
+      "rebuild": {
+        "success": true,
+        "artifacts": 21,
+        "sections": 4
+      },
+      "memory_reconcile": {
+        "ok": true,
+        "upserted": 10,
+        "edges": 0
+      },
+      "entity_extract": {
+        "exit": 0,
+        "timed_out": false,
+        "state": "done",
+        "artifacts": 21,
+        "entities": 0,
+        "entities_what": 0,
+        "terms_why": 17,
+        "tier2_escalated": 2,
+        "tier2_low_confidence": 2,
+        "tier2_model": 0,
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "local_model": "present",
+        "classifier_source": "embedding",
+        "blocked_network_attempts": 0
+      },
+      "node_count": 42,
+      "edge_counts": {
+        "BELONGS_TO": 21,
+        "USES_FRAMEWORK": 8
+      },
+      "describes_edges": 0
+    },
+    {
+      "name": "room-extend",
+      "fixture_sha256": "61ca0d9a232fc2abf886190f5f46193df051ee55188939cdce48c3dafd58adfa",
+      "room_dir": "<spike-temp-root>/room-extend",
+      "rebuild": {
+        "success": true,
+        "artifacts": 17,
+        "sections": 4
+      },
+      "memory_reconcile": {
+        "ok": true,
+        "upserted": 10,
+        "edges": 0
+      },
+      "entity_extract": {
+        "exit": 0,
+        "timed_out": false,
+        "state": "done",
+        "artifacts": 17,
+        "entities": 0,
+        "entities_what": 0,
+        "terms_why": 17,
+        "tier2_escalated": 3,
+        "tier2_low_confidence": 3,
+        "tier2_model": 0,
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "local_model": "present",
+        "classifier_source": "embedding",
+        "blocked_network_attempts": 0
+      },
+      "node_count": 37,
+      "edge_counts": {
+        "BELONGS_TO": 17,
+        "USES_FRAMEWORK": 6
+      },
+      "describes_edges": 0
+    },
+    {
+      "name": "room-ill-defined",
+      "fixture_sha256": "c67ac23a61cf43c5cf1ced00b6ca5e45de82146a86cff4a160c987c328a95aad",
+      "room_dir": "<spike-temp-root>/room-ill-defined",
+      "rebuild": {
+        "success": true,
+        "artifacts": 17,
+        "sections": 4
+      },
+      "memory_reconcile": {
+        "ok": true,
+        "upserted": 10,
+        "edges": 0
+      },
+      "entity_extract": {
+        "exit": 0,
+        "timed_out": false,
+        "state": "done",
+        "artifacts": 17,
+        "entities": 0,
+        "entities_what": 0,
+        "terms_why": 22,
+        "tier2_escalated": 3,
+        "tier2_low_confidence": 3,
+        "tier2_model": 0,
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "local_model": "present",
+        "classifier_source": "embedding",
+        "blocked_network_attempts": 0
+      },
+      "node_count": 37,
+      "edge_counts": {
+        "BELONGS_TO": 17,
+        "USES_FRAMEWORK": 6
+      },
+      "describes_edges": 0
+    }
+  ]
+}

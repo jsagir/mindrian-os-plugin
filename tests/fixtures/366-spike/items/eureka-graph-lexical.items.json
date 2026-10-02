@@ -1,0 +1,76 @@
+{
+  "schema": "mos.spike-366-items/1",
+  "arm": "eureka-graph-lexical",
+  "items": [
+    {
+      "pair_id": "c33a0cd3317b",
+      "room": "room-control",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "Immune memory after first exposure\n\n# Immune memory after first exposure The first time the immune system meets a given pathogen, its response is slow: it takes days to recognize the invader as a threat, build the right antibody, and mount an effective response, and in that window the pathogen can do real damage. The second time the same pathogen shows up, weeks, months, or years later, the response is dramatically faster, often fast enough that the person never notices they were exposed at all.",
+      "b_excerpt": "Spillway regulation below the main dam\n\n# Spillway regulation below the main dam The dam's spillway gates do not generate power and were not built to; their entire function is to control how much water is released downstream per hour, independent of how much water is arriving from upstream at any given moment. During a heavy rain event, inflow can spike far above what the downstream channel and the towns along it could safely absorb all at once, and the gates hold most of that spike back in the reservoir, releasing it gradually over the following days instead.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "cell-biology/immune-memory.md",
+      "b_path": "river-hydrology/spillway-regulation.md"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "room": "room-control",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "b_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "computer-security/side-channel-leak.md",
+      "b_path": "retail-marketing/sales-channel-mix.md"
+    },
+    {
+      "pair_id": "0712f99a3f82",
+      "room": "room-control",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "A side channel that leaks more than intended\n\n# A side channel that leaks more than intended During a routine audit, the security team found that an encryption routine on one of the payment servers took a measurably different amount of time to reject an incorrect key depending on how many of the key's leading bytes were correct.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "computer-security/side-channel-leak.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "room": "room-control",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "Sales channel mix across the current business\n\n# Sales channel mix across the current business Revenue currently splits across three sales channels: the company's own online store, a marketplace listing on a large third-party platform, and a small but growing wholesale channel selling into independent retailers. Each channel carries a different margin, a different customer relationship, and a different level of control over how the product is actually presented to the buyer at the point of sale.",
+      "b_excerpt": "Channel meander migration over decades\n\n# Channel meander migration over decades Aerial photographs of the lower river channel taken forty years apart show a striking amount of lateral movement: the channel has migrated as much as three hundred meters sideways across its floodplain in some stretches, eroding the outer bank of each bend while depositing new sediment on the inner bank of the same bend, a slow, continuous process rather than any single dramatic event.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "retail-marketing/sales-channel-mix.md",
+      "b_path": "river-hydrology/channel-meander.md"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "room": "room-control",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "A merchandising bank of seasonal display fixtures\n\n# A merchandising bank of seasonal display fixtures The warehouse maintains a bank of pre-built display fixtures, end-cap units, seasonal signage frames, and shelf-edge strips, that get rotated out to retail partners ahead of each seasonal campaign and collected back afterward for reuse the following year. The bank currently holds enough fixtures to outfit about sixty retail locations at once, and utilization runs close to full during the two peak seasons but sits mostly idle the rest of the year.",
+      "b_excerpt": "River bank erosion near the old crossing\n\n# River bank erosion near the old crossing The bank on the outside curve near the old river crossing has retreated nearly four meters in the past decade, undercutting the root systems of the mature trees that used to anchor it and leaving two of them leaning visibly toward the water. The survey team flagged this stretch specifically because the retreat rate has accelerated in the last three years compared to the decade before that, roughly doubling.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "retail-marketing/merchandising-bank-display.md",
+      "b_path": "river-hydrology/river-bank-erosion.md"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "room": "room-extend",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "Cold-chain breach detection today\n\n# Cold-chain breach detection today Every van carries a logger that records internal temperature every five minutes and flags any reading outside the two to eight degree band for more than fifteen consecutive minutes. Breaches are rare, running under two percent of deliveries, but when they happen the current process is entirely reactive: the flagged delivery gets pulled and the customer gets a credit, and the logger data sits in a spreadsheet nobody reviews unless a customer complains first.",
+      "b_excerpt": "Pharma cold-chain compliance today\n\n# Pharma cold-chain compliance today The pharmacy contracts operate under a documented chain-of-custody requirement: every shipment needs a continuous temperature log, a signed handoff at both ends, and a retained record for two years in case of an audit. The service already built this compliance layer for the pharmacy segment specifically, and it runs as a distinct, heavier process from the lighter tracking used for the dairy and specialty-food segments, which have no equivalent regulatory requirement attached to them.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "operations/cold-chain-breach-detection-today.md",
+      "b_path": "regulation/pharma-cold-chain-compliance-today.md"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "room": "room-ill-defined",
+      "producer": "eureka-graph-lexical",
+      "a_excerpt": "The missed second visit\n\n# The missed second visit Patients who complete the first follow-up visit almost always complete the referral loop; the drop-off concentrates specifically at the second visit, the one that happens four to six weeks after the first, once the patient already feels better. The clinic nurse who reviewed a hundred charts by hand noticed this pattern before anyone ran a report on it: symptomatic relief after visit one seems to read, to the patient, as the problem being solved, even when the treating plan calls for a longer course.",
+      "b_excerpt": "Distance and the missed van\n\n# Distance and the missed van The transport lead ran the numbers on the shuttle van that is supposed to carry patients from the three farthest villages to the clinic on referral days. The van seats twelve. On a typical referral day, between eighteen and twenty-five patients need a ride. The van fills on a first-come basis, so the patients who live closest to the pickup point, who have the shortest walk to the stop, get the seats, and the patients who live farthest away, who need the ride most, are the ones most often left behind.",
+      "direction_phrase": "no wording signal measured",
+      "a_path": "patient-flow/the-missed-second-visit.md",
+      "b_path": "transport-logistics/distance-and-the-missed-van.md"
+    }
+  ]
+}

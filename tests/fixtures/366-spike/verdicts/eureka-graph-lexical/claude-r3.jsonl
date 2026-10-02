@@ -1,0 +1,7 @@
+{"pair_id":"c33a0cd3317b","verdict":"not_useful","reason":"Immune recall and spillway buffering are unrelated mechanisms; no concrete borrowable step, only a loose analogy"}
+{"pair_id":"2c5c95847dc9","verdict":"not_useful","reason":"Only the word channel is shared; timing side channel and sales channels are unrelated"}
+{"pair_id":"0712f99a3f82","verdict":"not_useful","reason":"Only the word channel is shared; crypto timing leak vs river channel migration"}
+{"pair_id":"f06bd895b05b","verdict":"not_useful","reason":"Only the word channel is shared; sales channels vs river channel"}
+{"pair_id":"0d18bca0c2f7","verdict":"not_useful","reason":"Only the word bank is shared; display fixture bank vs river bank"}
+{"pair_id":"ca988c187c01","verdict":"useful","reason":"Pharma continuous log, signed handoff and retained record could be borrowed to make the reactive breach process proactive and auditable"}
+{"pair_id":"a9c96654c1cb","verdict":"not_useful","reason":"Both are referral dropoffs but causes differ (felt relief vs van capacity); only shared missed wording, no action carries over"}

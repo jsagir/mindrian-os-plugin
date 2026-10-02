@@ -1,0 +1,582 @@
+{
+  "schema": "mos.spike-366-pairs/1",
+  "arm": "eureka-graph-lexical-vector",
+  "pairs": [
+    {
+      "pair_id": "0712f99a3f82",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "room": "room-control",
+      "a": "retail-marketing/sales-channel-mix",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "retail-marketing/sales-channel-mix"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "room": "room-control",
+      "a": "retail-marketing/merchandising-bank-display",
+      "b": "river-hydrology/river-bank-erosion"
+    },
+    {
+      "pair_id": "c33a0cd3317b",
+      "room": "room-control",
+      "a": "cell-biology/immune-memory",
+      "b": "river-hydrology/spillway-regulation"
+    },
+    {
+      "pair_id": "e183a8a8a38e",
+      "room": "room-control",
+      "a": "cell-biology/virus-replication",
+      "b": "computer-security/self-replicating-virus-code"
+    },
+    {
+      "pair_id": "4ff08fa532ed",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "87b991d47b28",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "computer-security/side-channel-leak"
+    },
+    {
+      "pair_id": "25d7237b0cde",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "river-hydrology/spillway-regulation"
+    },
+    {
+      "pair_id": "97bd79e86a1f",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "retail-marketing/trip-wire-offer"
+    },
+    {
+      "pair_id": "dbcb66874716",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "computer-security/signature-detection"
+    },
+    {
+      "pair_id": "4572b8f11f78",
+      "room": "room-control",
+      "a": "cell-biology/virus-replication",
+      "b": "computer-security/signature-detection"
+    },
+    {
+      "pair_id": "d83e5b53b696",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "river-hydrology/watershed-funnel"
+    },
+    {
+      "pair_id": "3a4fdbc9405b",
+      "room": "room-control",
+      "a": "retail-marketing/attribution-funnel",
+      "b": "river-hydrology/watershed-funnel"
+    },
+    {
+      "pair_id": "aa4cb153e855",
+      "room": "room-control",
+      "a": "cell-biology/immune-memory",
+      "b": "computer-security/signature-detection"
+    },
+    {
+      "pair_id": "69c01d1e94a5",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "retail-marketing/sales-channel-mix"
+    },
+    {
+      "pair_id": "8113656967e0",
+      "room": "room-control",
+      "a": "computer-security/signature-detection",
+      "b": "retail-marketing/attribution-funnel"
+    },
+    {
+      "pair_id": "d2b2b125f474",
+      "room": "room-control",
+      "a": "retail-marketing/trip-wire-offer",
+      "b": "river-hydrology/watershed-funnel"
+    },
+    {
+      "pair_id": "5e16763a296e",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "retail-marketing/merchandising-bank-display"
+    },
+    {
+      "pair_id": "d346277eabf0",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "computer-security/self-replicating-virus-code"
+    },
+    {
+      "pair_id": "a8c9ce669bc6",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "computer-security/rate-limiting"
+    },
+    {
+      "pair_id": "485a2e46c488",
+      "room": "room-control",
+      "a": "computer-security/rate-limiting",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "1a3da737b124",
+      "room": "room-control",
+      "a": "cell-biology/immune-memory",
+      "b": "computer-security/self-replicating-virus-code"
+    },
+    {
+      "pair_id": "26c18b2b9ed8",
+      "room": "room-control",
+      "a": "computer-security/self-replicating-virus-code",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "971b332f6b6f",
+      "room": "room-control",
+      "a": "computer-security/rate-limiting",
+      "b": "retail-marketing/sales-channel-mix"
+    },
+    {
+      "pair_id": "be4ba211f3c5",
+      "room": "room-control",
+      "a": "retail-marketing/merchandising-bank-display",
+      "b": "river-hydrology/watershed-funnel"
+    },
+    {
+      "pair_id": "5236c7f8b875",
+      "room": "room-control",
+      "a": "cell-biology/ion-channel-signaling",
+      "b": "retail-marketing/trip-wire-offer"
+    },
+    {
+      "pair_id": "52c0e9bcef74",
+      "room": "room-control",
+      "a": "cell-biology/chemoattractant-gradient",
+      "b": "retail-marketing/attribution-funnel"
+    },
+    {
+      "pair_id": "ff26a5e3c363",
+      "room": "room-control",
+      "a": "retail-marketing/trip-wire-offer",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "cf322dc30df8",
+      "room": "room-control",
+      "a": "computer-security/rate-limiting",
+      "b": "river-hydrology/spillway-regulation"
+    },
+    {
+      "pair_id": "874efea9a47c",
+      "room": "room-control",
+      "a": "retail-marketing/merchandising-bank-display",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "a7cb06b2bb35",
+      "room": "room-control",
+      "a": "computer-security/self-replicating-virus-code",
+      "b": "retail-marketing/attribution-funnel"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "regulation/pharma-cold-chain-compliance-today"
+    },
+    {
+      "pair_id": "c24bddcf9cae",
+      "room": "room-extend",
+      "a": "regulation/what-a-new-category-would-require",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "8e8941a45c49",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "regulation/what-a-new-category-would-require"
+    },
+    {
+      "pair_id": "824233d5323d",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain"
+    },
+    {
+      "pair_id": "85867276d96f",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "770893db89be",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "retail-demand/pricing-sensitivity-by-segment"
+    },
+    {
+      "pair_id": "9482b5ee2a88",
+      "room": "room-extend",
+      "a": "regulation/what-a-new-category-would-require",
+      "b": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain"
+    },
+    {
+      "pair_id": "bc926762102b",
+      "room": "room-extend",
+      "a": "operations/route-consolidation-for-perishables",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "21617932599e",
+      "room": "room-extend",
+      "a": "materials-science/phase-change-material-behavior-in-transit",
+      "b": "operations/route-consolidation-for-perishables"
+    },
+    {
+      "pair_id": "ffd674f15ec6",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "5f5eb036a765",
+      "room": "room-extend",
+      "a": "regulation/what-a-new-category-would-require",
+      "b": "retail-demand/pricing-sensitivity-by-segment"
+    },
+    {
+      "pair_id": "b6c39a8315e4",
+      "room": "room-extend",
+      "a": "regulation/pharma-cold-chain-compliance-today",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "be93e2bc753b",
+      "room": "room-extend",
+      "a": "materials-science/packaging-weight-versus-thermal-mass-trade-off",
+      "b": "operations/route-consolidation-for-perishables"
+    },
+    {
+      "pair_id": "3e714ad8011a",
+      "room": "room-extend",
+      "a": "materials-science/packaging-weight-versus-thermal-mass-trade-off",
+      "b": "retail-demand/pricing-sensitivity-by-segment"
+    },
+    {
+      "pair_id": "df772c7aa5d7",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "regulation/food-safety-audit-findings"
+    },
+    {
+      "pair_id": "a21dc91990b1",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "retail-demand/pricing-sensitivity-by-segment"
+    },
+    {
+      "pair_id": "c601157d459c",
+      "room": "room-extend",
+      "a": "materials-science/packaging-weight-versus-thermal-mass-trade-off",
+      "b": "regulation/what-a-new-category-would-require"
+    },
+    {
+      "pair_id": "d55ef02cec90",
+      "room": "room-extend",
+      "a": "materials-science/packaging-weight-versus-thermal-mass-trade-off",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "dc9de1256a8d",
+      "room": "room-extend",
+      "a": "materials-science/phase-change-material-behavior-in-transit",
+      "b": "regulation/what-a-new-category-would-require"
+    },
+    {
+      "pair_id": "6abbdc7d7397",
+      "room": "room-extend",
+      "a": "operations/route-consolidation-for-perishables",
+      "b": "regulation/what-a-new-category-would-require"
+    },
+    {
+      "pair_id": "518819bbe622",
+      "room": "room-extend",
+      "a": "materials-science/phase-change-material-behavior-in-transit",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "1b5a85f84399",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "regulation/pharma-cold-chain-compliance-today"
+    },
+    {
+      "pair_id": "bf0aa4be151c",
+      "room": "room-extend",
+      "a": "operations/route-consolidation-for-perishables",
+      "b": "regulation/pharma-cold-chain-compliance-today"
+    },
+    {
+      "pair_id": "9ea0c68e177e",
+      "room": "room-extend",
+      "a": "operations/diagnosing-why-breaches-happen",
+      "b": "regulation/food-safety-audit-findings"
+    },
+    {
+      "pair_id": "99538e88a7d6",
+      "room": "room-extend",
+      "a": "operations/route-consolidation-for-perishables",
+      "b": "regulation/food-safety-audit-findings"
+    },
+    {
+      "pair_id": "bd37004bd111",
+      "room": "room-extend",
+      "a": "materials-science/phase-change-material-behavior-in-transit",
+      "b": "operations/diagnosing-why-breaches-happen"
+    },
+    {
+      "pair_id": "89e18440699d",
+      "room": "room-extend",
+      "a": "regulation/pharma-cold-chain-compliance-today",
+      "b": "retail-demand/pricing-sensitivity-by-segment"
+    },
+    {
+      "pair_id": "d37e922b92b0",
+      "room": "room-extend",
+      "a": "materials-science/phase-change-material-behavior-in-transit",
+      "b": "operations/cold-chain-breach-detection-today"
+    },
+    {
+      "pair_id": "994e37c41560",
+      "room": "room-extend",
+      "a": "regulation/food-safety-audit-findings",
+      "b": "retail-demand/current-customer-mix"
+    },
+    {
+      "pair_id": "7ec79d35bcf1",
+      "room": "room-extend",
+      "a": "materials-science/packaging-weight-versus-thermal-mass-trade-off",
+      "b": "regulation/pharma-cold-chain-compliance-today"
+    },
+    {
+      "pair_id": "440dc3a95496",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain"
+    },
+    {
+      "pair_id": "be259de33291",
+      "room": "room-extend",
+      "a": "operations/route-consolidation-for-perishables",
+      "b": "retail-demand/adjacent-buyers-who-mentioned-the-same-pain"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "room": "room-ill-defined",
+      "a": "patient-flow/the-missed-second-visit",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    },
+    {
+      "pair_id": "32428ac3c5d0",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "staffing/turnover-among-front-desk-staff"
+    },
+    {
+      "pair_id": "22f2f99ce390",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "patient-flow/charting-the-patients-actual-path"
+    },
+    {
+      "pair_id": "53628980d126",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "patient-flow/the-missed-second-visit"
+    },
+    {
+      "pair_id": "0f517af238c1",
+      "room": "room-ill-defined",
+      "a": "patient-flow/referral-hand-off-gaps",
+      "b": "staffing/the-follow-up-call-list-nobody-owns"
+    },
+    {
+      "pair_id": "eaf0c6945c2a",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "patient-flow/charting-the-patients-actual-path"
+    },
+    {
+      "pair_id": "08d48c49f73f",
+      "room": "room-ill-defined",
+      "a": "patient-flow/referral-hand-off-gaps",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    },
+    {
+      "pair_id": "e522567a70db",
+      "room": "room-ill-defined",
+      "a": "patient-flow/the-missed-second-visit",
+      "b": "staffing/the-follow-up-call-list-nobody-owns"
+    },
+    {
+      "pair_id": "3e5209524be3",
+      "room": "room-ill-defined",
+      "a": "patient-flow/referral-hand-off-gaps",
+      "b": "staffing/turnover-among-front-desk-staff"
+    },
+    {
+      "pair_id": "1f68fdb0bd01",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "staffing/the-follow-up-call-list-nobody-owns"
+    },
+    {
+      "pair_id": "57f17b17a42e",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "patient-flow/referral-hand-off-gaps"
+    },
+    {
+      "pair_id": "483e38897bf5",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "patient-flow/charting-the-patients-actual-path"
+    },
+    {
+      "pair_id": "60c10f5e18a6",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "patient-flow/referral-hand-off-gaps"
+    },
+    {
+      "pair_id": "20a8a389efbb",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "patient-flow/referral-hand-off-gaps"
+    },
+    {
+      "pair_id": "d0390eb7fced",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "patient-flow/the-missed-second-visit"
+    },
+    {
+      "pair_id": "575d21ab0fa1",
+      "room": "room-ill-defined",
+      "a": "patient-flow/referral-hand-off-gaps",
+      "b": "transport-logistics/shared-ride-scheduling-attempt"
+    },
+    {
+      "pair_id": "a3dd5a5a8ba9",
+      "room": "room-ill-defined",
+      "a": "patient-flow/charting-the-patients-actual-path",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    },
+    {
+      "pair_id": "ba890528f149",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "staffing/the-follow-up-call-list-nobody-owns"
+    },
+    {
+      "pair_id": "967eebebdb2a",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "patient-flow/the-missed-second-visit"
+    },
+    {
+      "pair_id": "71258109a22e",
+      "room": "room-ill-defined",
+      "a": "staffing/the-follow-up-call-list-nobody-owns",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    },
+    {
+      "pair_id": "dedbd55a5148",
+      "room": "room-ill-defined",
+      "a": "patient-flow/charting-the-patients-actual-path",
+      "b": "staffing/turnover-among-front-desk-staff"
+    },
+    {
+      "pair_id": "983bdce4d706",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "staffing/turnover-among-front-desk-staff"
+    },
+    {
+      "pair_id": "52e9261e4783",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "staffing/turnover-among-front-desk-staff"
+    },
+    {
+      "pair_id": "59f67da1507d",
+      "room": "room-ill-defined",
+      "a": "patient-flow/the-missed-second-visit",
+      "b": "transport-logistics/shared-ride-scheduling-attempt"
+    },
+    {
+      "pair_id": "2d2f994aa0b7",
+      "room": "room-ill-defined",
+      "a": "community-trust/the-clinics-reputation-after-a-bad-outcome",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    },
+    {
+      "pair_id": "9b289c6ba536",
+      "room": "room-ill-defined",
+      "a": "patient-flow/referral-hand-off-gaps",
+      "b": "staffing/community-health-worker-caseload"
+    },
+    {
+      "pair_id": "762e30d72079",
+      "room": "room-ill-defined",
+      "a": "staffing/turnover-among-front-desk-staff",
+      "b": "transport-logistics/shared-ride-scheduling-attempt"
+    },
+    {
+      "pair_id": "5f5186572df8",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "staffing/the-follow-up-call-list-nobody-owns"
+    },
+    {
+      "pair_id": "71b5ca116782",
+      "room": "room-ill-defined",
+      "a": "patient-flow/charting-the-patients-actual-path",
+      "b": "staffing/community-health-worker-caseload"
+    },
+    {
+      "pair_id": "3f8989797042",
+      "room": "room-ill-defined",
+      "a": "community-trust/who-patients-actually-trust-for-advice",
+      "b": "staffing/community-health-worker-caseload"
+    },
+    {
+      "pair_id": "942a7bb77393",
+      "room": "room-ill-defined",
+      "a": "patient-flow/charting-the-patients-actual-path",
+      "b": "transport-logistics/shared-ride-scheduling-attempt"
+    },
+    {
+      "pair_id": "149e4598f139",
+      "room": "room-ill-defined",
+      "a": "community-trust/what-patients-tell-the-front-desk",
+      "b": "staffing/community-health-worker-caseload"
+    }
+  ]
+}

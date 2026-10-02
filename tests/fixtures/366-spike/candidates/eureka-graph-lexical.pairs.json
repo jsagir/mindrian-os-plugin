@@ -1,0 +1,48 @@
+{
+  "schema": "mos.spike-366-pairs/1",
+  "arm": "eureka-graph-lexical",
+  "pairs": [
+    {
+      "pair_id": "c33a0cd3317b",
+      "room": "room-control",
+      "a": "cell-biology/immune-memory",
+      "b": "river-hydrology/spillway-regulation"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "retail-marketing/sales-channel-mix"
+    },
+    {
+      "pair_id": "0712f99a3f82",
+      "room": "room-control",
+      "a": "computer-security/side-channel-leak",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "room": "room-control",
+      "a": "retail-marketing/sales-channel-mix",
+      "b": "river-hydrology/channel-meander"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "room": "room-control",
+      "a": "retail-marketing/merchandising-bank-display",
+      "b": "river-hydrology/river-bank-erosion"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "room": "room-extend",
+      "a": "operations/cold-chain-breach-detection-today",
+      "b": "regulation/pharma-cold-chain-compliance-today"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "room": "room-ill-defined",
+      "a": "patient-flow/the-missed-second-visit",
+      "b": "transport-logistics/distance-and-the-missed-van"
+    }
+  ]
+}

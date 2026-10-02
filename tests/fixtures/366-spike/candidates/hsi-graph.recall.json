@@ -1,0 +1,58 @@
+{
+  "schema": "mos.spike-366-recall/1",
+  "arm": "hsi-graph",
+  "perspective": "hsi",
+  "tag": "20261001T120000Z",
+  "per_room_cap": 32,
+  "rooms": {
+    "room-control": {
+      "shown": 5,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 16,
+        "sections": 4,
+        "known_pairs": 0,
+        "relational": 1,
+        "lexical": 4,
+        "excluded_known": 0,
+        "candidates": 5
+      }
+    },
+    "room-extend": {
+      "shown": 1,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 12,
+        "sections": 4,
+        "known_pairs": 0,
+        "relational": 0,
+        "lexical": 1,
+        "excluded_known": 0,
+        "candidates": 1
+      }
+    },
+    "room-ill-defined": {
+      "shown": 1,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 12,
+        "sections": 4,
+        "known_pairs": 0,
+        "relational": 0,
+        "lexical": 1,
+        "excluded_known": 0,
+        "candidates": 1
+      }
+    }
+  },
+  "shown": 7,
+  "cost": {
+    "wall_ms": 16,
+    "cpu_user_ms": 9,
+    "cpu_system_ms": 7,
+    "max_rss_kb": 74044,
+    "vendor_calls": 0,
+    "input_tokens": null,
+    "dollars": null
+  }
+}

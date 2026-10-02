@@ -1,0 +1,64 @@
+{
+  "schema": "mos.spike-366-recall/1",
+  "arm": "eureka-graph-lexical",
+  "perspective": "eureka",
+  "tag": "20261001T120000Z",
+  "per_room_cap": 32,
+  "rooms": {
+    "room-control": {
+      "shown": 5,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 16,
+        "sections": 4,
+        "canon_resolved": 8,
+        "known_pairs": 0,
+        "shared_entity": 1,
+        "lexical": 4,
+        "icm_declared": 0,
+        "excluded_known": 0,
+        "candidates": 5
+      }
+    },
+    "room-extend": {
+      "shown": 1,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 12,
+        "sections": 4,
+        "canon_resolved": 6,
+        "known_pairs": 0,
+        "shared_entity": 0,
+        "lexical": 1,
+        "icm_declared": 0,
+        "excluded_known": 0,
+        "candidates": 1
+      }
+    },
+    "room-ill-defined": {
+      "shown": 1,
+      "pairs_truncated": 0,
+      "counts": {
+        "things": 12,
+        "sections": 4,
+        "canon_resolved": 6,
+        "known_pairs": 0,
+        "shared_entity": 0,
+        "lexical": 1,
+        "icm_declared": 0,
+        "excluded_known": 0,
+        "candidates": 1
+      }
+    }
+  },
+  "shown": 7,
+  "cost": {
+    "wall_ms": 14,
+    "cpu_user_ms": 6,
+    "cpu_system_ms": 8,
+    "max_rss_kb": 73560,
+    "vendor_calls": 0,
+    "input_tokens": null,
+    "dollars": null
+  }
+}

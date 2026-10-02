@@ -1,0 +1,96 @@
+{"pair_id": "0712f99a3f82", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "f06bd895b05b", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "2c5c95847dc9", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "0d18bca0c2f7", "verdict": "not_useful", "reason": "only shares the word bank"}
+{"pair_id": "c33a0cd3317b", "verdict": "not_useful", "reason": "immune response vs dam gates, no action suggested"}
+{"pair_id": "e183a8a8a38e", "verdict": "already_known", "reason": "virus biology to computer virus analogy is standard in both fields"}
+{"pair_id": "4ff08fa532ed", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "87b991d47b28", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "25d7237b0cde", "verdict": "not_useful", "reason": "timing leak vs spillway, no shared mechanism"}
+{"pair_id": "97bd79e86a1f", "verdict": "not_useful", "reason": "unrelated topics, no action"}
+{"pair_id": "dbcb66874716", "verdict": "not_useful", "reason": "ion channel gating vs signature matching, no borrowable mechanism"}
+{"pair_id": "4572b8f11f78", "verdict": "not_useful", "reason": "virus biology vs signature IDS, only loose vocabulary overlap"}
+{"pair_id": "d83e5b53b696", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "3a4fdbc9405b", "verdict": "not_useful", "reason": "only shares the word funnel"}
+{"pair_id": "aa4cb153e855", "verdict": "already_known", "reason": "signature detection as immune memory is a standard analogy"}
+{"pair_id": "69c01d1e94a5", "verdict": "not_useful", "reason": "only shares the word channel"}
+{"pair_id": "8113656967e0", "verdict": "not_useful", "reason": "intrusion signatures vs marketing attribution, no link"}
+{"pair_id": "d2b2b125f474", "verdict": "not_useful", "reason": "only shares the word funnel"}
+{"pair_id": "5e16763a296e", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "d346277eabf0", "verdict": "not_useful", "reason": "ion channels vs malware, vocabulary only"}
+{"pair_id": "a8c9ce669bc6", "verdict": "not_useful", "reason": "ion gating vs rate limiting, no action"}
+{"pair_id": "485a2e46c488", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "1a3da737b124", "verdict": "already_known", "reason": "immune memory to malware defence analogy is standard"}
+{"pair_id": "26c18b2b9ed8", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "971b332f6b6f", "verdict": "not_useful", "reason": "only shares the word channel loosely"}
+{"pair_id": "be4ba211f3c5", "verdict": "not_useful", "reason": "only shares the word bank or retail loosely"}
+{"pair_id": "5236c7f8b875", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "52c0e9bcef74", "verdict": "not_useful", "reason": "chemotaxis vs attribution funnel, no action"}
+{"pair_id": "ff26a5e3c363", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "cf322dc30df8", "verdict": "already_known", "reason": "rate limiting and spillway buffering are both standard flow-control framing"}
+{"pair_id": "874efea9a47c", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "a7cb06b2bb35", "verdict": "not_useful", "reason": "unrelated topics"}
+{"pair_id": "ca988c187c01", "verdict": "useful", "reason": "pharma continuous-log review process could be borrowed for the unreviewed breach logger data"}
+{"pair_id": "c24bddcf9cae", "verdict": "not_useful", "reason": "new-category excerpt too thin to act on with customer mix"}
+{"pair_id": "8e8941a45c49", "verdict": "not_useful", "reason": "breach cause vs new category, no link"}
+{"pair_id": "824233d5323d", "verdict": "not_useful", "reason": "breach cause vs adjacent buyers, no action"}
+{"pair_id": "85867276d96f", "verdict": "not_useful", "reason": "breach cause vs customer mix, no action"}
+{"pair_id": "770893db89be", "verdict": "not_useful", "reason": "breach cause vs pricing, no mechanism to borrow"}
+{"pair_id": "9482b5ee2a88", "verdict": "useful", "reason": "skincare inquiries are concrete evidence a new category could extend the opportunity"}
+{"pair_id": "bc926762102b", "verdict": "not_useful", "reason": "route rule vs customer mix, no action"}
+{"pair_id": "21617932599e", "verdict": "not_useful", "reason": "phase-change gel vs route consolidation, weak link"}
+{"pair_id": "ffd674f15ec6", "verdict": "not_useful", "reason": "breach detection vs customer mix, no action"}
+{"pair_id": "5f5eb036a765", "verdict": "not_useful", "reason": "new-category excerpt too thin; pricing adds no action"}
+{"pair_id": "b6c39a8315e4", "verdict": "already_known", "reason": "pharma compliance tied to pharmacy segment is standard"}
+{"pair_id": "be93e2bc753b", "verdict": "useful", "reason": "route consolidation changed runs so the panel weight spec should be revisited"}
+{"pair_id": "3e714ad8011a", "verdict": "not_useful", "reason": "panel weight vs pricing, no link"}
+{"pair_id": "df772c7aa5d7", "verdict": "not_useful", "reason": "lighter skincare regime does not extend breach detection mechanism"}
+{"pair_id": "a21dc91990b1", "verdict": "not_useful", "reason": "breach detection vs pricing, no action"}
+{"pair_id": "c601157d459c", "verdict": "not_useful", "reason": "panel weight vs new category, no link"}
+{"pair_id": "d55ef02cec90", "verdict": "not_useful", "reason": "panel weight vs customer mix, no action"}
+{"pair_id": "dc9de1256a8d", "verdict": "not_useful", "reason": "phase-change gel vs new category, thin"}
+{"pair_id": "6abbdc7d7397", "verdict": "not_useful", "reason": "route consolidation vs new category, thin"}
+{"pair_id": "518819bbe622", "verdict": "not_useful", "reason": "phase-change gel vs customer mix, no action"}
+{"pair_id": "1b5a85f84399", "verdict": "not_useful", "reason": "breach diagnosis vs pharma compliance, no action"}
+{"pair_id": "bf0aa4be151c", "verdict": "not_useful", "reason": "route consolidation vs pharma compliance, no link"}
+{"pair_id": "9ea0c68e177e", "verdict": "not_useful", "reason": "breach diagnosis vs audit findings, no action"}
+{"pair_id": "99538e88a7d6", "verdict": "not_useful", "reason": "route consolidation vs audit findings, no link"}
+{"pair_id": "bd37004bd111", "verdict": "useful", "reason": "phase-change gel buffers short spikes, matching the midday door-opening breach cause"}
+{"pair_id": "89e18440699d", "verdict": "already_known", "reason": "pharma strict tolerance and low price sensitivity is a standard link"}
+{"pair_id": "d37e922b92b0", "verdict": "not_useful", "reason": "gel buffering vs reactive detection, no clear action"}
+{"pair_id": "994e37c41560", "verdict": "not_useful", "reason": "audit comment vs customer mix, no mechanism"}
+{"pair_id": "7ec79d35bcf1", "verdict": "not_useful", "reason": "panel weight vs pharma compliance, no link"}
+{"pair_id": "440dc3a95496", "verdict": "not_useful", "reason": "breach detection vs adjacent buyers, no action"}
+{"pair_id": "be259de33291", "verdict": "not_useful", "reason": "route consolidation vs adjacent buyers, no action"}
+{"pair_id": "a9c96654c1cb", "verdict": "not_useful", "reason": "two separate drop-off causes, no mechanism to borrow"}
+{"pair_id": "32428ac3c5d0", "verdict": "useful", "reason": "desk notebook is the written memory that turnover loses; formalise it"}
+{"pair_id": "22f2f99ce390", "verdict": "useful", "reason": "trust map explains the elder detour in the actual patient path"}
+{"pair_id": "53628980d126", "verdict": "not_useful", "reason": "reputation vs second-visit drop-off, no action"}
+{"pair_id": "0f517af238c1", "verdict": "useful", "reason": "same no-owner failure; an owned closed-loop list could fix referral hand-off"}
+{"pair_id": "eaf0c6945c2a", "verdict": "useful", "reason": "patient reasons for not returning match the detours seen in the real path"}
+{"pair_id": "08d48c49f73f", "verdict": "not_useful", "reason": "referral gap vs van seating, separate issues"}
+{"pair_id": "e522567a70db", "verdict": "useful", "reason": "call list could be targeted at the second-visit drop-off"}
+{"pair_id": "3e5209524be3", "verdict": "not_useful", "reason": "referral gaps vs turnover, no clear action"}
+{"pair_id": "1f68fdb0bd01", "verdict": "not_useful", "reason": "reputation vs call list, no action"}
+{"pair_id": "57f17b17a42e", "verdict": "not_useful", "reason": "front desk notes vs referral hand-off, weak link"}
+{"pair_id": "483e38897bf5", "verdict": "not_useful", "reason": "reputation vs path chart, no action"}
+{"pair_id": "60c10f5e18a6", "verdict": "not_useful", "reason": "trust map vs referral hand-off, no mechanism"}
+{"pair_id": "20a8a389efbb", "verdict": "not_useful", "reason": "reputation vs referral gaps, no action"}
+{"pair_id": "d0390eb7fced", "verdict": "useful", "reason": "patient statements directly explain the second-visit drop-off"}
+{"pair_id": "575d21ab0fa1", "verdict": "not_useful", "reason": "referral hand-off vs shared-ride scheme, no link"}
+{"pair_id": "a3dd5a5a8ba9", "verdict": "useful", "reason": "path detours show why the van seating alone misses patients"}
+{"pair_id": "ba890528f149", "verdict": "useful", "reason": "trusted elders could help close the follow-up calls"}
+{"pair_id": "967eebebdb2a", "verdict": "useful", "reason": "trust in elders and healers helps explain the second-visit drop-off"}
+{"pair_id": "71258109a22e", "verdict": "not_useful", "reason": "call list vs van seating, no action"}
+{"pair_id": "dedbd55a5148", "verdict": "not_useful", "reason": "path chart vs turnover, no action"}
+{"pair_id": "983bdce4d706", "verdict": "not_useful", "reason": "trust map vs turnover, no action"}
+{"pair_id": "52e9261e4783", "verdict": "not_useful", "reason": "reputation vs turnover, no action"}
+{"pair_id": "59f67da1507d", "verdict": "not_useful", "reason": "second visit vs shared ride, no link"}
+{"pair_id": "2d2f994aa0b7", "verdict": "not_useful", "reason": "reputation vs van, no action"}
+{"pair_id": "9b289c6ba536", "verdict": "not_useful", "reason": "referral gaps vs caseload, no clear action"}
+{"pair_id": "762e30d72079", "verdict": "not_useful", "reason": "turnover vs shared ride, no link"}
+{"pair_id": "5f5186572df8", "verdict": "useful", "reason": "desk-noted reasons could script the follow-up calls"}
+{"pair_id": "71b5ca116782", "verdict": "not_useful", "reason": "path chart vs caseload, no action"}
+{"pair_id": "3f8989797042", "verdict": "useful", "reason": "community health workers could be the trusted conduit the trust map points to"}
+{"pair_id": "942a7bb77393", "verdict": "not_useful", "reason": "path constraints vs ride scheme, no clear action"}
+{"pair_id": "149e4598f139", "verdict": "useful", "reason": "health worker home visits could target patients who say they do not need to return"}
