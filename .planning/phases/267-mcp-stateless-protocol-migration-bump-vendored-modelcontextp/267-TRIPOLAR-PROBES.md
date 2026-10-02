@@ -172,6 +172,49 @@ produced no gate because of finding F-2 below.
 
 ---
 
+## Desktop-surrogate (post-migration, automated, NOT a human probe)
+
+> WARNING: this is a scripted stand-in that copies Desktop's handshake. It does
+> NOT satisfy MCPV2-13's human Desktop check; MCPV2-13 stays open for the
+> Desktop leg until the navigator's real smoke is recorded in a
+> "## Desktop (post-migration)" section.
+
+**Date:** 2026-10-02 (267-18, after the navigator's rulings). Script lives in the
+executor scratchpad, not the repo.
+**Setup:** the dev server `bin/mindrian-mcp-server.cjs` launched with the same WSL
+node Desktop uses (`/home/jsagi/.nvm/versions/node/v22.22.2/bin/node`), over stdio,
+cwd `/tmp`. `HOME` and `MINDRIAN_ROOMS_HOME` were throwaway directories. The rooms
+home held two scratch rooms, `room-a` and `room-b`, registered in a registry whose
+`active` was `room-a`. Env scrubbed of `MINDRIAN_ROOM`, `MINDRIAN_SESSION_ID`,
+`CLAUDE_CODE_SESSION_ID`, `MINDRIAN_MCP_FIRST`, `MINDRIAN_BRAIN_KEY`.
+**Client:** a v2 `Client` (legacy mode) with `clientInfo {claude-ai, 0.1.0}`,
+protocolVersion `2025-11-25`, and capabilities
+`{extensions: {"io.modelcontextprotocol/ui": {mimeTypes: ["text/html;profile=mcp-app"]}}}`.
+No elicitation, no session id. Server reported `mindrian-os` 2.0.0-beta.56, with
+tools, prompts and resources capabilities, and 45 tools and 9 prompts listed.
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | `room_bind {room: "room-b"}`, no sessionId | `isError: true`, body `{"ok": false, "reason": "no_session_id"}`. Unchanged from the pre-migration Desktop finding F-2. With an explicit `sessionId` the same bind returns `ok: true, bound: true, primary: room-b, effective: true, resolved_source: session.primary` |
+| 2 | `prompts/get "status"` | OK, returns one user message ("Call status_read and room_state ..."). No -32603. `bind-room` and `act` also return OK, so all three runtime-loop prompts that failed before 267-09 now work |
+| 3 | `gate_render` (single-select, two options) and `suggest_next` | `gate_render` ok:true, `renderer: "askuserquestion"` (rung b, an in-chat card contract), with no elicitation (the client declared none, as Desktop does). `suggest_next` ok:true with `suggestion: null` ("No candidate reach fired") on an empty scratch room, so it raised no gate itself |
+| 4 | `room-dashboard` app tool | Tool `inputSchema`: one optional string `room_path`; `_meta.ui.resourceUri = ui://mindrian-os/room-dashboard`. `resources/read` of that URI returns one `text/html;profile=mcp-app` document (8932 bytes). Calls: no `room_path` returns the data for the SERVER-DEFAULT room (name "room", not `room-a`/`room-b`); `room_path: "room-b"` (relative) is rejected with "room_path is outside the rooms home"; `room_path: "<rooms home>/room-b"` (absolute, inside the rooms home) returns `room-b`'s data. Containment works; relative slugs are not accepted. The HTML render itself needs a real host |
+| 5 | `room_state_bound` and `room_state {command: "status"}` | Both report **`room-a`, the registry active room**, never `room-b`. Same result after the explicit-sessionId bind in check 1, with or without passing the sessionId. `status_read` also reports `room-a` and `surface: desktop`, `host: claude-desktop` (tier0), `write_path_enabled: true`, `tool_registration: complete` |
+
+**Reading:**
+- Check 1 and check 5 reproduce `.planning/debug/desktop-session-binding-fallback.md`
+  exactly, post-migration: no change. Not fixed here, per scope; the migration
+  neither helped nor hurt it.
+- Checks 2, 3 and 4 show the migrated server does what the plan claims for a
+  Desktop-shaped client: prompts accept their arguments, the gate renders at rung
+  (b) with no elicitation, and the MCP Apps view serves its resource and honors
+  `room_path` containment.
+- Side note seen in server stderr at shutdown with no room bound:
+  `[session-catchup] Failed to save on shutdown: The "path" argument must be of
+  type string. Received null`. Harmless in this run, not investigated here.
+
+---
+
 ## Cowork (human probe)
 
 **Status:** PENDING (Task 3; Desktop leg done, Cowork re-asked at 267-18)
