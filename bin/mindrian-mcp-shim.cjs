@@ -22,19 +22,24 @@
  * D-06 thin shape: this file carries ZERO business logic -- wake
  * (ensureDaemon) -> resolve (discover the port) -> proxy (forward messages).
  * It NEVER imports a lib/core business module (only lib/mcp/daemon-
- * lifecycle.cjs and the vendored SDK transports) and NEVER binds a port
+ * lifecycle.cjs and the v2 SDK transports) and NEVER binds a port
  * itself -- the daemon (bin/mindrian-mcp-server.cjs) owns the only listening
  * socket. Unlike that server, this shim does NOT run mcp-dep-heal's
  * self-install (that helper lives under lib/core/ -- out of bounds for a
- * D-06 thin adapter); it assumes the vendored node_modules the daemon itself
+ * D-06 thin adapter); it assumes the installed node_modules the daemon itself
  * already depends on are present, and the daemon's own self-heal covers a
  * fresh-cache install on the process it spawns.
+ *
+ * Phase 267 (MCPV2-06): the transports now come from the v2 packages
+ * (@modelcontextprotocol/server/stdio, @modelcontextprotocol/client). The
+ * client keeps the DEFAULT 2025-era handshake (no era auto-negotiation), which
+ * the daemon serves on its sessionful legacy path.
  *
  * No em-dashes. CJS only.
  */
 
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
-const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js');
+const { StdioServerTransport } = require('@modelcontextprotocol/server/stdio');
+const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/client');
 
 const daemonLifecycle = require('../lib/mcp/daemon-lifecycle.cjs');
 

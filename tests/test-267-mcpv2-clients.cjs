@@ -18,11 +18,12 @@
  *   2. shim, unbound (no MINDRIAN_SESSION_ID): a raw 2025-11-25 initialize is
  *      answered at 2025-11-25, tools/list count equals the snapshot count,
  *      room_bind creates exactly one new session binding file naming room-x.
- *   3. RCA 7 pin: with MINDRIAN_SESSION_ID set the daemon still rejects the
- *      shim's pre-seeded id (400 No valid session ID provided) and no
- *      initialize response reaches stdout. Pinned, not fixed, in this phase
- *      (.planning/debug/mcp-shim-preseeded-session-id-rejected.md); a future
- *      fix flips this arm deliberately.
+ *   3. RCA 7 pin: with MINDRIAN_SESSION_ID set, the v1 client's pre-seeded id
+ *      was 400'd by the daemon. The v2 transport drops a pre-seeded id on
+ *      initialize and adopts the daemon-minted one, so the shim now connects;
+ *      the hook id is still NOT the binding key (D-02 gap unchanged). Pinned,
+ *      not fixed (.planning/debug/mcp-shim-preseeded-session-id-rejected.md);
+ *      a future identity-model decision flips this arm deliberately.
  *   4. adapter-client: queryDaemon('contract_version') twice, each opens and
  *      terminates its own session.
  *
@@ -228,12 +229,30 @@ async function main() {
       assert.ok(body.includes('room-x'), 'session file must name room-x: ' + body.slice(0, 200));
     });
 
-    // ---- Arm 3: RCA 7 pin ------------------------------------------------
-    await test('RCA 7 pin (mcp-shim-preseeded-session-id-rejected): MINDRIAN_SESSION_ID set -> daemon 400s, no initialize response', async () => {
-      const env = Object.assign({}, hermetic.env, { MINDRIAN_SESSION_ID: 'shim-267-pin' });
-      const res = await rpcOverStdio(SHIM, [], { env, timeoutMs: 10000 });
-      assert.equal(res.initialize, null, 'no initialize response may reach stdout (RCA 7 pinned)');
-      assert.ok(res.stderr.includes('No valid session ID provided'), 'shim stderr must carry the 400 text; got: ' + res.stderr.slice(-400));
+    // ---- Arm 3: RCA 7 observed-behavior pin ---------------------------------
+    // On the v1 client the daemon 400'd the pre-seeded id (RCA 7). The v2
+    // StreamableHTTPClientTransport strips mcp-session-id from an initialize
+    // request and adopts the id the daemon mints, so the 400 no longer occurs.
+    // The D-02 gap itself is UNCHANGED: the hook id is still never the binding
+    // key (the daemon mints its own). This arm pins that exact state so a future
+    // identity-model decision flips it deliberately.
+    await test('RCA 7 pin (mcp-shim-preseeded-session-id-rejected): MINDRIAN_SESSION_ID set -> shim connects on a daemon-minted id, hook id is NOT the binding key', async () => {
+      const hookId = 'shim-267-pin';
+      const env = Object.assign({}, hermetic.env, { MINDRIAN_SESSION_ID: hookId });
+      const before = new Set(sessionFiles(roomsHome));
+      const res = await driveShim(
+        env,
+        [{ method: 'tools/call', params: { name: 'room_bind', arguments: { room: 'room-x' } } }],
+        45000
+      );
+      assert.ok(res.responses.get(1) && res.responses.get(1).result, 'initialize must be answered on v2; stderr: ' + res.stderr.slice(-400));
+      assert.ok(!res.stderr.includes('No valid session ID provided'), 'the v1-era 400 must no longer occur; stderr: ' + res.stderr.slice(-400));
+      const call = res.responses.get(2);
+      assert.ok(call && call.result && call.result.content, 'room_bind answered through the pre-seeded-env shim: ' + JSON.stringify(call));
+      const added = sessionFiles(roomsHome).filter((f) => !before.has(f));
+      assert.equal(added.length, 1, 'exactly one new session binding file, got ' + added.length);
+      assert.notEqual(added[0], hookId + '.json', 'the hook-supplied id must NOT be the binding key (D-02 gap unchanged)');
+      assert.equal(sessionFiles(roomsHome).includes(hookId + '.json'), false, 'no session file may be keyed by the hook id');
     });
 
     // ---- Arm 4: adapter-client -------------------------------------------

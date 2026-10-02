@@ -37,7 +37,13 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // changes no production file"). Each later migrating plan appends its own
 // entry paths here (absolute-from-repo-root, forward slashes).
 // ---------------------------------------------------------------------------
-const EXPECT_V2 = ['bin/mindrian-brain-mcp-client.cjs', 'bin/mindrian-mcp-server.cjs', 'lib/mcp/resources.cjs'];
+const EXPECT_V2 = [
+  'bin/mindrian-brain-mcp-client.cjs',
+  'bin/mindrian-mcp-server.cjs',
+  'lib/mcp/resources.cjs',
+  'bin/mindrian-mcp-shim.cjs',
+  'lib/mcp/adapter-client.cjs',
+];
 
 let passCount = 0;
 let failCount = 0;
