@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.54 (in progress)
+## [2.0.0-beta.55] - 2026-10-02
 
 ### Fixed
 - **Research grants no longer loop (SEED-104).** A room's Eureka-style research plan could never fetch: every
