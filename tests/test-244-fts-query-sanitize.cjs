@@ -39,7 +39,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const tri = require('../lib/core/eureka/tri-modal-index.cjs');
+const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
 
 // Save the env seam at file start; restore at the end (mandatory).
 const ENV_FORCED_AT_START = typeof process.env.MINDRIAN_FORCE_FTS_ABSENT === 'string'

@@ -35,7 +35,7 @@ const REPO = path.resolve(__dirname, '..');
 const DOCTOR = path.join(REPO, 'scripts', 'doctor.cjs');
 const HEALTH_MODULE_PATH = path.join(REPO, 'lib', 'core', 'doctor', 'eureka-fts-health-module.cjs');
 
-const tri = require(path.join(REPO, 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
+const tri = require(path.join(REPO, 'lib', 'core', 'semantic-index', 'tri-modal-index.cjs'));
 const healthMod = require(HEALTH_MODULE_PATH);
 
 let PASS = 0;

@@ -40,7 +40,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const tri = require('../lib/core/eureka/tri-modal-index.cjs');
+const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
 const hybrid = require('../lib/core/eureka/hybrid-retrieve.cjs');
 
 // Whether the OUTER invocation forced the probe absent (the acceptance

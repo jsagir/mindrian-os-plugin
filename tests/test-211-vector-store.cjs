@@ -26,7 +26,7 @@ const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
 const vec = require('../lib/core/semantic-index/vector-store.cjs');
-const tri = require('../lib/core/eureka/tri-modal-index.cjs');
+const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
 
 let PASS = 0;
 let FAIL = 0;
@@ -163,7 +163,7 @@ async function main() {
 
   // ----- T5: seam guard (source-level) -----
   await test('T5: tri-modal-index.cjs no longer owns the vec DDL (no float[ table, no literal 384)', function () {
-    const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'eureka', 'tri-modal-index.cjs'), 'utf8');
+    const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'semantic-index', 'tri-modal-index.cjs'), 'utf8');
     assert.strictEqual(/float\[/.test(src), false, 'no float[ vec0 DDL in tri-modal-index');
     // strip comment lines, then assert no live 384 literal remains.
     const codeOnly = src.split('\n').filter(function (line) {

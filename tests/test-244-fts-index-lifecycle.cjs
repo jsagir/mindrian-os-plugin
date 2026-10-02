@@ -36,7 +36,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { DatabaseSync } = require('node:sqlite');
 
-const tri = require('../lib/core/eureka/tri-modal-index.cjs');
+const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
 const lc = require('../lib/core/eureka/fts-index-lifecycle.cjs');
 const drain = require('../scripts/fts-index-drain.cjs');
 const { buildFixtureRoom } = require('./helpers/fixture-room-219.cjs');

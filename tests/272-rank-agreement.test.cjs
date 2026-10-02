@@ -55,7 +55,7 @@
  * Convention A), so a `direction` mismatch on a pair where BOTH sides
  * clear the confidence margin literally IS a signed_diff sign flip. This
  * reuses the confidence-margin pattern already shipped in
- * lib/core/eureka/embedding-classifier.cjs (DEFAULT_MARGIN = 0.10, read at
+ * lib/core/semantic-index/embedding-classifier.cjs (DEFAULT_MARGIN = 0.10, read at
  * embedding-classifier.cjs:104), per D-03's explicit instruction to reuse
  * that pattern rather than inventing a new one.
  *
@@ -97,7 +97,7 @@ const NOISE_FLOOR_JSON_PATH = path.join(FIXTURES_DIR, 'noise-floor.json');
 const NOISE_FLOOR_MD_PATH = path.join(FIXTURES_DIR, 'NOISE-FLOOR.md');
 
 // Confidence-margin threshold, reused verbatim from the shipped pattern
-// (lib/core/eureka/embedding-classifier.cjs DEFAULT_MARGIN), per D-03.
+// (lib/core/semantic-index/embedding-classifier.cjs DEFAULT_MARGIN), per D-03.
 const CONFIDENCE_MARGIN_THRESHOLD = 0.1;
 
 // Informational-only top-K overlap, D-11: no longer a hard gate, kept for
@@ -110,7 +110,7 @@ function pairKey(row) {
 
 // Source: shape from tests/127.1-graphrag-overlap.test.cjs:123-137
 // (setOverlap), margin logic from
-// lib/core/eureka/embedding-classifier.cjs:203-208. Verbatim from
+// lib/core/semantic-index/embedding-classifier.cjs:203-208. Verbatim from
 // 272-RESEARCH.md's Code Examples section, "The D-03 gate, reusing the
 // 127.1 shape". Unchanged by D-11 -- this is the D-01a sign-flip check, not
 // the metric D-11 replaced.

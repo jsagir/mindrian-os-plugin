@@ -54,7 +54,7 @@ const crypto = require('node:crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
-const triModal = require(path.join(REPO_ROOT, 'lib/core/eureka/tri-modal-index.cjs'));
+const triModal = require(path.join(REPO_ROOT, 'lib/core/semantic-index/tri-modal-index.cjs'));
 const { scoreMeasured } = require(path.join(REPO_ROOT, 'lib/core/rs-differential-scorer.cjs'));
 const spine = require(path.join(REPO_ROOT, 'lib/core/semantic-index/embedding-spine.cjs'));
 

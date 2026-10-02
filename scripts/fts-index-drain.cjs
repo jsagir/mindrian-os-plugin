@@ -76,7 +76,7 @@ const {
   writeQueue,
   FTS_BUILD_MAX_ATTEMPTS,
 } = require('../lib/core/eureka/fts-index-lifecycle.cjs');
-const { indexNodes } = require('../lib/core/eureka/tri-modal-index.cjs');
+const { indexNodes } = require('../lib/core/semantic-index/tri-modal-index.cjs');
 const { openRoomDbForCaller, closeRoomDbForCaller } = require('../lib/core/navigation.cjs');
 // Reuse the room resolver verbatim rather than hand-rolling a second one
 // (Part 7): gsd-graph-derive-drain.cjs itself resolves its no-argument case

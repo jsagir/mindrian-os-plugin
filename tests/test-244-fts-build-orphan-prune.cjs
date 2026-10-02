@@ -76,7 +76,7 @@ const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
 const REPO = path.resolve(__dirname, '..');
-const tri = require(path.join(REPO, 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
+const tri = require(path.join(REPO, 'lib', 'core', 'semantic-index', 'tri-modal-index.cjs'));
 const lc = require(path.join(REPO, 'lib', 'core', 'eureka', 'fts-index-lifecycle.cjs'));
 const drain = require(path.join(REPO, 'scripts', 'fts-index-drain.cjs'));
 const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));

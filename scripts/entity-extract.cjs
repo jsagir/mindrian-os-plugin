@@ -111,13 +111,13 @@ function existingOrDefaultEpistemicType(props) {
     : 'observation';
 }
 const { extractEntities } = require('../lib/core/semantic-index/entity-extractor.cjs');
-const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
+const triModal = require('../lib/core/semantic-index/tri-modal-index.cjs');
 // Tier-2a (quick-task 260714-k44): the LOCAL embedding WHAT-vs-WHY classifier. It
 // is fully local and zero-egress (it delegates to the embedding-spine boundary),
 // resolves the confident majority of candidates for free, and hands only the
 // low-margin residual to tier-2b below. The dispatcher body in THIS file stays
 // zero-network (grep-gated); the embedding tier adds no transport of its own.
-const entityEmbedClassifier = require('../lib/core/eureka/embedding-classifier.cjs');
+const entityEmbedClassifier = require('../lib/core/semantic-index/embedding-classifier.cjs');
 // Tier-2b (quick-task 260714-hzx): the semantic WHAT / WHY / NOISE classifier
 // module. It is the ONLY model reach in this pipeline and documents its own
 // boundary; it is now the ESCALATION-ONLY path, called per artifact for just the

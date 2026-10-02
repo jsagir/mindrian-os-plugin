@@ -19,7 +19,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const tri = require('../lib/core/eureka/tri-modal-index.cjs');
+const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
 // hybrid-retrieve is required lazily inside hybridTests (Task 2) so the Task 1
 // suite runs before that module exists.
 

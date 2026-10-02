@@ -137,7 +137,7 @@ EMDASH_TARGETS=(
   "tests/test-244-mmr-diversity.cjs"
   "lib/core/sensors/sensor-types.cjs"
   "lib/core/sensors/sensor-content-relevance.cjs"
-  "lib/core/eureka/tri-modal-index.cjs"
+  "lib/core/semantic-index/tri-modal-index.cjs"
   "lib/core/eureka/fts-index-lifecycle.cjs"
   "lib/core/lazygraph-ops.cjs"
   "lib/core/navigation-engine.cjs"

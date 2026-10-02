@@ -18,7 +18,7 @@
  *
  * WHY MAX-COSINE NEAREST-NEIGHBOR, AND WHY THE WHAT/WHY CLASSIFIER IS NOT CALLED
  *
- * The shape is deliberately the one lib/core/eureka/embedding-classifier.cjs
+ * The shape is deliberately the one lib/core/semantic-index/embedding-classifier.cjs
  * uses (embedTexts plus the exported cosineSimilarity, MAX similarity per side,
  * a top1-minus-top2 margin, and an explicit not-confident branch) at the ~40
  * term scale that module's own header names as its design target. That module's

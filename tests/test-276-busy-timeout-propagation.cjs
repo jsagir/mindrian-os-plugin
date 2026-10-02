@@ -479,7 +479,7 @@ async function main() {
   pinNoTimeout('C', 'lib/core/proactive-intelligence.cjs', 'const db = new DatabaseSync(dbPath, { open: true, readOnly: true });', REASON_READONLY);
 
   // Group D: in-memory openers.
-  pinNoTimeout('D', 'lib/core/eureka/tri-modal-index.cjs', "return new DatabaseSync(':memory:');", REASON_INMEMORY);
+  pinNoTimeout('D', 'lib/core/semantic-index/tri-modal-index.cjs', "return new DatabaseSync(':memory:');", REASON_INMEMORY);
   pinNoTimeout('D', 'lib/core/doctor/class-s-eureka-smoke.cjs', "db = new DatabaseSync(':memory:', { allowExtension: true });", REASON_INMEMORY);
   pinNoTimeout('D', 'lib/core/doctor/class-s-eureka-smoke.cjs', "try { db = new DatabaseSync(':memory:'); } catch (e2) {", REASON_INMEMORY);
   pinNoTimeout('D', 'scripts/doctor.cjs', "version = new DatabaseSync(':memory:').prepare('select sqlite_version() as v').get().v;", REASON_INMEMORY);

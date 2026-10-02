@@ -245,7 +245,7 @@ async function main() {
     (function reconcileFtsIndexInline() {
       try {
         // eslint-disable-next-line global-require
-        const tri = require(path.join(__dirname, '..', 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
+        const tri = require(path.join(__dirname, '..', 'lib', 'core', 'semantic-index', 'tri-modal-index.cjs'));
         tri.reconcileFtsOrphans(conn);
       } catch (_e) {
         // Swallow and continue: a reconcile fault must never abort an

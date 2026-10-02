@@ -85,7 +85,7 @@ const path = require('node:path');
 const REPO = path.resolve(__dirname, '..');
 const roomDb = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
 const lazygraph = require(path.join(REPO, 'lib', 'core', 'lazygraph-ops.cjs'));
-const tri = require(path.join(REPO, 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
+const tri = require(path.join(REPO, 'lib', 'core', 'semantic-index', 'tri-modal-index.cjs'));
 
 const {
   buildFixtureRoom236,

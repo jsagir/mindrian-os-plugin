@@ -25,7 +25,7 @@
 # EGRESS RULE (Part 8, restated, refined for the two-tier redesign quick-task
 # 260714-k44 over 260714-hzx): the tier-1 extractor AND the entity-extract.cjs
 # dispatcher BODY make zero network reach -- grep-enforced by leg (d) below. Tier-2a
-# (lib/core/eureka/embedding-classifier.cjs) is ALSO fully local and free: it
+# (lib/core/semantic-index/embedding-classifier.cjs) is ALSO fully local and free: it
 # delegates to the embedding-spine boundary (generic model weights by id only, no
 # user bytes), so it never carries a transport of its own. The ONLY remote model
 # reach in the pipeline lives in the tier-2b classifier module
