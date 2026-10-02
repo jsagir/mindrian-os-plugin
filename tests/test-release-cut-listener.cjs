@@ -39,7 +39,7 @@ console.log('test-release-cut-listener:');
 
 const SHA = 'a'.repeat(40);
 const VER = '2.0.0-beta.56';
-const EM = '—';
+const EM = '\u2014';
 
 // ---------------------------------------------------------------------------
 // Fake deps for the Theo leg
