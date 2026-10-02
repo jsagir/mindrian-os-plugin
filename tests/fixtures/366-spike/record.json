@@ -1,0 +1,859 @@
+{
+  "schema": "mos.spike-366-record/1",
+  "statement": "The 44.8% figure is the RS/HSI engine-output baseline (47 HSI, 49 RS pairs from the embedding engines). Eureka was substrate_unavailable on the bare fixtures, so no arm below is a change from 44.8%; each rate is read against the pool, the RS slice and the HSI slice.",
+  "adoption": {
+    "decision": null,
+    "note": "This record never adopts an arm. The navigator rules at plan 366-20."
+  },
+  "bar": {
+    "rule": "adopt an arm only if wilson95(useful, shown)[0] > 0.448 on each of 3 repeats",
+    "threshold": 0.448,
+    "repeats": 3,
+    "per_room_cap": 32,
+    "sha256": "dc087c757e826f4dc4fa9f4954e09c464168e7b61f847524add147c35b30f601"
+  },
+  "baseline": {
+    "note": "engine-output baseline from rs-engine and hsi-engine; Eureka was substrate_unavailable on the bare fixtures",
+    "source": "355-VERIFICATION.md",
+    "pool": {
+      "shown": 96,
+      "useful": 43,
+      "rate": 0.4479,
+      "wilson95": [
+        0.3524,
+        0.5475
+      ]
+    },
+    "slices": {
+      "hsi": {
+        "shown": 47,
+        "useful": 27,
+        "rate": 0.5745,
+        "wilson95": [
+          0.4328,
+          0.7049
+        ]
+      },
+      "rs": {
+        "shown": 49,
+        "useful": 16,
+        "rate": 0.3265,
+        "wilson95": [
+          0.2121,
+          0.4662
+        ]
+      }
+    },
+    "inputs": {
+      "pairings_items_sha256": "1fb0c813fcdb4d8ed5b55c0b6851036aeb29fa2041605e25ba1debf172dc7973",
+      "judgments_sha256": "c5ad317ea722264bccb4727bb3f943d4d8bf87b6a26af59034ea8ab929662ff5"
+    }
+  },
+  "recall_arms": {
+    "eureka-graph-lexical": {
+      "perspective": "eureka",
+      "tag": "20261001T120000Z",
+      "per_room_cap": 32,
+      "items_sha256": "cfa5d96a8196f8422afb6ce7c29cfaa411b6f66920d2c60fe42110a73edc5076",
+      "gold_sha256": "f7f42a0e2fa03827e9ec7182b655043a00aa8c61a453d547179f693b96a9c780",
+      "shown": 7,
+      "useful": 3,
+      "rate": 0.4286,
+      "wilson95": [
+        0.1582,
+        0.7495
+      ],
+      "clears_bar": false,
+      "n_below_baseline_n": true,
+      "needs_useful_to_clear_at_this_n": 6,
+      "repeats": [
+        {
+          "repeat": 1,
+          "shown": 7,
+          "useful": 3,
+          "rate": 0.4286,
+          "wilson95": [
+            0.1582,
+            0.7495
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        },
+        {
+          "repeat": 2,
+          "shown": 7,
+          "useful": 3,
+          "rate": 0.4286,
+          "wilson95": [
+            0.1582,
+            0.7495
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        },
+        {
+          "repeat": 3,
+          "shown": 7,
+          "useful": 3,
+          "rate": 0.4286,
+          "wilson95": [
+            0.1582,
+            0.7495
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        }
+      ],
+      "clears_bar_all_repeats": false,
+      "per_room": {
+        "room-control": {
+          "shown": 5,
+          "useful": 1
+        },
+        "room-extend": {
+          "shown": 1,
+          "useful": 1
+        },
+        "room-ill-defined": {
+          "shown": 1,
+          "useful": 1
+        }
+      },
+      "recall_counts": {
+        "room-control": {
+          "shown": 5,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 16,
+            "sections": 4,
+            "canon_resolved": 8,
+            "known_pairs": 0,
+            "shared_entity": 1,
+            "lexical": 4,
+            "icm_declared": 0,
+            "excluded_known": 0,
+            "candidates": 5
+          }
+        },
+        "room-extend": {
+          "shown": 1,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 12,
+            "sections": 4,
+            "canon_resolved": 6,
+            "known_pairs": 0,
+            "shared_entity": 0,
+            "lexical": 1,
+            "icm_declared": 0,
+            "excluded_known": 0,
+            "candidates": 1
+          }
+        },
+        "room-ill-defined": {
+          "shown": 1,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 12,
+            "sections": 4,
+            "canon_resolved": 6,
+            "known_pairs": 0,
+            "shared_entity": 0,
+            "lexical": 1,
+            "icm_declared": 0,
+            "excluded_known": 0,
+            "candidates": 1
+          }
+        }
+      },
+      "cost": {
+        "wall_ms": 14,
+        "cpu_user_ms": 6,
+        "cpu_system_ms": 8,
+        "max_rss_kb": 73560,
+        "vendor_calls": 0,
+        "input_tokens": null,
+        "dollars": null
+      }
+    },
+    "hsi-graph": {
+      "perspective": "hsi",
+      "tag": "20261001T120000Z",
+      "per_room_cap": 32,
+      "items_sha256": "b84de8ba64079e4c1cb2687f6224f13c04a8f72c8afda6a1f23ed0f808d33ec3",
+      "gold_sha256": "682a829d28fa44e0c1cec0f3a881cd4c0d8dfe35ae119571ea2024928d745b1f",
+      "shown": 7,
+      "useful": 4,
+      "rate": 0.5714,
+      "wilson95": [
+        0.2505,
+        0.8418
+      ],
+      "clears_bar": false,
+      "n_below_baseline_n": true,
+      "needs_useful_to_clear_at_this_n": 6,
+      "repeats": [
+        {
+          "repeat": 1,
+          "shown": 7,
+          "useful": 4,
+          "rate": 0.5714,
+          "wilson95": [
+            0.2505,
+            0.8418
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        },
+        {
+          "repeat": 2,
+          "shown": 7,
+          "useful": 4,
+          "rate": 0.5714,
+          "wilson95": [
+            0.2505,
+            0.8418
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        },
+        {
+          "repeat": 3,
+          "shown": 7,
+          "useful": 4,
+          "rate": 0.5714,
+          "wilson95": [
+            0.2505,
+            0.8418
+          ],
+          "clears_bar": false,
+          "n_below_baseline_n": true
+        }
+      ],
+      "clears_bar_all_repeats": false,
+      "per_room": {
+        "room-control": {
+          "shown": 5,
+          "useful": 2
+        },
+        "room-extend": {
+          "shown": 1,
+          "useful": 1
+        },
+        "room-ill-defined": {
+          "shown": 1,
+          "useful": 1
+        }
+      },
+      "recall_counts": {
+        "room-control": {
+          "shown": 5,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 16,
+            "sections": 4,
+            "known_pairs": 0,
+            "relational": 1,
+            "lexical": 4,
+            "excluded_known": 0,
+            "candidates": 5
+          }
+        },
+        "room-extend": {
+          "shown": 1,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 12,
+            "sections": 4,
+            "known_pairs": 0,
+            "relational": 0,
+            "lexical": 1,
+            "excluded_known": 0,
+            "candidates": 1
+          }
+        },
+        "room-ill-defined": {
+          "shown": 1,
+          "pairs_truncated": 0,
+          "counts": {
+            "things": 12,
+            "sections": 4,
+            "known_pairs": 0,
+            "relational": 0,
+            "lexical": 1,
+            "excluded_known": 0,
+            "candidates": 1
+          }
+        }
+      },
+      "cost": {
+        "wall_ms": 16,
+        "cpu_user_ms": 9,
+        "cpu_system_ms": 7,
+        "max_rss_kb": 74044,
+        "vendor_calls": 0,
+        "input_tokens": null,
+        "dollars": null
+      },
+      "vs_slice": {
+        "slice": "hsi",
+        "baseline_useful": 27,
+        "baseline_shown": 47,
+        "baseline_rate": 0.5745,
+        "arm_rate": 0.5714,
+        "arm_wilson95": [
+          0.2505,
+          0.8418
+        ],
+        "lower_bound_above_slice_rate": false,
+        "lower_bound_above_pool_rate": false
+      }
+    }
+  },
+  "judge_arms": {
+    "eureka-graph-lexical": {
+      "stage-a": {
+        "repeats_recorded": 1,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 7,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 4,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 4,
+              "max_rss_kb": 72376,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 7,
+            "useful": 3,
+            "rate": 0.4286,
+            "wilson95": [
+              0.1582,
+              0.7495
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "jev": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 2800,
+              "cpu_user_ms": 6,
+              "cpu_system_ms": 5,
+              "max_rss_kb": 72604,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 2760,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 11,
+              "max_rss_kb": 71932,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 3033,
+              "cpu_user_ms": 4,
+              "cpu_system_ms": 8,
+              "max_rss_kb": 72564,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "claude": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 1,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 71692,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 71232,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 72700,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "claude-then-jev": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 536,
+              "cpu_user_ms": 3,
+              "cpu_system_ms": 1,
+              "max_rss_kb": 71388,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 578,
+              "cpu_user_ms": 1,
+              "cpu_system_ms": 5,
+              "max_rss_kb": 71384,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 533,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 5,
+              "max_rss_kb": 71568,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      }
+    },
+    "hsi-graph": {
+      "stage-a": {
+        "repeats_recorded": 1,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 7,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 4,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 4,
+              "max_rss_kb": 73912,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 7,
+            "useful": 4,
+            "rate": 0.5714,
+            "wilson95": [
+              0.2505,
+              0.8418
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "jev": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 3278,
+              "cpu_user_ms": 11,
+              "cpu_system_ms": 1,
+              "max_rss_kb": 71612,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 2706,
+              "cpu_user_ms": 4,
+              "cpu_system_ms": 7,
+              "max_rss_kb": 72188,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 2764,
+              "cpu_user_ms": 3,
+              "cpu_system_ms": 9,
+              "max_rss_kb": 71876,
+              "vendor_calls": 7,
+              "input_tokens": 4439,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "claude": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 71776,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 72232,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 1,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 0,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 72004,
+              "vendor_calls": 0,
+              "input_tokens": null,
+              "dollars": null
+            },
+            "shown": 1,
+            "useful": 1,
+            "rate": 1,
+            "wilson95": [
+              0.2065,
+              1
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      },
+      "claude-then-jev": {
+        "repeats_recorded": 3,
+        "repeats_required": 3,
+        "repeats": [
+          {
+            "repeat": 1,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 546,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 4,
+              "max_rss_kb": 71496,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 2,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 526,
+              "cpu_user_ms": 0,
+              "cpu_system_ms": 4,
+              "max_rss_kb": 72084,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          },
+          {
+            "repeat": 3,
+            "candidates": 7,
+            "passed": 0,
+            "replayed": false,
+            "cost": {
+              "wall_ms": 526,
+              "cpu_user_ms": 4,
+              "cpu_system_ms": 0,
+              "max_rss_kb": 71940,
+              "vendor_calls": 1,
+              "input_tokens": 632,
+              "dollars": null
+            },
+            "shown": 0,
+            "useful": 0,
+            "rate": null,
+            "wilson95": [
+              0,
+              0
+            ],
+            "clears_bar": false,
+            "n_below_baseline_n": true
+          }
+        ],
+        "clears_bar_all_repeats": false
+      }
+    }
+  },
+  "awaiting_gold": [
+    "eureka-graph-lexical-vector",
+    "rs-graph"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "mos.spike-366-substrate-frozen/1",
+  "source": "tests/fixtures/355-rooms",
+  "rooms": [
+    {
+      "name": "room-control",
+      "fixture_sha256": "37ecf0e5e1e18914c26640e89d5f3b8ab6edda493a70d3649beed8dcd95865d0",
+      "node_count": 42,
+      "edge_counts": {
+        "BELONGS_TO": 21,
+        "USES_FRAMEWORK": 8
+      },
+      "describes_edges": 0,
+      "entity_extract": {
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "blocked_network_attempts": 0,
+        "tier2_escalated": 2,
+        "local_model": "present"
+      }
+    },
+    {
+      "name": "room-extend",
+      "fixture_sha256": "61ca0d9a232fc2abf886190f5f46193df051ee55188939cdce48c3dafd58adfa",
+      "node_count": 37,
+      "edge_counts": {
+        "BELONGS_TO": 17,
+        "USES_FRAMEWORK": 6
+      },
+      "describes_edges": 0,
+      "entity_extract": {
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "blocked_network_attempts": 0,
+        "tier2_escalated": 3,
+        "local_model": "present"
+      }
+    },
+    {
+      "name": "room-ill-defined",
+      "fixture_sha256": "c67ac23a61cf43c5cf1ced00b6ca5e45de82146a86cff4a160c987c328a95aad",
+      "node_count": 37,
+      "edge_counts": {
+        "BELONGS_TO": 17,
+        "USES_FRAMEWORK": 6
+      },
+      "describes_edges": 0,
+      "entity_extract": {
+        "tiers_ran": [
+          "tier1_rules",
+          "tier2a_local_embedding"
+        ],
+        "blocked_network_attempts": 0,
+        "tier2_escalated": 3,
+        "local_model": "present"
+      }
+    }
+  ]
+}

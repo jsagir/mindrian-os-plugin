@@ -1,0 +1,50 @@
+{
+  "schema": "mos.spike-366-judge/1",
+  "recall_arm": "eureka-graph-lexical",
+  "judge_arm": "jev",
+  "repeat": 2,
+  "replayed": false,
+  "candidates": 7,
+  "passes": [
+    "a9c96654c1cb"
+  ],
+  "verdicts": [
+    {
+      "pair_id": "c33a0cd3317b",
+      "verdict": "jev:not_useful"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "verdict": "jev:not_useful"
+    },
+    {
+      "pair_id": "0712f99a3f82",
+      "verdict": "jev:not_useful"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "verdict": "jev:not_useful"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "verdict": "jev:not_useful"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "verdict": "jev:already_known"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "verdict": "jev:useful"
+    }
+  ],
+  "cost": {
+    "wall_ms": 2760,
+    "cpu_user_ms": 0,
+    "cpu_system_ms": 11,
+    "max_rss_kb": 71932,
+    "vendor_calls": 7,
+    "input_tokens": 4439,
+    "dollars": null
+  }
+}
