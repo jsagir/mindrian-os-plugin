@@ -202,6 +202,14 @@ async function main() {
     const stub = {
       tools: new Map(),
       tool(name, description, schema, cb) { this.tools.set(name, { description, schema, cb }); },
+      // Phase 267-08: context.cjs now registers through the v2-compatible
+      // server.registerTool(name, {title, description, inputSchema}, cb);
+      // capture the same {description, schema, cb} shape (schema unwrapped
+      // back to the raw shape the variadic form always handed over).
+      registerTool(name, config, cb) {
+        const cfg = config || {};
+        this.tools.set(name, { description: cfg.description, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, cb });
+      },
     };
     const ctx = { fallbackRoomDir: roomDir, pluginRoot: REPO_ROOT, surface: 'cli' };
     contextTool.register(stub, ctx);
