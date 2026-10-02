@@ -1458,7 +1458,11 @@ function buildAcceptanceChecklist(ctx) {
           // edge repository_dispatch notify) in the SAME commit as the
           // release.sh --dry-run preview line that emits it -- adding either
           // half alone makes this blocker red or makes the new step ungated.
-          const expectedSteps = ['Step 2', 'Step 2.5', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 5.6', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
+          // Quick 261002-byh (navigator ruling 2026-10-02) retired Step 5.6
+          // (no Theo workflow received theo-resync) and put Step 0.55, the
+          // release-cut listener's Theo leg, in its place here, in the SAME
+          // commit as the release.sh edit, for the same reason.
+          const expectedSteps = ['Step 0.55', 'Step 2', 'Step 2.5', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
           const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
           const ok = missing.length === 0;
           return {

@@ -1,6 +1,12 @@
 'use strict';
 /*
- * tests/test-349-dry-run-never-sends.cjs -- Phase 349 Plan 04 (NOTIFY-02/04/05).
+ * tests/test-349-dry-run-never-sends.cjs -- Phase 349 Plan 04 (NOTIFY-02/04/05),
+ * re-pinned by quick 261002-byh (navigator ruling 2026-10-02), which retired
+ * Step 5.6 (the theo-resync repository_dispatch no Theo workflow received).
+ * The dry-run must now print NO Step 5.6 line, the retired MINDRIAN_THEO_
+ * NOTIFY_CMD seam must never run, --no-theo-notify must be rejected as an
+ * unknown arg, and doctor's expectedSteps must carry Step 0.55 (the release-
+ * cut listener's Theo leg, place 8's leading half) instead of Step 5.6.
  *
  * SHELLS THE REAL scripts/release.sh IN --dry-run MODE. This is safe by
  * construction: the dry-run block is text-only and `exit 0`s before any
@@ -53,12 +59,26 @@ const expectedSteps = JSON.parse('[' + arrayMatch[1].replace(/'/g, '"') + ']');
 assert.ok(Array.isArray(expectedSteps) && expectedSteps.length > 0, 'expectedSteps must be a non-empty array');
 
 // ---------------------------------------------------------------------------
-// The array knows the step (E6).
+// The array knows the retirement: Step 5.6 out, Step 0.55 in.
 // ---------------------------------------------------------------------------
 {
-  assert.ok(expectedSteps.indexOf('Step 5.6') !== -1, "doctor.cjs's expectedSteps array must contain the literal 'Step 5.6'");
-  ok("expectedSteps array (extracted from doctor.cjs) contains 'Step 5.6'");
+  assert.equal(expectedSteps.indexOf('Step 5.6'), -1, "doctor.cjs's expectedSteps array must NOT contain the retired 'Step 5.6'");
+  assert.ok(expectedSteps.indexOf('Step 0.55') !== -1, "doctor.cjs's expectedSteps array must contain 'Step 0.55'");
+  ok("expectedSteps array (extracted from doctor.cjs) has 'Step 0.55' and no 'Step 5.6'");
 }
+
+// Review WR-06 pattern (tests/test-release-cut-listener-wiring.cjs): the
+// read-only proof is scoped to the files a release cut writes, never the
+// whole tree, because other sessions edit this shared tree during the
+// dry-run window.
+const RELEASE_OWNED = [
+  '.claude-plugin/plugin.json',
+  '.claude-plugin/marketplace.json',
+  'package.json',
+  'CHANGELOG.md',
+  'npm-shrinkwrap.json',
+  'package-lock.json',
+];
 
 function tmpEnv() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-349-notify-dryrun-'));
@@ -84,8 +104,13 @@ function runDryRun(extraArgs, tmp) {
 }
 
 function gitPorcelain() {
-  const r = cp.spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8', cwd: REPO });
-  return r.stdout || '';
+  const crypto = require('node:crypto');
+  const hashes = RELEASE_OWNED.map(function (rel) {
+    const p = path.join(REPO, rel);
+    return rel + ' ' + (fs.existsSync(p) ? crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex') : 'ABSENT');
+  });
+  const r = cp.spawnSync('git', ['status', '--porcelain', '--'].concat(RELEASE_OWNED), { encoding: 'utf8', cwd: REPO });
+  return hashes.join('\n') + '\n' + (r.stdout || '');
 }
 
 let tmp1;
@@ -105,14 +130,18 @@ try {
 
   const missing = expectedSteps.filter(function (s) { return run1.stdout.indexOf(s) === -1; });
   assert.deepStrictEqual(missing, [], 'every expectedSteps member must appear in the real dry-run stdout, missing: ' + missing.join(', '));
-  ok('every member of the extracted expectedSteps array (including Step 5.6) appears in the real dry-run stdout');
+  ok('every member of the extracted expectedSteps array (including Step 0.55) appears in the real dry-run stdout');
+
+  assert.equal(run1.stdout.indexOf('Step 5.6'), -1, 'the dry-run must print no Step 5.6 line');
+  assert.equal(run1.stdout.indexOf('theo-resync'), -1, 'the dry-run must not mention the retired theo-resync event');
+  ok('the dry-run prints no Step 5.6 line and no theo-resync preview');
 
   // -------------------------------------------------------------------------
   // The dry-run sends nothing, proven live: the sentinel file must not
   // exist after the run.
   // -------------------------------------------------------------------------
-  assert.equal(fs.existsSync(tmp1.sentinel), false, 'the dispatch sentinel must NOT exist after a --dry-run: MINDRIAN_THEO_NOTIFY_CMD must never be invoked');
-  ok('dry-run never invokes the dispatch command (sentinel file does not exist)');
+  assert.equal(fs.existsSync(tmp1.sentinel), false, 'the dispatch sentinel must NOT exist after a --dry-run: the retired MINDRIAN_THEO_NOTIFY_CMD seam must never be invoked');
+  ok('dry-run never invokes the retired dispatch seam (sentinel file does not exist)');
 
   // -------------------------------------------------------------------------
   // The dry-run writes no audit log.
@@ -125,7 +154,7 @@ try {
   // before and after.
   // -------------------------------------------------------------------------
   assert.equal(after, before, 'git status --porcelain must be byte-identical before and after a --dry-run run');
-  ok('working tree is byte-identical before and after the dry-run (git status --porcelain)');
+  ok('release-owned files are byte-identical before and after the dry-run (hash + scoped git status)');
 
   // -------------------------------------------------------------------------
   // Bounded runtime: under the 30s doctor.cjs timeout budget, measured
@@ -140,17 +169,17 @@ try {
 }
 
 // ---------------------------------------------------------------------------
-// The opt-out is visible in the preview: --no-theo-notify names the
-// engaged opt-out before an operator commits to the cut.
+// The retired opt-out is rejected: --no-theo-notify now hits the generic
+// unknown-arg arm (exit 1) instead of silently doing nothing.
 // ---------------------------------------------------------------------------
 let tmp2;
 try {
   tmp2 = tmpEnv();
   const run2 = runDryRun(['--no-theo-notify'], tmp2);
-  assert.equal(run2.status, 0, '--dry-run --no-theo-notify must still exit 0');
-  assert.ok(/--no-theo-notify opt-out engaged/.test(run2.stdout), 'the preview must name the --no-theo-notify opt-out when engaged');
-  ok('the --no-theo-notify opt-out is visible, named, in the dry-run preview when engaged');
-  assert.equal(fs.existsSync(tmp2.sentinel), false, 'the dispatch sentinel must NOT exist even with --no-theo-notify under --dry-run');
+  assert.equal(run2.status, 1, '--dry-run --no-theo-notify must exit 1 (unknown arg), got ' + run2.status);
+  assert.ok(/unknown arg: --no-theo-notify/.test(run2.stdout), 'release.sh must name --no-theo-notify as an unknown arg');
+  ok('the retired --no-theo-notify flag is rejected as an unknown arg (exit 1)');
+  assert.equal(fs.existsSync(tmp2.sentinel), false, 'the dispatch sentinel must NOT exist');
 } finally {
   if (tmp2 && tmp2.dir) {
     fs.rmSync(tmp2.dir, { recursive: true, force: true });

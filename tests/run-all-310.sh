@@ -149,14 +149,16 @@ leg3_step_block_tripwire() {
   # (32 headers); this task adds Step 0.55 (release-cut listener, Theo leg) and Step 9.6c
   # (website leg) and absorbs all four in a fresh wholesale fixture regeneration
   # (tests/fixtures/310-release-step-block-hashes.txt). Tripwire logic unchanged.
-  if [[ "${#cur_headers[@]}" -ne 34 ]]; then
-    echo "expected 34 step-block headers, found ${#cur_headers[@]}"
+  # Quick 261002-byh (2026-10-02, navigator ruling 2026-10-02): lowered 34 -> 33. Step 5.6
+  # (the theo-resync dispatch, Phase 349) was retired; the fixture was regenerated wholesale.
+  if [[ "${#cur_headers[@]}" -ne 33 ]]; then
+    echo "expected 33 step-block headers, found ${#cur_headers[@]}"
     mismatch=1
   fi
 
   return "$mismatch"
 }
-run "310 leg 3: exhaustive step-block scope tripwire (34 blocks, uniform hash match against the quick-261002-5v9 rebaseline)" leg3_step_block_tripwire
+run "310 leg 3: exhaustive step-block scope tripwire (33 blocks, uniform hash match against the quick-261002-byh rebaseline)" leg3_step_block_tripwire
 
 # --- Leg 4: gate-count tripwire ---------------------------------------------
 
@@ -171,7 +173,7 @@ leg4_gate_count() {
   echo "baseline=$baseline actual=$actual (>=, OK)"
   return 0
 }
-run "310 leg 4: gate-count tripwire (non-comment exit 1 >= 61)" leg4_gate_count
+run "310 leg 4: gate-count tripwire (non-comment exit 1 >= 59)" leg4_gate_count
 
 # --- Leg 5: literal preservation (constraint C1) ----------------------------
 

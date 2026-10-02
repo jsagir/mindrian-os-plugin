@@ -14,16 +14,16 @@ A release is only a release when all FIVE are in sync (any drift = silent versio
 
 ## Telling Theo
 
-A real release also tells Theo. `release.sh` Step 5.6 fires a `repository_dispatch` at `jsagir/theo` (event `theo-resync`) immediately after the tag is verified at origin, so Theo can re-emit its command layer against the version that just shipped instead of discovering the drift on the next cut.
+A real release also tells Theo, before anything is mutated. `release.sh` Step 0.55 (the release-cut listener's Theo leg, `scripts/release-cut-listener.cjs`) calls Theo's release bridge (`release_sync.py`) with the version being cut and the HEAD sha, so Theo re-emits its command layer against the version about to ship instead of discovering the drift on the next cut; it stops the cut on the bridge contract's stop codes and prints the apply line on code 20.
 
-- `--no-theo-notify` is the audited opt-out, a SEPARATE flag from `--no-theo-check`; the release log names the flag and the consequence when engaged.
-- `--dry-run` prints the step and sends nothing.
-- The release lockstep count lives in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8; this line carries no number of its own. See `docs/THEO-NOTIFY-CONTRACT.md` for the rulings and the working-decision ledger.
+- `--no-cut-listener` is the audited opt-out, a SEPARATE flag from `--no-theo-check`; the release log names the flag and the consequence when engaged.
+- `--dry-run` prints the call and runs nothing.
+- The release lockstep count lives in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8; this line carries no number of its own. The old Step 5.6 `repository_dispatch` (event `theo-resync`) and its `--no-theo-notify` flag were retired by quick 261002-byh because no Theo workflow received it; `docs/THEO-NOTIFY-CONTRACT.md` keeps that history, marked superseded.
 - The canon snapshot `data/framework-names.json` is in the lockstep too: `release.sh` refuses a cut until `node scripts/refresh-framework-names.cjs --live` has stamped it after Theo's re-emit (`--no-canon-snapshot-check` is the audited opt-out); the rule lives in RULE 5 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
 ## Release-cut listener
 
-- Step 0.55, Theo leg: `scripts/release-cut-listener.cjs` calls Theo's release bridge before the stamp gates, stops the cut on the contract's stop codes and prints the apply line on code 20. This is what actually re-syncs Theo, since the Step 5.6 dispatch has no Theo-side receiver today.
+- Step 0.55, Theo leg: `scripts/release-cut-listener.cjs` calls Theo's release bridge before the stamp gates, stops the cut on the contract's stop codes and prints the apply line on code 20. This is what re-syncs Theo (RULE 5 place 8's leading half).
 - Step 9.6c, website leg: read-only, never aborts, reports each website version and count surface plus banned content.
 - `--no-cut-listener` is the audited opt-out; `--dry-run` prints and runs nothing; report files land under `$HOME/.mindrian/release-cut-listener/`; details in RULE 5.
 

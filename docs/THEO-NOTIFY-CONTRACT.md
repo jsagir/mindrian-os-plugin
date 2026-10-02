@@ -1,12 +1,24 @@
 ---
 layer: harness
-status: active
+status: superseded
+superseded_by: scripts/release-cut-listener.cjs (release.sh Step 0.55, quick 261002-5v9; Step 5.6 retired by quick 261002-byh)
+superseded_on: 2026-10-02
 canon_parts: [7, 8]
 implementing_phase: 349
 sibling_contract: docs/RELEASE-CEREMONY-RULING-SYSTEM.md
 ---
 
 # The Theo Notify Contract (the leading edge)
+
+> **SUPERSEDED 2026-10-02 (quick 261002-byh, navigator ruling 2026-10-02).** Step 5.6, the
+> `theo-resync` `repository_dispatch` this contract governs, was retired together with
+> `scripts/release-lib/theo-notify-gate.sh` and the `--no-theo-notify` flag: no Theo workflow
+> ever received the event (Theo's `docs/RELEASE-SYNC-CONTRACT.md` section 2). The leading half
+> of RULE 5 place 8 is now the release-cut listener's Theo leg at Step 0.55
+> (`scripts/release-cut-listener.cjs`, quick 261002-5v9), which calls Theo's `release_sync.py`
+> bridge before any mutation; its opt-out is `--no-cut-listener`. The current rule lives in
+> `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 place 8. Everything below is kept as history
+> of the Phase 349 rulings and the WD-349 ledger; it no longer describes `release.sh`.
 
 This document is the durable half of Phase 349 (release-to-Theo leading edge). `.planning/` is
 gitignored (`.gitignore:97`, CLAUDE.md WORKSPACE GUARD), so every ruling this phase makes that

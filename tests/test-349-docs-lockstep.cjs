@@ -6,6 +6,12 @@
 // the reconciliation of the VERSION-BUMP-CHECKLIST.md contradiction (WD-14
 // stands, cited by id).
 //
+// Quick 261002-byh (navigator ruling 2026-10-02) retired Step 5.6 (the
+// theo-resync dispatch no Theo workflow received). Place 8's leading half is
+// now Step 0.55, the release-cut listener's Theo leg; the item-8 and include
+// pins below were re-pointed at it, and they now also pin that the retired
+// gate and flag are named only as retired, never as a live mechanism.
+//
 // TDD RED-then-GREEN (349-05 Task 1): this file is written first and MUST
 // fail against the current, unamended docs before the edits land. Modeled
 // on tests/test-349-contract-doc.cjs (the house doc-assertion idiom).
@@ -110,19 +116,25 @@ function extractItem8(slice) {
 
 const item8 = extractItem8(rule5Slice);
 
-ok('place 8 names both halves: step numbers, library files, flags, event', function () {
+ok('place 8 names both halves: step numbers, files, bridge, flags', function () {
   const required = [
     'Step 0.6',
-    'Step 5.6',
+    'Step 0.55',
     'theo-stamp-gate.sh',
-    'theo-notify-gate.sh',
+    'scripts/release-cut-listener.cjs',
+    'release_sync.py',
     '--no-theo-check',
-    '--no-theo-notify',
-    'theo-resync',
+    '--no-cut-listener',
   ];
   required.forEach(function (token) {
     assert.ok(item8.indexOf(token) !== -1, 'item 8 must contain "' + token + '", extracted text was:\n' + item8);
   });
+});
+
+ok('place 8 records Step 5.6 as retired, not as a live leading half', function () {
+  assert.match(item8, /The LEADING half: run on the SAME release[^.]*Step 0\.55/, 'the LEADING half sentence must name Step 0.55');
+  assert.match(item8, /was retired by quick 261002-byh/, 'item 8 must record that Step 5.6 was retired by quick 261002-byh');
+  assert.equal(/LEADING half:[^.]*Step 5\.6/.test(item8), false, 'the LEADING half sentence must not name Step 5.6');
 });
 
 ok('the lagging half\'s existing facts survive inside item 8 (extended, not replaced)', function () {
@@ -134,9 +146,16 @@ ok('the lagging half\'s existing facts survive inside item 8 (extended, not repl
 // The include: names the step, points at RULE 5, carries no count of its own
 // ---------------------------------------------------------------------------
 
-ok('the include names theo-resync and Step 5.6', function () {
-  assert.ok(include.indexOf('theo-resync') !== -1, 'the include must contain "theo-resync"');
-  assert.ok(include.indexOf('Step 5.6') !== -1, 'the include must contain "Step 5.6"');
+ok('the include\'s Telling Theo section names Step 0.55 and the listener, and Step 5.6 only as retired', function () {
+  const start = include.indexOf('## Telling Theo');
+  assert.notEqual(start, -1, 'the include must have a "## Telling Theo" section');
+  const end = include.indexOf('\n## ', start + 1);
+  const section = include.slice(start, end === -1 ? include.length : end);
+  assert.ok(section.indexOf('Step 0.55') !== -1, 'Telling Theo must name Step 0.55');
+  assert.ok(section.indexOf('release-cut-listener.cjs') !== -1, 'Telling Theo must name scripts/release-cut-listener.cjs');
+  assert.ok(section.indexOf('--no-cut-listener') !== -1, 'Telling Theo must name --no-cut-listener');
+  const s56 = section.split('\n').filter(function (l) { return l.indexOf('Step 5.6') !== -1; });
+  s56.forEach(function (l) { assert.match(l, /retired/, 'any Step 5.6 mention in Telling Theo must say it was retired: ' + l); });
 });
 
 ok('the include points at RULE 5 as the single home', function () {

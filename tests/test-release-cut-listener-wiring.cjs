@@ -9,7 +9,8 @@
  *     preamble refusal, Step 0.55 between Step 0.5 and Step 0.6 (reads
  *     repo-version.cjs and rev-parse HEAD, calls the theo leg, stops only in
  *     the 10|11 arm), Step 9.6c between Step 9.6b and Step 9.7 (website leg
- *     at $NEW_VERSION, no non-comment exit), and Step 5.6 untouched.
+ *     at $NEW_VERSION, no non-comment exit), and no Step 5.6 block (retired by
+ *     quick 261002-byh: Step 0.55 is place 8's leading half now).
  *   - LIVE, hermetic: `bash scripts/release.sh patch --dry-run` with a fake
  *     Theo checkout whose python stub would touch a sentinel. The dry-run
  *     must print the call, never run the stub, never fire the notify
@@ -138,9 +139,9 @@ function nonComment(text) {
   assert.ok(/NO_CUT_LISTENER/.test(b96c), 'Step 9.6c honors --no-cut-listener');
   ok('Step 9.6c: website leg at $NEW_VERSION, no non-comment exit, no version re-read, honors --no-cut-listener');
 
-  const b56 = blockOf('# --- Step 5.6');
-  assert.ok(/mos_theo_notify_gate/.test(b56), 'Step 5.6 still calls mos_theo_notify_gate');
-  ok('Step 5.6 block still calls mos_theo_notify_gate (untouched)');
+  assert.equal(headerIdx('# --- Step 5.6'), -1, 'the Step 5.6 block was retired by quick 261002-byh');
+  assert.equal(src.indexOf('mos_theo_notify_gate'), -1, 'nothing calls the retired notify gate');
+  ok('no Step 5.6 block and no mos_theo_notify_gate call (retired by quick 261002-byh)');
 }
 
 // ---------------------------------------------------------------------------

@@ -63,21 +63,15 @@ run_red_until() {
   echo ""
 }
 
-NOTIFY_GATE="scripts/release-lib/theo-notify-gate.sh"
-
-# --- EXPECTED-RED tripwires (NOTIFY-07, NOTIFY-08; guard: theo-notify-gate.sh) --
-# Both are the phase's two load-bearing proofs, authored RED in 349-02 against
-# a library that does not exist until 349-03. Their names are deliberately NOT
-# repeated in the run_if list below, so each runs exactly once per aggregator
-# invocation. Both tripwires will themselves error out (file not found) until
-# 349-02 lands the test files; run_red_until correctly counts that as
-# EXPECTED-RED rather than FAIL, which is the honest state on day one.
-
-run_red_until "349: notify gate tripwire (NOTIFY-07)" "$NOTIFY_GATE" \
-  node tests/test-349-theo-notify-gate.cjs
-
-run_red_until "349: payload boundary tripwire (NOTIFY-08)" "$NOTIFY_GATE" \
-  node tests/test-349-payload-boundary.cjs
+# --- Retired tripwires (quick 261002-byh, navigator ruling 2026-10-02) -----
+# The NOTIFY-07 / NOTIFY-08 tripwires (tests/test-349-theo-notify-gate.cjs and
+# tests/test-349-payload-boundary.cjs) unit-tested
+# scripts/release-lib/theo-notify-gate.sh, the Step 5.6 theo-resync dispatch.
+# Both were deleted with the library when Step 5.6 was retired (no Theo
+# workflow received the event; Step 0.55, the release-cut listener's Theo
+# leg, is place 8's leading half now). This file is re-opened deliberately
+# for that retirement, as its header asks. tests/test-349-release-wiring.cjs
+# now pins the retirement itself.
 
 # --- Guarded legs, one run_if per planned test file (SKIP until it lands) ---
 # In wave order so a partial phase reads as a progress bar.
@@ -114,7 +108,6 @@ run "349: connector registry fresh (regression)"  node scripts/build-connector-r
 
 PHASE_349_SURFACES=(
   "docs/THEO-NOTIFY-CONTRACT.md"
-  "scripts/release-lib/theo-notify-gate.sh"
   "scripts/release.sh"
   "scripts/doctor.cjs"
   "docs/RELEASE-CEREMONY-RULING-SYSTEM.md"
@@ -150,7 +143,4 @@ echo ""
 echo "======================================"
 echo "PASS=$PASS FAIL=$FAIL SKIP=$SKIP EXPECTED-RED=$REDX"
 echo "======================================"
-if [ "$REDX" -gt 0 ]; then
-  echo "EXPECTED-RED legs remain: plan 349-03 (scripts/release-lib/theo-notify-gate.sh) greens both tripwires."
-fi
 exit $(( FAIL > 0 ? 1 : 0 ))

@@ -110,16 +110,29 @@
 # then re-pinned the "# --- Step 1: ..." block hash (the dry-run listing's
 # --no-cut-listener opt-out line now uses echo -e; the pre-existing --no-website
 # line is left as it was).
+#
+# Quick 261002-byh REBASELINE (2026-10-02, navigator ruling 2026-10-02: retire
+# Step 5.6, the theo-resync repository_dispatch no Theo workflow received).
+# Regenerated wholesale with the exact generating command above. Authorized
+# regions, and the only hashes that moved: the "# --- Step 0: ..." block
+# (NO_THEO_NOTIFY var, the --no-theo-notify case arm and its USAGE_BLOCK entry
+# removed), the "# --- Step 1: ..." block (the Step 5.6 dry-run listing lines
+# removed), and the "# --- Step 5.6: ..." block itself, deleted (Step 5.5's
+# block hash is unchanged because a block ends at the next header). The
+# notify-gate source guard sat in the unhashed region after line 79, so the
+# top-of-file preamble hash is unchanged. Header count 34 -> 33; the exit-1
+# floor is re-pinned 61 -> 59 (the guard's and Step 5.6's own exit 1 lines
+# left with the step).
 
 9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f  PREAMBLE(1-79)
-61  EXIT1_NONCOMMENT_COUNT
-044dd339d6229b8a0336abb1ef4de687bbf23486869ec9f6d16a6b5ff25e9e18  # --- Step 0: Parse bump type + flags ---
+59  EXIT1_NONCOMMENT_COUNT
+f7e2c032a8a82bfe593baadb29363a1525a920b9e23c389b08b6ae56f4484590  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
 c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
-6899429e140f714cf969768c60c21dee514fa949611e7af400ab5db8c6d6e058  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+db0089d5adbb9afd7a4bece84bafffb1f4a69bdcc4ed05ebfe24c9218f7e7eeb  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
@@ -143,7 +156,6 @@ e8cf01a8843222d55618df9d132bd9c4f4ca9b82522a8bc3a79055eb8fc33530  # --- Step 7.5
 d8ebd65d1682a2653b13b4e403cc693c3be0f563002fd4f27a30fd4ecbc59e44  # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---
 a6be87ffa237c13d06dee29a95f119b0d12e1a0e97b67c82a403afe4f9209376  # --- Step 9: Push both ---
 bd5ce06ecf71b31a29c94414cad83c56683d5a043a5c59190cf5be360704ac41  # --- Step 5.5 (tag-push verification): runs AFTER Step 9 push. ---
-ca7f8c12b5c3d907be81ea79fd5fe25f6eb38f63e9d09ba2455285ee8a411b0f  # --- Step 5.6: Notify Theo of the new version (repository_dispatch) ---
 cfdacfc8f16ca724187da17ceb865b3e55b6b75985669b26656377efa7b957d1  # --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
 ed8f1ecb5d8064ea90719a8784429fe5336d3676e1a03ac3668738df0988bda5  # --- Step 10: Update local cache ---
 e031d5a5bc7695fdc1673a6f417a5752120f037107d7b340da6e84d9bcc77891  # --- Step 11: Post-release verification ---

@@ -204,6 +204,29 @@ ok('states plainly that no live cross-session push mechanism exists', function (
 // Hyphens only
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Quick 261002-byh (navigator ruling 2026-10-02): Step 5.6 was retired. The
+// doc is kept verbatim as history (so every ruling token above still
+// resolves) but must say, up front, that it is superseded and by what.
+// ---------------------------------------------------------------------------
+
+ok('frontmatter marks the contract superseded by the release-cut listener', function () {
+  const fm = doc.match(/^---\n([\s\S]*?)\n---/)[1];
+  assert.match(fm, /status:\s*superseded/, 'frontmatter must declare status: superseded');
+  assert.match(fm, /superseded_by:.*release-cut-listener\.cjs/, 'superseded_by must name scripts/release-cut-listener.cjs');
+});
+
+ok('a SUPERSEDED banner opens the body and points at Step 0.55 and RULE 5 place 8', function () {
+  const body = doc.replace(/^---\n[\s\S]*?\n---\n/, '');
+  const firstSection = body.indexOf('\n## ');
+  const head = body.slice(0, firstSection === -1 ? body.length : firstSection);
+  assert.ok(head.indexOf('SUPERSEDED') !== -1, 'the banner must say SUPERSEDED before the first section');
+  assert.ok(head.indexOf('Step 0.55') !== -1, 'the banner must name Step 0.55');
+  assert.ok(head.indexOf('release-cut-listener.cjs') !== -1, 'the banner must name scripts/release-cut-listener.cjs');
+  assert.ok(head.indexOf('RULE 5 place 8') !== -1, 'the banner must point at RULE 5 place 8');
+  assert.ok(head.indexOf('261002-byh') !== -1, 'the banner must cite quick 261002-byh');
+});
+
 ok('contains zero em-dashes', function () {
   assert.equal(doc.indexOf(String.fromCharCode(8212)), -1, 'docs/THEO-NOTIFY-CONTRACT.md must contain zero em-dashes');
 });
