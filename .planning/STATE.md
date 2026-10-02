@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
-status: executing
-stopped_at: Completed 366-04-PLAN.md
-last_updated: "2026-10-01T17:15:49.821Z"
+status: complete
+stopped_at: Phase 366 complete (27/27, verified eff331496)
+last_updated: "2026-10-02T17:01:42.068Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 121
@@ -5423,9 +5423,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) — EXECUTING
-Plan: 7 of 27
-Status: Ready to execute
+Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) - COMPLETE (2026-10-02)
+Plan: 27 of 27
+Status: Phase complete; verification eff331496 human_needed (2 live-surface checks); EPV366-21 release-lockstep (handoff F1)
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
   3.2 s, deep saturation 1.0 s, floors kept), all 20 DRP363 rows ticked with Measured proof, SEED-098 promoted to Phase 364
@@ -7628,6 +7628,7 @@ Progress: [█████████░] 92%
 - Phase 267 complete (2026-10-02, 18/18, be97781d0): MCP SDK v1 -> v2 migration. Local server and both in-repo clients on @modelcontextprotocol/server|client 2.x, v1 sdk removed from manifest/lockfiles, ext-apps 2.0.3, RCA 1/2/4/5/6 resolved (RCA 7 open, SEED-108). MCPV2: 16/19 [x]; MCPV2-03 + MCPV2-08 wait on the post-366 CIRS/zod4 baseline refresh; MCPV2-13 open (human Desktop + Cowork smoke deferred by navigator, surrogate wire evidence 5b1770072). Seeds SEED-108..111 planted.
 
 - Phase 276 complete (2026-10-02): 276-16 closed (a26ef5a26) with the navigator Desktop check: claim_write honesty verified against room.db, routing defect handed to `.planning/debug/desktop-session-binding-fallback.md`; verification gaps_found 12/14 (fd1092ee5). Registry leak root-caused and fixed (0b469e2ba, `.planning/debug/resolved/test-birth-registry-leak.md`).
+- Phase 366 complete (2026-10-02, 27/27, verification eff331496): Eureka is a research-planner perspective (six perspectives over MCP research_run perspective_* ops, deprecated eureka_* aliases); standalone runner deleted (runner: retire); semantic index moved to lib/core/semantic-index behind check-require-integrity; spike: no arm cleared the bar (lexical 3/7, hsi 4/7, navigator blind gold), rulings in 366-SPIKE-RULINGS.md; MCPV2-03/08 closed. Open: EPV366-21 release-lockstep (F1), two live-surface human checks, follow-ons F1-F17 in 366-HANDOFF.md.
 - Phase 366.1 complete (2026-10-02): closed against quick 261002-5v9 (release-cut listener). Theo Phase 15 also closed today (Theo repo, pushed 00b381e).
 - Phases 369 and 370 added; Phases 289, 364, 366, 366.1 edited (2026-10-02, 39b990e7d, jsagi-85): SEED-101..107 folded. Phase 369 = UI shell (agent-native over MCP, one-way RxDB read copy, Design Canon v3; SEED-105+107, SEED-107 CJS-only lifted as wave 0). Phase 370 = review contract for /mos:grade and /mos:deep-grade (SEED-102). 289 gains SEED-104 gate defects; 364 gains SEED-106 inputs; 366 notes-only fold; 366.1 goal names SEED-106 item 2. Research trail MindrianOS/research/2026-10-02-seeds-101-107-fold-map.md.
 - Phase 267 navigator rulings (2026-10-02): (1) CLI rung (b) accepted for the 2026-era host (Claude Code 2.1.287 opens with server/discover, no elicitation declared; the AskUserQuestion card is the CLI gate, same as Desktop). (2) test-257 v1 before-vs-after arms retired (quick 261002-by3).
@@ -9149,6 +9150,8 @@ Progress: [█████████░] 92%
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
+| 261002-cud | Phase 366 gap fixes: MCP basket mints canon_release gates, research_run run_quick plan_only + offline, localRoomCheck strict-majority keyword coverage (SEED-104 residual), ledgerKeyFor via gateLedger.ledgerSessionKey | 2026-10-02 | 35c710bf2 | Complete | [261002-cud-366-gap-fixes-research-cjs-plan-only-ses](./quick/261002-cud-366-gap-fixes-research-cjs-plan-only-ses/) |
+| 261002-e9v | research_run resolveRoom uses resolveMcpWriteRoom (session-bound room, no cross-session bleed); refusal reason no_bound_room | 2026-10-02 | cbf61b3f9 | Complete | [261002-e9v-research-run-resolveroom-uses-resolvemcp](./quick/261002-e9v-research-run-resolveroom-uses-resolvemcp/) |
 | 261002-dht | 341 version-of-record leg: doctor --acceptance --pre-tag runs against a fixture home (symlinked marketplace-cache at the checkout version) + wrong-version negative; run-all-341 21/1 -> 22/0 | 2026-10-02 | 713ec08bf | Complete | [261002-dht-341-version-of-record-leg-fixture-home](./quick/261002-dht-341-version-of-record-leg-fixture-home/) |
 | 261002-r41 | Regenerate tests/fixtures/341-release-step-block-hashes.txt (28 -> 33 headers; absorbs 343-07, 366-06, 5v9, byh, plus o1y Step 9.7) | 2026-10-02 | 76d50bc0e | Complete | [261002-r41-regenerate-341-release-step-block-hash-fixture](./quick/261002-r41-regenerate-341-release-step-block-hash-fixture/) |
 | 261002-byh | Retire release.sh Step 5.6 theo-resync dispatch (+ --no-theo-notify, theo-notify-gate.sh); RULE 5 place 8 names Step 0.55; listener website SURFACES mirror site checklist ac84cee | 2026-10-02 | 834d89f4f | Complete | [261002-byh-retire-release-sh-step-5-6-theo-resync-d](./quick/261002-byh-retire-release-sh-step-5-6-theo-resync-d/) |

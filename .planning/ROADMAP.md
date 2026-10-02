@@ -1519,7 +1519,7 @@ Plans:
 **Requirements**: EPV366-01..EPV366-30 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-01; D-01..D-17 in `366-CONTEXT.md`)
 **Depends on:** Phase 363 (the planner), Phase 355 (the measured record and fixture rooms). Feeds Phase 364 (the same engine) and SEED-101 (claims carry a section column). Consults icm-architect, mcp-builder and langtalks-graph-expert before any design assumption.
 **Folded in 2026-10-02 as notes and deferred items only (no plan rows added, no PLAN files touched; the executing session routes them):** SEED-104 residuals on the whitespace composer: the room-only `ws:extraction_failure` check exact-matches a seven-word zone term and returned a false negative while the room already held that zone, and a quoted seven-word term returned an OpenAlex exact-phrase count of 0 that read as "gap confirmed" (split long zone terms or add an unquoted keyword pass); plan 14 territory. SEED-019 and SEED-106 item 1: `scripts/part8-egress-guard-hook.cjs` false-blocks every `mcp__theo__brain_ask`, including generic methodology vocabulary ("hypothesis test validate assumption", reason `freeform_unmatched`) and `framework_chain_slice` calls carrying only framework names and `/mos:` slugs (reason `unknown`); the guard must separate generic methodology vocabulary from room content; plan 11 edits the same guard arm (`navigator_released`). SEED-106 items 6 and 8 are already deliverable 5 and plan 15. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.
-**Plans:** 18/27 plans executed
+**Plans:** 27/27 plans executed. **Phase 366 closed 2026-10-02.** Verification eff331496 (10/10 roadmap truths, 29/30 EPV366; run-all-366 69/0). Open: EPV366-21 is a release-lockstep step (stamp `data/framework-names.json` with `refresh-framework-names --live` after the Theo re-emit, handoff F1); two human checks (live Desktop/Cowork perspective pick, seed103 MCP eval re-run on `perspective_*`). Spike rulings: `366-SPIKE-RULINGS.md` (runner retired, Stage A judge, vector off). Follow-ons F1-F17 in `366-HANDOFF.md`.
 
 Plans:
 **Wave 1**
@@ -1557,33 +1557,33 @@ Plans:
 **Wave 6** *(blocked on Wave 5 completion)*
 
 - [x] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
-- [ ] 366-19-PLAN.md -- spike arms run on indexed fixture copies; navigator blind labels (checkpoint)
+- [x] 366-19-PLAN.md -- spike arms run on indexed fixture copies; navigator blind labels (checkpoint)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 366-20-PLAN.md -- spike record, direction and floor re-measure, navigator rulings (checkpoint)
+- [x] 366-20-PLAN.md -- spike record, direction and floor re-measure, navigator rulings (checkpoint)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 366-21-PLAN.md -- runner retirement A: runner ruling asserted, inventory decided and sliced, static gate, slice A (215/216/226) tests migrated or retired
+- [x] 366-21-PLAN.md -- runner retirement A: runner ruling asserted, inventory decided and sliced, static gate, slice A (215/216/226) tests migrated or retired
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 366-25-PLAN.md -- runner retirement A2: slice B (218/219/223/343) tests migrated or retired, aggregators green
-- [ ] 366-27-PLAN.md -- runner retirement A2b: slice C (355/3551) tests migrated or retired, the 355 record kept on filing-stamped.cjs, aggregators green
-- [ ] 366-26-PLAN.md -- runner retirement A3: slice D (341/363.1, live check, eureka MCP test) migrated or retired; phase-366 handover list (global closure grep is 366-22's preflight)
+- [x] 366-25-PLAN.md -- runner retirement A2: slice B (218/219/223/343) tests migrated or retired, aggregators green
+- [x] 366-27-PLAN.md -- runner retirement A2b: slice C (355/3551) tests migrated or retired, the 355 record kept on filing-stamped.cjs, aggregators green
+- [x] 366-26-PLAN.md -- runner retirement A3: slice D (341/363.1, live check, eureka MCP test) migrated or retired; phase-366 handover list (global closure grep is 366-22's preflight)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 366-22-PLAN.md -- runner retirement B: global closure preflight, runner deleted, legacy doors removed, doctor smoke on the perspective
+- [x] 366-22-PLAN.md -- runner retirement B: global closure preflight, runner deleted, legacy doors removed, doctor smoke on the perspective
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 366-23-PLAN.md -- semantic-index split (ADR-E12) behind a reference-integrity gate
+- [x] 366-23-PLAN.md -- semantic-index split (ADR-E12) behind a reference-integrity gate
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 366-24-PLAN.md -- phase close: EPV366 proof, folded todos, handoff, Theo-side intent-led resolver request
+- [x] 366-24-PLAN.md -- phase close: EPV366 proof, folded todos, handoff, Theo-side intent-led resolver request
 
 ### Phase 366.1: Version-cut listener: a plugin release cut automatically drives the Theo command-registry resync and the mindrian-website version-fact reconcile, with a visible report and no silent skips (reuse first: release.sh Step 5.6 already fires the theo-resync repository_dispatch; this phase closes the Theo-side receiver loop and adds the website leg) (INSERTED)
 
