@@ -178,14 +178,15 @@ function makeFetch() {
     const pairs = m.plan.leaves.filter(function (l) { return l.corpus === 'theo' && l.researchable; }).map(function (l) { return l.slots.term + '|' + l.slots.term2; });
     const card = grants.grantCard(prop, { theoPairs: pairs, now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const body = card.body_md;
-    const theoOk = /Theo/.test(card.title) && !/OpenAlex/.test(card.title) && /Theo/.test(body) && /canon framework names/.test(body) && /never room text/.test(body) &&
+    const head = body.split('\n')[0];
+    const theoOk = /Theo/.test(head) && !/OpenAlex/.test(head) && /Theo/.test(body) && /canon framework names/.test(body) && /never room text/.test(body) &&
       new RegExp('Canon pairs checked with Theo: ' + pairs.length + '\\b').test(body) && !/nothing else leaves the room/.test(body) && !/Search shapes allowed/.test(body) && !/[\u2014\u2013]/.test(body);
     const onlyRun = card.options.map(function (o) { return o.id; }).join(',') === 'approve_run,not_now';
     const sCard = grants.grantCard(GOLDEN.standingProposal, { newTerms: ['alpha'], now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const rCard = grants.grantCard(GOLDEN.runProposal, { newTerms: [], now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const pick = function (c) { return JSON.stringify({ shape: c.shape, title: c.title, question: c.question, options: c.options, body_md: c.body_md, payload: c.payload }); };
     const same = pick(sCard) === JSON.stringify(GOLDEN.standingCard) && pick(rCard) === JSON.stringify(GOLDEN.runCard);
-    return (theoOk && onlyRun && same) || JSON.stringify({ theoOk: theoOk, onlyRun: onlyRun, same: same, title: card.title });
+    return (theoOk && onlyRun && same) || JSON.stringify({ theoOk: theoOk, onlyRun: onlyRun, same: same, head: head });
   });
   await leg('Y3b2 a mixed plan card names both providers', function () {
     const m = mk(function (qs) {
@@ -196,8 +197,9 @@ function makeFetch() {
     const prop = grants.buildRunGrant(m.plan);
     prop.room_id = grants.roomIdFor(m.roomDir);
     const card = grants.grantCard(prop, { theoPairs: ['a|b', 'c|d'], now: Date.UTC(2026, 9, 2, 12, 0, 0) });
-    return (/OpenAlex/.test(card.title) && /Theo/.test(card.title) && /What is searched: OpenAlex/.test(card.body_md) && /plus the Theo check below/.test(card.body_md) &&
-      /Canon pairs checked with Theo: 2/.test(card.body_md) && /Search shapes allowed/.test(card.body_md)) || card.title + '\n' + card.body_md;
+    const head = card.body_md.split('\n')[0];
+    return (/OpenAlex/.test(head) && /Theo/.test(head) && /What is searched: OpenAlex/.test(card.body_md) && /plus the Theo check below/.test(card.body_md) &&
+      /Canon pairs checked with Theo: 2/.test(card.body_md) && /Search shapes allowed/.test(card.body_md)) || card.body_md;
   });
 
   // ----- Y4 / Y5 the lane end to end -----
@@ -212,7 +214,7 @@ function makeFetch() {
   });
   await leg('Y4b the reask card for a theo plan is the run-grant card that names Theo', async function () {
     const cover = quick.coverFor(run4.roomDir, run4.plan, {});
-    return (cover.proposal && cover.proposal.lifetime === 'run' && cover.proposal.providers.indexOf('theo') !== -1 && /Theo/.test(cover.card.title) && /canon framework names/.test(cover.card.body_md)) || JSON.stringify(cover.proposal && cover.proposal.providers);
+    return (cover.proposal && cover.proposal.lifetime === 'run' && cover.proposal.providers.indexOf('theo') !== -1 && /Theo/.test(cover.card.body_md.split('\n')[0]) && /canon framework names/.test(cover.card.body_md)) || JSON.stringify(cover.proposal && cover.proposal.providers);
   });
   await leg('Y4c a run grant lets runQuick call find_connections once per theo leaf, canon names only, no OpenAlex fetch', async function () {
     const w = approveRun(run4.roomDir, run4.plan);
