@@ -723,7 +723,12 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (Object.prototype.hasOwnProperty.call(valued, t)) {
-      if (i + 1 >= argv.length) throw new UsageError(t + ' needs a value');
+      // A missing value, or a value that is itself a flag, is a usage error
+      // (review WR-01): `theo --report-dir --dry-run` must never take
+      // --dry-run as the directory and then run Theo live.
+      if (i + 1 >= argv.length || String(argv[i + 1]).indexOf('-') === 0) {
+        throw new UsageError(t + ' needs a value' + (i + 1 < argv.length ? ', got the flag ' + argv[i + 1] : ''));
+      }
       a[valued[t]] = argv[++i];
       continue;
     }

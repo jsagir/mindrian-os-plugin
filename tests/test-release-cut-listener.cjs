@@ -352,6 +352,21 @@ function mapCode(code, status, extra) {
     assert.equal(fh2.writes.length, 0, argv.join(' ') + ' writes no report');
     assert.ok(/Usage/i.test(fh2.out()), argv.join(' ') + ' prints usage');
   });
+  // Review WR-01: a valued flag never swallows the next flag.
+  [['theo', '--report-dir', '--dry-run'],
+   ['theo', '--plugin-root', '--dry-run'],
+   ['website', '--website-dir', '--dry-run'],
+   ['theo', '--version', '--dry-run'],
+   ['theo', '--ref', '--json'],
+   ['theo', '--dry-run', '--report-dir']].forEach(function (argv) {
+    const fv = theoFake();
+    assert.equal(L.main(argv, fv.deps), 2, argv.join(' ') + ' -> usage exit 2');
+    assert.equal(fv.calls.length, 0, argv.join(' ') + ' spawns nothing');
+    assert.equal(fv.writes.length, 0, argv.join(' ') + ' writes no report');
+    assert.ok(/needs a value/.test(fv.errText()), fv.errText());
+  });
+  ok('WR-01: a valued flag followed by a flag or nothing (theo --report-dir --dry-run, ...) -> exit 2, zero spawns');
+
   ok('CR-01: theo --help / theo -h / all --help / website --help -> usage, exit 0, zero spawns, no report');
 
   const fj = theoFake();
