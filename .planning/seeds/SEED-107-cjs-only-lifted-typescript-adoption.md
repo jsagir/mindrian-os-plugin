@@ -58,3 +58,9 @@ this seed's phase lands, CLAUDE.md still says CJS-only: the edit goes through GS
 Promoted into Phase 369 as its wave 0 (the UI cannot start without the constitution edit and the TS-shape decision;
 the navigator chose "Approve as mapped" with 105 and 107 together). CLAUDE.md Conventions still says CJS-only
 until that wave lands. Detail in `.planning/phases/369-*/369-INPUT.md` section 8. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.
+
+Resolved 2026-10-02 (second opinion, `369-SECOND-OPINION-2026-10-02.md` in the Phase 369 directory, citing the Node 22.16.0 TypeScript
+docs and the 22.18.0 release notes): unflagged type stripping needs Node `>=22.18.0`; at 22.16.0 it still needs the
+experimental flag. The floor rises at wave 0 (release-note-level). Core `.ts` is erasable-only (no enum, no
+namespaces, no parameter properties, no TS path aliases, explicit extensions, `import type`, no TSX); the UI is a
+Vite build; hooks stay `.cjs` until measured.

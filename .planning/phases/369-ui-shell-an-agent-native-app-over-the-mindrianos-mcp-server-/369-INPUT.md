@@ -320,6 +320,12 @@ with a measured hook cold-start number and a clean-machine install test; release
 artifact ships. Note for the planner: on this WSL machine `/usr/bin/node` is v20; every command runs with the nvm
 v22.23.1 PATH first (366 handoff anti-pattern).
 
+RESOLVED 2026-10-02 (second opinion, `369-SECOND-OPINION-2026-10-02.md`, citing the Node 22.16.0 TypeScript docs and the 22.18.0
+release notes): at 22.16.0 type stripping still needs the experimental flag; it runs unflagged from 22.18.0. The
+floor rises to `>=22.18.0` at wave 0 (release-note-level). Core rule: erasable-only `.ts` (no enum, no namespaces,
+no parameter properties, no TS path aliases, explicit extensions, `import type`, no TSX, `erasableSyntaxOnly` and
+`verbatimModuleSyntax`); UI is a Vite build with TSX; hooks stay `.cjs` until measured.
+
 ## 9. MCP-side work the shell needs first (files named)
 
 | Fix | Where | Evidence |
@@ -327,7 +333,7 @@ v22.23.1 PATH first (366 handoff anti-pattern).
 | Session check before consume | `lib/mcp/gate-ledger.cjs` `consumeGate` (about line 100) | 007 trail 3, `burn-probe.cjs`; Phase 289 |
 | `recommended` in the gate contract | gate render contract (`recommended: null`, `preChecked: []`) | 007 trail 5; SEED-104 "not set"; Phase 289 |
 | Normal card on CLI, no double elicitation | `lib/mcp/tools/gate.cjs:9-14`, `detectClientCapabilities` about line 311 | SEED-104; Phase 289 |
-| Answer session-less `server/discover` with JSON-RPC `-32601` over 200, or move to SDK v2 | `bin/mindrian-mcp-server.cjs` per-connection mode | 007 trail 6, `discover-shim.cjs` |
+| SDK-v2 `server/discover` handshake: shipped by Phase 267 (closed 2026-10-02, 18 of 18, 72f16523e); 369 re-runs the agent-native connect against the shipped server | Phase 267 plans; `bin/mindrian-mcp-server.cjs` | 007 trail 6, `discover-shim.cjs` (retires with 267) |
 | `room-changed` on the SSE bus from the chokepoint | `lib/core/navigation.cjs`, `lib/mcp/sse-event-bus.cjs` | 006 contradiction 2 (0 frames) |
 | Writer-side `change_seq` in the chokepoint's transaction | `lib/core/node-insert.cjs`, `lib/core/navigation/transitions.cjs` | 006 contradiction 1 |
 | Tombstones or id reconcile for hard deletes | `lazygraph-ops`, `typed-entity` purge, `rs-engine` | 006 contradiction 3 |
@@ -355,6 +361,37 @@ WIRED or EXCLUDED with a HITL shape), Part 12 (the five squares open every Larry
 Part 7 (reuse before build: the workroom, Phase 232, the three MCP Apps, `serve-dashboard-live`, the Shape F
 renderers are all prior surfaces this phase must justify against), Tri-Polar, the Hooked first step, and the
 Phase 343 counter-metric rule (counts only, SEED-074).
+
+## 13. Second opinion (Codex, 2026-10-02): adopted, corrected, with sources
+
+Full text: `369-SECOND-OPINION-2026-10-02.md`. Consulted by the navigator with the plain-text brief from the Downloads bundle.
+
+| # | Recommendation | Verdict | Why, against our evidence |
+|---|---|---|---|
+| 1 | Task-shaped actions over 1:1 primitive adapters; composition server-side | ADOPTED | the same rule Phase 270 set for the memory operator; a dropped connection must not leave half an intention done; deliverable (3) rewritten |
+| 2 | One append-only `room_change_log` + `change_seq` in the same transaction; SSE = wake-up only; pull = delta; `checkpoint_expired` + snapshot on compaction | ADOPTED | solves spike 006 contradictions 1-3 in one structure; sits on the single write path Phases 273 and 348 already made; deliverable (2) rewritten |
+| 3 | Fix `server/discover` semantics in 369; migrate to SDK v2 later as its own change | CORRECTED | the migration is Phase 267, closed 2026-10-02 (18 of 18 plans, 72f16523e: local MCP server family on SDK v2, v2 McpServer + `serveStdio` on stdio, flag-ON HTTP routed by protocol era, `server/discover` handled; Claude Code 2.1.287 already opens stdio with `server/discover`, 267-TRIPOLAR-PROBES.md); 369 ships no shim and inherits two 267 follow-ons: MCPV2-13 (human Desktop/Cowork smoke) and the desktop session-binding fallback (process-scoped stdio session key; writes refuse when unbound) |
+| 4 | RxDB as a UI projection schema (about six collections), disposable by constitution | ADOPTED | SEED-073 verbatim, independently re-derived; removes the 13-collection concern; deliverable (4) rewritten |
+| 5 | Workroom as chassis, agent-native as donor; decide by the same vertical slice built twice, judged on four things | ADOPTED WITH TWO GUARDS | the slice must force every read and write through the action layer (the workroom reads `~/MindrianRooms` directly via Next API routes today) and drop the GPL-3.0 `xl-*` exporters (SEED-066); now the discuss Q1 default |
+| 6 | Node floor: unflagged type stripping needs `>=22.18.0`, not 22.16.0; erasable-only rule list; UI Vite build; hooks stay JS | ADOPTED | our brief hedged ("verify the exact Node line") where it should have checked; section 8 and deliverable (1) corrected |
+| P0 | ledger consume-before-session bug, shared `recommended` field and gate superset, then `change_seq + log + room.changed` | ADOPTED | matches Phase 289 as the dependency plus deliverable (2) |
+
+Codex's framing sentence, kept: "Claude can operate MindrianOS. Claude does not become MindrianOS." It is Canon
+Part 9 (only a human confirms a truth claim) said from the UI side.
+
+A second, independent Codex review (same day, run against the exported bundle; it did not rerun the spikes):
+
+| # | Finding | Verdict | Why, against our evidence |
+|---|---|---|---|
+| R2-1 | "Only a human confirms" needs an enforceable human-vs-agent distinction on `gate_answer`; session ownership proves who minted, not that a person clicked; acceptance test: the agent cannot approve its own proposed claim | ADOPTED, deliverable (10) | today `gate_answer` is an MCP tool any caller on the owning session can invoke; Phase 259 (gate trust) and 357 (gate-triad ledger) are the places to build on |
+| R2-2 | The validated replication path is not MCP: spike 006 used its own pull server over navigation.cjs with fs.watch and an in-memory journal; terminal-process writes are invisible to an in-process bus | ADOPTED, deliverable (12) | hooks and scripts write room.db outside the MCP server; the 0 frames in spike 006 are this fact; the feed becomes a `room_changes` MCP read surface and the wake-up watches room.db/WAL or polls the cursor |
+| R2-3 | Gate recovery: durable outcomes, idempotent retries, expected-revision checks, explicit expired/stale states; restart, room switch, claim changed under an open gate | ADOPTED, deliverable (11) | `gate_render`'s own contract says the ledger is in-memory and ids do not survive a restart; the 2026-09-20 review already asked for idempotency keys and expected revisions |
+| R2-4 | The card could pass with a live view plus a working button while the work loop stays unresolved; decide v1 scope (review surface vs executable workspace) and require one complete journey; carry forward local auth, room isolation, safe rendering, offline assets | ADOPTED, deliverable (13) | the recoverable journey (open the correct room, inspect evidence, human decision, persisted result, restart and recover) is now the acceptance spine and the chassis-test slice |
+| R2-5 | Canon v3 is a website canon; rust means challenged and fixed, white means empty and delivered; pair tiles with written statuses; "one decision per view" is a focused approval, not hidden context | ADOPTED, deliverable (14) | the canon itself says shapes support labels and never replace them and colour is never the only carrier of a state; the tile room is unproven as a working evidence view |
+| R2-6 | Narrowly scoped discovery compatibility fix; SDK migration separate | CORRECTED | same as row 3: Phase 267 shipped the migration and the discovery handling; no shim in 369 |
+| R2-7 | Keep hooks and server JS initially; build the UI at release; Node refuses stripping under `node_modules`, ignores tsconfig, does not type-check; test the installed layout | ADOPTED as the stricter wave-0 default | the plugin installs from an npm tarball through the loader; the installed layout, not the checkout, is what must run |
+| R2-8 | UX: Work / Evidence / Decisions / Deliverables with Rooms as the context selector and graph secondary; opening screen = current question, changes since last visit, next decision | ADOPTED as the Q6, Q12 and Q13 defaults | matches the 2026-09-20 review and gives the Hooked first screen its variable reward ("what changed since you were here") |
+| R2-9 | Chassis test: the same production-built slice in each (bind room, show evidence, render gate, approve or defer, reconnect); compare retained code, direct-file-write replacement, dependency removal, startup errors, packaging; spike 007's database-error toast means the scaffold is not a clean baseline | ADOPTED, merged into the Q1 default | adds reconnect and packaging to the first review's four judgments |
 
 ## 12. Source index
 
