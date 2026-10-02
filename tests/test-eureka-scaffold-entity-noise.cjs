@@ -41,7 +41,7 @@
  *   its frontmatter metadata pass too. Now a scaffold CANDIDATE (still
  *   kind+basename) is excluded only when its body matches its shipped
  *   templates/room-skeleton/*.tmpl template byte-for-byte
- *   (post-normalization) via lib/core/eureka/scaffold-template-index.cjs;
+ *   (post-normalization) via lib/core/semantic-index/scaffold-template-index.cjs;
  *   a body that differs has its authored remainder extracted instead
  *   (scaffold_files_extracted) and the metadata pass runs for BOTH branches.
  *   Legs 1, 2, 5 pin this.

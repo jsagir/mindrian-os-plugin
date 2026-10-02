@@ -133,7 +133,7 @@ DASH_OK=1
 DASH_TARGETS=(
   "lib/core/scaffold-predicate.cjs"
   "lib/core/eureka/candidate-exclusion.cjs"
-  "lib/core/eureka/scaffold-template-index.cjs"
+  "lib/core/semantic-index/scaffold-template-index.cjs"
   "lib/core/navigation/room-birth.cjs"
   "lib/core/eureka/reasoning-mode.cjs"
   "lib/core/eureka/room-native-substrate.cjs"

@@ -32,7 +32,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const mod = require('../lib/core/eureka/online-pattern-query.cjs');
+const mod = require('../lib/core/semantic-index/online-pattern-query.cjs');
 const { QUERY_FAMILIES, composePatternQueries } = mod;
 
 let passed = 0;
@@ -129,7 +129,7 @@ let degradeRes;
 
 // ---------- Test 6: module purity greps (asserted from inside the test) ----------
 {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'eureka', 'online-pattern-query.cjs'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'semantic-index', 'online-pattern-query.cjs'), 'utf8');
   // strip single-line // comments so the purity grep matches only live code
   const live = src.split('\n').filter(function (ln) { return !/^\s*\/\//.test(ln); }).join('\n');
   assert.ok(!/require\(['"]https?/.test(live), 'Test 6: no require of http/https');

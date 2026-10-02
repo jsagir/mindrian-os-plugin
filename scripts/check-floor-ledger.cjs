@@ -37,7 +37,7 @@ const FLOOR_SCAN_FILES = Object.freeze([
   'scripts/interpret-whitespace.cjs',
   'lib/core/eureka-critic.cjs',
   'lib/core/eureka/tail-quadrant.cjs',
-  'lib/core/eureka/analogy-fitness.cjs',
+  'lib/core/semantic-index/analogy-fitness.cjs',
 ]);
 
 // ---------------------------------------------------------------------------

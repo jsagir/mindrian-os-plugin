@@ -6,8 +6,8 @@
  *
  * ONE governed CLI door between the /mos:find-analogies prompt layer and the two
  * Phase 214 engines: the MEASURED two-leg fitness engine (214-01
- * lib/core/eureka/analogy-fitness.cjs) and the Part-8-safe egress composer
- * (214-02 lib/core/eureka/online-pattern-query.cjs). Larry writes JSON, this
+ * lib/core/semantic-index/analogy-fitness.cjs) and the Part-8-safe egress composer
+ * (214-02 lib/core/semantic-index/online-pattern-query.cjs). Larry writes JSON, this
  * script runs deterministic code and prints a JSON report plus a markdown matrix
  * the command renders. No decorative decimal ever leaves here: every number is
  * a MEASURED fitness carrying provenance, and when the encoder is unavailable
@@ -52,8 +52,8 @@ const fs = require('node:fs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 
-const fitness = require(path.join(REPO_ROOT, 'lib/core/eureka/analogy-fitness.cjs'));
-const online = require(path.join(REPO_ROOT, 'lib/core/eureka/online-pattern-query.cjs'));
+const fitness = require(path.join(REPO_ROOT, 'lib/core/semantic-index/analogy-fitness.cjs'));
+const online = require(path.join(REPO_ROOT, 'lib/core/semantic-index/online-pattern-query.cjs'));
 
 // ---------------------------------------------------------------------------
 // --stub-encoder: the deterministic offline dev/CI seam. It mirrors the

@@ -7,7 +7,7 @@
  *
  * This is the D-02 answer (296-CONTEXT.md REVISION, locked by 296-RESEARCH.md
  * F-2, HIGH, highest-risk). room.db carries ONE of TWO vector tables, chosen
- * by a RUNTIME CAPABILITY PROBE inside lib/core/eureka/vector-store.cjs:
+ * by a RUNTIME CAPABILITY PROBE inside lib/core/semantic-index/vector-store.cjs:
  *
  *   eureka_vec           a vec0 virtual table, when the sqlite-vec extension
  *                        loads on this handle
@@ -252,7 +252,7 @@ function opKnn(req) {
     let vectorStore;
     try {
       // eslint-disable-next-line global-require
-      vectorStore = require('../lib/core/eureka/vector-store.cjs');
+      vectorStore = require('../lib/core/semantic-index/vector-store.cjs');
     } catch (err) {
       return { success: false, error: 'store_unavailable', detail: boundedDetail(err && err.message) };
     }
@@ -304,7 +304,7 @@ function opMeta(req) {
     let vectorStore;
     try {
       // eslint-disable-next-line global-require
-      vectorStore = require('../lib/core/eureka/vector-store.cjs');
+      vectorStore = require('../lib/core/semantic-index/vector-store.cjs');
     } catch (err) {
       return { success: false, error: 'store_unavailable', detail: boundedDetail(err && err.message) };
     }

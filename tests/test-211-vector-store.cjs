@@ -25,7 +25,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const vec = require('../lib/core/eureka/vector-store.cjs');
+const vec = require('../lib/core/semantic-index/vector-store.cjs');
 const tri = require('../lib/core/eureka/tri-modal-index.cjs');
 
 let PASS = 0;

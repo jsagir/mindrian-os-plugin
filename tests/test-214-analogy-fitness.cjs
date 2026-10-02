@@ -29,7 +29,7 @@
 
 const assert = require('node:assert');
 
-const fit = require('../lib/core/eureka/analogy-fitness.cjs');
+const fit = require('../lib/core/semantic-index/analogy-fitness.cjs');
 const refine = require('../lib/core/graph-refine-loop.cjs');
 
 let passed = 0;

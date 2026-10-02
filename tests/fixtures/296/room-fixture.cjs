@@ -10,7 +10,7 @@
  * This composes two already-shipped modules; it owns no logic of its own:
  *   lib/core/room-db.cjs::openRoomDb   - WAL + synchronous + timeout:5000 +
  *     the full migration chain, the single door to room.db
- *   lib/core/eureka/vector-store.cjs::ensureStore/insertVector - backend
+ *   lib/core/semantic-index/vector-store.cjs::ensureStore/insertVector - backend
  *     selection (sqlite-vec vs cjs-fallback) via a process-latched probe
  *
  * Never open a native sqlite handle directly and never pull in the native
@@ -35,7 +35,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const { openRoomDb, closeRoomDb } = require('../../../lib/core/room-db.cjs');
-const { ensureStore, insertVector } = require('../../../lib/core/eureka/vector-store.cjs');
+const { ensureStore, insertVector } = require('../../../lib/core/semantic-index/vector-store.cjs');
 
 // makeRoom(prefix) -> { dir, db }
 //

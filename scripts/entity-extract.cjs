@@ -135,7 +135,7 @@ const { parseFrontmatter } = require('../lib/core/opportunity-ops.cjs');
 // FEYNMAN in-code sources, isTemplateIdentical + stripTemplate). Replaces the
 // prior kind-plus-basename exclusion below, which dropped a scaffold file's
 // body wholesale even when a human had authored real content into it.
-const scaffoldTemplateIndex = require('../lib/core/eureka/scaffold-template-index.cjs');
+const scaffoldTemplateIndex = require('../lib/core/semantic-index/scaffold-template-index.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here. The subdir is
@@ -256,7 +256,7 @@ function parseArgs(argv) {
 // patch, narrowed by quick task 260917-ild / Codex finding F4 to a
 // CONTENT-based test): the per-directory identity/status scaffold kinds
 // (ROOM / STATE / MINTO / BRAIN / FEYNMAN, plus USER wherever a shipped
-// template covers it -- see lib/core/eureka/scaffold-template-index.cjs,
+// template covers it -- see lib/core/semantic-index/scaffold-template-index.cjs,
 // SCAFFOLD_KINDS) carry a near-identical template body PER SECTION
 // (Decision 15: every directory gets a ROOM.md; STATE/MINTO/BRAIN/FEYNMAN/
 // USER follow the same house style), so the SAME capitalized template words

@@ -9,7 +9,7 @@
  * each user machine resolves only its own native binary. sqlite-vec does
  * NOT publish a windows-arm64 platform package upstream: a Windows-on-ARM
  * machine gets `sqlite-vec` present with no native binary and degrades to
- * the cjs fallback in lib/core/eureka/vector-store.cjs. That silent-degrade
+ * the cjs fallback in lib/core/semantic-index/vector-store.cjs. That silent-degrade
  * class is exactly what `bundleDependencies` was rejected for elsewhere in
  * this phase, so it must be VISIBLE in this test's own output, not
  * discovered later by a tester on a Windows-on-ARM box.
@@ -99,7 +99,7 @@ function main() {
   check(
     'sqlite-vec-windows-arm64 absence is VISIBLE (no upstream platform package; ' +
       'a Windows-on-ARM machine gets sqlite-vec with no native binary and ' +
-      'degrades to the cjs fallback in lib/core/eureka/vector-store.cjs)',
+      'degrades to the cjs fallback in lib/core/semantic-index/vector-store.cjs)',
     !winArmKey,
     winArmKey ? 'unexpectedly found an entry for sqlite-vec-windows-arm64' : ''
   );

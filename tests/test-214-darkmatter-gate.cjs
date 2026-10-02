@@ -40,7 +40,7 @@
 const assert = require('node:assert');
 const path = require('node:path');
 
-const fit = require('../lib/core/eureka/analogy-fitness.cjs');
+const fit = require('../lib/core/semantic-index/analogy-fitness.cjs');
 
 const DARKMATTER = require('./fixtures/eureka/214-darkmatter.json');
 const RANKORDER = require('./fixtures/eureka/214-rank-order.json');

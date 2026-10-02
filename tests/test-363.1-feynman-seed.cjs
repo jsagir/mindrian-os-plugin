@@ -29,7 +29,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const roomBirth = require(path.join(ROOT, 'lib/core/navigation/room-birth.cjs'));
-const index = require(path.join(ROOT, 'lib/core/eureka/scaffold-template-index.cjs'));
+const index = require(path.join(ROOT, 'lib/core/semantic-index/scaffold-template-index.cjs'));
 const feynmanSeedWriter = require(path.join(ROOT, 'lib/core/feynman/feynman-seed-writer.cjs'));
 
 let failures = 0;

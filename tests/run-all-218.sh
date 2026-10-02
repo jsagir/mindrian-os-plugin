@@ -104,7 +104,7 @@ run "T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)" \
 # (b) REQ-3 zero-touch gate: no second embedding path, no vector-store signature
 #     change. The re-embed rides the EXISTING tri-modal indexNodes path.
 run "REQ-3 vector-store unchanged" \
-  git diff --exit-code lib/core/eureka/vector-store.cjs
+  git diff --exit-code lib/core/semantic-index/vector-store.cjs
 
 # (c) REQ-4 zero-touch gate: the downstream readers (whitespace_scan via
 #     insights.cjs, contradiction_check via graph-ops.cjs) benefit with ZERO code
@@ -173,7 +173,7 @@ run "CR-01 duplicate entity name reconciliation (highest-trust wins, offline)" \
 #       kind:'ROOM'-tagged non-scaffold-path fixtures), but exclusion itself
 #       is decided by comparing the file's body against the shipped
 #       templates/room-skeleton/*.tmpl template (plus the BRAIN/FEYNMAN
-#       in-code sources) via lib/core/eureka/scaffold-template-index.cjs:
+#       in-code sources) via lib/core/semantic-index/scaffold-template-index.cjs:
 #       template-identical is excluded (scaffold_files_skipped) while staying
 #       a valid DESCRIBES anchor; a body that DIFFERS has its authored
 #       remainder extracted instead (scaffold_files_extracted) and the
