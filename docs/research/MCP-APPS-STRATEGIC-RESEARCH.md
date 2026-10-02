@@ -1,5 +1,7 @@
 # MCP Apps Strategic Research: MindrianOS as MCP-Native Product
 
+> **Status note 2026-10-02 (Phase 369, D-02, conflict C12):** the 'MCP Apps Tier 1 is the product' plan in this document is retired as the main investment. Each surface owns its job: MCP Apps are the Desktop and Cowork face, the Phase 369 UI shell is the local browser workspace, and shell components are shared into the apps only after the shell is proven in production. The research below stays as the record.
+
 **Date:** 2026-04-09
 **Author:** Research Agent (Claude Opus 4.6)
 **Purpose:** Determine whether MindrianOS should pivot from CLI-plugin to MCP-native product using MCP Apps

@@ -26,6 +26,8 @@ The zones/glyphs/colors below govern **terminal** output. Every **generated HTML
 - 75% Swiss broadside / 25% De Stijl; semantic color only; flat + rectilinear; hairline `gap:1px` module grids; isometric clickables + registration-tick frames (v1.1); inline-SVG graph + clock (never a CDN); `:focus-visible` + `prefers-reduced-motion` required.
 - Applies to: `/mos:deck`, `mos-deck-engine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish, `/mos:snapshot`, and `generate-standalone/hub/lobby/snapshot/deck`, `vault-export-orchestrator`. Any future HTML surface inherits it.
 
+**Exception (2026-10-02, Phase 369):** the MindrianOS UI shell (the browser workspace over the MCP server) follows Design Canon v3 Workshop Modernism (`mindrian-website/docs/DESIGN-CANON.md`) instead of v1.1, as specified in `369-UI-SPEC.md`. The shell bundles its fonts (Fraunces, DM Sans, Bodoni Moda, JetBrains Mono) and scripts and contacts no outside host. Every other HTML surface keeps v1.1 until a reconciliation phase rules otherwise.
+
 ## 1. Four-Zone Output Anatomy
 
 Every output has exactly 4 zones in fixed order. No reordering. No invention.
