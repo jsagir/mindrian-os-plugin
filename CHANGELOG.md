@@ -1,7 +1,26 @@
 ## [Unreleased] -- v2.0.0-beta.54 (in progress)
 
-### Added
-- 
+### Fixed
+- **Research grants no longer loop (SEED-104).** A room's Eureka-style research plan could never fetch: every
+  grant was scoped to whitespace searches only, so approving it re-asked forever. A grant now covers the
+  search families of the plan it approves, re-approving widens the scope instead of only bumping the
+  version, and a grant that still cannot cover a plan returns a clear `grant_scope_cannot_cover_plan`
+  refusal instead of another card.
+- **Room text can no longer leave as a search term.** Terms that are sentences, carry markdown or list
+  markers, or run past the composer's length cap are refused (`term_not_composed`) before any request.
+  Eureka recall now hands the composer a cleaned title or entity name, or keeps the search room-only.
+
+### Changed
+- Capability radar: the Claude Code 2.1.247 to 2.1.280 coverage gap is closed from GitHub release notes
+  (16 new ledger rows; the changelog file only carries 2.1.281 and later).
+- ICM writer eval re-run after the beta.53 cut.
+
+### Known issues
+- On the CLI the grant approval can still appear as an MCP dialog that opens on "not set"; press Esc and
+  answer the normal card (ruling recorded, fix pending).
+- Theo's command layer is still stamped beta.51: this release shipped with the audited
+  `--no-theo-check --no-canon-snapshot-check` opt-outs because Theo has no listener for the release's
+  `theo-resync` dispatch (fix pending, SEED-106).
 
 ## [2.0.0-beta.53] - 2026-10-01
 
