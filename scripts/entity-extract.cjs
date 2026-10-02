@@ -4,7 +4,8 @@
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * Phase 218-03 (D-03) -- the standalone entity-extraction pipeline dispatcher.
  *
- * This is a verbatim SHAPE-CLONE of scripts/eureka-command.cjs: a process.argv
+ * This is a verbatim SHAPE-CLONE of the standalone Eureka dispatcher (retired in
+ * Phase 366-22): a process.argv
  * switch-case router (no Commander/yargs -- CLAUDE.md convention) with the verbs
  * run | start | status | report | help, a positional ROOM_DIR SUBCOMMAND, the
  * 3-line What/Why/Fix error (never a stack trace), a status.json for observable
@@ -146,7 +147,7 @@ function reportDir(roomDir) { return path.join(roomDir, '.mindrian', 'entity-ext
 function statusPath(roomDir) { return path.join(reportDir(roomDir), 'status.json'); }
 
 // ---------------------------------------------------------------------------
-// Small helpers (verbatim from eureka-command.cjs).
+// Small helpers (verbatim from the retired Eureka dispatcher).
 // ---------------------------------------------------------------------------
 
 function dirExists(p) {
@@ -601,7 +602,7 @@ async function runDegradeHzx(textById, byArtifact, tier1WhyTerms, classifyImpl, 
       // excluding them would empty the ranked list and break Decision 8 (graceful
       // degradation everywhere; proven by tests/test-218-noise-reduction.cjs). The
       // pairing exclusion set (LOW_TRUST_EVIDENCE_TIERS in
-      // scripts/eureka-portfolio-report.cjs) is low_confidence ONLY. A model-sourced
+      // the retired standalone runner) is low_confidence ONLY. A model-sourced
       // WHAT stays unstamped (evidenceTier 'None').
       if (label === 'what' && result.source !== 'model') e.evidenceTier = 'fallback';
       if (routeLabel(e, label, whatEntities, whyTerms) === 'noise') droppedNoise += 1;

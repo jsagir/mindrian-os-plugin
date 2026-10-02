@@ -274,7 +274,8 @@ leg('U10 reasoning-mode readRoomMarkdown skips scaffold files, keeps authored FE
 // without any exclusion at all). The known-pair leg pins the exclusion-set
 // upsert (shared.makeCandidateStore). The runner's report-only legs (per-reason
 // provenance counts, step 4b counters, the md provenance row, renderReport) and
-// the authored-FEYNMAN leg retired with the runner; reasons in 366-26-SUMMARY.md.
+// the authored-FEYNMAN leg retired with the runner (366-26-SUMMARY.md) and came
+// back as E4 once plan 366-22 restored B51-01 in eureka-recall.
 
 const RECALL = require(path.join(ROOT, 'lib/core/research-planner/perspectives/eureka-recall.cjs'));
 const SHARED_TEXT = 'A carbon fibre drivetrain housing cuts weight for warehouse delivery robots and extends battery life.';
@@ -369,6 +370,25 @@ leg('E3 a pair the room already connects is excluded and counted (the exclusion-
   assert.ok(!hasPair(again.candidates, 'claim:one', 'claim:two'), 'a connected pair must not be recalled');
   assert.ok(again.counts.known_pairs >= 1, 'known_pairs must count the edge: ' + JSON.stringify(again.counts));
   assert.ok(again.counts.excluded_known >= 1, 'excluded_known must count the caught proposal: ' + JSON.stringify(again.counts));
+});
+
+// E4 (regression, plan 366-22): eureka-recall once dropped every FEYNMAN by
+// basename, authored or seeded. It now asks scaffold-predicate.isScaffoldFile,
+// as candidate-exclusion does (363.1 B51-01): the authored FEYNMAN on disk is a
+// thing and can be recalled, the seeded template stays out.
+leg('E4 an authored FEYNMAN is a candidate, a seeded FEYNMAN is not (B51-01 restored)', () => {
+  const { roomDir, rec } = e2eOnce();
+  const navigation = require(path.join(ROOT, 'lib/core/navigation.cjs'));
+  const db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+  let sub;
+  try { sub = RECALL.buildSubstrate(db, { roomDir: roomDir }); } finally { try { db.close(); } catch (_e) { /* read-only */ } }
+  const ids = sub.things.map((t) => t.id);
+  assert.ok(ids.includes('problem-definition/FEYNMAN'), 'authored FEYNMAN must be a thing');
+  assert.ok(!ids.includes('market-analysis/FEYNMAN'), 'seeded FEYNMAN must stay out');
+  const endpoints = new Set();
+  rec.candidates.forEach((c) => { endpoints.add(c.a); endpoints.add(c.b); });
+  assert.ok(endpoints.has('problem-definition/FEYNMAN'), 'authored FEYNMAN must be recalled as a candidate endpoint');
+  assert.ok(!endpoints.has('market-analysis/FEYNMAN'), 'seeded FEYNMAN must never be a candidate endpoint');
 });
 
 // ---------------------------------------------------------------------------

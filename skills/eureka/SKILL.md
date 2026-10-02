@@ -3,7 +3,7 @@ name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
-argument-hint: "[run|--legacy <run|start|status|report|html|enable|reasoning-*>]"
+argument-hint: "[run|enable]"
 body_shape: E (Action Report)
 layer: "loop"
 layer_why: "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command."
@@ -55,7 +55,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:eureka
 
-You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room. Since Phase 366, Eureka runs as a perspective of the research planner: the pairs are recalled from the room's local graph and ICM structure (no embeddings, no model), turned into a research plan, researched as a quick run under a grant, and the supported pairs file as candidate opportunities only on the navigator's yes. The MCP twin is the `research_run` tool, op `eureka_recall`.
+You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room. Since Phase 366, Eureka runs as a perspective of the research planner: the pairs are recalled from the room's local graph and ICM structure (no embeddings, no model), turned into a research plan, researched as a quick run under a grant, and the supported pairs file as candidate opportunities only on the navigator's yes. The MCP twin is the `research_run` tool, op `perspective_recall` with perspective `eureka`.
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. Signature openers: "Very simply...", "Here's the thing...", "One thing I've learned..."
@@ -77,9 +77,9 @@ Parse the user's input after `/mos:eureka`. The primary job IS the run, so **no 
 | Subcommand | Body Shape | Purpose |
 |------------|-----------|---------|
 | `run` (default) | E (Action Report) | The perspective quick run: recall, Stage A, plan review, grant, run, prose, F.8 filing |
-| `--legacy <subcommand>` | E (Action Report) | The standalone Eureka runner (`run`, `start`, `status`, `report`, `html`, `enable`, `reasoning-prompts`, `reasoning-score`), retired when the Phase 366 spike closes |
+| `enable` | E (Action Report) | Install the local embedding stack the room's semantic index uses (one-time, about 380 MB); room-independent |
 
-Anything after `--legacy` routes to the "Legacy runner (--legacy)" section below. Without `--legacy`, never call `scripts/eureka-command.cjs`.
+The standalone Eureka runner is retired (Phase 366): there is no other subcommand. An old `start`, `status`, `report` or `html` request runs the default quick run instead.
 
 ## Pre-flight: Room Check
 
@@ -182,137 +182,19 @@ Each picked pair files as one proposed candidate opportunity carrying the verifi
   > /mos:whitespace map             See where the gaps cluster
 ```
 
-## Legacy runner (--legacy)
+## Subcommand: enable
 
-The standalone Eureka runner is retired when the Phase 366 spike closes; this path exists only until then.
-
-Print that line once, verbatim, before running any `--legacy` subcommand. Everything below in this section is the old runner, unchanged. It runs the all-pairs embedding scan and banks proposed opportunity nodes from its own report path.
-
-### Legacy subcommand: run
-
-Start the scan:
+Install the local embedding stack (about 380 MB, one-time) into `~/.mindrian/eureka-deps/`. Room-independent, so it skips the room check:
 
 ```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR start
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-enable.cjs"
 ```
 
-The dispatcher spawns the scan detached and prints the report path plus the status path, then exits immediately. TELL the navigator the scan is running and name the report path it will land at.
-
-Include the first-run honesty note, once:
-
-> Very simply: the first scan downloads the local embedding model once (only the model id crosses the wire). When the encoder is unavailable (a cold machine) or the graph is too thin, the scan does NOT dead-end: it names the real cause (`encoder_unavailable` or `below_floor`) and degrades to an honest short REASONING-MODE list. See "Legacy reasoning mode" below.
-
-Poll status up to 3 times over roughly 15 seconds:
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR status
-```
-
-- If the state becomes `done`, render the report.
-- If the state is `failed`, render the 3-line error quoting the `error` field from status.json and STOP.
-- If it is still `running` after the third poll, STOP with: "The scan is running in the background. Run /mos:eureka --legacy report in a minute to render it."
-
-Render the report:
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR report
-```
-
-Read the JSON on stdout and render the 4-zone output (spec below).
-
-### Legacy subcommand: status
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR status
-```
-
-Render ONE Shape E block: `none` (no scan has run), `running` (name the report path), `failed` (3-line error quoting `error`), `done` (suggest `> /mos:eureka --legacy report`).
-
-### Legacy subcommand: report
-
-Run the `report` call above and render the 4-zone output. If the dispatcher returns "no eureka report yet":
-
-```
-x No eureka report yet
-  Why: No completed scan for this room
-  Fix: /mos:eureka --legacy run
-```
-
-### Legacy subcommand: html
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR html
-```
-
-Renders `portfolio-report.html` under `.mindrian/eureka/` from the existing `portfolio-report.json` (inline CSS only, no CDN). The mode banner rides WITH the export: a reasoning-mode html opens with a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner.
-
-### Legacy subcommand: enable
-
-Install the local embedding stack (about 380 MB, one-time) into `~/.mindrian/eureka-deps/`. Room-independent:
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR enable
-```
-
-Render ONE Shape E block per outcome: already installed, installed now, or the 3-line error quoting the reason (Fix: `/mos:eureka --legacy enable`). The same install is reachable through `/mos:doctor --fix eureka`.
-
-### Legacy reasoning mode
-
-You know you are here when `/mos:eureka --legacy status` reads `reasoning_await_mappings`. Drive this loop:
-
-1. **Read the seeded pairs** in `.mindrian/eureka/reasoning/pairs.json`.
-2. **Write the mappings** to `.mindrian/eureka/reasoning/mappings.json` keyed by candidate id: a one-line `mappingStatement` naming the shared relational schema WITHOUT either domain's nouns, and a `mechanismText` selected from the pair's own entry prose, never invented.
-3. **Emit the rubric prompts:**
-
-   ```bash
-   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR reasoning-prompts
-   ```
-
-4. **Answer EVERY prompt faithfully** into `.mindrian/eureka/reasoning/answers.json`, shaped `{ "<id>": { neutral: {a..f: "yes"|"no"}, adversarial: {a..f: "yes"|"no"} } }`. Each item yes or no with one sentence of evidence; the skeptical reading when unsure on the adversarial pass. **NEVER estimate a similarity or differential score. NEVER invent a number.**
-5. **Score:**
-
-   ```bash
-   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR reasoning-score
-   ```
-
-   On a re-answer request (`retry:true`), re-answer ONLY the named pairs and score again (one retry allowed).
-6. **Render** through Shape E with the caveat in the TOP zone, stated once. The table shows `verdict` + `mode` only.
-
-### Legacy 4-zone render spec
-
-**Zone 1 -- Header Panel:** `-- [Room Name] -- Eureka Portfolio Scan (legacy) -- [Stage] --`
-
-**Zone 2 -- Content Body:**
-
-(a) Provenance one-liner; the Mode field renders on EVERY result, read from `provenance.run_mode`:
-
-```
-  Scan: mode=[run_mode]  pairs=[pairs_mode]  encoder=[encoder]  scored=[N] pairs
-```
-
-(b) Ranked table from `json.ranked`. Never render a score, similarity, differential or percentage (Phase 355-18, D-27, D-29).
-
-- **Embedded** (`run_mode` is `live`/`offline`): rank, A, B, weak dimensions (or `-`), a tail-flag glyph (`⚡`) only when tail-flagged, and mode, then `json.ranked[i].stamp` reproduced verbatim under that row. A row with no stored `stamp` renders "Not yet checked; run the CLI to verify."
-- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `verdict`, `mode`. No number of any kind.
-
-Reasoning and embedded pairs are NEVER merged into one ranked list.
-
-(c) Tail read: when `json.tail.insufficient_structure` is true, render exactly "Not enough entries for a tail read (below the 30-entry floor)". Otherwise the tail items from `json.tail`, with `⚠` on `suspect_noise`.
-
-(d) Opportunity Statements from `json.statements`: a `pending` critic state renders as `NOT YET BANKED (critic pending)`.
-
-**Zone 3 -- Intelligence Strip** (conditional, max 3 real signals).
-
-**Zone 4 -- Action Footer (NEVER omit):**
-```
-  > /mos:eureka                     Run the perspective quick run
-  > /mos:eureka --legacy report     Re-render this scan
-  > /mos:find-connections           Trace one pair deeper
-```
+Render ONE Shape E block per outcome: already installed, installed now, or the 3-line error quoting the reason (Fix: `/mos:eureka enable`). The same install is reachable through `/mos:doctor --fix eureka`. The quick run itself never needs it: recall reads the room graph and its ICM structure, with no embeddings.
 
 ## Decision Gate Close (F.8)
 
-On the default run, the F.8 basket in Step 7 is the close. On a legacy report, IF there is a genuine unanswered fork (which candidate to pursue), FIRE the AskUserQuestion card in F.8 form from the top Opportunity Statements plus the standard next steps. Skip the card when the navigator already said which candidate they want.
+The F.8 basket in Step 7 is the close. Skip the card when the navigator already said which candidate they want.
 
 ## Error Handling
 
@@ -329,9 +211,8 @@ Common errors:
 - **No room:** `x No Data Room found / Why: No room under ~/MindrianRooms/ / Fix: /mos:new-project`
 - **No pairs recalled:** `x No cross-domain pair recalled / Why: The room graph has no two things in different domains to pair yet / Fix: /mos:file-meeting`
 - **Argv refused:** `x Planner refused the call / Why: free_text_argv_refused (room text never rides argv) / Fix: /mos:eureka`
-- **No legacy report yet:** `x No eureka report yet / Why: No completed scan for this room / Fix: /mos:eureka --legacy run`
 
 ## Cross-Surface Adaptation
 
-- **CLI:** Full power. The perspective quick run drives the research planner via Bash; the legacy runner is reachable only with `--legacy`.
-- **Desktop / Cowork:** call the `research_run` MCP tool with op `eureka_recall` for the bound room, and answer each card with `gate_answer`. The MCP `intelligence eureka-run` command answers with a pointer to `research_run` unless the context carries `{"legacy":true}`. Never render a score or similarity number; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).
+- **CLI:** Full power. The perspective quick run drives the research planner via Bash.
+- **Desktop / Cowork:** call the `research_run` MCP tool with op `perspective_recall` and perspective `eureka` for the bound room, and answer each card with `gate_answer`. The MCP `intelligence eureka-run`, `eureka-status` and `eureka-report` commands answer with a pointer to `research_run` and run nothing. Never render a score or similarity number; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).

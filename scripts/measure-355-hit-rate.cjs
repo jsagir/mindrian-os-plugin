@@ -339,7 +339,7 @@ async function defaultRunProducers(ctx) {
     // chokepoint rule bars a new direct room-db.cjs caller, and a probe has
     // no legitimate write to route through it for anyway). These fixture
     // rooms are pure markdown trees (never run through entity-extract), so
-    // the room-native substrate eureka-portfolio-report.cjs needs (indexed
+    // the room-native substrate the retired Eureka runner needed (indexed
     // Entity/Artifact nodes in <room>/.mindrian/room.db) is never present in
     // a fresh cpSync copy. Rather than guess a ranked pair from an absent
     // substrate, this records the honest degradation the plan's own action

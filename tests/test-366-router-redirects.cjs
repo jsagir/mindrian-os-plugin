@@ -11,8 +11,9 @@
  *   D3  orchestration scout-hsi names perspective "hsi" and no longer says
  *       "reference only, no compute"; its NOT EXECUTED banner and nothing
  *       written are unchanged
- *   D4  intelligence eureka-run without legacy names op perspective_recall and
- *       perspective "eureka" (the legacy escape is still named)
+ *   D4  intelligence eureka-run/status/report name op perspective_recall and
+ *       perspective "eureka"; the legacy escape is gone (plan 366-22 deleted
+ *       the standalone runner, so the pointer no longer names {"legacy":true})
  *   D5  the surface fence: ALL_TOOL_COMMANDS stays 65, find-bottlenecks and
  *       find-analogies stay reachable, every command name stays in its enum, and
  *       no tool description still calls these three reference-only
@@ -98,9 +99,9 @@ async function main() {
   for (const cmd of ['eureka-run', 'eureka-status', 'eureka-report']) {
     const r = await handlers.intelligence({ command: cmd }, {});
     const t = text(r);
-    C.check('D4 ' + cmd + ' without legacy points at perspective_recall with perspective "eureka"', pointsAt(t, 'eureka'), t.slice(0, 200));
+    C.check('D4 ' + cmd + ' points at perspective_recall with perspective "eureka"', pointsAt(t, 'eureka'), t.slice(0, 200));
     C.check('D4 ' + cmd + ' no longer names the deprecated eureka_recall op', t.indexOf('eureka_recall') === -1);
-    C.check('D4 ' + cmd + ' still names the legacy escape', t.indexOf('{"legacy":true}') !== -1);
+    C.check('D4 ' + cmd + ' no longer names a legacy escape (366-22)', t.indexOf('legacy') === -1);
   }
   delete process.env.MINDRIAN_TRANSPORT;
 

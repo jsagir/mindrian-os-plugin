@@ -226,10 +226,12 @@ function nodeRow(db, id) {
   return r ? { id: r.id, type: r.type, review_status: r.review_status, props: JSON.parse(r.properties || '{}') } : null;
 }
 
-leg('F4 filing-stamped.fileStampedOpportunity is the same function object the runner exports', function () {
-  const runner = require(path.join(REPO_ROOT, 'scripts/eureka-portfolio-report.cjs'));
-  return (typeof stamped.fileStampedOpportunity === 'function' && runner.fileStampedOpportunity === stamped.fileStampedOpportunity
-    && typeof stamped.readPwsStage === 'function' && typeof stamped.sourcedFromTarget === 'function') || 'identity broken';
+// Plan 366-22 retired the runner re-export identity half of F4 (the runner is
+// deleted); ambient-run and filing.cjs resolve the filer from filing-stamped.cjs,
+// and the export shape below stays pinned.
+leg('F4 filing-stamped exports fileStampedOpportunity, readPwsStage and sourcedFromTarget', function () {
+  return (typeof stamped.fileStampedOpportunity === 'function'
+    && typeof stamped.readPwsStage === 'function' && typeof stamped.sourcedFromTarget === 'function') || 'export shape broken';
 });
 
 leg('F5 stampForPair with an unresolved endpoint stamps unverified / not_called / handle_unresolved, zero calls', function () {
