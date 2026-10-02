@@ -187,19 +187,20 @@ After the move: `ls lib/core/semantic-index/*.cjs | wc -l` = 13 (the move map's 
 
 ## Suite results (hermetic: temp HOME / USERPROFILE / MINDRIAN_ROOMS_HOME, CLAUDE_ACTIVE_ROOM and CLAUDE_CODE_SESSION_ID unset)
 
-Post-move runs used the main tree at 19bf7f067. Baselines come from two places: a detached worktree of the pre-move commit 930a3fbc8 (node_modules symlinked in), and the 366-22 runs on the main tree.
+Post-move runs used the main tree at 19bf7f067. run-all-363 was rerun after 795264bf6. The baselines come from a real detached worktree of the pre-move commit 930a3fbc8 (`.git/worktrees/wt-366-23-premove`, node_modules symlinked in, removed afterwards) and from the 366-22 runs on the main tree. Every red is compared leg by leg.
 
-| Suite | Post-move | Baseline | Verdict |
+| Suite | Post-move | Pre-move baseline (930a3fbc8) | Verdict |
 |---|---|---|---|
 | run-all-366 | PASSED=69 FAILED=0 SKIPPED=1 KNOWN=1 | 68/0/2/1 after 366-22 | green; the semantic-index integrity leg went from SKIP to PASS |
-| run-all-355 | PASS=67 FAIL=4 | 67/4, same four legs | the 4 legacy reds, unchanged |
-| run-all-363 | PASSED=44 FAILED=4 SKIPPED=1 KNOWN=5 | worktree: 41/4/3/6 | see below |
+| run-all-363 | PASSED=45 FAILED=3 SKIPPED=1 KNOWN=5 | PASSED=45 FAILED=3 SKIPPED=1 KNOWN=5 | same legs. The pre-fix run (44/4) added only the harness-manifest leg, which 795264bf6 fixed |
+| run-all-355 | PASS=67 FAIL=4 | 67/4 after 366-22 | the 4 legacy reds, same legs |
 | run-all-seed103 | PASSED=20 FAILED=0 | 20/0 | green |
-| run-all-211 / 213 / 214 | 12/0, 8/0, 3/0 | same | green |
-| run-all-244 | PASS=8 FAIL=2 (content-sensor-fires, doctor-fts-health) | same two legs | pre-existing |
-| run-all-272 | PASS=14 FAIL=1 (272-cache-probe) | same leg | pre-existing |
-| run-all-296 | PASS=7 FAIL=2 (blast-radius, pinecone-residue.sh) | same two legs | pre-existing |
-| run-all-218 / 219 / 341 / 363.1 / 215 / 226 | 17/0, 13/0, 22/0, 10/0, 6/0, 4/0 | same | green |
+| run-all-211 / 213 / 214 | 12/0, 8/0, 3/0 | 12/0, 8/0, 3/0 | green |
+| run-all-244 | PASS=8 FAIL=2 (content-sensor-fires, doctor-fts-health) | 8/2, same legs | pre-existing |
+| run-all-272 | PASS=14 FAIL=1 (272-cache-probe) | 14/1, same leg | pre-existing |
+| run-all-296 | PASS=7 FAIL=2 (blast-radius, pinecone-residue.sh) | 7/2, same legs | pre-existing |
+| run-all-221 | PASS=12 FAIL=2 | 12/2, same legs | pre-existing |
+| run-all-218 / 219 / 341 / 363.1 / 215 / 226 | 17/0, 13/0, 22/0, 10/0, 6/0, 4/0 | the same after 366-22 | green |
 | run-all-3551 | PASS=62 FAIL=6 | the stated baseline | unchanged |
 | run-all-216 | PASS=8 FAIL=1 | the strict shape-declaration leg | unchanged |
 | run-all-223 | PASS=16 FAIL=3 | the same three legs | unchanged |
@@ -207,18 +208,16 @@ Post-move runs used the main tree at 19bf7f067. Baselines come from two places: 
 
 No post-move log contains `Cannot find module` or `MODULE_NOT_FOUND`.
 
-run-all-363 has 4 FAILED legs, and all of them are pre-existing:
-- test-131-e2e, 216 no-regression and 220 no-regression: red in the pre-move worktree too.
-- run-all-3551: its recorded signature is 63/5, but the stated baseline is 62/6.
-- run-all-221: the leg reads FAILED only because 221 now IMPROVES to PASS=12 FAIL=2 against a recorded KNOWN signature of 11/3. The 218 legs that the pre-move worktree failed pass on the main tree (run-all-218 is 17/0 here), so this is not caused by the move.
-- The only post-move-only failure was the harness-manifest leg. 795264bf6 fixed it.
+run-all-363's three FAILED legs are pre-existing and identical at 930a3fbc8: test-131-e2e, 216 no-regression and 220 no-regression. Its run-all-221 and run-all-3551 legs read FAILED because their recorded signatures (11/3 and 63/5) no longer match today's counts (12/2 and 62/6). That is true before the move as well.
 
-The plan asked for "all four aggregators end FAILED=0" (366, 355, 363, seed103). That holds for run-all-366 and seed103. run-all-355 and run-all-363 end on their pre-existing reds, and none of those reds is new.
+The plan asked for "all four aggregators end FAILED=0" (366, 355, 363, seed103). That holds for run-all-366 and seed103. run-all-355 and run-all-363 end on their pre-existing reds, and the move adds none.
+
+Process note: the first baseline attempt reused a stale `scratchpad/base` copy left by an earlier agent this morning. `git worktree add` refused the non-empty path, so those runs ran against an older snapshot. They were discarded and redone against the real 930a3fbc8 worktree above. The stale copy, marked finished in base.done, was deleted.
 
 ## Deviations from Plan
 
 1. **[Rule 3 - Blocking] test-218-what-why-classifier pinned two folder facts.** The m4 Part 7 leg required the exact source text `require('./entity-extractor')`, which reads `../semantic-index/entity-extractor.cjs` while embedding-classifier waits for batch 3. The egress-carrier leg scanned only `lib/core/eureka/`, so the entity-classifier transport left its view. Fix: the m4 regex accepts `./` or `../semantic-index/`, and the carrier scan covers both folders with the same assertion (only entity-classifier.cjs carries the transport). Committed with batch 1 (3ab26df38).
-2. **[Rule 3] The harness manifest went stale after batch 4.** The cause was a comment-only path rewrite in navigation-engine.cjs. It was regenerated by script in 795264bf6.
+2. **[Rule 3] The harness manifest went stale after batch 4.** The cause was a comment-only path rewrite in navigation-engine.cjs, the decide_engine surface the manifest digests. The pre-commit manifest check only fires when a manifest source map is staged, so batch 4's commit did not catch it; run-all-363 did. It was regenerated by script in 795264bf6.
 3. **[Plan reading] Move rule.** The plan's rule ("imported from outside") counts tests literally, and under that reading all 32 modules move. Its expected lists show the intent: production importers decide, and the eureka-named families stay. candidate-exclusion and room-native-substrate were on the expected-move list, but after 366-22 their only importers are tests, so they stay and appear in the orphan set. analogy-fitness, online-pattern-query and research-filing were not on the expected list, but the map shows outside production importers, so they move ("and any other the map shows").
 4. **[Scope] The gate's reference definition is require and spawn paths only.** A path.join that reads, writes or existence-checks a file does not count. The first draft counted every path.join and flagged 64 false failures: tests that create scratch files under lib/core, tests that assert a file is absent, and planted fixture trees. Comment lines and code inside strings are masked by a lexer instead of being matched by regex.
 5. **[Rule 2, small] The new folder got a CONTEXT.md.** It follows the lib/core/research-planner/ and lib/core/navigation/ precedent, so the folder states what it is.
