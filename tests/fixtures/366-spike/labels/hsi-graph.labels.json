@@ -1,0 +1,57 @@
+{
+  "_labeling_note": "Navigator blind gold, Phase 355 (pairings-unstamped).",
+  "labeler": "navigator",
+  "fixture_sha256": "b84de8ba64079e4c1cb2687f6224f13c04a8f72c8afda6a1f23ed0f808d33ec3",
+  "labeled_at": "2026-10-02T12:24:57.540Z",
+  "items": [
+    {
+      "pair_id": "c33a0cd3317b",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "2c5c95847dc9",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "0712f99a3f82",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "f06bd895b05b",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "0d18bca0c2f7",
+      "useful": false,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "ca988c187c01",
+      "useful": true,
+      "direction_ok": false,
+      "already_known": true,
+      "at": "2026-10-02T12:24:57.474Z"
+    },
+    {
+      "pair_id": "a9c96654c1cb",
+      "useful": true,
+      "direction_ok": true,
+      "already_known": false,
+      "at": "2026-10-02T12:24:57.474Z"
+    }
+  ]
+}
