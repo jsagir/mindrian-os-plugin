@@ -194,6 +194,15 @@
       "description": "Semantic-edge derivation health per room (RCA 4d): BELONGS_TO present with zero cascade edges (derivation never succeeded), a derive queue entry stuck past 3 days, or a graph-derive-failures.json log. Scopes to the active room, or every room with --cascade-rooms. --fix (sugar: --heal-room) re-enqueues each affected room through the existing dedup-by-roomDir sweep."
     },
     {
+      "id": "canon-backfill",
+      "introduced_version": "2.0.0-beta.56",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": true,
+      "runner": "lib/core/doctor/canon-backfill-module.cjs",
+      "description": "Canon handle backfill (Phase 366, D-16): for every registered room, things that resolve to a canon framework through the one resolver (frontmatter framework, methodology, title, ratified room translation) but carry no USES_FRAMEWORK edge, and framework edge targets with no node row. --fix mints the framework node first, then the edge, one transaction per thing, and reports counts per room; a second run changes nothing. Exact matches only: no fuzzy matching, no network."
+    },
+    {
       "id": "graph-derive-heal-retrofit",
       "introduced_version": "1.15.3-beta.49",
       "cadence": "once",
