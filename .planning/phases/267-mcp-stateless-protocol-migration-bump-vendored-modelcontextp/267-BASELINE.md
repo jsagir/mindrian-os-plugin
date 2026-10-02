@@ -54,9 +54,12 @@ resource counts, unless they also control the room fixture.
 ## CIRS gate baseline
 
 ```
-CONNECTOR_DESCRIPTORS=31
+CONNECTOR_DESCRIPTORS=32
 SHAPE_VIOLATIONS=53
 ```
+
+Refreshed 2026-10-02 by plan 366-24 (the post-366 combined baseline refresh, one commit with the
+zod 4 pins): `CONNECTOR_DESCRIPTORS` 31 to 32 (`research_run`, Phase 363-17).
 
 `SHAPE_VIOLATIONS` is the size of `tests/fixtures/267/shape-violations-baseline.txt`
 (`node scripts/check-shape-declaration.cjs --check --strict`, unique surface
@@ -81,6 +84,9 @@ under `bin/`, `lib/`, `scripts/`, `hooks/` whose non-comment source requires
 `scripts/skillopt-codereview.cjs`, `scripts/skillopt-genqueries.cjs`). This is
 the CTX "zod boundary discipline" floor -- later plans may not grow this set
 outside `lib/mcp` registrars and bin entry points.
+
+Refreshed 2026-10-02 by plan 366-24: 28 files, adding `scripts/fork359-permission-probe.cjs`
+(Phase 359-05, a deny-all MCP permission-prompt probe server that declares its tool input with zod).
 
 ## Zod 4 breaking-pattern scan
 

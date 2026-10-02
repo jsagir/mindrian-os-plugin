@@ -4349,7 +4349,8 @@ These nineteen IDs extend `267-RESEARCH.md`'s own MCPV2-01..14 Validation Archit
 19 were added by the planner for the seven RCAs, the runtime-loop prompts, the loopback guards, the
 v1 removal and the manifest lockstep). They are registered here at phase close by `267-18-PLAN.md`,
 per the Phase 254/257/265/267.2/340 precedent. A row is `[x]` only when `267-VERIFICATION-GATES.md`
-(measured 2026-10-02) shows its proving test green; the three `[ ]` rows say why.
+(measured 2026-10-02) shows its proving test green; the `[ ]` rows say why. MCPV2-03 and MCPV2-08
+flipped to `[x]` after the combined baseline refresh in plan 366-24 (2026-10-02).
 
 - [x] **MCPV2-01**: Protocol-era adoption is checked by what the installed package implements, not by a
       version number. Proof: `tests/test-267-mcpv2-sdk-era.cjs` (PASS=7, one SKIP by design: the v1
@@ -4359,12 +4360,16 @@ per the Phase 254/257/265/267.2/340 precedent. A row is `[x]` only when `267-VER
       title and description, in both eras over stdio. Proof: `tests/test-267-mcpv2-registration-api.cjs`
       (PASS=68) and `tests/test-267-mcpv2-dual-era.cjs` (PASS=5). Plans 267-06 to 267-11.
 
-- [ ] **MCPV2-03**: zod 4 with the accepted looser strictness pinned as data. Substance shipped (zod 4.6.5,
-      the measured delta pinned in `tests/fixtures/267/zod4-accepted-deltas.json`, plan 267-03) but the
-      proving test `tests/test-267-mcpv2-zod4-contract.cjs` is RED today (PASS=1 FAIL=3) from peer drift,
-      not from this phase: `tool:orchestration` wording (Phase 366-16), `tool:research_run:membership`,
-      and the `scripts/fork359-permission-probe.cjs` importer (359-05). Flip to `[x]` when the pinned
-      baselines are refreshed together after Phase 366 lands.
+- [x] **MCPV2-03**: zod 4 with the accepted looser strictness pinned as data. Substance shipped (zod 4.6.5,
+      the measured delta pinned in `tests/fixtures/267/zod4-accepted-deltas.json`, plan 267-03). The
+      proving test was RED at 267 close (PASS=1 FAIL=3) from peer drift, not from Phase 267:
+      `tool:orchestration` wording (Phase 366-16), `tool:research_run:membership` (363-17) and the
+      `scripts/fork359-permission-probe.cjs` importer (359-05). The combined baseline refresh (plan
+      366-24, one commit with MCPV2-08) re-measured all three: the zod 3 snapshot carries the 366-16
+      orchestration description, research_run membership is pinned in `zod4_other` with its reason, and
+      the importer baseline lists the fork359 probe (28 files).
+      **Measured:** (2026-10-02) `node tests/test-267-mcpv2-zod4-contract.cjs`, PASS=4 FAIL=0 (39 pinned
+      deltas reproduced exactly, zero extras; 30 zod importers inside the boundary).
 
 - [x] **MCPV2-04**: The three MCP Apps views publish real input schemas, receive their arguments, and
       contain `room_path` inside the rooms home. Proof: `tests/test-267-mcpv2-app-views.cjs` (PASS=22).
@@ -4385,12 +4390,13 @@ per the Phase 254/257/265/267.2/340 precedent. A row is `[x]` only when `267-VER
       `tests/test-267-mcpv2-dual-era.cjs`. Plans 267-07, 267-11. Navigator ruling 2026-10-02: the CLI
       host moving to the 2026 era (Claude Code 2.1.287 opens with `server/discover`) is accepted at rung (b).
 
-- [ ] **MCPV2-08**: The CIRS gates (born-wired registry, shape declarations, connector count) hold after
-      every registrar rewrite. Held per commit during the phase and today: registry `--check` OK, zero
-      shape violations under `lib/mcp/`, registration test PASS=68. The proving test
-      `tests/test-267-mcpv2-cirs-gates.cjs` is RED on Check (c) only: baseline says 31 connector
-      descriptors, the tree has 32 (`research_run`, Phase 363-17, a peer addition). Flip to `[x]` when
-      the baseline is refreshed to 32 together with the zod4 pins (MCPV2-03).
+- [x] **MCPV2-08**: The CIRS gates (born-wired registry, shape declarations, connector count) hold after
+      every registrar rewrite. Held per commit during the phase: registry `--check` OK, zero shape
+      violations under `lib/mcp/`, registration test PASS=68. Check (c) was RED at 267 close (baseline 31
+      connector descriptors, tree 32: `research_run`, Phase 363-17); the combined baseline refresh (plan
+      366-24, one commit with MCPV2-03) set `CONNECTOR_DESCRIPTORS=32` in `267-BASELINE.md`.
+      **Measured:** (2026-10-02) `node tests/test-267-mcpv2-cirs-gates.cjs`, PASS=3 FAIL=0 (32
+      descriptors, 53 shape violations all within the baseline, zero under lib/mcp/).
 
 - [x] **MCPV2-09**: Dependency self-heal probes the real packages and no longer names the removed v1 SDK.
       Proof: `lib/core/mcp-dep-heal.test.cjs` (9/9). Plans 267-05, 267-17.
@@ -4459,7 +4465,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
 plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
-plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; 16 `[x]`, three `[ ]` with reasons: MCPV2-03 and MCPV2-08 await the combined baseline refresh, MCPV2-13 awaits the deferred human Desktop and Cowork probes).
+plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; all 19 `[x]`: MCPV2-13 closed by navigator waiver, MCPV2-03 and MCPV2-08 flipped by the 366-24 combined baseline refresh).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18

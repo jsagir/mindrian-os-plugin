@@ -22,6 +22,7 @@ lib/mcp/tools/sensors.cjs
 lib/mcp/tools/status.cjs
 lib/mcp/tools/stop-gate.cjs
 lib/mcp/tools/views.cjs
+scripts/fork359-permission-probe.cjs
 scripts/jev-response-schema.cjs
 scripts/skillopt-codereview.cjs
 scripts/skillopt-genqueries.cjs
