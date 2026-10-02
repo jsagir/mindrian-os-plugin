@@ -22,7 +22,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 
 const RANKER_PATH = path.resolve(__dirname, '..', 'lib', 'workflow', 'f-selector-ranker.cjs');
-const LEXICAL_PATH = path.resolve(__dirname, '..', 'lib', 'core', 'eureka', 'lexical-overlap.cjs');
+const LEXICAL_PATH = path.resolve(__dirname, '..', 'lib', 'core', 'semantic-index', 'lexical-overlap.cjs');
 
 function loadRanker() {
   delete require.cache[require.resolve(RANKER_PATH)];

@@ -121,7 +121,7 @@ ok('eureka_critic registers on the LOCAL server (registerRouterTools), not brain
 // ---------------------------------------------------------------------------
 const EUREKA_SURFACE_FILES = [
   'lib/core/eureka-critic.cjs',
-  'lib/core/eureka/embedding-spine.cjs',
+  'lib/core/semantic-index/embedding-spine.cjs',
   'lib/core/eureka/vector-store.cjs',
   'lib/core/eureka/report-html.cjs',
   'lib/core/eureka-deps-resolver.cjs',

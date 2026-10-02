@@ -35,8 +35,8 @@ const os = require('node:os');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const classifierPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-classifier.cjs');
-const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-extractor.cjs');
+const classifierPath = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'entity-classifier.cjs');
+const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'entity-extractor.cjs');
 const embedClassifierPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'embedding-classifier.cjs');
 const eurekaDir = path.join(REPO_ROOT, 'lib', 'core', 'eureka');
 const classifier = require(classifierPath);
@@ -195,7 +195,9 @@ async function main() {
   //      exported FRAMEWORK_TERMS Set (the WHY seed landed, not copied).
   await check('(m4) Part 7 reuse: module requires entity-extractor and FRAMEWORK_TERMS is a Set', () => {
     const src = fs.readFileSync(embedClassifierPath, 'utf8');
-    assert.ok(/require\(['"]\.\/entity-extractor(\.cjs)?['"]\)/.test(src), 'module requires ./entity-extractor');
+    // Phase 366-23: the two modules sit in lib/core/semantic-index/ (or, mid-move,
+    // one folder apart), so the require is ./ or ../semantic-index/.
+    assert.ok(/require\(['"](?:\.\/|\.\.\/semantic-index\/)entity-extractor(\.cjs)?['"]\)/.test(src), 'module requires ./entity-extractor');
     assert.ok(/FRAMEWORK_TERMS/.test(src), 'module references FRAMEWORK_TERMS');
     const exported = require(extractorPath).FRAMEWORK_TERMS;
     assert.ok(exported instanceof Set, 'FRAMEWORK_TERMS export is a Set');
@@ -394,10 +396,19 @@ async function main() {
   // deliberately keeps its file list frozen; this is the wider assertion).
   // ---------------------------------------------------------------------------
   await check('entity-classifier is the only eureka module carrying the transport', () => {
-    const files = fs.readdirSync(eurekaDir).filter((f) => /\.cjs$/.test(f));
+    // Phase 366-23: the shared semantic index moved out of lib/core/eureka/ into
+    // lib/core/semantic-index/; the egress assertion covers both folders.
+    const semanticDir = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index');
+    const files = [];
+    [eurekaDir, semanticDir].forEach((d) => {
+      let names = [];
+      try { names = fs.readdirSync(d); } catch (_e) { names = []; }
+      names.filter((f) => /\.cjs$/.test(f)).forEach((f) => files.push(path.join(d, f)));
+    });
     const carriers = [];
-    for (const f of files) {
-      const raw = fs.readFileSync(path.join(eurekaDir, f), 'utf8');
+    for (const full of files) {
+      const f = path.basename(full);
+      const raw = fs.readFileSync(full, 'utf8');
       // Strip block comments so a module's "zero fetch here" documentation is not
       // mistaken for a real transport call (explore-chain.cjs documents exactly
       // that). The Anthropic host string is the precise transport signal: it names

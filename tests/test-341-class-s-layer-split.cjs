@@ -7,7 +7,7 @@
  *
  * All arms are mocked layers or in-process monkeypatches of the ONE
  * resolution authority (lib/core/eureka-deps-resolver.cjs) and the ONE
- * embedding spine (lib/core/eureka/embedding-spine.cjs) -- no real model
+ * embedding spine (lib/core/semantic-index/embedding-spine.cjs) -- no real model
  * load, no network, no download.
  *
  * Idiom follows tests/test-213-part8-boundary.cjs / test-341-eureka-deps-
@@ -23,7 +23,7 @@ const path = require('node:path');
 const REPO = path.resolve(__dirname, '..');
 const smoke = require(path.join(REPO, 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
 const resolver = require(path.join(REPO, 'lib', 'core', 'eureka-deps-resolver.cjs'));
-const spine = require(path.join(REPO, 'lib', 'core', 'eureka', 'embedding-spine.cjs'));
+const spine = require(path.join(REPO, 'lib', 'core', 'semantic-index', 'embedding-spine.cjs'));
 
 let PASS = 0;
 let FAIL = 0;

@@ -56,7 +56,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
 const triModal = require(path.join(REPO_ROOT, 'lib/core/eureka/tri-modal-index.cjs'));
 const { scoreMeasured } = require(path.join(REPO_ROOT, 'lib/core/rs-differential-scorer.cjs'));
-const spine = require(path.join(REPO_ROOT, 'lib/core/eureka/embedding-spine.cjs'));
+const spine = require(path.join(REPO_ROOT, 'lib/core/semantic-index/embedding-spine.cjs'));
 
 const EMBED_DIM = 384;
 const FIRE_BANDS = [0.1, 0.3, 0.4, 0.5];

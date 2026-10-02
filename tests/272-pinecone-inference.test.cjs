@@ -15,7 +15,7 @@
  *
  * Mocked fetch throughout via an injected fetchFn seam (matching
  * embedTexts's own encodeFn injection-seam convention,
- * lib/core/eureka/embedding-spine.cjs). No live PINECONE_API_KEY needed,
+ * lib/core/semantic-index/embedding-spine.cjs). No live PINECONE_API_KEY needed,
  * zero network egress from this test file itself.
  *
  * Part 8 (Canon Graph Boundary, the load-bearing requirement here): the

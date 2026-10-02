@@ -209,7 +209,7 @@ async function opEmbed(req) {
   let embeddingSpine;
   try {
     // eslint-disable-next-line global-require
-    embeddingSpine = require('../lib/core/eureka/embedding-spine.cjs');
+    embeddingSpine = require('../lib/core/semantic-index/embedding-spine.cjs');
   } catch (err) {
     return { success: false, error: 'encoder_unavailable', detail: boundedDetail(err && err.message) };
   }
@@ -260,7 +260,7 @@ function opKnn(req) {
     let dim;
     try {
       // eslint-disable-next-line global-require
-      dim = require('../lib/core/eureka/embedding-spine.cjs').resolveDim();
+      dim = require('../lib/core/semantic-index/embedding-spine.cjs').resolveDim();
     } catch (_e) {
       dim = undefined; // ensureStore falls back to its own resolveWidth on undefined
     }
@@ -312,7 +312,7 @@ function opMeta(req) {
     let dim;
     try {
       // eslint-disable-next-line global-require
-      dim = require('../lib/core/eureka/embedding-spine.cjs').resolveDim();
+      dim = require('../lib/core/semantic-index/embedding-spine.cjs').resolveDim();
     } catch (_e) {
       dim = undefined;
     }

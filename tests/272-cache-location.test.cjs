@@ -40,7 +40,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const SPINE_MODULE_PATH = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'embedding-spine.cjs');
+const SPINE_MODULE_PATH = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'embedding-spine.cjs');
 
 // Direct require -- embedding-spine.cjs already exists today.
 // eslint-disable-next-line global-require

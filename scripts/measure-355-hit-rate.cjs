@@ -261,7 +261,7 @@ async function defaultRunProducers(ctx) {
   const rsEngine = require('../lib/core/rs-engine.cjs');
   const hsiEngine = require('../lib/core/hsi-engine.cjs');
   const hsiToGraph = require('./hsi-to-graph.cjs');
-  const embeddingSpine = require('../lib/core/eureka/embedding-spine.cjs');
+  const embeddingSpine = require('../lib/core/semantic-index/embedding-spine.cjs');
 
   const producersRan = [];
   const pairs = [];

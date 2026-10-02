@@ -20,7 +20,7 @@
 
 const assert = require('node:assert');
 
-const spine = require('../lib/core/eureka/embedding-spine.cjs');
+const spine = require('../lib/core/semantic-index/embedding-spine.cjs');
 
 let passed = 0;
 function ok(name) { passed += 1; console.log('  ok   ' + name); }

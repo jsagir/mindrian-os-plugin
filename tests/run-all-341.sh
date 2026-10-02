@@ -78,7 +78,7 @@ PHASE_341_SURFACES=(
   "scripts/migrate-legacy-install-location.cjs"
   "lib/core/eureka-deps-resolver.cjs"
   "lib/core/eureka/eureka-enable.cjs"
-  "lib/core/eureka/embedding-spine.cjs"
+  "lib/core/semantic-index/embedding-spine.cjs"
   "lib/core/doctor/class-s-eureka-smoke.cjs"
   "commands/update.md"
   "commands/eureka.md"

@@ -32,7 +32,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const rm = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'reasoning-mode.cjs'));
 const critic = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka-critic.cjs'));
-const { lexicalOverlap, LEXICAL_METHOD } = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'lexical-overlap.cjs'));
+const { lexicalOverlap, LEXICAL_METHOD } = require(path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'lexical-overlap.cjs'));
 const { FIXTURE_PAIRS } = require(path.join(REPO_ROOT, 'tests', 'fixtures', '226-reasoning-pairs.cjs'));
 
 const RUBRIC_KEYS = ['a', 'b', 'c', 'd', 'e', 'f'];

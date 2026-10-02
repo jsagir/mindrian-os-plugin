@@ -239,7 +239,7 @@ function phraseFor(row) {
 // ---------------------------------------------------------------------------
 async function buildVectorLane(roomDir, opts) {
   const o = opts || {};
-  const spine = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'embedding-spine.cjs'));
+  const spine = require(path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'embedding-spine.cjs'));
   const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
   const topK = Number.isInteger(o.top_k) && o.top_k > 0 ? o.top_k : 5;
   if (typeof o.encodeFn !== 'function') {

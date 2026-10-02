@@ -68,7 +68,7 @@
  *     zero-egress: it delegates to the embedding-spine boundary (generic model
  *     weights by id only, no user bytes). The ONLY remote model reach in the whole
  *     pipeline lives inside the tier-2b classifier module
- *     (lib/core/eureka/entity-classifier.cjs), which documents its own boundary: a
+ *     (lib/core/semantic-index/entity-classifier.cjs), which documents its own boundary: a
  *     LOCAL classification call over the Anthropic LLM transport, never the Brain
  *     surface, degrade-to-passthrough -- and now for the escalated residual only.
  *     The re-embed uses the already-vendored local paths only.
@@ -110,7 +110,7 @@ function existingOrDefaultEpistemicType(props) {
     ? props.epistemic_type
     : 'observation';
 }
-const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
+const { extractEntities } = require('../lib/core/semantic-index/entity-extractor.cjs');
 const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
 // Tier-2a (quick-task 260714-k44): the LOCAL embedding WHAT-vs-WHY classifier. It
 // is fully local and zero-egress (it delegates to the embedding-spine boundary),
@@ -124,7 +124,7 @@ const entityEmbedClassifier = require('../lib/core/eureka/embedding-classifier.c
 // candidates tier-2a could not confidently resolve. resolveAnthropicKey gates
 // whether that escalation runs at all (Part 7 reuse of the mva-classifier
 // resolver, never a copy).
-const entityClassifier = require('../lib/core/eureka/entity-classifier.cjs');
+const entityClassifier = require('../lib/core/semantic-index/entity-classifier.cjs');
 const { resolveAnthropicKey } = require('../lib/core/mva-classifier.cjs');
 // Phase 219-02 (D-11, REQ-5): the SHIPPED zero-dep frontmatter parser (Canon
 // Part 7 reuse-before-build -- never a new YAML parser). Deterministic,

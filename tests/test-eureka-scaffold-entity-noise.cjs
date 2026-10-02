@@ -98,7 +98,7 @@ const { runExtraction, collectArtifacts } = entityExtract;
 const { renderTemplate } = require('../lib/core/room-skeleton-scaffold.cjs');
 const roomBirth = require('../lib/core/navigation/room-birth.cjs');
 const feynmanSeedWriter = require('../lib/core/feynman/feynman-seed-writer.cjs');
-const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
+const { extractEntities } = require('../lib/core/semantic-index/entity-extractor.cjs');
 
 let pass = 0;
 let total = 0;

@@ -22,7 +22,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-extractor.cjs');
+const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'entity-extractor.cjs');
 const { extractEntities } = require(extractorPath);
 
 const VALID_TYPES = new Set(['company', 'technology', 'market']);

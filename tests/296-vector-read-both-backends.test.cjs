@@ -87,7 +87,7 @@ function runBridge(op, payload, extraEnv) {
 // the WRONG dim silently wipes the seeded vectors before querying them
 // (empty hits, not an error). The bridge always calls resolveDim() itself
 // (never accepts a caller-supplied dim), so the fixture must match it.
-const { resolveDim } = require('../lib/core/eureka/embedding-spine.cjs');
+const { resolveDim } = require('../lib/core/semantic-index/embedding-spine.cjs');
 const SEED_DIM = resolveDim();
 
 // axisVec(index, dim): a `dim`-length vector that is 0 everywhere except a

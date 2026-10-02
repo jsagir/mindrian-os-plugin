@@ -27,7 +27,7 @@
  *       reasoning_tag 'rubric_disagreement'.
  *
  * Pure CJS, node built-ins only, frozen data, no side effects, no em-dashes.
- * Mirrors the lib/core/eureka/lexical-overlap.cjs module shape.
+ * Mirrors the lib/core/semantic-index/lexical-overlap.cjs module shape.
  */
 'use strict';
 

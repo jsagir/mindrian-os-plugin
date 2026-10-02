@@ -29,7 +29,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // The module under test. This require THROWS (Cannot find module ... reasoning-mode)
 // until Task 2 creates it -- that is the intended RED state of this Wave 0 scaffold.
 const rm = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'reasoning-mode.cjs'));
-const { lexicalOverlap, LEXICAL_METHOD } = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'lexical-overlap.cjs'));
+const { lexicalOverlap, LEXICAL_METHOD } = require(path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'lexical-overlap.cjs'));
 const { FIXTURE_PAIRS } = require(path.join(REPO_ROOT, 'tests', 'fixtures', '226-reasoning-pairs.cjs'));
 
 // Turn a fixture into the validCandidate shape scoreReasoningPairs consumes

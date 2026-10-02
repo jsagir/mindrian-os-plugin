@@ -53,7 +53,7 @@ const path = require('node:path');
 const Module = require('node:module');
 
 const REPO = path.resolve(__dirname, '..');
-const spine = require(path.join(REPO, 'lib', 'core', 'eureka', 'embedding-spine.cjs'));
+const spine = require(path.join(REPO, 'lib', 'core', 'semantic-index', 'embedding-spine.cjs'));
 const reportHtml = require(path.join(REPO, 'lib', 'core', 'eureka', 'report-html.cjs'));
 const smoke = require(path.join(REPO, 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
 const resolver = require(path.join(REPO, 'lib', 'core', 'eureka-deps-resolver.cjs'));

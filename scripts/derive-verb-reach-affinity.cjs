@@ -10,7 +10,7 @@
  *
  * A one-time AUTHORING tool, not a build gate. It embeds the 10 frozen
  * CANONICAL_VERBS and the 6 reaches' REACH_EXEMPLARS with the already-shipped
- * fully local encoder (lib/core/eureka/embedding-spine.cjs), scores each verb
+ * fully local encoder (lib/core/semantic-index/embedding-spine.cjs), scores each verb
  * against each reach by MAX cosine over that reach's exemplar set, and rewrites
  * the generated table block in lib/core/verb-reach-affinity.cjs. At runtime
  * nothing calls this script: the committed constant is read as a plain frozen
@@ -124,7 +124,7 @@ const END_SENTINEL = '// <<< END GENERATED:VERB_REACH_AFFINITY >>>';
 const { CANONICAL_VERBS } = require('../lib/core/navigation-engine-shared.cjs');
 const { reachIdToSkillFamily } = require('../lib/core/navigation-engine.cjs');
 const affinityModule = require('../lib/core/verb-reach-affinity.cjs');
-const spine = require('../lib/core/eureka/embedding-spine.cjs');
+const spine = require('../lib/core/semantic-index/embedding-spine.cjs');
 
 const REACH_EXEMPLARS = affinityModule.REACH_EXEMPLARS;
 const REACH_IDS = affinityModule.REACH_IDS;

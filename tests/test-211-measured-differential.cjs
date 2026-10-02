@@ -22,7 +22,7 @@
 
 const assert = require('node:assert');
 
-const lex = require('../lib/core/eureka/lexical-overlap.cjs');
+const lex = require('../lib/core/semantic-index/lexical-overlap.cjs');
 const scorer = require('../lib/core/rs-differential-scorer.cjs');
 
 let passed = 0;

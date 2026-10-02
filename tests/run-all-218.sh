@@ -29,7 +29,7 @@
 # delegates to the embedding-spine boundary (generic model weights by id only, no
 # user bytes), so it never carries a transport of its own. The ONLY remote model
 # reach in the pipeline lives in the tier-2b classifier module
-# (lib/core/eureka/entity-classifier.cjs): a LOCAL classification call over the
+# (lib/core/semantic-index/entity-classifier.cjs): a LOCAL classification call over the
 # Anthropic LLM transport (the mva-classifier / llm-name-suggester precedent),
 # NEVER the Brain surface, with a degrade-to-passthrough contract, now called for
 # the low-margin escalated residual ONLY. This is NOT the rejected Plurai network
@@ -119,9 +119,9 @@ run "REQ-4 readers unchanged" \
 #     tier-2 addition. The ONE model reach (entity-classifier.cjs) is deliberately
 #     NOT in this list; the tier-2 test asserts it is the sole eureka carrier.
 run "no raw node/edge INSERT" \
-  bash -c '! grep -rnE "INSERT INTO (nodes|edges)" scripts/entity-extract.cjs lib/core/eureka/entity-extractor.cjs'
+  bash -c '! grep -rnE "INSERT INTO (nodes|edges)" scripts/entity-extract.cjs lib/core/semantic-index/entity-extractor.cjs'
 run "zero network" \
-  bash -c "! grep -rnE \"fetch|https?\\.|require\\('node:http\" lib/core/eureka/entity-extractor.cjs scripts/entity-extract.cjs"
+  bash -c "! grep -rnE \"fetch|https?\\.|require\\('node:http\" lib/core/semantic-index/entity-extractor.cjs scripts/entity-extract.cjs"
 
 # (e) No command surface leaked (D-03: entity-extract.cjs is a plain script, NOT a
 #     born-wired /mos: command; the connector registry must stay green as proof).
