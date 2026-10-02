@@ -1464,13 +1464,25 @@ Plans:
 ### Phase 364: Scientific Roadmapping command /mos:scientific-roadmap (SEED-098, reuses Phase 363 research-planner engine)
 
 **Goal:** Ship /mos:scientific-roadmap (SEED-098): a constraint-first command rooted in the room problem-type classification, entered from the researcher starting point or a hypothesis, with a systems-thinking pass before path enumeration, walking Theo framework_step content only, turning ranked bottlenecks into falsifiable hypotheses and handing them to /mos:research on the Phase 363 engine (D-18, no second engine). Planning input: 364-INPUT.md (SEED-106 inputs added 2026-10-02, section "SEED-106 inputs": Theo answers science questions with business-terminated chains; the graph has no scientific-method content; 109 of 460 frameworks carry a problem type and 5 a watcher, re-measured live 2026-10-02 through `theo_health`, so a thin `recommend_chain` must say "uncovered" rather than read as a fit verdict).
-**Requirements**: TBD
+**Requirements**: SRM364-01..21 (minted at plan time, 364-01)
 **Depends on:** Phase 363
-**Plans:** 0 plans
+**Plans:** 13 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 364 to break down)
+- [ ] 364-01-PLAN.md -- mint SRM364 rows, run-all-364 aggregator with every leg named (wave 1)
+- [ ] 364-02-PLAN.md -- canon snapshot refresh with the navigator reviewing the name diff, RED-first snapshot leg (wave 1, checkpoint)
+- [ ] 364-03-PLAN.md -- Theo step reader with honest refusal, membership-only coverage, not_scored to not_ready, Theo fixtures and fake brain (wave 1)
+- [ ] 364-04-PLAN.md -- read-only entry check and mid-journey entry resolver, entry-room fixtures (wave 1)
+- [ ] 364-05-PLAN.md -- door stage machine (systems pass before paths and limiters), question set on the 363 template, Stage B hypotheses, rubric (wave 2)
+- [ ] 364-06-PLAN.md -- research-plan/PLAN.md filed only on an approved F.8 selection (wave 3)
+- [ ] 364-07-PLAN.md -- /mos:scientific-roadmap emitted through /mos:new-surface, born wired, registries and curated chains (wave 2)
+- [ ] 364-08-PLAN.md -- Tri-Polar: methodology MCP enum and handler (65 to 66 pins), ignite Researcher and Door 3 offer (wave 3)
+- [ ] 364-09-PLAN.md -- CLI door, end-to-end refusal and walk, Part 8 planted-marker sweep, opt-in live smoke (wave 4)
+- [ ] 364-10-PLAN.md -- Theo notify doc, OPEN-HANDOFFS row, research-planner folder-contract rows (wave 4)
+- [ ] 364-11-PLAN.md -- phase gate measured, live smoke with navigator approval, SRM364-01..19 closed, canon-map rows, follow-ons (wave 5, checkpoint)
+- [ ] 364-12-PLAN.md -- research trail in both homes, Theo and peer messages, SRM364-20/21, Phase 364 STATE and ROADMAP lines (wave 6, checkpoint)
+- [ ] 364-13-PLAN.md -- CHANGELOG bullet, after 369 lands and jsagi-be is messaged first (wave 7, checkpoint)
 
 ### Phase 365: Verification rung earned not asserted (B2 gate floor, B3 unattended-step constraints, edge-derived rung)
 
