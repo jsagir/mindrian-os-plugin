@@ -11,20 +11,19 @@ Canon: Part 6 (dog-fooding), Part 8 (graph boundary), Part 9 (memory locality)
 
 ## Current Baseline [GENERATED -- do not hand-edit this section]
 
-**205 violations**, measured by `node scripts/check-substrate.cjs --baseline` at commit
-`48db8772` (2026-09-03, Phase 276-15). Per-rule breakdown: `chokepoint-require 47,
-m3-direct-sqlite-require 33, m4-cypher-interpolation 35, opengraph-bypass 38,
-raw-graph-write 52`.
+**204 violations**, measured by `node scripts/check-substrate.cjs --baseline` at commit
+`e6be122f` (2026-10-02, Phase 276 verification gap TOOLHON-14). Per-rule breakdown:
+`chokepoint-require 46, m3-direct-sqlite-require 33, m4-cypher-interpolation 35,
+opengraph-bypass 38, raw-graph-write 52`.
 
 This is the ONE number this document currently claims as "the baseline." It is identical
-to the number in the last dated re-measurement section below (2026-09-03, R17), because
-this phase's own substrate-adjacent work (plans 276-09 and 276-10) did not move it:
-276-09 added a `{timeout: 5000}` constructor OPTION to existing `DatabaseSync` openers
-(no new opener, no new raw write, no new chokepoint bypass -- none of
-`check-substrate.cjs`'s five rules pattern-match on a constructor option), and 276-10
-changed a caught-error's classification string and a doc comment inside
-`spine-events.cjs`/`room-db.cjs` (no SQL, no `require()` of a banned module, no Cypher).
-Neither plan added, removed, or moved a line any of the five rules scan for. Re-run
+to the number in the last dated re-measurement section below (2026-10-02). The drop from
+205 is the checker's allowlist (quick 260917-o1e exempted
+`scripts/gsd-graph-derive-drain.cjs`), not a code change; see that section. The 205
+figure below was measured at Phase 276-15, whose substrate-adjacent plans (276-09 and
+276-10) did not move the count: 276-09 added a `{timeout: 5000}` constructor OPTION to
+existing `DatabaseSync` openers, and 276-10 changed a caught-error classification string
+and a doc comment inside `spine-events.cjs`/`room-db.cjs`. Neither plan added, removed, or moved a line any of the five rules scan for. Re-run
 `node tests/test-273-substrate-baseline-honest.cjs` to reproduce: it independently
 measures `scanRepo()` and compares against this document's own last-dated section,
 exiting 0 only when the two agree.
@@ -431,3 +430,18 @@ import: this phase introduced zero new substrate violations.
 
 Cross-reference: `.planning/phases/276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs/276-15-PLAN.md`,
 `tests/test-273-substrate-baseline-honest.cjs`, `276-09-SUMMARY.md`, `276-10-SUMMARY.md`.
+
+## 2026-10-02 re-measurement (Phase 276 verification gap TOOLHON-14)
+
+Result: **204**. Re-ran `node scripts/check-substrate.cjs --baseline` at commit `e6be122f`,
+per-rule breakdown `chokepoint-require 46, m3-direct-sqlite-require 33,
+m4-cypher-interpolation 35, opengraph-bypass 38, raw-graph-write 52`.
+
+The one-count drop (`chokepoint-require` 47 to 46) is NOT a code improvement. It comes
+from the checker's own allowlist: quick 260917-o1e (commit `7a44a2bda`, 2026-09-17)
+added `scripts/gsd-graph-derive-drain.cjs` to `ALLOWED_DIRECT_IMPORT`, because its
+`room-db.cjs` require only opens the write handle passed to `navigation.logMemoryEvent`
+(the write itself routes through the chokepoint). Proof: running today's checker over a
+`git archive` of `lib/` + `scripts/` at `48db8772` also reports 204, so the
+tree's substrate shape did not change between the two measurements; only the rule's
+exemption list did. Stated plainly so the drop is not read as earned credit.
