@@ -1,0 +1,2 @@
+{"a":"ca/C1","b":"ma/M2","section_a":"competitive-analysis","section_b":"market-analysis","lanes":["shared_entity","icm_declared"],"stage_a":{"pass":true,"tag":null},"judge":"none","choice":null,"confidence":null,"band":"unknown","human_routed":true,"judged_at":"2026-10-01T00:00:00.000Z"}
+{"a":"ma/M1","b":"pd/P3","section_a":"market-analysis","section_b":"problem-definition","lanes":["shared_entity","lexical"],"stage_a":{"pass":true,"tag":null},"judge":"none","choice":null,"confidence":null,"band":"unknown","human_routed":true,"judged_at":"2026-10-01T00:00:00.000Z"}
