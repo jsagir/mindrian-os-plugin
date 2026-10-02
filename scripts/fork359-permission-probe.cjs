@@ -15,7 +15,7 @@
 //
 // Wired via `--mcp-config <tmp>/probe.json --permission-prompt-tool
 // mcp__fork359probe__permission` (RESEARCH Pattern 5). Built on the
-// installed @modelcontextprotocol/sdk (1.29.0+, a declared dependency) and
+// installed @modelcontextprotocol/server (v2, a declared dependency) and
 // zod; no new package.
 //
 // Contract (community-documented, GitHub issue #1175; verified in the
@@ -29,8 +29,8 @@
 
 const path = require('path');
 const fs = require('fs');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const { McpServer } = require('@modelcontextprotocol/server');
+const { serveStdio } = require('@modelcontextprotocol/server/stdio');
 const { z } = require('zod');
 
 const DENY_MESSAGE = 'No one can answer in this run; continue.';
@@ -94,15 +94,19 @@ function createServer() {
     }
   );
 
-  server.tool(
+  // v2 McpServer has no positional tool() overload (plan 267-17): registerTool.
+  server.registerTool(
     'permission',
-    'Deny-all permission host for the Phase 359 R9 forward run (dev-only, never in ' +
-      'production). Denies every permission request with a neutral message; logs ' +
-      'AskUserQuestion option labels only, never reply text.',
     {
-      tool_name: z.string().describe('The tool Claude Code is asking permission to call (e.g. AskUserQuestion).'),
-      input: z.any().describe('The pending tool call input, passthrough. Only AskUserQuestion.questions[].options[].label is read or logged.'),
-      tool_use_id: z.string().optional().describe('The tool_use id this permission request is for.'),
+      description:
+        'Deny-all permission host for the Phase 359 R9 forward run (dev-only, never in ' +
+        'production). Denies every permission request with a neutral message; logs ' +
+        'AskUserQuestion option labels only, never reply text.',
+      inputSchema: z.object({
+        tool_name: z.string().describe('The tool Claude Code is asking permission to call (e.g. AskUserQuestion).'),
+        input: z.any().describe('The pending tool call input, passthrough. Only AskUserQuestion.questions[].options[].label is read or logged.'),
+        tool_use_id: z.string().optional().describe('The tool_use id this permission request is for.'),
+      }),
     },
     async (args) => {
       const toolName = args && args.tool_name;
@@ -124,9 +128,7 @@ function createServer() {
 }
 
 async function main() {
-  const server = createServer();
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  serveStdio(() => createServer());
 }
 
 if (require.main === module) {
