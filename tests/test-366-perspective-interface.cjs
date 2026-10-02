@@ -171,6 +171,73 @@ const INTERFACE_NAMES = ['ID', 'TEMPLATE_ID', 'COMMAND', 'LENSES', 'FALSIFIER', 
     return Buffer.compare(got, want) === 0 ? true : 'verdicts.jsonl differs from the golden';
   });
 
+  // P7
+  await leg('P7 runJudge with opts.module reads and writes through that module', async function () {
+    const stubRoot = path.join(root, 'stubrun');
+    const seenDirs = [];
+    const stub = {
+      STAGE_A_LANES: Object.freeze(['flow_boundary']),
+      readCandidates: function (roomDir, tag) {
+        return { header: null, candidates: [{ a: 'x/1', b: 'y/2', section_a: 'sa', section_b: 'sb', title_a: 'one', title_b: 'two', lanes: ['flow_boundary'], lexical: 0, shared_entities: [] }] };
+      },
+      runDirFor: function (roomDir, tag) { const d = path.join(stubRoot, tag); seenDirs.push(d); return d; },
+    };
+    const res = await judge.runJudge(run.built.roomDir, 'stubtag', { module: stub, now: FIXED_NOW });
+    if (!res.ok) return JSON.stringify(res);
+    if (res.rows.length !== 1) return 'rows ' + res.rows.length;
+    if (!fs.existsSync(path.join(stubRoot, 'stubtag', '03_judge', 'output', 'verdicts.jsonl'))) return 'verdicts not written through stub.runDirFor';
+    if (!seenDirs.length) return 'stub.runDirFor never called';
+    if (fs.existsSync(path.join(run.built.roomDir, '.mindrian', 'eureka-perspective', 'stubtag'))) return 'eureka run dir touched';
+    return true;
+  });
+
+  // P8
+  await leg('P8 stage A credits only the module STAGE_A_LANES', function () {
+    const flowOnly = { a: 'x', b: 'y', title_a: 'one', title_b: 'two', lanes: ['flow_boundary'], shared_entities: [] };
+    const stub = { STAGE_A_LANES: Object.freeze(['flow_boundary']) };
+    if (judge.stageAGate(flowOnly).pass !== false) return 'eureka module should fail a flow_boundary-only row';
+    if (judge.stageAGate(flowOnly, recall).pass !== false) return 'explicit eureka module should fail it';
+    if (judge.stageAGate(flowOnly, stub).pass !== true) return 'stub module should pass it';
+    const lex = { a: 'x', b: 'y', title_a: 'one', title_b: 'two', lanes: ['lexical'], shared_entities: [] };
+    if (judge.stageAGate(lex).pass !== true) return 'eureka lexical row should pass';
+    if (judge.stageAGate(lex, stub).pass !== false) return 'stub module should not credit lexical';
+    const ent = { a: 'x', b: 'y', title_a: 'one', title_b: 'two', lanes: [], shared_entities: ['bridge'] };
+    if (judge.stageAGate(ent, stub).pass !== true) return 'the entity floor still credits a shared entity';
+    return true;
+  });
+
+  // P9
+  const room9 = fixture.buildPerspectiveRoom(root, { name: 'canon' });
+  {
+    // add an edge so a thing that carries no frontmatter gets its handle from the framework node
+    const db = roomDb.openRoomDb(room9.roomDir);
+    try {
+      insertNode(db, 'framework:custom-lens', 'framework', JSON.stringify({ name: 'Four Lenses of Innovation' }), { source_path: 'test:366-pi', epistemic_type: 'observation' });
+      db.prepare('INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?)').run('sd/S1', 'framework:custom-lens', 'USES_FRAMEWORK', '{}');
+    } finally { roomDb.closeRoomDb(db); }
+  }
+  await leg('P9 canon_handle: USES_FRAMEWORK edge first, then the one resolver, else null', function () {
+    const sub = substrateOf(room9.roomDir, { roomDir: room9.roomDir });
+    const byId = {}; sub.things.forEach(function (t) { byId[t.id] = t; });
+    if (byId['sd/S1'].canon_handle !== 'Four Lenses of Innovation') return 'edge handle ' + byId['sd/S1'].canon_handle;
+    if (byId['pd/P4'].canon_handle !== 'Reverse Salient Analysis') return 'P4 ' + byId['pd/P4'].canon_handle;
+    if (byId['ca/C3'].canon_handle !== 'Systems Thinking') return 'methodology via registry ' + byId['ca/C3'].canon_handle;
+    if (byId['pd/P1'].canon_handle !== null) return 'unresolved should be null, got ' + byId['pd/P1'].canon_handle;
+    return true;
+  });
+
+  // P10
+  await leg('P10 buildSubstrate(db) with no opts never throws; with { roomDir } resolves the frontmatter framework', function () {
+    const bare = substrateOf(room9.roomDir);
+    const byId = {}; bare.things.forEach(function (t) { byId[t.id] = t; });
+    if (byId['sd/S1'].canon_handle !== 'Four Lenses of Innovation') return 'edge handle without opts ' + byId['sd/S1'].canon_handle;
+    if (byId['ca/C3'].canon_handle !== null) return 'no roomDir must skip the resolver, got ' + byId['ca/C3'].canon_handle;
+    const full = substrateOf(room9.roomDir, { roomDir: room9.roomDir });
+    const f = {}; full.things.forEach(function (t) { f[t.id] = t; });
+    if (f['sd/S2'].canon_handle !== 'Four Lenses of Innovation') return 'frontmatter framework ' + f['sd/S2'].canon_handle;
+    return true;
+  });
+
   // P11
   const room11 = fixture.buildPerspectiveRoom(root, { name: 'contract' });
   const sub11 = substrateOf(room11.roomDir, { roomDir: room11.roomDir });
