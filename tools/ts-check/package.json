@@ -1,0 +1,12 @@
+{
+  "name": "mos-ts-check",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Walled-off author-time tooling for the erasable-only TypeScript gate. It never enters the plugin's root dependency tree (Phase 369 D-17, the Phase 232 editor-src precedent).",
+  "scripts": {
+    "check": "node check.cjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}
