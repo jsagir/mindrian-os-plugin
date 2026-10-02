@@ -342,6 +342,18 @@ function mapCode(code, status, extra) {
   assert.ok(/Usage/i.test(fh.out()));
   ok('help -> usage on stdout, exit 0');
 
+  // Review CR-01: help after a subcommand must never fall through to a live
+  // Theo propose (or a website scan + report write).
+  [['theo', '--help'], ['theo', '-h'], ['all', '--help'], ['website', '--help'],
+   ['--help', 'theo'], ['theo', '--version', VER, '--ref', SHA, '--help']].forEach(function (argv) {
+    const fh2 = theoFake();
+    assert.equal(L.main(argv, fh2.deps), 0, argv.join(' ') + ' exits 0');
+    assert.equal(fh2.calls.length, 0, argv.join(' ') + ' spawns nothing');
+    assert.equal(fh2.writes.length, 0, argv.join(' ') + ' writes no report');
+    assert.ok(/Usage/i.test(fh2.out()), argv.join(' ') + ' prints usage');
+  });
+  ok('CR-01: theo --help / theo -h / all --help / website --help -> usage, exit 0, zero spawns, no report');
+
   const fj = theoFake();
   const cj = L.main(['theo', '--json', '--version', VER, '--ref', SHA, '--report-dir', '/fake/reports'], fj.deps);
   assert.equal(cj, 0);

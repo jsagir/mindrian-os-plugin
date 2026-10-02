@@ -718,7 +718,7 @@ function utcStamp(d) {
 // CLI
 // ---------------------------------------------------------------------------
 function parseArgs(argv) {
-  const a = { sub: null, pluginRoot: null, version: null, ref: null, websiteDir: null, reportDir: null, dryRun: false, json: false };
+  const a = { sub: null, help: false, pluginRoot: null, version: null, ref: null, websiteDir: null, reportDir: null, dryRun: false, json: false };
   const valued = { '--plugin-root': 'pluginRoot', '--version': 'version', '--ref': 'ref', '--website-dir': 'websiteDir', '--report-dir': 'reportDir' };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
@@ -730,8 +730,12 @@ function parseArgs(argv) {
     switch (t) {
       case '--dry-run': a.dryRun = true; break;
       case '--json': a.json = true; break;
+      // -h / --help is a boolean that main() checks BEFORE the subcommand
+      // switch (review CR-01): `theo --help` must print usage and spawn
+      // nothing, never fall through to a live Theo propose (which writes into
+      // Theo and mints a new apply token, killing any line already printed).
       case '-h':
-      case '--help': a.sub = a.sub || 'help'; break;
+      case '--help': a.help = true; break;
       default:
         if (t.indexOf('-') === 0) throw new UsageError('unknown flag ' + t);
         if (a.sub) throw new UsageError('unexpected argument ' + t);
@@ -746,10 +750,11 @@ function main(argv, deps) {
   let a;
   try {
     a = parseArgs(argv || []);
+    if (a.help || a.sub === 'help') {
+      deps.out(USAGE);
+      return LISTENER_EXIT.OK;
+    }
     switch (a.sub) {
-      case 'help':
-        deps.out(USAGE);
-        return LISTENER_EXIT.OK;
       case 'theo':
       case 'website':
         break;
