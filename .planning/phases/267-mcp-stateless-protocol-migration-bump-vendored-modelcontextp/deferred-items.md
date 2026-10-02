@@ -251,3 +251,16 @@ STILL OPEN (peer-phase drift, identical at 267-08's PLAN_BASE, not a 267 defect)
 - `tests/test-267-mcpv2-zod4-contract.cjs` Check (b) extra `tool:research_run:membership` and Check (d) new zod importer `scripts/fork359-permission-probe.cjs` (359-05).
 - `tests/test-267-mcpv2-registration-api.cjs` full mode compares live tools/list (45) to `wire-snapshot-zod4.json` (44); the snapshot needs a research_run refresh.
 Whoever refreshes the pinned baselines (likely 267-11 or the next plan touching them) should re-measure all three together.
+
+## 267-11: registration-api snapshot gap CLOSED; new stale-stub finding
+
+CLOSED in 267-11 (commit dd1270c0d): `wire-snapshot-zod4.json` refreshed to 45 tools
+(research_run added, meeting description refreshed), registration-api full mode is 68/0.
+
+NEW (pre-existing at HEAD, caused by 267-09's `registerResource` rewrite, not by 267-11):
+`tests/test-270-dynamic-tree.cjs` fails `server.registerResource is not a function`; its stub
+server implements only the old `resource()`. Fix: teach the stub `registerResource`.
+
+STILL OPEN: CIRS (c) 31 vs 32; zod4 (b) `tool:research_run:membership` (compares the zod3
+snapshot, so the zod4 refresh does not close it) and (d) `scripts/fork359-permission-probe.cjs`;
+354 framework-command-ledger plugin_version drift beta.48 vs beta.56.
