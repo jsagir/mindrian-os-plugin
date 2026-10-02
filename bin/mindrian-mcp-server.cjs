@@ -94,16 +94,17 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 
 // Phase 267 Plan 11: the v2 SDK builds the McpServer and serves stdio
 // (serveStdio owns the era decision, 2025-11-25 or 2026-07-28, from ONE
-// factory). The HTTP branch below still uses the v1 StreamableHTTPServerTransport
-// until plans 267-12/267-14; a v2 McpServer serves correctly over it.
-// Plan 12: createMcpHandler serves the flag-OFF HTTP route per request.
-const { McpServer, createMcpHandler } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
+// factory). Plan 12: createMcpHandler serves the flag-OFF HTTP route per request.
+// Plan 14: the flag-ON daemon routes by protocol era (isLegacyRequest): 2025
+// traffic keeps the session-keyed v2 Node transport, 2026-07-28 traffic goes to
+// a modern-only createMcpHandler. No v1 SDK import remains in this file.
+const { McpServer, createMcpHandler, isLegacyRequest } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
 const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
 // Module-level handle from serveStdio, closed by exitAfterTeardown.
 let stdioHandle = null;
 // Phase 267 Plan 13: shutdown seam. httpServer is the net.Server app.listen
 // returns; mcpHandlers lists every createMcpHandler handler this process owns
-// (flag-OFF today, Plan 14 appends the flag-ON modern handler). Both are closed
+// (the flag-OFF handler, or the flag-ON modern handler). Both are closed
 // by exitAfterTeardown.
 let httpServer = null;
 const mcpHandlers = [];
@@ -333,7 +334,13 @@ async function main() {
       return;
     }
 
-    const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
+    const {
+      toNodeHandler,
+      toWebRequest,
+      localhostHostValidation,
+      localhostOriginValidation,
+      NodeStreamableHTTPServerTransport,
+    } = require('@modelcontextprotocol/node');
     const app = express();
     app.use(express.json());
 
@@ -395,45 +402,43 @@ async function main() {
     // 4 MiB default, which does not apply to a passed parsedBody). The
     // loopback endpoint also refuses DNS rebinding: the Host and Origin guards
     // answer 403 before any MCP handling.
+    //
+    // Phase 267 Plan 14 (flag-ON, MCPV2-06): the daemon stays sessionful and
+    // 2025-era for existing clients, because lib/core/session-binding.cjs keys
+    // room binding by the transport-minted session id (a stateless handler would
+    // silently kill it). Requests are routed by isLegacyRequest on the parsed
+    // body: legacy (claim-less, incl. initialize and body-less GET/DELETE session
+    // operations) goes to the session-keyed v2 NodeStreamableHTTPServerTransport
+    // map below; everything else goes to a modern-only createMcpHandler (the SDK
+    // routing contract: a false answer must never reach the legacy path).
+    //
+    // The Host/Origin guards are shared by both branches and both routes.
     let sessionTransports;
     let flagOffNodeHandler = null;
-    let flagOffHost = null;
-    let flagOffOrigin = null;
     let flagOffMcpHandler = null;
+    let modernMcpHandler = null;
+    let modernNodeHandler = null;
+    const onHandlerError = (e) => {
+      process.stderr.write('[mindrian-os] mcp handler: ' + (e && e.message ? e.message : String(e)) + '\n');
+    };
+    const hostGuard = localhostHostValidation();
+    const originGuard = localhostOriginValidation();
     if (mcpFirstOn) {
       sessionTransports = new Map();
+      modernMcpHandler = createMcpHandler(() => createServer(), { legacy: 'reject', onerror: onHandlerError });
+      mcpHandlers.push(modernMcpHandler);
+      modernNodeHandler = toNodeHandler(modernMcpHandler, { onerror: onHandlerError });
     } else {
-      const { toNodeHandler, localhostHostValidation, localhostOriginValidation } = require('@modelcontextprotocol/node');
-      const onHandlerError = (e) => {
-        process.stderr.write('[mindrian-os] mcp handler: ' + (e && e.message ? e.message : String(e)) + '\n');
-      };
       flagOffMcpHandler = createMcpHandler(() => createServer(), { legacy: 'stateless', onerror: onHandlerError });
       mcpHandlers.push(flagOffMcpHandler);
       flagOffNodeHandler = toNodeHandler(flagOffMcpHandler, { onerror: onHandlerError });
-      flagOffHost = localhostHostValidation();
-      flagOffOrigin = localhostOriginValidation();
     }
 
-    app.all('/mcp', async (req, res) => {
-      // Phase 198-08 (Rule 1 fix): app.use(express.json()) above already
-      // consumes the request stream and parses it onto req.body -- the SDK's
-      // own usage example (streamableHttp.js's handleRequest doc comment)
-      // calls `transport.handleRequest(req, res, req.body)`. Omitting the
-      // third arg made the transport try to re-read the ALREADY-CONSUMED
-      // raw stream itself, so every real HTTP client (curl, the MCP SDK
-      // Client, a genuine Cowork request) got back
-      // `{"error":{"code":-32700,"message":"Parse error: Invalid JSON"}}`
-      // regardless of a perfectly valid JSON body -- discovered live while
-      // proving lib/mcp/adapter-client.cjs's queryDaemon() actually completes
-      // a real tool call round trip (not just a transport-level connect).
-      if (!mcpFirstOn) {
-        // The guards answer 403 themselves when they return false.
-        if (!flagOffHost(req, res)) return;
-        if (!flagOffOrigin(req, res)) return;
-        await flagOffNodeHandler(req, res, req.body);
-        return;
-      }
-
+    // The flag-ON legacy leg: one NEW session-keyed transport per NEW initialize
+    // (the 198-08 multi-session pattern), a FRESH McpServer per session
+    // (connect() throws on a second call against one instance), 400 on an unknown
+    // session id, session-registry open/close on the transport callbacks.
+    async function serveLegacySession(req, res) {
       const headerSessionId = req.headers['mcp-session-id'];
       let sessionTransport = headerSessionId ? sessionTransports.get(headerSessionId) : undefined;
 
@@ -449,7 +454,7 @@ async function main() {
           });
           return;
         }
-        sessionTransport = new StreamableHTTPServerTransport({
+        sessionTransport = new NodeStreamableHTTPServerTransport({
           sessionIdGenerator: () => randomUUID(),
           onsessioninitialized: (sid) => {
             sessionTransports.set(sid, sessionTransport);
@@ -464,16 +469,32 @@ async function main() {
           const sid = sessionTransport.sessionId;
           if (sid) sessionTransports.delete(sid);
         };
-        // A FRESH McpServer per new session (createServer(), not the shared
-        // module-level `server`) -- Server.connect() throws on a second call
-        // against the same instance, and true concurrent sessions (e.g. two
-        // parallel queryDaemon() calls from one hook's own thin adapter) hit
-        // that second call before either session has torn down.
         const sessionServer = createServer();
         await sessionServer.connect(sessionTransport);
       }
 
       await sessionTransport.handleRequest(req, res, req.body);
+    }
+
+    app.all('/mcp', async (req, res) => {
+      // Phase 198-08 (Rule 1 fix): app.use(express.json()) above already
+      // consumes the request stream and parses it onto req.body, so the parsed
+      // body is passed through to every handler (a re-read of the consumed
+      // stream failed with -32700 Parse error).
+      // The guards answer 403 themselves when they return false.
+      if (!hostGuard(req, res)) return;
+      if (!originGuard(req, res)) return;
+      if (!mcpFirstOn) {
+        await flagOffNodeHandler(req, res, req.body);
+        return;
+      }
+      // Flag-ON: classify with the already-parsed body, route by era.
+      const webReq = await toWebRequest(req, req.body);
+      if (await isLegacyRequest(webReq, req.body)) {
+        await serveLegacySession(req, res);
+        return;
+      }
+      await modernNodeHandler(req, res, req.body);
     });
 
     // Phase 198-03 (D-01, Open Question 3): the SSE event bus's /event route
@@ -484,15 +505,20 @@ async function main() {
     // content bound for the Brain (Part 8).
     if (mcpFirstOn) {
       app.get('/event', (req, res) => {
+        // Same DNS-rebinding guards as /mcp (Plan 14): the guards answer 403 themselves.
+        if (!hostGuard(req, res)) return;
+        if (!originGuard(req, res)) return;
         sseEventBus.subscribe(res);
       });
+      // Flag-ON: one tree watcher per process, targeting the modern handler's
+      // notifier. Legacy sessions keep today's behavior (no tree notifications):
+      // before Plan 12 the only watcher was bound to the boot singleton, which
+      // flag-ON never connects, so it delivered nothing to anyone.
+      startTreeWatcherOnce({ sendResourceListChanged: () => modernMcpHandler.notify.resourcesChanged() });
     } else {
       // Flag-OFF: one tree watcher per process, targeting the handler's
       // notifier (the per-request servers have no long-lived connection to
-      // notify through). Flag-ON deliberately starts NO watcher in Plan 12:
-      // before this change its only watcher was bound to the boot singleton,
-      // which flag-ON never connects, so it delivered nothing; Plan 14 wires
-      // it to the modern handler.
+      // notify through).
       startTreeWatcherOnce({ sendResourceListChanged: () => flagOffMcpHandler.notify.resourcesChanged() });
     }
 

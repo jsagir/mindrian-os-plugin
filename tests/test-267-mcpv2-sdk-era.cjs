@@ -39,14 +39,6 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // ---------------------------------------------------------------------------
 const EXPECT_V2 = ['bin/mindrian-brain-mcp-client.cjs', 'bin/mindrian-mcp-server.cjs', 'lib/mcp/resources.cjs'];
 
-// TEMPORARY ALLOWANCE (267-11, removed by 267-14): the local server's HTTP
-// branch keeps its lazy v1 StreamableHTTPServerTransport require until 267-14
-// replaces it. Exactly ONE such line is permitted, in exactly this file, and
-// Arm C prints it so it cannot hide. 267-14 deletes this map.
-const V1_ALLOWANCES = {
-  'bin/mindrian-mcp-server.cjs': ['@modelcontextprotocol/sdk/server/streamableHttp.js'],
-};
-
 let passCount = 0;
 let failCount = 0;
 let skipCount = 0;
@@ -268,15 +260,9 @@ function armC() {
     const referencesV2 = activeLines.some(
       (line) => requireLinePattern.test(line) && v2Packages.some((pkg) => line.includes(pkg))
     );
-    const allowed = V1_ALLOWANCES[relPath] || [];
-    const v1Lines = activeLines.filter(
+    const referencesV1 = activeLines.some(
       (line) => requireLinePattern.test(line) && line.includes('@modelcontextprotocol/sdk')
     );
-    const allowedLines = v1Lines.filter((line) => allowed.some((a) => line.includes(a)));
-    const referencesV1 = v1Lines.length > allowedLines.length || allowedLines.length > 1;
-    if (allowedLines.length > 0) {
-      console.log(`  TEMPORARY ALLOWANCE (removed by 267-14): ${relPath} may keep ${allowedLines.length} v1 require (${allowed.join(', ')})`);
-    }
 
     if (!referencesV2) {
       fail(label, `${relPath}: no require(/requireWithHeal( references a v2 package`);
