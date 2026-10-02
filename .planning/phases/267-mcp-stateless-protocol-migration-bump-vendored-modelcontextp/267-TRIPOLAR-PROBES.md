@@ -323,3 +323,17 @@ branch) applies this rule before it lands:
 
 **Navigator ruling (fill in only if triggered by a 2026-era Desktop
 result):** _(none recorded yet -- pending Task 3)_
+
+---
+
+## Desktop (post-fix human smoke) -- WAIVED, NOT RUN (2026-10-02)
+
+The four-prompt Desktop smoke against the session-binding fix (96804284d) was
+NOT executed. Checked at waiver time: no `/tmp/mos-tee-final.jsonl`, no
+`claude_desktop_config.json.bak-final`, no `stdio-*` session files under
+`~/MindrianRooms/.rooms/sessions/`, `ador-ip-test` room.db unchanged since
+2026-07-13. The navigator ruled to close MCPV2-13 without it. Expected
+outcomes remain unverified on Desktop: (1) unbound claim refuses with
+`no_bound_room`; (2) bind to `ador-ip-test` succeeds with no session id;
+(3) claim lands in `ador-ip-test`; (4) status reports `ador-ip-test`.
+Cowork: not probed.

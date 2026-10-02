@@ -4408,11 +4408,13 @@ per the Phase 254/257/265/267.2/340 precedent. A row is `[x]` only when `267-VER
       `scripts/check-release-payload-ceiling.cjs --check` (1982 entries, 32,873,598 bytes unpacked, 0
       findings) and `tests/test-341-shrinkwrap-no-dev.cjs` (4/4). Plans 267-03, 267-05, 267-17.
 
-- [ ] **MCPV2-13**: Tri-Polar probes record the wire era and capabilities per surface. Done: CLI by the
+- [x] **MCPV2-13**: Tri-Polar probes record the wire era and capabilities per surface. Done: CLI by the
       automated probe, before (2.1.281) and after (2.1.287) the migration; Desktop pre-migration by the
       navigator's human probe (commit c5add6eb6); a scripted Desktop-shaped client post-migration (not a
-      human check). OPEN: no human post-migration Desktop smoke and no Cowork probe at all, both
-      DEFERRED by navigator ruling 2026-10-02. Proof so far: `tests/test-267-mcpv2-cli-probe.cjs`
+      human check). CLOSED BY NAVIGATOR WAIVER 2026-10-02, NOT BY EVIDENCE: the human post-migration
+      Desktop smoke against the session-binding fix (96804284d) was never run (no tee log, no stdio
+      session files, ador-ip-test room.db unchanged); the navigator approved closing without it. No
+      Cowork probe. Re-run the four-prompt Desktop smoke before trusting Desktop binding. Proof so far: `tests/test-267-mcpv2-cli-probe.cjs`
       (opt-in), `tests/test-267-mcpv2-tee.cjs`, `267-TRIPOLAR-PROBES.md`. Plans 267-04, 267-18.
 
 - [x] **MCPV2-14**: The HTTP-mode process exits on SIGTERM and reports a failed listen honestly. Proof:
