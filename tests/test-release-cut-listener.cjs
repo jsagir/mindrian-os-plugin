@@ -235,14 +235,26 @@ function mapCode(code, status, extra) {
   assert.equal(r.outcome, 'STOP');
   ok('status that does not belong to its code -> STOP');
 
+  // Review WR-05: timeout, buffer overflow and an external kill are told apart.
   const e = new Error('spawnSync python3 ETIMEDOUT'); e.code = 'ETIMEDOUT';
   r = L.mapTheoResult({ status: null, stdout: '', error: e, signal: 'SIGTERM' });
-  assert.equal(r.outcome, 'STOP');
-  assert.ok(/THEO_SYNC_TIMEOUT_MS/.test(r.reason), r.reason);
+  assert.equal(r.outcome, 'STOP'); assert.equal(r.decision, 'STOP');
+  assert.ok(/THEO_SYNC_TIMEOUT_MS/.test(r.reason) && /ETIMEDOUT/.test(r.reason), r.reason);
+  assert.ok(/child processes may still be running/.test(r.reason) && /`ps`/.test(r.reason), 'timeout warns about orphaned Theo children: ' + r.reason);
+  ok('WR-05: ETIMEDOUT -> STOP naming THEO_SYNC_TIMEOUT_MS and warning that Theo children may still run');
+
+  const eb = new Error('spawnSync python3 ENOBUFS'); eb.code = 'ENOBUFS';
+  r = L.mapTheoResult({ status: null, stdout: 'x'.repeat(10), error: eb, signal: 'SIGTERM' });
+  assert.equal(r.outcome, 'STOP'); assert.equal(r.decision, 'STOP');
+  assert.ok(/ENOBUFS/.test(r.reason) && /16 MiB/.test(r.reason) && /one JSON line/.test(r.reason), r.reason);
+  assert.ok(!/did not answer before/.test(r.reason), 'buffer overflow is not reported as a timeout: ' + r.reason);
+  ok('WR-05: ENOBUFS -> STOP naming the 16 MiB buffer and the one-line contract, not a timeout');
+
   r = L.mapTheoResult({ status: null, stdout: '', error: null, signal: 'SIGKILL' });
-  assert.equal(r.outcome, 'STOP');
-  assert.ok(/THEO_SYNC_TIMEOUT_MS/.test(r.reason), r.reason);
-  ok('spawn timeout (ETIMEDOUT or a signal) -> STOP naming THEO_SYNC_TIMEOUT_MS');
+  assert.equal(r.outcome, 'STOP'); assert.equal(r.decision, 'STOP');
+  assert.ok(/killed by SIGKILL/.test(r.reason) && /not a listener timeout/.test(r.reason), r.reason);
+  assert.ok(!/Raise THEO_SYNC_TIMEOUT_MS/i.test(r.reason), 'an external kill never says to raise the timeout: ' + r.reason);
+  ok('WR-05: an external signal kill (SIGKILL, no error) -> STOP "killed by SIGKILL", never "raise THEO_SYNC_TIMEOUT_MS"');
 }
 
 // ---------------------------------------------------------------------------

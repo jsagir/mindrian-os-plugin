@@ -298,9 +298,18 @@ function mapTheoResult(res, expect) {
   const err = res.error || null;
   const signal = res.signal || null;
 
-  if ((err && err.code === 'ETIMEDOUT') || (signal && status == null)) {
-    return stopResult('Theo did not answer before THEO_SYNC_TIMEOUT_MS (spawn ' + (err && err.code ? err.code : 'killed by ' + signal) +
-      '); the sync result is unknown and never treated as current. Raise THEO_SYNC_TIMEOUT_MS or run the call by hand, then re-run the cut.');
+  // Three different kills, three different recoveries (review WR-05): only a
+  // real timeout should send the navigator to THEO_SYNC_TIMEOUT_MS.
+  if (err && err.code === 'ETIMEDOUT') {
+    return stopResult('Theo did not answer before THEO_SYNC_TIMEOUT_MS (spawn ETIMEDOUT' + (signal ? ', sent ' + signal : '') +
+      '); the sync result is unknown and never treated as current. Only the python process was signalled: Theo child processes may still be running and writing in the Theo tree, so check `ps` before re-running. Then raise THEO_SYNC_TIMEOUT_MS or run the call by hand, and re-run the cut.');
+  }
+  if (err && err.code === 'ENOBUFS') {
+    return stopResult('Theo stdout exceeded the 16 MiB listener buffer (spawn ENOBUFS' + (signal ? ', killed with ' + signal : '') +
+      '); the contract allows exactly one JSON line, so this is a contract violation and never treated as current. Report it to the navigator; raising THEO_SYNC_TIMEOUT_MS will not help.');
+  }
+  if (signal && status == null) {
+    return stopResult('Theo was killed by ' + signal + ' before answering (not a listener timeout: for example the OOM killer or an operator kill); the sync result is unknown and never treated as current. Find out what killed it, then re-run the cut.');
   }
   if (err) {
     return stopResult('Theo could not be run (' + (err.code || err.message) + '); never treated as current.');
