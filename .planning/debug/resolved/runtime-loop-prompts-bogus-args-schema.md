@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "runtime-loop-prompts-bogus-args-schema"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [11]
 created: 2026-09-24T07:43:32Z
-updated: 2026-09-24T07:43:32Z
+updated: 2026-10-02T00:00:00Z
 ---
 
 ## Current Focus
@@ -176,8 +176,26 @@ started: Since these three prompts were first added (2026-08-19, per the code's 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: CONFIRMED -- see Technical Root Cause above.
-fix: PENDING - lands in 267-09
-verification: PENDING
-files_changed: []
-commits: PENDING
+root_cause: CONFIRMED -- see Technical Root Cause above. The three runtime-loop prompts passed prompt METADATA (`{description, arguments}`) in the argsSchema slot of the v1 variadic `server.prompt(name, argsSchema, cb)` overload, so the SDK built an args validator from non-zod values.
+
+fix: test-first (CTX-TESTFIRST). `tests/test-267-mcpv2-prompts.cjs` committed RED (`5e0326d6a`: 10 PASS / 16 FAIL against the unfixed tree, every failure on bind-room, status, act). Fix commit `c96740544` rewrote the three sites to `server.registerPrompt(name, { title, description[, argsSchema] }, cb)`: bind-room and status carry no argsSchema; act carries `argsSchema: { goal: z.string().optional().describe('Optional goal or focus to steer the pick') }`. Callback bodies untouched. The `prompts_fix` ledger in `tests/fixtures/267/zod4-accepted-deltas.json` pins the three intentional wire deltas (description and arguments each), and zod4 contract Check (a) exempts exactly those three description diffs (they went from undefined to the real string).
+
+verification:
+```
+$ node tests/test-267-mcpv2-prompts.cjs   (HOME and MINDRIAN_ROOMS_HOME isolated)
+PASS: bind-room / status / act advertise description and title
+PASS: bind-room takes no arguments ; status takes no arguments
+PASS: act takes exactly one optional argument goal
+PASS: no prompt advertises arguments named description or arguments
+PASS: prompts/get succeeds for all 9 prompts (file-meeting ... act)
+PASS: act with a goal embeds it as the first line of its message
+PASS: act without a goal carries no Goal: line
+PASS=26 FAIL=0
+
+$ node tests/test-267-mcpv2-registration-api.cjs --file lib/mcp/prompts.cjs   -> PASS=9 FAIL=0
+$ grep -c "server\.prompt(" lib/mcp/prompts.cjs -> 0 ; grep -c "server\.registerPrompt(" -> 9
+$ node tests/test-267-mcpv2-zod4-contract.cjs -> Check (a) PASS, Check (c) PASS; Check (b) extras=[tool:research_run:membership] and Check (d) scripts/fork359-permission-probe.cjs are the pre-existing 267-08 baseline reds, no prompt entry in either
+```
+
+files_changed: [lib/mcp/prompts.cjs, tests/test-267-mcpv2-prompts.cjs, tests/fixtures/267/zod4-accepted-deltas.json, tests/test-267-mcpv2-zod4-contract.cjs]
+commits: 5e0326d6a (RED), c96740544 (fix)
