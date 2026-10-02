@@ -395,6 +395,7 @@ if [ "$DRY_RUN" = "1" ]; then
     echo "  Step 0.55 : release-cut listener, Theo leg -- previewed above (prints the release_sync.py call for v$CURRENT at HEAD; runs nothing under --dry-run)"
   fi
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
+  echo "  Step 2.4  : coverage gates + erasable TypeScript gate (npm --prefix tools/ts-check ci --ignore-scripts if absent, then node tools/ts-check/check.cjs; HARD ABORT; runs nothing under --dry-run)"
   echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
   echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
@@ -478,7 +479,7 @@ echo -e "${GREEN}All verification checks passed${NC}"
 # here too keeps the release pipeline self-documenting. Canon Part 8: both
 # regenerate in memory from LOCAL sources; zero Brain / network.
 echo ""
-echo "=== Step 2.4: coverage gates (connector + orchestration-projection + render-coverage --check) ==="
+echo "=== Step 2.4: coverage gates (connector + orchestration-projection + render-coverage --check + erasable TypeScript gate) ==="
 if ! node "$PLUGIN_DIR/scripts/build-connector-registry.cjs" --check; then
   echo -e "${RED}ABORT: connector coverage gate failed -- a surface is neither WIRED nor EXCLUDED.${NC}"
   echo "  Recovery: node scripts/build-connector-registry.cjs"
@@ -507,6 +508,28 @@ if ! node "$PLUGIN_DIR/scripts/check-render-coverage.cjs" --check; then
   echo -e "${RED}ABORT: render-coverage gate failed -- a reachable gate surface lacks card-emission routing.${NC}"
   echo "  Recovery: node scripts/build-render-coverage.cjs"
   exit 1
+fi
+# Phase 369 Plan 02 (D-17, TS369-03): the erasable-only TypeScript gate rides the SAME
+# release surface. Node strips types without reading tsconfig and never type-checks, so
+# an enum, a namespace or a parameter property in core would only throw on a user's
+# machine. tools/ts-check is a walled-off package (own lockfile, never in the root
+# manifest); a failing gate, an install failure, or "not installed" (exit 77) all stop
+# the cut. Under --dry-run the two commands are printed and nothing runs.
+if [ "$DRY_RUN" = "1" ]; then
+  echo "  [DRY RUN] erasable gate: would run npm --prefix tools/ts-check ci --ignore-scripts (if node_modules absent), then node tools/ts-check/check.cjs"
+else
+  if [ ! -d "$PLUGIN_DIR/tools/ts-check/node_modules" ]; then
+    if ! npm --prefix "$PLUGIN_DIR/tools/ts-check" ci --ignore-scripts; then
+      echo -e "${RED}ABORT: Step 2.4: erasable TypeScript gate could not install its walled package (tools/ts-check).${NC}"
+      echo "  Recovery: npm --prefix tools/ts-check ci --ignore-scripts"
+      exit 1
+    fi
+  fi
+  if ! node "$PLUGIN_DIR/tools/ts-check/check.cjs"; then
+    echo -e "${RED}ABORT: Step 2.4: erasable TypeScript gate failed (tools/ts-check/check.cjs)${NC}"
+    echo "  Recovery: node tools/ts-check/check.cjs shows which stage failed; core .ts must be erasable-only (no enum, namespace, parameter property, path alias, .tsx)."
+    exit 1
+  fi
 fi
 # Phase 186-02 (CORPUS-02, Canon Part 8 / D5): the corpus-stats tripwire rides the
 # SAME release surface as the CIRS gates. A stale corpus literal on a LIVE fact
