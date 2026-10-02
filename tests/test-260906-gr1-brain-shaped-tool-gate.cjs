@@ -144,7 +144,7 @@ test('GROUP 3: mcp__plugin_mos_mindrian-os__room_bind is NOT Brain-shaped and ta
 /**
  * enumerateLocalToolNames() -- reads lib/mcp/tool-router.cjs and every
  * lib/mcp/tools/*.cjs from disk and extracts every locally registered MCP
- * tool name. The registration call spans a newline (`server.tool(` then the
+ * tool name. The registration call spans a newline (`server.registerTool(` then the
  * quoted name on the next line), so the whitespace class between them must
  * cross lines -- this is why the regex uses `[\s\S]*?` rather than a
  * same-line-only `\s*`.
@@ -155,7 +155,10 @@ function enumerateLocalToolNames() {
     if (f.endsWith('.cjs')) files.push(path.join(TOOLS_DIR, f));
   }
   const names = new Set();
-  const re = /server\.tool\(\s*['"]([a-z0-9_]+)['"]/g;
+  // Phase 267-08: every local registration is server.registerTool(name, {...}, cb)
+  // now; the variadic server.tool( form stays matched so a fixture or a
+  // not-yet-migrated file still enumerates.
+  const re = /server\.(?:tool|registerTool)\(\s*['"]([a-z0-9_]+)['"]/g;
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8');
     let m;
