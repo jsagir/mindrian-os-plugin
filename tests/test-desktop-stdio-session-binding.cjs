@@ -245,6 +245,7 @@ const GATE_CARD = {
 
 // Every write tool the unbound session must be refused on, with minimal valid args.
 const navigation = require('../lib/core/navigation.cjs');
+const WHITESPACE_QS = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tests', 'fixtures', '363-question-sets', 'whitespace-quick.json'), 'utf8'));
 const WRITE_CALLS = [
   ['claim_write', CLAIM],
   ['memory_event', { label: 'unbound-probe' }],
@@ -261,6 +262,7 @@ const WRITE_CALLS = [
   }],
   ['question_set', { text: 'What is the question worth solving?', origin: navigation.FRAME_ORIGINS_ORDERED[0].id }],
   ['chain_run', { chain: ['unbound-framework-probe'] }],
+  ['research_run', { op: 'plan', question_set: WHITESPACE_QS, mode: 'quick' }],
 ];
 
 function leaksIntoRoom(dir) {
@@ -405,7 +407,7 @@ async function main() {
     }
   });
 
-  await test('2b. nothing bound: every write tool refuses with no_bound_room (claim_write, memory_event, artifact_file, graph_write, meeting file-meeting, claim_verify, question_set, chain_run)', async () => {
+  await test('2b. nothing bound: every write tool refuses with no_bound_room (claim_write, memory_event, artifact_file, graph_write, meeting file-meeting, claim_verify, question_set, chain_run, research_run)', async () => {
     const world = makeWorld();
     const conn = await connectDesktop(world);
     try {
@@ -419,6 +421,8 @@ async function main() {
       }
       assert.deepEqual(roomSnapshot(world.roomA), world.baseA, 'room-a room.db must be unchanged');
       assert.deepEqual(leaksIntoRoom(world.roomA), [], 'no file may land under room-a');
+      // leaksIntoRoom skips .mindrian, so this is the line that sees a research_run bleed.
+      assert.equal(fs.existsSync(path.join(world.roomA, '.mindrian', 'research-runs')), false, 'research_run must not start a run under room-a');
     } finally {
       await closeConn(conn);
     }

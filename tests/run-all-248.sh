@@ -87,6 +87,11 @@ run_if "RCA desktop-session-binding: process key + refuse (Desktop surrogate)" \
   tests/test-desktop-stdio-session-binding.cjs \
   node tests/test-desktop-stdio-session-binding.cjs
 
+# research_run room-bleed: an unbound research_run refuses no_bound_room (quick 261002-e9v)
+run_if "RCA research_run unbound-room refusal (quick 261002-e9v)" \
+  tests/test-research-run-session-binding.cjs \
+  node tests/test-research-run-session-binding.cjs
+
 # ---------------------------------------------------------------------------
 # Always-run legacy legs -- exercise the shared core ladder and the
 # resolver-collapse's blast radius. Their files already exist today, so a
@@ -124,6 +129,7 @@ em_dash_sweep() {
     "tests/test-248-room-bind-honest-return.cjs"
     "tests/test-248-surface-probes.cjs"
     "tests/test-desktop-stdio-session-binding.cjs"
+    "tests/test-research-run-session-binding.cjs"
     "tests/run-all-248.sh"
   )
   local t f
