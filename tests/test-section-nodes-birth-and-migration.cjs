@@ -19,6 +19,47 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+// ---------------------------------------------------------------------------
+// HERMETIC ROOMS_HOME (RCA test-birth-registry-leak, 2026-10-02).
+// birthRoom() STEP 4 registers the room via scripts/room-registry, which resolves
+// the registry from MINDRIAN_ROOMS_HOME or, absent that, os.homedir()/MindrianRooms.
+// This test sandboxed only the ROOM dir (tmpDir), so every run registered
+// /tmp/birth-*/my-room + /tmp/birth-idem-*/idem-room in the navigator's REAL
+// registry, flipped `active` to the fixture, stamped active_session, nested
+// ~/MindrianRooms/tmp/<abs path>/..., and wrote ~/MindrianRooms/.rooms/sessions
+// and .room-graph. On Claude Desktop (no session id) claim_write then fell back
+// to that active fixture room. Fix: point MINDRIAN_ROOMS_HOME and HOME/USERPROFILE
+// at a throwaway dir BEFORE anything is required, and prove the real registry did
+// not move. The registry writer also refuses a temp room into a non-temp registry
+// now (scripts/room-registry _registry_leak_guard), so a regression fails closed.
+// ---------------------------------------------------------------------------
+const REAL_HOME = os.homedir();
+const REAL_ROOMS_HOME = process.env.MINDRIAN_ROOMS_HOME || path.join(REAL_HOME, 'MindrianRooms');
+const REAL_REGISTRY = path.join(REAL_ROOMS_HOME, '.rooms', 'registry.json');
+function statKey(p) {
+  try { const st = fs.statSync(p); return st.mtimeMs + ':' + st.size; } catch (_e) { return 'absent'; }
+}
+const REAL_REGISTRY_BEFORE = statKey(REAL_REGISTRY);
+const SANDBOX_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'secnode-home-'));
+const SANDBOX_ROOMS_HOME = path.join(SANDBOX_HOME, 'MindrianRooms');
+fs.mkdirSync(SANDBOX_ROOMS_HOME, { recursive: true });
+const ENV_KEYS = ['MINDRIAN_ROOMS_HOME', 'HOME', 'USERPROFILE', 'CLAUDE_CODE_SESSION_ID'];
+const ENV_SAVED = {};
+for (const k of ENV_KEYS) ENV_SAVED[k] = process.env[k];
+process.env.MINDRIAN_ROOMS_HOME = SANDBOX_ROOMS_HOME;
+process.env.HOME = SANDBOX_HOME;
+process.env.USERPROFILE = SANDBOX_HOME;
+delete process.env.CLAUDE_CODE_SESSION_ID;
+function restoreEnvAndCleanup() {
+  for (const k of ENV_KEYS) {
+    if (ENV_SAVED[k] === undefined) delete process.env[k]; else process.env[k] = ENV_SAVED[k];
+  }
+  for (const d of TMP_DIRS.concat([SANDBOX_HOME])) {
+    try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) {}
+  }
+}
+const TMP_DIRS = [];
+
 const roomDbMod = require('../lib/core/room-db.cjs');
 const lgOps = require('../lib/core/lazygraph-ops.cjs');
 const { birthRoom } = require('../lib/core/navigation/room-birth.cjs');
@@ -38,7 +79,9 @@ const CANONICAL_SECTIONS = [
 ];
 
 function tmpDir(prefix) {
-  return fs.mkdtempSync(path.join(os.tmpdir(), prefix || 'secnode-'));
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), prefix || 'secnode-'));
+  TMP_DIRS.push(d);
+  return d;
 }
 
 function countSectionNodes(roomDir) {
@@ -88,6 +131,9 @@ function migrationEventCount(roomDir) {
       approvedBy: 'tester',
     });
     assert.ok(res.ok, 'birthRoom should succeed: ' + JSON.stringify(res));
+    // The registry write must land in the SANDBOX, never the real registry.
+    const sbReg = JSON.parse(fs.readFileSync(path.join(SANDBOX_ROOMS_HOME, '.rooms', 'registry.json'), 'utf8'));
+    assert.ok(sbReg.rooms && sbReg.rooms['my-room'], 'birthRoom must register my-room in the SANDBOX registry');
     const n = countSectionNodes(roomDir);
     assert.ok(n >= 8, 'expected >= 8 Section nodes, got ' + n);
 
@@ -208,6 +254,17 @@ function migrationEventCount(roomDir) {
     assert.strictEqual(coldExp.cold_start, true, 'no room.db -> cold-start anchors fire (Tier-0 fallback)');
   });
 
+  // ---- Test 6: hermeticity proof - the navigator's REAL registry never moved ----
+  await test('hermetic: the real room registry was not touched by this run', () => {
+    assert.notStrictEqual(path.resolve(SANDBOX_ROOMS_HOME), path.resolve(REAL_ROOMS_HOME), 'sandbox must differ from the real rooms home');
+    assert.strictEqual(statKey(REAL_REGISTRY), REAL_REGISTRY_BEFORE, 'real registry ' + REAL_REGISTRY + ' changed during the test');
+    // The sandbox registry holds exactly the two born rooms and `active` is the last birth.
+    const sbReg = JSON.parse(fs.readFileSync(path.join(SANDBOX_ROOMS_HOME, '.rooms', 'registry.json'), 'utf8'));
+    assert.deepStrictEqual(Object.keys(sbReg.rooms).sort(), ['idem-room', 'my-room']);
+    assert.strictEqual(sbReg.active, 'idem-room');
+  });
+
+  restoreEnvAndCleanup();
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail === 0 ? 0 : 1);
 })();

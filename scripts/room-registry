@@ -109,6 +109,95 @@ ensure_registry() {
   fi
 }
 
+# RCA test-birth-registry-leak -- structural guard (fails CLOSED).
+#
+# `create` is the ONLY verb that registers a room path, and every caller reaches
+# it through this script (birthRoom STEP 4, /mos:rooms new, direct invocations).
+# A test that births a room under the OS temp dir while MINDRIAN_ROOMS_HOME / HOME
+# still point at the navigator's real ~/MindrianRooms silently registered that
+# throwaway fixture and flipped the machine-wide `active` pointer onto it; on
+# Claude Desktop (no session id) claim_write then wrote into the fixture.
+#
+# Rule: REFUSE (exit 3, stderr token REGISTRY_GUARD_REFUSED, zero writes) when the
+# REAL location of the room is under a temp root AND the REAL location of the
+# registry file is not. Everything else is allowed: temp room into temp registry
+# (a hermetic test sandbox), non-temp room into non-temp registry (real use), and
+# a non-temp room into a temp registry. Locations are compared after realpath so a
+# symlink or the macOS /var -> /private/var hop cannot hide a temp dir, and with
+# normcase so Windows drive-letter case does not matter.
+#
+# Temp roots = tempfile.gettempdir() + $TMPDIR/$TEMP/$TMP + (POSIX) /tmp, /var/tmp,
+# the same set Node's os.tmpdir() can resolve to. A filesystem root as a temp root
+# is ignored (it would turn every path into "temp" and disarm the guard).
+#
+# Audited opt-out: MINDRIAN_ALLOW_TMP_ROOM=1 (exact value) registers anyway and
+# says so on stderr. If the guard itself errors (not a refusal) the create
+# proceeds, because a guard bug must never block every room creation
+# (Larry-never-blocks); the error is reported as REGISTRY_GUARD_ERROR.
+#
+# Only CODE lives in the python source; every VALUE arrives via sys.argv (RCA
+# windows-python-interp-and-shim). No dollar signs or backticks inside it.
+_registry_leak_guard() {
+  local room_path="$1"
+  if [ "${MINDRIAN_ALLOW_TMP_ROOM:-}" = "1" ]; then
+    echo "[MindrianOS] REGISTRY_GUARD_BYPASSED: MINDRIAN_ALLOW_TMP_ROOM=1 set; registering '${room_path}' without the temp-dir check." >&2
+    return 0
+  fi
+  local rc=0
+  python3 -c "
+import os, sys, tempfile
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+def real(p):
+    return os.path.normcase(os.path.realpath(normwin(p)))
+def temp_roots():
+    raw = []
+    try:
+        raw.append(tempfile.gettempdir())
+    except Exception:
+        pass
+    raw += [os.environ.get('TMPDIR'), os.environ.get('TEMP'), os.environ.get('TMP')]
+    if os.name != 'nt':
+        raw += ['/tmp', '/var/tmp']
+    roots = set()
+    for r in raw:
+        if not r:
+            continue
+        rr = real(r)
+        if os.path.dirname(rr) == rr:
+            continue
+        roots.add(rr)
+    return roots
+def under(p, roots):
+    for r in roots:
+        try:
+            if os.path.commonpath([p, r]) == r:
+                return True
+        except ValueError:
+            continue
+    return False
+rooms_home = sys.argv[1]
+room_path = sys.argv[2]
+reg_real = real(os.path.join(rooms_home, '.rooms', 'registry.json'))
+room_abs = room_path if os.path.isabs(normwin(room_path)) else os.path.join(rooms_home, room_path)
+room_real = real(room_abs)
+roots = temp_roots()
+if under(room_real, roots) and not under(reg_real, roots):
+    sys.stderr.write('[MindrianOS] REGISTRY_GUARD_REFUSED: will not register a temp-dir room in a non-temp registry.\n')
+    sys.stderr.write('  Why: room ' + room_real + ' is under the OS temp dir but registry ' + reg_real + ' is not; the throwaway room would become the machine-wide active room.\n')
+    sys.stderr.write('  Fix: point MINDRIAN_ROOMS_HOME at a temp dir (mkdtemp) for tests, or create the room outside the temp dir. Deliberate override: MINDRIAN_ALLOW_TMP_ROOM=1\n')
+    sys.exit(3)
+" "$ROOMS_HOME" "$room_path" || rc=$?
+  if [ "$rc" -eq 3 ]; then
+    return 3
+  elif [ "$rc" -ne 0 ]; then
+    echo "[MindrianOS] REGISTRY_GUARD_ERROR: temp-dir guard crashed (exit ${rc}); continuing without it." >&2
+  fi
+  return 0
+}
+
 # Phase 127.3 Plan 04: shared room-bootstrap helper used by BOTH the `create`
 # stanza and the `bootstrap-missing` retro-pass. Reads ROOMDIR / NAME / VNAME /
 # VSTAGE from caller scope. Closes the intent_persona = all-null + JTBD-state-
@@ -268,6 +357,10 @@ case "$SUBCMD" in
       echo "  Fix: Run /mos:new-project to create a room interactively" >&2
       exit 1
     fi
+    # RCA test-birth-registry-leak: refuse BEFORE ensure_registry so a refused
+    # create makes no registry dir, no registry file, no ROOMS_HOME/<abs path>
+    # nesting, and no session-binding or graph-sync side effect downstream.
+    _registry_leak_guard "$RPATH" || exit 3
     ensure_registry
     python3 -c "
 import json, os, sys, datetime
@@ -454,6 +547,12 @@ print(json.dumps(result, indent=2))
       echo "  Fix: Run /mos:new-project to create your first room" >&2
       exit 1
     fi
+    # RCA test-birth-registry-leak: `update <name> path|abs_path <value>` re-points a
+    # room, so it gets the same temp-dir check as `create` (no bypass by registering a
+    # safe path first and moving it into the temp dir afterwards).
+    case "$FIELD" in
+      path|abs_path) _registry_leak_guard "$VALUE" || exit 3 ;;
+    esac
     python3 -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.

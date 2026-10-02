@@ -3,6 +3,16 @@
 ### Added
 - 
 
+### Fixed
+- **A throwaway test room can no longer become your active room.** The room registry now refuses to
+  register a room that lives in the system temp folder when the registry itself is not in a temp folder
+  (`REGISTRY_GUARD_REFUSED`, exit 3, nothing written). Before this, a test that created a room under
+  `/tmp` while pointed at your real `~/MindrianRooms` silently registered it and flipped `active` to it,
+  so Claude Desktop (which has no session id) wrote claims into the fixture instead of your bound room.
+  `birthRoom` now reports `registry_guard_refused` instead of a false success, and the leaking test
+  (`test-section-nodes-birth-and-migration`) runs against its own sandbox. Deliberate override:
+  `MINDRIAN_ALLOW_TMP_ROOM=1`.
+
 ## [2.0.0-beta.55] - 2026-10-02
 
 ### Fixed
