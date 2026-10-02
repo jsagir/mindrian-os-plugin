@@ -1588,6 +1588,17 @@ Plans:
 
 - [ ] 366-24-PLAN.md -- phase close: EPV366 proof, folded todos, handoff, Theo-side intent-led resolver request
 
+### Phase 366.1: Version-cut listener: a plugin release cut automatically drives the Theo command-registry resync and the mindrian-website version-fact reconcile, with a visible report and no silent skips (reuse first: release.sh Step 5.6 already fires the theo-resync repository_dispatch; this phase closes the Theo-side receiver loop and adds the website leg) (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 366
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 366.1 to break down)
+
 ### Phase 367: A newborn room ends up with a connected graph, with no repair pass (promotes SEED-101)
 
 **Navigator intent (2026-09-30 / 2026-10-01, verbatim):** "we need to run graph health checks every couple of turns"; "lets make sure all phases we talked about and seeds get to be phases and we start working them".
