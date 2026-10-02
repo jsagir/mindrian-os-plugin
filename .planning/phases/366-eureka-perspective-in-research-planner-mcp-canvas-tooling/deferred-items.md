@@ -48,3 +48,13 @@
 - **(d) disclosureLine('eureka') is no longer rendered by anything live (366-27).** The runner's Markdown report was its only render; test-355-floor-sweep leg 4b now asserts the four live 355 producers instead. Decide whether the perspective's prose or evidence card should carry the eureka disclosure line, or retire the 'eureka' entry from the floor-disclosure table.
 - **dist/zed bundle still names the runner.** dist/zed/.agents/skills/eureka/SKILL.md carries the old --legacy text. dist bundles are regenerated at release (`node scripts/build-dist-bundles.cjs`; the --check-stale leg in run-all-339 was already STALE on version before 366-22). Not edited by hand.
 - **Comment-only runner mentions left in place (optional per 366-21):** lib/core/ambient-framing.cjs, lib/core/research-planner/filing-stamped.cjs, lib/mcp/tools/gate.cjs (peer-owned), lib/core/navigation/memory-events.cjs. RR2 ignores comments.
+
+## Dispositions at close (plan 366-24, 2026-10-02)
+
+- **(a) shared_entity lane gap:** not fixed; filed as 366-HANDOFF.md follow-on F9.
+- **(b) tests/fixtures/355/eureka-ranking-pin.json:** kept as a frozen record, not deleted. No code reads it, but it is still cited as the D-47 pin by the report text `scripts/measure-355-hit-rate.cjs` emits and by comments in `lib/core/rs-differential-scorer.cjs` and `lib/core/eureka/portfolio-dimensions.cjs`; deleting it would leave those citations dangling. Retire it with the orphan modules (366-HANDOFF.md F13).
+- **(c) cross_connection_stamped:** the memory-events.cjs comment no longer names the deleted runner and says the type has no producer (commit 0fedbd1aa). The allowlist entry stays (test-355-filing pins it); retire-or-rewire is follow-on F11.
+- **(d) disclosureLine('eureka'):** not changed; follow-on F10.
+- **The eleven test-only lib/core/eureka modules (366-23 orphan set):** follow-on F12.
+- **dist/zed --legacy text:** regenerates at release; follow-on F14.
+- **The 267 combined baseline refresh** (zod4 pins and CIRS count) landed in one commit (0bcdf31cc); MCPV2-03 and MCPV2-08 are `[x]`.
