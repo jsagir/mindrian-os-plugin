@@ -1519,7 +1519,7 @@ Plans:
 **Requirements**: EPV366-01..EPV366-30 (minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-01; D-01..D-17 in `366-CONTEXT.md`)
 **Depends on:** Phase 363 (the planner), Phase 355 (the measured record and fixture rooms). Feeds Phase 364 (the same engine) and SEED-101 (claims carry a section column). Consults icm-architect, mcp-builder and langtalks-graph-expert before any design assumption.
 **Folded in 2026-10-02 as notes and deferred items only (no plan rows added, no PLAN files touched; the executing session routes them):** SEED-104 residuals on the whitespace composer: the room-only `ws:extraction_failure` check exact-matches a seven-word zone term and returned a false negative while the room already held that zone, and a quoted seven-word term returned an OpenAlex exact-phrase count of 0 that read as "gap confirmed" (split long zone terms or add an unquoted keyword pass); plan 14 territory. SEED-019 and SEED-106 item 1: `scripts/part8-egress-guard-hook.cjs` false-blocks every `mcp__theo__brain_ask`, including generic methodology vocabulary ("hypothesis test validate assumption", reason `freeform_unmatched`) and `framework_chain_slice` calls carrying only framework names and `/mos:` slugs (reason `unknown`); the guard must separate generic methodology vocabulary from room content; plan 11 edits the same guard arm (`navigator_released`). SEED-106 items 6 and 8 are already deliverable 5 and plan 15. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.
-**Plans:** 7/27 plans executed
+**Plans:** 18/27 plans executed
 
 Plans:
 **Wave 1**
@@ -1537,26 +1537,26 @@ Plans:
 
 - [x] 366-04-PLAN.md -- rs, hsi, analogies, connections templates with falsifiers and lenses; 363 pins and research-shape ledger moved by script
 - [x] 366-07-PLAN.md -- ambient eureka producer is the perspective recall, offer only, plan-only card, never a fetch; SENS-13 finding
-- [ ] 366-08-PLAN.md -- perspective interface and registry (PERSPECTIVE_IDS), shared.cjs, the one substrate and exclusion-set contract (edges, framework_nodes, whitespace_zones, makeCandidateStore, writeRunFiles), judge takes the module (STAGE_A_LANES), eureka byte-stable, one resolver in recall
-- [ ] 366-09-PLAN.md -- canon handles at artifact_file and in the indexer
-- [ ] 366-10-PLAN.md -- canon coverage statement (counts only) and the /mos:doctor --fix canon-backfill module
+- [x] 366-08-PLAN.md -- perspective interface and registry (PERSPECTIVE_IDS), shared.cjs, the one substrate and exclusion-set contract (edges, framework_nodes, whitespace_zones, makeCandidateStore, writeRunFiles), judge takes the module (STAGE_A_LANES), eureka byte-stable, one resolver in recall
+- [x] 366-09-PLAN.md -- canon handles at artifact_file and in the indexer
+- [x] 366-10-PLAN.md -- canon coverage statement (counts only) and the /mos:doctor --fix canon-backfill module
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 366-12-PLAN.md -- research_run perspective_recall / perspective_candidates / perspective_judge with deprecated eureka_* aliases; CLI perspective-recall / perspective-judge
-- [ ] 366-13-PLAN.md -- RS and HSI recall from the local graph; classifyGraph in direction-convention.cjs
-- [ ] 366-14-PLAN.md -- whitespace and analogies recall; SAPPhIRE statement template
-- [ ] 366-15-PLAN.md -- connections recall and the Theo lateral-path lane under a grant, audited
+- [x] 366-12-PLAN.md -- research_run perspective_recall / perspective_candidates / perspective_judge with deprecated eureka_* aliases; CLI perspective-recall / perspective-judge
+- [x] 366-13-PLAN.md -- RS and HSI recall from the local graph; classifyGraph in direction-convention.cjs
+- [x] 366-14-PLAN.md -- whitespace and analogies recall; SAPPhIRE statement template
+- [x] 366-15-PLAN.md -- connections recall and the Theo lateral-path lane under a grant, audited
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 366-16-PLAN.md -- router stubs point at the perspective ops; six-perspective offline proof; counter-metrics per stage; floors on the ledger
-- [ ] 366-17-PLAN.md -- one declared egress policy read by the audit ledger; --offline completes
-- [ ] 366-18-PLAN.md -- spike harness and the bar fixed before the run
+- [x] 366-16-PLAN.md -- router stubs point at the perspective ops; six-perspective offline proof; counter-metrics per stage; floors on the ledger
+- [x] 366-17-PLAN.md -- one declared egress policy read by the audit ledger; --offline completes
+- [x] 366-18-PLAN.md -- spike harness and the bar fixed before the run
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
+- [x] 366-11-PLAN.md -- gated, intent-led per-term Theo release: guard navigator_released arm, F.8 offer, audit row, proposed and confirmed translations (checkpoint)
 - [ ] 366-19-PLAN.md -- spike arms run on indexed fixture copies; navigator blind labels (checkpoint)
 
 **Wave 7** *(blocked on Wave 6 completion)*
