@@ -89,6 +89,17 @@ honestly while Theo's steps are NULL.
   25-PLUGIN-CONTRACT's handoff log via the Theo session (cross-repo, messaged, not written from here).
 - Theo-side USES_FRAMEWORK edge lands only after a plugin release carrying the command.
 
+
+### Navigator rulings 2026-10-02 (post-research)
+- What-anchor: no new node type. The entry check accepts existing stand-ins (the ratified goal, the
+  governing question, or a hypothesis claim from /mos:ignite's hypothesis door), and the navigator
+  confirms which one at the F.1 entry gate.
+- NULL Theo steps: the command runs the entry check and entry resolver, then refuses at step 1 with
+  "Theo has not authored this step yet" and offers /mos:research directly.
+- Canon snapshot: Wave 0 runs `node scripts/refresh-framework-names.cjs --live`; if names other than
+  Scientific Roadmapping change, the executor STOPS at a checkpoint and shows the navigator the diff
+  before committing (human review), then re-runs the egress and stamp tests.
+
 ### Claude's Discretion (open items from 364-INPUT, resolved with defaults)
 - Slug: `/mos:scientific-roadmap` (already used by Theo Phase 25 and 25-PLUGIN-CONTRACT; `/mos:roadmap`
   rejected as colliding with GSD roadmap vocabulary).
