@@ -215,6 +215,54 @@ tools, prompts and resources capabilities, and 45 tools and 9 prompts listed.
 
 ---
 
+## Desktop (post-migration)
+
+**Status:** DEFERRED 2026-10-02, navigator ruling ("Close now, Desktop deferred"). No
+human post-migration Desktop smoke happened. This phase does NOT claim a human
+Desktop verification of the migrated servers.
+
+What backs Desktop instead, stated at its real strength:
+
+- **Pre-migration human wire probe** (commit c5add6eb6, section "Desktop (human
+  probe)" above): Desktop on Windows via `wsl.exe` opened with `initialize` at
+  `2025-11-25`, declared only the `io.modelcontextprotocol/ui` extension, no
+  elicitation, no `server/discover`. That is why 267-11 was unblocked.
+- **Automated surrogate, post-migration** (commit 5b1770072, section
+  "Desktop-surrogate" above): a v2 client copying that exact handshake against the
+  migrated dev server. The status prompt answers, the gate renders at rung (b),
+  the dashboard view serves its resource with `room_path` containment, and
+  `room_bind` without a session id and the registry-active fallback are unchanged.
+  It is a stand-in, not a human probe.
+
+Not verified by any human on the migrated build: the real Desktop GUI flow (the
+five checks the navigator was asked to run), the dialog-vs-card observation on a
+real Desktop gate, and whether Desktop's dashboard view actually paints.
+MCPV2-13 therefore stays open for this leg. To close it later: run the
+"Setup" and "Desktop checks" steps from the 267-18 checkpoint (temporary
+`mindrian-os-dev` entry through `wsl.exe` pointing at the dev tree, tee log to
+`/tmp/mos-tee-desktop-post267.jsonl`) and record the result here.
+
+---
+
+## Cowork (post-migration)
+
+**Status:** DEFERRED 2026-10-02, navigator ruling ("Close now, Desktop deferred"
+read as both surfaces). Cowork runs the installed plugin, not the dev tree, and no
+supported way to load this dev build into a Cowork session was available.
+
+Nothing was observed on Cowork, before or after the migration. What exists is
+automated evidence only: `tests/test-267-mcpv2-http-flag-off.cjs` proves the
+Cowork-routed HTTP branch (flag OFF) now answers many sequential requests in both
+protocol eras, where it used to answer one per process (RCA 1,
+`mcp-http-flag-off-one-request-per-process`, resolved by 267-12). Assumption A7
+(does Cowork actually reach that HTTP branch) is still unconfirmed, so RCA 1's
+live severity stays unconfirmed even though the bug is fixed. MCPV2-13 stays open
+for this leg. To close it: a Cowork session with a build of this tree, then
+`status_read`, list rooms, one more tool, plus `ps aux | grep mindrian-mcp-server`
+and `env | grep -E "CLAUDE_SURFACE|COWORK_SESSION_ID"` in the VM.
+
+---
+
 ## Cowork (human probe)
 
 **Status:** PENDING (Task 3; Desktop leg done, Cowork re-asked at 267-18)
