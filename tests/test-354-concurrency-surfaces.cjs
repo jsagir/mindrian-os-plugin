@@ -53,8 +53,8 @@ const path = require('node:path');
 const http = require('node:http');
 const cp = require('node:child_process');
 
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
-const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js');
+const { Client } = require('@modelcontextprotocol/client');
+const { StdioClientTransport } = require('@modelcontextprotocol/client/stdio');
 
 const { openRoomDb, closeRoomDb } = require(path.join(__dirname, '..', 'lib', 'core', 'room-db.cjs'));
 const { makeScratchRoom, captureToolServer, SKIP_EXIT_CODE } = require(path.join(__dirname, 'helpers', 'fixture-room-354.cjs'));
