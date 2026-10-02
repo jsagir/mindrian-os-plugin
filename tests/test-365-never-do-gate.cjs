@@ -568,8 +568,14 @@ async function main() {
             JSON.stringify(shape(base[name].inputSchema)) === JSON.stringify(shape(now[name].inputSchema)));
         });
       });
-      check('N12 lib/mcp/tools/gate.cjs is byte-identical to PLAN_BASE',
-        spawnSync('git', ['diff', '--quiet', PLAN_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
+      // debug desktop-session-binding-fallback (96804284d) deliberately changed gate.cjs's
+      // gate_answer write path (resolveMcpWriteRoom + the binding-card carve-out). Its
+      // registration (description, title, input schema) is unchanged and still pinned to
+      // PLAN_BASE above; only the byte-identity pin moves to that commit. Any later edit
+      // to gate.cjs must re-pin GATE_BASE.
+      const GATE_BASE = '96804284d1068204d5884ddce03b11c34ec77619';
+      check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
+        spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
   }
 
