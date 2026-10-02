@@ -132,8 +132,11 @@ try {
   assert.deepStrictEqual(missing, [], 'every expectedSteps member must appear in the real dry-run stdout, missing: ' + missing.join(', '));
   ok('every member of the extracted expectedSteps array (including Step 0.55) appears in the real dry-run stdout');
 
-  assert.equal(run1.stdout.indexOf('Step 5.6'), -1, 'the dry-run must print no Step 5.6 line');
-  assert.equal(run1.stdout.indexOf('theo-resync'), -1, 'the dry-run must not mention the retired theo-resync event');
+  // Matched as a step listing or step header line, not a bare substring:
+  // the dry-run also echoes recent commit subjects, and the retirement
+  // commit's own subject names Step 5.6.
+  assert.equal(/^\s*(?:===\s*)?Step 5\.6\b/m.test(run1.stdout), false, 'the dry-run must print no Step 5.6 listing or header line');
+  assert.equal(/repository_dispatch \(event theo-resync\)/.test(run1.stdout), false, 'the dry-run must not preview the retired theo-resync dispatch');
   ok('the dry-run prints no Step 5.6 line and no theo-resync preview');
 
   // -------------------------------------------------------------------------
