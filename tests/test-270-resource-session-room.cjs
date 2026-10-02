@@ -37,26 +37,23 @@ function stripComments(src) {
 }
 
 // makeStubServer() -- captures registrations without an MCP transport.
-// server.resource(name, uriOrTemplate, meta, cb): string uri -> resources
-// map; ResourceTemplate instance -> templates map. Both keyed by `name`,
-// mirroring the SDK's own resource() at mcp.js:451. server.tool(name, desc,
-// schema, cb) stores keyed by name so the same stub drives
-// lib/mcp/tools/room.cjs's register().
+// Mirrors the v2 McpServer surface (no resource() or tool()):
+// server.registerResource(name, uriOrTemplate, config, cb): string uri ->
+// resources map; ResourceTemplate instance -> templates map. Both keyed by
+// `name`. server.registerTool(name, config, cb) stores keyed by name so the
+// same stub drives lib/mcp/tools/room.cjs's register().
 function makeStubServer() {
   return {
     resources: new Map(),
     templates: new Map(),
     tools: new Map(),
     listChangedCount: 0,
-    resource(name, uriOrTemplate, meta, cb) {
+    registerResource(name, uriOrTemplate, config, cb) {
       if (typeof uriOrTemplate === 'string') {
-        this.resources.set(name, { uri: uriOrTemplate, meta, cb });
+        this.resources.set(name, { uri: uriOrTemplate, meta: config, cb });
       } else {
-        this.templates.set(name, { template: uriOrTemplate, meta, cb });
+        this.templates.set(name, { template: uriOrTemplate, meta: config, cb });
       }
-    },
-    tool(name, description, schema, cb) {
-      this.tools.set(name, { description, schema, cb });
     },
     // Phase 267-08: room.cjs registers through server.registerTool(name,
     // {title, description, inputSchema}, cb); capture the same shape.

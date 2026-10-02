@@ -32,22 +32,25 @@ const TREE_WATCHER_PATH = path.join(REPO_ROOT, 'lib', 'mcp', 'tree-watcher.cjs')
 // makeStubServer() -- LOCAL COPY of the shape from
 // tests/test-270-resource-session-room.cjs (plan 270-02 Task 2). Copied
 // rather than required across test files so each stays independently
-// runnable.
+// runnable. It mirrors the v2 McpServer surface, which has no resource() or
+// tool(): registerResource(name, uriOrTemplate, config, cb) and
+// registerTool(name, config, cb) only (267-09 / quick 261002-by3).
 function makeStubServer() {
   return {
     resources: new Map(),
     templates: new Map(),
     tools: new Map(),
     listChangedCount: 0,
-    resource(name, uriOrTemplate, meta, cb) {
+    registerResource(name, uriOrTemplate, config, cb) {
       if (typeof uriOrTemplate === 'string') {
-        this.resources.set(name, { uri: uriOrTemplate, meta, cb });
+        this.resources.set(name, { uri: uriOrTemplate, meta: config, cb });
       } else {
-        this.templates.set(name, { template: uriOrTemplate, meta, cb });
+        this.templates.set(name, { template: uriOrTemplate, meta: config, cb });
       }
     },
-    tool(name, description, schema, cb) {
-      this.tools.set(name, { description, schema, cb });
+    registerTool(name, config, cb) {
+      const cfg = config || {};
+      this.tools.set(name, { description: cfg.description, schema: (cfg.inputSchema && cfg.inputSchema.shape) || cfg.inputSchema || {}, cb });
     },
     sendResourceListChanged() {
       this.listChangedCount += 1;
