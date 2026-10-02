@@ -85,9 +85,8 @@ const {
   resetToolScript,
 } = require('./helpers/brain-capture-server.cjs');
 const { makeScratchRoom, captureToolServer } = require('./helpers/fixture-room-354.cjs');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
-const { InMemoryTransport } = require('@modelcontextprotocol/sdk/inMemory.js');
+const { McpServer, InMemoryTransport } = require('@modelcontextprotocol/server');
+const { Client } = require('@modelcontextprotocol/client');
 
 // The write-path flag for the 'cli' surface -- artifact_file's writePathRefusal
 // gate (lib/mcp/tools/views.cjs) checks isWritePathEnabled({surface}), and an
