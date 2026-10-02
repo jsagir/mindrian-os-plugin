@@ -46,6 +46,12 @@
  *   deep-synthesize <run_id> --room <dir>
  *   basket <run_id> --room <dir>
  *   file-run <run_id> <selection.json> --room <dir> --approved-via cli
+ *   canon-release <run_id> --room <dir> --item canon_term:<12 hex> --approved-via cli
+ *   canon-confirm <run_id> --room <dir> --item canon_translation:<12 hex> --approved-via cli
+ *   (Phase 366 plan 11, D-13: the gated release of ONE room term to Theo, and the confirm of the
+ *    proposed translation it may produce. The host asks the navigator first; --approved-via cli says
+ *    the yes was heard. Only {raw: term} reaches Theo. Without MOS_366_LIVE=1 or a replay file
+ *    (MOS_366_THEO_REPLAY) the release refuses live_not_enabled and sends nothing.)
  *   never-do add <entry.json> --room <dir> --approved-via cli
  *   never-do list --room <dir>
  *   pending --room <dir>
@@ -82,6 +88,7 @@ const RUN_ID_RE = planner.RUN_ID_RE;
 const GRANT_ID_RE = planner.GRANT_ID_RE;
 const LANE_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$/;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
+const CANON_ITEM_RE = /^canon_(term|translation):[0-9a-f]{12}$/;
 
 // flag name -> value type ('bool' takes no value)
 const FLAGS = Object.freeze({
@@ -101,6 +108,8 @@ const FLAGS = Object.freeze({
   '--terms': 'json',
   '--rows': 'json',
   '--approved-via': 'via',
+  // Phase 366 plan 11: one canon release or confirm item id, a closed shape (never a term).
+  '--item': 'canonitem',
   '--section': 'slug',
 });
 
@@ -131,6 +140,8 @@ const COMMANDS = Object.freeze({
   'deep-synthesize': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'basket': { pos: ['runid'], flags: ['--room'], need: ['--room'] },
   'file-run': { pos: ['runid', 'json'], flags: ['--room', '--approved-via'], need: ['--room', '--approved-via'] },
+  'canon-release': { pos: ['runid'], flags: ['--room', '--item', '--approved-via'], need: ['--room', '--item', '--approved-via'] },
+  'canon-confirm': { pos: ['runid'], flags: ['--room', '--item', '--approved-via'], need: ['--room', '--item', '--approved-via'] },
   // 365-14: --approved-via is NOT in `need` for never-do add: a missing one is
   // answered by the handler as approval_required (the writer's own reason).
   'never-do add': { pos: ['json'], flags: ['--room', '--approved-via'], need: ['--room'] },
@@ -162,6 +173,7 @@ function valueOk(type, v) {
     case 'json': return isJsonFile(v);
     case 'mode': return v === 'quick' || v === 'deep';
     case 'via': return v === 'cli';
+    case 'canonitem': return typeof v === 'string' && CANON_ITEM_RE.test(v);
     case 'slug': return typeof v === 'string' && SLUG_RE.test(v);
     case 'int': return typeof v === 'string' && INT_RE.test(v);
     case 'tag': return typeof v === 'string' && TAG_RE.test(v);
@@ -218,6 +230,7 @@ function parseArgv(argv) {
     if (!Object.prototype.hasOwnProperty.call(flags, spec.need[k])) {
       if (spec.need[k] === '--approved-via') return refuse('approved_via_required');
       if (spec.need[k] === '--perspective') return refuse('perspective_required');
+      if (spec.need[k] === '--item') return refuse('item_required');
       return refuse('room_required');
     }
   }
@@ -310,6 +323,49 @@ async function perspectiveJudge(room, id, flags) {
   const out = { ok: true, perspective: id, run_tag: res.tag, file: res.file, summary: res.summary };
   if (flags['--offline'] === true) out.offline = true;
   return out;
+}
+
+// -- Phase 366 plan 11: the canon release and confirm doors ---------------------
+// canonTransport() -> { ok, deps } | { ok:false, reason }. The transport is chosen by the environment, never by
+// argv: MOS_366_THEO_REPLAY names a recorded-answer file (offline, hermetic), MOS_366_LIVE=1 allows the real
+// Theo call through brain-client, and anything else refuses and sends nothing.
+function canonTransport() {
+  const replayPath = process.env.MOS_366_THEO_REPLAY;
+  if (typeof replayPath === 'string' && replayPath.length > 0) {
+    let doc = null;
+    try { doc = JSON.parse(fs.readFileSync(replayPath, 'utf8')); } catch (_e) { doc = null; }
+    if (!doc || typeof doc !== 'object' || !doc.responses || typeof doc.responses !== 'object') return { ok: false, reason: 'replay_unreadable' };
+    const responses = doc.responses;
+    return {
+      ok: true,
+      deps: {
+        transport: 'replay',
+        callTool: async function (tool, args) {
+          if (tool !== 'normalize_framework_name' || !args || typeof args.raw !== 'string') return null;
+          return Object.prototype.hasOwnProperty.call(responses, args.raw) ? responses[args.raw] : null;
+        },
+      },
+    };
+  }
+  if (process.env.MOS_366_LIVE === '1') return { ok: true, deps: { transport: 'live' } };
+  return { ok: false, reason: 'live_not_enabled', hint: 'Set MOS_366_LIVE=1 to allow the real Theo call for this one term, or MOS_366_THEO_REPLAY to a recorded-answer file.' };
+}
+
+async function canonDoor(cmd, room, runId, itemId) {
+  const canonRelease = require(path.join(RP, 'canon-release.cjs'));
+  const wantTerm = cmd === 'canon-release';
+  if (wantTerm ? itemId.indexOf('canon_term:') !== 0 : itemId.indexOf('canon_translation:') !== 0) return { ok: false, reason: 'wrong_item_kind' };
+  const loaded = planner.loadPlan(room, runId);
+  if (!loaded.ok) return loaded;
+  if (!wantTerm) return canonRelease.confirmTranslation(room, itemId, { approved_via: 'cli' });
+  const ran = planner.loadRun(room, runId);
+  if (!ran.ok) return ran;
+  const item = canonRelease.offerItemsFor(room, ran.run, loaded.plan, {}).filter(function (i) { return i.id === itemId; })[0];
+  if (!item) return { ok: false, reason: 'unknown_item' };
+  const transport = canonTransport();
+  if (!transport.ok) return transport;
+  const sessionId = process.env.CLAUDE_CODE_SESSION_ID || null;
+  return canonRelease.answerRelease(room, item, { sessionId: sessionId, deps: transport.deps });
 }
 
 async function handle(cmd, pos, flags) {
@@ -478,6 +534,9 @@ async function handle(cmd, pos, flags) {
       if (!selection || typeof selection !== 'object') return { ok: false, reason: 'bad_json' };
       return planner.fileFromState(room, pos[0], selection, { approvedVia: via });
     }
+    case 'canon-release':
+    case 'canon-confirm':
+      return canonDoor(cmd, room, pos[0], flags['--item']);
     case 'never-do add': {
       // D-10: an entry lands only after the navigator's yes. Larry runs this door
       // after the AskUserQuestion yes and says so with --approved-via cli.

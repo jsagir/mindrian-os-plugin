@@ -86,7 +86,7 @@ function leg(name, fn) {
 }
 function clone(v) { return JSON.parse(JSON.stringify(v)); }
 function samePair(p, a, b) { return !!p && ((p.a === a && p.b === b) || (p.a === b && p.b === a)); }
-function dashFree(s) { return !/[–—]/.test(String(s)); }
+function dashFree(s) { return !/[\u2013\u2014]/.test(String(s)); }
 
 // ---------------------------------------------------------------------------
 // the room: the planted fixture plus two things that carry a room word as their framework
