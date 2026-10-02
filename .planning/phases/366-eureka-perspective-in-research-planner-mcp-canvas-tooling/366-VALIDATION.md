@@ -2,8 +2,8 @@
 phase: 366
 slug: eureka-perspective-in-research-planner-mcp-canvas-tooling
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-10-01
 ---
 
@@ -41,65 +41,65 @@ Node >= 22.16 with `node:sqlite` is mandatory; `/usr/bin/node` on the WSL machin
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 366-01-T1 | 01 | 1 | EPV366-01 | T-366-04 | seed103 legs carried; dash fence | aggregator | `bash tests/run-all-366.sh` | no (W0) | pending |
-| 366-01-T2 | 01 | 1 | EPV366-23 | T-366-03 | planted fixture, zero sockets | unit (nodes before edges; edge_rows_missing_endpoint 0) | `node tests/test-366-fixture-helper.cjs` | no (W0) | pending |
-| 366-01-T3 | 01 | 1 | EPV366-23 | T-366-01/02/03 | temp-root containment; source fixtures untouched | unit | `node tests/test-366-spike-prepare.cjs` | no (W0) | pending |
-| 366-02-T1 | 02 | 2 | EPV366-12 | T-366-06 | closed pair carry; one per-leaf condition (rolled status supported, no known hit) for every kind | unit | `node tests/test-366-eureka-filing.cjs (F1-F3); node tests/test-363-pyramid.cjs` | no | pending |
-| 366-02-T2 | 02 | 2 | EPV366-12 | T-366-05/07/08 | single-use approval; no Theo at filing | integration | `node tests/test-366-eureka-filing.cjs (F4-F9); bash tests/run-all-363.sh` | no | pending |
-| 366-03-T1 | 03 | 2 | EPV366-13 | T-366-11/12 | argv JSON-only; registries by script | static | `node scripts/build-skill-mirrors.cjs --check; node scripts/check-registry-drift.cjs` | yes | pending |
-| 366-03-T2 | 03 | 2 | EPV366-13 | T-366-09/10 | all-pairs only behind legacy:true | unit | `node tests/test-366-eureka-alias.cjs; node tests/test-205-surface-fence.cjs` | no | pending |
-| 366-04-T1 | 04 | 3 | EPV366-05/06/08/09 | T-366-13/14/15 | frozen families only; Y1 invariants kept (hsi door explicit_only, named falsifier templates); pins and ledger by script in the same commit | unit + static | `node tests/test-366-templates.cjs; node scripts/build-research-shape-ledger.cjs --check; node tests/test-363-pyramid.cjs; node tests/test-363-structure.cjs` | no | pending |
-| 366-04-T2 | 04 | 3 | EPV366-05/06/08/09 | T-366-15 | no further template-count pin left | aggregator | `bash tests/run-all-363.sh; node tests/test-seed103-eureka-perspective.cjs` | yes | pending |
-| 366-05-T1 | 05 | 2 | EPV366-15/19 | T-366-16/17 | ratified-only, contained translation table | unit | `node tests/test-366-canon-handles.cjs (C1-C7)` | no | pending |
-| 366-05-T2 | 05 | 2 | EPV366-16 | T-366-18/19 | node before edge, idempotent | unit | `node tests/test-366-canon-handles.cjs (C8-C12); node scripts/check-substrate.cjs --diff` | no | pending |
-| 366-06-T1 | 06 | 2 | EPV366-21 | T-366-22/23 | offline lagging gate | unit (shell seam) | `node tests/test-366-snapshot-gate.cjs` | no | pending |
-| 366-06-T2 | 06 | 2 | EPV366-01/21 | T-366-21/24 | audited opt-outs; no recursion; gate plus refresh command stated as D-17's delivered form | unit (shell seam) | `node tests/test-366-suite-gate.cjs; node tests/test-349-docs-lockstep.cjs` | no | pending |
-| 366-07-T1 | 07 | 3 | EPV366-14 | T-366-27/28 | offer-only, ids only | unit | `node tests/test-366-ambient-offer.cjs (O1-O6); bash tests/run-all-3551.sh` | no | pending |
-| 366-07-T2 | 07 | 3 | EPV366-14 | T-366-26/29/30 | never a fetch with a grant; titles re-hydrated locally, never in the offer | unit | `node tests/test-366-ambient-offer.cjs (O7-O12)` | no | pending |
-| 366-08-T1 | 08 | 3 | EPV366-02 | T-366-31 | frozen registry; substrate and exclusion-set contract owned here (P11, P12); eureka golden byte-stable | unit | `node tests/test-366-perspective-interface.cjs (P1-P5, P11, P12)` | no | pending |
-| 366-08-T2 | 08 | 3 | EPV366-02/15/16 | T-366-32/33 | one resolver; read-only recall | unit | `node tests/test-366-perspective-interface.cjs (P6-P10); bash tests/run-all-seed103.sh` | no | pending |
-| 366-09-T1 | 09 | 3 | EPV366-15/16 | T-366-34/35 | exact match; bookkeeping never blocks | integration | `node tests/test-366-canon-at-filing.cjs (K1-K5)` | no | pending |
-| 366-09-T2 | 09 | 3 | EPV366-15/16 | T-366-36 | indexer idempotent | integration | `node tests/test-366-canon-at-filing.cjs (K6-K9)` | no | pending |
-| 366-10-T1 | 10 | 3 | EPV366-17 | T-366-40 | counts only, null on unreadable | unit | `node tests/test-366-canon-coverage-count.cjs; bash tests/run-all-343.sh` | no | pending |
-| 366-10-T2 | 10 | 3 | EPV366-20 | T-366-38/39/41 | per-room soft fail; dryRun writes nothing | unit | `node tests/test-366-canon-backfill.cjs; node tests/test-doctor-module-contract-parity.cjs` | no | pending |
-| 366-11-T1 | 11 | 6 | EPV366-18 | T-366-43 | one receipt-bound allow after the content scan | unit (adversarial) | `node tests/test-366-guard-navigator-release.cjs` | no | pending |
-| 366-11-T2 | 11 | 6 | EPV366-18/19 | T-366-44/45/46/47 | no call without a yes; closed audit row | unit (injected callTool) | `node tests/test-366-gated-term-release.cjs` | no | pending |
-| 366-11-T3 | 11 | 6 | EPV366-18 | T-366-43 | live round trip approved | manual + replay | `MOS_366_LIVE=1 scratch room; then node tests/test-366-gated-term-release.cjs` | manual | pending |
-| 366-12-T1 | 12 | 4 | EPV366-03 | T-366-49/50/52/53 | zod enum; aliases deprecated | integration | `node tests/test-366-mcp-perspective-ops.cjs; node tests/test-270-tool-schema-budget.cjs; node tests/test-234-tool-description-floor.cjs` | no | pending |
-| 366-12-T2 | 12 | 4 | EPV366-04 | T-366-49/51 | no free text on argv | unit | `node tests/test-366-cli-perspective.cjs` | no | pending |
-| 366-13-T1 | 13 | 4 | EPV366-05 | T-366-54/55/56 | offline, capped | unit | `node tests/test-366-recall-rs.cjs` | no | pending |
-| 366-13-T2 | 13 | 4 | EPV366-06 | T-366-57 | one classifier home; own table hash (hashGraphTable); a tie is semantic_implementation; hsi leaves carry the closed pair (H7) | unit | `node tests/test-366-recall-hsi.cjs (H1-H7); node tests/test-355-direction-agreement.cjs` | no | pending |
-| 366-14-T1 | 14 | 4 | EPV366-07 | T-366-60 | offline, capped; no duplicate basket candidate (W7) | unit | `node tests/test-366-recall-whitespace.cjs` | no | pending |
-| 366-14-T2 | 14 | 4 | EPV366-08 | T-366-58/59 | SAPPhIRE filled on host only; host_hint present | unit | `node tests/test-366-recall-analogies.cjs` | no | pending |
-| 366-15-T1 | 15 | 4 | EPV366-09 | T-366-65 | no network in recall | unit | `node tests/test-366-recall-connections.cjs` | no | pending |
-| 366-15-T2 | 15 | 4 | EPV366-09 | T-366-61/62/63/64 | canon names only, under a run grant naming theo (validateTheoCall), audited; theo-only plan runnable; the grant card names Theo and the pair count (Y3b) | unit (injected callTool) | `node tests/test-366-theo-lateral-lane.cjs (Y1-Y10, Y3b); node tests/test-363-grants.cjs; bash tests/run-all-363.sh` | no | pending |
-| 366-16-T1 | 16 | 5 | EPV366-11 | T-366-66/69 | honest stubs; 65 pin; alias A1 moved; connector data by script | unit | `node tests/test-366-router-redirects.cjs; node tests/test-205-surface-fence.cjs; node tests/test-366-eureka-alias.cjs; node scripts/build-connector-registry.cjs --check` | no | pending |
-| 366-16-T2 | 16 | 5 | EPV366-10/26 | T-366-67 | zero sockets across six; valid plan and basket candidate for all six (Z4) | unit | `node tests/test-366-offline-recall.cjs; node tests/test-366-counter-metrics.cjs` | no | pending |
-| 366-16-T3 | 16 | 5 | EPV366-27 | T-366-68 | every floor on the ledger | static | `node scripts/check-floor-ledger.cjs; node tests/test-355-floor-sweep.cjs` | yes | pending |
-| 366-17-T1 | 17 | 5 | EPV366-22 | T-366-70/71/72/74 | override can only turn lines off | unit | `node tests/test-366-egress-policy.cjs (E1-E6, E4b provider sweep)` | no | pending |
-| 366-17-T2 | 17 | 5 | EPV366-22 | T-366-73 | --offline completes | unit | `node tests/test-366-egress-policy.cjs (E7-E10)` | no | pending |
-| 366-18-T1 | 18 | 5 | EPV366-23 | T-366-77 | bar committed before the run | static | `node -e (bar minimums vs wilson95)` | no | pending |
-| 366-18-T2 | 18 | 5 | EPV366-23 | T-366-75/76/78/79 | Jev only on contained fixture copies | unit | `node tests/test-366-spike-harness.cjs; node tests/test-353-tripwires.cjs` | no | pending |
-| 366-19-T1 | 19 | 6 | EPV366-23 | T-366-80/82/83 | synthetic fixtures only | run | `node scripts/spike-366.cjs recall/items/judge (manifest)` | no | pending |
-| 366-19-T2 | 19 | 6 | EPV366-23 | T-366-81 | blind seeded labels | manual | `node scripts/label-355-gold.cjs start --set pairings-unstamped --items ...` | manual | pending |
-| 366-20-T1 | 20 | 7 | EPV366-23/24/27 | T-366-85 | record recomputes byte for byte | static | `node scripts/spike-366.cjs --check; node scripts/check-floor-ledger.cjs` | no | pending |
-| 366-20-T2 | 20 | 7 | EPV366-30 | T-366-84/86 | no automatic adoption | manual (decision) | `366-SPIKE-RULINGS.md has all six rulings` | manual | pending |
-| 366-21-T1 | 21 | 8 | EPV366-25 | T-366-87 | `runner: retire` ruling asserted; inventory decided and sliced; static retirement gate (RED) | static | `grep -qE "^runner: *retire" 366-SPIKE-RULINGS.md; node tests/test-366-runner-retired.cjs (expected RED)` | no | pending |
-| 366-21-T2 | 21 | 8 | EPV366-25 | T-366-88/89 | slice A (215/216/226) off the runner; aggregators green | aggregator | `bash tests/run-all-215/216/226/363.1/seed103.sh` | yes | pending |
-| 366-25-T1 | 25 | 9 | EPV366-25 | T-366-100/101 | slice B part 1 (218) off the runner; aggregator green | aggregator | `bash tests/run-all-218.sh` | yes | pending |
-| 366-25-T2 | 25 | 9 | EPV366-25 | T-366-100/101/102 | slice B part 2 (219/223/343) off the runner; aggregators green | aggregator | `bash tests/run-all-218/219/223/343.sh` | yes | pending |
-| 366-27-T1 | 27 | 9 | EPV366-25 | T-366-106 | slice C part 1: 355 filing-record tests on filing-stamped.cjs, assertions kept | unit | `node tests/test-355-filing.cjs; node tests/test-355-stamp-coverage.cjs; node tests/test-355-no-decimal.cjs; node tests/test-355-part8-egress.cjs` | yes | pending |
-| 366-27-T2 | 27 | 9 | EPV366-25 | T-366-106/107/108 | slice C part 2 (ranking, producer, floor sweep, 3551) off the runner; 355 record kept | aggregator | `bash tests/run-all-355/3551/seed103.sh` | yes | pending |
-| 366-26-T1 | 26 | 9 | EPV366-25 | T-366-103/104 | slice D part 1 (341/363.1) off the runner | aggregator | `bash tests/run-all-341/363.1.sh` | yes | pending |
-| 366-26-T2 | 26 | 9 | EPV366-25 | T-366-105 | slice D closed; phase-366 handover list written | static | `node tests/test-eureka-mcp-tools.cjs; no slice D file greps for eureka-command\|eureka-portfolio-report` | yes | pending |
-| 366-22-T1 | 22 | 10 | EPV366-25 | T-366-90/93 | deletion only after the `runner: retire` ruling and the global closure grep (all three wave-9 slices landed); no legacy path; registries by script | static | `grep -qE "^runner: *retire" 366-SPIKE-RULINGS.md; grep -rlE "eureka-command\|eureka-portfolio-report" tests (only tests/test-366-*); node scripts/build-skill-mirrors.cjs --check; node tests/test-205-surface-fence.cjs; node tests/test-366-eureka-alias.cjs` | yes | pending |
-| 366-22-T2 | 22 | 10 | EPV366-25 | T-366-91/92 | no dangling requires | static | `node tests/test-366-runner-retired.cjs; bash tests/run-all-366.sh` | no | pending |
-| 366-23-T1 | 23 | 11 | EPV366-29 | T-366-96 | integrity gate green before move | unit | `node tests/test-366-semantic-index-integrity.cjs` | no | pending |
-| 366-23-T2 | 23 | 11 | EPV366-29 | T-366-94/95 | move map and batched codemod, dry run only | static | `366-23-codemod.cjs --batch N --dry-run (every batch); git diff --quiet -- lib scripts hooks bin tests` | no | pending |
-| 366-23-T3 | 23 | 11 | EPV366-29 | T-366-94/95 | integrity gate green after every batch and after the move | static + aggregator | `node scripts/check-require-integrity.cjs; bash tests/run-all-366.sh` | no | pending |
-| 366-24-T1 | 24 | 12 | all EPV366 | T-366-97 | proof per row | aggregator | `bash tests/run-all-366.sh` | yes | pending |
-| 366-24-T2 | 24 | 12 | EPV366-28 | T-366-98 | policy changes only on a ruling | unit | `node tests/test-366-egress-policy.cjs; node scripts/check-registry-drift.cjs` | yes | pending |
-| 366-24-T3 | 24 | 12 | EPV366-30 | T-366-99 | Theo request carries no room content; research mirror in three homes, cross-linked | static | `test -f 366-HANDOFF.md; research entry in ~/MindrianRooms/rethinking-mindrianos/research, ~/MindrianOS/research, .planning/research; LC_ALL=C dash fence` | no | pending |
+| 366-01-T1 | 01 | 1 | EPV366-01 | T-366-04 | seed103 legs carried; dash fence | aggregator | `bash tests/run-all-366.sh` | no (W0) | green |
+| 366-01-T2 | 01 | 1 | EPV366-23 | T-366-03 | planted fixture, zero sockets | unit (nodes before edges; edge_rows_missing_endpoint 0) | `node tests/test-366-fixture-helper.cjs` | no (W0) | green |
+| 366-01-T3 | 01 | 1 | EPV366-23 | T-366-01/02/03 | temp-root containment; source fixtures untouched | unit | `node tests/test-366-spike-prepare.cjs` | no (W0) | green |
+| 366-02-T1 | 02 | 2 | EPV366-12 | T-366-06 | closed pair carry; one per-leaf condition (rolled status supported, no known hit) for every kind | unit | `node tests/test-366-eureka-filing.cjs (F1-F3); node tests/test-363-pyramid.cjs` | no | green |
+| 366-02-T2 | 02 | 2 | EPV366-12 | T-366-05/07/08 | single-use approval; no Theo at filing | integration | `node tests/test-366-eureka-filing.cjs (F4-F9); bash tests/run-all-363.sh` | no | green (only the pre-existing reds of run-all-363, same legs as the base tree) |
+| 366-03-T1 | 03 | 2 | EPV366-13 | T-366-11/12 | argv JSON-only; registries by script | static | `node scripts/build-skill-mirrors.cjs --check; node scripts/check-registry-drift.cjs` | yes | green |
+| 366-03-T2 | 03 | 2 | EPV366-13 | T-366-09/10 | all-pairs only behind legacy:true | unit | `node tests/test-366-eureka-alias.cjs; node tests/test-205-surface-fence.cjs` | no | green |
+| 366-04-T1 | 04 | 3 | EPV366-05/06/08/09 | T-366-13/14/15 | frozen families only; Y1 invariants kept (hsi door explicit_only, named falsifier templates); pins and ledger by script in the same commit | unit + static | `node tests/test-366-templates.cjs; node scripts/build-research-shape-ledger.cjs --check; node tests/test-363-pyramid.cjs; node tests/test-363-structure.cjs` | no | green |
+| 366-04-T2 | 04 | 3 | EPV366-05/06/08/09 | T-366-15 | no further template-count pin left | aggregator | `bash tests/run-all-363.sh; node tests/test-seed103-eureka-perspective.cjs` | yes | green (only the pre-existing reds of run-all-363, same legs as the base tree) |
+| 366-05-T1 | 05 | 2 | EPV366-15/19 | T-366-16/17 | ratified-only, contained translation table | unit | `node tests/test-366-canon-handles.cjs (C1-C7)` | no | green |
+| 366-05-T2 | 05 | 2 | EPV366-16 | T-366-18/19 | node before edge, idempotent | unit | `node tests/test-366-canon-handles.cjs (C8-C12); node scripts/check-substrate.cjs --diff` | no | green |
+| 366-06-T1 | 06 | 2 | EPV366-21 | T-366-22/23 | offline lagging gate | unit (shell seam) | `node tests/test-366-snapshot-gate.cjs` | no | green |
+| 366-06-T2 | 06 | 2 | EPV366-01/21 | T-366-21/24 | audited opt-outs; no recursion; gate plus refresh command stated as D-17's delivered form | unit (shell seam) | `node tests/test-366-suite-gate.cjs; node tests/test-349-docs-lockstep.cjs` | no | green |
+| 366-07-T1 | 07 | 3 | EPV366-14 | T-366-27/28 | offer-only, ids only | unit | `node tests/test-366-ambient-offer.cjs (O1-O6); bash tests/run-all-3551.sh` | no | green (only the pre-existing reds of run-all-3551, same legs as the base tree) |
+| 366-07-T2 | 07 | 3 | EPV366-14 | T-366-26/29/30 | never a fetch with a grant; titles re-hydrated locally, never in the offer | unit | `node tests/test-366-ambient-offer.cjs (O7-O12)` | no | green |
+| 366-08-T1 | 08 | 3 | EPV366-02 | T-366-31 | frozen registry; substrate and exclusion-set contract owned here (P11, P12); eureka golden byte-stable | unit | `node tests/test-366-perspective-interface.cjs (P1-P5, P11, P12)` | no | green |
+| 366-08-T2 | 08 | 3 | EPV366-02/15/16 | T-366-32/33 | one resolver; read-only recall | unit | `node tests/test-366-perspective-interface.cjs (P6-P10); bash tests/run-all-seed103.sh` | no | green |
+| 366-09-T1 | 09 | 3 | EPV366-15/16 | T-366-34/35 | exact match; bookkeeping never blocks | integration | `node tests/test-366-canon-at-filing.cjs (K1-K5)` | no | green |
+| 366-09-T2 | 09 | 3 | EPV366-15/16 | T-366-36 | indexer idempotent | integration | `node tests/test-366-canon-at-filing.cjs (K6-K9)` | no | green |
+| 366-10-T1 | 10 | 3 | EPV366-17 | T-366-40 | counts only, null on unreadable | unit | `node tests/test-366-canon-coverage-count.cjs; bash tests/run-all-343.sh` | no | green (only the pre-existing reds of run-all-343, same legs as the base tree) |
+| 366-10-T2 | 10 | 3 | EPV366-20 | T-366-38/39/41 | per-room soft fail; dryRun writes nothing | unit | `node tests/test-366-canon-backfill.cjs; node tests/test-doctor-module-contract-parity.cjs` | no | green |
+| 366-11-T1 | 11 | 6 | EPV366-18 | T-366-43 | one receipt-bound allow after the content scan | unit (adversarial) | `node tests/test-366-guard-navigator-release.cjs` | no | green |
+| 366-11-T2 | 11 | 6 | EPV366-18/19 | T-366-44/45/46/47 | no call without a yes; closed audit row | unit (injected callTool) | `node tests/test-366-gated-term-release.cjs` | no | green |
+| 366-11-T3 | 11 | 6 | EPV366-18 | T-366-43 | live round trip approved | manual + replay | `MOS_366_LIVE=1 scratch room; then node tests/test-366-gated-term-release.cjs` | manual | green (approved live round trip 2026-10-02, a MISS; R13 replays it) |
+| 366-12-T1 | 12 | 4 | EPV366-03 | T-366-49/50/52/53 | zod enum; aliases deprecated | integration | `node tests/test-366-mcp-perspective-ops.cjs; node tests/test-270-tool-schema-budget.cjs; node tests/test-234-tool-description-floor.cjs` | no | green |
+| 366-12-T2 | 12 | 4 | EPV366-04 | T-366-49/51 | no free text on argv | unit | `node tests/test-366-cli-perspective.cjs` | no | green |
+| 366-13-T1 | 13 | 4 | EPV366-05 | T-366-54/55/56 | offline, capped | unit | `node tests/test-366-recall-rs.cjs` | no | green |
+| 366-13-T2 | 13 | 4 | EPV366-06 | T-366-57 | one classifier home; own table hash (hashGraphTable); a tie is semantic_implementation; hsi leaves carry the closed pair (H7) | unit | `node tests/test-366-recall-hsi.cjs (H1-H7); node tests/test-355-direction-agreement.cjs` | no | green |
+| 366-14-T1 | 14 | 4 | EPV366-07 | T-366-60 | offline, capped; no duplicate basket candidate (W7) | unit | `node tests/test-366-recall-whitespace.cjs` | no | green |
+| 366-14-T2 | 14 | 4 | EPV366-08 | T-366-58/59 | SAPPhIRE filled on host only; host_hint present | unit | `node tests/test-366-recall-analogies.cjs` | no | green |
+| 366-15-T1 | 15 | 4 | EPV366-09 | T-366-65 | no network in recall | unit | `node tests/test-366-recall-connections.cjs` | no | green |
+| 366-15-T2 | 15 | 4 | EPV366-09 | T-366-61/62/63/64 | canon names only, under a run grant naming theo (validateTheoCall), audited; theo-only plan runnable; the grant card names Theo and the pair count (Y3b) | unit (injected callTool) | `node tests/test-366-theo-lateral-lane.cjs (Y1-Y10, Y3b); node tests/test-363-grants.cjs; bash tests/run-all-363.sh` | no | green |
+| 366-16-T1 | 16 | 5 | EPV366-11 | T-366-66/69 | honest stubs; 65 pin; alias A1 moved; connector data by script | unit | `node tests/test-366-router-redirects.cjs; node tests/test-205-surface-fence.cjs; node tests/test-366-eureka-alias.cjs; node scripts/build-connector-registry.cjs --check` | no | green |
+| 366-16-T2 | 16 | 5 | EPV366-10/26 | T-366-67 | zero sockets across six; valid plan and basket candidate for all six (Z4) | unit | `node tests/test-366-offline-recall.cjs; node tests/test-366-counter-metrics.cjs` | no | green |
+| 366-16-T3 | 16 | 5 | EPV366-27 | T-366-68 | every floor on the ledger | static | `node scripts/check-floor-ledger.cjs; node tests/test-355-floor-sweep.cjs` | yes | green |
+| 366-17-T1 | 17 | 5 | EPV366-22 | T-366-70/71/72/74 | override can only turn lines off | unit | `node tests/test-366-egress-policy.cjs (E1-E6, E4b provider sweep)` | no | green |
+| 366-17-T2 | 17 | 5 | EPV366-22 | T-366-73 | --offline completes | unit | `node tests/test-366-egress-policy.cjs (E7-E10)` | no | green |
+| 366-18-T1 | 18 | 5 | EPV366-23 | T-366-77 | bar committed before the run | static | `node -e (bar minimums vs wilson95)` | no | green |
+| 366-18-T2 | 18 | 5 | EPV366-23 | T-366-75/76/78/79 | Jev only on contained fixture copies | unit | `node tests/test-366-spike-harness.cjs; node tests/test-353-tripwires.cjs` | no | green |
+| 366-19-T1 | 19 | 6 | EPV366-23 | T-366-80/82/83 | synthetic fixtures only | run | `node scripts/spike-366.cjs recall/items/judge (manifest)` | no | green |
+| 366-19-T2 | 19 | 6 | EPV366-23 | T-366-81 | blind seeded labels | manual | `node scripts/label-355-gold.cjs start --set pairings-unstamped --items ...` | manual | green (navigator labeled 14 items blind) |
+| 366-20-T1 | 20 | 7 | EPV366-23/24/27 | T-366-85 | record recomputes byte for byte | static | `node scripts/spike-366.cjs --check; node scripts/check-floor-ledger.cjs` | no | green |
+| 366-20-T2 | 20 | 7 | EPV366-30 | T-366-84/86 | no automatic adoption | manual (decision) | `366-SPIKE-RULINGS.md has all six rulings` | manual | green (six rulings, 366-SPIKE-RULINGS.md) |
+| 366-21-T1 | 21 | 8 | EPV366-25 | T-366-87 | `runner: retire` ruling asserted; inventory decided and sliced; static retirement gate (RED) | static | `grep -qE "^runner: *retire" 366-SPIKE-RULINGS.md; node tests/test-366-runner-retired.cjs (expected RED)` | no | green (RR1-RR5 PASS 5 after 366-22) |
+| 366-21-T2 | 21 | 8 | EPV366-25 | T-366-88/89 | slice A (215/216/226) off the runner; aggregators green | aggregator | `bash tests/run-all-215/216/226/363.1/seed103.sh` | yes | green (only the pre-existing reds of run-all-216, same legs as the base tree) |
+| 366-25-T1 | 25 | 9 | EPV366-25 | T-366-100/101 | slice B part 1 (218) off the runner; aggregator green | aggregator | `bash tests/run-all-218.sh` | yes | green |
+| 366-25-T2 | 25 | 9 | EPV366-25 | T-366-100/101/102 | slice B part 2 (219/223/343) off the runner; aggregators green | aggregator | `bash tests/run-all-218/219/223/343.sh` | yes | green (only the pre-existing reds of run-all-223 and run-all-343, same legs as the base tree) |
+| 366-27-T1 | 27 | 9 | EPV366-25 | T-366-106 | slice C part 1: 355 filing-record tests on filing-stamped.cjs, assertions kept | unit | `node tests/test-355-filing.cjs; node tests/test-355-stamp-coverage.cjs; node tests/test-355-no-decimal.cjs; node tests/test-355-part8-egress.cjs` | yes | green |
+| 366-27-T2 | 27 | 9 | EPV366-25 | T-366-106/107/108 | slice C part 2 (ranking, producer, floor sweep, 3551) off the runner; 355 record kept | aggregator | `bash tests/run-all-355/3551/seed103.sh` | yes | green (only the pre-existing reds of run-all-355 and run-all-3551, same legs as the base tree) |
+| 366-26-T1 | 26 | 9 | EPV366-25 | T-366-103/104 | slice D part 1 (341/363.1) off the runner | aggregator | `bash tests/run-all-341/363.1.sh` | yes | green |
+| 366-26-T2 | 26 | 9 | EPV366-25 | T-366-105 | slice D closed; phase-366 handover list written | static | `node tests/test-eureka-mcp-tools.cjs; no slice D file greps for eureka-command\|eureka-portfolio-report` | yes | green |
+| 366-22-T1 | 22 | 10 | EPV366-25 | T-366-90/93 | deletion only after the `runner: retire` ruling and the global closure grep (all three wave-9 slices landed); no legacy path; registries by script | static | `grep -qE "^runner: *retire" 366-SPIKE-RULINGS.md; grep -rlE "eureka-command\|eureka-portfolio-report" tests (only tests/test-366-*); node scripts/build-skill-mirrors.cjs --check; node tests/test-205-surface-fence.cjs; node tests/test-366-eureka-alias.cjs` | yes | green |
+| 366-22-T2 | 22 | 10 | EPV366-25 | T-366-91/92 | no dangling requires | static | `node tests/test-366-runner-retired.cjs; bash tests/run-all-366.sh` | no | green |
+| 366-23-T1 | 23 | 11 | EPV366-29 | T-366-96 | integrity gate green before move | unit | `node tests/test-366-semantic-index-integrity.cjs` | no | green |
+| 366-23-T2 | 23 | 11 | EPV366-29 | T-366-94/95 | move map and batched codemod, dry run only | static | `366-23-codemod.cjs --batch N --dry-run (every batch); git diff --quiet -- lib scripts hooks bin tests` | no | green (366-23 record; every batch dry-run exited 0 before the move) |
+| 366-23-T3 | 23 | 11 | EPV366-29 | T-366-94/95 | integrity gate green after every batch and after the move | static + aggregator | `node scripts/check-require-integrity.cjs; bash tests/run-all-366.sh` | no | green |
+| 366-24-T1 | 24 | 12 | all EPV366 | T-366-97 | proof per row | aggregator | `bash tests/run-all-366.sh` | yes | green |
+| 366-24-T2 | 24 | 12 | EPV366-28 | T-366-98 | policy changes only on a ruling | unit | `node tests/test-366-egress-policy.cjs; node scripts/check-registry-drift.cjs` | yes | green |
+| 366-24-T3 | 24 | 12 | EPV366-30 | T-366-99 | Theo request carries no room content; research mirror in three homes, cross-linked | static | `test -f 366-HANDOFF.md; research entry in ~/MindrianRooms/rethinking-mindrianos/research, ~/MindrianOS/research, .planning/research; LC_ALL=C dash fence` | no | green |
 
 Expected RED (documented): from plan 366-21 (wave 8) until plan 366-22 (wave 10) lands,
 `bash tests/run-all-366.sh` fails on exactly one leg, `test-366-runner-retired.cjs` (RR1/RR2 while
@@ -111,14 +111,19 @@ locale the byte escapes can match nothing and the fence passes vacuously).
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
+Measured at close (2026-10-02, plan 366-24, hermetic temp HOME): `bash tests/run-all-366.sh`
+PASSED=69 FAILED=0 SKIPPED=1 KNOWN=1 (KNOWN = the pre-existing 355 direction-agreement leg H; SKIP =
+the spike preparer's ENV GAP for the local embedding model). Every row below is green; a row that
+runs an older aggregator names the pre-existing reds it keeps (none caused by Phase 366).
+
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `tests/run-all-366.sh` - the phase aggregator, written once, run / run_if legs per planned test file
-- [ ] `tests/test-366-*.cjs` - one hermetic file per plan, each with the hygiene-355 preamble and an isolated `MINDRIAN_ROOMS_HOME` set before any repo module loads
-- [ ] fixture-room copies of `tests/fixtures/355-rooms/` with `room.db` built and entity extraction run (the spike's substrate; the research found Eureka was `substrate_unavailable` on the bare fixtures)
-- [ ] existing infrastructure covers model routing (`test-seed103-claude-routing.cjs`) and the eureka perspective (`test-seed103-eureka-perspective.cjs`)
+- [x] `tests/run-all-366.sh` - the phase aggregator, written once, run / run_if legs per planned test file
+- [x] `tests/test-366-*.cjs` - one hermetic file per plan, each with the hygiene-355 preamble and an isolated `MINDRIAN_ROOMS_HOME` set before any repo module loads
+- [x] fixture-room copies of `tests/fixtures/355-rooms/` with `room.db` built and entity extraction run (the spike's substrate; the research found Eureka was `substrate_unavailable` on the bare fixtures)
+- [x] existing infrastructure covers model routing (`test-seed103-claude-routing.cjs`) and the eureka perspective (`test-seed103-eureka-perspective.cjs`)
 
 ---
 
