@@ -11,7 +11,7 @@
  * and provenance (brain-router.cjs) -> local application (pipeline-state.cjs
  * read()) -> governed room write (views.cjs artifact_file handler) -> later
  * retrieval through the MCP resource (resources.cjs room://section/<name>,
- * read via a real @modelcontextprotocol/sdk Client over InMemoryTransport).
+ * read via a real MCP SDK Client over InMemoryTransport).
  *
  * Four provider conditions, one journey each:
  *   H (healthy)        -- brain_ask structured_rows, recommend_chain returns
