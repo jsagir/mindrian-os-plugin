@@ -72,8 +72,17 @@ function excerptsFor(roomDir, ids) {
   return out;
 }
 
+// Stable stringify (keys sorted at every depth). Phase 366 plan 18 fix: the previous key was
+// JSON.stringify(body, Object.keys(body).sort()), and an array replacer whitelists keys at EVERY
+// depth, so state and questions collapsed to {} and every pair shared one replay key.
+function stableStringify(v) {
+  if (Array.isArray(v)) return '[' + v.map(stableStringify).join(',') + ']';
+  if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + stableStringify(v[k]); }).join(',') + '}';
+  return JSON.stringify(v);
+}
+
 function canonicalKey(body) {
-  return crypto.createHash('sha256').update(JSON.stringify(body, Object.keys(body).sort()), 'utf8').digest('hex');
+  return crypto.createHash('sha256').update(stableStringify(body), 'utf8').digest('hex');
 }
 
 async function main() {
@@ -117,7 +126,8 @@ async function main() {
       if (res && res.json && res.json.usage && typeof res.json.usage.input_tokens === 'number') usage.input_tokens += res.json.usage.input_tokens;
       newResponses[k] = { status: res.status, json: res.json };
     }
-    const parsed = parseJevResponse(res, { questionIds: ['usefulness'] });
+    // expected is { questionId: [option, ...] } (jev-response-schema); the old { questionIds: [...] } made every answer unparsable
+    const parsed = parseJevResponse(res, { usefulness: Object.keys(Q.USEFULNESS_QUESTIONS.usefulness.criteria) });
     if (!parsed.ok) return null;
     const ans = parsed.answers && parsed.answers.usefulness;
     if (!ans) return null;
