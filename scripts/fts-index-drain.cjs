@@ -4,12 +4,12 @@
 /*
  * scripts/fts-index-drain.cjs -- Phase 244 Plan 02, the EXPENSIVE half of the
  * enqueue-then-drain debounce whose CHEAP half is
- * lib/core/eureka/fts-index-lifecycle.cjs. Structured exactly like the
+ * lib/core/semantic-index/fts-index-lifecycle.cjs. Structured exactly like the
  * shipped scripts/gsd-graph-derive-drain.cjs / scripts/brain-derivation-
  * drain.cjs pair: the lifecycle module enqueues a build request and spawns
  * this file detached; this file builds the index and reconciles the queue.
  *
- * DIVISION OF LABOR: lib/core/eureka/fts-index-lifecycle.cjs enqueues
+ * DIVISION OF LABOR: lib/core/semantic-index/fts-index-lifecycle.cjs enqueues
  * (requestFtsBuild) and spawns (spawnFtsBuildDrain), both sync and cheap,
  * safe to call inside the 1200 ms NAV budget. THIS file does the expensive
  * work -- it opens room.db, calls the async tri-modal-index.indexNodes, and
@@ -75,7 +75,7 @@ const {
   readQueue,
   writeQueue,
   FTS_BUILD_MAX_ATTEMPTS,
-} = require('../lib/core/eureka/fts-index-lifecycle.cjs');
+} = require('../lib/core/semantic-index/fts-index-lifecycle.cjs');
 const { indexNodes } = require('../lib/core/semantic-index/tri-modal-index.cjs');
 const { openRoomDbForCaller, closeRoomDbForCaller } = require('../lib/core/navigation.cjs');
 // Reuse the room resolver verbatim rather than hand-rolling a second one

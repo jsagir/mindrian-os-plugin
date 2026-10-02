@@ -135,7 +135,7 @@ const ALLOWED_DIRECT_IMPORT = [
   // Phase 296-03 (SEED-030, F-2): the D-02 CJS-to-Python vector bridge. It
   // requires room-db.cjs ONLY to open a caller-owned, allowExtension:true
   // handle (Pattern 1 -- the same openRoomDb(roomDir, {allowExtension:true})
-  // idiom scripts/entity-extract.cjs and lib/core/eureka/research-filing.cjs
+  // idiom scripts/entity-extract.cjs and lib/core/semantic-index/research-filing.cjs
   // already use) so vector-store.cjs's sqlite-vec capability probe can
   // register on it. It performs ZERO node/edge/memory_event writes -- it
   // reads only the eureka_vec / eureka_vec_fallback / eureka_meta derived

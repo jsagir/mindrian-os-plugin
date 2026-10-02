@@ -138,7 +138,7 @@ EMDASH_TARGETS=(
   "lib/core/sensors/sensor-types.cjs"
   "lib/core/sensors/sensor-content-relevance.cjs"
   "lib/core/semantic-index/tri-modal-index.cjs"
-  "lib/core/eureka/fts-index-lifecycle.cjs"
+  "lib/core/semantic-index/fts-index-lifecycle.cjs"
   "lib/core/lazygraph-ops.cjs"
   "lib/core/navigation-engine.cjs"
   "lib/core/insight-sensors.cjs"

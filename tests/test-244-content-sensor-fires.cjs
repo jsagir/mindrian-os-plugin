@@ -33,7 +33,7 @@ const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const navigation = require('../lib/core/navigation.cjs');
 const memoryOps = require('../lib/core/memory-ops.cjs');
 const tri = require('../lib/core/semantic-index/tri-modal-index.cjs');
-const ftsLifecycle = require('../lib/core/eureka/fts-index-lifecycle.cjs');
+const ftsLifecycle = require('../lib/core/semantic-index/fts-index-lifecycle.cjs');
 const sensorTypes = require('../lib/core/sensors/sensor-types.cjs');
 const insight = require('../lib/core/insight-sensors.cjs');
 const engine = require('../lib/core/navigation-engine.cjs');
@@ -341,7 +341,7 @@ async function main() {
       assert.strictEqual(reach, null, 'index_absent must never fire, even with a fabricated hit count');
 
       // The miss enqueues its own repair: a build request lands in the
-      // room's queue file (lib/core/eureka/fts-index-lifecycle.cjs).
+      // room's queue file (lib/core/semantic-index/fts-index-lifecycle.cjs).
       const q = ftsLifecycle.readQueue(fixture2.roomDir);
       assert.ok(Array.isArray(q.entries) && q.entries.length >= 1, 'a build request must be queued');
       const entry = q.entries.find(function (e) { return path.resolve(e.roomDir) === path.resolve(fixture2.roomDir); });

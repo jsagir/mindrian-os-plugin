@@ -153,7 +153,7 @@ run "no raw node/edge INSERT (comment-filtered)" \
   lib/core/explore-chain.cjs \
   lib/core/eureka/explored-artifact.cjs \
   lib/core/explored-artifact.cjs \
-  lib/core/eureka/research-filing.cjs \
+  lib/core/semantic-index/research-filing.cjs \
   lib/core/research-filing.cjs \
   lib/core/research-planner/filing-stamped.cjs \
   scripts/entity-extract.cjs

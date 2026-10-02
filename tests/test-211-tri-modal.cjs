@@ -307,7 +307,7 @@ async function main() {
 // Task 2: hybrid retrieve (RRF fusion + FlashRank-model rerank). Requires
 // hybrid-retrieve lazily so Task 1 can run before that module exists.
 async function hybridTests(ctx) {
-  const hybrid = require('../lib/core/eureka/hybrid-retrieve.cjs');
+  const hybrid = require('../lib/core/semantic-index/hybrid-retrieve.cjs');
   const { makeFixtureDb, cleanup, stubEncode, test, tri } = ctx;
 
   // ----- Test 6: rrfFuse ranking + exact formula + env clamp -----

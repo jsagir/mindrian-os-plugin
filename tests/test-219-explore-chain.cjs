@@ -47,7 +47,7 @@ const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs')
 const qualify = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'qualify-opportunity.cjs'));
 
 const EXPLORE_CHAIN_PATH = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'explore-chain.cjs');
-const RESEARCH_FILING_PATH = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'research-filing.cjs');
+const RESEARCH_FILING_PATH = path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'research-filing.cjs');
 const EXPLORED_ARTIFACT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'explored-artifact.cjs');
 
 const exploreChain = require(EXPLORE_CHAIN_PATH);

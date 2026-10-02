@@ -304,7 +304,7 @@ function tier3Recovery(overrides) {
   // ---- S5: the additive 219/220 seams (real fixture room, hermetic) ----
 
   const { buildFixtureRoom } = require(path.join(REPO_ROOT, 'tests', 'helpers', 'fixture-room-219.cjs'));
-  const researchFiling = require(path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'research-filing.cjs'));
+  const researchFiling = require(path.join(REPO_ROOT, 'lib', 'core', 'semantic-index', 'research-filing.cjs'));
   const urlIngest = require(path.join(REPO_ROOT, 'lib', 'core', 'url-ingest.cjs'));
 
   function freshRoom(tag) {
