@@ -326,29 +326,10 @@ async function perspectiveJudge(room, id, flags) {
 }
 
 // -- Phase 366 plan 11: the canon release and confirm doors ---------------------
-// canonTransport() -> { ok, deps } | { ok:false, reason }. The transport is chosen by the environment, never by
-// argv: MOS_366_THEO_REPLAY names a recorded-answer file (offline, hermetic), MOS_366_LIVE=1 allows the real
-// Theo call through brain-client, and anything else refuses and sends nothing.
+// canonTransport() -> { ok, deps } | { ok:false, reason }. The environment chooses the transport, never argv;
+// canon-release.transportFromEnv is the one copy, shared with the MCP research_run basket (quick 261002-cud).
 function canonTransport() {
-  const replayPath = process.env.MOS_366_THEO_REPLAY;
-  if (typeof replayPath === 'string' && replayPath.length > 0) {
-    let doc = null;
-    try { doc = JSON.parse(fs.readFileSync(replayPath, 'utf8')); } catch (_e) { doc = null; }
-    if (!doc || typeof doc !== 'object' || !doc.responses || typeof doc.responses !== 'object') return { ok: false, reason: 'replay_unreadable' };
-    const responses = doc.responses;
-    return {
-      ok: true,
-      deps: {
-        transport: 'replay',
-        callTool: async function (tool, args) {
-          if (tool !== 'normalize_framework_name' || !args || typeof args.raw !== 'string') return null;
-          return Object.prototype.hasOwnProperty.call(responses, args.raw) ? responses[args.raw] : null;
-        },
-      },
-    };
-  }
-  if (process.env.MOS_366_LIVE === '1') return { ok: true, deps: { transport: 'live' } };
-  return { ok: false, reason: 'live_not_enabled', hint: 'Set MOS_366_LIVE=1 to allow the real Theo call for this one term, or MOS_366_THEO_REPLAY to a recorded-answer file.' };
+  return require(path.join(RP, 'canon-release.cjs')).transportFromEnv(process.env);
 }
 
 async function canonDoor(cmd, room, runId, itemId) {
