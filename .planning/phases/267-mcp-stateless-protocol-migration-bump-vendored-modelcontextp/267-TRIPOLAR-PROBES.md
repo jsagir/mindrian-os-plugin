@@ -36,6 +36,58 @@ wire tee found: Claude Code opens stdio connections with a plain
 
 ---
 
+## CLI (post-migration)
+
+**Run:** `MOS_267_LIVE_CLI_PROBE=1 node tests/test-267-mcpv2-cli-probe.cjs`, then a
+second, fuller run of the same wrapper that keeps the whole tee log (the stock
+test deletes it) so the message order could be read.
+**Date:** 2026-10-02 (267-18 Task 1). Probe ran as a real probe, not an ENV GAP.
+**claude --version:** `2.1.287 (Claude Code)` (pre-migration record above was 2.1.281).
+**Servers under test:** the migrated local server (`@modelcontextprotocol/server` 2.1.0
+`McpServer` plus `serveStdio`) and the migrated brain shim, each wrapped in the tee.
+Both exited 0 and `claude -p "Reply with the single word ok."` answered `ok` through
+each (the host listed prompts, resources and tools from the local server and tools
+from the shim).
+
+| Server | Opening method | protocolVersion | capabilityKeys at opening | `elicitation` declared at opening | server/discover seen |
+|---|---|---|---|---|---|
+| local (`mindrian-os-tee`) | `server/discover` | not carried (2026-era opening has no `initialize`) | `[]` | no | yes (twice) |
+| brain shim (`mindrian-brain-tee`) | `server/discover` | not carried | `[]` | no | yes (twice) |
+
+Observed message order on both servers, local one shown (methods only, the tee
+logs nothing else):
+
+```
+c2s  server/discover           (probe)          s2c  result, instructions present
+c2s  subscriptions/listen                       s2c  notifications/subscriptions/acknowledged
+c2s  server/discover                            s2c  result
+c2s  prompts/list, resources/list, tools/list   s2c  the three lists
+```
+
+**What changed since the pre-migration record, and why it matters:**
+
+- The pre-migration record (2.1.281) saw `initialize` at `2025-11-25` with
+  `elicitation:{}` declared and no `server/discover`. Claude Code 2.1.287 opens
+  stdio with `server/discover`, then `subscriptions/listen`, and never sends
+  `initialize`. This is the 2026-07-28 era, the one this phase's migration exists
+  to serve. It is a host change between two patch versions, not something the
+  migration caused.
+- The migrated servers answer that era correctly: discovery, the three list
+  calls and a model turn all work. Before the migration a v1 server could not
+  answer `server/discover`.
+- The gate-ladder consequence (from the 267-11 dual-era test, which pins it):
+  on a 2026-era connection the server sees no initialize-time client capabilities,
+  so rung (a) (inline `elicitInput`) is not used and the gate renders at rung (b).
+  Result on this host: the CLI no longer meets "rung (a) conditions (elicitation
+  declared)". This is the exact situation the "Decision input for 267-11" rule
+  below reserved for Desktop. It needs a navigator acknowledgement, because the
+  rule says adopting `serveStdio` must not silently move a host off rung (a).
+  Nothing was observed to break: the gate still renders, one rung down.
+- Not measured here: a real gate on this host (a model turn that raises a gate).
+  The tee cannot show the rung; the dual-era test is the evidence for the rung.
+
+---
+
 ## Desktop (human probe)
 
 **Status:** DONE 2026-10-02 (navigator probe)
