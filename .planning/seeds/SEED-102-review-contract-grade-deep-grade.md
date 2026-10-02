@@ -1,6 +1,7 @@
 ---
 id: SEED-102
-status: dormant
+status: promoted
+promoted_to: "Phase 370 (2026-10-02)"
 priority: high
 planted: 2026-10-01
 updated: 2026-10-01
@@ -54,3 +55,10 @@ MCP", "INTERSECTIONAL SYSTEMS ANALYSIS FROM NEO4J DATABASE". This is Larry's exi
   handles), and must be a code check, not a model judgment.
 - Tri-Polar: the contract and check apply on CLI, Desktop and Cowork outputs alike.
 - Plugin repo carries no real student names (existing hard rule).
+
+## Disposition (2026-10-02)
+
+Promoted to Phase 370 (its own phase by navigator choice on the fold card: "Approve, and give SEED-102 its own
+phase too"). No existing open phase owns the grade surface; zero commits touched `commands/grade.md`,
+`commands/deep-grade.md` or `agents/grading.md` since planting, so the trigger has not fired. Planning input:
+`.planning/phases/370-*/370-INPUT.md`. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

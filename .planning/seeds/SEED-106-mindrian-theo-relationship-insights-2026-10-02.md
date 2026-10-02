@@ -1,6 +1,7 @@
 ---
 id: SEED-106
-status: dormant
+status: folded
+folded_into: "Phase 366.1 (item 2, closing evidence), Phase 364 inputs (items 3-5), Phase 366 notes (items 1, 6, 8), Phase 369 (items 7, 9); Theo-side items 2-5 go to the Theo handoff (2026-10-02)"
 priority: high
 planted: 2026-10-02
 planted_during: Phase 366 (executing)
@@ -74,3 +75,14 @@ analogies and two plugin fixes. Every Theo observation below was measured live, 
 - Room: `~/MindrianRooms/egain-des-liquid-conductor/` (prior-art scan, analogies, eureka run `20261001T211803Z`)
 - `theo_health` and `brain_stats` outputs captured in-session 2026-10-02
 - Quick task `261002-0n4` (SEED-104 fix), `261002-30x` (radar gap fill)
+
+## Disposition (2026-10-02)
+
+Re-measured live 2026-10-02 (generic handles only): `theo_health.sync_drift` still reports baseline
+`command-registry@2.0.0-beta.51`, `releases_cut_since: 0`, measured 2026-09-30, build stamp 2026-09-17 dirty, while
+`v2.0.0-beta.53` and `v2.0.0-beta.55` are tagged and `package.json` reads `2.0.0-beta.56`; `watcher_coverage`
+5 of 460 with a watcher, 109 of 460 with a problem type; `brain_stats` 28,137 nodes, 53,311 relationships.
+Fold: item 1 to Phase 366 as a note (with SEED-019); item 2 named in Phase 366.1 as its closing evidence (scope
+not widened); items 3-5 to `364-INPUT.md` section "SEED-106 inputs"; items 6 and 8 already in Phase 366
+(deliverable 5, plan 15); item 7 weighed in Phase 369 section 10 and SEED-036; item 9 waits on Phase 369.
+Theo-side items (2-5) are cross-repo and go to the Theo handoff. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

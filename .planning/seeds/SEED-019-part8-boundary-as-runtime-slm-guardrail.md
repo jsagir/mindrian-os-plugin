@@ -1,6 +1,7 @@
 ---
 id: SEED-019
 status: dormant
+fold_note_2026_10_02: "the Theo brain_ask false block (generic methodology vocabulary refused as freeform_unmatched / unknown; SEED-104, SEED-106 item 1) is recorded as a Phase 366 note against the plan-11 guard arm; this seed stays the home of the runtime-enforcement design"
 planted: 2026-06-01
 planted_during: /mos:radar + Plurai-onboarding research session (post-130.7, alongside Phase 138 scoping)
 scope: medium
@@ -43,3 +44,11 @@ This turns the Part 8 constitution from "enforced by review + static scan" into 
 ## Provenance
 
 Surfaced 2026-06-01 while researching Plurai (https://www.plurai.ai) for MindrianOS self-assessment CSVs. Companion to Phase 138 (capability-radar absorption). The eval CSVs live at `evals/plurai/`.
+
+## Fold note (2026-10-02)
+
+Measured live on beta.53: `scripts/part8-egress-guard-hook.cjs` blocked every `mcp__theo__brain_ask`, including
+plain generic methodology words ("hypothesis test validate assumption", reason `freeform_unmatched`) and
+`framework_chain_slice` calls carrying only framework names and `/mos:` slugs (reason `unknown`); other Theo tools
+passed. Recorded as a Phase 366 note (plan 11 edits the same guard arm). This seed remains the design home for
+runtime enforcement. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

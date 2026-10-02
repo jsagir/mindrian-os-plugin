@@ -1,6 +1,7 @@
 ---
 id: SEED-107
-status: dormant
+status: promoted
+promoted_to: "Phase 369 wave 0 (2026-10-02)"
 priority: CRITICAL
 planted: 2026-10-02
 planted_during: Phase 366 (executing)
@@ -51,3 +52,9 @@ this seed's phase lands, CLAUDE.md still says CJS-only: the edit goes through GS
 - A decision on the TS shape above, with a measured hook cold-start number and an install test on a
   clean machine.
 - release.sh and RULE 5 updated if any build artifact ships.
+
+## Disposition (2026-10-02)
+
+Promoted into Phase 369 as its wave 0 (the UI cannot start without the constitution edit and the TS-shape decision;
+the navigator chose "Approve as mapped" with 105 and 107 together). CLAUDE.md Conventions still says CJS-only
+until that wave lands. Detail in `.planning/phases/369-*/369-INPUT.md` section 8. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

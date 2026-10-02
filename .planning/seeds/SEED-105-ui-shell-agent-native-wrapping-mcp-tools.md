@@ -1,6 +1,7 @@
 ---
 id: SEED-105
-status: dormant
+status: promoted
+promoted_to: "Phase 369 (2026-10-02), with SEED-107 as its wave 0"
 priority: high
 planted: 2026-10-02
 planted_during: Phase 366 (executing)
@@ -122,3 +123,11 @@ SEED-066 (BlockNote `xl-*` packages are GPL-3.0), SEED-072 (collaboration direct
 (BlockNote and RxDB stay disposable projections over the filesystem). The first discussion question is
 which codebase is the UI: revive the workroom, build the agent-native app, or merge them. See
 `.planning/research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md`.
+
+## Disposition (2026-10-02)
+
+Promoted to Phase 369, its own phase by navigator instruction ("except the UI one, I want in a separate phase";
+"build the uiux phases with all research in them"). Every finding here, the spikes 005/006/007 results and their
+ten contradictions, the prior-art inventory's 16 conflicts and 14 open questions, the bhx review, the Design Canon
+v3 and the settled seeds (006, 020, 066, 067, 071, 072, 073, 091) are consolidated in
+`.planning/phases/369-*/369-INPUT.md`. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

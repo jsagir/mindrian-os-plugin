@@ -4,7 +4,8 @@ status: promoted
 promoted_to: "Phase 366 (2026-10-01)"
 priority: high
 planted: 2026-10-01
-updated: 2026-10-01
+updated: 2026-10-02
+fold_check_2026_10_02: "branch seed-103-eureka-perspective fully merged (0 commits ahead of main); Phase 366 at 7 of 27 plan summaries with 13, 14 and 15 committed the same day"
 planted_during: "the 2026-10-01 Eureka rethink (ICM system-map + architecture review + Phase 355 record), after the navigator's steer that Eureka may be redundant with the MCP-based mos:canvas layer"
 trigger_when: "at the discuss step of Phase 363's successor (the MOS-CANVAS perspectives wave), or before any new Eureka engine work, whichever comes first"
 scope: "medium (two small stage modules writing run-folder files; one question template in the research planner; retire the standalone runner behind the spike's answer; the semantic-index split stays its own phase)"
@@ -87,3 +88,8 @@ Steps 2 and part of 4 of the build order, plus the model routing the navigator a
 
 Still open (unchanged): the runtime-Jev ruling, the Haiku entity pre-step as a planner egress line,
 the spike with the navigators
+
+## Fold check (2026-10-02)
+
+Home unchanged: Phase 366. The branch is fully merged (0 commits ahead of main). Summaries on disk for plans 01-08
+and 10; commits for 13, 14 and 15 landed 2026-10-02. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

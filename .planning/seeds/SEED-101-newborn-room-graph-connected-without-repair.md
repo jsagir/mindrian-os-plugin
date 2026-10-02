@@ -4,7 +4,8 @@ status: promoted
 promoted_to: "Phase 367 (2026-10-01)"
 priority: critical
 planted: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
+fold_check_2026_10_02: "re-verified at HEAD 2.0.0-beta.56: P1-1 (tool-router.cjs:1149 indexes with the boot closure roomDir), P3-2 (skills/ignite/SKILL.md:180 CLAUDE_SESSION_ID), P3-6 (scripts/session-start:348 NO EMOJI) still open; Phase 367 carries a brief only, no CONTEXT or plans"
 planted_during: "field session on Windows 11 (Claude Code CLI, plugin 2.0.0-beta.51), a client room born through /mos:ignite; claims re-verified at repo HEAD 2.0.0-beta.52"
 trigger_when: "immediately; P1-1 can wipe the indexer-owned rows of the wrong room. Fix before the next release cut."
 scope: "medium (room resolution in one MCP handler, a path parameter, index-on-file in artifact_file plus a post-write hook, one shared indexable-file predicate, scaffold exclusions, a Stop-hook graph health check)"
@@ -148,3 +149,11 @@ The icm-architect skill itself was not loadable in the planting session.
 
 - Which directory did the misdirected rebuild touch? No other `room.db` changed in the session. Confirm the boot-time `roomDir` on a hookless or no-room start.
 - Should the health check run as a hook on every surface, or as a Larry turn-end duty where hooks don't exist (Desktop/Cowork)?
+
+## Fold check (2026-10-02)
+
+Home unchanged: Phase 367. Re-verified at HEAD 2.0.0-beta.56: P1-1 still passes the boot closure `roomDir` at
+`lib/mcp/tool-router.cjs:1149`; P3-2 still names `CLAUDE_SESSION_ID` at `skills/ignite/SKILL.md:180`; P3-6 still reads
+"NO EMOJI anywhere in output. NO exceptions." at `scripts/session-start:348`. Phase 363.1 closed P2-2, P2-3, P2-4.
+Phase 366-09 (canon handles at `artifact_file` and in the indexer) touches the same seam as P1-3; coordinate at 367
+discuss. Fold map: `rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.

@@ -84,3 +84,30 @@ Consequences for planning:
 - Primary rooting: Well-Defined, with the solution criteria known and the how unknown. A secondary bridge comes from Ill-Defined innovation of meaning, where meaning produces the what.
 - Entry check: the room has a needs or solution-criteria statement (what to deliver). If not, route back to define it first, never improvise the what.
 - This replaces the generic "enter from the room's problem-type classification" with a precise rung, and gives Theo Phase 25 a supreme-source citation for the type link.
+
+## SEED-106 inputs (added 2026-10-02, fold of seeds 101-107)
+
+Source: `.planning/seeds/SEED-106-mindrian-theo-relationship-insights-2026-10-02.md` items 3, 4, 5, measured
+live in one CLI session on beta.53 and re-measured 2026-10-02 through `theo_health` and `brain_stats`
+(generic handles only; no room content crossed). Theo-side work (cross-repo, `/home/jsagi/Theo`); this phase
+is the plugin-side consumer, so the command must be designed knowing these three facts are true today.
+
+1. **Theo answers science questions with business-terminated chains.** For a discovery question, nearly every
+   FEEDS_INTO chain walked from Beautiful Question, Trending to the Absurd or Dominant Design ended at PWS
+   Value Proposition, Lean Canvas or JTBD. Edges that point at discovery exist but are few: Beautiful Question
+   to Bias Detection 0.85, Red Teaming to Problem Definition Transformation 0.85, Scenario Planning to Knowns
+   and Unknowns 0.7, Cross-Disciplinary Thinking to Opportunity Recognition. A researcher persona needs a
+   discovery-terminated lane; that is the job SEED-098 (this phase) promoted. Design consequence: the command
+   must not accept a business-terminated chain as its spine; it walks `framework_step` content only (D-18).
+2. **The graph has no scientific-method content.** No falsifiability, controls, priors, or mechanism-vs-property
+   guidance; the session had to supply it. Candidate for Theo ingest under the PWS-sources-supreme rule (the
+   navigator's course text outranks Theo canon), never invented by the plugin. Until ingested, the command
+   carries these as its own step rubric, labelled as plugin-side, not as Theo content.
+3. **Problem-type coverage is thin and must be said out loud.** `theo_health.watcher_coverage` 2026-10-02:
+   `frameworks_total 460`, `frameworks_with_problem_type 109`, `frameworks_with_watcher 5`. A thin
+   `recommend_chain` answer reads like a fit verdict when it is a coverage gap; the command (and the Theo tools
+   it calls) say "uncovered" explicitly. `brain_stats` the same day: 28,137 nodes, 53,311 relationships,
+   460 Framework, 315 Technique, 735 ProcessStep, 35 Chapter, 113 MindrianCommand, 0 Concept, 0 Stage.
+
+Related measured zero (item 6, Phase 366 deliverable 5, not this phase): a fresh room's Eureka recall reported
+`canon_resolved: 0`, so `find_connections` could not be asked across the room/Theo boundary.

@@ -1,6 +1,7 @@
 ---
 id: SEED-104
-status: dormant
+status: folded
+folded_into: "Phase 366 (whitespace-composer residuals, notes only), Phase 289 (CLI card rung, elicitation default, gate-ledger session check, contract recommendation), Phase 369 (MCP-side fixes before the UI build); parts 1-3 shipped in quick 261002-0n4 (2026-10-02)"
 priority: CRITICAL
 planted: 2026-10-02
 planted_during: Phase 366 (executing; stopped_at 366-04)
@@ -178,3 +179,13 @@ Residuals:
 - **The gate contract drops the recommendation.** The rendered contract carries `recommended: null`; only
   `card.options[].recommended` holds it. Likely the same gap behind the elicitation card opening on
   "not set". Fix: carry the recommended option id into the contract (and the elicitation `default`).
+
+## Disposition (2026-10-02)
+
+Parts 1-3 (family loop, prose-term gate, loop guard) shipped in quick 261002-0n4. The rest is folded, not left:
+the whitespace-composer residuals (room-only `ws:extraction_failure` false negative; the seven-word exact-phrase
+zero) are a Phase 366 note (plan 14 territory; routed by the executing session, no plan rows added); the gate
+defects ("Normal card on CLI" not in `gate.cjs:9-14`; no elicitation `default`; `gate-ledger.cjs` consumes before
+the session check; the contract carries `recommended: null`) are Phase 289; the Theo egress-guard false block is
+a Phase 366 note under SEED-019 (plan 11 guard arm). Phase 369 depends on 289 for the same gate contract. Fold map:
+`rethinking-mindrianos/research/2026-10-02-seeds-101-107-fold-map.md`.
