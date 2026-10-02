@@ -264,3 +264,17 @@ server implements only the old `resource()`. Fix: teach the stub `registerResour
 STILL OPEN: CIRS (c) 31 vs 32; zod4 (b) `tool:research_run:membership` (compares the zod3
 snapshot, so the zod4 refresh does not close it) and (d) `scripts/fork359-permission-probe.cjs`;
 354 framework-command-ledger plugin_version drift beta.48 vs beta.56.
+
+## 267-14: terminal-listener hoist deferred; flag-ON watcher now wired
+
+DEFERRED (optional, from 267-13): on HTTP the terminal SIGTERM/SIGINT listener registers inside the
+`app.listen` success callback, so a signal in the sub-second window before the bind completes only runs
+the shared snapshot handler. 267-14's scope (era routing) does not cover lifecycle code, and its rules
+forbid touching 267-13's lifecycle beyond appending to `mcpHandlers`, so the hoist was not done.
+
+CLOSED in 267-14: the flag-ON tree watcher now targets the modern handler's `notify.resourcesChanged`
+(legacy sessions keep no tree notifications, by design).
+
+NOTE for the follow-up seed: modern (2026-07-28) requests on the flag-ON daemon carry no transport
+session id, so they resolve room identity through the stdio fallback ladder (T-267-32, accepted). The
+explicit per-request identity handle is the icm-architect follow-up seed registered by 267-18.
