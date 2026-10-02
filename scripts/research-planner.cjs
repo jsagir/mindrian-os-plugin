@@ -21,6 +21,11 @@
  *   plan <question-set.json> --room <dir> [--mode quick|deep] [--scientific]
  *        [--diffusion] [--live-structure] [--section <slug>]
  *   planners --room <dir>
+ *   perspective-recall --room <dir> --perspective <id> [--max <n>] [--tag <ts>] [--mode quick|deep]
+ *   perspective-judge --room <dir> --perspective <id> --tag <ts> [--judge none]
+ *        (ids: eureka, rs, hsi, whitespace, analogies, connections; the list is the
+ *        perspective registry's, never free text)
+ *   eureka-recall / eureka-judge: the same two with --perspective eureka fixed
  *   grant propose --room <dir> [--terms <terms.json>]
  *   grant approve <grant.json> --room <dir> --approved-via cli [--terms <terms.json>]
  *   grant status --room <dir>
@@ -67,6 +72,8 @@ const grants = require(path.join(RP, 'grants.cjs'));
 const structure = require(path.join(RP, 'structure.cjs'));
 const roomConstraints = require(path.join(ROOT, 'lib', 'core', 'room-constraints.cjs'));
 const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+const perspectiveRegistry = require(path.join(RP, 'perspectives', 'index.cjs'));
+const PERSPECTIVE_IDS = perspectiveRegistry.PERSPECTIVE_IDS;
 const crypto = require('node:crypto');
 
 const RUN_ID_RE = planner.RUN_ID_RE;
@@ -80,6 +87,8 @@ const FLAGS = Object.freeze({
   '--max': 'int',
   '--tag': 'tag',
   '--judge': 'judge',
+  // Phase 366 plan 12 (D-07): one id from the perspective registry's frozen list.
+  '--perspective': 'perspective',
   '--room': 'dir',
   '--mode': 'mode',
   '--scientific': 'bool',
@@ -98,6 +107,8 @@ const COMMANDS = Object.freeze({
   'planners': { pos: [], flags: ['--room'], need: ['--room'] },
   'eureka-recall': { pos: [], flags: ['--room', '--max', '--tag', '--mode'], need: ['--room'] },
   'eureka-judge': { pos: [], flags: ['--room', '--tag', '--judge'], need: ['--room', '--tag'] },
+  'perspective-recall': { pos: [], flags: ['--room', '--perspective', '--max', '--tag', '--mode'], need: ['--room', '--perspective'] },
+  'perspective-judge': { pos: [], flags: ['--room', '--perspective', '--tag', '--judge'], need: ['--room', '--perspective', '--tag'] },
   'grant propose': { pos: [], flags: ['--room', '--terms'], need: ['--room'] },
   'grant approve': { pos: ['json'], flags: ['--room', '--approved-via', '--terms'], need: ['--room', '--approved-via'] },
   'grant status': { pos: [], flags: ['--room'], need: ['--room'] },
@@ -151,6 +162,7 @@ function valueOk(type, v) {
     case 'int': return typeof v === 'string' && INT_RE.test(v);
     case 'tag': return typeof v === 'string' && TAG_RE.test(v);
     case 'judge': return v === 'none';
+    case 'perspective': return typeof v === 'string' && PERSPECTIVE_IDS.indexOf(v) !== -1;
     default: return false;
   }
 }
@@ -200,7 +212,9 @@ function parseArgv(argv) {
   if (pos.length < spec.pos.length) return refuse('missing_argument');
   for (let k = 0; k < spec.need.length; k += 1) {
     if (!Object.prototype.hasOwnProperty.call(flags, spec.need[k])) {
-      return refuse(spec.need[k] === '--approved-via' ? 'approved_via_required' : 'room_required');
+      if (spec.need[k] === '--approved-via') return refuse('approved_via_required');
+      if (spec.need[k] === '--perspective') return refuse('perspective_required');
+      return refuse('room_required');
     }
   }
   return { cmd: key, pos: pos, flags: flags };
@@ -261,6 +275,34 @@ function approveNeverDoEntry(room, entry) {
 }
 
 // -- handlers -----------------------------------------------------------------
+// Phase 366 plan 12 (D-07): one handler pair over the perspective registry. The id
+// reached here already passed valueOk('perspective'); getPerspective still answers
+// null for a module that is not on disk, and that is a typed refusal.
+function perspectiveRecall(room, id, flags) {
+  const mod = perspectiveRegistry.getPerspective(id);
+  if (!mod) return { ok: false, reason: 'perspective_unavailable' };
+  const budgets = {};
+  if (flags['--max']) budgets.max_candidates = parseInt(flags['--max'], 10);
+  const rec = mod.runRecall(room, { budgets: budgets, tag: flags['--tag'] || undefined });
+  const built = rec.candidates.length ? planner.buildPlan(room, rec.question_set, flags['--mode'] ? { mode: flags['--mode'] } : {}) : null;
+  const out = {
+    ok: true, perspective: id, run_tag: rec.tag, run_dir: rec.run_dir, counts: rec.counts, pairs_truncated: rec.pairs_truncated, couplings: rec.couplings,
+    top: rec.candidates.slice(0, 10),
+    plan: built ? { ok: built.ok !== false, run_id: built.run_id || null, status: built.status, errors: built.errors || [] } : null,
+  };
+  if (rec.statement_template !== undefined && rec.statement_template !== null) out.statement_template = rec.statement_template;
+  return out;
+}
+
+async function perspectiveJudge(room, id, flags) {
+  const mod = perspectiveRegistry.getPerspective(id);
+  if (!mod) return { ok: false, reason: 'perspective_unavailable' };
+  const eurekaJudge = require('../lib/core/research-planner/perspectives/eureka-judge.cjs');
+  const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none', module: mod });
+  if (!res.ok) return { ok: false, reason: res.reason };
+  return { ok: true, perspective: id, run_tag: res.tag, file: res.file, summary: res.summary };
+}
+
 async function handle(cmd, pos, flags) {
   const room = flags['--room'] ? path.resolve(flags['--room']) : null;
   const via = flags['--approved-via'] || null;
@@ -268,24 +310,10 @@ async function handle(cmd, pos, flags) {
   switch (cmd) {
     // SEED-103: the Eureka perspective, stages 01-03. No free text on argv:
     // the room is a path, the tag is a timestamp, the judge is an enum.
-    case 'eureka-recall': {
-      const eurekaRecall = require('../lib/core/research-planner/perspectives/eureka-recall.cjs');
-      const budgets = {};
-      if (flags['--max']) budgets.max_candidates = parseInt(flags['--max'], 10);
-      const rec = eurekaRecall.runRecall(room, { budgets: budgets, tag: flags['--tag'] || undefined });
-      const built = rec.candidates.length ? planner.buildPlan(room, rec.question_set, flags['--mode'] ? { mode: flags['--mode'] } : {}) : null;
-      return {
-        ok: true, run_tag: rec.tag, run_dir: rec.run_dir, counts: rec.counts, pairs_truncated: rec.pairs_truncated, couplings: rec.couplings,
-        top: rec.candidates.slice(0, 10),
-        plan: built ? { ok: built.ok !== false, run_id: built.run_id || null, status: built.status, errors: built.errors || [] } : null,
-      };
-    }
-    case 'eureka-judge': {
-      const eurekaJudge = require('../lib/core/research-planner/perspectives/eureka-judge.cjs');
-      const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none' });
-      if (!res.ok) return { ok: false, reason: res.reason };
-      return { ok: true, run_tag: res.tag, file: res.file, summary: res.summary };
-    }
+    case 'perspective-recall': return perspectiveRecall(room, flags['--perspective'], flags);
+    case 'perspective-judge': return perspectiveJudge(room, flags['--perspective'], flags);
+    case 'eureka-recall': return perspectiveRecall(room, 'eureka', flags);
+    case 'eureka-judge': return perspectiveJudge(room, 'eureka', flags);
     case 'plan': {
       const qs = readInput(pos[0]);
       if (!qs || typeof qs !== 'object') return { ok: false, reason: 'bad_json' };

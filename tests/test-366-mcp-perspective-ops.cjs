@@ -164,7 +164,7 @@ function leg(name, fn) {
     const okDesc = /perspective_recall/.test(d) && /perspective_candidates/.test(d) && /perspective_judge/.test(d)
       && /eureka_recall/.test(d) && /eureka_candidates/.test(d) && /deprecated/.test(d)
       && registry.PERSPECTIVE_IDS.every(function (id) { return d.indexOf(id) !== -1; })
-      && !/[—–]/.test(d) && Buffer.byteLength(d, 'utf8') <= 2048;
+      && !/[\u2014\u2013]/.test(d) && Buffer.byteLength(d, 'utf8') <= 2048;
     return (okEnum && okOps && okDesc) || JSON.stringify({ okEnum: okEnum, okOps: okOps, okDesc: okDesc, len: Buffer.byteLength(d, 'utf8') });
   });
 
