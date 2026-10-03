@@ -21,6 +21,9 @@
  *   M8  another methodology command carries no status block
  *   M9  an entry check that throws still returns the reference plus a plain line
  *   M10 zero network attempts
+ *   M11 (Plan 14) a stamped finding on file: the handler shows its stamp lines in
+ *       the wording of the surface it runs on, Desktop prose on desktop and the
+ *       cli form on cli and cowork, each exactly as the 355 formatter prints them
  *
  * Hermetic: temp HOME, USERPROFILE and MINDRIAN_ROOMS_HOME before any repo
  * module loads; the fake brain is installed BEFORE tool-router is required.
@@ -65,14 +68,14 @@ const toolRouter = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tool-router.cjs')
 
 const ROOT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-364-mcp-'));
 
-function register(roomDir) {
+function register(roomDir, surface) {
   const handlers = {};
   const configs = {};
   const server = {
     registerTool: function (name, cfg, fn) { handlers[name] = fn; configs[name] = cfg; },
     tool: function () {},
   };
-  toolRouter.registerRouterTools(server, roomDir, REPO_ROOT, { compact: '' }, 'cli');
+  toolRouter.registerRouterTools(server, roomDir, REPO_ROOT, { compact: '' }, surface || 'cli');
   return { handlers: handlers, configs: configs };
 }
 function text(resp) { return resp && resp.content && resp.content[0] ? String(resp.content[0].text) : ''; }
@@ -198,6 +201,30 @@ async function main() {
   C.check('M9 a throwing entry check never throws out of the handler', threw === false);
   C.check('M9 the reference is still served and a plain unavailable line follows',
     t9.indexOf('# /mos:scientific-roadmap') !== -1 && statusBlock(t9).indexOf('entry check is unavailable') !== -1, statusBlock(t9).slice(0, 200));
+
+  // M11: the stamp wording follows the real surface (Plan 14).
+  {
+    const fmt = require(path.join(REPO_ROOT, 'lib/core/verification-stamp-format.cjs'));
+    const vs = require(path.join(REPO_ROOT, 'lib/core/verification-stamp.cjs'));
+    const { buildStampedRoom } = require(path.join(REPO_ROOT, 'tests/helpers/fixture-stamped-364.cjs'));
+    const st = await buildStampedRoom(ROOT_DIR, 'stamped_strong_ambient', { name: 'mcp_stamped' });
+    const props = (function () {
+      const rdb = new DatabaseSync(path.join(st.roomDir, '.mindrian', 'room.db'), { readOnly: true });
+      try { return JSON.parse(rdb.prepare('SELECT properties FROM nodes WHERE id = ?').get(st.ids.opportunity).properties); } finally { rdb.close(); }
+    })();
+    const stamp = vs.fromNodeProps(props);
+    cell.framework_step = fx('framework-step-authored');
+    const whole = function (t, want) { const have = new Set(t.split('\n')); return want.length > 0 && want.every(function (l) { return have.has(l); }); };
+    const tDesk = text(await register(st.roomDir, 'desktop').handlers.methodology({ command: 'scientific-roadmap' }));
+    const tCli = text(await register(st.roomDir, 'cli').handlers.methodology({ command: 'scientific-roadmap' }));
+    const tCow = text(await register(st.roomDir, 'cowork').handlers.methodology({ command: 'scientific-roadmap' }));
+    C.check('M11 desktop shows the stamp in the Desktop wording, exactly as the formatter prints it',
+      whole(statusBlock(tDesk), fmt.formatStampLines(stamp, 'desktop')) && statusBlock(tDesk).indexOf(fmt.GLYPH.strong) === -1,
+      statusBlock(tDesk).slice(0, 400));
+    C.check('M11 cli shows the cli stamp lines', whole(statusBlock(tCli), fmt.formatStampLines(stamp, 'cli')));
+    C.check('M11 cowork shows the cowork stamp lines (the cli form)', whole(statusBlock(tCow), fmt.formatStampLines(stamp, 'cowork')));
+    C.check('M11 the score of the finding never reaches the status block', statusBlock(tDesk).indexOf('0.87') === -1 && statusBlock(tCli).indexOf('0.87') === -1);
+  }
 
   // M10
   C.check('M10 zero network attempts', net.attempts() === 0, 'attempts=' + net.attempts());
