@@ -1,10 +1,13 @@
 'use client';
 // Banners (UI-SPEC Error states, Status surface): the connection-lost banner with "Reconnect now", and the
 // one-line failure banner the Status surface pairs with when the shell server does not answer. Banners are
-// plain text in the page; the news itself reaches assistive technology through the one LiveRegion.
+// plain text in the page; the news itself reaches assistive technology through the one LiveRegion. On phones the
+// session indicator lives in the Status panel, so a risk sentence (369-SESSION-INDICATOR-DESIGN state 6) also
+// shows here as the one-line banner at the top of the view, with its fix.
 import { connectionLost, RECONNECT_NOW, serverUnreachable } from '../copy.ts';
 import { ActionButton } from '../primitives/ActionButton.tsx';
 import { useReplicaOptional } from '../replica/ReplicaProvider.tsx';
+import { useIndicatorFix, useIndicatorModel } from './SessionIndicator.tsx';
 import { useShell } from './shell-context.ts';
 
 export function Banners({ copySeq }: { copySeq?: number | string | null }) {
@@ -12,10 +15,13 @@ export function Banners({ copySeq }: { copySeq?: number | string | null }) {
   // The browser copy knows the change number it is current through (plan 369-23); an explicit prop still wins.
   const replica = useReplicaOptional();
   const seq = copySeq !== undefined ? copySeq : replica ? replica.seq : null;
+  const model = useIndicatorModel();
+  const fix = useIndicatorFix(model);
+  const risk = model.kind === 'risk';
   const lost = status !== null && status.connection === 'disconnected';
-  if (!lost && !unreachable) return null;
+  if (!lost && !unreachable && !risk) return null;
   return (
-    <div className="banners" data-surface="deep">
+    <div className="banners" data-surface="deep" data-only-risk={!lost && !unreachable ? 'true' : undefined}>
       {unreachable ? (
         <p className="banner" data-banner="failure">
           {serverUnreachable(port).what}
@@ -25,6 +31,12 @@ export function Banners({ copySeq }: { copySeq?: number | string | null }) {
         <div className="banner" data-banner="connection-lost">
           <p>{connectionLost(seq)}</p>
           <ActionButton label={RECONNECT_NOW} variant="secondary" onClick={() => void refresh()} />
+        </div>
+      ) : null}
+      {risk ? (
+        <div className="banner" data-banner="risk">
+          <p>{model.fix && model.words.endsWith(model.fix.label) ? model.words.slice(0, model.words.length - model.fix.label.length).trimEnd() : model.words}</p>
+          {fix !== null && model.fix ? <ActionButton label={model.fix.label} variant="secondary" onClick={fix} /> : null}
         </div>
       ) : null}
     </div>

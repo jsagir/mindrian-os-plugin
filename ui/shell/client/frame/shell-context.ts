@@ -10,6 +10,8 @@ export type ShellStatus = {
   mcpSessionPrefix: string | null;
   roomSlug: string | null;
   version: string | null;
+  // Client time at which this answer was read (plan 369-24): how fresh the acknowledgement was is judged then.
+  readAt?: number;
 };
 
 // listRooms answers slugs today; purpose and the child-room path are shown when the server supplies them.

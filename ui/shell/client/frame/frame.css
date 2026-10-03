@@ -108,12 +108,42 @@
   gap: var(--space-md);
 }
 
+/* The session indicator (369-SESSION-INDICATOR-DESIGN): state words in Label 12 mono ink beside a StateMark, the
+ * browser copy line under the healthy words, the fix next to the words. Static text: no animation, no colour change.
+ * Below 768 px the header copy is hidden and the Status panel's copy is shown instead. */
 .session-indicator {
   display: none;
   font-family: var(--font-code);
   font-size: var(--label-size);
   line-height: var(--label-line);
   color: var(--ink);
+}
+
+.si-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-sm);
+  margin: 0;
+}
+
+.si-copy {
+  color: var(--ink-soft);
+}
+
+.si-fix .text-action {
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+}
+
+.sp-indicator .session-indicator {
+  display: block;
+  margin-top: var(--space-md);
+}
+
+.sp-indicator {
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--ink);
 }
 
 .sh-status {
@@ -141,8 +171,18 @@
   }
 
   .sh-purpose,
-  .session-indicator {
+  .sh-right .session-indicator {
     display: block;
+  }
+
+  .sp-indicator {
+    display: none;
+  }
+
+  /* On desktop the risk sentence replaces the indicator's words in the header; the banner is the phone placement. */
+  .banner[data-banner="risk"],
+  .banners[data-only-risk="true"] {
+    display: none;
   }
 }
 

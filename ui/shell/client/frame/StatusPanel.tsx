@@ -5,12 +5,14 @@
 // the shell server does not answer, the failing row shows its InlineError here AND the banner appears at the
 // top of the view (diagnostics stay visible when something fails). The Browser copy row and "Rebuild the browser
 // copy" read the browser read copy (plan 369-23); the row's data-copy-* attributes are real UI the e2e reads.
+// On phones (below 768 px) the session indicator lives here, above the rows (369-SESSION-INDICATOR-DESIGN).
 import { useEffect, useRef } from 'react';
 import { CONNECTION_WORDS, COPY_NOT_STARTED, COPY_STATE_WORDS, serverUnreachable } from '../copy.ts';
 import { ActionButton } from '../primitives/ActionButton.tsx';
 import { InlineError } from '../primitives/InlineError.tsx';
 import { TextAction } from '../primitives/TextAction.tsx';
 import { useReplicaOptional } from '../replica/ReplicaProvider.tsx';
+import { SessionIndicator } from './SessionIndicator.tsx';
 import { useShell } from './shell-context.ts';
 
 function clock(ms: number | null): string {
@@ -49,6 +51,9 @@ export function StatusPanel() {
       <h2 className="sp-title" tabIndex={-1} ref={heading}>
         Status
       </h2>
+      <div className="sp-indicator">
+        <SessionIndicator placement="panel" />
+      </div>
       <dl className="sp-rows">
         <div className="sp-row" data-row="connection">
           <dt>Connection</dt>

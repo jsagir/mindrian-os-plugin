@@ -30,9 +30,8 @@ export function serverUnreachable(port: number | string): { what: string; why: s
   };
 }
 
-// The interim connection words (369-UI-SPEC Session Indicator, "Placeholder the executor builds until the note
-// lands"). Plan 369-24 replaces the indicator body with the signed design; the Status surface keeps showing the
-// plain connection word.
+// The connection words the navigator signed (369-SESSION-INDICATOR-DESIGN, Q2 B). The session indicator model
+// (frame/indicator-model.ts) builds its states on these; the Status surface shows the plain connection word.
 export const CONNECTION_WORDS = {
   connected: 'Connected',
   reconnecting: 'Reconnecting...',

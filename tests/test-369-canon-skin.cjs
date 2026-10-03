@@ -523,13 +523,12 @@ if (!R) {
     assert.ok(!/ style=/.test(html), 'no style attribute');
   });
 
-  scenario('SessionIndicator is the interim: three connection words, the INTERIM(plan 24) marker, nothing else (D-04)', () => {
+  scenario('SessionIndicator is the signed design (plan 369-24, D-04): the model carries the three connection words, no interim marker', () => {
     const copy = R.load(path.join(CLIENT, 'copy.ts'));
     assert.deepStrictEqual(Object.values(copy.CONNECTION_WORDS), ['Connected', 'Reconnecting...', 'Disconnected']);
     const src = read(path.join(CLIENT, 'frame', 'SessionIndicator.tsx'));
-    assert.strictEqual(src.split('\n')[0], '// INTERIM(plan 24)');
-    assert.ok(/CONNECTION_WORDS\[status\.connection\]/.test(src));
-    assert.ok(!/['"`][A-Z][a-z]+(\.\.\.)?['"`]/.test(src.replace(/^\/\/.*$/gm, '')), 'no word of its own beyond the three');
+    assert.ok(!src.includes('INTERIM(plan 24)'), 'the interim marker is gone');
+    assert.ok(/indicatorModel\(/.test(src) && /StateMark/.test(src), 'drawn from the signed model through StateMark');
     assert.match(copy.connectionLost(12), /^Lost the connection to the room\. You are looking at the last copy, up to change 12\.$/);
     assert.strictEqual(copy.RECONNECT_NOW, 'Reconnect now');
   });
@@ -690,7 +689,9 @@ async function renderArm() {
       assert.strictEqual(await page.$$eval('[aria-current="page"]', (els) => els.length), 1);
       assert.strictEqual(await page.textContent('[aria-current="page"]'), 'Work');
       assert.strictEqual(await page.$$eval('[class*="badge"]', (els) => els.length), 0);
-      assert.strictEqual(await page.textContent('.session-indicator'), 'Connected');
+      // The signed design (plan 369-24): the header indicator shows the connection word, or the copy state when the copy is not current yet
+      // (the mocked feed here never serves a copy, so the words are the signed catching-up ones).
+      assert.match(await page.textContent('.session-indicator .si-words'), /^(Connected|Catching up)/);
       assert.strictEqual(await page.$$eval('[role="status"]', (els) => els.length), 1, 'one live region');
       assert.strictEqual(await page.$$eval('h1', (els) => els.length), 1, 'one H1');
     });
@@ -774,7 +775,9 @@ async function renderArm() {
       await lost.goto(origin + '/');
       await lost.waitForSelector('[data-banner="connection-lost"]');
       assert.ok((await lost.textContent('[data-banner="connection-lost"]')).startsWith('Lost the connection to the room.'));
-      assert.strictEqual(await lost.textContent('.session-indicator'), 'Disconnected');
+      // Two decisions are waiting in this fixture, so a lost connection is the signed risk state, with its fix beside it.
+      assert.strictEqual(await lost.textContent('.session-indicator .si-words'), 'The connection dropped while a decision is open.');
+      assert.strictEqual(await lost.textContent('.session-indicator .si-fix'), 'Reconnect now');
       const before = seen.status;
       await lost.click('text=Reconnect now');
       await waitUntil(() => seen.status > before, 5000, 'Reconnect now to ask the status again');

@@ -2,16 +2,16 @@
 // The shell frame (plan 369-20, D-10, D-04): header with the room first, the room selector, primary
 // navigation, the secondary Status surface, the connection banners, ONE live region, and the view outlet.
 // It owns the shell's connection and room state (polled from /api/status and the listRooms and listOpenGates
-// actions) and hands it to its parts and to any view through useShell(). Plan 369-24 replaces the state with
-// the signed session-indicator design. Plan 369-23 mounts the browser-copy provider around the header, the
+// actions) and hands it to its parts and to any view through useShell(). The signed session indicator (plan
+// 369-24) reads it through the status context and speaks each connection change itself. Plan 369-23 mounts the browser-copy provider around the header, the
 // banners, the view outlet and the Status panel, so each of them can read the copy (useReplica()).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { callAction, feed, ServerUnreachableError } from '../api.ts';
-import { CONNECTION_WORDS, ROOM_REMOVED } from '../copy.ts';
+import { ROOM_REMOVED } from '../copy.ts';
 import { ActionButton } from '../primitives/ActionButton.tsx';
 import { InlineError } from '../primitives/InlineError.tsx';
-import { LiveRegionProvider, useAnnounce } from '../primitives/LiveRegion.tsx';
+import { LiveRegionProvider } from '../primitives/LiveRegion.tsx';
 import { ReplicaProvider, useReplica } from '../replica/ReplicaProvider.tsx';
 import { RoomPicker } from '../RoomPicker.tsx';
 import { Banners } from './Banners.tsx';
@@ -20,9 +20,13 @@ import { RoomSwitchDialog, useRoomSwitcher } from './RoomSelector.tsx';
 import { ShellContext } from './shell-context.ts';
 import type { Connection, RoomRow, ShellState, ShellStatus } from './shell-context.ts';
 import { ShellHeader } from './ShellHeader.tsx';
+import { StatusProvider } from './status-context.ts';
 import { StatusPanel } from './StatusPanel.tsx';
 
-export const STATUS_POLL_MS = 5000;
+// The connection state is asked every 2 seconds while the tab is visible (369-SESSION-INDICATOR-DESIGN); the room
+// list and the waiting count stay on the slower beat.
+export const STATUS_POLL_MS = 2000;
+export const ROOMS_POLL_MS = 5000;
 
 type StatusBody = Partial<ShellStatus> & { ok?: boolean };
 type RoomsBody = { ok?: boolean; rooms?: RoomRow[]; current?: string | null };
@@ -59,7 +63,6 @@ export function ShellFrame({ port, pathname = '/', children }: { port: number; p
 }
 
 function Frame({ port, pathname, children }: { port: number; pathname: string; children: ReactNode }) {
-  const announce = useAnnounce();
   const [status, setStatus] = useState<ShellStatus | null>(null);
   const [unreachable, setUnreachable] = useState(false);
   const [rooms, setRooms] = useState<RoomRow[]>([]);
@@ -69,7 +72,6 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
   const [roomEpoch, setRoomEpoch] = useState(0);
   const [statusOpen, setStatusOpen] = useState(false);
   const live = useRef(true);
-  const lastWord = useRef<Connection | null>(null);
   const viewRef = useRef<HTMLElement | null>(null);
 
   const readStatus = useCallback(async () => {
@@ -85,20 +87,18 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
         mcpSessionPrefix: typeof body.mcpSessionPrefix === 'string' ? body.mcpSessionPrefix : null,
         roomSlug: typeof body.roomSlug === 'string' ? body.roomSlug : null,
         version: typeof body.version === 'string' ? body.version : null,
+        readAt: Date.now(),
       };
       setStatus(next);
-      if (lastWord.current !== null && lastWord.current !== connection) announce(CONNECTION_WORDS[connection]);
-      lastWord.current = connection;
     } catch (err) {
       if (!live.current) return;
       if (err instanceof ServerUnreachableError) {
         setUnreachable(true);
-        setStatus((prev) => (prev ? { ...prev, connection: 'disconnected' } : { connection: 'disconnected', lastAckAt: null, mcpSessionPrefix: null, roomSlug: null, version: null }));
-        if (lastWord.current !== 'disconnected') announce(CONNECTION_WORDS.disconnected);
-        lastWord.current = 'disconnected';
+        const readAt = Date.now();
+        setStatus((prev) => (prev ? { ...prev, connection: 'disconnected', readAt } : { connection: 'disconnected', lastAckAt: null, mcpSessionPrefix: null, roomSlug: null, version: null, readAt }));
       }
     }
-  }, [announce]);
+  }, []);
 
   const roomsRead = useRef(0);
   const readRooms = useCallback(async () => {
@@ -137,16 +137,26 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
   useEffect(() => {
     live.current = true;
     void refresh();
-    const timer = setInterval(() => {
+    const statusTimer = setInterval(() => {
       if (document.visibilityState === 'hidden') return;
       void readStatus();
+    }, STATUS_POLL_MS);
+    const roomsTimer = setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
       void readGates();
       // The room list is read on the same beat so a room taken off this machine is noticed within one poll.
       void readRooms();
-    }, STATUS_POLL_MS);
+    }, ROOMS_POLL_MS);
+    // Coming back to the tab asks at once, so the indicator never shows a connection word older than the tab was away.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void readStatus();
+    };
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
       live.current = false;
-      clearInterval(timer);
+      clearInterval(statusTimer);
+      clearInterval(roomsTimer);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [refresh, readStatus, readGates, readRooms]);
 
@@ -173,19 +183,21 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
   return (
     <ShellContext.Provider value={value}>
       <ReplicaProvider>
-        <a className="skip-link" href="#view">
-          Skip to the view
-        </a>
-        <ShellHeader />
-        <PrimaryNav />
-        <Banners />
-        <div className="shell-body">
-          <main id="view" className="shell-view" tabIndex={-1} ref={viewRef} key={roomEpoch}>
-            <ViewOutlet>{children}</ViewOutlet>
-          </main>
-          <StatusPanel />
-        </div>
-        <RoomSwitchDialog switcher={switcher} />
+        <StatusProvider>
+          <a className="skip-link" href="#view">
+            Skip to the view
+          </a>
+          <ShellHeader />
+          <PrimaryNav />
+          <Banners />
+          <div className="shell-body">
+            <main id="view" className="shell-view" tabIndex={-1} ref={viewRef} key={roomEpoch}>
+              <ViewOutlet>{children}</ViewOutlet>
+            </main>
+            <StatusPanel />
+          </div>
+          <RoomSwitchDialog switcher={switcher} />
+        </StatusProvider>
       </ReplicaProvider>
     </ShellContext.Provider>
   );
