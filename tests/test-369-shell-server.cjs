@@ -16,7 +16,7 @@ const http = require('node:http');
 const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
+const { spawn, spawnSync } = require('node:child_process');
 const { builtinModules } = require('node:module');
 
 const REPO = path.resolve(__dirname, '..');
@@ -418,20 +418,26 @@ function countFiles(dir) {
 }
 
 if (BUILT) {
-  scenario('build output (RULE 8): no node_modules tree sits under the server output', () => {
+  scenario('build output (RULE 8, ruled 2026-10-03): the standalone output has NO node_modules directory and no file outside the allowed set', () => {
     const dirs = findDirs(STANDALONE, 'node_modules');
-    const detail = dirs.map((d) => path.relative(STANDALONE, d) + ' (' + countFiles(d) + ' files, ' + fs.readdirSync(d).join(', ') + ')');
-    assert.strictEqual(dirs.length, 0, dirs.length + ' node_modules directories under .next/standalone: ' + detail.join('; '));
+    assert.strictEqual(dirs.length, 0, dirs.length + ' node_modules directories under .next/standalone: ' + dirs.map((d) => path.relative(STANDALONE, d)).join(', '));
+    // Allowed set: server.js and package.json at the top (package.json carries "type": "module"), and everything under
+    // .next/ (the built server and static assets) and public/.
+    const outside = listFiles(STANDALONE, [], []).map((f) => path.relative(STANDALONE, f).split(path.sep).join('/'))
+      .filter((rel) => !(rel === 'server.js' || rel === 'package.json' || rel.startsWith('.next/') || rel.startsWith('public/')));
+    assert.deepStrictEqual(outside, [], 'files outside the allowed set: ' + outside.slice(0, 10).join(', '));
+    assert.ok(countFiles(STANDALONE) < 1000, 'the output is small once the traced tree is gone (' + countFiles(STANDALONE) + ' files)');
   });
 
-  scenario('build output (RULE 8): every bare import in the server output is a root dependency or a Node built-in', () => {
+  scenario('build output (RULE 8): every bare import in the server output is a root dependency (next, react, react-dom, ...) or a Node built-in', () => {
     const roots = rootDepNames();
     const bad = new Map();
     const RE = /(?:require\(\s*|from\s+|import\s*\(\s*|import\s+)(["'])([^"'\n]+)\1/g;
     let scanned = 0;
     for (const f of listFiles(STANDALONE, [], ['node_modules']).filter((p) => /\.(js|mjs|cjs)$/.test(p) && !p.includes(path.sep + 'node_modules' + path.sep) && !p.includes(path.sep + 'static' + path.sep))) {
       scanned += 1;
-      const src = fs.readFileSync(f, 'utf8');
+      // Comment lines are not imports (Turbopack's runtime documents a require("something") in a comment).
+      const src = fs.readFileSync(f, 'utf8').split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
       let m;
       RE.lastIndex = 0;
       while ((m = RE.exec(src))) {
@@ -487,7 +493,41 @@ function listeningLoopbackOnly(port) {
   return mine;
 }
 
-async function liveArm() {
+// The ruled shape (b): the output runs with ONLY the plugin root's node_modules reachable. The tree is
+// <tmp>/plugin/{node_modules -> root node_modules, lib/ui-shell/dist = a copy of the standalone output}.
+// The root node_modules is the repo's when it carries next; otherwise it is built once per manifest from the repo's
+// package.json and npm-shrinkwrap.json with the loader's own command (`npm ci --ignore-scripts`, no --omit) and cached
+// under the OS temp dir keyed by their hash. Returns { dist, nodeModules } or null (ENV GAP: npm or the network).
+function rootNodeModules() {
+  const repoNm = path.join(REPO, 'node_modules');
+  if (fs.existsSync(path.join(repoNm, 'next', 'package.json')) && fs.existsSync(path.join(repoNm, 'react-dom', 'package.json'))) return repoNm;
+  const key = crypto.createHash('sha256').update(fs.readFileSync(path.join(REPO, 'package.json'))).update(fs.readFileSync(path.join(REPO, 'npm-shrinkwrap.json'))).digest('hex').slice(0, 16);
+  const cache = path.join(os.tmpdir(), 'mos-369-root-deps-' + key);
+  const nm = path.join(cache, 'node_modules');
+  if (fs.existsSync(path.join(nm, '.mos-complete'))) return nm;
+  fs.rmSync(cache, { recursive: true, force: true });
+  fs.mkdirSync(cache, { recursive: true });
+  fs.copyFileSync(path.join(REPO, 'package.json'), path.join(cache, 'package.json'));
+  fs.copyFileSync(path.join(REPO, 'npm-shrinkwrap.json'), path.join(cache, 'npm-shrinkwrap.json'));
+  const r = spawnSync('npm', ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: cache, encoding: 'utf8', timeout: 480000, env: Object.assign({}, process.env, { npm_config_fund: 'false', npm_config_audit: 'false' }) });
+  if (r.error || r.status !== 0) {
+    process.stdout.write('  (npm ci for the root dependencies failed: ' + String((r.error && r.error.message) || r.stderr).slice(0, 300) + ')\n');
+    return null;
+  }
+  fs.writeFileSync(path.join(nm, '.mos-complete'), 'ok\n');
+  return nm;
+}
+
+function makePluginTree(nm) {
+  const plugin = path.join(TMP_HOME, 'plugin');
+  fs.mkdirSync(path.join(plugin, 'lib', 'ui-shell'), { recursive: true });
+  fs.symlinkSync(nm, path.join(plugin, 'node_modules'), 'dir');
+  const dist = path.join(plugin, 'lib', 'ui-shell', 'dist');
+  fs.cpSync(STANDALONE, dist, { recursive: true });
+  return dist;
+}
+
+async function liveArm(serverDir) {
   const dataHome = path.join(TMP_HOME, 'live');
   fs.mkdirSync(dataHome, { recursive: true });
   const daemon = http.createServer((_q, r) => r.end('{}'));
@@ -503,7 +543,7 @@ async function liveArm() {
   });
   delete env.CLAUDE_ACTIVE_ROOM;
   delete env.CLAUDE_CODE_SESSION_ID;
-  const child = spawn(process.execPath, ['server.js'], { cwd: STANDALONE, env, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, ['server.js'], { cwd: serverDir, env, stdio: ['ignore', 'pipe', 'pipe'] });
   let log = '';
   child.stdout.on('data', (d) => { log += d; });
   child.stderr.on('data', (d) => { log += d; });
@@ -637,7 +677,7 @@ async function liveArm() {
   await ascenario('live: the server refuses to start on a daemon host other than 127.0.0.1', async () => {
     const p2 = await freePort();
     const env2 = Object.assign({}, env, { MOS_DAEMON_URL: 'http://example.com:9', MOS_SHELL_PORT: String(p2), PORT: String(p2), MOS_SHELL_BOOTSTRAP_SHA256: '' });
-    const bad = spawn(process.execPath, ['server.js'], { cwd: STANDALONE, env: env2, stdio: ['ignore', 'pipe', 'pipe'] });
+    const bad = spawn(process.execPath, ['server.js'], { cwd: serverDir, env: env2, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     bad.stdout.on('data', (d) => { out += d; });
     bad.stderr.on('data', (d) => { out += d; });
@@ -651,12 +691,27 @@ async function liveArm() {
 }
 
 async function main() {
-  if (BUILT) await liveArm();
+  let gap = null;
+  if (BUILT) {
+    const nm = rootNodeModules();
+    if (nm === null) {
+      gap = 'the root dependencies could not be installed for the plugin-like tree (npm or network)';
+    } else {
+      // Ruled shape (b): every live check below runs against a copy that can reach ONLY the plugin root's node_modules.
+      const dist = makePluginTree(nm);
+      scenario('build output (RULE 8, ruled 2026-10-03): the copy resolves next and react from the root node_modules only', () => {
+        assert.strictEqual(findDirs(dist, 'node_modules').length, 0);
+        const req = require('node:module').createRequire(path.join(dist, 'server.js'));
+        for (const name of ['next', 'react', 'react-dom']) assert.ok(fs.realpathSync(req.resolve(name)).startsWith(fs.realpathSync(nm)), name + ' resolves from the root node_modules');
+      });
+      await liveArm(dist);
+    }
+  }
   fs.rmSync(TMP_HOME, { recursive: true, force: true });
   process.stdout.write('\n' + passed + ' passed, ' + failed + ' failed\n');
   if (failed) process.exit(1);
-  if (!BUILT) {
-    process.stdout.write('ENV GAP: the shell is not built (cd ui/shell && npm run build); the build-output and live arms did not run (exit 77)\n');
+  if (!BUILT || gap) {
+    process.stdout.write('ENV GAP: ' + (gap || 'the shell is not built (cd ui/shell && npm run build)') + '; the build-output and live arms did not run (exit 77)\n');
     process.exit(77);
   }
   process.exit(0);

@@ -2,8 +2,10 @@
 
 The MindrianOS UI shell: a walled package (Phase 369 D-07, D-17) on the chassis the bake-off chose
 (workroom: Next 16 with React 19 and BlockNote). It is private, ESM TypeScript, and has its own
-lockfile. Nothing here enters the plugin's root `package.json`; only built assets ship, under
-`lib/ui-shell/dist` (plan 369-28).
+lockfile. Nothing here enters the plugin's root `package.json` except the three framework runtime
+packages the navigator ruled on 2026-10-03 (`next`, `react`, `react-dom`, pinned to the same exact
+versions in both manifests); only built assets ship, under `lib/ui-shell/dist` (plan 369-28), without a
+`node_modules` tree.
 
 ## The three folders
 
@@ -46,8 +48,10 @@ Telemetry is off in both scripts (`NEXT_TELEMETRY_DISABLED=1`, `DO_NOT_TRACK=1`)
 ESM TypeScript, erasable syntax only (no enum, no namespace, no parameter properties), relative
 imports with explicit `.ts` and `.tsx` extensions, no path aliases (`tests/test-369-ts-erasable-gate.cjs`).
 
-## Known open item (RULE 8)
+## RULE 8 (ruled 2026-10-03: Next as a per-machine dependency)
 
-The Next standalone output carries a traced `node_modules` tree (next, react, react-dom and others).
-RULE 8 forbids a vendored tree in the tarball; `tests/test-369-shell-server.cjs` measures it and fails
-until the navigator rules the shell-server form (see 369-19-SUMMARY.md and 369-BAKEOFF-DECISION.md).
+The Next standalone output is stripped of its traced `node_modules` tree by `scripts/postbuild.mjs`, and
+`server.js` resolves `next`, `react` and `react-dom` from the plugin root's `node_modules`, installed per
+machine by the loader like every other dependency. The root `package.json` pins them exactly, equal to
+this package's versions (`tests/test-369-walled-manifest.cjs` fails on drift). `tests/test-369-shell-server.cjs`
+proves the output has no `node_modules` and runs with only the root's reachable. See 369-BAKEOFF-DECISION.md.
