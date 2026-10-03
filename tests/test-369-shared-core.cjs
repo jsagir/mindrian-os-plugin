@@ -159,6 +159,110 @@ async function main() {
     assert.equal(hints.length, n, 'no hints after unsubscribe');
   });
 
+  await test('5. projection: six collections, toDoc upsert and delete, dbName, isResetReason', async () => {
+    const proj = await load('projection.ts');
+    assert.equal(proj.COLLECTIONS.length, 6);
+    assert.deepEqual(Array.from(proj.COLLECTIONS), ['room', 'nodes', 'relations', 'artifacts', 'decisions', 'activity']);
+    assert.equal(proj.PROJECTION_VERSION, 1);
+    for (const c of proj.COLLECTIONS) {
+      assert.equal(proj.SCHEMAS[c].primaryKey, 'id');
+      assert.equal(proj.SCHEMAS[c].properties.revision.type, 'number');
+    }
+    const up = proj.toDoc('nodes', {
+      seq: 4, entity_type: 'node', entity_id: 'claim:1', op: 'upsert', revision: 3,
+      doc: { id: 'claim:1', type: 'claim', title: 'T', status: 'confirmed', provenance: { by: 'human' }, not_a_ui_field: 'x' },
+    });
+    assert.equal(up.id, 'claim:1');
+    assert.equal(up.revision, 3);
+    assert.equal(up.title, 'T');
+    assert.equal(up.provenance, '{"by":"human"}', 'object fields normalize to a string');
+    assert.equal('not_a_ui_field' in up, false, 'only UI fields survive the projection');
+    assert.deepEqual(proj.toDoc('nodes', { seq: 5, entity_id: 'claim:1', op: 'delete' }), { id: 'claim:1', _deleted: true });
+    const a = proj.dbName('Room X/One', '8f3a9c2e-1111-2222');
+    assert.equal(a, 'mos-room-x-one-8f3a9c2e-p1');
+    assert.equal(a, proj.dbName('Room X/One', '8f3a9c2e-1111-2222'), 'stable');
+    assert.match(a, /^[a-z0-9-]+$/);
+    assert.ok(a.endsWith('-p1'));
+    assert.notEqual(a, proj.dbName('Room X/One', 'ffffffff-0'), 'a new epoch opens a new database');
+    assert.equal(proj.isResetReason('checkpoint_expired'), true);
+    assert.equal(proj.isResetReason('epoch_changed'), true);
+    assert.equal(proj.isResetReason('feed_error'), false);
+    assert.equal(proj.isResetReason(undefined), false);
+  });
+
+  await test('6. replica source: no dev plugin, replicateRxCollection present, no write-back key', async () => {
+    const src = readSrc('replica.ts');
+    for (const f of allSrcFiles()) {
+      const s = fs.readFileSync(f, 'utf8');
+      assert.ok(!/plugins\/dev-mode/.test(s), f + ' must never import the RxDB dev plugin');
+    }
+    assert.ok(src.includes('replicateRxCollection'));
+    assert.ok(!/push\s*:/.test(src), 'replica.ts must have no push key');
+    assert.ok(!/\bpush\s*\(\s*\{/.test(src) && !/\bpush\s*=/.test(src), 'no write-back handler in code');
+    assert.ok(readSrc('projection.ts').split('\n').filter((l) => l.includes('disposable, deletable at any moment')).length === 1);
+  });
+
+  await test('6b. replica behavior (memory storage): pull, delete, hint, last visit, reset', async () => {
+    const { openReplica, ProjectionResetError } = await load('replica.ts');
+    const { getRxStorageMemory } = await import(pathToFileURL(path.join(SHARED, 'node_modules', 'rxdb', 'dist', 'esm', 'plugins', 'storage-memory', 'index.js')).href);
+    const log = [
+      { seq: 1, entity_id: 'c1', op: 'upsert', revision: 1, doc: { id: 'c1', type: 'claim', title: 'one' } },
+      { seq: 2, entity_id: 'c2', op: 'upsert', revision: 1, doc: { id: 'c2', type: 'claim', title: 'two' } },
+    ];
+    let reset = null;
+    let hintListener = null;
+    let mode = 'ok';
+    const pulls = [];
+    const rep = await openReplica({
+      roomKey: 'room-x',
+      epoch: 'e1e1e1e1-aaaa',
+      storage: getRxStorageMemory(),
+      multiInstance: false,
+      fetchPage: async (collection, cp, batch) => {
+        pulls.push({ collection, cp, batch });
+        if (mode === 'reset') return { ok: false, reason: 'checkpoint_expired', epoch: 'e1e1e1e1-aaaa', snapshot_revision: 9 };
+        const after = cp ? cp.seq : 0;
+        const changes = collection === 'nodes' ? log.filter((c) => c.seq > after) : [];
+        const through = changes.length ? changes[changes.length - 1].seq : Math.max(after, log[log.length - 1].seq);
+        return { ok: true, epoch: 'e1e1e1e1-aaaa', through, changes };
+      },
+      hints: (l) => { hintListener = l; return () => { hintListener = null; }; },
+      onReset: (info) => { reset = info; },
+    });
+    try {
+      assert.equal(rep.name, 'mos-room-x-e1e1e1e1-p1');
+      await rep.awaitInitialReplication();
+      let docs = await rep.db.nodes.find().exec();
+      assert.deepEqual(docs.map((d) => d.id).sort(), ['c1', 'c2']);
+      assert.ok(pulls.every((p) => p.batch === 200), 'batch size is 200');
+      assert.equal(await rep.getLastVisit(), null, 'a fresh projection has no last visit');
+      await rep.setLastVisit(2);
+      assert.equal(await rep.getLastVisit(), 2);
+
+      log.push({ seq: 3, entity_id: 'c1', op: 'delete' });
+      log.push({ seq: 4, entity_id: 'c3', op: 'upsert', revision: 1, doc: { id: 'c3', type: 'claim', title: 'three' } });
+      assert.ok(hintListener, 'the replica subscribed to hints');
+      hintListener();
+      for (let i = 0; i < 40; i += 1) {
+        docs = await rep.db.nodes.find().exec();
+        if (docs.some((d) => d.id === 'c3')) break;
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      assert.deepEqual(docs.map((d) => d.id).sort(), ['c2', 'c3'], 'delete arrives as a tombstone, hint pulls the tail');
+
+      mode = 'reset';
+      hintListener();
+      for (let i = 0; i < 60 && !reset; i += 1) await new Promise((r) => setTimeout(r, 50));
+      assert.deepEqual(reset, { reason: 'checkpoint_expired' }, 'onReset fires after the database is removed');
+      assert.equal(hintListener, null, 'hints are unsubscribed on reset');
+      const err = new ProjectionResetError({ reason: 'epoch_changed', epoch: 'e', snapshot_revision: 3 });
+      assert.equal(err.reason, 'epoch_changed');
+      assert.equal(err.snapshot_revision, 3);
+    } finally {
+      try { await rep.close(); } catch (_e) { /* already removed */ }
+    }
+  });
+
   // ARMS-INSERT-PURE
 
   console.log('live legacy pool against the hermetic flag-ON daemon');

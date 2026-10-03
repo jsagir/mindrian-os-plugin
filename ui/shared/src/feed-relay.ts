@@ -44,6 +44,7 @@ export function parseSseFrames(chunkText: string, carry?: string): { frames: Sse
 export type Hint = { roomId: string; latestSeq: number | null; source: 'sse' | 'poll' };
 
 export type ChangesQuery = {
+  collection?: string;
   after?: number | string;
   epoch?: string;
   limit?: number;
@@ -84,7 +85,7 @@ export function createFeedRelay(options: FeedRelayOptions) {
 
   async function pageChanges(sessionKey: string, query: ChangesQuery): Promise<Record<string, unknown>> {
     const args: Record<string, unknown> = {};
-    for (const k of ['after', 'epoch', 'limit', 'mode', 'snapshot_cursor'] as const) {
+    for (const k of ['collection', 'after', 'epoch', 'limit', 'mode', 'snapshot_cursor'] as const) {
       if (query && query[k] !== undefined) args[k] = query[k];
     }
     try {
@@ -156,7 +157,8 @@ export function createFeedRelay(options: FeedRelayOptions) {
 
     async function pollOnce(): Promise<void> {
       if (stopped) return;
-      const r = await pageChanges(sessionKey, { limit: 1 });
+      // latest_seq is the room-wide head, so any one collection answers it.
+      const r = await pageChanges(sessionKey, { collection: 'nodes', limit: 1 });
       const latest = r && typeof r.latest_seq === 'number' ? (r.latest_seq as number) : null;
       if (latest === null) return;
       if (lastSeq !== null && latest > lastSeq) {
