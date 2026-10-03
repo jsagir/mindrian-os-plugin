@@ -4601,6 +4601,10 @@ These 21 IDs were minted in the Phase 364 plan set (2026-10-02) from `364-RESEAR
 
 - [ ] **SRM364-21**: Phase close: `tests/run-all-364.sh` green, generator gates green, `node scripts/doctor.cjs --acceptance` no new failing point, run-all-363 and run-all-366 no new failures, CANON-PHASE-MAP rows, follow-ons recorded, research trail filed in both homes. Plans 364-01, 364-11, 364-12.
 
+- [ ] **SRM364-22**: A Phase 355 stamped eureka finding (an opportunity node at lifecycle candidate, qualified or explored that carries the D-37 flat stamp props and engine_mode, as filing-stamped.cjs fileStampedOpportunity writes it for the 355.1 ambient run and filing.cjs writes it for the eureka perspective) is a hypothesis in flight: the entry resolver proposes step 6 Constraint Interrogation on the link it depends on (its two recorded ends) and the door carries it into step 6 as a row to interrogate or dismiss with a reason; its stamp lines are reproduced verbatim through verification-stamp-format.cjs formatStampLines after verification-stamp.cjs fromNodeProps; an unverified or not-checked stamp is never upgraded and an unreadable one is disclosed; no score is rendered; the explore-opportunity offer stays alongside for a qualified finding; the resolver writes nothing (Canon Part 9). Navigator ruling 2026-10-03. Plan 364-14.
+
+- [ ] **SRM364-23**: The eureka handoff to the framework Theo recommends next names /mos:scientific-roadmap when that recommendation is Scientific Roadmapping, through the existing registry door (command-resolver.cjs composeWorkflow and commandsForFramework over the command-registry framework_index) as used by eureka-offer.cjs _buildNextSegue and chain-recommender.cjs adaptChainToRunInput; a read-only mapping with no hardcoded slug, no new reach, sensor or MCP tool, and no Phase 355.1 code modified; the MCP brain-router slug allowlist stays follow-on A1. Navigator ruling 2026-10-03. Plan 364-14.
+
 ## Traceability
 
 485 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
@@ -4617,6 +4621,7 @@ FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 
 plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
 plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366), plus TS369-01..08, CHG369-01..06, FEED369-01..05, SESS369-01..04, GREC369-01..05, HUM369-01..03, RXP369-01..03, CANON369-01..07, SHELL369-01..11, BAKE369-01..04, CM369-01..03 (Phase 369, 59 IDs, registered at plan time 2026-10-02, all `[ ]` until 369-31). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; all 19 `[x]`: MCPV2-13 closed by navigator waiver, MCPV2-03 and MCPV2-08 flipped by the 366-24 combined baseline refresh).
 Also SRM364-01..21 (Phase 364, 21 IDs, registered at plan time 2026-10-02, all [ ] until 364-11).
+Also SRM364-22..23 (Phase 364 gap plan 364-14, navigator ruling 2026-10-03; registered at plan time as [ ], closed by 364-14 Task 3 on measured proof).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
 Requirements 1-7 plus the AI-SPEC's D15/D18
