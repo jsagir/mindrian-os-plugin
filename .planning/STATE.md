@@ -9152,6 +9152,7 @@ Progress: [█████████░] 92%
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
+| 261003-438 | Clear the pre-existing 198 local-only red: three sensors.cjs comments named the Brain client file by filename; reworded (comment-only, Canon Part 8 kept), run-all-369 "198 local only" leg PASSED (aggregator 37/0/19) | 2026-10-03 | 615e7ac41, ec7093f05 | Complete | [261003-438-198-local-only-sensors-comments](./quick/261003-438-198-local-only-sensors-comments/) |
 | 261002-cud | Phase 366 gap fixes: MCP basket mints canon_release gates, research_run run_quick plan_only + offline, localRoomCheck strict-majority keyword coverage (SEED-104 residual), ledgerKeyFor via gateLedger.ledgerSessionKey | 2026-10-02 | 35c710bf2 | Complete | [261002-cud-366-gap-fixes-research-cjs-plan-only-ses](./quick/261002-cud-366-gap-fixes-research-cjs-plan-only-ses/) |
 | 261002-e9v | research_run resolveRoom uses resolveMcpWriteRoom (session-bound room, no cross-session bleed); refusal reason no_bound_room | 2026-10-02 | cbf61b3f9 | Complete | [261002-e9v-research-run-resolveroom-uses-resolvemcp](./quick/261002-e9v-research-run-resolveroom-uses-resolvemcp/) |
 | 261002-dht | 341 version-of-record leg: doctor --acceptance --pre-tag runs against a fixture home (symlinked marketplace-cache at the checkout version) + wrong-version negative; run-all-341 21/1 -> 22/0 | 2026-10-02 | 713ec08bf | Complete | [261002-dht-341-version-of-record-leg-fixture-home](./quick/261002-dht-341-version-of-record-leg-fixture-home/) |
