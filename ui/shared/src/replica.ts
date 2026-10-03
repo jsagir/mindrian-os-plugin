@@ -38,6 +38,83 @@ export class ProjectionResetError extends Error {
 
 export type Checkpoint = { epoch: string; seq: number };
 
+// Name helpers for the shell's cleanup of old and removed copies (plan 369-23). A database is
+// mos-<room>-<epoch8>-p<version> (see dbName); the room part is the sanitized room key, so the
+// parts are read from the right: the last two segments are the epoch prefix and the version.
+export function parseDbName(name: string): { room: string; epoch: string; version: number } | null {
+  const m = /^mos-(.+)-([a-z0-9]{1,8})-p(\d+)$/.exec(String(name));
+  if (!m) return null;
+  return { room: m[1] as string, epoch: m[2] as string, version: Number(m[3]) };
+}
+
+// The room part a database name carries for this room key, so a stored database can be matched to a room.
+export function roomPartOf(roomKey: string): string {
+  const parsed = parseDbName(dbName(roomKey, 'x0'));
+  return parsed ? parsed.room : '';
+}
+
+// ---- stored copies (browser only): list and remove databases by name ----
+//
+// The shell removes copies that are older than the room's current epoch or projection version and copies
+// whose room is no longer on the machine. RxDB's Dexie storage names its IndexedDB databases
+// rxdb-dexie-<database>--<schema version>--<collection>, so a copy is every IndexedDB database sharing the
+// prefix. Keeping this here keeps every storage touch of the read copy in one file.
+type IdbFactory = IDBFactory & { databases?: () => Promise<Array<{ name?: string }>> };
+
+async function idbNames(): Promise<string[]> {
+  const factory = (globalThis as { indexedDB?: IdbFactory }).indexedDB;
+  if (!factory || typeof factory.databases !== 'function') return [];
+  try {
+    return (await factory.databases()).map((d) => d.name ?? '').filter((n) => n.length > 0);
+  } catch (_e) {
+    return [];
+  }
+}
+
+export async function listStoredCopies(): Promise<string[]> {
+  const out = new Set<string>();
+  for (const name of await idbNames()) {
+    const m = /^rxdb-dexie-(mos-.+?)--\d+--/.exec(name);
+    if (m) out.add(m[1] as string);
+  }
+  return Array.from(out);
+}
+
+function deleteIdb(name: string): Promise<void> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = () => {
+      if (!settled) {
+        settled = true;
+        resolve();
+      }
+    };
+    try {
+      const req = (globalThis as unknown as { indexedDB: IDBFactory }).indexedDB.deleteDatabase(name);
+      req.onsuccess = done;
+      req.onerror = done;
+      // Another tab still holds it open: its Dexie closes on the version-change event; do not wait for ever.
+      req.onblocked = () => setTimeout(done, 1500);
+    } catch (_e) {
+      done();
+    }
+  });
+}
+
+// Remove every stored copy for which `doomed` says so. Returns how many copies went.
+export async function removeStoredCopies(doomed: (copy: string) => boolean): Promise<number> {
+  let removed = 0;
+  for (const copy of await listStoredCopies()) {
+    if (!doomed(copy)) continue;
+    const prefix = 'rxdb-dexie-' + copy + '--';
+    for (const name of await idbNames()) {
+      if (name.startsWith(prefix)) await deleteIdb(name);
+    }
+    removed += 1;
+  }
+  return removed;
+}
+
 export type FeedAnswer = {
   ok?: boolean;
   reason?: string;

@@ -4,10 +4,14 @@
 // plain text in the page; the news itself reaches assistive technology through the one LiveRegion.
 import { connectionLost, RECONNECT_NOW, serverUnreachable } from '../copy.ts';
 import { ActionButton } from '../primitives/ActionButton.tsx';
+import { useReplicaOptional } from '../replica/ReplicaProvider.tsx';
 import { useShell } from './shell-context.ts';
 
-export function Banners({ copySeq = null }: { copySeq?: number | string | null }) {
+export function Banners({ copySeq }: { copySeq?: number | string | null }) {
   const { status, unreachable, port, refresh } = useShell();
+  // The browser copy knows the change number it is current through (plan 369-23); an explicit prop still wins.
+  const replica = useReplicaOptional();
+  const seq = copySeq !== undefined ? copySeq : replica ? replica.seq : null;
   const lost = status !== null && status.connection === 'disconnected';
   if (!lost && !unreachable) return null;
   return (
@@ -19,7 +23,7 @@ export function Banners({ copySeq = null }: { copySeq?: number | string | null }
       ) : null}
       {lost ? (
         <div className="banner" data-banner="connection-lost">
-          <p>{connectionLost(copySeq)}</p>
+          <p>{connectionLost(seq)}</p>
           <ActionButton label={RECONNECT_NOW} variant="secondary" onClick={() => void refresh()} />
         </div>
       ) : null}

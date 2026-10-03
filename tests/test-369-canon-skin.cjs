@@ -387,7 +387,9 @@ if (HAVE_NM) {
     }).outputText;
     const mod = { exports: {} };
     cache[file] = mod;
-    const req = (spec) => (spec.startsWith('.') ? load(path.resolve(path.dirname(file), spec)) : shellRequire(spec));
+    // mos-ui-shared is the walled shared package; Node cannot strip types under node_modules, so its source is
+    // loaded from ui/shared/src through the same transpiler (the frame reaches it through the browser-copy provider).
+    const req = (spec) => (spec.startsWith('.') ? load(path.resolve(path.dirname(file), spec)) : spec.startsWith('mos-ui-shared/') ? load(path.join(REPO, 'ui', 'shared', 'src', spec.slice('mos-ui-shared/'.length) + '.ts')) : shellRequire(spec));
     new Function('require', 'module', 'exports', out)(req, mod, mod.exports);
     return mod.exports;
   };

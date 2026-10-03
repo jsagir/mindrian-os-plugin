@@ -3,12 +3,17 @@
 // navigation, the secondary Status surface, the connection banners, ONE live region, and the view outlet.
 // It owns the shell's connection and room state (polled from /api/status and the listRooms and listOpenGates
 // actions) and hands it to its parts and to any view through useShell(). Plan 369-24 replaces the state with
-// the signed session-indicator design; plan 369-23 mounts the browser-copy provider around the outlet.
+// the signed session-indicator design. Plan 369-23 mounts the browser-copy provider around the header, the
+// banners, the view outlet and the Status panel, so each of them can read the copy (useReplica()).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { callAction, feed, ServerUnreachableError } from '../api.ts';
-import { CONNECTION_WORDS } from '../copy.ts';
+import { CONNECTION_WORDS, ROOM_REMOVED } from '../copy.ts';
+import { ActionButton } from '../primitives/ActionButton.tsx';
+import { InlineError } from '../primitives/InlineError.tsx';
 import { LiveRegionProvider, useAnnounce } from '../primitives/LiveRegion.tsx';
+import { ReplicaProvider, useReplica } from '../replica/ReplicaProvider.tsx';
+import { RoomPicker } from '../RoomPicker.tsx';
 import { Banners } from './Banners.tsx';
 import { PrimaryNav } from './PrimaryNav.tsx';
 import { RoomSwitchDialog, useRoomSwitcher } from './RoomSelector.tsx';
@@ -22,6 +27,22 @@ export const STATUS_POLL_MS = 5000;
 type StatusBody = Partial<ShellStatus> & { ok?: boolean };
 type RoomsBody = { ok?: boolean; rooms?: RoomRow[]; current?: string | null };
 type GatesBody = { ok?: boolean; waiting?: number };
+
+// The bound room is no longer on this machine (its browser copy was deleted with it): say so, and offer the list.
+function RoomRemoved() {
+  const [choosing, setChoosing] = useState(false);
+  return (
+    <section className="stack" data-state="room-removed">
+      <InlineError what={ROOM_REMOVED.what} why={ROOM_REMOVED.why} fix="Pick another room to keep working." />
+      {choosing ? <RoomPicker /> : <ActionButton label={ROOM_REMOVED.action} variant="secondary" onClick={() => setChoosing(true)} />}
+    </section>
+  );
+}
+
+function ViewOutlet({ children }: { children: ReactNode }) {
+  const { removed } = useReplica();
+  return <>{removed ? <RoomRemoved /> : children}</>;
+}
 
 function asConnection(value: unknown): Connection {
   return value === 'connected' || value === 'reconnecting' ? value : 'disconnected';
@@ -116,12 +137,14 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
       if (document.visibilityState === 'hidden') return;
       void readStatus();
       void readGates();
+      // The room list is read on the same beat so a room taken off this machine is noticed within one poll.
+      void readRooms();
     }, STATUS_POLL_MS);
     return () => {
       live.current = false;
       clearInterval(timer);
     };
-  }, [refresh, readStatus, readGates]);
+  }, [refresh, readStatus, readGates, readRooms]);
 
   // The room selector asks for a switch through this one function; it owns the leave-a-decision confirmation.
   const switcher = useRoomSwitcher({
@@ -145,19 +168,21 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
 
   return (
     <ShellContext.Provider value={value}>
-      <a className="skip-link" href="#view">
-        Skip to the view
-      </a>
-      <ShellHeader />
-      <PrimaryNav />
-      <Banners />
-      <div className="shell-body">
-        <main id="view" className="shell-view" tabIndex={-1} ref={viewRef} key={roomEpoch}>
-          {children}
-        </main>
-        <StatusPanel />
-      </div>
-      <RoomSwitchDialog switcher={switcher} />
+      <ReplicaProvider>
+        <a className="skip-link" href="#view">
+          Skip to the view
+        </a>
+        <ShellHeader />
+        <PrimaryNav />
+        <Banners />
+        <div className="shell-body">
+          <main id="view" className="shell-view" tabIndex={-1} ref={viewRef} key={roomEpoch}>
+            <ViewOutlet>{children}</ViewOutlet>
+          </main>
+          <StatusPanel />
+        </div>
+        <RoomSwitchDialog switcher={switcher} />
+      </ReplicaProvider>
     </ShellContext.Provider>
   );
 }

@@ -61,3 +61,23 @@ export const NOT_FOUND = {
   why: 'The workspace has five views: Work, Evidence, Decisions, Deliverables and Graph.',
   fix: 'Go back to Work.',
 };
+
+// The browser read copy (plan 369-23, UI-SPEC Status surface, Loading and Error states). The copy is a
+// disposable projection of the room; these are the words the person sees about it.
+export const COPY_STATE_WORDS = {
+  'catching up': 'Catching up',
+  current: 'Current',
+  rebuilding: 'Rebuilding',
+  disconnected: 'Disconnected',
+} as const;
+
+export const COPY_NOT_STARTED = 'Not started';
+
+// Announced through the LiveRegion when the room's change history was compacted or its identity changed and
+// this browser threw its copy away and read the room again.
+export const COPY_TIDIED = 'The room was tidied since your last visit, so this browser is reading it again.';
+
+// First read of a room (UI-SPEC Loading): progress is described, never an indefinite spinner.
+export function readingTheRoom(n: number, total: number | null): string {
+  return total !== null && total > 0 ? 'Reading the room. ' + n + ' of ' + total + ' items copied.' : 'Reading the room. ' + n + ' items so far.';
+}

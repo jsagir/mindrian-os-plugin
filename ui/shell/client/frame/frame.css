@@ -454,6 +454,17 @@
   margin-top: var(--space-lg);
 }
 
+.sp-rebuild {
+  margin-bottom: var(--space-md);
+}
+
+.sp-helper {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+  color: var(--ink-soft);
+}
+
 /* ---------- Room list in the "No room open" view (client/RoomPicker.tsx) ---------- */
 
 .room-list {
