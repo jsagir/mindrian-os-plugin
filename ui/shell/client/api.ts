@@ -58,3 +58,50 @@ export const feed = {
   hintUrl: '/api/feed/hint',
   status: <T = Record<string, unknown>>() => get<T>('/api/status'),
 };
+
+// ---- the decision loop's human proof (plan 369-21; D-15) ----
+//
+// readGate hands the page a single-use render nonce for that gate. It lives in this module's memory
+// (the page's memory) and nowhere else: no cookie, no storage, no URL, never passed to anything but the
+// approveDecision call below. Only a person's click reaches approveDecision; the server accepts it only
+// with the nonce it issued to this browser session for this exact gate.
+
+const renderNonces = new Map<string, string>();
+
+type GateAnswer = Record<string, unknown> & { ok?: boolean; reason?: string; render_nonce?: string };
+
+// Read one gate card and keep its render nonce in page memory. The nonce is not part of what the caller gets back.
+export async function readGate<T extends GateAnswer = GateAnswer>(gateId: string): Promise<ApiResult<T>> {
+  const res = await callAction<T>('readGate', { gate_id: gateId });
+  const body = res.body as GateAnswer;
+  if (body && body.ok !== false && typeof body.render_nonce === 'string') {
+    renderNonces.set(gateId, body.render_nonce);
+    const { render_nonce: _drop, ...rest } = body;
+    return { status: res.status, body: rest as T };
+  }
+  renderNonces.delete(gateId);
+  return res;
+}
+
+// Send the person's decision with the nonce this page was given for that gate. On `human_only` the page
+// re-reads the gate once (a fresh nonce) before the refusal copy shows, so the next click is a valid one.
+export async function approveDecision<T extends GateAnswer = GateAnswer>(
+  gateId: string,
+  chosen: string[],
+  verdict: 'approve' | 'reject' | 'defer',
+): Promise<ApiResult<T>> {
+  const nonce = renderNonces.get(gateId);
+  const input: Record<string, unknown> = { gate_id: gateId, chosen, verdict };
+  if (nonce !== undefined) input.render_nonce = nonce;
+  const res = await callAction<T>('approveDecision', input);
+  const body = res.body as GateAnswer;
+  if (body && body.ok === true) {
+    renderNonces.delete(gateId);
+  } else if (body && body.reason === 'human_only') {
+    renderNonces.delete(gateId);
+    await readGate(gateId);
+  } else if (body && (body.reason === 'unknown_or_expired_gate' || body.reason === 'room_switched')) {
+    renderNonces.delete(gateId);
+  }
+  return res;
+}

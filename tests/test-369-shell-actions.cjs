@@ -305,6 +305,14 @@ async function inProcessArms() {
   const X = authMod.issueSession(store).session;
   const ctx = (principal) => ({ principal, browserSession: X });
   const human = (name, input) => actions.invoke(name, input, ctx('human'));
+  // Plan 369-21 (D-15): the person's click carries the render nonce readGate issued. The nonce is returned with the answer so a replay can reuse it.
+  const approveWith = async (gate_id, chosen, verdict) => {
+    const read = await human('readGate', { gate_id });
+    const render_nonce = read.ok === true ? read.render_nonce : undefined;
+    const answer = await human('approveDecision', { gate_id, chosen, verdict, render_nonce });
+    return { answer, render_nonce };
+  };
+  const approve = async (gate_id, chosen, verdict) => (await approveWith(gate_id, chosen, verdict)).answer;
   let claimId = null;
   let gate1 = null;
   let current = h;
@@ -395,12 +403,16 @@ async function inProcessArms() {
     await arm('5c approveDecision with the recommended option ratifies; the decision node arrives in the next decisions page; a replay is the server answer', async () => {
       const before = await human('feedChanges', { collection: 'decisions' });
       assert.strictEqual(before.ok, true);
-      const answer = await human('approveDecision', { gate_id: gate1, chosen: ['approve'], verdict: 'approve' });
+      const first = await approveWith(gate1, ['approve'], 'approve');
+      const answer = first.answer;
+      let usedNonce = first.render_nonce;
       if (answer.ok === false && answer.reason === 'unknown_or_expired_gate') {
         console.log('  KNOWN: a refused cross-session answer burned the owner gate before the ledger checks (Phase 289 fixes it); using a fresh gate');
         const fresh = await human('askClaude', { selectedNodeId: claimId, question: 'Confirm again?' });
         gate1 = fresh.gate_id;
-        const again = await human('approveDecision', { gate_id: gate1, chosen: ['approve'], verdict: 'approve' });
+        const retry = await approveWith(gate1, ['approve'], 'approve');
+        usedNonce = retry.render_nonce;
+        const again = retry.answer;
         assert.strictEqual(again.ok, true, JSON.stringify(again));
         assert.strictEqual(again.ratified, true, JSON.stringify(again));
       } else {
@@ -411,9 +423,10 @@ async function inProcessArms() {
       assert.strictEqual(after.ok, true, JSON.stringify(after).slice(0, 300));
       const ids = after.changes.map((c) => c.entity_id);
       assert.ok(ids.includes('decision:gate:' + gate1), 'decision node in the next page: ' + ids.join(','));
-      const replay = await human('approveDecision', { gate_id: gate1, chosen: ['approve'], verdict: 'approve' });
+      const replay = await human('approveDecision', { gate_id: gate1, chosen: ['approve'], verdict: 'approve', render_nonce: usedNonce });
       assert.strictEqual(replay.ok, false);
-      assert.strictEqual(replay.reason, 'unknown_or_expired_gate', 'the server answer comes back unchanged');
+      assert.strictEqual(replay.reason, 'human_only', 'a replay with the burned nonce is stopped before any MCP call');
+      assert.strictEqual(replay.detail, 'nonce_used');
       assert.strictEqual(actions.recordedGate(X.mcpKey, gate1), null, 'a consumed gate is dropped from the record');
     });
 
@@ -421,7 +434,7 @@ async function inProcessArms() {
     await arm('5d openRoom to another room while a gate is open answers gate_open; confirmLeave binds and the old gate id is refused', async () => {
       // Clear any gates left open by 5b (the agent-path proposal and a possible fresh one), then mint exactly one.
       for (const g of (await human('listOpenGates', {})).gates) {
-        const a = await human('approveDecision', { gate_id: g.gate_id, chosen: ['defer'], verdict: 'defer' });
+        const a = await approve(g.gate_id, ['defer'], 'defer');
         assert.ok(a.ok === true || a.reason, JSON.stringify(a));
       }
       const left = (await human('listOpenGates', {})).gates;
@@ -442,7 +455,7 @@ async function inProcessArms() {
       assert.strictEqual((await human('roomDoc', {})).room.slug, 'room-y');
       assert.strictEqual((await human('listOpenGates', {})).waiting, 0);
       assert.strictEqual((await human('readGate', { gate_id: gate2 })).reason, 'room_switched');
-      const stale = await human('approveDecision', { gate_id: gate2, chosen: ['approve'], verdict: 'approve' });
+      const stale = await approve(gate2, ['approve'], 'approve');
       assert.strictEqual(stale.reason, 'room_switched', JSON.stringify(stale));
       const inY = await human('feedChanges', { collection: 'decisions' });
       assert.strictEqual(inY.ok, true);
@@ -667,7 +680,10 @@ async function httpArms() {
       assert.strictEqual(agentOnly.status, 403, agentOnly.body);
       assert.strictEqual(json(agentOnly).reason, 'human_only');
       const forged = await post(A, 'approveDecision', { principal: 'agent', gate_id: 'gate-none', chosen: ['approve'], verdict: 'approve' });
-      assert.notStrictEqual(json(forged).reason, 'human_only', 'the browser path is human whatever the body says');
+      // The browser path is human whatever the body says: the action RAN (the nonce check answered, with a detail), it was not refused for its exposure.
+      assert.strictEqual(json(forged).reason, 'human_only');
+      assert.strictEqual(json(forged).detail, 'nonce_missing', forged.body);
+      assert.strictEqual(json(forged).exposure, undefined, 'not an exposure refusal: ' + forged.body);
       assert.strictEqual((await post(A, 'openRoom', { room: '' })).status, 400);
       const bigBody = await request(shellPort, { method: 'POST', path: '/api/actions/listRooms', headers: { cookie: A.cookie, 'x-mos-csrf': A.csrf, origin, 'content-type': 'application/json' }, body: JSON.stringify({ pad: 'x'.repeat(70000) }) });
       assert.strictEqual(bigBody.status, 413);

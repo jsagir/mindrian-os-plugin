@@ -23,7 +23,10 @@
  * Canon Part 9: only a person approves. approveDecision is the one action that reaches
  * the gate-answer tool, and the agent-only proposeDecision mints the gate on the BROWSER session's MCP key
  * (never the adapter's own session) so the person's button is the only thing that can answer it.
- * Plan 369-21 adds the single-use render nonce to readGate and approveDecision.
+ * Plan 369-21 (D-15): readGate issues a single-use render nonce bound to that gate and that browser session;
+ * approveDecision reserves it before any MCP call, releases it when gate_answer refuses or fails, and burns it
+ * only when gate_answer returns ok. The nonce is the proof a browser rendered the gate: session ownership alone
+ * only says which session minted it. See human-origin.ts.
  *
  * Framework-free erasable TypeScript.
  */
@@ -40,6 +43,8 @@ import { getConfig } from './config.ts';
 import { getConnectionStates } from './connection-state.ts';
 import type { ConnectionStates } from './connection-state.ts';
 import { getRelay } from './feed-routes.ts';
+import { createNonceStore } from './human-origin.ts';
+import type { NonceStore } from './human-origin.ts';
 import { ensureBound, forgetRoom, getPool, onSessionExpired, rememberRoom, sessionFor } from './sessions.ts';
 import type { Pool } from './sessions.ts';
 
@@ -88,6 +93,8 @@ export type ShellActionDeps = {
   proposalSource: ProposalSource;
   relay: Relay;
   connection?: ConnectionStates;
+  // The render-nonce store (plan 369-21). One per actions registry unless a caller supplies its own.
+  nonces?: NonceStore;
 };
 
 function asRec(v: unknown): Record<string, unknown> | null {
@@ -123,6 +130,7 @@ const PROPOSAL_REASONS = ['invalid_request', 'room_unavailable', 'no_proposal', 
 
 export function createShellActions(deps: ShellActionDeps) {
   const { pool, proposalSource, relay, connection } = deps;
+  const nonces: NonceStore = deps.nonces ?? createNonceStore();
   const registry = createActionRegistry();
 
   // Gate records, per browser session (pool key), per gate id. A gate is minted on the browser
@@ -154,6 +162,7 @@ export function createShellActions(deps: ShellActionDeps) {
   function sessionRestarted(key: string): void {
     gates.delete(key);
     abandoned.delete(key);
+    nonces.forgetSession(key);
   }
 
   async function ack(key: string): Promise<void> {
@@ -380,7 +389,9 @@ export function createShellActions(deps: ShellActionDeps) {
       if (left) return { ok: false, reason: 'room_switched', room: left };
       return { ok: false, reason: 'unknown_gate' };
     }
-    return { ok: true, gate: { ...card, options: card.options.map((o) => ({ ...o })), evidence_node_ids: card.evidence_node_ids.slice() } };
+    // D-15: the one place a render nonce is issued. readGate is human-only, so the agent path cannot reach it.
+    const render_nonce = nonces.issue({ gateId: card.gate_id, browserSessionId: key });
+    return { ok: true, gate: { ...card, options: card.options.map((o) => ({ ...o })), evidence_node_ids: card.evidence_node_ids.slice() }, render_nonce };
   });
 
   define('listOpenGates', 'human', z.object({}), async (_input, key) => {
@@ -399,21 +410,38 @@ export function createShellActions(deps: ShellActionDeps) {
       gate_id: z.string().min(1).max(200),
       chosen: z.array(z.string().min(1).max(200)).min(1).max(6),
       verdict: z.enum(['approve', 'reject', 'defer']),
+      render_nonce: z.string().max(200).optional(),
     }),
     async (input, key) => {
       const left = abandonedOf(key).get(input.gate_id);
       if (left) return { ok: false, reason: 'room_switched', room: left, gate_id: input.gate_id };
-      const card = gatesOf(key).get(input.gate_id);
-      if (card) {
-        const bound = await boundRoomOf(key);
-        if (bound !== card.room) return { ok: false, reason: 'room_switched', room: card.room, gate_id: input.gate_id };
+      // D-15 check-then-reserve: no MCP call is made unless this browser session was shown this gate
+      // (the nonce) and no other submit holds it. A refusal here never reaches gate_answer.
+      const reserved = nonces.reserve({ nonce: input.render_nonce, gateId: input.gate_id, browserSessionId: key });
+      if (!reserved.ok) return { ok: false, reason: 'human_only', detail: reserved.reason, gate_id: input.gate_id };
+      const nonce = input.render_nonce as string;
+      let burned = false;
+      try {
+        const card = gatesOf(key).get(input.gate_id);
+        if (card) {
+          const bound = await boundRoomOf(key);
+          if (bound !== card.room) return { ok: false, reason: 'room_switched', room: card.room, gate_id: input.gate_id };
+        }
+        const res = await via(key, (call) => gateAnswer(call, { gate_id: input.gate_id, chosen: input.chosen, verdict: input.verdict }));
+        const data = asRec(res.data);
+        if (!data) return { ok: false, reason: 'answer_unreadable', gate_id: input.gate_id };
+        // An answered or expired gate is done; a refused one stays open for the person to retry.
+        if (data.ok === true || data.reason === 'unknown_or_expired_gate') gatesOf(key).delete(input.gate_id);
+        // The nonce is burned only when the room recorded the answer.
+        if (data.ok === true) {
+          nonces.burn(nonce);
+          burned = true;
+        }
+        return data;
+      } finally {
+        // A refusal or a failure leaves the gate answerable after a fresh read: back from in flight.
+        if (!burned) nonces.release(nonce);
       }
-      const res = await via(key, (call) => gateAnswer(call, { gate_id: input.gate_id, chosen: input.chosen, verdict: input.verdict }));
-      const data = asRec(res.data);
-      if (!data) return { ok: false, reason: 'answer_unreadable', gate_id: input.gate_id };
-      // An answered or expired gate is done; a refused one stays open for the person to retry.
-      if (data.ok === true || data.reason === 'unknown_or_expired_gate') gatesOf(key).delete(input.gate_id);
-      return data;
     },
   );
 
@@ -461,6 +489,7 @@ export function createShellActions(deps: ShellActionDeps) {
     forget(mcpKey: string): void {
       gates.delete(mcpKey);
       abandoned.delete(mcpKey);
+      nonces.forgetSession(mcpKey);
     },
   };
 }
