@@ -5,6 +5,13 @@
 // TypeScript and UI packages live in walled packages (tools/*, ui/*) with their own
 // lockfiles, and `tools/` and `ui/` must never reach the tarball.
 //
+// RULING 2026-10-03 (Phase 369 plan 19, RULE 8; 369-BAKEOFF-DECISION.md): the navigator ruled "Next as a
+// per-machine dependency". The shell's runtime framework packages next, react and react-dom are root
+// dependencies, installed per machine by the loader like every other dependency (nothing vendored in the
+// tarball). The wall still holds for everything else: TypeScript, build tools, UI libraries and the
+// browser-side packages stay walled in tools/* and ui/*. Only those three names left the denylist, and
+// scenario 2b pins them to the exact versions in ui/shell/package.json so the two cannot drift.
+//
 // Plain counters, nonzero exit tail (house harness). Exit 77 = npm missing (environment gap).
 'use strict';
 
@@ -46,7 +53,7 @@ function finish() {
 
 // A name is denied if it equals an entry, or starts with it (entries ending in "/" are scopes).
 const DENY = [
-  'typescript', '@types/', 'react', 'react-dom', 'next', 'vite', 'rxdb', 'rxjs', 'dexie',
+  'typescript', '@types/', 'vite', 'rxdb', 'rxjs', 'dexie',
   '@blocknote/', '@agent-native/', 'esbuild', 'tsx', 'ts-node', '@fontsource', 'playwright',
 ];
 function denied(name) {
@@ -77,8 +84,21 @@ scenario('the denylist itself catches a planted package (mutation)', () => {
   assert.ok(denied('typescript'));
   assert.ok(denied('@types/node'));
   assert.ok(denied('@blocknote/core'));
-  assert.ok(denied('react-dom'));
+  assert.ok(denied('rxdb'));
   assert.ok(!denied('express'));
+  // the 2026-10-03 ruling: exactly the shell's framework runtime is allowed at the root
+  assert.ok(!denied('next'));
+});
+
+// ---------- (2b) the ruled exception, pinned ----------
+
+scenario('root dependencies carry exactly next, react and react-dom at the versions ui/shell/package.json pins', () => {
+  const shell = JSON.parse(fs.readFileSync(path.join(REPO, 'ui', 'shell', 'package.json'), 'utf8'));
+  for (const name of ['next', 'react', 'react-dom']) {
+    const want = shell.dependencies[name];
+    assert.ok(/^\d+\.\d+\.\d+$/.test(want), 'ui/shell pins ' + name + ' exactly, got ' + want);
+    assert.strictEqual((ROOT_PKG.dependencies || {})[name], want, 'root ' + name + ' must equal ui/shell ' + want + ' (byte-equal, no caret)');
+  }
 });
 
 // ---------- (3) files array ----------
