@@ -124,7 +124,15 @@ const proposeDecision = defineShellAction({
     const { sessionKey } = ctxOf(context);
     const req = input as { roomSlug: string; selectedNodeId: string; question: string };
     const source: ProposalSource = await makeProposalSource({ sessionKey });
-    const proposal = ProposalSchema.parse(await source.propose(req));
+    let proposal: ReturnType<typeof ProposalSchema.parse>;
+    try {
+      proposal = ProposalSchema.parse(await source.propose(req));
+    } catch (err) {
+      // A source that has nothing to propose says so; the page shows that, not a server error.
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as Error).message) : String(err);
+      const known = message.match(/\b(invalid_request|room_unavailable|no_proposal|proposal_invalid)\b/);
+      return { ok: false, reason: known ? known[1] : 'proposal_failed', detail: message.slice(0, 300) };
+    }
     const options = proposal.verdict_options.map((o, i) => ({
       id: o.id,
       label: o.label,
