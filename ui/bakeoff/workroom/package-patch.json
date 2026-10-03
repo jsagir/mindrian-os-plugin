@@ -1,0 +1,18 @@
+{
+  "note": "Applied by setup.sh to the COPY's package.json after npm ci. Patterns end in * and match dependency names by prefix. The workroom checkout is never touched.",
+  "remove": [
+    "@blocknote/xl-*",
+    "@ai-sdk/*",
+    "ai",
+    "gray-matter"
+  ],
+  "reasons": {
+    "@blocknote/xl-*": "GPL-3.0 exporters (xl-pdf-exporter, xl-docx-exporter): licence contamination, SEED-066, and export.ts (their only importer) is removed",
+    "@ai-sdk/*": "AI SDK providers, pulled in only by the briefing route: a second model path (SEED-067, Canon Part 8)",
+    "ai": "the briefing route's model client (AI Gateway): room content must never leave through a second model path",
+    "gray-matter": "frontmatter parse and rewrite for the direct file reads and writes in rooms.ts, which are replaced by the action layer (D-06)"
+  },
+  "add": {
+    "mos-ui-shared": "file:../../../shared"
+  }
+}

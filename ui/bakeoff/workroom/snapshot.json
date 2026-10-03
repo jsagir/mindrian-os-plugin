@@ -1,0 +1,184 @@
+{
+  "note": "Snapshot of the workroom checkout as copied by setup.sh, before any removal or overlay. The workroom is not under git, so there is no commit: the sha256 per file is the identity. total_lines counts every listed file; ts_tsx_lines counts src TS and TSX only (the figure RESEARCH Pattern 6 measured).",
+  "source": "/home/jsagi/dev/mindrian-workroom",
+  "file_count": 35,
+  "total_lines": 2911,
+  "ts_tsx_lines": 2645,
+  "files": [
+    {
+      "path": "eslint.config.mjs",
+      "lines": 18,
+      "sha256": "870f1adccecf3051cbcd9fd307cef51d7633cf510979c181a81f4b1797273493"
+    },
+    {
+      "path": "next.config.ts",
+      "lines": 9,
+      "sha256": "cf7ad5cbf7773a1649752da9f84616be2593c4bb34a782bb904a3de4594060f4"
+    },
+    {
+      "path": "package.json",
+      "lines": 35,
+      "sha256": "53154de596036f0b310b06fb91ebc6e68eff50c1d1b6de91eba9929268d2f57f"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "lines": 7,
+      "sha256": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde"
+    },
+    {
+      "path": "scripts/graph-sync-worker.cjs",
+      "lines": 27,
+      "sha256": "0cdedb66b0dbee6f34b16af1dc1da312a60c11ead7a2372876c3468e636699e8"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/article/route.ts",
+      "lines": 48,
+      "sha256": "5dc4841238341d0ac82790f69750700a6c0dbc155a7d9cc87aacd1bd71312de1"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/assets/[...file]/route.ts",
+      "lines": 23,
+      "sha256": "5fc18fbb7cc3856677ea98f8db6d48082ebb1c7adb59c6f074114785b70cf6f5"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/assets/route.ts",
+      "lines": 22,
+      "sha256": "fda24d2d753ba7bb8ed4d246dd1911cce4fd41083299aa2487457021c57b589d"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/briefing/route.ts",
+      "lines": 26,
+      "sha256": "fea215d18790975c0b51709af70f0508630d0955a07e490f9a5fc2447e1c2c96"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/raw/[...file]/route.ts",
+      "lines": 29,
+      "sha256": "134e111f1e03ac517f656f1b818ccf44fe2cc6b5f4f2593fc09dd8b832309d1c"
+    },
+    {
+      "path": "src/app/api/rooms/[room]/tree/route.ts",
+      "lines": 14,
+      "sha256": "11ff755bae860695bf1e29a30bfee1ca5f17eca7f2d69fbc231e4227b2e564bf"
+    },
+    {
+      "path": "src/app/api/rooms/route.ts",
+      "lines": 10,
+      "sha256": "ea990d83734d80d4a20998f120fbd386ebcfea4c8620941d21eda3dc22d4e13f"
+    },
+    {
+      "path": "src/app/globals.css",
+      "lines": 125,
+      "sha256": "a4c6f9d6187d8e87a888886fee628a71b73e32b23e931620a2243be222b14420"
+    },
+    {
+      "path": "src/app/icon.svg",
+      "lines": 11,
+      "sha256": "fd0f5b7a052fe8cd699df02336969b8f62b17824673571539473299bf22b089d"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "lines": 49,
+      "sha256": "5fa9286a8d45290296fcd81b4cafbc170995008fca8c409102a2f166f4fa5471"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "lines": 102,
+      "sha256": "58ff4a082c1406378245924eb63ee7788c4e19b24366517e1547a48f8464517f"
+    },
+    {
+      "path": "src/app/room/[room]/cohort/[member]/page.tsx",
+      "lines": 42,
+      "sha256": "fa954b8398190433d13f76378266a209580691b63e5dcad6ee2e3529a8649757"
+    },
+    {
+      "path": "src/app/room/[room]/cohort/page.tsx",
+      "lines": 51,
+      "sha256": "b72418d17c8a9160bb7517190a78ea664c6907d67f8675e36ff7c7cf6e4e11cc"
+    },
+    {
+      "path": "src/app/room/[room]/page.tsx",
+      "lines": 37,
+      "sha256": "15f74d0471bf9d8d9249675eaa15de1201c40e33dbf68379176c1929dae8c4bd"
+    },
+    {
+      "path": "src/components/article-editor.tsx",
+      "lines": 296,
+      "sha256": "82d257e160bfbdfa3066f9466527c3c58d8ddce9e9526d48b935712037b3faa5"
+    },
+    {
+      "path": "src/components/cohort-card.tsx",
+      "lines": 61,
+      "sha256": "b0108681cc6d20da59193bcacebe309ce925d54ca0df1d0934e0adf0c51c8a36"
+    },
+    {
+      "path": "src/components/cohort-member-detail.tsx",
+      "lines": 223,
+      "sha256": "d43bd983843f96df74c4e9f16793dceedd5c1ffc8d91df2c75daf4145d951024"
+    },
+    {
+      "path": "src/components/copy-command.tsx",
+      "lines": 36,
+      "sha256": "fbd239fa8ea11235253ce3b30f24a87f950d6f841fccac5e9280d120a8f85681"
+    },
+    {
+      "path": "src/components/destijl-card.tsx",
+      "lines": 62,
+      "sha256": "c33c03bee3a69d88367b1b2482c17cb95a63fe25b3c0eb4d291f4ddcc089c7ff"
+    },
+    {
+      "path": "src/components/mos-logo.tsx",
+      "lines": 62,
+      "sha256": "a9f464e59bad9837d207b390b03f2ac5c0b7c078ac6dcbc032965454a3f3da4b"
+    },
+    {
+      "path": "src/components/read-only-markdown.tsx",
+      "lines": 43,
+      "sha256": "4ae3bb06919f23d60fd75ea0bcbc2f84f0c39ce4a228dc9fc1e30c79d360075b"
+    },
+    {
+      "path": "src/components/room-home.tsx",
+      "lines": 259,
+      "sha256": "30181aff6b29da553aacdd9fec3abf4054969e03ad1bbc61751425464d043f6a"
+    },
+    {
+      "path": "src/components/workroom.tsx",
+      "lines": 194,
+      "sha256": "a4b98bbe89e3a2705f7fb2ea8a154af30a92363cc2d1e6396c75858b732795eb"
+    },
+    {
+      "path": "src/lib/blocknote-theme.ts",
+      "lines": 26,
+      "sha256": "76a8ec7e27da2f49e7357534e5ade4bedf6ae015b182420532db7e99c3c44f50"
+    },
+    {
+      "path": "src/lib/briefing.ts",
+      "lines": 66,
+      "sha256": "7cba7247889dcd4e2af9a02cba0ad8e6809e3e3875623775a46c9ea0e50cdcf3"
+    },
+    {
+      "path": "src/lib/cohort.ts",
+      "lines": 232,
+      "sha256": "4d549527bfab0e0519cd05cbdde885a19a940bf87a3f3f5ebed1edc3df9080f0"
+    },
+    {
+      "path": "src/lib/export.ts",
+      "lines": 39,
+      "sha256": "4af6eb713d42415c0f3107118adad0894a3b0c9ca24a308d0c9d5f888eb83b51"
+    },
+    {
+      "path": "src/lib/mime.ts",
+      "lines": 22,
+      "sha256": "6187f4914a5ef238d2b115c3d0efa85e53140c9997371569d7707077d98ad96e"
+    },
+    {
+      "path": "src/lib/rooms.ts",
+      "lines": 571,
+      "sha256": "8fcbe32ff87e301e2ede4196bcac8c0139368ff02ad34ab7ec609a585846aba5"
+    },
+    {
+      "path": "tsconfig.json",
+      "lines": 34,
+      "sha256": "5c51df4c59f4510d8c7dadf07a5c32132228826a3b331da5e286207b4df7ef9c"
+    }
+  ]
+}

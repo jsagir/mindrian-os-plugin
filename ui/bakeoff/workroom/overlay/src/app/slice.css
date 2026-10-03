@@ -1,0 +1,13 @@
+/*
+ * The UI-SPEC fallback font stacks (v3 spec :root), used because the bake-off
+ * bundles no font files and loads none from any host. The workroom's
+ * globals.css reads --font-inter and --font-jetbrains-mono, which next/font
+ * used to define; they are defined here instead so the cascade resolves.
+ */
+:root {
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "DM Sans", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-inter: "DM Sans", Arial, sans-serif;
+  --font-jetbrains-mono: "JetBrains Mono", monospace;
+}

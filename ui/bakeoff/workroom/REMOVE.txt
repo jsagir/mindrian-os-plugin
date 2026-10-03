@@ -1,0 +1,27 @@
+# Paths deleted from the transplanted copy (relative to app/), one per line.
+# Format: <path> :: <reason>. Lines starting with # are comments.
+# D-06: every room read and write goes through the action layer over ui/shared;
+# nothing below survives, and nothing is wrapped.
+
+src/lib/rooms.ts :: the workroom's direct ~/MindrianRooms reads and file writes (571 lines of fs); replaced by the MCP session pool through the action layer
+src/lib/cohort.ts :: reads cohort folders from disk through rooms.ts
+src/lib/export.ts :: imports the GPL-3.0 @blocknote/xl-* exporters (SEED-066)
+src/lib/briefing.ts :: calls the AI Gateway with room content: a second model path (SEED-067, Canon Part 8)
+src/lib/mime.ts :: only serves the raw and asset file routes, which are removed
+src/app/api/rooms :: every route here reads or writes room files directly (rooms list, tree, assets, raw)
+src/app/api/rooms/[room]/article/route.ts :: article GET reads a room file and article PUT writes one: a direct-save path (D-06, D-13)
+src/app/api/rooms/[room]/briefing/route.ts :: briefing sends room content to the AI Gateway: a second model path (SEED-067, Part 8)
+src/app/api/rooms/[room]/assets/route.ts :: asset upload writes into the room tree
+src/app/api/rooms/[room]/assets/[...file]/route.ts :: asset read straight from disk
+src/app/api/rooms/[room]/raw/[...file]/route.ts :: raw file read straight from disk
+src/app/api/rooms/[room]/tree/route.ts :: room tree walk on disk
+src/app/api/rooms/route.ts :: rooms list from the registry file on disk
+src/app/room :: room and cohort pages that depend on rooms.ts and cohort.ts
+src/app/page.tsx :: home page lists rooms through rooms.ts (the overlay supplies one that uses the listRooms action)
+src/app/layout.tsx :: imports next/font/google (fetches from a font host at build) and rooms.ts (the overlay supplies one without either)
+src/components/article-editor.tsx :: editable BlockNote with a save route and the xl-* exports (D-13: display only)
+src/components/workroom.tsx :: the editor shell around rooms.ts types
+src/components/room-home.tsx :: dashboard built on rooms.ts types
+src/components/cohort-card.tsx :: cohort view, depends on cohort.ts
+src/components/cohort-member-detail.tsx :: cohort view, depends on cohort.ts
+scripts/graph-sync-worker.cjs :: spawned child that requires plugin graph-ops from disk: a second room write path
