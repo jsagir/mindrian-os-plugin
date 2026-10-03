@@ -3,12 +3,12 @@
   "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
     "tools": 44,
-    "branches": 138,
+    "branches": 139,
     "high_risk": 0,
     "medium": 12,
     "low": 0,
     "unknown": 0,
-    "ok": 126
+    "ok": 127
   },
   "dispositions": [
     {
@@ -287,7 +287,7 @@
     }
   ],
   "refrozen_at": {
-    "commit": "15c5fb63a",
-    "reason": "Re-frozen by plan 369-13 (Phase 369, the two read tools room_changes in lib/mcp/tools/feed.cjs and room_artifact in lib/mcp/tools/artifact-read.cjs). The frozen sweep read 42 tools / 136 branches; with both tools registered with block-bodied handlers the live scan is 44 tools / 138 branches (each tool has no command vocabulary, so it counts as one (default) branch). The two handlers were first expression-bodied arrows, which the sweep cannot read, so they were skipped and the count stayed 42 until commit 15c5fb63a made them block-bodied; both rows now scan OK (description carries a global no-write disclaimer), so no disposition was added for either and HIGH_RISK stays 0. Verdict counts: OK 126, MEDIUM 12, LOW 0, UNKNOWN 0. Every prior disposition below is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit. Earlier freeze (plan 358-10, c50cb7f2e): 41 tools / 135 branches."
+    "commit": "31381c8dc",
+    "reason": "Re-frozen by plan 369-17 (Phase 369). The sweep read 44 tools / 138 branches (plan 369-13, 15c5fb63a); it now reads 44 tools / 139 branches. The branch that moved is methodology.scientific-roadmap in lib/mcp/tool-router.cjs, added by plan 364-08 (commit 31381c8dc, the methodology enum gains scientific-roadmap, ALL_TOOL_COMMANDS 65 to 66); it scans OK (a write primitive is reachable), so no disposition was added and HIGH_RISK stays 0. Plan 369-17's own edit (the ensureWatching call in room_changes in lib/mcp/tools/feed.cjs) did not move the count: room_changes is still one (default) branch. Verdict counts: OK 127, MEDIUM 12, LOW 0, UNKNOWN 0. Every prior disposition below is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit. Earlier freeze (plan 369-13, 15c5fb63a): 44 tools / 138 branches."
   }
 }
