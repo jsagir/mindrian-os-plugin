@@ -76,8 +76,8 @@ All test legs run with HOME and MINDRIAN_ROOMS_HOME set to `mktemp -d` sandboxes
 | SRM364-19 | rubric labelled plugin-side; "uncovered" on thin answer | unit | `node tests/test-364-sr-door.cjs` | no - W0 | pending |
 | SRM364-20 | THEO-NOTIFY doc names slug, frameworks, chain, alias row, counts; no file under /home/jsagi/Theo written | static | `node tests/test-364-theo-handoff.cjs` | no - W0 | pending |
 | SRM364-21 | aggregator green, gates, doctor | phase gate | `bash tests/run-all-364.sh` and `node scripts/doctor.cjs --acceptance` | no - W0 | pending |
-| SRM364-22 | stamped finding enters at step 6, verbatim stamp, no upgrade, no score, carried into the door, read-only | unit + integration over 355-writer fixture rooms | `node tests/test-364-compose-355.cjs` | no - 364-14 | pending |
-| SRM364-23 | eureka next segue and live chain adapter name /mos:scientific-roadmap through the registry door, no hardcoded slug | unit + static | `node tests/test-364-compose-355.cjs` | no - 364-14 | pending |
+| SRM364-22 | stamped finding enters at step 6, verbatim stamp, no upgrade, no score, carried into the door, read-only | unit + integration over 355-writer fixture rooms | `node tests/test-364-compose-355.cjs` | no - 364-14 | green |
+| SRM364-23 | eureka next segue and live chain adapter name /mos:scientific-roadmap through the registry door, no hardcoded slug | unit + static | `node tests/test-364-compose-355.cjs` | no - 364-14 | green |
 
 ## Wave 0 Requirements
 
