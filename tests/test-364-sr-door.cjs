@@ -45,7 +45,7 @@ const fixtures = require(path.join(REPO_ROOT, 'tests/helpers/fixture-door-364.cj
 const roomFixture = require(path.join(REPO_ROOT, 'tests/helpers/fixture-room-364.cjs'));
 
 const ROOT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-364-door-'));
-const NO_DASH = /[—–]/;
+const NO_DASH = /[\u2014\u2013]/;
 const REFUSAL = 'Theo has not authored this step yet';
 const FORBIDDEN = ['srStepGuide', 'LOCAL_STEP_TEMPLATE', 'structureFor', 'research-corpus', 'research-cache', 'rs-fetcher',
   'audit-ledger', 'grants.cjs', 'quick.cjs', 'deep.cjs', 'families.cjs', 'evidence-rows', 'brain-client', 'fetch(',

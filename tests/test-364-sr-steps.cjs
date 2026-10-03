@@ -57,7 +57,7 @@ function makeFake(map) {
   };
 }
 
-const NO_DASH = /[—–]/;
+const NO_DASH = /[\u2014\u2013]/;
 
 async function main() {
   let mod = null;

@@ -41,7 +41,7 @@ const C = hygiene.makeChecker('test-364-registry-gates');
 const CMD = '/mos:scientific-roadmap';
 const SR = 'Scientific Roadmapping';
 const HDPS = 'Hypothesis-Driven Problem Solving';
-const NO_DASH = /[—–]/;
+const NO_DASH = /[\u2014\u2013]/;
 
 function readJson(rel) { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8')); }
 function run(script, args) {

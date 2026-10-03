@@ -44,7 +44,7 @@ const fixture = require(path.join(REPO_ROOT, 'tests/helpers/fixture-room-364.cjs
 const { buildEntryRoom, ENTRY_STATES, MARKER } = fixture;
 
 const ROOT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-364-entry-'));
-const NO_DASH = /[—–]/;
+const NO_DASH = /[\u2014\u2013]/;
 
 function sha(file) { return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
 
