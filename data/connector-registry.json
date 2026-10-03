@@ -1157,6 +1157,21 @@
       "decision_surface": "F.2"
     },
     {
+      "surface": "/mos:scientific-roadmap",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "scientific-roadmap",
+      "framework": "Scientific Roadmapping",
+      "posture": "hold",
+      "hierarchy_rank": 6,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:score-innovation",
       "source": "command",
       "connects_to_spine": true,
@@ -2518,6 +2533,21 @@
       "decision_surface": "F.2"
     },
     {
+      "surface": "skill:scientific-roadmap",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "scientific-roadmap",
+      "framework": "Scientific Roadmapping",
+      "posture": "hold",
+      "hierarchy_rank": 6,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "skill:score-innovation",
       "source": "skill",
       "connects_to_spine": true,
@@ -3823,6 +3853,10 @@
       "/mos:research",
       "skill:research",
       "agent:research"
+    ],
+    "Scientific Roadmapping": [
+      "/mos:scientific-roadmap",
+      "skill:scientific-roadmap"
     ],
     "Trending to the Absurd": [
       "/mos:trending-to-absurd",

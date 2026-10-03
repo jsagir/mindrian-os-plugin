@@ -1829,6 +1829,29 @@
       "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
     },
     {
+      "command": "/mos:scientific-roadmap",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null,
+      "frameworks": [
+        "Scientific Roadmapping",
+        "Hypothesis-Driven Problem Solving"
+      ],
+      "produces": "room/research-plan/*",
+      "executable": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "methodology",
+      "layer": "loop",
+      "serves_jtbd": [
+        "find-bottleneck",
+        "validate-idea"
+      ],
+      "teaching": "When you know what must be delivered but not how, /mos:scientific-roadmap walks Theo's Scientific Roadmapping steps to find the limits that are only assumed, ranks them by what they unlock, and hands the top ones to /mos:research as falsifiable hypotheses.",
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+    },
+    {
       "command": "/mos:score-innovation",
       "kind": "methodology",
       "surface": "navigator",
@@ -2410,7 +2433,11 @@
       "/mos:mullins"
     ],
     "Hypothesis-Driven Problem Solving": [
-      "/mos:research"
+      "/mos:research",
+      "/mos:scientific-roadmap"
+    ],
+    "Scientific Roadmapping": [
+      "/mos:scientific-roadmap"
     ],
     "MECE (Mutually Exclusive, Collectively Exhaustive)": [
       "/mos:structure-argument"
@@ -2566,6 +2593,20 @@
       "to": "Trending to the Absurd",
       "confidence": 0.64,
       "transform": "domain-to-trends"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:scientific-roadmap",
+      "to": "command:/mos:research",
+      "confidence": 0.7,
+      "transform": "limiter-to-hypothesis"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:scientific-roadmap",
+      "to": "command:/mos:find-analogies",
+      "confidence": 0.5,
+      "transform": "limiter-to-analogy"
     }
   ]
 }
