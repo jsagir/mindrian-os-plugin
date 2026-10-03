@@ -1,0 +1,17 @@
+{
+  "schema": "mindrian.menu-fence.allowlist.v1",
+  "decided": "2026-10-03, Phase 289 plan 03, from the planning scan at HEAD d511f4c04",
+  "rule": "A hit in a command that already allows AskUserQuestion is converted, never listed. An entry is only for a line that is not a menu: a prohibition, a pointer to the gate, a text floor. Matching is by file plus a substring of the hit line, so a line shift does not break an entry. An entry that matches no failing hit is stale and fails the fence.",
+  "entries": [
+    {
+      "file": "commands/ignite.md",
+      "match": "You may NOT render the gate as an ASCII box",
+      "reason": "A prohibition: the line forbids the typed-number ASCII menu and tells the model to fire the card instead."
+    },
+    {
+      "file": "commands/systems-thinking.md",
+      "match": "let the navigator choose to cross",
+      "reason": "Names the Decision Gate line that already renders through gate_render; it is a pointer to the gate, not a prose menu."
+    }
+  ]
+}
