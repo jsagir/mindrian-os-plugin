@@ -14,8 +14,8 @@ const assert = require('assert');
 const ROOT = path.join(__dirname, '..');
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
-const EM = '—';
-const EN = '–';
+const EM = String.fromCharCode(0x2014);
+const EN = String.fromCharCode(0x2013);
 
 let passed = 0;
 let failed = 0;
