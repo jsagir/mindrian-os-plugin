@@ -3,6 +3,7 @@
 # This aggregator is written ONCE (plan 364-01); later plans never edit it, so
 # every planned 364 test is named here now and guarded with run_if (a
 # not-yet-landed leg reports SKIPPED (missing ...), never FAILED).
+# Exception: gap plan 364-14 (navigator ruling 2026-10-03, compose with Phases 355 and 355.1) adds the one leg "364 compose 355".
 #
 # Modeled on tests/run-all-366.sh (run / run_if / run_known_if counters).
 # Hyphens only: no em-dash, no en-dash anywhere in this file.
@@ -91,6 +92,7 @@ run_if "364 refusal not_scored"        tests/test-364-refusal-not-scored.cjs    
 run_if "364 sr steps"                  tests/test-364-sr-steps.cjs              node tests/test-364-sr-steps.cjs
 run_if "364 sr entry"                  tests/test-364-sr-entry.cjs              node tests/test-364-sr-entry.cjs
 run_if "364 sr door"                   tests/test-364-sr-door.cjs               node tests/test-364-sr-door.cjs
+run_if "364 compose 355"                tests/test-364-compose-355.cjs           node tests/test-364-compose-355.cjs
 run_if "364 filing"                    tests/test-364-filing.cjs                node tests/test-364-filing.cjs
 run_if "364 command contract"          tests/test-364-command-contract.cjs      node tests/test-364-command-contract.cjs
 run_if "364 registry gates"            tests/test-364-registry-gates.cjs        node tests/test-364-registry-gates.cjs
