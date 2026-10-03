@@ -28,6 +28,7 @@ const MAX_DELTA_HOPS = 500;
 type Page = Record<string, unknown> & {
   ok?: boolean;
   reason?: string;
+  room?: string;
   epoch?: string | null;
   floor?: number;
   changes?: ChangeRow[];
@@ -54,7 +55,8 @@ export type FeedFetcher = {
   reset: () => void;
 };
 
-export function createFeedFetcher(options: { epoch: string | null }): FeedFetcher {
+// `room` is the room this copy belongs to: a page the server answers for another room is refused, never stored.
+export function createFeedFetcher(options: { epoch: string | null; room?: string }): FeedFetcher {
   const reached = new Map<CollectionName, number>();
   const listeners = new Set<() => void>();
   let snapshotRows = 0;
@@ -71,6 +73,10 @@ export function createFeedFetcher(options: { epoch: string | null }): FeedFetche
     notify();
   }
 
+  function wrongRoom(page: Page): boolean {
+    return options.room !== undefined && typeof page.room === 'string' && page.room !== options.room;
+  }
+
   function resetAnswer(reason: string, page: Page): FeedAnswer {
     return {
       ok: false,
@@ -84,6 +90,7 @@ export function createFeedFetcher(options: { epoch: string | null }): FeedFetche
     const res = await feed.room<Page>();
     const body = res.body;
     if (res.status !== 200 || body.ok === false) return { ok: false, reason: String(body.reason || 'feed_unavailable') };
+    if (wrongRoom(body)) return { ok: false, reason: 'room_mismatch' };
     if (typeof body.epoch === 'string' && options.epoch !== null && body.epoch !== options.epoch) {
       return resetAnswer('epoch_changed', body);
     }
@@ -100,6 +107,7 @@ export function createFeedFetcher(options: { epoch: string | null }): FeedFetche
       const res = await feed.changes<Page>({ collection, mode: 'snapshot', limit: SNAPSHOT_PAGE, cursor });
       const body = res.body;
       if (res.status !== 200 || body.ok === false) return { ok: false, reason: String(body.reason || 'feed_unavailable') };
+      if (wrongRoom(body)) return { ok: false, reason: 'room_mismatch' };
       epoch = typeof body.epoch === 'string' ? body.epoch : null;
       if (typeof body.as_of_seq === 'number' && asOf === 0) asOf = body.as_of_seq;
       const page = body.docs || [];
@@ -137,6 +145,7 @@ export function createFeedFetcher(options: { epoch: string | null }): FeedFetche
       }
       if (body.ok === false && body.reason === 'change_log_absent') return resetAnswer('epoch_changed', body);
       if (res.status !== 200 || body.ok === false) return { ok: false, reason: String(body.reason || 'feed_unavailable') };
+      if (wrongRoom(body)) return { ok: false, reason: 'room_mismatch' };
       if (typeof body.epoch === 'string') epoch = body.epoch;
       for (const c of body.changes || []) changes.push(c);
       if (typeof body.through === 'number') after = body.through;

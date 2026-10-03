@@ -157,9 +157,12 @@ export function createFeedRelay(options: FeedRelayOptions) {
 
     async function pollOnce(): Promise<void> {
       if (stopped) return;
-      // latest_seq is the room-wide head, so any one collection answers it.
-      const r = await pageChanges(sessionKey, { collection: 'nodes', limit: 1 });
-      const latest = r && typeof r.latest_seq === 'number' ? (r.latest_seq as number) : null;
+      // The room-wide head, read from a one-row SNAPSHOT page (as_of_seq): a delta read from seq 0 answers
+      // checkpoint_expired once the change log was compacted, with no latest_seq, which would silence this
+      // safety net exactly when a copy is far behind. latest_seq stays accepted for a delta-shaped answer.
+      const r = await pageChanges(sessionKey, { collection: 'nodes', limit: 1, mode: 'snapshot' });
+      const head = r && typeof r.as_of_seq === 'number' ? r.as_of_seq : r && typeof r.latest_seq === 'number' ? r.latest_seq : null;
+      const latest = typeof head === 'number' ? head : null;
       if (latest === null) return;
       if (lastSeq !== null && latest > lastSeq) {
         lastSeq = latest;

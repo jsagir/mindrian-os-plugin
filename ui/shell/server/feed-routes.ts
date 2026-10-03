@@ -97,11 +97,15 @@ export async function handleFeedRoom(deps: { actions: ShellActions; browserSessi
   const ctx = human(deps.browserSession);
   const doc = await deps.actions.invoke('roomDoc', {}, ctx);
   if (doc.ok === false) return { status: statusFor(doc), body: doc };
-  const head = await deps.actions.invoke('feedChanges', { collection: 'nodes', limit: 1 }, ctx);
+  // The head (epoch and latest seq) comes from a one-row SNAPSHOT page, not a delta page: a delta read from
+  // seq 0 answers checkpoint_expired once the change log has been compacted (floor above 0), which would make
+  // the room document itself unreadable exactly when a browser copy has to rebuild. A snapshot page never
+  // consults the floor and carries the epoch and as_of_seq (the log's latest seq) in every case.
+  const head = await deps.actions.invoke('feedChanges', { collection: 'nodes', mode: 'snapshot', limit: 1 }, ctx);
   if (head.ok === false) return { status: statusFor(head), body: head };
   const room = doc.room as Record<string, unknown>;
   const epoch = typeof head.epoch === 'string' ? head.epoch : null;
-  const seq = typeof head.latest_seq === 'number' ? head.latest_seq : 0;
+  const seq = typeof head.as_of_seq === 'number' ? head.as_of_seq : 0;
   const row = {
     seq,
     entity_type: 'room',

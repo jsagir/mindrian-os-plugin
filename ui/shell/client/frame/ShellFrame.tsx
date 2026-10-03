@@ -100,10 +100,14 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
     }
   }, [announce]);
 
+  const roomsRead = useRef(0);
   const readRooms = useCallback(async () => {
+    // Only the most recently started read may apply its answer: a slow answer that was asked before a room switch
+    // must not put the old room back as the open one (the browser copy follows `current`).
+    const mine = ++roomsRead.current;
     try {
       const res = await callAction<RoomsBody>('listRooms');
-      if (!live.current) return;
+      if (!live.current || mine !== roomsRead.current) return;
       if (res.body.ok === false || !Array.isArray(res.body.rooms)) {
         setRoomsState('failed');
         return;
@@ -112,7 +116,7 @@ function Frame({ port, pathname, children }: { port: number; pathname: string; c
       setCurrent(res.body.current ?? null);
       setRoomsState('ready');
     } catch {
-      if (live.current) setRoomsState('failed');
+      if (live.current && mine === roomsRead.current) setRoomsState('failed');
     }
   }, []);
 

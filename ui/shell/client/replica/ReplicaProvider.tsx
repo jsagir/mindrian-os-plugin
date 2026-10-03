@@ -70,6 +70,7 @@ const CHANNEL = 'mos-replica';
 // to "catching up" when the work outlasts this many milliseconds. Becoming current is always shown at once.
 const CATCHING_UP_DELAY_MS = 300;
 const ROOM_RETRY_MS = 1000;
+const OPEN_RETRY_MS = 3000;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -120,8 +121,11 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
   announceRef.current = announce;
 
   // One queue for every open, close and purge: the previous room's copy is closed before the next opens.
-  const enqueue = useCallback((job: () => Promise<void>): Promise<unknown> => {
-    chain.current = chain.current.then(job).catch(() => {});
+  const enqueue = useCallback((job: () => Promise<void>, onError?: () => void): Promise<unknown> => {
+    chain.current = chain.current.then(job).catch((err) => {
+      console.error('browser copy job failed', err);
+      if (onError) onError();
+    });
     return chain.current;
   }, []);
 
@@ -170,6 +174,7 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
     }
     const roomKey = current;
     let cancelled = false;
+    let retry: ReturnType<typeof setTimeout> | null = null;
     const cleanups: Array<() => void> = [];
     setState(rebuilding.current ? 'rebuilding' : 'catching up');
     stateRef.current = rebuilding.current ? 'rebuilding' : 'catching up';
@@ -186,7 +191,14 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
       for (;;) {
         if (cancelled) return;
         try {
-          const res = await feed.room<{ ok?: boolean; epoch?: string | null; documents?: Array<{ counts?: Record<string, unknown> }> }>();
+          const res = await feed.room<{ ok?: boolean; room?: string; epoch?: string | null; documents?: Array<{ counts?: Record<string, unknown> }> }>();
+          // The server is the authority on which room it is serving. If this page's idea of the open room is
+          // behind or ahead of it (a slow list answer landing late), do not file one room's rows under another
+          // room's name: wait and read again until they agree.
+          if (res.status === 200 && res.body.ok !== false && typeof res.body.room === 'string' && res.body.room !== roomKey) {
+            await sleep(ROOM_RETRY_MS);
+            continue;
+          }
           if (res.status === 200 && res.body.ok !== false) {
             epoch = typeof res.body.epoch === 'string' ? res.body.epoch : null;
             const c = res.body.documents?.[0]?.counts;
@@ -207,7 +219,7 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
       await removeStoredCopies((copy) => copy !== keep && parseDbName(copy)?.room === mine);
       if (cancelled) return;
 
-      const feeder = createFeedFetcher({ epoch });
+      const feeder = createFeedFetcher({ epoch, room: roomKey });
       const replica = await openReplica({
         roomKey,
         epoch: epoch ?? '',
@@ -346,10 +358,15 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
         if (countTimer) clearTimeout(countTimer);
         if (timer) clearTimeout(timer);
       });
+    }, () => {
+      // Opening the copy failed (storage unavailable or refused): try again shortly instead of staying on
+      // "catching up" for ever. The page keeps working without a copy meanwhile.
+      if (!cancelled) retry = setTimeout(bumpGeneration, OPEN_RETRY_MS);
     });
 
     return () => {
       cancelled = true;
+      if (retry) clearTimeout(retry);
       for (const fn of cleanups.splice(0)) fn();
       void enqueue(closeCurrent);
     };
