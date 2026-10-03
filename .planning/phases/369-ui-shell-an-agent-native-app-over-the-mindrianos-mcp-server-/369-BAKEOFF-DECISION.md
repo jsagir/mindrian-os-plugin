@@ -32,3 +32,35 @@ Server entry: the built `server.js` of the Next standalone output, started with 
 CSP: a nonce or hash policy is needed and has NOT been exercised. The UI-SPEC contract policy (`default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'`) applied verbatim stopped the workroom document from rendering at all (inline hydration scripts blocked by `default-src 'self'`: 4 script-src-elem violations plus 1 style-src-attr). With scripts allowed in a labelled measurement-only run, the read-only document text renders and `style-src 'self'` still records 12 violations (11 inline style elements, 1 style attribute) from BlockNote's UI primitives. A nonce or hash covers style and script elements; a style attribute is governed separately (`style-src-attr`) and a nonce does not cover it, so the one attribute violation needs removing or a hash with `'unsafe-hashes'`. The shell server uses a per-response nonce on its own inline script and style elements; `'unsafe-inline'` is never allowed without a navigator ruling.
 
 Measured baseline: workroom, one run each, for the counter-metrics. Gate click to confirmation shown 112 ms; Confirm to the decision appearing in the replica-fed list 171 ms; `room.changed` hint 92 ms after the click; `change_seq` 5 to 14; steady-state one external write to the evidence view 147 ms; time to the live feed on first load 597 ms; first paint median 68 ms (3 loads, from a temp-dir copy); startup errors 1 (one uncaught page error with no message, 0 server error events); persistent state 15 items (1 cookie, 14 IndexedDB databases, 0 server files). Reconnect after a daemon restart: NOT recovered as built (6 of 6 claims missing after 30 s, a reload recovered all 6); the target after transplant 1 is agent-native's measured 315 ms to show all 6 with no reload.
+
+## Ruling 2026-10-03 (RULE 8, plan 19)
+
+Plan 19 measured the condition this record left open ("RULE 8 condition NOT yet met"): the Next standalone output of `ui/shell` is 1,139 files and 34.3 MB, of which 1,014 files are a traced `node_modules` tree of 13 top-level packages, none in the root manifest (next, react, react-dom, styled-jsx, semver, client-only, detect-libc, sharp, @img/colour, two @img/sharp binaries, @next/env, @swc/helpers). A time-boxed esbuild bundling experiment started the server with no tree but failed on the first request, because Turbopack's generated chunks `require('next/dist/...')` at run time. The matter went to the navigator through the orchestrator's AskUserQuestion card.
+
+Reply, verbatim:
+
+> Next as a per-machine dependency
+
+Meaning, as applied: the shell's runtime framework packages are ROOT dependencies installed per machine by the loader like every other dependency (nothing vendored in the tarball, so RULE 8 holds). The standalone output ships WITHOUT its `node_modules` tree, and `server.js` resolves `next` and `react` from the plugin root's `node_modules`.
+
+Rejected options: (1) an express server over a static export of the Next UI (the alternative this record named); (2) an esbuild bundling post-step with chunk rewriting.
+
+Scope of the exception (orchestrator ruling under this reply): `tests/test-369-walled-manifest.cjs` codified D-17's "no UI package at the root"; the ruling opens it for exactly the framework runtime and nothing else. Only `next`, `react` and `react-dom` left its denylist (13 entries stay: typescript, @types/, vite, rxdb, rxjs, dexie, @blocknote/, @agent-native/, esbuild, tsx, ts-node, @fontsource, playwright), and a new scenario pins the three root versions byte-equal to `ui/shell/package.json`.
+
+Final root dependency list added (exact pins, `dependencies`, no caret): `next` 16.2.10, `react` 19.2.4, `react-dom` 19.2.4. Minimal by behaviour: with only these three (and the 12 packages they pull in: @next/env, @swc/helpers, styled-jsx, client-only, scheduler, postcss, picocolors, nanoid, source-map-js, caniuse-lite, baseline-browser-mapping, tslib) the stripped standalone output started clean ("Ready in 0ms", no warning), answered 200 on `/`, completed the bootstrap sign-in exchange and served a static chunk. It ran WITHOUT sharp and without the SWC binary (both are optional dependencies of next). `images.unoptimized` has no effect on the file trace (tried: still 1,139 files, sharp still traced). The stripped output is 125 files, 2.1 MB.
+
+Install-size delta, measured on this machine (linux aarch64, Node 22.23.1, npm ci in temp copies of the manifest and shrinkwrap, same command the loader runs, `npm ci --ignore-scripts`, no `--omit`):
+
+| | node_modules size | top-level entries | packages installed |
+|---|---|---|---|
+| before (root manifest at HEAD) | 51M (34,862,704 bytes) | 115 | 120 |
+| after (plus next, react, react-dom) | 511M (486,359,536 bytes) | 134 | 144 |
+| delta | +460M | +19 | +24 |
+
+Of the delta, the platform SWC binaries are 120M each and `npm ci` installed BOTH `@next/swc-linux-arm64-gnu` and `@next/swc-linux-arm64-musl` (240M), and `@img` (sharp and libvips) is 34M. Earlier scratch installs of just the three packages, before the shrinkwrap was regenerated: 188M (15 packages) with `--omit=optional`, 325M (22 packages) with optional dependencies via `npm install`. The ceiling in RULE 8 (20,000 entries, 256 MiB) governs the tarball, which is unaffected (the tarball ships no node_modules and no ui/ path); the per-machine install is what grows.
+
+Follow-on for plan 28 (not changed here): because the runtime starts without sharp and without the SWC binary, a loader `--omit=optional` for these packages would cut most of the +460M. The loader is not touched by plan 19.
+
+Plan 28 carries the CHANGELOG line and the RULE 5 / RULE 8 wording (`docs/RELEASE-CEREMONY-RULING-SYSTEM.md`) for this exception.
+
+Also recorded: files outside plan 19's `files_modified` that this ruling changed: `package.json`, `npm-shrinkwrap.json`, `tests/test-369-walled-manifest.cjs`, `ui/shell/scripts/postbuild.mjs` (strips the tree) and this record. `package-lock.json` at the repo root is stale (version beta.30, not maintained between releases) and was left alone; the release's `npm shrinkwrap` step regenerates the shrinkwrap.
