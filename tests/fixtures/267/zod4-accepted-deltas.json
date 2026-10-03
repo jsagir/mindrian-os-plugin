@@ -356,6 +356,24 @@
         "."
       ],
       "note": "not a zod delta: research_run was registered after the zod 3 snapshot (363-17; perspective ops added by 366-12), so it has no zod 3 baseline to diff; its live schema is pinned in wire-snapshot-zod4.json (267-11). Pinned in the post-366 combined baseline refresh (366-24)."
+    },
+    {
+      "kind": "tool",
+      "name": "room_changes",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Phase 369 plan 13 added this tool after the zod 3 snapshot; a membership delta, not a zod delta (366-24 research_run precedent)"
+    },
+    {
+      "kind": "tool",
+      "name": "room_artifact",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Phase 369 plan 13 added this tool after the zod 3 snapshot; a membership delta, not a zod delta (366-24 research_run precedent)"
     }
   ],
   "app_views_schema_fix": [

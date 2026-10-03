@@ -348,16 +348,43 @@ const AFTER_270_12 = {
  *   signed pctChange(48712, 50502) = 3.67 percent against the recorded AFTER,
  *     inside DRIFT_TOLERANCE_PCT; the baseline below is NOT moved.
  */
+/*
+ * Plan 369-13 (Phase 369, D-18 and D-13) -- re-baseline for the two new MCP
+ * read tools this plan adds, room_changes (lib/mcp/tools/feed.cjs, the change
+ * feed the shell reads) and room_artifact (lib/mcp/tools/artifact-read.cjs, one
+ * artifact's markdown for the read-only display). Same protocol as the 363-17
+ * block above: measure live with this file's own measure(), record the numbers,
+ * name the percentage.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs) with and without
+ * the two tools in the same tree:
+ *   before 369-13: 45 tools, 20889 desc bytes, 30310 schema bytes,
+ *     51199 total bytes, ~12800 approx tokens (router 9 / atomic 36).
+ *   after 369-13:  47 tools, 21447 desc bytes, 31643 schema bytes,
+ *     53090 total bytes, ~13273 approx tokens (router 9 / atomic 38).
+ *   each tool's own cost: room_changes 368 desc + 946 schema = 1314 bytes;
+ *     room_artifact 190 desc + 387 schema = 577 bytes; together +558 desc,
+ *     +1333 schema, +1891 total bytes; signed pctChange(51199, 53090) = 3.69
+ *     percent (the two tools' true budget effect, and the figure the commit
+ *     message names).
+ *   against the previous recorded AFTER (363-17, totalBytes 48712): signed
+ *     pctChange(48712, 53090) = 8.99 percent, inside DRIFT_TOLERANCE_PCT
+ *     (which stays 10, not relaxed). The tree measured 51199 bytes just before
+ *     this plan, so 2487 bytes of that gap is earlier drift on existing tools
+ *     from 366 and peer plans (the 366-12 block above recorded 50502), kept
+ *     here in plain sight rather than absorbed. AFTER moves because toolCount
+ *     changed 45 -> 47, which this file's first check requires to be exact.
+ */
 const AFTER = {
-  measuredAt: '2026-09-30',
-  plan: '363-17',
-  toolCount: 45,
-  totalDescBytes: 19892,
-  totalSchemaBytes: 28820,
-  totalBytes: 48712,
-  approxTokens: 12178,
+  measuredAt: '2026-10-03',
+  plan: '369-13',
+  toolCount: 47,
+  totalDescBytes: 21447,
+  totalSchemaBytes: 31643,
+  totalBytes: 53090,
+  approxTokens: 13273,
   routerCount: 9,
-  atomicCount: 36,
+  atomicCount: 38,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget

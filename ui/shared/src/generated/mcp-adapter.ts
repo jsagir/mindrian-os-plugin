@@ -1,6 +1,6 @@
 /*
  * GENERATED FILE. DO NOT EDIT.
- * Source: tests/fixtures/267/wire-snapshot-zod4.json (local.tools, 45 tools).
+ * Source: tests/fixtures/267/wire-snapshot-zod4.json (local.tools, 47 tools).
  * Regenerate: node ui/shared/scripts/gen-mcp-adapter.mjs
  * Verify:     node ui/shared/scripts/gen-mcp-adapter.mjs --check
  *
@@ -45,7 +45,9 @@ export const MCP_TOOL_NAMES = [
   "room-dashboard",
   "room-graph",
   "room-wiki",
+  "room_artifact",
   "room_bind",
+  "room_changes",
   "room_content",
   "room_graph",
   "room_list",
@@ -418,6 +420,15 @@ export function roomWiki(call: CallTool, args: RoomWikiArgs): Promise<unknown> {
   return call("room-wiki", args as Record<string, unknown>);
 }
 
+export type RoomArtifactArgs = {
+  "max_bytes"?: number;
+  "path": string;
+};
+
+export function roomArtifact(call: CallTool, args: RoomArtifactArgs): Promise<unknown> {
+  return call("room_artifact", args as Record<string, unknown>);
+}
+
 export type RoomBindArgs = {
   "room"?: string;
   "sessionId"?: string;
@@ -425,6 +436,19 @@ export type RoomBindArgs = {
 
 export function roomBind(call: CallTool, args: RoomBindArgs): Promise<unknown> {
   return call("room_bind", args as Record<string, unknown>);
+}
+
+export type RoomChangesArgs = {
+  "after"?: number | null;
+  "collection": "nodes" | "relations" | "artifacts" | "decisions" | "activity";
+  "epoch"?: string | null;
+  "limit"?: number;
+  "mode"?: "delta" | "snapshot";
+  "snapshot_cursor"?: string;
+};
+
+export function roomChanges(call: CallTool, args: RoomChangesArgs): Promise<unknown> {
+  return call("room_changes", args as Record<string, unknown>);
 }
 
 export type RoomContentArgs = {

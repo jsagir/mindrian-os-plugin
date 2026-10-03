@@ -2,13 +2,13 @@
   "schema_version": 1,
   "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
-    "tools": 42,
-    "branches": 136,
+    "tools": 44,
+    "branches": 138,
     "high_risk": 0,
     "medium": 12,
     "low": 0,
     "unknown": 0,
-    "ok": 124
+    "ok": 126
   },
   "dispositions": [
     {
@@ -287,7 +287,7 @@
     }
   ],
   "refrozen_at": {
-    "commit": "c50cb7f2e",
-    "reason": "Re-frozen by plan 358-10 (Phase 358 B2, born-wired close-out; the same navigator ruling 358-05 cited applies here to plan 358-09's own substrate commit). The 358-05 freeze at bdf77d1ee (39 tools / 133 branches) was invalidated by plan 358-09 adding question_read and question_set (lib/mcp/tools/question.cjs); the live scan is now 41 tools / 135 branches. question_read and question_set rows are both OK (verdict OK: no persistence claim found for this command / a write primitive is reachable), so no disposition was added for either. Every prior disposition below was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit and still resolves to its recorded expected_final_verdict. HIGH_RISK is 0."
+    "commit": "15c5fb63a",
+    "reason": "Re-frozen by plan 369-13 (Phase 369, the two read tools room_changes in lib/mcp/tools/feed.cjs and room_artifact in lib/mcp/tools/artifact-read.cjs). The frozen sweep read 42 tools / 136 branches; with both tools registered with block-bodied handlers the live scan is 44 tools / 138 branches (each tool has no command vocabulary, so it counts as one (default) branch). The two handlers were first expression-bodied arrows, which the sweep cannot read, so they were skipped and the count stayed 42 until commit 15c5fb63a made them block-bodied; both rows now scan OK (description carries a global no-write disclaimer), so no disposition was added for either and HIGH_RISK stays 0. Verdict counts: OK 126, MEDIUM 12, LOW 0, UNKNOWN 0. Every prior disposition below is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs at this commit. Earlier freeze (plan 358-10, c50cb7f2e): 41 tools / 135 branches."
   }
 }
