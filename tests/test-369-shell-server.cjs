@@ -391,6 +391,8 @@ scenario('static: the cookie, CSRF and fetch-metadata rules are in auth.ts; the 
 
 const BUILT = fs.existsSync(path.join(STANDALONE, 'server.js'));
 
+const KNOWN_TEMPLATE_STRINGS = new Set(['ajv-formats/dist/formats']);
+
 function rootDepNames() { return new Set(Object.keys(ROOT_PKG.dependencies || {})); }
 function packageNameOf(spec) {
   const parts = spec.split('/');
@@ -445,6 +447,10 @@ if (BUILT) {
         if (spec.startsWith('.') || spec.startsWith('/') || isBuiltin(spec)) continue;
         if (!/^[@a-z][\w.@-]*(\/[\w.@/-]*)?$/i.test(spec)) continue; // not a module specifier
         if (roots.has(packageNameOf(spec))) continue;
+        // Plan 369-32 bundles the MCP client, whose ajv carries a code-generation TEMPLATE STRING that spells
+        // require("ajv-formats/dist/formats"); it is text for ajv's standalone-validator emitter, which the MCP
+        // client never runs, not an import the server executes.
+        if (KNOWN_TEMPLATE_STRINGS.has(spec)) continue;
         if (!bad.has(spec)) bad.set(spec, path.relative(STANDALONE, f));
       }
     }
