@@ -42,7 +42,8 @@
       ],
       "tx_owner": "caller (autocommit by default)",
       "exercise": "call",
-      "how": "Call insertNode(db, id, type, properties, provenance) on a fixture room of each schema variant (wide takes the wide insert, mid and legacy the 3-column branch)."
+      "how": "Call insertNode(db, id, type, properties, provenance) on a fixture room of each schema variant (wide takes the wide insert, mid and legacy the 3-column branch).",
+      "covered_by": "test-369-writer-inventory.cjs#N1"
     },
     {
       "id": "N2",
@@ -54,7 +55,8 @@
       ],
       "tx_owner": "caller",
       "exercise": "call",
-      "how": "Call navigation.logMemoryEvent(db, event) on a migrated fixture room; the memory_event node is a graph node and IS logged."
+      "how": "Call navigation.logMemoryEvent(db, event) on a migrated fixture room; the memory_event node is a graph node and IS logged.",
+      "covered_by": "test-369-writer-inventory.cjs#N2"
     },
     {
       "id": "N3",
@@ -66,7 +68,8 @@
       ],
       "tx_owner": "own handle via the room-db.cjs opener",
       "exercise": "call",
-      "how": "Call rs-sqlite-mirror.writeDiscovery(discovery, { roomDir }) with a minimal discovery payload; it opens its own handle through the write door."
+      "how": "Call rs-sqlite-mirror.writeDiscovery(discovery, { roomDir }) with a minimal discovery payload; it opens its own handle through the write door.",
+      "covered_by": "test-369-writer-inventory.cjs#N3"
     },
     {
       "id": "N4",
@@ -78,7 +81,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Emit a spine event through the exported spine-events emitter that routes to _emitWithOperatorEdge on a migrated fixture room; an ignored duplicate must log nothing."
+      "how": "Emit a spine event through the exported spine-events emitter that routes to _emitWithOperatorEdge on a migrated fixture room; an ignored duplicate must log nothing.",
+      "covered_by": "test-369-writer-inventory.cjs#N4"
     },
     {
       "id": "N5",
@@ -91,7 +95,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call room-birth.drainBirthGateAnswers(roomDir) after queueing birth gate answers in a fixture room."
+      "how": "Call room-birth.drainBirthGateAnswers(roomDir) after queueing birth gate answers in a fixture room.",
+      "covered_by": "test-369-writer-inventory.cjs#N5"
     },
     {
       "id": "U1",
@@ -105,7 +110,8 @@
       ],
       "tx_owner": "OWN BEGIN at line 256, unconditional (adopt the owns idiom)",
       "exercise": "call",
-      "how": "Call navigation.confirmNode(db, id, opts) on a proposed claim (reaches promoteNodeStatus), standalone and inside an outer transaction."
+      "how": "Call navigation.confirmNode(db, id, opts) on a proposed claim (reaches promoteNodeStatus), standalone and inside an outer transaction.",
+      "covered_by": "test-369-writer-inventory.cjs#U1"
     },
     {
       "id": "U2",
@@ -117,7 +123,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call navigation.writeDomainNode(db, spec) twice with the same id so the second call takes the UPDATE branch."
+      "how": "Call navigation.writeDomainNode(db, spec) twice with the same id so the second call takes the UPDATE branch.",
+      "covered_by": "test-369-writer-inventory.cjs#U2"
     },
     {
       "id": "U3",
@@ -129,7 +136,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call writeFrameNode(db, spec) twice with the same frame so the second call takes the UPDATE branch."
+      "how": "Call writeFrameNode(db, spec) twice with the same frame so the second call takes the UPDATE branch.",
+      "covered_by": "test-369-writer-inventory.cjs#U3"
     },
     {
       "id": "U4",
@@ -141,7 +149,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call persistAbstractionLevel(db, claimId, level) on an existing claim node."
+      "how": "Call persistAbstractionLevel(db, claimId, level) on an existing claim node.",
+      "covered_by": "test-369-writer-inventory.cjs#U4"
     },
     {
       "id": "U5",
@@ -153,7 +162,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call writeGrantRubricGraph(db, rubric) twice so the second call updates the rubric node."
+      "how": "Call writeGrantRubricGraph(db, rubric) twice so the second call updates the rubric node.",
+      "covered_by": "test-369-writer-inventory.cjs#U5"
     },
     {
       "id": "U6",
@@ -165,7 +175,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call the room-birth section writer on a fixture room whose Section node exists, so review_status is set to confirmed."
+      "how": "Call the room-birth section writer on a fixture room whose Section node exists, so review_status is set to confirmed.",
+      "covered_by": "test-369-writer-inventory.cjs#U6"
     },
     {
       "id": "U7",
@@ -177,7 +188,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call dispatchVerb(db, verb, nodeId) for a breakthrough verb on a surfaced node."
+      "how": "Call dispatchVerb(db, verb, nodeId) for a breakthrough verb on a surfaced node.",
+      "covered_by": "test-369-writer-inventory.cjs#U7"
     },
     {
       "id": "U8",
@@ -189,7 +201,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call surfaceBreakthrough(db, candidate) on an existing node."
+      "how": "Call surfaceBreakthrough(db, candidate) on an existing node.",
+      "covered_by": "test-369-writer-inventory.cjs#U8"
     },
     {
       "id": "U9",
@@ -201,7 +214,8 @@
       ],
       "tx_owner": "autocommit, other process",
       "exercise": "script",
-      "how": "Run node scripts/check-pending-ambiguous.cjs as the SessionStart hook does against a fixture room holding a pending ambiguous node, in a separate process."
+      "how": "Run node scripts/check-pending-ambiguous.cjs as the SessionStart hook does against a fixture room holding a pending ambiguous node, in a separate process.",
+      "covered_by": "test-369-change-log-cross-process.cjs#arm2 (U9 SessionStart hook script, separate process)"
     },
     {
       "id": "E1",
@@ -214,7 +228,8 @@
       ],
       "tx_owner": "caller",
       "exercise": "call",
-      "how": "Call navigation.writeEdge(db, { source_id, target_id, edge_type, properties }) on the wide and the base-edges variants."
+      "how": "Call navigation.writeEdge(db, { source_id, target_id, edge_type, properties }) on the wide and the base-edges variants.",
+      "covered_by": "test-369-writer-inventory.cjs#E1"
     },
     {
       "id": "E2",
@@ -226,7 +241,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call ingestion.storeBrainSuggestions(db, suggestions) with fixture suggestion rows."
+      "how": "Call ingestion.storeBrainSuggestions(db, suggestions) with fixture suggestion rows.",
+      "covered_by": "test-369-writer-inventory.cjs#E2"
     },
     {
       "id": "E3",
@@ -240,7 +256,8 @@
       ],
       "tx_owner": "open-use-close via lazygraph",
       "exercise": "call",
-      "how": "Call graph-ops.persistDecisionEdge(roomDir, ...) and graph-ops.indexOpportunity(roomDir, ...) on a fixture room."
+      "how": "Call graph-ops.persistDecisionEdge(roomDir, ...) and graph-ops.indexOpportunity(roomDir, ...) on a fixture room.",
+      "covered_by": "test-369-writer-inventory.cjs#E3"
     },
     {
       "id": "E4",
@@ -262,7 +279,8 @@
       ],
       "tx_owner": "indexArtifact owns BEGIN at 626; the rest autocommit",
       "exercise": "call",
-      "how": "Call lazygraph-ops.indexArtifact(db, roomDir, file) for _indexArtifactBody and each exported create*/link*/upsertEdge function on a migrated fixture room."
+      "how": "Call lazygraph-ops.indexArtifact(db, roomDir, file) for _indexArtifactBody and each exported create*/link*/upsertEdge function on a migrated fixture room.",
+      "covered_by": "test-369-writer-inventory.cjs#E4"
     },
     {
       "id": "E5",
@@ -279,7 +297,8 @@
       ],
       "tx_owner": "script, other process",
       "exercise": "script",
-      "how": "Run node scripts/build-ecosystem-graph.cjs against a fixture room in a separate process and assert log rows for every edge it wrote."
+      "how": "Run node scripts/build-ecosystem-graph.cjs against a fixture room in a separate process and assert log rows for every edge it wrote.",
+      "covered_by": "test-369-change-log-cross-process.cjs#arm3 (E5 build-ecosystem-graph, separate process)"
     },
     {
       "id": "E6",
@@ -293,7 +312,8 @@
       ],
       "tx_owner": "script, other process",
       "exercise": "script",
-      "how": "Run node scripts/hsi-to-graph.cjs against a fixture room with an HSI result file in a separate process (DELETE then INSERT)."
+      "how": "Run node scripts/hsi-to-graph.cjs against a fixture room with an HSI result file in a separate process (DELETE then INSERT).",
+      "covered_by": "test-369-change-log-cross-process.cjs#arm3 (E6 hsi-to-graph, separate process)"
     },
     {
       "id": "D1",
@@ -307,7 +327,8 @@
       ],
       "tx_owner": "rebuildGraph owns BEGIN 732 / COMMIT 895",
       "exercise": "call",
-      "how": "Call lazygraph-ops.rebuildGraph(roomDir) on a fixture room with indexed artifacts; deletes must appear as delete rows."
+      "how": "Call lazygraph-ops.rebuildGraph(roomDir) on a fixture room with indexed artifacts; deletes must appear as delete rows.",
+      "covered_by": "test-369-writer-inventory.cjs#D1"
     },
     {
       "id": "D2",
@@ -320,7 +341,8 @@
       ],
       "tx_owner": "OWN BEGIN (run at 376-385)",
       "exercise": "call",
-      "how": "Seed legacy self-referential entity rows then call purgeLegacySelfReferentialEntities(db)."
+      "how": "Seed legacy self-referential entity rows then call purgeLegacySelfReferentialEntities(db).",
+      "covered_by": "test-369-writer-inventory.cjs#D2"
     },
     {
       "id": "D3",
@@ -332,7 +354,8 @@
       ],
       "tx_owner": "autocommit",
       "exercise": "call",
-      "how": "Call rs-engine.writeReverseSalientEdges(db, edges) twice so the second call deletes the prior reverse-salient edges."
+      "how": "Call rs-engine.writeReverseSalientEdges(db, edges) twice so the second call deletes the prior reverse-salient edges.",
+      "covered_by": "test-369-writer-inventory.cjs#D3"
     },
     {
       "id": "D4",
@@ -349,7 +372,8 @@
       ],
       "tx_owner": "caller (returned SQL, run by the dispatch caller)",
       "exercise": "call",
-      "how": "Call writeDiscovery with a failing step so the returned rollback SQL runs, then assert delete rows and an unchanged final graph."
+      "how": "Call writeDiscovery with a failing step so the returned rollback SQL runs, then assert delete rows and an unchanged final graph.",
+      "covered_by": "test-369-writer-inventory.cjs#D4"
     },
     {
       "id": "P1",
@@ -364,7 +388,8 @@
       ],
       "tx_owner": "sqlite3.connect, other process",
       "exercise": "python",
-      "how": "Run python3 scripts/rs-engine.py --mode internal --room <fixture room> and assert log rows from the trigger-installed room.db (SQLite JSON functions are never used in triggers)."
+      "how": "Run python3 scripts/rs-engine.py --mode internal --room <fixture room> and assert log rows from the trigger-installed room.db (SQLite JSON functions are never used in triggers).",
+      "covered_by": "test-369-change-log-cross-process.cjs#arm4 (Python rs-engine.py on its own SQLite)"
     },
     {
       "id": "R1",
@@ -374,7 +399,8 @@
       "statement_lines": [],
       "tx_owner": "own BEGIN, then the db file is removed",
       "exercise": "room-removal",
-      "how": "Call room-discard-cascade.discardPlaceholderRoom(roomDir) on a placeholder fixture room; the room.db file is gone, so the epoch and room-removed handling is asserted instead of log rows."
+      "how": "Call room-discard-cascade.discardPlaceholderRoom(roomDir) on a placeholder fixture room; the room.db file is gone, so the epoch and room-removed handling is asserted instead of log rows.",
+      "covered_by": "test-369-change-log-cross-process.cjs#arm5 (whole-room removal, read door returns null)"
     },
     {
       "id": "M1",
@@ -384,7 +410,8 @@
       "statement_lines": [],
       "tx_owner": "own BEGIN 377",
       "exercise": "migration",
-      "how": "Open a legacy-variant fixture room through openRoomDb (the write door) and assert the triggers are reinstalled after the rebuild and the change log epoch is re-minted."
+      "how": "Open a legacy-variant fixture room through openRoomDb (the write door) and assert the triggers are reinstalled after the rebuild and the change log epoch is re-minted.",
+      "covered_by": "test-369-writer-inventory.cjs#M1 and test-369-change-log-ddl.cjs#7 (rebuild: dropped trigger restored, epoch re-minted)"
     },
     {
       "id": "X1",
@@ -394,7 +421,8 @@
       "statement_lines": [],
       "tx_owner": "out of the slice",
       "exercise": "external-note",
-      "how": "Outside this repo; replaced by the action layer in the bake-off slice. The plugin side is covered by E3 and E4 (indexArtifact), so no test drives it here."
+      "how": "Outside this repo; replaced by the action layer in the bake-off slice. The plugin side is covered by E3 and E4 (indexArtifact), so no test drives it here.",
+      "covered_by": "external writer replaced by the action layer (D-06), not in the slice; plugin side covered by E3 and E4 (indexArtifact)"
     }
   ],
   "per_file_statement_counts": {
