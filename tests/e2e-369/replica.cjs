@@ -441,7 +441,7 @@ async function main() {
 
   const nudge = (p) => (p || page).evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
   async function openRoom(p, slug) {
-    await p.goto(origin + '/');
+    await p.goto(origin + '/?rooms');
     const row = p.locator('.room-list-row', { hasText: slug });
     await row.waitFor({ timeout: 20000 });
     await row.getByText('Open this room').click();
@@ -672,7 +672,7 @@ async function main() {
       await page.waitForSelector('header.shell-header');
       await waitCurrent(page, total(truth(roomR)), 30000);
       await waitUntil(async () => !(await names()).some((n) => n.includes('-p0--')), 10000, 'the old-version database to be removed', 100);
-      assert.ok((await names()).some((n) => /^rxdb-dexie-mos-room-r-[a-z0-9]+-p1--/.test(n)), 'the current version exists');
+      assert.ok((await names()).some((n) => /^rxdb-dexie-mos-room-r-[a-z0-9]+-p2--/.test(n)), 'the current version exists');
     });
 
     await arm('11 browser data outliving a removed room: a stored copy of a gone room is removed; an open room that goes shows the removed state', async () => {

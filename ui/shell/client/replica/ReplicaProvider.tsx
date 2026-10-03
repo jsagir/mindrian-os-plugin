@@ -47,6 +47,8 @@ export type ReplicaState = {
   db: Replica['db'] | null;
   rebuild: () => Promise<void>;
   getLastVisit: () => Promise<number | null>;
+  // When the marker was written (epoch ms): the opening screen names the day in "Nothing changed since your last visit on {date}."
+  getLastVisitAt: () => Promise<number | null>;
   setLastVisit: (seq: number) => Promise<void>;
 };
 
@@ -414,6 +416,15 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
       return null;
     }
   }, []);
+  const getLastVisitAt = useCallback(async () => {
+    const h = handle.current;
+    if (!h) return null;
+    try {
+      return await h.getLastVisitAt();
+    } catch {
+      return null;
+    }
+  }, []);
   useEffect(() => {
     const first = pathname.split('/').filter(Boolean)[0] ?? '';
     const onWork = first === '' || first === 'work';
@@ -458,8 +469,8 @@ export function ReplicaProvider({ children }: { children: ReactNode }) {
   const loadingLine = shown === 'catching up' || shown === 'rebuilding' ? readingTheRoom(Math.max(read, count), totalKnown) : null;
 
   const value = useMemo<ReplicaState>(
-    () => ({ roomKey: current, state: shown, seq, counts, count, loadingLine, removed, openCount, db, rebuild, getLastVisit, setLastVisit }),
-    [current, shown, seq, counts, count, loadingLine, removed, openCount, db, rebuild, getLastVisit, setLastVisit],
+    () => ({ roomKey: current, state: shown, seq, counts, count, loadingLine, removed, openCount, db, rebuild, getLastVisit, getLastVisitAt, setLastVisit }),
+    [current, shown, seq, counts, count, loadingLine, removed, openCount, db, rebuild, getLastVisit, getLastVisitAt, setLastVisit],
   );
 
   return <ReplicaContext.Provider value={value}>{children}</ReplicaContext.Provider>;

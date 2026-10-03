@@ -263,8 +263,14 @@ export async function openReplica(options: OpenReplicaOptions) {
       const seq = doc ? doc.get('seq') : null;
       return typeof seq === 'number' ? seq : null;
     },
+    // The marker also keeps the time it was written, so "Nothing changed since your last visit on {date}" can name the day.
+    async getLastVisitAt(): Promise<number | null> {
+      const doc = await (db as unknown as { room: { getLocal: (id: string) => Promise<{ get: (k: string) => unknown } | null> } }).room.getLocal(LAST_VISIT_ID);
+      const at = doc ? doc.get('at') : null;
+      return typeof at === 'number' ? at : null;
+    },
     async setLastVisit(seq: number): Promise<void> {
-      await (db as unknown as { room: { upsertLocal: (id: string, data: unknown) => Promise<unknown> } }).room.upsertLocal(LAST_VISIT_ID, { seq });
+      await (db as unknown as { room: { upsertLocal: (id: string, data: unknown) => Promise<unknown> } }).room.upsertLocal(LAST_VISIT_ID, { seq, at: Date.now() });
     },
   };
 }

@@ -18,7 +18,9 @@
  * pull checkpoint is not carried across a schema migration.
  */
 
-export const PROJECTION_VERSION = 1;
+// Version 2 (plan 369-25): nodes carry confirmed_by and confirmed_at, so a settled claim is attributed in words
+// ("Confirmed by you, 2 Oct 2026", D-08) from the room's own field. A version bump removes and rebuilds old copies.
+export const PROJECTION_VERSION = 2;
 
 export const COLLECTIONS = ['room', 'nodes', 'relations', 'artifacts', 'decisions', 'activity'] as const;
 
@@ -38,6 +40,8 @@ const FIELDS: Record<CollectionName, Record<string, FieldType>> = {
     source_path: 'string',
     created_at: 'string',
     provenance: 'string',
+    confirmed_by: 'string',
+    confirmed_at: 'string',
   },
   relations: { source: 'string', target: 'string', type: 'string', status: 'string' },
   artifacts: { title: 'string', section: 'string', file: 'string', filed_at: 'string', status: 'string' },

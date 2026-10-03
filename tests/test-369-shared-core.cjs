@@ -163,7 +163,7 @@ async function main() {
     const proj = await load('projection.ts');
     assert.equal(proj.COLLECTIONS.length, 6);
     assert.deepEqual(Array.from(proj.COLLECTIONS), ['room', 'nodes', 'relations', 'artifacts', 'decisions', 'activity']);
-    assert.equal(proj.PROJECTION_VERSION, 1);
+    assert.equal(proj.PROJECTION_VERSION, 2);
     for (const c of proj.COLLECTIONS) {
       assert.equal(proj.SCHEMAS[c].primaryKey, 'id');
       assert.equal(proj.SCHEMAS[c].properties.revision.type, 'number');
@@ -179,10 +179,10 @@ async function main() {
     assert.equal('not_a_ui_field' in up, false, 'only UI fields survive the projection');
     assert.deepEqual(proj.toDoc('nodes', { seq: 5, entity_id: 'claim:1', op: 'delete' }), { id: 'claim:1', _deleted: true });
     const a = proj.dbName('Room X/One', '8f3a9c2e-1111-2222');
-    assert.equal(a, 'mos-room-x-one-8f3a9c2e-p1');
+    assert.equal(a, 'mos-room-x-one-8f3a9c2e-p2');
     assert.equal(a, proj.dbName('Room X/One', '8f3a9c2e-1111-2222'), 'stable');
     assert.match(a, /^[a-z0-9-]+$/);
-    assert.ok(a.endsWith('-p1'));
+    assert.ok(a.endsWith('-p2'));
     assert.notEqual(a, proj.dbName('Room X/One', 'ffffffff-0'), 'a new epoch opens a new database');
     assert.equal(proj.isResetReason('checkpoint_expired'), true);
     assert.equal(proj.isResetReason('epoch_changed'), true);
@@ -230,7 +230,7 @@ async function main() {
       onReset: (info) => { reset = info; },
     });
     try {
-      assert.equal(rep.name, 'mos-room-x-e1e1e1e1-p1');
+      assert.equal(rep.name, 'mos-room-x-e1e1e1e1-p2');
       await rep.awaitInitialReplication();
       let docs = await rep.db.nodes.find().exec();
       assert.deepEqual(docs.map((d) => d.id).sort(), ['c1', 'c2']);

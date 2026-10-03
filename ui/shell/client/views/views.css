@@ -1,0 +1,230 @@
+/* The review views (plan 369-25): Work, Evidence, Decisions, Deliverables, Graph. Colours come only from
+ * tokens.css; radius 0 and no shadow come from base.css. Layout follows the UI-SPEC 12-column grid (4 on phones):
+ * the asymmetric Work composition (question and Since you were here in columns 1-8, the Next decision panel in
+ * 9-12; phones stack question, panel, then Since you were here) and the list and reader pair (columns 1-5 and
+ * 6-12; phones show the list or the reader, never both). */
+
+/* A heading the view focuses by script is not a control: no ring on it. */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.grid > * {
+  min-width: 0;
+}
+
+/* ---------- Work ---------- */
+
+.work-question,
+.work-since,
+.work-panel,
+.view-head,
+.ev-list,
+.ev-reader {
+  grid-column: 1 / -1;
+}
+
+.work-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.work-question h1 {
+  overflow-wrap: anywhere;
+}
+
+.work-panel {
+  padding: var(--space-lg);
+  border: 2px solid var(--ink);
+  background: var(--paper-deep);
+  align-self: start;
+}
+
+.work-panel-title {
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.work-panel-why {
+  overflow-wrap: anywhere;
+}
+
+.work-since h2 {
+  margin-top: var(--space-md);
+}
+
+@media (min-width: 768px) {
+  /* The panel spans both rows; the spare height goes under Since you were here, not between it and the question. */
+  .work {
+    grid-template-rows: auto 1fr;
+  }
+
+  .work-question {
+    grid-column: 1 / span 8;
+    grid-row: 1;
+  }
+
+  .work-since {
+    grid-column: 1 / span 8;
+    grid-row: 2;
+  }
+
+  .work-panel {
+    grid-column: 9 / span 4;
+    grid-row: 1 / span 2;
+  }
+
+  .ev-list {
+    grid-column: 1 / span 5;
+  }
+
+  .ev-reader {
+    grid-column: 6 / span 7;
+  }
+}
+
+/* ---------- Ruled lists of items ---------- */
+
+.item-list,
+.count-list,
+.linked-list {
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--ink);
+  list-style: none;
+}
+
+.item-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-height: var(--row-min);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.item-row[aria-current="true"] {
+  padding-left: var(--space-sm);
+  border-left: 2px solid var(--ink);
+}
+
+.item-row-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.item-row-time,
+.item-row-meta,
+.linked-type,
+.linked-status,
+.facts dt {
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+  color: var(--ink-soft);
+}
+
+.item-row-title {
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.item-row-meta {
+  overflow-wrap: anywhere;
+}
+
+.item-row-extra {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+}
+
+.count-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: var(--row-min);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.count-row-n {
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+}
+
+/* ---------- List and reader (Evidence, Decisions, Deliverables) ---------- */
+
+.ev-reader .reader {
+  min-width: 0;
+}
+
+.reader h2 {
+  overflow-wrap: anywhere;
+}
+
+.reader-back {
+  display: block;
+}
+
+.facts {
+  margin: 0;
+  padding: 0;
+}
+
+.facts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.facts dt {
+  min-width: 80px;
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.linked-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  min-height: var(--row-min);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.linked-title {
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.linked-status {
+  text-transform: uppercase;
+}
+
+/* Phones show the list or the reader, never both (UI-SPEC Evidence view). */
+@media (max-width: 767px) {
+  .ev[data-open="true"] .ev-list {
+    display: none;
+  }
+
+  .ev[data-open="false"] .ev-reader {
+    display: none;
+  }
+}
