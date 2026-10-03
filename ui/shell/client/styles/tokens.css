@@ -1,0 +1,65 @@
+/* Design Canon v3 Workshop Modernism token sheet (369-UI-SPEC Design System, names verbatim from
+ * Canon s3 and the v3 spec :root). The eleven colours below are the only colours the shell may use:
+ * every other stylesheet names them through var(--token) or color-mix of tokens, never a literal.
+ * Radius 0 everywhere; no shadow except the focus-ring ink edge; no gradient (Canon s8). */
+:root {
+  --paper: #F5F0E6;        /* the page, about 70 percent of every screen by area */
+  --paper-deep: #E9DFCF;   /* raised panels, table heads, the selected-option plane */
+  --paper-light: #FCF9F2;  /* text on ink; the white tile */
+  --ink: #14202B;          /* type, rules, controls, the black tile, the CTA bar */
+  --ink-soft: #46535D;     /* secondary text, captions */
+  --line: #14202B;         /* every rule, 1 or 2 px; never a tinted grey */
+  --rust: #A8462D;         /* challenged or fixed; the completion square; the red tile */
+  --cobalt: #2457A5;       /* where am I: current tab bar, the one current circle, the blue tile */
+  --ochre: #D49A20;        /* next: the CTA triangle on ink, the yellow tile (ink outline), the focus ring */
+  --success: #2F6849;      /* confirmations */
+  --error: #A12E2E;        /* errors only */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "DM Sans", Arial, sans-serif;
+  --font-editorial: "Bodoni Moda", Didot, serif;
+  --font-code: "JetBrains Mono", monospace;
+  --ease-workshop: cubic-bezier(.22, 1, .36, 1);
+  --duration-control: 200ms;   /* Canon s11: controls 180 to 220 ms */
+  --duration-panel: 420ms;     /* Canon s11 */
+  --duration-stage: 720ms;     /* Canon s11: 600 to 760 ms */
+  --radius: 0;                 /* Canon s8: radius 0 on every control, card, panel, input, dialog, tooltip */
+
+  /* Spacing scale, base unit 4 px (UI-SPEC Spacing Scale). */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Fixed heights (UI-SPEC, multiples of 4). */
+  --header-height: 64px;
+  --nav-height: 48px;
+  --row-min: 48px;
+  --option-min: 56px;
+  --cta-min: 56px;
+  --cta-compact-min: 44px;
+
+  /* Typography: exactly four sizes and two weights (UI-SPEC Typography). */
+  --label-size: 12px;
+  --label-line: 1.35;
+  --body-size: 16px;
+  --body-line: 1.5;
+  --heading-size: 24px;
+  --heading-line: 1.2;
+  --display-size: 32px;        /* below 768 px; 40 px from 768 px up (base.css) */
+  --display-line: 1.05;
+  --weight-regular: 400;
+  --weight-bold: 700;
+
+  /* Layout grid (UI-SPEC Spacing Scale, Layout grid): phone defaults, widened in base.css. */
+  --grid-columns: 4;
+  --grid-gutter: 16px;
+  --page-margin: 16px;
+  --content-max: 1280px;
+  --measure: 68ch;
+
+  /* The focus ring gap takes the colour of the surface under the control (Canon s4). */
+  --focus-gap: var(--paper);
+}
