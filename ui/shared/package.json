@@ -1,0 +1,17 @@
+{
+  "name": "mos-ui-shared",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Chassis-neutral shell core for the MindrianOS UI shell: legacy-mode MCP session pool, feed relay, six-collection projection and pull-only replica, action registry with the exposure policy, proposal contract, and the generated internal 1:1 MCP adapter. Walled off from the plugin's root dependency tree (Phase 369 D-17).",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.3.0",
+    "dexie": "4.4.6",
+    "rxdb": "17.5.0",
+    "rxjs": "7.8.2",
+    "zod": "4.6.5"
+  }
+}
