@@ -73,8 +73,8 @@ test('the note has no emoji code points', () => {
 });
 
 test('the note has no em-dash or en-dash', () => {
-  assert.ok(!text.includes('—'), 'em-dash found');
-  assert.ok(!text.includes('–'), 'en-dash found');
+  assert.ok(!text.includes(String.fromCharCode(0x2014)), 'em-dash found');
+  assert.ok(!text.includes(String.fromCharCode(0x2013)), 'en-dash found');
 });
 
 test('the brief exists with four recommended answers', () => {
