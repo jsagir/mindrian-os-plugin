@@ -1,13 +1,14 @@
 {
   "snapshot_note": "Every live :Framework name read from Theo via lib/core/brain-client.cjs askOp ('list_frameworks'), not only the FEEDS_INTO-linked subset. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-09-23",
+  "snapshot_date": "2026-10-02",
   "source": "theo list_frameworks via lib/core/brain-client.cjs askOp",
-  "source_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
+  "source_sha256": "3d7fd83e19e5725e96b6dfa30b683f074d60bf28802b44722a0d940a36687f06",
   "framework_names": [
     "10-10-10 Decision Method",
     "12 Leverage Points",
     "5 Whys Technique",
     "8-Step Model for Building a Breakthrough",
+    "80/20 Rule",
     "Abductive Reasoning",
     "ABET Accreditation Outcomes",
     "Ackoff Pyramid",
@@ -32,6 +33,7 @@
     "Assumption Challenging",
     "Authentic Leadership",
     "Avoiding Bad Data",
+    "Babson Model (Magical Thinking)",
     "Base-Rate-Check",
     "Beachhead Strategy",
     "Beautiful Question Framework",
@@ -313,6 +315,7 @@
     "Schumpeterian Entrepreneurship",
     "Schumpeterian Theory of Democracy",
     "Scientific Method",
+    "Scientific Roadmapping",
     "Second-System Effect Prevention",
     "Seeing Around Corners",
     "Selecting Opportunities and Team Formation",
@@ -344,6 +347,7 @@
     "Sustaining vs Disruptive Innovation",
     "System Archetypes",
     "Systematic approach to competitive innovation analysis",
+    "Systematic Inventive Thinking (SIT)",
     "Systems Leadership",
     "Systems lens",
     "Systems Mapping Framework",
@@ -419,101 +423,10 @@
   "curated_extras": [
     "Mullins Model"
   ],
-  "stale_review": [
-    {
-      "name": "BONO Framework",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Building an 'opposite plan' or 'anti-plan' to challenge current plan assumptions.",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Cynefin-Informed Sequential Innovation Discovery",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Falsifiability",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "JTBD",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Logic Trees (Issue, Hypothesis, Decision)",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "MAP THE HIERARCHY",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Neo4j-Powered Pyramid Logic Assessment Framework",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Problem Exploration Framework",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Problem exploration framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Problem-solving framework (What problem/opportunity, What about the larger system, What's your goal)",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Process Mapping for Innovation",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "PWS",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "PWS (Problems Worth Solving)",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "PWS Framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Reverse Salients identification",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Safe fail culture",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "Seven Da Vincian Principles",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    },
-    {
-      "name": "TTA",
-      "decision": "dropped",
-      "note": "not a live Framework as of 2026-09-23"
-    }
-  ]
+  "stale_review": [],
+  "theo_stamp": {
+    "mapped_by": "command-registry@2.0.0-beta.51",
+    "plugin_version": "2.0.0-beta.56",
+    "refreshed_at": "2026-10-02T20:10:16.708Z"
+  }
 }
