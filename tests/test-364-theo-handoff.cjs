@@ -35,7 +35,7 @@ const net = hygiene.installNetGuard();
 const C = hygiene.makeChecker('test-364-theo-handoff');
 
 const CMD = '/mos:scientific-roadmap';
-const NO_DASH = /[—–]/;
+const NO_DASH = /[\u2014\u2013]/;
 
 function readJson(rel) { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8')); }
 function readText(rel) { try { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); } catch (e) { return ''; } }
