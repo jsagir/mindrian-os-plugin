@@ -355,29 +355,39 @@ function arm5() {
   } catch (e) { fail(name, e); }
 }
 
-// --- post-run hygiene: nothing under the real home changed -------------------
-function realHomeTouched() {
-  const touched = [];
+// --- post-run hygiene: nothing this test did leaked into the real home --------
+// A shared machine runs other Claude sessions whose hooks legitimately rewrite
+// files under ~/MindrianRooms during this test, so "any file newer than the
+// start" would be flaky. The check is attributable instead: a file under the
+// real home that changed during the run FAILS only if its path or (for files
+// under 2 MB) its text carries a marker unique to this run's fixtures.
+function realHomeLeaks() {
+  const markers = [path.basename(HERMETIC), 'xproc-369', 'claim:child-369', 'claim:ambiguous-369', 'untitled-2026-10-03-1200'];
+  const leaks = [];
+  let changed = 0;
   const roots = [path.join(REAL_HOME, 'MindrianRooms'), path.join(REAL_HOME, '.mindrian')];
-  // ~/.mindrian/bridge/<id>.json is the Claude Code statusline bridge, rewritten
-  // by any live Claude session on this machine (it carries model and context
-  // size, never room data). It is not written by anything this test spawns
-  // (every child has the hermetic HOME), so it is excluded from the check.
-  const IGNORED = path.join(REAL_HOME, '.mindrian', 'bridge');
   function walk(dir, depth) {
-    if (dir === IGNORED) return;
     let entries;
     try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (_e) { return; }
     for (const ent of entries) {
       const p = path.join(dir, ent.name);
       let st;
       try { st = fs.lstatSync(p); } catch (_e) { continue; }
-      if (st.mtimeMs > START_MS && p !== IGNORED) touched.push(p);
+      if (st.mtimeMs > START_MS) {
+        changed += 1;
+        if (markers.some((m) => p.includes(m))) leaks.push(p);
+        else if (st.isFile() && st.size < 2 * 1024 * 1024) {
+          try {
+            const text = fs.readFileSync(p, 'latin1');
+            if (markers.some((m) => text.includes(m))) leaks.push(p);
+          } catch (_e) { /* unreadable, skip */ }
+        }
+      }
       if (ent.isDirectory() && depth < 3) walk(p, depth + 1);
     }
   }
   for (const r of roots) walk(r, 1);
-  return touched;
+  return { leaks, changed };
 }
 
 arm1();
@@ -387,10 +397,10 @@ arm4();
 arm5();
 
 (function hygiene() {
-  const name = '6. no file under ~/MindrianRooms or ~/.mindrian changed during the run';
-  const touched = realHomeTouched();
-  if (touched.length === 0) pass(name);
-  else fail(name, new Error('changed: ' + touched.slice(0, 10).join(', ')));
+  const name = '6. nothing from this run reached ~/MindrianRooms or ~/.mindrian';
+  const r = realHomeLeaks();
+  if (r.leaks.length === 0) pass(name, r.changed + ' unrelated change(s) by other sessions ignored');
+  else fail(name, new Error('fixture markers found in: ' + r.leaks.slice(0, 10).join(', ')));
 })();
 
 try { fs.rmSync(HERMETIC, { recursive: true, force: true }); } catch (_e) { /* best effort */ }

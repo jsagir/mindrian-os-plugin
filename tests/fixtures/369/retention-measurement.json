@@ -1,0 +1,12 @@
+{
+  "rows_per_2000_writes": 2000,
+  "rows_per_rebuild": 1010,
+  "rows_after_10_rebuilds": 9691,
+  "required_rows": 30200,
+  "retention_max_rows": 100000,
+  "retention_keep_rows": 50000,
+  "compaction_ms_at_retention": 52.1,
+  "node_count": 210,
+  "measured_at": "2026-10-03T05:10:19.079Z",
+  "node": "v22.23.1"
+}
