@@ -109,7 +109,7 @@ Read the coverage line out loud when it matters. When it reads `uncovered`, say 
 
 ## Entry gate (F.1)
 
-Fire one AskUserQuestion card. It asks the navigator to confirm which stand-in IS what must be delivered (the ratified goal, the governing question, or the hypothesis claim), and the proposed starting step. The navigator may override to step 1. When the entry says both this command and `/mos:explore-opportunity` apply, offer `/mos:explore-opportunity` alongside and let the navigator pick; neither fires on its own.
+Fire one AskUserQuestion card. It asks the navigator to confirm which stand-in IS what must be delivered (the ratified goal, the governing question, or the hypothesis claim), and the proposed starting step. The navigator may override to step 1. When the entry says both this command and `/mos:explore-opportunity` apply, offer `/mos:explore-opportunity` alongside and let the navigator pick; neither fires on its own. When the entry card lists a hypothesis in flight (an explored opportunity, or a stamped finding that a /mos:eureka run or the room's ambient run filed), the proposal is step 6 on the link that finding depends on. Show its verification stamp lines exactly as the card prints them: never restate them in your own words, never upgrade an unverified or not-checked stamp, and never show a score.
 
 Write the answer to a JSON file and create the run state with it:
 
@@ -139,6 +139,7 @@ Three commands already answer parts of this walk. Read what they filed through t
 
 - Dominant-design reads from `/mos:dominant-designs` and scenarios from `/mos:explore-futures` are candidate routes at Path Enumeration.
 - Reverse-salient findings from `/mos:find-bottlenecks` enter Constraint Interrogation as the first limiter rows, or the navigator dismisses them with a reason.
+- A hypothesis in flight enters Constraint Interrogation as a limiter row whose source_node_id is its opportunity id, or the navigator dismisses it with a reason; the CLI refuses step 6 until each one is addressed. Nothing here changes the finding: it stays proposed, and only the navigator confirms it.
 - When one is missing, offer `/mos:find-bottlenecks`, `/mos:dominant-designs` or `/mos:explore-futures` and let the navigator decide.
 
 ## Constraint interrogation (F.8 basket)
