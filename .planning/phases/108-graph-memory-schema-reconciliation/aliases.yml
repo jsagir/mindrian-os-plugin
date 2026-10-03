@@ -303,6 +303,24 @@ node_aliases:
     related_existing: lib/core/eureka/vector-store.cjs
     notes: "Key/value sidecar (embedding_model, embedding_dim) for the eureka vector store's dim-mismatch drop-and-rebuild path. Same Part-9 rebuildable-projection justification as eureka_vec."
 
+  # --- Phase 369 change feed tables (2 entries, registered before any DDL, Pitfall 15) ---
+
+  - codex_term: room_change_log
+    resolution: NEW
+    canonical_name: room_change_log
+    source_phase: 369
+    canon_parts: [Part 9]
+    related_existing: lib/core/navigation/room-change-log.cjs
+    notes: "Append-only change feed written by triggers in the same transaction as every nodes/edges mutation, served read-only by the room_changes MCP tool (D-18). A derived log, not graph state, so it carries no typed edges."
+
+  - codex_term: room_tx_context
+    resolution: NEW
+    canonical_name: room_tx_context
+    source_phase: 369
+    canon_parts: [Part 9]
+    related_existing: lib/core/navigation/room-change-log.cjs
+    notes: "One-row table the withRoomTx helper stamps with a transaction id that the triggers copy into room_change_log. A regular table because non-TEMP triggers may only touch tables in the same database."
+
   # --- Codex-proposed nodes (14 entries) ---
 
   - codex_term: room
