@@ -3333,6 +3333,25 @@
       "layer_why": "Mints gate_render payloads through gate-ledger material_step gates and persists grants on approval; a gate-ledger tool, the rubric's own step 3 signal."
     },
     {
+      "surface": "mcp:room_artifact",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: returns one artifact's markdown from the bound room for display, no fork.",
+      "layer": "harness",
+      "layer_why": "Local room file read inside the bound room, contained by realpath."
+    },
+    {
       "surface": "mcp:room_bind",
       "source": "mcp_tool",
       "connects_to_spine": true,
@@ -3350,6 +3369,25 @@
       "hitl_why": "A session with no explicit room and no cwd auto-bind is genuinely ambiguous; room_bind returns needs_binding_card:true instead of guessing, and the F.8 card asks the human which room this session writes to (fires once per session, D-03/D-05).",
       "layer": "context",
       "layer_why": "Binds the session to a room via an F.8 human choice before any write; establishes which room's context the rest of the session reads and writes, a session-binding fact, not new methodology or scaffolding."
+    },
+    {
+      "surface": "mcp:room_changes",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: returns ordered room changes and snapshots for the browser read copy, no fork.",
+      "layer": "harness",
+      "layer_why": "Local room read through the read-only door of the navigation chokepoint."
     },
     {
       "surface": "mcp:room_list",
