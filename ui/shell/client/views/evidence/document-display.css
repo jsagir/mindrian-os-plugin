@@ -1,0 +1,70 @@
+/* The read-only document display, themed to the UI-SPEC (D-13): paper background, ink text, DM Sans body,
+ * Fraunces headings at the Heading size, radius 0 on everything the editor draws, no shadow. The editor core's
+ * own variables are set here from the shell tokens (the shell is the one source of colour). */
+.doc-display {
+  min-width: 0;
+  border-top: 2px solid var(--ink);
+  padding-top: var(--space-md);
+}
+
+.doc-display .bn-container {
+  --bn-colors-editor-text: var(--ink);
+  --bn-colors-editor-background: var(--paper);
+  --bn-colors-side-menu: var(--ink-soft);
+  --bn-colors-hovered-background: var(--paper-deep);
+  --bn-border-radius-small: 0;
+  --bn-font-family: var(--font-ui);
+  font-family: var(--font-ui);
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+  color: var(--ink);
+  background: var(--paper);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.doc-display.doc-display .bn-container *,
+.doc-display.doc-display .bn-container *::before,
+.doc-display.doc-display .bn-container *::after {
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+.doc-display .bn-editor,
+.doc-display .bn-block-content,
+.doc-display .bn-inline-content {
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+}
+
+.doc-display .bn-editor {
+  padding: 0;
+}
+
+.doc-display .bn-block-content[data-content-type="heading"],
+.doc-display .bn-block-content[data-content-type="heading"] * {
+  font-family: var(--font-display);
+  font-size: var(--heading-size);
+  font-weight: var(--weight-bold);
+  line-height: var(--heading-line);
+}
+
+.doc-display .bn-inline-content code,
+.doc-display .bn-block-content[data-content-type="codeBlock"] {
+  font-family: var(--font-code);
+  font-size: var(--label-size);
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+
+.doc-display .bn-inline-content a {
+  color: var(--ink);
+}
+
+.doc-display .bn-block-content {
+  overflow-wrap: anywhere;
+}
