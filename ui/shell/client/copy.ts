@@ -29,3 +29,35 @@ export function serverUnreachable(port: number | string): { what: string; why: s
     fix: 'In Claude Code, run ' + LAUNCH_COMMAND + ' again.',
   };
 }
+
+// The interim connection words (369-UI-SPEC Session Indicator, "Placeholder the executor builds until the note
+// lands"). Plan 369-24 replaces the indicator body with the signed design; the Status surface keeps showing the
+// plain connection word.
+export const CONNECTION_WORDS = {
+  connected: 'Connected',
+  reconnecting: 'Reconnecting...',
+  disconnected: 'Disconnected',
+} as const;
+
+// The connection-lost banner (UI-SPEC Error state). The clause about the last copy is only true once a browser
+// copy exists (plan 369-23 supplies the change number); until then the sentence stops at the lost connection.
+export const RECONNECT_NOW = 'Reconnect now';
+
+export function connectionLost(seq: number | string | null): string {
+  return seq === null || seq === undefined ? 'Lost the connection to the room.' : 'Lost the connection to the room. You are looking at the last copy, up to change ' + seq + '.';
+}
+
+// Room removed (UI-SPEC Error state).
+export const ROOM_REMOVED = {
+  what: 'This room is no longer on this machine.',
+  why: 'The copy in this browser was deleted with it.',
+  action: 'Choose another room',
+};
+
+// A path the shell does not serve. The chassis's own 404 draws inline styles the CSP blocks and a voice that is
+// not the canon's, so the shell answers with its own What / Why / Fix (new copy, not in the UI-SPEC).
+export const NOT_FOUND = {
+  what: 'This page is not part of the workspace.',
+  why: 'The workspace has five views: Work, Evidence, Decisions, Deliverables and Graph.',
+  fix: 'Go back to Work.',
+};

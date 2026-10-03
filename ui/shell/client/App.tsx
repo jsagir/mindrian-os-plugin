@@ -1,38 +1,25 @@
 'use client';
-// The client frame (plan 369-19): renders the route registry; when no route matches it shows the
-// "No room open" state, and when the shell server does not answer it shows the "Server unreachable"
-// copy. Unstyled: plan 369-20 skins it.
-import { useEffect, useState } from 'react';
-import { feed, ServerUnreachableError } from './api.ts';
+// The client app (plan 369-19, skinned and framed by plan 369-20): the shell frame around the route registry's
+// view. When no route matches it shows the "No room open" state; when the shell server does not answer it shows
+// the "Server unreachable" copy in the view, with the banner and the Status row from the frame.
 import { NO_ROOM_OPEN, serverUnreachable } from './copy.ts';
+import { ShellFrame } from './frame/ShellFrame.tsx';
+import { useShell } from './frame/shell-context.ts';
+import { Rule } from './primitives/Rule.tsx';
 import { matchRoute } from './routes.ts';
 
-export function App({ pathname = '/', port }: { pathname?: string; port: number }) {
-  const [unreachable, setUnreachable] = useState(false);
-
-  useEffect(() => {
-    let live = true;
-    feed.status().then(
-      () => {
-        if (live) setUnreachable(false);
-      },
-      (err: unknown) => {
-        if (live && err instanceof ServerUnreachableError) setUnreachable(true);
-      },
-    );
-    return () => {
-      live = false;
-    };
-  }, []);
+function Outlet({ pathname }: { pathname: string }) {
+  const { unreachable, port } = useShell();
 
   if (unreachable) {
     const copy = serverUnreachable(port);
     return (
-      <main role="alert">
+      <section className="stack">
+        <Rule />
         <h1>{copy.what}</h1>
         <p>{copy.why}</p>
         <p>{copy.fix}</p>
-      </main>
+      </section>
     );
   }
 
@@ -43,14 +30,23 @@ export function App({ pathname = '/', port }: { pathname?: string; port: number 
   }
 
   return (
-    <main>
-      <p>{NO_ROOM_OPEN.title}</p>
+    <section className="stack">
+      <Rule />
+      <p className="eyebrow">{NO_ROOM_OPEN.title}</p>
       <h1>
         {NO_ROOM_OPEN.heading.before}
         <em>{NO_ROOM_OPEN.heading.emphasis}</em>
         {NO_ROOM_OPEN.heading.after}
       </h1>
       <p>{NO_ROOM_OPEN.body}</p>
-    </main>
+    </section>
+  );
+}
+
+export function App({ pathname = '/', port }: { pathname?: string; port: number }) {
+  return (
+    <ShellFrame port={port} pathname={pathname}>
+      <Outlet pathname={pathname} />
+    </ShellFrame>
   );
 }
