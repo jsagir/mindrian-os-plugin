@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Phase 369 executing (17/32 plans complete, waves 0-3 done; 369-18 bake-off measuring, chassis gate next; plans 26-31 wait on Phase 289)
+stopped_at: Phase 369 executing (18/32 plans complete, waves 0-4 done; chassis ruled workroom 2026-10-03; 369-19 running; plans 26-31 wait on Phase 289, planned 463559e1f)
 last_updated: "2026-10-02T18:41:39.245Z"
-last_activity: 2026-10-03 -- Phase 369 execution, waves 0-3 complete (17/32)
+last_activity: 2026-10-03 -- Phase 369 execution, chassis Decision Gate ruled workroom (18/32)
 progress:
   total_phases: 121
   completed_phases: 47
@@ -5424,9 +5424,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be)
-Plan: 17 of 32 complete (waves 0-3: 01-17); 369-18 bake-off measuring, its chassis Decision Gate (D-07) is next
+Plan: 18 of 32 complete (waves 0-4: 01-18); 369-19 (shell package and security layer on the workroom chassis) running
 Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
-Next: 369-18 Task 3 chassis gate -> 19 -> 32 -> 22 -> 20, 21 -> 23 -> 24, 25; then 26-31 after Phase 289 lands (jsagi-85 planning it now).
+Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
+Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
+Next: 369-19 -> 32 -> 22 -> 20, 21 -> 23 -> 24, 25; then 26-31 after Phase 289 executes.
 Previously (366-27, Phase 366 COMPLETE 2026-10-02, 27 of 27): verification eff331496 human_needed (2 live-surface checks); EPV366-21 release-lockstep (handoff F1); Phase 369 planned 2026-10-02 (32 plans, 15 waves, 76 tasks).
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin

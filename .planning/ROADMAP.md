@@ -1664,7 +1664,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 369-18-PLAN.md -- Bake-off: nine measures for both candidates and the chassis Decision Gate (D-05, D-07, checkpoint)
+- [x] 369-18-PLAN.md -- Bake-off: nine measures for both candidates and the chassis Decision Gate (D-05, D-07, checkpoint)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
