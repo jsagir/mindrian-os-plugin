@@ -14,7 +14,7 @@
  *   D4  intelligence eureka-run/status/report name op perspective_recall and
  *       perspective "eureka"; the legacy escape is gone (plan 366-22 deleted
  *       the standalone runner, so the pointer no longer names {"legacy":true})
- *   D5  the surface fence: ALL_TOOL_COMMANDS stays 65, find-bottlenecks and
+ *   D5  the surface fence: ALL_TOOL_COMMANDS stays 66, find-bottlenecks and
  *       find-analogies stay reachable, every command name stays in its enum, and
  *       no tool description still calls these three reference-only
  *
@@ -110,7 +110,8 @@ async function main() {
 
   // D5: the fence and the honest descriptions.
   const uniq = new Set(toolRouter.ALL_TOOL_COMMANDS.map(function (c) { return String(c).toLowerCase(); }));
-  C.check('D5 ALL_TOOL_COMMANDS stays 65', uniq.size === 65, 'size=' + uniq.size);
+  // Phase 364-08: methodology gains scientific-roadmap (Tri-Polar reach for /mos:scientific-roadmap)
+  C.check('D5 ALL_TOOL_COMMANDS stays 66', uniq.size === 66, 'size=' + uniq.size);
   C.check('D5 find-bottlenecks and find-analogies stay MCP-reachable', uniq.has('find-bottlenecks') && uniq.has('find-analogies'));
   function enumOf(tool) {
     try {

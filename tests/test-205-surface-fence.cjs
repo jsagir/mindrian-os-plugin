@@ -135,8 +135,9 @@ ok('every gear-shift exit resolves to kind:methodology',
 // No new MCP tool minted by this plan (Canon Part 7). ALL_TOOL_COMMANDS is the
 // existing hierarchical router coverage; pin its unique membership as a guard.
 const uniqueMcp = new Set(toolRouter.ALL_TOOL_COMMANDS.map(norm));
-ok('ALL_TOOL_COMMANDS mints no new tool (unique membership pinned at 65)',
-  uniqueMcp.size === 65);
+// Phase 364-08: methodology gains scientific-roadmap (Tri-Polar reach for /mos:scientific-roadmap)
+ok('ALL_TOOL_COMMANDS mints no new tool (unique membership pinned at 66)',
+  uniqueMcp.size === 66);
 
 // The suppress behavior end-to-end is exercised via the router's own suggest
 // helper: an internal command must never be surfaced. (Structural proof: the

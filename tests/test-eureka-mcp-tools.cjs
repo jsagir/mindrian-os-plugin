@@ -21,7 +21,7 @@
  *
  * WHAT IT PROVES:
  *   CHECK 1 - enum + parity: eureka-run / eureka-status / eureka-report never
- *             leak into ALL_TOOL_COMMANDS (unique membership pinned at 65), and
+ *             leak into ALL_TOOL_COMMANDS (unique membership pinned at 66), and
  *             research_run's op enum carries the three perspective ops and the
  *             three deprecated eureka_* aliases (read-only: the tool description
  *             and schema are not changed here).
@@ -120,7 +120,8 @@ function check1_enumAndParity(ctx) {
       assert.ok(cmds.indexOf(c) === -1, label + ': ' + c + ' leaked into ALL_TOOL_COMMANDS');
     }
     const uniq = new Set(cmds.map(function (c) { return String(c).toLowerCase(); }));
-    assert.equal(uniq.size, 65, label + ': ALL_TOOL_COMMANDS unique membership is ' + uniq.size + ', expected 65');
+    // Phase 364-08: methodology gains scientific-roadmap (Tri-Polar reach for /mos:scientific-roadmap)
+    assert.equal(uniq.size, 66, label + ': ALL_TOOL_COMMANDS unique membership is ' + uniq.size + ', expected 66');
 
     const OPS = research._internal.OPS;
     const schema = research._internal.inputSchema;

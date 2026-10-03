@@ -19,7 +19,7 @@
  *       section, the default run calls research-planner.cjs eureka-recall and
  *       never names the deleted runner, the enable subcommand survives on the
  *       eureka-enable installer; the mirror agrees.
- *   A5  ALL_TOOL_COMMANDS stays 65 and the three eureka compute names stay on
+ *   A5  ALL_TOOL_COMMANDS stays 66 and the three eureka compute names stay on
  *       the intelligence enum; the router reads no flags.legacy and names no
  *       runner file; zero network attempts.
  *
@@ -127,7 +127,8 @@ async function main() {
 
   // A5: surface pins and network.
   const uniq = new Set(toolRouter.ALL_TOOL_COMMANDS.map(function (c) { return String(c).toLowerCase(); }));
-  C.check('A5 ALL_TOOL_COMMANDS stays 65', uniq.size === 65, 'size=' + uniq.size);
+  // Phase 364-08: methodology gains scientific-roadmap (Tri-Polar reach for /mos:scientific-roadmap)
+  C.check('A5 ALL_TOOL_COMMANDS stays 66', uniq.size === 66, 'size=' + uniq.size);
   C.check('A5 no eureka compute name leaked into ALL_TOOL_COMMANDS', ['eureka-run', 'eureka-status', 'eureka-report'].every(function (c) { return toolRouter.ALL_TOOL_COMMANDS.indexOf(c) === -1; }));
   const cmdSchema = configs.intelligence && configs.intelligence.inputSchema && configs.intelligence.inputSchema.shape
     ? configs.intelligence.inputSchema.shape.command : null;
