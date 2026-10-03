@@ -12,8 +12,9 @@ in the phase, the opt-in Theo smoke, has NOT run (it waits for the navigator, se
   The one skip is the opt-in live smoke; the three KNOWN are the pre-existing reds matched by literal signature.
 - Generator gates: **all exit 0**.
 - Doctor `--acceptance`: **no failing point names a 364 file**; all six failing points are ENV (sandboxed HOME or peer dirt).
-- Regression legs: run-all-366 clean. run-all-363 shows **one NEW FAILURE caused by 364-02** (see "NEW FAILURE").
-  Requirement rows are NOT closed over it (plan rule): Task 3 waits for a ruling.
+- Regression legs: run-all-366 clean. run-all-363 showed **one NEW FAILURE caused by 364-02** (see "NEW FAILURE"); the navigator
+  ruled a fix (commit `f53f346eb`), now **RESOLVED**, so SRM364-01..19 were closed (REQUIREMENTS.md).
+- Live smoke: **PASSED, one run (2026-10-03)**, navigator-approved; Theo's real answer today is the honest refusal. See "Live smoke".
 
 ## Phase aggregator
 
@@ -89,10 +90,23 @@ Each FAILED leg compared with its recorded signature and attributed by running t
 - **Proof of attribution:** passes at `cce8abbbe` (364 baseline, exit 0); the same baseline checkout with only HEAD's
   `data/framework-names.json` copied in fails (exit 1); restoring the baseline file passes again.
 - **Why it was missed:** the 364-02 SUMMARY's 18-reader baseline did not list the Phase 355 hit-rate record test, and no run-all-364 leg covers it.
-- **Disposition:** not fixed here (this plan changes no code or test, and the record is a Phase 355 artifact). Routed in 364-FOLLOW-ONS.md A10. The record regeneration
-  (`node scripts/measure-355-hit-rate.cjs` writing the record, own `--only` commit) is a small quick or a 364-12 step, by ruling.
+- **Disposition: RESOLVED on the navigator's ruling.** `node scripts/measure-355-hit-rate.cjs record` regenerated the record; the diff moved only
+  `inputs.name_snapshot_date` (2026-09-23 to 2026-10-02) and `inputs.name_snapshot_source_sha256`; no rate, count or other input moved. The command also
+  rewrote the one line of the `355-VERIFICATION.md` hit-rate section that renders those two values (the test requires the section to be the record's rendering),
+  committed in the same `--only` commit `f53f346eb`. After: `node tests/test-355-hit-rate-record.cjs` PASS 93 FAIL 0, `measure-355-hit-rate --check` exit 0.
 
 ## Live smoke
 
-Not run. Waiting for the navigator (checkpoint, never auto-approved). To be filled in Task 3 with the `LIVE_METRICS` line and exit code,
-or with the skip and its reason.
+Run once on 2026-10-03 after the navigator replied "run live smoke": `MOS_364_LIVE=1 node tests/test-364-live-smoke.cjs`
+with the real HOME (Brain token) and a scratch `MINDRIAN_ROOMS_HOME`. Two read-only calls through the guarded brain-client:
+`framework_step {framework: "Scientific Roadmapping"}` and `recommend_chain` for `WellDefined` (limit 6). No room content crossed.
+
+Exit 0, PASS 4, FAIL 0. Verbatim:
+
+```
+LIVE_METRICS {"step_latency_ms":3224,"coverage_latency_ms":1731,"step_ok":false,"step_reason":"step_unauthored","step_count":0,"framework_status":null,"coverage_status":"uncovered","coverage_reason":null}
+```
+
+Reading: Theo's real answer today is the honest refusal (the steps are still unauthored, `step_count` 0), so `/mos:scientific-roadmap` refuses with
+"Theo has not authored this step yet" and offers `/mos:research`. Coverage for WellDefined reads `uncovered`. The real guard classified both handles as
+`known_tool_shape`. Not an ENV GAP (Brain reachable, keyed). When Theo Phase 25 authors the seven steps, re-run it (follow-on A6).
