@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
-status: complete
-stopped_at: Phase 366 complete (27/27, verified eff331496); Phase 369 planned 2026-10-02 (32 plans, 15 waves, not executing; waves 10-14 wait on Phase 289)
+status: executing
+stopped_at: Phase 369 executing (17/32 plans complete, waves 0-3 done; 369-18 bake-off measuring, chassis gate next; plans 26-31 wait on Phase 289)
 last_updated: "2026-10-02T18:41:39.245Z"
-last_activity: 2026-10-02 -- Phase 369 planning complete
+last_activity: 2026-10-03 -- Phase 369 execution, waves 0-3 complete (17/32)
 progress:
   total_phases: 121
   completed_phases: 47
@@ -5423,10 +5423,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 366 (eureka-perspective-in-research-planner-mcp-canvas-tooling) - COMPLETE (2026-10-02)
-Plan: 27 of 27
-Status: Phase complete; verification eff331496 human_needed (2 live-surface checks); EPV366-21 release-lockstep (handoff F1)
-Next: Phase 369 planned 2026-10-02 (32 plans, 15 waves, 76 tasks; plan checker 2 iterations; waves 10-14 wait on Phase 289, which has 0 plans). Phase 289 planning is the agreed follow-on.
+Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be)
+Plan: 17 of 32 complete (waves 0-3: 01-17); 369-18 bake-off measuring, its chassis Decision Gate (D-07) is next
+Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
+Next: 369-18 Task 3 chassis gate -> 19 -> 32 -> 22 -> 20, 21 -> 23 -> 24, 25; then 26-31 after Phase 289 lands (jsagi-85 planning it now).
+Previously (366-27, Phase 366 COMPLETE 2026-10-02, 27 of 27): verification eff331496 human_needed (2 live-surface checks); EPV366-21 release-lockstep (handoff F1); Phase 369 planned 2026-10-02 (32 plans, 15 waves, 76 tasks).
 Previously (363-22, no state.* writer run, hand-edited frontmatter and this block only): phase close. Gate PASSED=43 FAILED=0
   SKIPPED=1 KNOWN=10, doctor --acceptance 22/22, live OpenAlex smoke run once at close (exit 0, PASS 11, keyless, quick thin
   3.2 s, deep saturation 1.0 s, floors kept), all 20 DRP363 rows ticked with Measured proof, SEED-098 promoted to Phase 364

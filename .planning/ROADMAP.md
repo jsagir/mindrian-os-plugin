@@ -1637,29 +1637,29 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 369-01-PLAN.md -- Wave 0: CJS-only lifted in CLAUDE.md and its GSD source, spikes conventions, decision row; Node floor >=22.18.0 everywhere; minted-ID table (D-17)
-- [ ] 369-02-PLAN.md -- Wave 0: walled tools/ts-check erasable gate, root-manifest wall test, release.sh erasable gate (D-17)
-- [ ] 369-03-PLAN.md -- Wave 0: installed-layout test with the exact-floor leg; hook require-graph proof and cold-start baseline (D-17)
-- [ ] 369-04-PLAN.md -- Wave 0: run-all-369.sh written once, hermetic daemon helper, three-variant fixture rooms, writer inventory as data, SSE vocabulary pin, Playwright entry
-- [ ] 369-05-PLAN.md -- room_change_log and room_tx_context registered first, trigger capture installed after every migration, epoch and floor, withRoomTx (D-18)
-- [ ] 369-07-PLAN.md -- Sessionful acceptance on the legacy leg, modern arm pinned, daemon env scrub, session contract (D-19)
-- [ ] 369-08-PLAN.md -- ui/shared core: legacy MCP session pool, feed relay, six-collection pull-only replica, action registry with exposure policy, generated internal adapter (D-15, D-19)
-- [ ] 369-09-PLAN.md -- Scoped Design Canon v3 exception in SKILL.md, parked mindrian-platform.html, C10/C11 seed, C12 retirement note (D-01, D-02)
-- [ ] 369-10-PLAN.md -- Session indicator co-design session with the navigator and the signed note (D-04, checkpoint)
+- [x] 369-01-PLAN.md -- Wave 0: CJS-only lifted in CLAUDE.md and its GSD source, spikes conventions, decision row; Node floor >=22.18.0 everywhere; minted-ID table (D-17)
+- [x] 369-02-PLAN.md -- Wave 0: walled tools/ts-check erasable gate, root-manifest wall test, release.sh erasable gate (D-17)
+- [x] 369-03-PLAN.md -- Wave 0: installed-layout test with the exact-floor leg; hook require-graph proof and cold-start baseline (D-17)
+- [x] 369-04-PLAN.md -- Wave 0: run-all-369.sh written once, hermetic daemon helper, three-variant fixture rooms, writer inventory as data, SSE vocabulary pin, Playwright entry
+- [x] 369-05-PLAN.md -- room_change_log and room_tx_context registered first, trigger capture installed after every migration, epoch and floor, withRoomTx (D-18)
+- [x] 369-07-PLAN.md -- Sessionful acceptance on the legacy leg, modern arm pinned, daemon env scrub, session contract (D-19)
+- [x] 369-08-PLAN.md -- ui/shared core: legacy MCP session pool, feed relay, six-collection pull-only replica, action registry with exposure policy, generated internal adapter (D-15, D-19)
+- [x] 369-09-PLAN.md -- Scoped Design Canon v3 exception in SKILL.md, parked mindrian-platform.html, C10/C11 seed, C12 retirement note (D-01, D-02)
+- [x] 369-10-PLAN.md -- Session indicator co-design session with the navigator and the signed note (D-04, checkpoint)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 369-06-PLAN.md -- Transaction ownership: eight unconditional-BEGIN writers adopt the owns idiom (D-18)
-- [ ] 369-12-PLAN.md -- Cross-process and Python capture, measured retention and compaction, counter-metrics (D-18)
-- [ ] 369-13-PLAN.md -- room_changes and room_artifact MCP read tools through the read-only door; every pinned baseline refreshed (D-18, D-13)
-- [ ] 369-14-PLAN.md -- Claude adapter proof with the A1 terms ruling at a checkpoint (D-14)
-- [ ] 369-15-PLAN.md -- Bake-off candidate: the workroom slice, production-built, action layer only (D-05, D-06)
-- [ ] 369-16-PLAN.md -- Bake-off candidate: the agent-native slice, production-built, spike 007 hygiene (D-05, D-06)
+- [x] 369-06-PLAN.md -- Transaction ownership: eight unconditional-BEGIN writers adopt the owns idiom (D-18)
+- [x] 369-12-PLAN.md -- Cross-process and Python capture, measured retention and compaction, counter-metrics (D-18)
+- [x] 369-13-PLAN.md -- room_changes and room_artifact MCP read tools through the read-only door; every pinned baseline refreshed (D-18, D-13)
+- [x] 369-14-PLAN.md -- Claude adapter proof with the A1 terms ruling at a checkpoint (D-14)
+- [x] 369-15-PLAN.md -- Bake-off candidate: the workroom slice, production-built, action layer only (D-05, D-06)
+- [x] 369-16-PLAN.md -- Bake-off candidate: the agent-native slice, production-built, spike 007 hygiene (D-05, D-06)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 369-11-PLAN.md -- Change-log coverage proven against the writer inventory with a drift-catching scan (D-18)
-- [ ] 369-17-PLAN.md -- room.changed SSE kind and the daemon-side cross-process watcher (D-18)
+- [x] 369-11-PLAN.md -- Change-log coverage proven against the writer inventory with a drift-catching scan (D-18)
+- [x] 369-17-PLAN.md -- room.changed SSE kind and the daemon-side cross-process watcher (D-18)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
