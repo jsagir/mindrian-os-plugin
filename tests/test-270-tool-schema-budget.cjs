@@ -375,14 +375,37 @@ const AFTER_270_12 = {
  *     here in plain sight rather than absorbed. AFTER moves because toolCount
  *     changed 45 -> 47, which this file's first check requires to be exact.
  */
+/*
+ * Plan 369-22 (Phase 369, D-03 and the navigator's Desktop delivery ruling,
+ * 2026-10-03) -- the room_list description gains the two-sentence "this runs on
+ * your machine from Claude Code" line, so a hookless Claude Desktop session says
+ * where the workspace runs instead of simulating it. No tool is added or
+ * removed. Same protocol as the 369-13 block above: measure live with this
+ * file's own measure(), with and without the change in the same tree, record the
+ * numbers, name the percentage.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   before 369-22: 47 tools, 21447 desc bytes, 31664 schema bytes,
+ *     53111 total bytes, ~13278 approx tokens (router 9 / atomic 38).
+ *   after 369-22:  47 tools, 21666 desc bytes, 31664 schema bytes,
+ *     53330 total bytes, ~13333 approx tokens (router 9 / atomic 38).
+ *   this plan's own cost: +219 desc bytes, +0 schema bytes, +219 total bytes;
+ *     signed pctChange(53111, 53330) = 0.41 percent (the change's true budget
+ *     effect, and the figure the commit message names).
+ *   against the previous recorded AFTER (369-13, totalBytes 53090): signed
+ *     pctChange(53090, 53330) = 0.45 percent, inside DRIFT_TOLERANCE_PCT. The
+ *     tree measured 21 schema bytes above the 369-13 record before this plan
+ *     (peer work since 369-13, no tool added), kept here in plain sight rather
+ *     than absorbed. toolCount stays 47.
+ */
 const AFTER = {
   measuredAt: '2026-10-03',
-  plan: '369-13',
+  plan: '369-22',
   toolCount: 47,
-  totalDescBytes: 21447,
-  totalSchemaBytes: 31643,
-  totalBytes: 53090,
-  approxTokens: 13273,
+  totalDescBytes: 21666,
+  totalSchemaBytes: 31664,
+  totalBytes: 53330,
+  approxTokens: 13333,
   routerCount: 9,
   atomicCount: 38,
 };

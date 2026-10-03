@@ -1,9 +1,9 @@
 // The UI-SPEC strings the frame (plan 369-19) and the room picker (plan 369-32) use, verbatim from
 // 369-UI-SPEC.md Copywriting Contract. Hyphens only: no em-dash or en-dash anywhere in shell copy.
 
-// Unresolved until the navigator rules RESEARCH Open Question 3 (a new command or an extension of
-// /mos:dashboard); plan 369-22 fills this one constant.
-export const LAUNCH_COMMAND = '{launch command}';
+// Ruled by the navigator 2026-10-03 (RESEARCH Open Question 3, 369-LAUNCH-RULING.md): the shell opens
+// through an argument on the existing dashboard command.
+export const LAUNCH_COMMAND = '/mos:dashboard shell';
 
 export const NO_ROOM_OPEN = {
   title: 'No room open',

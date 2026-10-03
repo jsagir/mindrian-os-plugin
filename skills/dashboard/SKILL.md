@@ -7,13 +7,13 @@ body_shape: E
 layer: "none"
 layer_why: "Opens the live or snapshot De Stijl view; a render-only view of already-produced room state, the rubric's own literal none example."
 hitl_shape: "F.1"
-hitl_why: "The dashboard offers one next move on what to act on."
+hitl_why: "The dashboard offers one next move on what to act on; the shell argument hands the person a one-time link to a review-and-decision workspace, with no fork in this command itself (decisions are made in the shell's Shape F gate)."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/dashboard.md:126, an ephemeral live rendering of already-filed room state, not a filed artifact or new analysis.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md
-argument-hint: "[live|stop|open]"
+argument-hint: "[live|stop|open|shell]"
 allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
@@ -109,6 +109,18 @@ When `$ARGUMENTS` is `open`, run:
 done; echo "No live dashboard running. Start with /mos:dashboard live."
 ```
 
+### `shell` -- open the workspace (the review-and-decision shell)
+
+When `$ARGUMENTS` is `shell`, run:
+
+```bash
+!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" start
+```
+
+This starts (or reuses) the MindrianOS server and the workspace on this computer, then prints one link. Open it in your browser to review what the room holds and approve or decline each decision; the link works once, for this computer only, for the next 60 seconds, so run the command again for a fresh one. Give the link to the person exactly as printed and say nothing else about how it signs in.
+
+When `$ARGUMENTS` is `shell stop`, run `!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" stop`. When it is `shell status`, run `!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" status`. Neither touches the `live` dashboard or the legacy snapshot.
+
 ## Step 1: Pre-flight check
 
 For `live` and for the legacy snapshot, verify there is something to show. If `room.db` is absent and no presentation HTML exists yet:
@@ -130,6 +142,12 @@ For `live`:
 For the legacy snapshot:
 
 > This is a one-shot snapshot of your Data Room graph. For live updates, use `/mos:dashboard live`.
+
+## Desktop and Cowork
+
+This runs on your machine from Claude Code. Open Claude Code on this computer and run /mos:dashboard shell to see your room in the browser.
+
+When a person on Claude Desktop or Cowork asks to open the workspace, say exactly these two sentences first and nothing else about the workspace; never simulate it.
 
 ## Three-surface note
 
