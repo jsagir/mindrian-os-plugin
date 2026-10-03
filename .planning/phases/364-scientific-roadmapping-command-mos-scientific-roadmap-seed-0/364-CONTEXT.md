@@ -100,6 +100,18 @@ honestly while Theo's steps are NULL.
   Scientific Roadmapping change, the executor STOPS at a checkpoint and shows the navigator the diff
   before committing (human review), then re-runs the egress and stamp tests.
 
+
+### Navigator ruling 2026-10-03: compose with Phases 355 and 355.1 (gap plan 364-14)
+- A Phase 355 stamped eureka finding (a `proposed` opportunity node carrying the verification stamp,
+  `pws_stage`, `engine_mode`, written by bankStatements / ambient-run fileStampedOpportunity, including
+  the ones Phase 355.1 starts ambiently) counts as a hypothesis in flight: the entry resolver proposes
+  step 6 Constraint Interrogation on the limiter it depends on, reproduces the stamp lines verbatim via
+  the existing stamp formatter, and never upgrades an unverified or unchecked stamp.
+- The 355 eureka handoff to "the framework Theo recommends next" names /mos:scientific-roadmap when
+  that recommendation is Scientific Roadmapping (read-only mapping; no new reach).
+- Phase 355.1 is NOT modified: no new command, MCP tool, sensor or seventh reach; 364 only reads what
+  355.1 already filed.
+
 ### Claude's Discretion (open items from 364-INPUT, resolved with defaults)
 - Slug: `/mos:scientific-roadmap` (already used by Theo Phase 25 and 25-PLUGIN-CONTRACT; `/mos:roadmap`
   rejected as colliding with GSD roadmap vocabulary).
