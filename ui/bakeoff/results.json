@@ -1,0 +1,754 @@
+{
+  "meta": {
+    "generated_at": "2026-10-03T06:04:07.347Z",
+    "machine": {
+      "platform": "linux",
+      "release": "6.18.33.2-microsoft-standard-WSL2",
+      "cpus": 12,
+      "node": "v22.23.1",
+      "mem_gb": 19
+    },
+    "parity": {
+      "ok": true,
+      "actions": {
+        "listRooms": "both",
+        "openRoom": "human",
+        "readArtifact": "both",
+        "listEvidence": "both",
+        "proposeDecision": "agent",
+        "approveDecision": "human"
+      },
+      "checked": [
+        "workroom",
+        "agent-native"
+      ]
+    },
+    "proposal_source_note": "adapter (room-proposal, 369-ADAPTER-RULING.md) for the selected-state measure; fixed (the deterministic source in ui/shared) for the full-slice end to end, because candidate B overlay does not wire the shipped adapter (see the selected_state measure)",
+    "csp_contract": "default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'",
+    "shared_findings": {
+      "rxdb_info_literal": {
+        "note": "both candidates bundle RxDB through ui/shared; its error-message link strings contain the literal rxdb.info (inert text, never fetched). A property of ui/shared, not of either chassis: recorded once. Candidate B build.sh rewrites the literal after the build, candidate A does not.",
+        "scan": {
+          "workroom": {
+            "scanned": true,
+            "files_with_rxdb_info": 16,
+            "files_with_neutralised_rxdb_invalid": 0
+          },
+          "agent-native": {
+            "scanned": true,
+            "files_with_rxdb_info": 0,
+            "files_with_neutralised_rxdb_invalid": 6
+          }
+        }
+      }
+    }
+  },
+  "workroom": {
+    "architecture_distorted": {
+      "value": 5,
+      "unit": "convention-bypass markers in the candidate overlay and scripts",
+      "method": "markers counted by regex over overlay/ and setup/build/serve scripts (each listed with file, line and a one-line note); files outside ui/bakeoff/<candidate>/, ui/shared/ and the candidate test, from git log --name-only over the candidate plan commits; removal-list entries counted from REMOVE.txt or the REMOVE array",
+      "details": {
+        "files_outside_candidate_and_shared": 0,
+        "outside_files": [],
+        "plan_commit_files": 30,
+        "framework_paths_removed": 22,
+        "bypass_markers_by_note": {
+          "lint or type check silenced": 1,
+          "process singleton on globalThis (framework bundles routes separately)": 3,
+          "bundler told to leave a module alone": 1
+        },
+        "markers": [
+          {
+            "file": "ui/bakeoff/workroom/overlay/src/components/read-only-markdown.tsx",
+            "line": 30,
+            "note": "lint or type check silenced"
+          },
+          {
+            "file": "ui/bakeoff/workroom/overlay/src/server/pool.ts",
+            "line": 5,
+            "note": "process singleton on globalThis (framework bundles routes separately)"
+          },
+          {
+            "file": "ui/bakeoff/workroom/overlay/src/server/pool.ts",
+            "line": 35,
+            "note": "process singleton on globalThis (framework bundles routes separately)"
+          },
+          {
+            "file": "ui/bakeoff/workroom/overlay/src/server/proposal-source.ts",
+            "line": 65,
+            "note": "bundler told to leave a module alone"
+          },
+          {
+            "file": "ui/bakeoff/workroom/overlay/src/server/slice-actions.ts",
+            "line": 203,
+            "note": "process singleton on globalThis (framework bundles routes separately)"
+          }
+        ]
+      }
+    },
+    "workroom_code_surviving": {
+      "value": 347,
+      "unit": "workroom snapshot lines byte-identical in the candidate app tree",
+      "method": "sha256 of every workroom snapshot file (35 files, 2911 lines) matched against every file in the candidate app/ tree (node_modules, build output and generated dirs excluded); lines counted from the snapshot",
+      "details": {
+        "total_lines": 2911,
+        "share": 0.1192,
+        "retained_lines_same_path": 347,
+        "retained_files": [
+          "eslint.config.mjs",
+          "postcss.config.mjs",
+          "src/app/globals.css",
+          "src/app/icon.svg",
+          "src/components/copy-command.tsx",
+          "src/components/destijl-card.tsx",
+          "src/components/mos-logo.tsx",
+          "src/lib/blocknote-theme.ts"
+        ]
+      }
+    },
+    "selected_state_reaches_claude": {
+      "value": true,
+      "unit": "pass: the selected node id is in the returned proposal and a gate is rendered",
+      "method": "MOS_PROPOSAL_SOURCE=adapter (369-ADAPTER-RULING.md: room-proposal; no Claude process runs in the shell, so no fake-claude binary applies). Fixture room room-p holds the selected claim and a proposed claim filed about it that names its id and points at a source. The node is selected (click on the evidence list item), \"Ask Claude\" is clicked, and the shell server response is read: pass when it carries the selected node id and the gate card is shown",
+      "details": {
+        "source": "adapter (room-proposal)",
+        "selected_node_id": "claim:fixture-369-room-p-x:2b38508d",
+        "selection_method": "click on the evidence list item",
+        "evidence_items_seen": 2,
+        "ask_to_gate_ms": 517,
+        "ask_http_status": 200,
+        "selected_id_in_proposal_response": true,
+        "gate_shown": true,
+        "refusal_or_error": null,
+        "server_log_lines_naming_adapter_or_proposal": [],
+        "copy_reference_line_on_page": false,
+        "boundaries": {
+          "http_hops": 3,
+          "process_boundaries": [
+            "browser",
+            "shell server",
+            "MindrianOS daemon"
+          ],
+          "processes_spawned_for_proposal": 0,
+          "note": "browser to shell action route (HTTP 1), shell to daemon adapter MCP session reading claim_read and graph_query (HTTP 2), shell to daemon gate_render on the human session (HTTP 3); counted statically from ui/bakeoff/workroom/overlay/src/app/api/ask/route.ts and overlay/src/server/slice-actions.ts"
+        },
+        "non_loopback_hosts": []
+      }
+    },
+    "persistent_state": {
+      "value": 15,
+      "unit": "items created by running the slice (cookies, local and session storage keys, IndexedDB databases, server-side files)",
+      "method": "Playwright storage dump (cookie names, localStorage and sessionStorage keys, indexedDB.databases()) from a blank context before and after the slice; recursive file listing of the server working directory (node_modules not descended) and the hermetic HOME before the cold start and after the slice",
+      "details": {
+        "cookies": [
+          "mos_sid"
+        ],
+        "localStorage": [],
+        "sessionStorage": [],
+        "indexedDB": [
+          "rxdb-dexie-mos-room-e-35626475-p1--0--_rxdb_internal",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--activity",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--artifacts",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--decisions",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--nodes",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--plugin-local-documents-room",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--relations",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--room",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-1e69e7a38f1f7cc0c9347f2a94ac3809713a0942f83c1a647aad7c091668653a",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-27410c1221bc201d2470ff2400199d53d87528cc81baae6cfb7a2f6ad2121016",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-86fe58f746c625d5463f16ef024e9963b4352991055d7102eb6f9ab35181f1ab",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-8cc56e856639dc9f800728cba9443aea51ff313bd71691297604e8a8b99a408c",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-953554aae8c30822ba6f4e6b34167c88dd80be79195d81e34fb0da6f0f803414",
+          "rxdb-dexie-mos-room-e-35626475-p1--0--rx-replication-meta-f3e055987ea74cd0d3902d03b43f376c344ff3511b06cf8b4b5d7d4c4c9a635c"
+        ],
+        "server_files_added": 0,
+        "server_files_added_list": [],
+        "home_files_added": 0,
+        "home_files_added_sample": []
+      }
+    },
+    "reconnect": {
+      "value": 6,
+      "unit": "claims (of 6 written after a daemon restart) still missing from the evidence view after 30 s without a page reload; converged_ms is in details",
+      "converged_ms": null,
+      "method": "daemon SIGKILLed and respawned on the same port, rooms home and room.db (restartDaemon); 6 claims written from a child process through the room write door; the evidence view polled every 100 ms (page element count) for up to 30 s (spike 006 P5 method)",
+      "details": {
+        "converged": false,
+        "converged_ms": null,
+        "missing_after_30s": 6,
+        "steady_state_one_write_to_view_ms": 147,
+        "daemon_port_unchanged": true,
+        "samples": 292,
+        "diagnostics": {
+          "feed_probe": {
+            "status": 200,
+            "body": "{\"ok\":false,\"reason\":\"room_unbound\",\"message\":\"No room is bound to this session. Call room_list, then room_bind, then retry.\"}"
+          },
+          "server_log_tail": "▲ Next.js 16.2.10\n- Local:         http://127.0.0.1:43077\n- Network:       http://127.0.0.1:43077\n✓ Ready in 0ms\n",
+          "after_page_reload_new_items_seen": 6
+        }
+      }
+    },
+    "startup_errors": {
+      "value": 1,
+      "unit": "server error events in the first 5 s plus browser console and page errors on first load",
+      "method": "cold production start from serve.sh under a temp HOME; server stdout and stderr lines matching /^\\[...\\].*(error|fail|refus|unhandled|locked)/i counted as events (raw error-looking lines counted beside them); Playwright console errors (type error) and uncaught page errors on the first load of the slice page. Candidate B known startup errors are a measure here, not something fixed",
+      "details": {
+        "server_error_events": 0,
+        "server_error_looking_lines": 0,
+        "browser_console_errors": 0,
+        "browser_page_errors": 1,
+        "http_4xx_5xx_on_first_load": 0,
+        "http_errors": [],
+        "sample_events": [],
+        "sample_console": [],
+        "sample_page_errors": [
+          "undefined"
+        ]
+      }
+    },
+    "dependency_removal": {
+      "value": 4,
+      "unit": "package removal commands or patterns",
+      "method": "package-patch.json \"remove\" list (prefix patterns end in *), applied by setup.sh after npm ci; build_green from the build run in this harness",
+      "details": {
+        "removed": [
+          "@blocknote/xl-*",
+          "@ai-sdk/*",
+          "ai",
+          "gray-matter"
+        ],
+        "build_green": true,
+        "remaining_in_app_manifest": {
+          "dependencies": 9,
+          "devDependencies": 8
+        }
+      }
+    },
+    "direct_file_write_replacement": {
+      "value": 0,
+      "unit": "direct fs or child_process uses in the generated server source (overlay plus framework server dirs)",
+      "method": "countForbiddenIo (comments stripped; require and import of fs, node:fs, fs/promises, child_process; execFile, execFileSync, execSync, spawnSync) over the generated app server dirs, node_modules excluded, ui/shared/src/claude-adapter.ts excluded; the overlay-only count is reported beside it",
+      "details": {
+        "overlay_files_scanned": 10,
+        "overlay_hits": 0,
+        "generated_files_scanned": 12,
+        "generated_hits": 0,
+        "hits": []
+      }
+    },
+    "packaging": {
+      "value": 1262,
+      "unit": "files in the build output (the release entry count)",
+      "method": "setup.sh and build.sh run from nothing by this harness (wall seconds); output directory walked (.next/standalone): files, directories, apparent bytes, traced node_modules; packages under node_modules compared with the root manifest dependencies; the output copied to a temp dir and started with plain node and no build step, the slice loaded in Chromium, first-contentful-paint median of 3 fresh page loads; projected payload = scripts/check-release-payload-ceiling.cjs measurePayload on the working tree plus the output",
+      "details": {
+        "setup_seconds": 29,
+        "build_seconds": 16.9,
+        "output_dir": ".next/standalone",
+        "output_files": 1262,
+        "output_dirs": 259,
+        "output_bytes": 59672190,
+        "traced_node_modules_files": 1028,
+        "rule_8_violation_traced_node_modules": true,
+        "runtime_packages_in_output": 16,
+        "runtime_packages_not_in_root_manifest": 15,
+        "runtime_packages_not_in_root_manifest_sample": [
+          "@img/colour",
+          "@img/sharp-libvips-linux-arm64",
+          "@img/sharp-libvips-linuxmusl-arm64",
+          "@img/sharp-linux-arm64",
+          "@img/sharp-linuxmusl-arm64",
+          "@next/env",
+          "@swc/helpers",
+          "broadcast-channel",
+          "client-only",
+          "detect-libc",
+          "next",
+          "react"
+        ],
+        "starts_from_temp_copy_with_plain_node": true,
+        "temp_copy": {
+          "served_from_copy": true,
+          "fcp_ms_runs": [
+            112,
+            68,
+            64
+          ],
+          "fcp_ms_median": 68,
+          "start_to_ready_ms": 432
+        },
+        "time_to_first_paint_ms": 68,
+        "projected_release_payload": {
+          "measured": true,
+          "today_entries": 1996,
+          "today_unpacked_bytes": 33014815,
+          "ceiling_entries": 20000,
+          "ceiling_bytes": 268435456,
+          "projected_entries": 3258,
+          "projected_bytes": 92687005,
+          "within_entry_ceiling": true,
+          "within_byte_ceiling": true
+        }
+      }
+    },
+    "gate_click_to_view_ms": {
+      "value": 112,
+      "unit": "ms from the Confirm click to the confirmation shown in the page",
+      "method": "Playwright click on Confirm, then wait for the confirmation element; counts only, one run, headless Chromium on this machine. The replica-driven view update (decisions list) is reported beside it where the page renders one",
+      "details": {
+        "confirm_to_replica_view_ms": 171,
+        "replica_view_note": null,
+        "change_seq_before": 5,
+        "change_seq_after": 14,
+        "change_seq_incremented": true,
+        "room_changed_hint_fired": true,
+        "confirm_to_hint_ms": 92,
+        "gate_options": 3,
+        "gate_recommended_preselected": true,
+        "slice_steps": {
+          "document_rendered": true,
+          "document_read_only": true,
+          "evidence_items": 2,
+          "gate_rendered_as_ui": true,
+          "confirm_recorded": true,
+          "change_seq_incremented": true,
+          "hint_fired": true
+        },
+        "time_to_feed_live_ms": 597
+      }
+    },
+    "csp_style_src_self": {
+      "value": false,
+      "unit": "document rendered under the contract CSP verbatim",
+      "method": "the shell page is loaded in a fresh browser context; the document response is given the UI-SPEC contract Content-Security-Policy header by Playwright request interception (documents only, so the server and its cookie guard are untouched); violations counted from securitypolicyviolation events. Because default-src self also blocks a framework inline hydration payload, a second run adds script-src self unsafe-inline for the measurement only (never a shipped policy) to isolate what style-src self itself blocks",
+      "details": {
+        "contract": {
+          "policy": "default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'",
+          "document_rendered": false,
+          "evidence_items_rendered": 0,
+          "violations": 5,
+          "violations_by_directive": {
+            "style-src-attr": 1,
+            "script-src-elem": 4
+          },
+          "style_src_violations": 1,
+          "console_csp_messages": 5
+        },
+        "style_only_isolation": {
+          "policy": "default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'",
+          "document_rendered": true,
+          "evidence_items_rendered": 3,
+          "violations": 12,
+          "violations_by_directive": {
+            "style-src-attr": 1,
+            "style-src-elem": 11
+          },
+          "style_src_violations": 12,
+          "console_csp_messages": 12
+        }
+      },
+      "reading": "with scripts allowed to run, the document renders under style-src self with 12 style-src violations",
+      "contract_style_src_violations": 1,
+      "isolation_style_src_violations": 12
+    },
+    "_run": {
+      "error": null,
+      "egress_hosts": [
+        "127.0.0.1:43077"
+      ]
+    }
+  },
+  "agent-native": {
+    "architecture_distorted": {
+      "value": 21,
+      "unit": "convention-bypass markers in the candidate overlay and scripts",
+      "method": "markers counted by regex over overlay/ and setup/build/serve scripts (each listed with file, line and a one-line note); files outside ui/bakeoff/<candidate>/, ui/shared/ and the candidate test, from git log --name-only over the candidate plan commits; removal-list entries counted from REMOVE.txt or the REMOVE array",
+      "details": {
+        "files_outside_candidate_and_shared": 0,
+        "outside_files": [],
+        "plan_commit_files": 26,
+        "framework_paths_removed": 24,
+        "bypass_markers_by_note": {
+          "framework agent or MCP exposure switched off per action": 12,
+          "framework UI-only guard relied on": 3,
+          "lint or type check silenced": 1,
+          "process singleton on globalThis (framework bundles routes separately)": 2,
+          "bundler told to leave a module alone": 1,
+          "framework default plugins disabled": 2
+        },
+        "markers": [
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/approve-decision.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/approve-decision.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/approve-decision.ts",
+            "line": 12,
+            "note": "framework UI-only guard relied on"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/list-evidence.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/list-evidence.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/list-rooms.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/list-rooms.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/open-room.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/open-room.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/open-room.ts",
+            "line": 12,
+            "note": "framework UI-only guard relied on"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/propose-decision.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/propose-decision.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/read-artifact.ts",
+            "line": 10,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/actions/read-artifact.ts",
+            "line": 11,
+            "note": "framework agent or MCP exposure switched off per action"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/app/routes/slice.$room.tsx",
+            "line": 49,
+            "note": "lint or type check silenced"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/server/lib/pool.ts",
+            "line": 10,
+            "note": "process singleton on globalThis (framework bundles routes separately)"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/server/lib/session.ts",
+            "line": 11,
+            "note": "process singleton on globalThis (framework bundles routes separately)"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/server/lib/slice-actions.ts",
+            "line": 64,
+            "note": "bundler told to leave a module alone"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/server/plugins/mos-actions.ts",
+            "line": 8,
+            "note": "framework default plugins disabled"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/overlay/server/plugins/mos-actions.ts",
+            "line": 15,
+            "note": "framework UI-only guard relied on"
+          },
+          {
+            "file": "ui/bakeoff/agent-native/serve.sh",
+            "line": 18,
+            "note": "framework default plugins disabled"
+          }
+        ]
+      }
+    },
+    "workroom_code_surviving": {
+      "value": 0,
+      "unit": "workroom snapshot lines byte-identical in the candidate app tree",
+      "method": "sha256 of every workroom snapshot file (35 files, 2911 lines) matched against every file in the candidate app/ tree (node_modules, build output and generated dirs excluded); lines counted from the snapshot",
+      "details": {
+        "total_lines": 2911,
+        "share": 0,
+        "retained_lines_same_path": 0,
+        "retained_files": []
+      }
+    },
+    "selected_state_reaches_claude": {
+      "value": false,
+      "unit": "pass: the selected node id is in the returned proposal and a gate is rendered",
+      "method": "MOS_PROPOSAL_SOURCE=adapter (369-ADAPTER-RULING.md: room-proposal; no Claude process runs in the shell, so no fake-claude binary applies). Fixture room room-p holds the selected claim and a proposed claim filed about it that names its id and points at a source. The node is selected (URL query parameter ?node=<id> (the page has no clickable selection control)), \"Ask Claude\" is clicked, and the shell server response is read: pass when it carries the selected node id and the gate card is shown",
+      "details": {
+        "source": "adapter (room-proposal)",
+        "selected_node_id": "claim:fixture-369-room-p-x:2b38508d",
+        "selection_method": "URL query parameter ?node=<id> (the page has no clickable selection control)",
+        "evidence_items_seen": 2,
+        "ask_to_gate_ms": 8330,
+        "ask_http_status": 500,
+        "selected_id_in_proposal_response": false,
+        "gate_shown": false,
+        "refusal_or_error": "Internal server error",
+        "response_excerpt": "{\"error\":\"Internal server error\"}",
+        "server_log_lines_naming_adapter_or_proposal": [
+          "  error: 'Error: claude-adapter does not export a proposal source\\n' +"
+        ],
+        "copy_reference_line_on_page": false,
+        "boundaries": {
+          "http_hops": 3,
+          "process_boundaries": [
+            "browser",
+            "shell server",
+            "MindrianOS daemon"
+          ],
+          "processes_spawned_for_proposal": 0,
+          "note": "browser to shell action route (HTTP 1), shell to daemon adapter MCP session reading claim_read and graph_query (HTTP 2), shell to daemon gate_render on the human session (HTTP 3); counted statically from ui/bakeoff/agent-native/overlay/server/lib/slice-actions.ts (proposeDecision)"
+        },
+        "non_loopback_hosts": []
+      }
+    },
+    "persistent_state": {
+      "value": 20,
+      "unit": "items created by running the slice (cookies, local and session storage keys, IndexedDB databases, server-side files)",
+      "method": "Playwright storage dump (cookie names, localStorage and sessionStorage keys, indexedDB.databases()) from a blank context before and after the slice; recursive file listing of the server working directory (node_modules not descended) and the hermetic HOME before the cold start and after the slice",
+      "details": {
+        "cookies": [
+          "agent-native-ui-capability",
+          "an_session_app_hint",
+          "mos_sid"
+        ],
+        "localStorage": [
+          "agent-native.session_id",
+          "agent-native.session_last_activity"
+        ],
+        "sessionStorage": [
+          "agent-native:browser-tab-id"
+        ],
+        "indexedDB": [
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--_rxdb_internal",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--activity",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--artifacts",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--decisions",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--nodes",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--plugin-local-documents-room",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--relations",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--room",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-09e0a5b716327f40440e513f2fcfa5098294df227ec8418c4f2a7a82227395a3",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-238b25684a5f447ee8fd942abcca1bb42526cff6994baa0639c99ee75750ccd6",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-4123908d6b07cf1d28e24a04d43b968dd6d5227984031280cd0752e9c8c91f13",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-8634ecae0cf4295c6c3c8c6ca335594e5041282b0f66b3d201ba7911b6403c2b",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-913c7d88d50ce875335b97e29b2be2d984c0845e009272aa831358c7c2af9d12",
+          "rxdb-dexie-mos-room-e-b9090474-p1--0--rx-replication-meta-b237cdcc394cdb499c05ea4a7a68f4de148b624f158295f1e22bae6d787f57ba"
+        ],
+        "server_files_added": 0,
+        "server_files_added_list": [],
+        "home_files_added": 0,
+        "home_files_added_sample": []
+      }
+    },
+    "reconnect": {
+      "value": 0,
+      "unit": "claims (of 6 written after a daemon restart) still missing from the evidence view after 30 s without a page reload; converged_ms is in details",
+      "converged_ms": 315,
+      "method": "daemon SIGKILLed and respawned on the same port, rooms home and room.db (restartDaemon); 6 claims written from a child process through the room write door; the evidence view polled every 100 ms (page element count) for up to 30 s (spike 006 P5 method)",
+      "details": {
+        "converged": true,
+        "converged_ms": 315,
+        "missing_after_30s": 0,
+        "steady_state_one_write_to_view_ms": 153,
+        "daemon_port_unchanged": true,
+        "samples": 4
+      }
+    },
+    "startup_errors": {
+      "value": 28,
+      "unit": "server error events in the first 5 s plus browser console and page errors on first load",
+      "method": "cold production start from serve.sh under a temp HOME; server stdout and stderr lines matching /^\\[...\\].*(error|fail|refus|unhandled|locked)/i counted as events (raw error-looking lines counted beside them); Playwright console errors (type error) and uncaught page errors on the first load of the slice page. Candidate B known startup errors are a measure here, not something fixed",
+      "details": {
+        "server_error_events": 22,
+        "server_error_looking_lines": 43,
+        "browser_console_errors": 4,
+        "browser_page_errors": 2,
+        "http_4xx_5xx_on_first_load": 4,
+        "http_errors": [
+          "500 /_agent-native/actions/get-localization-preference",
+          "500 /_agent-native/application-state/localization",
+          "403 /_agent-native/actions/open-room",
+          "404 /_agent-native/webmcp/manifest"
+        ],
+        "sample_events": [
+          "[agent-native] Failed to initialize Better Auth: ju [HostedRuntimeLocalDatabaseError]: This deployed server has no hosted database: it resol",
+          "[agent-native] Auth guard registered despite init failure - app is locked.",
+          "[auth] ba.api.getSession error: ju [HostedRuntimeLocalDatabaseError]: This deployed server has no hosted database: it resolved to local PGli",
+          "[identity] failed to resume pending email rekey ju [HostedRuntimeLocalDatabaseError]: This deployed server has no hosted database: it resolv"
+        ],
+        "sample_console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ],
+        "sample_page_errors": [
+          "undefined",
+          "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors a"
+        ]
+      }
+    },
+    "dependency_removal": {
+      "value": 0,
+      "unit": "package removal commands or patterns",
+      "method": "setup.sh searched for pnpm remove or uninstall commands (none means code removed, not packages); build_green from the build run in this harness",
+      "details": {
+        "removed": [],
+        "build_green": true,
+        "remaining_in_app_manifest": {
+          "dependencies": 34,
+          "devDependencies": 52
+        }
+      }
+    },
+    "direct_file_write_replacement": {
+      "value": 0,
+      "unit": "direct fs or child_process uses in the generated server source (overlay plus framework server dirs)",
+      "method": "countForbiddenIo (comments stripped; require and import of fs, node:fs, fs/promises, child_process; execFile, execFileSync, execSync, spawnSync) over the generated app server dirs, node_modules excluded, ui/shared/src/claude-adapter.ts excluded; the overlay-only count is reported beside it",
+      "details": {
+        "overlay_files_scanned": 14,
+        "overlay_hits": 0,
+        "generated_files_scanned": 18,
+        "generated_hits": 0,
+        "hits": []
+      }
+    },
+    "packaging": {
+      "value": 192,
+      "unit": "files in the build output (the release entry count)",
+      "method": "setup.sh and build.sh run from nothing by this harness (wall seconds); output directory walked (.output): files, directories, apparent bytes, traced node_modules; packages under node_modules compared with the root manifest dependencies; the output copied to a temp dir and started with plain node and no build step, the slice loaded in Chromium, first-contentful-paint median of 3 fresh page loads; projected payload = scripts/check-release-payload-ceiling.cjs measurePayload on the working tree plus the output",
+      "details": {
+        "setup_seconds": 19.7,
+        "build_seconds": 57.8,
+        "output_dir": ".output",
+        "output_files": 192,
+        "output_dirs": 23,
+        "output_bytes": 31429195,
+        "traced_node_modules_files": 19,
+        "rule_8_violation_traced_node_modules": true,
+        "runtime_packages_in_output": 1,
+        "runtime_packages_not_in_root_manifest": 1,
+        "runtime_packages_not_in_root_manifest_sample": [
+          "node-pty"
+        ],
+        "starts_from_temp_copy_with_plain_node": true,
+        "temp_copy": {
+          "served_from_copy": true,
+          "fcp_ms_runs": [
+            276,
+            256,
+            236
+          ],
+          "fcp_ms_median": 256,
+          "start_to_ready_ms": 688
+        },
+        "time_to_first_paint_ms": 256,
+        "projected_release_payload": {
+          "measured": true,
+          "today_entries": 1996,
+          "today_unpacked_bytes": 33014815,
+          "ceiling_entries": 20000,
+          "ceiling_bytes": 268435456,
+          "projected_entries": 2188,
+          "projected_bytes": 64444010,
+          "within_entry_ceiling": true,
+          "within_byte_ceiling": true
+        }
+      }
+    },
+    "gate_click_to_view_ms": {
+      "value": 115,
+      "unit": "ms from the Confirm click to the confirmation shown in the page",
+      "method": "Playwright click on Confirm, then wait for the confirmation element; counts only, one run, headless Chromium on this machine. The replica-driven view update (decisions list) is reported beside it where the page renders one",
+      "details": {
+        "confirm_to_replica_view_ms": null,
+        "replica_view_note": "NOT MEASURED: this candidate page renders no decision or standing list from the replica after Confirm (only a confirmation message and the node list, whose rows show type and title, not standing)",
+        "change_seq_before": 5,
+        "change_seq_after": 13,
+        "change_seq_incremented": true,
+        "room_changed_hint_fired": true,
+        "confirm_to_hint_ms": 88,
+        "gate_options": 2,
+        "gate_recommended_preselected": true,
+        "slice_steps": {
+          "document_rendered": true,
+          "document_read_only": true,
+          "evidence_items": 2,
+          "gate_rendered_as_ui": true,
+          "confirm_recorded": true,
+          "change_seq_incremented": true,
+          "hint_fired": true
+        },
+        "time_to_feed_live_ms": 704
+      }
+    },
+    "csp_style_src_self": {
+      "value": false,
+      "unit": "document rendered under the contract CSP verbatim",
+      "method": "the shell page is loaded in a fresh browser context; the document response is given the UI-SPEC contract Content-Security-Policy header by Playwright request interception (documents only, so the server and its cookie guard are untouched); violations counted from securitypolicyviolation events. Because default-src self also blocks a framework inline hydration payload, a second run adds script-src self unsafe-inline for the measurement only (never a shipped policy) to isolate what style-src self itself blocks",
+      "details": {
+        "contract": {
+          "policy": "default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'",
+          "document_rendered": false,
+          "evidence_items_rendered": 0,
+          "violations": 29,
+          "violations_by_directive": {
+            "script-src-elem": 11,
+            "style-src-attr": 17,
+            "style-src-elem": 1
+          },
+          "style_src_violations": 18,
+          "console_csp_messages": 29
+        },
+        "style_only_isolation": {
+          "policy": "default-src 'self'; connect-src 'self'; font-src 'self'; img-src 'self' data:; style-src 'self'; frame-src 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'",
+          "document_rendered": true,
+          "evidence_items_rendered": 3,
+          "violations": 27,
+          "violations_by_directive": {
+            "style-src-attr": 17,
+            "style-src-elem": 10
+          },
+          "style_src_violations": 27,
+          "console_csp_messages": 27
+        }
+      },
+      "reading": "with scripts allowed to run, the document renders under style-src self with 27 style-src violations",
+      "contract_style_src_violations": 18,
+      "isolation_style_src_violations": 27
+    },
+    "_run": {
+      "error": null,
+      "egress_hosts": [
+        "127.0.0.1:39655"
+      ]
+    }
+  }
+}
