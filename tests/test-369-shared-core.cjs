@@ -263,6 +263,75 @@ async function main() {
     }
   });
 
+  await test('7. actions: exposure is mandatory, the adapter can never be an action, callableBy sets', async () => {
+    const { defineShellAction, createActionRegistry, EXPOSURES } = await load('actions.ts');
+    const { z } = await import(pathToFileURL(path.join(SHARED, 'node_modules', 'zod', 'index.js')).href);
+    assert.deepEqual(Array.from(EXPOSURES), ['agent', 'human', 'both']);
+    const input = z.object({ id: z.string() });
+    const run = () => 'ok';
+    assert.throws(() => defineShellAction({ name: 'a.no-exposure', input, run }), /exposure/);
+    assert.throws(() => defineShellAction({ name: 'a.bad', exposure: 'everyone', input, run }), /exposure/);
+    assert.throws(() => defineShellAction({ name: '', exposure: 'human', input, run }), /name/);
+    assert.throws(() => defineShellAction({ name: 'a.adapter', exposure: 'both', input, run, adapter: true }), /adapter/);
+    assert.throws(() => defineShellAction({ name: 'mcp.gate_answer', exposure: 'both', input, run }), /adapter/);
+    assert.throws(() => defineShellAction({ name: 'a.noschema', exposure: 'human', input: { not: 'zod' }, run }), /zod/);
+    const h = defineShellAction({ name: 'decision.answer', exposure: 'human', input, run });
+    const a = defineShellAction({ name: 'proposal.request', exposure: 'agent', input, run });
+    const b = defineShellAction({ name: 'room.read', exposure: 'both', input, run });
+    assert.ok(Object.isFrozen(h), 'definitions are frozen');
+    const reg = createActionRegistry();
+    reg.register(h);
+    reg.register(a);
+    reg.register(b);
+    assert.throws(() => reg.register({ name: 'x', exposure: 'both', input, run }), /defineShellAction/);
+    assert.throws(() => reg.register(h), /duplicate/);
+    assert.deepEqual(reg.callableBy('human').map((x) => x.name).sort(), ['decision.answer', 'room.read']);
+    assert.deepEqual(reg.callableBy('agent').map((x) => x.name).sort(), ['proposal.request', 'room.read']);
+    assert.equal(reg.list().length, 3);
+    assert.equal(reg.get('decision.answer'), h);
+    reg.assertAllDeclared();
+    assert.ok(!reg.callableBy('agent').some((x) => x.name === 'decision.answer'), 'an agent can never reach a human-only action');
+  });
+
+  await test('8. proposal contract: recommended id must be an option id; fixed source returns it', async () => {
+    const { ProposalSchema, fixedProposalSource } = await load('proposal.ts');
+    const good = {
+      subject_node_id: 'claim:42',
+      verdict_options: [{ id: 'approve', label: 'Approve' }, { id: 'reject', label: 'Reject', description: 'Not enough evidence' }],
+      recommended_id: 'approve',
+      evidence_node_ids: ['doc:1', 'doc:2'],
+      rationale: 'Two independent sources agree.',
+    };
+    assert.equal(ProposalSchema.safeParse(good).success, true);
+    assert.equal(ProposalSchema.safeParse(Object.assign({}, good, { recommended_id: 'defer' })).success, false);
+    assert.equal(ProposalSchema.safeParse(Object.assign({}, good, { verdict_options: [] })).success, false);
+    assert.equal(ProposalSchema.safeParse(Object.assign({}, good, { rationale: '' })).success, false);
+    assert.equal(ProposalSchema.safeParse(Object.assign({}, good, { evidence_node_ids: new Array(21).fill('n') })).success, false);
+    const src = fixedProposalSource(good);
+    const out = await src.propose({ roomSlug: 'room-x', selectedNodeId: 'claim:42', question: 'enough evidence?' });
+    assert.deepEqual(out, good);
+    assert.throws(() => fixedProposalSource(Object.assign({}, good, { recommended_id: 'nope' })));
+  });
+
+  await test('9. adapter generator --check is clean; tool names equal the wire snapshot; adapter holds no client or schema', async () => {
+    const r = cp.spawnSync(process.execPath, [path.join(SHARED, 'scripts', 'gen-mcp-adapter.mjs'), '--check'], { encoding: 'utf8', cwd: REPO_ROOT });
+    assert.equal(r.status, 0, 'gen --check: ' + r.stdout + r.stderr);
+    const snap = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tests', 'fixtures', '267', 'wire-snapshot-zod4.json'), 'utf8'));
+    const gen = await import(pathToFileURL(path.join(GEN, 'mcp-adapter.ts')).href);
+    assert.equal(gen.MCP_TOOL_NAMES.length, snap.local.tools.length);
+    assert.deepEqual(Array.from(gen.MCP_TOOL_NAMES), snap.local.tools.map((t) => t.name).sort());
+    const calls = [];
+    const fake = async (tool, args) => { calls.push([tool, args]); return 'r'; };
+    assert.equal(await gen.gateAnswer(fake, { gate_id: 'g1', chosen: 'approve' }), 'r');
+    assert.equal(calls[0][0], 'gate_answer');
+    const src = fs.readFileSync(path.join(GEN, 'mcp-adapter.ts'), 'utf8');
+    assert.ok(!/versionNegotiation/.test(src), 'the adapter carries no client of its own');
+    assert.ok(!/\bz\.(object|string)/.test(src), 'no second schema');
+    // Drift is detected: a mutated copy of the committed file differs from what the generator emits.
+    const { generate } = await import(pathToFileURL(path.join(SHARED, 'scripts', 'gen-mcp-adapter.mjs')).href);
+    assert.equal(generate(), src);
+  });
+
   // ARMS-INSERT-PURE
 
   console.log('live legacy pool against the hermetic flag-ON daemon');
