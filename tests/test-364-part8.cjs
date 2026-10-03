@@ -15,7 +15,7 @@
  *       {WellDefined, 6}, and the real guard classifies each known_tool_shape
  *   Q4  only sr-steps.cjs references brain-client among the sr modules and the CLI;
  *       none carries mcp__theo, theo-mcp, mindrian-brain-mcp-client, fetch( or http, https, net
- *   Q5  none carries /home/jsagi/Theo or a write call naming Theo
+ *   Q5  none carries the Theo repo path or a write call naming Theo
  *   Q6  sr-steps.cjs requires the guarded ../brain-client.cjs, never a raw MCP client
  *   Q7  zero network attempts in the parent and every child
  *   Q8  the filed PLAN.md carries the marker only as the navigator's own text and
@@ -219,7 +219,7 @@ async function main() {
     if (/\/home\/jsagi\/Theo/.test(code[f])) theoPath.push(path.basename(f) + ' path');
     code[f].split('\n').forEach(function (line) { if (WRITE.test(line) && /theo/i.test(line)) theoPath.push(path.basename(f) + ' write'); });
   });
-  C.check('Q5 none carries /home/jsagi/Theo or a write call naming Theo', present.length === files.length && theoPath.length === 0, JSON.stringify(theoPath));
+  C.check('Q5 none carries the Theo repo path or a write call naming Theo', present.length === files.length && theoPath.length === 0, JSON.stringify(theoPath));
   const stepsSrc = fs.readFileSync(path.join(srDir, 'sr-steps.cjs'), 'utf8');
   C.check('Q6 sr-steps.cjs requires the guarded ../brain-client.cjs and no raw MCP client',
     /require\(\s*['"]\.\.\/brain-client\.cjs['"]\s*\)/.test(stepsSrc) && !/mindrian-brain-mcp-client|@modelcontextprotocol/.test(stepsSrc));
