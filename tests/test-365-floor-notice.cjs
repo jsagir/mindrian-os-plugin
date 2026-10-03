@@ -232,12 +232,14 @@ function threeCard(extra) {
   // Re-pinned 2026-10-03 by Phase 289 plan 04 (CONTRACT289-02, CARD289-05) at
   // c2ff3a552: rung b gained superset_options[].recommended, contract.verbs and
   // the real option count (askuserquestion_marker, askuserquestion_binding and
-  // zones.footer); plain-c and rich-c unchanged.
+  // zones.footer); plain-c and rich-c unchanged. plain-a and rich-a re-pinned
+  // (ELICIT289-01: instruction title): the only key that moved is the field
+  // title inside requestedSchema and the captured elicit params.
   const PINNED = {
-    'plain-a': 'da7858d73c6f9dcbed260a03463413e5856cf7c5c0c3373359b4acd1bc675215',
+    'plain-a': '7d97aacce459a9483a9f01c520ff1290fec484f645884ef110aaf6b3fd31e0e1',
     'plain-b': 'c7cb85885f2cc7f9ceeecf3a1c3c3f5f6fdbbd171df59d3f2ed921ad51194e9f',
     'plain-c': 'e05a5e15c6b843c5dc75b61c30c092ec8ef8c529c0ef700f5c7822501708bbe6',
-    'rich-a': 'a3a1af163200cc209da8827075e724c01ccf128587f371c2094524abeff97f94',
+    'rich-a': '9fe6ceba6eaf8e91b9193e79ee476e3b688fc120046b1374b87d94ca7427736f',
     'rich-b': '45986151b0075e6e09e06addbf4049294d303f342adfe69be2204d4d78e0949c',
     'rich-c': 'b8b7ef22f894211b227648ead8f54d6d7d0479081c4ff07817d4c1e9cd815a4f',
   };

@@ -11,8 +11,8 @@
 // schema (not a hand-written expectation), and that the canonical
 // gate_answer payload is untouched.
 //
-// Five arms: single-select, multi-select, label-not-slug, sdk validation,
-// answer-identity. Plain Node script, no node:test. Hyphens only.
+// Six arms: single-select, multi-select, label-not-slug, sdk validation,
+// defaulted-schema (Phase 289), answer-identity. Plain Node script, no node:test. Hyphens only.
 'use strict';
 
 const assert = require('node:assert');
@@ -164,6 +164,49 @@ const THREE_OPTION_CARD_BASE = {
   }
 
   // -----------------------------------------------------------------------
+  // Arm 4b: defaulted-schema (Phase 289 ELICIT289-01) -- a ranked
+  // single-select card and a flagged multi-select card emit `default` and an
+  // instruction title, and both properties still validate against the SDK.
+  // -----------------------------------------------------------------------
+  {
+    const arm = 'defaulted-schema';
+    const rankedCard = gateRender.normalizeCard({
+      gate_id: 'gate-289-04-ranked',
+      header: 'Pick one',
+      options: [
+        { id: 'second', label: 'Second', rank: 2 },
+        { id: 'top', label: 'Top', rank: 1 },
+      ],
+    });
+    const flaggedCard = gateRender.normalizeCard({
+      gate_id: 'gate-289-04-flagged',
+      header: 'Pick several',
+      selectMode: 'multi',
+      options: [
+        { id: 'a', label: 'Alpha', recommended: true },
+        { id: 'b', label: 'Beta', rank: 1 },
+        { id: 'c', label: 'Gamma', recommended: true },
+      ],
+    });
+    const choice = buildElicitRequestedSchema(rankedCard).properties.choice;
+    const choices = buildElicitRequestedSchema(flaggedCard).properties.choices;
+    try {
+      assert.strictEqual(choice.default, 'top');
+      assert.strictEqual(choice.title, 'Choose: Second / Top');
+      assert.deepStrictEqual(choices.default, ['a', 'c']);
+      assert.strictEqual(choices.title, 'Choose one or more: Alpha / Beta / Gamma');
+    } catch (e) {
+      fail(arm, 'default and instruction title must match the card: ' + e.message, { choice: choice, choices: choices });
+    }
+    const sdkTypes = require('@modelcontextprotocol/core');
+    const sr = sdkTypes.TitledSingleSelectEnumSchemaSchema.safeParse(choice);
+    if (!sr.success) fail(arm, 'defaulted single-select failed TitledSingleSelectEnumSchemaSchema', { value: choice, error: sr.error && sr.error.message });
+    const mr = sdkTypes.TitledMultiSelectEnumSchemaSchema.safeParse(choices);
+    if (!mr.success) fail(arm, 'defaulted multi-select failed TitledMultiSelectEnumSchemaSchema', { value: choices, error: mr.error && mr.error.message });
+    console.log('PASS: arm defaulted-schema -- default and instruction title emitted, both properties validate against the SDK Zod schemas');
+  }
+
+  // -----------------------------------------------------------------------
   // Arm 5: answer-identity -- the SPEC-4 canonical gate_answer payload is
   // provably unmoved by this retrofit.
   // -----------------------------------------------------------------------
@@ -193,7 +236,7 @@ const THREE_OPTION_CARD_BASE = {
     console.log('PASS: arm answer-identity -- canonical gate_answer payload and extractElicitChoice round-trip are unmoved');
   }
 
-  console.log('PASS: test-265-gate-render-elicit-schema (all 5 arms: single-select, multi-select, label-not-slug, sdk, answer-identity)');
+  console.log('PASS: test-265-gate-render-elicit-schema (all 6 arms: single-select, multi-select, label-not-slug, sdk, defaulted-schema, answer-identity)');
   process.exit(0);
 })().catch((e) => {
   console.error('FAIL: test-265-gate-render-elicit-schema -- ' + (e && e.stack ? e.stack : e));
