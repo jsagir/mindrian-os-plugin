@@ -449,13 +449,23 @@ function claimId(slug, variant, text) {
 
 const E2E_ROOM = 'room-e';
 function e2eRoomSpec() {
+  // Both claims point at a source, so an Approve meets the room's evidence
+  // floor and ratifies (a claim with no source would be filed as needs
+  // evidence and write no decision).
+  const textX = 'Demand for the product is rising in the coastal region';
+  const textY = 'Two competitors left the segment last year';
+  const url = 'https://example.org/369-bakeoff-e2e-source';
+  const sourceId = 'EvidenceClaim:fixture-369-' + E2E_ROOM + '-src-s1:' + hash31(url);
   return {
     slug: E2E_ROOM,
     variant: 'wide',
     migrate: true,
     seed: [
-      { kind: 'claim', text: 'Demand for the product is rising in the coastal region', variant: 'x' },
-      { kind: 'claim', text: 'Two competitors left the segment last year', variant: 'y' },
+      { kind: 'claim', text: textX, variant: 'x' },
+      { kind: 'claim', text: textY, variant: 'y' },
+      { kind: 'source', url, retrieved_at: '2026-10-01T00:00:00Z', variant: 's1' },
+      { kind: 'edge', source_id: claimId(E2E_ROOM, 'x', textX), target_id: sourceId, edge_type: 'SOURCED_FROM' },
+      { kind: 'edge', source_id: claimId(E2E_ROOM, 'y', textY), target_id: sourceId, edge_type: 'SOURCED_FROM' },
     ],
   };
 }
@@ -536,7 +546,7 @@ class Shell {
     while (Date.now() - t0 < 60000) {
       try {
         const r = await httpGet(this.port, o.probePath || '/', {});
-        if (r.status > 0 && r.status < 500) {
+        if (r.status === 200) {
           this.readyMs = Date.now() - this.startedAt;
           return this;
         }
@@ -678,6 +688,7 @@ function measureArchitecture(cand) {
     'ui/bakeoff/' + cand.id + '/',
     'ui/shared/',
     cand.testFile,
+    '.planning/phases/369-',
   ];
   let files = [];
   try {
@@ -838,8 +849,9 @@ function measureDirectFileIo(cand) {
 // ------------------------------------------------------------ the live arm runs
 
 async function launchBrowser() {
-  const pw = require(path.join(REPO_ROOT, 'tests', 'e2e-369', 'lib', 'pw.cjs'));
-  return { pw, ...(await pw.launch()) };
+  const helper = require(path.join(REPO_ROOT, 'tests', 'e2e-369', 'lib', 'pw.cjs'));
+  const launched = await helper.launch();
+  return { helper, browser: launched.browser };
 }
 
 // Run 1: adapter (room-proposal) source, a selected node reaches the proposal.
@@ -861,12 +873,12 @@ async function runSelectedState(cand, ctx) {
   let browser = null;
   try {
     daemon = await startDaemon({ rooms: [room.spec] });
-    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'adapter', probePath: '/' }).start();
+    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'adapter', probePath: '/slice/' + ADAPTER_ROOM }).start();
     const b = await launchBrowser();
     browser = b.browser;
     const context = await browser.newContext();
     const page = await context.newPage();
-    const cap = b.pw.captureEgress(page);
+    const cap = b.helper.captureEgress(page);
     const base = 'http://127.0.0.1:' + shell.port;
     const asks = [];
     page.on('response', async (r) => {
@@ -926,6 +938,9 @@ async function runSelectedState(cand, ctx) {
         gate_shown: gateShown,
         refusal_or_error: gateShown ? null : reason,
         response_excerpt: gateShown ? undefined : body ? body.text.slice(0, 240) : 'no response observed',
+        server_log_lines_naming_adapter_or_proposal: gateShown
+          ? []
+          : shell.out.split('\n').filter((l) => /adapter|proposal|claude-adapter/i.test(l)).slice(0, 4).map((l) => l.slice(0, 240)),
         copy_reference_line_on_page: copyLine,
         boundaries: staticBoundaries,
         non_loopback_hosts: hosts.filter((h) => !(h === '127.0.0.1' || h.startsWith('127.0.0.1:'))),
@@ -963,7 +978,7 @@ async function runFullSlice(cand, ctx) {
       return a.concat(h);
     };
     const before = filesBefore();
-    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'fixed', probePath: '/' }).start();
+    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'fixed', probePath: '/slice/' + E2E_ROOM }).start();
     const spawnedAt = shell.startedAt;
     const b = await launchBrowser();
     browser = b.browser;
@@ -971,7 +986,7 @@ async function runFullSlice(cand, ctx) {
     // storage before: a blank context
     const context = await browser.newContext();
     const page = await context.newPage();
-    const cap = b.pw.captureEgress(page);
+    const cap = b.helper.captureEgress(page);
     const errs = attachErrorCapture(page);
     const storageBefore = await dumpStorage(context, page);
     const base = 'http://127.0.0.1:' + shell.port;
@@ -1002,6 +1017,7 @@ async function runFullSlice(cand, ctx) {
         http_errors: errs.http.slice(0, 8),
         sample_events: events.slice(0, 4).map((l) => l.slice(0, 140)),
         sample_console: errs.console.slice(0, 3),
+        sample_page_errors: errs.page.slice(0, 3),
       },
     };
 
@@ -1105,7 +1121,7 @@ async function runFullSlice(cand, ctx) {
     const steadyMs = nSteady >= evBase + 1 ? Date.now() - tW : null;
 
     // CSP (contract verbatim, then the style-only isolation variant)
-    out.csp_style_src_self = await runCsp(cand, shell, browser, base, b.pw);
+    out.csp_style_src_self = await runCsp(cand, shell, browser, base);
 
     // reconnect after a dropped connection
     out.reconnect = await runReconnect({ cand, page, daemon, restartDaemon, shell, steadyMs, evBase: await page.locator(cand.ui.evidence).count() });
@@ -1130,7 +1146,7 @@ async function runFullSlice(cand, ctx) {
   return out;
 }
 
-async function runCsp(cand, shell, browser, base, pw) {
+async function runCsp(cand, shell, browser, base) {
   const results = {};
   for (const [name, policy] of [['contract', CSP_CONTRACT], ['style_only_isolation', CSP_STYLE_ONLY]]) {
     const context = await browser.newContext();
@@ -1212,17 +1228,40 @@ async function runReconnect(o) {
       await sleep(100);
     }
     const conv = convergence(samples, 6);
+    let diagnostics;
+    if (!conv.converged) {
+      diagnostics = {};
+      try {
+        diagnostics.feed_probe = await page.evaluate(async (id) => {
+          const r = id === 'workroom'
+            ? await fetch('/api/feed/changes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ collection: 'nodes', after: 0, limit: 3 }) })
+            : await fetch('/mos/feed/changes?collection=nodes&after=0&limit=3');
+          const t = await r.text();
+          return { status: r.status, body: t.slice(0, 200) };
+        }, cand.id);
+      } catch (e) { diagnostics.feed_probe = { error: String(e).slice(0, 120) }; }
+      diagnostics.server_log_tail = (o.shell.out || '').slice(-500);
+      try {
+        await page.reload({ waitUntil: 'load' });
+        await sleep(5000);
+        const n = await page.locator(cand.ui.evidence).count().catch(() => 0);
+        diagnostics.after_page_reload_new_items_seen = Math.max(0, n - base);
+      } catch (e) { diagnostics.after_page_reload_new_items_seen = 'reload failed: ' + String(e).slice(0, 80); }
+    }
     return {
-      value: conv.converged ? conv.ms : null,
-      unit: 'ms until all 6 claims written after a daemon restart show in the evidence view',
+      value: conv.missing,
+      unit: 'claims (of 6 written after a daemon restart) still missing from the evidence view after 30 s without a page reload; converged_ms is in details',
+      converged_ms: conv.ms,
       method:
         'daemon SIGKILLed and respawned on the same port, rooms home and room.db (restartDaemon); 6 claims written from a child process through the room write door; the evidence view polled every 100 ms (page element count) for up to 30 s (spike 006 P5 method)',
       details: {
         converged: conv.converged,
+        converged_ms: conv.ms,
         missing_after_30s: conv.missing,
         steady_state_one_write_to_view_ms: o.steadyMs,
         daemon_port_unchanged: true,
         samples: conv.samples,
+        diagnostics,
       },
       _daemon: restarted,
     };
@@ -1242,7 +1281,7 @@ async function runPackagedCopy(cand, ctx, outDir) {
   try {
     cp.execFileSync('cp', ['-a', outDir + '/.', copyDir]);
     daemon = await startDaemon({ rooms: [e2eRoomSpec()] });
-    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'fixed', copyDir, probePath: '/' }).start();
+    shell = await new Shell(cand, { daemonPort: daemon.port, home: ctx.home, mode: 'fixed', copyDir, probePath: '/slice/' + E2E_ROOM }).start();
     const b = await launchBrowser();
     browser = b.browser;
     const base = 'http://127.0.0.1:' + shell.port;
@@ -1252,10 +1291,14 @@ async function runPackagedCopy(cand, ctx, outDir) {
       const context = await browser.newContext();
       const page = await context.newPage();
       await page.goto(base + cand.ui.url(E2E_ROOM), { waitUntil: 'load' });
-      const paint = await page.evaluate(() => {
-        const e = performance.getEntriesByName('first-contentful-paint')[0];
-        return e ? Math.round(e.startTime) : null;
-      });
+      let paint = null;
+      for (let t = 0; t < 50 && paint === null; t += 1) {
+        paint = await page.evaluate(() => {
+          const e = performance.getEntriesByName('first-contentful-paint')[0];
+          return e ? Math.round(e.startTime) : null;
+        });
+        if (paint === null) await sleep(100);
+      }
       if (paint !== null) fcps.push(paint);
       if (i === 0) {
         const n = await waitCount(page, cand.ui.evidence, 1, 15000);
@@ -1486,7 +1529,9 @@ async function main(argv) {
       scan: rxdbInfoScan(ids),
     },
   };
-  fs.writeFileSync(out, JSON.stringify(results, null, 2) + '\n');
+  // Framework log lines can carry a literal long dash; the house rule is hyphens only.
+  const text = JSON.stringify(results, null, 2).split(String.fromCharCode(0x2014)).join('-').split(String.fromCharCode(0x2013)).join('-');
+  fs.writeFileSync(out, text + '\n');
   console.log('wrote ' + path.relative(REPO_ROOT, out));
   return 0;
 }
