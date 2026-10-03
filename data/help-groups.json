@@ -111,6 +111,7 @@
       "glyph": "⚡",
       "commands": [
         "research",
+        "scientific-roadmap",
         "find-connections",
         "build-thesis",
         "compare-ventures",
