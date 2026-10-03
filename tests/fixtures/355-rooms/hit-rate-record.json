@@ -12,8 +12,8 @@
     "planted_cases_sha256": "94e19ae3bf177012751335606d588e8de1f6e83ce3dc538de3a749c5bbf23502",
     "session_stamped_sha256": "20bc727d31a180f8070d220119f22d062ba2e6edbdc8174e632cd6b8aecbae94",
     "theo_snapshot_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53",
-    "name_snapshot_date": "2026-09-23",
-    "name_snapshot_source_sha256": "3935848a1641ed126f6d91cc5243e7f80068340a191573579108d8c77437ea53"
+    "name_snapshot_date": "2026-10-02",
+    "name_snapshot_source_sha256": "3d7fd83e19e5725e96b6dfa30b683f074d60bf28802b44722a0d940a36687f06"
   },
   "export": {
     "encoder": "MongoDB/mdbr-leaf-ir",
