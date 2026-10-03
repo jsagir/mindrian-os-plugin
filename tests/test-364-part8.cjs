@@ -237,9 +237,12 @@ async function main() {
     fmLabels.length === 7 && fmLabels.every(function (l) { return fixLabels.indexOf(l) !== -1; }), JSON.stringify(fmLabels));
   C.check('Q8 the plan carries no Theo runIt text and no refusal text',
     planText.length > 0 && runIts.every(function (t) { return planText.indexOf(t) === -1; }) && planText.indexOf('Theo has not authored this step yet') === -1);
-  const markerLines = planText.split('\n').filter(function (l) { return l.indexOf(MARKER) !== -1; });
-  C.check('Q8 the marker lands only in navigator text (no frontmatter, heading or Theo label line)',
-    markerLines.length > 0 && markerLines.every(function (l) { return !/^(---|#|theo_label|theo_step_id|methodology|frameworks|rung|run_tag)/.test(l) && fixLabels.every(function (lab) { return l.indexOf(lab) === -1 || l.indexOf(MARKER) !== -1 && l.length > lab.length; }); }),
+  const fmEnd = planText.indexOf('\n---\n', 4);
+  const frontmatter = fmEnd === -1 ? planText : planText.slice(0, fmEnd);
+  const bodyLines = fmEnd === -1 ? [] : planText.slice(fmEnd + 5).split('\n');
+  const markerLines = bodyLines.filter(function (l) { return l.indexOf(MARKER) !== -1; });
+  C.check('Q8 the marker lands only in body text the navigator wrote (never frontmatter, a heading or the rubric)',
+    frontmatter.indexOf(MARKER) === -1 && markerLines.length > 0 && markerLines.every(function (l) { return !/^#/.test(l) && !/plugin-side rubric/.test(l); }),
     JSON.stringify(markerLines.slice(0, 3)));
   C.check('Q8 a refused read after the walk still carries no marker on the wire', refusedStart.json && refusedStart.json.next === 'refused'
     && JSON.stringify(childLogs[childLogs.length - 1].calls).indexOf(MARKER) === -1);

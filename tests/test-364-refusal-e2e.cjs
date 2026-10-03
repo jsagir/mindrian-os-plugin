@@ -116,7 +116,8 @@ function listing(dir) {
     try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch (_e) { return; }
     entries.forEach(function (e) {
       const abs = path.join(d, e.name);
-      if (e.isDirectory()) walk(abs); else out[path.relative(dir, abs)] = fs.statSync(abs).size;
+      // -shm and -wal are SQLite sidecars of a read-only open of a WAL database, not room content (the 364-08 M7 rule)
+      if (e.isDirectory()) walk(abs); else if (!/room\.db-(shm|wal)$/.test(e.name)) out[path.relative(dir, abs)] = fs.statSync(abs).size;
     });
   })(dir);
   return out;
@@ -244,7 +245,7 @@ async function main() {
   const basket = cli(['basket', '--room', walkRoom.roomDir, '--state', statePath], authored);
   const bj = basket.json || {};
   C.check('X5 basket returns items led by research_plan and a card',
-    basket.status === 0 && bj.ok === true && Array.isArray(bj.items) && bj.items.length > 1 && bj.items[0].id === 'research_plan' && typeof bj.card === 'string');
+    basket.status === 0 && bj.ok === true && Array.isArray(bj.items) && bj.items.length > 1 && bj.items[0].id === 'research_plan' && !!bj.card && String(bj.card.body_md).indexOf('## File this research plan?') === 0);
 
   const noSel = cli(['file', '--room', walkRoom.roomDir, '--state', statePath], authored);
   C.check('X5 file without a selection file is a usage error (exit 2)', noSel.status === 2, 'status=' + noSel.status);
@@ -258,6 +259,10 @@ async function main() {
     filed.stdout.slice(0, 300) + filed.stderr.slice(0, 200));
   const planText = fs.existsSync(planFile) ? fs.readFileSync(planFile, 'utf8') : '';
   C.check('X5 the filed plan names the Theo labels and the wired Settled section reads the state', labels.every(function (l, i) { return i >= 7 || planText.indexOf(l) !== -1; }) && planText.indexOf('## Settled, not re-argued') !== -1);
+
+  const planRefLine = (planText.split('\n---\n')[0].match(/^plan_ref: (.*)$/m) || [])[1];
+  C.check('X5 the filed plan names the plan run it came from (plan_ref is the run id, not null)',
+    !!pj.plan_ref && planRefLine === JSON.stringify(pj.plan_ref.run_id), String(planRefLine) + ' vs ' + JSON.stringify(pj.plan_ref));
 
   // X5 (Plan 14): a stamped finding in flight, step 6 refuses until it is addressed
   const st2 = await buildStampedRoom(ROOMS, 'stamped_strong_ambient', { name: 'stamped_walk' });
