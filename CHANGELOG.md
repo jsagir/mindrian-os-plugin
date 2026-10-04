@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.56 (in progress)
+## [2.0.0-beta.57] - 2026-10-04
 
 ### Added
 - **Claude Desktop: MindrianOS installs from Customize > Plugins > Add marketplace** (`jsagir/mindrian-marketplace`).
