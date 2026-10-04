@@ -462,7 +462,7 @@ function armRules() {
     }
   });
   check('rules', 'the ruling doc has no em-dash or en-dash', () => {
-    assert.ok(!/[—–]/.test(doc), 'the ruling doc contains a long dash');
+    assert.ok(!new RegExp('[' + String.fromCharCode(0x2014, 0x2013) + ']').test(doc), 'the ruling doc contains a long dash');
   });
   check('rules', 'release-process.md item 5 mentions plugins[1] and RULE 5 and adds no digit-count', () => {
     const inc = fs.readFileSync(INCLUDE_DOC, 'utf8');
