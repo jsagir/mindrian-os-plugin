@@ -90,14 +90,18 @@ try {
       try {
         const { resolveNpmCli, buildInstallArgs } = require('../lib/core/npm-cli-resolve.cjs');
         const npm = resolveNpmCli();
-        spawnSync(npm.command, buildInstallArgs(npm), {
+        const frozen = fs.existsSync(path.join(PLUGIN_ROOT, 'npm-shrinkwrap.json'));
+        spawnSync(npm.command, buildInstallArgs(npm, undefined, { frozen }), {
           cwd: PLUGIN_ROOT,
           timeout: 120000,
           stdio: 'ignore',
           shell: npm.shell,
         });
       } catch (_) {
-        spawnSync('npm', ['install', '--no-audit', '--no-fund', '--silent'], {
+        const lastDitch = fs.existsSync(path.join(PLUGIN_ROOT, 'npm-shrinkwrap.json'))
+          ? ['ci', '--ignore-scripts', '--no-audit', '--no-fund']
+          : ['install', '--no-audit', '--no-fund', '--silent'];
+        spawnSync('npm', lastDitch, {
           cwd: PLUGIN_ROOT,
           timeout: 120000,
           stdio: 'ignore',
