@@ -17,6 +17,10 @@
  *   wr01   WR-01  chain_run's resume refuses a gate that is not a material
  *                 chain-step gate (kind, onStepFn, restSteps) before the
  *                 consume, so the owner's gate_render gate is not burned.
+ *   wr02   WR-02  the refusals knowable before the consume are pre-consume (see
+ *                 cr01); the one that cannot be known (a resolve that throws) is
+ *                 pinned honestly as the residual: the gate is spent and the
+ *                 failure is returned under chain_result, never as success.
  *   wr03   WR-03  a throwing elicitInput on rung (a) falls through to the card
  *                 rung with the reason recorded on the rendered result, never
  *                 render_failed, and the gate is still answerable.
@@ -73,7 +77,7 @@ async function check(label, fn) {
   }
 }
 
-const ALL_ARMS = ['cr01', 'wr01', 'wr03', 'wr05'];
+const ALL_ARMS = ['cr01', 'wr01', 'wr02', 'wr03', 'wr05'];
 function parseArms(argv) {
   const picked = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -361,6 +365,41 @@ async function armWr01() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr02
+// ---------------------------------------------------------------------------
+async function armWr02() {
+  const f = fixture();
+  await check('wr02: a resolve that throws is the stated residual - reported ok:false under chain_result, never success', async () => {
+    const out = await f.research._internal.mintApprovalGate(makeFakeServer(), { surface: 'cli' }, 'S1', {
+      card: { title: 'Grant', question: 'Allow the run?' },
+      options: [{ id: 'grant', label: 'Grant' }, { id: 'no', label: 'No' }],
+      approving: ['grant'],
+      rejecting: ['no'],
+      resolve: async () => { throw new Error('boom'); },
+    });
+    const r = await f.answer('S1', out.gate_id, ['grant'], 'approve');
+    assert.equal(r.ok, false, 'a failed resume must not report success, got ' + JSON.stringify(r));
+    assert.ok(r.chain_result && r.chain_result.ok === false && r.chain_result.reason === 'approval_failed', 'got ' + JSON.stringify(r.chain_result));
+    assert.equal(f.gateLedger.peekGate(out.gate_id, 'S1'), null, 'the residual: the gate is spent once resumeFn ran (Phase 369 plan 26 owns durable consumption)');
+  });
+  await check('wr02: the coherence refusal that WAS knowable leaves no spent gate and no row (contrast with the residual)', async () => {
+    const out = await f.research._internal.mintApprovalGate(makeFakeServer(), { surface: 'cli' }, 'S1', {
+      card: { title: 'Grant', question: 'Allow the run?' },
+      options: [{ id: 'grant', label: 'Grant' }, { id: 'no', label: 'No' }],
+      approving: ['grant'],
+      rejecting: ['no'],
+      resolve: async () => ({ ok: true }),
+    });
+    const r = await f.answer('S1', out.gate_id, ['no'], 'approve');
+    assert.equal(r.reason, 'chosen_not_approving');
+    assert.equal(f.rowCount(out.gate_id), 0);
+    const e = f.gateLedger.peekGate(out.gate_id, 'S1');
+    assert.ok(e && e.ok !== false, 'the gate must survive');
+    f.gateLedger._internal._ledger.delete(out.gate_id);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Arm: wr03
 // ---------------------------------------------------------------------------
 async function armWr03() {
@@ -453,7 +492,7 @@ async function armWr05() {
 
 async function main() {
   const arms = parseArms(process.argv.slice(2));
-  const table = { cr01: armCr01, wr01: armWr01, wr03: armWr03, wr05: armWr05 };
+  const table = { cr01: armCr01, wr01: armWr01, wr02: armWr02, wr03: armWr03, wr05: armWr05 };
   try {
     for (const id of arms) {
       if (!table[id]) {
