@@ -83,28 +83,37 @@ export function createFeedRelay(options: FeedRelayOptions) {
     return typeof options.daemonUrl === 'function' ? options.daemonUrl() : options.daemonUrl;
   }
 
-  async function pageChanges(sessionKey: string, query: ChangesQuery): Promise<Record<string, unknown>> {
+  // The answer plus whether the pool had to rebuild the MCP session to get it (the daemon came back).
+  async function callChanges(sessionKey: string, query: ChangesQuery): Promise<{ answer: Record<string, unknown>; reconnected: boolean }> {
     const args: Record<string, unknown> = {};
     for (const k of ['collection', 'after', 'epoch', 'limit', 'mode', 'snapshot_cursor'] as const) {
       if (query && query[k] !== undefined) args[k] = query[k];
     }
     try {
       const res = await pool.call(sessionKey, 'room_changes', args);
-      if (res.isError && FEED_TOOL_MISSING_RE.test(res.text)) return { ok: false, reason: 'feed_unavailable' };
-      if (res.isError) return { ok: false, reason: 'feed_error', detail: res.text };
+      const reconnected = res.reconnected === true;
+      if (res.isError && FEED_TOOL_MISSING_RE.test(res.text)) return { answer: { ok: false, reason: 'feed_unavailable' }, reconnected };
+      if (res.isError) return { answer: { ok: false, reason: 'feed_error', detail: res.text }, reconnected };
       const d = res.data;
-      if (d && typeof d === 'object') return d as Record<string, unknown>;
-      return { ok: false, reason: 'feed_error', detail: res.text };
+      if (d && typeof d === 'object') return { answer: d as Record<string, unknown>, reconnected };
+      return { answer: { ok: false, reason: 'feed_error', detail: res.text }, reconnected };
     } catch (err) {
       const msg = err && typeof err === 'object' && 'message' in err ? String((err as Error).message) : String(err);
-      if (FEED_TOOL_MISSING_RE.test(msg)) return { ok: false, reason: 'feed_unavailable' };
-      return { ok: false, reason: 'feed_error', detail: msg };
+      if (FEED_TOOL_MISSING_RE.test(msg)) return { answer: { ok: false, reason: 'feed_unavailable' }, reconnected: false };
+      return { answer: { ok: false, reason: 'feed_error', detail: msg }, reconnected: false };
     }
+  }
+
+  async function pageChanges(sessionKey: string, query: ChangesQuery): Promise<Record<string, unknown>> {
+    return (await callChanges(sessionKey, query)).answer;
   }
 
   function subscribeHints(sessionKey: string, roomId: string, onHint: (hint: Hint) => void): () => void {
     let stopped = false;
     let lastSeq: number | null = null;
+    let lastEpoch: string | null = null;
+    let reconnectPending = false;
+    let reconnectShortened = false;
     let abort: AbortController | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -144,10 +153,13 @@ export function createFeedRelay(options: FeedRelayOptions) {
       if (stopped) return;
       const wait = backoff;
       backoff = Math.min(backoff * 2, backoffMax);
+      reconnectPending = true;
+      reconnectShortened = false;
       reconnectTimer = setTimeout(loop, wait);
     }
 
     function loop(): void {
+      reconnectPending = false;
       if (stopped) return;
       readStream().then(scheduleReconnect, (err) => {
         if (stopped || (err && (err as Error).name === 'AbortError')) return;
@@ -160,15 +172,32 @@ export function createFeedRelay(options: FeedRelayOptions) {
       // The room-wide head, read from a one-row SNAPSHOT page (as_of_seq): a delta read from seq 0 answers
       // checkpoint_expired once the change log was compacted, with no latest_seq, which would silence this
       // safety net exactly when a copy is far behind. latest_seq stays accepted for a delta-shaped answer.
-      const r = await pageChanges(sessionKey, { collection: 'nodes', limit: 1, mode: 'snapshot' });
+      const { answer: r, reconnected } = await callChanges(sessionKey, { collection: 'nodes', limit: 1, mode: 'snapshot' });
+      // The pool rebuilt its MCP session to answer this poll: the daemon is back. A stream attempt waiting out a grown
+      // backoff (up to 15 s) need not wait any longer; try again after the start value.
+      // Once per wait: a pool that keeps answering with reconnected must not keep pushing the attempt out.
+      if (reconnected && reconnectPending && !reconnectShortened && !stopped) {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        backoff = Math.min(backoffStart * 2, backoffMax);
+        reconnectShortened = true;
+        reconnectTimer = setTimeout(loop, backoffStart);
+      }
       const head = r && typeof r.as_of_seq === 'number' ? r.as_of_seq : r && typeof r.latest_seq === 'number' ? r.latest_seq : null;
       const latest = typeof head === 'number' ? head : null;
+      const epoch = typeof r.epoch === 'string' && r.epoch.length > 0 ? r.epoch : null;
       if (latest === null) return;
-      if (lastSeq !== null && latest > lastSeq) {
+      if (lastEpoch === null) lastEpoch = epoch;
+      // WR-10: any difference is news. A LOWER head means the log was reset or rebuilt, and an epoch change means the
+      // copy's checkpoint no longer points into this log; both need a pull (which answers epoch_changed or
+      // checkpoint_expired and rebuilds). Comparing only for a higher head left a reset log silent until its sequence
+      // overtook the old number.
+      const epochChanged = epoch !== null && lastEpoch !== null && epoch !== lastEpoch;
+      if (lastSeq === null) {
         lastSeq = latest;
+      } else if (latest !== lastSeq || epochChanged) {
+        lastSeq = latest;
+        if (epoch !== null) lastEpoch = epoch;
         emit({ roomId, latestSeq: latest, source: 'poll' });
-      } else if (lastSeq === null) {
-        lastSeq = latest;
       }
     }
 
