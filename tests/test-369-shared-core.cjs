@@ -192,6 +192,30 @@ async function main() {
     stop();
   });
 
+  await test('3d. a poll that sees the pool reconnect resets the stream backoff to its start value', async () => {
+    const { createFeedRelay } = await load('feed-relay.ts');
+    const attempts = [];
+    const fetchImpl = async () => { attempts.push(Date.now()); throw new Error('the daemon is down'); };
+    let reconnected = false;
+    const pool = { call: async () => ({ ok: true, isError: false, text: '', data: { ok: true, epoch: 'e1', as_of_seq: 5, docs: [], done: true }, reconnected }) };
+    const relay = createFeedRelay({ pool, daemonUrl: 'http://127.0.0.1:1', pollMs: 30, fetchImpl, backoffStartMs: 40, backoffMaxMs: 100000 });
+    const stop = relay.subscribeHints('s', 'r1', () => {});
+    const t0 = Date.now();
+    while (attempts.length < 5 && Date.now() - t0 < 4000) await new Promise((r) => setTimeout(r, 10));
+    assert.ok(attempts.length >= 5, 'the stream retried with a growing wait: ' + attempts.length + ' attempts');
+    const growing = attempts[4] - attempts[3];
+    assert.ok(growing >= 120, 'before the reconnect the wait had grown (' + growing + ' ms)');
+    const before = attempts.length;
+    reconnected = true; // the pool rebuilt the MCP session: the daemon is back
+    const tFlag = Date.now();
+    while (attempts.length === before && Date.now() - tFlag < 3000) await new Promise((r) => setTimeout(r, 5));
+    const waited = Date.now() - tFlag;
+    reconnected = false;
+    stop();
+    assert.ok(attempts.length > before, 'the stream tried again');
+    assert.ok(waited < 250, 'a reconnect reported by the poll brings the next stream attempt within the start backoff, not the grown one (' + waited + ' ms)');
+  });
+
   await test('5. projection: six collections, toDoc upsert and delete, dbName, isResetReason', async () => {
     const proj = await load('projection.ts');
     assert.equal(proj.COLLECTIONS.length, 6);
