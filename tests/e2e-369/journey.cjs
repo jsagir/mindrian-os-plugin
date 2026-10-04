@@ -815,6 +815,17 @@ async function main() {
           console.log('SOAK-ERROR cycle=' + i + ' ' + msg.slice(0, 200));
           // The daemon could not be brought back (killed by a signal before it reported its port, or never started): the rest of
           // the soak would only repeat that error against a dead handle, so stop and say the run is void.
+          if (/the launcher stopped the shell: not running/.test(msg)) {
+            // The shell this run started is gone between cycles. Say what is left, then stop: the rest would repeat this error.
+            const facts = { when: new Date().toISOString(), load1: loadNow(), tree: treeNow() };
+            const read = (key, fn) => { try { facts[key] = fn(); } catch (e) { facts[key] = 'unreadable: ' + String((e && e.message) || e).slice(0, 120); } };
+            read('shell_json', () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.json'), 'utf8').replace(/\s+/g, ' ').slice(0, 300));
+            read('shell_log_tail', () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.log'), 'utf8').trim().split('\n').slice(-30));
+            read('shell_processes', () => cp.spawnSync('pgrep', ['-af', 'lib/ui-shell/dist/server'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(Boolean).map((l) => l.slice(0, 120)));
+            read('daemon_alive', () => { process.kill(daemon.child.pid, 0); return true; });
+            console.log('SOAK-SHELL-GONE cycle ' + i + ' ' + J(facts));
+            soak.aborted = true;
+          }
           if (/daemon exited early|daemon did not report its port/.test(msg)) {
             const peers = cp.spawnSync('pgrep', ['-af', '^node tests/'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(Boolean).map((l) => l.slice(0, 110));
             console.log('VOID-RUN cycle ' + i + ': the restarted daemon died before it reported its port (a signal from outside this run, or a failed start); peers on the host: ' + J(peers));
