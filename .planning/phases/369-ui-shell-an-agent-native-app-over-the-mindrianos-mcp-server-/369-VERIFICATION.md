@@ -1,148 +1,121 @@
 ---
 phase: 369-ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server-
-verified: 2026-10-04T12:00:00Z
-status: gaps_found
-score: 6/8 goal clauses verified (2 partial or failed; see Gaps)
+verified: 2026-10-04T18:00:00Z
+status: human_needed
+score: 8/8 goal clauses verified (automated); 5 human items open, none a gap
 overrides_applied: 0
 re_verification:
-  previous_status: none
-gaps:
-  - truth: "A decision gate is a real button with the recommendation preselected, and a person can reach it from the shipped shell"
-    status: partial
-    reason: "The button, the preselection and the recovery contract are built and proven, but only for a gate the test harness raises. The shipped client never calls askClaude (grep of ui/shell/client finds no call; only tests/e2e-369/*.cjs and tests/test-369-*.cjs call it). A default launch runs MOS_PROPOSAL_SOURCE=fixed, which answers no_proposal. listOpenGates and readGate read only gates minted into the same browser session by askClaude (gatesOf(key)), so a gate Larry raises in Claude Code through gate_render never appears in the shell. A person using the shell as launched cannot start the Approve flow."
-    artifacts:
-      - path: "ui/shell/server/actions.ts"
-        issue: "listOpenGates / readGate read only gates minted by askClaude into the browser session's in-memory map; no path surfaces a gate raised by the room's own gate_render"
-      - path: "ui/shell/client"
-        issue: "no control calls the askClaude action; the ADAPTER-RULING hop 'the shell raises the gate on the browser session' is not built"
-    missing:
-      - "A browser control that raises a gate (calls askClaude), or a read path that surfaces gates minted by Larry's gate_render in the same room"
-      - "Launcher default (or the control's own path) that does not answer no_proposal"
-  - truth: "The shell ships as release-built assets and the payload ceiling still passes (TS369-08)"
-    status: failed
-    reason: "lib/ui-shell/dist is tracked, fresh (build-ui-shell --check: source hash f9e43808, 103 files), has no node_modules, and release.sh runs the freshness gate. But check-release-payload-ceiling fails: npm-shrinkwrap.json declares hasInstallScript:true for node_modules/sharp (optional dependency of next, introduced by 369-19's RULE 8 ruling). Re-measured in this verification (run-all-369 FAIL=1; doctor --acceptance harness-policies). A release cut would abort."
-    artifacts:
-      - path: "npm-shrinkwrap.json"
-        issue: "sharp hasInstallScript:true would run an install script on every user machine"
-    missing:
-      - "scripts/release-lib/prune-shrinkwrap.cjs at the cut (Phase 369.1 D-16 / D-16a 'prune', ruled by the navigator 2026-10-04); TS369-08 stays [ ] until it lands"
-  - truth: "A restarted shell tells a person an old decision was already recorded"
-    status: partial
-    reason: "Gate records live in shell memory. After a restart an old gate id reads 'This decision is no longer open' instead of 'already recorded'. The room replays correctly (one node, replayed:true). Wording and in-memory record only; no data loss."
-    artifacts:
-      - path: "ui/shell/server/actions.ts"
-        issue: "answeredOf/gatesOf maps are in-process; no read from the room's durable anchor on unknown_gate"
-    missing:
-      - "On unknown_gate, check the room's durable anchor (decision node / gate_answer memory_event) and show 'already recorded'"
-  - truth: "The one recoverable journey passes every time (SHELL369-11)"
-    status: partial
-    reason: "journey.cjs step 6 (restart both servers, recover) timed out once in 10 runs in the close gate (60 s waiting for the read copy to hold 19 items). Cause not established. It passed in this verification's aggregator run."
-    artifacts:
-      - path: "tests/e2e-369/journey.cjs"
-        issue: "intermittent step 6 timeout, about 1 in 10"
-    missing:
-      - "Root-cause the step 6 catch-up stall (ReplicaProvider restart path) and capture host load at failure"
-  - truth: "Phase-caused baselines are refreshed (369 left three reds with no or partial owner)"
-    status: failed
-    reason: "Re-measured here. (1) test-267 zod4 contract fails: tool:room_list description diff from 369-22; pinned accepted set not refreshed. (2) 267 lockstep Check 1 and 2 (package.json vs package-lock.json) from 369-19, no owner. (3) tests/test-369-bakeoff-agent-native.cjs --built: 12 passed, 1 failed (stale 'answered:false' on second approve, since 369-26 idempotent replay). All are phase-caused, small, and unowned except the sharp item above."
-    artifacts:
-      - path: "tests/test-267-mcpv2-zod4-contract.cjs"
-        issue: "pinned accepted diff set missing tool:room_list:description"
-      - path: "tests/test-369-bakeoff-agent-native.cjs"
-        issue: "stale single-use assertion on --built arm"
-    missing:
-      - "Refresh the zod4 pinned set with a reason; give the lockstep red an owner (release shrinkwrap step regenerates package-lock.json); one-line assertion update in the retired candidate's --built smoke"
+  previous_status: gaps_found
+  previous_score: 6/8
+  gaps_closed:
+    - "Gap 1 (BLOCKER): a person can start and reach a decision from the shipped shell"
+    - "Gap 2: a restarted shell reads 'already recorded' for an old decision"
+    - "Gap 3: journey step 6 flake (cause established as a peer test sweeping the daemon pid; the journey now voids such a run instead of failing silently)"
+    - "Gap 4: three phase-caused reds (zod4 room_list, lockstep, stale --built assertion) and TS369-08 (sharp)"
+  gaps_remaining: []
+  regressions: []
+gaps: []
 deferred: []
 human_verification:
+  - test: "CR-02 navigator decision (Critical review finding, not built, by ruling)"
+    expected: "Navigator picks one of the options in 369-REVIEW-FIX.md: (1) a human-only loopback route for gate_answer, (2) an answered_via marker with honest attribution (recommended now), (3) leave it and say so in the canon. Until then an MCP session can mint and answer its own gate and the approve is attributed to the navigator; the shell's own D-15 path (cookie, CSRF, Origin, single-use nonce) is intact and proven."
+    why_human: "Product and security-policy decision inherited from Phases 198/289; the review itself says the fix is a server-side design choice"
   - test: "Record the Claude Desktop and Cowork host build numbers for the D-03 plain line"
-    expected: "Build numbers written into 369-MANUAL-VERIFICATION.md next to the navigator's 2026-10-04 approval. The navigator approved the two sentences on both surfaces but reported no build numbers."
+    expected: "Build numbers written into 369-MANUAL-VERIFICATION.md beside the navigator's approval (currently 'not reported')"
     why_human: "Only a person with the host app open can read its build number"
-  - test: "MCPV2-13 Claude Desktop smoke (Phase 267's owed human check)"
-    expected: "Desktop lists the MindrianOS tools and room_list shows the two D-03 sentences"
-    why_human: "Real host application; owned by Phase 267 follow-ons, not 369's gate"
-  - test: "Open navigator items (wording): NOT_FOUND 404 copy (369-20), duplicate 'Reconnect now' placement and 'Catching up' fallback (369-24), Research A5 (rank-only recommendation vs the 0.70 Brain-confidence rule)"
+  - test: "MCPV2-13 Claude Desktop smoke (Phase 267's owed check)"
+    expected: "Desktop lists the MindrianOS tools; room_list shows the two D-03 sentences"
+    why_human: "Real host application; owned by Phase 267 follow-ons"
+  - test: "Wording rulings: NOT_FOUND 404 copy (369-20), duplicate 'Reconnect now' placement and 'Catching up' fallback (369-24), Research A5 (rank-only recommendation vs the 0.70 Brain-confidence rule)"
     expected: "Navigator rulings recorded"
     why_human: "Product and canon judgment"
+  - test: "Remaining Info findings IN-01..IN-11 and the never-do mirrored proposal / 1,000-character mirrored preview (369-36)"
+    expected: "Dispositions per the one-line recommendations in 369-REVIEW-FIX.md"
+    why_human: "Navigator items by the review-fix record; none blocks a goal clause"
 ---
 
-# Phase 369: UI shell over the MindrianOS MCP server - Verification Report
+# Phase 369: UI shell over the MindrianOS MCP server - Verification Report (re-verification)
 
-**Phase Goal:** Ship the fourth surface: a browser workspace whose only access to a room is the MindrianOS MCP server (Streamable HTTP, per-connection session mode), where a decision gate is a real button with the recommendation preselected, the room view stays current without a reload through a one-way RxDB read copy, every pixel follows Design Canon v3, no outside host is contacted, CJS-only is lifted for TypeScript under erasable-only rules, and the shell ships as release-built assets never built on the user's machine.
+**Phase Goal:** Ship the fourth surface: a browser workspace whose ONLY access to a room is the MindrianOS MCP server (Streamable HTTP, per-connection session mode), where a decision gate is a real button with the recommendation preselected, the room view stays current without a reload through a one-way RxDB read copy, every pixel follows Design Canon v3, no outside host is contacted, CJS-only is lifted for TypeScript under erasable-only rules, and the shell ships as release-built assets never built on the user's machine.
 **Verified:** 2026-10-04
-**Status:** gaps_found
-**Re-verification:** No, initial verification
+**Status:** human_needed (all automated and code-level checks pass; no gap remains; five human items are listed, CR-02 the one that matters)
+**Re-verification:** Yes, after gap closure (plans 369-33 to 369-47 on top of the original 32)
 
-The starting stance was that the goal was missed. The evidence moved that stance on six of the eight clauses. It held on two, and on a third in part. A person cannot yet start a decision from the shipped shell, and the release payload ceiling still fails.
+The stance was that the gap closure did not land. The evidence moved it: each of the four gaps closes in code and in a command run in this verification, not only in a SUMMARY.
 
 ## Goal Achievement
 
-### Observable Truths (goal clauses and ROADMAP contract)
+### Observable Truths
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Only access to a room is the MCP server (legacy sessionful Streamable HTTP, one session per browser session) | VERIFIED | `grep` of ui/shell/server, client, app and ui/shared/src for fs, sqlite and child_process imports finds one hit: `server/control.ts` writes the launcher control-token file (not a room). Actions go through `ui/shared/src/mcp-session-pool.ts`. `test-369-shared-core` PASS=13, `test-369-sessionful-acceptance` PASS=6 re-run in this verification's aggregator pass. |
-| 2 | A decision gate is a real button with the recommendation preselected | VERIFIED as a component | `gate-model.ts` derives `preselected` from `rendered.contract.recommended` (single-select Shape F, one recommended max); `GateView.tsx:180` seeds selection from it. `test-369-gate-web-mapping` 22, `gate-button.cjs` 15 arms PASS in this run (lost response, replay, stale_subject, persistence failure). |
-| 2b | A person can reach that gate from the shipped shell | FAILED (known, recorded) | No client call to `askClaude`; default `MOS_PROPOSAL_SOURCE=fixed` answers `no_proposal`; gates are per-browser-session in-memory, so Larry's `gate_render` never shows. See Gaps 1. |
-| 3 | Room view stays current without reload via one-way RxDB read copy | VERIFIED | `ui/shared/src/replica.ts` calls `replicateRxCollection` with `pull` only (no `push` key); dev-mode plugin never imported; `replica.cjs` 12 arms PASS in this run (catch-up, live update, 200-write burst, restart, hard delete, warm reload pulls 0). Metrics this run: catch_up 855 ms, live_update 119 ms, lost_writes 0, restart_missing 0. Change feed side: CHG369/FEED369 tests all PASSED in the aggregator. |
-| 4 | Every pixel follows Design Canon v3 | VERIFIED (automated) plus navigator visual approval | `test-369-canon-skin` 30, `egress-and-canon` C1-C11 PASS (aggregator run). Radius rule: only exceptions are the cobalt circle (`base.css`) and BlockNote vars set to 0. Navigator "approved" on the 31 captures 2026-10-04 (369-MANUAL-VERIFICATION.md). Composition items accepted. |
-| 5 | No outside host is contacted | VERIFIED | `egress-and-canon` C1 PASSED in this run (runtime request log, loopback only; 4 fonts bundled). Strings such as nextjs.org and json-schema.org in dist are library text, not requests; the runtime log is the evidence. |
-| 6 | CJS-only lifted for TypeScript under erasable-only rules | VERIFIED | CLAUDE.md lines 134-136 carry the lifted rule and the erasable-only constraints; `test-369-constitution` 7, `ts-erasable-gate` 8, `walled-manifest` 8, `hook-require-graph` 5 (0 TS reachable from hooks), engines floor `>=22.18.0` in package.json. No `.ts` under lib/ outside lib/ui-shell. Exact-floor Node 22.18.0 leg SKIPPED (ENV GAP, binary absent). |
-| 7 | Shell ships as release-built assets, never built on the user's machine, payload ceiling holds | PARTIAL | dist tracked (262 files), `build-ui-shell.cjs --check` fresh, no node_modules in dist, release.sh runs freshness gate and never builds. Payload ceiling FAILS on sharp (Gaps 2). `next`, `react`, `react-dom` are root dependencies installed per machine by navigator ruling (RULE 8), not built. |
-| 8 | Chassis chosen by navigator at a Decision Gate (D-07) | VERIFIED | `369-BAKEOFF-DECISION.md` records "workroom (Recommended)" with transplants and the RULE 8 ruling. Bake-off measures for both candidates in `ui/bakeoff/results.json`; `test-369-bakeoff-measure` PASS=12 in the aggregator. |
+| 1 | Only access to a room is the MCP server (sessionful Streamable HTTP, one session per browser session) | VERIFIED | Unchanged from the first pass; `test-369-shell-server` re-run 43 passed; `run-all-369` legs for shared-core and sessionful-acceptance PASSED. |
+| 2 | A decision gate is a real button with the recommendation preselected | VERIFIED | `gate-button.cjs` PASSED in the aggregator (18 arms per the requirement line); recommendation seeded from the contract; `gate-model.ts` `classifyAnswer` maps `ok:true` only to "recorded". |
+| 2b | A person can reach a decision from the shipped shell (previous BLOCKER) | VERIFIED (closed) | Three independent routes, all seen in code and in the journey run (below): the Evidence "Ask Larry about this" control, gates raised by Larry in Claude Code listed in Work and Decisions, and the launcher default source `adapter`. |
+| 3 | Room view current without reload via one-way RxDB read copy | VERIFIED | `replica` e2e leg PASSED in the aggregator; journey step 7 this run: 32 items, 0 missing, catch-up 2805 ms. |
+| 4 | Every pixel follows Design Canon v3 | VERIFIED + navigator "approved" | canon-skin and egress-and-canon legs PASSED; navigator approved the 31 captures and, on 2026-10-04, the two new flows. |
+| 5 | No outside host is contacted | VERIFIED | Journey step 8 this run: 762 requests, one host `127.0.0.1:34411`, 0 CSP events. |
+| 6 | CJS-only lifted for TypeScript under erasable-only rules | VERIFIED | CLAUDE.md Conventions carry the lifted rule; constitution, ts-erasable, walled-manifest, hook-require-graph legs PASSED. Exact-floor Node 22.18.0 leg SKIPPED (ENV GAP, binary absent, stated). |
+| 7 | Shell ships as release-built assets, never built on the user's machine, payload ceiling holds | VERIFIED (was PARTIAL) | `node scripts/build-ui-shell.cjs --check`: fresh, source hash 539768ed075ce362, 110 files, 270 dist files verified (the check now re-hashes every dist byte, 369-45). `node scripts/check-release-payload-ceiling.cjs --check`: OK, 0 findings (run three times: standalone and in the aggregator). sharp pruned by Phase 369.1 plan 08. Built strings "Check for Larry" and "Raised by Larry outside this browser" are present in `lib/ui-shell/dist`, so the shipped assets carry the new controls. |
+| 8 | Chassis chosen by navigator at a Decision Gate (D-07) | VERIFIED | 369-BAKEOFF-DECISION.md; bakeoff measure leg PASSED. |
 
-**Score:** 6 of 8 clauses fully verified (1, 2 as component, 3, 4, 5, 6, 8 verified; 2b and 7 not). Counted as 6/8 because 2 and 2b are one goal clause and the clause fails at the user-reach level.
+**Score:** 8 of 8 clauses verified.
+
+### Gap closure, checked in code
+
+| Gap | Closure claim | Code evidence read in this verification | Status |
+|-----|---------------|------------------------------------------|--------|
+| 1a | A CLI-shaped stdio gate reaches the shell list | `lib/mcp/tools/gate.cjs` registers `gate_render` (records a contract-only row, no session identity) and `gate_list`; `lib/mcp/gate-raised.cjs` is the store; `ui/shell/server/actions.ts` `listOpenGates` merges the session's gates with `gateList(...)` results, flags `raised_elsewhere: true`, drops stale mirrors, and sets `unavailable` on a failed lookup rather than hiding gates. | VERIFIED |
+| 1b | It is answered through a mirror | `gate_render` takes `mirror_of` (ledger id of its own, source gate must be open in the same room; `mirror_mismatch`, `unknown_gate`, `mirror_source_answered`); `actions.ts` answers under the mirror's `mcp_gate_id` and `scrubId`s it from the page; the source replays `answered_elsewhere` (gate.cjs 919-1009); `classifyAnswer` reads it as "already recorded". Journey step 5 this run: "listed 823 ms after Larry raised it, no reload; Approve recorded one node; the CLI answer replayed answered_elsewhere". | VERIFIED |
+| 1c | `askClaude` is called from the Evidence control | `ui/shell/client/views/evidence/AskLarry.tsx` `check()` calls `callAction('askClaude', {selectedNodeId, question})`; on `ok` with `gate_id` it navigates to `/gate/<id>`; `no_proposal` reads as honest "nothing filed" copy; the control never answers a decision. Journey step 4 this run: no proposal, then Larry's filed proposal opened the gate; Approve recorded once, 66 ms. | VERIFIED |
+| 1d | Default does not answer no_proposal | `lib/ui-shell/launch.cjs` `proposalSourceFromEnv()` returns `adapter` unless the environment says `fixed`; a running shell on another source is replaced (`rec.proposalSource === proposalSource`). | VERIFIED |
+| CR-01 | Launcher never prints the link to non-TTY output and opens `/auth/start` | `launch.cjs` `shouldPrintLink` is true only for a TTY without `--open`; the non-print path arms `{start:true}` through the 0600 control channel, no code is minted, and the opener gets `startUrlFor(port)` = `/auth/start`; if no browser opens it prints a command for the person's own terminal, not a link. `test-369-launch-surface` 30 passed. Journey step 1 asserts the launcher printed no code. | VERIFIED |
+| CR-01 | A curl-shaped exchange is refused | `ui/shell/server/auth.ts` `isBrowserNavigation` requires `Sec-Fetch-Site: none`, `Sec-Fetch-Mode: navigate`, `Sec-Fetch-Dest: document`; both `handleBootstrapRequest` and `handleStartRequest` return 403 before the code is read or the slot is spent. `test-369-shell-server` 43 passed (live curl-shaped exchange 403). Residual (a same-user process forging the three headers) is CR-02's class, recorded in 369-SESSION-CONTRACT.md. | VERIFIED |
+| 2 | Restart reads "already recorded" | `actions.ts` readGate checks the room for an already-answered gate and issues no nonce; copy `'This decision was already recorded.'`; journey step 7 this run: "old gate id: browser says already-recorded, room says replayed:true", one node. | VERIFIED |
+| 3 | Step-6 flake | Root cause recorded in 369-34 and the resolved debug file (`.planning/debug/resolved/369-journey-step6-catch-up-stall.md`): a peer hygiene test SIGKILLing repo-anchored daemons (ENV GAP); the journey now voids such a run (DAEMON-EXIT-UNEXPECTED). This verification: journey 1 of 1 non-void pass, tree clean before and after; aggregator journey leg PASSED; 369-46 recorded 10 of 10 and 369-47 5 of 5. Family owner Phase 369.1 / post-369 quick. | VERIFIED (cause is environmental, tracked) |
+| 4 | Three phase-caused reds and TS369-08 | zod4 contract, lockstep and `--built` all inside the green aggregator (PASS=63 FAIL=0); run-all-369 includes the release payload ceiling leg PASSED; TS369-08 `[x]` with a Measured line. | VERIFIED |
 
 ### Probe and Aggregator Execution (own process, this verification)
 
 | Command | Result | Status |
 |---------|--------|--------|
-| `bash tests/run-all-369.sh` | PASS=54 FAIL=1 SKIP=1, exit 1. FAIL = release payload ceiling (sharp). SKIP = exact-floor Node 22.18.0. Matches the close gate exactly. All five core e2e legs PASSED (replica, gate-button, views, egress-and-canon, journey; human-only HTTP arm 8 "PASS 8 over real HTTP"). | Matches claim |
-| `node scripts/build-ui-shell.cjs --check` | exit 0, dist fresh, 103 files | PASS |
-| `node tests/test-267-mcpv2-zod4-contract.cjs` | PASS=2 FAIL=2: `tool:room_list` description diff | FAIL (phase-caused) |
-| `node tests/test-369-bakeoff-agent-native.cjs --built` | 12 passed, 1 failed | FAIL (phase-caused, stale assertion) |
-| `node scripts/doctor.cjs --acceptance` | 21/22, failed `harness-policies` | Matches claim (sharp) |
+| `bash tests/run-all-369.sh` (run once, nothing of mine running alongside) | `Phase 369: PASS=63 FAIL=0 SKIP=1`, exit 0. SKIP = exact-floor Node 22.18.0 install (ENV GAP: binary and Docker absent). No hygiene arm flaked, so no leg was re-run alone. Replica, views copy, views e2e, journey, human-only (PASS=10 incl. HTTP arm), payload ceiling and render coverage legs all PASSED. | PASS |
+| `node tests/e2e-369/journey.cjs` (standalone, spot-run) | 8 of 8 steps PASS in 23 s; metrics: click to recorded 66 ms, raised to listed 823 ms, restart catch-up 2805 ms, lost writes 0, answered_elsewhere replays 1. `git status` of lib/bin/scripts/ui empty before and after (non-void). | PASS |
+| `node scripts/build-ui-shell.cjs --check` | fresh, 270 dist files verified | PASS |
+| `node scripts/check-release-payload-ceiling.cjs --check` | OK, 0 findings | PASS |
+| `node tests/test-369-launch-surface.cjs`, `node tests/test-369-shell-server.cjs` | 30 passed 0 failed; 43 passed 0 failed | PASS |
+
+I did not re-run run-all-267, run-all-289 or `doctor --acceptance` here; the 31/0/3, 47/0/1 and 22/22 figures are the close gate's and the generator and ceiling checks that sit inside run-all-369 re-ran green.
 
 ### Requirements Coverage
 
-All 59 IDs appear in plan frontmatter (59 unique IDs across the 32 plans) and in the REQUIREMENTS.md Phase 369 block: no orphans, no unclaimed rows.
-
-| Family | IDs | REQUIREMENTS.md state | Assessment |
-|--------|-----|----------------------|-----------|
-| TS369 | 01-07 | `[x]` with Measured lines | SATISFIED (tests re-run green; 04 exact-floor leg SKIPPED, ENV GAP, stated in its Measured line) |
-| TS369 | 08 | `[ ]` Open with stated reason | BLOCKED on payload ceiling (sharp) -> Phase 369.1 D-16/D-16a |
-| CHG369 | 01-06 | `[x]` | SATISFIED |
-| FEED369 | 01-05 | `[x]` | SATISFIED (FEED369-04 note: separate room_list zod4 diff is 369-22's) |
-| SESS369 | 01-04 | `[x]` | SATISFIED |
-| GREC369 | 01-05 | `[x]` | SATISFIED; GREC369-05 limit: post-restart wording (Gaps 3) |
-| HUM369 | 01-03 | `[x]` | SATISFIED (HTTP arm 8 real HTTP re-run) |
-| RXP369 | 01-03 | `[x]` | SATISFIED |
-| CANON369 | 01-07 | `[x]` | SATISFIED; 06 wording-only open items |
-| SHELL369 | 01-08 | `[x]` | SATISFIED |
-| SHELL369 | 09 | `[x]` | SATISFIED on the navigator's plain-line approval; host build numbers not reported (human item). Related unmarked red: zod4 `room_list`. |
-| SHELL369 | 10 | `[x]` | SATISFIED for the component; reach limit in Gaps 1 |
-| SHELL369 | 11 | `[x]` | OVERSTATED. Marked closed, but the Measured line itself says the journey raises its gate through the harness. "Decide" is not reachable by a person from the shipped shell, and step 6 flakes about 1 in 10. Treat as partial. |
-| BAKE369 | 01-04 | `[x]` | SATISFIED; BAKE369-02 `--built` stale assertion red |
-| CM369 | 01-03 | `[x]` | SATISFIED (counts only) |
-
-58 of 59 closed in the file; this report holds SHELL369-11 as partial and TS369-08 as open, so the honest count is 57 closed, 1 partial, 1 open.
+All 77 IDs (59 plan-time: TS369-01..08, CHG369-01..06, FEED369-01..05, SESS369-01..04, GREC369-01..05, HUM369-01..03, RXP369-01..03, CANON369-01..07, SHELL369-01..11, BAKE369-01..04, CM369-01..03; 18 gap-closure: SHELL369-12, SHELL369-13, REV369-01..16) were extracted from the REQUIREMENTS.md Phase 369 block and compared with the `requirements:` frontmatter of the 47 plans: the two sets are identical (no orphan, no unclaimed row). All 77 rows are `[x]` and zero `[ ]` remain in the block. SHELL369-11 carries a Reopened line and a new Measured line from 369-47; TS369-08 carries its Open history and a Measured line. Spot-read Measured lines for TS369-08, SHELL369-11, 12, 13 name commands that I re-ran or that sit inside the green aggregator. Two cautions: (a) the Measured text is the executor's; my own evidence for each is in the table above; (b) REV369 rows are 16 closures against 32 review findings: 18 fixed, 2 handed to Phase 369.1 plan 04 (WR-13 daemon half, WR-15, both in `lib/mcp/daemon-lifecycle.cjs`, outside 369's files), 12 navigator items (CR-02, IN-01..IN-11). Status: SATISFIED for every row; the handed-off and navigator items are not requirement rows.
 
 ### Anti-Patterns and Debt Markers
 
-Not exhaustively scanned across all 32 plans' files. Targeted checks: the `unconfiguredSource` path in `ui/shell/server/actions.ts` throws `no_proposal` by default (see Gaps 1; it is the substance of the reach gap, not an unflagged stub). No evidence found of a 369 commit causing an unrecorded red. Recorded reds are all in the Gaps list or owned elsewhere (test-198 on-stop 618 against 570 since July; the Phase 289 cascade reds; test-354 stamp drift).
+`TBD|FIXME|XXX` scan over `lib/mcp/gate-raised.cjs`, `lib/mcp/tools/gate.cjs`, `lib/ui-shell/launch.cjs`, `scripts/build-ui-shell.cjs` and every tracked `.ts`/`.tsx` under `ui/shell` and `ui/shared/src` (generated adapter excluded): no hits. The `unconfiguredSource` `no_proposal` path is now honest copy behind a real control, not a stub. Em-dash guard leg PASSED in the aggregator. 369-34's SUMMARY lacks the literal "Self-Check: PASSED" string (it has a "## Self-Check" section); not a gap.
 
-### Research trail (VALIDATION row 369-31-02)
+Known out-of-phase reds (owners named, not counted): test-198-adapter-budget, test-237 MUTATION, test-345 under the real registry, test-363 M3-M7, test-366 R6b, test-353 EVENT_TYPES, test-354 ledger stamp. Hygiene-sweep flake family (test-267-mcpv2-dual-era, test-289-cli-card-dual-era, test-369.1-bin-relocation SIGKILL repo-anchored `mindrian-mcp-server` pids): owner Phase 369.1 or a post-369 quick.
 
-The close recorded the room copy as blocked. In this verification the room copy exists at `/home/jsagi/MindrianRooms/rethinking-mindrianos/research/2026-10-04-phase-369-ui-shell-close-out.md` and `cmp` against the mirror at `/home/jsagi/MindrianOS/research/2026-10-04-phase-369-ui-shell-close-out.md` exits 0. It is committed in /home/jsagi as `94878236d` ("room write authorized by the navigator 2026-10-04"). VALIDATION row 369-31-02 can flip to green; that file was not edited here. This removes one of the four reasons `nyquist_compliant` is false, leaving three (zod4 room_list, stale `--built`, sharp).
+### Research trail and Nyquist
+
+`cmp /home/jsagi/MindrianOS/research/2026-10-04-phase-369-ui-shell-close-out.md /home/jsagi/MindrianRooms/rethinking-mindrianos/research/2026-10-04-phase-369-ui-shell-close-out.md` exits 0 (byte-identical, home repo commit 4653c2cbe). 369-VALIDATION.md now shows `nyquist_compliant: true`, rows 369-31-02 and 369-47-03 green.
 
 ### Human Verification Required
 
-1. Desktop and Cowork host build numbers for the D-03 line. Navigator approved; no build numbers recorded.
-2. MCPV2-13 Claude Desktop smoke (owed by Phase 267 follow-ons).
-3. Open navigator wording items: NOT_FOUND copy, duplicate "Reconnect now", "Catching up" fallback, Research A5.
+1. **CR-02 (Critical review finding, navigator decision).** An MCP `gate_answer` has no human principal: any MCP session can mint and answer its own gate and the approve is attributed to the navigator. Inherited from Phases 198/289; Phase 369's shell path is protected (nonce, cookie, CSRF, Origin, `human_only`), and a direct MCP answer from the adapter session on a shell gate is `session_mismatch` (HUM369-03 proven). Options in 369-REVIEW-FIX.md: (1) human-only loopback route, (2) `answered_via` marker with honest attribution (recommended now), (3) leave it and say so in the canon. I treat it as human_needed rather than a gap because the phase's own requirement (HUM369-01..03) is met and the roadmap goal speaks of the button, not of server-side principal binding; if the navigator reads "only a person approves" as a server invariant, this becomes a gap for a follow-on phase.
+2. Desktop and Cowork host build numbers for D-03 (navigator approved; numbers not reported).
+3. MCPV2-13 Claude Desktop smoke (Phase 267's owed check).
+4. Wording rulings: 404 copy, duplicate "Reconnect now", "Catching up" fallback, Research A5.
+5. IN-01..IN-11 dispositions and the 369-36 mirrored-preview items.
 
 ### Gaps Summary
 
-The engine is solid and reproduced: the change feed, the one-way read copy, the human-only gate answer, the recovery contract, Canon v3 and the loopback-only egress all pass on re-run, and 54 of 56 aggregator legs agree with the close gate. What the phase did not deliver is the whole goal as a person would live it. A person cannot start a decision from the shipped shell, because nothing in the browser raises a gate and a gate raised by Larry in Claude Code is invisible to it. The release cannot be cut until the sharp install script is pruned (already owned by Phase 369.1 D-16/D-16a). Smaller items: restart wording, one journey flake, and three small baseline reds (zod4, lockstep, stale assertion) that 369 caused. Feed gaps 1, 3 and 4 plus the two small reds to `/gsd-plan-phase 369 --gaps`; gap 2 is Phase 369.1's.
+No gap remains against the eight goal clauses. The previous BLOCKER (a person could not start or reach a decision) is closed three ways and proven by a fresh journey run on the shipped dist: Ask Larry on Evidence raises a gate from a filed proposal, a gate Larry raises in Claude Code appears in Work and Decisions with no reload and is answered in the browser while the CLI session replays `answered_elsewhere`, and the launcher defaults to the adapter source and signs the person in without printing a link. The payload ceiling passes and the three phase-caused reds are gone. What is left is human: the CR-02 policy choice, host build numbers, one Desktop smoke owed by Phase 267, and wording rulings.
+
+## Previous verification (2026-10-04, gaps_found)
+
+The first pass scored 6 of 8 clauses. The engine (change feed, one-way read copy, human-only answer, recovery contract, Canon v3, loopback-only egress) reproduced green, but a person could not start a decision from the shipped shell (CLI-raised gates invisible, no browser control called `askClaude`, proposals off by default), the payload ceiling failed on `sharp`, an old decision read "no longer open" after a restart, journey step 6 flaked about 1 in 10, and three phase-caused reds (zod4 `room_list`, lockstep, a stale `--built` assertion) had no owner. Plans 369-33 to 369-47 addressed each; this report supersedes it.
 
 ---
 
