@@ -153,6 +153,16 @@ if [ ! -f "$RELEASE_LIB_DIR/npm-propagation-poll.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/npm-propagation-poll.sh"
 
+# Phase 369.1 plan 14 (D-03, D-13): the Desktop copy library (mos_build_desktop_copy,
+# mos_write_desktop_entry, mos_rollback_marketplace), sourced here for the same reason as the
+# libraries above: Step 6.8 and every marketplace restore call it, and a library missing at an
+# abort path would leave a half-written tree behind.
+if [ ! -f "$RELEASE_LIB_DIR/desktop-copy-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/desktop-copy-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/desktop-copy-gate.sh"
+
 # Quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener
 # is CALLED at Step 0.55 (Theo leg) and Step 9.6c (website leg). Checked
 # here for the same reason as the libraries above: a missing script found
@@ -397,6 +407,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
   echo "  Step 2.4  : coverage gates + erasable TypeScript gate (npm --prefix tools/ts-check ci --ignore-scripts if absent, then node tools/ts-check/check.cjs; HARD ABORT; runs nothing under --dry-run)"
   echo "  Step 2.4  : UI shell freshness gate (Phase 369 plan 28: node scripts/build-ui-shell.cjs --check proves lib/ui-shell/dist matches ui/shell and ui/shared; HARD ABORT; release.sh never builds the UI; runs nothing under --dry-run)"
+  echo "  Step 2.4  : Desktop payload gate (Phase 369.1 plan 14: node scripts/release-lib/build-desktop-artifact.cjs --check; at most 4,500 files, 180 MB, ratio 50:1, no bin/; HARD ABORT; offline; runs nothing under --dry-run)"
   echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
   echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
@@ -414,8 +425,9 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "              HARD ABORT on fail, same rollback as Step 6.6; Phase 126 Plan 03)"
   echo "  Step 6.7  : generate npm-shrinkwrap.json (release-lib/shrinkwrap-gate.sh:"
   echo "              zero dev entries + present in pack payload + clean npm shrinkwrap)"
+  echo "  Step 6.8  : build the Desktop copy from npm pack minus bin/ into ~/mindrian-marketplace/plugins/mos-desktop (<=4,500 files, <=180 MB, ratio <=50:1), write plugins[1] mos-desktop (./plugins/mos-desktop, $NEW_VERSION), stage + count-check, re-validate (RULE 5 place 5; every abort rolls the tree back with marketplace.json)"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
-  echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
+  echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION' (marketplace.json + plugins/mos-desktop)"
   echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW; then promote to @latest (navigator 2026-08-10: bare npx always serves the newest release, betas included)"
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
@@ -542,6 +554,14 @@ if ! node "$PLUGIN_DIR/scripts/build-ui-shell.cjs" --check; then
   echo "  Recovery: node scripts/build-ui-shell.cjs, then commit lib/ui-shell/dist"
   exit 1
 fi
+# Phase 369.1 plan 14 (D-11, D-14, DPI-02): the Desktop payload gate. Measures what Step 6.8 will
+# build (npm pack payload minus bin/) against claude.ai's plugin limits with headroom, offline:
+# at most 4,500 files, 180 MB, a 50:1 compression ratio, no top-level bin/, no runtime bin/ reference.
+if ! node "$PLUGIN_DIR/scripts/release-lib/build-desktop-artifact.cjs" --check; then
+  echo -e "${RED}ABORT: Step 2.4: Desktop payload gate failed (no top-level bin/, at most 4,500 files and 180 MB, ratio at most 50:1, no runtime bin/ reference).${NC}"
+  echo "  Recovery: node scripts/release-lib/build-desktop-artifact.cjs --check names each violation."
+  exit 1
+fi
 # Phase 186-02 (CORPUS-02, Canon Part 8 / D5): the corpus-stats tripwire rides the
 # SAME release surface as the CIRS gates. A stale corpus literal on a LIVE fact
 # surface (or a STALE generated artifact) is a HARD ABORT before any version
@@ -643,7 +663,11 @@ cd "$MARKETPLACE_DIR"
 node -e "
 const fs = require('fs');
 const m = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
-m.plugins[0].version = '$NEW_VERSION';
+// Phase 369.1: mos is found by name because mos-desktop sits at plugins[1] (Step 6.8 writes it).
+const mos = m.plugins.find(function (p) { return p && p.name === 'mos'; });
+if (!mos) { console.error('ABORT: no plugin named mos in marketplace.json'); process.exit(1); }
+if (m.plugins[0] !== mos) { m.plugins = [mos].concat(m.plugins.filter(function (p) { return p !== mos; })); }
+mos.version = '$NEW_VERSION';
 // D-01: the npm source is an EXACT pin, never a range and never a dist-tag --
 // the loader's cache-hit test is a literal string equality against the
 // installed version, so only an exact pin can ever produce a cache hit, and
@@ -662,7 +686,7 @@ m.plugins[0].version = '$NEW_VERSION';
 // default registry is used. Naming one would be a supply-chain
 // configuration this repo does not need (T-341-07; asserted by the release
 // gate's own registry-key-absence check).
-m.plugins[0].source = { source: 'npm', package: '@mindrian_os/cli', version: '$NEW_VERSION' };
+mos.source = { source: 'npm', package: '@mindrian_os/cli', version: '$NEW_VERSION' };
 fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) + '\n');
 "
 echo "Updated marketplace.json: version $NEW_VERSION + source.version $NEW_VERSION (npm source, no v prefix)"
@@ -676,7 +700,7 @@ if echo "$MVAL" | grep -q "Validation failed"; then
   echo "$MVAL"
   # Revert version bumps
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo -e "${GREEN}Marketplace validation passed${NC}"
@@ -738,7 +762,7 @@ REVAL=$(bash "$PLUGIN_DIR/scripts/verify-release" 2>&1 || true)
 if echo "$REVAL" | grep -q "DO NOT RELEASE"; then
   echo -e "${RED}ABORT: Post-bump verification failed. Rolling back version bumps.${NC}"
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo -e "${GREEN}Post-bump verification passed${NC}"
@@ -757,7 +781,7 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-tag; then
   echo -e "${RED}ABORT: doctor --acceptance --pre-tag failed -- release halted BEFORE tagging.${NC}"
   echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   echo "  See <recovery> R.1 in .planning/phases/123-install-lifecycle-harness/123-04-PLAN.md"
   echo "  Investigate the failed sub-check before re-running release.sh."
   exit 1
@@ -829,7 +853,7 @@ if ! node -e '
   echo "  or an introduced_version in the future. Fix data/doctor-modules.json before re-running."
   echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo -e "${GREEN}  module-registration verification passed${NC}"
@@ -852,7 +876,7 @@ if ! node "$PLUGIN_DIR/tests/test-doctor-acceptance-self-coverage.cjs"; then
   echo "  re-running release.sh."
   echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo -e "${GREEN}  acceptance self-coverage passed${NC}"
@@ -881,10 +905,37 @@ fi
 if ! mos_generate_shrinkwrap "$PLUGIN_DIR"; then
   echo -e "${RED}  x Step 6.7 failed. Rolling back version bumps.${NC}"
   cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
-  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo -e "${GREEN}  npm-shrinkwrap.json generated and asserted (zero dev entries, present in the pack payload)${NC}"
+
+# --- Step 6.8: Build the Desktop copy (Phase 369.1, D-13; part of RULE 5 place 5) ---
+# Claude Desktop cannot sync an npm-source plugin, so the marketplace carries a second entry,
+# plugins[1] mos-desktop (source ./plugins/mos-desktop): a bin-less copy of the npm pack payload,
+# built here and written beside the manifest (D-03: never by hand). It runs AFTER the shrinkwrap
+# step so the copy carries npm-shrinkwrap.json, and BEFORE Commit A. It rides the existing
+# marketplace commit (Step 7) and push (Step 9), so there is no new irreversible step; Commit B
+# never touches it (RULE 5a). Every abort path restores the tree with the manifest
+# (mos_rollback_marketplace), so no failure leaves a half-written tree for the next cut.
+echo ""
+echo "=== Step 6.8: Build the Desktop copy (plugins/mos-desktop, plugins[1]) ==="
+cd "$PLUGIN_DIR"
+if ! mos_build_desktop_copy "$PLUGIN_DIR" "$MARKETPLACE_DIR" "$NEW_VERSION"; then
+  echo -e "${RED}  x Step 6.8 failed. Rolling back version bumps and the Desktop copy.${NC}"
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
+  exit 1
+fi
+MVAL68=$(claude plugin validate "$MARKETPLACE_DIR" 2>&1)
+if echo "$MVAL68" | grep -q "Validation failed"; then
+  echo -e "${RED}  x Step 6.8: marketplace validation failed with the Desktop entry:${NC}"
+  echo "$MVAL68"
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
+  exit 1
+fi
+echo -e "${GREEN}  Desktop copy built, staged, count-checked and validated${NC}"
 
 # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
 # Commit A holds the version-of-record at vN. The vN git tag points HERE.
@@ -919,6 +970,7 @@ git tag "v$NEW_VERSION" "$RELEASE_SHA" 2>/dev/null || echo "Tag v$NEW_VERSION al
 
 cd "$MARKETPLACE_DIR"
 git add .claude-plugin/marketplace.json
+git add --all -- plugins/mos-desktop
 git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in marketplace"
 
 # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
@@ -1714,7 +1766,7 @@ fi
 CACHED_VER=$(node -e "
 const fs = require('fs');
 const files = require('child_process').execSync('find ~/.claude -path \"*mindrian-marketplace*marketplace.json\" 2>/dev/null', {encoding:'utf8'}).trim().split('\n');
-if (files[0]) { const m = JSON.parse(fs.readFileSync(files[0],'utf8')); console.log(m.plugins[0].version); }
+if (files[0]) { const m = JSON.parse(fs.readFileSync(files[0],'utf8')); const mos = m.plugins.find(function (p) { return p && p.name === 'mos'; }); console.log(mos ? mos.version : '?'); }
 " 2>/dev/null || echo "?")
 
 if [ "$CACHED_VER" = "$NEW_VERSION" ]; then
