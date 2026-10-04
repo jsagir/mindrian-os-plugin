@@ -336,13 +336,15 @@ For the top 2 analogies, provide a brief structural mapping:
 
 Based on results:
 
-1. **Strong analogy found (fitness > 0.6):** "This looks promising. Want to run the full pipeline (`/mos:pipeline analogy`) to build correspondence tables and stress-test the mapping?"
+1. **Strong analogy found (fitness > 0.6):** "This looks promising. Want to run the full pipeline (`/mos:pipeline analogy`) to build correspondence tables and stress-test the mapping?" These become the options of the one AskUserQuestion card that closes this step.
 
-2. **Multiple candidates:** "I found [N] candidates across [domains]. Pick one to explore deeper with `/mos:pipeline analogy`, or I can `/mos:structure-argument` to build the transfer case."
+2. **Multiple candidates:** "I found [N] candidates across [domains]. Pick one to explore deeper with `/mos:pipeline analogy`, or I can `/mos:structure-argument` to build the transfer case." These become the options of the one AskUserQuestion card that closes this step.
 
-3. **Weak results:** "The direct analogies are weak. Try `/mos:explore-domains` to map adjacent territories, or `/mos:find-connections` to discover unexpected bridges in the Brain graph."
+3. **Weak results:** "The direct analogies are weak. Try `/mos:explore-domains` to map adjacent territories, or `/mos:find-connections` to discover unexpected bridges in the Brain graph." These become the options of the one AskUserQuestion card that closes this step.
 
-4. **TRIZ principles found:** "Your contradiction maps to TRIZ Principles [N, M]. These are well-studied resolution patterns -- want me to explain them?"
+4. **TRIZ principles found:** "Your contradiction maps to TRIZ Principles [N, M]. These are well-studied resolution patterns -- want me to explain them?" These become the options of the one AskUserQuestion card that closes this step.
+
+Close Step 6 with ONE AskUserQuestion call: a Shape F.1 (Next Move) card composed with the SAME verb/option shape `lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) produces and `lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- no hand-built JSON. Its options are those of the one class above that applies to this result (label = the move, description = that class's quoted line as its framing, the first option marked ` (Recommended)`, at least 2 and at most 4 options, the Other slot free text): class 1, `/mos:pipeline analogy` (Recommended) and `Not now`; class 2, `/mos:pipeline analogy` on the chosen candidate (Recommended) and `/mos:structure-argument`; class 3, `/mos:explore-domains` (Recommended) and `/mos:find-connections`; class 4, `Explain these TRIZ principles` (Recommended) and `Not now`. On a surface that cannot fire the card, the quoted line of the applicable class is the text floor.
 
 ### Write-back offer (human-gated, temporal-aware)
 

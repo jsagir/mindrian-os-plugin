@@ -6,6 +6,10 @@
  *
  * Phase 192-01 -- SEED-020 menu-sweep live-selector regression fence.
  *
+ * 2026-10-03 (Phase 289, MENU289-02): Assertion B healed to the 3-card, 11-family
+ * contract; it had been RED since the 3-card rewrite (28f95106b), not a Phase 289
+ * regression.
+ *
  * SEED-020 ("command menus render as live selectors, never bare text";
  * Canon Part 10 + Part 3 Shape F) shipped /mos:help as the first two-axis
  * lanes-as-tabs AskUserQuestion selector. This phase completes the sweep:
@@ -25,11 +29,12 @@
  * Recorded by reading (not re-implementing) each surface:
  *
  *   commands/help.md        = COMPLIANT (no change).
- *       Already a live two-axis lanes-as-tabs AskUserQuestion selector
- *       (SEED-020, commit 9a18fe81). The selector-mechanism assertions in
+ *       Already a live AskUserQuestion selector, now the shipped 3-card,
+ *       11-family selector (commit 28f95106b; first shipped as SEED-020 commit
+ *       9a18fe81). The selector-mechanism assertions in
  *       tests/test-help-selector-lanes.cjs -- Assertion 1 (every group
  *       declares a lane), Assertion 3 (no admin/deprecated leak), Assertion 5
- *       (the two-axis lanes-as-tabs contract + text fallback) -- all PASS.
+ *       (the 3-card, 11-family contract + text fallback) -- all PASS.
  *       This plan makes ZERO edits to commands/help.md.
  *
  *   commands/mos.md         = N/A (router; inherits from delegate).
@@ -114,16 +119,17 @@ try {
 } catch (err) { failTest('Assertion A (gap-check ledger present)', err); }
 
 // -- Assertion B: help.md + mos.md confirmed still-compliant, zero edits ------
-// help.md remains a live two-axis AskUserQuestion selector; mos.md remains a
+// help.md remains a live 3-card, 11-family AskUserQuestion selector; mos.md remains a
 // Shape E router that hands off in-turn (no chooser it must own).
 try {
   const help = readCmd('help.md');
   assert.ok(/AskUserQuestion/.test(help), 'help.md still renders an AskUserQuestion selector');
-  assert.ok(/two-axis/i.test(help), 'help.md still names the two-axis lanes-as-tabs model');
+  assert.ok(/11 famil/i.test(help), 'help.md still names the 11-family surface (3-card, 11-family selector)');
+  assert.ok(/3-card|3 cards|three cards|Card 1/i.test(help), 'help.md still renders the 11 families as the 3-card selector');
   const mos = readCmd('mos.md');
   assert.ok(/the routing IS the response/i.test(mos), 'mos.md is still a Shape E router (routing IS the response)');
   assert.ok(/Do NOT echo the routing decision/i.test(mos), 'mos.md still hands off in-turn (does not ask user to type the target)');
-  pass('Assertion B (help.md live selector + mos.md router doctrine intact -- both untouched)');
+  pass('Assertion B (help.md live 3-card, 11-family selector + mos.md router doctrine intact -- both untouched)');
 } catch (err) { failTest('Assertion B (help.md/mos.md compliance)', err); }
 
 if (failed > 0) {
