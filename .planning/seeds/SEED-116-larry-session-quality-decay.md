@@ -24,3 +24,26 @@ promotes_to: a quick or a short phase after 369.2; the detector half may ride th
 1. A session-level guard on the framework-dump pattern: more than N `/mos:` commands in one reply outside an explicit "list the commands" request is a dump; the reply offers a filed artifact instead. Reuse the existing voice-mark detector (`lib/hmi/voice-color-mark.cjs`) and the dash guard as the detection seam.
 2. The Stop hook's chat output is capped to one line, never repeats the reply, and never prints "health low" without the one command that raises it.
 3. Measure before fixing: the paste is one session; the decay should be measured on three recorded sessions before a fix claims to have removed it.
+
+## Addendum 2026-10-04 (navigator, verbatim: "i want you to notice the way mindrianOS interacts not as larry !!!")
+
+Beyond turn-level decay, the product's own surfaces speak as machinery, in the chat, between
+Larry's lines. Seen in the same transcripts and in this session's own start:
+- "Called plugin:mos:mindrian-os 12 times, ran 31 shell commands" for one room creation, because
+  the MCP `rooms-new` (and `new-project`, `setup`, `update`) return INSTRUCTIONS for the model to
+  carry out by hand instead of doing the thing or refusing. A tool that hands back a recipe makes
+  the agent narrate the recipe.
+- "Stop says: session snapshot saved, 7 sections scanned, 7 regen pending, health low | SESSION
+  SUMMARY ..." after every turn, plus the reply's first line repeated.
+- Session-start banners in the host voice: "MindrianOS release drift -- ... Push: cd ... && git
+  push", "First-session check: Look at the bottom of your terminal ...", "What are you trying to
+  do here? Use /mos:jtbd set <id>", a failed-connector notice selling an upgrade (SEED-119).
+- "SendFeedback(...)" bug dialogs and "Interrupted - What should Claude do instead?" are the host;
+  fine. But everything the PLUGIN prints is either Larry (glyph first, in voice, one line) or
+  silent. Canon Part 10 (conversation is the product) and Part 12 (the glyph exists so the user can
+  SEE who is talking) already say this; the hooks and the instruction-returning tools do not obey it.
+
+Direction added: an inventory of every line the plugin can print into the chat (hooks, Stop
+close-out, tool results that are prose, session-start notices), each either moved under Larry's
+voice contract (glyph, one line, an action) or made silent; the instruction-returning MCP tools
+either execute through the CLI command they describe or refuse with one reason.
