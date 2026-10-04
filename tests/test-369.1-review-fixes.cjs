@@ -26,6 +26,8 @@
  *
  *   wr-09  the prune cuts the name only along optional edges and fails closed on a hard dependency edge
  *
+ *   wr-10  the Desktop builder refuses an --out that is a git work tree, holds a .git, contains the source, or is the home directory
+ *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
  * No npm install ever runs in the repo root; every install happens in a scratch plugin root. Every
@@ -1417,9 +1419,108 @@ async function armWr09() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-10
+// ---------------------------------------------------------------------------
+async function armWr10() {
+  const A = 'wr-10';
+  const BUILDER = path.join(ROOT, 'scripts', 'release-lib', 'build-desktop-artifact.cjs');
+  // A tiny source tree that npm pack accepts and the payload checks pass.
+  function tinySource(label) {
+    const dir = mkTemp(label);
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'tiny', version: '1.0.0', files: ['.claude-plugin', 'scripts'] }));
+    fs.mkdirSync(path.join(dir, '.claude-plugin'));
+    fs.writeFileSync(path.join(dir, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'tiny', version: '1.0.0' }));
+    fs.mkdirSync(path.join(dir, 'scripts'));
+    fs.writeFileSync(path.join(dir, 'scripts', 'a.txt'), 'hello\n');
+    return dir;
+  }
+  function build(out, source, home) {
+    return spawnSync(process.execPath, [BUILDER, 'build', '--source', source, '--out', out, '--json'], {
+      encoding: 'utf8', timeout: 120000, cwd: TMP,
+      env: Object.assign({}, GIT_ENV, { HOME: home || mkTemp('w10-home'), USERPROFILE: home || mkTemp('w10-home'), npm_config_cache: mkTemp('w10-npm'), npm_config_update_notifier: 'false' }),
+    });
+  }
+  const refused = (r) => r.status === 1 && /refusing to replace/.test(String(r.stderr));
+
+  await check(A, 'control: a fresh --out inside an unrelated git work tree (the marketplace shape) is built', () => {
+    const mp = mkTemp('w10-mp');
+    initRepo(mp, { 'README.md': 'catalog\n' });
+    const r = build(path.join(mp, 'plugins', 'mos-desktop'), tinySource('w10-src-ok'));
+    assert.equal(r.status, 0, 'exit ' + r.status + ': ' + String(r.stderr).slice(0, 300));
+    assert.ok(fs.existsSync(path.join(mp, 'plugins', 'mos-desktop', 'scripts', 'a.txt')));
+  });
+
+  await check(A, '--out at a git repository root (a typo that drops plugins/mos-desktop) is refused and its .git and files survive', () => {
+    const repo = mkTemp('w10-repo');
+    initRepo(repo, { 'keep.txt': 'unpushed work\n' });
+    const r = build(repo, tinySource('w10-src-git'));
+    assert.ok(refused(r), 'must refuse; exit ' + r.status + ' stderr ' + String(r.stderr).slice(0, 200));
+    assert.ok(fs.existsSync(path.join(repo, '.git')), 'the .git must survive');
+    assert.equal(fs.readFileSync(path.join(repo, 'keep.txt'), 'utf8'), 'unpushed work\n');
+  });
+
+  await check(A, '--out that contains a .git (even when it is a plain directory) is refused', () => {
+    const dir = mkTemp('w10-dotgit');
+    fs.mkdirSync(path.join(dir, '.git'));
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'x');
+    const r = build(dir, tinySource('w10-src-dotgit'));
+    assert.ok(refused(r), 'must refuse; exit ' + r.status + ' stderr ' + String(r.stderr).slice(0, 200));
+    assert.ok(fs.existsSync(path.join(dir, 'file.txt')));
+  });
+
+  await check(A, '--out equal to the home directory, or an ancestor of it, is refused', () => {
+    const outer = mkTemp('w10-outer');
+    const home = path.join(outer, 'me');
+    fs.mkdirSync(home);
+    fs.writeFileSync(path.join(home, 'precious.txt'), 'home content');
+    const src = tinySource('w10-src-home');
+    const r1 = build(home, src, home);
+    assert.ok(refused(r1), 'home itself: exit ' + r1.status + ' stderr ' + String(r1.stderr).slice(0, 200));
+    const r2 = build(outer, src, home);
+    assert.ok(refused(r2), 'an ancestor of home: exit ' + r2.status + ' stderr ' + String(r2.stderr).slice(0, 200));
+    assert.equal(fs.readFileSync(path.join(home, 'precious.txt'), 'utf8'), 'home content');
+  });
+
+  await check(A, '--out that is an ancestor of the source is refused when the ancestry is only visible through a symlink', () => {
+    const outer = mkTemp('w10-anc');
+    const src = path.join(outer, 'src');
+    fs.mkdirSync(src);
+    fs.writeFileSync(path.join(src, 'package.json'), JSON.stringify({ name: 'tiny', version: '1.0.0', files: ['.claude-plugin', 'scripts'] }));
+    fs.mkdirSync(path.join(src, '.claude-plugin'));
+    fs.writeFileSync(path.join(src, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'tiny', version: '1.0.0' }));
+    fs.mkdirSync(path.join(src, 'scripts'));
+    fs.writeFileSync(path.join(src, 'scripts', 'a.txt'), 'hello\n');
+    const alias = path.join(mkTemp('w10-alias'), 'alias');
+    fs.symlinkSync(outer, alias);
+    const r = build(alias, src);
+    assert.ok(refused(r), 'exit ' + r.status + ' stderr ' + String(r.stderr).slice(0, 200));
+    assert.ok(fs.existsSync(path.join(src, 'scripts', 'a.txt')), 'the source must survive');
+  });
+
+  await check(A, 'a source whose first path segment under --out merely starts with two dots (..weird) is still an ancestor case', () => {
+    const out = mkTemp('w10-dots');
+    const src = path.join(out, '..weird', 'src');
+    fs.mkdirSync(path.join(src, '.claude-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(src, 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(src, 'package.json'), JSON.stringify({ name: 'tiny', version: '1.0.0', files: ['.claude-plugin', 'scripts'] }));
+    fs.writeFileSync(path.join(src, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'tiny', version: '1.0.0' }));
+    fs.writeFileSync(path.join(src, 'scripts', 'a.txt'), 'hello\n');
+    const r = build(out, src);
+    assert.ok(refused(r), 'exit ' + r.status + ' stderr ' + String(r.stderr).slice(0, 200));
+    assert.ok(fs.existsSync(path.join(src, 'scripts', 'a.txt')), 'the source must survive');
+  });
+
+  await check(A, 'assertSafeOutDir refuses a filesystem root (called directly, never by a real build)', () => {
+    const { assertSafeOutDir } = require(BUILDER);
+    assert.equal(typeof assertSafeOutDir, 'function', 'assertSafeOutDir must be exported');
+    assert.throws(() => assertSafeOutDir(path.parse(process.cwd()).root, tinySource('w10-src-root')), /refusing to replace/);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08, 'wr-09': armWr09 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08, 'wr-09': armWr09, 'wr-10': armWr10 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);

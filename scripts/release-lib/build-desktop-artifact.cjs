@@ -233,17 +233,69 @@ function npmPack(sourceDir, packDest) {
 
 function modeOf(st) { return st.mode & 0o777; }
 
+// ---------------------------------------------------------------------------
+// The --out guard (369.1-REVIEW WR-10). The builder removes whatever --out names, wholesale, so the
+// guard compares REAL paths (a symlinked spelling cannot hide an ancestor) and refuses every
+// directory the release must never replace.
+// ---------------------------------------------------------------------------
+// realpath of the deepest existing ancestor of p, with the not-yet-existing tail appended.
+function realpathLoose(p) {
+  let cur = path.resolve(p);
+  const rest = [];
+  for (;;) {
+    try {
+      const real = typeof fs.realpathSync.native === 'function' ? fs.realpathSync.native(cur) : fs.realpathSync(cur);
+      return rest.length ? path.join(real, ...rest.reverse()) : real;
+    } catch (_e) {
+      const parent = path.dirname(cur);
+      if (parent === cur) return cur;
+      rest.push(path.basename(cur));
+      cur = parent;
+    }
+  }
+}
+
+// True when `a` is `b` or contains it. A first segment that merely STARTS with two dots (a directory
+// named "..weird") is a child, not a parent hop.
+function isSameOrAncestor(a, b) {
+  const rel = path.relative(a, b);
+  return rel === '' || (rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel));
+}
+
+/**
+ * Throws 'refusing to replace <out>: <why>' when --out must never be removed: a filesystem root, the
+ * source or an ancestor of it, the home directory or an ancestor of it, a directory that contains
+ * .git, or the top of a git work tree (unpushed commits live there).
+ */
+function assertSafeOutDir(outDir, sourceDir) {
+  const out = realpathLoose(outDir);
+  const src = realpathLoose(sourceDir);
+  const refuse = (why) => { throw new Error('refusing to replace ' + path.resolve(outDir) + ': it is ' + why); };
+  if (out === path.parse(out).root) refuse('a filesystem root');
+  if (isSameOrAncestor(out, src)) refuse('the source dir or an ancestor of it');
+  let home = null;
+  try { home = realpathLoose(os.homedir()); } catch (_e) { home = null; }
+  if (home && isSameOrAncestor(out, home)) refuse('the home directory or an ancestor of it');
+  if (fs.existsSync(path.join(out, '.git'))) refuse('a git repository (it contains .git)');
+  try {
+    if (fs.statSync(out).isDirectory()) {
+      const r = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: out, encoding: 'utf8', timeout: 20000 });
+      if (!r.error && r.status === 0 && realpathLoose(String(r.stdout).trim()) === out) refuse('the top of a git work tree');
+    }
+  } catch (e) {
+    if (e && /^refusing to replace/.test(e.message)) throw e;
+    /* the directory does not exist yet: nothing to protect */
+  }
+}
+
 function buildDesktopPayload(args) {
   const sourceDir = path.resolve(args.sourceDir || REPO_ROOT);
   const outDir = path.resolve(args.outDir);
   const version = args.version
     || JSON.parse(fs.readFileSync(path.join(sourceDir, '.claude-plugin', 'plugin.json'), 'utf8')).version;
 
-  // outDir is removed wholesale: never let it be the source, an ancestor of it, or a filesystem root.
-  const rel = path.relative(outDir, sourceDir);
-  if (outDir === path.parse(outDir).root || rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel))) {
-    throw new Error('refusing to replace ' + outDir + ': it is the source dir, an ancestor of it, or a filesystem root');
-  }
+  // outDir is removed wholesale: refuse anything the release must never replace (WR-10).
+  assertSafeOutDir(outDir, sourceDir);
 
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-desktop-'));
   try {
@@ -367,7 +419,7 @@ function main(argv) {
   }
 }
 
-module.exports = { buildDesktopPayload, checkPayload, LIMITS, RUNTIME_BIN_PATTERNS };
+module.exports = { buildDesktopPayload, checkPayload, assertSafeOutDir, LIMITS, RUNTIME_BIN_PATTERNS };
 
 if (require.main === module) {
   process.exit(main(process.argv.slice(2)));
