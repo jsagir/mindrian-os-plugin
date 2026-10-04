@@ -1,6 +1,15 @@
 ## [Unreleased] -- v2.0.0-beta.56 (in progress)
 
 ### Added
+- **Claude Desktop: MindrianOS installs from Customize > Plugins > Add marketplace** (`jsagir/mindrian-marketplace`).
+  Larry and the room tools work in Cowork and the Code tab, and Chat gets the skills and commands (Chat does
+  not run plugin tools by design). The marketplace carries a second entry, `mos-desktop`, that the release
+  script builds and rolls back together with the catalog.
+- **The plugin installs its own packages on a new machine** with `npm ci --ignore-scripts` and says so in the
+  conversation while it does, instead of failing silently.
+- **The runtime tools moved from `bin/` to `scripts/`**; the old `bin/` paths keep working for one release.
+- **The shipped dependency list no longer carries `sharp`** (an optional image library nothing here uses), so
+  no package install script runs anywhere.
 - **The browser workspace ships as release-built assets** in `lib/ui-shell/dist` (a built Next server and its
   static client, no `node_modules`, nothing built on your machine) and opens with `/mos:dashboard shell`,
   the launch command named in `369-LAUNCH-RULING.md`. The release gate now checks the committed build

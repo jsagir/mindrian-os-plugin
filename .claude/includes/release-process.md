@@ -10,7 +10,7 @@ A release is only a release when all FIVE are in sync (any drift = silent versio
 2. `.claude-plugin/plugin.json` `version` matches
 3. `package.json` `version` matches
 4. `git tag v<version>` points at the release commit
-5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` updated, `source.version` pinned to the exact release version (npm source, no `v` prefix; `ref`/`url` deleted -- D-01/D-06)
+5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` updated, `source.version` pinned to the exact release version (npm source, no `v` prefix; `ref`/`url` deleted -- D-01/D-06) (the same file carries the Desktop copy `mos-desktop` at plugins[1], built at Step 6.8; see RULE 5 in docs/RELEASE-CEREMONY-RULING-SYSTEM.md)
 
 ## Telling Theo
 
