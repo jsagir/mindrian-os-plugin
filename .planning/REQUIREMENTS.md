@@ -4493,67 +4493,185 @@ flipped to `[x]` after the combined baseline refresh in plan 366-24 (2026-10-02)
 
 ### Phase 369 - UI shell over the MindrianOS MCP server (TS369, CHG369, FEED369, SESS369, GREC369, HUM369, RXP369, CANON369, SHELL369, BAKE369, CM369 families) (minted at plan time 2026-10-02)
 
-These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEARCH.md`'s proposed families, narrowed to eleven families (first-screen, Tri-Polar and indicator items fold into SHELL369 and CANON369), as amended by the locked decisions D-01..D-19 in `369-CONTEXT.md`. All are registered here at plan time as `- [ ]` rows, to be closed with measured proof, or left open with a stated reason, at phase close by `369-31-PLAN.md`. GREC369-01..05 and SHELL369-10 also depend on Phase 289 (D-16). The plan set was revised 2026-10-02 after the checker pass (32 plans; plan 19 split into 19 and 32, so SHELL369-04, SHELL369-05 and the shell half of HUM369-01 moved to `369-32-PLAN.md`).
+These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEARCH.md`'s proposed families, narrowed to eleven families (first-screen, Tri-Polar and indicator items fold into SHELL369 and CANON369), as amended by the locked decisions D-01..D-19 in `369-CONTEXT.md`. All were registered at plan time as `- [ ]` rows and are closed here with measured proof, or left open with a stated reason, by `369-31-PLAN.md` (closed 2026-10-04: 58 of 59 `[x]`, 1 `[ ]`; the gate record is `369-CLOSE-GATE.md`). GREC369-01..05 and SHELL369-10 also depend on Phase 289 (D-16). The plan set was revised 2026-10-02 after the checker pass (32 plans; plan 19 split into 19 and 32, so SHELL369-04, SHELL369-05 and the shell half of HUM369-01 moved to `369-32-PLAN.md`).
 
-- [ ] **TS369-01**: Constitution: the CJS-only convention is lifted plugin-wide in CLAUDE.md Conventions AND its GSD source `.planning/codebase/CONVENTIONS.md`, `.planning/spikes/CONVENTIONS.md` is rewritten, and a Key Decisions row records it; the TypeScript shape (erasable-only core `.ts`, hooks and the MCP server stay `.cjs`, erasable `.ts` enters lib/core only after the installed-layout test) and the module system (CommonJS-shaped core `.ts`; ESM UI packages) are written down (D-17). Plan 369-01.
-- [ ] **TS369-02**: The Node floor is `>=22.18.0` on every surface at once (package.json, package-lock.json and npm-shrinkwrap.json root engines, the CLAUDE.md stack row and its source `.planning/codebase/STACK.md`, test-236, a CHANGELOG release-note line), with the 22.16.0 timeout reason kept as history; CLAUDE.md blocks are regenerated from their tracked GSD sources, never hand-edited (D-17). Plan 369-01.
-- [ ] **TS369-03**: An erasable-only gate in the walled tools/ts-check package (typescript 7.0.2 only) passes on the tree, fails on enum, namespace, parameter-property and ESM-in-CJS fixtures, and refuses TS path aliases and `.tsx` under lib/; the root manifest carries zero TypeScript, UI or build packages and npm pack ships no tools/ or ui/ path (D-17). Plan 369-02.
-- [ ] **TS369-04**: An installed-layout test packs the repo, lays it out as Claude Code runs it, runs the loader's npm ci, starts the MCP server, strips a `.ts` probe on the run path and pins the refusal under node_modules; the exact-22.18.0 leg runs or reports SKIPPED (ENV GAP) with its reason (D-17). Plan 369-03.
-- [ ] **TS369-05**: Hooks stay `.cjs`, proven: no module reachable from any hooks.json entry is TypeScript (static require-graph walk), and a hook cold-start baseline per hook against its declared timeout is recorded before any hook moves (D-17). Plan 369-03.
-- [ ] **TS369-06**: scripts/release.sh runs the erasable gate beside the Step 2.4 --check gates and fails the cut closed (D-17; RULE 6 beta first). Plan 369-02.
-- [ ] **TS369-07**: The phase verification floor exists before production code moves: tests/run-all-369.sh written once with every leg pre-declared, a hermetic flag-ON daemon helper, a fixture-room builder over three schema variants, the writer inventory as reconciled data, and the first SSE vocabulary pin. Plan 369-04.
+- [x] **TS369-01**: Constitution: the CJS-only convention is lifted plugin-wide in CLAUDE.md Conventions AND its GSD source `.planning/codebase/CONVENTIONS.md`, `.planning/spikes/CONVENTIONS.md` is rewritten, and a Key Decisions row records it; the TypeScript shape (erasable-only core `.ts`, hooks and the MCP server stay `.cjs`, erasable `.ts` enters lib/core only after the installed-layout test) and the module system (CommonJS-shaped core `.ts`; ESM UI packages) are written down (D-17). Plan 369-01.
+      **Measured:** (2026-10-04) `node tests/test-369-constitution.cjs` 7 passed, 0 failed (leg "369: constitution (TS369-01)" PASSED in `bash tests/run-all-369.sh` PASS=54 FAIL=1 SKIP=1 (the one FAIL is the sharp payload ceiling, the one SKIP the exact-floor leg; detail in 369-CLOSE-GATE.md)).
+
+- [x] **TS369-02**: The Node floor is `>=22.18.0` on every surface at once (package.json, package-lock.json and npm-shrinkwrap.json root engines, the CLAUDE.md stack row and its source `.planning/codebase/STACK.md`, test-236, a CHANGELOG release-note line), with the 22.16.0 timeout reason kept as history; CLAUDE.md blocks are regenerated from their tracked GSD sources, never hand-edited (D-17). Plan 369-01.
+      **Measured:** (2026-10-04) `node tests/test-236-engines-floor.cjs` 5 passed, 0 failed and `node tests/test-369-constitution.cjs` 7 passed; legs "engines floor" and "constitution" PASSED in the same aggregator run (floor `>=22.18.0`).
+
+- [x] **TS369-03**: An erasable-only gate in the walled tools/ts-check package (typescript 7.0.2 only) passes on the tree, fails on enum, namespace, parameter-property and ESM-in-CJS fixtures, and refuses TS path aliases and `.tsx` under lib/; the root manifest carries zero TypeScript, UI or build packages and npm pack ships no tools/ or ui/ path (D-17). Plan 369-02.
+      **Measured:** (2026-10-04) `node tests/test-369-ts-erasable-gate.cjs` 8 passed and `node tests/test-369-walled-manifest.cjs` 8 passed, both PASSED in the aggregator run. Amendment: the navigator ruled on 2026-10-03 (RULE 8, "Next as a per-machine dependency", 369-BAKEOFF-DECISION.md) that `next`, `react` and `react-dom` are root dependencies; the walled-manifest denylist keeps 13 entries (typescript, @types/, vite, rxdb, rxjs, dexie, @blocknote/, @agent-native/, esbuild, tsx, ts-node, @fontsource, playwright) and pins the three versions byte-equal to `ui/shell/package.json`.
+
+- [x] **TS369-04**: An installed-layout test packs the repo, lays it out as Claude Code runs it, runs the loader's npm ci, starts the MCP server, strips a `.ts` probe on the run path and pins the refusal under node_modules; the exact-22.18.0 leg runs or reports SKIPPED (ENV GAP) with its reason (D-17). Plan 369-03.
+      **Measured:** (2026-10-04) `node tests/test-369-installed-layout.cjs` 7 passed, 0 failed, 0 skipped (default layout leg PASSED). The exact-22.18.0 leg reports SKIPPED (ENV GAP): `node tests/test-369-installed-layout.cjs --exact-floor` exits 77, no Node 22.18.0 binary at `~/.nvm/versions/node/v22.18.0` and no Docker CLI.
+
+- [x] **TS369-05**: Hooks stay `.cjs`, proven: no module reachable from any hooks.json entry is TypeScript (static require-graph walk), and a hook cold-start baseline per hook against its declared timeout is recorded before any hook moves (D-17). Plan 369-03.
+      **Measured:** (2026-10-04) `node tests/test-369-hook-require-graph.cjs` 5 passed (59 roots, 328 reachable files, 0 TypeScript modules); baseline per hook in `tests/fixtures/369/hook-cold-start-baseline.json` and `369-HOOK-COLD-START.md` (UserPromptSubmit per-prompt sum of p50 253.6 ms, worst PreToolUse p95 90.2 ms against 2000 ms). Leg PASSED.
+
+- [x] **TS369-06**: scripts/release.sh runs the erasable gate beside the Step 2.4 --check gates and fails the cut closed (D-17; RULE 6 beta first). Plan 369-02.
+      **Measured:** (2026-10-04) `bash -n scripts/release.sh && grep -c "ts-check/check.cjs" scripts/release.sh` exit 0, count 5 (VALIDATION row 369-02-02); `node tests/test-369-walled-manifest.cjs` 8 passed.
+
+- [x] **TS369-07**: The phase verification floor exists before production code moves: tests/run-all-369.sh written once with every leg pre-declared, a hermetic flag-ON daemon helper, a fixture-room builder over three schema variants, the writer inventory as reconciled data, and the first SSE vocabulary pin. Plan 369-04.
+      **Measured:** (2026-10-04) `bash tests/run-all-369.sh` ran to the end with every leg pre-declared and the long-dash guard PASSED (`bash tests/run-all-369.sh` PASS=54 FAIL=1 SKIP=1 (the one FAIL is the sharp payload ceiling, the one SKIP the exact-floor leg; detail in 369-CLOSE-GATE.md)); `node tests/test-369-infra-helpers.cjs` PASS=9, `node tests/test-369-sse-vocab-pin.cjs` PASS=4.
+
 - [ ] **TS369-08**: The release-built shell ships in lib/ui-shell/dist with a source-hash freshness gate in release.sh, no vendored node_modules and no new root dependency (RULE 8), RULE 5 and RULE 8 each gain a sentence (no new lockstep place), the payload ceiling still passes, and the installed layout runs it (D-07, D-17). Plan 369-28.
-- [ ] **CHG369-01**: room_change_log and room_tx_context are registered in the Phase 108 alias file before any DDL is staged; the installer creates the log, the one-row tx context and six triggers idempotently after every migration on every write-door open, with an epoch and a floor, re-minting the epoch when a rebuild dropped a trigger (D-18). Plan 369-05.
-- [ ] **CHG369-02**: withRoomTx (owns idiom, transaction_id stamping) and readChangeLogMeta are re-exported through navigation.cjs; DDL, rollback, conflict semantics, nesting, rebuild re-install and monotonic sequence are tested over three schema variants (D-18). Plan 369-05.
-- [ ] **CHG369-03**: Transaction ownership: the eight unconditional-BEGIN writer sites adopt `owns = db.isTransaction !== true`, and promoteNodeStatus composes inside withRoomTx (D-18). Plan 369-06.
-- [ ] **CHG369-04**: Coverage is proven against the writer inventory as data: every in-process row logs, rollbacks and ignored inserts log nothing, the non-graph exclusion holds, and a live wide-regex scan finds no unlisted mutation site (D-18). Plan 369-11.
-- [ ] **CHG369-05**: Writes from other processes (a second Node process, the SessionStart hook script, two bulk scripts, the Python writer) are captured, and room removal has a defined shape (D-18). Plan 369-12.
-- [ ] **CHG369-06**: Compaction raises the floor without touching newer rows, with retention numbers chosen from a fixture-room measurement, and runs inside installChangeLog only above the measured ceiling (D-18). Plan 369-12.
-- [ ] **FEED369-01**: A room_changes MCP read tool serves ordered deltas with deletes as rows and current documents joined at read time, checkpoint_expired and epoch_changed with a snapshot revision, a snapshot-then-tail mode, change_log_absent, through the read-only door only (D-18). Plan 369-13.
-- [ ] **FEED369-02**: A room_artifact MCP read tool returns one artifact's markdown by room-relative path with lexical and realpath containment, the source of the read-only document display (D-13; open question 1 default). Plan 369-13.
-- [ ] **FEED369-03**: room.changed {roomId, latestSeq} is appended to the frozen additive SSE vocabulary; the three existing kinds stay unchanged and in order (D-18). Plan 369-17.
-- [ ] **FEED369-04**: Every baseline the two new tools move is refreshed in the same plan: wire snapshot 45 to 47 tools, membership pins with a reason, regenerated connector registries, CONNECTOR_DESCRIPTORS 32 to 34, the schema-budget byte history, the generated shell adapter; server instructions untouched. Plan 369-13.
-- [ ] **FEED369-05**: A daemon-side room watcher (fs.watch on .mindrian/ gated by data_version on one long-lived read-only connection, 500 ms poll net) publishes room.changed for writes from any process, lazily started and idle-stopped (D-18). Plan 369-17.
-- [ ] **SESS369-01**: Sessionful acceptance on the legacy leg of the shipped Phase 267 server: bind, mint, cross-client isolation, answer, reconnect with re-bind; the owner-after-stranger result is KNOWN until Phase 289 and flips automatically (D-19). Plan 369-07.
-- [ ] **SESS369-02**: The modern auto-negotiating arm is pinned: room_bind answers no_session_id with the env scrubbed, so the shell uses the legacy sessionful path explicitly; no discovery shim (D-19). Plan 369-07.
-- [ ] **SESS369-03**: ensureDaemon never passes CLAUDE_CODE_SESSION_ID to the shared daemon, and a test proves it (D-19; adjacent to RCA 7 / SEED-108). Plan 369-07.
-- [ ] **SESS369-04**: The session contract is settled in 369-SESSION-CONTRACT.md: legacy client mode, the shell's host identity (no HOST_TIER_MAP entry; MINDRIAN_MCP_FIRST=cowork), and the one-time bootstrap code (A3) (D-19). Plan 369-07.
-- [ ] **GREC369-01**: Durable consumption: every ratification write of a gate answer runs in one withRoomTx and the ledger entry is released only after COMMIT; a persistence failure leaves the gate answerable; refused answers never consume (deliverable 11, D-16; after Phase 289). Plan 369-26.
-- [ ] **GREC369-02**: Idempotent replay by gate id from the durable anchor (decision node or the gate_answer memory_event by dedupe key), including after a daemon restart (deliverable 11). Plan 369-26.
-- [ ] **GREC369-03**: The room and the subject revision are recorded at mint; room_switched, stale_subject, gate_expired, unknown_gate and replayed (already answered) are distinct answers (deliverable 11). Plan 369-26.
-- [ ] **GREC369-04**: The existing unbound-write refusal is validated, not reimplemented, and a Theo mirror handoff line is written for the changed gate_answer contract (D-16; folded todo). Plan 369-26.
-- [ ] **GREC369-05**: The web gate renders every recovery state and retries by gate id after a lost response; "recorded" shows only after the server confirms the commit. Plan 369-27.
-- [ ] **HUM369-01**: Every shell action declares an exposure (agent, human or both); the principal comes only from the server code path; the generated 1:1 adapter has no route and no tool export (D-15). Plans 369-08, 369-32.
-- [ ] **HUM369-02**: Human origin for approveDecision is the browser session cookie, CSRF, Origin and a single-use render nonce bound to the gate and the browser session; a caller-supplied principal is ignored (D-15). Plan 369-21.
-- [ ] **HUM369-03**: D-15 acceptance: the agent proposes, tries to approve through the same action (with or without a forged principal) and is refused human_only; a direct MCP gate_answer from the adapter session is session_mismatch; the browser click ratifies. Plan 369-21.
-- [ ] **RXP369-01**: The projection schema is a six-collection UI projection and the replica module is pull only (no push handler), checkpoint {epoch, seq}, database name carrying the epoch and projection version, no RxDB dev-mode (deliverable 4). Plan 369-08.
-- [ ] **RXP369-02**: The shell read copy is live with RESYNC on hints and reconnect, rebuilds on checkpoint_expired, epoch_changed and a version bump, purges removed rooms, keeps one room database open at a time and stores the last-visit sequence (deliverable 4, D-09). Plan 369-23.
-- [ ] **RXP369-03**: The deliverable-4 hazards are proven in a browser: catch-up, live update, 200-write burst with 0 missing, kill and restart, hard deletes, warm reload pulling 0 documents, crash mid-batch, multiple tabs, compaction reset, schema bump, removed room, loopback-only egress. Plan 369-23.
-- [ ] **CANON369-01**: skills/ui-system/SKILL.md carries the dated, scoped Design Canon v3 exception for the shell only, in the UI-SPEC wording (D-01). Plan 369-09.
-- [ ] **CANON369-02**: mindrian-platform.html carries a dated PARKED header (not deleted), the C10/C11 debt is filed as a seed, and the C12 retirement is noted in MCP-APPS-STRATEGIC-RESEARCH.md (D-02). Plan 369-09.
-- [ ] **CANON369-03**: The session indicator is co-designed with the navigator in one AskUserQuestion session from the four statusline tiers, recorded in a signed design note (D-04). Plan 369-10.
-- [ ] **CANON369-04**: The shell uses the eleven v3 tokens only, bundled fonts after a blocking legitimacy check, radius 0, the contrast law and the shared primitives (D-01, D-11). Plan 369-20.
-- [ ] **CANON369-05**: The shell frame carries the D-10 information architecture (room name first, room selector, Work / Evidence / Decisions / Deliverables plus Graph, the Status surface) with the D-04 interim indicator and the room-switch protection. Plan 369-20.
-- [ ] **CANON369-06**: The session indicator component is built from the signed note and nothing else, with INV-SL-1..5 enforced in code (D-04). Plan 369-24.
-- [ ] **CANON369-07**: The CANON369 checks C1-C11 pass against the built shell across the recoverable journey (egress, bundle hosts, radius, ochre law, contrast, fonts, tiles with status, one H1 / primary / circle / triangle, token colours, reduced motion, no long dashes) (D-01, D-11). Plan 369-29.
-- [ ] **SHELL369-01**: The chassis-neutral ui/shared core: a legacy-mode MCP session pool (one per browser session, reconnect-and-rebind, a separate adapter session), the feed relay with a poll net, and the proposal contract (D-19, D-18). Plan 369-08.
-- [ ] **SHELL369-02**: The Claude adapter proof (D-14): selected context in, a schema-validated proposal out, read-only, on its own session, with the A1 terms question ruled by the navigator; the F7 kernel absence recorded. Plan 369-14.
-- [ ] **SHELL369-03**: The shell server binds 127.0.0.1 only with Host/Origin validation, the UI-SPEC CSP, the one-time bootstrap sign-in (with the login-CSRF and DNS-rebinding refusal on the exchange), CSRF, server-side sessions, no second store and telemetry off (D-08). Plan 369-19.
-- [ ] **SHELL369-04**: The registered actions are the review-and-decision set, composed server-side over the generated internal adapter; the write actions of deliverable 3 are not registered (D-08, D-13). Plan 369-32.
-- [ ] **SHELL369-05**: Feed relay endpoints and the connection state for the Status surface ("Connected" only after an acknowledged round trip). Plan 369-32.
-- [ ] **SHELL369-06**: The opening screen follows D-09: the current question, what changed since the last visit (never an invented history), and the next decision. Plan 369-25.
-- [ ] **SHELL369-07**: Evidence with the read-only BlockNote display, Decisions with human attribution, Deliverables display-only, and a text-only Graph tab, with every tile paired with its written status (D-10, D-11, D-12, D-13). Plan 369-25.
-- [ ] **SHELL369-08**: The launch surface is ruled by the navigator (default: extend /mos:dashboard) and born WIRED with a HITL shape; the launcher prints a one-time link (open question 3). Plan 369-22.
-- [ ] **SHELL369-09**: Desktop and Cowork state plainly that the shell runs on the user's machine from Claude Code and never simulate it; the navigator rules at plan 22 whether Claude Desktop needs the exact two sentences (delivered through the room_list tool description, never the frozen Part 8 paragraph) or, as a navigator amendment of D-03 recorded in 369-LAUNCH-RULING.md, the BOUNDARIES line is enough; the three MCP App views are untouched (D-02, D-03). Plan 369-22.
-- [ ] **SHELL369-10**: The gate button is the fourth render of the Shape F contract with the recommendation preselected, sharing one tested superset with the CLI card (Canon Part 3; after Phase 289). Plan 369-27.
-- [ ] **SHELL369-11**: The one recoverable journey passes against the shipped shell: open the correct room, inspect evidence, decide, see it persisted, restart both servers, recover (D-08). Plan 369-30.
-- [ ] **BAKE369-01**: The workroom candidate slice is production-built with every room access through the action layer, the xl-* exporters and the AI Gateway route removed (D-05, D-06). Plan 369-15.
-- [ ] **BAKE369-02**: The agent-native candidate slice is production-built with the spike 007 hazards handled and identical actions (D-05, D-06). Plan 369-16.
-- [ ] **BAKE369-03**: The nine judged measures are recorded for both candidates by ui/bakeoff/measure.cjs (D-05). Plan 369-18.
-- [ ] **BAKE369-04**: The chassis is chosen by the navigator at a Decision Gate and recorded with its consequences (build tool, shell server location under RULE 8, route directory, CSP) (D-07). Plan 369-18.
-- [ ] **CM369-01**: Change-log growth counts on a fixture room (rows per writes, per rebuild, compaction time), counts only (SEED-074). Plan 369-12.
-- [ ] **CM369-02**: Catch-up time and lost-write counts from the read-copy e2e, counts only (SEED-074). Plan 369-23.
-- [ ] **CM369-03**: Gate latency and post-restart catch-up counts from the journey e2e, counts only (SEED-074). Plan 369-30.
+      **Open:** (2026-10-04) Left open: everything in the requirement is proven except its last clause, "the payload ceiling still passes". `node scripts/check-release-payload-ceiling.cjs --check` fails with one finding, `npm-shrinkwrap.json declares hasInstallScript:true for: node_modules/sharp` (an optional dependency of `next`, introduced by plan 19's RULE 8 ruling). Proven this session: `node scripts/build-ui-shell.cjs --check` fresh, `node tests/test-369-ui-dist-fresh.cjs` 11 passed with 1 known red, `lib/ui-shell/dist` has no `node_modules`. The navigator ruled the fix into Phase 369.1 D-16 and D-16a ("prune", 2026-10-04); this row closes when that lands.
+
+- [x] **CHG369-01**: room_change_log and room_tx_context are registered in the Phase 108 alias file before any DDL is staged; the installer creates the log, the one-row tx context and six triggers idempotently after every migration on every write-door open, with an epoch and a floor, re-minting the epoch when a rebuild dropped a trigger (D-18). Plan 369-05.
+      **Measured:** (2026-10-04) `node tests/test-369-change-log-ddl.cjs` PASS=11 FAIL=0 over three schema variants (leg PASSED); `node scripts/check-schema-aliases.cjs` row command exit 0 (VALIDATION row 369-05-01).
+
+- [x] **CHG369-02**: withRoomTx (owns idiom, transaction_id stamping) and readChangeLogMeta are re-exported through navigation.cjs; DDL, rollback, conflict semantics, nesting, rebuild re-install and monotonic sequence are tested over three schema variants (D-18). Plan 369-05.
+      **Measured:** (2026-10-04) `node tests/test-369-change-log-ddl.cjs` PASS=11 FAIL=0: DDL, rollback, conflict semantics, nesting, rebuild re-install and monotonic sequence (leg PASSED).
+
+- [x] **CHG369-03**: Transaction ownership: the eight unconditional-BEGIN writer sites adopt `owns = db.isTransaction !== true`, and promoteNodeStatus composes inside withRoomTx (D-18). Plan 369-06.
+      **Measured:** (2026-10-04) `node tests/test-369-tx-ownership.cjs` static PASS at 8 of 8 sites, failures 0, plus the behavioural arms (leg PASSED).
+
+- [x] **CHG369-04**: Coverage is proven against the writer inventory as data: every in-process row logs, rollbacks and ignored inserts log nothing, the non-graph exclusion holds, and a live wide-regex scan finds no unlisted mutation site (D-18). Plan 369-11.
+      **Measured:** (2026-10-04) `node tests/test-369-writer-inventory.cjs` PASS=29 FAIL=0 (every in-process row, rollback and ignore arms, exclusion arm, live wide-regex scan; leg PASSED).
+
+- [x] **CHG369-05**: Writes from other processes (a second Node process, the SessionStart hook script, two bulk scripts, the Python writer) are captured, and room removal has a defined shape (D-18). Plan 369-12.
+      **Measured:** (2026-10-04) `node tests/test-369-change-log-cross-process.cjs` PASS=6 FAIL=0 SKIP=0 (second Node process, SessionStart hook script, two bulk scripts, Python on SQLite 3.45.1, room removal; leg PASSED).
+
+- [x] **CHG369-06**: Compaction raises the floor without touching newer rows, with retention numbers chosen from a fixture-room measurement, and runs inside installChangeLog only above the measured ceiling (D-18). Plan 369-12.
+      **Measured:** (2026-10-04) `node tests/test-369-change-log-compaction.cjs` PASS=8 FAIL=0: 30,200 rows needed against the 100,000 ceiling (50,000 kept), compaction about 52 ms against a 2000 ms limit (leg PASSED; `tests/fixtures/369/retention-measurement.json`).
+
+- [x] **FEED369-01**: A room_changes MCP read tool serves ordered deltas with deletes as rows and current documents joined at read time, checkpoint_expired and epoch_changed with a snapshot revision, a snapshot-then-tail mode, change_log_absent, through the read-only door only (D-18). Plan 369-13.
+      **Measured:** (2026-10-04) `node tests/test-369-room-changes.cjs` PASS=11 FAIL=0 (ordered deltas, deletes as rows, checkpoint_expired, epoch_changed, snapshot-then-tail, change_log_absent, read-only door; leg PASSED).
+
+- [x] **FEED369-02**: A room_artifact MCP read tool returns one artifact's markdown by room-relative path with lexical and realpath containment, the source of the read-only document display (D-13; open question 1 default). Plan 369-13.
+      **Measured:** (2026-10-04) `node tests/test-369-room-artifact.cjs` PASS=8 FAIL=0 (lexical and realpath containment; leg PASSED).
+
+- [x] **FEED369-03**: room.changed {roomId, latestSeq} is appended to the frozen additive SSE vocabulary; the three existing kinds stay unchanged and in order (D-18). Plan 369-17.
+      **Measured:** (2026-10-04) `node tests/test-369-sse-room-changed.cjs` PASS=7 FAIL=0 and `node tests/test-369-sse-vocab-pin.cjs` PASS=4 (the three existing kinds unchanged and in order; legs PASSED).
+
+- [x] **FEED369-04**: Every baseline the two new tools move is refreshed in the same plan: wire snapshot 45 to 47 tools, membership pins with a reason, regenerated connector registries, CONNECTOR_DESCRIPTORS 32 to 34, the schema-budget byte history, the generated shell adapter; server instructions untouched. Plan 369-13.
+      **Measured:** (2026-10-04) run-all-369 regression legs "267 registration API" PASS=70, "267 CIRS gates" PASS=3, "270 tool schema budget" 5 passed, "276 tool honesty findings closed" 148 passed, "connector registry" OK; `node scripts/build-connector-registry.cjs --check` exit 0 (34 connector descriptors). Note: the separate `room_list` zod4 description diff belongs to plan 369-22, not to these two tools.
+
+- [x] **FEED369-05**: A daemon-side room watcher (fs.watch on .mindrian/ gated by data_version on one long-lived read-only connection, 500 ms poll net) publishes room.changed for writes from any process, lazily started and idle-stopped (D-18). Plan 369-17.
+      **Measured:** (2026-10-04) `node tests/test-369-sse-room-changed.cjs` PASS=7 FAIL=0: a write from another process wakes every `/event` subscriber with `room.changed` (leg PASSED); counter-metrics `live_update_ms` 145 (369-COUNTER-METRICS.md).
+
+- [x] **SESS369-01**: Sessionful acceptance on the legacy leg of the shipped Phase 267 server: bind, mint, cross-client isolation, answer, reconnect with re-bind; the owner-after-stranger result is KNOWN until Phase 289 and flips automatically (D-19). Plan 369-07.
+      **Measured:** (2026-10-04) `node tests/test-369-sessionful-acceptance.cjs` PASS=6 FAIL=0 on the legacy leg (bind, mint, isolation, answer, reconnect with re-bind); the owner-after-stranger result flipped from KNOWN to asserted after Phase 289 (leg PASSED).
+
+- [x] **SESS369-02**: The modern auto-negotiating arm is pinned: room_bind answers no_session_id with the env scrubbed, so the shell uses the legacy sessionful path explicitly; no discovery shim (D-19). Plan 369-07.
+      **Measured:** (2026-10-04) `node tests/test-369-sessionful-acceptance.cjs` PASS=6: the modern arm is pinned (`room_bind` answers `no_session_id` with the env scrubbed); no discovery shim exists.
+
+- [x] **SESS369-03**: ensureDaemon never passes CLAUDE_CODE_SESSION_ID to the shared daemon, and a test proves it (D-19; adjacent to RCA 7 / SEED-108). Plan 369-07.
+      **Measured:** (2026-10-04) `node tests/test-369-daemon-env-scrub.cjs` PASS=3 FAIL=0 (leg PASSED).
+
+- [x] **SESS369-04**: The session contract is settled in 369-SESSION-CONTRACT.md: legacy client mode, the shell's host identity (no HOST_TIER_MAP entry; MINDRIAN_MCP_FIRST=cowork), and the one-time bootstrap code (A3) (D-19). Plan 369-07.
+      **Measured:** (2026-10-04) `369-SESSION-CONTRACT.md` exists and is exercised by `node tests/test-369-sessionful-acceptance.cjs` PASS=6 and `node tests/test-369-shell-server.cjs` 35 passed (one-time bootstrap code, 32 bytes, 60 s).
+
+- [x] **GREC369-01**: Durable consumption: every ratification write of a gate answer runs in one withRoomTx and the ledger entry is released only after COMMIT; a persistence failure leaves the gate answerable; refused answers never consume (deliverable 11, D-16; after Phase 289). Plan 369-26.
+      **Measured:** (2026-10-04) `node tests/test-369-gate-recovery.cjs` PASS=11 FAIL=0 on a live daemon; `node tests/test-369-289-precondition.cjs` PASS (Phase 289 precondition holds by behaviour); both legs PASSED.
+
+- [x] **GREC369-02**: Idempotent replay by gate id from the durable anchor (decision node or the gate_answer memory_event by dedupe key), including after a daemon restart (deliverable 11). Plan 369-26.
+      **Measured:** (2026-10-04) `node tests/test-369-gate-recovery.cjs` PASS=11: replay by gate id from the durable anchor, including after a daemon restart (leg PASSED).
+
+- [x] **GREC369-03**: The room and the subject revision are recorded at mint; room_switched, stale_subject, gate_expired, unknown_gate and replayed (already answered) are distinct answers (deliverable 11). Plan 369-26.
+      **Measured:** (2026-10-04) `node tests/test-369-gate-recovery.cjs` PASS=11: room_switched, stale_subject, gate_expired, unknown_gate and replayed answer distinctly (leg PASSED).
+
+- [x] **GREC369-04**: The existing unbound-write refusal is validated, not reimplemented, and a Theo mirror handoff line is written for the changed gate_answer contract (D-16; folded todo). Plan 369-26.
+      **Measured:** (2026-10-04) `node tests/test-369-gate-recovery.cjs` PASS=11 and `node tests/test-369-sessionful-acceptance.cjs` PASS=6; the Theo handoff line is on disk at `/home/jsagi/Theo/.planning/HANDOFF-2026-10-02-mos-gate-answer-recovery-contract-369.md` (6,567 bytes, untracked in Theo, additive).
+
+- [x] **GREC369-05**: The web gate renders every recovery state and retries by gate id after a lost response; "recorded" shows only after the server confirms the commit. Plan 369-27.
+      **Measured:** (2026-10-04) `node tests/e2e-369/gate-button.cjs` all 15 arms PASS (aggregator leg PASSED; standalone exit 0, 27 s); "recorded" shows only after the server confirms the commit. Limit: after a shell restart an old gate id reads "no longer open" rather than "already recorded" (gap 2 in 369-MANUAL-VERIFICATION.md); the room replays correctly with one node.
+
+- [x] **HUM369-01**: Every shell action declares an exposure (agent, human or both); the principal comes only from the server code path; the generated 1:1 adapter has no route and no tool export (D-15). Plans 369-08, 369-32.
+      **Measured:** (2026-10-04) `node tests/test-369-shared-core.cjs` PASS=13 and `node tests/test-369-shell-actions.cjs` PASS=17 FAIL=0 (exposure declared per action, principal only from the server code path, generated adapter has no route; legs PASSED; one transient 11/6 run of shell-actions was not reproduced in four reruns, see 369-CLOSE-GATE.md).
+
+- [x] **HUM369-02**: Human origin for approveDecision is the browser session cookie, CSRF, Origin and a single-use render nonce bound to the gate and the browser session; a caller-supplied principal is ignored (D-15). Plan 369-21.
+      **Measured:** (2026-10-04) `node tests/test-369-human-only.cjs` PASS=10 FAIL=0 SKIP=0 including HTTP arm 8 over real HTTP (no cookie, no CSRF header or a forged Origin refused before any action code runs); aggregator leg PASSED, standalone exit 0 (3 s).
+
+- [x] **HUM369-03**: D-15 acceptance: the agent proposes, tries to approve through the same action (with or without a forged principal) and is refused human_only; a direct MCP gate_answer from the adapter session is session_mismatch; the browser click ratifies. Plan 369-21.
+      **Measured:** (2026-10-04) `node tests/test-369-human-only.cjs` PASS=10: the agent proposes, tries to approve with and without a forged principal and with a guessed nonce and is refused `human_only`; a direct `gate_answer` from the adapter session is `session_mismatch`; the browser click ratifies.
+
+- [x] **RXP369-01**: The projection schema is a six-collection UI projection and the replica module is pull only (no push handler), checkpoint {epoch, seq}, database name carrying the epoch and projection version, no RxDB dev-mode (deliverable 4). Plan 369-08.
+      **Measured:** (2026-10-04) `node tests/test-369-shared-core.cjs` PASS=13 (six-collection projection schema, pull-only replica, checkpoint {epoch, seq}, no dev-mode: the only `dev-mode` text under `ui/shell/client` is a comment saying the plugin is never imported).
+
+- [x] **RXP369-02**: The shell read copy is live with RESYNC on hints and reconnect, rebuilds on checkpoint_expired, epoch_changed and a version bump, purges removed rooms, keeps one room database open at a time and stores the last-visit sequence (deliverable 4, D-09). Plan 369-23.
+      **Measured:** (2026-10-04) `node tests/e2e-369/replica.cjs` all 12 arms PASS (aggregator leg PASSED; standalone exit 0, 29 s).
+
+- [x] **RXP369-03**: The deliverable-4 hazards are proven in a browser: catch-up, live update, 200-write burst with 0 missing, kill and restart, hard deletes, warm reload pulling 0 documents, crash mid-batch, multiple tabs, compaction reset, schema bump, removed room, loopback-only egress. Plan 369-23.
+      **Measured:** (2026-10-04) `node tests/e2e-369/replica.cjs` all 12 arms PASS: cold catch-up, live update, 200-write burst with 0 missing, kill and restart, hard deletes, warm reload pulling 0, crash mid-batch, two tabs, compaction reset, schema bump, removed room, loopback-only egress.
+
+- [x] **CANON369-01**: skills/ui-system/SKILL.md carries the dated, scoped Design Canon v3 exception for the shell only, in the UI-SPEC wording (D-01). Plan 369-09.
+      **Measured:** (2026-10-04) `node tests/test-369-canon-scope-docs.cjs` PASS (5/5 scenarios; leg PASSED) and `grep -c "Exception (2026-10-02, Phase 369)" skills/ui-system/SKILL.md` as part of VALIDATION row 369-09-01 (exit 0).
+
+- [x] **CANON369-02**: mindrian-platform.html carries a dated PARKED header (not deleted), the C10/C11 debt is filed as a seed, and the C12 retirement is noted in MCP-APPS-STRATEGIC-RESEARCH.md (D-02). Plan 369-09.
+      **Measured:** (2026-10-04) `node tests/test-369-canon-scope-docs.cjs` PASS (5/5); `head -3 lib/mcp/app-html/mindrian-platform.html | grep -c "PARKED 2026-10-02 (Phase 369, D-02)"` printed 1; seed `.planning/seeds/SEED-112-mcp-app-html-dark-theme-and-cdn-debt.md` found; `git diff --stat 586f6b812..HEAD -- lib/mcp/app-views.cjs lib/mcp/app-html/` shows one file, 1 insertion (the header).
+
+- [x] **CANON369-03**: The session indicator is co-designed with the navigator in one AskUserQuestion session from the four statusline tiers, recorded in a signed design note (D-04). Plan 369-10.
+      **Measured:** (2026-10-04) `node tests/test-369-indicator-note.cjs` PASS (leg PASSED); `369-SESSION-INDICATOR-DESIGN.md` signed with the navigator answers Q1 A, Q2 B, Q3 B, Q4 A (2026-10-03).
+
+- [x] **CANON369-04**: The shell uses the eleven v3 tokens only, bundled fonts after a blocking legitimacy check, radius 0, the contrast law and the shared primitives (D-01, D-11). Plan 369-20.
+      **Measured:** (2026-10-04) `node tests/test-369-canon-skin.cjs` 30 passed, 0 failed (leg PASSED); font packages approved by the navigator 2026-10-03 (369-20, exact pins at 5.3.0, JetBrains Mono kept).
+
+- [x] **CANON369-05**: The shell frame carries the D-10 information architecture (room name first, room selector, Work / Evidence / Decisions / Deliverables plus Graph, the Status surface) with the D-04 interim indicator and the room-switch protection. Plan 369-20.
+      **Measured:** (2026-10-04) `node tests/test-369-canon-skin.cjs` 30 passed (frame, room selector, Status surface, interim indicator, room-switch protection).
+
+- [x] **CANON369-06**: The session indicator component is built from the signed note and nothing else, with INV-SL-1..5 enforced in code (D-04). Plan 369-24.
+      **Measured:** (2026-10-04) `node tests/test-369-session-indicator.cjs` 11 of 11 arms (7 model and static arms against the signed note, 4 browser arms on a hermetic daemon); leg PASSED. Open navigator items on wording only: duplicate "Reconnect now" placement and the "Catching up" fallback.
+
+- [x] **CANON369-07**: The CANON369 checks C1-C11 pass against the built shell across the recoverable journey (egress, bundle hosts, radius, ochre law, contrast, fonts, tiles with status, one H1 / primary / circle / triangle, token colours, reduced motion, no long dashes) (D-01, D-11). Plan 369-29.
+      **Measured:** (2026-10-04) `node tests/e2e-369/egress-and-canon.cjs` exit 0, C1 through C11 PASS over 31 captures (aggregator leg PASSED; standalone exit 0, 34 s): 1,095 requests all to 127.0.0.1, 262 dist files with 0 outside-host hits, 972 text runs with 0 below the contrast law (tightest 5.78:1).
+
+- [x] **SHELL369-01**: The chassis-neutral ui/shared core: a legacy-mode MCP session pool (one per browser session, reconnect-and-rebind, a separate adapter session), the feed relay with a poll net, and the proposal contract (D-19, D-18). Plan 369-08.
+      **Measured:** (2026-10-04) `node tests/test-369-shared-core.cjs` PASS=13 FAIL=0 (session pool surviving a daemon restart by re-binding, feed relay with poll net, proposal contract; leg PASSED).
+
+- [x] **SHELL369-02**: The Claude adapter proof (D-14): selected context in, a schema-validated proposal out, read-only, on its own session, with the A1 terms question ruled by the navigator; the F7 kernel absence recorded. Plan 369-14.
+      **Measured:** (2026-10-04) `node tests/test-369-claude-adapter.cjs` PASS=9 FAIL=0 (leg PASSED); A1 ruled `room-proposal` by the navigator 2026-10-03 (369-ADAPTER-RULING.md): the shell never spawns `claude`.
+
+- [x] **SHELL369-03**: The shell server binds 127.0.0.1 only with Host/Origin validation, the UI-SPEC CSP, the one-time bootstrap sign-in (with the login-CSRF and DNS-rebinding refusal on the exchange), CSRF, server-side sessions, no second store and telemetry off (D-08). Plan 369-19.
+      **Measured:** (2026-10-04) `node tests/test-369-shell-server.cjs` 35 passed, 0 failed against the built shell (loopback-only bind, Host and Origin validation, CSP, one-time bootstrap with cross-site refusal, CSRF, server-side sessions; leg PASSED).
+
+- [x] **SHELL369-04**: The registered actions are the review-and-decision set, composed server-side over the generated internal adapter; the write actions of deliverable 3 are not registered (D-08, D-13). Plan 369-32.
+      **Measured:** (2026-10-04) `node tests/test-369-shell-actions.cjs` PASS=17 FAIL=0 (ten registered actions, the write actions of deliverable 3 not registered; leg PASSED).
+
+- [x] **SHELL369-05**: Feed relay endpoints and the connection state for the Status surface ("Connected" only after an acknowledged round trip). Plan 369-32.
+      **Measured:** (2026-10-04) `node tests/test-369-shell-actions.cjs` PASS=17 FAIL=0 (feed relay endpoints and connection state; "connected" only after an acknowledged MCP round trip).
+
+- [x] **SHELL369-06**: The opening screen follows D-09: the current question, what changed since the last visit (never an invented history), and the next decision. Plan 369-25.
+      **Measured:** (2026-10-04) `node tests/test-369-views-copy.cjs` 24 passed and `node tests/e2e-369/views.cjs` all 12 arms PASS (legs PASSED; arms 11 and 12 are a known load flake, green standalone).
+
+- [x] **SHELL369-07**: Evidence with the read-only BlockNote display, Decisions with human attribution, Deliverables display-only, and a text-only Graph tab, with every tile paired with its written status (D-10, D-11, D-12, D-13). Plan 369-25.
+      **Measured:** (2026-10-04) `node tests/test-369-views-copy.cjs` 24 passed and `node tests/e2e-369/views.cjs` 12 arms; egress-and-canon C7 (every tile on 31 captures carries its written status).
+
+- [x] **SHELL369-08**: The launch surface is ruled by the navigator (default: extend /mos:dashboard) and born WIRED with a HITL shape; the launcher prints a one-time link (open question 3). Plan 369-22.
+      **Measured:** (2026-10-04) `node tests/test-369-launch-surface.cjs` 17 passed, 0 failed (leg PASSED); the launch surface was ruled by the navigator 2026-10-03 (369-LAUNCH-RULING.md, Q1 extend /mos:dashboard); `node scripts/build-connector-registry.cjs --check` exit 0.
+
+- [x] **SHELL369-09**: Desktop and Cowork state plainly that the shell runs on the user's machine from Claude Code and never simulate it; the navigator rules at plan 22 whether Claude Desktop needs the exact two sentences (delivered through the room_list tool description, never the frozen Part 8 paragraph) or, as a navigator amendment of D-03 recorded in 369-LAUNCH-RULING.md, the BOUNDARIES line is enough; the three MCP App views are untouched (D-02, D-03). Plan 369-22.
+      **Measured:** (2026-10-04) `node tests/test-369-launch-surface.cjs` 17 passed; the navigator approved the two D-03 sentences on Cowork and on Claude Desktop (room_list tool description delivery, no amendment) on 2026-10-04 (369-MANUAL-VERIFICATION.md). Related red, not this requirement: `node tests/test-267-mcpv2-zod4-contract.cjs` fails on one description diff (`tool:room_list`) because the pinned accepted set was not refreshed by plan 22.
+
+- [x] **SHELL369-10**: The gate button is the fourth render of the Shape F contract with the recommendation preselected, sharing one tested superset with the CLI card (Canon Part 3; after Phase 289). Plan 369-27.
+      **Measured:** (2026-10-04) `node tests/test-369-gate-web-mapping.cjs` 22 passed, `node tests/e2e-369/gate-button.cjs` 15 arms PASS, `node tests/test-198-gate-renderers.test.cjs` PASS (one shared superset fixture for the CLI card and the web button); `node tests/test-369-289-precondition.cjs` PASS.
+
+- [x] **SHELL369-11**: The one recoverable journey passes against the shipped shell: open the correct room, inspect evidence, decide, see it persisted, restart both servers, recover (D-08). Plan 369-30.
+      **Measured:** (2026-10-04) `node tests/e2e-369/journey.cjs` PASSED in the aggregator run and in 8 of 9 standalone runs (gate click to recorded 58 to 159 ms, restart catch-up 2741 to 3666 ms, 0 lost writes in every passing run); 1 standalone run failed at step 6 (60 s timeout waiting for the read copy), cause not established. The navigator approved the click test, the Canon v3 visual review and the Desktop and Cowork line on 2026-10-04 (369-MANUAL-VERIFICATION.md). Limits: the journey raises the gate through the harness (the shipped shell has no browser control that raises one) and the post-restart re-answer wording is "no longer open"; both are recorded gaps for `/gsd-plan-phase 369 --gaps`.
+
+- [x] **BAKE369-01**: The workroom candidate slice is production-built with every room access through the action layer, the xl-* exporters and the AI Gateway route removed (D-05, D-06). Plan 369-15.
+      **Measured:** (2026-10-04) `node tests/test-369-bakeoff-workroom.cjs` PASS=9 FAIL=0 and `--built` exit 0 (xl-* exporters and AI Gateway route removed, every room access through the action layer).
+
+- [x] **BAKE369-02**: The agent-native candidate slice is production-built with the spike 007 hazards handled and identical actions (D-05, D-06). Plan 369-16.
+      **Measured:** (2026-10-04) `node tests/test-369-bakeoff-agent-native.cjs` 11 passed (static arms, aggregator leg PASSED) with the spike 007 hazards handled. Limit: its `--built` arm now exits 1 (12 passed, 1 failed) on a stale assertion that a second approve answers `answered:false`; since GREC369-02 it replays ok. The candidate lost the bake-off; the assertion is not fixed here.
+
+- [x] **BAKE369-03**: The nine judged measures are recorded for both candidates by ui/bakeoff/measure.cjs (D-05). Plan 369-18.
+      **Measured:** (2026-10-04) `node tests/test-369-bakeoff-measure.cjs` PASS=12 FAIL=0 (leg PASSED); nine measures for both candidates in `ui/bakeoff/results.json` and `ui/bakeoff/COMPARISON.md`.
+
+- [x] **BAKE369-04**: The chassis is chosen by the navigator at a Decision Gate and recorded with its consequences (build tool, shell server location under RULE 8, route directory, CSP) (D-07). Plan 369-18.
+      **Measured:** (2026-10-04) `grep -cE "^(Winner|Transplants|Build tool|Shell server|Route directory|Server entry|CSP|Measured baseline):" 369-BAKEOFF-DECISION.md` (VALIDATION row 369-18-04, exit 0); navigator ruling "workroom (Recommended)" 2026-10-03, plus the RULE 8 ruling "Next as a per-machine dependency" 2026-10-03.
+
+- [x] **CM369-01**: Change-log growth counts on a fixture room (rows per writes, per rebuild, compaction time), counts only (SEED-074). Plan 369-12.
+      **Measured:** (2026-10-04) `node tests/test-369-change-log-compaction.cjs` PASS=8: 2000 rows per 2,000 writes, 1,010 per rebuild of a 210-node room, 9,691 after 10 rebuilds, compaction about 52 ms (counts only, `tests/fixtures/369/retention-measurement.json`).
+
+- [x] **CM369-02**: Catch-up time and lost-write counts from the read-copy e2e, counts only (SEED-074). Plan 369-23.
+      **Measured:** (2026-10-04) `node tests/e2e-369/replica.cjs` 12 arms PASS: catch_up_ms 1190, live_update_ms 145, burst_catch_up_ms 224, lost_writes 0, restart_converge_ms 5564, restart_missing 0 (369-COUNTER-METRICS.md, counts only).
+
+- [x] **CM369-03**: Gate latency and post-restart catch-up counts from the journey e2e, counts only (SEED-074). Plan 369-30.
+      **Measured:** (2026-10-04) `node tests/e2e-369/journey.cjs`: gate_click_to_recorded_ms 81, restart_catch_up_ms 2857, lost_writes 0 in the recorded run (369-COUNTER-METRICS.md); eight further passing runs 2026-10-04 gave 58 to 159 ms, 2741 to 3666 ms and 0 lost writes.
+
 
 ### Phase 364 - Scientific Roadmapping command /mos:scientific-roadmap (SRM364 family) (minted at plan time 2026-10-02)
 
@@ -4689,7 +4807,7 @@ plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus 
 (Phase 353), plus SYS-01..09 / THEO-01..04 (Phase 354), plus GATE357-01..09 (Phase 357), plus
 FORK359-01..10 (Phase 359), plus BIND360-01..11 (Phase 360), plus DDR361-01..13 (Phase 361),
 plus HIPS-01..10 (Phase 355), plus AMB-01..09 (Phase 355.1), plus CARD362-01..06 (Phase 362),
-plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366), plus TS369-01..08, CHG369-01..06, FEED369-01..05, SESS369-01..04, GREC369-01..05, HUM369-01..03, RXP369-01..03, CANON369-01..07, SHELL369-01..11, BAKE369-01..04, CM369-01..03 (Phase 369, 59 IDs, registered at plan time 2026-10-02, all `[ ]` until 369-31). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; all 19 `[x]`: MCPV2-13 closed by navigator waiver, MCPV2-03 and MCPV2-08 flipped by the 366-24 combined baseline refresh).
+plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30 (Phase 366), plus TS369-01..08, CHG369-01..06, FEED369-01..05, SESS369-01..04, GREC369-01..05, HUM369-01..03, RXP369-01..03, CANON369-01..07, SHELL369-01..11, BAKE369-01..04, CM369-01..03 (Phase 369, 59 IDs, registered at plan time 2026-10-02; closed by 369-31 on 2026-10-04: 58 `[x]` with a Measured line, 1 `[ ]` with a stated reason: TS369-08, whose last clause is the payload ceiling that Phase 369.1 D-16 fixes). Also MCPV2-01..19 (Phase 267, registered at close 2026-10-02; all 19 `[x]`: MCPV2-13 closed by navigator waiver, MCPV2-03 and MCPV2-08 flipped by the 366-24 combined baseline refresh).
 Also SRM364-01..21 (Phase 364, 21 IDs, registered at plan time 2026-10-02, all [ ] until 364-11).
 Also SRM364-22..23 (Phase 364 gap plan 364-14, navigator ruling 2026-10-03; registered at plan time as [ ], closed by 364-14 Task 3 on measured proof).
 Also CARD289-01..06, LEDGER289-01..05, CONTRACT289-01..04, ELICIT289-01..02, MENU289-01..03, VAL289-01, CLOSE289-01 (Phase 289, 22 IDs, registered at plan time 2026-10-03, all 22 closed [x] with Measured proof by 289-09 (2026-10-04).
