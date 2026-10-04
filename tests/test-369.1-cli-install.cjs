@@ -153,9 +153,13 @@ function mkTemp(label) {
   return d;
 }
 const statusFilesToRemove = new Set();
+// The status record lives under <HOME>/.mindrian/run (369.1-REVIEW CR-01), keyed by a hash of the normalised
+// plugin root; the servers started here run with this HOME so the parent can read the same record.
+const STATUS_HOME = mkTemp('status-home');
 function expectedStatusFile(pluginRoot) {
-  const h = crypto.createHash('sha256').update(pluginRoot).digest('hex').slice(0, 12);
-  const f = path.join(os.tmpdir(), 'mindrian-dep-install-' + h + '.json');
+  const norm = fs.realpathSync(pluginRoot).split(path.sep).join('/').replace(/\/+$/, '');
+  const h = crypto.createHash('sha256').update(norm).digest('hex').slice(0, 12);
+  const f = path.join(STATUS_HOME, '.mindrian', 'run', 'dep-install-' + h + '.json');
   statusFilesToRemove.add(f);
   return f;
 }
@@ -542,7 +546,7 @@ async function runLeg(entry) {
   const exact = entry === 'mos-desktop';
   const entries = (() => { try { return readMcpEntries(installPath); } catch (e) { fail(step, 'the installed plugin declares both MCP servers', reasonOf(e)); return null; } })();
   if (!entries) return;
-  const srvEnv = hermeticEnv({ CLAUDE_PLUGIN_ROOT: installPath });
+  const srvEnv = hermeticEnv({ CLAUDE_PLUGIN_ROOT: installPath, HOME: STATUS_HOME });
   expectedStatusFile(installPath);
   for (const name of Object.keys(SERVERS)) {
     await check(step, name + ' answers initialize and serves its full toolset' + (exact ? ' (equal to the repo tree)' : ''), async () => {

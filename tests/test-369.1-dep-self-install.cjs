@@ -38,9 +38,11 @@
  *       stdio JSON-RPC responder serving exactly one status tool.
  *     installStatusLine(status, serverName), statusFilePath(pluginRoot),
  *     STATUS_TOOL_NAMES = { 'mindrian-os': 'mos_install_status', 'mindrian-brain': 'brain_install_status' }.
- *     statusFilePath = os.tmpdir()/mindrian-dep-install-<first 12 hex of sha256(pluginRoot)>.json
+ *     statusFilePath = <home>/.mindrian/run/dep-install-<first 12 hex of sha256(normalised root)>.json
+ *       (369.1-REVIEW CR-01 / WR-05: a per-user 0700 directory, never the shared tmpdir; the
+ *       root is normalised: realpath, forward slashes, no trailing slash)
  *     Status shape: { state: 'installing'|'done'|'failed'|'npm-not-found', startedAt,
- *                     finishedAt, reason, pid, pluginRoot }.
+ *                     finishedAt, reason, pid, attempts } (no plugin path is stored).
  *   The MCP entry points (whatever path .mcp.json names: bin/ today, scripts/ after plan
  *     369.1-04) serve the responder on the stdio path when the bounded install does not finish.
  *
@@ -158,10 +160,14 @@ function mkTemp(label) {
   return d;
 }
 const statusFilesToRemove = new Set();
+// One HOME for the whole run: the status record lives under <HOME>/.mindrian/run (369.1-REVIEW CR-01),
+// so every process this test starts must share it with the parent that reads the record.
+const TEST_HOME = mkTemp('home');
 
 function expectedStatusFile(pluginRoot) {
-  const h = crypto.createHash('sha256').update(pluginRoot).digest('hex').slice(0, 12);
-  const f = path.join(os.tmpdir(), 'mindrian-dep-install-' + h + '.json');
+  const norm = fs.realpathSync(pluginRoot).split(path.sep).join('/').replace(/\/+$/, '');
+  const h = crypto.createHash('sha256').update(norm).digest('hex').slice(0, 12);
+  const f = path.join(TEST_HOME, '.mindrian', 'run', 'dep-install-' + h + '.json');
   statusFilesToRemove.add(f);
   return f;
 }
@@ -230,7 +236,7 @@ const SCRUB = [
 function hermeticEnv(extra) {
   const env = Object.assign({}, process.env);
   for (const k of SCRUB) delete env[k];
-  env.HOME = mkTemp('home');
+  env.HOME = TEST_HOME;
   env.MINDRIAN_ROOMS_HOME = mkTemp('rooms');
   env.MINDRIAN_BRAIN_URL = 'http://127.0.0.1:9'; // unreachable loopback, never a real Brain
   env.MINDRIAN_TRANSPORT = 'stdio';
@@ -601,9 +607,10 @@ async function armResponder() {
   });
   if (!present) return;
 
-  await check(A, 'statusFilePath is os.tmpdir()/mindrian-dep-install-<12 hex of sha256(pluginRoot)>.json', () => {
-    const root = path.join(TMP, 'some-plugin-root');
-    assert.equal(mod.statusFilePath(root), expectedStatusFile(root));
+  await check(A, 'statusFilePath is <home>/.mindrian/run/dep-install-<12 hex of sha256(normalised root)>.json', () => {
+    const root = mkTemp('some-plugin-root');
+    const r = runNode("process.stdout.write(JSON.stringify(require(process.argv[1]).statusFilePath(process.argv[2])));", [RESPONDER, root], hermeticEnv({}));
+    assert.equal(parseJsonOut(r, 'statusFilePath'), expectedStatusFile(root));
   });
   await check(A, 'installStatusLine: installing, failed and npm-not-found name the state and a fix, hyphens only', () => {
     const lines = {
@@ -722,7 +729,7 @@ async function armDetached() {
     const st = await pollUntil(() => { const s = readStatus(dir); return s && s.state === 'done' ? s : (s && s.state === 'failed' ? s : null); }, 20000, 100);
     assert.ok(st, 'no terminal status within 20 s');
     assert.equal(st.state, 'done', 'state (reason ' + st.reason + ')');
-    assert.equal(st.pluginRoot, dir, 'status.pluginRoot');
+    assert.ok(!('pluginRoot' in st), 'the record must not store the plugin path (369.1-REVIEW CR-01)');
     assert.equal(typeof st.startedAt === 'string' || typeof st.startedAt === 'number', true, 'status.startedAt');
     assert.ok(st.finishedAt, 'status.finishedAt');
     assert.deepEqual(readLog(log), [['ci', '--ignore-scripts', '--no-audit', '--no-fund']], 'the detached install runs the frozen argv');

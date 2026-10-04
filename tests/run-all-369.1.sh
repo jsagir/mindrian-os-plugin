@@ -74,6 +74,8 @@ run_if "DPI-01 marketplace shape"                      tests/test-369.1-marketpl
 run_if "DPI-05 release lockstep"                       tests/test-369.1-release-lockstep.cjs      node tests/test-369.1-release-lockstep.cjs
 run_if "downstream: 369-28 landed (plan 369.1-08 probe)" tests/test-369.1-369-28-precondition.cjs node tests/test-369.1-369-28-precondition.cjs
 run_if "DPI-06 self-install (offline arms)"            tests/test-369.1-dep-self-install.cjs      node tests/test-369.1-dep-self-install.cjs --arm unit --arm responder-module --arm detached --arm entries
+# Code-review fixes (369.1-REVIEW.md, iteration 1): one regression arm per finding, a plain leg, no tolerance.
+run_if "369.1 review fixes (one arm per finding)"      tests/test-369.1-review-fixes.cjs          node tests/test-369.1-review-fixes.cjs
 
 # --- (2) regression neighbours (must stay green) -----------------------------
 run_if "regression: 341 marketplace npm source"        tests/test-341-marketplace-npm-source.cjs  node tests/test-341-marketplace-npm-source.cjs
@@ -133,6 +135,8 @@ run "no em-dash or en-dash in phase 369.1 files" bash -c '
     scripts/release-lib/shrinkwrap-gate.sh \
     scripts/check-release-payload-ceiling.cjs \
     lib/core/mcp-install-responder.cjs \
+    lib/core/dep-install-status.cjs \
+    scripts/sessionstart-npm-reconcile.cjs \
     lib/core/dep-install-detached.cjs \
     lib/core/mcp-dep-heal.cjs \
     lib/core/npm-cli-resolve.cjs \
