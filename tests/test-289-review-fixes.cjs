@@ -435,7 +435,7 @@ async function armWr03() {
     assert.equal(out.ok, true);
     assert.notEqual(out.reason, 'render_failed');
     assert.notEqual(out.renderer, 'elicitation');
-    assert.ok(out.rendered && typeof out.elicit_fallback === 'string' ? true : typeof out.rendered.elicit_fallback === 'string' || typeof out.elicit_fallback === 'string', 'the fallback reason must be visible on the result');
+    assert.ok(out.rendered && typeof out.rendered.elicit_fallback === 'string' && out.rendered.elicit_fallback.length > 0, 'the fallback reason must be visible on the rendered result, got ' + JSON.stringify(out.rendered && out.rendered.elicit_fallback));
     const r = await f.answer('S1', out.gate_id, ['approve'], 'approve');
     assert.equal(r.ok, true, 'the gate must be answerable, got ' + JSON.stringify(r));
   });

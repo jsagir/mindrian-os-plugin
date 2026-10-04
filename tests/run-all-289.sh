@@ -67,6 +67,7 @@ run_if "289 elicit default (unit)" tests/test-289-elicit-default.cjs node tests/
 run_if "289 review fixes: CR-01 verdict agrees with chosen" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm cr01
 run_if "289 review fixes: WR-01 chain_run refuses a non-chain gate" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm wr01
 run_if "289 review fixes: WR-02 pre-consume refusals and the stated residual" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm wr02
+run_if "289 review fixes: WR-03 a throwing elicitInput falls to the card" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm wr03
 run_if "289 menu fence (MENU289-03)" tests/test-289-menu-fence.cjs node tests/test-289-menu-fence.cjs
 
 # --- (2) flipped and re-pinned existing tests ---------------------------------
