@@ -1,7 +1,8 @@
 'use strict';
 // Phase 238-02 (GATE-01 G-1, GATE-03 half A) -- proves the unified
 // session-keyed gate ledger (lib/mcp/gate-ledger.cjs) is session-scoped,
-// single-use on any verdict, TTL-bounded, and that the process-scoped
+// single-use on a successful consume (a refused stranger never burns
+// the owner's gate, Phase 289), TTL-bounded, and that the process-scoped
 // no-session sentinel (D-09) does not become a cross-process wildcard.
 //
 // Plain-Node harness (tests/test-209-backstop-tuning.cjs shape): no
@@ -48,19 +49,47 @@ ok('session A mints, session A consumes -> the entry, carrying its minted payloa
 });
 
 // ---------------------------------------------------------------------------
-// Case 3: single-use across a session mismatch. Case 1's rejected consume
-// already deleted the entry (deletion happens on lookup, before the
-// session check), so session A's own follow-up consume of the SAME id
-// also returns null, and the ledger no longer carries it.
+// Case 3 (Phase 289, D-04): owner-after-stranger. Case 1's refused
+// consume by sessB must NOT delete the entry: the rightful owner's
+// follow-up consume still gets it, and only then is it gone (single-use
+// after success). Before Phase 289 this case pinned the opposite burn.
 // ---------------------------------------------------------------------------
 
-ok('single-use even on a session-mismatch reject: the rightful owner\'s follow-up consume is null', function () {
-  const followUp = L.consumeGate('case1', 'sessA');
-  assert.equal(followUp, null);
+ok('owner-after-stranger: a stranger\'s refused consume leaves the entry; the owner then consumes it once', function () {
+  assert.equal(L._internal._ledger.has('case1'), true, 'the refused stranger consume must not delete the entry');
+  const owner = L.consumeGate('case1', 'sessA');
+  assert.ok(owner && owner.ok !== false, 'the owner must receive the entry, got ' + JSON.stringify(owner));
+  assert.equal(owner.sessionId, 'sessA');
+  assert.equal(L._internal._ledger.has('case1'), false);
+  assert.equal(L.consumeGate('case1', 'sessA'), null, 'replay after success is null');
 });
 
-ok('the ledger no longer carries case1 after either consume attempt', function () {
+ok('the ledger no longer carries case1 after the owner consumed it', function () {
   assert.equal(L._internal._ledger.has('case1'), false);
+});
+
+ok('peekGate never consumes: owner peek twice, stranger peek mismatch, expired peek null, all leave the Map alone', function () {
+  L.mintGate('peek1', { card: { options: [] }, sessionId: 'sessA', kind: 'general' });
+  const p1 = L.peekGate('peek1', 'sessA');
+  const p2 = L.peekGate('peek1', 'sessA');
+  assert.ok(p1 && p1.ok !== false && p2 === p1);
+  assert.equal(L._internal._ledger.has('peek1'), true);
+  const bad = L.peekGate('peek1', 'sessB');
+  assert.equal(bad && bad.ok, false);
+  assert.equal(bad && bad.reason, 'session_mismatch');
+  assert.equal(L._internal._ledger.has('peek1'), true);
+  L._internal._ledger.get('peek1').mintedAt = Date.now() - L.LEDGER_TTL_MS - 1;
+  assert.equal(L.peekGate('peek1', 'sessA'), null);
+  assert.equal(L.peekGate('peek1', 'sessB'), null, 'an expired entry never reads session_mismatch');
+  assert.equal(L._internal._ledger.has('peek1'), true, 'peek leaves an expired entry in place');
+  assert.equal(L.consumeGate('peek1', 'sessB'), null, 'consume of an expired entry is null for any caller');
+  assert.equal(L._internal._ledger.has('peek1'), false, 'consume clears the expired entry');
+  assert.equal(L.peekGate('absent', 'sessA'), null);
+});
+
+ok('consumeGate and peekGate each take exactly two parameters', function () {
+  assert.equal(L.consumeGate.length, 2);
+  assert.equal(L.peekGate.length, 2);
 });
 
 // ---------------------------------------------------------------------------
