@@ -658,6 +658,13 @@ fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 echo "Updated plugin.json + package.json to $NEW_VERSION"
 
+# 369.1-REVIEW WR-08: an interrupt (Ctrl-C, SIGTERM) between the first marketplace write (Step 4)
+# and the verified marketplace commit (Step 7) must not leave a half-written Desktop tree, a bumped
+# manifest, a staged shrinkwrap or bumped plugin files for the next cut (the builder's rmSync plus
+# cpSync window is the long one). The trap is cleared once the marketplace commit is verified.
+MARKETPLACE_PRE_SHA=""
+trap 'echo ""; echo "INTERRUPTED: rolling back the version bumps, the shrinkwrap and the Desktop copy"; mos_restore_plugin_files "$PLUGIN_DIR"; mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "${MARKETPLACE_PRE_SHA:-}" "$NEW_VERSION"; mos_rollback_marketplace "$MARKETPLACE_DIR"; exit 130' INT TERM
+
 # --- Step 4: Bump marketplace.json (version + npm source pinned to the exact version) ---
 cd "$MARKETPLACE_DIR"
 node -e "
@@ -903,8 +910,8 @@ if [ ! -f "$SHRINKWRAP_LIB" ]; then
 fi
 . "$SHRINKWRAP_LIB"
 if ! mos_generate_shrinkwrap "$PLUGIN_DIR"; then
-  echo -e "${RED}  x Step 6.7 failed. Rolling back version bumps.${NC}"
-  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  echo -e "${RED}  x Step 6.7 failed. Rolling back version bumps and the regenerated shrinkwrap.${NC}"
+  mos_restore_plugin_files "$PLUGIN_DIR"
   mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
@@ -922,8 +929,8 @@ echo ""
 echo "=== Step 6.8: Build the Desktop copy (plugins/mos-desktop, plugins[1]) ==="
 cd "$PLUGIN_DIR"
 if ! mos_build_desktop_copy "$PLUGIN_DIR" "$MARKETPLACE_DIR" "$NEW_VERSION"; then
-  echo -e "${RED}  x Step 6.8 failed. Rolling back version bumps and the Desktop copy.${NC}"
-  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  echo -e "${RED}  x Step 6.8 failed. Rolling back version bumps, the shrinkwrap and the Desktop copy.${NC}"
+  mos_restore_plugin_files "$PLUGIN_DIR"
   mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
@@ -931,7 +938,7 @@ MVAL68=$(claude plugin validate "$MARKETPLACE_DIR" 2>&1)
 if echo "$MVAL68" | grep -q "Validation failed"; then
   echo -e "${RED}  x Step 6.8: marketplace validation failed with the Desktop entry:${NC}"
   echo "$MVAL68"
-  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  mos_restore_plugin_files "$PLUGIN_DIR"
   mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
@@ -964,14 +971,33 @@ if [ "$TAG_PLUGIN_V" != "$NEW_VERSION" ] || [ "$TAG_PKG_V" != "$NEW_VERSION" ]; 
   echo -e "${RED}  Commit A did not land on this HEAD (concurrent-commit race, or the commit failed).${NC}"
   echo "  Recovery: quiet all concurrent sessions committing to this checkout, then re-run release.sh."
   echo "  NOT tagging. NOT pushing. No remote state was mutated by this step."
+  # 369.1-REVIEW WR-08: roll the staged Desktop payload, the bumped manifest and the regenerated
+  # shrinkwrap back, so the next cut starts clean.
+  mos_restore_plugin_files "$PLUGIN_DIR"
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 git tag "v$NEW_VERSION" "$RELEASE_SHA" 2>/dev/null || echo "Tag v$NEW_VERSION already exists"
 
 cd "$MARKETPLACE_DIR"
+MARKETPLACE_PRE_SHA=$(git rev-parse HEAD)
 git add .claude-plugin/marketplace.json
 git add --all -- plugins/mos-desktop
-git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in marketplace"
+# 369.1-REVIEW WR-08: no masked failure. A commit that did not happen (identity, hook, lock) used to
+# print "Nothing to commit" and the cut went on to npm publish while the Desktop catalog never got
+# the release (lockstep silently broken). "Nothing to commit" is fine only when HEAD already carries
+# the release, which the verification below proves against the COMMITTED state.
+git commit -m "release: sync to v$NEW_VERSION" || true
+if ! mos_verify_marketplace_commit "$MARKETPLACE_DIR" "$NEW_VERSION"; then
+  echo -e "${RED}ABORT: the marketplace commit did not land with the Desktop copy at v$NEW_VERSION. NOT publishing.${NC}"
+  echo "  The plugin Commit A and tag v$NEW_VERSION exist locally (nothing is pushed). To retry:"
+  echo "    git reset --hard HEAD^ && git tag -d v$NEW_VERSION   (in $PLUGIN_DIR), fix the cause, re-run release.sh."
+  mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "$MARKETPLACE_PRE_SHA" "$NEW_VERSION"
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
+  exit 1
+fi
+trap - INT TERM
+# --- end of the marketplace commit (369.1-REVIEW WR-08) ---
 
 # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 # Memory canon feedback_release_lockstep_npm: every plugin release publishes
@@ -1013,6 +1039,9 @@ if echo "$PACK_OUT" | grep -Eq '\.planning/|mcp-server-brain/|^npm notice .*test
   echo -e "${RED}  x npm pack payload includes a NON-allowlisted path (.planning/ / mcp-server-brain/ / tests/).${NC}"
   echo "    Publishing this would leak the entire repo (including Brain-key code) into the public npm tarball."
   echo "    Fix the package.json \"files\" allowlist before re-running. Do NOT publish."
+  # 369.1-REVIEW WR-08: the marketplace commit is local and unpushed; put it back.
+  mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "$MARKETPLACE_PRE_SHA" "$NEW_VERSION"
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo "  payload review OK -- blacklist clear (.planning/, mcp-server-brain/, tests/ absent)"
@@ -1024,6 +1053,8 @@ echo "  payload review OK -- blacklist clear (.planning/, mcp-server-brain/, tes
 if ! node "$PLUGIN_DIR/scripts/check-release-payload-ceiling.cjs" --check; then
   echo ""
   echo -e "${RED}  x check-release-payload-ceiling.cjs reported a failing payload. Do NOT publish.${NC}"
+  mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "$MARKETPLACE_PRE_SHA" "$NEW_VERSION"
+  mos_rollback_marketplace "$MARKETPLACE_DIR"
   exit 1
 fi
 echo "  payload ceiling check OK"
@@ -1050,16 +1081,17 @@ else
   else
     echo ""
     echo -e "${RED}  x npm publish failed for @mindrian_os/cli@$NEW_VERSION.${NC}"
-    echo "    Commit A has already been made and tagged v$NEW_VERSION (not yet pushed),"
-    echo "    so the lockstep contract is now BROKEN until you recover. To recover:"
+    echo "    Commit A has already been made and tagged v$NEW_VERSION (not yet pushed)."
+    echo "    The unpushed marketplace commit is being unwound (369.1-REVIEW WR-08), so the"
+    echo "    marketplace and the Desktop copy are back at the last pushed state. To recover:"
     echo "      1. Fix the npm issue (auth: 'npm whoami'; scope: ensure"
     echo "         package.json name is '@mindrian_os/cli' and you have publish"
     echo "         rights on the @mindrian_os org)."
-    echo "      2. Re-run JUST the publish: npm publish --tag $NPM_TAG"
-    echo "      3. Verify: npm view @mindrian_os/cli@$NPM_TAG version"
-    echo "      4. Then resume by running Commit B + push manually, OR reset"
-    echo "         (git reset --hard HEAD^ + git tag -d v$NEW_VERSION) and re-run release.sh."
+    echo "      2. Reset the plugin repo (git reset --hard HEAD^ + git tag -d v$NEW_VERSION)"
+    echo "         and re-run release.sh: it rebuilds the Desktop copy and the marketplace commit."
     echo "    Do NOT cut another plugin release until npm is in sync."
+    mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "$MARKETPLACE_PRE_SHA" "$NEW_VERSION"
+    mos_rollback_marketplace "$MARKETPLACE_DIR"
     exit 1
   fi
 fi

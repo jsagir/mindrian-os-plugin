@@ -22,6 +22,8 @@
  *
  *   wr-07  the in-band install answer is served on the HTTP transport too (Cowork), same shape, never a crash
  *
+ *   wr-08  release.sh abort paths after Step 6.7 unwind the payload, the manifest and the shrinkwrap; a failed marketplace commit aborts
+ *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
  * No npm install ever runs in the repo root; every install happens in a scratch plugin root. Every
@@ -1091,9 +1093,269 @@ async function armWr07() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-08
+// ---------------------------------------------------------------------------
+// release.sh is never run for real. The library functions run in sandbox git repos under TMP; the
+// release.sh text is checked by block extraction (header text, never line numbers); the marketplace
+// commit block and the INT/TERM trap are lifted out of release.sh itself and run in a bash harness
+// against those sandboxes.
+const RELEASE_SH = path.join(ROOT, 'scripts', 'release.sh');
+const GATE_LIB = path.join(ROOT, 'scripts', 'release-lib', 'desktop-copy-gate.sh');
+const GIT_ENV = Object.assign({}, process.env, { GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', GIT_TERMINAL_PROMPT: '0' });
+function g(dir, args, opts) {
+  const r = spawnSync('git', ['-C', dir].concat(args), { encoding: 'utf8', env: GIT_ENV, timeout: 60000 });
+  if (!(opts && opts.allowFail) && r.status !== 0) throw new Error('git ' + args.join(' ') + ' failed in ' + dir + ': ' + String(r.stderr).trim());
+  return { status: r.status, out: String(r.stdout || ''), err: String(r.stderr || '') };
+}
+function initRepo(dir, files) {
+  g(dir, ['init', '-q', '-b', 'main']);
+  g(dir, ['config', 'user.name', 'Sandbox']);
+  g(dir, ['config', 'user.email', 'sandbox@example.invalid']);
+  for (const rel of Object.keys(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
+    fs.writeFileSync(path.join(dir, rel), files[rel]);
+  }
+  g(dir, ['add', '--all']);
+  g(dir, ['commit', '-q', '-m', 'sandbox base']);
+}
+function manifestText(version, withDesktop) {
+  const plugins = [{ name: 'mos', version, source: { source: 'npm', package: '@mindrian_os/cli', version } }];
+  if (withDesktop) plugins.push({ name: 'mos-desktop', version, source: './plugins/mos-desktop' });
+  return JSON.stringify({ name: 'mindrian-marketplace', plugins }, null, 2) + '\n';
+}
+const OLD_V = '9.9.8';
+const NEW_V = '9.9.9';
+function sandboxes(label) {
+  const plugin = mkTemp(label + '-plugin');
+  initRepo(plugin, {
+    '.claude-plugin/plugin.json': JSON.stringify({ name: 'mos', version: OLD_V }) + '\n',
+    'package.json': JSON.stringify({ name: 'x', version: OLD_V }) + '\n',
+    'CHANGELOG.md': '# changelog ' + OLD_V + '\n',
+    'npm-shrinkwrap.json': '{"old":true}\n',
+  });
+  const mp = mkTemp(label + '-mp');
+  initRepo(mp, {
+    '.claude-plugin/marketplace.json': manifestText(OLD_V, true),
+    'plugins/mos-desktop/.claude-plugin/plugin.json': JSON.stringify({ name: 'mos-desktop', version: OLD_V }) + '\n',
+    'plugins/mos-desktop/a.txt': 'old a\n',
+  });
+  return { plugin, mp, mpPre: g(mp, ['rev-parse', 'HEAD']).out.trim() };
+}
+// What Steps 3 to 6.8 leave behind: bumped plugin files, a staged regenerated shrinkwrap, a bumped
+// manifest and a staged new Desktop tree.
+function simulateBuilt({ plugin, mp }) {
+  fs.writeFileSync(path.join(plugin, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos', version: NEW_V }) + '\n');
+  fs.writeFileSync(path.join(plugin, 'package.json'), JSON.stringify({ name: 'x', version: NEW_V }) + '\n');
+  fs.writeFileSync(path.join(plugin, 'CHANGELOG.md'), '# changelog ' + NEW_V + '\n');
+  fs.writeFileSync(path.join(plugin, 'npm-shrinkwrap.json'), '{"new":true}\n');
+  g(plugin, ['add', 'npm-shrinkwrap.json']);
+  fs.writeFileSync(path.join(mp, '.claude-plugin', 'marketplace.json'), manifestText(NEW_V, true));
+  fs.mkdirSync(path.join(mp, 'plugins', 'mos-desktop', '.claude-plugin'), { recursive: true });
+  fs.writeFileSync(path.join(mp, 'plugins', 'mos-desktop', '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos-desktop', version: NEW_V }) + '\n');
+  fs.writeFileSync(path.join(mp, 'plugins', 'mos-desktop', 'a.txt'), 'new a\n');
+  fs.writeFileSync(path.join(mp, 'plugins', 'mos-desktop', 'b.txt'), 'new b\n');
+  g(mp, ['add', '--all', '--', 'plugins/mos-desktop', '.claude-plugin/marketplace.json']);
+}
+const porcelain = (dir) => g(dir, ['status', '--porcelain']).out.trim();
+const relText = fs.existsSync(RELEASE_SH) ? fs.readFileSync(RELEASE_SH, 'utf8') : '';
+function relBlock(startHeader, endHeader) {
+  const a = relText.indexOf(startHeader);
+  if (a === -1) throw new Error('release.sh has no "' + startHeader.trim() + '"');
+  const b = endHeader ? relText.indexOf(endHeader, a + 1) : relText.length;
+  if (b === -1) throw new Error('release.sh has no "' + endHeader.trim() + '" after "' + startHeader.trim() + '"');
+  return relText.slice(a, b);
+}
+function nonCommentText(t) { return t.split('\n').filter((l) => !l.trim().startsWith('#')).join('\n'); }
+// The text from `anchor` to the next `exit 1` line, inclusive: the abort path that announces itself with `anchor`.
+function abortWindow(anchor) {
+  const a = relText.indexOf(anchor);
+  if (a === -1) throw new Error('release.sh has no "' + anchor + '"');
+  const e = relText.indexOf('exit 1', a);
+  if (e === -1) throw new Error('no exit 1 after "' + anchor + '"');
+  return relText.slice(a, e + 6);
+}
+function bashRun(script, env, timeoutMs) {
+  return spawnSync('bash', ['-c', script], { encoding: 'utf8', env: Object.assign({}, GIT_ENV, env || {}), timeout: timeoutMs || 60000 });
+}
+// The Step 7 marketplace commit block, lifted out of release.sh and run against sandboxes.
+function marketplaceCommitBlock() {
+  const a = relText.indexOf('cd "$MARKETPLACE_DIR"\nMARKETPLACE_PRE_SHA=$(git rev-parse HEAD)');
+  if (a === -1) throw new Error('could not find the Step 7 marketplace commit block');
+  const endMarker = '# --- end of the marketplace commit';
+  const e = relText.indexOf(endMarker, a);
+  if (e === -1) throw new Error('the Step 7 marketplace commit block has no "' + endMarker + '" marker');
+  return relText.slice(a, e);
+}
+function runCommitBlock({ plugin, mp, mpPre }, extra) {
+  const script = [
+    'set -euo pipefail',
+    'RED=""; GREEN=""; YELLOW=""; NC=""',
+    'PLUGIN_DIR="$1"; MARKETPLACE_DIR="$2"; NEW_VERSION="$3"; MARKETPLACE_PRE_SHA="$4"',
+    '. "$5"',
+    extra && extra.withTrap ? "trap 'echo TRAP-FIRED' INT TERM" : ':',
+    marketplaceCommitBlock(),
+    'echo BLOCK-DONE',
+    'trap -p INT TERM',
+  ].join('\n');
+  return spawnSync('bash', ['-c', script, 'harness', plugin, mp, NEW_V, mpPre, GATE_LIB], { encoding: 'utf8', env: GIT_ENV, timeout: 60000 });
+}
+
+async function armWr08() {
+  const A = 'wr-08';
+
+  await check(A, 'mos_restore_plugin_files restores the version bumps AND the staged shrinkwrap (no dirty staged tree for the next cut)', () => {
+    const sb = sandboxes('w8-restore');
+    simulateBuilt(sb);
+    assert.notEqual(porcelain(sb.plugin), '');
+    const r2 = spawnSync('bash', ['-c', 'set -u; . "$1"; mos_restore_plugin_files "$2"', 'x', GATE_LIB, sb.plugin], { encoding: 'utf8', env: GIT_ENV });
+    assert.equal(r2.status, 0, 'returned ' + r2.status + ' ' + String(r2.stderr).slice(0, 160));
+    assert.equal(porcelain(sb.plugin), '', 'the plugin repo must be clean again, saw: ' + porcelain(sb.plugin));
+    assert.equal(fs.readFileSync(path.join(sb.plugin, 'npm-shrinkwrap.json'), 'utf8'), '{"old":true}\n');
+  });
+
+  await check(A, 'the Step 7 marketplace commit block lands the commit and verifies the committed state', () => {
+    const sb = sandboxes('w8-commit-ok');
+    simulateBuilt(sb);
+    const r = runCommitBlock(sb);
+    assert.equal(r.status, 0, 'block exit ' + r.status + ': ' + String(r.stdout + r.stderr).slice(-300));
+    assert.ok(String(r.stdout).includes('BLOCK-DONE'));
+    const committed = JSON.parse(g(sb.mp, ['show', 'HEAD:.claude-plugin/marketplace.json']).out);
+    assert.ok(committed.plugins.some((p) => p.name === 'mos-desktop' && p.version === NEW_V), 'HEAD must carry mos-desktop at the new version');
+    assert.equal(porcelain(sb.mp), '');
+  });
+
+  await check(A, 'a FAILED marketplace commit aborts the block (non-zero) before anything can publish, and leaves the marketplace clean at its pre-commit HEAD', () => {
+    const sb = sandboxes('w8-commit-fail');
+    simulateBuilt(sb);
+    const hook = path.join(sb.mp, '.git', 'hooks', 'pre-commit');
+    fs.writeFileSync(hook, '#!/bin/sh\necho "hook refuses this commit" >&2\nexit 1\n', { mode: 0o755 });
+    const r = runCommitBlock(sb);
+    assert.notEqual(r.status, 0, 'a failed commit must abort, the block exited 0 and printed: ' + String(r.stdout).slice(-200));
+    assert.ok(!String(r.stdout).includes('BLOCK-DONE'), 'the block must stop before BLOCK-DONE');
+    assert.ok(/ABORT/.test(String(r.stdout)), 'the abort must be announced');
+    assert.equal(g(sb.mp, ['rev-parse', 'HEAD']).out.trim(), sb.mpPre, 'HEAD must not move');
+    assert.equal(porcelain(sb.mp), '', 'the marketplace must be rolled back clean, saw: ' + porcelain(sb.mp));
+    assert.equal(JSON.parse(fs.readFileSync(path.join(sb.mp, '.claude-plugin', 'marketplace.json'), 'utf8')).plugins[0].version, OLD_V, 'the manifest bytes are restored');
+  });
+
+  await check(A, 'nothing to commit is fine when HEAD already carries the Desktop copy at the new version', () => {
+    const sb = sandboxes('w8-commit-noop');
+    simulateBuilt(sb);
+    g(sb.mp, ['commit', '-q', '-m', 'release: sync to v' + NEW_V]);
+    const pre = g(sb.mp, ['rev-parse', 'HEAD']).out.trim();
+    const r = runCommitBlock({ plugin: sb.plugin, mp: sb.mp, mpPre: pre });
+    assert.equal(r.status, 0, 'block exit ' + r.status + ': ' + String(r.stdout + r.stderr).slice(-300));
+  });
+
+  await check(A, 'the block clears the INT/TERM trap once the marketplace commit is verified', () => {
+    const sb = sandboxes('w8-trap-clear');
+    simulateBuilt(sb);
+    const r = runCommitBlock(sb, { withTrap: true });
+    assert.equal(r.status, 0, String(r.stdout + r.stderr).slice(-300));
+    assert.ok(!/TRAP-FIRED|trap -- '.*' (SIGINT|SIGTERM|INT|TERM)/.test(String(r.stdout)), 'the trap must be cleared, saw: ' + String(r.stdout).slice(-200));
+  });
+
+  await check(A, 'mos_unwind_marketplace_commit returns an unpushed release commit to its pre-commit HEAD, bytes and all', () => {
+    const sb = sandboxes('w8-unwind');
+    simulateBuilt(sb);
+    const r = runCommitBlock(sb);
+    assert.equal(r.status, 0, String(r.stdout + r.stderr).slice(-200));
+    assert.notEqual(g(sb.mp, ['rev-parse', 'HEAD']).out.trim(), sb.mpPre);
+    const u = spawnSync('bash', ['-c', 'set -u; . "$1"; mos_unwind_marketplace_commit "$2" "$3" "$4"; mos_rollback_marketplace "$2"', 'x', GATE_LIB, sb.mp, sb.mpPre, NEW_V], { encoding: 'utf8', env: GIT_ENV });
+    assert.equal(u.status, 0, String(u.stderr).slice(0, 200));
+    assert.equal(g(sb.mp, ['rev-parse', 'HEAD']).out.trim(), sb.mpPre, 'the next cut must start from the last pushed state');
+    assert.equal(porcelain(sb.mp), '');
+    assert.equal(fs.readFileSync(path.join(sb.mp, 'plugins', 'mos-desktop', 'a.txt'), 'utf8'), 'old a\n');
+    assert.ok(!fs.existsSync(path.join(sb.mp, 'plugins', 'mos-desktop', 'b.txt')), 'the new file is gone');
+  });
+
+  await check(A, 'mos_unwind_marketplace_commit never rewrites a commit that already left the machine, or one that is not this run\'s', () => {
+    const sb = sandboxes('w8-unwind-guard');
+    simulateBuilt(sb);
+    runCommitBlock(sb);
+    const head = g(sb.mp, ['rev-parse', 'HEAD']).out.trim();
+    const remote = mkTemp('w8-remote');
+    g(remote, ['init', '-q', '--bare', '-b', 'main']);
+    g(sb.mp, ['remote', 'add', 'origin', remote]);
+    g(sb.mp, ['push', '-q', 'origin', 'main']);
+    const u = spawnSync('bash', ['-c', 'set -u; . "$1"; mos_unwind_marketplace_commit "$2" "$3" "$4"', 'x', GATE_LIB, sb.mp, sb.mpPre, NEW_V], { encoding: 'utf8', env: GIT_ENV });
+    assert.equal(u.status, 0);
+    assert.equal(g(sb.mp, ['rev-parse', 'HEAD']).out.trim(), head, 'a pushed commit must stay');
+    const sb2 = sandboxes('w8-unwind-foreign');
+    simulateBuilt(sb2);
+    g(sb2.mp, ['commit', '-q', '-m', 'someone else']);
+    const head2 = g(sb2.mp, ['rev-parse', 'HEAD']).out.trim();
+    spawnSync('bash', ['-c', 'set -u; . "$1"; mos_unwind_marketplace_commit "$2" "$3" "$4"', 'x', GATE_LIB, sb2.mp, sb2.mpPre, NEW_V], { encoding: 'utf8', env: GIT_ENV });
+    assert.equal(g(sb2.mp, ['rev-parse', 'HEAD']).out.trim(), head2, 'a commit with another message must stay');
+  });
+
+  await check(A, 'the INT/TERM trap installed by release.sh rolls the plugin files, the shrinkwrap and the Desktop copy back and exits 130', async () => {
+    const sb = sandboxes('w8-trap');
+    const trapLine = relText.split('\n').find((l) => /^trap '.*' INT TERM\s*$/.test(l));
+    assert.ok(trapLine, 'release.sh installs no trap ... INT TERM line');
+    const ready = path.join(TMP, 'w8-trap.ready');
+    const script = [
+      'set -uo pipefail',
+      '. "$1"',
+      'PLUGIN_DIR="$2"; MARKETPLACE_DIR="$3"; NEW_VERSION="$4"; MARKETPLACE_PRE_SHA=""',
+      trapLine,
+      'echo ready > "$5"',
+      'sleep 30 &',
+      'wait $!',
+      'echo NOT-INTERRUPTED',
+    ].join('\n');
+    simulateBuilt(sb);
+    const child = spawn('bash', ['-c', script, 'harness', GATE_LIB, sb.plugin, sb.mp, NEW_V, ready], { env: GIT_ENV, stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    child.stdout.on('data', (d) => { out += d.toString('utf8'); });
+    const code = new Promise((resolve) => child.on('exit', (c) => resolve(c)));
+    assert.ok(await pollUntil(() => fs.existsSync(ready), 10000, 50), 'the harness never became ready');
+    child.kill('SIGTERM');
+    const exitCode = await Promise.race([code, sleep(15000).then(() => 'timeout')]);
+    try { child.kill('SIGKILL'); } catch (_e) { /* gone */ }
+    assert.equal(exitCode, 130, 'the trap must exit 130, got ' + exitCode + ' output ' + out.slice(-200));
+    assert.ok(!out.includes('NOT-INTERRUPTED'));
+    assert.equal(porcelain(sb.plugin), '', 'plugin repo must be clean: ' + porcelain(sb.plugin));
+    assert.equal(porcelain(sb.mp), '', 'marketplace must be clean: ' + porcelain(sb.mp));
+    sweep();
+  });
+
+  await check(A, 'release.sh: the trap is installed before the first marketplace write (Step 4) and the marketplace commit has no masked failure', () => {
+    const iTrap = relText.search(/^trap '.*' INT TERM\s*$/m);
+    const iStep4 = relText.indexOf('\n# --- Step 4:');
+    const iStep9 = relText.indexOf('\n# --- Step 9.5:');
+    assert.ok(iTrap !== -1, 'no trap ... INT TERM line');
+    assert.ok(iTrap < iStep4, 'the trap must be installed before Step 4 writes the marketplace');
+    assert.ok(relText.indexOf('trap - INT TERM') > relText.indexOf('# --- Step 7:') && relText.indexOf('trap - INT TERM') < iStep9, 'the trap must be cleared after the Step 7 commit and before Step 9.5');
+    const step7 = relBlock('\n# --- Step 7:', '\n# --- Step 9.5:');
+    assert.ok(!/git commit[^\n]*release: sync[^\n]*\|\|\s*echo/.test(step7), 'the marketplace commit is still masked by `|| echo ...`');
+    assert.ok(/git commit -m "release: sync to v\$NEW_VERSION" \|\| true/.test(step7), 'the marketplace commit must be followed by the verification, not swallowed');
+    assert.ok(relText.indexOf('mos_verify_marketplace_commit') !== -1 && relText.indexOf('mos_verify_marketplace_commit') < iStep9, 'the marketplace commit is not verified before npm publish');
+  });
+
+  await check(A, 'release.sh: every abort after Step 6.7 restores the plugin files (shrinkwrap included) and the marketplace', () => {
+    const b67 = nonCommentText(relBlock('\n# --- Step 6.7:', '\n# --- Step 6.8:'));
+    const b68 = nonCommentText(relBlock('\n# --- Step 6.8:', '\n# --- Step 7:'));
+    assert.ok((b67.match(/mos_restore_plugin_files "\$PLUGIN_DIR"/g) || []).length >= 1, 'Step 6.7 failure does not restore the plugin files');
+    assert.ok((b68.match(/mos_restore_plugin_files "\$PLUGIN_DIR"/g) || []).length >= 2, 'both Step 6.8 failures must restore the plugin files');
+    assert.ok(!/git checkout \.claude-plugin\/plugin\.json package\.json CHANGELOG\.md/.test(b67 + b68), 'a raw checkout that forgets npm-shrinkwrap.json is still in Step 6.7 or 6.8');
+    const race = nonCommentText(abortWindow('ABORT: HEAD ($RELEASE_SHA) manifests read'));
+    assert.ok(race.includes('mos_rollback_marketplace "$MARKETPLACE_DIR"') && race.includes('mos_restore_plugin_files "$PLUGIN_DIR"'), 'the Step 7 race-guard abort must roll the payload and the manifest back');
+  });
+
+  await check(A, 'release.sh: the three aborts after the marketplace commit (payload review, ceiling, publish) unwind it before exit', () => {
+    for (const anchor of ['npm pack payload includes a NON-allowlisted path', 'check-release-payload-ceiling.cjs reported a failing payload', 'npm publish failed for @mindrian_os/cli']) {
+      const w = nonCommentText(abortWindow(anchor));
+      assert.ok(w.includes('mos_unwind_marketplace_commit "$MARKETPLACE_DIR" "$MARKETPLACE_PRE_SHA" "$NEW_VERSION"'), 'the abort "' + anchor + '" does not unwind the marketplace commit');
+      assert.ok(w.includes('mos_rollback_marketplace "$MARKETPLACE_DIR"'), 'the abort "' + anchor + '" does not roll the marketplace tree back');
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
