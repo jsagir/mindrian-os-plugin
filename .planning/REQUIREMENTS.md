@@ -4493,7 +4493,7 @@ flipped to `[x]` after the combined baseline refresh in plan 366-24 (2026-10-02)
 
 ### Phase 369 - UI shell over the MindrianOS MCP server (TS369, CHG369, FEED369, SESS369, GREC369, HUM369, RXP369, CANON369, SHELL369, BAKE369, CM369 families) (minted at plan time 2026-10-02)
 
-These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEARCH.md`'s proposed families, narrowed to eleven families (first-screen, Tri-Polar and indicator items fold into SHELL369 and CANON369), as amended by the locked decisions D-01..D-19 in `369-CONTEXT.md`. All were registered at plan time as `- [ ]` rows and are closed here with measured proof, or left open with a stated reason, by `369-31-PLAN.md` (closed 2026-10-04: 58 of 59 `[x]`, 1 `[ ]`; the gate record is `369-CLOSE-GATE.md`). GREC369-01..05 and SHELL369-10 also depend on Phase 289 (D-16). The plan set was revised 2026-10-02 after the checker pass (32 plans; plan 19 split into 19 and 32, so SHELL369-04, SHELL369-05 and the shell half of HUM369-01 moved to `369-32-PLAN.md`).
+These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEARCH.md`'s proposed families, narrowed to eleven families (first-screen, Tri-Polar and indicator items fold into SHELL369 and CANON369), as amended by the locked decisions D-01..D-19 in `369-CONTEXT.md`. All were registered at plan time as `- [ ]` rows and are closed here with measured proof, or left open with a stated reason, by `369-31-PLAN.md` (closed 2026-10-04: 58 of 59 `[x]`, 1 `[ ]`; the gate record is `369-CLOSE-GATE.md`). GREC369-01..05 and SHELL369-10 also depend on Phase 289 (D-16). The plan set was revised 2026-10-02 after the checker pass (32 plans; plan 19 split into 19 and 32, so SHELL369-04, SHELL369-05 and the shell half of HUM369-01 moved to `369-32-PLAN.md`). Gap closure (2026-10-04): after `369-VERIFICATION.md` (gaps_found) and `369-REVIEW.md` (issues_found), SHELL369-12, SHELL369-13 and REV369-01..16 were minted at gap closure and registered `- [ ]`, and SHELL369-11 was reopened; gap plans 369-33 to 369-47 address them and 369-47 closes them.
 
 - [x] **TS369-01**: Constitution: the CJS-only convention is lifted plugin-wide in CLAUDE.md Conventions AND its GSD source `.planning/codebase/CONVENTIONS.md`, `.planning/spikes/CONVENTIONS.md` is rewritten, and a Key Decisions row records it; the TypeScript shape (erasable-only core `.ts`, hooks and the MCP server stay `.cjs`, erasable `.ts` enters lib/core only after the installed-layout test) and the module system (CommonJS-shaped core `.ts`; ESM UI packages) are written down (D-17). Plan 369-01.
       **Measured:** (2026-10-04) `node tests/test-369-constitution.cjs` 7 passed, 0 failed (leg "369: constitution (TS369-01)" PASSED in `bash tests/run-all-369.sh` PASS=54 FAIL=1 SKIP=1 (the one FAIL is the sharp payload ceiling, the one SKIP the exact-floor leg; detail in 369-CLOSE-GATE.md)).
@@ -4648,8 +4648,13 @@ These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEAR
 - [x] **SHELL369-10**: The gate button is the fourth render of the Shape F contract with the recommendation preselected, sharing one tested superset with the CLI card (Canon Part 3; after Phase 289). Plan 369-27.
       **Measured:** (2026-10-04) `node tests/test-369-gate-web-mapping.cjs` 22 passed, `node tests/e2e-369/gate-button.cjs` 15 arms PASS, `node tests/test-198-gate-renderers.test.cjs` PASS (one shared superset fixture for the CLI card and the web button); `node tests/test-369-289-precondition.cjs` PASS.
 
-- [x] **SHELL369-11**: The one recoverable journey passes against the shipped shell: open the correct room, inspect evidence, decide, see it persisted, restart both servers, recover (D-08). Plan 369-30.
+- [ ] **SHELL369-11**: The one recoverable journey passes against the shipped shell: open the correct room, inspect evidence, decide, see it persisted, restart both servers, recover (D-08). Plan 369-30.
       **Measured:** (2026-10-04) `node tests/e2e-369/journey.cjs` PASSED in the aggregator run and in 8 of 9 standalone runs (gate click to recorded 58 to 159 ms, restart catch-up 2741 to 3666 ms, 0 lost writes in every passing run); 1 standalone run failed at step 6 (60 s timeout waiting for the read copy), cause not established. The navigator approved the click test, the Canon v3 visual review and the Desktop and Cowork line on 2026-10-04 (369-MANUAL-VERIFICATION.md). Limits: the journey raises the gate through the harness (the shipped shell has no browser control that raises one) and the post-restart re-answer wording is "no longer open"; both are recorded gaps for `/gsd-plan-phase 369 --gaps`.
+      **Reopened:** (2026-10-04, gap planning) `369-VERIFICATION.md` holds this row partial: the journey raised its gate through the harness (no browser control and no gate raised in Claude Code reaches the shipped shell, gap 1), an old gate id read "no longer open" after a restart (gap 2), and step 6 timed out once in 10 runs with the cause not established (gap 3). Gap plans 369-33 to 369-46 address it; plan 369-47 re-closes it with a new Measured line.
+
+- [ ] **SHELL369-12**: A gate raised in a room by any MindrianOS surface (Claude Code's gate_render on its own stdio server, a chain_run halt, the research planner, every mintGate caller) is recorded in that room without any session identity, listed by the read-only gate_list tool and in the shell's Work and Decisions views for the bound room without a reload, and answered by the person on a mirror the shell raises on the browser session (gate_render mirror_of) through the existing nonce-bound, human-only, durable path; the source gate replays the recorded answer (answered elsewhere) and a halted step resumes once with it; the session-scoped ledger, the owner-after-stranger guarantee and the render nonce are unchanged (gap 1 of 369-VERIFICATION.md; D-14, D-15, D-16, D-19). Plans 369-33, 369-36, 369-41, 369-42, 369-44, 369-46. Minted at gap closure 2026-10-04.
+
+- [ ] **SHELL369-13**: The shipped shell asks Larry for a proposal from a real browser control on the selected Evidence item (the askClaude hop of 369-ADAPTER-RULING.md, room-proposal: the person copies one reference line into Claude Code, Larry files a proposed claim, the control raises the gate on the browser session); the launcher starts the shell with MOS_PROPOSAL_SOURCE=adapter unless told otherwise; no proposal yet reads as honest copy, never a guess (gap 1 of 369-VERIFICATION.md; D-14, D-15). Plans 369-40, 369-43, 369-46. Minted at gap closure 2026-10-04.
 
 - [x] **BAKE369-01**: The workroom candidate slice is production-built with every room access through the action layer, the xl-* exporters and the AI Gateway route removed (D-05, D-06). Plan 369-15.
       **Measured:** (2026-10-04) `node tests/test-369-bakeoff-workroom.cjs` PASS=9 FAIL=0 and `--built` exit 0 (xl-* exporters and AI Gateway route removed, every room access through the action layer).
@@ -4671,6 +4676,42 @@ These 59 IDs were minted in the Phase 369 plan set (2026-10-02) from `369-RESEAR
 
 - [x] **CM369-03**: Gate latency and post-restart catch-up counts from the journey e2e, counts only (SEED-074). Plan 369-30.
       **Measured:** (2026-10-04) `node tests/e2e-369/journey.cjs`: gate_click_to_recorded_ms 81, restart_catch_up_ms 2857, lost_writes 0 in the recorded run (369-COUNTER-METRICS.md); eight further passing runs 2026-10-04 gave 58 to 159 ms, 2741 to 3666 ms and 0 lost writes.
+
+#### Gap closure (2026-10-04): REV369 family, from the Phase 369 code review
+
+Minted at gap closure on 2026-10-04 from `369-REVIEW.md` (status issues_found: 2 Critical, 19 Warning, 11 Info) together with SHELL369-12 and SHELL369-13 above (from `369-VERIFICATION.md`, gaps_found). Registered `- [ ]`; plans 369-33 to 369-46 implement them with RED-first regression arms and plan 369-47 closes each with a dated Measured line or leaves it open with a stated reason. One row per Critical or Warning group the orchestrator ruled MUST or SHOULD close; CR-02, the Info items, WR-15 and the daemon half of WR-13 are dispositions recorded by REV369-16, not built.
+
+- [ ] **REV369-01**: CR-01: the one-time sign-in credential never reaches the model's context or a process argument list: the launcher prints a sign-in link only on a real terminal, otherwise opens the browser at a secret-free `/auth/start` that redeems a single-use, 60-second start slot armed through the 0600 control channel; both exchanges require browser navigation metadata (Sec-Fetch-Site none, Sec-Fetch-Mode navigate, Sec-Fetch-Dest document), so a fetch or curl with no Origin is refused; commands/dashboard.md never asks the model to relay a credential (D-08, D-15). Plans 369-37, 369-40.
+
+- [ ] **REV369-02**: WR-01: the strategy goal file is written only after the ratification transaction commits, and the write is idempotent per decision node, so a rolled-back answer leaves the goal unchanged and a retry never bumps it twice (D-16, GREC369-01). Plan 369-38.
+
+- [ ] **REV369-03**: WR-02: a committed answer always replays as recorded: a ledger miss reads the room's durable answer before it reports gate_expired, so a TTL that runs out between the peek and the release never turns an approved gate into "expired" on retry (D-16, GREC369-02). Plan 369-38.
+
+- [ ] **REV369-04**: WR-03: verdict and chosen agree for every shell gate: gate_render takes the approving option ids, the shell's proposals and mirrors declare them, the 289 coherence check refuses an approve that names Hold, and the shell refuses `verdict_chosen_mismatch` before any MCP call (D-15, Canon Part 9). Plans 369-38, 369-42.
+
+- [ ] **REV369-05**: WR-05: a live gate id cannot be taken over: mintGate refuses an id that is live under another session, gate_render refuses a caller-chosen id that is live or already answered in the bound room, expired ledger entries are purged on mint and a session holds at most a bounded number of live gates (D-16, Phase 289 session-scoped ledger). Plan 369-38.
+
+- [ ] **REV369-06**: WR-06: a failed replay lookup is its own retryable state (`replay_lookup_failed`, gate_list `lookup_failed`), never unknown_gate; one malformed memory_event row cannot break the lookup (json_valid guard); the shell keeps the gate and offers a retry (GREC369-02, GREC369-05). Plans 369-33, 369-38, 369-42, 369-44.
+
+- [ ] **REV369-07**: WR-07 and WR-08: room_changes refuses a checkpoint beyond the log as checkpoint_expired, and reads the log metadata and the page rows inside one read transaction so a concurrent compaction cannot leave a silent gap (D-18, FEED369-01). Plan 369-39.
+
+- [ ] **REV369-08**: WR-09: the room feed never pairs one room's document with another room's checkpoint (handleFeedRoom compares the head's room), and the browser fetcher treats any page whose room is not exactly the expected room as the wrong room (D-18, RXP369-02). Plan 369-37.
+
+- [ ] **REV369-09**: WR-12: the launcher recognises its shell server only by an exact argv element (or the Next process title with a matching working directory) plus the recorded process start time, so a recycled pid or an unrelated process that mentions the entry path is never signalled (SHELL369-08). Plan 369-40.
+
+- [ ] **REV369-10**: WR-13 and WR-14 (shell half): the spawned shell server gets an allow-listed environment (no API keys, no NODE_OPTIONS), the control token file is created exclusively with mode 0600 and never written through a symlink or a pre-existing file, a directory the server did not create is never chmodded, and the launcher refuses a token file that is a symlink or is owned by another user (SHELL369-03, SHELL369-08). Plans 369-37, 369-40.
+
+- [ ] **REV369-11**: WR-04: the stale-subject check runs on the write transaction's own handle before the first write and also covers the card's evidence nodes; a subject whose revision was unknown at mint is not reported as changed (GREC369-03). Plan 369-38.
+
+- [ ] **REV369-12**: WR-10: the shell relay's safety-net poll emits a hint on any change of the latest sequence or the epoch, not only on a higher sequence, so a reset log never leaves the read copy stale (RXP369-02). Plan 369-34.
+
+- [ ] **REV369-13**: WR-11: a hint stream ends when its browser session expires, and a session found expired on read runs the same expiry hooks as the sweep, so gate records, nonces and MCP sessions never outlive the browser session (SHELL369-05). Plan 369-37.
+
+- [ ] **REV369-14**: WR-16, WR-17 and WR-18: the dist freshness check re-verifies the committed dist bytes and the build's own output checks, the source hash covers the build inputs the dist runs against, the dist override is honoured only by the check, and the egress and path scans are positive allowlists rather than short denylists (TS369-08). Plan 369-45.
+
+- [ ] **REV369-15**: WR-19: room_search never reads a file through a symlink that leaves the room (FEED369-02 containment rule applied to the search). Plan 369-39.
+
+- [ ] **REV369-16**: Every review finding has a recorded disposition in `369-REVIEW-FIX.md`: fixed (plan, commit, proving arm, measured result), handed off with a named owner (WR-15 and the daemon half of WR-13 live in lib/mcp/daemon-lifecycle.cjs, a Phase 369.1 plan 04 file), or a navigator item with options (CR-02's missing human principal on MCP gate_answer, with the tradeoff stated; IN-01 to IN-11). Plan 369-47.
 
 
 ### Phase 364 - Scientific Roadmapping command /mos:scientific-roadmap (SRM364 family) (minted at plan time 2026-10-02)
@@ -4811,6 +4852,7 @@ plus DRP363-01..20 (Phase 363), plus V365-01..18 (Phase 365), plus EPV366-01..30
 Also SRM364-01..21 (Phase 364, 21 IDs, registered at plan time 2026-10-02, all [ ] until 364-11).
 Also SRM364-22..23 (Phase 364 gap plan 364-14, navigator ruling 2026-10-03; registered at plan time as [ ], closed by 364-14 Task 3 on measured proof).
 Also CARD289-01..06, LEDGER289-01..05, CONTRACT289-01..04, ELICIT289-01..02, MENU289-01..03, VAL289-01, CLOSE289-01 (Phase 289, 22 IDs, registered at plan time 2026-10-03, all 22 closed [x] with Measured proof by 289-09 (2026-10-04).
+Also SHELL369-12..13 and REV369-01..16 (Phase 369 gap closure, 18 IDs, minted at gap closure 2026-10-04 from 369-VERIFICATION.md and 369-REVIEW.md, all [ ] until 369-47; SHELL369-11 reopened the same day, re-closed by 369-47).
 Also DPI-01..DPI-13 (Phase 369.1, 13 IDs, registered at plan time 2026-10-04, all [ ] until 369.1-16).
 HIPS-01..10 were minted in the
 Phase 355 plan set (2026-09-23), ratifying `355-RESEARCH.md`'s proposed IDs for SPEC
