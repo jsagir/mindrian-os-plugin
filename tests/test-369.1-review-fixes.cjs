@@ -15,6 +15,7 @@
  *   wr-01  the install target is where the running file lives, never an env root that points elsewhere
  *   wr-02  every npm fallback carries --ignore-scripts
  *   wr-03  a failed install backs off (no respawn on every connect); a spawn failure is failed, not installing
+ *   wr-04  a stale "installing" record or a recycled pid never pins the self-install
  *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
@@ -830,9 +831,83 @@ async function armWr03() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-04
+// ---------------------------------------------------------------------------
+async function armWr04() {
+  const A = 'wr-04';
+  // A live pid that is NOT an installer: a recycled pid after a reboot looks exactly like this.
+  function liveStranger() {
+    const child = spawn(process.execPath, ['-e', 'setTimeout(function(){}, 120000)', TMP], { stdio: 'ignore', detached: false });
+    return child.pid;
+  }
+
+  await check(A, 'a stale "installing" record whose pid was recycled by a live process does not pin the self-install', async () => {
+    const home = newHome();
+    const root = plugin('w4-stale-status');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w4-stale-status.log') });
+    plantStatus(env, root, { state: 'installing', pid: liveStranger(), startedAt: isoAgo(30 * 60000) });
+    const r = startDetached(env, root);
+    assert.equal(r.started, true, 'an install record older than any install can run is dead whatever its pid says');
+    const st = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state === 'done' ? s2 : null; }, 20000, 150);
+    assert.ok(st, 'the install must run to done');
+    sweep();
+  });
+
+  await check(A, 'control: a fresh "installing" record with a live pid still counts as running', () => {
+    const home = newHome();
+    const root = plugin('w4-fresh-status');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w4-fresh-status.log') });
+    plantStatus(env, root, { state: 'installing', pid: liveStranger(), startedAt: isoAgo(5000) });
+    assert.equal(startDetached(env, root).started, false);
+    sweep();
+  });
+
+  await check(A, 'a stale install lock held by a recycled live pid is reclaimed and the install runs', async () => {
+    const home = newHome();
+    const root = plugin('w4-stale-lock');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w4-stale-lock.log') });
+    fs.writeFileSync(path.join(root, LOCK_NAME), JSON.stringify({ pid: liveStranger(), timestamp: Date.now() - 20 * 60000 }));
+    const r = startDetached(env, root);
+    assert.equal(r.started, true, 'a lock older than any install can run is not "in flight"');
+    const st = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state !== 'installing' ? s2 : null; }, 25000, 150);
+    assert.ok(st && st.state === 'done', 'the installer must reclaim the stale lock and finish, got ' + JSON.stringify(st));
+    sweep();
+  });
+
+  await check(A, 'control: a fresh lock held by a live pid still pins the install', () => {
+    const home = newHome();
+    const root = plugin('w4-fresh-lock');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w4-fresh-lock.log') });
+    fs.writeFileSync(path.join(root, LOCK_NAME), JSON.stringify({ pid: liveStranger(), timestamp: Date.now() - 5 * 60000 }));
+    assert.equal(startDetached(env, root).started, false);
+    sweep();
+  });
+
+  await check(A, 'isReclaimable: an old live lock is reclaimable only past the absolute ceiling (above the longest install)', () => {
+    const lock = require(LIB('npm-install-lock.cjs'));
+    const status = require(LIB('dep-install-status.cjs'));
+    assert.equal(lock.isReclaimable({ pid: process.pid, timestamp: Date.now() - (lock.STALE_THRESHOLD_MS + 60000) }), false, 'old but live and inside the ceiling: kept (bug_001 stays fixed)');
+    assert.equal(lock.isReclaimable({ pid: process.pid, timestamp: Date.now() - 20 * 60000 }), true, 'old, live and past the ceiling: a recycled pid');
+    assert.ok(lock.ABSOLUTE_STALE_MS > status.INSTALL_STATUS_STALE_MS, 'the ceiling must sit above the longest install a record can describe');
+  });
+
+  await check(A, 'the responder tells a stale "installing" record apart from a running install', async () => {
+    const home = newHome();
+    const root = plugin('w4-text');
+    const env = envFor(home);
+    plantStatus(env, root, { state: 'installing', pid: liveStranger(), startedAt: isoAgo(30 * 60000) });
+    const got = await rawSession(env, 'mindrian-os', root, SESSION, 20000);
+    const text = String(got[3].result.content[0].text);
+    assert.ok(/stopped before it finished/i.test(text), 'a stale record must read as stopped, got: ' + text.slice(0, 160));
+    assert.equal(got[3].result.isError, true);
+    sweep();
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-05': armWr05 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
