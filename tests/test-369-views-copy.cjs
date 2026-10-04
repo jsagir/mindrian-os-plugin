@@ -211,6 +211,16 @@ scenario('369-43: every Ask Larry string lives in client/copy.ts (one ASK_LARRY 
   for (const s of ASK_LARRY_STRINGS) assert.ok(!src.includes(s), 'AskLarry.tsx hard-codes a copy string: ' + s);
 });
 
+scenario('369-43: the UI-SPEC records the Ask Larry control with every string it shows (when the planning tree is present)', () => {
+  if (!fs.existsSync(SPEC)) {
+    process.stdout.write('    (the UI-SPEC is not in this checkout; the copy.ts check above stands alone)\n');
+    return;
+  }
+  const spec = read(SPEC);
+  assert.ok(spec.includes('Ask Larry about this (SHELL369-13)'), 'the dated gap-closure section is missing');
+  for (const s of ASK_LARRY_STRINGS) assert.ok(spec.includes(s), 'not in the UI-SPEC: ' + s);
+});
+
 scenario('369-43: SEED-067 and SHELL369-04 - no model call in the control, and no new shell action is registered', () => {
   const src = code(path.join(VIEWS, 'evidence', 'AskLarry.tsx'));
   assert.ok(!/anthropic|openai|ANTHROPIC_API_KEY|\bmessages\.create\b|\/v1\/messages/i.test(src), 'no model call in the browser');
