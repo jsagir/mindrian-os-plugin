@@ -552,6 +552,25 @@ async function main() {
     return out;
   }
 
+  // The STEP-EVIDENCE line: what the shell, the daemon and the registry say at the moment ANY step gives up (steps other than the
+  // step 6 convergence wait, which has its own line). Evidence only: reads, never repairs.
+  async function captureStepFailure(stepName) {
+    const out = { step: stepName, at: new Date().toISOString(), load_now: loadNow(), tree: treeNow() };
+    const guard = async (key, fn) => { try { out[key] = await fn(); } catch (e) { out[key] = 'unreadable: ' + String((e && e.message) || e).slice(0, 160); } };
+    if (page) {
+      await guard('page', async () => ({ url: page.url(), view: (await viewText(page)).slice(0, 200) }));
+      await guard('list_rooms_from_page', async () => J(await act(page, 'listRooms', {})).slice(0, 700));
+      await guard('api_status', async () => page.evaluate(async () => { const r = await fetch('/api/status', { credentials: 'same-origin' }); return { http: r.status, body: (await r.text()).slice(0, 400) }; }));
+      await guard('hint_frames_page_saw', async () => (await page.evaluate(() => window.__hints || [])).slice(-12));
+    }
+    out.feed_requests_last = feedLog.slice(-20).map((r) => ({ status: r.status, path: r.path }));
+    await guard('registry', async () => fs.readFileSync(registryFile, 'utf8').replace(/\s+/g, ' ').slice(0, 600));
+    await guard('sessions_dir', async () => fs.readdirSync(path.join(daemon.roomsHome, '.rooms', 'sessions')).slice(0, 12));
+    await guard('daemon_stderr_tail', async () => String(daemon.getStderr ? daemon.getStderr() : '').trim().split('\n').slice(-30));
+    await guard('shell_log_tail', async () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.log'), 'utf8').trim().split('\n').slice(-40));
+    console.log('STEP-EVIDENCE ' + J(out));
+  }
+
   // Step 6's cycle: stop the shell, kill and respawn the daemon, write while down, start the shell, sign in with the new link,
   // reopen room-x, wait for the copy to hold what the room held. The wait and its 60 s bound are exactly step 6's.
   async function restartAndConverge(label, priorLink) {
@@ -854,6 +873,7 @@ async function main() {
     if (err && err.soakDone) {
       // the soak finished; its verdict is in failures
     } else {
+    if (!/timeout waiting for the read copy/.test(String((err && err.message) || ''))) await captureStepFailure(current);
     failures.push('step ' + current + ': ' + String((err && err.stack) || err).split('\n').slice(0, 5).join(' | '));
     if (page) {
       try { failures.push('page: ' + page.url() + ' | ' + (await viewText(page)).slice(0, 400)); } catch (_e) { /* page gone */ }
