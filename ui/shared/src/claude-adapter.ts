@@ -24,6 +24,7 @@
  *
  * Erasable TypeScript only: no enum, no namespace, no parameter properties.
  */
+import { copyReference, oneLine } from './copy-reference.ts';
 import { ProposalSchema } from './proposal.ts';
 import type { Proposal, ProposalRequest, ProposalSource } from './proposal.ts';
 
@@ -58,7 +59,6 @@ export type RoomProposalSource = ProposalSource & {
 const MAX_QUERY = 200;
 const MAX_CANDIDATES = 5;
 const MAX_EVIDENCE = 20;
-const MAX_QUESTION_IN_REFERENCE = 300;
 
 // What the room's record says about how a claim was checked, in plain words.
 const STANDING_WORDS: Record<string, string> = {
@@ -78,22 +78,9 @@ function asRecord(v: unknown): Record<string, unknown> | null {
   return v !== null && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
 }
 
-function oneLine(s: string): string {
-  return s.replace(/\s+/g, ' ').trim();
-}
-
-// The one line the shell shows the person to paste into their own Claude Code.
-// It carries the opaque local node id and the question, nothing else: never a
-// gate nonce, never a session cookie.
-export function copyReference(selectedNodeId: string, question: string): string {
-  const id = oneLine(String(selectedNodeId));
-  let q = oneLine(String(question));
-  if (q.length > MAX_QUESTION_IN_REFERENCE) q = q.slice(0, MAX_QUESTION_IN_REFERENCE - 3) + '...';
-  return (
-    'About node ' + id + ': ' + q +
-    ' Please file your answer as a proposed claim and write the node id ' + id + ' in the claim text.'
-  );
-}
+// The one line the shell shows the person to paste into their own Claude Code lives in copy-reference.ts (the browser
+// imports it without this module's schema); it is re-exported here so the server side keeps one import path.
+export { copyReference };
 
 export function roomProposalSource(options: { pool: AdapterPool }): RoomProposalSource {
   const pool = options.pool;

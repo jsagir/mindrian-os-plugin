@@ -1,6 +1,7 @@
 'use client';
 // The Evidence reader (UI-SPEC Evidence view): the item's title (H2, the view's H1 is "Evidence"), its provenance
-// block in mono 12, the source document through the read-only DocumentDisplay, then "Linked to" as a ruled list.
+// block in mono 12, the Ask Larry control (plan 369-43), the source document through the read-only DocumentDisplay,
+// then "Linked to" as a ruled list.
 // Everything from the room is shown as text.
 import { useEffect, useRef } from 'react';
 import { EVIDENCE } from '../../copy.ts';
@@ -12,6 +13,7 @@ import type { NodeDoc, RelationDoc } from '../hooks.ts';
 import { LinkedList, linksOf } from '../LinkedTo.tsx';
 import type { LinkTarget } from '../LinkedTo.tsx';
 import { tileFor } from '../tile-model.ts';
+import { AskLarry } from './AskLarry.tsx';
 import { baseName, LazyDocument } from './LazyDocument.tsx';
 
 export function EvidenceReader({
@@ -78,6 +80,7 @@ export function EvidenceReader({
           ))}
         </dl>
       ) : null}
+      <AskLarry key={item.id} nodeId={item.id} />
       {documentPath ? <LazyDocument path={documentPath} name={baseName(documentPath)} /> : <p className="caption">{EVIDENCE.noDocument}</p>}
       <h3>{EVIDENCE.linkedTo}</h3>
       {links.length > 0 ? <LinkedList links={links} /> : <p className="caption">{EVIDENCE.noLinks}</p>}

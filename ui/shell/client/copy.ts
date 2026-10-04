@@ -141,6 +141,41 @@ export const EVIDENCE = {
   chooseOne: 'Choose an item to read it here.',
 };
 
+// Ask Larry about this (plan 369-43, SHELL369-13): the Evidence reader's one control. It shows the one line a person
+// pastes to Larry in Claude Code, and its one action asks the room whether Larry has filed a proposal about the item.
+// The label is written once; the arrived sentence composes it.
+const CHECK_FOR_PROPOSAL = "Check for Larry's proposal";
+
+export const ASK_LARRY = {
+  heading: 'Ask Larry about this',
+  lead: 'Larry answers in Claude Code. Copy this line, paste it to him there, and he files his answer in this room as a proposal.',
+  questionLabel: 'Your question',
+  defaultQuestion: 'Does this have enough evidence to confirm it?',
+  lineLabel: 'Line to paste',
+  copy: 'Copy the line',
+  copied: 'Line copied.',
+  copyRefused: 'Select the line above and copy it.',
+  check: CHECK_FOR_PROPOSAL,
+  consequence: 'Opens the decision when Larry has filed one. Nothing is approved until you choose.',
+  checking: 'Checking the room...',
+  arrived: 'Something new arrived in this room. ' + CHECK_FOR_PROPOSAL + '.',
+  none: {
+    what: 'Larry has not filed a proposal about this yet.',
+    why: 'The room has no proposed claim that names this item.',
+    fix: 'Paste the line into Claude Code, wait for Larry to file it, then check again.',
+  },
+  noRoom: {
+    what: 'No room is open in this browser.',
+    why: 'A proposal is read from the open room.',
+    fix: 'Open the room, then check again.',
+  },
+  unreadable: {
+    what: 'The room could not be read just now.',
+    why: 'MindrianOS did not answer this check.',
+    fix: 'Nothing changed. Check again in a moment.',
+  },
+};
+
 export function showMore(n: number): string {
   return 'Show ' + n + ' more';
 }

@@ -189,7 +189,8 @@ scenario('369-43: the Ask Larry control exists in the Evidence reader, calls ask
   const src = code(f);
   assert.ok(/callAction(<[^()]*>)?\('askClaude'/.test(src), 'the primary action calls the askClaude action');
   assert.ok(!/approveDecision|gate_answer|gateAnswer|readGate|publishDeliverable/.test(src), 'the control asks for a proposal only; it never reads a gate or answers a decision');
-  assert.ok(/import\s*\{[^}]*\bcopyReference\b[^}]*\}\s*from\s*'mos-ui-shared\/claude-adapter'/.test(src), 'the reference line comes from the shared pure copyReference');
+  assert.ok(/import\s*\{[^}]*\bcopyReference\b[^}]*\}\s*from\s*'mos-ui-shared\/copy-reference'/.test(src), 'the reference line comes from the shared pure copyReference (zod-free module)');
+  assert.ok(!/claude-adapter|\/proposal'|\bzod\b/.test(src), 'the control imports nothing that pulls zod into the page (zod probes eval and trips the CSP report)');
   assert.ok(!/localStorage|sessionStorage|document\.cookie|indexedDB/.test(src), 'no browser storage');
   assert.ok(!/\bstyle=/.test(src), 'no inline style attribute');
   assert.ok(!/dangerouslySetInnerHTML|\.innerHTML\s*=/.test(src), 'the line and the room text render as text');
@@ -269,7 +270,9 @@ scenario('369-43: SEED-067 and SHELL369-04 - no model call in the control, and n
   await ascenario('369-43: the values of ASK_LARRY are exactly the plan copy (the arrived sentence composes the label)', async () => {
     const copy = await import(pathToFileURL(path.join(CLIENT, 'copy.ts')).href);
     assert.ok(copy.ASK_LARRY && typeof copy.ASK_LARRY === 'object', 'ASK_LARRY is exported');
-    const values = new Set(Object.values(copy.ASK_LARRY).filter((v) => typeof v === 'string'));
+    const values = new Set();
+    const collect = (o) => { for (const v of Object.values(o)) { if (typeof v === 'string') values.add(v); else if (v && typeof v === 'object') collect(v); } };
+    collect(copy.ASK_LARRY);
     for (const s of ASK_LARRY_STRINGS) assert.ok(values.has(s), 'ASK_LARRY has no value: ' + s);
   });
 
