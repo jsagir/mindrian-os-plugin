@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { callAction } from '../api.ts';
 import { useShell } from '../frame/shell-context.ts';
+import { useReplicaOptional } from '../replica/ReplicaProvider.tsx';
 
 // The row shapes the projection hands the views (ui/shared/src/projection.ts FIELDS).
 export type NodeDoc = {
@@ -32,7 +33,22 @@ export type DecisionDoc = {
 };
 export type RoomDoc = { id: string; question?: string; purpose?: string; counts?: Record<string, unknown> };
 
-export type OpenGate = { gate_id: string; header: string; room: string; subject_node_id: string; minted_at: number };
+// One open decision of the bound room (listOpenGates). A gate Larry raised outside this browser carries raised_elsewhere;
+// the list also carries the evidence count and, for a gate this shell opened, the rationale (empty for a raised one),
+// so a view never has to read the gate itself to describe it (reading raises a mirror and issues a nonce).
+export type OpenGate = {
+  gate_id: string;
+  header: string;
+  room: string;
+  subject_node_id: string;
+  minted_at: number;
+  raised_elsewhere?: boolean;
+  evidence_count?: number;
+  rationale?: string;
+};
+
+// The list is read again when the browser's read copy advances, but never more than once a second.
+export const OPEN_GATES_MIN_GAP_MS = 1000;
 
 // Focus moves to the H1 on every view change (UI-SPEC Accessibility Contract). The heading is focusable by
 // script only (tabIndex -1), so it never becomes a tab stop.
@@ -71,29 +87,41 @@ export function itemHref(path: string, id: string): string {
   return path + '?item=' + encodeURIComponent(id);
 }
 
-// The open decisions of the bound room, read from the shell server (listOpenGates). It reads again whenever the
-// frame's waiting count changes, so the list follows the header's "Decisions (n waiting)".
-export function useOpenGates(): { gates: OpenGate[]; ready: boolean } {
+// The open decisions of the bound room, read from the shell server (listOpenGates): the decisions this shell opened
+// and the ones Larry raised in other sessions of the room. It reads again when the frame's waiting count changes and
+// whenever the read copy advances (seq), so a gate raised in Claude Code shows without a reload. raisedUnavailable is
+// true when the room could not be asked for the ones raised elsewhere (the shell's own are still listed).
+export function useOpenGates(): { gates: OpenGate[]; ready: boolean; raisedUnavailable: boolean } {
   const { waiting, current } = useShell();
+  const replica = useReplicaOptional();
+  const seq = replica ? replica.seq : null;
   const [gates, setGates] = useState<OpenGate[]>([]);
   const [ready, setReady] = useState(false);
+  const [raisedUnavailable, setRaisedUnavailable] = useState(false);
+  const lastRead = useRef(0);
   useEffect(() => {
     let live = true;
-    void callAction<{ ok?: boolean; gates?: OpenGate[] }>('listOpenGates')
-      .then((res) => {
-        if (!live) return;
-        const list = res.body && res.body.ok !== false && Array.isArray(res.body.gates) ? res.body.gates : [];
-        setGates(list.filter((g) => g && typeof g.gate_id === 'string' && (current === null || g.room === current)));
-        setReady(true);
-      })
-      .catch(() => {
-        if (live) setReady(true);
-      });
+    const wait = Math.max(0, lastRead.current + OPEN_GATES_MIN_GAP_MS - Date.now());
+    const timer = setTimeout(() => {
+      lastRead.current = Date.now();
+      void callAction<{ ok?: boolean; gates?: OpenGate[]; raised_unavailable?: boolean }>('listOpenGates')
+        .then((res) => {
+          if (!live) return;
+          const list = res.body && res.body.ok !== false && Array.isArray(res.body.gates) ? res.body.gates : [];
+          setGates(list.filter((g) => g && typeof g.gate_id === 'string' && (current === null || g.room === current)));
+          setRaisedUnavailable(Boolean(res.body && res.body.raised_unavailable === true));
+          setReady(true);
+        })
+        .catch(() => {
+          if (live) setReady(true);
+        });
+    }, wait);
     return () => {
       live = false;
+      clearTimeout(timer);
     };
-  }, [waiting, current]);
-  return { gates, ready };
+  }, [waiting, current, seq]);
+  return { gates, ready, raisedUnavailable };
 }
 
 export function titleOf(doc: { title?: string; id: string } | undefined | null): string {

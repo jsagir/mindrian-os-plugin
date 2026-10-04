@@ -5,7 +5,7 @@
 // in the reader beside the list. Settled rows are attributed in words ("Confirmed by you, 2 Oct 2026"). This
 // view reads and navigates; it answers nothing.
 import { useEffect, useMemo, useRef } from 'react';
-import { DECISIONS } from '../../copy.ts';
+import { DECISIONS, RAISED_LINE, RAISED_UNAVAILABLE } from '../../copy.ts';
 import { Legend } from '../../primitives/Legend.tsx';
 import { Rule } from '../../primitives/Rule.tsx';
 import { TextAction } from '../../primitives/TextAction.tsx';
@@ -74,7 +74,7 @@ export function DecisionsView() {
   const nodes = useCollection<NodeDoc>('nodes');
   const decisions = useCollection<DecisionDoc>('decisions');
   const relations = useCollection<RelationDoc>('relations');
-  const { gates, ready } = useOpenGates();
+  const { gates, ready, raisedUnavailable } = useOpenGates();
   const [selected, select] = useSelectedItem();
 
   const byId = useMemo(() => new Map(nodes.docs.map((d) => [d.id, d])), [nodes.docs]);
@@ -107,7 +107,7 @@ export function DecisionsView() {
 
   const all = useMemo(() => new Map<string, Row>([...proposed, ...settled].map((r) => [r.id, r])), [proposed, settled]);
   const open = selected !== null ? all.get(selected) : undefined;
-  const empty = ready && gates.length === 0 && proposed.length === 0 && settled.length === 0;
+  const empty = ready && !raisedUnavailable && gates.length === 0 && proposed.length === 0 && settled.length === 0;
   const reading = replica.loadingLine !== null && replica.count === 0;
 
   const rowFor = (r: Row) => (
@@ -139,9 +139,17 @@ export function DecisionsView() {
         ) : (
           <>
             <h2>{DECISIONS.waiting}</h2>
+            {raisedUnavailable ? <p className="caption">{RAISED_UNAVAILABLE}</p> : null}
             <ul className="item-list" data-group="waiting">
               {gates.map((g) => (
-                <ItemRow key={g.gate_id} tile="black" status="WAITING FOR YOU" title={g.header} href={'/gate/' + encodeURIComponent(g.gate_id)} />
+                <ItemRow
+                  key={g.gate_id}
+                  tile="black"
+                  status="WAITING FOR YOU"
+                  title={g.header}
+                  href={'/gate/' + encodeURIComponent(g.gate_id)}
+                  {...(g.raised_elsewhere === true ? { meta: RAISED_LINE } : {})}
+                />
               ))}
             </ul>
             <h2>{DECISIONS.proposed}</h2>

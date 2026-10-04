@@ -755,7 +755,10 @@ async function main() {
       const roomQ = daemon.roomDirs['room-q'];
       seedRoom(roomQ);
       const ids = await newClaim(roomQ, 'g14', true, daemon.env);
-      await openRoom(page, 'room-q');
+      await page.goto(origin + '/');
+      await page.waitForSelector('header.shell-header', { timeout: 30000 });
+      const moved = await act(page, 'openRoom', { room: 'room-q', confirmLeave: true });
+      assert.strictEqual(moved.ok, true, J(moved));
       const c = await cliFor('room-q');
       try {
         let reads = 0;
@@ -810,7 +813,10 @@ async function main() {
         const stillOpen = ((open && (open.gates || open.items)) || []).map((g) => g.gate_id);
         assert.ok(!stillOpen.includes(new URL(page.url()).pathname.split('/').pop()), 'the answered gate left the room\'s open list: ' + J(open));
       } finally {
-        await openRoom(page, 'room-v');
+        await page.goto(origin + '/');
+        await page.waitForSelector('header.shell-header', { timeout: 30000 });
+        const back = await act(page, 'openRoom', { room: 'room-v', confirmLeave: true });
+        assert.strictEqual(back.ok, true, J(back));
       }
     });
 

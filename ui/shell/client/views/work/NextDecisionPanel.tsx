@@ -1,48 +1,31 @@
 'use client';
 // The view's one dominant action region (UI-SPEC Opening screen). With a gate waiting it names the next decision,
 // why it is asked, how much evidence stands behind it, and offers the one primary action (the view's one ochre
-// triangle). With none waiting it says so and offers the evidence instead. It reads; it never answers a decision:
-// approval is the gate view's alone (D-15).
-import { useEffect, useState } from 'react';
-import { callAction } from '../../api.ts';
+// triangle). With none waiting it says so and offers the evidence instead. A gate Larry raised outside this browser
+// says so under its title. It reads the list only; it never reads a gate and never answers a decision: approval is
+// the gate view's alone (D-15).
 import {
   evidenceCount,
   moreWaiting,
   NEXT_DECISION,
   NO_DECISION_WAITING,
   OPEN_THE_EVIDENCE,
+  RAISED_LINE,
   REVIEW_NEXT_DECISION,
 } from '../../copy.ts';
 import { ActionButton } from '../../primitives/ActionButton.tsx';
 import { TextAction } from '../../primitives/TextAction.tsx';
 import { useOpenGates } from '../hooks.ts';
 
-type GateDetail = { why: string; evidence: number };
-
 export function NextDecisionPanel() {
   const { gates, ready } = useOpenGates();
   const next = gates[0];
-  const gateId = next ? next.gate_id : null;
-  const [detail, setDetail] = useState<GateDetail | null>(null);
-
-  // The gate card carries the rationale and the evidence ids; the list does not. The nonce readGate issues is
-  // not kept here: only the gate view that shows the card for answering holds one (client/api.ts readGate).
-  useEffect(() => {
-    setDetail(null);
-    if (gateId === null) return;
-    let live = true;
-    void callAction<{ ok?: boolean; gate?: { rationale?: unknown; evidence_node_ids?: unknown } }>('readGate', { gate_id: gateId })
-      .then((res) => {
-        if (!live || !res.body || res.body.ok === false || !res.body.gate) return;
-        const why = typeof res.body.gate.rationale === 'string' ? res.body.gate.rationale : '';
-        const evidence = Array.isArray(res.body.gate.evidence_node_ids) ? res.body.gate.evidence_node_ids.length : 0;
-        setDetail({ why, evidence });
-      })
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [gateId]);
+  // The why line and the evidence count come from the list. The panel never reads the gate itself: reading a raised
+  // gate makes the server raise a mirror and issue a nonce, and only the gate view that shows the card for answering
+  // may do that.
+  const why = next && typeof next.rationale === 'string' ? next.rationale : '';
+  const evidence = next && typeof next.evidence_count === 'number' ? next.evidence_count : 0;
+  const raised = next ? next.raised_elsewhere === true : false;
 
   const go = (path: string) => () => {
     window.location.assign(path);
@@ -55,10 +38,11 @@ export function NextDecisionPanel() {
         <>
           {gates.length > 1 ? <p className="eyebrow">{moreWaiting(gates.length - 1)}</p> : null}
           <p className="work-panel-title">{next.header}</p>
-          {detail && detail.why ? <p className="work-panel-why">{detail.why}</p> : null}
-          {detail && detail.evidence > 0 ? (
+          {raised ? <p className="caption work-panel-raised">{RAISED_LINE}</p> : null}
+          {why ? <p className="work-panel-why">{why}</p> : null}
+          {evidence > 0 ? (
             <p>
-              <TextAction href={'/gate/' + encodeURIComponent(next.gate_id)}>{evidenceCount(detail.evidence)}</TextAction>
+              <TextAction href={'/gate/' + encodeURIComponent(next.gate_id)}>{evidenceCount(evidence)}</TextAction>
             </p>
           ) : null}
           <ActionButton label={REVIEW_NEXT_DECISION.label} consequence={REVIEW_NEXT_DECISION.consequence} onClick={go('/gate/' + encodeURIComponent(next.gate_id))} />

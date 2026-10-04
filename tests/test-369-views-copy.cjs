@@ -254,7 +254,7 @@ scenario('369-44 T-369-44-01: Work reads the why line and the evidence count fro
   assert.strictEqual((panel.match(/readGate/g) || []).length, 0, 'looking at Work raises no mirror and issues no nonce');
   assert.ok(/evidence_count/.test(panel) && /rationale/.test(panel), 'the list item carries both');
   assert.ok(/RAISED_LINE/.test(panel) && /raised_elsewhere/.test(panel), 'a raised item says so under its title');
-  assert.strictEqual((panel.match(/<ActionButton\b/g) || []).length, 1, 'one primary action');
+  assert.strictEqual((panel.match(/<ActionButton\b/g) || []).length, 2, 'one primary action per branch (a decision waiting, or none): Review the next decision, Open the evidence');
 });
 
 scenario('369-44: useOpenGates re-reads when the read copy advances (seq), at most once a second, and reports raised_unavailable', () => {
@@ -272,7 +272,20 @@ scenario('369-44: a raised waiting row keeps the black square and WAITING FOR YO
   assert.ok(/raised_elsewhere/.test(src) && /RAISED_LINE/.test(src), 'the meta line');
   assert.ok(/tile="black"/.test(src) && /WAITING FOR YOU/.test(src), 'still the black square with its words');
   assert.ok(/raised_unavailable|raisedUnavailable/.test(src) && /RAISED_UNAVAILABLE/.test(src), 'the caption under Waiting for you');
-  assert.ok(src.indexOf('RAISED_UNAVAILABLE') > src.indexOf('DECISIONS.waiting') && src.indexOf('RAISED_UNAVAILABLE') < src.indexOf('DECISIONS.proposed'), 'the caption sits between the Waiting and Proposed headings');
+  const waitingAt = src.indexOf('DECISIONS.waiting');
+  const captionAt = src.indexOf('RAISED_UNAVAILABLE', waitingAt);
+  assert.ok(captionAt > waitingAt && captionAt < src.indexOf('DECISIONS.proposed'), 'the caption sits between the Waiting and Proposed headings');
+});
+
+scenario('369-44: the UI-SPEC records the dated section and every new string and state', () => {
+  if (!fs.existsSync(SPEC)) {
+    process.stdout.write('    (the UI-SPEC is not in this checkout)\n');
+    return;
+  }
+  const spec = read(SPEC);
+  assert.ok(spec.includes('Gap closure 2026-10-04: gates raised outside this browser, and three gate states (SHELL369-12, GREC369-05, REV369-06)'), 'the dated section heading');
+  for (const s of RAISED_STRINGS) assert.ok(spec.includes(s), 'not in the UI-SPEC: ' + s);
+  for (const state of ['lookup_failed', 'verdict_mismatch', 'Check again', 'This decision was already recorded.']) assert.ok(spec.includes(state), 'the section names: ' + state);
 });
 
 scenario('369-44: the gate card draws the lookup-failed state with a Check again text action, and the mismatch refusal above the options', () => {
