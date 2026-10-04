@@ -10,27 +10,35 @@
  *   2  the correct room: the picker lists both rooms; choose room-x; the header's first content item is room-x, not the
  *      CLI's active room (room-y, which stays the registry's active room)
  *   3  inspect evidence: a document holding script markup renders as text and runs nothing; open its sources
- *   4  decide: a proposal about a claim raises the gate (the ruled room-proposal source, deterministic); the
- *      recommendation is checked; Approve; "Decision recorded in the room." only after the room's answer; click-to-recorded ms
- *   5  persisted: the decision is in Decisions (Settled, "Confirmed by you,") and in "Since you were here" after Work is
+ *   4  decide through Ask Larry (plan 369-46, nothing raised by the harness): Evidence, an item, "Ask Larry about this" names the
+ *      item; "Check for Larry's proposal" says no proposal yet; a child process files a proposed claim naming the item (what Larry
+ *      does in Claude Code); the same button opens the gate, the recommendation is checked; Approve; "Decision recorded in the room."
+ *      only after the room's answer; click-to-recorded ms
+ *   5  decide a gate raised in Claude Code (plan 369-46): a Claude Code shaped stdio process (tests/helpers/cli-gate-369.cjs) runs
+ *      gate_render; the Decisions page lists it under "Waiting for you" with "Raised by Larry outside this browser." within 10 s
+ *      and without a reload (raised_to_listed_ms); Approve in the browser records it; the CLI's own gate_answer replays
+ *      answered_elsewhere; the room holds one new decision node and none under the source id
+ *   6  persisted: the decisions are in Decisions (Settled, "Confirmed by you,") and in "Since you were here" after Work is
  *      left and reopened; room-y has no new node
- *   6  restart and recover: stop the shell, kill and respawn the daemon, write to the room while the shell is down, start the
- *      shell again, sign in with the NEW link, open room-x: the decision is still there, the read copy converges with 0
- *      missing, the old gate id is not answered a second time; catch-up ms measured
- *   7  offline assets: the egress capture over steps 1-6 holds only 127.0.0.1
+ *   7  restart and recover: stop the shell, kill and respawn the daemon, write to the room while the shell is down, start the
+ *      shell again, sign in with the NEW link, open room-x: the decisions are still there, the read copy converges with 0
+ *      missing, the old gate id reads "This decision was already recorded." in the browser and replays in the room (one node)
+ *      (gap 2); catch-up ms measured
+ *   8  offline assets: the egress capture over steps 1-7 holds only 127.0.0.1
  *
  * Counters (CM369-03, counts and milliseconds only, SEED-074) go to output/journey-metrics.json:
- *   gate_click_to_recorded_ms, restart_catch_up_ms, lost_writes
+ *   gate_click_to_recorded_ms, raised_to_listed_ms, restart_catch_up_ms, lost_writes (and answered_elsewhere_replays)
  *
- * `--navigator` (plan 369-30 Task 2) does not run the journey: it prepares the same fixture, starts the shipped shell,
- * opens a HEADED browser signed in, files a proposal and raises its gate on that browser's own session, then waits for the
- * navigator to close the window. The shell has no browser control that raises a gate (the Ask Claude hop is an action with no
- * button), so a person's click test needs the gate raised on the person's own browser session.
+ * `--navigator` (plan 369-30 Task 2, reworked in 369-46) does not run the journey: it prepares the same fixture, starts the
+ * shipped shell, opens a HEADED browser signed in through the control channel and raises ONE gate from the CLI path (a stdio
+ * process, as Claude Code runs it) before handing the window over. It files nothing for Ask Larry until the navigator has pressed
+ * "Check for Larry's proposal" once (seen as the shell's own askClaude request); 15 s later it files Larry's proposal naming the
+ * item the navigator has open, then waits for the navigator to close the window.
  *
- * `--soak-restart N` (plan 369-34) runs steps 1 to 5 once, then repeats step 6's restart-and-converge cycle N times on the same
+ * `--soak-restart N` (plan 369-34) runs steps 1 to 6 once, then repeats step 7's restart-and-converge cycle N times on the same
  * page, printing one SOAK line per cycle and a STEP6-EVIDENCE line for every cycle that fails to converge. `--soak-gap-ms M` sleeps
  * M ms before each restart (to pass logEvent's 60 s dedupe window); `--soak-load K` runs K busy-loop children for the soak, killed
- * by pid at the end. A step 6 timeout in the normal journey prints the same STEP6-EVIDENCE line, captured at the moment of failure.
+ * by pid at the end. A step 7 timeout in the normal journey prints the same STEP6-EVIDENCE line, captured at the moment of failure.
  *
  * Exit 77 only when Playwright, Chromium, the dist or the root node_modules are absent; never to hide a failing step.
  * Hermetic: temp HOME, a hermetic daemon, never ~/MindrianRooms. Kills only what it started. Canon Part 8: loopback only.
@@ -58,6 +66,7 @@ const pw = require('./lib/pw.cjs');
 const D = require('../helpers/mcp-daemon-369.cjs');
 const { DatabaseSync } = require('node:sqlite');
 const navigation = require(path.join(REPO, 'lib', 'core', 'navigation.cjs'));
+const { cliClient } = require('../helpers/cli-gate-369.cjs');
 
 const DIST = path.join(REPO, 'lib', 'ui-shell', 'dist');
 const LAUNCH = path.join(REPO, 'lib', 'ui-shell', 'launch.cjs');
@@ -95,6 +104,14 @@ const NOT_SIGNED_IN = 'This browser is not signed in to the workspace.';
 const RECORDED = 'Decision recorded in the room.';
 const REPLAYED = 'This decision was already recorded.';
 const PWNED_LINE = '<script>window.__pwned = 1</script>';
+const RAISED_LINE = 'Raised by Larry outside this browser.';
+const RAISED_PROVENANCE = 'Raised by Larry outside this browser. Only a person can approve it.';
+const NO_PROPOSAL = 'Larry has not filed a proposal about this yet.';
+const CLI_OPTIONS = [
+  { id: 'approve', label: 'Approve', rank: 1, description: 'Recommended: ratify.', preview: 'Ratifies the claim.' },
+  { id: 'hold', label: 'Hold', rank: 2 },
+  { id: 'reject', label: 'Reject', rank: 3 },
+];
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -205,11 +222,12 @@ function writeClaim(roomDir, text, tag, env) {
 
 // One proposed claim that names the selected node id, with a source node behind it, so the room's own record
 // recommends "approve" (ADAPTER-RULING: located_source or source_edge recommends approve, anything else holds).
-function proposedClaim(roomDir, tag, env) {
+function proposedClaim(roomDir, tag, env, about) {
+  const named = about || NODE;
   return runChild(
     'const db = openRoomDb(' + J(roomDir) + ');' +
       'try {' +
-      "const c = navigation.writeClaimNode(db, { knowledge_type: 'fact', text: " + J('Pilot note ' + tag + ' about ' + NODE + ': the person must click to confirm.') + ", sessionId: 'journey-prop-' + " + J(tag) + " });" +
+      "const c = navigation.writeClaimNode(db, { knowledge_type: 'fact', text: " + J('Pilot note ' + tag + ' about ' + named + ': the person must click to confirm.') + ", sessionId: 'journey-prop-' + " + J(tag) + " });" +
       "if (!c.ok) throw new Error('claim: ' + JSON.stringify(c));" +
       "const s = navigation.writeEvidenceClaim(db, { topic: " + J('Interview source ' + tag) + ", source: 'e2e-369', url: " + J('https://example.org/369/journey/' + tag) + ", retrieved_at: '2026-10-01T00:00:00Z', evidence_tier: 'Academic', summary: 'interview', sessionId: 'journey-src-' + " + J(tag) + " });" +
       "if (!s.ok) throw new Error('source: ' + JSON.stringify(s));" +
@@ -471,36 +489,59 @@ async function main() {
   const primary = (p) => p.locator('#view .ab[data-variant="primary"]');
   const viewText = async (p) => (((await p.locator('#view').innerText()) || '') + '').replace(/\s+/g, ' ');
 
-  // ---- navigator mode: prepare, hand over a signed-in headed window with a gate raised on its own session ----
+  // ---- navigator mode: prepare, hand over a signed-in headed window with a gate raised from the CLI path ----
   if (NAVIGATOR) {
     let code = 0;
+    let cli = null;
     try {
       const link = startLink();
       const ctx = await newCtx();
+      await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
       const page = await ctx.newPage();
       watch(page);
+      // Passive: the navigator's own press of "Check for Larry's proposal" is seen as the shell's askClaude request.
+      let proposalTimer = null;
+      page.on('request', (r) => {
+        if (proposalTimer !== null || !r.url().endsWith('/api/actions/askClaude')) return;
+        let item = ids.a;
+        try {
+          const body = r.postDataJSON();
+          if (body && typeof body.selectedNodeId === 'string' && body.selectedNodeId) item = body.selectedNodeId;
+        } catch (_e) { /* keep the first evidence item */ }
+        proposalTimer = setTimeout(() => {
+          proposedClaim(roomX, 'navigator-larry', daemon.env, item)
+            .then((made) => console.log('NAVIGATOR NOTE: 15 s after your first Check, Larry\'s proposal was filed in the room (claim ' + made.claim + ', naming ' + item + ').'))
+            .catch((e) => console.log('NAVIGATOR NOTE: filing Larry\'s proposal failed: ' + String((e && e.message) || e).slice(0, 200)));
+        }, 15000);
+      });
       await page.goto(link);
       await page.waitForSelector('header.shell-header', { timeout: 45000 });
       await openRoom(page, 'room-x');
-      await go(page, '/');
-      const made = await proposedClaim(roomX, 'navigator', daemon.env);
-      const asked = await act(page, 'askClaude', { selectedNodeId: NODE, question: 'Should this claim be confirmed?' });
-      assert.strictEqual(asked.ok, true, 'the proposal raised a gate: ' + J(asked));
+      // The CLI path: a Claude Code shaped stdio process bound to room-x raises the gate (gate_render), as Larry does in Claude Code.
+      const made = await proposedClaim(roomX, 'navigator-cli', daemon.env);
+      cli = await cliClient({ roomsHome: daemon.roomsHome, home: HERMETIC, sessionId: 'cli-navigator-369' });
+      await cli.bind('room-x');
+      const raised = await cli.call('gate_render', { kind: 'general', select_mode: 'single', options: CLI_OPTIONS, approving: ['approve'], header: 'Ratify the claim Larry raised in Claude Code?', subject_node_id: made.claim, evidence_node_ids: [made.source] });
+      assert.strictEqual(raised.ok, true, 'the CLI path raised a gate: ' + J(raised));
       await go(page, '/');
       console.log('');
       console.log('NAVIGATOR READY');
       console.log('  The window is signed in to a throwaway fixture room (room-x) in a temporary home. No real room is read or written.');
-      console.log('  Shell: ' + origin + '   Gate raised on this window: ' + origin + '/gate/' + asked.gate_id + '   (claim ' + made.claim + ')');
-      console.log('  Work shows "Decisions (1 waiting)". Open the evidence document, open the decision, press the preselected Approve once.');
+      console.log('  Shell: ' + origin + '   Gate raised from the CLI path: ' + origin + '/gate/' + raised.gate_id + '   (claim ' + made.claim + ')');
+      console.log('  Flow 1 (a decision raised in Claude Code): open Decisions; one row under "Waiting for you" says "' + RAISED_LINE + '"; open it, press the checked Approve once.');
+      console.log('  Flow 2 (Ask Larry): open Evidence, choose the first item, find "Ask Larry about this"; press "Copy the line", then "Check for Larry\'s proposal".');
+      console.log('          Expect "' + NO_PROPOSAL + '"; about 15 s later the window announces that something new arrived; press the button again and decide.');
       console.log('  Close the browser window when you are done; this command then stops everything it started.');
       const bye = () => { browser.close().catch(() => {}); };
       process.once('SIGINT', bye);
       process.once('SIGTERM', bye);
       await new Promise((resolve) => { browser.on('disconnected', resolve); });
+      if (proposalTimer) clearTimeout(proposalTimer);
     } catch (err) {
       console.log('FAIL navigator mode: ' + String((err && err.stack) || err).split('\n').slice(0, 6).join(' | '));
       code = 1;
     } finally {
+      if (cli) await cli.close().catch(() => {});
       await browser.close().catch(() => {});
       stopShell();
       await D.stopDaemon(daemon);
@@ -509,7 +550,8 @@ async function main() {
   }
 
   // ---- the journey ----
-  const metrics = { gate_click_to_recorded_ms: null, restart_catch_up_ms: null, lost_writes: null };
+  const metrics = { gate_click_to_recorded_ms: null, raised_to_listed_ms: null, restart_catch_up_ms: null, lost_writes: null, answered_elsewhere_replays: null };
+  let cli = null;
   const results = [];
   const failures = [];
   const facts = {};
@@ -581,7 +623,7 @@ async function main() {
   }
 
   // The STEP-EVIDENCE line: what the shell, the daemon and the registry say at the moment ANY step gives up (steps other than the
-  // step 6 convergence wait, which has its own line). Evidence only: reads, never repairs.
+  // step 7 convergence wait, which has its own line). Evidence only: reads, never repairs.
   async function daemonFacts(out, guard) {
     out.daemon = { port: daemon.port, pid: daemon.child.pid, exit_code: daemon.child.exitCode, exit_signal: daemon.child.signalCode, unexpected_exits: daemonExits };
     await guard('daemon_pid_alive', async () => { process.kill(daemon.child.pid, 0); return true; });
@@ -611,7 +653,7 @@ async function main() {
   }
 
   // Step 6's cycle: stop the shell, kill and respawn the daemon, write while down, start the shell, sign in with the new link,
-  // reopen room-x, wait for the copy to hold what the room held. The wait and its 60 s bound are exactly step 6's.
+  // reopen room-x, wait for the copy to hold what the room held. The wait and its 60 s bound are exactly step 7's.
   async function restartAndConverge(label, priorLink) {
     const loadStart = loadNow();
     const stopped = stopShell();
@@ -741,16 +783,32 @@ async function main() {
     assert.strictEqual(await page.evaluate(() => typeof window.__pwned), 'undefined', 'still undefined after opening the linked source');
     stepDone(3, 'inspect evidence', 'document with script markup rendered as text, nothing ran; source file and linked item opened');
 
-    // ===== 4 decide =====
-    stepStart(4, 'decide');
-    const made = await proposedClaim(roomX, 'journey', daemon.env);
-    await go(page, '/');
-    const asked = await act(page, 'askClaude', { selectedNodeId: NODE, question: 'Should this claim be confirmed?' });
-    assert.strictEqual(asked.ok, true, 'the proposal raised a gate: ' + J(asked));
-    assert.strictEqual(asked.subject_node_id, made.claim, 'the proposal is about the claim just filed');
-    assert.strictEqual(asked.recommended_id, 'approve', 'the room recommends approve for a claim with a located source');
-    const gateId = asked.gate_id;
-    await openGate(page, gateId);
+    // ===== 4 decide through Ask Larry =====
+    stepStart(4, 'decide through Ask Larry');
+    // The person's route: Evidence, an item, "Ask Larry about this". Nothing is raised by the harness: the page's own button asks the
+    // room, and the proposal is filed by a child process the way Larry files one from Claude Code.
+    await go(page, '/evidence?item=' + encodeURIComponent(ids.a));
+    await page.waitForSelector('.reader .ask-larry', { timeout: 30000 });
+    assert.strictEqual((await page.locator('.ask-larry h3').textContent()).trim(), 'Ask Larry about this');
+    const askLine = (await page.locator('.ask-larry .ask-line').textContent()).trim();
+    assert.ok(askLine.includes(ids.a), 'the line to paste names the open item: ' + askLine.slice(0, 200));
+    assert.strictEqual((await page.locator('.ask-larry .ab-label').textContent()).trim(), "Check for Larry's proposal");
+    const gatesBefore = (await act(page, 'listOpenGates', {})).gates.length;
+    await page.locator('.ask-larry .ab').click();
+    await page.waitForSelector('.ask-larry .inline-error', { timeout: 20000 });
+    const noneText = (await page.locator('.ask-larry .inline-error').innerText()).replace(/\s+/g, ' ');
+    assert.ok(noneText.includes(NO_PROPOSAL), 'no proposal yet reads in plain words: ' + noneText);
+    assert.strictEqual(new URL(page.url()).pathname, '/evidence', 'no gate opened before Larry filed anything');
+    assert.strictEqual((await act(page, 'listOpenGates', {})).gates.length, gatesBefore, 'no gate was raised by the check');
+    const made = await proposedClaim(roomX, 'journey', daemon.env, ids.a);
+    await page.locator('.ask-larry .ab').click();
+    await page.waitForURL(/\/gate\/[^/]+$/, { timeout: 30000 });
+    const gateId = decodeURIComponent(new URL(page.url()).pathname.split('/').pop());
+    await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 45000 });
+    assert.ok((await viewText(page)).includes('Proposal from Claude Code. Only a person can approve it.'), 'the gate says who proposed it');
+    const listed4 = (await act(page, 'listOpenGates', {})).gates.find((g) => g.gate_id === gateId);
+    assert.ok(listed4, 'the gate opened by the button is listed');
+    assert.strictEqual(listed4.subject_node_id, made.claim, 'the proposal is about the claim just filed');
     assert.strictEqual(await page.locator('input.opt-input:checked').getAttribute('value'), 'approve', 'the recommended option is checked');
     assert.strictEqual(await page.locator('.gate-status').count(), 0, 'nothing says recorded before the answer');
     assert.strictEqual(claimStatus(roomX, made.claim), 'proposed', 'the claim is still only proposed');
@@ -783,10 +841,60 @@ async function main() {
     assert.strictEqual(claimStatus(roomX, made.claim), 'confirmed', 'only now is the claim confirmed');
     facts.gateId = gateId;
     facts.claim = made.claim;
-    stepDone(4, 'decide', 'Approve recorded once; click to recorded ' + metrics.gate_click_to_recorded_ms + ' ms');
+    stepDone(4, 'decide through Ask Larry', 'no proposal, then Larry\'s filed proposal opened the gate; Approve recorded once; click to recorded ' + metrics.gate_click_to_recorded_ms + ' ms');
 
-    // ===== 5 persisted =====
-    stepStart(5, 'the persisted result');
+    // ===== 5 decide a gate raised in Claude Code =====
+    stepStart(5, 'decide a gate raised in Claude Code');
+    const madeCli = await proposedClaim(roomX, 'cli', daemon.env);
+    cli = await cliClient({ roomsHome: daemon.roomsHome, home: HERMETIC, sessionId: 'cli-journey-369' });
+    await cli.bind('room-x');
+    await go(page, '/decisions');
+    await page.waitForSelector('[data-group="waiting"]', { state: 'attached', timeout: 45000 });
+    await waitUntil(async () => (await page.locator('[data-group="waiting"] .item-row').count()) === 0, 15000, 'the waiting list to be empty before Larry raises one', 100);
+    await page.evaluate(() => { window.__noReload = 'decisions page'; });
+    const CLI_HEADER = 'Ratify the claim Larry raised in Claude Code?';
+    const raised = await cli.call('gate_render', { kind: 'general', select_mode: 'single', options: CLI_OPTIONS, approving: ['approve'], header: CLI_HEADER, subject_node_id: madeCli.claim, evidence_node_ids: [madeCli.source] });
+    assert.strictEqual(raised.ok, true, 'the CLI path raised a gate: ' + J(raised));
+    const tRaised = Date.now();
+    await page.waitForFunction((header) => { const el = document.querySelector('[data-group="waiting"]'); return !!el && el.innerText.includes(header); }, CLI_HEADER, { timeout: 10000 });
+    metrics.raised_to_listed_ms = Date.now() - tRaised;
+    assert.ok(metrics.raised_to_listed_ms < 10000, 'listed within ten seconds');
+    assert.strictEqual(await page.evaluate(() => window.__noReload), 'decisions page', 'listed without a reload');
+    const waitingText = (await page.locator('[data-group="waiting"]').innerText()).replace(/\s+/g, ' ');
+    assert.ok(waitingText.includes('WAITING FOR YOU') && waitingText.includes(RAISED_LINE), 'the row says who raised it: ' + waitingText.slice(0, 300));
+    const decisionsBefore = withDb(roomX, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:gate:%'").get().n);
+    await page.locator('[data-group="waiting"] .item-row', { hasText: CLI_HEADER }).locator('a').first().click();
+    await page.waitForURL(/\/gate\/[^/]+$/, { timeout: 30000 });
+    await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 45000 });
+    assert.strictEqual(decodeURIComponent(new URL(page.url()).pathname.split('/').pop()), raised.gate_id, 'the page id is the id Larry raised');
+    assert.strictEqual(await page.locator('.gate-provenance').innerText(), RAISED_PROVENANCE, 'the raised provenance line');
+    assert.strictEqual(await page.locator('input.opt-input:checked').getAttribute('value'), 'approve', 'the recommendation is checked');
+    assert.strictEqual(claimStatus(roomX, madeCli.claim), 'proposed', 'the claim is only proposed until the click');
+    await primary(page).click();
+    await page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 45000 });
+    assert.strictEqual((await page.locator('.gate-status').first().innerText()).replace(/\s+/g, ' ').trim(), RECORDED);
+    assert.strictEqual(claimStatus(roomX, madeCli.claim), 'confirmed', 'the claim is confirmed by the browser answer');
+    assert.strictEqual(withDb(roomX, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:gate:%'").get().n), decisionsBefore + 1, 'the room holds one new decision node');
+    assert.strictEqual(decisionNodes(roomX, raised.gate_id).length, 0, 'no decision node under the source id (the mirror carries it)');
+    // The CLI's own answer on its own id: the room replays the browser's answer (answered_elsewhere), writes nothing.
+    const own = await cli.call('gate_answer', { gate_id: raised.gate_id, chosen: ['hold'], verdict: 'defer' });
+    assert.strictEqual(own.ok, true, 'the CLI answer is ok: ' + J(own));
+    assert.strictEqual(own.replayed, true, 'replayed: ' + J(own));
+    assert.strictEqual(own.answered_elsewhere, true, 'answered_elsewhere: ' + J(own));
+    assert.strictEqual(own.verdict, 'approve', 'the recorded verdict stands, not the requested one');
+    metrics.answered_elsewhere_replays = 1;
+    assert.strictEqual(withDb(roomX, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:gate:%'").get().n), decisionsBefore + 1, 'the CLI replay wrote nothing');
+    assert.strictEqual(claimStatus(roomX, madeCli.claim), 'confirmed');
+    await go(page, '/decisions');
+    await page.waitForSelector('[data-group="waiting"]', { state: 'attached', timeout: 45000 });
+    await waitUntil(async () => !(await page.locator('[data-group="waiting"]').innerText()).includes(CLI_HEADER), 20000, 'the answered row to leave "Waiting for you"', 200);
+    await cli.close();
+    cli = null;
+    facts.cliGateId = raised.gate_id;
+    stepDone(5, 'decide a gate raised in Claude Code', 'listed ' + metrics.raised_to_listed_ms + ' ms after Larry raised it, no reload; Approve recorded one node; the CLI answer replayed answered_elsewhere; the row left "Waiting for you"');
+
+    // ===== 6 persisted =====
+    stepStart(6, 'the persisted result');
     await page.locator('nav a', { hasText: 'Decisions' }).first().click();
     await page.waitForSelector('[data-group="settled"] .item-row', { timeout: 45000 });
     await waitUntil(async () => /Confirmed by you,/.test(await page.locator('[data-group="settled"]').innerText()), 30000, '"Confirmed by you," in Settled', 250);
@@ -800,9 +908,9 @@ async function main() {
     assert.ok(/Decision on/.test(since), '"Since you were here" lists the decision: ' + since.slice(0, 400));
     assert.strictEqual(nodeCount(roomY), yNodesBefore, 'room-y has no new node (isolation)');
     assert.strictEqual(withDb(roomY, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:%'").get().n), 0, 'room-y holds no decision');
-    stepDone(5, 'the persisted result', 'Settled "Confirmed by you,"; listed under "Since you were here"; room-y unchanged (' + yNodesBefore + ' nodes)');
+    stepDone(6, 'the persisted result', 'Settled "Confirmed by you,"; listed under "Since you were here"; room-y unchanged (' + yNodesBefore + ' nodes)');
 
-    // ===== soak (plan 369-34): repeat step 6's cycle on this page, then stop =====
+    // ===== soak (plan 369-34): repeat step 7's cycle on this page, then stop =====
     if (SOAK) {
       const soak = { cycles: 0, failed: 0, ms: [] };
       let prior = link1;
@@ -856,8 +964,8 @@ async function main() {
       throw { soakDone: true };
     }
 
-    // ===== 6 restart and recover =====
-    stepStart(6, 'restart both servers and recover');
+    // ===== 7 restart and recover =====
+    stepStart(7, 'restart both servers and recover');
     const conv = await restartAndConverge('step6', link1);
     const down = conv.down;
     const link2 = conv.link;
@@ -875,22 +983,25 @@ async function main() {
     await waitUntil(async () => /Confirmed by you,/.test(await page.locator('[data-group="settled"]').innerText()), 30000, 'the decision in Settled after the restart', 250);
     assert.strictEqual(decisionNodes(roomX, facts.gateId).length, 1, 'the decision is still one node in the room');
     assert.strictEqual(claimStatus(roomX, facts.claim), 'confirmed');
+    assert.strictEqual(withDb(roomX, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:gate:%'").get().n), 2, 'the room still holds exactly the two decisions (Ask Larry and the CLI-raised one)');
 
-    // The old gate id, from the browser, after both servers restarted: it must not be answered a second time.
-    await page.goto(origin + '/gate/' + encodeURIComponent(facts.gateId));
-    await page.waitForSelector('#view .gate-card, #view .gate-error, #view .inline-error', { timeout: 45000 });
+    // The old gate id, from the browser, after both servers restarted: it must read as recorded (gap 2) and must not be answered a second time.
+    await openGate(page, facts.gateId, 'recorded');
     await sleep(600);
     const oldGateView = await viewText(page);
     facts.oldGateView = oldGateView.slice(0, 160);
+    assert.strictEqual((await page.locator('.gate-status').first().innerText()).replace(/\s+/g, ' ').trim(), REPLAYED, 'the old gate id reads "This decision was already recorded." after both servers restarted: ' + oldGateView.slice(0, 200));
     assert.ok(!oldGateView.includes(RECORDED), 'the old gate does not claim a new recording');
-    assert.strictEqual(await primary(page).count() === 0 || (await page.locator('input.opt-input').count()) === 0, true, 'the old gate offers nothing to answer');
+    assert.strictEqual(await page.locator('input.opt-input').count(), 0, 'the old gate offers nothing to answer');
+    const oldActions = await primary(page).locator('.ab-label').allInnerTexts();
+    assert.ok(oldActions.every((t) => /Back to Work/.test(t)), 'the only action on the old gate leaves it, nothing answers it: ' + J(oldActions));
     assert.strictEqual(decisionNodes(roomX, facts.gateId).length, 1, 'nothing was written twice');
     // And a direct re-answer from the page (no render nonce can exist for a gate this shell never drew): refused, nothing written.
     const reanswer = await act(page, 'approveDecision', { gate_id: facts.gateId, chosen: ['approve'], verdict: 'approve' });
     assert.strictEqual(reanswer.ok, false, 'a browser re-answer of the old gate id is refused: ' + J(reanswer));
     facts.browserReanswerReason = reanswer.reason;
     assert.strictEqual(decisionNodes(roomX, facts.gateId).length, 1, 'the refused re-answer wrote nothing');
-    facts.browserReplayWords = oldGateView.includes(REPLAYED) ? 'already-recorded' : 'no-longer-open';
+    facts.browserReplayWords = 'already-recorded';
 
     // The room itself, asked again with the old gate id on the new daemon: ok with replayed:true, nothing new written.
     let replay = null;
@@ -916,10 +1027,10 @@ async function main() {
     facts.roomReplay = replay ? 'replayed:true' : facts.replaySkipped;
     assert.strictEqual(nodeCount(roomY), yNodesBefore, 'room-y still untouched after the restart');
     assert.strictEqual(JSON.parse(fs.readFileSync(registryFile, 'utf8')).active, 'room-y', 'the CLI active room never moved');
-    stepDone(6, 'restart both servers and recover', 'decision kept; copy ' + cmp.items + ' items, 0 missing, catch-up ' + metrics.restart_catch_up_ms + ' ms; old gate id: browser says ' + facts.browserReplayWords + ', room says ' + facts.roomReplay);
+    stepDone(7, 'restart both servers and recover', 'decision kept; copy ' + cmp.items + ' items, 0 missing, catch-up ' + metrics.restart_catch_up_ms + ' ms; old gate id: browser says ' + facts.browserReplayWords + ', room says ' + facts.roomReplay);
 
-    // ===== 7 offline assets =====
-    stepStart(7, 'offline assets');
+    // ===== 8 offline assets =====
+    stepStart(8, 'offline assets');
     const hostOf = (u) => { try { return new URL(u).host || null; } catch (_e) { return null; } };
     const hosts = [];
     for (const r of requests) {
@@ -935,7 +1046,7 @@ async function main() {
     assert.deepStrictEqual(badConsole, [], 'unexpected console or page errors: ' + badConsole.slice(0, 3).join(' | '));
     facts.requests = requests.length;
     facts.hosts = hosts.join(', ');
-    stepDone(7, 'offline assets', requests.length + ' requests, hosts: ' + hosts.join(', ') + '; 0 CSP events');
+    stepDone(8, 'offline assets', requests.length + ' requests, hosts: ' + hosts.join(', ') + '; 0 CSP events');
   } catch (err) {
     if (err && err.soakDone) {
       // the soak finished; its verdict is in failures
@@ -948,6 +1059,7 @@ async function main() {
     }
   } finally {
     for (const kid of loadKids) { try { process.kill(kid.pid, 'SIGKILL'); } catch (_e) { /* already gone */ } }
+    if (cli) await cli.close().catch(() => {});
     await browser.close().catch(() => {});
     // Kill only what this run started: the shell through its own launcher, the daemon through the helper.
     try { stopShell(); } catch (_e) { /* best effort */ }
@@ -966,9 +1078,9 @@ async function main() {
     console.log((failed ? failed + ' check(s) failed' : 'PASS: soak of ' + SOAK + ' restart cycles') + ' in ' + Math.round((Date.now() - t0) / 1000) + ' s');
     process.exit(failed ? 1 : 0);
   }
-  if (results.length !== 7 && failures.length === 0) {
+  if (results.length !== 8 && failures.length === 0) {
     failed += 1;
-    console.log('FAIL only ' + results.length + ' of 7 steps ran');
+    console.log('FAIL only ' + results.length + ' of 8 steps ran');
   }
   if (failed === 0) {
     if (metrics.lost_writes !== 0) {
@@ -986,7 +1098,7 @@ async function main() {
     failed += 1;
     console.log('FAIL dash guard: this file carries a dash character');
   }
-  console.log((failed ? failed + ' check(s) failed' : 'PASS: the recoverable journey, steps 1 to 7') + ' in ' + Math.round((Date.now() - t0) / 1000) + ' s');
+  console.log((failed ? failed + ' check(s) failed' : 'PASS: the recoverable journey, steps 1 to 8') + ' in ' + Math.round((Date.now() - t0) / 1000) + ' s');
   process.exit(failed ? 1 : 0);
 }
 
