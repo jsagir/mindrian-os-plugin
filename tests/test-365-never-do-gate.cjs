@@ -267,8 +267,11 @@ async function main() {
     // a gate_answer approve that names the reject option is stopped the same way, end to end
     const m2 = await neverDoGate.mintProposalGate(PROPOSAL, { roomDir: room.roomDir, sessionId: SESSION });
     const res = await boot(room).answer(m2.gate_id, ['reject'], 'approve');
+    // Phase 289 review CR-01: the mismatch is now refused BEFORE the consume (reason
+    // chosen_not_approving at the top level, nothing resumed), so the gate survives.
     check('N7 end to end: verdict approve with chosen reject lands nothing',
-      neverDoBytes(room) === null && res.chain_result && res.chain_result.ok === false, JSON.stringify(res.chain_result));
+      neverDoBytes(room) === null && res.ok === false && res.reason === 'chosen_not_approving'
+      && !res.chain_result && gateLedger.peekGate(m2.gate_id, SESSION) !== null, JSON.stringify(res));
   }
 
   // ---- N8 elicitation never answers a proposal card inline ----------------------------------
