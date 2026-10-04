@@ -13,6 +13,7 @@
  *   cr-02  a half-installed node_modules is never trusted: a dead or stale "installing" record means re-install
  *   cr-03  the connect path never runs a blocking in-process npm ci; the detached installer is never killed at the budget
  *   wr-01  the install target is where the running file lives, never an env root that points elsewhere
+ *   wr-02  every npm fallback carries --ignore-scripts
  *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
@@ -703,9 +704,54 @@ async function armWr01() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-02
+// ---------------------------------------------------------------------------
+async function armWr02() {
+  const A = 'wr-02';
+
+  await check(A, 'buildInstallArgs: the unfrozen fallback carries --ignore-scripts; frozen and explicit shapes are unchanged', () => {
+    const { buildInstallArgs } = require(LIB('npm-cli-resolve.cjs'));
+    const d = { baseArgs: ['/x/npm-cli.js'] };
+    assert.deepEqual(buildInstallArgs(d), ['/x/npm-cli.js', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent']);
+    assert.deepEqual(buildInstallArgs(d, undefined, {}), ['/x/npm-cli.js', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent']);
+    assert.deepEqual(buildInstallArgs(d, undefined, { frozen: true }), ['/x/npm-cli.js', 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], 'the frozen args stay pinned');
+    assert.deepEqual(buildInstallArgs(d, ['--omit=dev']), ['/x/npm-cli.js', 'install', '--omit=dev'], 'an explicit tail is the caller\'s own');
+  });
+
+  await check(A, 'runGuardedInstall without a lockfile runs npm install --ignore-scripts', () => {
+    const root = plugin('w2-nolock', { shrinkwrap: false });
+    const log = path.join(TMP, 'w2-nolock.log');
+    const env = envFor(newHome(), { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: log });
+    const out = jsonOut(runNode("process.stdout.write(JSON.stringify(require(process.argv[1]).runGuardedInstall(process.argv[2], {timeoutMs:20000})));", [HEAL, root], env), 'runGuardedInstall');
+    assert.equal(out.ok, true);
+    const calls = readLog(log);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].args[0], 'install');
+    assert.ok(calls[0].args.includes('--ignore-scripts'), 'saw ' + JSON.stringify(calls[0].args));
+    sweep();
+  });
+
+  await check(A, 'the SessionStart hook last-ditch spawn (no lib modules loadable) also carries --ignore-scripts', () => {
+    const root = plugin('w2-hook', { shrinkwrap: false });
+    fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, 'scripts', 'sessionstart-npm-reconcile.cjs'), path.join(root, 'scripts', 'sessionstart-npm-reconcile.cjs'));
+    // No lib/core at all: both requires fail, so the hook takes the bare `npm` spawn off PATH.
+    const bin = mkTemp('w2-bin');
+    const log = path.join(TMP, 'w2-hook.log');
+    fs.writeFileSync(path.join(bin, 'npm'), '#!/bin/sh\nprintf \'%s\\n\' "$*" >> "$FAKE_NPM_LOG"\nexit 0\n', { mode: 0o755 });
+    const env = envFor(newHome(), { FAKE_NPM_LOG: log, PATH: bin + path.delimiter + process.env.PATH });
+    const r = spawnSync(process.execPath, [path.join(root, 'scripts', 'sessionstart-npm-reconcile.cjs')], { env, encoding: 'utf8', timeout: 60000, cwd: TMP });
+    assert.equal(r.status, 0);
+    const lines = fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\n').filter(Boolean) : [];
+    assert.equal(lines.length, 1, 'the last-ditch npm must have run once, saw ' + JSON.stringify(lines));
+    assert.ok(lines[0].startsWith('install') && lines[0].includes('--ignore-scripts'), 'saw ' + lines[0]);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-05': armWr05 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-05': armWr05 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);

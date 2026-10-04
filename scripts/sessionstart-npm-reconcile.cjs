@@ -117,7 +117,7 @@ try {
       } catch (_) {
         const lastDitch = fs.existsSync(path.join(PLUGIN_ROOT, 'npm-shrinkwrap.json'))
           ? ['ci', '--ignore-scripts', '--no-audit', '--no-fund']
-          : ['install', '--no-audit', '--no-fund', '--silent'];
+          : ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent'];
         spawnSync('npm', lastDitch, {
           cwd: PLUGIN_ROOT,
           timeout: 120000,

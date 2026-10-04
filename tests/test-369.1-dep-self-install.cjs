@@ -499,8 +499,8 @@ async function armUnit() {
   await check(A, 'buildInstallArgs: default and explicit shapes are unchanged', () => {
     const { buildInstallArgs } = require(RESOLVE);
     const d = { baseArgs: ['/x/npm-cli.js'] };
-    assert.deepEqual(buildInstallArgs(d), ['/x/npm-cli.js', 'install', '--no-audit', '--no-fund', '--silent']);
-    assert.deepEqual(buildInstallArgs(d, undefined, {}), ['/x/npm-cli.js', 'install', '--no-audit', '--no-fund', '--silent']);
+    assert.deepEqual(buildInstallArgs(d), ['/x/npm-cli.js', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent']);
+    assert.deepEqual(buildInstallArgs(d, undefined, {}), ['/x/npm-cli.js', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent']);
     assert.deepEqual(buildInstallArgs(d, ['--omit=dev']), ['/x/npm-cli.js', 'install', '--omit=dev']);
     assert.deepEqual(buildInstallArgs(d, ['--omit=dev'], { frozen: true }), ['/x/npm-cli.js', 'install', '--omit=dev'], 'explicit installArgs stay install plus them even when frozen');
   });
@@ -561,13 +561,13 @@ async function armUnit() {
     assert.equal(r.ok, true);
     assert.equal(r.reason, null, 'reason is null on success');
   });
-  await check(A, 'runGuardedInstall without any lockfile runs npm install --no-audit --no-fund --silent', () => {
+  await check(A, 'runGuardedInstall without any lockfile runs npm install --ignore-scripts --no-audit --no-fund --silent', () => {
     need('plain install');
     const dir = mkTemp('unit-nolock');
     fs.writeFileSync(path.join(dir, 'package.json'), '{"name":"x","version":"1.0.0"}\n');
     const log = path.join(TMP, 'unit-plain.log');
     const r = parseJsonOut(runNode(guardedCode, [HEAL, dir, '20000'], childEnv('ok-link', log)), 'runGuardedInstall');
-    assert.deepEqual(readLog(log), [['install', '--no-audit', '--no-fund', '--silent']], 'recorded npm argv');
+    assert.deepEqual(readLog(log), [['install', '--ignore-scripts', '--no-audit', '--no-fund', '--silent']], 'recorded npm argv');
     assert.equal(r.ok, true);
     assert.equal(r.reason, null);
   });
