@@ -791,9 +791,19 @@ function safeRename(src, dst) {
 //     must equal 'v' + ver. Accepted only until the marketplace catalog's
 //     first post-341 release flips it to the npm shape (release.sh Step 4).
 // Neither shape recognized (no version, no ref) is a failure.
+// selectMosEntry(manifest) -- the marketplace entry named 'mos', else null
+// (also null when plugins is not an array). The Desktop copy (mos-desktop)
+// sits beside it, so no reader may index the plugins array by position
+// (Phase 369.1 D-13, DPI-01).
+function selectMosEntry(manifest) {
+  const list = manifest && Array.isArray(manifest.plugins) ? manifest.plugins : null;
+  if (!list) return null;
+  return list.find((p) => p && p.name === 'mos') || null;
+}
+
 function evaluateMarketplaceSourcePin(source, ver) {
   if (!source || typeof source !== 'object') {
-    return { ok: false, finding: 'marketplace plugins[0].source is missing or not an object', detail: { source: source } };
+    return { ok: false, finding: 'marketplace mos entry source is missing or not an object', detail: { source: source } };
   }
   const hasVersion = Object.prototype.hasOwnProperty.call(source, 'version');
   const hasRef = Object.prototype.hasOwnProperty.call(source, 'ref');
@@ -1045,7 +1055,9 @@ function buildAcceptanceChecklist(ctx) {
           let mp;
           try { mp = JSON.parse(fs.readFileSync(mpPath, 'utf8')); }
           catch (e) { return { ok: false, finding: 'marketplace.json unreadable: ' + e.message, detail: { mpPath: mpPath } }; }
-          const source = mp.plugins && mp.plugins[0] && mp.plugins[0].source;
+          // mos is found by name; mos-desktop sits beside it at plugins[1], Phase 369.1
+          const mosEntry = selectMosEntry(mp);
+          const source = mosEntry && mosEntry.source;
           const sourceCheck = evaluateMarketplaceSourcePin(source, ver);
           if (!sourceCheck.ok) return { ok: false, finding: sourceCheck.finding, detail: sourceCheck.detail };
           // (c) npm view -- THIS IS THE ONE NETWORK CALL in this point.
@@ -4758,7 +4770,7 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
 // Phase 225-02 (REQ-4): additive export of the WAL-reset advisory helpers for
 // hermetic unit testing via injected seams (tests/test-225-wal-advisory.cjs).
 // Additive-only append -- existing keys are never reordered.
-module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin };
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin, selectMosEntry };
 
 if (require.main === module) {
   main();

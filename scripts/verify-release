@@ -67,7 +67,7 @@ echo -e "\n${BOLD}3. Version Sync${NC}"
 PLUGIN_VER=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "MISSING")
 
 if [ -f "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" ]; then
-  MARKET_VER=$(python3 -c "import json; print(json.load(open('$MARKETPLACE_DIR/.claude-plugin/marketplace.json'))['plugins'][0]['version'])" 2>/dev/null || echo "MISSING")
+  MARKET_VER=$(python3 -c "import json; print(next((p for p in json.load(open('$MARKETPLACE_DIR/.claude-plugin/marketplace.json'))['plugins'] if p.get('name') == 'mos'), {}).get('version', 'MISSING'))" 2>/dev/null || echo "MISSING")
   if [ "$PLUGIN_VER" = "$MARKET_VER" ]; then
     pass "Versions match: plugin=$PLUGIN_VER marketplace=$MARKET_VER"
   else
