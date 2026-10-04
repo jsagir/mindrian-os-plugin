@@ -117,7 +117,7 @@ When `$ARGUMENTS` is `shell`, run:
 !node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" start
 ```
 
-This starts (or reuses) the MindrianOS server and the workspace on this computer, then prints one link. Open it in your browser to review what the room holds and approve or decline each decision; the link works once, for this computer only, for the next 60 seconds, so run the command again for a fresh one. Give the link to the person exactly as printed and say nothing else about how it signs in.
+This starts (or reuses) the MindrianOS server and the workspace on this computer and opens it in the person's browser; the sign-in happens in that browser and never passes through this conversation. If the output says no browser could be opened, tell the person to run the command it names in their own terminal, which prints a one-time sign-in link there. Never ask for, repeat or fetch a sign-in link.
 
 When `$ARGUMENTS` is `shell stop`, run `!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" stop`. When it is `shell status`, run `!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/ui-shell/launch.cjs" status`. Neither touches the `live` dashboard or the legacy snapshot.
 
