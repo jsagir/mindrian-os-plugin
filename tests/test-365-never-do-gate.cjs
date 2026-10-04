@@ -533,7 +533,10 @@ async function main() {
     // too_many_open_gates, bad_approving, replay_lookup_failed in the descriptions). So the gate_render description,
     // title and input schema and the gate_answer description and title pins move to this sha; the gate_answer input
     // schema, chain_run and research_run stay on their bases.
-    const GATE_BASE = 'cd27faa94eabbb6d69a5c0d2541abba4fe131784';
+    // Re-pinned 2026-10-04 (quick 261004-av2, once, after its last gate.cjs commit): gate.cjs gained the answered_via marker
+    // (CR-02 option 2, SEED-114); the gate_render and gate_answer descriptions, titles and input schemas are byte-identical
+    // to cd27faa94, so only the byte-identity pin moves.
+    const GATE_BASE = 'ea60b398b91e05b6013b882e84a9366715c06cba';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
@@ -609,6 +612,8 @@ async function main() {
       // was b2f03de02, the commit that carries the durable-consumption and recovery changes to gate_answer.
       // Re-pinned 2026-10-04 (Phase 369 plan 41, once, after plans 33, 36 and 38): GATE_BASE is now cd27faa94, the last
       // gate.cjs commit of the gap closure; see the dated comment on GATE_BASE above for what moved.
+      // Re-pinned 2026-10-04 (quick 261004-av2, once, after its last gate.cjs commit): GATE_BASE is now ea60b398b, the commit that
+      // added the answered_via marker; see the dated comment on GATE_BASE above.
       check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
         spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
