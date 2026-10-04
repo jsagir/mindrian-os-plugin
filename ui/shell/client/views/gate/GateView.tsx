@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { approveDecision, readGate } from '../../api.ts';
 import { GATE, GATE_UNREADABLE, gateEvidenceHeading, gateFiled, gateRefusalCopy } from '../../copy.ts';
+import { TextAction } from '../../primitives/TextAction.tsx';
 import { useShell } from '../../frame/shell-context.ts';
 import { useShellStatus } from '../../frame/status-context.ts';
 import { Rule } from '../../primitives/Rule.tsx';
@@ -32,6 +33,8 @@ type GateBody = {
   room?: string;
   gate?: CardIn & { rendered?: RenderedIn };
   answered?: { verdict?: string; chosen?: string[] };
+  answered_elsewhere?: boolean;
+  chosen?: string[];
 };
 
 // The checking state retries by gate id; after this many tries the page says the room has not answered and offers
@@ -127,6 +130,8 @@ function GateLoaded({ gateId }: { gateId: string }) {
   const [unreadable, setUnreadable] = useState(false);
   const [refusalRoom, setRefusalRoom] = useState('');
   const [answeredLabelId, setAnsweredLabelId] = useState<string | null>(null);
+  // Bumped by "Check again": the opening read runs again for the same gate.
+  const [reads, setReads] = useState(0);
 
   const live = useRef(true);
   const inFlight = useRef(false);
@@ -193,7 +198,7 @@ function GateLoaded({ gateId }: { gateId: string }) {
     return () => {
       alive = false;
     };
-  }, [gateId]);
+  }, [gateId, reads]);
 
   // ---- focus: the H1 on open, the status line once an answer is recorded ----
   useEffect(() => {
@@ -221,6 +226,12 @@ function GateLoaded({ gateId }: { gateId: string }) {
     [setAnswerPending],
   );
 
+  // Check again after a failed lookup: the state goes back to opening and the gate is read again.
+  const reopen = useCallback(() => {
+    dispatch({ type: 'check_again' });
+    setReads((n) => n + 1);
+  }, []);
+
   // ---- answering ----
 
   // One pass of "was my answer saved?": read the gate by id. If the room records it answered, that is the
@@ -238,6 +249,11 @@ function GateLoaded({ gateId }: { gateId: string }) {
     }
     if (!live.current) return true;
     const body = read.body as GateBody;
+    // The room could not be asked: the answer is neither confirmed nor lost, so the page keeps checking.
+    if (body && body.ok === false && body.reason === 'replay_lookup_failed') {
+      if (live.current) dispatch({ type: 'lost' });
+      return false;
+    }
     if (body && body.ok === true && body.answered) {
       const v = body.answered.verdict;
       // The room confirms the person's own answer was saved: recorded, not "already recorded".
@@ -277,6 +293,8 @@ function GateLoaded({ gateId }: { gateId: string }) {
       const classified = classifyAnswer(body);
       const rec = body !== null && typeof body === 'object' ? (body as GateBody) : null;
       if (rec && typeof rec.room === 'string') setRefusalRoom(rec.room);
+      // Another session answered first: the heading names the answer the room holds, not the one clicked here.
+      if (rec && rec.ok === true && rec.answered_elsewhere === true && Array.isArray(rec.chosen) && typeof rec.chosen[0] === 'string') setAnsweredLabelId(rec.chosen[0]);
       dispatch({ type: 'answer', answer: body });
       if (classified.kind === 'lost') void confirmLoop();
     },
@@ -348,6 +366,11 @@ function GateLoaded({ gateId }: { gateId: string }) {
           </h1>
           {copy ? <p className="gate-refusal-why">{copy.why}</p> : null}
           {copy ? <p className="gate-refusal-fix">{copy.fix}</p> : null}
+          {state.phase === 'refused' && state.refusal === 'lookup_failed' ? (
+            <p>
+              <TextAction onClick={reopen}>{GATE.checkAgain}</TextAction>
+            </p>
+          ) : null}
         </section>
       </div>
     );
@@ -362,6 +385,7 @@ function GateLoaded({ gateId }: { gateId: string }) {
         onChoose={choose}
         onAnswer={(verdict, fromSelection) => void answer(verdict, fromSelection)}
         onCheckAgain={() => void confirmOnce()}
+        onReopen={reopen}
         subject={subject}
         answeredLabel={answeredLabel}
         nextGate={others[0] ? { gate_id: others[0].gate_id } : null}

@@ -7,7 +7,7 @@
 // Canon Part 3: the web gate is the fourth render of the one gate contract. It reads the contract's fields and never
 // parses a zone's text. The recommended option id is read at `rendered.contract.recommended` (Phase 289, found by
 // value on a live minted gate by plan 369-26's probe). Erasable TypeScript only.
-import { gateApproveLabel, gateApproveMany, gateRecordLabel, gateRecordMany, GATE, PROPOSAL_FROM_CLAUDE } from '../../copy.ts';
+import { gateApproveLabel, gateApproveMany, gateRecordLabel, gateRecordMany, GATE, PROPOSAL_FROM_CLAUDE, PROPOSAL_RAISED } from '../../copy.ts';
 
 export type Verdict = 'approve' | 'reject' | 'defer';
 
@@ -42,7 +42,8 @@ export type CardIn = {
   evidence_node_ids?: unknown;
   options?: unknown;
   room?: unknown;
-  // 'claude_code' when the card came from an agent proposal (the shell's proposeDecision path).
+  // 'claude_code' when the card came from an agent proposal (the shell's proposeDecision path); 'raised_elsewhere'
+  // when Larry raised it in a session outside this browser and the shell mirrored it (plan 369-42).
   proposal_from?: unknown;
   // false when the room relabelled the approve option because the claim is below the room's floor; null when unknown.
   floor_met?: unknown;
@@ -155,7 +156,7 @@ export function toGateViewModel(card: CardIn, rendered: RenderedIn): GateViewMod
     header: text(cardRec.header),
     roomName: text(cardRec.room),
     subjectId: subject,
-    provenanceLine: cardRec.proposal_from === 'claude_code' ? PROPOSAL_FROM_CLAUDE : null,
+    provenanceLine: cardRec.proposal_from === 'claude_code' ? PROPOSAL_FROM_CLAUDE : cardRec.proposal_from === 'raised_elsewhere' ? PROPOSAL_RAISED : null,
     notice: textOrNull(contract ? contract.notice : null) ?? textOrNull(cardRec.notice),
     selectMode,
     options,
@@ -220,8 +221,8 @@ export function chosenFor(vm: GateViewModel, verdict: Verdict, selected: string[
 // The answer state machine (UI-SPEC States table)
 // ---------------------------------------------------------------------------------------------
 
-export type RefusalKey = 'stale_subject' | 'room_switched' | 'gate_expired' | 'unknown_gate' | 'session_mismatch' | 'human_only';
-export type ReadyErrorKey = 'persistence_failed' | 'choice_refused' | 'not_saved';
+export type RefusalKey = 'stale_subject' | 'room_switched' | 'gate_expired' | 'unknown_gate' | 'session_mismatch' | 'human_only' | 'lookup_failed';
+export type ReadyErrorKey = 'persistence_failed' | 'choice_refused' | 'verdict_mismatch' | 'not_saved';
 
 export type GateState =
   | { phase: 'opening' }
@@ -237,6 +238,8 @@ export type GateEvent =
   | { type: 'open_failed'; answer: unknown }
   | { type: 'submit'; verdict: Verdict }
   | { type: 'lost' }
+  // "Check again" after the room could not be asked (lookup_failed): the gate is opened again.
+  | { type: 'check_again' }
   | { type: 'answer'; answer: unknown };
 
 export const INITIAL_GATE_STATE: GateState = { phase: 'opening' };
@@ -250,12 +253,13 @@ const REFUSALS: Record<string, RefusalKey> = {
   unknown_or_expired_gate: 'unknown_gate',
   session_mismatch: 'session_mismatch',
   human_only: 'human_only',
+  // The room could not be asked whether an answer was saved: retryable, the gate is kept (never "no longer open").
+  replay_lookup_failed: 'lookup_failed',
 };
 
 // Refused before anything is taken, the gate still answerable: the page shows the choice again.
 const CHOICE_REFUSALS = new Set([
   'chosen_not_approving',
-  'verdict_chosen_mismatch',
   'not_a_chain_gate',
   'chosen_not_in_card_options',
   'bad_input',
@@ -264,7 +268,8 @@ const CHOICE_REFUSALS = new Set([
 // The transport could not say: the answer may or may not have been saved, so the page checks by gate id.
 const TRANSPORT_UNKNOWN = new Set(['mcp_unavailable', 'answer_unreadable']);
 
-// Gates whose record the shell drops (nothing left to answer); the others stay open.
+// Gates whose record the shell drops (nothing left to answer); the others stay open. replay_lookup_failed is not
+// here: a room that could not be asked has said nothing about the gate.
 export const DROPS_THE_GATE = new Set(['unknown_gate', 'gate_expired', 'unknown_or_expired_gate']);
 
 export type Classified =
@@ -282,7 +287,8 @@ function asVerdict(v: unknown): Verdict | null {
 export function classifyAnswer(answer: unknown): Classified {
   const a = asRec(answer);
   if (!a) return { kind: 'lost' };
-  if (a.ok === true) return { kind: 'recorded', replayed: a.replayed === true, verdict: asVerdict(a.verdict) };
+  // An answer another session already gave (answered_elsewhere) reads as "already recorded", with the room's verdict.
+  if (a.ok === true) return { kind: 'recorded', replayed: a.replayed === true || a.answered_elsewhere === true, verdict: asVerdict(a.verdict) };
   const reason = typeof a.reason === 'string' ? a.reason : '';
   if (reason in REFUSALS) {
     const out: { kind: 'refused'; refusal: RefusalKey; room?: string } = { kind: 'refused', refusal: REFUSALS[reason]! };
@@ -290,6 +296,8 @@ export function classifyAnswer(answer: unknown): Classified {
     return out;
   }
   if (reason === 'persistence_failed') return { kind: 'ready', error: 'persistence_failed' };
+  // The shell refused an approve that names an option which does not approve, before anything was taken.
+  if (reason === 'verdict_chosen_mismatch') return { kind: 'ready', error: 'verdict_mismatch' };
   if (CHOICE_REFUSALS.has(reason)) return { kind: 'ready', error: 'choice_refused' };
   if (TRANSPORT_UNKNOWN.has(reason)) return { kind: 'lost' };
   return { kind: 'ready', error: 'not_saved' };
@@ -323,6 +331,8 @@ export function nextGateState(state: GateState, event: GateEvent): GateState {
       // A gate that cannot be read at all is a gate with nothing to answer.
       return { phase: 'refused', refusal: 'unknown_gate' };
     }
+    case 'check_again':
+      return state.phase === 'refused' && state.refusal === 'lookup_failed' ? { phase: 'opening' } : state;
     case 'submit':
       return state.phase === 'ready' ? { phase: 'saving', verdict: event.verdict } : state;
     case 'lost':

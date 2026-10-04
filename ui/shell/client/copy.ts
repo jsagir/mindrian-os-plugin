@@ -236,6 +236,13 @@ export const GRAPH = {
 // Gate view (plan 369-27, UI-SPEC "Gate Button Anatomy and States"): the fourth render of the Shape F gate.
 export const PROPOSAL_FROM_CLAUDE = 'Proposal from Claude Code. Only a person can approve it.';
 
+// A decision Larry raised in a session outside this browser (plan 369-44). The short line sits on a waiting row in
+// Work and Decisions; the long line is the gate's provenance, with the one rule that holds for every decision.
+export const RAISED_LINE = 'Raised by Larry outside this browser.';
+export const PROPOSAL_RAISED = 'Raised by Larry outside this browser. Only a person can approve it.';
+// Under "Waiting for you" when the room's list of decisions raised elsewhere could not be read.
+export const RAISED_UNAVAILABLE = 'Decisions raised in other sessions could not be read just now.';
+
 export const GATE = {
   eyebrowStatus: 'WAITING FOR YOU',
   eyebrowKind: 'DECISION',
@@ -339,6 +346,13 @@ export function gateRefusalCopy(key: string, room: string): GateRefusalCopy {
         why: 'The request did not come from a click in this browser.',
         fix: 'Reload the page and approve it here.',
       };
+    case 'lookup_failed':
+      // The room could not be asked whether an answer was saved. The decision is not gone: asking again is safe.
+      return {
+        what: 'The room could not be checked just now.',
+        why: 'MindrianOS did not answer while looking for a saved answer.',
+        fix: 'Nothing was lost. Check again.',
+      };
     default:
       return {
         what: 'The room did not accept your answer.',
@@ -362,6 +376,13 @@ export const GATE_CHOICE_REFUSED: GateRefusalCopy = {
   what: 'The room did not accept that answer.',
   why: 'The answer did not match the decision it was given for.',
   fix: 'Nothing was saved and the decision is still open. Choose again.',
+};
+
+// The verdict did not fit the option chosen (an approve that names an option which does not approve).
+export const GATE_VERDICT_MISMATCH: GateRefusalCopy = {
+  what: 'That answer did not match the option you chose.',
+  why: 'Approve records only an approving option.',
+  fix: 'Nothing was saved. Choose again.',
 };
 
 // The gate's options did not agree with the one recommendation the room sent: nothing is drawn that a person could answer.

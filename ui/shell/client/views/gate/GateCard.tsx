@@ -4,9 +4,11 @@
 // eyebrow (the black decision-gate square with "WAITING FOR YOU", then "DECISION / {room}", then "N more waiting"),
 // the H1 (the card header), the subject block, the provenance line (agent proposals only), the notice band, the answer
 // box (a fieldset of OptionRows), the one primary action (the view's one ochre triangle), Reject, "Decide later" and
-// the helper line. Room and proposal text reaches the page only as React text.
+// the helper line. Room and proposal text reaches the page only as React text. Plan 369-44: a gate raised outside this
+// browser says so in the provenance line; a failed lookup keeps the gate and offers Check again; a verdict that did
+// not fit the chosen option shows its own refusal above the options, which stay enabled.
 import type { ReactNode } from 'react';
-import { GATE, gateEyebrowKind, gateMoreWaitingConsequence, gatePersistenceCopy, GATE_CHOICE_REFUSED, gateRefusalCopy, moreWaiting } from '../../copy.ts';
+import { GATE, gateEyebrowKind, gateMoreWaitingConsequence, gatePersistenceCopy, GATE_CHOICE_REFUSED, GATE_VERDICT_MISMATCH, gateRefusalCopy, moreWaiting } from '../../copy.ts';
 import { ActionButton } from '../../primitives/ActionButton.tsx';
 import type { ActionState } from '../../primitives/ActionButton.tsx';
 import { InlineError } from '../../primitives/InlineError.tsx';
@@ -29,6 +31,8 @@ export type GateCardProps = {
   // fromSelection: the primary action, which answers with what is selected; Reject and Decide later name their own option.
   onAnswer: (verdict: Verdict, fromSelection: boolean) => void;
   onCheckAgain: () => void;
+  // "Check again" after the room could not be asked (the lookup_failed refusal): the gate is opened again.
+  onReopen: () => void;
   subject: GateSubject | null;
   // The label of the option the person answered with (the H1 after the answer), when known.
   answeredLabel: string | null;
@@ -51,7 +55,7 @@ function go(path: string) {
 }
 
 export function GateCard(props: GateCardProps) {
-  const { vm, state, selected, onChoose, onAnswer, onCheckAgain, subject, answeredLabel, nextGate, headingRef, statusRef, refusalRoom, stalled, evidence } = props;
+  const { vm, state, selected, onChoose, onAnswer, onCheckAgain, onReopen, subject, answeredLabel, nextGate, headingRef, statusRef, refusalRoom, stalled, evidence } = props;
   const phase = state.phase;
   const waitingPhase = phase === 'opening' || phase === 'ready' || phase === 'saving' || phase === 'checking';
   const ready = phase === 'ready';
@@ -69,7 +73,9 @@ export function GateCard(props: GateCardProps) {
         ? gatePersistenceCopy()
         : state.error === 'choice_refused'
           ? GATE_CHOICE_REFUSED
-          : gateRefusalCopy('default', '')
+          : state.error === 'verdict_mismatch'
+            ? GATE_VERDICT_MISMATCH
+            : gateRefusalCopy('default', '')
       : null;
 
   const recordedVerdict = settled ? state.verdict : null;
@@ -79,7 +85,7 @@ export function GateCard(props: GateCardProps) {
   const recordedBody = recordedVerdict === 'approve' ? GATE.recordedApproveBody : GATE.recordedOtherBody;
 
   return (
-    <section className="gate-card" data-view="gate" data-state={phase} data-pending={phase === 'saving' || phase === 'checking' ? 'true' : 'false'}>
+    <section className="gate-card" data-view="gate" data-state={phase} data-refusal={refused ? state.refusal : undefined} data-pending={phase === 'saving' || phase === 'checking' ? 'true' : 'false'}>
       <Rule />
       <p className="eyebrow gate-eyebrow">
         {waitingPhase ? <TileMark tile="black" status={GATE.eyebrowStatus} /> : null}
@@ -154,6 +160,8 @@ export function GateCard(props: GateCardProps) {
                 action={
                   state.refusal === 'stale_subject' && vm.subjectId !== null ? (
                     <TextAction href={'/evidence?item=' + encodeURIComponent(vm.subjectId)}>{GATE.seeWhatChanged}</TextAction>
+                  ) : state.refusal === 'lookup_failed' ? (
+                    <TextAction onClick={onReopen}>{GATE.checkAgain}</TextAction>
                   ) : undefined
                 }
               />
