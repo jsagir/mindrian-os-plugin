@@ -129,3 +129,130 @@ These were not run by this plan's nine commands (they sit outside the nine aggre
 ## Not done here, by instruction
 
 STATE.md and ROADMAP.md (the orchestrator's), the Phase 369.1 files and DPI rows, the root package.json, any version bump or release, and the fixes for every red listed above.
+
+---
+
+## Gap closure re-run (369-47)
+
+Date: 2026-10-04. Node v22.23.1 (nvm), Linux 6.18.33.2 WSL2 aarch64, 12 logical cores, version of record 2.0.0-beta.56 (`node lib/core/repo-version.cjs`), no version bump, no release run. Plans 369-33 to 369-46 had all landed (every SUMMARY present). HEAD for every command below: `d7817c712` (this plan's aggregator commit; no 369 or peer commit landed under lib, bin, scripts or ui while the commands ran). Rule as before: a status flips only on a command that ran in this session; a red is named with its owner or its flake count, never hidden.
+
+### Close verdict (gap closure)
+
+The gap closure is CLOSED. Every gate command is green on a clean run, the four phase-caused reds of the first close are green, the three gaps of 369-VERIFICATION.md are closed by measured lines, and what is open is listed with an owner or as a navigator item. Two flakes (one in run 1 of `run-all-369.sh`, one in run 1 of `run-all-267.sh`) are counted below. One step belongs to the orchestrator: the room copy of the research entry (hook-blocked here).
+
+### Gate commands (in the order run)
+
+| # | Command | Exit | Summary |
+|---|---------|------|---------|
+| 1a | `bash tests/run-all-369.sh` (run 1) | 1 | PASS=62 FAIL=1 SKIP=1. The one FAIL is `369: Phase 289 precondition probe`: its part 3 re-runs `tests/test-289-cli-card-dual-era.cjs`, which failed its process-hygiene leg inside the aggregator. A separate probe script of mine (node children plus a copy of the dist) was running at that moment, so I cannot exclude it as the cause; nothing else was started by me. Standalone: the dual-era test PASS=6 FAIL=0 twice, the precondition probe PASS. |
+| 1b | `bash tests/run-all-369.sh` (run 2, nothing else running, load 1.2) | 0 | PASS=63 FAIL=0 SKIP=1. The SKIP is `369: installed layout exact floor (TS369-04)` (ENV GAP, as at 369-31). Of the 48 `369:` legs 47 PASSED and 1 SKIPPED; all 15 regression legs and the long-dash guard PASSED; the eight legs this plan registered all ran. |
+| 2a | `bash tests/run-all-267.sh` (run 1) | 1 | PASS=30 FAIL=1 SKIP=3. FAIL: `267: local server dual era (MCPV2-02)` on its process-hygiene leg ("local server process(es) started by this test survived: 1901555"); the pid was gone when I looked, nothing of mine was running concurrently. |
+| 2b | `bash tests/run-all-267.sh` (run 2) | 0 | PASS=31 FAIL=0 SKIP=3. Zod4 contract, lockstep, CIRS gates, registration, dual-era and the payload ceiling regression leg all PASSED. The three SKIPs are Phase 267's ENV GAP legs (CLI live wire probe MCPV2-13, HTTP flag-OFF MCPV2-05 and MCPV2-17, process lifecycle MCPV2-14). `tests/test-267-mcpv2-dual-era.cjs` alone: 3 of 3 runs PASS=5. |
+| 3 | `bash tests/run-all-238.sh` | 0 | PASS=10 FAIL=0 SKIP=0 |
+| 4 | `bash tests/run-all-289.sh` | 0 | PASSED=47 FAILED=0 SKIPPED=0 KNOWN=1 (the Phase 369 precondition probe leg PASSED) |
+| 5 | `bash tests/run-all-198.sh` | 1 | Passed 15, Failed 1: `SPEC-5 hooks/ adapter-only budget` (scripts/on-stop 618 against 570), unchanged since July, not 369's |
+| 6 | `node scripts/build-connector-registry.cjs --check` | 0 | OK |
+| 7 | `node scripts/build-orchestration-projection.cjs --check` | 0 | `orchestration-projection: OK` |
+| 8 | `node scripts/check-render-coverage.cjs` | 0 | 17 covered, 0 gap; md-keyspace 198 wired, 2 excluded, 0 unwired |
+| 9 | `node scripts/check-shape-declaration.cjs --check` | 0 | advisory lint, never a block |
+| 10 | `node scripts/doctor.cjs --acceptance` | 0 | 22 of 22 points passed (`harness-policies` green: `release-payload-ceiling` passes) |
+| 11 | `node scripts/check-release-payload-ceiling.cjs --check` | 0 | OK, 0 findings (2276 entries, 43,784,988 bytes unpacked, 13,242,835 packed) |
+| 12 | `node scripts/build-ui-shell.cjs --check` | 0 | fresh, source hash 539768ed075ce362, 270 dist files verified |
+| 13 | `node ui/shared/scripts/gen-mcp-adapter.mjs --check`, `node scripts/check-tool-honesty.cjs --check` | 0, 0 | adapter up to date; 45 tools, 0 high-risk |
+| 14 | `node tests/test-369-bakeoff-agent-native.cjs --built` | 0 | 13 passed, 0 failed (static arms 11 passed) |
+| 15 | `MOS_369_STRICT_CEILING=1 node tests/test-369-ui-dist-fresh.cjs` | 0 | 18 passed, 0 failed, 0 skipped |
+| 16 | `node tests/e2e-369/journey.cjs` x 5 standalone | 0 x 5 | 5 of 5 pass, 0 void (table below) |
+| 17 | `cmp` of the two research copies | 0 before the addendum | After the gap-closure addendum the mirror and the room copy differ by design (the room write is refused by the write-scope hook); see "Research trail" |
+
+### Core e2e legs (the nyquist test)
+
+| Leg | Aggregator leg (run 2) | RAN or SKIPPED |
+|-----|------------------------|----------------|
+| `tests/e2e-369/replica.cjs` | PASSED, all 12 arms | RAN, passed |
+| `tests/e2e-369/gate-button.cjs` | PASSED, all 18 arms | RAN, passed |
+| `tests/e2e-369/egress-and-canon.cjs` | PASSED, C1 through C11 in 35 s (1,143 requests, hosts 127.0.0.1 only) | RAN, passed |
+| `tests/e2e-369/journey.cjs` | PASSED, steps 1 to 8 in 22 s | RAN, passed; 5 of 5 standalone below |
+| HTTP arm 8 of `tests/test-369-human-only.cjs` | PASSED, PASS=10 FAIL=0 SKIP=0 | RAN, passed |
+| `tests/e2e-369/views.cjs` | PASSED, all 15 arms | RAN, passed |
+
+### Five standalone journey runs (HEAD d7817c712, `git status --short -- lib bin scripts ui` empty before and after each, no STEP-EVIDENCE, DAEMON-EXIT-UNEXPECTED or VOID-RUN line)
+
+| Run | gate_click_to_recorded_ms | raised_to_listed_ms | restart_catch_up_ms | lost_writes | answered_elsewhere_replays |
+|-----|---------------------------|---------------------|---------------------|-------------|----------------------------|
+| 1 | 95 | 813 | 2798 | 0 | 1 |
+| 2 | 73 | 820 | 2811 | 0 | 1 |
+| 3 | 85 | 814 | 2805 | 0 | 1 |
+| 4 | 79 | 812 | 2818 | 0 | 1 |
+| 5 | 60 | 814 | 2801 | 0 | 1 |
+
+Medians: 79 ms, 814 ms, 2805 ms. With the ten runs of plan 369-46 (medians 66.5 / 809 / 2805, lost writes 0 in every run) that is 15 of 15 non-void passes since the step 6 fix work. The eight steps (sign-in with no printed code, room, evidence, decide through Ask Larry, decide a gate raised in Claude Code, persisted, restart and recover with "already recorded" on the old gate id, offline) all printed PASS in every run.
+
+### SKIPPED (ENV GAP) legs, by name
+
+- `369: installed layout exact floor (TS369-04)`: no Node 22.18.0 binary and no Docker CLI; `--exact-floor` exits 77. The default installed-layout leg ran (7 passed, 0 failed).
+- `267: CLI live wire probe, opt-in (MCPV2-13)`, `267: HTTP flag-OFF multi-request and rebinding (MCPV2-05, MCPV2-17)`, `267: process lifecycle (MCPV2-14)`: Phase 267's own environment-gated legs. MCPV2-13's human Desktop smoke remains a navigator item.
+
+### Reds this phase caused, and their state now
+
+| Red at 369-31 | Caused by | State now (measured this session) |
+|---------------|-----------|-----------------------------------|
+| Release payload ceiling (sharp install script) | 369-19 | GREEN: `check-release-payload-ceiling --check` 0 findings; the prune landed in Phase 369.1 plan 08 (D-16, D-16a); `doctor --acceptance` 22 of 22 |
+| `267: lockstep (MCPV2-19)` Checks 1 and 2 | 369-19 | GREEN: `test-267-mcpv2-lockstep` PASS=6 FAIL=0 (plan 369-35, 59baf772e, package-lock.json derived from the pruned shrinkwrap) |
+| `267: zod4 contract (MCPV2-03)` room_list description diff | 369-22 | GREEN: PASS=4 FAIL=0 (plan 369-41, ef7814d8b: both wire snapshots, accepted deltas, importers baseline) |
+| Stale `--built` single-use assertion | 369-26 | GREEN: 13 passed 0 failed (plan 369-41, 359f7cba2 asserts the replay contract) |
+| journey step 6 intermittent timeout | cause not established | Not reproduced: 134 valid soak cycles (369-34), 15 of 15 non-void runs (369-46 and here). WR-10 (a relay poll that ignored a reset) was fixed at its own proven cause; the original two occurrences carried no load or process data and the RCA records the stall as NOT ESTABLISHED, not as fixed |
+
+### Reds that are not this phase's (re-measured, named with owner)
+
+| Red | Measured now | Owner |
+|-----|--------------|-------|
+| `test-198-adapter-budget` (SPEC-5, scripts/on-stop 618 against 570) | red, unchanged | Pre-existing since July (last on-stop change 2026-07-30), unowned |
+| `test-237-approve-executes` (leg 7 MUTATION build: "dispatcher-call needle not found") and `test-237-autonomy-parity` (leg 5 MUTATION) | red, same legs | Cascaded from Phase 289's ruled behaviour changes; post-369 `/gsd-quick` |
+| `test-345-gate-ratify` | red under the real `~/MindrianRooms` registry (approve legs answer `no_bound_room`); PASS under a clean `HOME` and `MINDRIAN_ROOMS_HOME` (33 checks) | Environment: the real registry; post-369 `/gsd-quick` |
+| `test-363-mcp-tool` M3 to M7 | PASS 11 FAIL 4 | Phase 289's ruled behaviour change; post-369 `/gsd-quick` |
+| `test-365-floor-gate` H6 | GREEN now (PASS 59 FAIL 0): plan 369-41's zod4 move cleared it | Cleared, no owner needed |
+| `test-366-gated-term-release` R6b | PASS 27 FAIL 1 | Post-369 `/gsd-quick` |
+| `test-353-filing-gate` | PASS=23 FAIL=1 (`EVENT_TYPES.size is 102`) | Pre-existing, post-369 `/gsd-quick` |
+| `test-354-framework-command-ledger` T2 | 8 passed 1 failed (ledger stamp beta.48 against beta.56) | Pre-existing stamp drift, unowned |
+
+### Flakes observed (counted, not hidden)
+
+- `run-all-369.sh` run 1: the Phase 289 precondition probe failed once (its part 3 spawns `test-289-cli-card-dual-era.cjs`, whose process-hygiene leg failed); run 2 and three standalone runs were green. 1 of 2 aggregator runs. Cause not established; my own concurrent probe script cannot be excluded.
+- `run-all-267.sh` run 1: `267: local server dual era` process-hygiene leg failed once; run 2 and three standalone runs were green. 1 of 2 aggregator runs; nothing of mine was running. Both are the family plan 369-34 named: hygiene legs that count repo-anchored `mindrian-mcp-server` pids before and after (tests/test-267-mcpv2-dual-era.cjs, tests/test-289-cli-card-dual-era.cjs, tests/test-369.1-bin-relocation.cjs). Hand-off to Phase 369.1 or a post-369 quick: sweep only processes the test started.
+- Journey: 0 flakes in 5 standalone runs (step 6 not reproduced).
+- Not mine and left alone: server processes 126630 and 1703775 (`node .../bin/mindrian-mcp-server.cjs` of this repo, started hours before this plan) and the plugin-cache servers; I started and stopped only the processes my own commands spawned.
+
+### Reviewer probes re-run (read-only, scratch only)
+
+| Probe | Before (369-REVIEW.md) | Now |
+|-------|------------------------|-----|
+| Ledger overwrite (WR-05): mint a live id under a second session | the owner's next answer read `session_mismatch` | `mintGate` returns false for the second session, the owner's peek is intact |
+| `isOurShell` against `node -e ... <entry path>` (WR-12) | true (substring match) | false, with or without a recorded start time |
+| `build-ui-shell --check` on a copy of the dist with one byte flipped (WR-16) | exit 0, fresh | exit 1, "the dist bytes do not match manifest.files" (untouched copy: exit 0, 270 files verified) |
+| `readChanges(after: 5000)` with latest_seq 3 (WR-07), `room_search` through a symlink (WR-19), ledger-boundary expiry (WR-02), curl redemption of a fresh link (CR-01) | ok with no changes; snippet from outside the room; `gate_expired` after a committed answer; session cookie issued | their arms in `test-369-read-surfaces` (9), `test-369-gate-hardening` (20) and `test-369-shell-server` (43, live curl-shaped request: 403) pass; see 369-REVIEW-FIX.md |
+
+### D-ids the gap plans touched, with proving arms
+
+| Decision | Gap plans | Proof (this session) |
+|----------|-----------|----------------------|
+| D-08 local auth, no credential in the conversation | 37, 40, 46 | `test-369-shell-server` 43 passed (live arms); `test-369-launch-surface` 30 passed (arms 1a to 1s); journey step 1 asserts the launcher printed no code, 5 of 5 |
+| D-14 / D-15 Ask Larry control, only a person approves | 42, 43, 44 | `test-369-human-only` PASS=10 (HTTP arm 8); `test-369-gate-mirror-shell` PASS=10 (arms 6 and 8: Hold-approve refused, one nonce issue site); `e2e-369/views.cjs` arms 12 to 14 |
+| D-16 durable, replayable answers | 33, 36, 38, 42 | `test-369-gate-raised` 11, `test-369-gate-mirror` 10, `test-369-gate-hardening` 20, `test-369-gate-recovery` 11 |
+| D-19 sessionful, session-scoped ledger kept | 33, 36 | `test-369-gate-mirror` arm 9 (ledger untouched, stranger `session_mismatch`, owner still answers); `run-all-238` PASS=10; `run-all-289` PASSED=47 |
+| D-18 durable change feed | 34, 37, 39 | `test-369-read-surfaces` 9, `test-369-feed-guards` 11, `test-369-shared-core` 15 (arms 3c and 3d), replica e2e 12 arms |
+| D-11 / D-09 / D-10 views and gate states | 43, 44 | `test-369-views-copy` 35, `test-369-gate-web-mapping` 26, `e2e-369/gate-button.cjs` 18 arms, `e2e-369/views.cjs` 15 arms, egress-and-canon C1 to C11 |
+| D-07 / D-17 release-built dist | 35, 41, 45 | `test-369-ui-dist-fresh` 18 passed (strict ceiling), `build-ui-shell --check` 270 files verified, `test-267-mcpv2-lockstep` 6, payload ceiling 0 findings |
+| D-03 / D-01 launch surface and canon | 40, 43, 44 | `test-369-launch-surface` 30 passed; `test-369-canon-skin` 30 passed; egress-and-canon C1 to C11 (zero CSP events) |
+
+### Research trail (gap closure)
+
+- Mirror: `/home/jsagi/MindrianOS/research/2026-10-04-phase-369-ui-shell-close-out.md` gained a dated "Gap closure addendum (2026-10-04)" (the cross-process gate mirror design and its rejected alternative, the CR-01 sign-in boundary and its residual risk, the step-6 root cause, the review disposition counts), committed in the home repository with an explicit path (hash in 369-47-SUMMARY.md).
+- Room copy: `/home/jsagi/MindrianRooms/rethinking-mindrianos/research/2026-10-04-phase-369-ui-shell-close-out.md` is NOT updated by this plan. The write is the same one the mos `write-scope-check` hook refused at 369-31 (active room egain-des-liquid-conductor; the hook's authorization is the navigator's to give); it was not worked around (no Bash copy, no room switch). The room copy still holds the 369-31 content, so `cmp` exits 1 until the orchestrator runs, with the navigator's authorization, `cp /home/jsagi/MindrianOS/research/2026-10-04-phase-369-ui-shell-close-out.md /home/jsagi/MindrianRooms/rethinking-mindrianos/research/2026-10-04-phase-369-ui-shell-close-out.md` and then `cmp` of the two files (must exit 0). VALIDATION rows 369-31-02 and 369-47-03 follow that result.
+
+### Open navigator items (listed, not closed)
+
+CR-02 (an MCP `gate_answer` has no human principal; options in 369-REVIEW-FIX.md); IN-01 to IN-11 (IN-07 and IN-11 untouched by plan 369-45); the 404-page copy; the duplicate "Reconnect now" and the "Catching up" fallback; Research A5; MCPV2-13's Desktop smoke; the Desktop and Cowork host build numbers (not reported); the never-do mirrored proposal and the 1000-character mirrored preview (369-36 open items); the same-user header forgery inside the 60 s sign-in window (CR-02 class). Handed to Phase 369.1 plan 04 (lib/mcp/daemon-lifecycle.cjs): WR-15 and the daemon half of WR-13.
+
+### Not done here, by instruction
+
+STATE.md and ROADMAP.md (the orchestrator's), CHANGELOG.md (Phase 369.1 plan 14's file; the hand-off lines are in 369-47-SUMMARY.md), the Phase 369.1 files and DPI rows, any version bump or release, and the fixes for every red listed above.
