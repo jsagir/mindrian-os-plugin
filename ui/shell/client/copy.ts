@@ -197,3 +197,125 @@ export const GRAPH = {
   choose: 'Choose an item to see how it is linked.',
   none: 'This item has no typed links yet.',
 };
+
+// Gate view (plan 369-27, UI-SPEC "Gate Button Anatomy and States"): the fourth render of the Shape F gate.
+export const PROPOSAL_FROM_CLAUDE = 'Proposal from Claude Code. Only a person can approve it.';
+
+export const GATE = {
+  eyebrowStatus: 'WAITING FOR YOU',
+  eyebrowKind: 'DECISION',
+  opening: 'Opening the decision...',
+  answerLegend: 'Your answer',
+  answerLegendMulti: 'Your answer (choose one or more)',
+  recommended: 'RECOMMENDED',
+  preview: 'Preview',
+  chooseFirst: 'Choose an answer first.',
+  consequenceMet: 'Saves this decision to the room as confirmed by you.',
+  consequenceBelowFloor: "Records your approval. The claim stays proposed until its evidence meets the room's floor.",
+  reject: 'Reject',
+  decideLater: 'Decide later',
+  helper: 'Reject records your no. Decide later records that you deferred. Nothing else is saved.',
+  saving: 'Saving your answer...',
+  checking: 'Checking whether your answer was saved...',
+  checkingStalled: 'The room has not answered yet. Checking again is safe: your answer is saved once.',
+  checkAgain: 'Check again',
+  recordedApprove: 'Decision recorded in the room.',
+  recordedApproveBody: 'It now appears in Decisions with its evidence.',
+  recordedOther: 'Your answer is recorded.',
+  recordedOtherBody: 'Nothing else was saved to the room.',
+  replayed: 'This decision was already recorded.',
+  evidenceHeading: 'Evidence',
+  evidenceNone: 'No evidence is attached to this decision.',
+  evidenceMissing: 'This item is not in the copy of the room yet.',
+  noSubject: 'This decision is not about one item in the room.',
+  seeWhatChanged: 'See what changed',
+  backToWork: { label: 'Back to Work', consequence: "Shows the room's question and what changed." },
+  nextDecision: { label: 'Review the next decision' },
+};
+
+export function gateEvidenceHeading(n: number): string {
+  return GATE.evidenceHeading + ' (' + n + ')';
+}
+
+export function gateEyebrowKind(room: string): string {
+  return room ? GATE.eyebrowKind + ' / ' + room : GATE.eyebrowKind;
+}
+
+export function gateMoreWaitingConsequence(n: number): string {
+  return n + ' more waiting.';
+}
+
+export function gateApproveLabel(optionLabel: string): string {
+  return 'Approve: ' + optionLabel;
+}
+
+export function gateApproveMany(n: number): string {
+  return 'Approve ' + n + ' answers';
+}
+
+export function gateFiled(date: string, file: string): string {
+  const parts = ['filed ' + date];
+  if (file) parts.push('from ' + file);
+  return parts.join(' ');
+}
+
+export type GateRefusalCopy = { what: string; why: string; fix: string };
+
+export function gateRefusalCopy(key: string, room: string): GateRefusalCopy {
+  const where = room || 'its room';
+  switch (key) {
+    case 'stale_subject':
+      return {
+        what: 'The claim changed after this decision was opened.',
+        why: 'Approving an old version could confirm something that is no longer true.',
+        fix: 'Nothing was saved. See what changed, then ask Larry in Claude Code for a fresh decision.',
+      };
+    case 'room_switched':
+      return {
+        what: 'This decision belongs to ' + where + '.',
+        why: 'This browser switched rooms after the decision opened.',
+        fix: 'Nothing was saved. Switch back to ' + where + ' and ask for the decision again in Claude Code.',
+      };
+    case 'gate_expired':
+    case 'unknown_gate':
+      return {
+        what: 'This decision is no longer open.',
+        why: 'Open decisions close after a while, and they close when MindrianOS restarts.',
+        fix: 'Nothing was saved. Ask Larry in Claude Code to raise it again.',
+      };
+    case 'session_mismatch':
+      return {
+        what: 'This decision was opened in another session.',
+        why: 'A decision can only be answered where it was opened.',
+        fix: 'Nothing was saved. Answer it in the session that opened it.',
+      };
+    case 'human_only':
+      return {
+        what: 'Only a person can approve this.',
+        why: 'The request did not come from a click in this browser.',
+        fix: 'Reload the page and approve it here.',
+      };
+    default:
+      return {
+        what: 'The room did not accept your answer.',
+        why: 'The room refused it.',
+        fix: 'Nothing was saved and the decision is still open. Try again.',
+      };
+  }
+}
+
+// The server's own message carries raw error text, so the page says one fixed plain sentence of its own.
+export function gatePersistenceCopy(): GateRefusalCopy {
+  return {
+    what: 'The room could not save your answer.',
+    why: "The room's write did not finish, so it was rolled back.",
+    fix: 'Nothing was written and the decision is still open. Try again.',
+  };
+}
+
+// The answer did not match the decision (a choice the card does not carry, or a verdict that does not fit it).
+export const GATE_CHOICE_REFUSED: GateRefusalCopy = {
+  what: 'The room did not accept that answer.',
+  why: 'The answer did not match the decision it was given for.',
+  fix: 'Nothing was saved and the decision is still open. Choose again.',
+};

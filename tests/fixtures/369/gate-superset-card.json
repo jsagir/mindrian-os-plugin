@@ -1,0 +1,15 @@
+{
+  "gate_id": "gate-fixture-superset-369",
+  "header": "Approve the pricing claim?",
+  "kind": "general",
+  "select_mode": "single",
+  "notice": "Checked against: interview-03.md. That meets this room's floor (a located source), so approving confirms it.",
+  "approve_label": "Approve as written",
+  "subject_node_id": "node-pricing-claim",
+  "evidence_node_ids": ["node-interview-03", "node-pricing-sheet"],
+  "options": [
+    { "id": "approve", "label": "Approve", "description": "Confirms the claim with its two sources.", "rank": 1, "recommended": true },
+    { "id": "hold", "label": "Hold until the second interview is filed", "description": "Keeps it proposed.", "rank": 2, "preview": "The claim stays proposed and nothing else changes." },
+    { "id": "reject", "label": "Reject", "description": "Closes it as not true.", "rank": 3 }
+  ]
+}

@@ -128,6 +128,72 @@ if (!hasRenderApi) {
   assert.strictEqual(unambiguous.suppressed, true, 'an unambiguous binding context never fires');
   gateRender._resetBindingFiredForTest();
 
+  // -----------------------------------------------------------------------
+  // Check 4 (Phase 369 plan 27, SHELL369-10): the web gate button and the CLI card are two renders of ONE contract.
+  // One fixture card goes through rung (b) and through the web mapping (ui/shell/client/views/gate/gate-model.ts,
+  // imported as the real module: a CJS twin is not allowed). The option ids, labels, order and the recommended id
+  // must agree, and the gate_answer payload for the recommended choice must be identical from both. The contract
+  // field names and MCP tool names the web button reads are pinned here (the folded registry-drift todo): a rename
+  // of any of them fails this check, not a browser.
+  // -----------------------------------------------------------------------
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { pathToFileURL } = require('node:url');
+  const FIXTURE = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', '369', 'gate-superset-card.json'), 'utf8'));
+  const webModel = await import(pathToFileURL(path.join(__dirname, '..', 'ui', 'shell', 'client', 'views', 'gate', 'gate-model.ts')).href);
+
+  const cliCard = await gateRender.renderGate(FIXTURE, { capabilities: { claudeCode: true } });
+  assert.strictEqual(cliCard.renderer, 'askuserquestion', 'the fixture renders through rung (b)');
+  const contract = cliCard.rendered.contract;
+
+  // The pinned names: every field the web button reads exists in the live contract under that exact name.
+  const READS = {
+    contractFields: [webModel.CONTRACT_FIELDS.superset, webModel.CONTRACT_FIELDS.recommended, webModel.CONTRACT_FIELDS.notice, webModel.CONTRACT_FIELDS.selectMode],
+    optionFields: webModel.CONTRACT_FIELDS.optionKeys,
+    cardFields: webModel.CARD_FIELDS,
+    tools: webModel.MCP_TOOLS,
+  };
+  assert.deepStrictEqual(READS.contractFields, ['superset_options', 'recommended', 'notice', 'multiSelect'], 'the contract field names the web button reads');
+  assert.deepStrictEqual(READS.optionFields, ['id', 'label', 'description', 'rank', 'preview'], 'the option field names the web button reads');
+  assert.deepStrictEqual(READS.cardFields, ['header', 'kind', 'select_mode', 'notice', 'approve_label', 'subject_node_id', 'evidence_node_ids'], 'the card field names the web button reads');
+  assert.deepStrictEqual(READS.tools, { render: 'gate_render', answer: 'gate_answer' }, 'the MCP tool names the web button reads');
+  for (const f of READS.contractFields) assert.ok(Object.prototype.hasOwnProperty.call(contract, f), 'live contract carries ' + f);
+  for (const o of contract.superset_options) {
+    for (const f of READS.optionFields) assert.ok(Object.prototype.hasOwnProperty.call(o, f), 'live superset option carries ' + f);
+    assert.ok(Object.prototype.hasOwnProperty.call(o, 'recommended'), 'live superset option carries the per-row recommended boolean');
+  }
+  const gateSrc = fs.readFileSync(path.join(__dirname, '..', 'lib', 'mcp', 'tools', 'gate.cjs'), 'utf8');
+  for (const tool of Object.values(READS.tools)) assert.ok(gateSrc.indexOf("'" + tool + "'") !== -1, 'gate.cjs registers the tool ' + tool);
+  const normalized = gateRender.normalizeCard(FIXTURE);
+  assert.strictEqual(normalized.header, FIXTURE.header, 'the card field header survives normalizeCard');
+  assert.strictEqual(normalized.subjectNodeId, FIXTURE.subject_node_id, 'subject_node_id is read by normalizeCard');
+  assert.deepStrictEqual(normalized.evidenceNodeIds, FIXTURE.evidence_node_ids, 'evidence_node_ids is read by normalizeCard');
+  assert.strictEqual(normalized.notice, FIXTURE.notice, 'notice is read by normalizeCard');
+  assert.ok(gateSrc.indexOf('selectMode: select_mode') !== -1, 'the gate_render tool maps its select_mode input onto the card selectMode');
+  assert.strictEqual(normalized.selectMode, 'single', 'a card with no multi flag is single-select');
+  assert.strictEqual(normalized.options.find((o) => o.id === 'approve').label, FIXTURE.approve_label, 'approve_label relabels the approve option');
+
+  const webView = webModel.toGateViewModel(FIXTURE, cliCard.rendered);
+  assert.deepStrictEqual(webView.options.map((o) => o.id), contract.superset_options.map((o) => o.id), 'same option ids in the same order');
+  assert.deepStrictEqual(webView.options.map((o) => o.label), contract.superset_options.map((o) => o.label), 'same option labels');
+  assert.deepStrictEqual(webView.options.map((o) => o.description), contract.superset_options.map((o) => o.description || ''), 'same option descriptions');
+  assert.strictEqual(webView.recommendedId, contract.recommended, 'the recommended id agrees between the CLI card and the web view');
+  assert.strictEqual(webView.recommendedId, 'approve', 'the recommended id is the one the fixture flags');
+  assert.deepStrictEqual(webView.preselected, [contract.recommended], 'the web view preselects the contract recommendation');
+  assert.strictEqual(webView.notice, contract.notice, 'the notice reaches both renders unchanged');
+  assert.deepStrictEqual(webView.evidenceIds, FIXTURE.evidence_node_ids, 'the evidence ids reach the web view');
+  assert.strictEqual(webView.options.filter((o) => o.recommended).length, 1, 'at most one recommended option');
+
+  // The same choice, the same gate_answer payload, from the CLI card and the web button.
+  const webAnswer = gateRender.normalizeGateAnswer(FIXTURE.gate_id, webModel.chosenFor(webView, 'approve', webView.preselected), 'approve');
+  assert.strictEqual(cliCard.answer, null, 'rung (b) with no responder produces no answer by itself');
+  const cliAnswer = (await gateRender.renderGate(FIXTURE, {
+    capabilities: { claudeCode: true },
+    simulateAskUserQuestion: async () => ({ chosen: [contract.recommended] }),
+  })).answer;
+  assert.deepStrictEqual(webAnswer, cliAnswer, 'the gate_answer payload for the recommended choice is identical from both');
+  assert.deepStrictEqual(webAnswer, { gate_id: FIXTURE.gate_id, chosen: ['approve'], verdict: 'approve' });
+
   console.log('PASS: test-198-gate-renderers (SPEC-4: one gate, three renderers, three identical gate_answer payloads)');
   process.exit(0);
 })().catch((e) => {
