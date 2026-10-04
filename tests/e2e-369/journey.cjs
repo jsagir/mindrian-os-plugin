@@ -27,6 +27,11 @@
  * navigator to close the window. The shell has no browser control that raises a gate (the Ask Claude hop is an action with no
  * button), so a person's click test needs the gate raised on the person's own browser session.
  *
+ * `--soak-restart N` (plan 369-34) runs steps 1 to 5 once, then repeats step 6's restart-and-converge cycle N times on the same
+ * page, printing one SOAK line per cycle and a STEP6-EVIDENCE line for every cycle that fails to converge. `--soak-gap-ms M` sleeps
+ * M ms before each restart (to pass logEvent's 60 s dedupe window); `--soak-load K` runs K busy-loop children for the soak, killed
+ * by pid at the end. A step 6 timeout in the normal journey prints the same STEP6-EVIDENCE line, captured at the moment of failure.
+ *
  * Exit 77 only when Playwright, Chromium, the dist or the root node_modules are absent; never to hide a failing step.
  * Hermetic: temp HOME, a hermetic daemon, never ~/MindrianRooms. Kills only what it started. Canon Part 8: loopback only.
  * Canon Part 9: tests/ is allow-listed for raw SQL; every write goes through the write door in a child process. Hyphens only.
@@ -57,6 +62,15 @@ const DIST = path.join(REPO, 'lib', 'ui-shell', 'dist');
 const LAUNCH = path.join(REPO, 'lib', 'ui-shell', 'launch.cjs');
 const OUT = path.join(__dirname, 'output');
 const NAVIGATOR = process.argv.includes('--navigator');
+function argNum(flag) {
+  const i = process.argv.indexOf(flag);
+  if (i < 0) return 0;
+  const n = Number(process.argv[i + 1]);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+const SOAK = argNum('--soak-restart');
+const SOAK_GAP_MS = argNum('--soak-gap-ms');
+const SOAK_LOAD = argNum('--soak-load');
 const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
 const SEP = String.fromCharCode(31);
@@ -361,13 +375,35 @@ async function main() {
   const cspEvents = [];
   const consoleErrors = [];
   const contexts = [];
+  const feedLog = [];
   async function newCtx(opts) {
     const ctx = await browser.newContext(Object.assign({ viewport: { width: 1280, height: 900 } }, opts || {}));
     contexts.push(ctx);
     ctx.on('request', (r) => { requests.push({ url: r.url(), type: r.resourceType() }); });
+    ctx.on('response', (r) => { if (r.url().includes('/api/feed/')) feedLog.push({ t: Date.now(), status: r.status(), path: r.url().replace(/^http:\/\/127\.0\.0\.1:\d+/, '').slice(0, 80) }); });
+    ctx.on('requestfailed', (r) => { if (r.url().includes('/api/feed/')) feedLog.push({ t: Date.now(), status: 'failed', path: r.url().replace(/^http:\/\/127\.0\.0\.1:\d+/, '').slice(0, 80) }); });
     await ctx.exposeFunction('__cspReport', (line) => { cspEvents.push(line); });
     await ctx.addInitScript(() => {
       document.addEventListener('securitypolicyviolation', (e) => window.__cspReport(e.violatedDirective + ' ' + e.blockedURI + ' ' + e.sourceFile + ':' + e.lineNumber));
+    });
+    // Evidence only (plan 369-34): record the hint frames and stream opens this document's EventSource saw. Listeners are added
+    // beside the page's own; nothing the page does changes.
+    await ctx.addInitScript(() => {
+      try {
+        const Orig = window.EventSource;
+        if (!Orig) return;
+        window.__hints = [];
+        const Wrapped = function (url, init) {
+          const es = new Orig(url, init);
+          for (const ev of ['room.changed', 'open', 'error']) {
+            es.addEventListener(ev, (e) => { window.__hints.push({ t: Date.now(), ev, data: ev === 'room.changed' ? String(e.data).slice(0, 120) : undefined }); });
+          }
+          return es;
+        };
+        Wrapped.prototype = Orig.prototype;
+        for (const k of ['CONNECTING', 'OPEN', 'CLOSED']) Wrapped[k] = Orig[k];
+        window.EventSource = Wrapped;
+      } catch (_e) { /* evidence only */ }
     });
     return ctx;
   }
@@ -456,7 +492,105 @@ async function main() {
 
   let ctx1 = null;
   let page = null;
+  let lastLink = null;
+
+  const treeNow = () => {
+    const head = cp.spawnSync('git', ['rev-parse', 'HEAD'], { cwd: REPO, encoding: 'utf8' }).stdout.trim();
+    const st = cp.spawnSync('git', ['status', '--short', '--', 'lib', 'bin', 'scripts', 'ui'], { cwd: REPO, encoding: 'utf8' }).stdout.trim();
+    return { head, status: st ? st.split('\n').slice(0, 12) : [] };
+  };
+  const loadNow = () => Number(os.loadavg()[0].toFixed(2));
+  console.log('TREE start ' + J(treeNow()) + ' load1=' + loadNow());
+
+  // The STEP6-EVIDENCE line (plan 369-34): everything needed to tell a real race from load from a room that grew after the
+  // count was taken, captured at the moment the wait gives up. Counts, ids of fixture rooms and timings only.
+  async function captureEvidence(ev) {
+    const out = { label: ev.label, at: new Date().toISOString(), load_start: ev.loadStart, load_now: loadNow() };
+    const guard = async (key, fn) => { try { out[key] = await fn(); } catch (e) { out[key] = 'unreadable: ' + String((e && e.message) || e).slice(0, 120); } };
+    await guard('last_copy_row', async () => ({ last_seen: ev.lastRow, now: await copyRow(page) }));
+    out.expected = ev.expected;
+    out.expected_captured_ms_before_timeout = Date.now() - ev.expectedAt;
+    await guard('truth_now', async () => {
+      const t = truth(roomX);
+      return { total: total(t), by_collection: Object.fromEntries(Object.keys(t).map((c) => [c, t[c].size])), max_change_seq: withDb(roomX, (db) => db.prepare('SELECT COALESCE(MAX(change_seq), 0) AS m FROM room_change_log').get().m), max_change_seq_at_expected: ev.expectedSeq };
+    });
+    await guard('compare', async () => {
+      const t = truth(roomX);
+      const res = { missing: [], extra: [], duplicates: [] };
+      for (const c of Object.keys(t)) {
+        const got = (await storedIds(page, 'room-x', c)) || [];
+        const have = new Set(got);
+        if (got.length !== have.size) res.duplicates.push(c + ':' + (got.length - have.size));
+        for (const id of t[c]) if (!have.has(id)) res.missing.push(c + ':' + id);
+        for (const id of have) if (!t[c].has(id)) res.extra.push(c + ':' + id);
+      }
+      for (const k of Object.keys(res)) { res[k + '_n'] = res[k].length; res[k] = res[k].slice(0, 20); }
+      return res;
+    });
+    await guard('grew_after_expected', async () => {
+      const now = truth(roomX);
+      const added = [];
+      for (const c of Object.keys(now)) for (const id of now[c]) if (!ev.expectedTruth[c].has(id)) added.push({ c, id });
+      return {
+        n: added.length,
+        rows: withDb(roomX, (db) =>
+          added.slice(0, 20).map((a) => {
+            if (a.c === 'relations') return { c: a.c, id: a.id.replace(new RegExp(SEP, 'g'), ' | ').slice(0, 120) };
+            const r = db.prepare('SELECT type, substr(properties, 1, 220) AS p FROM nodes WHERE id = ?').get(a.id);
+            return { c: a.c, id: a.id.slice(0, 80), type: r && r.type, props: r && r.p };
+          })
+        ),
+        log_rows_after_expected: withDb(roomX, (db) => db.prepare('SELECT change_seq, entity_type, entity_id, operation, changed_at FROM room_change_log WHERE change_seq > ? ORDER BY change_seq LIMIT 20').all(ev.expectedSeq)),
+      };
+    });
+    await guard('hint_frames_page_saw', async () => (await page.evaluate(() => window.__hints || [])).filter((h) => h.t >= ev.reopenAt).map((h) => ({ dt: h.t - ev.reopenAt, ev: h.ev, data: h.data })).slice(0, 40));
+    out.feed_requests_since_reopen = feedLog.filter((r) => r.t >= ev.reopenAt).map((r) => ({ dt: r.t - ev.reopenAt, status: r.status, path: r.path })).slice(-60);
+    await guard('api_status', async () => page.evaluate(async () => { const r = await fetch('/api/status', { credentials: 'same-origin' }); return { http: r.status, body: (await r.text()).slice(0, 400) }; }));
+    await guard('shell_log_tail', async () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.log'), 'utf8').trim().split('\n').slice(-40));
+    out.tree = treeNow();
+    console.log('STEP6-EVIDENCE ' + J(out));
+    return out;
+  }
+
+  // Step 6's cycle: stop the shell, kill and respawn the daemon, write while down, start the shell, sign in with the new link,
+  // reopen room-x, wait for the copy to hold what the room held. The wait and its 60 s bound are exactly step 6's.
+  async function restartAndConverge(label, priorLink) {
+    const loadStart = loadNow();
+    const stopped = stopShell();
+    assert.ok(/stopped/.test(stopped), 'the launcher stopped the shell: ' + stopped);
+    daemon = await D.restartDaemon(daemon); // SIGKILL then a fresh process on the same rooms home
+    const down = await writeClaim(roomX, 'Interview excerpt written while the shell was down (' + label + ')', 'down', daemon.env);
+    assert.ok(down && down.id, 'a write landed in the room while the shell was down');
+    const expectedTruth = truth(roomX);
+    const expected = total(expectedTruth);
+    const expectedAt = Date.now();
+    const expectedSeq = withDb(roomX, (db) => db.prepare('SELECT COALESCE(MAX(change_seq), 0) AS m FROM room_change_log').get().m);
+    const link = startLink();
+    assert.notStrictEqual(link, priorLink, 'a new link');
+    lastLink = link;
+    const reopenAt = Date.now();
+    await page.goto(link);
+    await page.waitForSelector('header.shell-header', { timeout: 60000 });
+    const tOpen = Date.now();
+    await openRoom(page, 'room-x');
+    let lastRow = null;
+    try {
+      await waitUntil(async () => {
+        const r = await copyRow(page);
+        lastRow = r;
+        return r && r.state === 'current' && r.count === expected ? r : false;
+      }, 60000, 'the read copy to hold all ' + expected + ' items of room-x', 25);
+    } catch (err) {
+      await captureEvidence({ label, loadStart, lastRow, expected, expectedAt, expectedSeq, expectedTruth, reopenAt });
+      throw err;
+    }
+    return { down, link, catchUpMs: Date.now() - tOpen, expected, loadStart, loadEnd: loadNow() };
+  }
+
+  const loadKids = [];
   try {
+    for (let k = 0; k < SOAK_LOAD; k += 1) loadKids.push(cp.spawn(process.execPath, ['-e', 'for(;;){}'], { stdio: 'ignore' }));
+    if (loadKids.length) console.log('SOAK load generators: ' + loadKids.map((c) => c.pid).join(','));
     // ===== 1 local authentication =====
     stepStart(1, 'local authentication');
     const link1 = startLink();
@@ -602,25 +736,46 @@ async function main() {
     assert.strictEqual(withDb(roomY, (db) => db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id LIKE 'decision:%'").get().n), 0, 'room-y holds no decision');
     stepDone(5, 'the persisted result', 'Settled "Confirmed by you,"; listed under "Since you were here"; room-y unchanged (' + yNodesBefore + ' nodes)');
 
+    // ===== soak (plan 369-34): repeat step 6's cycle on this page, then stop =====
+    if (SOAK) {
+      const soak = { cycles: 0, failed: 0, ms: [] };
+      let prior = link1;
+      for (let i = 1; i <= SOAK; i += 1) {
+        if (SOAK_GAP_MS) await sleep(SOAK_GAP_MS);
+        const tree0 = treeNow();
+        let ok = false;
+        let catchUp = null;
+        let loadLine = loadNow();
+        try {
+          const c = await restartAndConverge('soak-' + i, prior);
+          prior = c.link;
+          catchUp = c.catchUpMs;
+          loadLine = c.loadEnd;
+          const cmpS = await compareCopy(page, 'room-x', roomX);
+          ok = cmpS.missing === 0 && cmpS.extra === 0 && cmpS.duplicates === 0;
+          if (!ok) console.log('SOAK-COMPARE cycle=' + i + ' ' + J(cmpS));
+        } catch (err) {
+          console.log('SOAK-ERROR cycle=' + i + ' ' + String((err && err.message) || err).slice(0, 200));
+        }
+        const tree1 = treeNow();
+        const moved = tree0.head !== tree1.head || J(tree0.status) !== J(tree1.status);
+        soak.cycles += 1;
+        if (!ok) soak.failed += 1;
+        else soak.ms.push(catchUp);
+        console.log('SOAK cycle=' + i + ' ok=' + ok + ' catch_up_ms=' + catchUp + ' load=' + loadLine + ' head=' + tree1.head.slice(0, 9) + ' tree_dirty=' + tree1.status.length + (moved ? ' TREE_MOVED_DURING_CYCLE' : ''));
+      }
+      const sorted = soak.ms.slice().sort((a, b) => a - b);
+      console.log('SOAK-SUMMARY ' + J({ cycles: soak.cycles, failed: soak.failed, gap_ms: SOAK_GAP_MS, load_children: SOAK_LOAD, catch_up_ms_min: sorted[0], catch_up_ms_p50: sorted[Math.floor(sorted.length / 2)], catch_up_ms_max: sorted[sorted.length - 1] }));
+      if (soak.failed) failures.push('soak: ' + soak.failed + ' of ' + soak.cycles + ' cycles failed to converge');
+      throw { soakDone: true };
+    }
+
     // ===== 6 restart and recover =====
     stepStart(6, 'restart both servers and recover');
-    const stopped = stopShell();
-    assert.ok(/stopped/.test(stopped), 'the launcher stopped the shell: ' + stopped);
-    daemon = await D.restartDaemon(daemon); // SIGKILL then a fresh process on the same rooms home
-    const down = await writeClaim(roomX, 'Interview excerpt written while the shell was down', 'down', daemon.env);
-    assert.ok(down && down.id, 'a write landed in the room while the shell was down');
-    const expected = total(truth(roomX));
-    const link2 = startLink();
-    assert.notStrictEqual(link2, link1, 'a new link');
-    await page.goto(link2);
-    await page.waitForSelector('header.shell-header', { timeout: 60000 });
-    const tOpen = Date.now();
-    await openRoom(page, 'room-x');
-    await waitUntil(async () => {
-      const r = await copyRow(page);
-      return r && r.state === 'current' && r.count === expected ? r : false;
-    }, 60000, 'the read copy to hold all ' + expected + ' items of room-x', 25);
-    metrics.restart_catch_up_ms = Date.now() - tOpen;
+    const conv = await restartAndConverge('step6', link1);
+    const down = conv.down;
+    const link2 = conv.link;
+    metrics.restart_catch_up_ms = conv.catchUpMs;
     const cmp = await compareCopy(page, 'room-x', roomX);
     metrics.lost_writes = cmp.missing;
     facts.copyItems = cmp.items;
@@ -696,11 +851,16 @@ async function main() {
     facts.hosts = hosts.join(', ');
     stepDone(7, 'offline assets', requests.length + ' requests, hosts: ' + hosts.join(', ') + '; 0 CSP events');
   } catch (err) {
+    if (err && err.soakDone) {
+      // the soak finished; its verdict is in failures
+    } else {
     failures.push('step ' + current + ': ' + String((err && err.stack) || err).split('\n').slice(0, 5).join(' | '));
     if (page) {
       try { failures.push('page: ' + page.url() + ' | ' + (await viewText(page)).slice(0, 400)); } catch (_e) { /* page gone */ }
     }
+    }
   } finally {
+    for (const kid of loadKids) { try { process.kill(kid.pid, 'SIGKILL'); } catch (_e) { /* already gone */ } }
     await browser.close().catch(() => {});
     // Kill only what this run started: the shell through its own launcher, the daemon through the helper.
     try { stopShell(); } catch (_e) { /* best effort */ }
@@ -708,10 +868,15 @@ async function main() {
   }
 
   // ---- report ----
+  console.log('TREE end ' + J(treeNow()) + ' load1=' + loadNow());
   console.log('');
   for (const r of results) console.log('PASS step ' + r.n + ' ' + r.name + ' [' + r.note + ']');
   for (const f of failures) console.log('FAIL ' + f);
   let failed = failures.length;
+  if (SOAK) {
+    console.log((failed ? failed + ' check(s) failed' : 'PASS: soak of ' + SOAK + ' restart cycles') + ' in ' + Math.round((Date.now() - t0) / 1000) + ' s');
+    process.exit(failed ? 1 : 0);
+  }
   if (results.length !== 7 && failures.length === 0) {
     failed += 1;
     console.log('FAIL only ' + results.length + ' of 7 steps ran');
