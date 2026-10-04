@@ -168,12 +168,12 @@ function foreignMcpConfig(installRoot) {
     mcpServers: {
       'mindrian-os': {
         command: 'node',
-        args: [path.join(installRoot, 'bin', 'mindrian-mcp-server.cjs')],
+        args: [path.join(installRoot, 'scripts', 'mindrian-mcp-server.cjs')],
         env: { ...env },
       },
       'mindrian-brain': {
         command: 'node',
-        args: [path.join(installRoot, 'bin', 'mindrian-brain-mcp-client.cjs')],
+        args: [path.join(installRoot, 'scripts', 'mindrian-brain-mcp-client.cjs')],
         env: { ...env },
       },
     },

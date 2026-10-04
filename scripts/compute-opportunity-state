@@ -11,7 +11,7 @@ PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 ROOM_DIR="${1:-./room}"
 
-node "$PLUGIN_ROOT/bin/mindrian-tools.cjs" funding compute-state "$ROOM_DIR" --raw 2>/dev/null || {
+node "$PLUGIN_ROOT/scripts/mindrian-tools.cjs" funding compute-state "$ROOM_DIR" --raw 2>/dev/null || {
   echo "Error: compute-opportunity-state failed" >&2
   exit 1
 }

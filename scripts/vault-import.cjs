@@ -409,7 +409,7 @@ function stage03cFileMeetings(manifest, roomDir, importId, lazygraphBroken) {
       // Optimistic shell-out to file-meeting via mindrian-tools.cjs
       try {
         execFileSync('node', [
-          path.join(pluginRoot, 'bin/mindrian-tools.cjs'),
+          path.join(pluginRoot, 'scripts/mindrian-tools.cjs'),
           'file-meeting',
           '--file', stagedPath,
           '--non-interactive'

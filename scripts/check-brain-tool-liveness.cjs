@@ -75,7 +75,7 @@ const cp = require('node:child_process');
 const { checkHookMatcherLiveness } = require('../lib/core/seam-liveness.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
-const SHIM_PATH = path.join(ROOT, 'bin', 'mindrian-brain-mcp-client.cjs');
+const SHIM_PATH = path.join(ROOT, 'scripts', 'mindrian-brain-mcp-client.cjs');
 const HOOKS_JSON_PATH = path.join(ROOT, 'hooks', 'hooks.json');
 const PLUGIN_JSON_PATH = path.join(ROOT, '.claude-plugin', 'plugin.json');
 const MCP_JSON_PATH = path.join(ROOT, '.mcp.json');

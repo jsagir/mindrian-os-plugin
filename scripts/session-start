@@ -551,7 +551,7 @@ if [ -d "$ROOM_DIR" ]; then
   fi
 
   # Detect integrations
-  INTEG_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" detect-integrations 2>/dev/null || echo "{}")
+  INTEG_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" detect-integrations 2>/dev/null || echo "{}")
   INTEG_COUNT=$(echo "$INTEG_OUTPUT" | node -e "let s='';process.stdin.on('data',c=>s+=c);process.stdin.on('end',()=>{try{const d=JSON.parse(s);console.log(Object.values(d).filter(v=>v&&v.status==='connected').length)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
 
   if [ "$INTEG_COUNT" -gt 0 ]; then

@@ -12,7 +12,7 @@
       "shipped_in_phase": 127,
       "implementing_files": [
         "lib/core/directive-envelope.cjs",
-        "bin/mindrian-brain-mcp-client.cjs"
+        "scripts/mindrian-brain-mcp-client.cjs"
       ],
       "spec_doc": "docs/CAPABILITY-MAP.md#DirectiveEnvelope",
       "ecosystem_analogue": "MCP elicitation (conceptually adjacent but inverted: elicitation is server-asks-user; DirectiveEnvelope is server-tells-client-how-to-render)",

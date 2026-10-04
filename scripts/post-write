@@ -253,7 +253,7 @@ done
 # This keeps CLI hooks and MCP tools using identical intelligence logic.
 if [ -n "$room_dir" ]; then
   # Run cascade in foreground so we can capture and report status
-  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
+  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
 
   # 88.1-03: systemMessage retrofit. Derive a tight one-line status reporting
   # which section fired the regen/recompile cascade plus the triggering
