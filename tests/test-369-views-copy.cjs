@@ -297,11 +297,13 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
       assert.ok(!/data-tile-room|TileRoom/.test(read(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')), rel(f) + ' draws the tile room');
     }
     // A TileMark appears only in the row component and in the three readers, once each, next to the item's title.
-    const allowed = new Set(['ItemRow.tsx', 'EvidenceReader.tsx', 'DecisionsView.tsx', 'DeliverablesView.tsx']);
+    // Plan 369-27: the gate card draws two (the black decision-gate square in its eyebrow, UI-SPEC part 1, and its
+    // subject's tile beside the subject text, part 3); neither is a row of a tile composition.
+    const allowed = new Set(['ItemRow.tsx', 'EvidenceReader.tsx', 'DecisionsView.tsx', 'DeliverablesView.tsx', 'GateCard.tsx']);
     for (const f of viewFiles().filter((x) => x.endsWith('.tsx'))) {
       const n = (code(f).match(/<TileMark\b/g) || []).length;
       if (n > 0) assert.ok(allowed.has(path.basename(f)), rel(f) + ' renders a TileMark outside an item row or reader');
-      assert.ok(n <= 1, rel(f) + ' renders ' + n + ' TileMarks (one per item)');
+      assert.ok(n <= (path.basename(f) === 'GateCard.tsx' ? 2 : 1), rel(f) + ' renders ' + n + ' TileMarks (one per item)');
       assert.ok(!/\[\s*'blue'\s*,\s*'red'\s*,\s*'yellow'/.test(code(f)), rel(f) + ' lays the five tones side by side');
     }
   });
@@ -337,9 +339,10 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
     const words = [...src.matchAll(/'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"/g)].map((m) => m[1] || m[2] || '').concat([...src.matchAll(/>([^<>{}\n]+)</g)].map((m) => m[1]));
     for (const w of words) assert.ok(!/\b(export|publish|download|share|print)\b/i.test(w), 'Deliverables has a control or text about: ' + w);
     assert.ok(!/<button\b|onClick=\{[^}]*(export|publish)/i.test(src.replace(/<TextAction[\s\S]*?<\/TextAction>/g, '')), 'Deliverables adds no button of its own');
-    for (const f of viewFiles()) {
+    // The gate view (views/gate, plan 369-27) is the one place a decision is answered; every other view only reads.
+    for (const f of viewFiles().filter((x) => !x.split(path.sep).includes('gate'))) {
       const s = code(f);
-      assert.ok(!/approveDecision|publishDeliverable|gate_answer/.test(s), rel(f) + ' answers a decision or publishes (that is the gate view and a later plan)');
+      assert.ok(!/approveDecision|publishDeliverable|gate_answer/.test(s), rel(f) + ' answers a decision or publishes (that is the gate view)');
       assert.ok(!/callAction(<[^()]*>)?\('(?!readArtifact|listOpenGates|readGate|roomDoc)/.test(s), rel(f) + ' calls an action the views may not call');
       assert.ok(!/readGate\b/.test(s) || /callAction(<[^()]*>)?\('readGate'/.test(s), rel(f) + ' reads a gate through callAction only (no render nonce is kept by a view)');
     }

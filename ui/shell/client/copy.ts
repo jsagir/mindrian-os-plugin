@@ -211,6 +211,7 @@ export const GATE = {
   preview: 'Preview',
   chooseFirst: 'Choose an answer first.',
   consequenceMet: 'Saves this decision to the room as confirmed by you.',
+  consequenceOther: 'Records your answer. It does not confirm the claim.',
   consequenceBelowFloor: "Records your approval. The claim stays proposed until its evidence meets the room's floor.",
   reject: 'Reject',
   decideLater: 'Decide later',
@@ -247,6 +248,14 @@ export function gateMoreWaitingConsequence(n: number): string {
 
 export function gateApproveLabel(optionLabel: string): string {
   return 'Approve: ' + optionLabel;
+}
+
+export function gateRecordLabel(optionLabel: string): string {
+  return 'Record: ' + optionLabel;
+}
+
+export function gateRecordMany(n: number): string {
+  return 'Record ' + n + ' answers';
 }
 
 export function gateApproveMany(n: number): string {
@@ -318,4 +327,11 @@ export const GATE_CHOICE_REFUSED: GateRefusalCopy = {
   what: 'The room did not accept that answer.',
   why: 'The answer did not match the decision it was given for.',
   fix: 'Nothing was saved and the decision is still open. Choose again.',
+};
+
+// The gate's options did not agree with the one recommendation the room sent: nothing is drawn that a person could answer.
+export const GATE_UNREADABLE: GateRefusalCopy = {
+  what: 'This decision could not be shown.',
+  why: 'Its answers did not match what the room sent.',
+  fix: 'Nothing was saved. Ask Larry in Claude Code to raise it again.',
 };

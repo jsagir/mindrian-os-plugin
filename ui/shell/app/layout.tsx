@@ -5,6 +5,7 @@ import '../client/styles/base.css';
 import '../client/primitives/primitives.css';
 import '../client/frame/frame.css';
 import '../client/views/views.css';
+import '../client/views/gate/gate.css';
 
 export const metadata = { title: 'MindrianOS workspace' };
 

@@ -7,7 +7,7 @@
 // Canon Part 3: the web gate is the fourth render of the one gate contract. It reads the contract's fields and never
 // parses a zone's text. The recommended option id is read at `rendered.contract.recommended` (Phase 289, found by
 // value on a live minted gate by plan 369-26's probe). Erasable TypeScript only.
-import { gateApproveLabel, gateApproveMany, GATE, PROPOSAL_FROM_CLAUDE } from '../../copy.ts';
+import { gateApproveLabel, gateApproveMany, gateRecordLabel, gateRecordMany, GATE, PROPOSAL_FROM_CLAUDE } from '../../copy.ts';
 
 export type Verdict = 'approve' | 'reject' | 'defer';
 
@@ -171,26 +171,38 @@ export function toGateViewModel(card: CardIn, rendered: RenderedIn): GateViewMod
   return vm;
 }
 
-// "Approve: {label}", "Approve {n} answers" for several, or the server's own approve_label when the one option it
-// relabels (id 'approve') is the whole selection.
-export function approveLabelFor(vm: GateViewModel, selected: string[]): string {
-  const chosen = vm.options.filter((o) => selected.includes(o.id));
-  if (chosen.length > 1) return gateApproveMany(chosen.length);
-  if (chosen.length === 1) {
-    if (vm.approveServerLabel !== null && chosen[0]!.id === 'approve') return vm.approveServerLabel;
-    return gateApproveLabel(chosen[0]!.label);
-  }
-  return 'Approve';
-}
-
-// The consequence line under the primary action: nothing chosen, the room's floor not met, or the plain promise.
-export function consequenceFor(vm: GateViewModel, selected: string[]): string {
-  if (selected.length === 0) return GATE.chooseFirst;
-  return vm.floorMet === false ? GATE.consequenceBelowFloor : GATE.consequenceMet;
-}
-
 const REJECT_IDS = ['reject', 'decline', 'no'];
 const DEFER_IDS = ['hold', 'defer', 'later', 'wait'];
+
+// What a selection means. An option that says reject or hold is not an approval: the primary action must never send an
+// approve verdict for it (an approve confirms the claim; Canon Part 9). Any other option is an approval. Several
+// selected: the most conservative verdict wins (reject, then defer, then approve).
+export function verdictForSelection(vm: GateViewModel, selected: string[]): Verdict {
+  const ids = vm.options.filter((o) => selected.includes(o.id)).map((o) => o.id.toLowerCase());
+  if (ids.some((id) => REJECT_IDS.includes(id))) return 'reject';
+  if (ids.some((id) => DEFER_IDS.includes(id))) return 'defer';
+  return 'approve';
+}
+
+// The primary action's label. An approval: "Approve: {label}", "Approve {n} answers" for several, or the server's own
+// approve_label when the one option it relabels (id 'approve') is the whole selection. A reject or hold selection:
+// "Record: {label}", so the button never says Approve for an answer that is not one.
+export function approveLabelFor(vm: GateViewModel, selected: string[]): string {
+  const chosen = vm.options.filter((o) => selected.includes(o.id));
+  if (chosen.length === 0) return 'Approve';
+  if (verdictForSelection(vm, selected) !== 'approve') return chosen.length > 1 ? gateRecordMany(chosen.length) : gateRecordLabel(chosen[0]!.label);
+  if (chosen.length > 1) return gateApproveMany(chosen.length);
+  if (vm.approveServerLabel !== null && chosen[0]!.id === 'approve') return vm.approveServerLabel;
+  return gateApproveLabel(chosen[0]!.label);
+}
+
+// The consequence line under the primary action: nothing chosen, an answer that is not an approval, the room's floor
+// not met, or the plain promise.
+export function consequenceFor(vm: GateViewModel, selected: string[]): string {
+  if (selected.length === 0) return GATE.chooseFirst;
+  if (verdictForSelection(vm, selected) !== 'approve') return GATE.consequenceOther;
+  return vm.floorMet === false ? GATE.consequenceBelowFloor : GATE.consequenceMet;
+}
 
 // What `chosen` carries for each verdict. An approve names what the person selected. A reject or a defer names the
 // option that says so when the card has one (so the record reads as what the person did), and otherwise the

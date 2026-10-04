@@ -94,14 +94,14 @@ async function renderedOf(card) {
   scenario('the approve label: "Approve: {label}", the server approve_label when given, "Approve {n} answers" for several', () => {
     const vm = model.toGateViewModel(FIXTURE, rendered);
     assert.strictEqual(vm.approveLabel, 'Approve as written', 'the server approve_label for the recommended approve option');
-    assert.strictEqual(model.approveLabelFor(vm, ['hold']), 'Approve: Hold until the second interview is filed');
+    assert.strictEqual(model.approveLabelFor(vm, ['hold']), 'Record: Hold until the second interview is filed', 'a hold selection never reads as an approval');
     // The server's approve_label relabels the approve option only: another selection reads from its own label.
     assert.strictEqual(model.approveLabelFor(vm, ['approve']), 'Approve as written');
     assert.strictEqual(vm.approveServerLabel, 'Approve as written');
     const plainCard = Object.assign({}, FIXTURE); delete plainCard.approve_label;
     assert.strictEqual(model.toGateViewModel(plainCard, rendered).approveLabel, 'Approve: Approve as written', 'no server label: the option label under Approve:');
     assert.strictEqual(model.toGateViewModel(plainCard, rendered).approveServerLabel, null);
-    assert.strictEqual(model.approveLabelFor(vm, ['approve', 'hold']), 'Approve 2 answers');
+    assert.strictEqual(model.approveLabelFor(vm, ['approve', 'hold']), 'Record 2 answers', 'a mixed selection is recorded, not approved');
     assert.strictEqual(model.approveLabelFor(vm, []), 'Approve');
   });
 
@@ -139,7 +139,12 @@ async function renderedOf(card) {
       assert.strictEqual(vm.selectMode, 'multi');
       assert.strictEqual(vm.recommendedId, null);
       assert.deepStrictEqual(vm.preselected.slice().sort(), ['approve', 'hold']);
-      assert.strictEqual(model.approveLabelFor(vm, vm.preselected), 'Approve 2 answers');
+      // approve plus hold is a mixed basket: recorded, not approved.
+      assert.strictEqual(model.approveLabelFor(vm, vm.preselected), 'Record 2 answers');
+      const baskets = { contract: { recommended: null, multiSelect: true, superset_options: [{ id: 'a', label: 'A', rank: 1, recommended: true }, { id: 'b', label: 'B', rank: 2, recommended: true }, { id: 'c', label: 'C', rank: 3 }] } };
+      const basketVm = model.toGateViewModel({ header: 'x', select_mode: 'multi' }, baskets);
+      assert.deepStrictEqual(basketVm.preselected, ['a', 'b']);
+      assert.strictEqual(basketVm.approveLabel, 'Approve 2 answers');
     });
   })();
 
@@ -164,6 +169,21 @@ async function renderedOf(card) {
     assert.deepStrictEqual(vm.options.map((o) => o.id), ['approve', 'hold', 'reject']);
     assert.strictEqual(vm.moreWaiting, 2);
     assert.strictEqual(model.toGateViewModel({ header: 'x' }, null).options.length, 0);
+  });
+
+  scenario('verdictForSelection: a reject or hold option is never sent as an approve verdict (an approve confirms the claim)', () => {
+    const vm = model.toGateViewModel(FIXTURE, rendered);
+    assert.strictEqual(model.verdictForSelection(vm, ['approve']), 'approve');
+    assert.strictEqual(model.verdictForSelection(vm, ['hold']), 'defer');
+    assert.strictEqual(model.verdictForSelection(vm, ['reject']), 'reject');
+    assert.strictEqual(model.verdictForSelection(vm, ['approve', 'hold']), 'defer', 'the most conservative verdict wins');
+    assert.strictEqual(model.verdictForSelection(vm, ['hold', 'reject']), 'reject');
+    assert.strictEqual(model.verdictForSelection(vm, []), 'approve');
+    assert.strictEqual(model.consequenceFor(vm, ['hold']), 'Records your answer. It does not confirm the claim.');
+    assert.strictEqual(model.consequenceFor(vm, ['reject']), 'Records your answer. It does not confirm the claim.');
+    const plain = model.toGateViewModel({ header: 'x' }, { contract: { recommended: 'yes', superset_options: [{ id: 'yes', label: 'Yes', rank: 1 }, { id: 'no', label: 'No', rank: 2 }] } });
+    assert.strictEqual(model.verdictForSelection(plain, ['yes']), 'approve');
+    assert.strictEqual(model.verdictForSelection(plain, ['no']), 'reject');
   });
 
   scenario('chosenFor: approve sends the selection; reject and defer name the option that says so', () => {
@@ -299,6 +319,26 @@ async function renderedOf(card) {
     const src = fs.readFileSync(path.join(GATE_DIR, 'gate-model.ts'), 'utf8').replace(/\/\/.*$/gm, '');
     assert.ok(!/from 'react'|window\.|document\.|fetch\(|localStorage|sessionStorage|indexedDB/.test(src));
     assert.ok(!src.includes(EM) && !src.includes(EN));
+  });
+
+  scenario('the view source: no form, Enter stopped in the option group, the nonce never stored, the status context fed, text only', () => {
+    const read = (f) => fs.readFileSync(path.join(GATE_DIR, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+    const view = read('GateView.tsx');
+    const card = read('GateCard.tsx');
+    const row = read('OptionRow.tsx');
+    for (const [name, src] of [['GateView', view], ['GateCard', card], ['OptionRow', row]]) {
+      assert.ok(!/<form\b/.test(src), name + ' has no form (nothing submits by Enter)');
+      assert.ok(!/dangerouslySetInnerHTML|innerHTML|eval\(/.test(src), name + ' renders text only');
+      assert.ok(!/localStorage|sessionStorage|indexedDB|document\.cookie|render_nonce/.test(src), name + ' keeps no nonce and no storage');
+    }
+    assert.ok(/key === 'Enter'/.test(row) && /preventDefault/.test(row), 'Enter inside the group is stopped');
+    assert.ok(/setAnswerPending\(answerPending\(state\)/.test(view), 'the session indicator is fed from the state');
+    assert.ok(/approveDecision/.test(view) && /readGate/.test(view), 'the view answers through approveDecision and reads through readGate');
+    assert.ok(!/callAction\(/.test(view), 'the view reaches the server through readGate and approveDecision only');
+    assert.ok(/GATE\.recommended/.test(row), 'the RECOMMENDED tag is drawn');
+    assert.ok(/<fieldset/.test(card) && /<legend>/.test(card), 'the options sit in a fieldset with a legend');
+    assert.strictEqual((card.match(/variant="secondary"/g) || []).length, 2, 'Reject and Check again are the only secondary actions');
+    assert.strictEqual((card.match(/<ActionButton\b/g) || []).length >= 3, true);
   });
 
   process.stdout.write('\n' + passed + ' passed, ' + failed + ' failed\n');
