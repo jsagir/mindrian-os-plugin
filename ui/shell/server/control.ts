@@ -9,7 +9,7 @@
  * token only: it never reads a cookie, and it refuses any request that carries an Origin or
  * Sec-Fetch-Site header, because those come from a browser page and the launcher is not one.
  */
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { chmodSync, closeSync, existsSync, lstatSync, mkdirSync, openSync, unlinkSync, writeSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { BootstrapStore } from './bootstrap.ts';
@@ -22,6 +22,24 @@ export const CONTROL_TOKEN_HEADER = 'x-mos-control-token';
 const MAX_BODY_BYTES = 1024;
 
 export type ControlState = { token: string; file: string };
+
+// Quick 261004-av2 (CR-02 option 2): the control token's SECOND use, domain separated by the label below. Canon
+// Part 9: how a gate answer reached the room is proven by the route, not asserted. approveDecision (the one
+// caller, after nonces.reserve accepted the render nonce) mints a proof bound to the gate id and the nonce;
+// the daemon (lib/mcp/answer-route.cjs, the same two literals) recomputes it from the 0600 token FILE and
+// records answered_via browser_nonce only on a match. The raw nonce never leaves this function: only its
+// SHA-256 tag does. Residual, owned by SEED-114: a same-user process that can read the 0600 token can mint it.
+export const ANSWER_ROUTE_META_KEY = 'mindrian/answer_route';
+export const ANSWER_ROUTE_KEY_LABEL = 'mindrian answer route v1';
+
+export function answerRouteMeta(gateId: string, nonce: string): Record<string, unknown> | null {
+  const control = getControl();
+  if (!control || typeof gateId !== 'string' || gateId.length === 0 || typeof nonce !== 'string' || nonce.length === 0) return null;
+  const routeKey = createHmac('sha256', control.token.trim()).update(ANSWER_ROUTE_KEY_LABEL).digest();
+  const tag = createHash('sha256').update(nonce).digest('hex');
+  const mac = createHmac('sha256', routeKey).update(gateId + '\n' + tag).digest('hex');
+  return { [ANSWER_ROUTE_META_KEY]: { v: 1, tag, mac } };
+}
 
 // WR-14 (plan 369-37): the token file is created exclusively with mode 0600. A file that is already there is
 // replaced, never written into (a planted file keeps its owner, mode and other hard links); a symbolic link at

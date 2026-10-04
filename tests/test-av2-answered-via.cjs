@@ -553,7 +553,7 @@ async function main() {
       const iAnswer = body.indexOf('gateAnswer(');
       assert.ok(iReserve > 0 && iMeta > iReserve && iAnswer > iMeta, 'order reserve < answerRouteMeta < gateAnswer: ' + [iReserve, iMeta, iAnswer].join(','));
       const poolSrc = fs.readFileSync(path.join(REPO, 'ui/shared/src/mcp-session-pool.ts'), 'utf8');
-      const m = poolSrc.match(/async function adapterCall\([\s\S]*?\n  \}\n/) || poolSrc.match(/adapterCall[\s\S]{0,600}/);
+      const m = poolSrc.match(/async adapterCall\([\s\S]*?\n    \},/);
       assert.ok(m, 'adapterCall is present');
       assert.ok(!/meta/i.test(m[0]), 'adapterCall passes no meta: ' + m[0].slice(0, 200));
       const ctl = fs.readFileSync(path.join(REPO, 'ui/shell/server/control.ts'), 'utf8');

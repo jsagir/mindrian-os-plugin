@@ -308,7 +308,9 @@ async function main() {
       assert.ok(nodeExists(roomX, 'decision:gate:' + mirrorLedgerId), 'the mirror\'s decision node is in the room');
       const anchors = anchorRows(roomX, S);
       assert.equal(anchors.length, 1, 'one source anchor, got ' + anchors.length);
-      assert.equal(JSON.parse(anchors[0].properties).answered_via, mirrorLedgerId);
+      // 261004-av2: the mirror id moved to via_gate_id; answered_via is now the route (this arm's pool wrapper drops the proof).
+      assert.equal(JSON.parse(anchors[0].properties).via_gate_id, mirrorLedgerId);
+      assert.ok(['browser_nonce', 'mcp_relayed'].includes(JSON.parse(anchors[0].properties).answered_via), 'the anchor records a route');
       assert.equal(answerRowCount(roomX), before + 2, 'the mirror answer and the source anchor are the only new answer rows');
       const list = await human('listOpenGates', {});
       assert.ok(!list.gates.some((g) => g.gate_id === S), 'S left the list');

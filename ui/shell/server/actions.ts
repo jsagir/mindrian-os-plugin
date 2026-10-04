@@ -27,6 +27,8 @@
  * approveDecision reserves it before any MCP call, releases it when gate_answer refuses or fails, and burns it
  * only when gate_answer returns ok. The nonce is the proof a browser rendered the gate: session ownership alone
  * only says which session minted it. See human-origin.ts.
+ * Quick 261004-av2: after the nonce is reserved, approveDecision signs the answer (control.ts answerRouteMeta) so the
+ * daemon records answered_via browser_nonce; without that proof every answer records mcp_relayed.
  *
  * Plan 369-42 (gaps 1 and 2): the shell lists gates raised ANYWHERE in the bound room (gate_list), raises a MIRROR of
  * one on this browser session's own MCP key when the person opens it (gate_render mirror_of; the page keeps the source
@@ -46,6 +48,7 @@ import type { CallResult } from 'mos-ui-shared/mcp-session-pool';
 import { ProposalSchema } from 'mos-ui-shared/proposal';
 import type { Proposal, ProposalSource } from 'mos-ui-shared/proposal';
 import { getConfig } from './config.ts';
+import { answerRouteMeta } from './control.ts';
 import { getConnectionStates } from './connection-state.ts';
 import type { ConnectionStates } from './connection-state.ts';
 import { getRelay } from './feed-routes.ts';
@@ -287,9 +290,9 @@ export function createShellActions(deps: ShellActionDeps) {
   // restored if the session came back unbound, gate records dropped on a reconnect, and the
   // connection state told about the acknowledged round trip. A throw (no daemon) propagates to invoke(),
   // which records the failed round trip once.
-  async function via(key: string, f: (call: CallTool) => Promise<unknown>): Promise<CallResult> {
+  async function via(key: string, f: (call: CallTool) => Promise<unknown>, meta?: Record<string, unknown>): Promise<CallResult> {
     await ensureBound(pool, key);
-    const res = (await f((tool, args) => pool.call(key, tool, args))) as CallResult;
+    const res = (await f((tool, args) => pool.call(key, tool, args, meta))) as CallResult;
     if (res.reconnected) sessionRestarted(key);
     await ack(key);
     return res;
@@ -720,7 +723,11 @@ export function createShellActions(deps: ShellActionDeps) {
         }
         // A mirrored gate is answered under the mirror's own ledger id; the page never sees it (plan 369-42).
         const ledgerId = card ? card.mcp_gate_id : input.gate_id;
-        const res = await via(key, (call) => gateAnswer(call, { gate_id: ledgerId, chosen: input.chosen, verdict: input.verdict }));
+        // The proof that this answer is a browser click, minted only here, after nonces.reserve accepted the render
+        // nonce the browser was shown. The daemon verifies it and records answered_via browser_nonce; without it
+        // every answer records mcp_relayed (quick 261004-av2, CR-02 option 2; Canon Part 9, proven by the route).
+        const routeMeta = answerRouteMeta(ledgerId, nonce);
+        const res = await via(key, (call) => gateAnswer(call, { gate_id: ledgerId, chosen: input.chosen, verdict: input.verdict }), routeMeta ?? undefined);
         const raw = asRec(res.data);
         if (!raw) return { ok: false, reason: 'answer_unreadable', gate_id: input.gate_id };
         const data = ledgerId !== input.gate_id ? (scrubId(raw, ledgerId, input.gate_id) as Record<string, unknown>) : raw;

@@ -10,7 +10,10 @@
  *   get(sessionKey)               lazily connect, return the pool entry
  *   bind(sessionKey, roomSlug)    room_bind; boundRoom is recorded only when
  *                                 the daemon says the binding is effective
- *   call(sessionKey, tool, args)  call a tool; on a dead session (daemon
+ *   call(sessionKey, tool, args, meta?)
+ *                                 call a tool; meta, when given, rides in the
+ *                                 request _meta (protocol level, never a tool
+ *                                 input; quick 261004-av2). On a dead session (daemon
  *                                 restart, idle expiry) close, reconnect,
  *                                 re-bind boundRoom and retry once, reporting
  *                                 reconnected: true (gate ids minted on the old
@@ -140,9 +143,10 @@ export function createSessionPool(options: SessionPoolOptions) {
     return entry.boundRoom;
   }
 
-  async function rawCall(entry: PoolEntry, tool: string, args: Record<string, unknown>) {
+  async function rawCall(entry: PoolEntry, tool: string, args: Record<string, unknown>, meta?: Record<string, unknown>) {
     entry.lastUsed = Date.now();
-    return entry.client.callTool({ name: tool, arguments: args });
+    // The request _meta rides only when a caller gave one (quick 261004-av2); otherwise the params are unchanged.
+    return entry.client.callTool(meta ? { name: tool, arguments: args, _meta: meta } : { name: tool, arguments: args });
   }
 
   function shape(result: unknown, reconnected: boolean): CallResult {
@@ -159,17 +163,17 @@ export function createSessionPool(options: SessionPoolOptions) {
     return res;
   }
 
-  async function callOn(key: string, tool: string, args: Record<string, unknown>): Promise<CallResult> {
+  async function callOn(key: string, tool: string, args: Record<string, unknown>, meta?: Record<string, unknown>): Promise<CallResult> {
     let entry = await open(key);
     try {
-      return shape(await rawCall(entry, tool, args), false);
+      return shape(await rawCall(entry, tool, args, meta), false);
     } catch (err) {
       if (!isDeadSessionError(err)) throw err;
       // Dead session: close it, connect afresh, re-bind, retry once.
       const room = await drop(key);
       entry = await open(key);
       if (room) await bindEntry(entry, room);
-      return shape(await rawCall(entry, tool, args), true);
+      return shape(await rawCall(entry, tool, args, meta), true);
     }
   }
 
@@ -194,9 +198,9 @@ export function createSessionPool(options: SessionPoolOptions) {
         return res;
       }
     },
-    async call(sessionKey: string, tool: string, args?: Record<string, unknown>): Promise<CallResult> {
+    async call(sessionKey: string, tool: string, args?: Record<string, unknown>, meta?: Record<string, unknown>): Promise<CallResult> {
       if (sessionKey === ADAPTER_SESSION_KEY) throw new Error('reserved session key: use adapterSession()');
-      return callOn(sessionKey, tool, args || {});
+      return callOn(sessionKey, tool, args || {}, meta);
     },
     async adapterSession(): Promise<PoolEntry> {
       return open(ADAPTER_SESSION_KEY);
