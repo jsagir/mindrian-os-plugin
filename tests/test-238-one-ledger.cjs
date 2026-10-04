@@ -266,13 +266,14 @@ function buildSteps() {
 
     // -------------------------------------------------------------------
     // Case 5: anti-vacuity control. An id that was never minted returns
-    // unknown_or_expired_gate. Without this, a consume path that accepted
-    // everything would pass every case above.
+    // unknown_gate (Phase 369 plan 26 split unknown_or_expired_gate into
+    // unknown_gate and gate_expired). Without this, a consume path that
+    // accepted everything would pass every case above.
     // -------------------------------------------------------------------
     const neverMinted = await answerGate('gate-238-06-never-minted-' + Date.now(), ['approve'], 'approve');
-    ok('an id that was never minted returns the exact slug unknown_or_expired_gate', function () {
+    ok('an id that was never minted returns the exact slug unknown_gate', function () {
       assert.equal(neverMinted.ok, false, 'a never-minted id must not ratify');
-      assert.equal(neverMinted.reason, 'unknown_or_expired_gate', 'a never-minted id must report the exact unknown_or_expired_gate slug');
+      assert.equal(neverMinted.reason, 'unknown_gate', 'a never-minted id must report the exact unknown_gate slug');
     });
 
     console.log(`PASS test-238-one-ledger (${n} assertions)`);

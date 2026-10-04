@@ -235,11 +235,15 @@ async function run() {
     const secondText = textOf(secondAnswer);
     let secondJson = null;
     try { secondJson = JSON.parse(secondText); } catch (_e) { secondJson = null; }
-    check('REGRESSION PIN: answering the same gate_id a second time is refused',
-      !!secondJson && secondJson.ok === false && secondJson.reason === 'unknown_or_expired_gate',
+    // Phase 369 plan 26 (GREC369-02): a second answer no longer reads as a refusal
+    // for something that was saved; it replays the recorded answer (replayed:true)
+    // and writes nothing, so the single-use pin is "no second write".
+    check('REGRESSION PIN: answering the same gate_id a second time is a replay and writes nothing more',
+      !!secondJson && secondJson.ok === true && secondJson.replayed === true
+        && countConfirmedNodes(dbPath) === confirmedAfter,
       'second answer response: ' + secondText);
   } else {
-    check('REGRESSION PIN: answering the same gate_id a second time is refused',
+    check('REGRESSION PIN: answering the same gate_id a second time is a replay and writes nothing more',
       false, 'no gate_id available from group A to drive this check');
   }
 

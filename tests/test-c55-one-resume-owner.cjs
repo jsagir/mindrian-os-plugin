@@ -205,9 +205,12 @@ function buildSteps() {
       ok('Interleaving B (chain_run then gate_answer): the FIRST caller (chain_run) reports success', function () {
         assert.equal(first.ok, true, 'chain_run must report ok:true for the first (winning) consumer');
       });
-      ok('Interleaving B: the SECOND caller (gate_answer) is refused with unknown_or_expired_gate', function () {
+      // Phase 369 plan 26: gate_answer's two refusals for a gate the ledger no longer holds are
+      // unknown_gate (never minted here, or released by chain_run, which leaves no saved answer) and
+      // gate_expired; unknown_or_expired_gate stays chain_run's own slug.
+      ok('Interleaving B: the SECOND caller (gate_answer) is refused with unknown_gate (chain_run left no saved answer)', function () {
         assert.equal(second.ok, false, 'gate_answer must refuse the already-consumed gate_id');
-        assert.equal(second.reason, 'unknown_or_expired_gate', 'the refusal reason must be exactly unknown_or_expired_gate');
+        assert.equal(second.reason, 'unknown_gate', 'the refusal reason must be exactly unknown_gate');
       });
       ok('Interleaving B: the execution counter equals exactly 1 (no double execution)', function () {
         assert.equal(counter.n, 1, 'the halted step must execute exactly once across both callers');
@@ -225,9 +228,10 @@ function buildSteps() {
       ok('Interleaving C (gate_answer twice): the FIRST call reports success', function () {
         assert.equal(first.ok, true, 'the first gate_answer call must report ok:true');
       });
-      ok('Interleaving C: the SECOND call is refused with unknown_or_expired_gate', function () {
-        assert.equal(second.ok, false, 'the second gate_answer call must refuse the consumed gate_id');
-        assert.equal(second.reason, 'unknown_or_expired_gate', 'the refusal reason must be exactly unknown_or_expired_gate');
+      ok('Interleaving C: the SECOND call is a replay of the saved answer (replayed:true), and nothing re-runs', function () {
+        assert.equal(second.ok, true, 'the second gate_answer call replays the saved answer');
+        assert.equal(second.replayed, true, 'the second gate_answer call must say replayed:true');
+        assert.equal(second.chain_result, undefined, 'a replay never resumes the chain again');
       });
       ok('Interleaving C: the execution counter equals exactly 1 (no double execution)', function () {
         assert.equal(counter.n, 1, 'the halted step must execute exactly once across both gate_answer calls');
@@ -271,9 +275,11 @@ function buildSteps() {
         assert.ok(rejectAnswer.chain_result, 'a material_step gate_answer must carry chain_result');
         assert.equal(rejectAnswer.chain_result.executed, false, 'chain_result.executed must be false for a reject verdict');
       });
-      ok('Reject through gate_answer: the gate is still burned (a follow-up answer is unknown_or_expired_gate)', function () {
-        assert.equal(followUp.ok, false, 'a follow-up answer to a rejected (but consumed) gate_id must fail');
-        assert.equal(followUp.reason, 'unknown_or_expired_gate', 'the follow-up refusal reason must be exactly unknown_or_expired_gate');
+      ok('Reject through gate_answer: a follow-up approve replays the saved reject and runs nothing', function () {
+        assert.equal(followUp.ok, true, 'a follow-up answer to a rejected gate_id replays the saved answer');
+        assert.equal(followUp.replayed, true, 'the follow-up must say replayed:true');
+        assert.equal(followUp.verdict, 'reject', 'the recorded verdict stands, the later approve changes nothing');
+        assert.equal(counter.n, 0, 'the halted step still has not run');
       });
     }
 
@@ -289,7 +295,7 @@ function buildSteps() {
 
       ok('Anti-vacuity control: gate_answer refuses a never-minted gate_id', function () {
         assert.equal(viaGateAnswer.ok, false, 'gate_answer must refuse a fabricated id');
-        assert.equal(viaGateAnswer.reason, 'unknown_or_expired_gate', 'the refusal reason must be exactly unknown_or_expired_gate');
+        assert.equal(viaGateAnswer.reason, 'unknown_gate', 'the refusal reason must be exactly unknown_gate');
       });
       ok('Anti-vacuity control: chain_run refuses a never-minted gate_id', function () {
         assert.equal(viaChainRun.ok, false, 'chain_run must refuse a fabricated id');

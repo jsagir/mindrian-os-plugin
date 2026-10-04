@@ -22,7 +22,8 @@
  *                 owner's answer ratifies and this arm flips by itself.
  *   5. reconnect  restart the daemon: A's old transport fails (HTTP 400 "No
  *                 valid session ID" class), a fresh client A2 starts unbound,
- *                 re-binds, G1 is gone from the in-memory ledger, the decision
+ *                 re-binds, G1 is gone from the in-memory ledger but replays
+ *                 from its saved answer (plan 26, replayed true), the decision
  *                 node survives on disk.
  *   6. modern     an auto-negotiating client with no inherited CLI session id
  *                 gets no_session_id (PINNED: the shell uses the legacy path
@@ -184,7 +185,10 @@ async function main() {
       assert.equal(r1.ok, true, 'render G1: ' + JSON.stringify(r1));
       assert.equal(r1.renderer, 'askuserquestion', 'renderer: ' + r1.renderer);
       assert.ok(typeof r1.gate_id === 'string' && r1.gate_id.length > 0, 'G1 id');
-      const r2 = await renderGate(A.client, claimId, 'Confirm the claim (G2)');
+      // Plan 26 (stale_subject): G1's approval confirms the claim, so a second card on the SAME
+      // claim would rightly read stale to its owner. G2 carries no subject: arm 4 is about session
+      // isolation, not about the subject.
+      const r2 = await renderGate(A.client, undefined, 'Decide (G2)');
       assert.equal(r2.ok, true, 'render G2: ' + JSON.stringify(r2));
       assert.equal(r2.renderer, 'askuserquestion');
       assert.notEqual(r1.gate_id, r2.gate_id, 'distinct gate ids');
@@ -267,10 +271,14 @@ async function main() {
       const bind = parseToolJson(await A2.client.callTool({ name: 'room_bind', arguments: { room: 'room-x' } }));
       assert.equal(bind.ok, true, 'A2 room_bind ok: ' + JSON.stringify(bind));
       assert.equal(bind.effective, true, 'A2 effective: ' + JSON.stringify(bind));
+      // The ledger is in memory and did not survive the restart, but G1 was answered before it:
+      // plan 26 replays the saved answer by gate id (replayed:true) instead of refusing it, and
+      // nothing is written a second time.
       const gone = await answerGate(A2.client, G1, 'approve');
-      assert.equal(gone.ok, false);
-      assert.equal(gone.reason, 'unknown_or_expired_gate', 'G1 must be gone from the in-memory ledger: ' + JSON.stringify(gone));
-      assert.equal(readNodes(roomX, 'decision:gate:' + G1).length, 1, 'decision node for G1 must survive the restart');
+      assert.equal(gone.ok, true, 'G1 was answered before the restart, so it replays: ' + JSON.stringify(gone));
+      assert.equal(gone.replayed, true, 'G1 replays from the saved answer: ' + JSON.stringify(gone));
+      assert.equal(gone.decision_node_id, 'decision:gate:' + G1);
+      assert.equal(readNodes(roomX, 'decision:gate:' + G1).length, 1, 'decision node for G1 must survive the restart, exactly once');
     });
 
     await arm('6 modern: an auto client with no inherited CLI session id gets no_session_id; an inherited id binds every request', async () => {

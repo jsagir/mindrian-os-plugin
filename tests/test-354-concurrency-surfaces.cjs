@@ -383,9 +383,10 @@ async function runK3() {
       });
 
       const burned = await answerGate(S1, filed.gateId, 'approve');
-      await checkThat('K3: a THIRD approve from the correct session (S1) is refused as consumed (single use after success)', () => {
-        assert.strictEqual(burned.json && burned.json.ok, false, JSON.stringify(burned.json));
-        assert.strictEqual(burned.json && burned.json.reason, 'unknown_or_expired_gate', JSON.stringify(burned.json));
+      await checkThat('K3: a THIRD approve from the correct session (S1) replays the saved answer and writes nothing (single write after success)', () => {
+        // Phase 369 plan 26: was a refusal (unknown_or_expired_gate); now a replay by gate id.
+        assert.strictEqual(burned.json && burned.json.ok, true, JSON.stringify(burned.json));
+        assert.strictEqual(burned.json && burned.json.replayed, true, JSON.stringify(burned.json));
       });
     }
 

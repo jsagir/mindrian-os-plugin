@@ -200,7 +200,8 @@ async function main() {
     if (!g.approved_via || g.approved_via.surface !== 'mcp') return 'approved_via ' + JSON.stringify(g.approved_via);
     if (!g.approved_via.decision_node_id || !nodeExists(room, g.approved_via.decision_node_id)) return 'decision node missing';
     const again = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
-    if (again.ok !== false || again.reason !== 'unknown_or_expired_gate') return 'second answer ' + JSON.stringify(again).slice(0, 200);
+    // Phase 369 plan 26: a second answer replays the recorded one (replayed:true) and writes nothing.
+    if (again.ok !== true || again.replayed !== true) return 'second answer ' + JSON.stringify(again).slice(0, 200);
     if (grants.readGrants(room.roomDir, {}).grants.length !== 1) return 'replay wrote another grant';
     // a reject writes nothing
     const other = newRoom('founder');

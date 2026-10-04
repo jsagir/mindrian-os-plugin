@@ -261,9 +261,10 @@ function filingOptionIds(basket) {
     return (!offerFor(b, TERM1) && !!c && c.term === TERM1 && c.canon_name === RS && /canon-confirm/.test(String(c.next_step))) || JSON.stringify(b).slice(0, 500);
   });
 
-  await leg('C6 a second answer on the same gate is refused and writes nothing more', async function () {
+  await leg('C6 a second answer on the same gate is a replay and writes nothing more', async function () {
+    // Phase 369 plan 26: a second answer replays the saved one (replayed:true); it runs and writes nothing.
     const again = await A.answer(gate1, ['release'], 'approve');
-    return (again.ok === false && again.reason === 'unknown_or_expired_gate' && theoRows().length === 1) || JSON.stringify(again).slice(0, 300);
+    return (again.ok === true && again.replayed === true && theoRows().length === 1) || JSON.stringify(again).slice(0, 300);
   });
 
   await leg('C7 not_now / reject sends nothing', async function () {

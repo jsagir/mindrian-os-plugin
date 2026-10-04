@@ -42,6 +42,7 @@ const path = require('node:path');
 // ---------------------------------------------------------------------------
 // Hermetic environment, BEFORE any lib/ module is required.
 // ---------------------------------------------------------------------------
+const TAKE_CALLS = ['_consumeLiveGate(', '_releaseLiveGate('];
 const REPO = path.resolve(__dirname, '..');
 const TMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 't289-ledger-'));
 const ENV_KEYS = ['HOME', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_BRAIN_URL', 'MINDRIAN_BRAIN_KEY',
@@ -293,10 +294,13 @@ async function armGateAnswer() {
     assert.equal(r.ratified, true);
     assert.equal(nodeExists(decisionNodeId(a.gate_id)), true, 'node ' + decisionNodeId(a.gate_id) + ' must exist in room.db');
   });
-  await check('gate-answer: replay after success is refused unknown_or_expired_gate', async () => {
+  await check('gate-answer: replay after success answers replayed:true and writes nothing (Phase 369 plan 26; was unknown_or_expired_gate)', async () => {
+    const before = rowCount(a.gate_id);
     const r = await answer('S1', a.gate_id, ['approve']);
-    assert.equal(r._isError, true);
-    assert.equal(r.reason, 'unknown_or_expired_gate');
+    assert.equal(r._isError, false);
+    assert.equal(r.ok, true);
+    assert.equal(r.replayed, true);
+    assert.equal(rowCount(a.gate_id), before, 'a replay writes no second bookkeeping row');
   });
 
   // Case B: a chosen refusal does not burn the gate.
@@ -330,10 +334,11 @@ async function armGateAnswer() {
   const d = await mintCard('S1');
   await check('gate-answer: two concurrent approves ratify exactly once, with exactly one bookkeeping row', async () => {
     const both = await Promise.all([answer('S1', d.gate_id, ['approve']), answer('S1', d.gate_id, ['approve'])]);
-    const ratified = both.filter((r) => r.ok === true && r.ratified === true);
-    const refused = both.filter((r) => r.reason === 'unknown_or_expired_gate');
+    // Phase 369 plan 26: the loser is no longer refused, it replays the saved answer.
+    const ratified = both.filter((r) => r.ok === true && r.ratified === true && r.replayed !== true);
+    const replayed = both.filter((r) => r.ok === true && r.replayed === true);
     assert.equal(ratified.length, 1, 'exactly one ratification, got ' + JSON.stringify(both));
-    assert.equal(refused.length, 1, 'exactly one unknown_or_expired_gate, got ' + JSON.stringify(both));
+    assert.equal(replayed.length, 1, 'exactly one replayed answer, got ' + JSON.stringify(both));
     assert.equal(rowCount(d.gate_id), 1, 'exactly one gate_answer memory_event row for the gate');
   });
 
@@ -358,8 +363,8 @@ async function armGateAnswer() {
   await check('gate-answer: two concurrent approves on a material gate whose resumeFn awaits run resumeFn exactly once', async () => {
     const both = await Promise.all([answer('S1', d2, ['approve']), answer('S1', d2, ['approve'])]);
     assert.equal(d2Counter.n, 1, 'resumeFn must run exactly once, got ' + d2Counter.n + ' with ' + JSON.stringify(both));
-    assert.equal(both.filter((r) => r.ok === true).length, 1, 'exactly one ratification, got ' + JSON.stringify(both));
-    assert.equal(both.filter((r) => r.reason === 'unknown_or_expired_gate').length, 1, 'exactly one unknown_or_expired_gate, got ' + JSON.stringify(both));
+    assert.equal(both.filter((r) => r.ok === true && r.replayed !== true).length, 1, 'exactly one ratification, got ' + JSON.stringify(both));
+    assert.equal(both.filter((r) => r.replayed === true).length, 1, 'exactly one replayed answer (the loser reads the durable trace and runs nothing), got ' + JSON.stringify(both));
     assert.equal(rowCount(d2), 1, 'exactly one bookkeeping row');
   });
 
@@ -411,8 +416,12 @@ async function armSource() {
   const awaitInWindow = (text) => {
     const peekAt = firstIndex(text, ['gateLedger.peekGate(', '_peekLiveGate(']);
     const consumes = [];
-    for (let i = text.indexOf('_consumeLiveGate('); i !== -1; i = text.indexOf('_consumeLiveGate(', i + 1)) consumes.push(i);
-    if (peekAt === -1 || consumes.length < 2) return { error: 'expected a peek and at least two consumes (binding path and main), got peek=' + peekAt + ' consumes=' + consumes.length };
+    // Phase 369 plan 26: the main take is now _releaseLiveGate( (after the withRoomTx commit);
+    // the binding path still consumes through _consumeLiveGate(. Both windows must be await-free.
+    for (const call of TAKE_CALLS) {
+      for (let i = text.indexOf(call); i !== -1; i = text.indexOf(call, i + 1)) consumes.push(i);
+    }
+    if (peekAt === -1 || consumes.length < 2) return { error: 'expected a peek and at least two takes (binding consume and main release), got peek=' + peekAt + ' takes=' + consumes.length };
     const hits = consumes.filter((at) => /\bawait\b/.test(stripComments(text.slice(peekAt, at))));
     return { hits: hits.length, windows: consumes.length };
   };
@@ -421,10 +430,13 @@ async function armSource() {
     assert.equal(r.error, undefined, r.error);
     assert.equal(r.hits, 0, r.hits + ' of ' + r.windows + ' peek-to-consume windows contain an await');
   });
-  await check('source: the main consume is the LAST _consumeLiveGate( and sits after openRoomDbForCaller (the window really spans the room open)', () => {
-    const mainAt = handlerText.lastIndexOf('_consumeLiveGate(');
+  await check('source: the main take is _releaseLiveGate(, after openRoomDbForCaller and the withRoomTx commit (the window really spans the room open and the whole ratification)', () => {
+    const mainAt = handlerText.lastIndexOf('_releaseLiveGate(');
     const openAt = handlerText.indexOf('openRoomDbForCaller(roomDir)');
-    assert.ok(openAt !== -1 && mainAt > openAt, 'main consume (at ' + mainAt + ') must follow openRoomDbForCaller (at ' + openAt + ')');
+    const txAt = handlerText.indexOf('navigation.withRoomTx(');
+    assert.ok(openAt !== -1 && txAt > openAt, 'withRoomTx (at ' + txAt + ') must follow openRoomDbForCaller (at ' + openAt + ')');
+    assert.ok(mainAt > txAt, 'the main release (at ' + mainAt + ') must follow the withRoomTx commit (at ' + txAt + ')');
+    assert.equal(handlerText.lastIndexOf('_consumeLiveGate(') < openAt, true, 'no _consumeLiveGate( after the room opens: only the binding path consumes');
   });
   await check('source: the detector is not vacuous - an await inserted before openRoomDbForCaller is caught', () => {
     const mutated = handlerText.replace('const db = navigation.openRoomDbForCaller(roomDir);', 'await Promise.resolve();\n      const db = navigation.openRoomDbForCaller(roomDir);');

@@ -244,10 +244,15 @@ function countBookkeepingRows() {
       assert.equal(countBookkeepingRows(), beforeCase5 + 1, 'exactly one bookkeeping row for the ratification');
     });
 
+    // Phase 369 plan 26 (GREC369-02): the gate is single-use for WRITES, but a
+    // second answer is recoverable: it reads the durable trace and answers
+    // replayed:true, runs nothing and writes nothing (was unknown_or_expired_gate).
+    const beforeReplay = countBookkeepingRows();
     const replay = await answerGate(gateId2, ['approve'], 'approve');
-    ok('case 5 replay: answering the same gate again after success returns unknown_or_expired_gate', function () {
-      assert.equal(replay.ok, false, 'replay on a ratified gate must be ok:false');
-      assert.equal(replay.reason, 'unknown_or_expired_gate', 'replay must report the gate as unknown/expired');
+    ok('case 5 replay: answering the same gate again after success is replayed, with no second write', function () {
+      assert.equal(replay.ok, true, 'replay on a ratified gate must be ok:true, got ' + JSON.stringify(replay));
+      assert.equal(replay.replayed, true, 'replay must say replayed:true');
+      assert.equal(countBookkeepingRows(), beforeReplay, 'a replay writes no second bookkeeping row');
     });
 
     console.log(`PASS test-238-chosen-validation (${n} assertions)`);
