@@ -12,6 +12,7 @@
  *          allow-listed reason, no plugin or file path in any model-visible text
  *   cr-02  a half-installed node_modules is never trusted: a dead or stale "installing" record means re-install
  *   cr-03  the connect path never runs a blocking in-process npm ci; the detached installer is never killed at the budget
+ *   wr-01  the install target is where the running file lives, never an env root that points elsewhere
  *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
@@ -641,9 +642,70 @@ async function armCr03() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-01
+// ---------------------------------------------------------------------------
+async function armWr01() {
+  const A = 'wr-01';
+  // Two roots: OWN holds the running code, OTHER is a dev clone the environment wrongly points at.
+  function twoRoots(label) {
+    const own = plugin(label + '-own');
+    layoutHookFiles(own);
+    const other = plugin(label + '-other');
+    fs.mkdirSync(path.join(other, 'node_modules', 'dev-only-dependency'), { recursive: true });
+    fs.writeFileSync(path.join(other, 'node_modules', 'dev-only-dependency', 'KEEP_ME'), 'dev clone content');
+    return { own, other, keep: path.join(other, 'node_modules', 'dev-only-dependency', 'KEEP_ME') };
+  }
+
+  await check(A, 'resolvePluginRoot returns the directory the running file lives in, whatever CLAUDE_PLUGIN_ROOT or MINDRIAN_OS_ROOT say', () => {
+    const { own, other } = twoRoots('w1-resolve');
+    const env = envFor(newHome(), { CLAUDE_PLUGIN_ROOT: other, MINDRIAN_OS_ROOT: other });
+    const code = "process.stdout.write(JSON.stringify({root:require(process.argv[1]).resolvePluginRoot()}));";
+    const out = jsonOut(runNode(code, [path.join(own, 'lib', 'core', 'mcp-dep-heal.cjs')], env), 'resolvePluginRoot');
+    assert.equal(fs.realpathSync(out.root), fs.realpathSync(own), 'the install target must be the running file\'s own root, got ' + out.root);
+  });
+
+  await check(A, 'an env root that is only another spelling of the same directory is accepted (symlink)', () => {
+    const { own } = twoRoots('w1-alias');
+    const alias = path.join(mkTemp('w1-alias-dir'), 'cache');
+    fs.symlinkSync(own, alias);
+    const env = envFor(newHome(), { CLAUDE_PLUGIN_ROOT: alias });
+    const code = "process.stdout.write(JSON.stringify({root:require(process.argv[1]).resolvePluginRoot()}));";
+    const out = jsonOut(runNode(code, [path.join(own, 'lib', 'core', 'mcp-dep-heal.cjs')], env), 'resolvePluginRoot');
+    assert.equal(fs.realpathSync(out.root), fs.realpathSync(own));
+  });
+
+  await check(A, 'the connect-path heal installs into the running root and leaves the dev clone the env points at untouched', () => {
+    const { own, other, keep } = twoRoots('w1-heal');
+    const log = path.join(TMP, 'w1-heal.log');
+    const env = envFor(newHome(), { CLAUDE_PLUGIN_ROOT: other, FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: log, MINDRIAN_TEST_CONNECT_BUDGET_MS: '20000' });
+    const code = "const h=require(process.argv[1]); h.beginConnectPathBudget(); process.stdout.write(JSON.stringify(h.ensureDepsPresent({connectPath:true, log:function(){}})));";
+    const res = jsonOut(runNode(code, [path.join(own, 'lib', 'core', 'mcp-dep-heal.cjs')], env, 60000), 'ensureDepsPresent');
+    assert.equal(res.ok, true, 'install into the running root finishes: ' + JSON.stringify(res));
+    const calls = readLog(log);
+    assert.ok(calls.length >= 1, 'npm must run');
+    for (const c of calls) assert.equal(fs.realpathSync(c.cwd), fs.realpathSync(own), 'npm ran in ' + c.cwd + ', not in the running root');
+    assert.equal(fs.readFileSync(keep, 'utf8'), 'dev clone content', 'the dev clone node_modules must survive');
+    sweep();
+  });
+
+  await check(A, 'the SessionStart hook also installs into its own root, never the env root', () => {
+    const { own, other, keep } = twoRoots('w1-hook');
+    const log = path.join(TMP, 'w1-hook.log');
+    const env = envFor(newHome(), { CLAUDE_PLUGIN_ROOT: other, FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: log });
+    const r = spawnSync(process.execPath, [path.join(own, 'scripts', 'sessionstart-npm-reconcile.cjs')], { env, encoding: 'utf8', timeout: 90000, cwd: TMP });
+    assert.equal(r.status, 0);
+    const calls = readLog(log);
+    assert.ok(calls.length >= 1, 'the hook must install (its own root has no node_modules)');
+    for (const c of calls) assert.equal(fs.realpathSync(c.cwd), fs.realpathSync(own), 'the hook ran npm in ' + c.cwd);
+    assert.equal(fs.readFileSync(keep, 'utf8'), 'dev clone content', 'the dev clone node_modules must survive');
+    sweep();
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-05': armWr05 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-05': armWr05 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);

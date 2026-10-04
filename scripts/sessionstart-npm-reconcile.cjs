@@ -31,12 +31,17 @@ process.on('uncaughtException', () => {
 
 const fs = require('node:fs');
 const path = require('node:path');
-const os = require('node:os');
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT
-  || process.env.MINDRIAN_OS_ROOT
-  || path.resolve(__dirname, '..')
-  || path.join(os.homedir(), '.claude', 'plugins', 'mindrian-os');
+// 369.1-REVIEW WR-01: the install target is the directory this script lives in. The environment
+// roots (CLAUDE_PLUGIN_ROOT, MINDRIAN_OS_ROOT) are honoured only when they are the same
+// directory; a value pointing anywhere else (a dev clone named by ~/.claude/settings.json) would
+// make `npm ci` wipe that tree's node_modules while the real cache stays empty.
+const OWN_ROOT = path.resolve(__dirname, '..');
+function sameDirectory(a, b) {
+  try { return fs.realpathSync(a) === fs.realpathSync(b); } catch (e) { return path.resolve(a) === path.resolve(b); }
+}
+const ENV_ROOT = process.env.CLAUDE_PLUGIN_ROOT || process.env.MINDRIAN_OS_ROOT || '';
+const PLUGIN_ROOT = (ENV_ROOT && sameDirectory(ENV_ROOT, OWN_ROOT)) ? ENV_ROOT : OWN_ROOT;
 
 function emit() {
   try { process.stdout.write(JSON.stringify({ continue: true })); } catch (e) { /* swallow */ }
