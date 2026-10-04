@@ -612,7 +612,11 @@ async function httpArm() {
       assert.strictEqual(read.ok, true, JSON.stringify(read).slice(0, 200));
       const nonce = read.render_nonce;
       assert.strictEqual(typeof nonce, 'string');
-      const chosen = [read.gate.recommended_id];
+      // Plan 369-42 (WR-03): the shell declares approving [approve], so an approve that names the recommended option is
+      // only sound when that option is 'approve'. The adapter recommends 'hold' for a claim below the floor, and sending
+      // verdict approve with chosen [hold] is exactly the mismatch the shell now refuses. The click names Approve.
+      const chosen = ['approve'];
+      assert.ok(read.gate.options.some((o) => o.id === 'approve'), 'the card offers Approve');
       const body = { gate_id: gate, chosen, verdict: 'approve', render_nonce: nonce };
 
       const listed = async () => (json(await post(A, 'listOpenGates', {})).gates || []).map((g) => g.gate_id);
