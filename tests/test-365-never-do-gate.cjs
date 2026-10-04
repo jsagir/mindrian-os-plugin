@@ -525,7 +525,15 @@ async function main() {
     // research_run precedent above); gate_render, chain_run and every input schema stay pinned to PLAN_BASE below.
     // The byte-identity pin of gate.cjs itself (N12, further down) moves to the same sha. Any later edit to gate.cjs
     // must re-pin GATE_BASE.
-    const GATE_BASE = 'b2f03de02716430caa723112c16e35d19de8c584';
+    // Re-pinned 2026-10-04 (Phase 369 plan 41, once, after the LAST gate.cjs commit of the gap closure): GATE_BASE is
+    // now cd27faa94 (plan 369-38, gate hardening WR-01 to WR-06). Between plan 26 and here gate.cjs changed for plan
+    // 369-33 (gate_list registered; the gate_render description made honest about recording the card in the room),
+    // plan 369-36 (the gate_render mirror_of input and the mirror description; the gate_answer description for
+    // answered_elsewhere) and plan 369-38 (the gate_render approving input; gate_id_in_use, gate_id_answered,
+    // too_many_open_gates, bad_approving, replay_lookup_failed in the descriptions). So the gate_render description,
+    // title and input schema and the gate_answer description and title pins move to this sha; the gate_answer input
+    // schema, chain_run and research_run stay on their bases.
+    const GATE_BASE = 'cd27faa94eabbb6d69a5c0d2541abba4fe131784';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
@@ -576,11 +584,13 @@ async function main() {
         const now = capture(row[1]);
         row[2].forEach(function (name) {
           check('N12 ' + name + ' is registered on both', !!base[name] && !!now[name]);
-          const descBase = (name === 'gate_answer' && gateBase) ? gateBase : base;
-          check('N12 ' + name + ' description and title are byte-identical to ' + (descBase === gateBase ? 'GATE_BASE (plan 369-26)' : 'PLAN_BASE'),
+          // 369-41: both gate tools' description and title, and gate_render's input schema, pin to GATE_BASE.
+          const descBase = gateBase || base;
+          const schemaBase = (name === 'gate_render' && gateBase) ? gateBase : base;
+          check('N12 ' + name + ' description and title are byte-identical to ' + (descBase === gateBase ? 'GATE_BASE (plan 369-41)' : 'PLAN_BASE'),
             descBase[name].description === now[name].description && descBase[name].title === now[name].title);
-          check('N12 ' + name + ' input schema (fields, requiredness, descriptions) is identical to PLAN_BASE',
-            JSON.stringify(shape(base[name].inputSchema)) === JSON.stringify(shape(now[name].inputSchema)));
+          check('N12 ' + name + ' input schema (fields, requiredness, descriptions) is identical to ' + (schemaBase === gateBase ? 'GATE_BASE (plan 369-41)' : 'PLAN_BASE'),
+            JSON.stringify(shape(schemaBase[name].inputSchema)) === JSON.stringify(shape(now[name].inputSchema)));
         });
       });
       // debug desktop-session-binding-fallback (96804284d) deliberately changed gate.cjs's
@@ -596,7 +606,9 @@ async function main() {
       // gate_answer and gate_render descriptions and titles are unchanged and the input schema grows only
       // the optional boolean recommended on an option, still pinned to PLAN_BASE above.
       // Re-pinned 2026-10-04 (Phase 369 plan 26, once, after its last gate.cjs commit): GATE_BASE (defined above)
-      // is now b2f03de02, the commit that carries the durable-consumption and recovery changes to gate_answer.
+      // was b2f03de02, the commit that carries the durable-consumption and recovery changes to gate_answer.
+      // Re-pinned 2026-10-04 (Phase 369 plan 41, once, after plans 33, 36 and 38): GATE_BASE is now cd27faa94, the last
+      // gate.cjs commit of the gap closure; see the dated comment on GATE_BASE above for what moved.
       check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
         spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
