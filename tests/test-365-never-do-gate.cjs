@@ -244,8 +244,9 @@ async function main() {
     const first = rc.readNeverDo(room.roomDir);
     const again = await app.answer(m.gate_id, ['approve'], 'approve');
     const after = rc.readNeverDo(room.roomDir);
-    check('N6 the same gate_id answered twice -> unknown_or_expired_gate, no second write',
-      again.ok === false && again.reason === 'unknown_or_expired_gate' && first.entries.length === 1 && after.entries.length === 1, JSON.stringify(again));
+    // Phase 369 plan 26: a second answer replays the saved one (replayed:true) instead of refusing; no second write.
+    check('N6 the same gate_id answered twice -> replayed, no second write',
+      again.ok === true && again.replayed === true && first.entries.length === 1 && after.entries.length === 1, JSON.stringify(again));
     // another session cannot consume it either
     const m2 = await neverDoGate.mintProposalGate(PROPOSAL, { roomDir: room.roomDir, sessionId: SESSION });
     const other = parse(await app.server.captured.get('gate_answer').handler({ gate_id: m2.gate_id, chosen: ['approve'], verdict: 'approve' }, { sessionId: 'someone-else' }));
@@ -458,7 +459,8 @@ async function main() {
       resA.ok === true && crA.ok === true && crA.executed === false && /research_run with op run_quick/.test(crA.next_step)
       && crA.next_step.indexOf(a.out.run_id) !== -1 && neverDoBytes(a.room) !== null && rc.readNeverDo(a.room.roomDir).entries.length === 1, JSON.stringify(crA));
     const replay = await appA.answer(gateA.gate_id, ['approve'], 'approve');
-    check('N13 a replay is refused', replay.ok === false && replay.reason === 'unknown_or_expired_gate');
+    check('N13 a replay answers replayed and re-runs nothing (Phase 369 plan 26)',
+      replay.ok === true && replay.replayed === true && replay.chain_result === undefined && rc.readNeverDo(a.room.roomDir).entries.length === 1);
 
     // (b) reject: the Reject and never do this follow-up from the card's own proposal
     const b = await haltedRoom([{ kind: 'command', value: '/mos:whitespace' }]);
@@ -516,13 +518,21 @@ async function main() {
     // stay pinned to PLAN_BASE. Any later edit to research_run's registration must re-pin this.
     // quick 261002-cud re-pinned it for the offline field and the offline and canon-release description sentences.
     const RESEARCH_BASE = '0b39f852828022f67e56993b94539c5757dca207';
+    // Re-pinned 2026-10-04 (Phase 369 plan 26): gate_answer's recovery contract (durable consumption after the
+    // withRoomTx commit, replayed, room_switched, stale_subject, gate_expired, unknown_gate, persistence_failed) is
+    // in gate.cjs at b2f03de02, the last gate.cjs commit of that plan. Its description was rewritten within the
+    // 2048-byte floor to say so honestly, so the gate_answer description and title pin moves to this sha (the
+    // research_run precedent above); gate_render, chain_run and every input schema stay pinned to PLAN_BASE below.
+    // The byte-identity pin of gate.cjs itself (N12, further down) moves to the same sha. Any later edit to gate.cjs
+    // must re-pin GATE_BASE.
+    const GATE_BASE = 'b2f03de02716430caa723112c16e35d19de8c584';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
     } else {
-      const loadBase = function (rel) {
+      const loadBase = function (rel, refOverride) {
         const file = path.join(ROOT, rel);
-        const baseRef = rel === 'lib/mcp/tools/research.cjs' ? RESEARCH_BASE : PLAN_BASE;
+        const baseRef = refOverride || (rel === 'lib/mcp/tools/research.cjs' ? RESEARCH_BASE : PLAN_BASE);
         const src = spawnSync('git', ['show', baseRef + ':' + rel.split(path.sep).join('/')], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout;
         const m = new Module(file, module);
         m.filename = file;
@@ -562,11 +572,13 @@ async function main() {
         ['lib/mcp/tools/chain.cjs', chainTool, ['chain_run']],
         ['lib/mcp/tools/research.cjs', researchTool, ['research_run']]].forEach(function (row) {
         const base = capture(loadBase(row[0]));
+        const gateBase = row[0] === 'lib/mcp/tools/gate.cjs' ? capture(loadBase(row[0], GATE_BASE)) : null;
         const now = capture(row[1]);
         row[2].forEach(function (name) {
           check('N12 ' + name + ' is registered on both', !!base[name] && !!now[name]);
-          check('N12 ' + name + ' description and title are byte-identical to PLAN_BASE',
-            base[name].description === now[name].description && base[name].title === now[name].title);
+          const descBase = (name === 'gate_answer' && gateBase) ? gateBase : base;
+          check('N12 ' + name + ' description and title are byte-identical to ' + (descBase === gateBase ? 'GATE_BASE (plan 369-26)' : 'PLAN_BASE'),
+            descBase[name].description === now[name].description && descBase[name].title === now[name].title);
           check('N12 ' + name + ' input schema (fields, requiredness, descriptions) is identical to PLAN_BASE',
             JSON.stringify(shape(base[name].inputSchema)) === JSON.stringify(shape(now[name].inputSchema)));
         });
@@ -583,7 +595,8 @@ async function main() {
       // check, WR-02 residual comment and WR-05 recommended option field (797eacda0) changed gate.cjs; the
       // gate_answer and gate_render descriptions and titles are unchanged and the input schema grows only
       // the optional boolean recommended on an option, still pinned to PLAN_BASE above.
-      const GATE_BASE = '797eacda0ee534cdf76578f95b22ad81b160a429';
+      // Re-pinned 2026-10-04 (Phase 369 plan 26, once, after its last gate.cjs commit): GATE_BASE (defined above)
+      // is now b2f03de02, the commit that carries the durable-consumption and recovery changes to gate_answer.
       check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
         spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
