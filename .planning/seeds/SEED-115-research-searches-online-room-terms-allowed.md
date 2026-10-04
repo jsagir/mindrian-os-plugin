@@ -1,7 +1,7 @@
 ---
 id: SEED-115
 title: "Research searches online for real: room-derived terms leave on the search lines under the run's grant; the per-term block from 355 / 355.1 / 366 / SEED-104 is reversed"
-status: seeded
+status: promoted (Phase 369.2, inserted 2026-10-04; surgical quick 261004-v16 same day)
 priority: critical
 filed: 2026-10-04
 source: navigator ruling 2026-10-04, verbatim: "seed critical next. blocking room infor from search queries in 355.1 355 was a wrong thing to do. it needs to fully be abel to search onlne !"

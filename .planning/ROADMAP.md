@@ -1775,6 +1775,18 @@ Plans:
 
 - [x] 369.1-16-PLAN.md -- DPI-01..13 rows closed with measured proof; probe verified deleted (depends_on_external 369-31)
 
+### Phase 369.2: Research searches online for real: room phrases and questions fill the web search slots under the run's grant; the per-term block of 355 / 355.1 / 366 D-13 / SEED-104 on the web lines is reversed (promotes SEED-115) (INSERTED)
+
+**Navigator ruling (2026-10-04, verbatim):** "blocking room infor from search queries in 355.1 355 was a wrong thing to do. it needs to fully be abel to search onlne !" and "the policy of no info from room goes as a search query is a wront move. we are limiting mindrianOS !!!!! this is hyper critical fix".
+**Goal:** The research planner searches the open web with the room's own words. On the web search lines (Tavily, WebSearch fallback) a query slot may carry a room phrase or a room question; the grant card shows the exact strings before anything leaves and the navigator approves the run once, not term by term; every string sent lands in the audit ledger; a room can still switch a line off in `.mindrian/egress-policy.json`. Canon Part 8 is unchanged and stated precisely: it governs the Brain (Theo), so the `theo` corpus leaves and canon-name slots keep the strict composable-term rule, and no Part 8 Theo test moves. `localRoomCheck` keeps its honest job (the evidence card says "the room already holds this") and loses its blocking one; a sentence becomes a shaped query, never a refusal. Measured bar: on the three Phase 355 fixture rooms a quick run sends non-empty queries that contain the room's own named terms, returns evidence rows with sources, and `not_enough_context` disappears for rooms that have claims. Quick 261004-v16 (same day) is the surgical first step: `families.cjs` gains a web-line query rule beside `composableTerm`, its callers route by destination, the seed104 pins move; this phase does the full design (query composition from room questions, the per-term grant loop retired on the web lines, the fixture-room measurement, docs and the Part 8 wording in `plan.cjs`).
+**Requirements**: TBD (derive at /gsd-plan-phase 369.2; SEED-115 names the tests that move and the ones that do not)
+**Depends on:** Phase 363 (the one research planner), Phase 366 (egress policy file, audit ledger), quick 261004-v16 (the unblock this phase completes). Independent of Theo Phase 26.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.2 to break down)
+
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
 **Navigator ruling (2026-10-01, relayed by the Theo session jsagi-f1):** "build a review contract into /mos:grade and /mos:deep-grade; seed it through plugin GSD." The paper author's verdict on an AI-generated 9-section student systems review (June 2025), verbatim: "Still too long. Too much jargon, including things none of us had any idea what they were talking about. 1-5 were good. 6 (tool analysis) is not necessary. 7 was incomprehensible, talking about tools that we did not understand. 8 was helpful. 9 was helpful, but too much of it."
