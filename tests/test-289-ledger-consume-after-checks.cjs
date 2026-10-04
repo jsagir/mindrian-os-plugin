@@ -337,6 +337,32 @@ async function armGateAnswer() {
     assert.equal(rowCount(d.gate_id), 1, 'exactly one gate_answer memory_event row for the gate');
   });
 
+  // Case D2 (Phase 289 review WR-06): a material_step gate whose resumeFn
+  // genuinely awaits. Case D's non-material gate has no await in the handler, so
+  // Promise.all ran its two calls strictly one after the other and could not
+  // detect a consume that moved after an await. Here the first call suspends
+  // inside resumeFn while the second starts; exactly one resumeFn call must run.
+  const d2 = 'g289-concurrent-material';
+  const d2Counter = { n: 0 };
+  gateLedger.mintGate(d2, {
+    card: gateRender.normalizeCard({ gate_id: d2, options: [{ id: 'approve', label: 'Approve' }, { id: 'reject', label: 'Reject' }] }),
+    sessionId: 'S1',
+    kind: 'material_step',
+    approving: ['approve'],
+    resumeFn: async () => {
+      d2Counter.n += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+      return { ok: true, executed: true };
+    },
+  });
+  await check('gate-answer: two concurrent approves on a material gate whose resumeFn awaits run resumeFn exactly once', async () => {
+    const both = await Promise.all([answer('S1', d2, ['approve']), answer('S1', d2, ['approve'])]);
+    assert.equal(d2Counter.n, 1, 'resumeFn must run exactly once, got ' + d2Counter.n + ' with ' + JSON.stringify(both));
+    assert.equal(both.filter((r) => r.ok === true).length, 1, 'exactly one ratification, got ' + JSON.stringify(both));
+    assert.equal(both.filter((r) => r.reason === 'unknown_or_expired_gate').length, 1, 'exactly one unknown_or_expired_gate, got ' + JSON.stringify(both));
+    assert.equal(rowCount(d2), 1, 'exactly one bookkeeping row');
+  });
+
   // Case E: a material_step gate with no resume owner is refused and kept.
   const e = 'g289-no-resume-owner';
   gateLedger.mintGate(e, {
@@ -376,6 +402,37 @@ async function armSource() {
     assert.ok(peekAt < consumeAt, 'the peek (at ' + peekAt + ') must precede the consume (at ' + consumeAt + ')');
     assert.equal(/\bawait\b/.test(handlerText.slice(peekAt, consumeAt)), false, 'no await between the peek and the consume');
   });
+  // Phase 289 review WR-06: the first _consumeLiveGate( in the handler is the
+  // binding-path consume, so the assertion above covers only that window. The
+  // window that matters is peek to the MAIN consume (the last one, after
+  // resolveMcpWriteRoom and openRoomDbForCaller). Check every consume, comments
+  // stripped (the code comments name the word await on purpose), and prove the
+  // detector is not vacuous by running it over a mutated copy.
+  const awaitInWindow = (text) => {
+    const peekAt = firstIndex(text, ['gateLedger.peekGate(', '_peekLiveGate(']);
+    const consumes = [];
+    for (let i = text.indexOf('_consumeLiveGate('); i !== -1; i = text.indexOf('_consumeLiveGate(', i + 1)) consumes.push(i);
+    if (peekAt === -1 || consumes.length < 2) return { error: 'expected a peek and at least two consumes (binding path and main), got peek=' + peekAt + ' consumes=' + consumes.length };
+    const hits = consumes.filter((at) => /\bawait\b/.test(stripComments(text.slice(peekAt, at))));
+    return { hits: hits.length, windows: consumes.length };
+  };
+  await check('source: no await between the peek and ANY _consumeLiveGate( in the handler, the main consume included', () => {
+    const r = awaitInWindow(handlerText);
+    assert.equal(r.error, undefined, r.error);
+    assert.equal(r.hits, 0, r.hits + ' of ' + r.windows + ' peek-to-consume windows contain an await');
+  });
+  await check('source: the main consume is the LAST _consumeLiveGate( and sits after openRoomDbForCaller (the window really spans the room open)', () => {
+    const mainAt = handlerText.lastIndexOf('_consumeLiveGate(');
+    const openAt = handlerText.indexOf('openRoomDbForCaller(roomDir)');
+    assert.ok(openAt !== -1 && mainAt > openAt, 'main consume (at ' + mainAt + ') must follow openRoomDbForCaller (at ' + openAt + ')');
+  });
+  await check('source: the detector is not vacuous - an await inserted before openRoomDbForCaller is caught', () => {
+    const mutated = handlerText.replace('const db = navigation.openRoomDbForCaller(roomDir);', 'await Promise.resolve();\n      const db = navigation.openRoomDbForCaller(roomDir);');
+    assert.notEqual(mutated, handlerText, 'the mutation must apply');
+    const r = awaitInWindow(mutated);
+    assert.equal(r.error, undefined, r.error);
+    assert.ok(r.hits >= 1, 'an await before the main consume must be detected, hits=' + r.hits);
+  });
 
   const chainSrc = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'tools', 'chain.cjs'), 'utf8');
   const resumeText = sliceFunction(chainSrc, 'async function _resumeFromGateAnswer(');
@@ -394,6 +451,12 @@ async function armSource() {
     assert.ok(peekAt !== -1 && consumeAt !== -1 && peekAt < consumeAt, 'peek and consume must both exist, peek first');
     assert.equal(/\bawait\b/.test(resumeText.slice(peekAt, consumeAt)), false, 'no await between the peek and the consume');
   });
+}
+
+// Strips block comments and whole-line or trailing // comments. Good enough for
+// the handler window: it holds no string literal containing //.
+function stripComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"])\/\/.*$/gm, '$1');
 }
 
 function firstIndex(text, needles) {
