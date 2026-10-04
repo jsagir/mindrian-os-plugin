@@ -5,16 +5,19 @@ help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
 layer: "graph"
 hitl_stages:
+  - stage: "chain-select"
+    shapes: ["F.1"]
+    mode: "gate"
   - stage: "build-path"
     shapes: ["F.2"]
     mode: "ordered"
   - stage: "ordered-stages"
     shapes: ["F.9"]
     mode: "ordered"
-hitl_why: "A multi-stage pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
+hitl_why: "A multi-stage pipeline is picked on a single F.1 next-move card first, then runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/pipeline.md:65, the Brain-derived framework chain printed as an ordered run order the command then goes on to execute, on the --from-problem-type / --from-framework path.
 interactive_first_reward: schema_preview
-argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
+argument-hint: '[pipeline-name] [--list] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
 teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -28,6 +31,7 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -78,7 +82,7 @@ Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__mindria
 1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_framework_chain` pattern
 2. When the user says just "pipeline" with no name, use Brain to suggest dynamic chains based on room state:
    - Run `brain_framework_chain` with current room frameworks to discover graph-informed sequences
-   - Present Brain-recommended chains alongside the static Discovery/Thesis pipelines from chains-index.md
+   - Brain-recommended chains join the same Shape F.1 card as extra options next to the static Discovery/Thesis pipelines from chains-index.md (one card, not a second list; see Chain Selection below)
    - Brain chains reflect what actually worked for similar ventures; static chains remain available as reliable defaults
 3. When a specific pipeline is selected, Brain can also optimize stage transitions by checking `brain_gap_assess` between stages to surface prerequisites that might need attention before proceeding
 
@@ -105,7 +109,9 @@ Recommend based on venture stage and room state:
 - Pre-Opportunity or Discovery stage -> suggest **discovery** pipeline
 - Design or Investment stage -> suggest **thesis** pipeline
 
-Present both options with brief descriptions from the chains-index. Let the user choose. Do not auto-select.
+Then fire ONE AskUserQuestion call: a Shape F.1 (Next Move) card, composed with the SAME verb/option shape `lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) produces and `lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- no hand-built JSON. The options are the discovery and thesis pipelines from chains-index.md (label = the pipeline name, description = its chains-index one-liner), the stage-recommended pipeline FIRST with ` (Recommended)` appended to its label, plus up to two Brain-recommended chains when Brain mode is active (at most 4 options per question). The Other free-text slot accepts any pipeline name, and the navigator's pick is the chain. Do not auto-select.
+
+**Text floor.** On `/mos:pipeline --list`, or on a surface that cannot fire the card (Claude Desktop, a non-interactive run), print the same options as a numbered text list with their chains-index descriptions and ask for a pipeline name. Never pick for the navigator.
 
 ### Pipeline Resumption Check
 
@@ -113,8 +119,7 @@ Resume reads from `lib/mcp/pipeline-state.cjs` ONLY -- the SOLE chain-state sour
 
 The artifact-frontmatter scan (scanning the Room for existing artifacts with `pipeline: {chain}` in frontmatter, keyed by `pipeline_stage` values) is a SECONDARY confirming index ONLY -- a human-readable mirror, never a competing chain-state source. `reconcileResume` cross-checks it: when the scan AGREES with pipeline-state.json it confirms the position; when the scan DISAGREES, the helper trusts pipeline-state.json (the sole truth) and flags the frontmatter STALE (never the reverse -- the scan never overrides the store). This is the user-facing half of the B1 reconciliation: two resume memories can no longer compete, because exactly one store is authoritative.
 
-If a resume position is found:
-- Offer: "I see you've already completed Stage {N} of the {chain} pipeline (per pipeline-state.json). Want to continue from Stage {N+1}? Or start fresh?"
+If a resume position is found, fire ONE AskUserQuestion call: a Shape F.1 (Next Move) card with two options, `Continue from Stage {N+1}` (marked ` (Recommended)`) and `Start fresh`, composed with the same renderShapeF1 / appendAskUserQuestionTrailer shape as the chain-selection card. The text floor for a surface that cannot fire the card is the quoted question: "I see you've already completed Stage {N} of the {chain} pipeline (per pipeline-state.json). Want to continue from Stage {N+1}? Or start fresh?"
 
 ### Stage Execution Loop
 
