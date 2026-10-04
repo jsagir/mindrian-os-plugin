@@ -5,7 +5,10 @@
 # Modeled on tests/run-all-267.sh (run/run_if/counter shape, exit 77 =
 # SKIPPED ENV GAP, the long-dash guard loop, final exit).
 #
-# WRITTEN ONCE, HERE, IN 369-04. NO LATER 369 PLAN EDITS THIS FILE'S LEG LIST.
+# WRITTEN ONCE, HERE, IN 369-04. NO LATER 369 PLAN EDITS THIS FILE'S LEG LIST,
+# except plan 369-47, which registered the gap closure's legs ONCE (2026-10-04):
+# six gate and read-surface tests, plus two Phase 267 regression legs for the
+# reds the phase had caused (zod4 contract, lockstep).
 # Every Phase 369 leg is pre-declared below, guarded on its own test file, so
 # a leg SKIPs until the owning plan lands it -- expected mid-phase, not a
 # failure. The live-daemon and Playwright legs run sequentially (they share
@@ -94,6 +97,13 @@ run_if "369: gate button e2e (SHELL369-10, GREC369-05)" tests/e2e-369/gate-butto
 run_if "369: UI dist fresh (TS369-08)" tests/test-369-ui-dist-fresh.cjs node tests/test-369-ui-dist-fresh.cjs
 run_if "369: egress and canon (CANON369-07)" tests/e2e-369/egress-and-canon.cjs node tests/e2e-369/egress-and-canon.cjs
 run_if "369: recoverable journey (SHELL369-11, CM369-03)" tests/e2e-369/journey.cjs node tests/e2e-369/journey.cjs
+# Gap closure legs (plan 369-47, registered once)
+run_if "369: gate raised records and gate_list (SHELL369-12)" tests/test-369-gate-raised.cjs node tests/test-369-gate-raised.cjs
+run_if "369: gate mirror and answered elsewhere (SHELL369-12, GREC369-02)" tests/test-369-gate-mirror.cjs node tests/test-369-gate-mirror.cjs
+run_if "369: gate hardening WR-01 to WR-06 (REV369-02..06, REV369-11)" tests/test-369-gate-hardening.cjs node tests/test-369-gate-hardening.cjs
+run_if "369: read surfaces WR-07, WR-08, WR-19 (REV369-07, REV369-15)" tests/test-369-read-surfaces.cjs node tests/test-369-read-surfaces.cjs
+run_if "369: feed guards and session streams WR-09, WR-11 (REV369-08, REV369-13)" tests/test-369-feed-guards.cjs node tests/test-369-feed-guards.cjs
+run_if "369: shell gate mirror over the actions (SHELL369-12, REV369-04, REV369-06)" tests/test-369-gate-mirror-shell.cjs node tests/test-369-gate-mirror-shell.cjs
 
 # --- REGRESSION LEGS ---------------------------------------------------------
 # Individual test files and gate scripts that must stay green while the shell
@@ -104,6 +114,8 @@ run_if "regression: tool honesty check" scripts/check-tool-honesty.cjs node scri
 run_if "regression: 267 registration API" tests/test-267-mcpv2-registration-api.cjs node tests/test-267-mcpv2-registration-api.cjs
 run_if "regression: 267 CIRS gates" tests/test-267-mcpv2-cirs-gates.cjs node tests/test-267-mcpv2-cirs-gates.cjs
 run_if "regression: 267 flag-ON routing" tests/test-267-mcpv2-flag-on.cjs node tests/test-267-mcpv2-flag-on.cjs
+run_if "regression: 267 zod4 contract (MCPV2-03)" tests/test-267-mcpv2-zod4-contract.cjs node tests/test-267-mcpv2-zod4-contract.cjs
+run_if "regression: 267 lockstep (MCPV2-19)" tests/test-267-mcpv2-lockstep.cjs node tests/test-267-mcpv2-lockstep.cjs
 run_if "regression: 270 tool schema budget" tests/test-270-tool-schema-budget.cjs node tests/test-270-tool-schema-budget.cjs
 run_if "regression: 198 gate renderers" tests/test-198-gate-renderers.test.cjs node tests/test-198-gate-renderers.test.cjs
 run_if "regression: 198 local only" tests/test-198-local-only.test.cjs node tests/test-198-local-only.test.cjs
@@ -126,7 +138,7 @@ add_found() {
 add_found < <(find tests -maxdepth 1 -name 'test-369-*.cjs' -print0 2>/dev/null)
 [ -d tests/e2e-369 ] && add_found < <(find tests/e2e-369 -name node_modules -prune -o -type f -print0 2>/dev/null)
 [ -d tests/fixtures/369 ] && add_found < <(find tests/fixtures/369 -type f -print0 2>/dev/null)
-for f in tests/helpers/mcp-daemon-369.cjs tests/helpers/fixture-room-369.cjs \
+for f in tests/helpers/mcp-daemon-369.cjs tests/helpers/fixture-room-369.cjs tests/helpers/cli-gate-369.cjs lib/mcp/gate-raised.cjs \
          lib/core/navigation/room-change-log.cjs lib/core/navigation/room-projection.cjs \
          lib/mcp/tools/feed.cjs lib/mcp/tools/artifact-read.cjs lib/mcp/room-watcher.cjs \
          lib/ui-shell/launch.cjs scripts/measure-hook-cold-start.cjs; do
