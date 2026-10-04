@@ -649,10 +649,10 @@
       },
       {
         "name": "gate_answer",
-        "description": "Ratify a gate decision. Accepts the canonical { gate_id, chosen, verdict } payload; only ratifies a gate_id THIS server process minted through the shared ledger (lib/mcp/gate-ledger.cjs), including one minted by a chain_run halt (T-198-10 spoofing guard, session-scoped). chosen must be an option id or label from the card that was actually minted, or the answer is rejected with chosen_not_in_card_options before any write. On an approve verdict, routes the material write through lib/core/navigation.cjs (Part 9), never a direct DB write, and ALSO writes a typed decision node with SOURCED_FROM provenance edges to the card's subject/evidence node ids (plus a USES_FRAMEWORK edge for a chain halt with an active framework), promoted to confirmed via navigation.confirmNode to record the human APPROVE. For a gate minted by a chain_run halt at a material step, gate_answer is ALSO the verb that resumes the chain: an approve runs the halted step and continues in this SAME call, result nested under chain_result (which carries the next gate_id if the chain halts again). The whole answer is saved in ONE transaction and the gate is released only after it commits: if saving fails the answer is refused with persistence_failed, nothing is saved, and the same gate can be answered again. Answering an already answered gate_id runs nothing again and returns ok with replayed true plus the recorded verdict (and decision_node_id), even after a restart, so a lost response is recoverable by gate id. Refused with the gate left open: room_switched (this session is bound to a different room than the card was drawn for) and stale_subject (an approve is refused because the card's subject changed since it was drawn; ask for a fresh card). Refused with no gate to answer: gate_expired (30 minutes passed) and unknown_gate. A chain_run call threaded with the same answer afterward is refused with unknown_or_expired_gate and nothing re-runs.",
+        "description": "Ratify a gate decision. Accepts { gate_id, chosen, verdict }; only ratifies a gate_id THIS server process minted for this session through the shared ledger, including a chain_run halt or a gate_render mirror_of card. chosen must be an option id or label of the minted card, else chosen_not_in_card_options before any write. An approve routes the write through lib/core/navigation.cjs (Part 9) and writes a typed decision node with SOURCED_FROM edges to the card's subject/evidence ids (plus USES_FRAMEWORK for a chain halt with a framework), promoted via navigation.confirmNode. For a chain_run halt at a material step, gate_answer is ALSO the verb that resumes the chain: an approve runs the halted step in this SAME call, result under chain_result (with the next gate_id if it halts again). The whole answer is saved in ONE transaction and the gate is released only after it commits: if saving fails the answer is refused with persistence_failed, nothing is saved, and the gate can be answered again. Answering a mirror also records its source gate as answered in that same transaction. A gate already answered returns ok with replayed true plus the recorded verdict, chosen and decision_node_id, even after a restart or after its 30 minutes ran out; if another session answered it first (through a mirror) it also says answered_elsewhere true, writes nothing, and a halted step resumes exactly once with the recorded answer. Refused with the gate left open: room_switched (bound to another room than the card's), stale_subject (an approve whose subject or evidence changed since the card was drawn; ask for a fresh card), session_mismatch, chosen_not_approving and verdict_chosen_mismatch. If the room cannot be read to look for a saved answer the reply is replay_lookup_failed (nothing written, try again). Refused with nothing to answer: gate_expired (30 minutes passed, no saved answer) and unknown_gate. A chain_run call threaded with the same answer afterward is refused with unknown_or_expired_gate and nothing re-runs.",
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
           "properties": {
             "gate_id": {
               "type": "string",
@@ -683,15 +683,38 @@
         }
       },
       {
-        "name": "gate_render",
-        "description": "Render the Mindrian gate superset card (options + per-option descriptions + ranks + previews + single/multi-select) via the capability-detected 3-rung renderer ladder: MCP elicitation, Claude Code AskUserQuestion thin adapter, or headless structured text. Returns a gate_id minted into this server process's in-memory ledger, which gate_answer must reference to ratify; nothing is persisted and the id does not survive a restart.",
+        "name": "gate_list",
+        "title": "Gate List",
+        "description": "List the decision gates still open in the room this session is bound to, or read the state of one gate. Read only: it never answers, renews or changes a gate. Gates come from the room's own records, so a gate raised in another session or another process (for example in Claude Code) shows up here too, with its header, options, ranks, previews, recommended option, subject and evidence ids, and when it expires (30 minutes after it was drawn). Give gate_id to read one gate: open (with its card), answered (with the recorded verdict, chosen ids and decision node, even after a restart), closed, expired, or unknown. If the room cannot be read the answer is lookup_failed, never unknown. At most 50 gates are listed, oldest first. The browser workspace uses this with gate_render to show a gate raised somewhere else. Needs a bound room: otherwise room_unbound, so call room_bind first.",
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "gate_id": {
+              "description": "Read the state of this one gate instead of listing the open ones.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        }
+      },
+      {
+        "name": "gate_render",
+        "description": "Render the Mindrian gate superset card (options + per-option descriptions + ranks + previews + single/multi-select) via the capability-detected 3-rung renderer ladder: MCP elicitation, Claude Code AskUserQuestion thin adapter, or headless structured text. Returns a gate_id minted into this server process's in-memory ledger, which gate_answer must reference to ratify; when this session is bound to a room, the card's contract (header, options, ranks, previews, recommended id, subject ids, never a session identity) is recorded in that room so other MindrianOS surfaces can show the gate, but the id itself lives in this server process's ledger and does not survive a restart. To decide a gate raised in another session of this room (find it with gate_list), give mirror_of with that gate's id and repeat its option ids in order: the card is drawn from the room's own record, never from the caller, and this session gets its own gate_id for it. Do not also give gate_id (mirror_with_gate_id); different option ids are mirror_mismatch; an unknown or closed gate, or another room's, is unknown_gate; an expired one gate_expired; an answered one mirror_source_answered with its verdict. Answering the mirror with gate_answer records the source as answered in the same transaction. A mirror is never an inline elicitation and leaves no record of its own. Give approving (option ids that mean yes) and gate_answer refuses an approve that names none of them; an id that is not an option is bad_approving. A caller-chosen gate_id that is open is gate_id_in_use and one already answered in the room is gate_id_answered; one session may hold 200 open gates, past that too_many_open_gates.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
           "properties": {
             "gate_id": {
               "type": "string",
               "minLength": 1
+            },
+            "mirror_of": {
+              "description": "The id of a gate raised in another session of this room. Shows that gate's recorded card again on this session, under a new gate_id this session owns.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
             },
             "header": {
               "type": "string"
@@ -733,6 +756,10 @@
                   },
                   "preview": {
                     "type": "string"
+                  },
+                  "recommended": {
+                    "description": "Mark this option as recommended. A single-select card shows one recommended option (the first flagged, else the best rank); a multi-select basket pre-selects every flagged option.",
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -741,12 +768,22 @@
               }
             },
             "subject_node_id": {
-              "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer promotes that claim to confirmed through navigation.confirmNode; evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content.",
+              "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer confirms that claim through navigation.confirmNode when the room's verification floor is met, and otherwise files it as needs_evidence; the card says which before the click. Evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content.",
               "type": "string",
               "minLength": 1
             },
             "evidence_node_ids": {
               "description": "Opaque LOCAL room-graph node ids, provenance only -- SOURCED_FROM targets on the written decision node, never promoted by gate_answer. Canon Part 8: must never be Brain identifiers or room content.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "approving": {
+              "description": "Option ids that mean yes. When given, gate_answer refuses an approve that names none of them (chosen_not_approving) and a reject or defer that names one (verdict_chosen_mismatch). Each must be an option id, else bad_approving.",
+              "minItems": 1,
+              "maxItems": 6,
               "type": "array",
               "items": {
                 "type": "string",
@@ -2070,5 +2107,5 @@
     "resources": [],
     "templates": []
   },
-  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed"
+  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed; 369-41 2026-10-04: added gate_list (Phase 369 plan 33, 47 -> 48), refreshed the gate_render (mirror_of, approving; plans 36 and 38) and gate_answer (answered_elsewhere, replay_lookup_failed and the plan 38 states) descriptions and schemas from the live wire; room_list description unchanged (the D-03 sentences of 369-22 are already here); no other tool changed"
 }

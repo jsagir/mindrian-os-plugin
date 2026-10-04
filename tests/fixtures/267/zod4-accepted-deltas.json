@@ -374,6 +374,15 @@
         "."
       ],
       "note": "Phase 369 plan 13 added this tool after the zod 3 snapshot; a membership delta, not a zod delta (366-24 research_run precedent)"
+    },
+    {
+      "kind": "tool",
+      "name": "gate_list",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Phase 369 plan 33 added this tool after the zod 3 snapshot (read-only gate_list); a membership delta, not a zod delta (366-24 research_run precedent). Pinned 2026-10-04 in plan 369-41, after plans 369-36 and 369-38 changed the gate_render and gate_answer text (those description diffs are gone: the zod 3 snapshot carries the live text)."
     }
   ],
   "app_views_schema_fix": [

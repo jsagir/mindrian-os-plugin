@@ -54,7 +54,7 @@ resource counts, unless they also control the room fixture.
 ## CIRS gate baseline
 
 ```
-CONNECTOR_DESCRIPTORS=34
+CONNECTOR_DESCRIPTORS=35
 SHAPE_VIOLATIONS=53
 ```
 
@@ -63,6 +63,9 @@ zod 4 pins): `CONNECTOR_DESCRIPTORS` 31 to 32 (`research_run`, Phase 363-17).
 
 Refreshed 2026-10-03 by plan 369-13 (Phase 369): `CONNECTOR_DESCRIPTORS` 32 to 34 (`room_changes`
 and `room_artifact`, both born wired, `hitl_shape` none, layer harness).
+
+Refreshed 2026-10-04 by plan 369-41 (Phase 369 gap closure): `CONNECTOR_DESCRIPTORS` 34 to 35 (`gate_list`,
+plan 369-33, born wired, `hitl_shape` none, layer harness).
 
 `SHAPE_VIOLATIONS` is the size of `tests/fixtures/267/shape-violations-baseline.txt`
 (`node scripts/check-shape-declaration.cjs --check --strict`, unique surface

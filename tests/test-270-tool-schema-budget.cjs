@@ -398,16 +398,42 @@ const AFTER_270_12 = {
  *     (peer work since 369-13, no tool added), kept here in plain sight rather
  *     than absorbed. toolCount stays 47.
  */
+/*
+ * Plan 369-41 (Phase 369 gap closure, 2026-10-04) -- re-baseline for the gate
+ * work of plans 369-33, 369-36 and 369-38: gate_list is a new read-only MCP tool
+ * (33), gate_render gains the mirror_of input (36) and approving (38) and its
+ * honest description, gate_answer gains the answered_elsewhere, replay_lookup_failed,
+ * gate_id_in_use and related states in its description (36, 38). Same protocol as
+ * the 369-22 block above: measure live with this file's own measure(), record the
+ * numbers, name the percentage.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   before 369-41 (the 369-22 record): 47 tools, 21666 desc bytes,
+ *     31664 schema bytes, 53330 total bytes, ~13333 approx tokens
+ *     (router 9 / atomic 38).
+ *   after 369-41:  48 tools, 24369 desc bytes, 32687 schema bytes,
+ *     57056 total bytes, ~14264 approx tokens (router 9 / atomic 39).
+ *   gate_list's own cost: 885 desc + 229 schema = 1114 bytes. The rest of the
+ *     +3726 bytes is existing tools: against the committed zod 4 snapshot
+ *     (before this plan refreshed it), gate_render grew +1252 desc and about
+ *     +903 schema bytes, gate_answer +94 desc, and the room-dashboard, room-graph,
+ *     room-wiki and methodology schemas about +442 bytes between them (peer
+ *     work, no tool added); kept here in plain sight rather than absorbed.
+ *   signed pctChange(53330, 57056) = 6.99 percent against the 369-22 record,
+ *     inside DRIFT_TOLERANCE_PCT (which stays 10, not relaxed). AFTER moves
+ *     because toolCount changed 47 -> 48, which this file's first check
+ *     requires to be exact.
+ */
 const AFTER = {
-  measuredAt: '2026-10-03',
-  plan: '369-22',
-  toolCount: 47,
-  totalDescBytes: 21666,
-  totalSchemaBytes: 31664,
-  totalBytes: 53330,
-  approxTokens: 13333,
+  measuredAt: '2026-10-04',
+  plan: '369-41',
+  toolCount: 48,
+  totalDescBytes: 24369,
+  totalSchemaBytes: 32687,
+  totalBytes: 57056,
+  approxTokens: 14264,
   routerCount: 9,
-  atomicCount: 38,
+  atomicCount: 39,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget

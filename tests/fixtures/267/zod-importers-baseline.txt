@@ -24,5 +24,7 @@ lib/mcp/tools/stop-gate.cjs
 lib/mcp/tools/views.cjs
 scripts/fork359-permission-probe.cjs
 scripts/jev-response-schema.cjs
+scripts/mindrian-brain-mcp-client.cjs
+scripts/mindrian-mcp-server.cjs
 scripts/skillopt-codereview.cjs
 scripts/skillopt-genqueries.cjs
