@@ -1,6 +1,6 @@
 /*
  * GENERATED FILE. DO NOT EDIT.
- * Source: tests/fixtures/267/wire-snapshot-zod4.json (local.tools, 47 tools).
+ * Source: tests/fixtures/267/wire-snapshot-zod4.json (local.tools, 48 tools).
  * Regenerate: node ui/shared/scripts/gen-mcp-adapter.mjs
  * Verify:     node ui/shared/scripts/gen-mcp-adapter.mjs --check
  *
@@ -28,6 +28,7 @@ export const MCP_TOOL_NAMES = [
   "extract_shallow",
   "framework_run",
   "gate_answer",
+  "gate_list",
   "gate_render",
   "graph_query",
   "graph_reason",
@@ -237,12 +238,22 @@ export function gateAnswer(call: CallTool, args: GateAnswerArgs): Promise<unknow
   return call("gate_answer", args as Record<string, unknown>);
 }
 
+export type GateListArgs = {
+  "gate_id"?: string;
+};
+
+export function gateList(call: CallTool, args: GateListArgs): Promise<unknown> {
+  return call("gate_list", args as Record<string, unknown>);
+}
+
 export type GateRenderArgs = {
   "ambiguous"?: boolean;
+  "approving"?: string[];
   "evidence_node_ids"?: string[];
   "gate_id"?: string;
   "header"?: string;
   "kind"?: string;
+  "mirror_of"?: string;
   "options": unknown[];
   "select_mode"?: "single" | "multi";
   "subject_node_id"?: string;
