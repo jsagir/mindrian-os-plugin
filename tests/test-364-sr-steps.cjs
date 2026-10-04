@@ -7,9 +7,14 @@
  * Phase 364 Plan 03 Tasks 2-3 -- the Theo step reader (THEO-C, NV-2, NR-1) and
  * the membership-only coverage read (SEED-106 items 1 and 3). layer: harness
  *
- * Legs S1-S13 run OFFLINE against injected fake brain clients and the 364-theo
+ * Legs S1-S21 run OFFLINE against injected fake brain clients and the 364-theo
  * fixtures. Hermetic: temp HOME, USERPROFILE and MINDRIAN_ROOMS_HOME set before
  * any repo module loads; the network guard is installed first.
+ *
+ * The fixtures follow Theo Phase 25 write 1 f05ac2c and write 2 43205a2, written from
+ * the Theo session's reported facts rather than a live capture.
+ * The thinkingMode per-step assignment in the fixtures is a fixture convention;
+ * only the distribution (4/1/1/1) is canon.
  *
  * House rule: hyphens only, no em-dashes, no emoji.
  */
@@ -38,6 +43,12 @@ function fx(name) { return JSON.parse(fs.readFileSync(path.join(FIX, name + '.js
 const MOD_PATH = path.join(REPO_ROOT, 'lib/core/research-planner/sr-steps.cjs');
 const { installFakeBrain } = require(path.join(REPO_ROOT, 'tests/helpers/fake-brain-364.cjs'));
 const REFUSAL = 'Theo has not authored this step yet';
+const SR_ID = (n) => 'sciroad::scientific-roadmapping::p' + String(n).padStart(2, '0');
+const THEO25_IDS = [1, 2, 3, 4, 5, 6, 7].map(SR_ID);
+const THEO25_LABELS = ['Tension Qualification', 'Goal Quantification', 'Rung Placement and Type Selection', 'Forum Construction', 'Path Enumeration', 'Constraint Interrogation', 'Catalytic Ranking'];
+const RETIRED_ALIASES = ['Technology Roadmapping', 'Roadmapping', 'Field Roadmapping'];
+const TECH_TREE = 'Tech Tree Mapping';
+const RETIRED_ID_RE = /^sr-v1-/;
 
 /** A fake brainClient: callTool and recommendChain record calls and serve scripted values. */
 function makeFake(map) {
@@ -242,6 +253,115 @@ async function main() {
     C.check('S13 preload mode serves the fixture to a child and logs calls with zero net attempts',
       child.status === 0 && child.stdout === 'step_unauthored' && logged && logged.net_attempts === 0
       && logged.calls.length === 1 && logged.calls[0].tool === 'framework_step', child.stderr);
+  }
+
+  // ---- Theo Phase 25 legs (S14-S21): the fixtures follow the rebuilt Scientific Roadmapping ----
+  const theoStructure = require(path.join(REPO_ROOT, 'lib/core/dominant-design/theo-structure.cjs'));
+  const perspective25 = require(path.join(REPO_ROOT, 'lib/core/research-planner/perspective.cjs'));
+  const FAMILIES = fs.readdirSync(FIX).filter((f) => /^framework-step-.*\.json$/.test(f)).map((f) => f.replace(/\.json$/, ''));
+  const authoredRead = await readSrSteps({ brainClient: makeFake({ framework_step: fx('framework-step-authored') }) });
+  const aSteps = authoredRead.ok ? authoredRead.steps : [];
+  const byId = {};
+  aSteps.forEach((s) => { byId[s.stepId] = s; });
+
+  // S14 ids, labels, STEP and draft
+  C.check('S14a authored read is ok and the stepIds are p01 to p07 in order',
+    authoredRead.ok === true && JSON.stringify(aSteps.map((s) => s.stepId)) === JSON.stringify(THEO25_IDS), JSON.stringify(aSteps.map((s) => s.stepId)));
+  C.check('S14b the labels are the seven Theo 25 labels and match SR_OPERATIONS',
+    JSON.stringify(aSteps.map((s) => s.label)) === JSON.stringify(THEO25_LABELS)
+    && JSON.stringify(THEO25_LABELS) === JSON.stringify(perspective25.SR_OPERATIONS.slice()));
+  {
+    const fams = ['framework-step-authored', 'framework-step-one-null', 'framework-step-unlabelled-seven', 'framework-step-eight-unlabelled'];
+    const allStepDraft = fams.every((n) => fx(n).rows[0].steps
+      .filter((s) => s.stepKind !== 'DEFINITION' && s.stepKind !== 'ASIDE')
+      .every((s) => s.stepKind === 'STEP' && s.orchestrationStatus === 'draft'));
+    C.check('S14c every runnable row in the live-shaped families is STEP and draft; the authored read framework_status is draft',
+      allStepDraft && authoredRead.framework_status === 'draft');
+  }
+
+  // S15 the deliberate researchDirective nulls
+  C.check('S15a researchDirective is set on p01 and p06 only',
+    JSON.stringify(aSteps.filter((s) => s.researchDirective !== null).map((s) => s.stepId)) === JSON.stringify([SR_ID(1), SR_ID(6)]));
+  C.check('S15b researchDirective is strictly null on p02, p03, p04, p05 and p07, and a null is never a refusal',
+    authoredRead.ok === true && [2, 3, 4, 5, 7].every((n) => byId[SR_ID(n)] && byId[SR_ID(n)].researchDirective === null));
+  C.check('S15c thinkingMode and artifactRubric are non-empty strings on all seven steps',
+    aSteps.length === 7 && aSteps.every((s) => typeof s.thinkingMode === 'string' && s.thinkingMode.length > 0 && typeof s.artifactRubric === 'string' && s.artifactRubric.length > 0));
+
+  // S16 thinkingMode distribution (the per-step mapping is a fixture convention, not canon)
+  {
+    const counts = {};
+    aSteps.forEach((s) => { counts[s.thinkingMode] = (counts[s.thinkingMode] || 0) + 1; });
+    C.check('S16 thinkingMode distribution is SEQUENTIAL 4, PARALLEL 1, ITERATIVE 1, DECOMPOSE 1',
+      JSON.stringify(Object.keys(counts).sort()) === JSON.stringify(['DECOMPOSE', 'ITERATIVE', 'PARALLEL', 'SEQUENTIAL'])
+      && counts.SEQUENTIAL === 4 && counts.PARALLEL === 1 && counts.ITERATIVE === 1 && counts.DECOMPOSE === 1, JSON.stringify(counts));
+  }
+
+  // S17 retired step ids are gone from every family
+  {
+    const bad = [];
+    FAMILIES.forEach((n) => fx(n).rows.forEach((r) => r.steps.forEach((s) => { if (RETIRED_ID_RE.test(s.stepId)) bad.push(n + ':' + s.stepId); })));
+    C.check('S17 six framework-step fixtures and no retired step id in any of them', FAMILIES.length === 6 && bad.length === 0, JSON.stringify({ n: FAMILIES.length, bad }));
+  }
+
+  // S18 aliases
+  C.check('S18a every framework-step fixture resolves only to Tech Tree Mapping and none of the retired aliases',
+    FAMILIES.every((n) => { const res = fx(n).frameworkIdentities.resolved; return JSON.stringify(res) === JSON.stringify([TECH_TREE]) && !RETIRED_ALIASES.some((a) => res.indexOf(a) !== -1); }));
+  const aliasCalls = [];
+  const aliasFake = {
+    callTool: async function (tool, args) {
+      aliasCalls.push({ tool, args });
+      if (args && args.framework === 'Scientific Roadmapping') return fx('framework-step-authored');
+      if (args && args.framework === TECH_TREE) return fx('framework-step-honest-empty');
+      return { rows: [] };
+    },
+  };
+  {
+    const r = await readSrSteps({ brainClient: aliasFake });
+    C.check('S18b the reader sends only the canonical name; the handle is neither Tech Tree Mapping nor a retired alias',
+      r.ok === true && r.steps.length === 7 && aliasCalls.length === 1
+      && JSON.stringify(aliasCalls[0].args) === JSON.stringify({ framework: 'Scientific Roadmapping' })
+      && mod.HANDLE !== TECH_TREE && RETIRED_ALIASES.indexOf(mod.HANDLE) === -1, JSON.stringify(aliasCalls));
+    const ans = await aliasFake.callTool('framework_step', { framework: TECH_TREE });
+    C.check('S18c the Tech Tree Mapping alias resolves but serves no steps -> no_steps_in_canon',
+      theoStructure.classifyCallResult('framework_step', ans) === 'no_steps_in_canon');
+  }
+
+  // S19 honest empty
+  {
+    const r = await readSrSteps({ brainClient: makeFake({ framework_step: fx('framework-step-honest-empty') }) });
+    const notErr = ['step_unauthored', 'call_threw', 'brain_unavailable', 'refused', 'egress_blocked'].indexOf(r.reason) === -1;
+    C.check('S19a a Scientific Roadmapping row with zero steps -> no_steps_in_canon, no message, never an error reason',
+      r.ok === false && r.reason === 'no_steps_in_canon' && !('message' in r) && notErr, JSON.stringify(r));
+    const out = renderStatus({ steps: r, coverage: { ok: true, status: 'covered', problem_type: 'WellDefined' } });
+    C.check('S19b the honest-empty render says Theo steps unavailable: no_steps_in_canon, with no refusal text and no dash',
+      out.indexOf('Theo steps unavailable: no_steps_in_canon.') !== -1 && out.indexOf(REFUSAL) === -1 && !NO_DASH.test(out), out);
+  }
+
+  // S20 agreement with the live smoke predicates (tests/test-364-live-smoke.cjs)
+  {
+    const seven = authoredRead.ok === true && Array.isArray(authoredRead.steps) && authoredRead.steps.length === 7
+      && authoredRead.steps.every(function (s) { return typeof s.label === 'string' && s.label.trim().length > 0 && typeof s.runIt === 'string' && s.runIt.trim().length > 0; });
+    C.check('S20a the live smoke seven-steps predicate holds on the authored fixture', seven === true);
+    const oneNull = await readSrSteps({ brainClient: makeFake({ framework_step: fx('framework-step-one-null') }) });
+    const refused = oneNull.ok !== true && oneNull.reason === 'step_unauthored' && oneNull.message === mod.REFUSAL_TEXT;
+    C.check('S20b the live smoke refusal predicate holds on the one-null fixture, at p04', refused === true && oneNull.step_id === SR_ID(4), JSON.stringify(oneNull));
+  }
+
+  // S21 step 5 coverage: Theo 25 lists the framework at step 5 of the WellDefined chain
+  {
+    const chainFix = fx('recommend-chain-thin');
+    const names = chainFix.chain.map((c) => c.framework);
+    chainFix.chain = chainFix.chain.slice(0, 4).concat([
+      { step: 5, framework: 'Scientific Roadmapping', pagerank: 0.3, edge_confidence: 0.7, commands: [] },
+      { step: 6, framework: 'Pricing Review', pagerank: 0.2, edge_confidence: 0.7, commands: [] },
+    ]);
+    const fake = makeFake({ recommend_chain: chainFix });
+    const r = await readCoverage({ brainClient: fake });
+    const other = chainFix.chain.map((c) => c.framework).filter((n) => n !== 'Scientific Roadmapping');
+    C.check('S21 a chain with Scientific Roadmapping at step 5 reads covered, called with (WellDefined, 6), and the result carries no other chain name',
+      r.ok === true && r.status === 'covered' && fake.calls.length === 1
+      && fake.calls[0].args.problem_type === 'WellDefined' && fake.calls[0].args.max_steps === 6
+      && other.length === 5 && other.every((n) => JSON.stringify(r).indexOf(n) === -1) && names.length >= 4, JSON.stringify(r));
   }
 
   C.check('zero network attempts', net.attempts() === 0);
