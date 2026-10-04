@@ -58,4 +58,31 @@ Both were found by the automated journey (plan 30 Task 1), not by the navigator.
 
 1. The shipped shell has no browser control that raises a gate. The `askClaude` action exists, but nothing in `ui/shell/client` calls it. A default `launch.cjs start` runs with `MOS_PROPOSAL_SOURCE=fixed`, so the action answers `no_proposal`. The ADAPTER-RULING's hop "the shell raises the gate on the browser session" is therefore not built. The journey and the navigator mode set `MOS_PROPOSAL_SOURCE=adapter` and call the action directly. Consequence: a person using the shipped shell as launched cannot start the Approve flow from the browser alone.
 
+   Closed 2026-10-04 by plans 369-40, 369-42, 369-43, 369-44 and 369-46: Evidence now carries the Ask Larry control (plans 43 and 44), the shell lists and answers a gate raised in Claude Code (plans 42 and 44), and the launcher arms the sign-in through the control channel (plan 40). Proven by the journey at 369-46, step 4 (decide through Ask Larry, no act('askClaude') call remains) and step 5 (a gate raised from the CLI path, answered in the browser). Measured over ten consecutive non-void runs (369-COUNTER-METRICS.md, "Gap closure counts"): gate_click_to_recorded_ms median 66.5 (53 to 115), raised_to_listed_ms median 809 (681 to 825), lost_writes 0, answered_elsewhere_replays 1 in every run. Navigator's verdict on both flows: approved (see "Gap closure verification" below).
+
 2. After a shell restart, the browser shows "This decision is no longer open... Nothing was saved. Ask Larry in Claude Code to raise it again." for an old gate id, rather than "This decision was already recorded." The shell keeps gate records in memory, so a page-side `approveDecision` on the old id is refused `human_only` and writes nothing. The room itself replays correctly: `gate_answer` on the old id returns `ok: true, replayed: true` and still exactly one node. No decision is lost or duplicated; the wording the person sees is the gap.
+
+   Closed 2026-10-04 by plans 369-42, 369-44 and 369-46: after both servers restart, the old gate id reads "This decision was already recorded." in the browser. Proven by the journey at 369-46, step 7 (restart and recover): the old gate id asserts that sentence, offers nothing to answer, the browser re-answer is refused with nothing written, and the room replays it with replayed true and one node. Measured over ten consecutive non-void runs: this assertion held in all ten, restart_catch_up_ms median 2805 (2793 to 2815), lost_writes 0.
+
+## Gap closure verification (2026-10-04)
+
+Plan 369-46, Task 2 (checkpoint:human-verify) and Task 3. The two old gaps above are the subject; the navigator judged the two new flows and the CR-01 behaviour of `/mos:dashboard shell`.
+
+### The navigator's verdict, verbatim
+
+> approved
+
+Given on 2026-10-04 through the orchestrator's AskUserQuestion card (options: approved / approved with notes / issues found). No notes were added. Issues named: none.
+
+### What the navigator was shown, and nothing beyond it is claimed here
+
+1. The navigator-mode window: `node tests/e2e-369/journey.cjs --navigator`, shell at http://127.0.0.1:44577, throwaway fixture room `room-x` in a temporary home, the gate raised from the CLI path at `/gate/gate-64425c9e0a0bcf55`, claim `claim:journey-prop-navigator-cli:cd3150d`.
+2. Flow 1, Decisions: one row under "Waiting for you" reading "Raised by Larry outside this browser.", the provenance line, the recommendation (Approve) checked, then "Decision recorded in the room."
+3. Flow 2, Evidence: "Ask Larry about this", "Copy the line", "Check for Larry's proposal", the no-proposal copy, the arrival announcement after about 15 seconds, then the gate opening with the recommendation checked.
+4. The window closed, then `/mos:dashboard shell` in the navigator's own Claude Code, with no link and no code in the conversation and the browser opening signed in.
+
+Host build numbers: Claude Code build: not reported.
+
+### Automated companion (not a replacement)
+
+`tests/e2e-369/journey.cjs`, eight steps, ten consecutive non-void runs, 2026-10-04: gate_click_to_recorded_ms median 66.5, raised_to_listed_ms median 809, restart_catch_up_ms median 2805, lost_writes 0 in every run, answered_elsewhere_replays 1 in every run (369-COUNTER-METRICS.md, "Gap closure counts (2026-10-04, plans 369-33 to 369-46)").
