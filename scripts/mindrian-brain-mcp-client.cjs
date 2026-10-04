@@ -41,7 +41,7 @@ const path = require('path');
 // guarded one-shot `npm install` if node_modules is missing/incomplete BEFORE
 // the SDK/zod requires below; requireWithHeal is the per-require backstop.
 const { ensureDepsPresent, requireWithHeal, beginConnectPathBudget, connectPathRemainingMs } = require('../lib/core/mcp-dep-heal.cjs');
-const { resolvePluginRoot } = require('../lib/core/mcp-dep-heal.cjs');
+const { isMissingPackagesError, serveInstallResponderFor } = require('../lib/core/mcp-dep-heal.cjs');
 const healLog = (msg) => { try { process.stderr.write(msg + '\n'); } catch (e) { /* swallow */ } };
 // Phase 266 Plan 03 (MCPFIX-03): this process is answering a host that is
 // already counting down a ~30-second connect timeout, so the heal is bounded
@@ -76,28 +76,23 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // above keeps the whole path inside the host's window. Only fs, path and
 // built-in-only lib modules are touched before the return. The Brain connection is not touched: the responder has no network code, so room content and the Brain key never leave this process (Canon Part 8).
 if (depHealOutcome && depHealOutcome.ok === false) {
-  const installReason = (depHealOutcome && depHealOutcome.reason) || 'installing';
-  if (true) {
-    let responderLib = null;
-    try { responderLib = require('../lib/core/mcp-install-responder.cjs'); } catch (e) { healLog('[mindrian-brain] install responder unavailable (' + e.message + '); continuing with the normal start'); }
-    if (responderLib) {
-      const rootForResponder = resolvePluginRoot();
-      let responderVersion = '0.0.0';
-      try { responderVersion = JSON.parse(require('fs').readFileSync(path.join(rootForResponder, '.claude-plugin', 'plugin.json'), 'utf8')).version || responderVersion; } catch (_e) { /* keep the placeholder */ }
-      const responderStatus = responderLib.readStatus(rootForResponder) ||
-        { state: installReason === 'npm-not-found' ? 'npm-not-found' : 'installing', reason: depHealOutcome.reason || null };
-      healLog('[mindrian-brain] packages not ready (' + installReason + '); serving the install-status tool until the next session');
-      responderLib.serveInstallingResponder({ serverName: 'mindrian-brain', version: responderVersion, pluginRoot: rootForResponder, status: responderStatus });
-      return;
-    }
-  } else {
-    healLog('[mindrian-brain] packages not ready (' + installReason + '); the HTTP daemon continues as before and the requires below will report the missing packages');
-  }
+  if (serveInstallResponderFor('mindrian-brain', depHealOutcome, healLog)) return;
 }
 
-const { McpServer } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
-const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
-const { z } = requireWithHeal('zod', { log: healLog, connectPath: true });
+// 369.1-REVIEW CR-03: the connect-path heal never installs in-process; when the packages are
+// not there in time the require throws and the shim answers in band instead of crashing.
+let McpServer;
+let serveStdio;
+let z;
+try {
+  ({ McpServer } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true }));
+  ({ serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true }));
+  ({ z } = requireWithHeal('zod', { log: healLog, connectPath: true }));
+} catch (e) {
+  if (isMissingPackagesError(e) &&
+      serveInstallResponderFor('mindrian-brain', { reason: e.reason, startInstall: e.code === 'MODULE_NOT_FOUND' }, healLog)) return;
+  throw e;
+}
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');

@@ -70,7 +70,7 @@ const { randomUUID } = require('node:crypto');
 // requires inside the lib/mcp/* modules). requireWithHeal is the per-require
 // backstop, including the lazy express / streamableHttp requires in main().
 const { ensureDepsPresent, requireWithHeal, beginConnectPathBudget, connectPathRemainingMs } = require('../lib/core/mcp-dep-heal.cjs');
-const { resolvePluginRoot } = require('../lib/core/mcp-dep-heal.cjs');
+const { isMissingPackagesError, serveInstallResponderFor } = require('../lib/core/mcp-dep-heal.cjs');
 // Phase 369.1-10: surface-detect.cjs needs only fs, so it is safe before the packages exist.
 const isHttpTransport = () => require('../lib/mcp/surface-detect.cjs').detectSurface().transport === 'http';
 const healLog = (msg) => { try { process.stderr.write(msg + '\n'); } catch (e) { /* swallow */ } };
@@ -110,18 +110,7 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 if (depHealOutcome && depHealOutcome.ok === false) {
   const installReason = (depHealOutcome && depHealOutcome.reason) || 'installing';
   if (!isHttpTransport()) {
-    let responderLib = null;
-    try { responderLib = require('../lib/core/mcp-install-responder.cjs'); } catch (e) { healLog('[mindrian-os] install responder unavailable (' + e.message + '); continuing with the normal start'); }
-    if (responderLib) {
-      const rootForResponder = resolvePluginRoot();
-      let responderVersion = '0.0.0';
-      try { responderVersion = JSON.parse(require('fs').readFileSync(path.join(rootForResponder, '.claude-plugin', 'plugin.json'), 'utf8')).version || responderVersion; } catch (_e) { /* keep the placeholder */ }
-      const responderStatus = responderLib.readStatus(rootForResponder) ||
-        { state: installReason === 'npm-not-found' ? 'npm-not-found' : 'installing', reason: depHealOutcome.reason || null };
-      healLog('[mindrian-os] packages not ready (' + installReason + '); serving the install-status tool until the next session');
-      responderLib.serveInstallingResponder({ serverName: 'mindrian-os', version: responderVersion, pluginRoot: rootForResponder, status: responderStatus });
-      return;
-    }
+    if (serveInstallResponderFor('mindrian-os', depHealOutcome, healLog)) return;
   } else {
     healLog('[mindrian-os] packages not ready (' + installReason + '); the HTTP daemon continues as before and the requires below will report the missing packages');
   }
@@ -133,8 +122,20 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // Plan 14: the flag-ON daemon routes by protocol era (isLegacyRequest): 2025
 // traffic keeps the session-keyed v2 Node transport, 2026-07-28 traffic goes to
 // a modern-only createMcpHandler. No v1 SDK import remains in this file.
-const { McpServer, createMcpHandler, isLegacyRequest } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true });
-const { serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true });
+// 369.1-REVIEW CR-03: the connect-path heal never installs in-process; when the packages are
+// not there in time the require throws and the server answers in band instead of crashing.
+let McpServer;
+let createMcpHandler;
+let isLegacyRequest;
+let serveStdio;
+try {
+  ({ McpServer, createMcpHandler, isLegacyRequest } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true }));
+  ({ serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true }));
+} catch (e) {
+  if (!isHttpTransport() && isMissingPackagesError(e) &&
+      serveInstallResponderFor('mindrian-os', { reason: e.reason, startInstall: e.code === 'MODULE_NOT_FOUND' }, healLog)) return;
+  throw e;
+}
 // Module-level handle from serveStdio, closed by exitAfterTeardown.
 let stdioHandle = null;
 // Phase 267 Plan 13: shutdown seam. httpServer is the net.Server app.listen
