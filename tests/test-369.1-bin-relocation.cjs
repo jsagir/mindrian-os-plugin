@@ -479,13 +479,29 @@ function armMirrors() {
 // ---------------------------------------------------------------------------
 // Hygiene: no server process this test started survives
 // ---------------------------------------------------------------------------
+// pgrep set of runtime server processes anchored to THIS repo (the repo root as
+// a path prefix), so a shim that spawns a grandchild cannot leak it unseen.
+function repoServerPids() {
+  const esc = REPO_ROOT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    const out = execSync('pgrep -f "node .*' + esc + '/(bin|scripts)/(mindrian-mcp-server|mindrian-brain-mcp-client)\\.cjs" || true').toString().trim();
+    return out ? out.split('\n').map((x) => parseInt(x, 10)).filter(Number.isFinite) : [];
+  } catch (_e) {
+    return [];
+  }
+}
+const PIDS_BEFORE = new Set(repoServerPids());
+
 function armHygiene() {
-  check('hygiene', 'no MCP child this test spawned survives', () => {
+  check('hygiene', 'no MCP child (or grandchild) this test started survives', () => {
     // Give SIGKILL a moment to land.
     try { execSync('sleep 0.3'); } catch (_e) { /* ignore */ }
     const alive = [];
     for (const pid of spawnedPids) {
       try { process.kill(pid, 0); alive.push(pid); } catch (_e) { /* gone */ }
+    }
+    for (const pid of repoServerPids()) {
+      if (!PIDS_BEFORE.has(pid) && !alive.includes(pid)) alive.push(pid);
     }
     for (const pid of alive) {
       try { process.kill(pid, 'SIGKILL'); } catch (_e) { /* gone */ }
@@ -512,7 +528,7 @@ function armHygiene() {
     for (const pid of spawnedPids) {
       try { process.kill(pid, 'SIGKILL'); } catch (_e) { /* gone */ }
     }
-    if (spawnedPids.size) armHygiene();
+    if (WANT.includes('shims-run')) armHygiene();
   }
   console.log('RESULT: PASS=' + passed + ' FAIL=' + failed);
   if (failed > 0) process.exit(1);
