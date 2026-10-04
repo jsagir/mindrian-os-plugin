@@ -1710,6 +1710,17 @@ Plans:
 
 - [ ] 369-31-PLAN.md -- Close-out: phase gate, requirement rows with measured proof, validation sign-off (core e2e legs must have run), research trail in both homes
 
+### Phase 369.1: Desktop plugin install: MindrianOS installable from Claude Desktop Customize > Plugins > Add marketplace (a Desktop-syncable marketplace source beside the npm source, and dependency loading proven on the hookless surface) (INSERTED)
+
+**Goal:** A person on Claude Desktop installs MindrianOS from Customize > Plugins > Add marketplace with `jsagir/mindrian-marketplace` and gets a working Larry plus the room tools, with no terminal step. Measured 2026-10-04: the dialog answers "Marketplace sync failed" because Desktop's marketplace sync fetches only github / git / relative-path / archive plugin sources and our one plugin is `source: npm` (`@mindrian_os/cli`, pinned per release by RULE 5); the repo is public and the manifest is reachable on `master` (HTTP 200), so the address is not the fault. Two deliverables, both researched before built: (1) a Desktop-syncable source BESIDE the npm source in `marketplace.json` (preferred candidate: an `archive` source pointing at the already-published npm tarball `https://registry.npmjs.org/@mindrian_os/cli/-/cli-<version>.tgz` with a sha256 pin, written by `release.sh` in the RULE 5 lockstep; verify that Desktop accepts a .tgz whose files sit under `package/`, else publish the tarball as a GitHub release asset or a zip); (2) proof that the per-machine dependency install (Phase 341, RULE 8: `npm-shrinkwrap.json` installed by the loader with `npm ci --ignore-scripts`) actually runs on the hookless Desktop surface, or a Desktop-safe loading path if a SessionStart hook never fires there, so `bin/mindrian-mcp-server.cjs` and the Brain shim start with their packages present. Tri-polar: CLI install unchanged; Cowork checked the same way. Clean-up in the same phase: the stray `.next/` build directory committed at the marketplace repo's top level. Navigator priority (2026-10-04): critical, next after 369. Grounding: code.claude.com/docs/en/plugins/marketplace-reference (plugin sources), /plugins/host-marketplace (private access), /plugins/install (add a marketplace); anthropics/claude-code issues #61271 and #17201.
+**Requirements**: TBD (minted at plan time)
+**Depends on:** Phase 369 (the beta.56 release carries both; beta.56 itself is held for Theo's write-1 commit)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.1 to break down)
+
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
 **Navigator ruling (2026-10-01, relayed by the Theo session jsagi-f1):** "build a review contract into /mos:grade and /mos:deep-grade; seed it through plugin GSD." The paper author's verdict on an AI-generated 9-section student systems review (June 2025), verbatim: "Still too long. Too much jargon, including things none of us had any idea what they were talking about. 1-5 were good. 6 (tool analysis) is not necessary. 7 was incomprehensible, talking about tools that we did not understand. 8 was helpful. 9 was helpful, but too much of it."
