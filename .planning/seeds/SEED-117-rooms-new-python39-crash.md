@@ -37,3 +37,14 @@ in the failure path; a Python 3.9 floor check (grep for 3.11-only APIs across sc
 point naming the Python version). This report sat unfixed for 16 days because a tester's bug report in Downloads is not a
 filing. The gap is a process one: a `/mos:bug` command (or the SendFeedback path) that files the
 report into the plugin's seeds with its version, machine and first error line closes it.
+
+## Addendum 2026-10-05: SW-01, the other half of room creation
+
+From the consolidated register (369.2-ISSUE-REGISTER.md, SW-01, critical, beta.55): a newly
+scaffolded room returned `ok: true` without creating `.mindrian/room.db`; every MCP write then
+failed with `no_room_db`. The scaffold's success contract does not require the database. ACT-04:
+room readiness requires room.db, verified by opening and reading it before success is reported.
+REV-05: a manual `openRoomDb(..., {create:true})` printed ERR_SQLITE_ERROR yet created the file;
+reproduce through the supported path before calling it a database bug. This seed now covers both
+halves of "a room that says it exists and cannot be written to": the Python floor (SW-02, SW-20)
+and the missing database (SW-01).
