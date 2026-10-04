@@ -168,10 +168,43 @@ export type BootstrapRequest = {
   port: number;
 };
 
+// CR-01 (369-REVIEW.md, plan 369-37): a sign-in is redeemed only by a top-level browser navigation.
+// A browser stamps every request with fetch metadata it controls; typing or following a link in the address
+// bar, or xdg-open, arrives as Sec-Fetch-Site none, Sec-Fetch-Mode navigate, Sec-Fetch-Dest document.
+// curl and an agent's fetch tool send none of these, so they are refused here, BEFORE the code is read or
+// burned, and the person's browser can still use the link. A process that FORGES these three headers is the
+// CR-02 class (a same-user process acting as the person); that residual risk is recorded in
+// 369-SESSION-CONTRACT.md section 3 for the navigator, not closed here.
+export function isBrowserNavigation(headers: HeaderBag): boolean {
+  return (
+    headers.get('sec-fetch-site') === 'none' &&
+    headers.get('sec-fetch-mode') === 'navigate' &&
+    headers.get('sec-fetch-dest') === 'document'
+  );
+}
+
+function forbidden(): PlainResponse {
+  return {
+    status: 403,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
+    body: 'Forbidden',
+  };
+}
+
+function signedIn(sessions: SessionStore): PlainResponse {
+  const { setCookie } = issueSession(sessions);
+  return {
+    status: 303,
+    headers: { Location: '/', 'Set-Cookie': setCookie, 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' },
+    body: '',
+  };
+}
+
 // GET /auth/bootstrap?code=...
-//  1. Host and Origin allow-list, and the fetch-metadata refusal (cross-site or same-site): 403 BEFORE the
-//     code is touched, so a page elsewhere cannot burn or replay a code and cannot sign this browser
-//     into a session someone else armed (login CSRF, T-369-19-04), and a rebinding hostname is refused.
+//  1. Host and Origin allow-list, the fetch-metadata refusal (cross-site or same-site) and the browser-navigation
+//     rule: 403 BEFORE the code is touched, so a page elsewhere cannot burn or replay a code and cannot sign this
+//     browser into a session someone else armed (login CSRF, T-369-19-04), a rebinding hostname is refused, and a
+//     curl-shaped request cannot redeem a link it read from a terminal (CR-01).
 //  2. Exchange the code (single use; burned on the attempt).
 //  3. On success: Set-Cookie and a 303 to a code-free URL, so the code leaves the address bar and history.
 //  4. On failure: the UI-SPEC "Not signed in" page.
@@ -180,13 +213,7 @@ export function handleBootstrapRequest(
   deps: { bootstrap: BootstrapStore; sessions: SessionStore },
 ): PlainResponse {
   const guard = checkRequest(req.headers, req.port);
-  if (!guard.ok) {
-    return {
-      status: 403,
-      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
-      body: 'Forbidden',
-    };
-  }
+  if (!guard.ok || !isBrowserNavigation(req.headers)) return forbidden();
   let code: string | null = null;
   try {
     code = new URL(req.url, 'http://127.0.0.1').searchParams.get('code');
@@ -196,10 +223,19 @@ export function handleBootstrapRequest(
   if (code === null) return notSignedInResponse(401);
   const result = deps.bootstrap.exchange(code);
   if (!result.ok) return notSignedInResponse(401);
-  const { setCookie } = issueSession(deps.sessions);
-  return {
-    status: 303,
-    headers: { Location: '/', 'Set-Cookie': setCookie, 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' },
-    body: '',
-  };
+  return signedIn(deps.sessions);
+}
+
+// GET /auth/start: the secret-free start (CR-01). The launcher arms one start slot through the 0600 control
+// channel (POST /control/bootstrap { start: true }) and opens the browser at this URL, so no code appears in
+// a process argument list, in the terminal, or in a model's context. Same guards as the code exchange; the
+// slot is single use and valid 60 seconds from arming. A refused request leaves the slot armed.
+export function handleStartRequest(
+  req: BootstrapRequest,
+  deps: { bootstrap: BootstrapStore; sessions: SessionStore },
+): PlainResponse {
+  const guard = checkRequest(req.headers, req.port);
+  if (!guard.ok || !isBrowserNavigation(req.headers)) return forbidden();
+  if (!deps.bootstrap.redeemStart().ok) return notSignedInResponse(401);
+  return signedIn(deps.sessions);
 }

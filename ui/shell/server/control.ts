@@ -2,14 +2,15 @@
  * control.ts -- the launcher's channel to a running shell server (T-369-19-06).
  *
  * At server start a random control token is written to MOS_SHELL_CONTROL_TOKEN_FILE (mode 0600,
- * directory 0700). `POST /control/bootstrap` with that token in the x-mos-control-token header arms
- * a new sha256 for a fresh one-time link (the launcher mints the code, sends only its hash, so the
- * code never appears in a process argument list). The endpoint answers loopback requests with the
+ * directory 0700, created exclusively; a symlink at the path stops the server). `POST /control/bootstrap`
+ * with that token in the x-mos-control-token header arms EITHER { sha256 } for a fresh one-time link or
+ * { start: true } for the secret-free /auth/start slot (CR-01). With sha256 the launcher mints the code
+ * and sends only its hash, so the code never appears in a process argument list. The endpoint answers loopback requests with the
  * token only: it never reads a cookie, and it refuses any request that carries an Origin or
  * Sec-Fetch-Site header, because those come from a browser page and the launcher is not one.
  */
 import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, lstatSync, mkdirSync, openSync, unlinkSync, writeSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { BootstrapStore } from './bootstrap.ts';
 import { DEFAULT_BOOTSTRAP_TTL_MS, getBootstrapStore } from './bootstrap.ts';
@@ -22,13 +23,33 @@ const MAX_BODY_BYTES = 1024;
 
 export type ControlState = { token: string; file: string };
 
+// WR-14 (plan 369-37): the token file is created exclusively with mode 0600. A file that is already there is
+// replaced, never written into (a planted file keeps its owner, mode and other hard links); a symbolic link at
+// the path stops the server from starting; and a directory this call did not create is never chmodded.
 export function writeControlToken(file: string): string {
   const token = randomBytes(32).toString('base64url');
   const dir = dirname(file);
+  const createdDir = !existsSync(dir);
   mkdirSync(dir, { recursive: true, mode: 0o700 });
-  chmodSync(dir, 0o700);
-  writeFileSync(file, token + '\n', { mode: 0o600 });
-  chmodSync(file, 0o600); // the umask or a pre-existing file must not widen it
+  if (createdDir) chmodSync(dir, 0o700); // only a directory we just made; the umask must not narrow it wrongly
+  let existing: ReturnType<typeof lstatSync> | null = null;
+  try {
+    existing = lstatSync(file);
+  } catch {
+    existing = null;
+  }
+  if (existing) {
+    if (existing.isSymbolicLink()) throw new Error('control token path is a symbolic link: ' + file);
+    if (existing.isDirectory()) throw new Error('control token path is a directory: ' + file);
+    unlinkSync(file);
+  }
+  // 'wx' is O_CREAT | O_EXCL: it fails if anything (a symlink planted after the check above) exists at the path.
+  const fd = openSync(file, 'wx', 0o600);
+  try {
+    writeSync(fd, token + '\n');
+  } finally {
+    closeSync(fd);
+  }
   return token;
 }
 
@@ -70,7 +91,17 @@ export function handleControlBootstrap(
   } catch {
     return { status: 400, body: { ok: false, reason: 'bad_json' } };
   }
-  const sha = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>)['sha256'] : undefined;
+  const rec = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
+  const hasSha = 'sha256' in rec;
+  const hasStart = 'start' in rec;
+  // Exactly one of { sha256 } (arm a one-time code) or { start: true } (arm the secret-free start slot).
+  if (hasSha && hasStart) return { status: 400, body: { ok: false, reason: 'one_of_sha256_or_start' } };
+  if (hasStart) {
+    if (rec['start'] !== true) return { status: 400, body: { ok: false, reason: 'bad_start' } };
+    deps.bootstrap.armStart(DEFAULT_BOOTSTRAP_TTL_MS);
+    return { status: 200, body: { ok: true, expires_in_ms: DEFAULT_BOOTSTRAP_TTL_MS } };
+  }
+  const sha = rec['sha256'];
   if (typeof sha !== 'string' || !/^[0-9a-f]{64}$/i.test(sha)) return { status: 400, body: { ok: false, reason: 'bad_sha256' } };
   deps.bootstrap.arm(sha, DEFAULT_BOOTSTRAP_TTL_MS);
   return { status: 200, body: { ok: true, expires_in_ms: DEFAULT_BOOTSTRAP_TTL_MS } };

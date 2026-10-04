@@ -25,7 +25,13 @@ versions in both manifests); only built assets ship, under `lib/ui-shell/dist` (
 Binds 127.0.0.1 only. Every request passes a Host and Origin allow-list (`127.0.0.1:<port>` only).
 A browser signs in with a one-time link: a 32-byte code, sha256-armed by the launcher, valid 60
 seconds, single use, exchanged for an HttpOnly SameSite=Strict cookie and a 303 to a code-free URL.
-The exchange refuses cross-site requests before it touches the code. Sessions live in server memory;
+The exchange answers only a top-level browser navigation (`Sec-Fetch-Site: none`, `Sec-Fetch-Mode:
+navigate`, `Sec-Fetch-Dest: document`): a cross-site request, or a request with no fetch metadata
+(curl, an agent's fetch tool), is refused 403 before the code is touched, so the code survives for the
+person's browser. `GET /auth/start` is the secret-free start: the launcher arms one start slot through
+the 0600 control channel (`POST /control/bootstrap` with `{ "start": true }`, single use, 60 seconds)
+and opens the browser at `/auth/start`, so no code appears in a URL, a process argument or a terminal.
+The control token file is created exclusively with mode 0600; a symlink at its path stops the server. Sessions live in server memory;
 nothing is stored in the browser. Every POST needs the session's CSRF token (from a meta tag, never
 storage). Pages carry a per-response nonce CSP with no outside host.
 

@@ -89,6 +89,12 @@
       "namedRegex": "^/auth/bootstrap(?:/)?$"
     },
     {
+      "page": "/auth/start",
+      "regex": "^/auth/start(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/start(?:/)?$"
+    },
+    {
       "page": "/control/bootstrap",
       "regex": "^/control/bootstrap(?:/)?$",
       "routeKeys": {},

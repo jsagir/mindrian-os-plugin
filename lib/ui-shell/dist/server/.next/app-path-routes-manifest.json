@@ -8,6 +8,7 @@
   "/api/feed/room/route": "/api/feed/room",
   "/api/status/route": "/api/status",
   "/auth/bootstrap/route": "/auth/bootstrap",
+  "/auth/start/route": "/auth/start",
   "/control/bootstrap/route": "/control/bootstrap",
   "/page": "/"
 }

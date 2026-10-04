@@ -578,7 +578,8 @@ async function httpArm() {
   shell.stdout.on('data', (d) => { log += d; });
   shell.stderr.on('data', (d) => { log += d; });
   const origin = 'http://127.0.0.1:' + shellPort;
-  const NONE = { 'sec-fetch-site': 'none' };
+  // CR-01 (plan 369-37): a sign-in is redeemed only by a top-level browser navigation (site none, mode navigate, dest document).
+  const NONE = { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' };
 
   async function signIn(c) {
     const r = await request(shellPort, { path: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: NONE });

@@ -208,7 +208,7 @@ async function inProcessArms() {
     const routes = listFiles(path.join(SHELL, 'app')).filter((f) => /route\.ts$/.test(f)).map((f) => path.relative(path.join(SHELL, 'app'), f).split(path.sep).join('/')).sort();
     assert.deepStrictEqual(routes, [
       'api/actions/[name]/route.ts', 'api/feed/changes/route.ts', 'api/feed/hint/route.ts', 'api/feed/room/route.ts',
-      'api/status/route.ts', 'auth/bootstrap/route.ts', 'control/bootstrap/route.ts',
+      'api/status/route.ts', 'auth/bootstrap/route.ts', 'auth/start/route.ts', 'control/bootstrap/route.ts',
     ]);
     const sessionsSrc = fs.readFileSync(path.join(SHELL, 'server', 'sessions.ts'), 'utf8');
     assert.ok(/createSessionPool/.test(sessionsSrc) && /mindrian-shell/.test(sessionsSrc));
@@ -628,7 +628,8 @@ async function httpArms() {
   shell.stdout.on('data', (d) => { log += d; });
   shell.stderr.on('data', (d) => { log += d; });
   const origin = 'http://127.0.0.1:' + shellPort;
-  const NONE = { 'sec-fetch-site': 'none' };
+  // CR-01 (plan 369-37): a sign-in is redeemed only by a top-level browser navigation (site none, mode navigate, dest document).
+  const NONE = { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' };
 
   async function signIn(c) {
     const r = await request(shellPort, { path: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: NONE });

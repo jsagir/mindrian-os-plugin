@@ -8,6 +8,7 @@
   "/api/feed/room/route": "app/api/feed/room/route.js",
   "/api/status/route": "app/api/status/route.js",
   "/auth/bootstrap/route": "app/auth/bootstrap/route.js",
+  "/auth/start/route": "app/auth/start/route.js",
   "/control/bootstrap/route": "app/control/bootstrap/route.js",
   "/page": "app/page.js"
 }

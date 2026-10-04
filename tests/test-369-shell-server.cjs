@@ -328,7 +328,7 @@ scenario('start (CR-01): a slot older than 60 seconds is 401 (injected clock); s
 scenario('exchange: a missing code and a wrong code both show the Not signed in copy', () => {
   const deps = exchangeDeps();
   deps.bootstrap.arm(sha(code()));
-  const noCode = authMod.handleBootstrapRequest({ url: '/auth/bootstrap', headers: bag({ host: '127.0.0.1:' + PORT }), port: PORT }, deps);
+  const noCode = authMod.handleBootstrapRequest({ url: '/auth/bootstrap', headers: bag(Object.assign({ host: '127.0.0.1:' + PORT }, NAV)), port: PORT }, deps);
   assert.strictEqual(noCode.status, 401);
   assert.strictEqual(authMod.handleBootstrapRequest(bootReq(code()), deps).status, 401);
   assert.strictEqual(deps.sessions.size(), 0);
@@ -390,11 +390,17 @@ scenario('control (WR-14): a pre-existing 0644 file is replaced by a new 0600 fi
   const file = path.join(dir, 'control.token');
   fs.writeFileSync(file, 'planted\n', { mode: 0o644 });
   fs.chmodSync(file, 0o644);
+  // A second hard link keeps the planted inode alive, so a replacement cannot reuse its number and a write
+  // INTO the planted file would show through the link.
+  const link = path.join(dir, 'planted.link');
+  fs.linkSync(file, link);
   const before = fs.statSync(file).ino;
   const token = controlMod.writeControlToken(file);
   const st = fs.statSync(file);
   assert.strictEqual(st.mode & 0o777, 0o600);
   assert.notStrictEqual(st.ino, before, 'the planted file was replaced, not written into');
+  assert.strictEqual(fs.readFileSync(link, 'utf8'), 'planted\n', 'the planted file was left as it was');
+  assert.strictEqual(fs.statSync(link).mode & 0o777, 0o644);
   assert.strictEqual(fs.readFileSync(file, 'utf8').trim(), token);
 });
 

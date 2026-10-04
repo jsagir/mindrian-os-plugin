@@ -16,15 +16,22 @@ type Entry = { hash: Buffer; expiresAt: number };
 
 export type ExchangeResult = { ok: true } | { ok: false; reason: 'malformed' | 'unknown_or_used' | 'expired' };
 
+export type StartResult = { ok: true } | { ok: false; reason: 'not_armed' | 'expired' };
+
 export type BootstrapStore = {
   arm(sha256Hex: string, ttlMs?: number): void;
   exchange(code: unknown): ExchangeResult;
+  // The secret-free start slot (CR-01, plan 369-37): armed only through the 0600 control channel, one slot,
+  // single use, 60 seconds from arming. Arming again replaces the slot.
+  armStart(ttlMs?: number): void;
+  redeemStart(): StartResult;
   size(): number;
 };
 
 export function createBootstrapStore(opts: { now?: () => number } = {}): BootstrapStore {
   const now = opts.now ?? (() => Date.now());
   let entries: Entry[] = [];
+  let startExpiresAt: number | null = null;
 
   function prune(): void {
     const t = now();
@@ -56,6 +63,19 @@ export function createBootstrapStore(opts: { now?: () => number } = {}): Bootstr
       entries.splice(hit, 1); // burned on the attempt, whatever the outcome
       prune();
       if (entry.expiresAt <= t) return { ok: false, reason: 'expired' };
+      return { ok: true };
+    },
+
+    armStart(ttlMs: number = DEFAULT_BOOTSTRAP_TTL_MS): void {
+      if (!Number.isFinite(ttlMs) || ttlMs <= 0) throw new Error('armStart: ttlMs must be positive');
+      startExpiresAt = now() + ttlMs;
+    },
+
+    redeemStart(): StartResult {
+      if (startExpiresAt === null) return { ok: false, reason: 'not_armed' };
+      const expiresAt = startExpiresAt;
+      startExpiresAt = null; // single use: burned by the redemption, whatever the outcome
+      if (expiresAt <= now()) return { ok: false, reason: 'expired' };
       return { ok: true };
     },
 
