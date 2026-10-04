@@ -34,7 +34,6 @@ so the room list looks healthy while every write path is stuck. `lib/core/room-o
 `runRegistry()` (lines ~109-123) swallows the child's stderr in a bare catch, so the tester sees
 only `set_active_failed`. Fix: `datetime.timezone.utc` at all four sites; surface the child stderr
 in the failure path; a Python 3.9 floor check (grep for 3.11-only APIs across scripts/, a doctor
-point naming the Python version). This report sat unfixed for 16 days: a tester report in
-Downloads is not a filing; the next phase adds a doctor point that reads
-`~/Downloads/mindrian-bug-*.md` is NOT the answer, a /mos:bug command that files to the plugin
-repo's seeds is.
+point naming the Python version). This report sat unfixed for 16 days because a tester's bug report in Downloads is not a
+filing. The gap is a process one: a `/mos:bug` command (or the SendFeedback path) that files the
+report into the plugin's seeds with its version, machine and first error line closes it.
