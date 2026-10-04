@@ -24,7 +24,13 @@
  *   9  every view has exactly one h1, focus is on it after a page load, no tile without words
  *  10  at 390 px: no horizontal scroll, the Next decision panel sits above "Since you were here"
  *  11  a room that has no question: the empty-state H1 and its body
- *  12  egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation
+ *  12  Ask Larry (plan 369-43): the Evidence reader offers the control; with nothing filed the check says so in
+ *      plain words and opens no gate
+ *  13  Ask Larry: a proposal filed after the line was copied is announced once through the one live region and the
+ *      press opens /gate/<id> with the recommendation checked and the provenance line
+ *  14  Ask Larry: the Evidence view with a document and the control open keeps one H1, one primary action, one
+ *      triangle, radius 0 on the new block, and raises no CSP event
+ *  15  egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation
  *
  * Exit 77 only when Playwright, Chromium, the shell build or the root node_modules are absent; never to hide a
  * failing arm. Hermetic: temp HOME, never ~/MindrianRooms. Canon Part 8: loopback only. Canon Part 9: tests/ is
@@ -532,7 +538,74 @@ async function main() {
       await openRoom(page, 'room-v');
     });
 
-    await arm('12 egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation', async () => {
+    // ---- Plan 369-43: the Ask Larry control in the Evidence reader (SHELL369-13) ----
+    const ARRIVED = "Something new arrived in this room. Check for Larry's proposal.";
+    const openItem = async (id) => {
+      await go(page, '/evidence?item=' + encodeURIComponent(id));
+      await page.waitForSelector('.reader .ask-larry', { timeout: 30000 });
+    };
+    const statusText = () => page.evaluate(() => { const el = document.querySelector('[role="status"]'); return el ? el.textContent : ''; });
+
+    await arm('12 Ask Larry: the Evidence reader offers it, the line names the item, and nothing filed reads as plain words with no gate', async () => {
+      await openItem(ids.a);
+      const heading = (await page.locator('.ask-larry h3').textContent()).trim();
+      assert.strictEqual(heading, 'Ask Larry about this');
+      const line = (await page.locator('.ask-larry .ask-line').textContent()).trim();
+      assert.ok(line.includes(ids.a), 'the reference line names the selected item: ' + line.slice(0, 200));
+      assert.strictEqual(await page.locator('.ask-larry .ab[data-variant="primary"]').count(), 1, 'one primary action in the control');
+      assert.ok((await page.locator('.ask-larry .ab-label').textContent()).trim() === "Check for Larry's proposal");
+      const gatesBefore = await page.evaluate(async () => (await (await fetch('/api/actions/listOpenGates', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json', 'x-mos-csrf': document.querySelector('meta[name="mos-csrf"]').getAttribute('content') }, body: '{}' })).json()).gates.length);
+      await page.locator('.ask-larry .ab').click();
+      await page.waitForSelector('.ask-larry .inline-error', { timeout: 20000 });
+      const err = (await page.locator('.ask-larry .inline-error').innerText()).replace(/\s+/g, ' ');
+      assert.ok(err.includes('Larry has not filed a proposal about this yet.'), err);
+      assert.ok(err.includes('The room has no proposed claim that names this item.'), err);
+      assert.ok(err.includes('Paste the line into Claude Code, wait for Larry to file it, then check again.'), err);
+      assert.ok(new URL(page.url()).pathname === '/evidence', 'no gate was opened: ' + page.url());
+      const gatesAfter = await page.evaluate(async () => (await (await fetch('/api/actions/listOpenGates', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json', 'x-mos-csrf': document.querySelector('meta[name="mos-csrf"]').getAttribute('content') }, body: '{}' })).json()).gates.length);
+      assert.strictEqual(gatesAfter, gatesBefore, 'no fake gate was raised');
+      assert.strictEqual(await page.locator('.ask-larry .ab').getAttribute('aria-disabled'), null, 'the button is usable again');
+      await shot('evidence-ask-larry-none');
+    });
+
+    await arm('13 Ask Larry: a proposal filed after the copy is announced once, and the press opens the decision', async () => {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+      await openItem(ids.a);
+      await waitCurrent(page);
+      await page.getByRole('button', { name: 'Copy the line' }).click();
+      await waitUntil(async () => (await statusText()).includes('Line copied.'), 8000, 'the copied announcement', 100);
+      assert.strictEqual((await statusText()).includes('Something new arrived'), false, 'nothing arrived yet');
+      await writeClaim(roomV, 'Pilot note about ' + ids.a + ': the person must click to confirm.', 'ask', daemon.env);
+      await page.waitForFunction((want) => { const el = document.querySelector('[role="status"]'); return !!el && el.textContent.includes(want); }, ARRIVED, { timeout: 10000 });
+      assert.strictEqual(await page.locator('[role="status"]').count(), 1, 'exactly one live region');
+      assert.ok(new URL(page.url()).pathname === '/evidence', 'no reload and no navigation happened on its own');
+      await page.locator('.ask-larry .ab').click();
+      await page.waitForURL(/\/gate\/[^/]+$/, { timeout: 30000 });
+      await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 45000 });
+      const text = await viewText();
+      assert.ok(text.includes('Proposal from Claude Code. Only a person can approve it.'), text.slice(0, 400));
+      assert.strictEqual(await page.locator('input.opt-input:checked').count(), 1, 'the recommendation is checked');
+      assert.strictEqual(await page.$$eval('#view .ab[data-variant="primary"]', (e) => e.length), 1, 'one primary action on the gate');
+    });
+
+    await arm('14 Ask Larry: with a document open the Evidence view keeps one H1, one primary action, one triangle, radius 0, no CSP event', async () => {
+      const cspBefore = cspEvents.length;
+      await openItem(ids.a);
+      await page.waitForFunction(() => { const el = document.querySelector('.doc-display'); return !!el && el.textContent.includes('Interview notes'); }, null, { timeout: 30000 });
+      assert.deepStrictEqual(await h1s(page), ['Evidence']);
+      assert.strictEqual(await page.$$eval('#view .ab[data-variant="primary"]', (e) => e.length) <= 1, true, 'at most one primary action');
+      assert.strictEqual(await page.$$eval('#view .ab[data-variant="primary"]', (e) => e.length), 1, 'the control is the view\'s one primary action');
+      assert.strictEqual(await page.$$eval('#view .sm-tri', (e) => e.length), 1, 'one ochre triangle');
+      const radii = await page.$$eval('.ask-larry, .ask-larry *', (els) => els.map((e) => getComputedStyle(e).borderTopLeftRadius + '|' + getComputedStyle(e).borderBottomRightRadius));
+      assert.ok(radii.length > 3, 'the block was measured');
+      assert.ok(radii.every((r) => r === '0px|0px'), 'radius 0 on the new block: ' + J(radii.filter((r) => r !== '0px|0px')));
+      assert.strictEqual(await page.$$eval('.ask-larry [style]', (els) => els.length), 0, 'no style attribute in the control');
+      assert.strictEqual(await page.$$eval('[role="status"]', (els) => els.length), 1, 'exactly one live region on the page');
+      assert.deepStrictEqual(cspEvents.slice(cspBefore), [], 'no CSP event while the control and a document are open');
+      await shot('evidence-ask-larry-document');
+    });
+
+    await arm('15 egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation', async () => {
       pw.assertOnlyLoopback(egress);
       assert.strictEqual(await page.$$eval('iframe', (els) => els.length), 0, 'no iframe in the page');
       assert.deepStrictEqual(cspEvents, [], 'no Content-Security-Policy violation event: ' + J(cspEvents.slice(0, 3)) + ' ' + cspViolations.length + ' of them; elements with a style attribute after a document opened: ' + J(styledAfterDoc).slice(0, 600));

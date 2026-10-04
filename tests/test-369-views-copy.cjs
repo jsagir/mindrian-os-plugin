@@ -156,6 +156,69 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
   }
 });
 
+// ---------- (1b) Plan 369-43: the Ask Larry control (SHELL369-13, gap 1 browser half) ----------
+
+// Every string the control shows, verbatim from the plan's copy list (Canon v3 voice).
+const ASK_LARRY_STRINGS = [
+  'Ask Larry about this',
+  'Larry answers in Claude Code. Copy this line, paste it to him there, and he files his answer in this room as a proposal.',
+  'Your question',
+  'Does this have enough evidence to confirm it?',
+  'Line to paste',
+  'Copy the line',
+  'Line copied.',
+  'Select the line above and copy it.',
+  "Check for Larry's proposal",
+  'Opens the decision when Larry has filed one. Nothing is approved until you choose.',
+  'Checking the room...',
+  'Larry has not filed a proposal about this yet.',
+  'The room has no proposed claim that names this item.',
+  'Paste the line into Claude Code, wait for Larry to file it, then check again.',
+  "Something new arrived in this room. Check for Larry's proposal.",
+  'No room is open in this browser.',
+  'A proposal is read from the open room.',
+  'Open the room, then check again.',
+  'The room could not be read just now.',
+  'MindrianOS did not answer this check.',
+  'Nothing changed. Check again in a moment.',
+];
+
+scenario('369-43: the Ask Larry control exists in the Evidence reader, calls askClaude and never answers a decision', () => {
+  const f = path.join(VIEWS, 'evidence', 'AskLarry.tsx');
+  assert.ok(fs.existsSync(f), 'ui/shell/client/views/evidence/AskLarry.tsx is missing');
+  const src = code(f);
+  assert.ok(/callAction(<[^()]*>)?\('askClaude'/.test(src), 'the primary action calls the askClaude action');
+  assert.ok(!/approveDecision|gate_answer|gateAnswer|readGate|publishDeliverable/.test(src), 'the control asks for a proposal only; it never reads a gate or answers a decision');
+  assert.ok(/import\s*\{[^}]*\bcopyReference\b[^}]*\}\s*from\s*'mos-ui-shared\/claude-adapter'/.test(src), 'the reference line comes from the shared pure copyReference');
+  assert.ok(!/localStorage|sessionStorage|document\.cookie|indexedDB/.test(src), 'no browser storage');
+  assert.ok(!/\bstyle=/.test(src), 'no inline style attribute');
+  assert.ok(!/dangerouslySetInnerHTML|\.innerHTML\s*=/.test(src), 'the line and the room text render as text');
+  assert.strictEqual((src.match(/<ActionButton\b/g) || []).length, 1, 'exactly one ActionButton: the control is the view\'s one primary action');
+  assert.ok(!/variant="secondary"/.test(src), 'no secondary button beside the primary action');
+  const reader = code(path.join(VIEWS, 'evidence', 'EvidenceReader.tsx'));
+  assert.ok(/<AskLarry\b/.test(reader), 'the reader renders the control');
+  assert.ok(reader.indexOf('<AskLarry') < reader.indexOf('<LazyDocument'), 'the control sits under the provenance block and above the document');
+  assert.ok(reader.indexOf('<AskLarry') > reader.indexOf('facts.map'), 'the control sits under the provenance block');
+});
+
+scenario('369-43: every Ask Larry string lives in client/copy.ts (one ASK_LARRY object), the primary label written once', () => {
+  assert.ok(/export const ASK_LARRY\b/.test(COPY), 'copy.ts has the ASK_LARRY object');
+  const lines = COPY.split('\n');
+  assert.strictEqual(lines.filter((l) => l.includes("Check for Larry's proposal")).length, 1, 'the label is one line of copy.ts (the arrived sentence composes it)');
+  for (const s of ASK_LARRY_STRINGS.filter((x) => !x.includes("Check for Larry's proposal"))) assert.ok(COPY.includes(s), 'client/copy.ts is missing: ' + s);
+  const src = code(path.join(VIEWS, 'evidence', 'AskLarry.tsx'));
+  for (const s of ASK_LARRY_STRINGS) assert.ok(!src.includes(s), 'AskLarry.tsx hard-codes a copy string: ' + s);
+});
+
+scenario('369-43: SEED-067 and SHELL369-04 - no model call in the control, and no new shell action is registered', () => {
+  const src = code(path.join(VIEWS, 'evidence', 'AskLarry.tsx'));
+  assert.ok(!/anthropic|openai|ANTHROPIC_API_KEY|\bmessages\.create\b|\/v1\/messages/i.test(src), 'no model call in the browser');
+  const actions = read(path.join(SHELL, 'server', 'actions.ts'));
+  const list = actions.slice(actions.indexOf('export const ACTION_NAMES'), actions.indexOf('] as const'));
+  const names = [...list.matchAll(/'(\w+)'/g)].map((m) => m[1]);
+  assert.strictEqual(names.length, 10, 'the registry stays at ten actions: ' + names.join(', '));
+});
+
 // ---------- (2) the tile mapping ----------
 
 (async () => {
@@ -201,6 +264,13 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
     assert.deepStrictEqual(t({ status: 'proposed' }, none).extra, []);
     // A word the table does not know is written as it is, never reinterpreted as a known state.
     assert.strictEqual(t({ status: 'on_hold' }, none).status, 'ON HOLD');
+  });
+
+  await ascenario('369-43: the values of ASK_LARRY are exactly the plan copy (the arrived sentence composes the label)', async () => {
+    const copy = await import(pathToFileURL(path.join(CLIENT, 'copy.ts')).href);
+    assert.ok(copy.ASK_LARRY && typeof copy.ASK_LARRY === 'object', 'ASK_LARRY is exported');
+    const values = new Set(Object.values(copy.ASK_LARRY).filter((v) => typeof v === 'string'));
+    for (const s of ASK_LARRY_STRINGS) assert.ok(values.has(s), 'ASK_LARRY has no value: ' + s);
   });
 
   await ascenario('contradictionPartners: both ends of a CONTRADICTS edge point at each other; other edge types are ignored', () => {
@@ -350,7 +420,9 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
     for (const f of viewFiles().filter((x) => !x.split(path.sep).includes('gate'))) {
       const s = code(f);
       assert.ok(!/approveDecision|publishDeliverable|gate_answer/.test(s), rel(f) + ' answers a decision or publishes (that is the gate view)');
-      assert.ok(!/callAction(<[^()]*>)?\('(?!readArtifact|listOpenGates|readGate|roomDoc)/.test(s), rel(f) + ' calls an action the views may not call');
+      // Plan 369-43: the Ask Larry control (views/evidence/AskLarry.tsx) is the one view file that may call askClaude, and only that.
+      const mayAsk = path.basename(f) === 'AskLarry.tsx' ? '|askClaude' : '';
+      assert.ok(!new RegExp("callAction(<[^()]*>)?\\('(?!readArtifact|listOpenGates|readGate|roomDoc" + mayAsk + ")").test(s), rel(f) + ' calls an action the views may not call');
       assert.ok(!/readGate\b/.test(s) || /callAction(<[^()]*>)?\('readGate'/.test(s), rel(f) + ' reads a gate through callAction only (no render nonce is kept by a view)');
     }
   });
