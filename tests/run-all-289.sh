@@ -65,6 +65,7 @@ run_if "289 contract recommended (unit, research)" tests/test-289-contract-recom
 run_if "289 elicit default (unit)" tests/test-289-elicit-default.cjs node tests/test-289-elicit-default.cjs --arm unit
 # Review fixes (289-REVIEW.md iteration 1). One plain leg per fixed finding, added with its fix.
 run_if "289 review fixes: CR-01 verdict agrees with chosen" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm cr01
+run_if "289 review fixes: WR-01 chain_run refuses a non-chain gate" tests/test-289-review-fixes.cjs node tests/test-289-review-fixes.cjs --arm wr01
 run_if "289 menu fence (MENU289-03)" tests/test-289-menu-fence.cjs node tests/test-289-menu-fence.cjs
 
 # --- (2) flipped and re-pinned existing tests ---------------------------------
