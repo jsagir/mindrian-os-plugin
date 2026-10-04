@@ -136,7 +136,7 @@ Three commands already answer parts of this walk. Read what they filed through t
 - Dominant-design reads from `/mos:dominant-designs` and scenarios from `/mos:explore-futures` are candidate routes at Path Enumeration.
 - Reverse-salient findings from `/mos:find-bottlenecks` enter Constraint Interrogation as the first limiter rows, or the navigator dismisses them with a reason.
 - A hypothesis in flight enters Constraint Interrogation as a limiter row whose source_node_id is its opportunity id, or the navigator dismisses it with a reason; the CLI refuses step 6 until each one is addressed. Nothing here changes the finding: it stays proposed, and only the navigator confirms it.
-- When one is missing, offer `/mos:find-bottlenecks`, `/mos:dominant-designs` or `/mos:explore-futures` and let the navigator decide.
+- When one is missing, fire ONE AskUserQuestion card (a Shape F.1 question, composed with the same `renderShapeF1` / `appendAskUserQuestionTrailer` shape as the other cards) offering `/mos:find-bottlenecks`, `/mos:dominant-designs` and `/mos:explore-futures` as the options. State the recommended default and its reason on the card: recommend the one whose output the current step needs first (`/mos:find-bottlenecks` for Constraint Interrogation, `/mos:dominant-designs` or `/mos:explore-futures` for Path Enumeration), marked Recommended and listed first. The navigator can dismiss the card or type a different move in the Other slot, and neither command fires on its own. On a surface that cannot fire the card, name the three commands in one line and ask which to run.
 
 ## Constraint interrogation (F.8 basket)
 
