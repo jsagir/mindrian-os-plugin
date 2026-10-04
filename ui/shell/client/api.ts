@@ -68,6 +68,9 @@ export const feed = {
 
 const renderNonces = new Map<string, string>();
 
+// Refusals after which the page has no gate to answer (plan 369-27, from the Phase 289 and plan 369-26 answer set).
+const NO_GATE_TO_ANSWER = new Set(['unknown_or_expired_gate', 'unknown_gate', 'gate_expired', 'room_switched']);
+
 type GateAnswer = Record<string, unknown> & { ok?: boolean; reason?: string; render_nonce?: string };
 
 // Read one gate card and keep its render nonce in page memory. The nonce is not part of what the caller gets back.
@@ -100,7 +103,10 @@ export async function approveDecision<T extends GateAnswer = GateAnswer>(
   } else if (body && body.reason === 'human_only') {
     renderNonces.delete(gateId);
     await readGate(gateId);
-  } else if (body && (body.reason === 'unknown_or_expired_gate' || body.reason === 'room_switched')) {
+  } else if (body && typeof body.reason === 'string' && NO_GATE_TO_ANSWER.has(body.reason)) {
+    // Nothing left to answer: the gate is gone (unknown_gate, gate_expired, the chain tools' older slug) or this
+    // browser left its room (room_switched). Drop the nonce; the other refusals keep the gate open and the nonce
+    // the next read issues.
     renderNonces.delete(gateId);
   }
   return res;

@@ -50,6 +50,9 @@ import type { Pool } from './sessions.ts';
 
 export type Principal = 'human' | 'agent';
 
+// Refusals that leave a gate with nothing to answer: the shell drops its record of it (plan 369-27, from 369-26).
+const DROPS_THE_GATE = new Set(['unknown_gate', 'gate_expired', 'unknown_or_expired_gate']);
+
 export type InvokeContext = {
   principal: Principal;
   browserSession: { mcpKey: string };
@@ -66,10 +69,30 @@ export type GateCard = {
   recommended_id: string;
   rationale: string;
   evidence_node_ids: string[];
-  options: Array<{ id: string; label: string; description?: string; rank: number }>;
+  options: Array<{ id: string; label: string; description?: string; rank: number; preview?: string }>;
   notice: string | null;
   minted_at: number;
+  // Plan 369-27: what the gate view needs to draw the card from the contract (never from zone text).
+  kind: string;
+  select_mode: 'single' | 'multi';
+  // The gate was minted through the agent path (a Claude proposal): the page says so in words.
+  proposal_from: 'claude_code';
+  // false when the room relabelled the approve option because the claim is below the room's floor; null when unknown.
+  floor_met: boolean | null;
+  // The rendered contract's own fields (gate_render's `rendered.contract`): the shared superset and the recommended id.
+  rendered: { contract: { superset_options: unknown[]; recommended: string | null; multiSelect: boolean; notice?: string } };
 };
+
+// What a person was shown the answer to: kept after an answer so a lost response can be confirmed by gate id.
+export type AnsweredGate = { gate_id: string; verdict: 'approve' | 'reject' | 'defer'; chosen: string[]; gate: PublicGate | null };
+
+// The card as the page may see it: the server's own session key stays on the server.
+export type PublicGate = Omit<GateCard, 'mcp_key'>;
+
+function publicGate(card: GateCard): PublicGate {
+  const { mcp_key: _key, ...rest } = card;
+  return { ...rest, options: card.options.map((o) => ({ ...o })), evidence_node_ids: card.evidence_node_ids.slice() };
+}
 
 export const ACTION_NAMES = [
   'listRooms',
@@ -138,6 +161,18 @@ export function createShellActions(deps: ShellActionDeps) {
   // minted in. `abandoned` holds the gates a confirmed room switch left behind (gate id -> room).
   const gates = new Map<string, Map<string, GateCard>>();
   const abandoned = new Map<string, Map<string, string>>();
+  // Gates the room confirmed answered on this browser session (ok:true). readGate says so for such an id, which is how
+  // the page confirms an answer whose response was lost (plan 369-27): the record is the room's own ok, never a guess.
+  const answered = new Map<string, Map<string, AnsweredGate>>();
+
+  function answeredOf(key: string): Map<string, AnsweredGate> {
+    let m = answered.get(key);
+    if (!m) {
+      m = new Map();
+      answered.set(key, m);
+    }
+    return m;
+  }
 
   function gatesOf(key: string): Map<string, GateCard> {
     let m = gates.get(key);
@@ -162,6 +197,7 @@ export function createShellActions(deps: ShellActionDeps) {
   function sessionRestarted(key: string): void {
     gates.delete(key);
     abandoned.delete(key);
+    answered.delete(key);
     nonces.forgetSession(key);
   }
 
@@ -348,22 +384,29 @@ export function createShellActions(deps: ShellActionDeps) {
     if (res.isError || !data || data.ok !== true || typeof data.gate_id !== 'string') {
       return { ok: false, reason: 'gate_render_failed', detail: res.text.slice(0, 300) };
     }
-    const contract = asRec(data.contract);
+    // gate_render answers { ok, gate_id, renderer, rendered }: the shared contract is at rendered.contract.
+    const rendered = asRec(data.rendered);
+    const contract = rendered ? asRec(rendered.contract) : null;
     const served = contract && Array.isArray(contract.superset_options) ? (contract.superset_options as unknown[]) : null;
     const cardOptions = served
       ? served
           .map(asRec)
           .filter((o): o is Record<string, unknown> => o !== null && typeof o.id === 'string')
           .map((o) => {
-            const out: { id: string; label: string; description?: string; rank: number } = {
+            const out: { id: string; label: string; description?: string; rank: number; preview?: string } = {
               id: o.id as string,
               label: str(o.label),
               rank: typeof o.rank === 'number' ? o.rank : 0,
             };
             if (typeof o.description === 'string' && o.description) out.description = o.description;
+            if (typeof o.preview === 'string' && o.preview) out.preview = o.preview;
             return out;
           })
       : options;
+    // The room relabels the approve option when the claim is below its floor: a label that is not the one sent says so.
+    const sentApprove = options.find((o) => o.id === 'approve');
+    const servedApprove = cardOptions.find((o) => o.id === 'approve');
+    const floorMet: boolean | null = sentApprove && servedApprove && servedApprove.label !== sentApprove.label ? false : null;
     // The minted gate is recorded against THIS browser session and the room it was minted in.
     const card: GateCard = {
       gate_id: data.gate_id,
@@ -377,6 +420,18 @@ export function createShellActions(deps: ShellActionDeps) {
       options: cardOptions.length > 0 ? cardOptions : options,
       notice: contract && typeof contract.notice === 'string' ? contract.notice : null,
       minted_at: Date.now(),
+      kind: 'general',
+      select_mode: 'single',
+      proposal_from: 'claude_code',
+      floor_met: floorMet,
+      rendered: {
+        contract: {
+          superset_options: served ?? [],
+          recommended: contract && typeof contract.recommended === 'string' ? contract.recommended : null,
+          multiSelect: false,
+          ...(contract && typeof contract.notice === 'string' ? { notice: contract.notice } : {}),
+        },
+      },
     };
     gatesOf(key).set(card.gate_id, card);
     return { ok: true, gate_id: card.gate_id, room, subject_node_id: card.subject_node_id, recommended_id: card.recommended_id };
@@ -387,11 +442,14 @@ export function createShellActions(deps: ShellActionDeps) {
     if (!card) {
       const left = abandonedOf(key).get(input.gate_id);
       if (left) return { ok: false, reason: 'room_switched', room: left };
+      // A gate the room already confirmed answered: say so and issue no nonce (there is nothing left to answer).
+      const done = answeredOf(key).get(input.gate_id);
+      if (done) return { ok: true, answered: { gate_id: done.gate_id, verdict: done.verdict, chosen: done.chosen.slice() }, gate: done.gate };
       return { ok: false, reason: 'unknown_gate' };
     }
     // D-15: the one place a render nonce is issued. readGate is human-only, so the agent path cannot reach it.
     const render_nonce = nonces.issue({ gateId: card.gate_id, browserSessionId: key });
-    return { ok: true, gate: { ...card, options: card.options.map((o) => ({ ...o })), evidence_node_ids: card.evidence_node_ids.slice() }, render_nonce };
+    return { ok: true, gate: publicGate(card), render_nonce };
   });
 
   define('listOpenGates', 'human', z.object({}), async (_input, key) => {
@@ -430,8 +488,13 @@ export function createShellActions(deps: ShellActionDeps) {
         const res = await via(key, (call) => gateAnswer(call, { gate_id: input.gate_id, chosen: input.chosen, verdict: input.verdict }));
         const data = asRec(res.data);
         if (!data) return { ok: false, reason: 'answer_unreadable', gate_id: input.gate_id };
-        // An answered or expired gate is done; a refused one stays open for the person to retry.
-        if (data.ok === true || data.reason === 'unknown_or_expired_gate') gatesOf(key).delete(input.gate_id);
+        // An answered gate, and a gate with nothing left to answer (unknown_gate, gate_expired, the chain tools' older
+        // slug), are done. A refused one (stale_subject, room_switched, persistence_failed, session_mismatch, the
+        // pre-consume refusals) stays open for the person to retry (Phase 289 and plan 369-26).
+        if (data.ok === true || DROPS_THE_GATE.has(str(data.reason))) gatesOf(key).delete(input.gate_id);
+        if (data.ok === true) {
+          answeredOf(key).set(input.gate_id, { gate_id: input.gate_id, verdict: input.verdict, chosen: input.chosen.slice(), gate: card ? publicGate(card) : null });
+        }
         // The nonce is burned only when the room recorded the answer.
         if (data.ok === true) {
           nonces.burn(nonce);
@@ -489,6 +552,7 @@ export function createShellActions(deps: ShellActionDeps) {
     forget(mcpKey: string): void {
       gates.delete(mcpKey);
       abandoned.delete(mcpKey);
+      answered.delete(mcpKey);
       nonces.forgetSession(mcpKey);
     },
   };
