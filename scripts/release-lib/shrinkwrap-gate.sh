@@ -16,7 +16,7 @@
 # by a test with fake hooks, without a real npm shrinkwrap or a real publish.
 #
 # RETURN CODES (the contract, exact -- do not improvise):
-#   0  = shrinkwrap generated and all three assertions passed.
+#   0  = shrinkwrap generated, pruned, and all three assertions passed.
 #   1  = fail closed, the caller must hard-abort. There is no warn code here:
 #        a missing lockfile in the tarball is not a warning, it is the single
 #        highest-risk assertion in the phase (T-341-16) -- a user's install
@@ -53,6 +53,11 @@
 # shrinkwrap generated with that variable pinned to production can omit
 # metadata a later `npm ci` needs. The correct control is assertion 2 below
 # (zero dev entries), not the environment.
+#
+# Phase 369.1 D-16 (2026-10-04): after the dev-entry assertion the function runs
+# scripts/release-lib/prune-shrinkwrap.cjs, which cuts next's optional sharp subtree out of the
+# lockfile by reachability, and fails closed if any package with an install script is left. See
+# docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 8.
 #
 # Phase 341 (D-06). Replaces the vendoring formerly in release.sh Step 6.7.
 
@@ -99,6 +104,26 @@ const hasDev = Object.keys(packages).some(function (k) { return packages[k] && p
 process.exit(hasDev ? 1 : 0);
 "; then
     echo "  x npm-shrinkwrap.json contains dev-only packages; the loader would install them on every user machine."
+    return 1
+  fi
+
+  # 2b. Prune next's optional sharp subtree, then refuse any install-script package that is left
+  #     (Phase 369.1 D-16, navigator 2026-10-04). Every supported installer (the Claude Code loader and
+  #     the plugin's own self-install) runs `npm ci --ignore-scripts`, so an install script would never
+  #     run and the package would be silently broken. An npm "overrides" key would make the loader skip
+  #     the dependency install, and an omit-optional regeneration leaves every sharp entry in the
+  #     lockfile, so the lockfile itself is pruned by reachability. This runs AFTER the dev-entry
+  #     assertion on purpose: the prune drops unreachable entries, and a dev-only entry must be refused
+  #     as generated, never quietly dropped. BASH_SOURCE[0] inside a function is the file that defines
+  #     it, so this finds the sibling script however the library was sourced.
+  local prune_script
+  prune_script="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)/prune-shrinkwrap.cjs"
+  if [ ! -f "$prune_script" ]; then
+    echo "  x mos_generate_shrinkwrap: prune-shrinkwrap.cjs not found next to the library ($prune_script)."
+    return 1
+  fi
+  if ! node "$prune_script" "$shrinkwrap_path"; then
+    echo "  x npm-shrinkwrap.json carries an install-script package after the prune (see above); every supported installer runs --ignore-scripts, so it would be silently broken (Phase 369.1 D-16)."
     return 1
   fi
 
