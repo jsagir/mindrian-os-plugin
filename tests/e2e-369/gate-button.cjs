@@ -26,15 +26,20 @@
  *   7  stale_subject: the claim changes after the card opened: the stale copy, nothing saved
  *   8  room_switched: the browser leaves the room (confirmLeave): the room copy, nothing saved
  *   9  gate_expired through the .test-fault-gate-expire marker
- *  10  session_mismatch: the gate id opened in a second signed-in browser context is not answerable there (no gate to
- *      answer), the first session's gate stays open; the session_mismatch copy renders for an answer the server refuses
+ *  10  a second signed-in browser session reads the first session's gate as raised elsewhere and is offered its options
+ *      (plan 369-44: the mirror contract; the old arm asserted unknown_gate); after one session answers the other reads
+ *      "already recorded"; the session_mismatch copy renders for an answer the server refuses (stubbed route)
  *  11  human_only: an approve with a stale render nonce (the gate was re-read in another tab) shows the human-only copy
  *      after the one automatic re-read, and nothing is saved
  *  12  persistence failure through the .test-fault-gate-persist marker: the InlineError sits above the still-enabled
  *      actions; the next answer is recorded
  *  13  the session indicator shows the risk tier while an answer is being checked
- *  14  radius 0 on the gate view except the circle mark, one H1, one primary action, one ochre triangle
- *  15  egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation
+ *  14  a gate raised in Claude Code (the CLI process) shows live in Work and Decisions ("Raised by Larry outside this
+ *      browser."), Work makes no readGate call, it opens with the raised provenance and Approve records it (plan 369-44)
+ *  15  replay_lookup_failed keeps the gate (Check again, never "no longer open"); verdict_chosen_mismatch keeps the options
+ *  16  answered elsewhere: a second browser context answers first; the first session reads "already recorded"
+ *  17  radius 0 on the gate view except the circle mark, one H1, one primary action, one ochre triangle
+ *  18  egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation
  *
  * Exit 77 only when Playwright, Chromium, the shell build or the root node_modules are absent; never to hide a failing
  * arm. Hermetic: temp HOME, never ~/MindrianRooms. Canon Part 8: loopback only. Canon Part 9: tests/ is allow-listed for
@@ -61,6 +66,7 @@ delete process.env.CLAUDE_CODE_SESSION_ID;
 
 const pw = require('./lib/pw.cjs');
 const D = require('../helpers/mcp-daemon-369.cjs');
+const { cliClient } = require('../helpers/cli-gate-369.cjs');
 
 const SHELL = path.join(REPO, 'ui', 'shell');
 const STANDALONE = path.join(SHELL, '.next', 'standalone');
@@ -324,6 +330,33 @@ async function main() {
   const primary = (p) => (p || page).locator('#view .ab[data-variant="primary"]');
   const status = async (p) => ((await (p || page).locator('.gate-status').first().innerText()) || '').replace(/\s+/g, ' ').trim();
 
+  // A second signed-in browser context (a second browser session), in room-v.
+  async function secondSession() {
+    const code2 = crypto.randomBytes(32).toString('base64url');
+    const token = fs.readFileSync(tokenFile, 'utf8').trim();
+    const armed = await request(shellPort, { method: 'POST', path: '/control/bootstrap', headers: { 'content-type': 'application/json', 'x-mos-control-token': token }, body: J({ sha256: sha(code2) }) });
+    assert.strictEqual(armed.status, 200, armed.body);
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const p2 = await ctx.newPage();
+    watch(p2);
+    await p2.goto(origin + '/auth/bootstrap?code=' + encodeURIComponent(code2));
+    await p2.waitForSelector('header.shell-header', { timeout: 30000 });
+    await openRoom(p2, 'room-v');
+    return { ctx, page: p2 };
+  }
+  // The Claude Code shaped stdio raiser (tests/helpers/cli-gate-369.cjs), started once, bound to the room asked for.
+  let cli = null;
+  async function cliFor(slug) {
+    if (cli === null) cli = await cliClient({ roomsHome: daemon.roomsHome, home: daemon.env.HOME, sessionId: 'cli-gate-button-369' });
+    await cli.bind(slug);
+    return cli;
+  }
+  const CLI_OPTIONS = [
+    { id: 'approve', label: 'Approve', rank: 1, description: 'Recommended: ratify.', preview: 'Ratifies the claim.' },
+    { id: 'hold', label: 'Hold', rank: 2 },
+    { id: 'reject', label: 'Reject', rank: 3 },
+  ];
+
   console.log('Phase 369-27 gate button, real browser');
   try {
     await waitUntil(async () => fs.existsSync(tokenFile) && (await request(shellPort, { path: '/auth/bootstrap', headers: { 'sec-fetch-site': 'none' } })).status > 0, 30000, 'the shell to answer', 100);
@@ -560,33 +593,46 @@ async function main() {
     });
 
     let open10 = null;
-    await arm('10 session_mismatch: a second browser session has no gate to answer here; the first session stays answerable; the refusal copy renders', async () => {
+    await arm('10 a second signed-in session reads the first session\'s gate as raised elsewhere and is offered its options; after one session answers, the other reads "already recorded"; the stubbed session_mismatch copy renders', async () => {
       open10 = await mint(page, 'g10', true);
-      // A second signed-in browser context (a second browser session).
-      const code2 = crypto.randomBytes(32).toString('base64url');
-      const token = fs.readFileSync(tokenFile, 'utf8').trim();
-      const armed = await request(shellPort, { method: 'POST', path: '/control/bootstrap', headers: { 'content-type': 'application/json', 'x-mos-control-token': token }, body: J({ sha256: sha(code2) }) });
-      assert.strictEqual(armed.status, 200, armed.body);
-      const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-      const page2 = await ctx2.newPage();
-      watch(page2);
+      const g10b = await mint(page, 'g10b', true);
+      const second = await secondSession();
+      const page2 = second.page;
       try {
-        await page2.goto(origin + '/auth/bootstrap?code=' + encodeURIComponent(code2));
-        await page2.waitForSelector('header.shell-header', { timeout: 30000 });
-        await openRoom(page2, 'room-v');
-        await page2.goto(origin + '/gate/' + encodeURIComponent(open10.gate));
-        await page2.waitForSelector('#view .gate-card[data-refusal]', { timeout: 30000 });
-        assert.strictEqual(await page2.locator('#view .gate-card').getAttribute('data-refusal'), 'unknown_gate');
-        assert.ok((await viewText(page2)).includes('This decision is no longer open.'));
-        assert.strictEqual(await page2.locator('.opt-row').count(), 0, 'the other session offers no answer');
+        // Session two lists both gates as raised elsewhere (the room holds them open) and reads the gate with its options.
+        const list2 = await act(page2, 'listOpenGates', {});
+        for (const id of [open10.gate, g10b.gate]) {
+          const item = (list2.gates || []).find((x) => x.gate_id === id);
+          assert.ok(item && item.raised_elsewhere === true, 'session two lists ' + id + ' as raised elsewhere: ' + J(list2));
+        }
+        await openGate(page2, open10.gate);
+        assert.strictEqual(await page2.locator('#view .gate-card').getAttribute('data-refusal'), null, 'no refusal: the gate is not unknown to the second session');
+        assert.ok((await page2.locator('.opt-row').count()) >= 2, 'session two is offered the options');
+        assert.strictEqual(await page2.locator('.gate-provenance').innerText(), 'Raised by Larry outside this browser. Only a person can approve it.');
         // The first session still holds it, answerable.
         const listed = await act(page, 'listOpenGates', {});
         assert.ok(listed.gates.some((x) => x.gate_id === open10.gate), 'the gate is still open in the first session');
+        assert.strictEqual(decisionNodes(roomV, open10.gate).length, 0, 'reading a gate saves nothing');
+
+        // Both sessions hold g10b open; the first session answers it; the second then reads "already recorded".
+        await openGate(page2, g10b.gate);
+        await openGate(page, g10b.gate);
+        await primary().click();
+        await page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+        assert.strictEqual(decisionNodes(roomV, g10b.gate).length, 1);
+        // Session two's card is stale: its click replays the room's answer and says so.
+        await primary(page2).click();
+        await page2.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+        assert.strictEqual(await status(page2), 'This decision was already recorded.');
+        assert.strictEqual(decisionNodes(roomV, g10b.gate).length, 1, 'nothing was written twice');
+        // A fresh read in session two says the same.
+        await openGate(page2, g10b.gate, 'recorded');
+        assert.strictEqual(await status(page2), 'This decision was already recorded.');
       } finally {
-        await ctx2.close();
+        await second.ctx.close();
       }
-      // The refusal the server gives a different MCP session (proven against the real server in test-369-human-only and
-      // test-369-gate-recovery): the copy a person reads.
+      // The refusal the server gives a different MCP session when a gate is answered where it was not opened (proven
+      // against the real server in test-369-human-only and test-369-gate-recovery): the copy a person reads.
       await openGate(page, open10.gate);
       await page.route('**/api/actions/approveDecision', async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: J({ ok: false, reason: 'session_mismatch', gate_id: open10.gate }) });
@@ -705,7 +751,152 @@ async function main() {
       assert.strictEqual(decisionNodes(roomV, g.gate).length, 1);
     });
 
-    await arm('14 radius 0 except the circle mark, one H1, one primary action, one ochre triangle', async () => {
+    await arm('14 a gate raised in Claude Code (the CLI process) shows live in Work and in Decisions with the raised wording; it opens with its provenance; Approve records it and Work made no readGate call', async () => {
+      const roomQ = daemon.roomDirs['room-q'];
+      seedRoom(roomQ);
+      const ids = await newClaim(roomQ, 'g14', true, daemon.env);
+      await openRoom(page, 'room-q');
+      const c = await cliFor('room-q');
+      try {
+        let reads = 0;
+        const countRead = (r) => { if (r.url().includes('/api/actions/readGate')) reads += 1; };
+        page.on('request', countRead);
+        try {
+          // Work, nothing waiting.
+          await page.goto(origin + '/');
+          await page.waitForFunction(() => document.querySelector('.work-panel') && document.querySelector('.work-panel').innerText.includes('No decision is waiting for you.'), null, { timeout: 30000 });
+          await page.evaluate(() => { window.__noReload = 'still the same page'; });
+          const raised = await c.call('gate_render', { kind: 'general', select_mode: 'single', options: CLI_OPTIONS, approving: ['approve'], header: 'Ratify the CLI claim?', subject_node_id: ids.claim, evidence_node_ids: [ids.source] });
+          assert.strictEqual(raised.ok, true, 'cli gate_render: ' + J(raised));
+          const t0 = Date.now();
+          await page.waitForFunction(() => document.querySelector('.work-panel') && document.querySelector('.work-panel').innerText.includes('Ratify the CLI claim?'), null, { timeout: 10000 });
+          assert.ok(Date.now() - t0 < 10000, 'within ten seconds');
+          assert.strictEqual(await page.evaluate(() => window.__noReload), 'still the same page', 'no reload');
+          const panel = ((await page.locator('.work-panel').innerText()) || '').replace(/\s+/g, ' ');
+          assert.ok(panel.includes('Raised by Larry outside this browser.'), panel);
+          assert.ok(panel.includes('Evidence: 1 item'), 'the evidence count comes from the list: ' + panel);
+          assert.strictEqual(reads, 0, 'looking at Work made no readGate call (no mirror, no nonce)');
+
+          // Decisions: a second gate raised while the list is open appears without a reload.
+          await page.locator('nav a', { hasText: 'Decisions' }).first().click();
+          await page.waitForSelector('[data-group="waiting"] .item-row', { timeout: 30000 });
+          const first = ((await page.locator('[data-group="waiting"]').innerText()) || '').replace(/\s+/g, ' ');
+          assert.ok(first.includes('Ratify the CLI claim?') && first.includes('WAITING FOR YOU') && first.includes('Raised by Larry outside this browser.'), first);
+          await page.evaluate(() => { window.__noReload = 'decisions page'; });
+          const second = await c.call('gate_render', { kind: 'general', select_mode: 'single', options: CLI_OPTIONS, approving: ['approve'], header: 'Ratify the second CLI claim?' });
+          assert.strictEqual(second.ok, true, J(second));
+          await page.waitForFunction(() => document.querySelector('[data-group="waiting"]').innerText.includes('Ratify the second CLI claim?'), null, { timeout: 10000 });
+          assert.strictEqual(await page.evaluate(() => window.__noReload), 'decisions page', 'no reload');
+          assert.strictEqual(await page.locator('[data-group="waiting"] .item-row').evaluateAll((els) => els.filter((e) => e.innerText.includes('Raised by Larry outside this browser.')).length), 2, 'both rows say who raised them');
+          assert.strictEqual(reads, 0, 'the lists made no readGate call');
+        } finally {
+          page.off('request', countRead);
+        }
+
+        // Open the oldest from Work: the same card, the raised provenance, the recommendation checked.
+        await page.goto(origin + '/');
+        await page.waitForSelector('.work-panel .ab[data-variant="primary"]', { timeout: 30000 });
+        await page.locator('.work-panel .ab[data-variant="primary"]').click();
+        await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 30000 });
+        assert.strictEqual(await page.locator('.gate-provenance').innerText(), 'Raised by Larry outside this browser. Only a person can approve it.');
+        assert.strictEqual(await page.locator('input.opt-input:checked').getAttribute('value'), 'approve', 'the recommendation is checked');
+        await primary().click();
+        await page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+        assert.strictEqual(await status(), 'Decision recorded in the room.');
+        const decided = withDb(roomQ, (db) => db.prepare("SELECT id FROM nodes WHERE id LIKE 'decision:gate:%'").all());
+        assert.strictEqual(decided.length, 1, 'the room recorded the decision once: ' + J(decided));
+        // The room holds the answer for the CLI session too: it reads the gate as no longer open.
+        const open = await c.call('gate_list', {});
+        const stillOpen = ((open && (open.gates || open.items)) || []).map((g) => g.gate_id);
+        assert.ok(!stillOpen.includes(new URL(page.url()).pathname.split('/').pop()), 'the answered gate left the room\'s open list: ' + J(open));
+      } finally {
+        await openRoom(page, 'room-v');
+      }
+    });
+
+    await arm('15 replay_lookup_failed keeps the gate: "The room could not be checked just now." with Check again, never "no longer open"; a verdict mismatch keeps the options with its own refusal', async () => {
+      const g = await mint(page, 'g15', true);
+      // At open: the room cannot be asked.
+      await page.route('**/api/actions/readGate', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: J({ ok: false, reason: 'replay_lookup_failed' }) });
+      });
+      try {
+        await page.goto(origin + '/gate/' + encodeURIComponent(g.gate));
+        await page.waitForSelector('#view .gate-card[data-refusal="lookup_failed"]', { timeout: 30000 });
+        const text = await viewText();
+        assert.ok(text.includes('The room could not be checked just now.'), text.slice(0, 300));
+        assert.ok(text.includes('MindrianOS did not answer while looking for a saved answer.'));
+        assert.ok(text.includes('Nothing was lost. Check again.'));
+        assert.ok(!text.includes('no longer open'), 'a failed lookup is never "no longer open"');
+        assert.strictEqual(await page.locator('#view .text-action', { hasText: 'Check again' }).count(), 1);
+      } finally {
+        await page.unroute('**/api/actions/readGate');
+      }
+      await page.locator('#view .text-action', { hasText: 'Check again' }).click();
+      await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 30000 });
+      assert.strictEqual(await page.locator('#view .gate-card').getAttribute('data-refusal'), null);
+      assert.strictEqual(await page.locator('input.opt-input:checked').count(), 1, 'the card is drawn with its recommendation');
+
+      // At answer: the lookup fails, the page keeps the gate, Check again re-asks and the next answer is recorded.
+      await page.route('**/api/actions/approveDecision', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: J({ ok: false, reason: 'replay_lookup_failed', gate_id: g.gate }) });
+      });
+      try {
+        await primary().click();
+        await page.waitForSelector('#view .gate-card[data-refusal="lookup_failed"]', { timeout: 30000 });
+        assert.ok((await viewText()).includes('The room could not be checked just now.'));
+        assert.ok(!(await viewText()).includes('no longer open'));
+        assert.strictEqual(decisionNodes(roomV, g.gate).length, 0, 'nothing was saved');
+      } finally {
+        await page.unroute('**/api/actions/approveDecision');
+      }
+      await page.locator('#view .text-action', { hasText: 'Check again' }).click();
+      await page.waitForSelector('#view .gate-card[data-state="ready"]', { timeout: 30000 });
+      // The mismatch refusal: its own words, the options still there and enabled.
+      await page.route('**/api/actions/approveDecision', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: J({ ok: false, reason: 'verdict_chosen_mismatch', gate_id: g.gate, verdict: 'approve', approving: ['approve'] }) });
+      });
+      try {
+        await primary().click();
+        await page.waitForSelector('#view .gate-error .inline-error', { timeout: 30000 });
+        const text = await viewText();
+        assert.ok(text.includes('That answer did not match the option you chose.'), text.slice(0, 300));
+        assert.ok(text.includes('Approve records only an approving option.'));
+        assert.ok(text.includes('Nothing was saved. Choose again.'));
+        assert.strictEqual(await page.locator('#view .gate-card').getAttribute('data-state'), 'ready');
+        assert.strictEqual(await page.locator('fieldset.gate-answer').evaluate((el) => el.disabled), false, 'the options are still enabled');
+      } finally {
+        await page.unroute('**/api/actions/approveDecision');
+      }
+      await primary().click();
+      await page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+      assert.strictEqual(await status(), 'Decision recorded in the room.');
+      assert.strictEqual(decisionNodes(roomV, g.gate).length, 1);
+    });
+
+    await arm('16 answered elsewhere: a second browser context answers the gate first; the first session\'s click reads "This decision was already recorded." and writes nothing new', async () => {
+      const g = await mint(page, 'g16', true);
+      await openGate(page, g.gate);
+      const second = await secondSession();
+      try {
+        await openGate(second.page, g.gate);
+        await primary(second.page).click();
+        await second.page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+        assert.strictEqual(await status(second.page), 'Decision recorded in the room.');
+      } finally {
+        await second.ctx.close();
+      }
+      const before = withDb(roomV, (db) => db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE id LIKE 'decision:gate:%'").get().c);
+      await primary().click();
+      await page.waitForSelector('#view .gate-card[data-state="recorded"]', { timeout: 30000 });
+      assert.strictEqual(await status(), 'This decision was already recorded.');
+      const after = withDb(roomV, (db) => db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE id LIKE 'decision:gate:%'").get().c);
+      assert.strictEqual(after, before, 'the answer was recorded once');
+    });
+
+    await arm('17 radius 0 except the circle mark, one H1, one primary action, one ochre triangle', async () => {
+      // A fresh gate: arm 14 left the room and came back, and a card minted before a room switch is refused (arm 8).
+      open10 = await mint(page, 'g17', true);
       await openGate(page, open10.gate);
       const radii = await page.$$eval('#view *', (els) => els.filter((e) => !e.matches('[data-mark="circle"]') && getComputedStyle(e).borderRadius !== '0px').map((e) => e.tagName + '.' + e.className));
       assert.deepStrictEqual(radii, [], 'every gate element has radius 0');
@@ -732,7 +923,7 @@ async function main() {
       }
     });
 
-    await arm('15 egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation', async () => {
+    await arm('18 egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation', async () => {
       pw.assertOnlyLoopback(egress);
       assert.strictEqual(await page.$$eval('iframe', (els) => els.length), 0, 'no iframe in the page');
       assert.deepStrictEqual(cspEvents, [], 'no Content-Security-Policy violation: ' + J(cspEvents.slice(0, 3)));
@@ -747,6 +938,7 @@ async function main() {
       shell.kill('SIGTERM');
       setTimeout(() => { try { shell.kill('SIGKILL'); } catch (_e) { /* gone */ } resolve(); }, 3000).unref();
     });
+    if (cli) await cli.close().catch(() => {});
     await D.stopDaemon(daemon);
   }
 

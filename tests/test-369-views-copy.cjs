@@ -230,6 +230,61 @@ scenario('369-43: SEED-067 and SHELL369-04 - no model call in the control, and n
   assert.strictEqual(names.length, 10, 'the registry stays at ten actions: ' + names.join(', '));
 });
 
+// ---------- plan 369-44: gates raised outside this browser, shown live ----------
+
+const RAISED_STRINGS = [
+  'Raised by Larry outside this browser.',
+  'Raised by Larry outside this browser. Only a person can approve it.',
+  'Decisions raised in other sessions could not be read just now.',
+  'The room could not be checked just now.',
+  'MindrianOS did not answer while looking for a saved answer.',
+  'Nothing was lost. Check again.',
+  'That answer did not match the option you chose.',
+  'Approve records only an approving option.',
+  'Nothing was saved. Choose again.',
+];
+
+scenario('369-44: every string of the raised-gate copy is verbatim in client/copy.ts and the dash rule holds', () => {
+  for (const s of RAISED_STRINGS) assert.ok(COPY.includes(s), 'client/copy.ts is missing: ' + s);
+  for (const s of RAISED_STRINGS) assert.ok(!s.includes(EM) && !s.includes(EN) && !/!/.test(s), 'plain words: ' + s);
+});
+
+scenario('369-44 T-369-44-01: Work reads the why line and the evidence count from the list and never calls readGate', () => {
+  const panel = code(path.join(VIEWS, 'work', 'NextDecisionPanel.tsx'));
+  assert.strictEqual((panel.match(/readGate/g) || []).length, 0, 'looking at Work raises no mirror and issues no nonce');
+  assert.ok(/evidence_count/.test(panel) && /rationale/.test(panel), 'the list item carries both');
+  assert.ok(/RAISED_LINE/.test(panel) && /raised_elsewhere/.test(panel), 'a raised item says so under its title');
+  assert.strictEqual((panel.match(/<ActionButton\b/g) || []).length, 1, 'one primary action');
+});
+
+scenario('369-44: useOpenGates re-reads when the read copy advances (seq), at most once a second, and reports raised_unavailable', () => {
+  const hooks = code(path.join(VIEWS, 'hooks.ts'));
+  const fn = hooks.slice(hooks.indexOf('export function useOpenGates'), hooks.indexOf('export function titleOf'));
+  assert.ok(/useReplicaOptional/.test(hooks), 'it reads the copy through the optional hook (no provider, no crash)');
+  assert.ok(/\bseq\b/.test(fn) && /\[[^\]]*\bseq\b[^\]]*\]/.test(fn), 'seq is a dependency of the read');
+  assert.ok(/OPEN_GATES_MIN_GAP_MS\s*=\s*1000/.test(hooks), 'the throttle is one read per second');
+  assert.ok(/raised_unavailable/.test(fn), 'the hook hands the flag to the views');
+  assert.ok(/raised_elsewhere/.test(hooks) && /evidence_count/.test(hooks) && /rationale/.test(hooks), 'the OpenGate type carries the list fields');
+});
+
+scenario('369-44: a raised waiting row keeps the black square and WAITING FOR YOU and carries the raised line; the caption shows when raised gates could not be read', () => {
+  const src = code(path.join(VIEWS, 'decisions', 'DecisionsView.tsx'));
+  assert.ok(/raised_elsewhere/.test(src) && /RAISED_LINE/.test(src), 'the meta line');
+  assert.ok(/tile="black"/.test(src) && /WAITING FOR YOU/.test(src), 'still the black square with its words');
+  assert.ok(/raised_unavailable|raisedUnavailable/.test(src) && /RAISED_UNAVAILABLE/.test(src), 'the caption under Waiting for you');
+  assert.ok(src.indexOf('RAISED_UNAVAILABLE') > src.indexOf('DECISIONS.waiting') && src.indexOf('RAISED_UNAVAILABLE') < src.indexOf('DECISIONS.proposed'), 'the caption sits between the Waiting and Proposed headings');
+});
+
+scenario('369-44: the gate card draws the lookup-failed state with a Check again text action, and the mismatch refusal above the options', () => {
+  const card = code(path.join(VIEWS, 'gate', 'GateCard.tsx'));
+  const view = code(path.join(VIEWS, 'gate', 'GateView.tsx'));
+  assert.ok(/lookup_failed/.test(card) && /GATE\.checkAgain/.test(card), 'GateCard');
+  assert.ok(/<TextAction[^>]*onClick=\{onReopen\}/.test(card) || /<TextAction[^>]*onClick=\{onCheckAgain\}/.test(card), 'Check again is a TextAction, not a second action button');
+  assert.ok(/verdict_mismatch/.test(card) && /GATE_VERDICT_MISMATCH/.test(card), 'the mismatch InlineError');
+  assert.ok(/check_again/.test(view), 'GateView re-asks the room');
+  assert.ok(/replay_lookup_failed/.test(view) || /lookup_failed/.test(view), 'GateView names the state');
+});
+
 // ---------- (2) the tile mapping ----------
 
 (async () => {

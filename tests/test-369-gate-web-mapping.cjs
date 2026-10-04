@@ -261,7 +261,7 @@ async function renderedOf(card) {
     }
     assert.deepStrictEqual(next(saving, { type: 'answer', answer: { ok: false, reason: 'room_switched', room: 'room-b' } }), { phase: 'refused', refusal: 'room_switched', room: 'room-b' });
     // Refused before the consume: the person chooses again.
-    for (const reason of ['chosen_not_approving', 'verdict_chosen_mismatch', 'not_a_chain_gate', 'chosen_not_in_card_options', 'bad_input']) {
+    for (const reason of ['chosen_not_approving', 'not_a_chain_gate', 'chosen_not_in_card_options', 'bad_input']) {
       assert.deepStrictEqual(next(saving, { type: 'answer', answer: { ok: false, reason } }), { phase: 'ready', error: 'choice_refused' }, reason);
     }
     // A write that rolled back: the gate is still answerable, actions enabled.
@@ -294,8 +294,8 @@ async function renderedOf(card) {
   });
 
   scenario('every refusal reads What / Why / Fix in plain words, with no long dash and no praise', () => {
-    const keys = ['stale_subject', 'room_switched', 'gate_expired', 'unknown_gate', 'session_mismatch', 'human_only'];
-    const all = keys.map((k) => copy.gateRefusalCopy(k, 'room-a')).concat([copy.gatePersistenceCopy(), copy.GATE_CHOICE_REFUSED]);
+    const keys = ['stale_subject', 'room_switched', 'gate_expired', 'unknown_gate', 'session_mismatch', 'human_only', 'lookup_failed'];
+    const all = keys.map((k) => copy.gateRefusalCopy(k, 'room-a')).concat([copy.gatePersistenceCopy(), copy.GATE_CHOICE_REFUSED, copy.GATE_VERDICT_MISMATCH]);
     for (const c of all) {
       for (const part of [c.what, c.why, c.fix]) {
         assert.ok(typeof part === 'string' && part.length > 0);
@@ -313,6 +313,54 @@ async function renderedOf(card) {
     assert.strictEqual(copy.GATE.checking, 'Checking whether your answer was saved...');
     assert.strictEqual(copy.GATE.saving, 'Saving your answer...');
     assert.strictEqual(copy.PROPOSAL_FROM_CLAUDE, 'Proposal from Claude Code. Only a person can approve it.');
+  });
+
+  // ---------- plan 369-44: gates raised outside this browser, lookup failure, mismatch, answered elsewhere ----------
+
+  scenario('369-44: a gate the room holds from another session carries the raised provenance line; an adapter proposal keeps its own', () => {
+    const RAISED = 'Raised by Larry outside this browser. Only a person can approve it.';
+    assert.strictEqual(copy.PROPOSAL_RAISED, RAISED);
+    assert.strictEqual(copy.RAISED_LINE, 'Raised by Larry outside this browser.');
+    assert.strictEqual(model.toGateViewModel(Object.assign({}, FIXTURE, { proposal_from: 'raised_elsewhere' }), rendered).provenanceLine, RAISED);
+    assert.strictEqual(model.toGateViewModel(Object.assign({}, FIXTURE, { proposal_from: 'claude_code' }), rendered).provenanceLine, 'Proposal from Claude Code. Only a person can approve it.');
+    assert.strictEqual(model.toGateViewModel(FIXTURE, rendered).provenanceLine, null);
+  });
+
+  scenario('369-44 WR-06: replay_lookup_failed is a retryable refusal that keeps the gate, never "no longer open"', () => {
+    assert.deepStrictEqual(model.classifyAnswer({ ok: false, reason: 'replay_lookup_failed' }), { kind: 'refused', refusal: 'lookup_failed' });
+    assert.ok(!model.DROPS_THE_GATE.has('replay_lookup_failed') && !model.DROPS_THE_GATE.has('lookup_failed'), 'the gate is kept');
+    const saving = { phase: 'saving', verdict: 'approve' };
+    const s = next(saving, { type: 'answer', answer: { ok: false, reason: 'replay_lookup_failed' } });
+    assert.deepStrictEqual(s, { phase: 'refused', refusal: 'lookup_failed' });
+    assert.strictEqual(model.answerPending(s), false, 'a failed lookup is not an unconfirmed answer');
+    // Opening a gate the room could not be asked about is the same state, not unknown_gate.
+    assert.deepStrictEqual(next(S, { type: 'open_failed', answer: { ok: false, reason: 'replay_lookup_failed' } }), { phase: 'refused', refusal: 'lookup_failed' });
+    // Check again re-opens the gate; from any other state it changes nothing.
+    assert.deepStrictEqual(next(s, { type: 'check_again' }), { phase: 'opening' });
+    assert.strictEqual(next({ phase: 'ready' }, { type: 'check_again' }).phase, 'ready');
+    const gone = { phase: 'refused', refusal: 'unknown_gate' };
+    assert.strictEqual(next(gone, { type: 'check_again' }), gone, 'a gate that is gone is not re-asked');
+    const c = copy.gateRefusalCopy('lookup_failed', 'room-a');
+    assert.deepStrictEqual(c, { what: 'The room could not be checked just now.', why: 'MindrianOS did not answer while looking for a saved answer.', fix: 'Nothing was lost. Check again.' });
+    assert.notStrictEqual(c.what, copy.gateRefusalCopy('unknown_gate', '').what);
+  });
+
+  scenario('369-44 REV369-04: verdict_chosen_mismatch keeps the options and says its own plain refusal', () => {
+    const saving = { phase: 'saving', verdict: 'approve' };
+    assert.deepStrictEqual(model.classifyAnswer({ ok: false, reason: 'verdict_chosen_mismatch', verdict: 'approve', approving: ['approve'] }), { kind: 'ready', error: 'verdict_mismatch' });
+    const s = next(saving, { type: 'answer', answer: { ok: false, reason: 'verdict_chosen_mismatch' } });
+    assert.deepStrictEqual(s, { phase: 'ready', error: 'verdict_mismatch' });
+    assert.strictEqual(model.actionsEnabled(s), true, 'the options and actions stay enabled');
+    assert.deepStrictEqual(copy.GATE_VERDICT_MISMATCH, { what: 'That answer did not match the option you chose.', why: 'Approve records only an approving option.', fix: 'Nothing was saved. Choose again.' });
+    assert.notDeepStrictEqual(copy.GATE_VERDICT_MISMATCH, copy.GATE_CHOICE_REFUSED);
+  });
+
+  scenario('369-44 GREC369-05: an answer another session already gave is recorded and replayed, with the room\'s verdict', () => {
+    const saving = { phase: 'saving', verdict: 'approve' };
+    assert.deepStrictEqual(model.classifyAnswer({ ok: true, replayed: true, answered_elsewhere: true, verdict: 'reject' }), { kind: 'recorded', replayed: true, verdict: 'reject' });
+    assert.deepStrictEqual(next(saving, { type: 'answer', answer: { ok: true, replayed: true, answered_elsewhere: true, verdict: 'reject' } }), { phase: 'recorded', verdict: 'reject', replayed: true });
+    // answered_elsewhere alone is already enough to read "already recorded".
+    assert.deepStrictEqual(model.classifyAnswer({ ok: true, answered_elsewhere: true, verdict: 'defer' }), { kind: 'recorded', replayed: true, verdict: 'defer' });
   });
 
   scenario('the model is pure: no React, no browser global, no fetch, no storage', () => {
