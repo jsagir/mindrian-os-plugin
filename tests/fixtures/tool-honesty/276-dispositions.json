@@ -2,10 +2,10 @@
   "schema_version": 1,
   "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
-    "tools": 44,
-    "branches": 139,
+    "tools": 45,
+    "branches": 140,
     "high_risk": 0,
-    "medium": 12,
+    "medium": 13,
     "low": 0,
     "unknown": 0,
     "ok": 127
@@ -148,11 +148,10 @@
       "command": "(default)",
       "finding_id": "F-9",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "description-correction",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-11",
-      "reason": "lib/mcp/tools/gate.cjs:113 says Returns a minted gate_id. gate.cjs:45-70 shows _mintLiveGate delegates to gateLedger.mintGate, an in-memory TTL-bounded single-use ledger, not persistent state. D-276-3: an in-memory gate-ledger mint is not persistence, so the fix is a description correction, not adding minted to STRONG_VERBS. Theo mirror task owned by 276-13.",
-      "resolved_at_commit": "02468fcb"
+      "reason": "RE-DISPOSITIONED 2026-10-04 by plan 369-41 (Phase 369 gap closure; owner_plan stays 276-11 because the finding id is F-9). Original finding (resolved at 02468fcb): lib/mcp/tools/gate.cjs:113 says Returns a minted gate_id. gate.cjs:45-70 shows _mintLiveGate delegates to gateLedger.mintGate, an in-memory TTL-bounded single-use ledger, not persistent state. D-276-3: an in-memory gate-ledger mint is not persistence, so the fix is a description correction, not adding minted to STRONG_VERBS. Theo mirror task owned by 276-13. What changed: plan 369-33 made gate_render record the card's contract in the bound room (lib/mcp/tools/gate.cjs:474 gateRaised.recordRaised, installed through gateLedger.setGateObservers at lib/mcp/tools/gate.cjs:483), so the description at lib/mcp/tools/gate.cjs:1198 can no longer carry the global no-write disclaimer that kept this row OK: it now says the card's contract is recorded in the room (honest, because it is). The live scan reads MEDIUM: the weak tool-scoped claim 'Render the Mindrian gate superset card ... via the capability-detected 3-rung renderer ladder' with no reachable write. The write exists but the sweep cannot see it: the only write path is the ledger observer registered at module load and called from the ledger mint, a callback the reachability walk does not follow (the same depth boundary as the F-15 graph-index row). The claim is not a false persistence claim: 'Render' is a presentation verb, and the persistence the description does state (a recorded contract, an id that does not survive a restart) is real. Plans 369-36 and 369-38 added mirror_of and approving to the same description without changing this verdict. No description change is made here (lib/mcp/tools/gate.cjs is pinned at GATE_BASE by tests/test-365-never-do-gate.cjs)."
     },
     {
       "tool": "context_assemble",
@@ -287,7 +286,7 @@
     }
   ],
   "refrozen_at": {
-    "commit": "b2f03de02",
-    "reason": "Re-measured by plan 369-26 (Phase 369) after gate_answer gained durable consumption, replay by gate id and the explicit recovery states (gate.cjs at b2f03de02). Before: 44 tools / 139 branches (plan 369-17, 31381c8dc). After: 44 tools / 139 branches, nothing moved: gate_answer is still one (default) branch and still scans OK (a write primitive is reachable); gate_render still scans OK (description carries a global no-write disclaimer). Verdict counts unchanged: OK 127, MEDIUM 12, LOW 0, UNKNOWN 0, HIGH_RISK 0, so no disposition was added. Every prior disposition is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs and scripts/check-tool-honesty.cjs --check at this commit. Earlier freeze (plan 369-17, 31381c8dc): 44 tools / 139 branches."
+    "commit": "cd27faa94",
+    "reason": "Re-frozen by plan 369-41 (Phase 369 gap closure) after plans 369-33, 369-36 and 369-38 (lib/mcp/tools/gate.cjs at cd27faa94). Before: 44 tools / 139 branches (OK 127, MEDIUM 12; plan 369-26, b2f03de02). After: 45 tools / 140 branches (OK 127, MEDIUM 13, LOW 0, UNKNOWN 0, HIGH_RISK 0). Two rows moved: gate_list (new read-only tool, plan 369-33) is one (default) branch and scans OK (no persistence claim found), so no disposition was added for it; gate_render.(default) moved OK to MEDIUM because plan 369-33 made its description honest about recording the card in the room (it no longer carries a global no-write disclaimer), so finding F-9 was re-dispositioned from description-correction/OK to documented-no-action/MEDIUM with the file:line reasoning in its row. gate_answer is unchanged (still OK, a write primitive is reachable). HIGH_RISK stays 0. Every other disposition is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs and scripts/check-tool-honesty.cjs --check at this commit. Earlier freeze (plan 369-26, b2f03de02): 44 tools / 139 branches."
   }
 }
