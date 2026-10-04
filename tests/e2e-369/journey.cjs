@@ -71,6 +71,11 @@ function argNum(flag) {
 const SOAK = argNum('--soak-restart');
 const SOAK_GAP_MS = argNum('--soak-gap-ms');
 const SOAK_LOAD = argNum('--soak-load');
+// Evidence check only: SIGKILL the restarted daemon INJECT ms after the shell reopens the room, to show what the capture says when the
+// daemon dies mid-recovery. The cycle is expected to fail; the soak then reports it.
+const SOAK_INJECT_KILL_MS = argNum('--soak-inject-daemon-kill');
+// Evidence check only: in a soak cycle wait for one item more than the room holds, for 3 s, so the STEP6-EVIDENCE capture runs and can be read.
+const SOAK_EVIDENCE_SELFTEST = process.argv.includes('--soak-evidence-selftest');
 const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
 const SEP = String.fromCharCode(31);
@@ -342,6 +347,18 @@ async function main() {
     GAP('the hermetic daemon could not start (' + String(err && err.message).slice(0, 200) + ')');
   }
   const roomX = daemon.roomDirs['room-x'];
+  // Evidence only (plan 369-34): say so when the daemon this run started dies without this run killing it.
+  let daemonKillExpected = false;
+  const daemonExits = [];
+  const watchDaemon = (h) => {
+    const pid = h.child.pid;
+    h.child.once('exit', (code, sig) => {
+      if (daemonKillExpected) return;
+      daemonExits.push({ pid, code, sig, at: new Date().toISOString() });
+      console.log('DAEMON-EXIT-UNEXPECTED ' + J({ pid, code, sig, at: new Date().toISOString(), load1: Number(os.loadavg()[0].toFixed(2)) }));
+    });
+  };
+  watchDaemon(daemon);
   const roomY = daemon.roomDirs['room-y'];
   const registryFile = path.join(daemon.roomsHome, '.rooms', 'registry.json');
   const ids = await seedRoomX(roomX, daemon.env);
@@ -487,7 +504,7 @@ async function main() {
   const failures = [];
   const facts = {};
   let current = '';
-  const stepStart = (n, name) => { current = n + ' ' + name; process.stdout.write('  ... ' + current + '\n'); };
+  const stepStart = (n, name) => { current = n + ' ' + name; process.stdout.write('  ... ' + current + ' (load1=' + Number(os.loadavg()[0].toFixed(2)) + ')\n'); };
   const stepDone = (n, name, note) => { results.push({ n, name, ok: true, note }); };
 
   let ctx1 = null;
@@ -543,6 +560,7 @@ async function main() {
         log_rows_after_expected: withDb(roomX, (db) => db.prepare('SELECT change_seq, entity_type, entity_id, operation, changed_at FROM room_change_log WHERE change_seq > ? ORDER BY change_seq LIMIT 20').all(ev.expectedSeq)),
       };
     });
+    await daemonFacts(out, guard);
     await guard('hint_frames_page_saw', async () => (await page.evaluate(() => window.__hints || [])).filter((h) => h.t >= ev.reopenAt).map((h) => ({ dt: h.t - ev.reopenAt, ev: h.ev, data: h.data })).slice(0, 40));
     out.feed_requests_since_reopen = feedLog.filter((r) => r.t >= ev.reopenAt).map((r) => ({ dt: r.t - ev.reopenAt, status: r.status, path: r.path })).slice(-60);
     await guard('api_status', async () => page.evaluate(async () => { const r = await fetch('/api/status', { credentials: 'same-origin' }); return { http: r.status, body: (await r.text()).slice(0, 400) }; }));
@@ -554,6 +572,16 @@ async function main() {
 
   // The STEP-EVIDENCE line: what the shell, the daemon and the registry say at the moment ANY step gives up (steps other than the
   // step 6 convergence wait, which has its own line). Evidence only: reads, never repairs.
+  async function daemonFacts(out, guard) {
+    out.daemon = { port: daemon.port, pid: daemon.child.pid, exit_code: daemon.child.exitCode, exit_signal: daemon.child.signalCode, unexpected_exits: daemonExits };
+    await guard('daemon_pid_alive', async () => { process.kill(daemon.child.pid, 0); return true; });
+    await guard('daemon_port_probe', async () => new Promise((resolve) => { const sock = net.connect(daemon.port, '127.0.0.1'); const t = setTimeout(() => { sock.destroy(); resolve('timeout'); }, 2000); sock.once('connect', () => { clearTimeout(t); sock.destroy(); resolve('connect_ok'); }); sock.once('error', (e) => { clearTimeout(t); resolve('error ' + e.code); }); }));
+    await guard('pidfile', async () => fs.readFileSync(path.join(daemon.roomsHome, '.rooms', 'daemon', 'mcp-daemon.json'), 'utf8').replace(/\s+/g, ' ').slice(0, 200));
+    await guard('shell_state', async () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.json'), 'utf8').replace(/\s+/g, ' ').slice(0, 300));
+    await guard('daemons_on_host', async () => cp.spawnSync('pgrep', ['-af', 'mindrian-mcp-server'], { encoding: 'utf8' }).stdout.trim().split('\n').map((l) => l.slice(0, 110)).slice(0, 12));
+    await guard('peer_tests_running', async () => cp.spawnSync('pgrep', ['-af', 'test-369|run-all|e2e-369|test-3[0-9][0-9]'], { encoding: 'utf8' }).stdout.trim().split('\n').filter((l) => l && !l.includes('pgrep') && !l.includes('journey.cjs')).map((l) => l.slice(0, 110)).slice(0, 10));
+  }
+
   async function captureStepFailure(stepName) {
     const out = { step: stepName, at: new Date().toISOString(), load_now: loadNow(), tree: treeNow() };
     const guard = async (key, fn) => { try { out[key] = await fn(); } catch (e) { out[key] = 'unreadable: ' + String((e && e.message) || e).slice(0, 160); } };
@@ -566,6 +594,7 @@ async function main() {
     out.feed_requests_last = feedLog.slice(-20).map((r) => ({ status: r.status, path: r.path }));
     await guard('registry', async () => fs.readFileSync(registryFile, 'utf8').replace(/\s+/g, ' ').slice(0, 600));
     await guard('sessions_dir', async () => fs.readdirSync(path.join(daemon.roomsHome, '.rooms', 'sessions')).slice(0, 12));
+    await daemonFacts(out, guard);
     await guard('daemon_stderr_tail', async () => String(daemon.getStderr ? daemon.getStderr() : '').trim().split('\n').slice(-30));
     await guard('shell_log_tail', async () => fs.readFileSync(path.join(HERMETIC, '.mindrian', 'ui-shell', 'shell.log'), 'utf8').trim().split('\n').slice(-40));
     console.log('STEP-EVIDENCE ' + J(out));
@@ -577,7 +606,10 @@ async function main() {
     const loadStart = loadNow();
     const stopped = stopShell();
     assert.ok(/stopped/.test(stopped), 'the launcher stopped the shell: ' + stopped);
+    daemonKillExpected = true;
     daemon = await D.restartDaemon(daemon); // SIGKILL then a fresh process on the same rooms home
+    daemonKillExpected = false;
+    watchDaemon(daemon);
     const down = await writeClaim(roomX, 'Interview excerpt written while the shell was down (' + label + ')', 'down', daemon.env);
     assert.ok(down && down.id, 'a write landed in the room while the shell was down');
     const expectedTruth = truth(roomX);
@@ -588,17 +620,22 @@ async function main() {
     assert.notStrictEqual(link, priorLink, 'a new link');
     lastLink = link;
     const reopenAt = Date.now();
+    if (SOAK_INJECT_KILL_MS && String(label).startsWith('soak-')) {
+      setTimeout(() => { try { process.kill(daemon.child.pid, 'SIGKILL'); } catch (_e) { /* gone */ } }, SOAK_INJECT_KILL_MS);
+      daemonKillExpected = true;
+    }
     await page.goto(link);
     await page.waitForSelector('header.shell-header', { timeout: 60000 });
     const tOpen = Date.now();
     await openRoom(page, 'room-x');
     let lastRow = null;
+    const selftest = SOAK_EVIDENCE_SELFTEST && String(label).startsWith('soak-');
     try {
       await waitUntil(async () => {
         const r = await copyRow(page);
         lastRow = r;
-        return r && r.state === 'current' && r.count === expected ? r : false;
-      }, 60000, 'the read copy to hold all ' + expected + ' items of room-x', 25);
+        return r && r.state === 'current' && r.count === expected + (selftest ? 1 : 0) ? r : false;
+      }, selftest ? 3000 : 60000, 'the read copy to hold all ' + expected + ' items of room-x', 25);
     } catch (err) {
       await captureEvidence({ label, loadStart, lastRow, expected, expectedAt, expectedSeq, expectedTruth, reopenAt });
       throw err;
@@ -884,11 +921,13 @@ async function main() {
     await browser.close().catch(() => {});
     // Kill only what this run started: the shell through its own launcher, the daemon through the helper.
     try { stopShell(); } catch (_e) { /* best effort */ }
+    daemonKillExpected = true;
     await D.stopDaemon(daemon);
   }
 
   // ---- report ----
   console.log('TREE end ' + J(treeNow()) + ' load1=' + loadNow());
+  if (daemonExits.length) console.log('VOID-RUN a process outside this run killed the daemon it started: ' + J(daemonExits));
   console.log('');
   for (const r of results) console.log('PASS step ' + r.n + ' ' + r.name + ' [' + r.note + ']');
   for (const f of failures) console.log('FAIL ' + f);
