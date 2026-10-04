@@ -24,10 +24,12 @@
  *       (never a silent drop -- writers report their outcome over IPC).
  *   K3  Human decision cannot be bypassed -- file-meeting (session S1),
  *       gate_answer approve from a DIFFERENT session (S2) is refused
- *       session_mismatch and the claim stays proposed; a second approve
- *       from S1 on the same gate_id is refused as consumed
- *       (gate-ledger.cjs:100's fail-closed single-use burn); a fresh
- *       file-meeting + S1 approve confirms that exact claim.
+ *       session_mismatch and the claim stays proposed; the refusal does NOT
+ *       burn the gate (Phase 289, D-04: gate-ledger.cjs checks the session
+ *       before its one delete), so S1's approve on the SAME gate_id then
+ *       ratifies and the claim promotes; a third approve from S1 is refused
+ *       as consumed (single use after success); a fresh file-meeting + S1
+ *       approve confirms that exact claim.
  *   K4  Browser + MCP, same document -- the localhost POC server in room
  *       mode on room A; a real Playwright page; the MCP client (still bound
  *       to room A) files a new version of the SAME artifact
@@ -358,14 +360,32 @@ async function runK3() {
         assert.ok(row && row.review_status === 'proposed', 'row=' + JSON.stringify(row));
       });
 
+      // Phase 289 (D-04): the stranger's refusal left the gate for its owner.
+      // The claim needs a source edge to meet the verification floor first (a
+      // bare claim would land needs_evidence), exactly as the fresh-card arm
+      // below does.
+      {
+        const sdb0 = openRoomDb(scratch.room);
+        try {
+          require(path.join(__dirname, 'helpers', 'fixture-room-365.cjs')).addSourceEdge(
+            sdb0, filed.claimId, { url: 'https://example.org/354-k3-owner', retrieved_at: '2026-09-30', variant: 'k3-owner' });
+        } finally {
+          closeRoomDb(sdb0);
+        }
+      }
+      const ownerAfter = await answerGate(S1, filed.gateId, 'approve');
+      await checkThat('K3: owner-after-stranger - S1 approving the SAME gate after S2 was refused ratifies (the refusal did not burn it)', () => {
+        assert.strictEqual(ownerAfter.json && ownerAfter.json.ok, true, JSON.stringify(ownerAfter.json));
+      });
+      await checkThat('K3: the claim promotes to confirmed after the owner-after-stranger approve', () => {
+        const row = readNode(filed.claimId);
+        assert.ok(row && row.review_status === 'confirmed', 'row=' + JSON.stringify(row));
+      });
+
       const burned = await answerGate(S1, filed.gateId, 'approve');
-      await checkThat('K3: a SECOND approve from the CORRECT session (S1) is refused as consumed (single-use burn, gate-ledger.cjs:100)', () => {
+      await checkThat('K3: a THIRD approve from the correct session (S1) is refused as consumed (single use after success)', () => {
         assert.strictEqual(burned.json && burned.json.ok, false, JSON.stringify(burned.json));
         assert.strictEqual(burned.json && burned.json.reason, 'unknown_or_expired_gate', JSON.stringify(burned.json));
-      });
-      await checkThat('K3: the claim STILL reads proposed (the burned gate confirmed nothing)', () => {
-        const row = readNode(filed.claimId);
-        assert.ok(row && row.review_status === 'proposed', 'row=' + JSON.stringify(row));
       });
     }
 

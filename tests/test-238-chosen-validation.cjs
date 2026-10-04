@@ -113,6 +113,28 @@ function countMemoryEvents() {
   }
 }
 
+// Phase 289 (plan 05): an approve ratification writes TWO memory_event rows --
+// the gate_answer bookkeeping row (kind mcp_client_event_logged, label
+// gate_answer, written by navigation.logMemoryEvent) and a status_promoted row
+// (written by navigation.confirmNode when the approve path promotes the
+// decision node, added by quick task 260903-i2x). Case 1's original intent is
+// "exactly one bookkeeping row per ratification", so it counts that kind only.
+function countBookkeepingRows() {
+  const db = navigation.openRoomDbForCaller(roomDir);
+  assert.ok(db, 'the scratch room db must open for a row count -- test fixture sanity');
+  try {
+    const rows = db.prepare("SELECT properties FROM nodes WHERE type = 'memory_event'").all();
+    return rows.filter((r) => {
+      try {
+        const p = JSON.parse(r.properties);
+        return p.event_type === 'mcp_client_event_logged' && p.label === 'gate_answer';
+      } catch (_e) { return false; }
+    }).length;
+  } finally {
+    navigation.closeRoomDbForCaller(db);
+  }
+}
+
 (async function main() {
   try {
     const fakeServer = makeFakeServer();
@@ -148,17 +170,17 @@ function countMemoryEvents() {
     // Case 1: happy-path anti-vacuity control. Without this, a handler that
     // rejected everything would pass every other case.
     // -------------------------------------------------------------------
-    const beforeCase1 = countMemoryEvents();
+    const beforeCase1 = countBookkeepingRows();
     const rendered1 = await mintCard(CARD_OPTIONS);
     const gateId1 = rendered1.gate_id;
     const answer1 = await answerGate(gateId1, ['approve'], 'approve');
-    const afterCase1 = countMemoryEvents();
-    ok('case 1 (anti-vacuity control): a valid chosen ratifies and writes exactly one memory_event row', function () {
+    const afterCase1 = countBookkeepingRows();
+    ok('case 1 (anti-vacuity control): a valid chosen ratifies and writes exactly one gate_answer bookkeeping memory_event row', function () {
       assert.equal(answer1.ok, true, 'happy-path answer must be ok:true');
       assert.equal(answer1.ratified, true, 'happy-path answer must be ratified:true');
       assert.equal(
         afterCase1, beforeCase1 + 1,
-        `expected memory_event count to increase by exactly 1 (before=${beforeCase1}, after=${afterCase1})`
+        `expected gate_answer bookkeeping row count to increase by exactly 1 (before=${beforeCase1}, after=${afterCase1})`
       );
     });
 
@@ -209,14 +231,23 @@ function countMemoryEvents() {
     });
 
     // -------------------------------------------------------------------
-    // Case 5: the gate is burned either way. A follow-up correct answer to
-    // the SAME gate_id used in the rejected case 2 call returns
-    // unknown_or_expired_gate -- single-use is unaffected by the new reject.
+    // Case 5 (Phase 289, D-04): a refusal no longer burns the gate. The
+    // correct answer to the SAME gate_id that case 2 refused now ratifies,
+    // and a replay of it after that success is refused unknown_or_expired_gate
+    // (single-use still holds on a successful ratification).
     // -------------------------------------------------------------------
+    const beforeCase5 = countBookkeepingRows();
     const followUp = await answerGate(gateId2, ['approve'], 'approve');
-    ok('case 5: the gate is burned either way -- a follow-up correct answer to the same gate_id returns unknown_or_expired_gate', function () {
-      assert.equal(followUp.ok, false, 'follow-up answer on a burned gate must be ok:false');
-      assert.equal(followUp.reason, 'unknown_or_expired_gate', 'follow-up answer must report the gate as unknown/expired, not re-validate chosen');
+    ok('case 5: the refusal did not burn the gate -- the correct answer to the same gate_id now ratifies', function () {
+      assert.equal(followUp.ok, true, 'follow-up correct answer must be ok:true, got ' + JSON.stringify(followUp));
+      assert.equal(followUp.ratified, true, 'follow-up correct answer must be ratified:true');
+      assert.equal(countBookkeepingRows(), beforeCase5 + 1, 'exactly one bookkeeping row for the ratification');
+    });
+
+    const replay = await answerGate(gateId2, ['approve'], 'approve');
+    ok('case 5 replay: answering the same gate again after success returns unknown_or_expired_gate', function () {
+      assert.equal(replay.ok, false, 'replay on a ratified gate must be ok:false');
+      assert.equal(replay.reason, 'unknown_or_expired_gate', 'replay must report the gate as unknown/expired');
     });
 
     console.log(`PASS test-238-chosen-validation (${n} assertions)`);
