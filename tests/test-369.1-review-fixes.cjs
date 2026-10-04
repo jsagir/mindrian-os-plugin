@@ -10,6 +10,7 @@
  *
  *   cr-01  status record: private per-user directory, no symlink following, owner/mode checks,
  *          allow-listed reason, no plugin or file path in any model-visible text
+ *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
@@ -389,9 +390,57 @@ async function armCr01() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-05
+// ---------------------------------------------------------------------------
+async function armWr05() {
+  const A = 'wr-05';
+
+  await check(A, 'a trailing slash, a dot-dot segment and a symlinked spelling of one root share one status file', () => {
+    const home = newHome();
+    const env = envFor(home);
+    const root = plugin('w5-root');
+    fs.mkdirSync(path.join(root, 'sub'));
+    const link = path.join(mkTemp('w5-links'), 'alias');
+    fs.symlinkSync(root, link);
+    const spellings = [root, root + '/', root + '/sub/..', root + '//', link, link + '/'];
+    const files = spellings.map((s) => statusPathOf(env, s));
+    for (let i = 1; i < files.length; i += 1) {
+      assert.equal(files[i], files[0], 'spelling ' + JSON.stringify(spellings[i]) + ' hashed to a different status file');
+    }
+  });
+
+  await check(A, 'the server sees the record the child wrote even when the root is spelled with a trailing slash', async () => {
+    const home = newHome();
+    const root = plugin('w5-e2e');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w5-e2e.log') });
+    const r = startDetached(env, root + '/');
+    assert.equal(r.started, true, 'started');
+    const st = await pollUntil(() => { const s = readStatusIn(env, root); return s && s.state === 'done' ? s : null; }, 20000, 150);
+    assert.ok(st, 'the record written for "' + root + '/" must be found when reading "' + root + '"');
+    const st2 = readStatusIn(env, root + '/sub/..');
+    assert.ok(st2 && st2.state === 'done', 'and when reading a dot-dot spelling');
+    sweep();
+  });
+
+  await check(A, 'windows spellings: drive-letter case, slash direction and trailing slash normalise to one spelling', () => {
+    const code = [
+      "const m=require(process.argv[1]);",
+      "const a=m.normalizeRoot('C:\\\\Users\\\\Me\\\\plugin','win32');",
+      "const b=m.normalizeRoot('c:/users/me/plugin/','win32');",
+      "const c=m.normalizeRoot('C:\\\\Users\\\\Me\\\\plugin\\\\','win32');",
+      "process.stdout.write(JSON.stringify({a:a,b:b,c:c}));",
+    ].join('');
+    const out = jsonOut(runNode(code, [require('node:path').join(path.dirname(RESPONDER), 'dep-install-status.cjs')], envFor(newHome())), 'win32 normalise');
+    assert.equal(out.a, out.b, 'drive-letter case and slash direction must not change the normalised root');
+    assert.equal(out.a, out.c, 'a trailing backslash must not change the normalised root');
+    assert.equal(out.a, 'c:/users/me/plugin');
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01 };
+const TABLE = { 'cr-01': armCr01, 'wr-05': armWr05 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
