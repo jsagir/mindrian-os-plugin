@@ -19,8 +19,10 @@
  *     instructions, same surface. RED before the swap: a v1 server has no
  *     server/discover, so 'auto' falls back to the legacy handshake.
  *   - elicitation, era 2025: the client declares { elicitation: {} } and
- *     answers elicitation/create with accept + the first option. A gate_render
- *     call produces exactly ONE elicitation request at the client (rung (a)).
+ *     would answer elicitation/create. On a Claude host surface (desktop under
+ *     hermeticEnv) gate_render sends ZERO elicitation requests and renders the
+ *     AskUserQuestion card (rung (b)), with a gate_id for gate_answer
+ *     (navigator ruling 2026-10-02).
  *   - elicitation, era 2026: same client in auto mode. The server cannot see
  *     client capabilities on a 2026 connection, so gate_render must NOT
  *     elicit (rung (b)/(c)); the result still carries a gate_id for
@@ -224,7 +226,7 @@ async function main() {
     }
   });
 
-  await test('elicitation, era 2025: gate_render causes exactly ONE elicitation request at the client (rung (a) live)', async () => {
+  await test('elicitation, era 2025: on a Claude host surface the card renders and no elicitation request is sent even though the client declares elicitation (navigator ruling 2026-10-02)', async () => {
     const seen = [];
     const conn = await connectClient({
       clientOptions: { capabilities: { elicitation: {} } },
@@ -240,10 +242,10 @@ async function main() {
       const result = await conn.client.callTool({ name: 'gate_render', arguments: GATE_CARD });
       const body = parseToolText(result);
       console.log('    negotiated ' + conn.client.getNegotiatedProtocolVersion() + '; elicitation requests seen: ' + seen.length + '; renderer ' + body.renderer);
-      assert.equal(seen.length, 1, 'exactly one elicitation request must reach the client, saw ' + seen.length);
+      assert.equal(seen.length, 0, 'no elicitation request may reach a Claude host surface client, saw ' + seen.length);
       assert.equal(body.ok, true, 'gate_render must succeed');
-      assert.equal(body.renderer, 'elicitation', 'renderer must be rung (a)');
-      assert.deepEqual(body.answer && body.answer.chosen, ['alpha'], 'the inline answer must carry the chosen option');
+      assert.equal(body.renderer, 'askuserquestion', 'renderer must be rung (b), the card');
+      assert.equal(body.gate_id, GATE_CARD.gate_id, 'the result must carry a gate_id usable by gate_answer');
     } finally {
       await closeClient(conn);
     }

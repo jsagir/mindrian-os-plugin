@@ -68,9 +68,11 @@ check(
 );
 
 // -----------------------------------------------------------------------
-// Behavior arm -- detectClientCapabilities's ladder-detection logic, pinned
-// unchanged. This arm was already green before the comment fix and must
-// stay green after it: a comment-only rewrite must never touch behavior.
+// Behavior arm -- detectClientCapabilities pins the 2026-10-02 card ruling
+// (the navigator reversed the 2026-09-23 "let elicitation take over on CLI"
+// ruling): a Claude host surface that declares elicitation gets the card, not
+// a dialog; a recognized non-Claude host that declares it keeps the dialog
+// (D-02). The ruling lives in lib/mcp/gate-render.cjs detectGateCapabilities.
 // -----------------------------------------------------------------------
 assert.strictEqual(
   typeof gateTool._internal.detectClientCapabilities,
@@ -81,7 +83,19 @@ const detectClientCapabilities = gateTool._internal.detectClientCapabilities;
 
 const fakeElicit = { server: { getClientCapabilities: () => ({ elicitation: {} }) } };
 const r1 = detectClientCapabilities(fakeElicit, { surface: 'cli' });
-check(r1.elicitation === true, 'a fake server declaring elicitation:{} reports elicitation:true');
+check(
+  r1.elicitation === false && r1.elicitation_declared === true && r1.claudeCode === true,
+  'a Claude host surface (cli) declaring elicitation:{} reports elicitation:false, elicitation_declared:true, claudeCode:true (card ruling 2026-10-02)'
+);
+
+const fakeVscode = {
+  server: {
+    getClientCapabilities: () => ({ elicitation: {} }),
+    getClientVersion: () => ({ name: 'Visual Studio Code', version: '1' }),
+  },
+};
+const r4 = detectClientCapabilities(fakeVscode, { surface: 'cli' });
+check(r4.elicitation === true, 'a recognized non-Claude host (Visual Studio Code) declaring elicitation:{} keeps elicitation:true (D-02)');
 
 const fakeUndefined = { server: { getClientCapabilities: () => undefined } };
 const r2 = detectClientCapabilities(fakeUndefined, { surface: 'cli' });

@@ -77,13 +77,14 @@ const CARD_OPTIONS = [
 // A capture server whose `server.server` stands in for the MCP low-level server.
 // capabilities === null leaves getClientCapabilities returning undefined (the
 // pre-handshake shape), so the renderer falls to the surface or text rung.
-function makeServer(caps, elicitLog) {
+function makeServer(caps, elicitLog, clientInfo) {
   const handlers = new Map();
   const server = {
     tool: (name, _d, _s, h) => handlers.set(name, h),
     registerTool: (name, _c, h) => handlers.set(name, h),
     server: {
       getClientCapabilities: () => caps,
+      getClientVersion: () => clientInfo,
       elicitInput: async (params) => {
         elicitLog.push(params);
         return { action: 'cancel' };
@@ -97,7 +98,10 @@ async function renderOnRung(room, rung, subjectId, sessionId) {
   const elicitLog = [];
   const caps = rung === 'a' ? { elicitation: {} } : undefined;
   const surface = rung === 'b' ? 'cli' : (rung === 'a' ? 'cli' : 'headless-365');
-  const { server, handlers } = makeServer(caps, elicitLog);
+  // Under D-02 a recognized non-Claude host that declares elicitation keeps rung (a),
+  // which is what this rung exists to exercise; a Claude host surface would now get the card.
+  const clientInfo = rung === 'a' ? { name: 'Visual Studio Code', version: '1' } : undefined;
+  const { server, handlers } = makeServer(caps, elicitLog, clientInfo);
   gateTool.register(server, { fallbackRoomDir: room.room, pluginRoot: REPO_ROOT, surface: surface });
   const raw = await handlers.get('gate_render')({
     header: 'Confirm claim for the floor test',
