@@ -185,7 +185,9 @@ function rootProcesses() {
     if (pid === process.pid) continue;
     let cl = '';
     try { cl = fs.readFileSync('/proc/' + d + '/cmdline', 'utf8').split('\0').join(' '); } catch (_e) { continue; }
-    if (cl.includes(TMP)) out.push({ pid, cmdline: cl });
+    let cwd = '';
+    try { cwd = fs.readlinkSync('/proc/' + d + '/cwd'); } catch (_e) { /* unreadable */ }
+    if (cl.includes(TMP) || cwd === TMP || cwd.startsWith(TMP + path.sep)) out.push({ pid, cmdline: cl });
   }
   return out;
 }
@@ -250,7 +252,18 @@ fs.writeFileSync(FAKE_NPM, [
   "  try { fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(args) + '\\n'); } catch (e) { /* ignore */ }",
   '}',
   "if (mode === 'fail') { process.stderr.write('npm ERR! simulated\\n'); process.exit(1); }",
-  "if (mode === 'slow') { setTimeout(() => process.exit(0), 60000); }",
+  "if (mode === 'partial-slow') {",
+  "  // An interrupted install: every dependency directory exists (so a naive presence probe passes) but is empty.",
+  "  let deps = {};",
+  "  try { deps = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')).dependencies || {}; } catch (e) { /* none */ }",
+  "  for (const d of Object.keys(deps)) {",
+  "    const dir = path.join(process.cwd(), 'node_modules', ...d.split('/'));",
+  "    fs.mkdirSync(dir, { recursive: true });",
+  "    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: d }));",
+  "  }",
+  "  setTimeout(() => process.exit(0), 60000);",
+  "}",
+  "else if (mode === 'slow') { setTimeout(() => process.exit(0), 60000); }",
   "else {",
   "  if (args[0] === 'ci' && !fs.existsSync(path.join(process.cwd(), 'npm-shrinkwrap.json')) && !fs.existsSync(path.join(process.cwd(), 'package-lock.json'))) {",
   "    process.stderr.write('npm ERR! ci needs a lockfile\\n'); process.exit(1);",
@@ -787,12 +800,12 @@ async function armEntries() {
     return;
   }
 
-  await check(A, 'slow, both eras: both servers answer within 25 s with exactly their one status tool; the detached installer pid is recorded', async () => {
-    const scratch = makeScratch('slow');
-    const log = path.join(TMP, 'entries-slow.log');
+  const slowScenario = async (label, mode, eras) => {
+    const scratch = makeScratch(label);
+    const log = path.join(TMP, 'entries-' + label + '.log');
     const entries = readMcpEntries(scratch, scratch);
-    const env = entryEnv(scratch, 'slow', log);
-    for (const era of ERAS) {
+    const env = entryEnv(scratch, mode, log);
+    for (const era of eras) {
       const conns = await connectBoth(entries, env, era.options);
       try {
         for (const n of Object.keys(SERVERS)) {
@@ -813,7 +826,9 @@ async function armEntries() {
     assert.ok(cmdlineOf(st.pid).includes('dep-install-detached.cjs'), 'status.pid must be the detached installer');
     assert.ok(!cmdlineOf(st.pid).includes('mindrian-mcp-server') && !cmdlineOf(st.pid).includes('mindrian-brain-mcp-client'), 'the installer must not be a server process');
     sweep();
-  });
+  };
+  await check(A, 'slow, both eras: both servers answer within 25 s with exactly their one status tool; the detached installer pid is recorded', () => slowScenario('slow', 'slow', ERAS));
+  await check(A, 'interrupted install (every dependency dir present but empty), connected twice: the servers still answer with exactly their status tool on the restart, never crash or hang', () => slowScenario('partial', 'partial-slow', [ERAS[0], ERAS[0]]));
 
   await check(A, 'fail: the status tool text names the failure and the fix', async () => {
     const scratch = makeScratch('fail');
@@ -929,15 +944,19 @@ async function armRealNpm() {
     console.log('ENV GAP: registry unreachable');
     return;
   }
-  await check(A, 'a fresh scratch plugin self-installs with the real npm ci --ignore-scripts and then serves the full toolset', async () => {
+  await check(A, 'a fresh scratch plugin self-installs with the real npm ci --ignore-scripts: status tool first, then the full toolset', async () => {
     const scratch = makeScratch('real');
     const log = path.join(TMP, 'real-npm.log');
     const entries = readMcpEntries(scratch, scratch);
     const shared = process.env.MOS_3691_NPM_CACHE === 'shared';
+    // A 4 s connect budget is shorter than any real npm ci (measured 3.8 s warm to 13.3 s cold on fast x64,
+    // and the install here is cold), so the budget is exceeded for certain: the in-band path is exercised
+    // with the REAL npm, including a real npm that must be stopped or left running without blocking the answer.
     const env = hermeticEnv({
       CLAUDE_PLUGIN_ROOT: scratch,
       MINDRIAN_TEST_MODE: '1',
       MINDRIAN_TEST_NPM_CLI: RECORD_NPM,
+      MINDRIAN_TEST_CONNECT_BUDGET_MS: '4000',
       FAKE_NPM_LOG: log,
       npm_config_registry: 'https://registry.npmjs.org/',
       npm_config_cache: shared ? path.join(os.homedir(), '.npm') : mkTemp('real-npm-cache'),
@@ -945,26 +964,27 @@ async function armRealNpm() {
     // Ground truth first (from the repo), so the clock measures only the install.
     const full = await groundTruth('mindrian-os');
     const t0 = Date.now();
-    const conn = await connectServer(entries['mindrian-os'], env, mkTemp('cwd'), {}, 60000);
-    let firstWasFull = false;
+    const conn = await connectServer(entries['mindrian-os'], env, mkTemp('cwd'), {}, 25000);
+    let firstText = '';
     try {
       const { tools } = await conn.client.listTools();
       const names = tools.map((t) => t.name).sort();
-      firstWasFull = JSON.stringify(names) === JSON.stringify(full);
-      await assertToolSetIsStatusOrFull('mindrian-os', tools, null);
+      const v = await assertToolSetIsStatusOrFull('mindrian-os', tools, null);
+      if (v.isStatus) firstText = textOf(await conn.client.callTool({ name: SERVERS['mindrian-os'].statusTool, arguments: {} }));
+      else assert.deepEqual(names, full, 'full set');
+      console.log('    first connection in ' + conn.ms + ' ms: ' + (v.isStatus ? 'the status tool' : 'the full toolset'));
     } finally {
       await closeConn(conn);
     }
-    const st = firstWasFull ? null : await pollUntil(() => {
-      const s = readStatus(scratch);
-      return s && (s.state === 'done' || s.state === 'failed' || s.state === 'npm-not-found') ? s : null;
+    if (firstText) assert.ok(firstText.includes('installing its packages'), 'status text, got: ' + firstText.slice(0, 160));
+    const st = await pollUntil(() => {
+      const s2 = readStatus(scratch);
+      return s2 && (s2.state === 'done' || s2.state === 'failed' || s2.state === 'npm-not-found') ? s2 : null;
     }, 180000, 500);
-    if (!firstWasFull) {
-      assert.ok(st, 'the status file did not reach a terminal state within 180 s');
-      assert.equal(st.state, 'done', 'install state (reason ' + st.reason + ')');
-    }
+    assert.ok(st, 'the status file did not reach a terminal state within 180 s');
+    assert.equal(st.state, 'done', 'install state (reason ' + st.reason + ')');
     const seconds = ((Date.now() - t0) / 1000).toFixed(1);
-    const second = await connectServer(entries['mindrian-os'], env, mkTemp('cwd'), {}, 60000);
+    const second = await connectServer(entries['mindrian-os'], env, mkTemp('cwd'), {}, 25000);
     try {
       const { tools } = await second.client.listTools();
       await assertToolSetIsStatusOrFull('mindrian-os', tools, 'full');
@@ -973,12 +993,14 @@ async function armRealNpm() {
     }
     const lines = readLog(log);
     assert.ok(lines.length >= 1, 'the recording npm wrapper was never invoked');
-    for (const a of lines) {
-      assert.equal(a[0], 'ci', 'the install must be npm ci, saw ' + JSON.stringify(a));
-      assert.ok(a.includes('--ignore-scripts'), 'the install must pass --ignore-scripts, saw ' + JSON.stringify(a));
+    for (const a2 of lines) {
+      assert.equal(a2[0], 'ci', 'the install must be npm ci, saw ' + JSON.stringify(a2));
+      assert.ok(a2.includes('--ignore-scripts'), 'the install must pass --ignore-scripts, saw ' + JSON.stringify(a2));
     }
-    assert.ok(!lines.some((a) => a.includes('install')), 'npm install must never run');
-    console.log('    measured ' + seconds + ' s to done (first connection ' + (firstWasFull ? 'served the full set inside the budget' : 'answered with the status tool') + '; npm cache ' + (shared ? 'shared' : 'temp') + ')');
+    assert.ok(!lines.some((a2) => a2.includes('install')), 'npm install must never run');
+    const gone = await pollUntil(() => !rootProcesses().some((p) => isAlive(p.pid)), 8000, 200);
+    assert.ok(gone, 'a process started by the install survived: ' + rootProcesses().map((p) => p.pid + ' ' + p.cmdline.slice(0, 60)).join(' | '));
+    console.log('    measured ' + seconds + ' s to done (npm cache ' + (shared ? 'shared' : 'temp') + '); npm calls: ' + lines.length);
     sweep();
   });
   sweep();
