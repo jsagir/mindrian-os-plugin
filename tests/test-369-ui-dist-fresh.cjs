@@ -27,6 +27,11 @@
  *   9  release.sh      the Step 2.4 gate exists, release.sh never builds the UI (only --check), bash -n
  *   10 licence         no dist file (maps included) names a GPL-3.0 @blocknote/xl-* exporter and
  *                      ui/shell's lockfile has no @blocknote/xl- package
+ *   11-14 freshness gate (Plan 369-45, WR-16/17/18): the manifest holds a sha256 per dist file; a changed,
+ *                      extra or removed file fails --check; --check re-runs the output checks (a new host,
+ *                      buffer/, a /root/ or drive path each fail); the source hash follows the resolved
+ *                      runtime packages and not the whole root manifest; BUILD_UI_SHELL_DIST cannot make
+ *                      the build remove anything
  *
  * Arm 7 note (stated honestly): the full gate (check-release-payload-ceiling.cjs --check) is RED today
  * for ONE reason that is not this plan's change: npm-shrinkwrap.json declares hasInstallScript:true for
@@ -181,9 +186,14 @@ function offlineArms() {
     assert(dirs.length === 0, 'node_modules found: ' + dirs.join(', '));
   });
 
-  arm('arm 4: C2 - no dist file, maps included, names an outside host', () => {
-    const hits = dist_hits(builder.FORBIDDEN_HOSTS);
+  arm('arm 4: C2 - no dist file, maps included, names an outside host beyond the reviewed INERT_HOSTS list', () => {
+    // The six CDN and docs names the original check covered must still be absent as raw bytes ...
+    const hits = dist_hits(['rxdb.info', 'fonts.googleapis', 'fonts.gstatic', 'cdn.jsdelivr', 'unpkg.com', 'cdnjs']);
     assert(hits.length === 0, hits.length + ' hits, first: ' + hits.slice(0, 4).join('; '));
+    // ... and (Plan 369-45, WR-18) every other host the dist names is on the positive allow-list, each with a reason.
+    const outside = builder.outsideHosts(DIST);
+    assert(outside.length === 0, outside.length + ' hosts off the list, first: ' + outside.slice(0, 4).join('; '));
+    for (const [host, reason] of builder.INERT_HOSTS) assert(reason && reason.length > 10, 'INERT_HOSTS entry ' + host + ' has no reason');
   });
 
   arm('arm 5: every bare import in the dist server files is a root dependency or a Node built-in', () => {
@@ -309,7 +319,8 @@ function checkMutatedDist(mutate, opts) {
 }
 
 function appendTo(dir, rel, text) {
-  fs.appendFileSync(path.join(dir, rel), text);
+  // A leading newline: a chunk ends with a //# sourceMappingURL comment line and no newline, and the import scan skips comment-only lines.
+  fs.appendFileSync(path.join(dir, rel), '\n' + text);
 }
 
 function freshnessGateArms() {
