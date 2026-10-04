@@ -99,21 +99,18 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // When the connect-path heal above did not finish (the detached installer is
 // still running, npm is missing, or the install failed), this process does NOT
 // fall through to the SDK requires below, which would throw and close the pipe
-// inside the host's ~30 s connect window. On the stdio transport it serves
-// lib/core/mcp-install-responder.cjs instead: a dependency-free JSON-RPC
+// inside the host's ~30 s connect window. It serves
+// lib/core/mcp-install-responder.cjs instead (on stdio, and on HTTP for the surface that selects it): a dependency-free JSON-RPC
 // responder with exactly ONE tool (mos_install_status) that tells the truth about the
 // install. It never registers a partial toolset (decision 8): the host sees
 // either the full server or this one status tool, and the next session, with
 // the packages in place, serves the full server. The shared connect budget
 // above keeps the whole path inside the host's window. Only fs, path and
 // built-in-only lib modules are touched before the return. 
+// 369.1-REVIEW WR-07: the HTTP transport (Cowork selects it) gets the same answer, served on
+// 127.0.0.1 like the full server, so the OS server is never silently absent beside the brain one.
 if (depHealOutcome && depHealOutcome.ok === false) {
-  const installReason = (depHealOutcome && depHealOutcome.reason) || 'installing';
-  if (!isHttpTransport()) {
-    if (serveInstallResponderFor('mindrian-os', depHealOutcome, healLog)) return;
-  } else {
-    healLog('[mindrian-os] packages not ready (' + installReason + '); the HTTP daemon continues as before and the requires below will report the missing packages');
-  }
+  if (serveInstallResponderFor('mindrian-os', Object.assign({}, depHealOutcome, { http: isHttpTransport() }), healLog)) return;
 }
 
 // Phase 267 Plan 11: the v2 SDK builds the McpServer and serves stdio
@@ -132,8 +129,8 @@ try {
   ({ McpServer, createMcpHandler, isLegacyRequest } = requireWithHeal('@modelcontextprotocol/server', { log: healLog, connectPath: true }));
   ({ serveStdio } = requireWithHeal('@modelcontextprotocol/server/stdio', { log: healLog, connectPath: true }));
 } catch (e) {
-  if (!isHttpTransport() && isMissingPackagesError(e) &&
-      serveInstallResponderFor('mindrian-os', { reason: e.reason, startInstall: e.code === 'MODULE_NOT_FOUND' }, healLog)) return;
+  if (isMissingPackagesError(e) &&
+      serveInstallResponderFor('mindrian-os', { reason: e.reason, startInstall: e.code === 'MODULE_NOT_FOUND', http: isHttpTransport() }, healLog)) return;
   throw e;
 }
 // Module-level handle from serveStdio, closed by exitAfterTeardown.
