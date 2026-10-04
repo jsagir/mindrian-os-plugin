@@ -159,6 +159,39 @@ async function main() {
     assert.equal(hints.length, n, 'no hints after unsubscribe');
   });
 
+  await test('3c. WR-10: the poll emits on a lower head after a reset, on an epoch change, and on nothing else', async () => {
+    const { createFeedRelay } = await load('feed-relay.ts');
+    // A stream that never connects: only the poll feeds the subscriber here.
+    const fetchImpl = async () => { throw new Error('no stream in this arm'); };
+    let head = 10;
+    let epoch = 'e1';
+    const pool = { call: async () => ({ ok: true, isError: false, text: '', data: { ok: true, epoch, as_of_seq: head, docs: [], done: true }, reconnected: false }) };
+    const relay = createFeedRelay({ pool, daemonUrl: 'http://127.0.0.1:1', pollMs: 30, fetchImpl, backoffStartMs: 100000, backoffMaxMs: 100000 });
+    const hints = [];
+    const stop = relay.subscribeHints('s', 'r1', (h) => hints.push(h));
+    const tick = (ms) => new Promise((r) => setTimeout(r, ms || 120));
+    await tick(); // the first poll records the head (10, e1) and emits nothing
+    assert.equal(hints.length, 0, 'the first poll only records the head');
+    await tick();
+    assert.equal(hints.length, 0, 'nothing changed: no hint');
+    head = 3; // the log was reset: a LOWER head under the same epoch
+    await tick();
+    const lower = hints.filter((h) => h.source === 'poll' && h.latestSeq === 3);
+    assert.equal(lower.length, 1, 'a lower head emits exactly one poll hint: ' + JSON.stringify(hints));
+    await tick();
+    assert.equal(hints.length, 1, 'the same lower head again emits nothing more');
+    epoch = 'e2'; // the same head under a new epoch
+    await tick();
+    assert.equal(hints.length, 2, 'an epoch change emits one hint: ' + JSON.stringify(hints));
+    assert.equal(hints[1].latestSeq, 3);
+    await tick();
+    assert.equal(hints.length, 2, 'nothing changed after the epoch hint: no more hints');
+    head = 4; // an ordinary advance still emits
+    await tick();
+    assert.equal(hints.length, 3, 'a higher head still emits');
+    stop();
+  });
+
   await test('5. projection: six collections, toDoc upsert and delete, dbName, isResetReason', async () => {
     const proj = await load('projection.ts');
     assert.equal(proj.COLLECTIONS.length, 6);
