@@ -17,6 +17,7 @@
  */
 import { createFeedRelay } from 'mos-ui-shared/feed-relay';
 import type { ShellActions } from './actions.ts';
+import type { SessionStore } from './auth.ts';
 import { getConfig } from './config.ts';
 import { getConnectionStates, probeConnection } from './connection-state.ts';
 import type { ConnectionStates } from './connection-state.ts';
@@ -52,6 +53,7 @@ function statusFor(answer: Record<string, unknown>): number {
   if (answer.ok !== false) return 200;
   switch (answer.reason) {
     case 'room_unbound':
+    case 'room_switched':
       return 409;
     case 'bad_input':
       return 400;
@@ -104,6 +106,10 @@ export async function handleFeedRoom(deps: { actions: ShellActions; browserSessi
   const head = await deps.actions.invoke('feedChanges', { collection: 'nodes', mode: 'snapshot', limit: 1 }, ctx);
   if (head.ok === false) return { status: statusFor(head), body: head };
   const room = doc.room as Record<string, unknown>;
+  // WR-09: the document and the head are two reads through the browser session's one MCP session. If the person
+  // switched rooms between them, the head belongs to a different room than the document: never hand out one
+  // room's document with another room's epoch and seq.
+  if (typeof room.slug !== 'string' || head.room !== room.slug) return { status: 409, body: { ok: false, reason: 'room_switched' } };
   const epoch = typeof head.epoch === 'string' ? head.epoch : null;
   const seq = typeof head.as_of_seq === 'number' ? head.as_of_seq : 0;
   const row = {
@@ -156,6 +162,10 @@ export async function openHintStream(deps: {
   browserSession: { mcpKey: string };
   signal?: AbortSignal;
   heartbeatMs?: number;
+  // WR-11: with these, the stream asks on every heartbeat whether its browser session is still alive and ends
+  // (releasing its relay subscription, so nothing recreates an MCP session for a dead key) when it is not.
+  sessions?: Pick<SessionStore, 'peek'>;
+  sessionId?: string;
 }): Promise<{ ok: true; stream: ReadableStream<Uint8Array> } | { ok: false; status: number; body: Record<string, unknown> }> {
   const key = sessionFor(deps.browserSession);
   let room: string | null;
@@ -196,7 +206,18 @@ export async function openHintStream(deps: {
       unsubscribe = deps.relay.subscribeHints(key, roomSlug, (hint) => {
         send(frame('room.changed', { roomId: hint.roomId, latestSeq: hint.latestSeq }));
       });
-      timer = setInterval(() => send(': heartbeat\n\n'), heartbeatMs);
+      timer = setInterval(() => {
+        if (deps.sessions && deps.sessionId !== undefined && !deps.sessions.peek(deps.sessionId)) {
+          cleanup();
+          try {
+            controller.close();
+          } catch {
+            /* already closed */
+          }
+          return;
+        }
+        send(': heartbeat\n\n');
+      }, heartbeatMs);
       if (typeof timer === 'object' && timer && 'unref' in timer) (timer as { unref: () => void }).unref();
       if (deps.signal) {
         if (deps.signal.aborted) {

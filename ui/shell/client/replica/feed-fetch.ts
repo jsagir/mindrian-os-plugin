@@ -55,8 +55,12 @@ export type FeedFetcher = {
   reset: () => void;
 };
 
-// `room` is the room this copy belongs to: a page the server answers for another room is refused, never stored.
-export function createFeedFetcher(options: { epoch: string | null; room?: string }): FeedFetcher {
+// `room` is the room this copy belongs to and is required (D-18): a page the server answers for any other room,
+// or for no room at all, is refused, never stored.
+export function createFeedFetcher(options: { epoch: string | null; room: string }): FeedFetcher {
+  if (typeof options.room !== 'string' || options.room.length === 0) {
+    throw new Error('createFeedFetcher: the room this copy belongs to is required');
+  }
   const reached = new Map<CollectionName, number>();
   const listeners = new Set<() => void>();
   let snapshotRows = 0;
@@ -74,7 +78,8 @@ export function createFeedFetcher(options: { epoch: string | null; room?: string
   }
 
   function wrongRoom(page: Page): boolean {
-    return options.room !== undefined && typeof page.room === 'string' && page.room !== options.room;
+    // Strict (WR-09): a page whose room is missing or null is as wrong as one for another room.
+    return page.room !== options.room;
   }
 
   function resetAnswer(reason: string, page: Page): FeedAnswer {

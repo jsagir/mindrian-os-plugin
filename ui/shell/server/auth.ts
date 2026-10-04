@@ -32,15 +32,50 @@ export type Session = {
 export type SessionStore = {
   issue(): Session;
   read(id: string | null | undefined): Session | null;
+  // Like read, but never refreshes the idle clock: a long-lived stream asks "is this session still alive?"
+  // on every heartbeat without keeping an idle session alive by asking (WR-11).
+  peek(id: string | null | undefined): Session | null;
   drop(id: string): void;
   sweep(): string[];
   size(): number;
 };
 
-export function createSessionStore(opts: { now?: () => number; idleMs?: number } = {}): SessionStore {
+// What to forget when a browser session expires (gate records, render nonces, remembered room, connection
+// state, ...): other modules register a hook, and BOTH expiry paths run them through runExpiryHooks, so a
+// session found expired on read is cleaned up exactly like one the sweep finds (WR-11, plan 369-37).
+type Expire = (mcpKey: string) => void;
+const HOOKS_SLOT = Symbol.for('mos.shell.expireHooks');
+
+function expireHooks(): Expire[] {
+  const g = globalThis as Record<symbol, unknown>;
+  if (!g[HOOKS_SLOT]) g[HOOKS_SLOT] = [] as Expire[];
+  return g[HOOKS_SLOT] as Expire[];
+}
+
+export function onSessionExpired(hook: Expire): void {
+  expireHooks().push(hook);
+}
+
+export function runExpiryHooks(mcpKey: string): void {
+  for (const hook of expireHooks()) {
+    try {
+      hook(mcpKey);
+    } catch {
+      /* one hook failing must not leave the others unrun */
+    }
+  }
+}
+
+export function createSessionStore(opts: { now?: () => number; idleMs?: number; onExpire?: (mcpKey: string) => void } = {}): SessionStore {
   const now = opts.now ?? (() => Date.now());
   const idleMs = opts.idleMs ?? SESSION_IDLE_MS;
   const sessions = new Map<string, Session>();
+
+  // The one place a session found expired by a read or a peek is removed: it runs the expiry hooks.
+  function expireOnRead(id: string, s: Session): void {
+    sessions.delete(id);
+    if (opts.onExpire) opts.onExpire(s.mcpKey);
+  }
 
   return {
     issue(): Session {
@@ -63,10 +98,20 @@ export function createSessionStore(opts: { now?: () => number; idleMs?: number }
       if (!s) return null;
       const t = now();
       if (t - s.lastSeen > idleMs) {
-        sessions.delete(id);
+        expireOnRead(id, s);
         return null;
       }
       s.lastSeen = t;
+      return s;
+    },
+    peek(id): Session | null {
+      if (!id) return null;
+      const s = sessions.get(id);
+      if (!s) return null;
+      if (now() - s.lastSeen > idleMs) {
+        expireOnRead(id, s);
+        return null;
+      }
       return s;
     },
     drop(id: string): void {
@@ -94,7 +139,7 @@ const SLOT = Symbol.for('mos.shell.sessions');
 
 export function getSessionStore(): SessionStore {
   const g = globalThis as Record<symbol, unknown>;
-  if (!g[SLOT]) g[SLOT] = createSessionStore();
+  if (!g[SLOT]) g[SLOT] = createSessionStore({ onExpire: runExpiryHooks });
   return g[SLOT] as SessionStore;
 }
 

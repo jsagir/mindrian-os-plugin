@@ -1,3 +1,4 @@
+import { getSessionStore } from '../../../../server/auth.ts';
 import { getConfig } from '../../../../server/config.ts';
 import { getRelay, openHintStream } from '../../../../server/feed-routes.ts';
 import { apiJson, authorizeApi, getPool } from '../../../../server/sessions.ts';
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request): Promise<Response> {
   const auth = authorizeApi({ headers: request.headers, port: getConfig().port }, { csrf: false });
   if (!auth.ok) return apiJson(auth.status, { ok: false, reason: auth.reason });
-  const opened = await openHintStream({ pool: getPool(), relay: getRelay(), browserSession: auth.session, signal: request.signal });
+  const opened = await openHintStream({ pool: getPool(), relay: getRelay(), browserSession: auth.session, signal: request.signal, sessions: getSessionStore(), sessionId: auth.session.id });
   if (!opened.ok) return apiJson(opened.status, opened.body);
   // no-transform keeps the runtime's compression from buffering the stream.
   return new Response(opened.stream, {

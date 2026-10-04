@@ -18,7 +18,7 @@
  * inside one Node process. Framework-free erasable TypeScript.
  */
 import { createSessionPool } from 'mos-ui-shared/mcp-session-pool';
-import { getSessionStore, readSession, requireCsrf, SESSION_IDLE_MS } from './auth.ts';
+import { getSessionStore, onSessionExpired, readSession, requireCsrf, runExpiryHooks, SESSION_IDLE_MS } from './auth.ts';
 import type { Session, SessionStore } from './auth.ts';
 import { getConfig } from './config.ts';
 import { checkRequest } from './origin-guard.ts';
@@ -136,18 +136,18 @@ export async function sweepSessions(deps: SweepDeps): Promise<{ expired: number;
   return { expired: gone.length, closed };
 }
 
-type Expire = (mcpKey: string) => void;
-const HOOKS_SLOT = Symbol.for('mos.shell.expireHooks');
+// Other modules (gate records, connection state) register what to forget when a browser session expires;
+// the registry lives in auth.ts so a read that finds a session expired runs the same hooks as the sweep.
+export { onSessionExpired };
 
-function expireHooks(): Expire[] {
+// The remembered room goes with the session on EVERY expiry path.
+const ROOM_HOOK_SLOT = Symbol.for('mos.shell.roomExpiryHook');
+{
   const g = globalThis as Record<symbol, unknown>;
-  if (!g[HOOKS_SLOT]) g[HOOKS_SLOT] = [] as Expire[];
-  return g[HOOKS_SLOT] as Expire[];
-}
-
-// Other modules (gate records, connection state) register what to forget when a browser session expires.
-export function onSessionExpired(hook: Expire): void {
-  expireHooks().push(hook);
+  if (!g[ROOM_HOOK_SLOT]) {
+    g[ROOM_HOOK_SLOT] = true;
+    onSessionExpired((key) => forgetRoom(key));
+  }
 }
 
 function startSweepTimer(): void {
@@ -157,9 +157,7 @@ function startSweepTimer(): void {
     sweepSessions({
       store: getSessionStore(),
       pool: getPool(),
-      onExpired: (key) => {
-        for (const hook of expireHooks()) hook(key);
-      },
+      onExpired: runExpiryHooks,
     }).catch(() => {
       /* the next tick tries again */
     });
