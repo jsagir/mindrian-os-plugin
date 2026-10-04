@@ -268,6 +268,146 @@ function offlineArms() {
     const names = Object.keys(lockJson.packages || {}).filter((k) => /@blocknote\/xl-|xl-pdf-exporter|xl-docx-exporter/.test(k));
     assert(names.length === 0, 'lockfile packages: ' + names.join(', '));
   });
+
+  freshnessGateArms();
+}
+
+// ---------------------------------------------------------------------------
+// arms 11-15 (Plan 369-45: WR-16, WR-17, WR-18): the freshness gate proves bytes, output and inputs.
+// Every arm works on a temp copy of the dist or of a lockfile; the committed files are never written.
+// ---------------------------------------------------------------------------
+
+function sha256Of(file) {
+  return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+function posixRel(base, file) {
+  return path.relative(base, file).split(path.sep).join('/');
+}
+
+// A copy of the committed dist. mutate(copyDir, chunkRel) edits it; when the manifest carries a files map the
+// entries of the touched files are re-hashed, so only the build's own output checks (not the byte map) can object.
+function checkMutatedDist(mutate, opts) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-369-45-dist-'));
+  try {
+    fs.cpSync(DIST, tmp, { recursive: true });
+    const chunks = walkFiles(path.join(tmp, 'server', '.next', 'server', 'chunks')).filter((f) => f.endsWith('.js')).sort();
+    assert(chunks.length > 0, 'the dist copy holds no server chunk');
+    const chunkRel = posixRel(tmp, chunks[0]);
+    const touched = mutate(tmp, chunkRel) || [];
+    if (opts && opts.rehash) {
+      const mp = path.join(tmp, 'manifest.json');
+      const m = JSON.parse(fs.readFileSync(mp, 'utf8'));
+      if (m.files) {
+        for (const rf of touched) m.files[rf] = sha256Of(path.join(tmp, rf));
+        fs.writeFileSync(mp, JSON.stringify(m, null, 2) + '\n');
+      }
+    }
+    const r = runNode([BUILD, '--check'], { env: Object.assign({}, process.env, { BUILD_UI_SHELL_DIST: tmp }) });
+    return { status: r.status, text: (r.stderr || '') + (r.stdout || ''), chunkRel };
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+}
+
+function appendTo(dir, rel, text) {
+  fs.appendFileSync(path.join(dir, rel), text);
+}
+
+function freshnessGateArms() {
+  arm('arm 11a: the manifest carries a sha256 for every dist file (WR-16)', () => {
+    const m = readManifest();
+    assert(m.files && typeof m.files === 'object', 'manifest.files is missing');
+    const onDisk = walkFiles(DIST).map((f) => posixRel(DIST, f)).filter((f) => f !== 'manifest.json').sort();
+    const listed = Object.keys(m.files).sort();
+    assert(JSON.stringify(onDisk) === JSON.stringify(listed), 'manifest.files lists ' + listed.length + ' files, the dist holds ' + onDisk.length);
+    for (const f of onDisk.slice(0, 40)) assert(m.files[f] === sha256Of(path.join(DIST, f)), 'recorded hash differs for ' + f);
+    return { note: listed.length + ' files' };
+  });
+
+  arm('arm 11b: one changed byte in a server chunk fails --check and names the file (manifest untouched)', () => {
+    const r = checkMutatedDist((dir, chunkRel) => {
+      const p = path.join(dir, chunkRel);
+      const buf = fs.readFileSync(p);
+      buf[buf.length - 1] = buf[buf.length - 1] === 0x20 ? 0x0a : 0x20; // flip the last byte between a space and a newline
+      fs.writeFileSync(p, buf);
+    });
+    assert(r.status === 1, 'a tampered chunk must exit 1, got ' + r.status + '\n' + r.text);
+    assert(r.text.includes(r.chunkRel), 'the failure must name ' + r.chunkRel + ', got: ' + r.text.slice(0, 300));
+  });
+
+  arm('arm 11c: an extra file and a removed file each fail --check and name the file', () => {
+    const extra = checkMutatedDist((dir) => { fs.writeFileSync(path.join(dir, 'server', 'extra-369-45.js'), '// stray\n'); });
+    assert(extra.status === 1 && extra.text.includes('extra-369-45.js'), 'an extra file must exit 1 and be named, got ' + extra.status + ': ' + extra.text.slice(0, 300));
+    const gone = checkMutatedDist((dir, chunkRel) => { fs.rmSync(path.join(dir, chunkRel)); });
+    assert(gone.status === 1 && gone.text.includes(gone.chunkRel), 'a removed file must exit 1 and be named, got ' + gone.status + ': ' + gone.text.slice(0, 300));
+  });
+
+  arm('arm 11d: --check re-runs the output checks - a new outside host, buffer/, a /root/ path and a drive path each fail (WR-16, WR-18)', () => {
+    const cases = [
+      ['an outside host not on the reviewed list', 'fetch("https://example.org/x");\n', 'example.org'],
+      ['a ws:// outside host', 'new WebSocket("wss://stream.example.net/s");\n', 'stream.example.net'],
+      ['require("buffer/") (a userland package that shadows a built-in)', 'require("buffer/");\n', 'buffer/'],
+      ['a /root/ build path', 'var p="/root/build/x";\n', '/root/'],
+      ['a drive-letter build path', 'var p="C:\\\\build\\\\x";\n', 'C:'],
+    ];
+    for (const [what, text, expect] of cases) {
+      const r = checkMutatedDist((dir, chunkRel) => { appendTo(dir, chunkRel, text); return [chunkRel]; }, { rehash: true });
+      assert(r.status === 1, what + ': --check must exit 1, got ' + r.status + '\n' + r.text.slice(0, 300));
+      assert(r.text.includes(expect), what + ': the failure must mention ' + expect + ', got: ' + r.text.slice(0, 400));
+    }
+  });
+
+  arm('arm 12: the bare-import check no longer exempts a built-in followed by a slash', () => {
+    const rootDeps = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8')).dependencies;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-369-45-imports-'));
+    try {
+      fs.writeFileSync(path.join(tmp, 'a.js'), 'require("buffer/");require("events/");require("punycode/");require("buffer");require("node:buffer");require("fs/promises");require("path");\n');
+      const flagged = builder.foreignSpecifiers(tmp, rootDeps).map((s) => s.split(' ')[0]).sort();
+      assert(JSON.stringify(flagged) === JSON.stringify(['buffer/', 'events/', 'punycode/']), 'expected exactly buffer/, events/, punycode/ flagged, got ' + JSON.stringify(flagged));
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  arm('arm 13: the source hash follows the runtime packages the dist imports, not the whole root manifest (WR-16)', () => {
+    const sw = JSON.parse(fs.readFileSync(path.join(REPO, 'npm-shrinkwrap.json'), 'utf8'));
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-369-45-sw-'));
+    const hashWith = (mutate) => {
+      const copy = JSON.parse(JSON.stringify(sw));
+      mutate(copy);
+      const p = path.join(tmp, 'npm-shrinkwrap.json');
+      fs.writeFileSync(p, JSON.stringify(copy));
+      return builder.computeSourceHash({ shrinkwrapPath: p }).hash;
+    };
+    try {
+      const base = builder.computeSourceHash({ shrinkwrapPath: path.join(REPO, 'npm-shrinkwrap.json') }).hash;
+      assert(base === builder.computeSourceHash().hash, 'the default shrinkwrap must be the repo one');
+      assert(Array.isArray(builder.RUNTIME_PACKAGES) && ['next', 'react', 'react-dom'].every((n) => builder.RUNTIME_PACKAGES.includes(n)), 'RUNTIME_PACKAGES must list next, react and react-dom');
+      assert(hashWith((c) => { c.packages['node_modules/next'].version = '0.0.0-369-45'; }) !== base, 'a changed resolved next version must change the hash');
+      assert(hashWith((c) => { c.packages['node_modules/react'].version = '0.0.0-369-45'; }) !== base, 'a changed resolved react version must change the hash');
+      assert(hashWith((c) => { c.packages['node_modules/react-dom'].integrity = 'sha512-patched'; }) !== base, 'a changed react-dom integrity must change the hash');
+      const other = Object.keys(sw.packages).find((k) => k.startsWith('node_modules/') && !builder.RUNTIME_PACKAGES.some((n) => k === 'node_modules/' + n));
+      assert(hashWith((c) => { c.packages[other].version = '0.0.0-369-45'; }) === base, 'a change to ' + other + ' (not a runtime package of the dist) must not change the hash');
+      assert(hashWith((c) => { c.packages['node_modules/zz-added-369-45'] = { version: '1.0.0' }; }) === base, 'an added unrelated package must not change the hash');
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
+
+  arm('arm 14: BUILD_UI_SHELL_DIST cannot make the build remove anything (WR-17)', () => {
+    assert(typeof builder.assertDistRemovable === 'function', 'assertDistRemovable is not exported');
+    for (const bad1 of [REPO, path.join(REPO, 'ui', 'shell'), path.join(REPO, 'lib'), os.homedir(), path.parse(REPO).root, os.tmpdir()]) {
+      let threw = false;
+      try { builder.assertDistRemovable(bad1); } catch (_e) { threw = true; }
+      assert(threw, 'assertDistRemovable must refuse ' + bad1);
+    }
+    builder.assertDistRemovable(path.join(REPO, 'lib', 'ui-shell', 'dist')); // the one removable directory must pass
+    // End to end: the build itself refuses to run while the variable is set. A group kill covers a build that ignores the refusal.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-369-45-seam-'));
+    try {
+      fs.writeFileSync(path.join(tmp, 'sentinel.txt'), 'keep me\n');
+      const r = spawnSync(process.execPath, [BUILD], { cwd: REPO, encoding: 'utf8', detached: true, timeout: 20000, killSignal: 'SIGKILL', env: Object.assign({}, process.env, { BUILD_UI_SHELL_DIST: tmp }) });
+      try { process.kill(-r.pid, 'SIGKILL'); } catch (_e) { /* the group is already gone */ }
+      assert(r.status === 1, 'the build with BUILD_UI_SHELL_DIST set must exit 1, got ' + r.status + ' (signal ' + r.signal + ')');
+      assert(/BUILD_UI_SHELL_DIST/.test((r.stderr || '') + (r.stdout || '')), 'the refusal must name BUILD_UI_SHELL_DIST: ' + ((r.stderr || '') + (r.stdout || '')).slice(0, 300));
+      assert(fs.existsSync(path.join(tmp, 'sentinel.txt')), 'the sentinel file was removed');
+    } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  });
 }
 
 // ---------------------------------------------------------------------------
