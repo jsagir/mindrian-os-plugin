@@ -927,21 +927,40 @@ async function armEntries() {
 // ---------------------------------------------------------------------------
 // Arm: real-npm (live)
 // ---------------------------------------------------------------------------
-function registryPing() {
+function registryPingOnce() {
   return new Promise((resolve) => {
-    const req = https.get('https://registry.npmjs.org/-/ping', { timeout: 8000 }, (res) => {
+    const req = https.get('https://registry.npmjs.org/-/ping', { timeout: 15000 }, (res) => {
       res.resume();
-      resolve(res.statusCode >= 200 && res.statusCode < 400);
+      resolve(res.statusCode >= 200 && res.statusCode < 500);
     });
     req.on('timeout', () => { req.destroy(); resolve(false); });
     req.on('error', () => resolve(false));
   });
+}
+// Three attempts: a transient network hiccup right after heavy npm traffic is not an environment gap.
+async function registryPing() {
+  for (let i = 0; i < 3; i += 1) {
+    if (await registryPingOnce()) return true;
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  return false;
 }
 async function armRealNpm() {
   const A = 'real-npm';
   if (!(await registryPing())) {
     envGap = envGap || 'registry unreachable';
     console.log('ENV GAP: registry unreachable');
+    return;
+  }
+  // Never let an entry run the real npm without the recording seam: that would run lifecycle scripts
+  // (T-369.1-03-03) and skip the argv assertion. Without the seam the arm fails fast instead.
+  const seam = (() => {
+    const r = runNode("const m=require(process.argv[1]); process.stdout.write(JSON.stringify(m.resolveNpmCli()));", [RESOLVE],
+      hermeticEnv({ MINDRIAN_TEST_MODE: '1', MINDRIAN_TEST_NPM_CLI: RECORD_NPM }));
+    try { return parseJsonOut(r, 'seam').npmCli === RECORD_NPM; } catch (_e) { return false; }
+  })();
+  if (!seam) {
+    fail(A, 'prerequisite', 'the MINDRIAN_TEST_NPM_CLI seam is missing in lib/core/npm-cli-resolve.cjs, so the real npm cannot be recorded or kept to --ignore-scripts (arm not run)');
     return;
   }
   await check(A, 'a fresh scratch plugin self-installs with the real npm ci --ignore-scripts: status tool first, then the full toolset', async () => {

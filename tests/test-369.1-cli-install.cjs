@@ -236,12 +236,23 @@ function haveCmd(cmd, args) {
   const r = spawnSync(cmd, args || ['--version'], { encoding: 'utf8', timeout: 30000 });
   return !r.error && r.status === 0;
 }
-function registryPing() {
+function registryPingOnce() {
   return new Promise((resolve) => {
-    const req = https.get('https://registry.npmjs.org/-/ping', { timeout: 8000 }, (res) => { res.resume(); resolve(res.statusCode >= 200 && res.statusCode < 400); });
+    const req = https.get('https://registry.npmjs.org/-/ping', { timeout: 15000 }, (res) => {
+      res.resume();
+      resolve(res.statusCode >= 200 && res.statusCode < 500);
+    });
     req.on('timeout', () => { req.destroy(); resolve(false); });
     req.on('error', () => resolve(false));
   });
+}
+// Three attempts: a transient network hiccup right after heavy npm traffic is not an environment gap.
+async function registryPing() {
+  for (let i = 0; i < 3; i += 1) {
+    if (await registryPingOnce()) return true;
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
