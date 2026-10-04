@@ -1713,13 +1713,51 @@ Plans:
 ### Phase 369.1: Desktop plugin install: MindrianOS installable from Claude Desktop Customize > Plugins > Add marketplace (a Desktop-syncable marketplace source beside the npm source, and dependency loading proven on the hookless surface) (INSERTED)
 
 **Goal:** A person installs MindrianOS from Customize > Plugins > Add marketplace with `jsagir/mindrian-marketplace` and gets a working Larry plus the room tools in Cowork and in the Desktop Code tab, with no terminal step (navigator ruling 2026-10-04: Desktop's Chat ignores a plugin's local MCP servers by design and gets skills and commands only; a `.mcpb` desktop extension for Chat is a follow-up seed). Measured 2026-10-04: the dialog answers "Marketplace sync failed" because Desktop's marketplace sync fetches only github / git / relative-path / archive plugin sources and our one plugin is `source: npm` (`@mindrian_os/cli`, pinned per release by RULE 5); the repo is public and the manifest is reachable on `master` (HTTP 200), so the address is not the fault. Two deliverables, both researched before built: (1) a Desktop-syncable source BESIDE the npm source in `marketplace.json` (preferred candidate: an `archive` source pointing at the already-published npm tarball `https://registry.npmjs.org/@mindrian_os/cli/-/cli-<version>.tgz` with a sha256 pin, written by `release.sh` in the RULE 5 lockstep; verify that Desktop accepts a .tgz whose files sit under `package/`, else publish the tarball as a GitHub release asset or a zip); (2) proof that the per-machine dependency install (Phase 341, RULE 8: `npm-shrinkwrap.json` installed by the loader with `npm ci --ignore-scripts`) actually runs on the hookless Desktop surface, or a Desktop-safe loading path if a SessionStart hook never fires there, so `bin/mindrian-mcp-server.cjs` and the Brain shim start with their packages present. Tri-polar: CLI install unchanged; Cowork checked the same way. Clean-up in the same phase: the stray `.next/` build directory committed at the marketplace repo's top level. Navigator priority (2026-10-04): critical, next after 369. Grounding: code.claude.com/docs/en/plugins/marketplace-reference (plugin sources), /plugins/host-marketplace (private access), /plugins/install (add a marketplace); anthropics/claude-code issues #61271 and #17201.
-**Requirements**: TBD (minted at plan time)
+**Requirements**: DPI-01, DPI-02, DPI-03, DPI-04, DPI-05, DPI-06, DPI-07, DPI-08, DPI-09, DPI-10, DPI-11, DPI-12, DPI-13 (minted at plan time 2026-10-04, registered in `.planning/REQUIREMENTS.md` `### Phase 369.1`, closed by 369.1-16)
 **Depends on:** Phase 369 (the beta.56 release carries both; beta.56 itself is held for Theo's write-1 commit)
-**Plans:** 0 plans
+**Plans:** 16 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.1 to break down)
+**Wave 1** *(Wave 0 floor: RED-first tests and records; parallel; tests only)*
+
+- [ ] 369.1-01-PLAN.md -- `tests/run-all-369.1.sh` written once (D-16 ceiling legs plain, four known reds by signature) plus the bin relocation, marketplace clean-up and release lockstep tests (D-03, D-06, D-10, D-13)
+- [ ] 369.1-02-PLAN.md -- Desktop payload contract and two-entry marketplace shape tests; spike and manual verification record templates with the navigator action items (D-11, D-12, D-13, D-15)
+- [ ] 369.1-03-PLAN.md -- self-install with `npm ci --ignore-scripts` plus in-band responder test, and the isolated CLI install re-proof test (D-04, D-05, D-14)
+
+**Wave 2** *(parallel; plugin repo, marketplace repo; 08 has a navigator decision)*
+
+- [ ] 369.1-04-PLAN.md -- move the five runtime executables from bin/ to scripts/ with one-release shims; codemod; runtime code references; source-reading tests repointed, before/after census (D-10)
+- [ ] 369.1-05-PLAN.md -- `scripts/release-lib/build-desktop-artifact.cjs` (npm pack minus bin/, limits, offline --check); readers find mos by name; doctor recognizes the bin-less layout (D-13)
+- [ ] 369.1-06-PLAN.md -- self-install library: frozen `npm ci --ignore-scripts`, detached installer, dependency-free honest responder (D-04, D-14)
+- [ ] 369.1-07-PLAN.md -- marketplace repo: remove `.next/`, add `.gitignore`, push master; CLI smoke (D-06)
+- [ ] 369.1-08-PLAN.md -- D-16: 369-28 precondition probe; keep sharp out of the shipped shrinkwrap (navigator picks the mechanism; prune recommended); strict ceiling green; one true `--ignore-scripts` statement (checkpoint)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 369.1-09-PLAN.md -- command and skill instructions to scripts/ by the codemod; mirrors and registry regenerated; whole Desktop payload proven clean (D-10)
+- [ ] 369.1-10-PLAN.md -- wire the responder into both MCP entries on the stdio connect path (D-04, D-14)
+
+**Wave 4**
+
+- [ ] 369.1-11-PLAN.md -- Wave 0 spike part 1: build the probe marketplace from HEAD with the release builder, prove it on the CLI, navigator go, push public `jsagir/mindrian-marketplace-probe` (D-11, checkpoint)
+
+**Wave 5**
+
+- [ ] 369.1-12-PLAN.md -- spike part 2: navigator adds the probe in Customize > Plugins; verdicts (a) relative path, (b) npm beside it, (c) limits read from the Desktop log; stop rule (D-11, D-13, checkpoint)
+
+**Wave 6** *(parallel)*
+
+- [ ] 369.1-13-PLAN.md -- live verification on the rebuilt probe: Cowork, Code tab, Chat; CLI re-proof; build numbers (D-05, D-09, D-12, D-15, checkpoint)
+- [ ] 369.1-14-PLAN.md -- release lockstep: `desktop-copy-gate.sh`, release.sh Step 6.8 and the Step 2.4 gate, shared rollback, RULE 5 place 5 and RULE 8, CHANGELOG (D-03, D-13; depends_on_external 369-28, landed)
+
+**Wave 7**
+
+- [ ] 369.1-15-PLAN.md -- close-out: floor and regression run, VALIDATION flipped, D-01..D-16 trace, website handoff note, research trail in both homes, probe deletion (checkpoint)
+
+**Wave 8** *(blocked on 369-31: shared REQUIREMENTS.md)*
+
+- [ ] 369.1-16-PLAN.md -- DPI-01..13 rows closed with measured proof; probe verified deleted (depends_on_external 369-31)
 
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
