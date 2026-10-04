@@ -256,9 +256,15 @@ async function main() {
   });
 
   // -- S1 composer term gate (SEED-104 part 2) ---------------------------------
-  await leg('S1 composer refuses prose terms with term_not_composed, no echo; plain overlength stays bad_slot', function () {
+  // MOVED 2026-10-04 (SEED-115, navigator ruling, quick 261004-v16): before, every destination refused
+  // prose with term_not_composed. Now a WEB destination composes the phrase as written (markdown
+  // stripped); a THEO destination (Canon Part 8, the Brain) still refuses it with no echo.
+  await leg('S1 web destination composes room phrases; theo destination refuses prose with term_not_composed, no echo; over-cap stays bad_slot', function () {
     const long = '**Claim.** A stable, flowable emulsion of eutectic gallium-indium EGaIn';
-    const r = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: long, term2: 'gallium oxide' } });
+    const w = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: long, term2: 'gallium oxide' } });
+    assert.equal(w.ok, true, JSON.stringify(w).slice(0, 200));
+    assert.ok(w.queries.every(function (q) { return q.q.indexOf('Claim. A stable, flowable emulsion of eutectic gallium-indium EGaIn') !== -1; }));
+    const r = families.composeForLeaf({ lens: 'eu.transfer', corpus: 'theo', slots: { term: long, term2: 'gallium oxide' } });
     assert.equal(r.ok, false);
     assert.equal(r.reason, 'term_not_composed');
     assert.equal(r.degrade, 'local-only');
@@ -266,12 +272,15 @@ async function main() {
     assert.equal(s.indexOf('Claim'), -1);
     assert.equal(s.indexOf('flowable'), -1);
     ['1. Tension in the field', 'Claim. A stable emulsion'].forEach(function (t) {
-      const x = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: t, term2: 'gallium oxide' } });
+      const x = families.composeForLeaf({ lens: 'eu.transfer', corpus: 'theo', slots: { term: t, term2: 'gallium oxide' } });
       assert.equal(x.reason, 'term_not_composed', t);
+      assert.equal(families.composeForLeaf({ lens: 'eu.transfer', slots: { term: t, term2: 'gallium oxide' } }).ok, true, t);
     });
-    const syn = families.composeFamily('whitespace-gap/v1', { term: 'thin-film sensors', synonyms: ['a `code` span'] });
+    const syn = families.composeFamily('whitespace-gap/v1', { term: 'thin-film sensors', synonyms: ['a `code` span'] }, { destination: 'theo' });
     assert.equal(syn.reason, 'term_not_composed');
-    assert.equal(families.composeFamily('whitespace-gap/v1', { term: 'a'.repeat(81) }).reason, 'bad_slot');
+    assert.equal(families.composeFamily('whitespace-gap/v1', { term: 'thin-film sensors', synonyms: ['a `code` span'] }).ok, true);
+    assert.equal(families.composeFamily('whitespace-gap/v1', { term: 'a'.repeat(81) }, { destination: 'theo' }).reason, 'bad_slot');
+    assert.equal(families.composeFamily('whitespace-gap/v1', { term: 'a'.repeat(201) }).reason, 'bad_slot');
     const ok = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: 'gallium oxide choline chloride deep eutectic solvent', term2: 'liquid metal' } });
     assert.equal(ok.ok, true);
     assert.equal(families.stripMarkdown('**Claim.** A stable'), 'Claim. A stable');
@@ -284,23 +293,27 @@ async function main() {
   });
 
   // -- S2 grant writers refuse prose --------------------------------------------
-  await leg('S2 writeGrant and extendTerms refuse prose terms before any write', function () {
+  // MOVED 2026-10-04 (SEED-115, quick 261004-v16): grant terms are web-line phrases now, so a room
+  // phrase or sentence is accepted; an over-cap or control-character value is still refused before any write.
+  await leg('S2 writeGrant and extendTerms accept a web phrase; an over-cap or control-character term is refused before any write', function () {
     const room = newRoom('founder').roomDir;
+    const bad = grants.buildStandingProposal(room, { terms: [{ term: 'a'.repeat(201), synonyms: [] }] });
+    const w0 = grants.writeGrant(room, bad, { approved_via: VIA, now: NOW });
+    assert.equal(w0.ok, false);
+    assert.equal(w0.reason, 'term_not_composed');
+    assert.equal(fs.existsSync(path.join(room, '.mindrian', 'research-grants.json')), false);
     const p = grants.buildStandingProposal(room, { terms: [{ term: PROSE, synonyms: [] }] });
     const w = grants.writeGrant(room, p, { approved_via: VIA, now: NOW });
-    assert.equal(w.ok, false);
-    assert.equal(w.reason, 'term_not_composed');
-    assert.equal(fs.existsSync(path.join(room, '.mindrian', 'research-grants.json')), false);
-    const goodP = grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }] });
-    const g = grants.writeGrant(room, goodP, { approved_via: VIA, now: NOW });
-    assert.equal(g.ok, true);
-    const ext = grants.extendTerms(room, g.grant.grant_id, [{ term: PROSE, synonyms: [] }], VIA, { now: NOW });
+    assert.equal(w.ok, true, JSON.stringify(w).slice(0, 200));
+    const ext = grants.extendTerms(room, w.grant.grant_id, [{ term: 'bad' + String.fromCharCode(7) + ' char', synonyms: [] }], VIA, { now: NOW });
     assert.equal(ext.ok, false);
     assert.equal(ext.reason, 'term_not_composed');
     assert.equal(grants.readGrants(room).grants[0].version, 1);
-    const ext2 = grants.extendTerms(room, g.grant.grant_id, [{ term: 'fine term', synonyms: ['bad. sentence here'] }], VIA, { now: NOW });
+    const ext2 = grants.extendTerms(room, w.grant.grant_id, [{ term: 'fine term', synonyms: ['b'.repeat(201)] }], VIA, { now: NOW });
     assert.equal(ext2.reason, 'term_not_composed');
     assert.equal(grants.readGrants(room).grants[0].approved_terms.length, 1);
+    const ext3 = grants.extendTerms(room, w.grant.grant_id, [{ term: 'fine term', synonyms: ['bad. sentence here'] }], VIA, { now: NOW });
+    assert.equal(ext3.ok, true, JSON.stringify(ext3).slice(0, 200));
   });
 
   // -- S3 planFamilies and the proposal families option -------------------------
@@ -415,7 +428,10 @@ async function main() {
   });
 
   // -- S8 stale prose plan -------------------------------------------------------
-  await leg('S8 a stored plan carrying a prose term is refused before any fetch; proposeGrant refuses prose', async function () {
+  // MOVED 2026-10-04 (SEED-115, quick 261004-v16): a stored plan carrying a room phrase is no longer
+  // refused term_not_composed; it needs the grant first, the card shows the exact string, and no fetch
+  // leaves before approval. proposeGrant accepts a phrase and refuses only an over-cap value.
+  await leg('S8 a stored plan carrying a room phrase asks for the grant with the exact string, no fetch; proposeGrant refuses only over-cap', async function () {
     const room = newRoom('founder').roomDir;
     const plan = buildCePlan(room);
     const clone = clonePlan(plan);
@@ -425,16 +441,19 @@ async function main() {
     q.q_hash = families.qHash(q.q);
     const spy = countingSeam();
     const res = await quick.runQuick(room, clone, { fetchEnvelopeFn: spy, now: NOW });
-    assert.equal(res.status, 'refused');
-    assert.equal(res.reason, 'term_not_composed');
+    assert.notEqual(res.reason, 'term_not_composed');
+    assert.equal(res.status, 'reask');
     assert.equal(spy.state.calls, 0);
     const cv = quick.coverFor(room, clone, { now: NOW });
     assert.equal(cv.covered, false);
-    assert.equal(cv.reason, 'term_not_composed');
-    assert.equal(cv.card, undefined);
+    assert.notEqual(cv.reason, 'term_not_composed');
+    assert.ok(cv.card && cv.card.payload.queries.indexOf(q.q) !== -1, 'the card carries the exact string');
+    assert.ok(cv.card.body_md.indexOf(q.q) !== -1);
     const prop = planner.proposeGrant(room, { terms: ['**Claim.** x y'] });
-    assert.equal(prop.ok, false);
-    assert.equal(prop.reason, 'term_not_composed');
+    assert.equal(prop.ok, true, JSON.stringify(prop).slice(0, 200));
+    const over = planner.proposeGrant(room, { terms: ['a'.repeat(201)] });
+    assert.equal(over.ok, false);
+    assert.equal(over.reason, 'term_not_composed');
   });
 
   // -- S9 re-approval widening ---------------------------------------------------
@@ -584,7 +603,9 @@ async function main() {
   });
 
   // -- E5 stale prose plan, MCP door ----------------------------------------------
-  await leg('E5 a stored plan with a prose term is refused term_not_composed at run_quick with zero fetches', async function () {
+  // MOVED 2026-10-04 (SEED-115, quick 261004-v16): the stored room phrase is no longer refused
+  // term_not_composed; run_quick asks (reask) and nothing is fetched before the navigator approves.
+  await leg('E5 a stored plan with a room phrase is not refused term_not_composed at run_quick; zero fetches before approval', async function () {
     assert.ok(E2.grant, 'E2 ran');
     const room = E2.room;
     const c = E2.client;
@@ -598,10 +619,9 @@ async function main() {
     writePlanFile(loc.file, loc.plan);
     const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
     const res = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
-    assert.equal(res.ok, false, JSON.stringify(res).slice(0, 300));
-    assert.equal(res.reason, 'term_not_composed');
+    assert.notEqual(res.reason, 'term_not_composed', JSON.stringify(res).slice(0, 300));
+    assert.equal(res.status, 'reask', JSON.stringify(res).slice(0, 300));
     assert.equal(replay.calls.length, 0);
-    assert.equal(JSON.stringify(res).indexOf('Claim'), -1);
   });
 
   // -- E6 eureka_recall hands the composer abstracted terms (SEED-104 part 2) ----
