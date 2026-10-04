@@ -1634,7 +1634,7 @@ Plans:
 **Second opinions folded 2026-10-02 (two independent Codex reviews, `369-SECOND-OPINION-2026-10-02.md`; adopted and corrected in `369-INPUT.md` section 13):** (10) Human, not agent: every action declares an authorization and exposure policy (agent-callable, human-only, or both; the 1:1 adapter layer is exposed to neither), and `gate_answer` (and every truth-claim confirmation) accepts only a human-originated call; a caller-supplied `principal` field is never proof of a human, and session ownership says which session minted a gate, not that a person clicked, so human origin is established by a session bound to a browser interaction; acceptance test: the agent proposes a claim and tries to approve it through the same action and is refused (Canon Part 9; builds on Phase 259 gate trust and the Phase 357 gate-triad ledger). (11) Recovery contract: durable decision outcomes (the gate ledger is in-memory and does not survive a restart by its own contract; the decision node does), idempotent retry by gate id or idempotency key when the response is lost after persistence, expected-revision checks on the claim being approved, explicit expired and stale states, and tests for server restart, room switch and a claim changed under an open gate (the 2026-09-20 review asked for these; they are acceptance criteria here). (12) The change feed is an MCP read surface (a `room_changes` tool or resource carrying room id, db epoch, ordered cursor, retention floor and snapshot reset), so the shell stays MCP-only (spike 006 reached room.db through its own pull server, not MCP); the wake-up must observe writes from other processes (CLI hooks and scripts write room.db outside the MCP server), so it comes from `room.db`/WAL watching or a cursor poll, never from the in-process bus alone. (13) v1 scope decided at discuss between a room review-and-decision surface and an executable workspace (task execution, cancellation, document editing, return to work); default: review-and-decision, the executable loop as v2; either way the phase closes on ONE recoverable journey: open the correct room, inspect evidence, make a human decision, see its persisted result, restart and recover it; local authentication, room isolation, safe content rendering and offline assets carried forward from the 2026-09-20 review as acceptance criteria. (14) Tiles never carry a state alone: rust (challenged or fixed) and white (empty or delivered) are paired with a written status; the tile room stays a front-page illustration until a slice proves it as a working evidence-and-decisions view; "one decision per view" means one focused approval with its evidence reachable, not hidden context. Opening screen default: the current question, what changed since the last visit, the next decision (Work / Evidence / Decisions / Deliverables, Rooms as the context selector, graph secondary). TypeScript default tightened: hooks AND the MCP server stay JS initially; erasable `.ts` enters `lib/core` only after the installed-layout test passes (Node refuses stripping under `node_modules`, ignores tsconfig, does not type-check); the UI builds at release time, with the build tool following Q1. Third pass folded 2026-10-02 (`369-INPUT.md` section 13 tables 3 and 4: ten findings P3-1..P3-10 adopted, and the recommended defaults for all 14 discuss questions).
 **Requirements**: TS369-01..08, CHG369-01..06, FEED369-01..05, SESS369-01..04, GREC369-01..05, HUM369-01..03, RXP369-01..03, CANON369-01..07, SHELL369-01..11, BAKE369-01..04, CM369-01..03 (59 IDs, minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-02; D-01..D-19 in `369-CONTEXT.md`)
 **Depends on:** Phase 289 (the card ruling, so the web button and the CLI card share one tested gate superset), Phase 267 (closed 2026-10-02: the local MCP server family on SDK v2, `serveStdio`, flag-ON HTTP routing by protocol era, `server/discover` handled; spike 007's agent-native connect is re-run against it; its open follow-ons MCPV2-13 and the desktop session-binding fallback are inherited here). Shipped prerequisites it builds on (milestone v1.15.0 roadmap, not open dependencies): Phase 198 (MCP-first; per-connection session mode is the only transport the spikes validated) and Phase 232 (the BlockNote wiki editor and its save contract, which this shell must not fork). Consults icm-workspace-architect (structure), fullstack-dev-skills:websocket-engineer (realtime, design guidance only until Cowork), claude-code-guide (hooks and MCP), langtalks-graph-expert, and the hooked-model skill for the first screen.
-**Plans:** 32 plans (15 waves, 0-14; revised 2026-10-02 after the checker pass: plan 19 split into 19 and 32; plans 26-31 wait on Phase 289)
+**Plans:** 47/47 plans executed (32 planned + 15 gap closure); verification 2026-10-04 human_needed (369-UAT.md: CR-02 ruled answered_via now, SEED-114 later; build numbers; MCPV2-13; wording rulings)
 Plans:
 **Wave 1**
 
@@ -1668,96 +1668,112 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 369-19-PLAN.md -- Shell package and security layer on the chosen chassis: loopback, Host/Origin, CSP, one-time sign-in with the cross-site refusal, CSRF, control endpoint (D-07, D-08)
+- [x] 369-19-PLAN.md -- Shell package and security layer on the chosen chassis: loopback, Host/Origin, CSP, one-time sign-in with the cross-site refusal, CSRF, control endpoint (D-07, D-08)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 369-22-PLAN.md -- Launch surface ruling and the Claude Desktop delivery ruling, the launcher with the one-time link, born-wired command, the Desktop/Cowork line (D-02, D-03, checkpoint)
-- [ ] 369-32-PLAN.md -- Wave 6, after 369-19: legacy MCP session per browser session, review-and-decision actions with exposure enforcement behind the CSRF-checked route, feed relay endpoints, connection state (D-08, D-14, D-15, D-19)
+- [x] 369-22-PLAN.md -- Launch surface ruling and the Claude Desktop delivery ruling, the launcher with the one-time link, born-wired command, the Desktop/Cowork line (D-02, D-03, checkpoint)
+- [x] 369-32-PLAN.md -- Wave 6, after 369-19: legacy MCP session per browser session, review-and-decision actions with exposure enforcement behind the CSRF-checked route, feed relay endpoints, connection state (D-08, D-14, D-15, D-19)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 369-20-PLAN.md -- Design Canon v3 tokens, bundled fonts after a legitimacy check, primitives, the IA frame (D-01, D-10, D-11, checkpoint)
-- [ ] 369-21-PLAN.md -- Human-only approve: single-use render nonce and the D-15 acceptance test
+- [x] 369-20-PLAN.md -- Design Canon v3 tokens, bundled fonts after a legitimacy check, primitives, the IA frame (D-01, D-10, D-11, checkpoint)
+- [x] 369-21-PLAN.md -- Human-only approve: single-use render nonce and the D-15 acceptance test
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 369-23-PLAN.md -- The shell read copy live with resets and purges; every deliverable-4 hazard in a browser; counter-metrics
+- [x] 369-23-PLAN.md -- The shell read copy live with resets and purges; every deliverable-4 hazard in a browser; counter-metrics
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 369-24-PLAN.md -- Session indicator component from the signed note (D-04)
-- [ ] 369-25-PLAN.md -- Views: the Hooked opening screen, Evidence with read-only BlockNote, Decisions, Deliverables, text-only Graph (D-08..D-13)
-- [ ] 369-26-PLAN.md -- Gate recovery after Phase 289 (behaviour probe first: recommended id, owner-after-stranger, 289-CLI-CARD-RULING.md): durable consumption, replay, room_switched, stale_subject, explicit states, Theo handoff (D-16, deliverable 11)
+- [x] 369-24-PLAN.md -- Session indicator component from the signed note (D-04)
+- [x] 369-25-PLAN.md -- Views: the Hooked opening screen, Evidence with read-only BlockNote, Decisions, Deliverables, text-only Graph (D-08..D-13)
+- [x] 369-26-PLAN.md -- Gate recovery after Phase 289 (behaviour probe first: recommended id, owner-after-stranger, 289-CLI-CARD-RULING.md): durable consumption, replay, room_switched, stale_subject, explicit states, Theo handoff (D-16, deliverable 11)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 369-27-PLAN.md -- The gate button after Phase 289: fourth Shape F render, recommendation preselected, shared superset test, every state (D-11, D-15, D-16)
+- [x] 369-27-PLAN.md -- The gate button after Phase 289: fourth Shape F render, recommendation preselected, shared superset test, every state (D-11, D-15, D-16)
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 369-28-PLAN.md -- Packaging: release-built lib/ui-shell/dist, freshness gate, RULE 5 and RULE 8 sentences, payload ceiling, installed-layout run (D-07, D-17)
+- [x] 369-28-PLAN.md -- Packaging: release-built lib/ui-shell/dist, freshness gate, RULE 5 and RULE 8 sentences, payload ceiling, installed-layout run (D-07, D-17)
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 369-29-PLAN.md -- CANON369 checks C1-C11 against the built shell (D-01, D-11)
+- [x] 369-29-PLAN.md -- CANON369 checks C1-C11 against the built shell (D-01, D-11)
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 369-30-PLAN.md -- The one recoverable journey, gate-latency counts, and the navigator click test, visual review and Desktop/Cowork check (D-08, checkpoint)
+- [x] 369-30-PLAN.md -- The one recoverable journey, gate-latency counts, and the navigator click test, visual review and Desktop/Cowork check (D-08, checkpoint)
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
-- [ ] 369-31-PLAN.md -- Close-out: phase gate, requirement rows with measured proof, validation sign-off (core e2e legs must have run), research trail in both homes
+- [x] 369-31-PLAN.md -- Close-out: phase gate, requirement rows with measured proof, validation sign-off (core e2e legs must have run), research trail in both homes
 
+**Gap closure (2026-10-04, after verification gaps_found; 15 plans, 10 waves, re-verified 8/8):**
+- [x] 369-33-PLAN.md -- gap closure
+- [x] 369-34-PLAN.md -- gap closure
+- [x] 369-35-PLAN.md -- gap closure
+- [x] 369-36-PLAN.md -- gap closure
+- [x] 369-37-PLAN.md -- gap closure
+- [x] 369-38-PLAN.md -- gap closure
+- [x] 369-39-PLAN.md -- gap closure
+- [x] 369-40-PLAN.md -- gap closure
+- [x] 369-41-PLAN.md -- gap closure
+- [x] 369-42-PLAN.md -- gap closure
+- [x] 369-43-PLAN.md -- gap closure
+- [x] 369-44-PLAN.md -- gap closure
+- [x] 369-45-PLAN.md -- gap closure
+- [x] 369-46-PLAN.md -- gap closure
+- [x] 369-47-PLAN.md -- gap closure
 ### Phase 369.1: Desktop plugin install: MindrianOS installable from Claude Desktop Customize > Plugins > Add marketplace (a Desktop-syncable marketplace source beside the npm source, and dependency loading proven on the hookless surface) (INSERTED)
 
 **Goal:** A person installs MindrianOS from Customize > Plugins > Add marketplace with `jsagir/mindrian-marketplace` and gets a working Larry plus the room tools in Cowork and in the Desktop Code tab, with no terminal step (navigator ruling 2026-10-04: Desktop's Chat ignores a plugin's local MCP servers by design and gets skills and commands only; a `.mcpb` desktop extension for Chat is a follow-up seed). Measured 2026-10-04: the dialog answers "Marketplace sync failed" because Desktop's marketplace sync fetches only github / git / relative-path / archive plugin sources and our one plugin is `source: npm` (`@mindrian_os/cli`, pinned per release by RULE 5); the repo is public and the manifest is reachable on `master` (HTTP 200), so the address is not the fault. Two deliverables, both researched before built: (1) a Desktop-syncable source BESIDE the npm source in `marketplace.json` (preferred candidate: an `archive` source pointing at the already-published npm tarball `https://registry.npmjs.org/@mindrian_os/cli/-/cli-<version>.tgz` with a sha256 pin, written by `release.sh` in the RULE 5 lockstep; verify that Desktop accepts a .tgz whose files sit under `package/`, else publish the tarball as a GitHub release asset or a zip); (2) proof that the per-machine dependency install (Phase 341, RULE 8: `npm-shrinkwrap.json` installed by the loader with `npm ci --ignore-scripts`) actually runs on the hookless Desktop surface, or a Desktop-safe loading path if a SessionStart hook never fires there, so `bin/mindrian-mcp-server.cjs` and the Brain shim start with their packages present. Tri-polar: CLI install unchanged; Cowork checked the same way. Clean-up in the same phase: the stray `.next/` build directory committed at the marketplace repo's top level. Navigator priority (2026-10-04): critical, next after 369. Grounding: code.claude.com/docs/en/plugins/marketplace-reference (plugin sources), /plugins/host-marketplace (private access), /plugins/install (add a marketplace); anthropics/claude-code issues #61271 and #17201.
 **Requirements**: DPI-01, DPI-02, DPI-03, DPI-04, DPI-05, DPI-06, DPI-07, DPI-08, DPI-09, DPI-10, DPI-11, DPI-12, DPI-13 (minted at plan time 2026-10-04, registered in `.planning/REQUIREMENTS.md` `### Phase 369.1`, closed by 369.1-16)
 **Depends on:** Phase 369 (the beta.56 release carries both; beta.56 itself is held for Theo's write-1 commit)
-**Plans:** 16 plans
+**Plans:** 16/16 plans executed; verification 2026-10-04 human_needed (369.1-UAT.md: probe cleanup after the beta.56 cut, D-15, production check after the cut, DPI-10 log verdicts or waiver, clean-checkout cut)
 
 Plans:
 
 **Wave 1** *(Wave 0 floor: RED-first tests and records; parallel; tests only)*
 
-- [ ] 369.1-01-PLAN.md -- `tests/run-all-369.1.sh` written once (D-16 ceiling legs plain, four known reds by signature) plus the bin relocation, marketplace clean-up and release lockstep tests (D-03, D-06, D-10, D-13)
-- [ ] 369.1-02-PLAN.md -- Desktop payload contract and two-entry marketplace shape tests; spike and manual verification record templates with the navigator action items (D-11, D-12, D-13, D-15)
-- [ ] 369.1-03-PLAN.md -- self-install with `npm ci --ignore-scripts` plus in-band responder test, and the isolated CLI install re-proof test (D-04, D-05, D-14)
+- [x] 369.1-01-PLAN.md -- `tests/run-all-369.1.sh` written once (D-16 ceiling legs plain, four known reds by signature) plus the bin relocation, marketplace clean-up and release lockstep tests (D-03, D-06, D-10, D-13)
+- [x] 369.1-02-PLAN.md -- Desktop payload contract and two-entry marketplace shape tests; spike and manual verification record templates with the navigator action items (D-11, D-12, D-13, D-15)
+- [x] 369.1-03-PLAN.md -- self-install with `npm ci --ignore-scripts` plus in-band responder test, and the isolated CLI install re-proof test (D-04, D-05, D-14)
 
 **Wave 2** *(parallel; plugin repo, marketplace repo; 08 has a navigator decision)*
 
-- [ ] 369.1-04-PLAN.md -- move the five runtime executables from bin/ to scripts/ with one-release shims; codemod; runtime code references; source-reading tests repointed, before/after census (D-10)
-- [ ] 369.1-05-PLAN.md -- `scripts/release-lib/build-desktop-artifact.cjs` (npm pack minus bin/, limits, offline --check); readers find mos by name; doctor recognizes the bin-less layout (D-13)
-- [ ] 369.1-06-PLAN.md -- self-install library: frozen `npm ci --ignore-scripts`, detached installer, dependency-free honest responder (D-04, D-14)
-- [ ] 369.1-07-PLAN.md -- marketplace repo: remove `.next/`, add `.gitignore`, push master; CLI smoke (D-06)
-- [ ] 369.1-08-PLAN.md -- D-16: 369-28 precondition probe; keep sharp out of the shipped shrinkwrap (navigator picks the mechanism; prune recommended); strict ceiling green; one true `--ignore-scripts` statement (checkpoint)
+- [x] 369.1-04-PLAN.md -- move the five runtime executables from bin/ to scripts/ with one-release shims; codemod; runtime code references; source-reading tests repointed, before/after census (D-10)
+- [x] 369.1-05-PLAN.md -- `scripts/release-lib/build-desktop-artifact.cjs` (npm pack minus bin/, limits, offline --check); readers find mos by name; doctor recognizes the bin-less layout (D-13)
+- [x] 369.1-06-PLAN.md -- self-install library: frozen `npm ci --ignore-scripts`, detached installer, dependency-free honest responder (D-04, D-14)
+- [x] 369.1-07-PLAN.md -- marketplace repo: remove `.next/`, add `.gitignore`, push master; CLI smoke (D-06)
+- [x] 369.1-08-PLAN.md -- D-16: 369-28 precondition probe; keep sharp out of the shipped shrinkwrap (navigator picks the mechanism; prune recommended); strict ceiling green; one true `--ignore-scripts` statement (checkpoint)
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 369.1-09-PLAN.md -- command and skill instructions to scripts/ by the codemod; mirrors and registry regenerated; whole Desktop payload proven clean (D-10)
-- [ ] 369.1-10-PLAN.md -- wire the responder into both MCP entries on the stdio connect path (D-04, D-14)
+- [x] 369.1-09-PLAN.md -- command and skill instructions to scripts/ by the codemod; mirrors and registry regenerated; whole Desktop payload proven clean (D-10)
+- [x] 369.1-10-PLAN.md -- wire the responder into both MCP entries on the stdio connect path (D-04, D-14)
 
 **Wave 4**
 
-- [ ] 369.1-11-PLAN.md -- Wave 0 spike part 1: build the probe marketplace from HEAD with the release builder, prove it on the CLI, navigator go, push public `jsagir/mindrian-marketplace-probe` (D-11, checkpoint)
+- [x] 369.1-11-PLAN.md -- Wave 0 spike part 1: build the probe marketplace from HEAD with the release builder, prove it on the CLI, navigator go, push public `jsagir/mindrian-marketplace-probe` (D-11, checkpoint)
 
 **Wave 5**
 
-- [ ] 369.1-12-PLAN.md -- spike part 2: navigator adds the probe in Customize > Plugins; verdicts (a) relative path, (b) npm beside it, (c) limits read from the Desktop log; stop rule (D-11, D-13, checkpoint)
+- [x] 369.1-12-PLAN.md -- spike part 2: navigator adds the probe in Customize > Plugins; verdicts (a) relative path, (b) npm beside it, (c) limits read from the Desktop log; stop rule (D-11, D-13, checkpoint)
 
 **Wave 6** *(parallel)*
 
-- [ ] 369.1-13-PLAN.md -- live verification on the rebuilt probe: Cowork, Code tab, Chat; CLI re-proof; build numbers (D-05, D-09, D-12, D-15, checkpoint)
-- [ ] 369.1-14-PLAN.md -- release lockstep: `desktop-copy-gate.sh`, release.sh Step 6.8 and the Step 2.4 gate, shared rollback, RULE 5 place 5 and RULE 8, CHANGELOG (D-03, D-13; depends_on_external 369-28, landed)
+- [x] 369.1-13-PLAN.md -- live verification on the rebuilt probe: Cowork, Code tab, Chat; CLI re-proof; build numbers (D-05, D-09, D-12, D-15, checkpoint)
+- [x] 369.1-14-PLAN.md -- release lockstep: `desktop-copy-gate.sh`, release.sh Step 6.8 and the Step 2.4 gate, shared rollback, RULE 5 place 5 and RULE 8, CHANGELOG (D-03, D-13; depends_on_external 369-28, landed)
 
 **Wave 7**
 
-- [ ] 369.1-15-PLAN.md -- close-out: floor and regression run, VALIDATION flipped, D-01..D-16 trace, website handoff note, research trail in both homes, probe deletion (checkpoint)
+- [x] 369.1-15-PLAN.md -- close-out: floor and regression run, VALIDATION flipped, D-01..D-16 trace, website handoff note, research trail in both homes, probe deletion (checkpoint)
 
 **Wave 8** *(blocked on 369-31: shared REQUIREMENTS.md)*
 
-- [ ] 369.1-16-PLAN.md -- DPI-01..13 rows closed with measured proof; probe verified deleted (depends_on_external 369-31)
+- [x] 369.1-16-PLAN.md -- DPI-01..13 rows closed with measured proof; probe verified deleted (depends_on_external 369-31)
 
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
