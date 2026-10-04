@@ -90,14 +90,16 @@ Check workspace state:
 
    Proceed to Step 2.
 
-2. **No registry, but legacy `room/` exists in workspace**: Tell the user:
+2. **No registry, but legacy `room/` exists in workspace**: fire ONE AskUserQuestion card (a two-option Shape F.1 question, composed with the same `renderShapeF1` / `appendAskUserQuestionTrailer` shape as the other cards) carrying this question:
    > "You have a project at room/. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms? Or start fresh alongside it."
 
-   If user says yes to adoption:
+   Options: `Adopt room/ into ~/MindrianRooms/` (marked Recommended, description: keeps the work and enables multiple rooms) and `Start fresh alongside it`. The Other slot is free text. On a surface that cannot fire the card, print the quoted question as text and wait for the answer. Nothing is adopted until the navigator picks Adopt.
+
+   If the navigator picks Adopt (or answers yes in text):
    - Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room" $PWD --adopt` to create registry with existing room
    - Then proceed to Step 2
 
-   If user says no or wants to start fresh: STOP.
+   If the navigator picks Start fresh (or says no): STOP.
 
 3. **No registry, no legacy room/**: First project. `$ROOMS_HOME` will be created automatically. Proceed to Step 2.
 

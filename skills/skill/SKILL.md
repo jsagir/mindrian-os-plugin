@@ -68,7 +68,7 @@ Only CONFIRMED nodes materialize. A proposed (not yet human-kept) SyntheticExper
 
 ## Step 1: Resolve the target expert
 
-Take the requested expert (a surname or a node id from `$ARGUMENTS`). If none is given, or the name does not match a CONFIRMED SyntheticExpert, list the confirmed candidates so the navigator can pick one. The confirmed filter mirrors `lib/core/expert-library.cjs::rankExpertsForSlot` (`type = 'SyntheticExpert' AND review_status = 'confirmed'`).
+Take the requested expert (a surname or a node id from `$ARGUMENTS`). If none is given, or the name does not match a CONFIRMED SyntheticExpert, fire ONE AskUserQuestion card (a single-choice Shape F.1 question, composed with the same `renderShapeF1` / `appendAskUserQuestionTrailer` shape as the other cards) so the navigator picks which expert to propose. Options are up to 4 confirmed candidates in `rankExpertsForSlot` order, label = surname, description = the expert's one-line domain; when there are more than 4, show the first 4 and print this line under the question: `N more - type /mos:skill <surname>` (N is the confirmed count minus 4, as in the `commands/help.md` escape hatch). The Other slot accepts a typed name. This card only picks the expert: the proposal itself stays the existing approve-or-reject decision. On a surface that cannot fire the card, print the confirmed list as text and ask for one. The confirmed filter mirrors `lib/core/expert-library.cjs::rankExpertsForSlot` (`type = 'SyntheticExpert' AND review_status = 'confirmed'`).
 
 Push back on a proposed node: it cannot materialize until a human confirms it. Point the navigator at the confirm door.
 
