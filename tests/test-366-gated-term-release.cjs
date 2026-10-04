@@ -295,13 +295,17 @@ async function main() {
     return (again === null && calls.length === before) || JSON.stringify(again);
   });
 
-  await leg('R6b session-scoped: another session cannot consume the gate, and the gate is spent anyway', async function () {
+  // 2026-10-04: the old expectation (right === null, the wrong session spends the gate) moved with
+  // Phase 289 (session checked BEFORE the one delete) and Phase 369 (durable, session-scoped consume
+  // after COMMIT): a refused stranger leaves the gate for its owner, who still consumes it once.
+  await leg('R6b session-scoped: another session is refused and does NOT spend the gate; the owning session still consumes it', async function () {
     const b = planner.basketFor(roomDir, RUN2, { sessionId: 'sess-A', deps: { callTool: theoReturning(HIT) } });
     const it = itemFor(b, TERM2);
     const before = calls.length;
     const wrong = gateLedger.consumeGate(it.gate_id, 'sess-B');
     const right = gateLedger.consumeGate(it.gate_id, 'sess-A');
-    return (wrong && wrong.ok === false && wrong.reason === 'session_mismatch' && right === null && calls.length === before) || JSON.stringify([wrong, right]);
+    return (wrong && wrong.ok === false && wrong.reason === 'session_mismatch'
+      && right && right.ok !== false && typeof right.resumeFn === 'function' && calls.length === before) || JSON.stringify([wrong, right]);
   });
 
   await leg('R6c releaseTerm refuses a gate id it did not mint, and a mismatched term, with zero calls', async function () {
