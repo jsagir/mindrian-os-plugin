@@ -1,6 +1,9 @@
 ---
 id: SEED-020
-status: dormant
+status: resolved
+resolved: 2026-10-04
+resolved_by: "/mos:help became a live AskUserQuestion selector (commit 9a18fe81d, 2026-06-06) and then the 3-card, 11-family selector (commit 28f95106b); Phase 192 converted suggest-next, rooms and onboard to F.1 cards; Phase 289 converted /mos:pipeline (chain selection and resume), find-analogies, radar, deck, new-project, skill and scientific-roadmap, added the bare-text chooser fence (tests/test-289-menu-fence.cjs, two reasoned allow-list entries), and made the gate card the rung on every Claude host on both protocol eras (289-CLI-CARD-RULING.md, pinned by tests/test-289-cli-card-dual-era.cjs)"
+open_navigator_item: "The canon note 'command menus render as live selectors, never bare text' needs Part 6 approval and was deliberately NOT written (Phase 289 D-08). Also open: rank-derived recommendation vs the Canon 0.70 Brain-confidence rule for F.1 Mode A (289-RESEARCH.md Assumption A5), unruled."
 planted: 2026-06-06
 planted_during: v1.13.1 LARRYREACH milestone, Phase 143.1 (dial-TUI) execution
 trigger_when: any phase touching /mos:help, a command menu, a selector/picker surface, or a Canon Part 3 Shape F amendment; OR /gsd:new-milestone with a UI/UX or "Larry leads" theme; OR after the LARRYREACH milestone (143.1 -> 144 -> 146) closes
@@ -11,6 +14,12 @@ related_seeds: [SEED-008]
 ---
 
 # SEED-020: Shape F (the AskUserQuestion card-selector) IS the universal Mindrian UI - apply it to /mos:help and every user-facing chooser, not only the internal dev-phase dial
+
+## Status (2026-10-04, Phase 289 close)
+
+Resolved. `/mos:help` is a live AskUserQuestion selector (9a18fe81d, then 28f95106b), Phase 192 converted suggest-next, rooms and onboard, and Phase 289 converted the remaining bare-text choosers (pipeline, find-analogies, radar, deck, new-project, skill, scientific-roadmap), fenced the command surface against new ones, and made a gate a card on every Claude host. Item 3 below ("/mos:help today renders a TEXT list") describes the state before 9a18fe81d. One piece stays open on purpose: the canon note under "Scope when promoted" needs Part 6 approval and was not written.
+
+The original decision text follows unchanged.
 
 ## The navigator's decision (2026-06-06, Decision Gate)
 
