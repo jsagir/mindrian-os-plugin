@@ -1,0 +1,13 @@
+{
+  "/[...view]/page": "/[...view]",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/actions/[name]/route": "/api/actions/[name]",
+  "/api/feed/changes/route": "/api/feed/changes",
+  "/api/feed/hint/route": "/api/feed/hint",
+  "/api/feed/room/route": "/api/feed/room",
+  "/api/status/route": "/api/status",
+  "/auth/bootstrap/route": "/auth/bootstrap",
+  "/control/bootstrap/route": "/control/bootstrap",
+  "/page": "/"
+}

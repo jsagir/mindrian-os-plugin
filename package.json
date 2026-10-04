@@ -27,6 +27,7 @@
     "!lib/import/test-fixtures",
     "scripts",
     "!scripts/release.sh",
+    "!scripts/build-ui-shell.cjs",
     "!scripts/release-lib",
     "bin",
     "data",

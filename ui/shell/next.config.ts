@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['mos-ui-shared'],
   poweredByHeader: false,
+  // Reproducible release build: scripts/build-ui-shell.cjs passes the source hash as MOS_UI_BUILD_ID, so the
+  // same sources always produce the same build id (and the same bytes). Unset, Next picks a random id.
+  generateBuildId: async () => process.env.MOS_UI_BUILD_ID || null,
   turbopack: { root: path.resolve(import.meta.dirname) },
 };
 

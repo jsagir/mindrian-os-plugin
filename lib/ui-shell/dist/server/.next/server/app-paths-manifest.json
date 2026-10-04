@@ -1,0 +1,13 @@
+{
+  "/[...view]/page": "app/[...view]/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/actions/[name]/route": "app/api/actions/[name]/route.js",
+  "/api/feed/changes/route": "app/api/feed/changes/route.js",
+  "/api/feed/hint/route": "app/api/feed/hint/route.js",
+  "/api/feed/room/route": "app/api/feed/room/route.js",
+  "/api/status/route": "app/api/status/route.js",
+  "/auth/bootstrap/route": "app/auth/bootstrap/route.js",
+  "/control/bootstrap/route": "app/control/bootstrap/route.js",
+  "/page": "app/page.js"
+}
