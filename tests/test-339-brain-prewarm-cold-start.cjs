@@ -178,7 +178,7 @@ test('Arm 4: resolveBrainRouteTimeoutMs defaults to 6000 and honors a valid over
 // Arm 5: shim seam, source-shape scan only (no spawn)
 // ---------------------------------------------------------------------------
 test('Arm 5: the shim requires brain-prewarm and calls prewarm() without an await on the same line', () => {
-  const shimPath = path.join(REPO_ROOT, 'bin', 'mindrian-brain-mcp-client.cjs');
+  const shimPath = path.join(REPO_ROOT, 'scripts', 'mindrian-brain-mcp-client.cjs');
   const code = codeOf(shimPath);
 
   assert.ok(

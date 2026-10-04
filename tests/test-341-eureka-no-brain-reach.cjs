@@ -100,7 +100,7 @@ ok('eureka_critic registers on the LOCAL server (registerRouterTools), not brain
   // registerRouterTools is the ONLY registration path wired from the LOCAL
   // server entry point (bin/mindrian-mcp-server.cjs); the brain-client
   // entry point must never mention eureka at all.
-  const brainClientPath = path.join(REPO, 'bin', 'mindrian-brain-mcp-client.cjs');
+  const brainClientPath = path.join(REPO, 'scripts', 'mindrian-brain-mcp-client.cjs');
   assert.ok(fs.existsSync(brainClientPath), brainClientPath + ' must exist');
   const brainClientSrc = fs.readFileSync(brainClientPath, 'utf8');
   assert.ok(
@@ -108,7 +108,7 @@ ok('eureka_critic registers on the LOCAL server (registerRouterTools), not brain
     brainClientPath + ' must not mention eureka anywhere -- eureka_critic is a LOCAL-server-only surface'
   );
 
-  const serverEntryPath = path.join(REPO, 'bin', 'mindrian-mcp-server.cjs');
+  const serverEntryPath = path.join(REPO, 'scripts', 'mindrian-mcp-server.cjs');
   const serverEntrySrc = fs.readFileSync(serverEntryPath, 'utf8');
   assert.ok(
     /registerRouterTools/.test(serverEntrySrc),

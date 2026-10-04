@@ -130,7 +130,7 @@ function walk(dir, opts) {
 // ---------------------------------------------------------------------------
 
 const ROUTE_SET = [
-  'bin/mindrian-brain-mcp-client.cjs',
+  'scripts/mindrian-brain-mcp-client.cjs',
   'lib/mcp/brain-router.cjs',
   'lib/brain/chain-recommender.cjs',
   'scripts/brain-derive-command.cjs',

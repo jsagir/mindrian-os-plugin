@@ -41,7 +41,7 @@ const { test } = require('node:test');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CHOKEPOINT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'refusal-messaging.cjs');
-const SHIM_PATH = path.join(REPO_ROOT, 'bin', 'mindrian-brain-mcp-client.cjs');
+const SHIM_PATH = path.join(REPO_ROOT, 'scripts', 'mindrian-brain-mcp-client.cjs');
 
 function freshChokepoint() {
   delete require.cache[CHOKEPOINT_PATH];

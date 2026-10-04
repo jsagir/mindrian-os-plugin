@@ -68,8 +68,8 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEP_HEAL_MODULE_PATH = path.join(REPO_ROOT, 'lib', 'core', 'mcp-dep-heal.cjs');
 const LOCK_MODULE_PATH = path.join(REPO_ROOT, 'lib', 'core', 'npm-install-lock.cjs');
-const MCP_SERVER_PATH = path.join(REPO_ROOT, 'bin', 'mindrian-mcp-server.cjs');
-const BRAIN_CLIENT_PATH = path.join(REPO_ROOT, 'bin', 'mindrian-brain-mcp-client.cjs');
+const MCP_SERVER_PATH = path.join(REPO_ROOT, 'scripts', 'mindrian-mcp-server.cjs');
+const BRAIN_CLIENT_PATH = path.join(REPO_ROOT, 'scripts', 'mindrian-brain-mcp-client.cjs');
 const RECONCILE_HOOK_PATH = path.join(REPO_ROOT, 'scripts', 'sessionstart-npm-reconcile.cjs');
 
 const depHeal = require(DEP_HEAL_MODULE_PATH);

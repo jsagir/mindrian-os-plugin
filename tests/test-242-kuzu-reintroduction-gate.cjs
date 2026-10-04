@@ -234,7 +234,7 @@ describe('MOAT-02: kuzu-reintroduction gate', () => {
 
   it('leg 8: does not false-positive on the six legitimate historical kuzu mentions', () => {
     const legitimate = [
-      'bin/mindrian-tools.cjs',
+      'scripts/mindrian-tools.cjs',
       'lib/core/graph-ops.cjs',
       'scripts/hsi-to-graph.cjs',
       'scripts/causal-to-graph.cjs',

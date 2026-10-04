@@ -215,7 +215,7 @@ async function main() {
   await test(
     'source arm: the shim requires @modelcontextprotocol/server via requireWithHeal and never requires @modelcontextprotocol/sdk -- RED before migration',
     () => {
-      const src = fs.readFileSync(BRAIN_SHIM, 'utf8');
+      const src = fs.readFileSync(path.join(REPO_ROOT, 'scripts', 'mindrian-brain-mcp-client.cjs'), 'utf8');
       // Strip comment-only lines so a doc mention (this header's own prose,
       // or the shim's own header comment) never counts as a require.
       const code = src

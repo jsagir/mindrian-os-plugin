@@ -38,10 +38,10 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // entry paths here (absolute-from-repo-root, forward slashes).
 // ---------------------------------------------------------------------------
 const EXPECT_V2 = [
-  'bin/mindrian-brain-mcp-client.cjs',
-  'bin/mindrian-mcp-server.cjs',
+  'scripts/mindrian-brain-mcp-client.cjs',
+  'scripts/mindrian-mcp-server.cjs',
   'lib/mcp/resources.cjs',
-  'bin/mindrian-mcp-shim.cjs',
+  'scripts/mindrian-mcp-shim.cjs',
   'lib/mcp/adapter-client.cjs',
 ];
 

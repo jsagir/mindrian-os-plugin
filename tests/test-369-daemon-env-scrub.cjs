@@ -33,7 +33,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const LIFECYCLE = path.join(REPO_ROOT, 'lib', 'mcp', 'daemon-lifecycle.cjs');
-const SHIM = path.join(REPO_ROOT, 'bin', 'mindrian-mcp-shim.cjs');
+const SHIM = path.join(REPO_ROOT, 'scripts', 'mindrian-mcp-shim.cjs');
 
 let passed = 0;
 let failed = 0;

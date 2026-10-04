@@ -40,6 +40,7 @@ const { hermeticEnv, rpcOverStdio } = require('./helpers/mcp-wire-267.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SHIM = path.join(REPO_ROOT, 'bin', 'mindrian-mcp-shim.cjs');
+const SHIM_SRC = path.join(REPO_ROOT, 'scripts', 'mindrian-mcp-shim.cjs'); // source-text reads; SHIM stays bin/ for spawn (D-10)
 const ADAPTER = path.join(REPO_ROOT, 'lib', 'mcp', 'adapter-client.cjs');
 
 let passed = 0;
@@ -166,14 +167,14 @@ function driveShim(env, calls, timeoutMs) {
 async function main() {
   // ---- Arm 1: source ------------------------------------------------------
   await test('source: shim and adapter-client are on the v2 client package, no v1 sdk, no versionNegotiation in adapter', async () => {
-    const shim = codeLines(SHIM);
+    const shim = codeLines(SHIM_SRC);
     const adapter = codeLines(ADAPTER);
     assert.ok(shim.some((l) => /require\(/.test(l) && l.includes('@modelcontextprotocol/client')), 'shim must require @modelcontextprotocol/client');
     assert.ok(shim.some((l) => /require\(/.test(l) && l.includes('@modelcontextprotocol/server/stdio')), 'shim must require @modelcontextprotocol/server/stdio');
     assert.ok(adapter.some((l) => /require\(/.test(l) && l.includes('@modelcontextprotocol/client')), 'adapter-client must require @modelcontextprotocol/client');
     assert.equal(shim.filter((l) => l.includes('@modelcontextprotocol/sdk')).length, 0, 'shim must not reference @modelcontextprotocol/sdk');
     assert.equal(adapter.filter((l) => l.includes('@modelcontextprotocol/sdk')).length, 0, 'adapter-client must not reference @modelcontextprotocol/sdk');
-    for (const f of [SHIM, ADAPTER]) {
+    for (const f of [SHIM_SRC, ADAPTER]) {
       assert.equal((fs.readFileSync(f, 'utf8').match(/versionNegotiation/g) || []).length, 0, path.basename(f) + ' must not mention versionNegotiation');
     }
   });
