@@ -1,7 +1,11 @@
 ## [Unreleased] -- v2.0.0-beta.56 (in progress)
 
 ### Added
-- 
+- **The browser workspace ships as release-built assets** in `lib/ui-shell/dist` (a built Next server and its
+  static client, no `node_modules`, nothing built on your machine) and opens with `/mos:dashboard shell`,
+  the launch command named in `369-LAUNCH-RULING.md`. The release gate now checks the committed build
+  against its sources (`scripts/build-ui-shell.cjs --check`, Step 2.4); the release lockstep list is
+  unchanged because the build carries no version string.
 
 ### Fixed
 - **Claude Desktop now remembers the room you bound, and refuses to write when none is bound**
@@ -42,6 +46,10 @@
   Claude Code 2.1.280 and later do. Comment only, no behavior change.
 
 ### Changed
+- **`next`, `react` and `react-dom` join the install** as root dependencies (exact pins, navigator ruling
+  2026-10-03, "Next as a per-machine dependency"): the workspace server resolves them from the plugin's own
+  `node_modules`. The package you download stays small; the first install on a machine grows by about 460 MB
+  (measured, mostly the platform compiler binaries `next` lists as optional).
 - **MCP SDK moved from v1 to the v2 package family** (`@modelcontextprotocol/server`, `/client`, `/node`,
   `/core`, `ext-apps` 2.x; zod 4). The local server and the Brain stdio shim now serve both the 2025-11-25
   and the 2026-07-28 protocol eras over stdio (`serveStdio`) and HTTP (`createMcpHandler`). The v1

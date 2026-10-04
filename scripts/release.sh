@@ -396,6 +396,7 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
   echo "  Step 2.4  : coverage gates + erasable TypeScript gate (npm --prefix tools/ts-check ci --ignore-scripts if absent, then node tools/ts-check/check.cjs; HARD ABORT; runs nothing under --dry-run)"
+  echo "  Step 2.4  : UI shell freshness gate (Phase 369 plan 28: node scripts/build-ui-shell.cjs --check proves lib/ui-shell/dist matches ui/shell and ui/shared; HARD ABORT; release.sh never builds the UI; runs nothing under --dry-run)"
   echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
   echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
@@ -530,6 +531,16 @@ else
     echo "  Recovery: node tools/ts-check/check.cjs shows which stage failed; core .ts must be erasable-only (no enum, namespace, parameter property, path alias, .tsx)."
     exit 1
   fi
+fi
+# Phase 369 Plan 28 (D-07, D-17, TS369-08): the UI shell freshness gate. lib/ui-shell/dist is a
+# release-built artifact the maintainer builds with `node scripts/build-ui-shell.cjs` and commits
+# (the Phase 232 editor-dist precedent); this gate only PROVES the committed dist was built from the
+# current ui/shell and ui/shared sources and lockfiles (recorded source hash). release.sh never builds
+# the UI and nothing is ever built on a user's machine. Read-only, local, zero network.
+if ! node "$PLUGIN_DIR/scripts/build-ui-shell.cjs" --check; then
+  echo -e "${RED}ABORT: Step 2.4: UI shell freshness gate failed (lib/ui-shell/dist is stale or missing)${NC}"
+  echo "  Recovery: node scripts/build-ui-shell.cjs, then commit lib/ui-shell/dist"
+  exit 1
 fi
 # Phase 186-02 (CORPUS-02, Canon Part 8 / D5): the corpus-stats tripwire rides the
 # SAME release surface as the CIRS gates. A stale corpus literal on a LIVE fact
