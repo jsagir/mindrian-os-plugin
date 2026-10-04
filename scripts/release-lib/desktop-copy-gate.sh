@@ -101,7 +101,8 @@ mos_rollback_marketplace() {
   # remove whatever is left that HEAD does not have (first cut, stray untracked files).
   git -C "$mp_dir" rm -r -q --cached --ignore-unmatch -- plugins/mos-desktop >/dev/null 2>&1 || true
   git -C "$mp_dir" checkout HEAD -- plugins/mos-desktop >/dev/null 2>&1 || true
-  git -C "$mp_dir" clean -fdq -- plugins/mos-desktop >/dev/null 2>&1 || true
+  # -x: also remove ignored leftovers under this one path (e.g. a .next/ the catalog .gitignore hides).
+  git -C "$mp_dir" clean -fdxq -- plugins/mos-desktop >/dev/null 2>&1 || true
   return 0
 }
 
@@ -153,6 +154,15 @@ mos_build_desktop_copy() {
     echo "  x mos_build_desktop_copy: git add failed in $mp_dir"
     mos_rollback_marketplace "$mp_dir"
     return 1
+  fi
+
+  # The release-built UI dist (lib/ui-shell/dist, Phase 369) legitimately contains a .next/ server
+  # build, which the marketplace repo's catalog-level .gitignore (D-06: no stray .next/ at the repo
+  # top) would swallow, silently dropping 259 files the payload needs. Force-add exactly that one
+  # path; every OTHER ignored file still fails the count check below. Found by the 369.1-14
+  # rehearsal against a clone of the real marketplace repo.
+  if [ -d "$out_dir/lib/ui-shell/dist" ]; then
+    git -C "$mp_dir" add --force --all -- plugins/mos-desktop/lib/ui-shell/dist >/dev/null 2>&1
   fi
 
   local ignored_line
