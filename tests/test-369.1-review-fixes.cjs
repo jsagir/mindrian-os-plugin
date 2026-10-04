@@ -14,6 +14,7 @@
  *   cr-03  the connect path never runs a blocking in-process npm ci; the detached installer is never killed at the budget
  *   wr-01  the install target is where the running file lives, never an env root that points elsewhere
  *   wr-02  every npm fallback carries --ignore-scripts
+ *   wr-03  a failed install backs off (no respawn on every connect); a spawn failure is failed, not installing
  *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
@@ -749,9 +750,89 @@ async function armWr02() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-03
+// ---------------------------------------------------------------------------
+async function armWr03() {
+  const A = 'wr-03';
+  const failedRecord = (attempts, finishedAgoMs, reason) => ({ state: 'failed', reason: reason || 'exit-1', pid: 2, startedAt: isoAgo(finishedAgoMs + 5000), finishedAt: isoAgo(finishedAgoMs), attempts });
+
+  await check(A, 'a fresh failed record backs off: no respawn, the stored reason comes back, the connect path answers at once', () => {
+    const home = newHome();
+    const root = plugin('w3-backoff');
+    const log = path.join(TMP, 'w3-backoff.log');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: log, MINDRIAN_TEST_CONNECT_BUDGET_MS: '15000' });
+    plantStatus(env, root, failedRecord(1, 5000));
+    const r = startDetached(env, root);
+    assert.equal(r.started, false, 'a failed install younger than its backoff must not respawn');
+    assert.equal(r.reason, 'exit-1', 'the stored reason is reported');
+    const out = ensureConnect(env, root);
+    assert.equal(out.res.ok, false);
+    assert.equal(out.res.reason, 'exit-1');
+    assert.ok(out.ms < 3000, 'a backed-off connect must answer at once, took ' + out.ms + ' ms');
+    assert.equal(readLog(log).length, 0, 'npm must not run');
+  });
+
+  await check(A, 'the backoff grows with the attempt count and ends: 3 min after attempt 1 retries, after attempt 3 it does not', async () => {
+    const home = newHome();
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w3-grow.log') });
+    const rootOld = plugin('w3-grow-1');
+    plantStatus(env, rootOld, failedRecord(1, 3 * 60000));
+    assert.equal(startDetached(env, rootOld).started, true, 'attempt 1, 3 minutes ago: past its backoff');
+    const rootNew = plugin('w3-grow-3');
+    plantStatus(env, rootNew, failedRecord(3, 3 * 60000));
+    assert.equal(startDetached(env, rootNew).started, false, 'attempt 3, 3 minutes ago: still backing off');
+    const rootLong = plugin('w3-grow-9');
+    plantStatus(env, rootLong, failedRecord(9, 20 * 60000));
+    assert.equal(startDetached(env, rootLong).started, true, 'the backoff is capped: 20 minutes after attempt 9 retries');
+    sweep();
+  });
+
+  await check(A, 'npm-not-found is not backed off (a retry is a cheap spawn failure, never a wipe)', () => {
+    const home = newHome();
+    const root = plugin('w3-nonpm');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w3-nonpm.log') });
+    plantStatus(env, root, { state: 'npm-not-found', reason: 'npm-not-found', pid: 2, startedAt: isoAgo(5000), finishedAt: isoAgo(4000) });
+    assert.equal(startDetached(env, root).started, true, 'the user may have installed Node since');
+    sweep();
+  });
+
+  await check(A, 'the failure counter is kept: two failures in a row record attempts 1 then 2', async () => {
+    const home = newHome();
+    const root = plugin('w3-count');
+    const env = envFor(home, { FAKE_NPM_MODE: 'fail', FAKE_NPM_LOG: path.join(TMP, 'w3-count.log') });
+    assert.equal(startDetached(env, root).started, true);
+    const first = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state === 'failed' ? s2 : null; }, 20000, 150);
+    assert.ok(first, 'first failure recorded');
+    assert.equal(first.attempts, 1);
+    // age the record past its backoff, then fail again
+    const file = statusPathOf(env, root);
+    const rec = JSON.parse(fs.readFileSync(file, 'utf8'));
+    rec.finishedAt = isoAgo(10 * 60000);
+    rec.startedAt = isoAgo(10 * 60000 + 5000);
+    fs.writeFileSync(file, JSON.stringify(rec), { mode: 0o600 });
+    assert.equal(startDetached(env, root).started, true, 'past the backoff it retries');
+    const second = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state === 'failed' && s2.attempts === 2 ? s2 : null; }, 20000, 150);
+    assert.ok(second, 'the second failure must record attempts 2, got ' + JSON.stringify(readStatusIn(env, root)));
+    sweep();
+  });
+
+  await check(A, 'a spawn failure is recorded as failed (spawn-failed), never reported as started or left as installing', () => {
+    const home = newHome();
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w3-spawn.log') });
+    const missing = path.join(TMP, 'w3-no-such-plugin-dir');
+    const r = startDetached(env, missing);
+    assert.equal(r.started, false, 'a child that never started must not be reported as started');
+    assert.equal(r.pid, null);
+    assert.equal(r.reason, 'spawn-failed');
+    const st = readStatusIn(env, missing);
+    assert.ok(st && st.state === 'failed' && st.reason === 'spawn-failed', 'the record must say failed (spawn-failed), got ' + JSON.stringify(st));
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-05': armWr05 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-05': armWr05 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
