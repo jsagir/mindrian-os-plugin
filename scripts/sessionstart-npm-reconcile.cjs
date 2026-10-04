@@ -60,6 +60,18 @@ try {
       if (!fs.existsSync(path.join(nm, ...d.split('/')))) { needInstall = true; break; }
     }
   }
+  if (!needInstall) {
+    // 369.1-REVIEW CR-02: every dependency directory present is not proof of a finished
+    // install. An install that started and never finished (the record says "installing"
+    // with a dead or stale installer) left this tree half built, so re-run it. A live
+    // installer is left to finish (no blocking wait inside a SessionStart hook).
+    // mcp-dep-heal.cjs is built-ins only, so requiring it is safe with node_modules absent;
+    // if it cannot load (a truncated cache), the presence check above stands.
+    try {
+      const heal = require('../lib/core/mcp-dep-heal.cjs');
+      if (!heal.treeTrusted(PLUGIN_ROOT, deps) && !heal.installInFlight(PLUGIN_ROOT).inFlight) needInstall = true;
+    } catch (_) { /* presence-only */ }
+  }
   if (needInstall) {
     // Route the install through the shared guarded path so this hook and the
     // MCP self-heal (lib/core/mcp-dep-heal.cjs, debug session
