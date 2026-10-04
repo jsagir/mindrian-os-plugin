@@ -70,7 +70,7 @@ async function main() {
     const fake = makeFake({ framework_step: fx('framework-step-all-null') });
     const r = await readSrSteps({ brainClient: fake });
     C.check('S1 all-null payload -> step_unauthored with the exact message at step 1',
-      r.ok === false && r.reason === 'step_unauthored' && r.message === REFUSAL && r.step_id === 'sr-v1-step-1' && mod.REFUSAL_TEXT === REFUSAL,
+      r.ok === false && r.reason === 'step_unauthored' && r.message === REFUSAL && r.step_id === 'sciroad::scientific-roadmapping::p01' && mod.REFUSAL_TEXT === REFUSAL,
       JSON.stringify(r));
   }
 
@@ -89,15 +89,18 @@ async function main() {
       && !ids.some((i) => /def|aside/.test(i)) && r.framework_status === 'draft',
       JSON.stringify(ids));
     // S4 null stepKind is runnable
+    const nk = fx('framework-step-authored');
+    nk.rows[0].steps.find((s) => s.stepId === 'sciroad::scientific-roadmapping::p03').stepKind = null;
+    const rk = await readSrSteps({ brainClient: makeFake({ framework_step: nk }) });
     C.check('S4 a runnable row with stepKind null is included',
-      r.ok === true && r.steps.some((s) => s.stepId === 'sr-v1-step-3' && s.stepKind === null));
+      rk.ok === true && rk.steps.some((s) => s.stepId === 'sciroad::scientific-roadmapping::p03' && s.stepKind === null));
   }
 
   // S3 one-null
   {
     const r = await readSrSteps({ brainClient: makeFake({ framework_step: fx('framework-step-one-null') }) });
     C.check('S3 one null runIt -> refused at that step with the exact text',
-      r.ok === false && r.reason === 'step_unauthored' && r.step_id === 'sr-v1-step-4' && r.message === REFUSAL, JSON.stringify(r));
+      r.ok === false && r.reason === 'step_unauthored' && r.step_id === 'sciroad::scientific-roadmapping::p04' && r.message === REFUSAL, JSON.stringify(r));
   }
 
   // S5 only DEFINITION and ASIDE rows
@@ -148,10 +151,10 @@ async function main() {
       r.ok === true && !('secret' in s0) && s0.runIt.length <= 4000 && s0.label.length <= 200
       && JSON.stringify(r).indexOf('LEAK') === -1, JSON.stringify(Object.keys(s0)));
     const big = fx('framework-step-authored');
-    const one = big.rows[0].steps.find((s) => s.stepKind === 'PROCEDURE');
-    big.rows[0].steps = Array.from({ length: 60 }, (_, i) => Object.assign({}, one, { stepId: 'sr-v1-step-' + (i + 1) }));
+    const one = big.rows[0].steps.find((s) => s.stepKind === 'STEP');
+    big.rows[0].steps = Array.from({ length: 60 }, (_, i) => Object.assign({}, one, { stepId: 'sciroad::scientific-roadmapping::p' + String(i + 1).padStart(2, '0') }));
     const r2 = await readSrSteps({ brainClient: makeFake({ framework_step: big }) });
-    C.check('S8 more than 50 rows are cut to the first 50', r2.ok === true && r2.steps.length === 50 && r2.steps[49].stepId === 'sr-v1-step-50');
+    C.check('S8 more than 50 rows are cut to the first 50', r2.ok === true && r2.steps.length === 50 && r2.steps[49].stepId === 'sciroad::scientific-roadmapping::p50');
   }
 
   // S9 coverage

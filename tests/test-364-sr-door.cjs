@@ -125,16 +125,16 @@ async function main() {
       r3.ok === true && /^sr-\d{8}-[0-9a-f]{8}$/.test(r3.state.run_tag) && r3.state.plan_ref === null
       && JSON.stringify(Object.keys(r3.state.stages)) === JSON.stringify(STAGES)
       && r3.state.stages['sr:1'].status === 'pending' && r3.state.theo.mapping === 'label'
-      && r3.state.theo.map['sr:1'] === 'sr-v1-step-1', JSON.stringify(r3));
+      && r3.state.theo.map['sr:1'] === 'sciroad::scientific-roadmapping::p01', JSON.stringify(r3));
   }
 
   // D3 step map
   {
     const a = mapSteps(fixtures.runnableRows('framework-step-authored'));
     C.check('D3 authored labels map by label (sr:1 is the Tension Qualification row)',
-      a.ok === true && a.mapping === 'label' && a.map['sr:1'] === 'sr-v1-step-1' && a.map['sr:7'] === 'sr-v1-step-7', JSON.stringify(a));
+      a.ok === true && a.mapping === 'label' && a.map['sr:1'] === 'sciroad::scientific-roadmapping::p01' && a.map['sr:7'] === 'sciroad::scientific-roadmapping::p07', JSON.stringify(a));
     const b = mapSteps(fixtures.runnableRows('framework-step-unlabelled-seven'));
-    C.check('D3 seven unlabelled runnable rows map by position', b.ok === true && b.mapping === 'position' && b.map['sr:4'] === 'sr-v1-step-4', JSON.stringify(b));
+    C.check('D3 seven unlabelled runnable rows map by position', b.ok === true && b.mapping === 'position' && b.map['sr:4'] === 'sciroad::scientific-roadmapping::p04', JSON.stringify(b));
     const c = mapSteps(fixtures.runnableRows('framework-step-eight-unlabelled'));
     C.check('D3 eight unlabelled rows refuse step_map_unresolved and never auto-fill',
       c.ok === false && c.reason === 'step_map_unresolved' && c.map === undefined, JSON.stringify(c));

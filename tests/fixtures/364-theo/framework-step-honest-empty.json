@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "name": "Scientific Roadmapping",
+      "orchestrationStatus": "draft",
+      "steps": []
+    }
+  ],
+  "frameworkIdentities": {
+    "resolved": [
+      "Tech Tree Mapping"
+    ]
+  },
+  "diagnostics": {},
+  "egress_disclosure": {
+    "verdict": "allow",
+    "disposition": "proceeded"
+  }
+}

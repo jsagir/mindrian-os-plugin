@@ -5,7 +5,7 @@
       "orchestrationStatus": "draft",
       "steps": [
         {
-          "stepId": "sr-v1-step-1",
+          "stepId": "sciroad::scientific-roadmapping::p01",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -18,7 +18,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-2",
+          "stepId": "sciroad::scientific-roadmapping::p02",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -31,7 +31,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-3",
+          "stepId": "sciroad::scientific-roadmapping::p03",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -44,7 +44,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-4",
+          "stepId": "sciroad::scientific-roadmapping::p04",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -57,7 +57,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-5",
+          "stepId": "sciroad::scientific-roadmapping::p05",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -70,7 +70,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-6",
+          "stepId": "sciroad::scientific-roadmapping::p06",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -83,7 +83,7 @@
           "sourceConstruct": null
         },
         {
-          "stepId": "sr-v1-step-7",
+          "stepId": "sciroad::scientific-roadmapping::p07",
           "label": null,
           "runIt": null,
           "stepKind": null,
@@ -100,10 +100,7 @@
   ],
   "frameworkIdentities": {
     "resolved": [
-      "Field Roadmapping",
-      "Roadmapping",
-      "Tech Tree Mapping",
-      "Technology Roadmapping"
+      "Tech Tree Mapping"
     ]
   },
   "diagnostics": {},
