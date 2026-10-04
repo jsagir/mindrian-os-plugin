@@ -200,9 +200,17 @@ function check(rootDir) {
 
   // 7. zero lifecycle scripts across the shrinkwrap's package set, and none
   //    of preinstall/install/postinstall/prepare in the payload's root
-  //    package.json. Security assertion: the loader's FIRST install passes
-  //    NO --ignore-scripts, so a dependency that gains a lifecycle script
-  //    would execute on every user machine.
+  //    package.json. Correctness and security assertion. Every supported
+  //    installer runs --ignore-scripts: the Claude Code loader (documented at
+  //    code.claude.com/docs/en/plugins/loading, "No lifecycle scripts") and the
+  //    plugin's own self-install (lib/core/mcp-dep-heal.cjs). A dependency's
+  //    install script therefore never runs, and a package that needs one is
+  //    silently broken on every machine, so the shrinkwrap must carry none
+  //    (Phase 369.1 D-16: scripts/release-lib/prune-shrinkwrap.cjs cuts the
+  //    optional subtree that has one, at release Step 6.7). A lifecycle script
+  //    in the root package.json is different: it would run under npx and
+  //    npm install -g, which do not pass --ignore-scripts. No package is
+  //    exempted here.
   const shrinkwrapPath = path.join(rootDir, 'npm-shrinkwrap.json');
   if (fs.existsSync(shrinkwrapPath)) {
     try {
@@ -214,8 +222,8 @@ function check(rootDir) {
       if (withInstallScript.length) {
         findings.push(
           'npm-shrinkwrap.json declares hasInstallScript:true for: ' + withInstallScript.join(', ') +
-            '. The loader\'s FIRST install passes no --ignore-scripts, so these would execute ' +
-            'on every user machine.'
+            '. Every supported installer runs --ignore-scripts, so this package would be silently ' +
+            'broken; keep it out of the shrinkwrap (scripts/release-lib/prune-shrinkwrap.cjs, Step 6.7).'
         );
       }
     } catch (e) {
@@ -231,7 +239,7 @@ function check(rootDir) {
     const scripts = rootPkg.scripts && typeof rootPkg.scripts === 'object' ? rootPkg.scripts : {};
     ['preinstall', 'install', 'postinstall', 'prepare'].forEach(function (name) {
       if (Object.prototype.hasOwnProperty.call(scripts, name)) {
-        findings.push('root package.json declares a "' + name + '" lifecycle script; the loader\'s FIRST install has no --ignore-scripts.');
+        findings.push('root package.json declares a "' + name + '" lifecycle script; it would run under npx and npm install -g, which do not pass --ignore-scripts.');
       }
     });
   } catch (e) {
