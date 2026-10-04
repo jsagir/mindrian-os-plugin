@@ -215,7 +215,11 @@ async function main() {
     const r3 = await c2.call({ op: 'grant_request', run_id: p2.run_id });
     const odd = await c2.answer(r3.gate.gate_id, ['not_now'], 'approve');
     if (grants.readGrants(other.roomDir, {}).grants.length !== 0) return 'approve verdict on a not_now choice wrote a grant';
-    if (!(odd.chain_result && odd.chain_result.ok === false)) return 'odd answer not flagged ' + JSON.stringify(odd.chain_result).slice(0, 200);
+    // 2026-10-04: Phase 369 reply-shape change. gate_answer now refuses an approve verdict on a
+    // non-approving choice up front (ok:false, reason chosen_not_approving, gate left open, no
+    // resume), so the odd answer is flagged at the top level, not under chain_result.
+    if (!(odd.ok === false && odd.reason === 'chosen_not_approving')) return 'odd answer not flagged ' + JSON.stringify(odd).slice(0, 200);
+    if (odd.chain_result) return 'odd answer resumed the chain ' + JSON.stringify(odd.chain_result).slice(0, 200);
     SHARED.m3 = { room: room, runId: planned.run_id };
     return true;
   });
