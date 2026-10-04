@@ -288,7 +288,9 @@ async function main() {
       const anchors = eventRows(roomX, 'gate_answer:' + S);
       assert.equal(anchors.length, 1, 'exactly one source anchor, got ' + anchors.length);
       const props = JSON.parse(anchors[0].properties);
-      assert.equal(props.answered_via, M, 'the anchor names the mirror');
+      // 261004-av2: the mirror id moved to via_gate_id; answered_via is now the route (this client sends no proof).
+      assert.equal(props.via_gate_id, M, 'the anchor names the mirror');
+      assert.equal(props.answered_via, 'mcp_relayed', 'the anchor records the route');
       assert.equal(props.verdict, 'approve');
       assert.deepEqual(props.chosen, ['approve']);
       const rows = txIds(roomX, ['decision:gate:' + M, anchors[0].id]);
