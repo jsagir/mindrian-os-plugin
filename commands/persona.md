@@ -264,10 +264,10 @@ Every persona output includes a disclaimer. Personas synthesize from YOUR room d
 
 **CLI:**
 ```bash
-node bin/mindrian-tools.cjs persona generate ./room
-node bin/mindrian-tools.cjs persona list ./room
-node bin/mindrian-tools.cjs persona invoke ./room black
-node bin/mindrian-tools.cjs persona analyze ./room path/to/artifact.md
+node "${CLAUDE_PLUGIN_ROOT}/scripts/mindrian-tools.cjs" persona generate ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/mindrian-tools.cjs" persona list ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/mindrian-tools.cjs" persona invoke ./room black
+node "${CLAUDE_PLUGIN_ROOT}/scripts/mindrian-tools.cjs" persona analyze ./room path/to/artifact.md
 ```
 
 **Natural language (Desktop/Cowork):**

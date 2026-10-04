@@ -69,7 +69,7 @@ Generate and show the `claude_desktop_config.json` snippet:
   "mcpServers": {
     "mindrian-os": {
       "command": "node",
-      "args": ["{plugin_root}/bin/mindrian-mcp-server.cjs"],
+      "args": ["{plugin_root}/scripts/mindrian-mcp-server.cjs"],
       "env": { "MINDRIAN_ROOM": "{current_working_directory}/room" }
     }
   }
@@ -88,7 +88,7 @@ Note: Cowork MCP configuration may be automatable via API in the future. For now
 **CLI:**
 
 Tell the user:
-> "On CLI, MindrianOS works through plugin commands and hooks directly. No MCP server configuration needed. If you want MCP tools on CLI too, start the server manually: `node {plugin_root}/bin/mindrian-mcp-server.cjs`"
+> "On CLI, MindrianOS works through plugin commands and hooks directly. No MCP server configuration needed. If you want MCP tools on CLI too, start the server manually: `node {plugin_root}/scripts/mindrian-mcp-server.cjs`"
 
 ### 3. Configure Brain MCP Server (if key exists)
 

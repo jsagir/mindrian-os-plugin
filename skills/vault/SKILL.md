@@ -106,7 +106,7 @@ STOP.
 Invoke the orchestrator via the CLI router:
 
 ```bash
-node bin/mindrian-tools.cjs vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}
 ```
 
 Rules for the room arg:
@@ -314,7 +314,7 @@ Before running, present a one-line warning:
 If user confirms, run:
 
 ```bash
-node bin/mindrian-tools.cjs vault --in-place
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" vault --in-place
 ```
 
 On completion, render a Shape E mini report showing which files were touched.

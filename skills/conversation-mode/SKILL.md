@@ -155,7 +155,7 @@ When you identify a well-defined problem + mirror solution pair during Mode 2 co
 2. Confirm with the user: "I am catching a pattern: [problem]. And a potential approach: [solution]. Want me to bank that?"
 3. If user confirms, run:
    ```bash
-   node bin/mindrian-tools.cjs bank-opportunity '{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}'
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" bank-opportunity '{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}'
    ```
 4. Tell the user: "Banked. You have [N] opportunities captured so far."
 5. Do NOT bank vague ideas. Only bank when both problem AND solution are articulated clearly enough to seed a room section.

@@ -260,10 +260,10 @@ Every persona output includes a disclaimer. Personas synthesize from YOUR room d
 
 **CLI:**
 ```bash
-node bin/mindrian-tools.cjs persona generate ./room
-node bin/mindrian-tools.cjs persona list ./room
-node bin/mindrian-tools.cjs persona invoke ./room black
-node bin/mindrian-tools.cjs persona analyze ./room path/to/artifact.md
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" persona generate ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" persona list ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" persona invoke ./room black
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" persona analyze ./room path/to/artifact.md
 ```
 
 **Natural language (Desktop/Cowork):**

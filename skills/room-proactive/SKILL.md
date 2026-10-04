@@ -275,17 +275,17 @@ When the user responds, run this command via Bash:
 
 For APPROVE:
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision approve
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision approve
 ```
 
 For REJECT (reason is REQUIRED -- ask for it if not provided):
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision reject --reason "USER_REASON_HERE"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision reject --reason "USER_REASON_HERE"
 ```
 
 For DEFER:
 ```bash
-node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision defer
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision defer
 ```
 
 Where:

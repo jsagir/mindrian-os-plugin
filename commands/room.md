@@ -547,7 +547,7 @@ If user declines, abort with no changes.
 ### Step 3: Run Linkify
 
 ```bash
-node bin/mindrian-tools.cjs room linkify {room-name if provided}
+node "${CLAUDE_PLUGIN_ROOT}/scripts/mindrian-tools.cjs" room linkify {room-name if provided}
 ```
 
 The router forwards to scripts/vault-export-orchestrator.cjs with `--in-place`, which runs the same 7-script pipeline on the source room without the copy step. The orchestrator prints `[vault] >>>` progress lines. Let them stream through.
