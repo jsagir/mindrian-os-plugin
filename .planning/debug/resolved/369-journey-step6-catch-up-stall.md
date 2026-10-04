@@ -21,7 +21,7 @@ updated: 2026-10-04T14:00:00Z
 ## Current Focus
 <!-- OVERWRITE on each update - reflects NOW -->
 
-hypothesis: closed. The step-6 copy stall is NOT ESTABLISHED (0 stalls in 113 pre-change and 180+ post-change step-6 cycles, evidence capture left in place); the journey failures seen while soaking are an ENV GAP (a daemon SIGKILLed from outside the run by concurrent test suites on this tree); WR-10 and the backoff reset are fixed at their own proven cause.
+hypothesis: closed. The step-6 copy stall is NOT ESTABLISHED (0 stalls in 113 pre-change and 190+ post-change step-6 cycles, evidence capture left in place); the journey failures seen while soaking are an ENV GAP (a daemon SIGKILLed from outside the run by concurrent test suites on this tree); WR-10 and the backoff reset are fixed at their own proven cause.
 test: n/a (resolved)
 expecting: the next step-6 timeout prints STEP6-EVIDENCE with the daemon's exit signal, so it classifies itself.
 next_action: none for this plan; handoff line to Phase 369.1 for tests/test-369.1-bin-relocation.cjs hygiene.
@@ -98,9 +98,11 @@ Post-change runs (relay commit 5cab00eca; tree clean at the start and end of eac
 | 12 | `--soak-restart 30 --soak-gap-ms 65000` | 30 | 0 | 2755 / 2861 / 2985 | 0.04 to 3.79 | 693c2dc75 to 5e5c1fd37 (peer commits to lib/mcp/gate-raised.cjs and lib/mcp/tools/gate.cjs) | flagged (0 failures) |
 | 13 | `--soak-restart 30` (two runs that overlapped each other for about 3 minutes; my slip against the one-browser-suite rule, both hermetic, separate ports) | 30 + 30 | 0 + 0 | 2727 / 2866 / 2930 and 2759 / 2872 / 2915 | 0.43 to 1.47 | 85a682a31 to ba0e7c7a7 (no lib/bin/scripts/ui diff) | VALID both |
 | 14 | `--soak-restart 4 --soak-gap-ms 65000` | 4 | 0 | 2747 / 2857 / 2865 | 0.16 to 0.59 | 20f5d49ae constant | VALID |
+| 14b | `--soak-restart 30 --soak-gap-ms 65000` (quiet window, no peer test running at start, clean tree, no lib/bin/scripts/ui diff between heads) | 30 | 0 | 2726 / 2837 / 2886 | 0.28 to 0.58 (loadavg) | 20f5d49ae to 51adcbf9f | VALID (a second journey of mine, the retry loop's third soak, ran beside it; see the SUMMARY, deviation 3) |
+| 14c | the retry loop's second try, same command | 30 | 0 | 2723 / 2850 / 2920 | 0.65 to 1.36 (loadavg) | cd27faa94 to 51adcbf9f | VOID-RUN reported (a process outside the run killed a daemon between cycles); 0 failed cycles |
 | 15 | runs that failed for outside reasons: `--soak-restart 30` a (daemon killed during restart in cycle 10, 20 follow-on harness errors before the soak learned to stop), `--soak-restart 30` c (daemon died before its port in cycle 7), d1 (29 of 30; one openRoom timeout, 5 DAEMON-EXIT-UNEXPECTED SIGKILLs), d2 (daemon died before its port in cycle 8), `--soak-restart 30 --soak-gap-ms 65000` (cycles 1 and 2 passed, then the shell was gone before cycle 3; 28 follow-on errors; peers were rewriting lib/core/navigation, lib/mcp/gate-ledger.cjs and others; cause of the shell's exit not established) | n/a | all outside the copy wait | n/a | 0.4 to 3.2 | various | VOID-RUN or unexplained; none counted as a pass or as a copy failure |
 
-Valid post-change step-6 cycles, all converged with 0 missing, 0 extra, 0 duplicate: 30 (load 8) + 30 + 30 (plain) + 4 (gap) + 10 (journeys) = 104, plus 60 in the two flagged soaks. Pre- plus post-change step-6 cycles in this plan: about 280, stalls: 0.
+Valid post-change step-6 cycles, all converged with 0 missing, 0 extra, 0 duplicate: 30 (load 8) + 30 + 30 (plain) + 34 (gap: 30 + 4) + 10 (journeys) = 134, plus 60 in the two flagged soaks. Pre- plus post-change step-6 cycles in this plan: about 310, stalls: 0. Each of the three conditions that could provoke the stall (plain, load 8, 65 s gap) has a VALID post-change soak of 30 cycles with 0 failures.
 
 Step-6 cycles that ran to the convergence wait on this tree BEFORE the change: 30 + 8 + 30 + 19 + 26 = 113. Stalls among them: 0. At the earlier rate of about 1 in 10, 113 clean cycles would occur with probability about 0.9^113 = 7e-6 if the rate were a property of this tree, so the rate is not (or no longer is) a property of the copy path under these conditions.
 
@@ -145,7 +147,7 @@ fix: (1) no product change for the stall and no timeout raised (`git diff 3cd2c1
 
 reason: the plan's rule is to fix at the proven cause. The only causes proven here are WR-10 (read from the code and the review, reproduced by an arm) and the outside kill (reproduced three times in the evidence runs, owned by Phase 369.1's test and not editable here). The step-6 stall has no proven cause, so it gets instrumentation, not a speculative change.
 
-verification: tests/test-369-shared-core.cjs PASS=15 FAIL=0; tests/e2e-369/replica.cjs all 12 arms; `node scripts/build-ui-shell.cjs --check` exits 0 (source hash f843dbc427831fbc); 10 of 10 consecutive journey runs exit 0 with restart catch-up 2842 to 2915 ms and lost_writes 0; step-6 soaks of 30 cycles with 0 failures in four runs (plain, load 8, gap 65 s, and the doubled plain pair).
+verification: tests/test-369-shared-core.cjs PASS=15 FAIL=0; tests/e2e-369/replica.cjs all 12 arms; `node scripts/build-ui-shell.cjs --check` exits 0 (source hash f843dbc427831fbc); 10 of 10 consecutive journey runs exit 0 with restart catch-up 2842 to 2915 ms and lost_writes 0; VALID step-6 soaks of 30 cycles with 0 failures under each of plain (twice), load 8 and a 65 s gap.
 
 files_changed: tests/e2e-369/journey.cjs, tests/test-369-shared-core.cjs, ui/shared/src/feed-relay.ts, lib/ui-shell/dist/ (rebuilt in the same commit as the relay change). Not touched: ui/shell/client/replica/ReplicaProvider.tsx, ui/shared/src/replica.ts, tests/e2e-369/replica.cjs (no evidence named them).
 
