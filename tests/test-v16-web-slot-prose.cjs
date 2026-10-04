@@ -50,7 +50,7 @@ const families = require(path.join(RP, 'families.cjs'));
 const NOW = Date.parse('2026-10-04T00:00:00.000Z');
 const VIA = { surface: 'cli', decision_node_id: 'dn-v16-test' };
 const QUESTION = 'Which hospitals in Israel procure imaging equipment? How do they pay for it, and who signs off on the purchase?';
-const PHRASE = 'MOTJ cold chain losses in Tel Aviv 2025';
+const PHRASE = 'MOTJ cold chain losses in rural clinics 2025';
 
 const rooms = [];
 function newRoom() { const r = buildRoom363({ role: 'founder' }); rooms.push(r); return r; }
