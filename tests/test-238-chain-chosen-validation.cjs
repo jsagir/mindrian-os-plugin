@@ -6,6 +6,10 @@
 // `chosen` was accepted on the wire and never checked at all, so
 // verdict:approve with ANY arbitrary `chosen` executed the halted step.
 //
+// Phase 289 (D-04): a refused resume does NOT burn the gate. Case 5 pins the
+// flip: after Case 2's refusal the correct resume of the same gate id executes
+// once, and a replay after that success is refused unknown_or_expired_gate.
+//
 // The single most important assertion in every reject case here is a
 // SIDE-EFFECT COUNT (the onStep invocation counter), not a return shape.
 // Asserting only the returned `reason` would let a version that rejects
@@ -22,8 +26,8 @@
 //       the fabricated `chosen` would then fall through to the verdict
 //       branch and execute the halted material step.
 //   (b) Removing the session-mismatch comparison (the
-//       `entry.ok === false && entry.reason === 'session_mismatch'` guard,
-//       which depends on `consumeGate`'s own session-key check) turns
+//       `peeked.ok === false && peeked.reason === 'session_mismatch'` guard,
+//       which depends on `peekGate`'s own session-key check) turns
 //       Case 4 red: a foreign session's resume would then execute the
 //       MINTING session's material step in the MINTING session's room,
 //       using the MINTING session's onStepFn.
@@ -168,19 +172,30 @@ async function startHalt(sessionId) {
   });
 
   // -------------------------------------------------------------------
-  // Case 5: single use. Any of the rejects above already consumed (deleted)
-  // the ledger entry on lookup -- a follow-up correct resume of the SAME
-  // gate id must return unknown_or_expired_gate, proving the entry was
-  // burned even though it was rejected, not approved. Reusing Case 2's
-  // already-rejected gate id.
+  // Case 5 (Phase 289, D-04): a refusal no longer burns the gate. The
+  // correct resume of Case 2's refused gate id now executes (the step
+  // counter moves by exactly one), and a second resume of the SAME id is
+  // refused unknown_or_expired_gate (single-use still holds after success).
   // -------------------------------------------------------------------
+  const before5 = c2.counter.n;
   const resume5 = await chain.chainRun(null, {
     gateAnswer: { gate_id: c2.gateId, chosen: ['approve'], verdict: 'approve' },
     sessionId: 'sess-case2',
   });
-  ok('Case 5: a follow-up resume of an already-rejected gate id is unknown_or_expired_gate (single-use)', function () {
-    assert.equal(resume5.ok, false);
-    assert.equal(resume5.reason, 'unknown_or_expired_gate');
+  ok('Case 5: the refusal did not burn the gate -- the correct resume of Case 2\'s gate id now executes the step once', function () {
+    assert.equal(resume5.ok, true, 'got ' + JSON.stringify(resume5));
+    assert.equal(resume5.executed, true);
+    assert.equal(c2.counter.n, before5 + 1);
+  });
+
+  const replay5 = await chain.chainRun(null, {
+    gateAnswer: { gate_id: c2.gateId, chosen: ['approve'], verdict: 'approve' },
+    sessionId: 'sess-case2',
+  });
+  ok('Case 5 replay: a second resume of the same gate id after success is unknown_or_expired_gate and the step does not re-run', function () {
+    assert.equal(replay5.ok, false);
+    assert.equal(replay5.reason, 'unknown_or_expired_gate');
+    assert.equal(c2.counter.n, before5 + 1);
   });
 
   // -------------------------------------------------------------------
