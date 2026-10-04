@@ -176,7 +176,10 @@ async function stdioClose(conn) {
 // Call gate_render on the fixture card and assert the ruling: zero elicitation
 // requests reached the client, and the result is the AskUserQuestion card.
 async function assertCard(conn, expectedVersion, label) {
-  const result = await conn.client.callTool({ name: 'gate_render', arguments: GATE_CARD });
+  // 369-41 (plan 369-38 WR-05): a caller-chosen gate_id that is still open is gate_id_in_use, so each leg draws the card
+  // under its own id (the 2026 and the legacy HTTP legs share one daemon).
+  const card = Object.assign({}, GATE_CARD, { gate_id: GATE_CARD.gate_id + '-' + label.replace(/[^a-z0-9]+/gi, '-') });
+  const result = await conn.client.callTool({ name: 'gate_render', arguments: card });
   let body = null;
   let parseError = null;
   try {
@@ -197,7 +200,7 @@ async function assertCard(conn, expectedVersion, label) {
   assert.ok(!parseError, 'gate_render result must parse as JSON');
   assert.equal(body.ok, true, 'gate_render must succeed');
   assert.equal(body.renderer, 'askuserquestion', 'renderer must be rung (b), the AskUserQuestion card');
-  assert.equal(body.gate_id, GATE_CARD.gate_id, 'the result must carry the card gate_id usable by gate_answer');
+  assert.equal(body.gate_id, card.gate_id, 'the result must carry the card gate_id usable by gate_answer');
   const rows = body.rendered && body.rendered.contract && body.rendered.contract.superset_options;
   assert.ok(Array.isArray(rows), 'rendered.contract.superset_options must be an array');
   assert.deepEqual(rows.map((r) => r.id), ['opt-top', 'opt-second'], 'superset option ids must be the card option ids');
