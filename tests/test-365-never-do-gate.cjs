@@ -579,7 +579,11 @@ async function main() {
       // Re-pinned 2026-10-04 (Phase 289 plans 05 and 07): gate_answer peek-refuse-consume
       // (eee25f512) and the capability delegation (40116b9a1) changed gate.cjs bodies only; the
       // registration (description, title, input schema) is unchanged and still pinned to PLAN_BASE.
-      const GATE_BASE = '40116b9a1bbc8786a1d81e32bc1a84aa9e4f06c2';
+      // Re-pinned 2026-10-04 (Phase 289 code review fixes, iteration 1): CR-01 verdict/chosen coherence
+      // check, WR-02 residual comment and WR-05 recommended option field (797eacda0) changed gate.cjs; the
+      // gate_answer and gate_render descriptions and titles are unchanged and the input schema grows only
+      // the optional boolean recommended on an option, still pinned to PLAN_BASE above.
+      const GATE_BASE = '797eacda0ee534cdf76578f95b22ad81b160a429';
       check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
         spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
