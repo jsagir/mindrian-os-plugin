@@ -18,6 +18,8 @@
  *   wr-04  a stale "installing" record or a recycled pid never pins the self-install
  *   wr-05  the status path hashes a normalised root (realpath, forward slashes, no trailing slash)
  *
+ *   wr-06  the detached installer has its own ceiling and no partial tree survives a failed or timed-out install
+ *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
  * No npm install ever runs in the repo root; every install happens in a scratch plugin root. Every
@@ -147,6 +149,7 @@ fs.writeFileSync(FAKE_NPM, [
   '}',
   "if (mode === 'fail') { process.stderr.write('npm ERR! simulated\\n'); process.exit(1); }",
   "if (mode === 'fail-partial') { populate(false); process.exit(1); }",
+  "if (mode === 'exit0-partial') { populate(false); process.exit(0); }",
   "if (mode === 'slow-partial') { populate(false); setTimeout(() => process.exit(0), Number(process.env.FAKE_NPM_SLEEP_MS || 60000)); }",
   "else if (mode === 'slow') { setTimeout(() => { populate(true); if (process.env.FAKE_NPM_DONE_FILE) fs.writeFileSync(process.env.FAKE_NPM_DONE_FILE, 'done'); process.exit(0); }, Number(process.env.FAKE_NPM_SLEEP_MS || 60000)); }",
   "else { populate(true); if (process.env.FAKE_NPM_DONE_FILE) fs.writeFileSync(process.env.FAKE_NPM_DONE_FILE, 'done'); process.exit(0); }",
@@ -164,7 +167,7 @@ function readLog(logPath) {
 function newHome() { return mkTemp('home'); }
 const SCRUB = [
   'CLAUDE_PLUGIN_ROOT', 'MINDRIAN_OS_ROOT', 'MINDRIAN_TEST_NPM_CLI', 'MINDRIAN_TEST_CONNECT_BUDGET_MS',
-  'MINDRIAN_TEST_MODE', 'FAKE_NPM_MODE', 'FAKE_NPM_LOG', 'FAKE_NPM_SLEEP_MS', 'FAKE_NPM_DONE_FILE', 'MINDRIAN_BRAIN_KEY', 'MINDRIAN_ROOM',
+  'MINDRIAN_TEST_MODE', 'MINDRIAN_TEST_DETACHED_TIMEOUT_MS', 'FAKE_NPM_MODE', 'FAKE_NPM_LOG', 'FAKE_NPM_SLEEP_MS', 'FAKE_NPM_DONE_FILE', 'MINDRIAN_BRAIN_KEY', 'MINDRIAN_ROOM',
   'MINDRIAN_TRANSPORT', 'CLAUDE_SURFACE', 'COWORK_SESSION_ID',
 ];
 // home: one HOME per scenario, shared by every process of that scenario (the status record lives under it).
@@ -905,9 +908,78 @@ async function armWr04() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-06
+// ---------------------------------------------------------------------------
+async function armWr06() {
+  const A = 'wr-06';
+  const hasPartial = (root) => fs.existsSync(path.join(root, 'node_modules', 'fake-a'));
+
+  await check(A, 'the detached installer has its own ceiling, far above the 120 s hook budget and below the staleness window', () => {
+    const heal = require(HEAL);
+    const status = require(LIB('dep-install-status.cjs'));
+    assert.equal(heal.DEFAULT_INSTALL_TIMEOUT_MS, 120000, 'the hook budget is unchanged');
+    assert.ok(heal.DETACHED_INSTALL_TIMEOUT_MS >= 600000, 'detached ceiling ' + heal.DETACHED_INSTALL_TIMEOUT_MS);
+    assert.ok(status.INSTALL_STATUS_STALE_MS > heal.DETACHED_INSTALL_TIMEOUT_MS, 'a running record must outlive the installer ceiling');
+  });
+
+  await check(A, 'npm exits non-zero after leaving a partial tree: the record says failed (exit-1) and no node_modules survives', async () => {
+    const home = newHome();
+    const root = plugin('w6-fail');
+    const env = envFor(home, { FAKE_NPM_MODE: 'fail-partial', FAKE_NPM_LOG: path.join(TMP, 'w6-fail.log') });
+    assert.equal(startDetached(env, root).started, true);
+    const st = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state !== 'installing' ? s2 : null; }, 20000, 150);
+    assert.ok(st && st.state === 'failed' && st.reason === 'exit-1', 'got ' + JSON.stringify(st));
+    assert.equal(hasPartial(root), false, 'a failed install must not leave a partial node_modules behind');
+    sweep();
+  });
+
+  await check(A, 'npm exits 0 but the dependency set is incomplete: failed (incomplete) and no partial tree survives', async () => {
+    const home = newHome();
+    const root = plugin('w6-incomplete');
+    const env = envFor(home, { FAKE_NPM_MODE: 'exit0-partial', FAKE_NPM_LOG: path.join(TMP, 'w6-incomplete.log') });
+    assert.equal(startDetached(env, root).started, true);
+    const st = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state !== 'installing' ? s2 : null; }, 20000, 150);
+    assert.ok(st && st.state === 'failed' && /^incomplete: missing /.test(st.reason), 'got ' + JSON.stringify(st));
+    assert.equal(hasPartial(root), false, 'an incomplete install must not leave a partial node_modules behind');
+    sweep();
+  });
+
+  await check(A, 'the detached child runs under the detached ceiling (not the 120 s hook budget) and a timeout removes the partial tree', async () => {
+    const home = newHome();
+    const root = plugin('w6-timeout');
+    const env = envFor(home, { FAKE_NPM_MODE: 'slow-partial', FAKE_NPM_SLEEP_MS: '9000', FAKE_NPM_LOG: path.join(TMP, 'w6-timeout.log'), MINDRIAN_TEST_DETACHED_TIMEOUT_MS: '1500' });
+    assert.equal(startDetached(env, root).started, true);
+    const st = await pollUntil(() => { const s2 = readStatusIn(env, root); return s2 && s2.state !== 'installing' ? s2 : null; }, 8000, 100);
+    assert.ok(st, 'the child must stop at its own ceiling, well before the 9 s npm would end');
+    assert.ok(st.state === 'failed' && st.reason === 'timeout', 'got ' + JSON.stringify(st));
+    assert.equal(hasPartial(root), false, 'a timed-out install must not leave a partial node_modules behind');
+    sweep();
+  });
+
+  await check(A, 'a timed-out in-process install (the hook path) also removes the partial tree', () => {
+    const root = plugin('w6-hook-timeout');
+    const env = envFor(newHome(), { FAKE_NPM_MODE: 'slow-partial', FAKE_NPM_SLEEP_MS: '9000', FAKE_NPM_LOG: path.join(TMP, 'w6-hook.log') });
+    const out = jsonOut(runNode("process.stdout.write(JSON.stringify(require(process.argv[1]).runGuardedInstall(process.argv[2], {timeoutMs:1500})));", [HEAL, root], env, 60000), 'runGuardedInstall');
+    assert.equal(out.ok, false);
+    assert.equal(out.reason, 'timeout');
+    assert.equal(hasPartial(root), false, 'no partial tree may survive a timeout');
+    sweep();
+  });
+
+  await check(A, 'control: a missing npm (nothing ran) leaves an existing node_modules alone', async () => {
+    const home = newHome();
+    const root = partialPlugin('w6-nonpm');
+    const env = envFor(home, { FAKE_NPM_MODE: 'ok', FAKE_NPM_LOG: path.join(TMP, 'w6-nonpm.log'), MINDRIAN_TEST_NPM_CLI: path.join(TMP, 'no-such-npm-cli.js') });
+    const out = jsonOut(runNode("process.stdout.write(JSON.stringify(require(process.argv[1]).runGuardedInstall(process.argv[2], {timeoutMs:20000})));", [HEAL, root], env, 60000), 'runGuardedInstall');
+    assert.equal(out.reason, 'npm-not-found');
+    assert.ok(fs.existsSync(path.join(root, 'node_modules', 'fake-a', 'PARTIAL_MARKER')), 'npm never ran, so nothing may be deleted');
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
