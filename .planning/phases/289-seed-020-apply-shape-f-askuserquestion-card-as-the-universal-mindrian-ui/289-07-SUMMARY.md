@@ -26,7 +26,7 @@ key-files:
     - tests/test-365-acceptance-floor.cjs
     - tests/test-365-never-do-gate.cjs
 key-decisions:
-  - "GATE_BASE in test-365-never-do-gate is a git commit sha (not a byte hash); re-pinned once to the commit carrying the final gate.cjs, 40116b9a1a, after the last gate.cjs edit; registration-parity arms stayed green"
+  - "GATE_BASE in test-365-never-do-gate is a git commit sha (not a byte hash); re-pinned once to the commit carrying the final gate.cjs, 40116b9a1b, after the last gate.cjs edit; registration-parity arms stayed green"
   - "The non-Claude fake servers in test-267 gate-premise (r4) and test-365 acceptance-floor (rung a) carry getClientVersion on the INNER server.server object, because detectGateCapabilities reads server.server.getClientVersion()"
 requirements-completed: [CARD289-01, CARD289-02, CARD289-03, CARD289-04, CARD289-06, CONTRACT289-04, ELICIT289-02]
 duration: 45 min
@@ -102,7 +102,7 @@ None. No new endpoint, auth path or file access. T-289-07-01 (five delegates, so
 
 ## Notes for downstream plans
 
-- gate.cjs was edited in 289-05 and here; the GATE_BASE pin is `40116b9a1a...`. Any later gate.cjs edit (including a peer's Phase 369 edit) must re-pin it again.
+- gate.cjs was edited in 289-05 and here; the GATE_BASE pin is `40116b9a1b...`. Any later gate.cjs edit (including a peer's Phase 369 edit) must re-pin it again.
 - Pids: only test-spawned servers were used; the three foreign `mindrian-mcp-server` PIDs were not touched.
 - STATE.md, ROADMAP.md and REQUIREMENTS.md untouched, per D-09 and the orchestrator's instruction.
 
