@@ -2223,29 +2223,29 @@ Plans:
 **Deliverables Phase 369 probes for (added 2026-10-02 at the Phase 369 plan revision; `tests/test-369-289-precondition.cjs`, run by 369 plans 26 and 27):** (e) the CLI card ruling in writing: `.planning/phases/289-*/289-CLI-CARD-RULING.md` with a `Ruling:` line stating how "Normal card on CLI" landed in code and naming the test that pins both protocol eras (a `tests/test-289-*.cjs` file containing "Normal card on CLI" that passes also satisfies the probe). (f) The owner-after-stranger arm in `tests/test-238-session-scoped-ledger.cjs`: a refused stranger's answer must not burn the owner's gate, and the owner's answer afterwards still ratifies.
 **Requirements**: CARD289-01..06, LEDGER289-01..05, CONTRACT289-01..04, ELICIT289-01..02, MENU289-01..03, VAL289-01, CLOSE289-01 (22 IDs, minted at plan time in `.planning/REQUIREMENTS.md`, 2026-10-03; D-01..D-09 in `289-CONTEXT.md`)
 **Depends on:** none in code. Phase 288 was waived as a dependency by navigator ruling 2026-10-03 (D-01: 288 has 0 plans and no directory, SEED-018 touches only the Python RS pipeline, and every Phase 289 deliverable lands first; the 287 -> 288 -> 289 order is backlog order, not a technical dependency). Phase 369 waves 10-14 depend on this phase (369 plans 26 and 27 run `tests/test-369-289-precondition.cjs`).
-**Plans:** 9 plans
+**Plans:** 9/9 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 289-01-PLAN.md -- Wave 0: tests/run-all-289.sh written once (every leg run_if, exit 77 never a pass, dual-era leg last, 369 probe closing, long-dash guard), the capability-ruling matrix test and the live "Normal card on CLI" dual-era test (RED first)
-- [ ] 289-02-PLAN.md -- Wave 0: the ledger consume-after-checks test (owner-after-stranger, refusal then ratify, concurrency, the 369-07 text rule) and the recommended-id contract test (found by value, printed JSON path, live daemon rehearsal) (RED first)
-- [ ] 289-03-PLAN.md -- Wave 0: the elicitation default test (instruction title, SDK safeParse, live non-Claude host arm) and the bare-text chooser fence with its two-entry allow-list (RED first)
+- [x] 289-01-PLAN.md -- Wave 0: tests/run-all-289.sh written once (every leg run_if, exit 77 never a pass, dual-era leg last, 369 probe closing, long-dash guard), the capability-ruling matrix test and the live "Normal card on CLI" dual-era test (RED first)
+- [x] 289-02-PLAN.md -- Wave 0: the ledger consume-after-checks test (owner-after-stranger, refusal then ratify, concurrency, the 369-07 text rule) and the recommended-id contract test (found by value, printed JSON path, live daemon rehearsal) (RED first)
+- [x] 289-03-PLAN.md -- Wave 0: the elicitation default test (instruction title, SDK safeParse, live non-Claude host arm) and the bare-text chooser fence with its two-entry allow-list (RED first)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 289-04-PLAN.md -- gate-render.cjs: one shared detectGateCapabilities (card on every Claude host, rung (a) kept for recognized non-Claude hosts), the recommended id on rungs (b) and (c), the real option count, the elicitation default and instruction title; test-365 D4 re-pinned
-- [ ] 289-05-PLAN.md -- ledger: peekGate, consumeGate checks the session before its one delete, gate_answer and the chain resume consume only after every check; the four burn-pinning tests flipped with replay-after-success arms
-- [ ] 289-06-PLAN.md -- /mos:pipeline chain selection and resume as F.1 cards with the --list floor, find-analogies Step 6 card, test-192 Assertion B healed; mirrors regenerated
+- [x] 289-04-PLAN.md -- gate-render.cjs: one shared detectGateCapabilities (card on every Claude host, rung (a) kept for recognized non-Claude hosts), the recommended id on rungs (b) and (c), the real option count, the elicitation default and instruction title; test-365 D4 re-pinned
+- [x] 289-05-PLAN.md -- ledger: peekGate, consumeGate checks the session before its one delete, gate_answer and the chain resume consume only after every check; the four burn-pinning tests flipped with replay-after-success arms
+- [x] 289-06-PLAN.md -- /mos:pipeline chain selection and resume as F.1 cards with the --list floor, find-analogies Step 6 card, test-192 Assertion B healed; mirrors regenerated
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 289-07-PLAN.md -- the five capability copies delegate to the shared ruling, gate.cjs ruling comments rewritten, the 267 arms flipped, the research recommended passthrough, 289-CLI-CARD-RULING.md naming the passing dual-era test
-- [ ] 289-08-PLAN.md -- radar, deck, new-project and skill choosers as cards with text floors; the full bare-text fence green; mirrors regenerated
+- [x] 289-07-PLAN.md -- the five capability copies delegate to the shared ruling, gate.cjs ruling comments rewritten, the 267 arms flipped, the research recommended passthrough, 289-CLI-CARD-RULING.md naming the passing dual-era test
+- [x] 289-08-PLAN.md -- radar, deck, new-project and skill choosers as cards with text floors; the full bare-text fence green; mirrors regenerated
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 289-09-PLAN.md -- close-out: run-all-289 and the regression set, VALIDATION flipped to measured status, SEED-020 resolved to the shipped scope, the Theo handoff note in the phase dir, the requirements close-out block for the orchestrator
+- [x] 289-09-PLAN.md -- close-out: run-all-289 and the regression set, VALIDATION flipped to measured status, SEED-020 resolved to the shipped scope, the Theo handoff note in the phase dir, the requirements close-out block for the orchestrator
 
 ### Phase 290: SEED-022: ICM Fractal Memory Contract - Multi-Level Sub-Room Inheritance
 
