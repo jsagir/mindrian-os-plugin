@@ -270,6 +270,13 @@ scenario('copy: no em-dash or en-dash in the views, the copy, the shared edits o
     assert.strictEqual((wiki.dependencies || {})['@blocknote/core'], '0.51.4', 'the wiki editor pin is the same version');
   });
 
+  scenario('Canon s7: a room document never adds an H1 - its headings are demoted one level before they are shown (plan 369-29, C8)', () => {
+    const src = read(path.join(VIEWS, 'evidence', 'DocumentDisplay.tsx'));
+    assert.ok(/export function demoteHeadings\b/.test(src), 'the demotion is a named function');
+    assert.ok(/replaceBlocks\(editor\.document, demoteHeadings\(/.test(src), 'the parsed blocks go through it before they are shown');
+    assert.ok(/Math\.min\(3, level \+ 1\)/.test(src), 'level 1 becomes 2, and the display stops at 3');
+  });
+
   scenario('D-13: the display is themed to the UI-SPEC - paper, ink, DM Sans, Fraunces headings, radius 0, no shadow', () => {
     const css = read(path.join(VIEWS, 'evidence', 'document-display.css'));
     assert.ok(/background:\s*var\(--paper\)/.test(css) && /color:\s*var\(--ink\)/.test(css));

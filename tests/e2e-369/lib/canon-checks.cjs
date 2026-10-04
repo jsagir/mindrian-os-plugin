@@ -521,7 +521,11 @@ function collectComputedColours(K) {
       const cs = getComputedStyle(el, pseudo);
       if (pseudo && (cs.content === 'none' || cs.content === 'normal')) continue;
       const path = K.pathOf(el) + (pseudo || '');
-      const props = [['color', cs.color], ['background-color', cs.backgroundColor]];
+      // `color` is a drawn colour only where it paints text: an element with its own text, or a text-entry control.
+      // (A radio or checkbox drawn with appearance none keeps the browser's default text colour and paints none.)
+      const paintsText = !pseudo && (K.hasOwnText(el) || (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && !/^(radio|checkbox|hidden|button|submit|reset|image|range|color|file)$/i.test(el.type || '')) || el.tagName === 'BUTTON') || (pseudo && cs.content !== 'none');
+      const props = [['background-color', cs.backgroundColor]];
+      if (paintsText) props.push(['color', cs.color]);
       for (const s of ['Top', 'Right', 'Bottom', 'Left']) {
         if (parseFloat(cs['border' + s + 'Width']) > 0 && cs['border' + s + 'Style'] !== 'none') props.push(['border-' + s.toLowerCase() + '-color', cs['border' + s + 'Color']]);
       }
@@ -577,19 +581,25 @@ async function computedColourViolations(page) {
 
 function collectCounts(K) {
   const OCHRE = [212, 154, 32];
+  // An open modal dialog is its own context: the page behind it is inert. [inert] subtrees (a closed panel) are not on screen.
+  const modal = document.querySelector('dialog[open]');
+  const scope = modal || document;
+  const live = (el) => !el.closest('[inert]') || (modal && modal.contains(el));
+  const inScope = (sel) => Array.from(scope.querySelectorAll(sel)).filter(live);
   const triangles = new Set();
-  for (const el of document.querySelectorAll('[data-mark="triangle"]')) triangles.add(el);
-  for (const el of document.querySelectorAll('svg, svg *')) {
+  for (const el of inScope('[data-mark="triangle"]')) triangles.add(el);
+  for (const el of inScope('svg, svg *')) {
     const c = K.parse(getComputedStyle(el).fill);
     if (c && c.a > 0 && Math.round(c.r) === OCHRE[0] && Math.round(c.g) === OCHRE[1] && Math.round(c.b) === OCHRE[2]) {
       triangles.add(el.closest('[data-mark="triangle"]') || el);
     }
   }
   return {
-    h1: document.querySelectorAll('h1').length,
-    primary: document.querySelectorAll('.ab[data-variant="primary"]').length,
-    circle: document.querySelectorAll('[data-mark="circle"]').length,
+    h1: Array.from(document.querySelectorAll('h1')).filter((e) => !e.closest('[inert]') || (modal && modal.contains(e)) || !!modal).length,
+    primary: inScope('.ab[data-variant="primary"]').length,
+    circle: inScope('[data-mark="circle"]').length,
     triangle: triangles.size,
+    scope: modal ? 'dialog' : 'page',
   };
 }
 async function countPerView(page) {
