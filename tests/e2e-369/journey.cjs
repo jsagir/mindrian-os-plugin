@@ -811,7 +811,15 @@ async function main() {
           ok = cmpS.missing === 0 && cmpS.extra === 0 && cmpS.duplicates === 0;
           if (!ok) console.log('SOAK-COMPARE cycle=' + i + ' ' + J(cmpS));
         } catch (err) {
-          console.log('SOAK-ERROR cycle=' + i + ' ' + String((err && err.message) || err).slice(0, 200));
+          const msg = String((err && err.message) || err);
+          console.log('SOAK-ERROR cycle=' + i + ' ' + msg.slice(0, 200));
+          // The daemon could not be brought back (killed by a signal before it reported its port, or never started): the rest of
+          // the soak would only repeat that error against a dead handle, so stop and say the run is void.
+          if (/daemon exited early|daemon did not report its port/.test(msg)) {
+            const peers = cp.spawnSync('pgrep', ['-af', '^node tests/'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(Boolean).map((l) => l.slice(0, 110));
+            console.log('VOID-RUN cycle ' + i + ': the restarted daemon died before it reported its port (a signal from outside this run, or a failed start); peers on the host: ' + J(peers));
+            soak.aborted = true;
+          }
         }
         const tree1 = treeNow();
         const moved = tree0.head !== tree1.head || J(tree0.status) !== J(tree1.status);
@@ -819,6 +827,7 @@ async function main() {
         if (!ok) soak.failed += 1;
         else soak.ms.push(catchUp);
         console.log('SOAK cycle=' + i + ' ok=' + ok + ' catch_up_ms=' + catchUp + ' load=' + loadLine + ' head=' + tree1.head.slice(0, 9) + ' tree_dirty=' + tree1.status.length + (moved ? ' TREE_MOVED_DURING_CYCLE' : ''));
+        if (soak.aborted) break;
       }
       const sorted = soak.ms.slice().sort((a, b) => a - b);
       console.log('SOAK-SUMMARY ' + J({ cycles: soak.cycles, failed: soak.failed, gap_ms: SOAK_GAP_MS, load_children: SOAK_LOAD, catch_up_ms_min: sorted[0], catch_up_ms_p50: sorted[Math.floor(sorted.length / 2)], catch_up_ms_max: sorted[sorted.length - 1] }));
