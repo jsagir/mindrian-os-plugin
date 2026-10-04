@@ -64,7 +64,7 @@ Reuse, do not rebuild (Canon Part 7). This command does NOT rebuild a deck rende
 
 1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice.
 2. Read `data/deck-styles.json`. This is the single source of truth for the styles and the section schemas. The `styles` array holds the three style objects (id, label, spine, routes_to, composes); `heart_sections` holds the ordered five H/E/A/R/T section objects; `feynman_stages` holds the ordered six Feynman stage objects. Never name a style, a section, or a stage from memory; read it from this data map.
-3. Resolve the active room. The deck fills from this room's content; if no room is active, ask the navigator which room to build from before continuing.
+3. Resolve the active room. The deck fills from this room's content. If no room is active, fire ONE AskUserQuestion card (a single-choice Shape F.1 question) listing up to 4 rooms from the room registry (the same source `/mos:rooms list` reads, `$ROOMS_HOME/.rooms/registry.json` via `scripts/room-registry list`), the most recently active first, each label the room name. With more than 4 rooms, show the first 4 and print this line under the question: `N more - type /mos:rooms list` (N is the live room count minus 4, as in the `commands/help.md` escape hatch). The Other slot accepts a typed room name. Nothing is built until a room is chosen. On a surface that cannot fire the card, name the rooms in one line and ask which one to build from.
 
 ## The style sub-selector (one AskUserQuestion, Shape F.1)
 

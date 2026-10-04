@@ -101,7 +101,7 @@ Source: https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.
 1. Read `references/capability-radar/capabilities-index.md`
 2. Find the section matching the requested domain (models, code, desktop_cowork, plugins_mcp, visualization)
 3. Present only that domain's capabilities with deeper commentary on MindrianOS relevance
-4. If the domain is not recognized, list the 5 valid domains and ask the user to pick one
+4. If the domain is not recognized, fire ONE AskUserQuestion card (a single-choice Shape F.1 question, composed with the same `renderShapeF1` / `appendAskUserQuestionTrailer` shape as the other cards) so the navigator picks the domain instead of retyping it. Build the options from the `## ` domain sections of `references/capability-radar/capabilities-index.md` at run time, never from memory. AskUserQuestion shows at most 4 options per question (the `commands/help.md` escape hatch), so show the first 4 domains and print this line under the question: `N more - type /mos:radar --domain <id>`, with N computed from the index (domain count minus 4). The Other slot accepts a typed domain id. Nothing is presented until the navigator picks. On a surface that cannot fire the card, list every valid domain as text and ask for one.
 
 ## Voice Rules
 
