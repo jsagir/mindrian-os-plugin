@@ -471,6 +471,27 @@ async function main() {
       assert.equal(after.answered.verdict, 'approve', 'the second session now reads the recorded answer: ' + JSON.stringify(after));
     });
 
+    await arm('7b a mirror whose source was answered or closed elsewhere leaves the list and the session\'s records; opening it then reads the recorded answer', async () => {
+      const s8 = await raise({ header: 'Ratify the claim someone else decides?', subject_node_id: claims[3] });
+      assert.equal(s8.ok, true, JSON.stringify(s8));
+      const read = await human('readGate', { gate_id: s8.gate_id });
+      assert.equal(read.ok, true, JSON.stringify(read));
+      assert.ok((await human('listOpenGates', {})).gates.some((g) => g.gate_id === s8.gate_id), 'listed while open');
+      const owner = await cli.call('gate_answer', { gate_id: s8.gate_id, chosen: ['reject'], verdict: 'reject' });
+      assert.equal(owner.ok, true, JSON.stringify(owner));
+      const list = await human('listOpenGates', {});
+      assert.ok(!list.gates.some((g) => g.gate_id === s8.gate_id), 'the answered gate left the list: ' + JSON.stringify(list.gates.map((g) => g.gate_id)));
+      assert.equal(actions.recordedGate(X.mcpKey, s8.gate_id), null, 'the stale mirror card is dropped');
+      const again = await human('readGate', { gate_id: s8.gate_id });
+      assert.equal(again.ok, true, JSON.stringify(again));
+      assert.equal(again.answered.verdict, 'reject');
+      // A click that was already in flight on the old card is told the recorded answer, not refused.
+      const late = await human('approveDecision', { gate_id: s8.gate_id, chosen: ['approve'], verdict: 'approve', render_nonce: read.render_nonce });
+      assert.equal(late.ok, true, 'the late click replays the recorded answer: ' + JSON.stringify(late));
+      assert.equal(late.replayed, true, JSON.stringify(late));
+      assert.equal(late.verdict, 'reject');
+    });
+
     await arm('8 the agent principal cannot reach readGate or listOpenGates; one nonces.issue and one gateAnswer call site', async () => {
       const agent = { principal: 'agent', browserSession: X };
       assert.equal((await actions.invoke('readGate', { gate_id: 'x' }, agent)).reason, 'human_only');

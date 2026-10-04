@@ -1,8 +1,8 @@
 {
   "serverEntry": "server/server.js",
   "clientDir": "server/.next/static",
-  "sourceHash": "78cb299da00e8ae0d3b54b64f049f6a8c91ef2f96a77aeeaab916e570dd436ea",
-  "builtAt": "2026-10-04T14:53:58.440Z",
+  "sourceHash": "e8546d527eae180ed4eb4203e93014809fffd80c06de5d2bcb6a37bd0252ddb1",
+  "builtAt": "2026-10-04T14:59:01.949Z",
   "chassis": "next@16.2.10",
   "node_floor": ">=22.18.0"
 }

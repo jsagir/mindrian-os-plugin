@@ -639,6 +639,24 @@ export function createShellActions(deps: ShellActionDeps) {
       const res = await via(key, (call) => gateList(call, {}));
       const data = asRec(res.data);
       if (data && data.ok === true && Array.isArray(data.gates)) {
+        // A mirror whose source the room no longer lists (answered or closed elsewhere, or past its 30 minutes) is
+        // stale: it leaves the list and the session's records, and opening the id reads the room's answer. Only when
+        // the room's list is complete (it is capped at 50), so a long list never drops a live gate.
+        if (data.gates.length < 50) {
+          const roomOpen = new Set<string>();
+          for (const raw of data.gates as unknown[]) {
+            const g = asRec(raw);
+            if (g && typeof g.gate_id === 'string') roomOpen.add(g.gate_id);
+          }
+          for (let i = open.length - 1; i >= 0; i -= 1) {
+            const mirrored = mine.find((m) => m.gate_id === open[i]!.gate_id && m.source_gate_id !== null);
+            if (mirrored && !roomOpen.has(mirrored.source_gate_id as string)) {
+              gatesOf(key).delete(mirrored.gate_id);
+              held.delete(mirrored.gate_id);
+              open.splice(i, 1);
+            }
+          }
+        }
         const room = str(data.room) || (await boundRoomOf(key)) || '';
         for (const raw of data.gates as unknown[]) {
           const g = asRec(raw);
