@@ -15,6 +15,17 @@
   the launch command named in `369-LAUNCH-RULING.md`. The release gate now checks the committed build
   against its sources (`scripts/build-ui-shell.cjs --check`, Step 2.4); the release lockstep list is
   unchanged because the build carries no version string.
+- **Ask Larry about this, inside the workspace.** On an Evidence item the workspace shows the one line to copy into
+  Claude Code and a "Check for Larry's proposal" button; a proposal Larry files in the room opens as a decision
+  you can answer. With nothing filed yet it says so in plain words and raises nothing.
+- **Decisions Larry raises in Claude Code now appear in the workspace**, in Work and in Decisions ("Raised by
+  Larry outside this browser."), with no reload, and you answer them there. Only you can approve. Larry's own
+  session then sees "answered elsewhere" with your answer, and a halted step carries on exactly once.
+- **A new read-only tool, `gate_list`,** lists the open decisions of the room you are bound to. `gate_render` takes
+  two new inputs: `mirror_of` (draw a copy of a decision raised in another session of the room, from the room's
+  own record) and `approving` (which options mean yes, so an approve that names Hold is refused). `gate_render`
+  now also records the card's contract in the bound room (never a session identity), so other surfaces can
+  show the gate.
 
 ### Fixed
 - **Claude Desktop now remembers the room you bound, and refuses to write when none is bound**
@@ -53,6 +64,14 @@
   message after a failed bind.
 - **The gate code comment no longer says hosts never declare elicitation** (`gate-elicitation-premise-stale-comment`);
   Claude Code 2.1.280 and later do. Comment only, no behavior change.
+- **A decision can no longer read "expired" after it was recorded**, a live decision id can no longer be taken
+  over by another session, the strategy goal file is written only after the answer commits (once per decision),
+  and a changed subject or cited evidence is caught inside the write transaction. A failed lookup is its own
+  retryable answer, `replay_lookup_failed`.
+- **`room_changes` refuses a cursor beyond the log** (`checkpoint_expired`) and reads a page's metadata and rows
+  in one transaction, so a concurrent compaction cannot leave a silent gap; the workspace's change relay now
+  notices a reset log or epoch, a hint stream ends with its browser session, and a room feed never pairs one
+  room's document with another room's checkpoint.
 
 ### Changed
 - **`next`, `react` and `react-dom` join the install** as root dependencies (exact pins, navigator ruling
@@ -69,6 +88,17 @@
   uses its second rung. Nothing breaks; the card still works (navigator ruling 2026-10-02).
 - **Node floor raised to >=22.18.0** (first Node 22 line with unflagged TypeScript type stripping; Phase 369).
   Users on Node 22.16 or 22.17 must upgrade Node before updating.
+- **Opening the workspace no longer passes a sign-in link through the conversation.** `/mos:dashboard shell` opens
+  your browser already signed in; the one-time link is printed only in a real terminal, and the workspace accepts
+  a sign-in only from a real browser navigation. The workspace server now starts with an allow-listed environment
+  (no API keys, no `NODE_OPTIONS`), recognizes its own process exactly before stopping it, and writes its control
+  token to a private file it creates itself.
+- **After a restart, a decision you already made reads "This decision was already recorded."** instead of "no
+  longer open", and a failed room lookup keeps the decision with a "Check again" action instead of dropping it.
+- **`room_search` no longer follows a symlink**, inside or out of the room (an in-room alias is skipped too).
+- **The release freshness check (`node scripts/build-ui-shell.cjs --check`) now proves every byte** of the
+  committed workspace build, re-runs the build's own output checks, and follows the pinned next, react,
+  react-dom and ajv versions; the dist override is honoured by the check only.
 
 ### Known issues
 - With `MINDRIAN_MCP_FIRST` on and a hook-set `MINDRIAN_SESSION_ID`, the shim cannot connect to the daemon
