@@ -15,8 +15,12 @@
  * the whole dependency install, and an omit-optional regeneration leaves every sharp entry in the
  * lockfile. Pruning the lockfile keeps package.json untouched and passes `npm ci --ignore-scripts`.
  *
- * HOW: (1) delete each named package from every entry's dependencies, optionalDependencies,
- * peerDependencies and peerDependenciesMeta maps; (2) keep only the entries reachable from the root ""
+ * HOW: (1) cut each named package along OPTIONAL edges only: every entry's optionalDependencies, its
+ * optional peerDependencies (peerDependenciesMeta[name].optional === true) and the matching
+ * peerDependenciesMeta key; a HARD edge (an entry listing the name under dependencies, or as a
+ * non-optional peer) fails closed, naming the entry, because cutting it would let `npm ci` succeed
+ * against the edited lockfile and the plugin fail at runtime with "Cannot find module" (369.1-REVIEW
+ * WR-09; the reachability argument holds only for optional edges); (2) keep only the entries reachable from the root ""
  * by walking those maps the way npm resolves a dependency (nested node_modules first, then each
  * ancestor, then the top level); (3) refuse (exit 1) when an entry with hasInstallScript:true remains.
  *
@@ -93,14 +97,28 @@ function prune(lock, names) {
   const copy = JSON.parse(JSON.stringify(lock));
   const pk = copy.packages;
 
-  // (1) cut the named edges everywhere
+  // (1) fail closed on any HARD edge to a named package, then cut the optional ones.
+  const has = function (o, k) { return !!o && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k); };
   for (const key of Object.keys(pk)) {
     const entry = pk[key];
     if (!entry || typeof entry !== 'object') continue;
-    for (const m of EDGE_MAPS.concat(['peerDependenciesMeta'])) {
+    for (const n of names) {
+      if (has(entry.dependencies, n)) {
+        throw new Error('"' + (key || '(root)') + '" hard-depends on "' + n + '" (dependencies); refusing to prune it, the plugin would fail at runtime');
+      }
+      if (has(entry.peerDependencies, n) && !(has(entry.peerDependenciesMeta, n) && entry.peerDependenciesMeta[n].optional === true)) {
+        throw new Error('"' + (key || '(root)') + '" has a non-optional peer dependency on "' + n + '"; refusing to prune it');
+      }
+    }
+  }
+  for (const key of Object.keys(pk)) {
+    const entry = pk[key];
+    if (!entry || typeof entry !== 'object') continue;
+    for (const m of ['optionalDependencies', 'peerDependencies', 'peerDependenciesMeta']) {
       if (!entry[m] || typeof entry[m] !== 'object') continue;
       for (const n of names) {
-        if (Object.prototype.hasOwnProperty.call(entry[m], n)) delete entry[m][n];
+        // peerDependencies only reaches here for an optional peer (a hard one threw above)
+        if (has(entry[m], n)) delete entry[m][n];
       }
       if (Object.keys(entry[m]).length === 0) delete entry[m];
     }

@@ -24,6 +24,8 @@
  *
  *   wr-08  release.sh abort paths after Step 6.7 unwind the payload, the manifest and the shrinkwrap; a failed marketplace commit aborts
  *
+ *   wr-09  the prune cuts the name only along optional edges and fails closed on a hard dependency edge
+ *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
  * No npm install ever runs in the repo root; every install happens in a scratch plugin root. Every
@@ -1353,9 +1355,71 @@ async function armWr08() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-09
+// ---------------------------------------------------------------------------
+async function armWr09() {
+  const A = 'wr-09';
+  const PRUNE = path.join(ROOT, 'scripts', 'release-lib', 'prune-shrinkwrap.cjs');
+  const { prune } = require(PRUNE);
+  const base = (nextEntry, extra) => ({
+    lockfileVersion: 3,
+    packages: Object.assign({
+      '': { name: 'root', dependencies: { next: '1.0.0' } },
+      'node_modules/next': nextEntry,
+      'node_modules/sharp': { version: '0.34.0', hasInstallScript: true },
+      'node_modules/@img/sharp-linux': { version: '0.34.0', optional: true },
+    }, extra || {}),
+  });
+  const optNext = { version: '1.0.0', optionalDependencies: { sharp: '^0.34.0' }, peerDependencies: { sharp: '*' }, peerDependenciesMeta: { sharp: { optional: true } } };
+
+  await check(A, 'control: an optional edge (optionalDependencies and an optional peer) is cut and the subtree goes', () => {
+    const out = prune(base(optNext), ['sharp']);
+    assert.ok(out.removed.includes('node_modules/sharp'));
+    assert.equal(out.lock.packages['node_modules/next'].optionalDependencies, undefined);
+    assert.equal(out.lock.packages['node_modules/next'].peerDependencies, undefined);
+    assert.deepEqual(out.remaining, []);
+  });
+
+  await check(A, 'a HARD dependency on the pruned name anywhere fails closed, naming the entry (no silent removal)', () => {
+    const lock = base(optNext, { 'node_modules/imagey': { version: '2.0.0', dependencies: { sharp: '^0.34.0' } } });
+    lock.packages['node_modules/next'].dependencies = { imagey: '^2.0.0' };
+    assert.throws(() => prune(lock, ['sharp']), (e) => /node_modules\/imagey/.test(e.message) && /sharp/.test(e.message) && /hard|dependencies/i.test(e.message));
+  });
+
+  await check(A, 'a NON-optional peer dependency on the pruned name fails closed; an optional peer is cut', () => {
+    const hardPeer = base({ version: '1.0.0', peerDependencies: { sharp: '*' } });
+    assert.throws(() => prune(hardPeer, ['sharp']), (e) => /node_modules\/next/.test(e.message) && /peer/i.test(e.message));
+    const optPeer = base({ version: '1.0.0', peerDependencies: { sharp: '*' }, peerDependenciesMeta: { sharp: { optional: true } } });
+    const out = prune(optPeer, ['sharp']);
+    assert.equal(out.lock.packages['node_modules/next'].peerDependencies, undefined);
+  });
+
+  await check(A, 'the CLI exits 1 on a hard edge, prints the entry, and leaves the lockfile bytes untouched', () => {
+    const dir = mkTemp('w9-cli');
+    const file = path.join(dir, 'npm-shrinkwrap.json');
+    const lock = base(optNext, { 'node_modules/imagey': { version: '2.0.0', dependencies: { sharp: '^0.34.0' } } });
+    lock.packages['node_modules/next'].dependencies = { imagey: '^2.0.0' };
+    const text = JSON.stringify(lock, null, 2) + '\n';
+    fs.writeFileSync(file, text);
+    const r = spawnSync(process.execPath, [PRUNE, file], { encoding: 'utf8', timeout: 30000 });
+    assert.equal(r.status, 1, 'exit ' + r.status);
+    assert.ok(/node_modules\/imagey/.test(String(r.stderr)), 'stderr must name the entry: ' + String(r.stderr).slice(0, 200));
+    assert.equal(fs.readFileSync(file, 'utf8'), text, 'the lockfile must not be rewritten');
+  });
+
+  await check(A, 'the committed npm-shrinkwrap.json still prunes clean (a scratch copy, --check)', () => {
+    const dir = mkTemp('w9-real');
+    const file = path.join(dir, 'npm-shrinkwrap.json');
+    fs.copyFileSync(path.join(ROOT, 'npm-shrinkwrap.json'), file);
+    const r = spawnSync(process.execPath, [PRUNE, file, '--check'], { encoding: 'utf8', timeout: 30000 });
+    assert.equal(r.status, 0, 'exit ' + r.status + ' ' + String(r.stderr).slice(0, 200));
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08, 'wr-09': armWr09 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
