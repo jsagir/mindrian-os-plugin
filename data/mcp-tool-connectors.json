@@ -249,6 +249,25 @@
       "layer_why": "Ratifies a gate decision and writes a typed decision node with provenance edges through the gate ledger; a gate-ledger tool."
     },
     {
+      "surface": "mcp:gate_list",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: lists the open decision gates and one gate's state from the room's own records, no fork.",
+      "layer": "harness",
+      "layer_why": "Reads the gate records a gate-ledger mint left in the room through the read-only door; a gate-ledger tool that answers nothing and changes nothing."
+    },
+    {
       "surface": "mcp:gate_render",
       "source": "mcp_tool",
       "connects_to_spine": true,
