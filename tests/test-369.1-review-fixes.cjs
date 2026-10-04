@@ -28,6 +28,8 @@
  *
  *   wr-10  the Desktop builder refuses an --out that is a git work tree, holds a .git, contains the source, or is the home directory
  *
+ *   wr-11  pathBinVanished is true for a vanished legacy bin/ and false only for the recognised Desktop layout
+ *
  * Hermetic (Canon Part 8, D-08): temp HOME and TMPDIR, an unreachable npm registry, a FAKE npm run
  * through MINDRIAN_TEST_NPM_CLI (honoured only under MINDRIAN_TEST_MODE=1), no Brain, no room content.
  * No npm install ever runs in the repo root; every install happens in a scratch plugin root. Every
@@ -1518,9 +1520,58 @@ async function armWr10() {
 }
 
 // ---------------------------------------------------------------------------
+// Arm: wr-11
+// ---------------------------------------------------------------------------
+async function armWr11() {
+  const A = 'wr-11';
+  const shared = require(path.join(ROOT, 'lib', 'core', 'doctor', 'shared.cjs'));
+  function installRoot(parent, name, opts) {
+    const dir = path.join(mkTemp(parent), ...name.split('/'));
+    fs.mkdirSync(path.join(dir, '.claude-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(dir, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos', version: '1.0.0' }));
+    fs.writeFileSync(path.join(dir, 'scripts', 'mindrian-mcp-server.cjs'), '// relocated server\n');
+    if (opts && opts.bin) { fs.mkdirSync(path.join(dir, 'bin')); fs.writeFileSync(path.join(dir, 'bin', 'mindrian-mcp-server.cjs'), '// shim\n'); }
+    return dir;
+  }
+  const home = mkTemp('w11-home');
+
+  await check(A, 'a CLI or marketplace-cache install whose bin/ vanished is reported (the check keeps its purpose)', () => {
+    const root = installRoot('w11-cli', 'cache/mindrian-marketplace/mos/1.0.0');
+    assert.equal(shared.pathBinVanished(home, root), true, 'plugin.json and scripts/ present is every valid install: that must not hide a deleted bin/');
+  });
+
+  await check(A, 'control: the same install with its bin/ present is healthy', () => {
+    const root = installRoot('w11-cli-ok', 'cache/mindrian-marketplace/mos/1.0.0', { bin: true });
+    assert.equal(shared.pathBinVanished(home, root), false);
+  });
+
+  await check(A, 'the recognised Desktop layout (a mos-desktop directory in the path) is exempt: no bin/ by design', () => {
+    for (const name of ['plugins/mos-desktop', 'cache/mindrian-marketplace/mos-desktop/1.0.0']) {
+      const root = installRoot('w11-desktop', name);
+      assert.equal(shared.pathBinVanished(home, root), false, name + ' is the Desktop copy');
+    }
+  });
+
+  await check(A, 'identity, not substring: a directory merely named like it (mos-desktop-evil, not-mos-desktop) is not exempt', () => {
+    for (const name of ['plugins/mos-desktop-evil', 'plugins/not-mos-desktop', 'cache/x/mos/1.0.0-mos-desktop']) {
+      const root = installRoot('w11-lookalike', name);
+      assert.equal(shared.pathBinVanished(home, root), true, name + ' must still be reported');
+    }
+  });
+
+  await check(A, 'unchanged edges: no active root is not vanished; a root with neither bin/ nor a plugin is vanished', () => {
+    assert.equal(shared.pathBinVanished(home, ''), false);
+    assert.equal(shared.pathBinVanished(home, null), false);
+    const empty = mkTemp('w11-empty');
+    assert.equal(shared.pathBinVanished(home, empty), true);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08, 'wr-09': armWr09, 'wr-10': armWr10 };
+const TABLE = { 'cr-01': armCr01, 'cr-02': armCr02, 'cr-03': armCr03, 'wr-01': armWr01, 'wr-02': armWr02, 'wr-03': armWr03, 'wr-04': armWr04, 'wr-05': armWr05, 'wr-06': armWr06, 'wr-07': armWr07, 'wr-08': armWr08, 'wr-09': armWr09, 'wr-10': armWr10, 'wr-11': armWr11 };
 
 async function main() {
   const want = ARMS.length ? ARMS : Object.keys(TABLE);
