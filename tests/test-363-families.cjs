@@ -125,8 +125,16 @@ leg('F5 egress violation returns local-only with no echo of slot or string', fun
 leg('F6 slot rule violations return bad_slot without echo', function () {
   const long81 = 'a'.repeat(81);
   const terms = ['has "quote" inside', 'line\nbreak', 'paren (inside)', 'cats OR dogs', 'cats and dogs', 'not this', 'x', long81, 'back\\slash'];
+  // MOVED 2026-10-04 (SEED-115, quick v16): the strict list still holds for a theo destination (Part 8);
+  // on a web destination only too-short, over-cap (201) and control-character values are bad_slot.
+  const webBad = ['x', 'a'.repeat(201), 'bad' + String.fromCharCode(7) + 'char'];
+  webBad.forEach(function (v) {
+    const w = F.composeFamily('whitespace-gap/v1', { term: v });
+    eq(w.ok, false, 'web refused: ' + JSON.stringify(v).slice(0, 20));
+    eq(w.reason, 'bad_slot');
+  });
   terms.forEach(function (v) {
-    const r = F.composeFamily('whitespace-gap/v1', { term: v });
+    const r = F.composeFamily('whitespace-gap/v1', { term: v }, { destination: 'theo' });
     eq(r.ok, false, 'refused: ' + JSON.stringify(v).slice(0, 20));
     eq(r.reason, 'bad_slot');
     eq(r.degrade, 'local-only');
