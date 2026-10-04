@@ -29,3 +29,17 @@ Other counts from the same run (all arms PASS): warm reload pulled 0 change rows
 | restart_missing | 0 in every passing run |
 
 Baselines these were set against: spike 006 P2 measured write-to-render p95 22 to 29 ms over a direct pull server with no relay hop; this path adds the shell relay and the daemon watcher, so 90 to 208 ms is the cost of going through the MindrianOS MCP server only (D-18). Spike 006 P5 measured 1.0 to 1.4 s convergence after a restart, with the room's own pull server surviving it; here the daemon itself is killed and the shell's MCP session is re-established, so the range is wider.
+
+## Gate latency and recovery (CM369-03)
+
+Plan 369-30, `node tests/e2e-369/journey.cjs`, one recorded run: 2026-10-04, Node v22.23.1, Linux 6.18.33.2 WSL2 aarch64, 12 logical cores, the built shell (`lib/ui-shell/dist`, started through `lib/ui-shell/launch.cjs`) and a hermetic flag-ON daemon, headless Chromium. The room under test holds 19 items at the end of the run (two rooms, the second untouched).
+
+| Counter | Value | What it measures |
+|---------|-------|------------------|
+| gate_click_to_recorded_ms | 81 | the person's click on Approve to "Decision recorded in the room." being on screen; the line appears only after the room's answer is in hand (asserted in the run) |
+| restart_catch_up_ms | 2857 | after the shell and the daemon were both stopped and started again, one write made to the room while the shell was down: choosing the room in a new sign-in to the browser copy being current with every one of the room's items |
+| lost_writes | 0 | of the room's items (the approved decision, the write made while the shell was down, and everything else), the number missing from the browser copy after it settled; extra ids and duplicates were also 0 |
+
+Spread across six passing runs of the same test on the same day: gate_click_to_recorded_ms 66 to 108, restart_catch_up_ms 2846 to 2872, lost_writes 0 in every run.
+
+What the restart_catch_up_ms figure is made of: the browser copy was kept by the browser (a warm reload), so the time is the new sign-in, the new room binding and one catch-up pull, not a rebuild; the 2.8 s is dominated by the shell reaching the restarted daemon and re-establishing its event stream, as in the restart arm of the read-copy run above.
