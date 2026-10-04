@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "369-journey-step6-catch-up-stall"
 issue_id: "369-VERIFICATION gap 3"
@@ -8,22 +8,23 @@ surfaces: [cli]
 brain_mode: full-loop
 canon_parts: [6, 8, 9]
 created: 2026-10-04T11:00:00Z
-updated: 2026-10-04T11:50:00Z
+updated: 2026-10-04T14:00:00Z
 ---
 
 ## Source-of-Truth Preamble
 
-- **CODE claims read against:** branch `main` in /home/jsagi/dev/MindrianOS-Plugin, HEAD range 3cd2c1a3c to a993d964a (each run records its own start and end HEAD below). Not the install cache.
+- **CODE claims read against:** branch `main` in /home/jsagi/dev/MindrianOS-Plugin, HEAD range 3cd2c1a3c to 20f5d49ae (each run records its own start and end HEAD below). Not the install cache.
 - **WIRE claims probe against:** hermetic flag-ON daemon started by tests/helpers/mcp-daemon-369.cjs (plugin 2.0.0-beta.56 working tree), loopback only. No Brain, no deployed server.
 - **Date of audit:** 2026-10-04
 - **Re-verification rule:** every code claim below names a file and function in this tree; none rests on a cache.
 
 ## Current Focus
+<!-- OVERWRITE on each update - reflects NOW -->
 
-hypothesis: the copy-convergence stall of step 6 does not reproduce on this tree under three conditions (113 step-6 cycles, 0 stalls); five other journey failures were all a hermetic daemon SIGKILLed by a process outside the run, and the one with the watcher on was caught in the act. The original 1-in-10 is consistent with that mechanism but not proven to be it.
-test: failure-time evidence (STEP6-EVIDENCE / STEP-EVIDENCE / DAEMON-EXIT-UNEXPECTED) left in the journey so the next occurrence carries its own cause.
-expecting: a step-6 timeout now prints the copy row, the room truth, the missing/extra ids, the hint frames, the feed statuses, the daemon exit signal and the peer tests running.
-next_action: Task 2 (WR-10 relay poll, backoff reset on reconnect), then the post-change soak and 10 consecutive journey runs.
+hypothesis: closed. The step-6 copy stall is NOT ESTABLISHED (0 stalls in 113 pre-change and 180+ post-change step-6 cycles, evidence capture left in place); the journey failures seen while soaking are an ENV GAP (a daemon SIGKILLed from outside the run by concurrent test suites on this tree); WR-10 and the backoff reset are fixed at their own proven cause.
+test: n/a (resolved)
+expecting: the next step-6 timeout prints STEP6-EVIDENCE with the daemon's exit signal, so it classifies itself.
+next_action: none for this plan; handoff line to Phase 369.1 for tests/test-369.1-bin-relocation.cjs hygiene.
 
 ## Meta
 
@@ -85,7 +86,23 @@ Runs. Each row is one command; "void" follows the plan's literal rule (any uncom
 | 5 | plain `journey.cjs --soak-load 6` x 30 | 30 runs | 4 runs not green: run 13 exit 77 (daemon "exited early (code null)" with empty stderr), run 16 (step 3), run 17 (step 2), run 29 (step 3) | 26 reached step 6 and passed | 6.9 to 8.3 | 36c65c0f6 to 1a5dc1928 (runs differ) | clean | VALID |
 | 6 | `--soak-evidence-selftest` | 1 | forced | n/a | 0.27 to 0.88 | a993d964a constant | clean | VALID (evidence capture check) |
 
-Step-6 cycles that ran to the convergence wait on this tree: 30 + 8 + 30 + 19 + 26 = 113. Stalls among them: 0. At the earlier rate of about 1 in 10, 113 clean cycles would occur with probability about 0.9^113 = 7e-6 if the rate were a property of this tree, so the rate is not (or no longer is) a property of the copy path under these conditions.
+Post-change runs (relay commit 5cab00eca; tree clean at the start and end of each unless noted; "flagged" = my stricter rule also voids a run when a peer COMMIT touching lib, bin, scripts or ui lands mid-run, which the plan's text does not):
+
+| # | Command | Cycles or runs | Failed | Catch-up ms (min / p50 / max) | load1 range | HEAD start to end | Verdict |
+|---|---------|----------------|--------|-------------------------------|-------------|-------------------|---------|
+| 7 | `tests/e2e-369/replica.cjs` | 12 arms | 0 | restart_converge 1827 | about 1.9 | 5cab00eca | PASS all 12 arms |
+| 8 | `tests/test-369-shared-core.cjs` | 15 arms (incl. 3c, 3d) | 0 | n/a | n/a | 5cab00eca | PASS=15 FAIL=0 |
+| 9 | plain `journey.cjs` x 10 consecutive | 10 | 0 | 2842 to 2915 (every run), lost_writes 0 | 1.2 to 2.0 | 5cab00eca to 0098c86a5 (peer commits, no lib/bin/scripts/ui diff) | VALID, 10 of 10 exit 0 |
+| 10 | `--soak-restart 30` | 30 | 0 | 2732 / 2850 / 2997 | 0.97 to 2.28 | 0098c86a5 to 4dc11a413 (peer commits to scripts/release.sh and scripts/release-lib/desktop-copy-gate.sh) | flagged (0 failures) |
+| 11 | `--soak-restart 30 --soak-load 8` | 30 | 0 | 2894 / 2980 / 3080 | 3.07 to 10.21 | 693c2dc75 constant | VALID |
+| 12 | `--soak-restart 30 --soak-gap-ms 65000` | 30 | 0 | 2755 / 2861 / 2985 | 0.04 to 3.79 | 693c2dc75 to 5e5c1fd37 (peer commits to lib/mcp/gate-raised.cjs and lib/mcp/tools/gate.cjs) | flagged (0 failures) |
+| 13 | `--soak-restart 30` (two runs that overlapped each other for about 3 minutes; my slip against the one-browser-suite rule, both hermetic, separate ports) | 30 + 30 | 0 + 0 | 2727 / 2866 / 2930 and 2759 / 2872 / 2915 | 0.43 to 1.47 | 85a682a31 to ba0e7c7a7 (no lib/bin/scripts/ui diff) | VALID both |
+| 14 | `--soak-restart 4 --soak-gap-ms 65000` | 4 | 0 | 2747 / 2857 / 2865 | 0.16 to 0.59 | 20f5d49ae constant | VALID |
+| 15 | runs that failed for outside reasons: `--soak-restart 30` a (daemon killed during restart in cycle 10, 20 follow-on harness errors before the soak learned to stop), `--soak-restart 30` c (daemon died before its port in cycle 7), d1 (29 of 30; one openRoom timeout, 5 DAEMON-EXIT-UNEXPECTED SIGKILLs), d2 (daemon died before its port in cycle 8), `--soak-restart 30 --soak-gap-ms 65000` (cycles 1 and 2 passed, then the shell was gone before cycle 3; 28 follow-on errors; peers were rewriting lib/core/navigation, lib/mcp/gate-ledger.cjs and others; cause of the shell's exit not established) | n/a | all outside the copy wait | n/a | 0.4 to 3.2 | various | VOID-RUN or unexplained; none counted as a pass or as a copy failure |
+
+Valid post-change step-6 cycles, all converged with 0 missing, 0 extra, 0 duplicate: 30 (load 8) + 30 + 30 (plain) + 4 (gap) + 10 (journeys) = 104, plus 60 in the two flagged soaks. Pre- plus post-change step-6 cycles in this plan: about 280, stalls: 0.
+
+Step-6 cycles that ran to the convergence wait on this tree BEFORE the change: 30 + 8 + 30 + 19 + 26 = 113. Stalls among them: 0. At the earlier rate of about 1 in 10, 113 clean cycles would occur with probability about 0.9^113 = 7e-6 if the rate were a property of this tree, so the rate is not (or no longer is) a property of the copy path under these conditions.
 
 The five runs that did not pass (3a, 4-run-11, 5-runs 13, 16, 17, 29; six run-level events in all) all fail OUTSIDE the copy wait, and every one that left evidence shows the same signature:
 
@@ -122,4 +139,14 @@ classification: ENV GAP (outside SIGKILL of a test-owned daemon by a peer suite)
 ## Resolution
 <!-- OVERWRITE -->
 
-pending (Task 2).
+root_cause: NOT ESTABLISHED for the step-6 copy stall (gap 3). H1 to H4 were each tested by a soak built to provoke them and none produced a stall; the failure-time evidence that would have named the cause was not available for the two original occurrences. What the work did establish is a separate, evidenced cause for every other journey failure seen: a hermetic daemon SIGKILLed by a process outside the run (sweeps in concurrent test suites that kill every repo-anchored `mindrian-mcp-server` they did not see at their own start, tests/test-369.1-bin-relocation.cjs lines 482 to 531 being the one confirmed running at the time; tests/test-267-mcpv2-dual-era.cjs, tests/test-289-cli-card-dual-era.cjs and tests/test-289-elicit-default.cjs carry the same before/after pgrep pattern; I read the kill step only in the first)
+
+fix: (1) no product change for the stall and no timeout raised (`git diff 3cd2c1a3c~1 HEAD -- tests/e2e-369/journey.cjs` shows step 6's bound still 60000 ms; the only shorter bound, 3000 ms, is behind `--soak-evidence-selftest`); no assertion weakened (the converged copy still has 0 missing, 0 extra, 0 duplicate ids). (2) The journey now carries the evidence that decides the next occurrence: STEP6-EVIDENCE at the moment the wait gives up, STEP-EVIDENCE at any other step's failure, DAEMON-EXIT-UNEXPECTED and VOID-RUN when the run's daemon is killed from outside, a soak that stops when its daemon or shell is gone, and load printed at every step. (3) WR-10 (REV369-12) at its own proven cause: ui/shared/src/feed-relay.ts `pollOnce` compared only `latest > lastSeq`, so a lower head after a reset and a new epoch under the same head emitted nothing; it now emits on `latest !== lastSeq` or an epoch change. RED arm 3c (f7ae7b8f6) failed first, then passed with the change (5cab00eca). (4) The pool's `reconnected` flag on a poll answer re-arms a pending stream reconnect at the start backoff once per wait (RED arm 3d, c2e8e6be2).
+
+reason: the plan's rule is to fix at the proven cause. The only causes proven here are WR-10 (read from the code and the review, reproduced by an arm) and the outside kill (reproduced three times in the evidence runs, owned by Phase 369.1's test and not editable here). The step-6 stall has no proven cause, so it gets instrumentation, not a speculative change.
+
+verification: tests/test-369-shared-core.cjs PASS=15 FAIL=0; tests/e2e-369/replica.cjs all 12 arms; `node scripts/build-ui-shell.cjs --check` exits 0 (source hash f843dbc427831fbc); 10 of 10 consecutive journey runs exit 0 with restart catch-up 2842 to 2915 ms and lost_writes 0; step-6 soaks of 30 cycles with 0 failures in four runs (plain, load 8, gap 65 s, and the doubled plain pair).
+
+files_changed: tests/e2e-369/journey.cjs, tests/test-369-shared-core.cjs, ui/shared/src/feed-relay.ts, lib/ui-shell/dist/ (rebuilt in the same commit as the relay change). Not touched: ui/shell/client/replica/ReplicaProvider.tsx, ui/shared/src/replica.ts, tests/e2e-369/replica.cjs (no evidence named them).
+
+handoff (Phase 369.1): tests/test-369.1-bin-relocation.cjs `repoServerPids` / `armHygiene` should sweep only the processes it started (its own process tree or a cmdline path unique to the test), not every repo-anchored server absent at its start; the same before/after pgrep pattern appears in test-267-mcpv2-dual-era, test-289-cli-card-dual-era and test-289-elicit-default.
