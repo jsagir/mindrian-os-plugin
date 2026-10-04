@@ -39,6 +39,7 @@
 
 const assert = require('node:assert/strict');
 const cp = require('node:child_process');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const net = require('node:net');
 const os = require('node:os');
@@ -374,12 +375,21 @@ async function main() {
   });
   delete launchEnv.CLAUDE_CODE_SESSION_ID;
   delete launchEnv.CLAUDE_ACTIVE_ROOM;
+  // Plan 369-40 (CR-01): launch.cjs run like Claude Code runs it (stdout is a pipe, not a terminal) prints no sign-in
+  // code. Every start asserts that, then the test arms its OWN one-time code through the 0600 control channel
+  // (the gate-button.cjs pattern) and signs in with /auth/bootstrap?code=, which page.goto sends as a navigation.
+  const CONTROL_POST = "const h=require('node:http');const a=process.argv.slice(1);const q=h.request({host:'127.0.0.1',port:Number(a[0]),path:'/control/bootstrap',method:'POST',headers:{'content-type':'application/json','x-mos-control-token':a[1]}},(r)=>{r.resume();r.on('end',()=>process.exit(r.statusCode===200?0:2));});q.on('error',()=>process.exit(3));q.end(a[2]);";
   function startLink() {
     const r = cp.spawnSync(process.execPath, [LAUNCH, 'start', '--port', String(shellPort)], { env: launchEnv, encoding: 'utf8', timeout: 120000 });
     if (r.status !== 0) throw new Error('launch.cjs start failed (' + r.status + '): ' + String(r.stderr || r.stdout).slice(-500));
-    const link = String(r.stdout).split('\n').find((l) => /^http:\/\/127\.0\.0\.1:\d+\/auth\/bootstrap\?code=/.test(l));
-    if (!link) throw new Error('launch.cjs printed no sign-in link: ' + r.stdout.slice(0, 300));
-    return link;
+    const printed = String(r.stdout) + String(r.stderr);
+    if (/code=|\/auth\/bootstrap/.test(printed)) throw new Error('CR-01: launch.cjs printed a sign-in code outside a terminal: ' + printed.slice(0, 200));
+    const tokenFile = launchEnv.MOS_SHELL_CONTROL_TOKEN_FILE || path.join(HERMETIC, '.mindrian', 'ui-shell', 'control.token');
+    const token = fs.readFileSync(tokenFile, 'utf8').trim();
+    const code = crypto.randomBytes(32).toString('base64url');
+    const arm = cp.spawnSync(process.execPath, ['-e', CONTROL_POST, String(shellPort), token, JSON.stringify({ sha256: crypto.createHash('sha256').update(code).digest('hex') })], { encoding: 'utf8', timeout: 20000 });
+    if (arm.status !== 0) throw new Error('arming a sign-in code through the control channel failed (' + arm.status + ')');
+    return 'http://127.0.0.1:' + shellPort + '/auth/bootstrap?code=' + code;
   }
   function stopShell() {
     const r = cp.spawnSync(process.execPath, [LAUNCH, 'stop'], { env: launchEnv, encoding: 'utf8', timeout: 30000 });

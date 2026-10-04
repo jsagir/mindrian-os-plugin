@@ -354,13 +354,22 @@ async function installedLayoutArm() {
     launched = true;
     if (st.status !== 0) throw new Error('launch.cjs start exited ' + st.status + '\nstdout: ' + (st.stdout || '').slice(0, 500) + '\nstderr: ' + (st.stderr || '').slice(0, 800));
     if (/not built in this install/i.test((st.stdout || '') + (st.stderr || ''))) throw new Error('the launcher still refuses: the workspace is not built in this install');
-    const lines = (st.stdout || '').trim().split('\n');
-    const link = lines[0];
-    const m = link.match(/^http:\/\/127\.0\.0\.1:(\d+)(\/auth\/bootstrap\?code=[A-Za-z0-9_-]{43})$/);
-    if (!m) throw new Error('the first stdout line is not the one-time link: ' + JSON.stringify(link));
-    if (Number(m[1]) !== port) throw new Error('the link names port ' + m[1] + ', expected ' + port);
+    // Plan 369-40 (CR-01): run like Claude Code runs it (stdout is a pipe), the launcher prints no sign-in code. The
+    // test then arms its own one-time code through the 0600 control channel and signs in the way a browser does
+    // (a top-level navigation: the three fetch-metadata headers).
+    const printed = (st.stdout || '') + (st.stderr || '');
+    if (/code=|\/auth\/bootstrap/.test(printed)) throw new Error('CR-01: the launcher printed a sign-in code outside a terminal: ' + JSON.stringify(printed.slice(0, 200)));
+    const token = fs.readFileSync(path.join(home, '.mindrian', 'ui-shell', 'control.token'), 'utf8').trim();
+    const code = crypto.randomBytes(32).toString('base64url');
+    const armStatus = await new Promise((resolve, reject) => {
+      const body = JSON.stringify({ sha256: crypto.createHash('sha256').update(code).digest('hex') });
+      const req = http.request({ host: '127.0.0.1', port, path: '/control/bootstrap', method: 'POST', headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body), 'x-mos-control-token': token } }, (res) => { res.resume(); res.on('end', () => resolve(res.statusCode)); });
+      req.on('error', reject);
+      req.end(body);
+    });
+    if (armStatus !== 200) throw new Error('arming a sign-in code through the control channel answered ' + armStatus + ', expected 200');
 
-    const exch = await httpGet(port, m[2]);
+    const exch = await httpGet(port, '/auth/bootstrap?code=' + code, { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' });
     if (exch.status !== 303) throw new Error('the link answered ' + exch.status + ', expected 303');
     const setCookie = [].concat(exch.headers['set-cookie'] || []);
     if (!setCookie.length) throw new Error('the sign-in answered 303 with no Set-Cookie');
