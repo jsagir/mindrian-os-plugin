@@ -30,7 +30,7 @@
  * hermetic flag-ON daemon with a seeded fixture room: GET /slice/<room> is 200,
  * every slice action runs over HTTP through the shared pool with the browser
  * session cookie (and is refused without it), the gate is minted on the human
- * session and answered once, agent-native exposes none of the slice actions
+ * session and answered (a second answer replays, GREC369-02), agent-native exposes none of the slice actions
  * over its own MCP, and the server's startup error lines are counted and
  * printed. Run setup.sh and build.sh first.
  *
@@ -401,13 +401,24 @@ async function builtArms() {
       assert.equal(gate.recommended_id, 'approve_enough');
       assert.ok(gate.options.some((o) => o.id === gate.recommended_id && o.recommended === true));
     });
-    await test('approveDecision answers the gate once on the same session and the room records it', async () => {
+    await test('approveDecision answers the gate on the same session, the room records it once, and a second answer replays', async () => {
       const r = await call('approve-decision', 'POST', { gate_id: gate.gate_id, chosen: 'approve_enough', verdict: 'approve' });
       assert.equal(r.status, 200, r.text);
       assert.equal(r.json.answered, true, r.text);
       assert.equal(r.json.ratified, true, r.text);
       const again = await call('approve-decision', 'POST', { gate_id: gate.gate_id, chosen: 'approve_enough', verdict: 'approve' });
-      assert.equal(again.json.answered, false, 'single use');
+      // GREC369-02 (plan 369-26): a second answer of the same gate is a replay, not a refusal. It answers ok with
+      // replayed true plus the recorded decision node, runs nothing again, and the room still holds one decision node.
+      assert.equal(again.json.answered, true, 'replay answers ok: ' + again.text);
+      assert.equal(again.json.result && again.json.result.replayed, true, 'replayed true: ' + again.text);
+      const { DatabaseSync } = require('node:sqlite');
+      const db = new DatabaseSync(path.join(daemon.roomDirs['room-a'], '.mindrian', 'room.db'), { readOnly: true });
+      try {
+        const rows = db.prepare('SELECT id FROM nodes WHERE id LIKE ?').all('decision:gate:' + gate.gate_id);
+        assert.equal(rows.length, 1, 'the room holds exactly one decision node for the gate: ' + JSON.stringify(rows));
+      } finally {
+        db.close();
+      }
     });
     await test('agent-native exposes none of the slice actions over its own MCP or agent', async () => {
       for (const p of ['/mcp', '/_agent-native/webmcp/manifest']) {
