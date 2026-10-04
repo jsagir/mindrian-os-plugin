@@ -204,8 +204,17 @@ function exchangeDeps() {
   return { bootstrap: bootstrapMod.createBootstrapStore(), sessions: authMod.createSessionStore() };
 }
 const PORT = 3369;
+// CR-01 (plan 369-37): the only shape that may redeem a sign-in is a top-level browser navigation.
+const NAV = { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' };
 function bootReq(c, headers) {
-  return { url: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: bag(Object.assign({ host: '127.0.0.1:' + PORT, 'sec-fetch-site': 'none' }, headers || {})), port: PORT };
+  return { url: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: bag(Object.assign({ host: '127.0.0.1:' + PORT }, NAV, headers || {})), port: PORT };
+}
+function startReq(headers) {
+  return { url: '/auth/start', headers: bag(Object.assign({ host: '127.0.0.1:' + PORT }, NAV, headers || {})), port: PORT };
+}
+// A request with no fetch metadata at all, as curl or an agent's fetch tool sends it.
+function curlReq(url) {
+  return { url, headers: bag({ host: '127.0.0.1:' + PORT }), port: PORT };
 }
 
 scenario('exchange: a good link answers 303 to a code-free URL with the cookie; reuse shows the Not signed in copy', () => {
@@ -244,6 +253,76 @@ scenario('exchange: a cross-site or foreign-Origin request is 403 BEFORE the cod
   assert.strictEqual(deps.bootstrap.size(), 1, 'the armed code was never touched');
   assert.strictEqual(deps.sessions.size(), 0);
   assert.strictEqual(authMod.handleBootstrapRequest(bootReq(c), deps).status, 303, 'a link opened from the terminal (none) works');
+});
+
+scenario('exchange (CR-01): a curl-shaped request (no Origin, no fetch metadata) is 403 before the code is read, and the code still signs in a browser', () => {
+  const deps = exchangeDeps();
+  const c = code();
+  deps.bootstrap.arm(sha(c));
+  const curl = authMod.handleBootstrapRequest(curlReq('/auth/bootstrap?code=' + encodeURIComponent(c)), deps);
+  assert.strictEqual(curl.status, 403, 'curl-shaped request must be refused');
+  assert.ok(!curl.headers['Set-Cookie']);
+  assert.strictEqual(deps.bootstrap.size(), 1, 'the code was not touched');
+  for (const meta of [
+    { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'document' },
+    { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'empty' },
+    { 'sec-fetch-site': 'none', 'sec-fetch-mode': 'navigate' },
+    { 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' },
+    { 'sec-fetch-site': 'none' },
+  ]) {
+    const headers = bag(Object.assign({ host: '127.0.0.1:' + PORT }, meta));
+    const r = authMod.handleBootstrapRequest({ url: '/auth/bootstrap?code=' + encodeURIComponent(c), headers, port: PORT }, deps);
+    assert.strictEqual(r.status, 403, JSON.stringify(meta));
+  }
+  assert.strictEqual(deps.bootstrap.size(), 1, 'still armed after every refusal');
+  assert.strictEqual(authMod.handleBootstrapRequest(bootReq(c), deps).status, 303, 'the browser shape signs in');
+});
+
+scenario('start (CR-01): nothing armed is 401; the control channel arms it; a browser navigation signs in once; a second visit is 401', () => {
+  const deps = exchangeDeps();
+  assert.strictEqual(authMod.handleStartRequest(startReq(), deps).status, 401, 'nothing armed');
+  const token = crypto.randomBytes(32).toString('base64url');
+  const call = (headers, body) => controlMod.handleControlBootstrap(
+    { headers: bag(Object.assign({ host: '127.0.0.1:' + PORT }, headers)), port: PORT, bodyText: body },
+    { token, bootstrap: deps.bootstrap },
+  );
+  assert.strictEqual(call({}, JSON.stringify({ start: true })).status, 401, 'no token');
+  assert.strictEqual(authMod.handleStartRequest(startReq(), deps).status, 401, 'a refused arm leaves nothing armed');
+  const armed = call({ 'x-mos-control-token': token }, JSON.stringify({ start: true }));
+  assert.deepStrictEqual([armed.status, armed.body.ok, armed.body.expires_in_ms], [200, true, 60000]);
+  const curl = authMod.handleStartRequest(curlReq('/auth/start'), deps);
+  assert.strictEqual(curl.status, 403, 'curl-shaped');
+  const cross = authMod.handleStartRequest(startReq({ 'sec-fetch-site': 'cross-site' }), deps);
+  assert.strictEqual(cross.status, 403, 'cross-site');
+  assert.strictEqual(deps.sessions.size(), 0);
+  const ok = authMod.handleStartRequest(startReq(), deps);
+  assert.strictEqual(ok.status, 303, 'the slot survived the refusals');
+  assert.strictEqual(ok.headers.Location, '/');
+  assert.match(ok.headers['Set-Cookie'], /HttpOnly; SameSite=Strict; Path=\//);
+  assert.strictEqual(authMod.handleStartRequest(startReq(), deps).status, 401, 'second visit');
+  assert.strictEqual(deps.sessions.size(), 1);
+});
+
+scenario('start (CR-01): a slot older than 60 seconds is 401 (injected clock); start and sha256 together, or neither, is 400', () => {
+  let t = 7000000;
+  const bootstrap = bootstrapMod.createBootstrapStore({ now: () => t });
+  const sessions = authMod.createSessionStore({ now: () => t });
+  const token = 'tok-' + crypto.randomBytes(8).toString('hex');
+  const call = (body) => controlMod.handleControlBootstrap(
+    { headers: bag({ host: '127.0.0.1:' + PORT, 'x-mos-control-token': token }), port: PORT, bodyText: body },
+    { token, bootstrap },
+  );
+  assert.strictEqual(call(JSON.stringify({ start: true, sha256: sha('x') })).status, 400, 'both');
+  assert.strictEqual(call(JSON.stringify({})).status, 400, 'neither');
+  assert.strictEqual(call(JSON.stringify({ start: false })).status, 400, 'start false');
+  assert.strictEqual(call(JSON.stringify({ start: 'yes' })).status, 400, 'start not boolean');
+  assert.strictEqual(bootstrap.size(), 0, 'nothing armed by a 400');
+  assert.strictEqual(call(JSON.stringify({ start: true })).status, 200);
+  t += 61000;
+  assert.strictEqual(authMod.handleStartRequest(startReq(), { bootstrap, sessions }).status, 401, 'expired');
+  assert.strictEqual(call(JSON.stringify({ start: true })).status, 200);
+  t += 59000;
+  assert.strictEqual(authMod.handleStartRequest(startReq(), { bootstrap, sessions }).status, 303, 'inside its 60 s');
 });
 
 scenario('exchange: a missing code and a wrong code both show the Not signed in copy', () => {
@@ -302,6 +381,45 @@ scenario('control: the token file is mode 0600 in a 0700 directory, and a re-wri
   fs.chmodSync(file, 0o644);
   controlMod.writeControlToken(file);
   assert.strictEqual(fs.statSync(file).mode & 0o777, 0o600);
+});
+
+scenario('control (WR-14): a pre-existing 0644 file is replaced by a new 0600 file with a new inode', () => {
+  if (process.platform === 'win32') return;
+  const dir = path.join(TMP_HOME, 'ctl2');
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const file = path.join(dir, 'control.token');
+  fs.writeFileSync(file, 'planted\n', { mode: 0o644 });
+  fs.chmodSync(file, 0o644);
+  const before = fs.statSync(file).ino;
+  const token = controlMod.writeControlToken(file);
+  const st = fs.statSync(file);
+  assert.strictEqual(st.mode & 0o777, 0o600);
+  assert.notStrictEqual(st.ino, before, 'the planted file was replaced, not written into');
+  assert.strictEqual(fs.readFileSync(file, 'utf8').trim(), token);
+});
+
+scenario('control (WR-14): a symlink at the token path stops the server and the target is untouched', () => {
+  if (process.platform === 'win32') return;
+  const dir = path.join(TMP_HOME, 'ctl3');
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const target = path.join(dir, 'victim.txt');
+  fs.writeFileSync(target, 'keep me\n', { mode: 0o644 });
+  const file = path.join(dir, 'control.token');
+  fs.symlinkSync(target, file);
+  assert.throws(() => controlMod.writeControlToken(file), 'a symlink must be refused');
+  assert.throws(() => controlMod.startControl(file), 'startControl must throw too');
+  assert.strictEqual(fs.readFileSync(target, 'utf8'), 'keep me\n');
+  assert.strictEqual(fs.statSync(target).mode & 0o777, 0o644, 'the target was not chmodded');
+});
+
+scenario('control (WR-14): a directory the server did not create keeps its mode', () => {
+  if (process.platform === 'win32') return;
+  const dir = path.join(TMP_HOME, 'ctl4');
+  fs.mkdirSync(dir, { mode: 0o755 });
+  fs.chmodSync(dir, 0o755);
+  controlMod.writeControlToken(path.join(dir, 'control.token'));
+  assert.strictEqual(fs.statSync(dir).mode & 0o777, 0o755);
+  assert.strictEqual(fs.statSync(path.join(dir, 'control.token')).mode & 0o777, 0o600);
 });
 
 scenario('control: the token arms a hash; no token, a wrong token, a browser request and a foreign host are refused', () => {
@@ -559,7 +677,7 @@ async function liveArm(serverDir) {
     child.kill('SIGTERM');
     setTimeout(() => { try { child.kill('SIGKILL'); } catch (_e) { /* gone */ } }, 3000).unref();
   });
-  const H = { 'sec-fetch-site': 'none' };
+  const H = Object.assign({}, NAV);
   try {
     await waitUntil(async () => fs.existsSync(tokenFile) && (await request(port, { path: '/auth/bootstrap', headers: H })).status > 0, 20000, 'the shell to answer');
 
@@ -634,6 +752,36 @@ async function liveArm(serverDir) {
       assert.strictEqual(evilHost.status, 403);
       const ok303 = await request(port, { path: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: H });
       assert.strictEqual(ok303.status, 303, 'the code survived every refusal');
+    });
+
+    await ascenario('live (CR-01): a curl-shaped request is 403 and the same code still signs in from a browser navigation', async () => {
+      const c = code();
+      assert.strictEqual((await arm(c, { 'x-mos-control-token': token })).status, 200);
+      const curl = await request(port, { path: '/auth/bootstrap?code=' + encodeURIComponent(c) });
+      assert.strictEqual(curl.status, 403, 'curl-shaped');
+      assert.ok(!curl.headers['set-cookie']);
+      const navOnlySite = await request(port, { path: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: { 'sec-fetch-site': 'none' } });
+      assert.strictEqual(navOnlySite.status, 403, 'site none without mode and dest');
+      const ok303 = await request(port, { path: '/auth/bootstrap?code=' + encodeURIComponent(c), headers: H });
+      assert.strictEqual(ok303.status, 303, 'the code survived the curl-shaped attempts');
+    });
+
+    await ascenario('live (CR-01): /auth/start is 401 unarmed, armed only through the control channel, curl-shaped 403, browser 303 once', async () => {
+      assert.strictEqual((await request(port, { path: '/auth/start', headers: H })).status, 401, 'unarmed');
+      const bad = await request(port, { method: 'POST', path: '/control/bootstrap', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ start: true }) });
+      assert.strictEqual(bad.status, 401, 'no token');
+      assert.strictEqual((await request(port, { path: '/auth/start', headers: H })).status, 401, 'still unarmed');
+      const armed = await request(port, { method: 'POST', path: '/control/bootstrap', headers: { 'content-type': 'application/json', 'x-mos-control-token': token }, body: JSON.stringify({ start: true }) });
+      assert.strictEqual(armed.status, 200, armed.body);
+      assert.strictEqual((await request(port, { path: '/auth/start' })).status, 403, 'curl-shaped');
+      assert.strictEqual((await request(port, { path: '/auth/start', headers: Object.assign({}, H, { 'sec-fetch-site': 'cross-site' }) })).status, 403, 'cross-site');
+      const r = await request(port, { path: '/auth/start', headers: H });
+      assert.strictEqual(r.status, 303, r.body.slice(0, 200));
+      assert.strictEqual(r.headers.location, '/');
+      const sc = [].concat(r.headers['set-cookie'] || []);
+      assert.strictEqual(sc.length, 1);
+      assert.match(sc[0], /^mos_shell_sid=[A-Za-z0-9_-]{43}; HttpOnly; SameSite=Strict; Path=\/$/);
+      assert.strictEqual((await request(port, { path: '/auth/start', headers: H })).status, 401, 'second visit');
     });
 
     await ascenario('live: every route refuses a foreign Host or Origin (the page, an asset path, the control route)', async () => {
