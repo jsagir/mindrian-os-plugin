@@ -183,24 +183,35 @@ async function main() {
     };
   }
 
-  await arm('WR-08a detector: without one read transaction the same interleaving returns a page with a gap and an advanced through', async () => {
-    const r = makeRoom();
-    seedForCompaction(r);
-    const db = navigation.openRoomDbReadOnlyForCaller(r.roomDir);
+  await arm('WR-08a detector: metadata then rows with no read transaction shows a gap; the same interleave inside BEGIN on the read-only handle does not', async () => {
+    const ROWS_SQL = 'SELECT change_seq FROM room_change_log WHERE change_seq > ? ORDER BY change_seq LIMIT ?';
+    const readRows = (db) => db.prepare(ROWS_SQL).all(0, 500).map((x) => Number(x.change_seq));
+
+    const bare = makeRoom();
+    seedForCompaction(bare);
+    const db1 = navigation.openRoomDbReadOnlyForCaller(bare.roomDir);
     try {
-      const meta = navigation.readChangeLogMeta(db);
-      assert.equal(meta.floor, 0, 'fixture floor starts at 0');
-      const run = withInterleave(compactOnSecondConnection(r, 10), () => navigation.readChanges(db, { after: 0, limit: 500, collection: 'nodes' }));
+      assert.equal(navigation.readChangeLogMeta(db1).floor, 0, 'fixture floor starts at 0');
+      const run = withInterleave(compactOnSecondConnection(bare, 10), () => readRows(db1));
       assert.equal(run.fired(), true, 'interleave must fire');
-      const out = run.result;
-      const afterMeta = navigation.readChangeLogMeta(db);
-      assert.ok(afterMeta.floor > 0, 'compaction raised the floor');
-      const seqs = out.changes.map((c) => c.seq);
-      const first = seqs.length ? Math.min.apply(null, seqs) : null;
-      const gap = first !== null && first > 1 && out.from === 0;
-      assert.equal(gap, true, 'the unguarded read must show a gap (first seq ' + first + ', from ' + out.from + ')');
+      assert.ok(navigation.readChangeLogMeta(db1).floor > 0, 'compaction raised the floor');
+      assert.ok(run.result.length > 0 && Math.min.apply(null, run.result) > 1, 'unguarded rows start above seq 1 (a gap): first ' + Math.min.apply(null, run.result));
     } finally {
-      navigation.closeRoomDbForCaller(db);
+      navigation.closeRoomDbForCaller(db1);
+    }
+
+    const guarded = makeRoom();
+    seedForCompaction(guarded);
+    const db2 = navigation.openRoomDbReadOnlyForCaller(guarded.roomDir);
+    try {
+      db2.exec('BEGIN');
+      assert.equal(navigation.readChangeLogMeta(db2).floor, 0);
+      const run = withInterleave(compactOnSecondConnection(guarded, 10), () => readRows(db2));
+      assert.equal(run.fired(), true, 'interleave must fire');
+      db2.exec('COMMIT');
+      assert.equal(Math.min.apply(null, run.result), 1, 'inside one read transaction the page still starts at seq 1');
+    } finally {
+      navigation.closeRoomDbForCaller(db2);
     }
   });
 
