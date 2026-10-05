@@ -12,6 +12,8 @@
 // G5  CLI `grant approve <run proposal>` approves the run; run-quick answers done; the replay log holds exactly the card's strings
 // G6  a q outside approved_hashes (tampered plan) refuses hash_not_approved with zero fetch (OK-03)
 // G7  the Theo card is byte-identical to the one on the commit this plan started from (Theo lane unchanged)
+// G8  ruling 2026-10-05 (the word grant never reaches a user): no occurrence of "grant" in the card header, question,
+//     option labels or body; the answer lines read "Approved: N searches left for <job>." and "Nothing left this machine."
 //
 // Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs before any repo module loads;
 // vendor keys are deleted; the CLI leg routes OpenAlex through the replay preload and logs every search string.
@@ -193,6 +195,8 @@ async function main() {
     const body = String(card.body_md || '');
     const opts = (card.options || []).map(function (o) { return o.id + '|' + o.label + '|' + (o.recommended === true ? 'rec' : ''); });
     const wantOpts = ['approve_run|Send these ' + n + ' searches (Recommended)|rec', 'not_now|Not now|'];
+    const wantHeader = 'See every search before it leaves, then approve this run once.';
+    const wantFirst = 'These ' + n + ' searches will leave this machine for ' + grants.jobOf(plan) + '. Nothing is sent until you approve.';
     const allIds = [];
     Object.keys(families.FAMILIES).forEach(function (fid) {
       families.FAMILIES[fid].templates.forEach(function (t) { allIds.push(t.id); });
@@ -203,10 +207,12 @@ async function main() {
     const problems = [];
     if (card.question !== 'Send these ' + n + ' searches to OpenAlex for this run?') problems.push('question ' + card.question);
     if (JSON.stringify(opts) !== JSON.stringify(wantOpts)) problems.push('options ' + JSON.stringify(opts));
+    if (card.title !== wantHeader) problems.push('title ' + card.title);
+    if (body.split('\n')[0] !== wantFirst) problems.push('first body line ' + body.split('\n')[0]);
     if (body.indexOf('The searches, exactly as they will be sent:') === -1) problems.push('no exact-strings line');
     if (templateIds.length > 0) problems.push('template id in body ' + templateIds.join(','));
     if (banned.length > 0) problems.push('banned in body ' + banned.join(','));
-    if (body.indexOf('A grant never files anything.') === -1) problems.push('no never-files line');
+    if (body.indexOf('Approving never files anything.') === -1) problems.push('no never-files line');
     return problems.length === 0 || problems.join('; ');
   });
 
@@ -241,6 +247,8 @@ async function main() {
     const logged = real.readReplayLog(logFile).map(function (r) { return r.q; });
     const loggedSet = Array.from(new Set(logged));
     console.log('G5 measured: run-quick status=' + (ran.json && ran.json.status) + ' card strings=' + cardQs.length + ' logged=' + logged.length + ' distinct=' + loggedSet.length);
+    const wantLine = 'Approved: ' + logged.length + ' searches left for ' + QS_WS.stated_question + '.';
+    if (ran.json && ran.json.approval_line !== wantLine) return 'approval_line ' + (ran.json && ran.json.approval_line) + ' want ' + wantLine;
     return (ran.json && ran.json.status === 'done' && cardQs.length > 0 && same(loggedSet, cardQs))
       || ('run-quick ' + JSON.stringify(ran.json).slice(0, 200) + ' logged ' + JSON.stringify(loggedSet) + ' card ' + JSON.stringify(cardQs));
   });
@@ -285,7 +293,7 @@ async function main() {
     const base = loadAt(THEO_BASE, 'lib/core/research-planner/grants.cjs');
     if (!base) { console.log('SKIP: G7 base object not available (shallow clone)'); return true; }
     const proposal = {
-      schema: grants.GRANT_SCHEMA, lifetime: 'run', policy_version: grants.CURRENT_POLICY, room_id: 'room-g7',
+      schema: 'mos.research-grant/1', lifetime: 'run', policy_version: grants.CURRENT_POLICY, room_id: 'room-g7',
       providers: ['openalex', 'theo'], families: ['whitespace-gap/v1'], approved_hashes: ['sha256:aa'], run_id: 'run-g7',
       caps: { queries_per_run: 3, results_per_query: 5, max_searches: 3, time_budget_ms: 60000, max_theo_calls: 2 },
     };
@@ -302,6 +310,28 @@ async function main() {
       if (a !== b) diffs.push('case ' + i);
     });
     return diffs.length === 0 || ('theo card differs: ' + diffs.join(','));
+  });
+
+  // ---- G8 ----
+  await leg('G8 no occurrence of the word grant in the card header, question, option labels or body; the two answer lines', async function () {
+    const room = newRoom();
+    const plan = builtPlan(room);
+    const c = planner.cardFor(room.roomDir, plan, {});
+    if (!c.card) return 'no card, next ' + c.next;
+    const card = c.card;
+    const text = [card.title, card.question, card.body_md].concat((card.options || []).map(function (o) { return o.label; })).join('\n');
+    const hit = /grant/i.test(text);
+    const job = grants.jobOf(plan);
+    const approved = grants.approvedLine(3, job);
+    const one = grants.approvedLine(1, job);
+    const refused = grants.refusedLine();
+    const problems = [];
+    if (hit) problems.push('the word grant appears in the card text');
+    if (approved !== 'Approved: 3 searches left for ' + job + '.') problems.push('approved line ' + approved);
+    if (one !== 'Approved: 1 search left for ' + job + '.') problems.push('approved line (1) ' + one);
+    if (refused !== 'Nothing left this machine.') problems.push('refused line ' + refused);
+    if (/grant/i.test(approved + refused)) problems.push('grant in an answer line');
+    return problems.length === 0 || problems.join('; ');
   });
 
   check('G-net no fetch escaped the replay (net guard attempts 0)', NET.attempts() === 0, 'attempts=' + NET.attempts());
