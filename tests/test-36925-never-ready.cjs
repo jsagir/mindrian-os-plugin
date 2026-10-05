@@ -115,6 +115,24 @@ function artifactNodeIds(roomDir) {
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 }
 
+// Tree hash that ignores the two SQLite WAL transients (room.db-wal, room.db-shm). Opening a WAL database read-only,
+// even through the sanctioned read-only door, makes SQLite create them (measured: a 0-byte -wal and a 32768-byte -shm
+// appear on the first read-only open); neither holds room content, and room.db itself stays in the hash.
+function roomHash(roomDir) {
+  const crypto = require('node:crypto');
+  const h = crypto.createHash('sha256');
+  (function walk(d) {
+    fs.readdirSync(d, { withFileTypes: true }).sort((x, y) => (x.name < y.name ? -1 : 1)).forEach((e) => {
+      const p = path.join(d, e.name);
+      const rel = path.relative(roomDir, p);
+      if (e.isDirectory()) { h.update('D ' + rel + '\n'); walk(p); return; }
+      if (!e.isFile() || /(^|\/)\.mindrian\/room\.db-(wal|shm)$/.test(rel.split(path.sep).join('/'))) return;
+      h.update('F ' + rel + ' ' + crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex') + '\n');
+    });
+  })(roomDir);
+  return h.digest('hex');
+}
+
 function sectionSentinels(roomDir) {
   const names = Object.keys(require(path.join(ROOT, 'lib', 'core', 'section-registry.cjs')).CORE_SECTIONS);
   return names.filter((n) => fs.existsSync(path.join(roomDir, n, '.room-root')));
@@ -157,7 +175,7 @@ async function main() {
 
   await arm('N3 after recovery: the eleven artifacts are indexed (no work lost) and no section became a child room', async () => {
     const ids = artifactNodeIds(rec.roomDir).sort();
-    const want = rec.artifacts.map((f) => path.relative(rec.roomDir, f).split(path.sep).join('/')).sort();
+    const want = rec.artifacts.map((f) => path.relative(rec.roomDir, f).split(path.sep).join('/').replace(/\.md$/, '')).sort();
     const missing = want.filter((w) => ids.indexOf(w) === -1);
     eq(missing, [], 'artifact files with no Artifact node (nodes: ' + JSON.stringify(ids) + ')');
     eq(sectionSentinels(rec.roomDir), [], 'sections that hold a .room-root (a wrong repair)');
@@ -224,11 +242,11 @@ async function main() {
     const ok = bornRoom('n7b', 'born-n7');
     const rep = identityMod().repairRoomIdentity(ok.roomDir, { approvedBy: 'test-36925', roomsHome: ok.iso.roomsHome });
     check(rep.ok === true, 'owner repair of the ready room failed: ' + JSON.stringify(rep.readback || rep));
-    const okBefore = H.treeHash(ok.roomDir);
+    const okBefore = roomHash(ok.roomDir);
     const okRes = await backfill().runDeriveBackfill({ roomDir: ok.roomDir, deriveFn: noEdges, stopAfterReadiness: true, roomsHome: ok.iso.roomsHome });
     check(okRes && okRes.readiness, 'ready: result.readiness is absent');
     eq(okRes.readiness.state, 'ready', 'ready readiness.state');
-    eq(H.treeHash(ok.roomDir), okBefore, 'ready tree hash');
+    eq(roomHash(ok.roomDir), okBefore, 'ready tree hash (room.db-wal and room.db-shm ignored)');
   });
 
   // ---- N8 --------------------------------------------------------------------------------------------------------
