@@ -117,6 +117,8 @@ Assemble the bull/bear + ACH-skeptic payload (claims, relations, killed claims, 
 
 ONE `writeCloseLoop` call with surface `intel-pipeline` (Req 4's shared contract, the same spine `/mos:bono` terminates through). D-01's dual write (bank .md first, room.db node second, one shared artifact id) and D-02's proposed edges live INSIDE the writer, never here. Then run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-opportunity-state" <roomDir>` so the opportunity bank is aware.
 
+When the close runs outside `runIntelPipeline` (for example Larry assembled the payload by hand), the same door runs it from a shell with `--surface intel-pipeline`: `node "${CLAUDE_PLUGIN_ROOT}/scripts/close-loop.cjs" close --room <roomDir> --surface intel-pipeline --payload <payload.json>`. Same behavior as the bono close: one room transaction or nothing, every node born `proposed`, a re-run chains to the prior conclusion only when a human already confirmed it, exit 1 with every failure listed. Claude Desktop has no shell and no MCP tool wraps this spine today (a grep of `lib/mcp` for `writeCloseLoop` and `close-loop-writer` finds nothing), so there Larry says the close cannot run rather than writing the graph by hand.
+
 ## Hard rules (in-body)
 
 - Everything this pipeline writes is BORN PROPOSED. Only a human `confirmNode(byUser)` promotes a claim to truth (Canon Part 9). The pipeline proposes; it never ratifies its own findings.

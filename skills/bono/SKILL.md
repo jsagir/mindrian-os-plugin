@@ -104,11 +104,21 @@ Apply the Pyramid + MECE discipline of `/mos:structure-argument` to emit the con
 
 Detect a re-run first: `findPriorConclusion(db, topic_hash)` (from `lib/core/close-loop-writer.cjs`) looks up any prior conclusion on the same topic. Then make ONE `writeCloseLoop` call carrying claims / relations / killed / conclusion / knowns / unknowns / opportunities, plus `priorConclusionId` when a confirmed prior exists. The writer is the ONE spine both 223 surfaces terminate through: D-01 dual write (opportunity bank .md FIRST, room.db node SECOND, one shared artifact_id) and D-02 proposed edges live INSIDE the writer; the command never bypasses it. Every node is born `review_status: proposed` (Part 9). After the write, run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-opportunity-state" <roomDir>` so the bank rollup surfaces the new opportunity nodes (Req 4).
 
+**The door.** The command surface runs this step from a shell through ONE script. Write the payload JSON to a temp file outside the room (the OS temp directory), then, only after the navigator APPROVEs the ruling card, run:
+
+`node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" close --room <roomDir> --surface bono --payload <payload.json> [--run-id <id>] [--session-id <id>]`
+
+In plain words: it looks up the prior conclusion on the same topic, chains to it only when a human already confirmed it (the supersede is attributed to the room navigator from USER.md, never to Larry), writes the whole close in one room transaction or nothing, and prints a JSON summary. It exits 1 with every failure listed (nothing partial hidden) and leaves the room graph unchanged. A payload must not carry `priorConclusionId`; the door alone picks the prior. Every node it writes is born `proposed`.
+
+Tri-polar: Claude Desktop has no shell and no MCP tool wraps this spine today (a grep of `lib/mcp` for `writeCloseLoop` and `close-loop-writer` finds nothing), so on Desktop Larry says the close cannot run there and offers to run it from Claude Code, rather than writing the graph by hand.
+
 ## 8. Version cut + --version-log
 
 The SUPERSEDES chain is written by phase 7's supersede path (D-04: the SUPERSEDES edge binds NULL `review_status` -- it is mechanical bookkeeping; the new conclusion NODE is what the navigator ratifies). CONTRACT: `supersede` requires the prior conclusion to be CONFIRMED (confirmed -> superseded is the only legal transition). NEVER auto-confirm a prior conclusion to force a chain; confirmation is `confirmNode(byUser)` only (Part 9). A proposed prior yields a new proposed conclusion plus a DISCLOSED "no chain written: prior unconfirmed" outcome (the SEED-059 disclosed-thin-world convention), never a silent no-op and never an auto-confirm.
 
 `--version-log` renders `walkSupersedesChain(db, newestConclusionId)` as a chain-order list: newest first, one line per conclusion with its `created_at` and a governing-thought snippet. A first run renders a single-entry log and ZERO SUPERSEDES edges (no false chain on a first run).
+
+Run it as `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" version-log --room <roomDir> --topic "<topic>"`. It prints the chain newest first and names any same-topic conclusion left off the chain. It writes nothing.
 
 #### Hard rules (in-body)
 
@@ -122,6 +132,10 @@ The SUPERSEDES chain is written by phase 7's supersede path (D-04: the SUPERSEDE
 #### Offer high-value hats as reusable SyntheticExperts
 
 At the ruling gate, offer the run's high-value hats for filing as reusable `SyntheticExpert` nodes (Wave-2 `offerExpertsForFiling`). The navigator APPROVEs which experts are worth keeping; promotion to `confirmed` rides `navigation.confirmNode(byUser)` (Part 9 role 5: the human confirms truth).
+
+The offer comes from THIS run's hats, so an empty expert library is the reason to offer, never a reason to skip. Write the run's hats as JSON (each with `hat`, `name`, `surname`, `evidenceTier`, `survivalRate`) and run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" offer-experts --hats <hats.json>`. It prints the ranked candidates and writes nothing; the ranking is one sum, evidence-tier rank divided by four plus survival rate, so a high-survival Practitioner hat can outrank a low-survival Academic hat.
+
+Render the candidates as a card (Shape F, AskUserQuestion). For each candidate the navigator keeps, run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/close-loop.cjs" file-expert --room <roomDir> --spec <spec.json> --session-id <id>`, which files one `proposed` SyntheticExpert node and refuses any field outside the SyntheticExpert allow-list by name. Confirmation stays `navigation.confirmNode(byUser)`.
 
 #### Decisions carried (D-164, updated for Phase 223)
 
