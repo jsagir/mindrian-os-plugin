@@ -1730,14 +1730,31 @@ Plans:
 
 ### Phase 369.26: Mindrian Workspace mod: an orientation band and docked Review pane drawn natively in Claude Code, from spikes 008 and 009 and the navigator concept images (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** A person working in a Mindrian data room sees, inside Claude Code's terminal and without leaving the conversation, where they are, what the folder is for, the next step, room health, context used and any decision waiting (a three-row Mondrian band above the prompt at 84 or more columns, one row when narrow or short, stepping aside for the host's own questions), and can open a docked pane (Room, Think, Sources, Review) whose Review tab draws the recorded decision card and saves a choice with one press through the runtime, never optimistically. Built as a walled hooks-module mod (`ui/mindrian-workspace-mod/`: TypeScript and TSX, no DOM, no Node, loaded with `claude --plugin-dir`, never in the root package.json); every visible word is a plain-English copy deck ID (UI-SPEC section 9); colors are read from palette.json at run time with a plain-mode fallback and no hex in source; a fact the mod cannot read is shown as missing, never guessed; the only Brain-facing call is a canonical framework handle (Canon Part 8). Proven by `claude plugin validate`, `claude plugin test` (terminal and desktop mounts), tsc, a tmux-driven capture of the real render and the spike 008 render check (12 items of UI-SPEC 17.2) with a recorded verdict and a live gate round trip against a hermetic room. Visual target: the navigator's concept images in `/home/jsagi/Downloads/mindrian-terminal-concepts/`; contract: `369.26-UI-SPEC.md` (27 rulings C-01 to C-27, 12 open questions with defaults); research: spikes 008 and 009. Does NOT replace settings.json `statusLine`, ship inside the plugin install (OQ-12, deferred), run any command itself, or write to a room except through `gate_answer`.
+**Requirements**: WS-01 to WS-17 (minted at plan time 2026-10-06 from the UI-SPEC sections; not registered in REQUIREMENTS.md): WS-01 walled package and loadability; WS-02 copy deck; WS-03 theme and plain mode; WS-04 view model and honest missing data; WS-05 live sources; WS-06 band; WS-07 band keys and prefill; WS-08 pane shell; WS-09 Room tab; WS-10 action list; WS-11 Review card; WS-12 one-press save path; WS-13 Think core; WS-14 Think help and guarded lookup; WS-15 Sources tab; WS-16 spike 008 render check; WS-17 close-out guards
 **Depends on:** Phase 369
-**Plans:** 0 plans
+**Plans:** 18 plans in 8 waves (W1: 01; W2: 02-04; W3: 05-07; W4: 08-10; W5: 11-14; W6: 15-16; W7: 17; W8: 18); plans 09 and 17 are non-autonomous (the navigator reads the real render)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.26 to break down)
+- [ ] 369.26-01-PLAN.md -- Walled package scaffold under ui/mindrian-workspace-mod/: manifest, hooks module, type-check, shared contracts and ownership seams, wall guard, aggregator, engine facts measured (WS-01)
+- [ ] 369.26-02-PLAN.md -- Copy deck as a typed module equal to UI-SPEC section 9, with a parity guard and typed text() (WS-02)
+- [ ] 369.26-03-PLAN.md -- Theme from palette.json at run time, plain mode (person switch, N03, NO_COLOR, TERM), contrast law, derived palette and canon assets (WS-03)
+- [ ] 369.26-04-PLAN.md -- One view model (Seen states), pure mappers, fixtures for the three concept states and the honest variants (WS-04)
+- [ ] 369.26-05-PLAN.md -- Band rows at 72+ columns: tier picker, five-rectangle logo, tiles, ten-cell bar, yield on survey (WS-06)
+- [ ] 369.26-06-PLAN.md -- Live sources: place, purpose, health cache, context percent, open decisions; refresh at session start and each turn (WS-05)
+- [ ] 369.26-07-PLAN.md -- Pane shell: tab strip, widths, notes, hint line, all-keys, explain, details, Esc layering, the workspace command (WS-08)
+- [ ] 369.26-08-PLAN.md -- Band one row (T1, T0, no-room), alert priority, keys o h r k, prefill helper (WS-06, WS-07)
+- [ ] 369.26-09-PLAN.md -- Early paint probe: tmux render harness, ANSI grid parser, interim spike 008 items, navigator read of the real render (non-autonomous) (WS-16)
+- [ ] 369.26-10-PLAN.md -- Review answer path: verdict from the recorded card, gate_answer, claim guard, refusals, mirror, never optimistic (WS-12)
+- [ ] 369.26-11-PLAN.md -- Room tab: where you are, purpose, next step with prefill button, waiting, result (WS-09)
+- [ ] 369.26-12-PLAN.md -- Think core: what we think so far, what we are unsure about, gap list from whitespace_scan (WS-13)
+- [ ] 369.26-13-PLAN.md -- Sources tab: evidence list resolved through room_artifact, reading view (WS-15)
+- [ ] 369.26-14-PLAN.md -- Review card: compact decision card, choice buttons, decide later, decision list, foreign-card path (WS-11)
+- [ ] 369.26-15-PLAN.md -- Action list: collapsed registry-backed "More things to do here" with folder filter (WS-10)
+- [ ] 369.26-16-PLAN.md -- Think help: five guided buttons, guarded canonical-handle lookup, hand-offs, Part 8 test (WS-14)
+- [ ] 369.26-17-PLAN.md -- Spike 008 render check on the finished mod: 12 items, live gate round trip, verdict (non-autonomous) (WS-16)
+- [ ] 369.26-18-PLAN.md -- Close-out: permanent source guards, final README, full gate, traceability (WS-17)
 
 ### Phase 369.1: Desktop plugin install: MindrianOS installable from Claude Desktop Customize > Plugins > Add marketplace (a Desktop-syncable marketplace source beside the npm source, and dependency loading proven on the hookless surface) (INSERTED)
 
