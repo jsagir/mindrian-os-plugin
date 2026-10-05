@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.61 (in progress)
+## [2.0.0-beta.61] - 2026-10-05
 
 ### Changed
 - **Theo answers plain methodology questions**: a question such as "How do I decide which customer segment to pursue first?" reaches Theo on ask, search and query with one verdict; anything naming the room's own people, ventures, terms or private details is still refused, and the refusal says what kind of detail it was (Phase 369.2, CODE-07).
