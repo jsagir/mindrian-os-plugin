@@ -52,13 +52,31 @@ function writeSentinel(roomDir, obj) { fs.writeFileSync(path.join(roomDir, '.roo
 function registryPath(iso) { return path.join(iso.roomsHome, '.rooms', 'registry.json'); }
 function readRegistry(iso) { return JSON.parse(fs.readFileSync(registryPath(iso), 'utf8')); }
 
-// A room born by birthRoom at HEAD: the legacy shape (seven migration and change-log rows, none naming the room).
+// A legacy room: the shape every room born before 369.25-07 has (seven migration and change-log rows, none naming the
+// room, no Room node, no room_id in .room-root, the registry or ROOM.md). birthRoom now commits the identity at birth
+// (369.25-07), so the fixture birth is followed by removing exactly what that commit added, then the shape is the old one.
 function legacyRoom(tag, slug) {
   const iso = H.mkIsolatedHome(tag);
   const s = slug || ('rid-' + tag);
   const b = H.birthFixtureRoom({ iso, slug: s });
   if (!b || !fs.existsSync(dbPathOf(b.roomDir))) throw new Error('fixture birth produced no room.db for ' + s);
-  return { iso, roomDir: fs.realpathSync(b.roomDir), slug: s };
+  const roomDir = fs.realpathSync(b.roomDir);
+  const db = nav().openRoomDbForCaller(roomDir);
+  try {
+    db.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run();
+    db.prepare('DELETE FROM nodes WHERE id = ?').run('room:' + s);
+  } finally { nav().closeRoomDbForCaller(db); }
+  const sp = path.join(roomDir, '.room-root');
+  const sen = JSON.parse(fs.readFileSync(sp, 'utf8'));
+  delete sen.room_id;
+  fs.writeFileSync(sp, JSON.stringify(sen), 'utf8');
+  const rp = registryPath(iso);
+  const reg = JSON.parse(fs.readFileSync(rp, 'utf8'));
+  if (reg.rooms && reg.rooms[s]) delete reg.rooms[s].room_id;
+  fs.writeFileSync(rp, JSON.stringify(reg, null, 2), 'utf8');
+  const mdp = path.join(roomDir, 'ROOM.md');
+  fs.writeFileSync(mdp, fs.readFileSync(mdp, 'utf8').replace(/\n  room_id: "[^"\n]*"/, ''), 'utf8');
+  return { iso, roomDir, slug: s };
 }
 
 function identityFor(r, over) {
