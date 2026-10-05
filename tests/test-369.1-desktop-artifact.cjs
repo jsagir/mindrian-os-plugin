@@ -369,12 +369,13 @@ function packAndExtract() {
 }
 
 function armEquality() {
-  check('equality', 'file list and sha256 per file equal an independent npm pack minus bin/', () => {
+  check('equality', 'file list and sha256 per file equal an independent npm pack minus bin/ and lib/ui-shell/dist', () => {
     needBuild();
     const pkgDir = packAndExtract();
     const want = new Map();
     for (const rel of walkFiles(pkgDir)) {
       if (rel === 'bin' || rel.startsWith('bin/')) continue;
+      if (rel.startsWith('lib/ui-shell/dist/')) continue; // DESKTOP_DROPS (quick 261005-l8h)
       want.set(rel, sha256Of(path.join(pkgDir, rel)));
     }
     const got = new Map();
@@ -387,7 +388,7 @@ function armEquality() {
     for (const rel of got.keys()) if (!want.has(rel)) diffs.push('extra in out: ' + rel);
     if (diffs.length) {
       for (const d of diffs.slice(0, 5)) console.log('  MISMATCH: ' + d);
-      throw new Error(diffs.length + ' mismatch(es) between the out dir (' + got.size + ' files) and npm pack minus bin/ (' + want.size + ' files); first five listed above');
+      throw new Error(diffs.length + ' mismatch(es) between the out dir (' + got.size + ' files) and npm pack minus the Desktop drops (' + want.size + ' files); first five listed above');
     }
   });
 }

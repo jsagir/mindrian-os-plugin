@@ -8,7 +8,8 @@
  *
  * WHAT IT BUILDS
  *   The Desktop copy of the plugin (marketplace entry `mos-desktop`, relative path
- *   ./plugins/mos-desktop): the npm payload minus the top-level bin/ directory.
+ *   ./plugins/mos-desktop): the npm payload minus DESKTOP_DROPS (the top-level bin/ directory and
+ *   lib/ui-shell/dist).
  *
  * WHY
  *   Claude Desktop's plugin sync (claude.ai) refuses a plugin that carries a top-level
@@ -17,6 +18,12 @@
  *   runs code the CLI does not run, and nothing outside the npm `files` allowlist (no
  *   .planning/, tests/, ui/ or Brain code) can enter it (RULE 9, D-08). The five runtime
  *   executables live at scripts/ since plan 369.1-04; bin/ holds forwarding shims only.
+ *
+ *   lib/ui-shell/dist (the release-built workspace, Phase 369) is dropped too: Desktop has no
+ *   launcher for the workspace, and the names inside the Next build ([slug], @-prefixed routes)
+ *   break Desktop's zip validator ("Zip file contains path with invalid characters"; quick
+ *   261005-l8h, Phase 0 fixture J1: 53 such paths, all inside the dist). The CLI payload (the npm
+ *   package) keeps the dist. checkPayload also refuses any path segment outside [A-Za-z0-9._-].
  *
  * LIMITS
  *   claude.ai accepts at most 5,000 files, 200 MB uncompressed and a 50:1 compression
@@ -80,6 +87,14 @@ const RUNTIME_REF_ALLOW = new Set([
 ]);
 
 const MAX_SCAN_BYTES = 4 * 1024 * 1024;
+
+// What the Desktop copy drops from the npm payload (relative to the package root). bin/: claude.ai
+// refuses a plugin with a top-level bin/. lib/ui-shell/dist: Desktop never launches the workspace and
+// its zip validator refuses the bracket and @ names inside the Next build.
+const DESKTOP_DROPS = Object.freeze(['bin', path.join('lib', 'ui-shell', 'dist')]);
+
+// Every path segment must match this (Desktop's zip validator refuses anything else).
+const SAFE_SEGMENT = /^[A-Za-z0-9._-]+$/;
 
 // ---------------------------------------------------------------------------
 // Tree helpers (lstat only; links are never followed)
@@ -147,6 +162,9 @@ function checkPayload(dir, options) {
   if (fs.existsSync(path.join(dir, 'bin'))) {
     add('top-level-bin', 'a top-level bin entry exists; claude.ai refuses a plugin with bin/');
   }
+  if (fs.existsSync(path.join(dir, 'lib', 'ui-shell', 'dist'))) {
+    add('ui-shell-dist', 'lib/ui-shell/dist exists; the Desktop copy never carries the workspace build (its Next build names break Desktop\'s zip validator)');
+  }
 
   const entries = walkEntries(dir);
 
@@ -157,6 +175,9 @@ function checkPayload(dir, options) {
   let bytes = 0;
   const regs = RUNTIME_BIN_PATTERNS;
   for (const e of entries) {
+    if (e.rel.split('/').some((seg) => !SAFE_SEGMENT.test(seg))) {
+      add('bad-path-char', e.rel + ' has a path segment outside [A-Za-z0-9._-]; Desktop refuses the zip');
+    }
     if (e.st.isSymbolicLink()) {
       add('symlink', e.rel + ' is a symlink -> ' + fs.readlinkSync(e.abs));
       continue;
@@ -207,7 +228,7 @@ function violationError(violations) {
 }
 
 // ---------------------------------------------------------------------------
-// buildDesktopPayload: npm pack -> extract -> drop bin/ -> check -> replace out
+// buildDesktopPayload: npm pack -> extract -> drop DESKTOP_DROPS -> check -> replace out
 // ---------------------------------------------------------------------------
 function npmPack(sourceDir, packDest) {
   const npm = resolveNpmCli();
@@ -307,7 +328,7 @@ function buildDesktopPayload(args) {
     const root = path.join(extractDir, 'package');
     if (!fs.existsSync(root)) throw new Error('the tarball has no package/ root');
 
-    fs.rmSync(path.join(root, 'bin'), { recursive: true, force: true });
+    for (const drop of DESKTOP_DROPS) fs.rmSync(path.join(root, drop), { recursive: true, force: true });
 
     const violations = checkPayload(root, { version, limits: LIMITS });
     if (violations.length) throw violationError(violations);
@@ -419,7 +440,7 @@ function main(argv) {
   }
 }
 
-module.exports = { buildDesktopPayload, checkPayload, assertSafeOutDir, LIMITS, RUNTIME_BIN_PATTERNS };
+module.exports = { buildDesktopPayload, checkPayload, assertSafeOutDir, LIMITS, RUNTIME_BIN_PATTERNS, DESKTOP_DROPS };
 
 if (require.main === module) {
   process.exit(main(process.argv.slice(2)));

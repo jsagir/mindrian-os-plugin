@@ -260,13 +260,15 @@ mos_build_desktop_copy() {
     return 1
   fi
 
-  # The release-built UI dist (lib/ui-shell/dist, Phase 369) legitimately contains a .next/ server
-  # build, which the marketplace repo's catalog-level .gitignore (D-06: no stray .next/ at the repo
-  # top) would swallow, silently dropping 259 files the payload needs. Force-add exactly that one
-  # path; every OTHER ignored file still fails the count check below. Found by the 369.1-14
-  # rehearsal against a clone of the real marketplace repo.
+  # The Desktop copy must not carry the workspace build (quick 261005-l8h): Desktop never launches
+  # it, and the bracket and @ names inside the Next build break Desktop's zip validator. The builder
+  # drops lib/ui-shell/dist; this inverse guard keeps a hand-edited or hooked builder honest. (It
+  # replaces the 369.1-14 force-add of that path past the marketplace .gitignore: nothing needs
+  # force-adding now, and every ignored file fails the count check below.)
   if [ -d "$out_dir/lib/ui-shell/dist" ]; then
-    git -C "$mp_dir" add --force --all -- plugins/mos-desktop/lib/ui-shell/dist >/dev/null 2>&1
+    echo "  x mos_build_desktop_copy: the Desktop copy must not carry lib/ui-shell/dist"
+    mos_rollback_marketplace "$mp_dir"
+    return 1
   fi
 
   local ignored_line

@@ -3,6 +3,9 @@
 ### Changed
 - **Research can search the web with the room's own words** (SEED-115, quick 261004-v16). A search slot on the web lines (Tavily, WebSearch fallback) now takes a room phrase or a room question, up to 200 characters, markdown stripped, sent exactly as the grant card shows it. The strict short-term rule now applies only where it belongs: the Brain (Theo) lines, which never see room text (Canon Part 8 unchanged). Phase 369.2 completes this (query composition from room questions, the per-term grant loop retired on the web lines, the city-name fence ruled on).
 
+### Fixed
+- **Desktop copy without the workspace build**: `lib/ui-shell/dist` is dropped from `plugins/mos-desktop` and the payload gate refuses bracket or @ paths; Desktop marketplace sync works again (Phase 0 fixture J1: 53 bad paths, all inside the dist). The CLI install keeps the workspace (quick 261005-l8h).
+
 ### Added
 - 
 

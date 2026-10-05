@@ -425,7 +425,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "              HARD ABORT on fail, same rollback as Step 6.6; Phase 126 Plan 03)"
   echo "  Step 6.7  : generate npm-shrinkwrap.json (release-lib/shrinkwrap-gate.sh:"
   echo "              zero dev entries + present in pack payload + clean npm shrinkwrap)"
-  echo "  Step 6.8  : build the Desktop copy from npm pack minus bin/ into ~/mindrian-marketplace/plugins/mos-desktop (<=4,500 files, <=180 MB, ratio <=50:1), write plugins[1] mos-desktop (./plugins/mos-desktop, $NEW_VERSION), stage + count-check, re-validate (RULE 5 place 5; every abort rolls the tree back with marketplace.json)"
+  echo "  Step 6.8  : build the Desktop copy from npm pack minus bin/ and lib/ui-shell/dist into ~/mindrian-marketplace/plugins/mos-desktop (<=4,500 files, <=180 MB, ratio <=50:1), write plugins[1] mos-desktop (./plugins/mos-desktop, $NEW_VERSION), stage + count-check, re-validate (RULE 5 place 5; every abort rolls the tree back with marketplace.json)"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
   echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION' (marketplace.json + plugins/mos-desktop)"
   echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW; then promote to @latest (navigator 2026-08-10: bare npx always serves the newest release, betas included)"
@@ -555,10 +555,10 @@ if ! node "$PLUGIN_DIR/scripts/build-ui-shell.cjs" --check; then
   exit 1
 fi
 # Phase 369.1 plan 14 (D-11, D-14, DPI-02): the Desktop payload gate. Measures what Step 6.8 will
-# build (npm pack payload minus bin/) against claude.ai's plugin limits with headroom, offline:
+# build (npm pack payload minus bin/ and lib/ui-shell/dist) against claude.ai's plugin limits with headroom, offline:
 # at most 4,500 files, 180 MB, a 50:1 compression ratio, no top-level bin/, no runtime bin/ reference.
 if ! node "$PLUGIN_DIR/scripts/release-lib/build-desktop-artifact.cjs" --check; then
-  echo -e "${RED}ABORT: Step 2.4: Desktop payload gate failed (no top-level bin/, at most 4,500 files and 180 MB, ratio at most 50:1, no runtime bin/ reference).${NC}"
+  echo -e "${RED}ABORT: Step 2.4: Desktop payload gate failed (no top-level bin/, no lib/ui-shell/dist, no path outside [A-Za-z0-9._/-], at most 4,500 files and 180 MB, ratio at most 50:1, no runtime bin/ reference).${NC}"
   echo "  Recovery: node scripts/release-lib/build-desktop-artifact.cjs --check names each violation."
   exit 1
 fi
@@ -919,7 +919,7 @@ echo -e "${GREEN}  npm-shrinkwrap.json generated and asserted (zero dev entries,
 
 # --- Step 6.8: Build the Desktop copy (Phase 369.1, D-13; part of RULE 5 place 5) ---
 # Claude Desktop cannot sync an npm-source plugin, so the marketplace carries a second entry,
-# plugins[1] mos-desktop (source ./plugins/mos-desktop): a bin-less copy of the npm pack payload,
+# plugins[1] mos-desktop (source ./plugins/mos-desktop): a copy of the npm pack payload minus bin/ and lib/ui-shell/dist,
 # built here and written beside the manifest (D-03: never by hand). It runs AFTER the shrinkwrap
 # step so the copy carries npm-shrinkwrap.json, and BEFORE Commit A. It rides the existing
 # marketplace commit (Step 7) and push (Step 9), so there is no new irreversible step; Commit B
