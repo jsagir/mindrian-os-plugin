@@ -5,7 +5,7 @@ status: filed (proposed; the navigator confirms through a gate)
 priority: high
 filed: 2026-10-05
 source: Lawrence's reply of 2026-10-05 22:40 and 22:47 (pasted by the navigator; filed in mindrian-os-study as claim:artifact:6ef453a45355); re-measured on HEAD d30eb4592
-promotes_to: Phase 369.6 (the Larry contract) for the code readers and the voice contract; a theo-context repo task for the contract line; a navigator gate for the prose deletion timing
+promotes_to: Phase 369.6 (the Larry contract) for the code readers and the voice contract; a theo-context repo task for the contract line; a navigator gate for the prose deletion timing. Navigator ruling 2026-10-05: the plugin keeps theo-mcp as its default origin; theo-context is an experiment, not yet a replacement; no call path opens here
 ---
 
 # SEED-123: persona stays, turn gating dies
