@@ -47,11 +47,12 @@ const R5 = 'No agent is dispatched before the navigator approves the deep resear
 const R6 = 'subagent_type: research-lane-analyst';
 const R7_PENDING = 'node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" pending --room <room dir>';
 const R7_DEEPFETCH = 'node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" deep-fetch <run_id> --room <room dir>';
-const R8 = 'A grant lets the room fetch. It never files anything.';
+// 369.2-11 (ruling 2026-10-05): the word grant never reaches a user; the sentence names the approval
+const R8 = 'An approval lets the room fetch. It never files anything.';
 const R9 = '### Scientific research perspective (Scientific Roadmapping)';
-const R10_START = '**Exception (Phase 363, D-05):**';
+const R10_START = '**Room-started runs (Phase 363 D-05, amended 2026-10-05):**';
 const R10 =
-  '**Exception (Phase 363, D-05):** inside a standing research grant the navigator approved on an F.0 card, the room itself may start a quick research run in the 355.1 ambient child. Approving the grant is the ask. Anything outside the grant asks again, the grant is visible and revocable, and every query lands in the room\'s audit ledger. Deep research runs never start this way.';
+  '**Room-started runs (Phase 363 D-05, amended 2026-10-05):** the room may prepare a quick research run on its own, but it sends nothing until the navigator approves that run on its card, which lists every search exactly as it will be sent. Every executed search lands in the room\'s audit ledger. Deep research runs never start this way.';
 const F6_INSTRUCTION = 'Fire the F.6 Plan Review card with AskUserQuestion';
 const F8_INSTRUCTION = 'Fire the F.8 basket with AskUserQuestion';
 const FILE_RUN_LINE = 'research-planner.cjs" file-run';
