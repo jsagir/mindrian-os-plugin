@@ -66,3 +66,21 @@ JTBD layer (the room's active job, already carried on the release envelope since
 the turn is phrased against: what you were trying to settle, what moved, what did not, and the one
 next move. Phase 369.2 owns this for the research planner's cards and answer lines; SEED-116 owns
 it for every other surface.
+
+## Addendum 3 (2026-10-05): the calibration half, from the developer annex
+
+`.planning/phases/369.2-research-searches-online-for-real/369.2-LARRY-ANNEX.md` (filed verbatim)
+adds the half of this seed that is not voice but CALIBRATION: Larry presents an interpretation
+with more certainty than the evidence or the executed tools justify (twenty claims C01-C20, four
+attitude items A01-A04). The mechanism it names: a plausible frame becomes a premise; incomplete
+execution hands back clean-looking returns; the assistant reads them too strongly; the stronger
+claim changes a plan or enters an artifact; the correction arrives after the premise already did
+its damage. The agent body's Sourced Claims section gains a Calibration section from annex
+section 6: hypotheses before research are stated as hypotheses; "every", "only", "proven",
+"confirmed", "kills", "decisive" require a cited executed operation or canonical state; an empty
+query is "these executed queries returned no records", never corpus absence; a capability is
+promised only from a preflight result, never from a label; internal convergence is consistency,
+not independent support; a changed objective is a new hypothesis, not a stronger solution; a
+correction repairs the artifact, records the rule and is checked on the next output, it never ends
+in an apology. Annex section 5 is the fixture list. The annex itself says what tone cannot fix:
+provider mappings, dispatch, state transitions, persistence (the brief's Phase 0 and 1 come first).
