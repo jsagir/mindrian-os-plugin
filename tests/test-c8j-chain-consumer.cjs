@@ -117,10 +117,8 @@ function startMockServer() {
   });
 }
 
-function freshModules(url, key) {
+function freshModules(url) {
   process.env.MINDRIAN_BRAIN_URL = url;
-  process.env.MINDRIAN_BRAIN_KEY = key === undefined ? 'test-key-not-real' : key;
-  if (key === null) delete process.env.MINDRIAN_BRAIN_KEY;
   delete require.cache[BRAIN_CLIENT_PATH];
   delete require.cache[CHAIN_RECOMMENDER_PATH];
   const chainRecommender = require(CHAIN_RECOMMENDER_PATH);
@@ -198,21 +196,15 @@ test('chainOfferForReach: no companion -> null (nothing to offer, no Brain touch
   assert.strictEqual(state.captured.length, 0);
 });
 
-test('chainOfferForReach: companion present, Brain unavailable (no key) -> grounded:false disclosure, note brain_unavailable', async () => {
-  // Full ladder isolation (mirrors tests/test-250-silent-registration.cjs and
-  // tests/test-c8j-brain-wire.cjs Leg 8): a fresh tmp HOME with no
-  // .mindrian.env / .mindrian-install.json, and a temporary chdir so
-  // <cwd>/.env (this repo carries a real one) cannot resolve a real key out
-  // from under the test.
-  const prevDisable = process.env.MINDRIAN_DISABLE_AUTO_REGISTER;
-  const prevHome = process.env.HOME;
-  const prevCwd = process.cwd();
-  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'test-c8j-nokeyhome-'));
-  process.env.MINDRIAN_DISABLE_AUTO_REGISTER = '1';
-  process.env.HOME = tmpHome;
-  process.chdir(tmpHome);
+test('chainOfferForReach: companion present, Brain unavailable -> grounded:false disclosure, note brain_unavailable', async () => {
+  // Quick 261005-l8g (SEED-119): there is no keyless state to provoke "unavailable" any more, so
+  // the client's isAvailable is stubbed to false (a deliberate, honest seam) on the freshly
+  // loaded module the chain consumer requires.
+  const cr = freshModules(mockUrl);
+  const bc = require(BRAIN_CLIENT_PATH);
+  const realIsAvailable = bc.isAvailable;
+  bc.isAvailable = function () { return false; };
   try {
-    const cr = freshModules(mockUrl, null);
     const offer = await cr.chainOfferForReach({ companions: ['brain_framework_chain:Undefined Problem'] }, {});
     assert.ok(offer, 'must return a disclosure object, never null, when a companion is present');
     assert.strictEqual(offer.grounded, false);
@@ -220,11 +212,7 @@ test('chainOfferForReach: companion present, Brain unavailable (no key) -> groun
     assert.strictEqual(offer.problem_type, 'Undefined Problem');
     assert.strictEqual(state.captured.length, 0, 'no Brain call when isAvailable() is false');
   } finally {
-    process.chdir(prevCwd);
-    if (prevHome === undefined) delete process.env.HOME; else process.env.HOME = prevHome;
-    if (prevDisable === undefined) delete process.env.MINDRIAN_DISABLE_AUTO_REGISTER;
-    else process.env.MINDRIAN_DISABLE_AUTO_REGISTER = prevDisable;
-    fs.rmSync(tmpHome, { recursive: true, force: true });
+    bc.isAvailable = realIsAvailable;
   }
 });
 

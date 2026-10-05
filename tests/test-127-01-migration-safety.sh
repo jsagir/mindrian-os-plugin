@@ -74,19 +74,14 @@ run_test "T2-legacy-same-key-execute" "legacy-same-key.json" '
   if (!log.includes("\"action\":\"removed\"")) { console.error("log missing removed record"); process.exit(1); }
 '
 
-# T3: Lawrence two-key case -- refuse
-run_test "T3-legacy-different-key-refuse" "legacy-different-key.json" '
+# T3: a legacy entry whose header differs from anything local -- quick 261005-l8g (SEED-119)
+# removed the two-key refusal: Theo needs no credential, so the entry is removed whatever it carried.
+run_test "T3-legacy-different-key-removed" "legacy-different-key.json" '
   const m = require("./scripts/migrate-brain-mcp-from-http-to-stdio.cjs");
   const fx = require(process.env.FIXTURE);
-  const plan = m.planMigration({ homeDir: process.env.HOME, mockClaude: () => fx.entry, mockBrainKey: fx.current_key });
-  if (plan.action !== "refuse") { console.error("expected action=refuse, got " + plan.action); process.exit(1); }
-  if (!plan.warning || !/auto-migration refused/.test(plan.warning)) { console.error("warning missing"); process.exit(1); }
-  let removeCalled = false;
-  const result = m.executePlan({ plan, homeDir: process.env.HOME, dryRun: false, mockRemove: () => { removeCalled = true; } });
-  if (removeCalled) { console.error("removeFn must not be called on refuse"); process.exit(1); }
-  const fs = require("fs"), path = require("path");
-  const snapDir = path.join(process.env.HOME, ".mindrian", "pre-migration-snapshots");
-  if (fs.existsSync(snapDir) && fs.readdirSync(snapDir).length > 0) { console.error("snapshot should not exist on refuse"); process.exit(1); }
+  const plan = m.planMigration({ homeDir: process.env.HOME, mockClaude: () => fx.entry });
+  if (plan.action !== "remove") { console.error("expected action=remove, got " + plan.action); process.exit(1); }
+  if (plan.warning) { console.error("no refusal warning expected"); process.exit(1); }
 '
 
 # T4: SG-4 idempotency

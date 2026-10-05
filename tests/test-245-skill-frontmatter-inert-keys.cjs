@@ -24,7 +24,7 @@
  *   That mattered: the same 123-line file also said "Never mention failures to user",
  *   and between the two clauses a total Brain outage ran invisibly for weeks.
  *
- *   The keys are now COMMENTS, so the intent survives and the false claim does not.
+ *   The keys are now gone (quick 261005-l8g removed the key condition altogether: Theo needs no key).
  *
  * CLAIM (b): CLAUDE.md DOES NOT BRIEF AGENTS ON A BACKEND THAT NO LONGER EXISTS.
  *
@@ -104,14 +104,14 @@ function claimA() {
       'claim the file cannot honour, and somebody will trust it.'
   );
 
-  // The intent must actually have survived, or this test just deleted knowledge.
+  // Quick 261005-l8g (SEED-119): the intent this arm used to guard (an activation condition
+  // on a Brain key) is deleted on purpose -- Theo needs no key, so brain-connector names none.
   const bc = path.join(ROOT, 'skills', 'brain-connector', 'SKILL.md');
   if (fs.existsSync(bc)) {
     const t = fs.readFileSync(bc, 'utf8');
     ok(
-      /MINDRIAN_BRAIN_KEY/.test(t),
-      'CLAIM a: brain-connector must still RECORD its intended activation condition somewhere, ' +
-        'even though nothing enforces it. Removing the key must not remove the knowledge.'
+      !/MINDRIAN_BRAIN_KEY/.test(t),
+      'CLAIM a: brain-connector must not name a Brain key activation condition: Theo is called bare.'
     );
   }
   console.log('CLAIM (a) ok (' + checks + ' assertions)');

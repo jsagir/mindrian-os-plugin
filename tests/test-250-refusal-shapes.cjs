@@ -8,21 +8,19 @@
  * Proves the four typed refusal kinds at the refusal-messaging chokepoint
  * (renamed from tier0-messaging.cjs in Phase 252-01):
  *
- *   1. REFUSAL_KINDS is frozen, exactly the six members, in order (amended
+ *   1. REFUSAL_KINDS is frozen, exactly the five members, in order (amended
  *      by Phase 259 to add rate_limited, then Phase 257 to add
- *      egress_blocked, both appended last).
- *   2. refusalResponse per-kind status mapping (no_key keeps the byte-locked
- *      DIRECTOR_NOT_AVAILABLE wire string; the other three get sibling
- *      statuses). Shape: {status, kind, reason, command_context, next_moves,
- *      upgrade_hint?}.
+ *      egress_blocked, both appended last; quick 261005-l8g removed the
+ *      keyless kind).
+ *   2. refusalResponse per-kind status mapping (every kind has its own
+ *      sibling status). Shape: {status, kind, reason, command_context,
+ *      next_moves}.
  *   3. THE CONFLATION RED PROOF: refusalResponse('unreachable', ...).reason
  *      never says "MINDRIAN_BRAIN_KEY not set" -- the live dishonesty bug
  *      this phase kills.
  *   4. Unknown kind coerces to 'unreachable'; ctx coercion mirrors the
  *      existing tier0Response defensive pattern.
- *   5. tier0Response byte-lock: same 5 keys, DIRECTOR_NOT_AVAILABLE status,
- *      FALLBACK_ADVICE matches /Larry/ but no longer carries the old
- *      graceful-degradation phrase.
+ *   5. (removed by quick 261005-l8g: the keyless sentinel is gone.)
  *   6. larryRefusalLine(kind, detail) is a statusline-safe one-liner (<120
  *      chars) for every kind.
  *   7. The shim source assertion: bin/mindrian-brain-mcp-client.cjs no
@@ -55,30 +53,25 @@ function freshChokepoint() {
 // to six (egress_blocked appended last). The original five positions (and
 // their order) are unchanged.
 // ---------------------------------------------------------------------------
-test('Test 1: REFUSAL_KINDS is frozen and equals the six refusal kinds in order', () => {
+test('Test 1: REFUSAL_KINDS is frozen and equals the five refusal kinds in order', () => {
   const mod = freshChokepoint();
   assert.ok(Array.isArray(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be an array');
-  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
+  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be frozen');
 });
 
 // ---------------------------------------------------------------------------
 // Test 2: refusalResponse status mapping + shape.
 // ---------------------------------------------------------------------------
-test('Test 2: refusalResponse status mapping is honest per kind, no_key keeps the locked wire string', () => {
+test('Test 2: refusalResponse status mapping is honest per kind', () => {
   const mod = freshChokepoint();
-
-  const noKey = mod.refusalResponse('no_key', { tool: 'brain_query' });
-  assert.equal(noKey.status, 'DIRECTOR_NOT_AVAILABLE', 'no_key must keep the byte-locked wire string');
-  assert.equal(typeof noKey.upgrade_hint, 'string', 'no_key must carry upgrade_hint');
-  assert.equal(noKey.kind, 'no_key');
-  assert.equal(noKey.command_context, 'brain_query');
-  assert.ok(Array.isArray(noKey.next_moves));
-  assert.equal(typeof noKey.reason, 'string');
 
   const unreachable = mod.refusalResponse('unreachable', { tool: 'brain_query' });
   assert.equal(unreachable.status, 'BRAIN_UNREACHABLE');
   assert.equal(unreachable.upgrade_hint, undefined, 'unreachable must not carry upgrade_hint');
+  assert.equal(unreachable.kind, 'unreachable');
+  assert.equal(unreachable.command_context, 'brain_query');
+  assert.ok(Array.isArray(unreachable.next_moves));
 
   const tierDenied = mod.refusalResponse('tier_denied', { tool: 'brain_write', message: 'MoatViolation: write not allowed' });
   assert.equal(tierDenied.status, 'BRAIN_TIER_DENIED');
@@ -118,16 +111,12 @@ test('Test 4: unknown kind coerces to unreachable; bad ctx coerces command_conte
 });
 
 // ---------------------------------------------------------------------------
-// Test 5: tier0Response byte-lock unchanged, FALLBACK_ADVICE rewritten.
+// Test 5: quick 261005-l8g removed the keyless sentinel; the module no longer exports it.
 // ---------------------------------------------------------------------------
-test('Test 5: tier0Response byte-lock unchanged; FALLBACK_ADVICE is refusal-framed, not graceful-degradation-framed', () => {
+test('Test 5: the keyless sentinel (tier0Response, status constant) is not exported', () => {
   const mod = freshChokepoint();
-  const r = mod.tier0Response('brain_ask');
-  const keys = Object.keys(r).sort();
-  assert.deepStrictEqual(keys, ['command_context', 'fallback_advice', 'reason', 'status', 'upgrade_hint'].sort());
-  assert.equal(r.status, 'DIRECTOR_NOT_AVAILABLE');
-  assert.match(r.fallback_advice, /Larry/, 'fallback_advice must still mention Larry (existing loose regex)');
-  assert.ok(!r.fallback_advice.includes('Larry can still talk with you'), 'the old graceful-degradation phrase must be gone');
+  assert.equal(mod.tier0Response, undefined);
+  assert.equal(mod.DIRECTOR_NOT_AVAILABLE, undefined);
 });
 
 // ---------------------------------------------------------------------------
@@ -147,10 +136,11 @@ test('Test 6: larryRefusalLine(kind, detail) returns a string under 120 chars fo
 // ---------------------------------------------------------------------------
 // Test 7: shim source assertion -- the conflation is fixed at the source.
 // ---------------------------------------------------------------------------
-test('Test 7: shim source no longer conflates transport-null with the no-key sentinel', () => {
+test('Test 7: shim source carries no keyless sentinel and maps transport-null to unreachable', () => {
   const src = fs.readFileSync(SHIM_PATH, 'utf8');
   const conflationHits = src.match(/r == null \? tier0Response/g) || [];
   assert.equal(conflationHits.length, 0, 'the shim must not map transport-null to tier0Response anywhere');
+  assert.ok(!/tier0Response/.test(src), 'the shim must carry no keyless sentinel at all');
 
   // Phase 257 Plan 06 introduced a shared honestRefusal(result, toolName) helper that
   // consolidates the transport-null -> 'unreachable' mapping (previously inlined once
@@ -205,19 +195,13 @@ test('Test 7: shim source no longer conflates transport-null with the no-key sen
 // hard-coded strings, so this addition to RENDER_COPY cannot break Test 6's
 // cap).
 // ---------------------------------------------------------------------------
-test('Test 8: unreachable and no_key copy name the update path; REASONS never carries it', () => {
+test('Test 8: unreachable copy names the update path; REASONS never carries it', () => {
   const mod = freshChokepoint();
 
   const unreachableCopy = mod.renderRefusal('unreachable', { tool: 'brain_query' });
   assert.ok(
     unreachableCopy.includes('claude plugin update mos@mindrian-marketplace'),
     'rendered unreachable copy must name the two-command update path'
-  );
-
-  const noKeyCopy = mod.renderRefusal('no_key', { tool: 'brain_query' });
-  assert.ok(
-    noKeyCopy.includes('claude plugin update mos@mindrian-marketplace'),
-    'rendered no_key copy must name the two-command update path'
   );
 
   const unreachableResponse = mod.refusalResponse('unreachable', { tool: 'brain_query' });

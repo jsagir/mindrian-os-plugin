@@ -328,28 +328,25 @@ test('Leg 6c: a success payload is returned byte-identical (zero reshaping)', as
   assert.deepStrictEqual(result, state.toolResultPayload, 'recommendChain must not reshape the Brain payload');
 });
 
-test('Leg 8: the belt does not regress the no-key path -- unset key still returns null', async () => {
-  // Full ladder isolation (mirrors tests/test-250-silent-registration.cjs):
-  // a fresh tmp HOME with no .mindrian.env / .mindrian-install.json, and a
-  // temporary chdir so <cwd>/.env (this repo carries a real one) cannot
-  // resolve a real key out from under the test. Restored in `finally`.
-  const prevDisable = process.env.MINDRIAN_DISABLE_AUTO_REGISTER;
+test('Leg 8: the belt does not regress the bare path -- nothing configured still reaches the wire', async () => {
+  // Quick 261005-l8g (SEED-119): Theo needs no key, so "unset key returns null" is gone. Full
+  // isolation: a fresh tmp HOME with nothing in it and a temporary chdir, so no ambient file
+  // can supply anything. The belt (allow verdict) must let a clean call through, with no
+  // Authorization header ever sent.
   const prevHome = process.env.HOME;
   const prevCwd = process.cwd();
-  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'test-c8j-nokeyhome-'));
-  process.env.MINDRIAN_DISABLE_AUTO_REGISTER = '1';
+  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'test-c8j-barehome-'));
   process.env.HOME = tmpHome;
   process.chdir(tmpHome);
   try {
-    const brain = freshBrainClient(mockUrl, null); // null -> deletes MINDRIAN_BRAIN_KEY
+    const brain = freshBrainClient(mockUrl, null);
     const result = await brain.recommendChain('Undefined Problem');
-    assert.strictEqual(result, null, 'no key -> null, belt sits after the key gate and never runs');
-    assert.strictEqual(state.lastToolCall, null, 'no transport call should have been made');
+    assert.deepStrictEqual(result, state.toolResultPayload, 'a bare client reaches the wire and the belt allows the clean call');
+    assert.ok(state.lastToolCall, 'the transport call must have been made');
+    assert.strictEqual(fs.existsSync(path.join(tmpHome, '.mindrian-install.json')), false, 'no install token is written');
   } finally {
     process.chdir(prevCwd);
     if (prevHome === undefined) delete process.env.HOME; else process.env.HOME = prevHome;
-    if (prevDisable === undefined) delete process.env.MINDRIAN_DISABLE_AUTO_REGISTER;
-    else process.env.MINDRIAN_DISABLE_AUTO_REGISTER = prevDisable;
     fs.rmSync(tmpHome, { recursive: true, force: true });
   }
 });

@@ -33,11 +33,13 @@ function freshChokepoint() {
 // Phase 257 (LOCUS-01, D-03) amended REFUSAL_KINDS again, from five members
 // to six (egress_blocked appended last). This test's original intent -- the
 // four positions rate_limited itself amended are unchanged -- is preserved
-// by pinning rate_limited at index 4, rather than asserting it is last.
-test('REFUSAL_KINDS is a frozen six-member array with rate_limited pinned at index 4', () => {
+// by pinning rate_limited's index, rather than asserting it is last.
+// Quick 261005-l8g (SEED-119) removed the keyless kind (index 0), so the set is
+// five members and rate_limited sits at index 3.
+test('REFUSAL_KINDS is a frozen five-member array with rate_limited pinned at index 3', () => {
   const mod = freshChokepoint();
-  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked'], 'rate_limited stays at index 4; egress_blocked (Phase 257) is now appended after it');
-  assert.equal(mod.REFUSAL_KINDS[4], 'rate_limited', 'the original four positions rate_limited was appended after are unchanged');
+  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked'], 'rate_limited stays at index 3; egress_blocked (Phase 257) is now appended after it');
+  assert.equal(mod.REFUSAL_KINDS[3], 'rate_limited', 'the positions rate_limited was appended after are unchanged');
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must still be frozen');
 });
 
@@ -54,7 +56,7 @@ test('refusalResponse(rate_limited) full shape: kind, command_context, next_move
   assert.equal(r.kind, 'rate_limited');
   assert.equal(r.command_context, 'brain_query');
   assert.ok(Array.isArray(r.next_moves) && r.next_moves.length > 0, 'next_moves must be a non-empty array');
-  assert.equal(r.upgrade_hint, undefined, 'upgrade_hint stays exclusive to no_key');
+  assert.equal(r.upgrade_hint, undefined, 'no refusal kind carries an upgrade_hint any more');
 });
 
 test('refusalResponse(rate_limited) reason names the wait when retry_after_s is provided, and stays honest without it', () => {
@@ -85,10 +87,8 @@ test('larryRefusalLine(rate_limited) is a distinct single-line under 120 chars',
   assert.notEqual(line, mod.larryRefusalLine('unreachable'), 'rate_limited must have its own distinct copy, not reuse unreachable\'s');
 });
 
-test('the four pre-existing kinds are byte-unchanged', () => {
+test('the pre-existing kinds are byte-unchanged', () => {
   const mod = freshChokepoint();
-  assert.equal(mod.refusalResponse('no_key', { tool: 'x' }).status, 'DIRECTOR_NOT_AVAILABLE');
-  assert.equal(typeof mod.refusalResponse('no_key', { tool: 'x' }).upgrade_hint, 'string', 'no_key must still carry upgrade_hint');
   assert.equal(mod.refusalResponse('unreachable', { tool: 'x' }).status, 'BRAIN_UNREACHABLE');
   assert.equal(mod.refusalResponse('tier_denied', { tool: 'x' }).status, 'BRAIN_TIER_DENIED');
   assert.equal(mod.refusalResponse('not_ready', { tool: 'x' }).status, 'GRAPH_NOT_READY');

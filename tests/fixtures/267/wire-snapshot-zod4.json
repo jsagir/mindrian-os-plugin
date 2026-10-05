@@ -2086,7 +2086,7 @@
       },
       {
         "name": "brain_write",
-        "description": "Write Cypher to the Brain. The remote may refuse writes unconditionally regardless of key. Generic methodology framework writes only (Canon Part 8).",
+        "description": "Write Cypher to the Brain. The remote may refuse writes unconditionally. Generic methodology framework writes only (Canon Part 8).",
         "inputSchema": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",

@@ -2,11 +2,11 @@
 # Phase 127 Plan 03 -- CONTEXT acceptance gates 1-5 (BRAIN-MCP-127-10).
 #
 # Five gates exercised end-to-end:
-#   Gate 1: clean install, no key -> honest refusal returned, zero methodology served
+#   Gate 1: clean install, Theo unreachable -> honest unreachable refusal, zero methodology served
 #   Gate 2: clean install with live key -> non-null Brain payload (SKIP if no live key)
 #   Gate 3: Lawrence-state legacy user-scope HTTP entry -> migration removes it
 #   Gate 4: no-identity (keyless) cohort -> canonical shim startup line on stderr
-#   Gate 5: Class-M smoke parity -> expected 5-layer cascade
+#   Gate 5: Class-M smoke parity -> expected 7-layer cascade with Theo unreachable
 #
 # Exit 0 iff no FAIL is present. SKIP is non-fatal.
 # HARD RULE: no em-dashes (hyphens only) anywhere in this file.
@@ -28,15 +28,13 @@ record() {
   if [ "$status" = "FAIL" ]; then FAIL_COUNT=$((FAIL_COUNT + 1)); fi
 }
 
-# Gate 1: clean install, no key
+# Gate 1: clean install, nothing configured, Theo unreachable (quick 261005-l8g, SEED-119:
+# there is no keyless state any more; an outage is the honest `unreachable` refusal)
 run_gate_1() {
   local TMPDIR_G1; TMPDIR_G1="$(mktemp -d -t g1-XXXXXX)"
   local OUT_FILE="$TMPDIR_G1/out.json"
-  # Phase 250-04 (HONEST-03): MINDRIAN_DISABLE_AUTO_REGISTER=1 -- this gate's
-  # DIRECTOR_NOT_AVAILABLE expectation is a keyless-fixture assertion; once
-  # the live /register endpoint exists, a live silent registration would
-  # otherwise mint a real token here and break the fixture.
-  if HOME="$TMPDIR_G1" MINDRIAN_DISABLE_AUTO_REGISTER=1 env -u MINDRIAN_BRAIN_KEY timeout 15 node -e '
+  # MINDRIAN_BRAIN_URL points at an unreachable loopback so the gate is hermetic.
+  if HOME="$TMPDIR_G1" MINDRIAN_BRAIN_URL=http://127.0.0.1:1 env -u MINDRIAN_BRAIN_KEY timeout 15 node -e '
     const cp = require("child_process");
     const proc = cp.spawn(process.execPath, ["bin/mindrian-brain-mcp-client.cjs"]);
     let buf = "";
@@ -55,24 +53,18 @@ run_gate_1() {
           if (msg.id === 2 && msg.result && msg.result.content) {
             const text = msg.result.content[0].text;
             const parsed = JSON.parse(text);
-            // Byte-locked wire string. Never rename this assertion target.
-            if (parsed.status !== "DIRECTOR_NOT_AVAILABLE") {
-              failReason = "status !== DIRECTOR_NOT_AVAILABLE: " + JSON.stringify(parsed.status);
+            if (parsed.status !== "BRAIN_UNREACHABLE" || parsed.kind !== "unreachable") {
+              failReason = "status/kind is not the unreachable refusal: " + JSON.stringify([parsed.status, parsed.kind]);
               break;
             }
-            // Sub-assertion 1: honesty. Exact REASON_NO_KEY constant.
-            if (parsed.reason !== "MINDRIAN_BRAIN_KEY not set") {
-              failReason = "reason mismatch: " + JSON.stringify(parsed.reason);
+            // Sub-assertion 1: honesty. The reason names unreachability and no key.
+            if (/key|Tier 0/i.test(text)) {
+              failReason = "refusal names a key or Tier 0: " + text.slice(0, 160);
               break;
             }
-            // Sub-assertion 2: path out.
-            if (!/brain-access/.test(parsed.upgrade_hint || "")) {
-              failReason = "upgrade_hint missing brain-access: " + JSON.stringify(parsed.upgrade_hint);
-              break;
-            }
-            // Sub-assertion 3: shape lock. Exactly the 5 tier0Response() keys.
+            // Sub-assertion 3: shape lock. Exactly the refusalResponse() keys.
             const keys = Object.keys(parsed).sort().join(",");
-            const expectedKeys = "command_context,fallback_advice,reason,status,upgrade_hint";
+            const expectedKeys = "command_context,kind,next_moves,reason,status";
             if (keys !== expectedKeys) {
               failReason = "key shape drifted, got [" + keys + "], want [" + expectedKeys + "]";
               break;
@@ -100,7 +92,7 @@ run_gate_1() {
       process.exit(found ? 0 : 1);
     }, 5000);
   ' >"$OUT_FILE" 2>&1; then
-    record "gate-1" "PASS" "keyless path refused honestly (no_key -> DIRECTOR_NOT_AVAILABLE) and served zero methodology content"
+    record "gate-1" "PASS" "Theo unreachable refused honestly (kind unreachable, no key sentence) and served zero methodology content"
   else
     record "gate-1" "FAIL" "$(cat "$OUT_FILE" 2>/dev/null | tail -1 | head -c 200)"
   fi
@@ -206,21 +198,23 @@ run_gate_4() {
 run_gate_5() {
   local TMPDIR_G5; TMPDIR_G5="$(mktemp -d -t g5-XXXXXX)"
   local OUT="$TMPDIR_G5/smoke.json"
-  if HOME="$TMPDIR_G5" MINDRIAN_OS_ROOT="$REPO_ROOT" env -u MINDRIAN_BRAIN_KEY timeout 30 \
+  if HOME="$TMPDIR_G5" MINDRIAN_OS_ROOT="$REPO_ROOT" MINDRIAN_BRAIN_URL=http://127.0.0.1:1 env -u MINDRIAN_BRAIN_KEY timeout 60 \
      node scripts/doctor.cjs --brain-smoke --json >"$OUT" 2>/dev/null; then
     if node -e '
       const j = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
       if (j.class !== "M") process.exit(11);
-      if (!Array.isArray(j.layers) || j.layers.length !== 6) process.exit(12);
-      // Expected: L1 PASS, L2 FAIL (no key), L3-L6 skipped
+      if (!Array.isArray(j.layers) || j.layers.length !== 7) process.exit(12);
+      // Quick 261005-l8g: Theo unreachable (loopback). L0-L2 PASS (the origin is configured, no key to
+      // resolve), L3 (the schema probe) FAILS honestly, L4-L6 are skipped.
       if (j.layers[0].ok !== true) process.exit(13);
-      if (j.layers[1].ok !== false) process.exit(14);
-      if (j.layers[2].reason !== "skipped-prior-layer-failed") process.exit(15);
-      if (j.layers[3].reason !== "skipped-prior-layer-failed") process.exit(16);
+      if (j.layers[1].ok !== true) process.exit(14);
+      if (j.layers[2].id !== "origin_configured" || j.layers[2].ok !== true) process.exit(15);
+      if (j.layers[3].ok !== false) process.exit(16);
       if (j.layers[4].reason !== "skipped-prior-layer-failed") process.exit(17);
       if (j.layers[5].reason !== "skipped-prior-layer-failed") process.exit(18);
+      if (j.layers[6].reason !== "skipped-prior-layer-failed") process.exit(19);
     ' "$OUT"; then
-      record "gate-5" "PASS" "Class-M reported expected cascade (L1 PASS, L2 FAIL, L3-L6 skipped)"
+      record "gate-5" "PASS" "Class-M reported expected cascade (L0-L2 PASS, L3 FAIL unreachable, L4-L6 skipped)"
     else
       record "gate-5" "FAIL" "Class-M cascade mismatched: $(head -c 200 "$OUT" 2>/dev/null)"
     fi

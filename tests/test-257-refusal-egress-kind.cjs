@@ -48,13 +48,13 @@ function freshChokepoint() {
 // ---------------------------------------------------------------------------
 // Arm 1: vocabulary.
 // ---------------------------------------------------------------------------
-test('Arm 1: REFUSAL_KINDS is a frozen six-member array, rate_limited at index 4, egress_blocked last', () => {
+test('Arm 1: REFUSAL_KINDS is a frozen five-member array (quick 261005-l8g removed the keyless kind), rate_limited at index 3, egress_blocked last', () => {
   const mod = freshChokepoint();
   assert.deepStrictEqual(
     mod.REFUSAL_KINDS,
-    ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']
+    ['unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']
   );
-  assert.equal(mod.REFUSAL_KINDS[4], 'rate_limited');
+  assert.equal(mod.REFUSAL_KINDS[3], 'rate_limited');
   assert.equal(mod.REFUSAL_KINDS[mod.REFUSAL_KINDS.length - 1], 'egress_blocked');
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS));
 });

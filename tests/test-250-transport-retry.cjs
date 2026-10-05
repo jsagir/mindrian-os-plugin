@@ -17,8 +17,8 @@
  *     returns null after exactly 1 + RETRY_MAX attempts.
  *   Test C (zero-retry classes): a 403 on tools/call returns the
  *     tier_denied sentinel with exactly ONE attempt; a 401 on the
- *     initialize handshake returns the invalid_key sentinel with exactly
- *     ONE attempt (401/403 are validation-class, never transient).
+ *     initialize handshake surfaces as null with zero tool attempts (quick
+ *     261005-l8g: no credential is sent, so a 401 is an outage, not a key verdict).
  *   Test D (env override): MINDRIAN_BRAIN_RETRY_MAX=0 disables retries (one
  *     attempt); an invalid value falls back to the default.
  *
@@ -200,14 +200,16 @@ test('Test C (403 leg): tier_denied sentinel comes back with exactly ONE tools/c
   assert.equal(state.toolCallCount, 1, '403 is validation-class, never transient -- exactly one attempt');
 });
 
-test('Test C (401 leg): invalid_key sentinel comes back with exactly ONE attempt', async () => {
+// Quick 261005-l8g (SEED-119): the client sends no credential, so a 401 can no longer mean
+// "invalid key". A non-OK handshake of any status is an outage (null -> the unreachable refusal).
+test('Test C (401 leg): a non-OK handshake surfaces as null with zero tool attempts', async () => {
   const brain = freshBrainClient(mockUrl, { MINDRIAN_BRAIN_RETRY_MAX: '2' });
   state.initMode = '401';
   state.toolScript = ['ok']; // must never be reached -- init fails first
 
   const result = await brain.callTool('brain_query', { cypher: 'MATCH (n) RETURN n' });
 
-  assert.deepStrictEqual(result, { error: 'invalid_key', message: 'Brain API key is invalid.' });
+  assert.equal(result, null, 'a failed handshake is the transport-null contract, never a key sentinel');
   assert.equal(state.toolCallCount, 0, '401 on the handshake means tools/call is never reached -- zero tool attempts');
 });
 

@@ -312,7 +312,6 @@ const OLD_VERSION = function () { return '2.1.100 (Claude Code)'; };
     assert.equal(env.MINDRIAN_ROOMS_ROOT, path.join('/tmp/hermetic-x', 'rooms'));
     assert.equal(env.CARD_FIRE_SIDECHANNEL_PATH, path.join('/tmp/hermetic-x', 'card-fire-reached.json'));
     assert.equal(env.FORK359_PROBE_LOG, path.join('/tmp/hermetic-x', 'probe.jsonl'));
-    assert.equal(env.MINDRIAN_DISABLE_AUTO_REGISTER, '1');
     assert.equal(env.MINDRIAN_OPEN_BROWSER_DISABLE, '1');
     assert.equal(env.HOME, process.env.HOME);
   } finally {

@@ -46,10 +46,11 @@ C.check('R3 unknown, empty, null, number and object inputs return null',
 let sixOk = false;
 try {
   require('node:assert').deepStrictEqual(r.REFUSAL_KINDS,
-    ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
+    ['unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
   sixOk = true;
 } catch (_e) { sixOk = false; }
-C.check('R4 REFUSAL_KINDS is still the same six', sixOk);
+// Quick 261005-l8g removed the keyless kind: five members remain, unchanged otherwise.
+C.check('R4 REFUSAL_KINDS is still the same five', sixOk);
 
 const map = r.THEO_REFUSAL_TO_KIND;
 C.check('R5 THEO_REFUSAL_TO_KIND is frozen with exactly one key, not_scored',

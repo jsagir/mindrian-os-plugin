@@ -12,7 +12,7 @@
  * throw into or block the caller.
  *
  *   1. orchestrationReadiness(name, opts) with opts.roomDir: readiness_score
- *      <= 2 captures; >= 3 does not; tier_denied/invalid_key sentinel does
+ *      <= 2 captures; >= 3 does not; tier_denied sentinel does
  *      not; null transport failure does not.
  *   2. discoverStructure(name, opts) with opts.roomDir: grounded === false
  *      captures; grounded true does not.
@@ -213,16 +213,16 @@ test('Test 3: orchestrationReadiness does NOT capture on a tier_denied (403) sen
 });
 
 // ---------------------------------------------------------------------------
-// Test 4: an invalid_key sentinel is never a capture trigger.
+// Test 4: a failed 401 handshake (null since quick 261005-l8g removed the key sentinel) is never a capture trigger.
 // ---------------------------------------------------------------------------
-test('Test 4: orchestrationReadiness does NOT capture on an invalid_key (401) sentinel', async () => {
+test('Test 4: orchestrationReadiness does NOT capture on a failed (401) handshake', async () => {
   const brain = freshBrainClient(mockUrl);
   const roomDir = freshRoom();
   state.initMode = '401';
 
   const result = await brain.orchestrationReadiness('Six Thinking Hats', { roomDir });
 
-  assert.equal(result.error, 'invalid_key');
+  assert.equal(result, null, 'a failed handshake is the transport-null contract');
   assert.equal(readQueueFile(roomDir), null);
 });
 

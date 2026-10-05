@@ -9,7 +9,7 @@
  *   1. callTool distinguishes a tier denial (HTTP 403 + MoatViolation body)
  *      from an outage (network failure / timeout). 403 now returns a typed
  *      { error: 'tier_denied', tool, message } sentinel -- NEVER null.
- *      null is reserved for genuine transport failure. 401 (invalid_key)
+ *      null is reserved for genuine transport failure. 401 (a failed handshake, null)
  *      is unchanged. Every other public wrapper that calls callTool either
  *      passes the sentinel through unchanged or handles it explicitly
  *      (audited below, one assertion per wrapper).
@@ -228,13 +228,15 @@ test('Test 2: 403 + unparseable body still returns tier_denied sentinel with tru
 // ---------------------------------------------------------------------------
 // Test 3: HTTP 401 keeps the existing invalid_key sentinel path unchanged.
 // ---------------------------------------------------------------------------
-test('Test 3: HTTP 401 keeps the existing invalid_key sentinel path unchanged', async () => {
+// Quick 261005-l8g (SEED-119): the client sends no credential, so there is no "invalid key" verdict
+// to return. A 401 at the handshake is an outage like any other non-OK status: null.
+test('Test 3: HTTP 401 at the handshake surfaces as the transport null (no key sentinel)', async () => {
   const brain = freshBrainClient(mockUrl);
   state.initMode = '401';
 
   const result = await brain.callTool('brain_stats', {});
 
-  assert.deepStrictEqual(result, { error: 'invalid_key', message: 'Brain API key is invalid.' });
+  assert.strictEqual(result, null, 'a failed handshake is the transport-null contract, never a key sentinel');
 });
 
 // ---------------------------------------------------------------------------

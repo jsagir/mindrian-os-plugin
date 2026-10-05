@@ -11,7 +11,7 @@
  * + log scrub.
  *
  * Hermetic os.tmpdir() HOME via mkdtempSync + rmSync cleanup. NO real
- * `claude` CLI invocations (every test injects mockClaude / mockBrainKey /
+ * `claude` CLI invocations (every test injects mockClaude /
  * mockRemove).
  */
 
@@ -68,26 +68,29 @@ t('T1 planMigration returns action=none when no legacy entry present', () => {
 });
 
 // ---- T2 ----
-t('T2 planMigration returns action=remove when legacy Bearer matches current key', () => {
+t('T2 planMigration returns action=remove for a legacy HTTP entry', () => {
   const h = mkHome();
   try {
     const entry = legacyEntryFixture();
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
     assert.equal(plan.action, 'remove');
-    assert.equal(plan.reason, 'legacy_http_transport_matches_current_key');
+    assert.equal(plan.reason, 'legacy_http_transport_entry');
     assert.match(plan.fingerprint, /^[a-f0-9]{16}$/);
   } finally { rmHome(h); }
 });
 
 // ---- T3 ----
-t('T3 planMigration returns action=refuse on two-key conflict', () => {
+// Quick 261005-l8g (SEED-119): the old two-key conflict refusal is gone. Theo needs no
+// credential, so whatever the legacy entry's header carried, the entry is removed.
+t('T3 planMigration returns action=remove whatever the legacy header carried (no refusal)', () => {
   const h = mkHome();
   try {
     const entry = legacyEntryFixture();
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0002' });
-    assert.equal(plan.action, 'refuse');
-    assert.equal(plan.reason, 'two_key_conflict_rotate_required');
-    assert.ok(plan.warning && /auto-migration refused/i.test(plan.warning));
+    entry.headers.Authorization = 'Bearer someotherfixturekey9999';
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
+    assert.equal(plan.action, 'remove');
+    assert.equal(plan.reason, 'legacy_http_transport_entry');
+    assert.equal(plan.warning, undefined);
   } finally { rmHome(h); }
 });
 
@@ -96,10 +99,10 @@ t('T4 planMigration second call returns action=already_migrated after executePla
   const h = mkHome();
   try {
     const entry = legacyEntryFixture();
-    const plan1 = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan1 = m.planMigration({ homeDir: h, mockClaude: () => entry });
     assert.equal(plan1.action, 'remove');
     m.executePlan({ plan: plan1, homeDir: h, dryRun: false, isoTs: '2026-05-19T20:30:00Z', mockRemove: () => {} });
-    const plan2 = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan2 = m.planMigration({ homeDir: h, mockClaude: () => entry });
     assert.equal(plan2.action, 'already_migrated');
     assert.equal(plan2.reason, 'idempotency_log_match');
   } finally { rmHome(h); }
@@ -111,7 +114,7 @@ t('T5 executePlan dryRun=true returns would_have, no removeFn call, no files wri
   try {
     const entry = legacyEntryFixture();
     let removeCalled = false;
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
     const result = m.executePlan({ plan, homeDir: h, dryRun: true, mockRemove: () => { removeCalled = true; } });
     assert.equal(removeCalled, false);
     assert.equal(result.executed, false);
@@ -132,7 +135,7 @@ t('T6 executePlan writes snapshot BEFORE invoking removeFn (SG-2 ordering)', () 
     const entry = legacyEntryFixture();
     let snapshotExistsAtRemoveTime = false;
     let snapshotPath = null;
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
     const mockRemove = () => {
       const snapDir = path.join(h, '.mindrian', 'pre-migration-snapshots');
       if (fs.existsSync(snapDir)) {
@@ -164,38 +167,21 @@ t('T7 SG-1 HARD INVARIANT: ~/.claude.json byte-identical before+after executePla
     fs.writeFileSync(fakeClaudeJson, payload);
     const before = crypto.createHash('sha256').update(fs.readFileSync(fakeClaudeJson)).digest('hex');
     const entry = legacyEntryFixture();
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
     m.executePlan({ plan, homeDir: h, dryRun: false, isoTs: '2026-05-19T20:30:00Z', mockRemove: () => {} });
     const after = crypto.createHash('sha256').update(fs.readFileSync(fakeClaudeJson)).digest('hex');
     assert.equal(before, after, 'SG-1 VIOLATION: ~/.claude.json modified during executePlan');
   } finally { rmHome(h); }
 });
 
-// ---- T8 refuse path no-op ----
-t('T8 executePlan with action=refuse writes stderr warning, no removeFn, no snapshot, no log', () => {
-  const h = mkHome();
-  try {
-    const entry = legacyEntryFixture();
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0002' });
-    assert.equal(plan.action, 'refuse');
-    let removeCalled = false;
-    const result = m.executePlan({ plan, homeDir: h, dryRun: false, mockRemove: () => { removeCalled = true; } });
-    assert.equal(removeCalled, false);
-    assert.equal(result.executed, false);
-    assert.equal(result.action, 'refused');
-    const snapDir = path.join(h, '.mindrian', 'pre-migration-snapshots');
-    assert.equal(fs.existsSync(snapDir) && fs.readdirSync(snapDir).length > 0, false);
-    const log = path.join(h, '.mindrian', 'migrations.jsonl');
-    assert.equal(fs.existsSync(log), false);
-  } finally { rmHome(h); }
-});
+// ---- T8 (the refuse path) was deleted by quick 261005-l8g: the two-key refusal it pinned is gone. ----
 
 // ---- T9 log structure ----
 t('T9 migrations.jsonl has exactly one removed record with fingerprint/source/action/ts (SG-4)', () => {
   const h = mkHome();
   try {
     const entry = legacyEntryFixture();
-    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry, mockBrainKey: 'testfixturekey0001' });
+    const plan = m.planMigration({ homeDir: h, mockClaude: () => entry });
     m.executePlan({ plan, homeDir: h, dryRun: false, isoTs: '2026-05-19T20:30:00Z', mockRemove: () => {} });
     const logPath = path.join(h, '.mindrian', 'migrations.jsonl');
     const text = fs.readFileSync(logPath, 'utf8');

@@ -77,21 +77,17 @@
  */
 
 // ---------------------------------------------------------------------------
-// Hermetic Brain-neutralization MUST happen BEFORE any module that resolves the
-// Brain key is required. resolve-brain-key reads MINDRIAN_BRAIN_KEY env, then
-// <home>/.mindrian.env (via process.env.HOME || USERPROFILE), then <cwd>/.env.
-// Point HOME/USERPROFILE at a fresh empty tmp dir and clear the env key so the
-// hermetic arm CANNOT see this maintainer box's real Brain key. This guarantees
-// brainClient.isAvailable()===false deterministically -- the precondition that
-// forces ensureSectionDerived down its LOCAL no-Brain-query branch regardless of
-// the operator's environment.
+// Quick 261005-l8g (SEED-119): Theo needs no key, so a keyless HOME can no longer make the
+// Brain "unavailable". The hermetic arm now simulates an unreachable Theo the one supported
+// way: brainClient.isAvailable is stubbed to false right after it loads (below), which forces
+// ensureSectionDerived down its LOCAL no-Brain-query branch regardless of the operator's
+// environment. HOME/USERPROFILE still point at a fresh empty tmp dir.
 // ---------------------------------------------------------------------------
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
 const HERMETIC_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'acpt05-home-'));
-delete process.env.MINDRIAN_BRAIN_KEY;
 process.env.HOME = HERMETIC_HOME;
 process.env.USERPROFILE = HERMETIC_HOME;
 
@@ -108,6 +104,7 @@ try {
   shared = require(path.join(ROOT, 'lib', 'core', 'navigation-engine-shared.cjs'));
   derivation = require(path.join(ROOT, 'lib', 'core', 'brain-derivation.cjs'));
   brainClient = require(path.join(ROOT, 'lib', 'core', 'brain-client.cjs'));
+  brainClient.isAvailable = function () { return false; }; // simulate Theo unreachable (hermetic)
 } catch (e) {
   process.stdout.write('SKIP test-acpt-05-brain-derive-tier-rise.cjs (module load failed: ' + e.message + ')\n');
   process.exit(77);
@@ -230,15 +227,15 @@ function writeBrainMd(sectionPath, fm) {
 }
 
 async function main() {
-  // Precondition: the hermetic env MUST make Brain unreachable. Every hermetic
-  // arm below depends on this. If a key somehow resolves, the hermetic arm is
+  // Precondition: the hermetic stub MUST make Brain unreachable. Every hermetic
+  // arm below depends on this. If the stub is somehow bypassed, the hermetic arm is
   // not honest -- fail loudly rather than silently passing a non-hermetic run.
-  const preLabel = 'ACPT-05 PRECONDITION: hermetic env makes brainClient.isAvailable() false (no Brain reachable)';
+  const preLabel = 'ACPT-05 PRECONDITION: the hermetic stub makes brainClient.isAvailable() false (no Brain reachable)';
   let brainReachable;
   try {
     brainReachable = brainClient.isAvailable();
     assert.equal(brainReachable, false,
-      preLabel + ': the hermetic HOME/USERPROFILE override + cleared MINDRIAN_BRAIN_KEY must yield isAvailable()===false');
+      preLabel + ': the hermetic isAvailable stub must yield false');
     ok(preLabel);
   } catch (e) {
     fail(preLabel, e);
@@ -441,7 +438,7 @@ async function main() {
   {
     const label =
       'ACPT-05 LIVE: a FULL deriveSection (real Brain-query) lifts the tier to mode_a (autonomous:false / human_needed)';
-    // The hermetic env above neutralized the Brain key in-process, so the live
+    // The hermetic stub above neutralized Brain availability in-process, so the live
     // arm cannot run in this hermetic invocation by construction. An operator
     // running the live arm per the Task-2 human-verify checkpoint must do so in
     // a process with a reachable Brain (and WITHOUT this file's hermetic env

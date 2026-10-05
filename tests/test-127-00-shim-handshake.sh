@@ -114,7 +114,7 @@ node -e '
 ' >/dev/null 2>&1 && ok "Test 6: mindrian-os.args[0] uses \${CLAUDE_PLUGIN_ROOT} pattern (consistency)" || fail "Test 6: mindrian-os.args[0] uses \${CLAUDE_PLUGIN_ROOT} pattern (consistency)"
 
 # ---------------------------------------------------------------------------
-# Tests 7-9: live JSON-RPC handshake under hermetic HOME with no key.
+# Tests 7-9: live JSON-RPC handshake under hermetic HOME, Theo unreachable.
 #
 # Implementation strategy: a single inline Node script handles all three
 # (initialize + tools/call brain_schema + tools/call brain_ask) by spawning
@@ -126,12 +126,11 @@ TEMPDIR=$(mktemp -d -t mindrian-brain-shim-127-XXXXXX)
 trap 'rm -rf "$TEMPDIR"; kill $WATCHDOG_PID 2>/dev/null || true' EXIT
 
 # Make sure no stale env contaminates the hermetic spawn.
-# Phase 250-04 (HONEST-03): MINDRIAN_DISABLE_AUTO_REGISTER=1 keeps Test 8's
-# no-key DIRECTOR_NOT_AVAILABLE assertion deterministic once the live
-# /register endpoint exists -- without this, a live harness run would
-# silently register (mint a real token against the deployed Brain) and the
-# DIRECTOR_NOT_AVAILABLE fixture below would break.
-LIVE_OUT=$(HOME="$TEMPDIR" XDG_CONFIG_HOME="$TEMPDIR/.config" MINDRIAN_DISABLE_AUTO_REGISTER=1 env -u MINDRIAN_BRAIN_KEY \
+# Quick 261005-l8g (SEED-119): Theo needs no key, so there is no keyless refusal to provoke.
+# MINDRIAN_BRAIN_URL points at an unreachable loopback instead, which keeps Tests 8 and 9
+# deterministic and hermetic (the harness never reaches the real Theo): the shim must answer
+# with the honest `unreachable` refusal.
+LIVE_OUT=$(HOME="$TEMPDIR" XDG_CONFIG_HOME="$TEMPDIR/.config" MINDRIAN_BRAIN_URL=http://127.0.0.1:1 env -u MINDRIAN_BRAIN_KEY \
   node -e '
     "use strict";
     const cp = require("child_process");
@@ -249,7 +248,7 @@ RESULT_JSON=$(printf '%s\n' "$LIVE_OUT" | awk '/---HARNESS_RESULT_START---/{flag
 
 if [ -z "$RESULT_JSON" ]; then
   fail "Test 7: live JSON-RPC initialize handshake" "no harness result produced"
-  fail "Test 8: live tools/call brain_schema returns DIRECTOR_NOT_AVAILABLE" "no harness result produced"
+  fail "Test 8: live tools/call brain_schema refuses with BRAIN_UNREACHABLE" "no harness result produced"
   fail "Test 9: live tools/call brain_ask returns DirectiveEnvelope GUIDED brain_unreachable" "no harness result produced"
 else
   # Test 7: initialize response with serverInfo.name === "mindrian-brain"
@@ -274,7 +273,7 @@ else
     fail "Test 7: live JSON-RPC initialize -> serverInfo.name == mindrian-brain" "$INIT_OK"
   fi
 
-  # Test 8: brain_schema keyless refusal sentinel (byte-locked wire string).
+  # Test 8: brain_schema answers the honest unreachable refusal.
   SCHEMA_OK=$(printf '%s' "$RESULT_JSON" | node -e '
     let buf = "";
     process.stdin.on("data", (d) => { buf += d.toString("utf8"); });
@@ -288,18 +287,18 @@ else
           return;
         }
         const parsed = JSON.parse(content.text);
-        const ok = parsed.status === "DIRECTOR_NOT_AVAILABLE"
-          && /MINDRIAN_BRAIN_KEY not set/.test(parsed.reason)
-          && /brain-access/.test(parsed.upgrade_hint)
-          && /Larry/.test(parsed.fallback_advice);
+        const ok = parsed.status === "BRAIN_UNREACHABLE"
+          && parsed.kind === "unreachable"
+          && /Larry/.test(parsed.reason)
+          && !/key|Tier 0/i.test(content.text);
         process.stdout.write(ok ? "PASS" : ("FAIL:" + JSON.stringify(parsed)));
       } catch (e) { process.stdout.write("FAIL:parse:" + e.message); }
     });
   ' 2>/dev/null)
   if [ "$SCHEMA_OK" = "PASS" ]; then
-    ok "Test 8: live tools/call brain_schema refuses with DIRECTOR_NOT_AVAILABLE (keyless, no methodology served)"
+    ok "Test 8: live tools/call brain_schema refuses with BRAIN_UNREACHABLE (Theo unreachable, no methodology served)"
   else
-    fail "Test 8: live tools/call brain_schema refuses with DIRECTOR_NOT_AVAILABLE (keyless, no methodology served)" "$SCHEMA_OK"
+    fail "Test 8: live tools/call brain_schema refuses with BRAIN_UNREACHABLE (Theo unreachable, no methodology served)" "$SCHEMA_OK"
   fi
 
   # Test 9: brain_ask DirectiveEnvelope shape.
@@ -319,7 +318,8 @@ else
         const okShape = parsed.packet_version === "1.0"
           && parsed.packet_type === "DirectiveEnvelope"
           && parsed.mode === "GUIDED"
-          && parsed.mode_rationale === "brain_unreachable"
+          && parsed.refusal && parsed.refusal.kind === "unreachable"
+          && parsed.refusal.status === "BRAIN_UNREACHABLE"
           && parsed.user_override
           && Object.prototype.hasOwnProperty.call(parsed.user_override, "just tell me")
           && Object.prototype.hasOwnProperty.call(parsed.user_override, "let me think")

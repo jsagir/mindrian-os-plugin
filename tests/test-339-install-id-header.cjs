@@ -407,7 +407,7 @@ test('Arm 16: class-m-brain-smoke L0 carries install_id_present as a boolean onl
     mockBrainUrl: () => CANON_BRAIN_URL,
     mockTheoHealth: async () => null,
     mockResolveRoot: () => ({ ok: true, root: '/fake/plugin/root' }),
-    mockResolveKey: () => ({ available: true, key: 'fake-key' }),
+    mockAvailable: () => true,
     mockSchema: async () => ({ ok: true }),
     mockSpawn: async () => ({ ok: true }),
     mockStats: async () => ({ ok: true }),

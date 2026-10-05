@@ -21,12 +21,10 @@
  *     `server/discover` handler, so 'auto' mode's conservative fallback
  *     lands it on the legacy 2025-11-25 handshake instead, and this arm's
  *     era assertion fails.
- *   - Keyless arms (both eras): brain_stats returns the byte-locked
- *     DIRECTOR_NOT_AVAILABLE tier-0 sentinel (lib/core/refusal-messaging.cjs)
- *     with zero network reached -- hermeticEnv() strips MINDRIAN_BRAIN_KEY
- *     and points MINDRIAN_BRAIN_URL at an unreachable loopback, and
- *     MINDRIAN_DISABLE_AUTO_REGISTER=1 prevents even the silent-registration
- *     POST from firing.
+ *   - Unreachable arms (both eras): brain_stats returns the honest
+ *     BRAIN_UNREACHABLE refusal (lib/core/refusal-messaging.cjs) with
+ *     MINDRIAN_BRAIN_URL pointed at an unreachable loopback. Quick 261005-l8g
+ *     removed the keyless sentinel these arms used to pin.
  *   - Source arm: the shim's own source requires @modelcontextprotocol/server
  *     (via requireWithHeal) on the connect path and never requires
  *     @modelcontextprotocol/sdk. RED before migration -- today's shim still
@@ -155,13 +153,17 @@ function compareTools(liveTools) {
   }
 }
 
+// Quick 261005-l8g (SEED-119): there is no keyless state any more. With Theo unreachable the
+// shim answers the honest `unreachable` refusal, and nothing in it names a key or Tier 0.
 async function keylessRefusalCheck(conn) {
   const result = await conn.client.callTool({ name: 'brain_stats', arguments: {} });
   const text = result.content && result.content[0] && result.content[0].text;
   assert.ok(typeof text === 'string' && text.length > 0, 'brain_stats must return text content');
   const parsed = JSON.parse(text);
-  assert.equal(parsed.status, 'DIRECTOR_NOT_AVAILABLE', 'keyless brain_stats must return the byte-locked tier-0 sentinel');
-  assert.equal(parsed.command_context, 'brain_stats', 'tier-0 sentinel must name the calling tool');
+  assert.equal(parsed.status, 'BRAIN_UNREACHABLE', 'brain_stats with Theo unreachable must return the unreachable refusal');
+  assert.equal(parsed.kind, 'unreachable');
+  assert.equal(parsed.command_context, 'brain_stats', 'the refusal must name the calling tool');
+  assert.ok(!/key|Tier 0/i.test(text), 'the refusal must not mention a key or Tier 0');
 }
 
 async function main() {
@@ -179,7 +181,7 @@ async function main() {
     }
   );
 
-  await test('2025 arm: keyless brain_stats returns the tier-0 refusal shape, no network reached', async () => {
+  await test('2025 arm: brain_stats with Theo unreachable returns the unreachable refusal shape, no key sentence', async () => {
     const conn = await connectClient({});
     try {
       await keylessRefusalCheck(conn);
@@ -203,7 +205,7 @@ async function main() {
     }
   );
 
-  await test('2026 arm: keyless brain_stats returns the tier-0 refusal shape, no network reached', async () => {
+  await test('2026 arm: brain_stats with Theo unreachable returns the unreachable refusal shape, no key sentence', async () => {
     const conn = await connectClient({ clientOptions: { versionNegotiation: { mode: 'auto' } } });
     try {
       await keylessRefusalCheck(conn);

@@ -4,9 +4,9 @@
 #
 # Verifies the doctor's --brain-smoke flag wiring end-to-end:
 #   T1: --help text mentions --brain-smoke
-#   T2: --brain-smoke --json prints valid JSON with class:M, 6 layers
+#   T2: --brain-smoke --json prints valid JSON with class:M, 7 layers
 #   T3: --brain-smoke (no --json) exits 0 (class-flag invariant)
-#   T4: no-identity refusal cascade (no key) -- L1 PASS, L2 FAIL, L3-L6 skipped
+#   T4: Theo-unreachable cascade -- L0-L2 PASS, L3 FAIL (unreachable), L4-L6 skipped
 #   T5: commands/doctor.md documents the flag
 #
 # Canon parts: 7 (reuse of existing class-dispatch pattern), 8 (LOCAL-only).
@@ -50,7 +50,7 @@ run "T1-help-mentions-brain-smoke" '
 # T2: --brain-smoke --json prints valid JSON with class:M + 7 layers, L0 first
 run "T2-brain-smoke-json-output" '
   TMPDIR=$(mktemp -d -t 127-02-T2-XXXXXX)
-  HOME="$TMPDIR" env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
+  HOME="$TMPDIR" MINDRIAN_BRAIN_URL=http://127.0.0.1:1 env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
   node -e "
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
     if (j.class !== \"M\") { console.error(\"class !== M, got: \" + j.class); process.exit(11); }
@@ -65,32 +65,34 @@ run "T2-brain-smoke-json-output" '
 # T3: --brain-smoke alone exits 0 (class-flag invariant)
 run "T3-class-flag-invariant-exit-0" '
   TMPDIR=$(mktemp -d -t 127-02-T3-XXXXXX)
-  HOME="$TMPDIR" env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke >/dev/null 2>&1
+  HOME="$TMPDIR" MINDRIAN_BRAIN_URL=http://127.0.0.1:1 env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke >/dev/null 2>&1
   EC=$?
   rm -rf "$TMPDIR"
   test "$EC" -eq 0
 '
 
 # T4: no-identity path (L0 OK -- a hermetic HOME carries no ~/.claude.json
-# and therefore no shadow; L1 OK via MINDRIAN_OS_ROOT; L2 FAIL because no
-# key; L3-L6 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
+# and therefore no shadow; L1 OK via MINDRIAN_OS_ROOT; L2 OK, a Theo origin is
+# configured -- quick 261005-l8g removed the key; L3 FAILS because the origin is an
+# unreachable loopback; L4-L6 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
 # precedence (env var) so L1 finds the plugin root cleanly even under
 # hermetic HOME without a real install. L6 (store_identity) is always
 # reached in the skipped state here and never touches the network -- this
-# test runs with no key under a hermetic HOME.
+# test points the origin at an unreachable loopback under a hermetic HOME.
 run "T4-no-identity-refusal-cascade" '
   TMPDIR=$(mktemp -d -t 127-02-T4-XXXXXX)
   HOME="$TMPDIR" \
     MINDRIAN_OS_ROOT="$REPO_ROOT" \
+    MINDRIAN_BRAIN_URL=http://127.0.0.1:1 \
     env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
   node -e "
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
     if (j.layers[0].id !== \"origin_shadow\") { console.error(\"layers[0].id !== origin_shadow, got: \" + j.layers[0].id); process.exit(19); }
     if (j.layers[0].ok !== true) { console.error(\"L0 should be true (hermetic HOME carries no ~/.claude.json, no shadow); got: \" + j.layers[0].reason); process.exit(20); }
     if (j.layers[1].ok !== true) { console.error(\"L1 should be true (via MINDRIAN_OS_ROOT); got: \" + j.layers[1].reason); process.exit(21); }
-    if (j.layers[2].ok !== false) { console.error(\"L2 ok should be false (no key)\"); process.exit(22); }
-    if (j.layers[3].ok !== false || j.layers[3].reason !== \"skipped-prior-layer-failed\") {
-      console.error(\"L3 should be skipped; got ok=\" + j.layers[3].ok + \", reason=\" + j.layers[3].reason);
+    if (j.layers[2].ok !== true) { console.error(\"L2 should be true (a Theo origin is configured); got: \" + j.layers[2].reason); process.exit(22); }
+    if (j.layers[3].ok !== false || !/unreachable/.test(j.layers[3].reason)) {
+      console.error(\"L3 should fail as unreachable; got ok=\" + j.layers[3].ok + \", reason=\" + j.layers[3].reason);
       process.exit(23);
     }
     if (j.layers[4].ok !== false || j.layers[4].reason !== \"skipped-prior-layer-failed\") {
