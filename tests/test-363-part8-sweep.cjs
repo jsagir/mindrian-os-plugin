@@ -11,7 +11,7 @@
  *   D3  filing               (basket, file-run) through the CLI
  *   D4  the MCP tool ops     (plan, grant_request + gate_answer, run_quick,
  *                             deep_plan, basket, file, pending, grant_status)
- *   D5  the ambient branch   (maybeQuick with a standing grant)
+ *   D5  the ambient branch   (maybeQuick queues the run card; the approved run then runs)
  *   D6  the structure live refresh (buildPlanLive with a recording stub client)
  * plus one failing-search run so the shared egress telemetry sink is written.
  *
@@ -394,7 +394,8 @@ async function main() {
     if (planned.ok !== true) return 'plan ' + JSON.stringify(planned).slice(0, 200);
     const req = await c.call({ op: 'grant_request', run_id: planned.run_id });
     if (!req.gate) return 'no gate ' + JSON.stringify(req).slice(0, 200);
-    const ans = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    // 369.2-10 (R02, ruling 2026-10-05, A5): one run grant per run on the web lines; the gate offers approve_run.
+    const ans = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
     if (ans.ok !== true) return 'gate_answer ' + JSON.stringify(ans).slice(0, 200);
     const replay = inprocReplay();
     const done = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: planned.run_id }); });
@@ -415,8 +416,10 @@ async function main() {
   });
 
   // D5: the ambient branch -------------------------------------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): under a standing grant the ambient pass queues the run card and
+  // sends nothing; the approved run is the one that sends, and the sweep covers its requests and results.
   let ambientRoom = null;
-  await leg('D5 ambient branch under the fake key', async function () {
+  await leg('D5 ambient branch under the fake key: the pass queues a run card and sends nothing; the approved run then runs', async function () {
     ambientRoom = newRoom('researcher');
     const proposal = grants.buildStandingProposal(ambientRoom.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [SYN] }] });
     const g = planner.approveStandingGrant(ambientRoom.roomDir, proposal, { approvedVia: 'cli' });
@@ -426,7 +429,15 @@ async function main() {
       budgetMs: 4 * 60 * 1000, now: Date.parse('2026-09-30T10:00:00Z'), deltaHash: 'f'.repeat(64), deps: { fetchEnvelopeFn: seam(replay) },
     });
     CAP.inproc.push(JSON.stringify(out));
-    if (out.outcome !== 'ran') return 'ambient ' + JSON.stringify(out);
+    if (out.outcome !== 'plan_card_reask') return 'ambient ' + JSON.stringify(out);
+    if (replay.calls.length !== 0) return 'the ambient pass sent ' + replay.calls.length + ' searches';
+    const ap = planner.approvePlanReview(ambientRoom.roomDir, out.run_id, { approvedVia: 'cli' });
+    if (!ap.ok) return 'approvePlanReview ' + JSON.stringify(ap);
+    const loaded = planner.loadPlan(ambientRoom.roomDir, out.run_id);
+    const res = await quick.runQuick(ambientRoom.roomDir, loaded.plan, { fetchEnvelopeFn: seam(replay), now: Date.now() });
+    CAP.inproc.push(JSON.stringify({ status: res.status, reason: res.reason, verdict: res.run && res.run.verdict, card: res.card }));
+    if (res.status !== 'done') return 'approved run ' + res.status + ' ' + res.reason;
+    if (replay.calls.length < 1) return 'the approved run sent nothing';
     return true;
   });
 
@@ -451,10 +462,10 @@ async function main() {
   let telemetryEntries = 0;
   await leg('D7 a failing search writes the shared egress telemetry sink (hash only)', async function () {
     const room7 = newRoom('researcher');
-    const proposal = grants.buildStandingProposal(room7.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [SYN] }] });
-    const g = planner.approveStandingGrant(room7.roomDir, proposal, { approvedVia: 'cli' });
-    if (!g.ok) return 'grant ' + JSON.stringify(g);
+    // 369.2-10 (R02, ruling 2026-10-05, A5): the run is approved as a run grant (a standing grant no longer sends).
     const built = planner.buildPlan(room7.roomDir, wsQs(room7), { mode: 'quick' });
+    const g = planner.approvePlanReview(room7.roomDir, built.run_id, { approvedVia: 'cli' });
+    if (!g.ok) return 'run grant ' + JSON.stringify(g);
     const replay = inprocReplay(function () { return 'SENTINEL_500'; });
     const res = await quick.runQuick(room7.roomDir, built.plan, { fetchEnvelopeFn: seam(replay), now: Date.now() });
     if (res.status !== 'done') return 'run ' + res.status + ' ' + res.reason;

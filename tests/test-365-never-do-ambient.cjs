@@ -71,7 +71,19 @@ function standingGrant(room) {
   return w.grant;
 }
 
-// A room that would fetch: a covering standing grant.
+// 369.2-10 (R02, ruling 2026-10-05, A5): a standing grant never sends a web string. The room below
+// keeps its standing grant (the room a navigator really has), but a room-started pass over it queues
+// the run card and sends nothing; the room "would fetch" only after the navigator approves THAT run.
+// approveAndRun is that approval (approvePlanReview, the CLI review approve path) plus run-quick.
+async function approveAndRun(room, runId, spy) {
+  const ap = planner.approvePlanReview(room.roomDir, runId, { approvedVia: { surface: 'cli' } });
+  const loaded = planner.loadPlan(room.roomDir, runId);
+  if (!(ap && ap.ok === true && loaded.ok)) return { ap: ap, res: null };
+  const res = await quickMod.runQuick(room.roomDir, loaded.plan, { budgetMs: BIG_BUDGET, now: NOW, fetchEnvelopeFn: spy.fn });
+  return { ap: ap, res: res };
+}
+
+// A room that would fetch once its run is approved: a standing grant plus the run card below.
 function fetchingRoom() {
   const r = newRoom();
   standingGrant(r);
@@ -193,17 +205,18 @@ async function main() {
     const control = fetchingRoom();
     const cSpy = spyFetch();
     const cOut = await AMBIENT.maybeQuick(control.roomDir, compWithWhitespace(), optsFor(cSpy));
+    const cRun = cOut.run_id ? await approveAndRun(control, cOut.run_id, cSpy) : null;
 
     writeNeverDo(room, [{ kind: 'term', value: GAP_TERM_363.toUpperCase(), why: 'This zone is under an embargo the room agreed to.' }]);
     const spy = spyFetch();
     const before = runLedgerRuns(room).length;
     const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(spy));
     haltOut = out;
-    check('A2 a covering grant plus a never-do term -> halted_constraint / constraint_named, zero fetches, no run recorded',
-      cOut.outcome === 'ran' && cSpy.calls >= 1
+    check('A2 a standing grant plus a never-do term -> halted_constraint / constraint_named, zero fetches, no run recorded (control: plan_card_reask, then its approved run sends)',
+      cOut.outcome === 'plan_card_reask' && !!cRun && !!cRun.res && cRun.res.status === 'done' && cSpy.calls >= 1
       && out.outcome === 'halted_constraint' && out.reason === 'constraint_named' && /^rp-/.test(out.run_id || '')
       && spy.calls === 0 && guard.attempts() === 0 && runLedgerRuns(room).length === before,
-      JSON.stringify({ control: cOut.outcome, out: out, calls: spy.calls, attempts: guard.attempts() }));
+      JSON.stringify({ control: cOut.outcome, run: cRun && cRun.res && cRun.res.status, out: out, calls: spy.calls, attempts: guard.attempts() }));
   }
 
   // ---- A3 ------------------------------------------------------------------
@@ -321,6 +334,7 @@ async function main() {
     const withGrant = fetchingRoom();
     const spy1 = spyFetch();
     const a = await AMBIENT.maybeQuick(withGrant.roomDir, compWithWhitespace(), optsFor(spy1));
+    const aRun = a.run_id ? await approveAndRun(withGrant, a.run_id, spy1) : null;
     const noGrant = newRoom();
     const spy2 = spyFetch();
     const b = await AMBIENT.maybeQuick(noGrant.roomDir, compWithWhitespace(), optsFor(spy2));
@@ -329,9 +343,12 @@ async function main() {
     writeNeverDo(other, [{ kind: 'term', value: 'something unrelated entirely' }, { kind: 'provider', value: 'crossref' }]);
     const spy3 = spyFetch();
     const c = await AMBIENT.maybeQuick(other.roomDir, compWithWhitespace(), optsFor(spy3));
-    check('A8 no never-do file -> ran with a grant, plan_card_no_grant without; a non-matching list changes nothing',
-      a.outcome === 'ran' && spy1.calls >= 1 && b.outcome === 'plan_card_no_grant' && spy2.calls === 0
-      && c.outcome === 'ran' && readTrips(withGrant).length === 0 && readTrips(other).length === 0,
+    const cRun = c.run_id ? await approveAndRun(other, c.run_id, spy3) : null;
+    check('A8 no never-do file -> plan_card_reask under a standing grant (its approved run sends), plan_card_no_grant without; a non-matching list changes nothing',
+      a.outcome === 'plan_card_reask' && !!aRun && !!aRun.res && aRun.res.status === 'done' && spy1.calls >= 1
+      && b.outcome === 'plan_card_no_grant' && spy2.calls === 0
+      && c.outcome === 'plan_card_reask' && !!cRun && !!cRun.res && cRun.res.status === 'done' && spy3.calls >= 1
+      && readTrips(withGrant).length === 0 && readTrips(other).length === 0,
       JSON.stringify([a.outcome, b.outcome, c.outcome]));
   }
 
@@ -360,46 +377,48 @@ async function main() {
       && hp.alternatives.length <= 2, JSON.stringify(hp));
 
     // A10: the re-ask call site (runQuick returns reask after a covering cover check)
+    // 369.2-10 (R02, ruling 2026-10-05, A5): under a standing grant coverFor no longer covers, so the pass
+    // reaches the call site only when coverFor says covered; both are stubbed to keep the call site pinned
+    // (a run card answered by a re-ask, e.g. a plan edited between the cover check and the run).
     const room10 = fetchingRoom();
     const origRun = quickMod.runQuick;
-    const reaskProposal = grants.buildStandingProposal(room10.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [] }] });
+    const origCover = quickMod.coverFor;
     let reaskOut = null;
     let runCalls = 0;
-    quickMod.runQuick = async function () {
+    quickMod.coverFor = function () { return { covered: true }; };
+    quickMod.runQuick = async function (roomDir, plan) {
       runCalls += 1;
-      return {
-        status: 'reask',
-        reason: 'new_term',
-        card: grants.grantCard(reaskProposal, { newTerms: [GAP_TERM_363] }),
-        proposal: reaskProposal,
-        new_terms: [GAP_TERM_363],
-      };
+      const rk = quickMod.reaskCard(roomDir, plan, null, 'hash_not_approved', NOW);
+      return { status: 'reask', reason: 'hash_not_approved', card: rk.card, proposal: rk.proposal, new_terms: rk.new_terms };
     };
     try {
       reaskOut = await AMBIENT.maybeQuick(room10.roomDir, compWithWhitespace(), optsFor(spyFetch()));
     } finally {
       quickMod.runQuick = origRun;
+      quickMod.coverFor = origCover;
     }
     const rcard = reaskOut && reaskOut.run_id ? readCard(room10, reaskOut.run_id) : null;
     const rp = rcard && rcard.payload && rcard.payload.never_do_proposal;
     check('A10 a re-ask plan-only card (runQuick reask) carries the same proposal',
       runCalls === 1 && !!reaskOut && reaskOut.outcome === 'plan_card_reask' && !!rp
-      && rp.kind === 'term' && rp.value === GAP_TERM_363 && rcard.payload.reask_reason === 'new_term'
+      && rp.kind === 'term' && rp.value === GAP_TERM_363 && rcard.payload.reask_reason === 'hash_not_approved'
       && rcard.payload.plan_only === true && rcard.payload.ambient === true,
       JSON.stringify({ o: reaskOut, rp: rp }));
 
     // A11: every other payload key and proposal.json are unchanged
     const without = Object.assign({}, card.payload);
     delete without.never_do_proposal;
-    const expectKeys = ['ambient', 'grant_lifetime', 'new_terms', 'plan_only', 'policy_version', 'reask_reason', 'run_id'];
+    // 369.2-10 (R02, ruling 2026-10-05): the run card (plan 09) adds families, job, queries and template_ids to
+    // the payload; ambient, plan_only, run_id, reask_reason and the grant fields stay, and grant_lifetime reads 'run'.
+    const expectKeys = ['ambient', 'families', 'grant_lifetime', 'job', 'new_terms', 'plan_only', 'policy_version', 'queries', 'reask_reason', 'run_id', 'template_ids'];
     const planDir = path.join(room.roomDir, '.mindrian', 'research-runs', out.run_id);
     let propJson = null;
     try { propJson = JSON.parse(fs.readFileSync(path.join(planDir, 'proposal.json'), 'utf8')); } catch (_e) { propJson = null; }
-    const baseCard = grants.grantCard(grants.buildStandingProposal(room.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [] }] }), { newTerms: [GAP_TERM_363] });
+    const baseCard = quickMod.reaskCard(room.roomDir, planner.loadPlan(room.roomDir, out.run_id).plan, null, 'no_grant', NOW).card;
     check('A11 plan-only payload keys (ambient, plan_only, run_id, reask_reason, grant fields) and proposal.json are unchanged',
       JSON.stringify(Object.keys(without).sort()) === JSON.stringify(expectKeys)
       && without.ambient === true && without.plan_only === true && without.run_id === out.run_id
-      && without.reask_reason === 'no_grant' && without.grant_lifetime === 'standing'
+      && without.reask_reason === 'no_grant' && without.grant_lifetime === 'run'
       && Object.keys(card).filter(function (k) { return k !== 'payload'; }).sort().join() === Object.keys(baseCard).filter(function (k) { return k !== 'payload'; }).sort().join()
       && !!propJson && Object.keys(propJson).sort().join() === 'new_terms,proposal',
       JSON.stringify({ keys: Object.keys(without).sort(), prop: propJson && Object.keys(propJson) }));

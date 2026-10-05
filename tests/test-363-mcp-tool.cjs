@@ -123,7 +123,9 @@ async function withReplay(replay, fn) {
   try { return await fn(); } finally { globalThis.fetch = NET_GUARD_FETCH; }
 }
 
-// plan a quick run and approve a standing grant through the real gate flow.
+// plan a quick run and approve its run grant through the real gate flow.
+// 369.2-10 (R02, ruling 2026-10-05, A5): one run grant per run on the web lines; a standing grant no longer
+// sends, so the gate offers approve_run (and not_now) and the helpers answer approve_run.
 async function planQuick(c) {
   const planned = await c.call({ op: 'plan', question_set: qsFile('whitespace-quick'), mode: 'quick' });
   return planned;
@@ -131,7 +133,7 @@ async function planQuick(c) {
 async function approveGrantFor(c, runId) {
   const req = await c.call({ op: 'grant_request', run_id: runId });
   if (!req.gate || !req.gate.gate_id) return { error: 'no gate: ' + JSON.stringify(req).slice(0, 300) };
-  const ans = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+  const ans = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
   return { req: req, ans: ans };
 }
 
@@ -181,7 +183,7 @@ async function main() {
   });
 
   // M3 ---------------------------------------------------------------------
-  await leg('M3 grant_request mints a gate; nothing persists until gate_answer approve; single use', async function () {
+  await leg('M3 grant_request mints a gate; nothing persists until gate_answer approve_run; single use', async function () {
     const room = newRoom('founder');
     const c = client(room, 'sess-m3');
     const planned = await planQuick(c);
@@ -191,15 +193,16 @@ async function main() {
     if (typeof req.gate.rendered === 'undefined') return 'gate not rendered through renderGate';
     const before = grants.readGrants(room.roomDir, {}).grants;
     if (before.length !== 0) return 'grant written before gate_answer';
-    const ans = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    const ans = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
     if (ans.ok !== true) return 'gate_answer ' + JSON.stringify(ans).slice(0, 300);
     if (!ans.chain_result || ans.chain_result.ok !== true) return 'resume ' + JSON.stringify(ans.chain_result).slice(0, 300);
     const after = grants.readGrants(room.roomDir, {}).grants;
     if (after.length !== 1) return 'grant count ' + after.length;
     const g = after[0];
+    if (g.lifetime !== 'run' || g.run_id !== planned.run_id) return 'not the run grant for this run ' + g.lifetime + ' ' + g.run_id;
     if (!g.approved_via || g.approved_via.surface !== 'mcp') return 'approved_via ' + JSON.stringify(g.approved_via);
     if (!g.approved_via.decision_node_id || !nodeExists(room, g.approved_via.decision_node_id)) return 'decision node missing';
-    const again = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    const again = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
     // Phase 369 plan 26: a second answer replays the recorded one (replayed:true) and writes nothing.
     if (again.ok !== true || again.replayed !== true) return 'second answer ' + JSON.stringify(again).slice(0, 200);
     if (grants.readGrants(room.roomDir, {}).grants.length !== 1) return 'replay wrote another grant';
@@ -225,7 +228,7 @@ async function main() {
   });
 
   // M4 ---------------------------------------------------------------------
-  await leg('M4 a fresh server process reads the approved grant through grant_status', async function () {
+  await leg('M4 a fresh server process reads the approved run grant through grant_status', async function () {
     const m3 = SHARED.m3;
     if (!m3) return 'M3 did not produce a room';
     const script = path.join(SCRATCH, 'restart-probe.cjs');
@@ -248,12 +251,14 @@ async function main() {
     if (res.status !== 0) return 'child exit ' + res.status + ' ' + String(res.stderr).slice(0, 300);
     let out = null;
     try { out = JSON.parse(res.stdout); } catch (_e) { return 'child output not json: ' + String(res.stdout).slice(0, 200); }
-    if (!out.standing || out.standing.approved_via.surface !== 'mcp') return 'standing grant not visible after restart ' + JSON.stringify(out).slice(0, 300);
+    const runG = (out.runs || []).filter(function (g) { return g.run_id === m3.runId; })[0];
+    if (!runG || runG.lifetime !== 'run') return 'run grant not visible after restart ' + JSON.stringify(out).slice(0, 300);
+    if (out.standing) return 'a standing grant appeared after restart ' + JSON.stringify(out.standing).slice(0, 200);
     return true;
   });
 
   // M5 ---------------------------------------------------------------------
-  await leg('M5 run_quick with a grant returns the evidence card; without one returns the F.0 card and fetches nothing', async function () {
+  await leg('M5 run_quick with the run grant returns the evidence card; without one returns the F.0 card and fetches nothing', async function () {
     const m3 = SHARED.m3;
     if (!m3) return 'M3 did not produce a room';
     const c = client(m3.room, 'sess-m5');
@@ -361,17 +366,20 @@ async function main() {
   });
 
   // M9 ---------------------------------------------------------------------
-  await leg('M9 grant_revoke revokes and a later run_quick asks again', async function () {
+  await leg('M9 grant_revoke revokes the run grant and a later run_quick asks again', async function () {
     const room = newRoom('founder');
     const c = client(room, 'sess-m9');
     const planned = await planQuick(c);
     const ok = await approveGrantFor(c, planned.run_id);
     if (ok.error) return ok.error;
     const st = await c.call({ op: 'grant_status' });
-    if (!st.standing || !st.standing.grant_id) return 'no standing grant to revoke';
+    // 369.2-10 (R02, ruling 2026-10-05, A5): the approval is a run grant, listed under runs, never standing
+    const runG = (st.runs || []).filter(function (g) { return g.run_id === planned.run_id; })[0];
+    if (!runG || !runG.grant_id) return 'no run grant to revoke ' + JSON.stringify(st).slice(0, 300);
+    if (st.standing) return 'a standing grant exists';
     const bad = await c.call({ op: 'grant_revoke', grant_id: 'not-a-grant' });
     if (bad.ok !== false) return 'a malformed grant id was accepted';
-    const rev = await c.call({ op: 'grant_revoke', grant_id: st.standing.grant_id });
+    const rev = await c.call({ op: 'grant_revoke', grant_id: runG.grant_id });
     if (rev.ok !== true) return 'revoke ' + JSON.stringify(rev).slice(0, 200);
     const replay = replayFor();
     const res = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: planned.run_id }); });

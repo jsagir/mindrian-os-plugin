@@ -100,28 +100,41 @@
   },
   "runCard": {
     "shape": "F.0",
-    "title": "Research grant",
-    "question": "Approve this research grant?",
+    "title": "See every search before it leaves, then approve this run once.",
+    "question": "Send these 3 searches to OpenAlex for this run?",
     "options": [
       {
-        "id": "approve_standing",
-        "label": "Approve this standing grant (Recommended)",
-        "recommended": true
-      },
-      {
         "id": "approve_run",
-        "label": "Approve this one run only"
+        "label": "Send these 3 searches (Recommended)",
+        "recommended": true
       },
       {
         "id": "not_now",
         "label": "Not now"
       }
     ],
-    "body_md": "## Let this room look things up in OpenAlex?\n\nOpenAlex is a public index of scholarly papers. A grant lets the room send short search strings there. It covers fetching only; filing still asks each time.\n\n- Provider: openalex; fallback: none (if it is down, the run says so and stops)\n- What is searched: OpenAlex titles, abstracts and metadata; nothing else leaves the room\n- Search shapes allowed (by template id): whitespace-gap/v1: ws.exact, ws.synonym_cover, ws.prior_attempts, ws.absence_reason; concept-evidence/v1: ce.exact, ce.counter, ce.prior_success, ce.alternative, ce.pair\n- Caps per run: 3 searches, 5 results per search\n- Room scope: only this room (golden-room-366:5e6517f5cdfd); it does not carry to any other room\n- Policy version: drp363-grant/1\n- Revoke: tell Larry \"revoke the research grant\" at any time; the next search stops\n\nA grant never files anything. Anything worth keeping comes back as its own yes or no.",
+    "body_md": "These 3 searches will leave this machine for this research run. Nothing is sent until you approve.\n\nOpenAlex is a public index of scholarly papers. Each search goes there exactly as written, once, for this run only. Nothing else leaves the room, and nothing is filed.\n\nNo search strings could be listed, so nothing will be sent.\n\n- Caps for this run: 3 searches, 5 results each\n- Room scope: only this room\n- Revoke: tell Larry to revoke the search approval at any time; the next search stops\n\nApproving never files anything. Anything worth keeping comes back as its own yes or no.",
     "payload": {
       "grant_lifetime": "run",
       "policy_version": "drp363-grant/1",
-      "new_terms": []
+      "new_terms": [],
+      "queries": [],
+      "families": [
+        "whitespace-gap/v1",
+        "concept-evidence/v1"
+      ],
+      "template_ids": [
+        "ws.exact",
+        "ws.synonym_cover",
+        "ws.prior_attempts",
+        "ws.absence_reason",
+        "ce.exact",
+        "ce.counter",
+        "ce.prior_success",
+        "ce.alternative",
+        "ce.pair"
+      ],
+      "job": "this research run"
     }
   },
   "runProposal": {

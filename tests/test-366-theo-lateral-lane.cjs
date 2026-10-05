@@ -9,7 +9,7 @@
  *   Y3  buildRunGrant adds provider theo and the pair hashes; an openalex-only plan is
  *       byte-equal to the golden captured before the edit; writeGrant accepts it
  *   Y3b the F.0 card for a theo grant names Theo, canon names only, the pair count; an
- *       openalex-only card is byte-equal to the golden
+ *       openalex-only card is byte-equal to the golden (run card re-captured 369.2-10)
  *   Y4  runQuick with a run grant calls find_connections once per theo leaf with canon names
  *       only, zero OpenAlex fetches, writes theo-lane.json; coverFor says covered
  *   Y5  one 23-key audit row per call with provider theo
@@ -196,8 +196,15 @@ function makeFetch() {
     const sCard = grants.grantCard(GOLDEN.standingProposal, { newTerms: ['alpha'], now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const rCard = grants.grantCard(GOLDEN.runProposal, { newTerms: [], now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const pick = function (c) { return JSON.stringify({ shape: c.shape, title: c.title, question: c.question, options: c.options, body_md: c.body_md, payload: c.payload }); };
+    // 369.2-10 (R02, ruling 2026-10-05): the openalex RUN card is now the job-named card (plan 09), so its golden
+    // (GOLDEN.runCard in fixtures/366-theo-lane/golden.json) was re-captured from grants.grantCard; the standing card
+    // golden and every Theo card assertion above are untouched. The listed-strings form is pinned below the golden.
     const same = pick(sCard) === JSON.stringify(GOLDEN.standingCard) && pick(rCard) === JSON.stringify(GOLDEN.runCard);
-    return (theoOk && onlyRun && same) || JSON.stringify({ theoOk: theoOk, onlyRun: onlyRun, same: same, head: head });
+    const lCard = grants.grantCard(GOLDEN.runProposal, { newTerms: [], queries: ['alpha beta', 'gamma delta'], job: 'the golden question', now: Date.UTC(2026, 9, 2, 12, 0, 0) });
+    const listed = lCard.title === 'See every search before it leaves, then approve this run once.'
+      && lCard.body_md.split('\n')[0] === 'These 2 searches will leave this machine for the golden question. Nothing is sent until you approve.'
+      && /\n- alpha beta\n- gamma delta\n/.test(lCard.body_md) && !/grant/i.test(lCard.title + lCard.question + lCard.body_md + JSON.stringify(lCard.options));
+    return (theoOk && onlyRun && same && listed) || JSON.stringify({ theoOk: theoOk, onlyRun: onlyRun, same: same, listed: listed, head: head });
   });
   await leg('Y3b2 a mixed plan card names both providers', function () {
     const m = mk(function (qs) {

@@ -258,7 +258,9 @@ async function main() {
   });
 
   // C5: cardFor picks the next honest move.
-  await leg('C5 cardFor: covered quick runs bare, uncovered asks F.0, deep asks F.6', async function () {
+  // 369.2-10 (R02, ruling 2026-10-05, A5): a standing grant never covers a web send, so "covered" means
+  // the run's own run grant exists. A standing grant for the right terms still asks (the run card).
+  await leg('C5 cardFor: a run grant runs bare, anything else asks F.0 with the run proposal, deep asks F.6', async function () {
     const room = newRoom('founder');
     const built = await PLANNER.buildPlan(room.roomDir, qsFile('whitespace-quick'), { mode: 'quick' });
     if (built.status !== 'ready') return 'quick plan ' + built.status;
@@ -266,11 +268,17 @@ async function main() {
     if (none.next !== 'grant' || !none.card || none.card.shape !== 'F.0' || none.reason !== 'no_grant') return 'no grant: ' + JSON.stringify({ n: none.next, r: none.reason });
     standingFor(room, [{ term: 'unrelated topic here', synonyms: [] }]);
     const missing = PLANNER.cardFor(room.roomDir, built.plan);
-    if (missing.reason !== 'new_term' || !missing.card || missing.card.shape !== 'F.0') return 'missing term: ' + JSON.stringify({ n: missing.next, r: missing.reason });
-    if ((missing.new_terms || []).indexOf('thin-film sensors') === -1 || missing.card.body_md.indexOf('thin-film sensors') === -1) return 'new term not listed';
+    if (missing.reason !== 'hash_not_approved' || !missing.card || missing.card.shape !== 'F.0') return 'other standing term: ' + JSON.stringify({ n: missing.next, r: missing.reason });
+    if (!missing.proposal || missing.proposal.lifetime !== 'run' || missing.proposal.run_id !== built.run_id) return 'proposal is not the run proposal ' + JSON.stringify(missing.proposal).slice(0, 200);
+    const strings = Array.from(new Set((built.plan.leaves || []).reduce(function (acc, l) { return acc.concat((l.queries || []).map(function (q) { return q.q; })); }, [])));
+    if (strings.length === 0 || !strings.every(function (q) { return missing.card.body_md.indexOf(q) !== -1; })) return 'card does not list every exact string';
     const room2 = newRoom('founder');
     const built2 = await PLANNER.buildPlan(room2.roomDir, qsFile('whitespace-quick'), { mode: 'quick' });
     standingFor(room2, [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }]);
+    const stillAsks = PLANNER.cardFor(room2.roomDir, built2.plan);
+    if (stillAsks.next !== 'grant' || !stillAsks.card || stillAsks.proposal.lifetime !== 'run') return 'standing grant covering the terms must still ask: ' + JSON.stringify({ n: stillAsks.next, r: stillAsks.reason });
+    const approved = PLANNER.approvePlanReview(room2.roomDir, built2.run_id, { approvedVia: 'cli' });
+    if (!approved.ok) return 'approvePlanReview ' + JSON.stringify(approved);
     const covered = PLANNER.cardFor(room2.roomDir, built2.plan);
     if (covered.next !== 'run_quick' || covered.card) return 'covered: ' + JSON.stringify({ n: covered.next, r: covered.reason });
     const room3 = newRoom('researcher');
@@ -555,11 +563,21 @@ async function main() {
     const prop = cli(['grant', 'propose', '--room', room.roomDir, '--terms', writeScratch('terms.json', [{ term: 'acoustic biofilm disruption', synonyms: [] }])]);
     if (prop.code !== 0 || !prop.json.proposal || prop.json.proposal.approved_terms.length !== 1 || prop.json.card.shape !== 'F.0') return 'grant propose ' + prop.stdout.slice(0, 200);
     const gs = cli(['grant', 'status', '--room', room.roomDir]);
-    const gid = gs.json.standing && gs.json.standing.grant_id;
-    if (!gid) return 'no standing grant after the quick flow';
+    // 369.2-10 (R02, ruling 2026-10-05, A5): the quick flow leaves the RUN grant (one per run), and the
+    // standing door (grant propose) is the only way a standing grant exists; both revoke the same way.
+    const runGrant = (gs.json.runs || []).filter(function (g) { return g.run_id === q.runId; })[0];
+    if (!runGrant || runGrant.lifetime !== 'run') return 'no run grant after the quick flow ' + JSON.stringify(gs.json).slice(0, 200);
+    if (gs.json.standing) return 'the quick flow left a standing grant';
+    const stand = cli(['grant', 'approve', writeScratch('prop-x2.json', prop.json.proposal), '--room', room.roomDir, '--approved-via', 'cli']);
+    if (stand.code !== 0) return 'standing approve ' + stand.stdout.slice(0, 200);
+    const gs2 = cli(['grant', 'status', '--room', room.roomDir]);
+    const gid = gs2.json.standing && gs2.json.standing.grant_id;
+    if (!gid) return 'no standing grant after grant propose + approve';
     const rv = cli(['grant', 'revoke', gid, '--room', room.roomDir]);
     if (rv.code !== 0 || !rv.json.revoked_at) return 'revoke ' + rv.stdout.slice(0, 200);
     if (cli(['grant', 'status', '--room', room.roomDir]).json.standing !== null) return 'grant still active after revoke';
+    const rv2 = cli(['grant', 'revoke', runGrant.grant_id, '--room', room.roomDir]);
+    if (rv2.code !== 0 || !rv2.json.revoked_at) return 'run grant revoke ' + rv2.stdout.slice(0, 200);
     return true;
   });
 

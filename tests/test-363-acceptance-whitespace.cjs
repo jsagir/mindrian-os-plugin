@@ -556,7 +556,8 @@ async function main() {
     if (planned.ok !== true || planned.status !== 'ready') return 'plan ' + JSON.stringify(planned).slice(0, 300);
     const req = await c.call({ op: 'grant_request', run_id: planned.run_id });
     if (!req.gate || !req.gate.gate_id) return 'no grant gate ' + JSON.stringify(req).slice(0, 300);
-    const ans = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    // 369.2-10 (R02, ruling 2026-10-05, A5): the gate offers the run grant; approve_run is the answer.
+    const ans = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
     if (ans.ok !== true) return 'gate_answer ' + JSON.stringify(ans).slice(0, 300);
     const replay = makeReplayFetch({ route: routeShape({ primary: 'gap_primary_zero', cover: 'gap_primary_zero', prior: 'gap_primary_zero' }) });
     const t0 = process.hrtime.bigint();
@@ -579,7 +580,10 @@ async function main() {
   });
 
   // W9 -------------------------------------------------------------------------
-  await leg('W9 ambient branch with a standing grant: a pending evidence card the CLI pending door returns exactly once', async function () {
+  // 369.2-10 (R02, ruling 2026-10-05, A5): a standing grant never lets the room send. The ambient pass
+  // queues the run card (the pending door returns it once, nothing sent); the navigator approves THAT run
+  // through the CLI and run-quick sends exactly the card's strings and returns the evidence card.
+  await leg('W9 ambient branch with a standing grant: a pending run card the CLI pending door returns exactly once, nothing sent; approved through the CLI, run-quick sends and returns the evidence card', async function () {
     const room = newRoom('researcher');
     const proposal = grants.buildStandingProposal(room.roomDir, { terms: [{ term: GAP_TERM_363, synonyms: [SYN] }] });
     const g = planner.approveStandingGrant(room.roomDir, proposal, { approvedVia: 'cli' });
@@ -588,16 +592,25 @@ async function main() {
     const out = await AMBIENT.maybeQuick(room.roomDir, { producers: { whitespace: { outcome: 'no_candidate', posture: 'run' } } }, {
       budgetMs: 4 * 60 * 1000, now: Date.parse('2026-09-30T10:00:00Z'), deltaHash: 'd'.repeat(64), deps: { fetchEnvelopeFn: seam(replay) },
     });
-    if (out.outcome !== 'ran' || out.verdict !== 'gap-confirmed') return 'ambient outcome ' + JSON.stringify(out);
-    if (replay.calls.length !== 3) return 'ambient searches ' + replay.calls.length;
-    const run = readJson(path.join(runDir(room, out.run_id), 'run.json'));
-    if (run.trigger !== 'ambient' || run.filed !== false) return 'ambient run trigger ' + run.trigger + ' filed ' + run.filed;
+    if (out.outcome !== 'plan_card_reask' || out.reason !== 'hash_not_approved') return 'ambient outcome ' + JSON.stringify(out);
+    if (replay.calls.length !== 0) return 'the ambient pass sent ' + replay.calls.length + ' searches under a standing grant';
+    if (fs.existsSync(path.join(runDir(room, out.run_id), 'run.json'))) return 'the ambient pass started a run';
     const first = cli(['pending', '--room', room.roomDir]);
     if (first.code !== 0 || !first.json || !Array.isArray(first.json.cards) || first.json.cards.length !== 1) return 'first pending ' + first.stdout.slice(0, 300);
-    if (first.json.cards[0].run_id !== out.run_id || first.json.cards[0].kind !== 'evidence') return 'pending card ' + JSON.stringify(first.json.cards[0]).slice(0, 200);
-    if (!first.json.cards[0].card || first.json.cards[0].card.shape !== 'evidence') return 'pending card has no evidence card attached';
+    if (first.json.cards[0].run_id !== out.run_id || first.json.cards[0].kind !== 'plan_card_no_grant') return 'pending card ' + JSON.stringify(first.json.cards[0]).slice(0, 200);
+    const pc = first.json.cards[0].card;
+    if (!pc || !pc.payload || pc.payload.plan_only !== true || !Array.isArray(pc.payload.queries) || pc.payload.queries.length !== 3) return 'pending card is not the run card ' + JSON.stringify(pc).slice(0, 300);
     const second = cli(['pending', '--room', room.roomDir]);
     if (second.code !== 0 || !second.json || second.json.cards.length !== 0) return 'the card was surfaced twice';
+    const ap = cli(['review', 'approve', out.run_id, '--room', room.roomDir, '--approved-via', 'cli']);
+    if (ap.code !== 0 || !ap.json || ap.json.ok !== true) return 'review approve ' + ap.stdout.slice(0, 300);
+    const ran = cli(['run-quick', out.run_id, '--room', room.roomDir]);
+    if (ran.code !== 0 || !ran.json || ran.json.status !== 'done' || ran.json.verdict !== 'gap-confirmed') return 'run-quick ' + ran.stdout.slice(0, 300);
+    if (!ran.json.card || ran.json.card.shape !== 'evidence') return 'run-quick returned no evidence card';
+    const sent = auditFor(room, out.run_id);
+    if (sent.length !== 3) return 'approved run searches ' + sent.length;
+    const run = readJson(path.join(runDir(room, out.run_id), 'run.json'));
+    if (run.filed !== false) return 'the run filed something';
     if (fs.existsSync(path.join(room.roomDir, 'research'))) return 'the ambient run filed something';
     return true;
   });

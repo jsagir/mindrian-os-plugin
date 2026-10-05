@@ -2,10 +2,12 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
- * Phase 363 Plan 16 -- room-started quick research runs inside a standing
- * grant, riding the 355.1 ambient child (lib/core/research-planner/ambient.cjs
- * and the one guarded call in lib/core/ambient-run.cjs). Legs M1-M11, all
- * offline on OpenAlex replay.
+ * Phase 363 Plan 16 -- room-started quick research passes riding the 355.1
+ * ambient child (lib/core/research-planner/ambient.cjs and the one guarded call
+ * in lib/core/ambient-run.cjs). Legs M1-M13, all offline on OpenAlex replay.
+ * 369.2-10 (R02, ruling 2026-10-05, A5): a pass under a standing grant queues a
+ * plan card listing every exact string and sends nothing; the run grant the
+ * navigator approves for THAT run is what lets run-quick send (M4-M6, M9c-M13).
  *
  * The replay fetch is injected through maybeQuick's deps.fetchEnvelopeFn and,
  * for the wiring legs, through runAmbientInChild's existing o.deps seam
@@ -106,6 +108,23 @@ function seam(replay) {
       globalThis.fetch = prev;
     }
   };
+}
+
+// 369.2-10 (R02, ruling 2026-10-05, A5): a standing grant never sends a web string. A room-started pass
+// records a plan-only card (plan_card_reask / plan_card_no_grant); the navigator's approval of THAT run
+// (approvePlanReview, the CLI `review approve` / `grant approve <run proposal>` path) is what lets
+// run-quick send exactly the card's strings. This helper is that approval plus the run.
+const quickMod = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'quick.cjs'));
+async function approveAndRun(room, runId, replay, extra) {
+  const ap = planner.approvePlanReview(room.roomDir, runId, { approvedVia: { surface: 'cli' } });
+  const loaded = planner.loadPlan(room.roomDir, runId);
+  let res = null;
+  if (ap && ap.ok === true && loaded.ok) {
+    res = await quickMod.runQuick(room.roomDir, loaded.plan, Object.assign({
+      budgetMs: BIG_BUDGET, now: NOW, fetchEnvelopeFn: seam(replay),
+    }, extra || {}));
+  }
+  return { ap: ap, loaded: loaded, res: res };
 }
 
 const ZERO = { primary: 'gap_primary_zero', cover: 'gap_primary_zero', prior: 'gap_primary_zero' };
@@ -232,6 +251,8 @@ async function main() {
   }
 
   // ---- M4 ------------------------------------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): a standing grant for another term used to answer new_term
+  // (a per-term card); no path answers new_term now. The pass queues the run card listing the strings.
   {
     const room = newRoom();
     standingGrant(room, [{ term: 'unrelated approved term', synonyms: [] }]);
@@ -239,14 +260,19 @@ async function main() {
     const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(replay));
     let card = null;
     try { card = JSON.parse(fileText(room, path.join('.mindrian', 'research-runs', out.run_id, 'card.json'))); } catch (_e) { card = null; }
-    const listed = card && card.payload && Array.isArray(card.payload.new_terms) && card.payload.new_terms.indexOf(GAP_TERM_363) !== -1;
-    check('M4 a grant without the gap term -> plan_card_reask (new_term), zero calls, the card lists the new term',
-      out.outcome === 'plan_card_reask' && out.reason === 'new_term' && replay.calls.length === 0 && !!listed
+    const queries = card && card.payload && Array.isArray(card.payload.queries) ? card.payload.queries : [];
+    const listed = queries.length > 0 && queries.every(function (q) { return card.body_md.indexOf(q) !== -1; });
+    check('M4 a standing grant for another term -> plan_card_reask (run-grant proposal, no new_term), zero calls, the card lists every exact string',
+      out.outcome === 'plan_card_reask' && out.reason === 'hash_not_approved' && replay.calls.length === 0 && listed
+      && !(card.payload.new_terms || []).length
       && auditLedger.readAudit(room.roomDir, {}).length === 0,
       JSON.stringify(out));
   }
 
   // ---- M5 (kept for M6 and M8 below) -----------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): the pass only plans; the run is the navigator's, after the
+  // approval of that run. The evidence card comes back from run-quick itself (the door shows it), so
+  // the pass must NOT have queued one.
   const room5 = newRoom();
   const delta5 = 'b'.repeat(64);
   let out5 = null;
@@ -256,30 +282,55 @@ async function main() {
     replay5 = replayZero();
     out5 = await AMBIENT.maybeQuick(room5.roomDir, compWithWhitespace(), optsFor(replay5, { deltaHash: delta5 }));
     const runId = out5.run_id;
+    const noRunYet = replay5.calls.length === 0
+      && !fs.existsSync(path.join(room5.roomDir, '.mindrian', 'research-runs', runId, 'run.json'));
+    const pendingBefore = planner.pendingCards(room5.roomDir);
+    const noEvidenceQueued = pendingBefore.every(function (p) { return p.kind !== 'evidence'; })
+      && pendingBefore.some(function (p) { return p.run_id === runId && p.kind === 'plan_card_no_grant' && !!p.card && p.card.payload.reask_reason === 'hash_not_approved'; });
+    const replayRun = replayZero();
+    const r5 = await approveAndRun(room5, runId, replayRun);
     let run = null;
     try { run = JSON.parse(fileText(room5, path.join('.mindrian', 'research-runs', runId, 'run.json'))); } catch (_e) { run = null; }
-    const pending = planner.pendingCards(room5.roomDir);
-    const hit = pending.filter(function (p) { return p.run_id === runId; })[0];
     const audit = auditLedger.readAudit(room5.roomDir, { run_id: runId });
-    check('M5 covered term -> ran: at most 3 replay calls, audit written, run.json trigger ambient, evidence card queued, unfiled',
-      out5.outcome === 'ran' && replay5.calls.length >= 1 && replay5.calls.length <= 3
-      && audit.length >= 1 && !!run && run.trigger === 'ambient' && run.filed === false
-      && !!hit && hit.kind === 'evidence' && !!hit.card
+    check('M5 standing grant: the pass queues plan_card_reask and sends nothing; after that run is approved, one quick run sends at most 3 strings, audit written, evidence card returned, unfiled',
+      out5.outcome === 'plan_card_reask' && noRunYet && noEvidenceQueued
+      && !!r5.res && r5.res.status === 'done' && replayRun.calls.length >= 1 && replayRun.calls.length <= 3
+      && audit.length >= 1 && !!run && run.trigger === 'navigator' && run.filed === false && !!r5.res.card
       && !fs.existsSync(path.join(room5.roomDir, 'research')),
-      JSON.stringify({ o: out5.outcome, calls: replay5.calls.length, audit: audit.length, trig: run && run.trigger, hit: !!hit }));
+      JSON.stringify({ o: out5.outcome, st: r5.res && r5.res.status, calls: replayRun.calls.length, audit: audit.length, trig: run && run.trigger, ev: noEvidenceQueued }));
   }
 
   // ---- M6 ------------------------------------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): the pass no longer records its own throttle slot (it never
+  // runs), so the ledger entries below are the ones a recorded ambient run would leave; the guards in
+  // maybeQuick (once per delta, one room-started run an hour under a standing grant) are unchanged and
+  // still hold. A run grant never consults the throttle.
   {
     const replay = replayZero();
+    const seeded = grants.recordRun(room5.roomDir, { run_id: out5.run_id, mode: 'quick', trigger: 'ambient', delta_hash: delta5, now: NOW });
     const sameDelta = await AMBIENT.maybeQuick(room5.roomDir, compWithWhitespace(), optsFor(replay, { deltaHash: delta5 }));
     const otherDelta = await AMBIENT.maybeQuick(room5.roomDir, compWithWhitespace(), optsFor(replay, { deltaHash: 'c'.repeat(64) }));
     const later = await AMBIENT.maybeQuick(room5.roomDir, compWithWhitespace(),
       optsFor(replay, { deltaHash: 'd'.repeat(64), now: NOW + 61 * 60 * 1000 }));
-    check('M6 a second run inside the hour -> throttled (zero calls); same delta -> already_run_for_delta; a later hour runs',
-      sameDelta.outcome === 'already_run_for_delta' && otherDelta.outcome === 'throttled'
-      && later.outcome === 'ran' && replay.calls.length <= 3,
+    check('M6 a recorded ambient run: same delta -> already_run_for_delta; a second delta inside the hour -> throttled; a later hour -> a card, never a send (zero calls)',
+      seeded && seeded.ok === true
+      && sameDelta.outcome === 'already_run_for_delta' && otherDelta.outcome === 'throttled'
+      && later.outcome === 'plan_card_reask' && replay.calls.length === 0,
       JSON.stringify([sameDelta.outcome, otherDelta.outcome, later.outcome, replay.calls.length]));
+
+    // the throttle is not consulted for a run grant: inside the throttled hour, an approved run still sends
+    const room6 = newRoom();
+    standingGrant(room6);
+    grants.recordRun(room6.roomDir, { run_id: 'rp-2026-09-30-00000006', mode: 'quick', trigger: 'ambient', delta_hash: 'f'.repeat(64), now: NOW });
+    const blocked = grants.throttleState(room6.roomDir, { now: NOW + 10 * 60 * 1000 }).allowed_next === false;
+    const replay6 = replayZero();
+    const card6 = await AMBIENT.maybeQuick(room6.roomDir, compWithWhitespace(), optsFor(replay6, { now: NOW + 10 * 60 * 1000, deltaHash: 'a1'.repeat(32) }));
+    const built6 = planner.buildPlan(room6.roomDir, AMBIENT.whitespaceQuestionSet({ term: GAP_TERM_363, sections: ['problem-definition', 'market-analysis'] }, null), { mode: 'quick', now: new Date(NOW) });
+    const r6 = built6 && built6.ok ? await approveAndRun(room6, built6.run_id, replay6, { trigger: 'ambient', now: NOW + 10 * 60 * 1000 }) : null;
+    check('M6b the throttle is not consulted for a run grant: inside the throttled hour a pass queues a throttle outcome, and an approved run still sends',
+      blocked && card6.outcome === 'throttled' && !!r6 && !!r6.res && r6.res.status === 'done'
+      && replay6.calls.length >= 1 && replay6.calls.length <= 3,
+      JSON.stringify({ blocked: blocked, card6: card6.outcome, st: r6 && r6.res && (r6.res.status + ':' + r6.res.reason), calls: replay6.calls.length }));
   }
 
   // ---- M7 ------------------------------------------------------------------
@@ -362,7 +413,9 @@ async function main() {
       res.state === 'completed' && !!st && st.run_state === 'completed', JSON.stringify({ res: res, st: st && st.run_state }));
   }
 
-  // M9c + M8b: the real maybeQuick through the ambient child: a run happens, the strict files stay strict
+  // M9c + M8b: the real maybeQuick through the ambient child: a plan card is queued (no send), the strict files stay strict
+  // 369.2-10 (R02, ruling 2026-10-05, A5): the ambient child used to run the quick run itself under a
+  // standing grant; now it queues the run card and sends nothing, and the approved run sends after.
   {
     const room = wiringRoom('wire-real');
     const calls = [];
@@ -373,10 +426,14 @@ async function main() {
       now: Date.now(),
     });
     const pending = planner.pendingCards(room.roomDir);
-    check('M9c the real branch runs inside the ambient child: one quick run, evidence card queued',
-      res.state === 'completed' && replay.calls.length >= 1 && replay.calls.length <= 3
-      && pending.some(function (p) { return p.kind === 'evidence'; }),
-      JSON.stringify({ res: res, calls: replay.calls.length, pending: pending.length }));
+    const card = pending.filter(function (p) { return p.kind === 'plan_card_no_grant'; })[0];
+    const queuedNoSend = res.state === 'completed' && replay.calls.length === 0 && !!card
+      && pending.every(function (p) { return p.kind !== 'evidence'; });
+    const replayRun = replayZero();
+    const r = card ? await approveAndRun(room, card.run_id, replayRun, { now: undefined }) : null;
+    check('M9c the real branch runs inside the ambient child: it queues the run card and sends nothing; after that run is approved one quick run sends',
+      queuedNoSend && !!r && !!r.res && r.res.status === 'done' && replayRun.calls.length >= 1 && replayRun.calls.length <= 3,
+      JSON.stringify({ res: res, calls: replay.calls.length, pending: pending.length, st: r && r.res && (r.res.status + ':' + r.res.reason), sent: replayRun.calls.length }));
 
     const ledgerRaw = JSON.parse(fileText(room, path.join('.mindrian', 'ambient-run-ledger.json')));
     const deltaRaw = JSON.parse(fileText(room, path.join('.mindrian', 'last-room-delta.json')));
@@ -418,28 +475,34 @@ async function main() {
     const before = deepPlan && deepPlan.ok ? path.join(room.roomDir, '.mindrian', 'research-runs', deepPlan.run_id) : null;
     const replay = replayZero();
     const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(replay));
+    // 369.2-10 (R02, ruling 2026-10-05, A5): the pass under a standing grant is a plan card now, not a run.
     const noState = !before || (!fs.existsSync(path.join(before, 'state.json')) && !fs.existsSync(path.join(before, 'run.json')));
     check('M10 deep never: no deep.cjs require, and a saved deep plan is never started',
       !/deep\.cjs/.test(requires) && !/escalate|nextDeepStep|fetchRound|ensureDeepState/.test(src.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ''))
-      && noState && out.outcome === 'ran',
+      && noState && out.outcome === 'plan_card_reask' && replay.calls.length === 0,
       JSON.stringify({ req: requires.slice(0, 400), noState: noState, o: out.outcome }));
   }
 
   // ---- M11 -------------------------------------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): the sweep now runs over the approved run, which is the only
+  // run that sends; the pass itself must send nothing. Same marker assertions, same files.
   {
     const room = newRoom();
     standingGrant(room);
     const replay = replayZero();
     const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(replay));
+    const passSent = replay.calls.length;
+    const replayRun = replayZero();
+    const r = await approveAndRun(room, out.run_id, replayRun);
     const audit = JSON.stringify(auditLedger.readAudit(room.roomDir, {}));
-    const urls = JSON.stringify(replay.calls);
+    const urls = JSON.stringify(replayRun.calls);
     const stateText = walk(runsDir(room), []).map(function (f) { return fs.readFileSync(f, 'utf8'); }).join('\n');
     const argvText = JSON.stringify(process.argv);
-    check('M11 Part 8: the planted marker is in no replay URL, no audit record, no run state and no argv',
-      out.outcome === 'ran' && replay.calls.length >= 1
+    check('M11 Part 8: the pass sends nothing; over the approved run the planted marker is in no replay URL, no audit record, no run state and no argv',
+      out.outcome === 'plan_card_reask' && passSent === 0 && !!r.res && r.res.status === 'done' && replayRun.calls.length >= 1
       && urls.indexOf(room.marker) === -1 && audit.indexOf(room.marker) === -1
       && stateText.indexOf(room.marker) === -1 && argvText.indexOf(room.marker) === -1
-      && replay.violations.length === 0,
+      && replayRun.violations.length === 0,
       JSON.stringify({ o: out.outcome, urls: urls.indexOf(room.marker), audit: audit.indexOf(room.marker), state: stateText.indexOf(room.marker) }));
   }
 
