@@ -101,3 +101,7 @@ None beyond the plan's register.
 ## Self-Check: PASSED
 
 - scripts/close-loop.cjs and tests/test-261006-0hl-close-loop-cli.cjs exist; commits 3068d9126, b43eb26c5, 162aa0637 are ancestors of HEAD.
+
+## Post-quick: the egain filing (orchestrator, 2026-10-06, on the navigator's "proceed")
+
+`node scripts/close-loop.cjs close --room ~/MindrianRooms/egain-des-liquid-conductor --surface bono --payload <scratch>/close-payload.json --run-id bono-soft-state-first-2026-10-05 --session-id bono-close-2026-10-06`: ok true, topic_hash fa3f953, prior null (first run, chain not written, reason no_prior), conclusion claim:bono-close-2026-10-06:9678da71, 6 claim ids (5 claims typed assumption and anomaly_cue plus 1 known), 3 open_question ids, edges_written 1 (the known's SUPPORTS), failures []. `version-log` lists the one proposed conclusion. `file-expert` x6 (White, Black, Yellow, Green, Red, Blue; generic lens labels at evidenceTier None, provenance names the simulated debate): six proposed SyntheticExpert nodes, exit 0 each. The artifact's frontmatter `method:` line was corrected and a `graph:` line added. Nothing confirmed; the navigator ratifies through confirmNode or leaves the nodes proposed.
