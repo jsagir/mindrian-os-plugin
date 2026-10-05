@@ -264,6 +264,41 @@ async function main() {
   }
 
   // -------------------------------------------------------------------------
+  // Case G (369.2 CODE-07, 2026-10-05): the plain question is green on ask,
+  // search and query. One verdict by content and provenance: a methodology
+  // question with no room-local token proceeds on every verb (J4). Named G,
+  // not F: Case F below is the pre-existing shim end-to-end case.
+  // -------------------------------------------------------------------------
+  const PLAIN_QUESTION = 'How do I decide which customer segment to pursue first?';
+  await check('Case G1 (369.2 CODE-07): plain question allows on classify for ask, search and query', async () => {
+    const asks = guard.classify({ question: PLAIN_QUESTION }, { toolName: 'brain_ask' });
+    const search = guard.classify({ query: PLAIN_QUESTION }, { toolName: 'brain_search' });
+    const query = guard.classify({ cypher: PLAIN_QUESTION }, { toolName: 'brain_query' });
+    [asks, search, query].forEach((v) => {
+      assert.strictEqual(v.verdict, 'allow', 'plain question must allow, got: ' + JSON.stringify(v));
+      assert.ok(v.class === 'typed_question' || v.class === 'generic_question', 'plain question class must be typed_question or generic_question, got: ' + JSON.stringify(v));
+    });
+  });
+  await check('Case G2 (369.2 CODE-07): brain.ask(plain) reaches the wire once as brain_ask', async () => {
+    resetCaptured();
+    await brain.ask(PLAIN_QUESTION);
+    const calls = captured.filter((c) => c.name === 'brain_ask' || c.name === 'recommend_chain' || c.name === 'brain_search');
+    assert.ok(calls.length > 0, 'a plain question must reach the capture server via ask(), captured: ' + JSON.stringify(captured));
+  });
+  await check('Case G3 (369.2 CODE-07): brain.search(plain) reaches the wire as brain_search', async () => {
+    resetCaptured();
+    const result = await brain.search(PLAIN_QUESTION);
+    assert.ok(!(result && result.error === 'egress_blocked'), 'search must not block a plain question, got: ' + JSON.stringify(result));
+    assert.ok(captured.some((c) => c.name === 'brain_search'), 'expected one brain_search capture, got: ' + JSON.stringify(captured));
+  });
+  await check('Case G4 (369.2 CODE-07): brain.query(plain) reaches the wire as brain_query', async () => {
+    resetCaptured();
+    const result = await brain.query(PLAIN_QUESTION);
+    assert.ok(!(result && result.error === 'egress_blocked'), 'query must not block a plain question, got: ' + JSON.stringify(result));
+    assert.ok(captured.some((c) => c.name === 'brain_query'), 'expected one brain_query capture, got: ' + JSON.stringify(captured));
+  });
+
+  // -------------------------------------------------------------------------
   // Case F: shim end-to-end, bin/mindrian-brain-mcp-client.cjs via
   // StdioClientTransport.
   // -------------------------------------------------------------------------

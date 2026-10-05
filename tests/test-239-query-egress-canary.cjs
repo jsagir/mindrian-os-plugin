@@ -307,6 +307,26 @@ async function main() {
     );
   });
 
+  // -------------------------------------------------------------------------
+  // LEG 8 (369.2 CODE-07, 2026-10-05): the plain question reaches the wire
+  // through query(). The canaries above stay red for room content; this leg
+  // proves the one-verdict model also lets a methodology question through the
+  // same door (J4), and that the capture server saw it (anti-vacuity for the
+  // allow side).
+  // -------------------------------------------------------------------------
+  await record('LEG 8 (369.2 CODE-07): a plain methodology question reaches the wire through query()', async () => {
+    resetCaptured();
+    const plain = 'How do I decide which customer segment to pursue first?';
+    const verdict = guard.classify({ cypher: plain }, { toolName: 'brain_query' });
+    assert.strictEqual(verdict.verdict, 'allow', 'plain question must classify allow, got ' + JSON.stringify(verdict));
+    const result = await brain.query(plain);
+    assert.ok(!(result && result.error === 'egress_blocked'), 'query() must not block a plain question, got ' + JSON.stringify(result));
+    assert.ok(
+      captured.some((c) => c.name === 'brain_query'),
+      'a plain question must reach the capture server as brain_query, captured: ' + JSON.stringify(captured)
+    );
+  });
+
   await stopCaptureServer(server);
 
   process.stdout.write(

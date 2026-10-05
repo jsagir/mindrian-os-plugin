@@ -341,6 +341,46 @@ async function main() {
     }
   );
 
+  // -------------------------------------------------------------------------
+  // Arm 9 (369.2 CODE-07, 2026-10-05): the disclosure contract on the payloads
+  // that are STILL ambiguous. A free-form Theo string is now allow or block,
+  // never ambiguous (theoVerdict); an unproven typed packet is the shape that
+  // still comes back ambiguous/unproven_packet, and callTool's belt still
+  // discloses it and proceeds (D-02 Option A, unchanged).
+  // -------------------------------------------------------------------------
+  await record('Arm 9 (369.2 CODE-07): an unproven packet proceeds and discloses, naming the class never the content', async () => {
+    const brain = freshBrainClient(url);
+    resetCaptured();
+    resetToolScript();
+
+    const packet = { job: 'banana pancake recipe probe', note: CANARY };
+    const verdict = guard.classify(packet, { toolName: 'brain_packet_probe' });
+    assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture packet must classify ambiguous, got ' + JSON.stringify(verdict));
+    assert.strictEqual(verdict.class, 'unproven_packet');
+
+    const result = await brain.callTool('brain_packet_probe', packet);
+    assert.ok(captured.length > 0, 'the call must have proceeded to the wire');
+    assert.ok(result && typeof result === 'object', 'result must be a non-null object');
+    assert.ok(Object.prototype.hasOwnProperty.call(result, 'egress_disclosure'), 'result must carry an own egress_disclosure');
+    assert.strictEqual(result.egress_disclosure.verdict, 'ambiguous');
+    assert.strictEqual(result.egress_disclosure.egress_class, 'unproven_packet');
+    assert.strictEqual(result.egress_disclosure.tool, 'brain_packet_probe');
+    assert.strictEqual(result.egress_disclosure.disposition, 'proceeded');
+    assert.ok(!JSON.stringify(result.egress_disclosure).includes(CANARY), 'the disclosure must never carry the packet content');
+  });
+
+  // Arm 10 (369.2 CODE-07): no free-form string is ever ambiguous any more.
+  await record('Arm 10 (369.2 CODE-07): a free-form Theo string is allow or block, never ambiguous', async () => {
+    const rows = [AMBIGUOUS_TEXT, ALLOW_TEXT, BLOCK_TEXT, CANARY_TEXT];
+    const tools = [['question', 'brain_ask'], ['query', 'brain_search'], ['cypher', 'brain_query']];
+    rows.forEach((text) => {
+      tools.forEach(([key, tool]) => {
+        const v = guard.classify({ [key]: text }, { toolName: tool });
+        assert.notStrictEqual(v.verdict, 'ambiguous', 'free-form ' + tool + ' must be allow or block, got ' + JSON.stringify(v) + ' for ' + text);
+      });
+    });
+  });
+
   await stopCaptureServer(server);
 
   process.stdout.write(

@@ -387,6 +387,19 @@ async function main() {
       const r4 = honestRefusal(otherErrorInput, 'brain_write');
       assert.strictEqual(r4, otherErrorInput, 'only the exact egress_blocked string is special; other .error values pass through unchanged');
     });
+
+    // -------------------------------------------------------------------
+    // Arm 9 (369.2 CODE-07, 2026-10-05): the G2 gap, closed on the wire.
+    // brain_query on a block answers kind egress_blocked and names the
+    // token_class, from the same Part 8 sentinel every other Theo verb uses.
+    // -------------------------------------------------------------------
+    await record('Arm 9 (369.2 CODE-07): brain_query on a block answers kind egress_blocked with a token_class', async () => {
+      const queryRefusal = contentJson(queryResult);
+      assert.strictEqual(queryRefusal.kind, 'egress_blocked', 'brain_query block must read egress_blocked, got: ' + JSON.stringify(queryRefusal));
+      assert.strictEqual(queryRefusal.status, 'BRAIN_EGRESS_BLOCKED');
+      assert.ok(typeof queryRefusal.token_class === 'string' && queryRefusal.token_class.length > 0, 'the refusal must name a token_class, got: ' + JSON.stringify(queryRefusal));
+      assert.ok(JSON.stringify(queryRefusal).indexOf(CANARY_TOKEN) === -1, 'the refusal must not echo the canary');
+    });
   } finally {
     await stopCaptureServer(server);
     spawnedProcs.forEach((p) => { try { p.kill('SIGKILL'); } catch (_e) { /* already gone */ } });
