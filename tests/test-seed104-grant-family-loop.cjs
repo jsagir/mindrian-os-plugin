@@ -17,6 +17,9 @@
  * `node tests/test-seed104-grant-family-loop.cjs --capture` writes the golden
  * fixture (tests/fixtures/seed104/whitespace-golden.json) and exits 0.
  *
+ * 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send.
+ * Golden re-captured 2026-10-05, 369.2-09: run grant, every string listed, SEED-115 and the 2026-10-05 ruling.
+ *
  * No em-dash or en-dash literals: spelled with String.fromCharCode where needed.
  * Exit 0 pass, 1 fail.
  */
@@ -206,17 +209,14 @@ function whitespaceSnapshot() {
 
   const cover = quick.coverFor(roomDir, plan, { now: NOW });
   const card = planner.cardFor(roomDir, plan, { now: NOW });
-  const approved = planner.approveStandingGrant(roomDir, cover.proposal, { approvedVia: 'cli', terms: cover.new_terms });
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the whitespace run is approved as a run grant
+  const approved = planner.approvePlanReview(roomDir, plan.run_id, { approvedVia: 'cli' });
   assert.equal(approved.ok, true, JSON.stringify(approved).slice(0, 300));
   const grant = JSON.parse(JSON.stringify(approved.grant));
   grant.grant_id = '<volatile>';
   grant.approved_at = '<volatile>';
   grant.expires_at = '<volatile>';
   grant.approved_via.decision_node_id = '<volatile>';
-  grant.approved_terms.forEach(function (t) {
-    t.approved_at = '<volatile>';
-    t.approved_via.decision_node_id = '<volatile>';
-  });
   const g11 = grants.grantCard(
     grants.buildStandingProposal(roomDir, { terms: [{ term: 'thin-film sensors', synonyms: ['dielectric probes'] }] }),
     { newTerms: ['thin-film sensors'], now: NOW }
@@ -229,7 +229,7 @@ function whitespaceSnapshot() {
     grant: grant,
     g11_card: g11,
   };
-  const text = JSON.stringify(snap, null, 2).split(grants.roomIdFor(roomDir)).join('<room_id>');
+  const text = JSON.stringify(snap, null, 2).split(grants.roomIdFor(roomDir)).join('<room_id>').split(plan.run_id).join('<run_id>');
   return JSON.parse(text);
 }
 
@@ -250,7 +250,7 @@ async function leg(name, fn) {
 }
 
 async function main() {
-  await leg('S0 whitespace proposal, card, grant and queries are byte-identical to the golden', function () {
+  await leg('S0 whitespace run proposal, card, run grant and queries are byte-identical to the golden', function () {
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, 'utf8'));
     assert.deepEqual(whitespaceSnapshot(), golden);
   });
@@ -388,14 +388,18 @@ async function main() {
   });
 
   // -- S7 loop guard, core (SEED-104 part 3) ------------------------------------
-  await leg('S7 a stuck standing scope returns grant_scope_cannot_cover_plan, no card, no fetch; an untampered plan runs', async function () {
+  // MOVED 2026-10-05 (369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send): a standing grant is never a stuck scope for a web plan; the
+  // card it gets is the run grant, so grant_scope_cannot_cover_plan is not reachable and nothing is fetched until approval.
+  await leg('S7 a standing grant never produces grant_scope_cannot_cover_plan for a web plan; the card offers the run grant; an approved plan runs', async function () {
     const room = newRoom('founder').roomDir;
     const plan = buildCePlan(room);
     const cover = quick.coverFor(room, plan, { now: NOW });
     assert.equal(cover.covered, false);
     assert.equal(cover.reason, 'no_grant');
+    assert.equal(cover.proposal.lifetime, 'run');
     assert.deepEqual(cover.proposal.families, ['concept-evidence/v1']);
-    const ap = planner.approveStandingGrant(room, cover.proposal, { approvedVia: 'cli', terms: cover.new_terms });
+    const sp = grants.buildStandingProposal(room, { terms: [{ term: CE_TERM, synonyms: [] }], families: ['concept-evidence/v1'] });
+    const ap = planner.approveStandingGrant(room, sp, { approvedVia: 'cli', terms: [CE_TERM] });
     assert.equal(ap.ok, true, JSON.stringify(ap));
     assert.ok(ap.grant.families.indexOf('concept-evidence/v1') !== -1);
 
@@ -405,22 +409,22 @@ async function main() {
     tampered.template_id = 'ws.exact';
     const spy = countingSeam();
     const res = await quick.runQuick(room, clone, { fetchEnvelopeFn: spy, now: NOW });
-    assert.equal(res.status, 'refused', JSON.stringify(res).slice(0, 300));
-    assert.equal(res.reason, 'grant_scope_cannot_cover_plan');
-    assert.equal(res.reask_reason, 'outside_family');
-    assert.ok(res.plan_families.indexOf('concept-evidence/v1') !== -1);
-    assert.deepEqual(res.grant_families, ap.grant.families);
-    assert.equal(res.card, undefined);
+    assert.equal(res.status, 'reask', JSON.stringify(res).slice(0, 300));
+    assert.equal(res.reason, 'outside_family');
+    assert.ok(res.card && res.proposal && res.proposal.lifetime === 'run', 'the run grant is offered');
     assert.equal(spy.state.calls, 0);
     const cv = quick.coverFor(room, clone, { now: NOW });
     assert.equal(cv.covered, false);
-    assert.equal(cv.reason, 'grant_scope_cannot_cover_plan');
-    assert.equal(cv.card, undefined);
-    assert.equal(cv.proposal, undefined);
+    assert.notEqual(cv.reason, 'grant_scope_cannot_cover_plan');
+    assert.equal(cv.proposal.lifetime, 'run');
     const card = planner.cardFor(room, clone, { now: NOW });
-    assert.equal(card.card, null);
-    assert.equal(card.reason, 'grant_scope_cannot_cover_plan');
+    assert.equal(card.next, 'grant');
+    assert.ok(card.card, 'a card is offered');
 
+    // the standing grant alone does not cover the untampered plan either: the run grant does
+    const noRun = quick.coverFor(room, plan, { now: NOW });
+    assert.equal(noRun.reason, 'hash_not_approved');
+    assert.equal(planner.approvePlanReview(room, plan.run_id, { approvedVia: 'cli' }).ok, true);
     const okSpy = countingSeam();
     const done = await quick.runQuick(room, plan, { fetchEnvelopeFn: okSpy, now: NOW });
     assert.equal(done.status, 'done', JSON.stringify(done).slice(0, 300));
@@ -457,31 +461,39 @@ async function main() {
   });
 
   // -- S9 re-approval widening ---------------------------------------------------
-  await leg('S9 re-approving onto a whitespace grant widens families once; the identical call is a no-op', function () {
+  // MOVED 2026-10-05 (369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send): the widen-once leg runs on the standing door explicitly
+  // (the grant propose door); it does not authorize the web run, and a run proposal cannot widen it.
+  await leg('S9 the standing door widens families once; the identical call is a no-op; it never authorizes the web run', function () {
     const room = newRoom('founder').roomDir;
     const wsBuilt = planner.buildPlan(room, qsFile('whitespace-quick'), { mode: 'quick', now: new Date(NOW) });
-    const wsCover = quick.coverFor(room, wsBuilt.plan, { now: NOW });
-    const first = planner.approveStandingGrant(room, wsCover.proposal, { approvedVia: 'cli', terms: wsCover.new_terms });
+    const wsStanding = grants.buildStandingProposal(room, { terms: [{ term: 'thin-film sensors', synonyms: [] }], families: ['whitespace-gap/v1'] });
+    const first = planner.approveStandingGrant(room, wsStanding, { approvedVia: 'cli', terms: ['thin-film sensors'] });
     assert.equal(first.ok, true);
     assert.deepEqual(first.grant.families, ['whitespace-gap/v1']);
     assert.equal(first.grant.version, 1);
+    assert.equal(quick.coverFor(room, wsBuilt.plan, { now: NOW }).reason, 'hash_not_approved');
 
     const cePlan = buildCePlan(room);
     const ceCover = quick.coverFor(room, cePlan, { now: NOW });
     assert.equal(ceCover.reason, 'outside_family');
     assert.ok(ceCover.card, 'a card is offered once');
+    assert.equal(ceCover.proposal.lifetime, 'run');
     assert.deepEqual(ceCover.proposal.families, ['concept-evidence/v1']);
-    const a = planner.approveStandingGrant(room, ceCover.proposal, { approvedVia: 'cli', terms: ceCover.new_terms });
+    assert.equal(planner.approveStandingGrant(room, ceCover.proposal, { approvedVia: 'cli', terms: [] }).ok, false);
+    const ceStanding = grants.buildStandingProposal(room, { terms: [{ term: CE_TERM, synonyms: [] }], families: ['concept-evidence/v1'] });
+    const a = planner.approveStandingGrant(room, ceStanding, { approvedVia: 'cli', terms: [CE_TERM] });
     assert.equal(a.ok, true, JSON.stringify(a));
     assert.deepEqual(a.grant.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
     assert.equal(a.grant.version, 2);
     assert.equal(typeof a.decision_node_id, 'string');
-    const b = planner.approveStandingGrant(room, ceCover.proposal, { approvedVia: 'cli', terms: ceCover.new_terms });
+    const b = planner.approveStandingGrant(room, ceStanding, { approvedVia: 'cli', terms: [CE_TERM] });
     assert.equal(b.ok, true);
     assert.equal(b.unchanged, true);
     assert.equal(b.grant.version, 2);
     assert.equal(b.decision_node_id, null);
-    assert.equal(quick.coverFor(room, cePlan, { now: NOW }).covered, true);
+    const after = quick.coverFor(room, cePlan, { now: NOW });
+    assert.equal(after.covered, false);
+    assert.equal(after.reason, 'hash_not_approved');
   });
 
   // -- E1 no grant: recall -> grant -> one approval -> done ----------------------
@@ -500,16 +512,17 @@ async function main() {
     assert.ok(cands.some(function (x) { return /\/C[12]$/.test(x.a) || /\/C[12]$/.test(x.b); }), 'a claim appears in a recalled pair');
     const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
     assert.equal(req.ok, true, JSON.stringify(req).slice(0, 300));
-    assert.ok(req.card.body_md.indexOf('concept-evidence/v1') !== -1, 'card names concept-evidence/v1');
-    const ans = await c.answer(req.gate.gate_id, ['approve_standing']);
+    // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the card offers the run only and lists every exact string
+    assert.deepEqual(req.card.options.map(function (o) { return o.id; }), ['approve_run', 'not_now']);
+    assert.ok(req.card.payload.families.indexOf('concept-evidence/v1') !== -1, 'the payload names concept-evidence/v1');
+    assert.ok(req.card.payload.queries.length > 0 && req.card.payload.queries.every(function (q) { return req.card.body_md.indexOf(q) !== -1; }), 'every exact string is on the card');
+    const ans = await c.answer(req.gate.gate_id, ['approve_run']);
     assert.equal(ans.ok !== false, true, JSON.stringify(ans).slice(0, 300));
-    const g = activeStanding(room);
-    assert.ok(g, 'standing grant written');
+    assert.equal(activeStanding(room), null, 'no standing grant is written');
+    const g = grants.findActiveGrant(room.roomDir, { now: Date.now(), lifetime: 'run', run_id: rec.plan.run_id });
+    assert.ok(g, 'run grant written');
     assert.ok(g.families.indexOf('concept-evidence/v1') !== -1);
-    g.approved_terms.forEach(function (t) {
-      assert.equal(families.proseShaped(t.term), false, t.term);
-      assert.equal(JSON.stringify(t).indexOf('flowable'), -1);
-    });
+    assert.equal(g.approved_hashes.length, req.card.payload.queries.length);
     const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
     E1.replay = replay;
     const run = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
@@ -545,9 +558,11 @@ async function main() {
     });
   });
 
-  // -- E2 whitespace-only standing grant ------------------------------------------
+  // -- E2 whitespace-only standing grant -----------------------------------------
+  // MOVED 2026-10-05 (369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send): the standing grant stays as it was (readable, not widened);
+  // one approval of the run covers the concept-evidence strings and run_quick is done.
   const E2 = {};
-  await leg('E2 a whitespace-only grant widens on one approval to concept-evidence at version 2; run_quick done', async function () {
+  await leg('E2 a whitespace-only standing grant is not widened; one run approval covers the concept-evidence run; run_quick done', async function () {
     const room = buildEurekaRoom();
     E2.room = room;
     const wsP = grants.buildStandingProposal(room.roomDir, { terms: [{ term: 'thin-film sensors', synonyms: [] }] });
@@ -562,13 +577,14 @@ async function main() {
     const before = planner.cardFor(room.roomDir, loaded.plan, {});
     assert.equal(before.next, 'grant');
     assert.equal(before.reason, 'outside_family');
+    assert.equal(before.proposal.lifetime, 'run');
     const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
     assert.equal(req.ok, true, JSON.stringify(req).slice(0, 300));
-    const ans = await c.answer(req.gate.gate_id, ['approve_standing']);
+    const ans = await c.answer(req.gate.gate_id, ['approve_run']);
     assert.equal(ans.ok !== false, true, JSON.stringify(ans).slice(0, 300));
     const g = activeStanding(room);
-    assert.deepEqual(g.families, ['whitespace-gap/v1', 'concept-evidence/v1']);
-    assert.equal(g.version, 2);
+    assert.deepEqual(g.families, ['whitespace-gap/v1']);
+    assert.equal(g.version, 1);
     E2.grant = g;
     const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
     const run = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
@@ -576,8 +592,10 @@ async function main() {
     assert.notEqual(run.reason, 'outside_family');
   });
 
-  // -- E4 stuck scope, MCP door ---------------------------------------------------
-  await leg('E4 a stuck standing scope gives the typed refusal at run_quick and grant_request; no gate, no fetch', async function () {
+  // -- E4 standing scope is never stuck on the web, MCP door ---------------------
+  // MOVED 2026-10-05 (369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send): a tampered plan under a standing grant gets the run card
+  // (a gate with approve_run), never the stuck-scope refusal; nothing is fetched.
+  await leg('E4 a standing grant never gives the stuck refusal on the web: run_quick and grant_request offer the run approval; no fetch', async function () {
     assert.ok(E2.grant, 'E2 ran');
     const room = E2.room;
     const c = E2.client;
@@ -590,16 +608,16 @@ async function main() {
     writePlanFile(loc.file, loc.plan);
     const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
     const res = await withReplay(replay, function () { return c.call({ op: 'run_quick', run_id: rec.plan.run_id }); });
-    assert.equal(res.ok, false, JSON.stringify(res).slice(0, 300));
-    assert.equal(res.reason, 'grant_scope_cannot_cover_plan');
-    assert.ok(res.plan_families.indexOf('concept-evidence/v1') !== -1);
-    assert.deepEqual(res.grant_families, activeStanding(room).families);
-    assert.equal(Object.prototype.hasOwnProperty.call(res, 'gate'), false);
+    assert.notEqual(res.reason, 'grant_scope_cannot_cover_plan', JSON.stringify(res).slice(0, 300));
+    assert.equal(res.status, 'reask', JSON.stringify(res).slice(0, 300));
+    assert.ok(res.gate && res.gate.gate_id, 'a gate is minted for the run approval');
+    assert.deepEqual(res.card.options.map(function (o) { return o.id; }), ['approve_run', 'not_now']);
     assert.equal(replay.calls.length, 0);
     const req = await c.call({ op: 'grant_request', run_id: rec.plan.run_id });
-    assert.equal(req.ok, false);
-    assert.equal(req.reason, 'grant_scope_cannot_cover_plan');
-    assert.equal(Object.prototype.hasOwnProperty.call(req, 'gate'), false);
+    assert.equal(req.ok, true, JSON.stringify(req).slice(0, 300));
+    assert.ok(req.gate && req.gate.gate_id);
+    assert.equal(req.reason, undefined);
+    assert.equal(replay.calls.length, 0);
   });
 
   // -- E5 stale prose plan, MCP door ----------------------------------------------

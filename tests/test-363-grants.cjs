@@ -66,6 +66,18 @@ function standing(roomDir, terms, opts) {
   assert.equal(w.ok, true, 'writeGrant failed: ' + JSON.stringify(w));
   return w.grant;
 }
+// 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send.
+// runGrantFor(room, qs, minutes) -> the run grant the approval of a plan carrying exactly these round-one queries writes.
+function runGrantFor(roomDir, qs, minutes) {
+  const plan = {
+    run_id: 'r-363-' + path.basename(roomDir).slice(-8), mode: 'quick',
+    budget: { max_searches: 3, queries_per_round: 3, results_per_query: 5, time_budget_ms: (minutes || 20) * MIN },
+    leaves: [{ queries: qs.map(function (x) { return Object.assign({ round: 1 }, x); }) }],
+  };
+  const w = G.writeGrant(roomDir, G.buildRunGrant(plan, { now: NOW }), { approved_via: VIA, now: NOW });
+  assert.equal(w.ok, true, 'run grant failed: ' + JSON.stringify(w));
+  return w.grant;
+}
 function qObj(q, extra) {
   return Object.assign({
     q: q.q, q_hash: q.q_hash, template_id: q.template_id, family: q.family, provider: 'openalex',
@@ -97,9 +109,12 @@ leg('G1 writeGrant then readGrants round-trips; a fresh child reads the same gra
 });
 
 leg('G2 each re-ask reason fires alone, and the fixed order holds when two apply', function () {
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the base grant is the run grant; a standing grant answers hash_not_approved where it used to answer new_term
   const room = mkRoom('g2');
-  const g = standing(room);
-  const q = wsQueries()[0];
+  const qs = wsQueries();
+  const g = runGrantFor(room, qs);
+  const sg = standing(room);
+  const q = qs[0];
   const st = state(room);
   assert.deepEqual(G.validateExecutedQuery(qObj(q), g, st), { ok: true });
   assert.equal(G.validateExecutedQuery(qObj(q), null, st).reason, 'no_grant');
@@ -110,32 +125,39 @@ leg('G2 each re-ask reason fires alone, and the fixed order holds when two apply
   assert.equal(G.validateExecutedQuery(qObj(q, { provider: 'crossref' }), g, st).reason, 'provider_not_in_policy');
   assert.equal(G.validateExecutedQuery(qObj(q, { family: 'concept-evidence/v1', template_id: 'ce.exact' }), g, st).reason, 'outside_family');
   assert.equal(G.validateExecutedQuery(qObj(q, { audit: 'tripped' }), g, st).reason, 'audit_tripped');
-  assert.equal(G.validateExecutedQuery(qObj(q, { slot_terms: ['brand new term'] }), g, st).reason, 'new_term');
+  // the standing grant (terms, no strings) never covers a web send, and no path answers new_term
+  assert.equal(G.validateExecutedQuery(qObj(q), sg, st).reason, 'hash_not_approved');
+  assert.equal(G.validateExecutedQuery(qObj(q, { slot_terms: ['brand new term'] }), sg, st).reason, 'hash_not_approved');
+  // on the run grant the exact hash is what counts; slot terms are not consulted
+  assert.deepEqual(G.validateExecutedQuery(qObj(q, { slot_terms: ['brand new term'] }), g, st), { ok: true });
   assert.equal(G.validateExecutedQuery(qObj(q), g, state(room, { searches_used: g.caps.max_searches })).reason, 'cap_exceeded');
-  assert.equal(G.validateExecutedQuery(qObj(q, { round: 2 }), g, state(room, { round: 2 })).reason, 'multi_step');
+  assert.equal(G.validateExecutedQuery(qObj(q, { round: 2 }), sg, state(room, { round: 2 })).reason, 'multi_step');
   // order: expired + outside family -> grant_expired; revoked + expired -> grant_revoked
   assert.equal(G.validateExecutedQuery(qObj(q, { family: 'concept-evidence/v1', template_id: 'ce.exact' }), g, state(room, { now: NOW + 31 * DAY })).reason, 'grant_expired');
   assert.equal(G.validateExecutedQuery(qObj(q), Object.assign({}, g, { revoked_at: new Date(NOW).toISOString() }), state(room, { now: NOW + 31 * DAY })).reason, 'grant_revoked');
   assert.deepEqual(G.REASK_REASONS, ['no_grant', 'room_mismatch', 'grant_revoked', 'grant_expired', 'grant_reversioned', 'provider_not_in_policy', 'outside_family', 'audit_tripped', 'new_term', 'hash_not_approved', 'cap_exceeded', 'throttle_exceeded', 'multi_step']);
 });
 
-leg('G3 new term asks once; extendTerms records approval, same query then passes, version increments', function () {
+leg('G3 a standing grant covering every term still refuses a web query with hash_not_approved; extendTerms still records terms', function () {
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: no new_term on the web; the standing file stays readable and extendable
   const room = mkRoom('g3');
   const g = standing(room);
   const qs = wsQueries({ term: 'quantum dot thermal sensing', synonyms: ['qd thermometry'] });
   const q = qs[0];
-  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room)).reason, 'new_term');
-  const terms = FAM.slotTerms(qs);
+  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room)).reason, 'hash_not_approved');
   const ext = G.extendTerms(room, g.grant_id, [{ term: 'quantum dot thermal sensing', synonyms: ['qd thermometry'] }], VIA, { now: NOW });
   assert.equal(ext.ok, true, JSON.stringify(ext));
   assert.equal(ext.grant.version, g.version + 1);
   const fresh = G.findActiveGrant(room, { now: NOW + MIN });
   assert.ok(fresh, 'active grant found');
   assert.equal(fresh.version, g.version + 1);
-  assert.deepEqual(G.validateExecutedQuery(qObj(q), fresh, state(room)), { ok: true });
-  assert.ok(terms.length >= 1);
+  // every slot term is now approved and the standing grant still does not cover the web query
+  assert.equal(G.validateExecutedQuery(qObj(q), fresh, state(room)).reason, 'hash_not_approved');
   assert.equal(fresh.approved_terms.length, 2);
   assert.equal(fresh.approved_terms[1].approved_via.surface, 'cli');
+  assert.ok(FAM.slotTerms(qs).length >= 1);
+  // the same query passes on a run grant that lists its hash
+  assert.deepEqual(G.validateExecutedQuery(qObj(q), runGrantFor(room, qs), state(room)), { ok: true });
 });
 
 leg('G4 run grant rejects an unapproved round-one hash and accepts round-two in-family within cap', function () {
@@ -161,19 +183,26 @@ leg('G4 run grant rejects an unapproved round-one hash and accepts round-two in-
   assert.equal(G.validateExecutedQuery(r2, g, state(room, { round: 2, searches_used: 16 })).reason, 'cap_exceeded');
 });
 
-leg('G5 standing round 2 is multi_step; searches at cap is cap_exceeded', function () {
+leg('G5 standing round 2 is multi_step; a run grant at cap is cap_exceeded', function () {
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the cap leg runs on the run grant; the standing round-2 refusal is unchanged
   const room = mkRoom('g5');
   const g = standing(room);
-  const q = wsQueries()[0];
+  const qs = wsQueries();
+  const q = qs[0];
   assert.equal(G.validateExecutedQuery(qObj(q, { round: 2 }), g, state(room, { round: 2 })).reason, 'multi_step');
-  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room, { searches_used: 3 })).reason, 'cap_exceeded');
-  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room, { searches_used: 2 })).ok, true);
+  const rg = runGrantFor(room, qs);
+  assert.equal(G.validateExecutedQuery(qObj(q), rg, state(room, { searches_used: 3 })).reason, 'cap_exceeded');
+  assert.equal(G.validateExecutedQuery(qObj(q), rg, state(room, { searches_used: 2 })).ok, true);
 });
 
 leg('G6 throttle: two ambient runs in an hour exceed; passes after the hour', function () {
   const room = mkRoom('g6');
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the throttle ledger itself is unchanged; a run grant never consults it, and a
+  // standing grant never reaches it on the web (hash_not_approved comes first). The ambient throttle moves to plan 10.
   const g = standing(room);
-  const q = wsQueries()[0];
+  const qs = wsQueries();
+  const q = qs[0];
+  const rg = runGrantFor(room, qs, 120);
   assert.equal(G.throttleState(room, { now: NOW }).exceeded, false);
   assert.equal(G.throttleState(room, { now: NOW }).allowed_next, true);
   G.recordRun(room, { run_id: 'r1', mode: 'quick', trigger: 'ambient', now: NOW });
@@ -189,24 +218,30 @@ leg('G6 throttle: two ambient runs in an hour exceed; passes after the hour', fu
   assert.equal(led.runs.length, 2);
   assert.ok(Array.isArray(led.pending_cards));
   const inWin = two.count;
-  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'ambient' }), g, state(room, { now: NOW + 3 * MIN, runs_in_window: inWin })).reason, 'throttle_exceeded');
+  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'ambient' }), rg, state(room, { now: NOW + 3 * MIN, runs_in_window: inWin })).ok, true);
+  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'ambient' }), g, state(room, { now: NOW + 3 * MIN, runs_in_window: inWin })).reason, 'hash_not_approved');
   const later = G.throttleState(room, { now: NOW + 61 * MIN });
   assert.equal(later.count, 0);
-  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'ambient' }), g, state(room, { now: NOW + 61 * MIN, runs_in_window: later.count })).ok, true);
+  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'ambient' }), rg, state(room, { now: NOW + 61 * MIN, runs_in_window: later.count })).ok, true);
   // a navigator-started query is never throttled
-  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'navigator' }), g, state(room, { runs_in_window: 5 })).ok, true);
+  assert.equal(G.validateExecutedQuery(qObj(q, { trigger: 'navigator' }), rg, state(room, { runs_in_window: 5 })).ok, true);
 });
 
 leg('G7 expiry edge: 30 days minus a minute passes; plus a minute fails', function () {
+  // 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send: the 30-day constant and the standing file stay; the validation edge runs on a run grant (its window is the run budget)
   const room = mkRoom('g7');
   const g = standing(room);
   assert.equal(G.GRANT_EXPIRY_DAYS, 30);
   assert.equal(G.RESEARCH_RUNS_PER_HOUR, 1);
   assert.equal(g.expires_at, new Date(NOW + 30 * DAY).toISOString());
-  const q = wsQueries()[0];
-  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room, { now: NOW + 30 * DAY - MIN })).ok, true);
-  assert.equal(G.validateExecutedQuery(qObj(q), g, state(room, { now: NOW + 30 * DAY + MIN })).reason, 'grant_expired');
+  assert.equal(G.findActiveGrant(room, { now: NOW + 30 * DAY - MIN }).grant_id, g.grant_id);
   assert.equal(G.findActiveGrant(room, { now: NOW + 30 * DAY + MIN }), null);
+  const qs = wsQueries();
+  const q = qs[0];
+  const rg = runGrantFor(room, qs, 20);
+  assert.equal(rg.expires_at, new Date(NOW + 20 * MIN).toISOString());
+  assert.equal(G.validateExecutedQuery(qObj(q), rg, state(room, { now: NOW + 20 * MIN - MIN })).ok, true);
+  assert.equal(G.validateExecutedQuery(qObj(q), rg, state(room, { now: NOW + 20 * MIN + MIN })).reason, 'grant_expired');
 });
 
 leg('G8 revokeGrant makes later queries grant_revoked; a foreign policy is grant_reversioned', function () {

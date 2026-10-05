@@ -125,9 +125,14 @@ function makePlan(opts) {
   return plan;
 }
 
-function standingGrant(room, terms) {
-  const list = terms || [{ term: GAP_TERM_363, synonyms: [SYN] }];
-  const proposal = grants.buildStandingProposal(room.roomDir, { terms: list });
+// 369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send.
+// runGrant(room, plan) writes the run grant approvePlanReview would write for this plan (the plan is
+// hand-built here and not saved in the room, so approvePlanReview cannot load it): its approved_hashes
+// are exactly the plan's round-one q_hash values.
+function runGrant(room, plan, over) {
+  const proposal = grants.buildRunGrant(plan);
+  proposal.room_id = grants.roomIdFor(room.roomDir);
+  if (over && over.approved_hashes) proposal.approved_hashes = over.approved_hashes;
   const w = grants.writeGrant(room.roomDir, proposal, { approved_via: { surface: 'cli', decision_node_id: 'd-363-12-test' } });
   if (!w.ok) throw new Error('grant failed: ' + JSON.stringify(w));
   return w.grant;
@@ -213,8 +218,8 @@ async function main() {
   // Q1 gap confirmed
   await leg('Q1 gap confirmed: three audit records, literature_gap candidate, no escalation', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor(ZERO);
     const out = await run(room, plan, replay);
     if (out.status !== 'done') return 'status ' + out.status + ' ' + out.reason;
@@ -236,8 +241,8 @@ async function main() {
   // Q2 covered elsewhere
   await leg('Q2 covered elsewhere: deterministic synonym row supports ws:covered_elsewhere, settled', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'gap_primary_zero', cover: 'synonym_hits', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay);
     if (out.status !== 'done') return 'status ' + out.status + ' ' + out.reason;
@@ -255,8 +260,8 @@ async function main() {
   // first, so the offer is never a dead end (navigator ruling 2026-10-01).
   await leg('Q3 contested with no named limiter: exactly one offer, and it asks what blocks the gap', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'contested_rows', cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay, {
       rowsProvider: async function () {
@@ -282,8 +287,8 @@ async function main() {
   // Q3b the same contested run on a plan that already names a limiter keeps the plain offer
   await leg('Q3b contested with a named limiter: exactly one deep offer, run deep on this?', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan({ limiter: true });
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'contested_rows', cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay, {
       rowsProvider: async function () {
@@ -306,8 +311,8 @@ async function main() {
   // Q4 provider down
   await leg('Q4 budget 429: unresolved, never gap-confirmed, audit failed with failure_class', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: SENTINELS.SENTINEL_429_BUDGET, cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay);
     if (out.status !== 'done') return 'status ' + out.status + ' ' + out.reason;
@@ -326,8 +331,8 @@ async function main() {
     const kinds = [SENTINELS.SENTINEL_500, SENTINELS.SENTINEL_TIMEOUT, SENTINELS.SENTINEL_NETWORK];
     for (let i = 0; i < kinds.length; i += 1) {
       const room = newRoom();
-      standingGrant(room);
       const plan = makePlan();
+      runGrant(room, plan);
       const replay = replayFor({ primary: kinds[i], cover: 'gap_primary_zero', prior: 'gap_primary_zero' });
       const out = await run(room, plan, replay);
       if (out.status !== 'done') return kinds[i] + ' status ' + out.status;
@@ -341,8 +346,8 @@ async function main() {
   // Q6 missing count
   await leg('Q6 a body with no meta.count gives unresolved', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'no_count', cover: 'gap_primary_zero', prior: 'gap_primary_zero' }, {
       no_count: { meta: { db_response_time_ms: 3 }, results: [] },
     });
@@ -365,13 +370,15 @@ async function main() {
   });
 
   // Q8 new term
-  await leg('Q8 new term: reask new_term, zero calls, card lists the term', async function () {
+  // MOVED 2026-10-05 (369.2-09 (R02, ruling 2026-10-05): one run grant per run on the web lines; standing term grants no longer cover a web send): an approval of other strings does not cover this plan;
+  // the answer is hash_not_approved (never new_term), zero calls, and the card lists every exact string.
+  await leg('Q8 other strings approved: reask hash_not_approved, zero calls, card lists the exact strings', async function () {
     const room = newRoom();
-    standingGrant(room, [{ term: 'unrelated approved term', synonyms: [] }]);
     const plan = makePlan();
+    runGrant(room, plan, { approved_hashes: ['sha256:' + '1'.repeat(64)] });
     const replay = replayFor(ZERO);
     const out = await run(room, plan, replay);
-    return out.status === 'reask' && out.reason === 'new_term'
+    return out.status === 'reask' && out.reason === 'hash_not_approved'
       && replay.calls.length === 0
       && out.card && out.card.body_md.indexOf(GAP_TERM_363) !== -1
       && auditLedger.readAudit(room.roomDir).length === 0
@@ -381,8 +388,8 @@ async function main() {
   // Q9 cache
   await leg('Q9 cache: second run makes zero calls, cache_hit audit records with the cached count', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const map = { primary: 'gap_primary_zero', cover: 'synonym_hits', prior: 'prior_review_two' };
     const first = replayFor(map);
     const a = await run(room, plan, first);
@@ -404,8 +411,8 @@ async function main() {
   // Q10 caps
   await leg('Q10 caps: four queries refused before fetching; at most five records per query kept', async function () {
     const room = newRoom();
-    standingGrant(room);
     const big = makePlan({ l1: ['ws.exact', 'ws.absence_reason'] });
+    runGrant(room, big);
     const replay = replayFor(ZERO);
     const out = await run(room, big, replay);
     const refused = (out.status === 'refused' || out.status === 'reask')
@@ -414,8 +421,8 @@ async function main() {
     if (!refused) return 'four queries: status ' + out.status + ' reason ' + out.reason + ' calls ' + replay.calls.length;
 
     const room2 = newRoom();
-    standingGrant(room2);
     const plan = makePlan();
+    runGrant(room2, plan);
     const eight = [];
     for (let i = 0; i < 8; i += 1) {
       const src = BODIES.synonym_hits.results[i % 5];
@@ -452,8 +459,9 @@ async function main() {
       && noHit.flagged === false && noHit.artifact_count === 0 && guard.attempts() === before;
     if (!okDirect) return 'direct ' + JSON.stringify(direct) + ' ' + JSON.stringify(noHit);
 
-    standingGrant(room);
     const plan = makePlan();
+
+    runGrant(room, plan);
     const replay = replayFor(ZERO);
     const out = await run(room, plan, replay);
     if (out.status !== 'done') return 'status ' + out.status;
@@ -467,8 +475,8 @@ async function main() {
   // Q12 escalate
   await leg('Q12 escalateToDeep: deep seed, same perspective and pyramid, valid, no side effects', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'prior_review_two', cover: 'synonym_hits', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay, { rowsProvider: async function () { return []; } });
     if (out.status !== 'done') return 'status ' + out.status;
@@ -494,8 +502,8 @@ async function main() {
   // Q13 evidence card
   await leg('Q13 evidenceCard: shape, options, row ids, attributed counts, no praise, no dash', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor({ primary: 'contested_rows', cover: 'synonym_hits', prior: 'gap_primary_zero' });
     const out = await run(room, plan, replay, {
       rowsProvider: async function () {
@@ -525,8 +533,8 @@ async function main() {
   // Q14 time budget
   await leg('Q14 time budget: a slow fetch stops the run with stop_reason time and verdict unresolved', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const replay = replayFor(ZERO);
     const out = await QUICK.runQuick(room.roomDir, plan, {
       fetchEnvelopeFn: seam(replay, { delayMs: 120 }),
@@ -542,8 +550,8 @@ async function main() {
   // Q15 Part 8
   await leg('Q15 Part 8: marker in no audit record, URL or card; the key never reaches a file', async function () {
     const room = newRoom();
-    standingGrant(room);
     const plan = makePlan();
+    runGrant(room, plan);
     const FAKE_KEY = 'fake-key-363-quick-sweep';
     process.env.OPENALEX_API_KEY = FAKE_KEY;
     let out;
