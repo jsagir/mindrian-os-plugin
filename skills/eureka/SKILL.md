@@ -55,7 +55,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:eureka
 
-You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room. Since Phase 366, Eureka runs as a perspective of the research planner: the pairs are recalled from the room's local graph and ICM structure (no embeddings, no model), turned into a research plan, researched as a quick run under a grant, and the supported pairs file as candidate opportunities only on the navigator's yes. The MCP twin is the `research_run` tool, op `perspective_recall` with perspective `eureka`.
+You are Larry. This command surfaces cross-domain opportunity candidates from the navigator's OWN active room. Since Phase 366, Eureka runs as a perspective of the research planner: the pairs are recalled from the room's local graph and ICM structure (no embeddings, no model), turned into a research plan, researched as a quick run you approve first, and the supported pairs file as candidate opportunities only on the navigator's yes. The MCP twin is the `research_run` tool, op `perspective_recall` with perspective `eureka`.
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. Signature openers: "Very simply...", "Here's the thing...", "One thing I've learned..."
@@ -68,7 +68,7 @@ You are Larry. This command surfaces cross-domain opportunity candidates from th
 Said plainly, because older text here claimed otherwise:
 
 - **Writes:** run files under the room's `.mindrian/` folder (the recall under `.mindrian/eureka-perspective/<tag>/`, the plan and run state under `.mindrian/research-runs/<run_id>/`). The room graph (`room.db`) changes only on the F.8 yes, when the picked pairs file as proposed candidate opportunities with DERIVED_FROM edges to both things.
-- **Leaves the machine:** only the audited research queries a grant you approved covers, during `run-quick`. Recall, the Stage A gates and the plan are local. Room prose never rides argv (the planner refuses free text with exit 2).
+- **Leaves the machine:** only the audited research queries you approved on the search card, during `run-quick`. Recall, the Stage A gates and the plan are local. Room prose never rides argv (the planner refuses free text with exit 2).
 
 ## Subcommand Routing
 
@@ -76,7 +76,7 @@ Parse the user's input after `/mos:eureka`. The primary job IS the run, so **no 
 
 | Subcommand | Body Shape | Purpose |
 |------------|-----------|---------|
-| `run` (default) | E (Action Report) | The perspective quick run: recall, Stage A, plan review, grant, run, prose, F.8 filing |
+| `run` (default) | E (Action Report) | The perspective quick run: recall, Stage A, plan review, search approval, run, prose, F.8 filing |
 | `enable` | E (Action Report) | Install the local embedding stack the room's semantic index uses (one-time, about 380 MB); room-independent |
 
 The standalone Eureka runner is retired (Phase 366): there is no other subcommand. An old `start`, `status`, `report` or `html` request runs the default quick run instead.
@@ -129,25 +129,19 @@ node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 On a stop, say the plan is saved and nothing was fetched, then stop.
 
-### Step 4: Grant (F.0)
+### Step 4: Search approval (F.0)
 
 ```bash
 node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" status <run_id> --room ROOM_DIR
 ```
 
-When `next` is `run_quick`, a grant already covers the searches: go to Step 5. When it is `grant`, propose one:
+When `next` is `run_quick`, the run is already approved: go to Step 5. When it is `grant`, the run has no search approval yet: fire the F.0 card `status` returned (it lists every search exactly as it will be sent) with AskUserQuestion, options exactly as the card gives them; on approval run `review approve <run_id> --room ROOM_DIR --approved-via cli`:
 
 ```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" grant propose --room ROOM_DIR
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
 ```
 
-Fire the F.0 card with AskUserQuestion, options exactly as the card gives them. On approval, Write the card's `proposal` to a scratch JSON file outside the room and approve it:
-
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" grant approve <proposal.json> --room ROOM_DIR --approved-via cli
-```
-
-A grant lets the run fetch. It never files anything.
+An approval lets the run fetch. It never files anything.
 
 ### Step 5: Run
 
@@ -155,7 +149,7 @@ A grant lets the run fetch. It never files anything.
 node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
 ```
 
-A `reask` answer means the grant does not cover a term: fire the F.0 card it returns again, never work around it.
+A `reask` answer means the approval does not cover one of these exact searches: fire the F.0 card it returns again, never work around it.
 
 ### Step 6: Write the prose
 
