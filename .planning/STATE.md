@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phases 369 and 369.1 COMPLETE and verified human_needed (2026-10-04); UATs filed; quick tasks A6 (364 Theo step fixtures) and answered_via (CR-02) in flight; beta.56 held (Theo canon window 25, Phase 26 row)
 last_updated: "2026-10-03T21:40:00.000Z"
-last_activity: 2026-10-05 -- Phase 369.2 EXECUTING: execution waves 1-2 done (plans 01-08); plan 05 Task 3 test moves made by the orchestrator under the navigator's gate approval (298f1b61a) after the auto-mode classifier denied the executor; run-all-366 70/0/0 KNOWN=1 restored; wave 3 (plan 09, one run grant per run) dispatched
+last_activity: 2026-10-05 -- Phase 369.2 EXECUTING: waves 1-3 done (plans 01-09; the approval card is named by its job per the navigator's ruling, G8 pins no word grant on the card); wave 4 (plans 10, 11) dispatched; the 2026-10-05 brief (prove one authority) filed at .planning/briefs/2026-10-05-prove-one-authority, sequencing held for discussion
 progress:
   total_phases: 121
   completed_phases: 48

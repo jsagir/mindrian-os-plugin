@@ -1795,7 +1795,7 @@ Plans:
 - [x] 369.2-06 the 9 fence-pinning tests moved (R01)
 - [x] 369.2-07 Theo test moves A (R04)
 - [x] 369.2-08 Theo test moves B: test-239 LEG 4, test-257 Arms 4/7/8, 354, 254 (R04)
-- [ ] 369.2-09 one run grant per run, exact strings on the card (R02)
+- [x] 369.2-09 one run grant per run, exact strings on the card (R02)
 - [ ] 369.2-10 CLI, ambient, MCP, acceptance suites on run grants (R02)
 - [ ] 369.2-11 basket-card arms, docs, mirrors (R26, R02)
 - [ ] 369.2-12 W1 close: PB8-03 out of KNOWN, CHANGELOG; navigator reads the real-room run and cuts beta.61 (checkpoint)
