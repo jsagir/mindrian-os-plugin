@@ -36,7 +36,11 @@
  *
  * Arms (repeatable --arm <id>; no flag runs all): builder-present, build,
  * no-bin, limits, manifest, equality, runtime-refs, refusals, check-mode,
- * out-replaced.
+ * out-replaced, drops.
+ *
+ * The drops arm (quick 261005-l8h, Phase 0 fixture J1): the Desktop copy carries no lib/ui-shell/dist
+ * (Desktop never launches the workspace) and no path with a character outside [A-Za-z0-9._/-]
+ * (Desktop's zip validator refuses them; 53 such paths, all inside the dist, broke the catalog sync).
  *
  * Hermetic (D-08, Canon Part 8): every temp dir lives under one mkdtemp root
  * removed on exit; npm pack always runs with --pack-destination inside it and
@@ -105,7 +109,7 @@ for (let i = 0; i < argv.length; i += 1) {
 }
 const ALL_ARMS = [
   'builder-present', 'build', 'no-bin', 'limits', 'manifest', 'equality',
-  'runtime-refs', 'refusals', 'check-mode', 'out-replaced',
+  'runtime-refs', 'refusals', 'check-mode', 'out-replaced', 'drops',
 ];
 const WANT = ARMS.length ? ARMS : ALL_ARMS;
 for (const a of WANT) {
@@ -535,6 +539,86 @@ function armOutReplaced() {
   });
 }
 
+
+// --- drops (quick 261005-l8h) ----------------------------------------------
+function everyEntry(dir) {
+  const out = [];
+  (function rec(d, rel) {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const r = rel ? rel + '/' + e.name : e.name;
+      out.push(r);
+      if (e.isDirectory() && !e.isSymbolicLink()) rec(path.join(d, e.name), r);
+    }
+  })(dir, '');
+  return out;
+}
+function armDrops() {
+  const V = '9.9.9-test.1';
+  check('drops', 'D1 ui-shell-dist: a tree holding lib/ui-shell/dist/x.js is refused, naming the path', () => {
+    const b = loadBuilder();
+    const d = cleanDir(V);
+    writeFiles(d, { 'lib/ui-shell/dist/x.js': 'module.exports = 1;\n' });
+    const v = b.checkPayload(d, { version: V, limits: b.LIMITS }).filter((x) => x.code === 'ui-shell-dist');
+    assert.equal(v.length, 1, 'expected one ui-shell-dist violation, got ' + v.length);
+    assert.ok(String(v[0].detail).includes('lib/ui-shell/dist'), 'the violation does not name lib/ui-shell/dist');
+  });
+  check('drops', 'D2 bad-path-char: a/[slug]/b.js and c/@d/e.js each get a violation naming the path', () => {
+    const b = loadBuilder();
+    const d = cleanDir(V);
+    writeFiles(d, { 'a/[slug]/b.js': 'module.exports = 1;\n', 'c/@d/e.js': 'module.exports = 2;\n' });
+    const v = b.checkPayload(d, { version: V, limits: b.LIMITS }).filter((x) => x.code === 'bad-path-char');
+    assert.equal(v.length, 2, 'expected two bad-path-char violations, got ' + v.length);
+    assert.ok(v.some((x) => String(x.detail).includes('a/[slug]/b.js')), 'a/[slug]/b.js is not named');
+    assert.ok(v.some((x) => String(x.detail).includes('c/@d/e.js')), 'c/@d/e.js is not named');
+  });
+  check('drops', 'D3 the built tree has no lib/ui-shell/dist, no entry outside [A-Za-z0-9._/-], and no bin/', () => {
+    needBuild();
+    assert.equal(fs.existsSync(path.join(OUT, 'lib', 'ui-shell', 'dist')), false, 'lib/ui-shell/dist exists in the built tree');
+    assert.equal(fs.existsSync(path.join(OUT, 'bin')), false, 'bin/ exists in the built tree');
+    const bad = everyEntry(OUT).filter((r) => /[^A-Za-z0-9._/-]/.test(r));
+    if (bad.length) for (const x of bad.slice(0, 5)) console.log('  BAD PATH: ' + x);
+    assert.equal(bad.length, 0, bad.length + ' path(s) in the built tree carry a character outside [A-Za-z0-9._/-]');
+  });
+  check('drops', 'D4 desktop-copy-gate.sh has no force-add of plugins/mos-desktop/lib/ui-shell/dist', () => {
+    const gate = fs.readFileSync(path.join(REPO_ROOT, 'scripts', 'release-lib', 'desktop-copy-gate.sh'), 'utf8');
+    const hits = gate.split('\n').filter((l) => l.includes('add --force --all -- plugins/mos-desktop/lib/ui-shell/dist'));
+    assert.equal(hits.length, 0, hits.length + ' force-add line(s) remain');
+  });
+  check('drops', 'D5 the launcher on a dist-less copy prints one honest "no workspace build" line, exits non-zero, no stack', () => {
+    const empty = mkTemp('nodist');
+    const home = mkTemp('home');
+    const env = Object.assign({}, hermeticEnv(), { HOME: home, USERPROFILE: home });
+    const r = spawnSync(process.execPath, [path.join(REPO_ROOT, 'lib', 'ui-shell', 'launch.cjs'), 'start', '--dist', empty], {
+      cwd: REPO_ROOT, encoding: 'utf8', env, timeout: 60000,
+    });
+    const text = (r.stderr || '') + (r.stdout || '');
+    assert.ok(r.status !== 0 && r.status !== null, 'the launcher exited ' + r.status);
+    assert.ok(/no workspace build/.test(text), 'no "no workspace build" line: ' + text.slice(0, 200));
+    assert.ok(!/\n\s+at .*\(.*:\d+:\d+\)/.test(text), 'a stack trace was printed');
+    assert.ok(text.includes('/mos:dashboard shell'), 'the line does not name the Claude Code route');
+  });
+  check('drops', 'D6 dash guard: no long dash in the touched code and docs, nor in the CHANGELOG Unreleased section', () => {
+    const em = String.fromCharCode(0x2014);
+    const en = String.fromCharCode(0x2013);
+    const files = [
+      'scripts/release-lib/build-desktop-artifact.cjs', 'scripts/release-lib/desktop-copy-gate.sh', 'scripts/release.sh',
+      'lib/ui-shell/launch.cjs', 'tests/test-369.1-desktop-artifact.cjs', 'docs/RELEASE-CEREMONY-RULING-SYSTEM.md',
+    ];
+    const hits = [];
+    for (const f of files) {
+      const t = fs.readFileSync(path.join(REPO_ROOT, f), 'utf8');
+      if (t.includes(em) || t.includes(en)) hits.push(f);
+    }
+    const cl = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
+    const i = cl.indexOf('## [Unreleased]');
+    const j = cl.indexOf('\n## [', i + 1);
+    const section = i >= 0 ? cl.slice(i, j > i ? j : undefined) : '';
+    assert.ok(i >= 0, 'CHANGELOG has no [Unreleased] section');
+    if (section.includes(em) || section.includes(en)) hits.push('CHANGELOG.md [Unreleased]');
+    assert.deepEqual(hits, []);
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Run (out-replaced last: it rebuilds the shared out dir)
 // ---------------------------------------------------------------------------
@@ -545,7 +629,7 @@ const ORDER = [
   ['builder-present', armBuilderPresent], ['build', armBuild], ['no-bin', armNoBin],
   ['limits', armLimits], ['manifest', armManifest], ['equality', armEquality],
   ['runtime-refs', armRuntimeRefs], ['refusals', armRefusals], ['check-mode', armCheckMode],
-  ['out-replaced', armOutReplaced],
+  ['out-replaced', armOutReplaced], ['drops', armDrops],
 ];
 for (const [id, fn] of ORDER) {
   if (!WANT.includes(id)) continue;
