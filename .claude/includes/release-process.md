@@ -27,6 +27,10 @@ A real release also tells Theo, before anything is mutated. `release.sh` Step 0.
 - Step 9.6c, website leg: read-only, never aborts, reports each website version and count surface plus banned content.
 - `--no-cut-listener` is the audited opt-out; `--dry-run` prints and runs nothing; report files land under `$HOME/.mindrian/release-cut-listener/`; details in RULE 5.
 
+## The real-room rule
+
+No cut without a real-room run read by a human (navigator ruling 2026-10-05). `release.sh` Step 2.6 refuses a cut unless `~/.mindrian/release-real-room/<HEAD sha>.json` exists, written by `node scripts/real-room-run.cjs --read-by "<your name>"` after you read its report; `--no-real-room-check` is the audited opt-out, `--desktop-verified mac|win` records the Desktop leg, and the doctor point `real-room-run` shows the latest receipt against HEAD. The rule lives in RULE 10 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
+
 ## Entry Point
 
 Run `scripts/release.sh <version>` to enforce all five gates. Never bump versions by hand.

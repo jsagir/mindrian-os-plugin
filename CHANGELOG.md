@@ -10,7 +10,7 @@
 - **Rooms work on stock macOS (Python 3.9) and name the error on Windows**: datetime.timezone.utc at four sites, registry stderr surfaced in the rooms-open failure, birthRoom requires a room.db read-back and a registry entry or rolls back, the scaffold result says ready:false, the agent stops on a failed create instead of hand-building a room, and doctor carries a python-floor point (SEED-117, CODE-01, SW-01, SW-20, ACT-04, quick 261005-l9o).
 
 ### Added
-- 
+- **Real-room release rule**: release.sh Step 2.6 refuses a cut without a receipt from scripts/real-room-run.cjs (quick, deep, Eureka, analogies on a fixture room, read by a human); doctor point real-room-run; Desktop-verified leg (quick 261005-muy, navigator ruling 2026-10-05, RULE 10).
 
 ## [2.0.0-beta.57] - 2026-10-04
 

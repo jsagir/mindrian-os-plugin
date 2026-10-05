@@ -1,0 +1,103 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "whitespace",
+  "command": "/mos:whitespace",
+  "stated_question": "Will farmers market stall holders in Lisbon pay for a solar-powered cold locker?",
+  "scqa": {
+    "situation": "Small growers sell produce at Lisbon farmers markets and nothing keeps it cool once the van is unloaded.",
+    "complication": "A solar-powered cold locker is a new kind of service and nobody may have tested what stall holders pay for it.",
+    "question": "Is there published work on cold storage for market stalls, or is the gap only in the room?",
+    "answer_hypothesis": "The gap is in the room, not in the literature."
+  },
+  "mode_hint": "quick",
+  "perspective": {
+    "tension": {
+      "statement": "Produce wilts between the van and the first sale."
+    },
+    "goal": {
+      "target": "Confirm or refute that the cold locker idea is already covered.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "published work or a product that already covers cold storage for one market stall"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Gap claim",
+      "dimension": "ws:gap_claim"
+    },
+    {
+      "id": "K2",
+      "label": "Covered under another term",
+      "dimension": "ws:covered_elsewhere"
+    },
+    {
+      "id": "K3",
+      "label": "Extraction failure",
+      "dimension": "ws:extraction_failure"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Is there published work on solar-powered cold storage for market stalls?",
+      "origin": "user_stated",
+      "dimension": "ws:gap_claim",
+      "lens": "ws.gap",
+      "researchable": true,
+      "falsifier": {
+        "text": "Any peer-reviewed paper that addresses the zone directly."
+      },
+      "slots": {
+        "term": "solar-powered cold storage for market produce"
+      }
+    },
+    {
+      "id": "L2",
+      "parent": "K2",
+      "question": "Is the same problem studied under a neighboring term?",
+      "origin": "framework_dimension",
+      "dimension": "ws:covered_elsewhere",
+      "lens": "ws.covered_elsewhere",
+      "researchable": true,
+      "falsifier": {
+        "text": "Papers under another term that answer the same question."
+      },
+      "slots": {
+        "term": "solar-powered cold storage for market produce",
+        "synonyms": [
+          "off-grid cold room for produce",
+          "evaporative cooling for fresh produce"
+        ]
+      }
+    },
+    {
+      "id": "L3",
+      "parent": "K3",
+      "question": "Does the room already hold an artifact naming this gap in other words?",
+      "origin": "framework_dimension",
+      "dimension": "ws:extraction_failure",
+      "lens": "ws.extraction",
+      "researchable": true,
+      "falsifier": {
+        "text": "A room artifact that already covers the zone."
+      },
+      "slots": {},
+      "corpus": "room"
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

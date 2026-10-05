@@ -1,0 +1,170 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "map-unknowns",
+  "command": "/mos:map-unknowns",
+  "stated_question": "Will a solar-powered cold locker keep Lisbon market produce fresh through a hot market day?",
+  "scqa": {
+    "situation": "Growers around Lisbon reach the market by mid-morning and the produce warms up before it sells.",
+    "complication": "A solar-powered cold locker may fail on the days when it is needed most.",
+    "question": "What must be true for a solar-powered cold locker to be enough for one stall for one day?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A cheap day rental versus an unseen failure on a cloudy day."
+    },
+    "goal": {
+      "target": "Know which failures a solar cold locker cannot prevent.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [
+      {
+        "id": "P1",
+        "label": "Locker alone",
+        "from_10x": false
+      },
+      {
+        "id": "P2",
+        "label": "Locker plus ice backup",
+        "from_10x": false
+      }
+    ],
+    "limiters": [
+      {
+        "id": "LM1",
+        "column": "assumed",
+        "label": "Battery capacity through a cloudy winter day",
+        "path_id": "P1",
+        "s_curve": "unknown",
+        "question": "Is the shortfall set by the battery size or by the compressor draw?",
+        "leaf_id": "L3"
+      }
+    ],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Known knowns",
+      "dimension": "mu:known_known"
+    },
+    {
+      "id": "K2",
+      "label": "Blind spots",
+      "dimension": "mu:blind_spot"
+    },
+    {
+      "id": "K3",
+      "label": "Hidden knowns",
+      "dimension": "mu:hidden_known"
+    },
+    {
+      "id": "K4",
+      "label": "Unknown unknowns",
+      "dimension": "mu:unknown_unknown"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Will a solar-powered cold locker keep Lisbon market produce fresh through a hot market day?",
+      "origin": "user_stated",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that produce stored in a solar cold cabinet still spoils within a market day."
+      },
+      "slots": {
+        "term": "solar-powered cold storage for produce"
+      }
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Does published data support the cooling performance of small solar-powered cold cabinets?",
+      "origin": "framework_dimension",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Studies that contradict the stated cooling performance."
+      },
+      "slots": {
+        "term": "small solar-powered cold cabinet performance"
+      }
+    },
+    {
+      "id": "L3",
+      "parent": "K2",
+      "question": "Which spoilage causes do market sellers report that a cold cabinet would not touch?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Seller reports showing none of these causes occur."
+      },
+      "slots": {
+        "term": "produce spoilage at farmers markets"
+      }
+    },
+    {
+      "id": "L4",
+      "parent": "K2",
+      "question": "What do neighboring cold-chain uses require that this design has not read?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "A review showing neighboring uses impose no extra requirement."
+      },
+      "slots": {
+        "term": "cold chain requirements for market stalls"
+      }
+    },
+    {
+      "id": "L5",
+      "parent": "K3",
+      "question": "What does the team already suspect about stall holders but has not written down?",
+      "origin": "framework_dimension",
+      "dimension": "mu:hidden_known",
+      "lens": "mu.reveal",
+      "researchable": false,
+      "falsifier": {
+        "text": ""
+      },
+      "slots": {},
+      "not_researchable_reason": "tacit knowledge the team must surface"
+    },
+    {
+      "id": "L6",
+      "parent": "K4",
+      "question": "What adjacent evidence would reveal a spoilage cause nobody has named?",
+      "origin": "mece_gap",
+      "dimension": "mu:unknown_unknown",
+      "lens": "mu.reveal",
+      "researchable": true,
+      "falsifier": {
+        "text": "A broad survey finding no unnamed spoilage cause."
+      },
+      "slots": {
+        "term": "postharvest loss causes small growers"
+      }
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "mos.release-room-seed/1",
+  "note": "The graph the seed artifacts would carry after extraction, written through the navigation chokepoint so the run does not depend on a model or an embedding download. Every name is invented.",
+  "entities": [
+    { "key": "produce-cooling", "type": "technology", "name": "produce cooling" },
+    { "key": "farmers-markets", "type": "market", "name": "Lisbon farmers markets" },
+    { "key": "thermal-buffer", "type": "technology", "name": "thermal buffer" },
+    { "key": "passive-airflow", "type": "technology", "name": "passive airflow" },
+    { "key": "steady-temperature", "type": "technology", "name": "steady inner temperature" }
+  ],
+  "describes": [
+    ["problem-definition/spoilage-before-the-stall/spoilage-before-the-stall", "produce-cooling"],
+    ["problem-definition/spoilage-before-the-stall/spoilage-before-the-stall", "farmers-markets"],
+    ["market-analysis/stall-holder-segments/stall-holder-segments", "farmers-markets"],
+    ["competitive-analysis/ice-and-van-incumbents/ice-and-van-incumbents", "produce-cooling"],
+    ["competitive-analysis/ice-and-van-incumbents/ice-and-van-incumbents", "farmers-markets"],
+    ["solution-design/solar-cold-locker/solar-cold-locker", "produce-cooling"],
+    ["solution-design/solar-cold-locker/solar-cold-locker", "thermal-buffer"],
+    ["solution-design/solar-cold-locker/solar-cold-locker", "passive-airflow"],
+    ["solution-design/solar-cold-locker/solar-cold-locker", "steady-temperature"],
+    ["strategy/passive-cooling-encoding/passive-cooling-encoding", "thermal-buffer"],
+    ["strategy/passive-cooling-encoding/passive-cooling-encoding", "passive-airflow"],
+    ["strategy/passive-cooling-encoding/passive-cooling-encoding", "steady-temperature"]
+  ],
+  "known_pairs": [
+    ["problem-definition/spoilage-before-the-stall/spoilage-before-the-stall", "market-analysis/stall-holder-segments/stall-holder-segments", "INFORMS"]
+  ],
+  "claims": [
+    { "knowledge_type": "fact", "text": "Produce loses most of its shelf life in the hours between picking and the first sale.", "source": "problem-definition/spoilage-before-the-stall/spoilage-before-the-stall" },
+    { "knowledge_type": "causal", "text": "A hot market Saturday raises the share of the table that wilts before the afternoon.", "source": "problem-definition/spoilage-before-the-stall/spoilage-before-the-stall" },
+    { "knowledge_type": "assumption", "text": "Grower-sellers will rent cold storage by the day if the price stays under the cost of ice.", "source": "market-analysis/stall-holder-segments/stall-holder-segments" },
+    { "knowledge_type": "heuristic", "text": "Resellers hold stock longest, so they are the segment to test first.", "source": "market-analysis/stall-holder-segments/stall-holder-segments" },
+    { "knowledge_type": "assumption", "text": "A roof panel and a small battery can carry one locker through a cloudy winter day.", "source": "solution-design/solar-cold-locker/solar-cold-locker" }
+  ]
+}

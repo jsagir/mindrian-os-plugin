@@ -2254,6 +2254,68 @@ function buildAcceptanceChecklist(ctx) {
         return { ok: true, finding: null, detail: detail };
       },
     },
+    {
+      // Quick 261005-muy (RULE 10, navigator ruling 2026-10-05: no cut without a real-room run read
+      // by a human) -- the standing view of the receipt release.sh Step 2.6 will demand.
+      //
+      // Reads the newest receipt in the receipt dir (MINDRIAN_REAL_ROOM_RECEIPT_DIR, default
+      // $HOME/.mindrian/release-real-room) and compares its sha with this repo's HEAD. Equal and not
+      // recorded with --offline: ok, no finding. Behind, absent or offline: ok with a WARN naming the
+      // command to run, because the HARD refusal belongs to Step 2.6 of the cut itself, and a point
+      // that went red on every commit after the last read would brick every doctor run in between.
+      //
+      // Canon Part 8: a local directory read and one local `git rev-parse HEAD`. Zero network.
+      id: 'real-room-run',
+      label: 'a person read a real-room run for this HEAD: latest receipt sha equals HEAD (WARN when behind or absent)',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'real-room-run') {
+          return { ok: false, finding: 'real-room-run synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        const receiptDir = process.env.MINDRIAN_REAL_ROOM_RECEIPT_DIR
+          || path.join(process.env.HOME || require('os').homedir(), '.mindrian', 'release-real-room');
+        const runCmd = 'node scripts/real-room-run.cjs --read-by "<your name>"';
+        let headSha = '';
+        try {
+          const gr = cp.spawnSync('git', ['-C', pluginRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8', timeout: 10000 });
+          if (!gr.error && gr.status === 0) headSha = String(gr.stdout || '').trim();
+        } catch (_e) { /* stays empty */ }
+        let latest = null;
+        let files = [];
+        try { files = fs.readdirSync(receiptDir).filter(function (f) { return /\.json$/.test(f); }); } catch (_e) { files = []; }
+        files.forEach(function (f) {
+          let j = null;
+          try { j = JSON.parse(fs.readFileSync(path.join(receiptDir, f), 'utf8')); } catch (_e) { j = null; }
+          if (!j || typeof j !== 'object' || typeof j.sha !== 'string') return;
+          const t = Date.parse(j.read_at || '') || 0;
+          if (!latest || t > latest.t) latest = { t: t, receipt: j };
+        });
+        const detail = {
+          receipt_dir: receiptDir,
+          head_sha: headSha || null,
+          latest_sha: latest ? latest.receipt.sha : null,
+          latest_reader: latest ? String(latest.receipt.reader || '') : null,
+          latest_read_at: latest ? String(latest.receipt.read_at || '') : null,
+          offline: latest ? latest.receipt.offline === true : null,
+          desktop_verified: latest && latest.receipt.desktop_verified ? latest.receipt.desktop_verified : null,
+        };
+        if (!latest) {
+          return { ok: true, finding: 'WARN: no real-room receipt in ' + receiptDir + '; release.sh Step 2.6 will refuse a cut until a person runs ' + runCmd, detail: detail };
+        }
+        if (!headSha) {
+          return { ok: true, finding: 'WARN: HEAD could not be read, so the receipt could not be compared; Step 2.6 will refuse in that case', detail: detail };
+        }
+        if (latest.receipt.sha !== headSha) {
+          return { ok: true, finding: 'WARN: the latest real-room receipt is for ' + latest.receipt.sha.slice(0, 12) + ', behind HEAD ' + headSha.slice(0, 12) + '; run ' + runCmd, detail: detail };
+        }
+        if (latest.receipt.offline === true) {
+          return { ok: true, finding: 'WARN: the receipt for HEAD was recorded with --offline; Step 2.6 refuses it. Run ' + runCmd + ' without --offline', detail: detail };
+        }
+        return { ok: true, finding: null, detail: detail };
+      },
+    },
   ];
 }
 

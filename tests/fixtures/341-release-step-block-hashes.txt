@@ -71,29 +71,55 @@
 # STEP_BLOCK_COUNT 28 -> 33, the only floor this fixture carries. Every other block hash
 # is unchanged from the 28-header pin.
 
-33  STEP_BLOCK_COUNT
-f7e2c032a8a82bfe593baadb29363a1525a920b9e23c389b08b6ae56f4484590  # --- Step 0: Parse bump type + flags ---
+# Quick 261005-muy REBASELINE (2026-10-05): regenerated wholesale again, with the exact generating
+# command above on release.sh at HEAD plus this task's edit. The fixture matched release.sh at the
+# r41 commit (76d50bc0e) byte for byte; every delta since was attributed to a release.sh commit by
+# regenerating per commit and diffing the block bodies, none was unexplained:
+#   - "# --- Step 1: ..." and "# --- Step 2.4: ..." moved: 843efa834 (369-02, erasable TypeScript
+#     gate), 49a1a026a (369-28, UI shell freshness gate), 813fe74c8 (369.1-14, Desktop payload
+#     gate and dry-run listing), f01173a32 (quick 261005-l8h, Desktop copy without the workspace
+#     build).
+#   - "# --- Step 6.8: ..." added: 813fe74c8 (369.1-14, the Desktop copy); touched again by 656e8c1fc
+#     (369.1-review WR-08) and f01173a32 (261005-l8h).
+#   - "# --- Step 3: ..." (the interrupt trap), "# --- Step 6.7: ...", "# --- Step 7: ..." and
+#     "# --- Step 9.5: ...": 656e8c1fc (369.1-review WR-08, every abort after Step 6.7 unwinds the
+#     payload, the manifest and the shrinkwrap); Steps 4, 5, 6.5, 6.6, 6.6a, 6.6b, 7, 11 also moved in
+#     813fe74c8 (every marketplace restore rolls the Desktop tree back).
+#   - "# --- Step 2.6: ..." added and "# --- Step 0: ..." (NO_REAL_ROOM_CHECK, its arm, USAGE_BLOCK)
+#     and "# --- Step 1: ..." (the Step 2.6 dry-run listing line and verdict) moved: this task
+#     (quick 261005-muy, RULE 10).
+# Before this task the leg was ALREADY red on HEAD (34 headers against 33 pinned, 3 hash
+# mismatches) because 369.1 never re-minted it; this rebaseline absorbs that drift too.
+# tests/fixtures/310-release-step-block-hashes.txt and tests/run-all-310.sh's literal 33 are NOT
+# touched here (outside this task's files); that suite was red on HEAD for the same reason and stays red
+# until its own rebaseline.
+# STEP_BLOCK_COUNT 33 -> 35.
+
+35  STEP_BLOCK_COUNT
+4c7184b474edd24fbfa8a24daaabbf2a0182f0b0456f75d838efa90c7b2c1dea  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
 c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
-db0089d5adbb9afd7a4bece84bafffb1f4a69bdcc4ed05ebfe24c9218f7e7eeb  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+819587c4fd95711e4d9b4786099523343ba7b7f344de52bc47ed7da3f451af74  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
-41828022f754a39eec6898347b5f1c2f3e27bff4ee3e9f379c1e06f4c4b454b3  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
+55694c6b9f365dbac46f96cf9c2136dab9afd10285d952ce06abaf9ecb9683ba  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
-4c2555d9f406b7b7a740ae475711c174efdcea1463e04638db88fa378d025a30  # --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
-03b1c1b59397babb7315279a0ca9b7b24b2edc485cd92829091332851c975d75  # --- Step 4: Bump marketplace.json (version + npm source pinned to the exact version) ---
-b7eb8f743631c04a89a00122ba21c444ca4814efa2787dcafe09aa4d19998bbe  # --- Step 5: Validate marketplace ---
+1a993d665453dde97edd2c993f41dcc9c900c6844da09cbead83f58ea3eefac6  # --- Step 2.6: real-room receipt gate (quick 261005-muy, RULE 10) ---
+accf3ae2394112d6b3ce8c88b81f5fc48086b999b2cbd58ecbd64cece1d23444  # --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
+caa14a809660cc3a73ac4cc036efbb76fb35e977c8418fa7e99362b58e6672b6  # --- Step 4: Bump marketplace.json (version + npm source pinned to the exact version) ---
+4428528b8a57552c4ff0b89671c19b754e0dec3c0f04c30736b4dcd00b8de601  # --- Step 5: Validate marketplace ---
 18290b2e2b310aecbfc51e999d8e8d9f0cdbc23c5e191274421fe875ed560eeb  # --- Step 5b: Reserved-marketplace-name compliance (Phase 95.6 D-11a) ---
 eecf491caddd6ba0460373e26b9ca2904c71316a9e7b0a69febd3d5f1da9ad0c  # --- Step 6: Check for CHANGELOG entry (finalize [Unreleased] -> [NEW_VERSION] - <date>) ---
-6942bf9f10191f947a0239e8b5f736756c6e3b761551ec10d869c392de590c1f  # --- Step 6.5: Post-bump re-verification ---
-4a673d15472560a069428db62a70276bb3518d4d19fb6417603708d944b8e7d3  # --- Step 6.6: doctor --acceptance --pre-tag (HARD ABORT, no --allow) ---
-af0daa242242cdf547f3693049b92f06d1fdb90718d998476f79ff45d7ffa9dc  # --- Step 6.6a: module-registration verification (Phase 139 Plan 04, S4) ---
-951a39dd9f476e71dc88c6da6e2875073a25c1b4c5d02f931c11491ee048c952  # --- Step 6.6b: doctor acceptance-gate SELF-COVERAGE (Phase 126 Plan 03) ---
-4a40f6afccd5d969dea769ac7785732b5fe36900a0a0469cb65fd7b82278acf7  # --- Step 6.7: Generate npm-shrinkwrap.json (dependency delivery for the npm source) ---
-d249466f5de96ee2c0658e82d32465cbaa699e0d81edf5b715a40195a2327b5c  # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
-8ca05b5251db5f818c87af1f42af16e32ff08a42337e528fff75d7b35a260cd2  # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
+a49c50b8f6ad119aa9914a07a96fc1d9aec3cf9559cab93126a5dfe7578da63d  # --- Step 6.5: Post-bump re-verification ---
+7e21782de4d463acc62e34f5e8840f93001e02d11157805e56275996f0505f03  # --- Step 6.6: doctor --acceptance --pre-tag (HARD ABORT, no --allow) ---
+2868d93021e2889fd03e1c22a0333769f354b2252894f0ff3431c4d5d20731c3  # --- Step 6.6a: module-registration verification (Phase 139 Plan 04, S4) ---
+e1ed846cc1d113ef8c9695051b8e1c15b3e0f7603130de75b82bbd25c5e5c12e  # --- Step 6.6b: doctor acceptance-gate SELF-COVERAGE (Phase 126 Plan 03) ---
+965004dd2f20b487030c3a498d004c30c41387f695d973abac04be47dcfeddb7  # --- Step 6.7: Generate npm-shrinkwrap.json (dependency delivery for the npm source) ---
+e69d8c24d0103cf0c8ef7088d62967b9aca59aae74f86db96a191dd6bd7f0c31  # --- Step 6.8: Build the Desktop copy (Phase 369.1, D-13; part of RULE 5 place 5) ---
+e93b6ad0ae70f375645473463b157989d5d3726ac1a203a2ff61ee5dd691cb2f  # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
+f85ab683cdfcba14243c59c4be24a6172be0246b5a14ca2f0f97ce4835c1ed1b  # --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 20370c7537cc97536740af536aee61007557cac94883a1bba4087e0461e50f12  # --- Step 9.6a: Sync install minisite to NEW_VERSION (HARD lockstep, vercel-CLI deploy) ---
 17ec90feebcd1dd9aee35588898e00a46c52d34c09228f51969264704a802697  # --- Step 9.6b: Sync Mindrian website FALLBACK_VERSION to NEW_VERSION ---
 a78daaa7d75f0e27d89d7c665ec1a61b637d7bb0a073f1059979ab2596173845  # --- Step 9.6c: release-cut listener, website leg (quick 261002-5v9) ---
@@ -104,4 +130,4 @@ a6be87ffa237c13d06dee29a95f119b0d12e1a0e97b67c82a403afe4f9209376  # --- Step 9: 
 bd5ce06ecf71b31a29c94414cad83c56683d5a043a5c59190cf5be360704ac41  # --- Step 5.5 (tag-push verification): runs AFTER Step 9 push. ---
 cfdacfc8f16ca724187da17ceb865b3e55b6b75985669b26656377efa7b957d1  # --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
 ed8f1ecb5d8064ea90719a8784429fe5336d3676e1a03ac3668738df0988bda5  # --- Step 10: Update local cache ---
-e031d5a5bc7695fdc1673a6f417a5752120f037107d7b340da6e84d9bcc77891  # --- Step 11: Post-release verification ---
+d373d7dbeed2276b6bdf91f71c505e3a0eb4ba70777a80b2f96f2975bec75758  # --- Step 11: Post-release verification ---

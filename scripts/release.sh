@@ -163,6 +163,15 @@ if [ ! -f "$RELEASE_LIB_DIR/desktop-copy-gate.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/desktop-copy-gate.sh"
 
+# Quick 261005-muy (navigator ruling 2026-10-05, RULE 10): the real-room gate is CALLED at Step 2.6
+# (and reported under --dry-run). Sourced here for the same reason as every library above: a gate
+# missing at its call site would fail after the cut had already started.
+if [ ! -f "$RELEASE_LIB_DIR/real-room-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/real-room-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/real-room-gate.sh"
+
 # Quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener
 # is CALLED at Step 0.55 (Theo leg) and Step 9.6c (website leg). Checked
 # here for the same reason as the libraries above: a missing script found
@@ -185,7 +194,8 @@ NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-led
 NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshness gate (RULE 5 place 9, Step 0.6b) is ON by default; --no-canon-snapshot-check is the audited opt-out, never silent
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
 NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-cut-listener] [--dry-run]"
+NO_REAL_ROOM_CHECK=0 # quick 261005-muy (navigator ruling 2026-10-05, RULE 10): the real-room receipt gate (Step 2.6) is ON by default; --no-real-room-check is the audited opt-out, never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-cut-listener] [--no-real-room-check] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -206,6 +216,7 @@ for arg in "$@"; do
     --no-canon-snapshot-check) NO_CANON_SNAPSHOT_CHECK=1 ;;
     --no-suite-check)    NO_SUITE_CHECK=1 ;;
     --no-cut-listener)   NO_CUT_LISTENER=1 ;;
+    --no-real-room-check) NO_REAL_ROOM_CHECK=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -409,6 +420,8 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 2.4  : UI shell freshness gate (Phase 369 plan 28: node scripts/build-ui-shell.cjs --check proves lib/ui-shell/dist matches ui/shell and ui/shared; HARD ABORT; release.sh never builds the UI; runs nothing under --dry-run)"
   echo "  Step 2.4  : Desktop payload gate (Phase 369.1 plan 14: node scripts/release-lib/build-desktop-artifact.cjs --check; at most 4,500 files, 180 MB, ratio 50:1, no bin/; HARD ABORT; offline; runs nothing under --dry-run)"
   echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
+  echo "  Step 2.6  : real-room receipt gate (RULE 10: a receipt for HEAD from node scripts/real-room-run.cjs --read-by \"<name>\"; HARD ABORT before any mutation; --no-real-room-check is the audited opt-out; local file read only)"
+  mos_real_room_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_REAL_ROOM_CHECK" || true
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
   echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
   echo "              version=$NEW_VERSION + source={source:npm, package:@mindrian_os/cli, version:$NEW_VERSION} (no v prefix, ref/url deleted; D-01)"
@@ -644,6 +657,22 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-flight; then
   exit 1
 fi
 echo -e "${GREEN}  --acceptance --pre-flight passed${NC}"
+
+# --- Step 2.6: real-room receipt gate (quick 261005-muy, RULE 10) ---
+# Navigator ruling 2026-10-05: no cut without a real-room run read by a human. Phase 369 regressed
+# silently because nobody read a cut on a real room. The gate looks for <receipt-dir>/<HEAD sha>.json,
+# written only by `node scripts/real-room-run.cjs --read-by "<name>"` after a person read its report
+# (quick, deep, Eureka and analogies on a fixture room). Local file read, no network. It runs after
+# the last read-only gate and before Step 3 bumps anything, so an abort leaves no residue.
+# --no-real-room-check is the audited opt-out and prints its consequence; under --dry-run the verdict
+# is reported in the step listing above and never aborts.
+echo ""
+echo "=== Step 2.6: real-room receipt gate (a person read a real-room run for this exact HEAD) ==="
+if ! mos_real_room_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_REAL_ROOM_CHECK"; then
+  echo -e "${RED}ABORT: no real-room receipt for HEAD -- release halted BEFORE any mutation.${NC}"
+  echo "  Recovery: node scripts/real-room-run.cjs --read-by \"<your name>\" (read the report it prints), then re-run."
+  exit 1
+fi
 
 # --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
 cd "$PLUGIN_DIR"
