@@ -96,3 +96,18 @@ room-local content", not "block"; (2) the room-local check reuses the planner's 
 naming the token class, never echoing it; (3) the Theo canary tests (test-239, test-245, the
 brain egress suites) keep every room-content case red and gain the plain-methodology-question
 case green; (4) the agent never "builds the room by hand" on a refusal (SEED-117).
+
+## Ruling 2026-10-05 (navigator, verbatim: "lets add making sure the mindrian research and all can freely search the web, and do resaerch without and egress")
+
+The web search lines are FREE. No egress policy, no audit fence, no term filter, no per-term
+release and no room-text check stands between the research planner and the open web. The one
+thing that remains is the grant: the navigator approves the run once, on a card that shows the
+exact strings as they will be sent (register OK-04, preserved). "And all": every perspective of
+the canvas, not only research_run, can reach the web lines: Eureka, analogies, whitespace / HSI,
+bottlenecks, find-connections and the counterevidence pass are no longer "room and canon only".
+Canon Part 8 is untouched and still means exactly one thing: no room content to Theo. The audit
+ledger still records every string sent (a record, not a gate). `data/egress-policy.json` keeps
+only the non-web lines (model download, the Jev judge); the web lines are not policy-gated.
+Definition of done for this ruling inside 369.2: a room question in plain words, containing a
+city name, a person's name or a product name, leaves on the web lines unchanged after the one
+grant, from every perspective, and the ledger shows it.

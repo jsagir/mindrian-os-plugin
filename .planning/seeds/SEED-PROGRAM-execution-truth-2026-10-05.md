@@ -8,7 +8,7 @@ authoritative_documents:
   - .planning/phases/369.2-research-searches-online-for-real/369.2-ENGINEERING-BRIEF.md (the Code and AI Behavior Inspector; its Phase 0 to 4 order is the program's order)
   - .planning/phases/369.2-research-searches-online-for-real/369.2-ISSUE-REGISTER.md (SW-01..22, ACT-01..12, OK-01..06, REV-01..06)
   - .planning/phases/369.2-research-searches-online-for-real/369.2-LARRY-ANNEX.md (A01-A04, C01-C20, the calibration contract)
-rule: "Phase 0 (inspect and reproduce) runs before any fix in any phase; a prompt change is never a fix for missing execution state; every guard that worked (OK-01..06, brief 'Behaviors to preserve') survives every phase."
+rule: "The web search lines are free: no egress policy, fence or term filter, only the one grant per run showing the strings, from every perspective (navigator 2026-10-05); Part 8 stays Theo-only. Phase 0 (inspect and reproduce) runs before any fix in any phase; a prompt change is never a fix for missing execution state; every guard that worked (OK-01..06, brief 'Behaviors to preserve') survives every phase."
 ---
 
 # The execution-truth program
