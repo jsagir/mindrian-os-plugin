@@ -1781,13 +1781,46 @@ Plans:
 **Priority:** CRITICAL, NEXT (navigator ruling 2026-10-04: "make it critical next !"; plan this phase before anything else, Theo Phase 26 runs beside it, Phase 370 waits).
 **Governing frame (navigator, 2026-10-04, verbatim):** "the most annying thing i the moscanvas layer and the whole parts taht makes misndian a poewr tool tails !" This phase is not only "search online". Its definition of done is that the MOS-CANVAS layer, the research planner with every perspective that makes MindrianOS a power tool, WORKS END TO END ON A REAL ROOM: a quick run and a deep run that fetch with the room's own words and return sourced rows; Eureka that judges something (today `judge: "none"`, `judged: 0` on both surfaces); analogies that find a pair when the room holds an encoding (today `structural: 0` on every pair, blocked on entity extraction, SEED-118 defect 10); the counterevidence pass that actually runs; `/mos:find-bottlenecks`, `/mos:find-analogies`, `/mos:find-connections` and `/mos:scout hsi` running THROUGH the planner rather than existing as plan templates only (the beta.55 known gap, still true on beta.57); the Jev judge resolving its key or saying so in one line; and every one of those turns phrased as a job and a move, not as leaf ids. Measured on the three Phase 355 fixture rooms and replayed against the 2026-10-04 session room (fiber-optic-drone-wicked, SEED-118): the bar is that the session's twelve defects cannot reproduce and its two productive terms are found by the planner, not by a hand WebSearch.
 **Goal:** The research planner searches the open web with the room's own words. Ruling 2026-10-05 (navigator, verbatim: "making sure the mindrian research and all can freely search the web, and do research without any egress"): the web search lines carry NO egress policy, fence, term filter or per-term release; the only gate is the one grant per run showing the exact strings (OK-04); every canvas perspective (Eureka, analogies, whitespace / HSI, bottlenecks, find-connections, counterevidence) can reach the web lines; Part 8 stays Theo-only; the ledger records every string. On the web search lines (Tavily, WebSearch fallback) a query slot may carry a room phrase or a room question; the grant card shows the exact strings before anything leaves and the navigator approves the run once, not term by term; every string sent lands in the audit ledger; a room can still switch a line off in `.mindrian/egress-policy.json`. Canon Part 8 is unchanged and stated precisely: it governs the Brain (Theo), so the `theo` corpus leaves and canon-name slots keep the strict composable-term rule, and no Part 8 Theo test moves. `localRoomCheck` keeps its honest job (the evidence card says "the room already holds this") and loses its blocking one; a sentence becomes a shaped query, never a refusal. Measured bar: on the three Phase 355 fixture rooms a quick run sends non-empty queries that contain the room's own named terms, returns evidence rows with sources, and `not_enough_context` disappears for rooms that have claims. Quick 261004-v16 (same day) is the surgical first step: `families.cjs` gains a web-line query rule beside `composableTerm`, its callers route by destination, the seed104 pins move; this phase does the full design (query composition from room questions, the per-term grant loop retired on the web lines, the fixture-room measurement, docs and the Part 8 wording in `plan.cjs`).
-**Requirements**: TBD (derive at /gsd-plan-phase 369.2; SEED-115 names the tests that move and the ones that do not)
+**Requirements**: 369.2-R01..R26 (RESEARCH.md Phase Requirements, mapped to CODE-02..07, CODE-09, HARNESS-01..04, 09, 10, 11 (counting half), SW-13, SW-14, SW-16, J4, INPUT defect 3, INPUT addendum 2, the F.8 basket card)
 **Depends on:** Phase 363 (the one research planner), Phase 366 (egress policy file, audit ledger), quick 261004-v16 (the unblock this phase completes). Independent of Theo Phase 26.
-**Plans:** 0 plans
+**Plans:** 34 plans in 18 execution waves (phase waves: W1 = 01-12 ships as beta.61 behind the real-room rule; W2 = 13-16; W3 = 17-26; W4 = 27-34). Execution waves: 1: 01-04; 2: 05-08; 3: 09; 4: 10-11; 5: 12; 6: 13; 7: 14; 8: 15; 9: 16; 10: 17,18,25,27,29; 11: 19,26,28; 12: 20; 13: 21; 14: 22,31; 15: 23,32; 16: 24,33; 17: 30; 18: 34. Planned 2026-10-05 (research bb839c6d9, plans 7ad23f5f3, checker 0 blockers / 3 traceability warnings closed in CONTEXT.md).
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.2 to break down)
+- [ ] 369.2-01 theoVerdict + room lexicon, one verdict for three verbs (R04)
+- [ ] 369.2-02 fence off the web fetchers at all three layers; A4 credential check behind MOS_369_2_A4 (R01, R25)
+- [ ] 369.2-03 Wave 0: tests/run-all-3692.sh, replay route, W1 closure test (R25, R01-R03)
+- [ ] 369.2-04 every perspective on the web slot rule; find-connections literature leaf (R03)
+- [ ] 369.2-05 audit not_applicable; research policy line retired with the ledger gate; --offline read directly (R01)
+- [ ] 369.2-06 the 9 fence-pinning tests moved (R01)
+- [ ] 369.2-07 Theo test moves A (R04)
+- [ ] 369.2-08 Theo test moves B: test-239 LEG 4, test-257 Arms 4/7/8, 354, 254 (R04)
+- [ ] 369.2-09 one run grant per run, exact strings on the card (R02)
+- [ ] 369.2-10 CLI, ambient, MCP, acceptance suites on run grants (R02)
+- [ ] 369.2-11 basket-card arms, docs, mirrors (R26, R02)
+- [ ] 369.2-12 W1 close: PB8-03 out of KNOWN, CHANGELOG; navigator reads the real-room run and cuts beta.61 (checkpoint)
+- [ ] 369.2-13 operations.cjs ledger, seven invariants (R05, R06)
+- [ ] 369.2-14 ledger wired into quick and deep; run.json.completion (R05)
+- [ ] 369.2-15 reserved counterevidence budget; status from operation ids; HARNESS-01 replay (R06)
+- [ ] 369.2-16 job-lines.cjs sentences; real-room-run reads completion (R07, R25)
+- [ ] 369.2-17 bad_slot:limiter and unused_slot:<name> before fetch (R10, R11)
+- [ ] 369.2-18 thin verdict counts matching records; REASONING.md when the section exists (R18, R19)
+- [ ] 369.2-19 every leaf fetches its own search; SR slots sent or refused (R09)
+- [ ] 369.2-20 lane_already_closed; entity-aware quotes with one correction window; contentHash pinned (R12, R13)
+- [ ] 369.2-21 four query kinds per question; sentences shaped never quoted whole (R16)
+- [ ] 369.2-22 quick cap reaches limiter leaves first or the card says it cannot (R14)
+- [ ] 369.2-23 field scan composed at plan time, first on the card (R17)
+- [ ] 369.2-24 round-0 field scan; contradicted limiter demoted (R17)
+- [ ] 369.2-25 keyed PatentsView source or provider_unavailable:patent (R08)
+- [ ] 369.2-26 provider preflight; doctor reachability matrix (R15)
+- [ ] 369.2-27 readReadinessCounts; Eureka judge-state sentence (R20, R24)
+- [ ] 369.2-28 analogy matcher reads SAPPhIRE encodings (R21)
+- [ ] 369.2-29 plan-run route for find-bottlenecks, find-analogies, find-connections, scout hsi (R22)
+- [ ] 369.2-30 every planner card names the job and the move; id lint (R23)
+- [ ] 369.2-31 SEED-118-shaped fixture room (R25)
+- [ ] 369.2-32 real-room-run takes several seeds; closure legs X0, RD, R355 (R25)
+- [ ] 369.2-33 closure legs D1-D12 and the rest (R25)
+- [ ] 369.2-34 closure green, completion report, VALIDATION flip, CHANGELOG; navigator reads both rooms and decides the cut (checkpoint)
 
 ### Phase 369.3: Reliable transitions: rooms, Accept, resume, admission control and hooks (execution-truth program, brief Phase 2) (INSERTED)
 

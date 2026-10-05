@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phases 369 and 369.1 COMPLETE and verified human_needed (2026-10-04); UATs filed; quick tasks A6 (364 Theo step fixtures) and answered_via (CR-02) in flight; beta.56 held (Theo canon window 25, Phase 26 row)
 last_updated: "2026-10-03T21:40:00.000Z"
-last_activity: 2026-10-05 -- v2.0.0-beta.59 CUT behind the real-room rule (receipt c7e561142 read by the navigator; release d7a32b978, bump e970db117, eval stamp b37764789; npm latest beta.59; marketplace b96e974; website synced; doctor full 24/24 after the icm-ruling-eval refresh). Phase 0 status table + six quicks landed today (kvv, l8g, l9o, l8h, mux, muy). Next: /gsd-plan-phase 369.2 (execution truth, wave 1 = Theo content-not-shape + web lines free); owed by the navigator: Desktop Add-marketplace on Mac and Windows then real-room-run --desktop-verified, send the Lawrence note (~/Downloads/lawrence-beta59-fixes.html), the theo-context MCP install location, the 2026-10-04 run ledgers
+last_activity: 2026-10-05 -- Phase 369.2 PLANNED: 34 plans / 18 execution waves (7ad23f5f3), research bb839c6d9, VALIDATION 6215baa5c, checker 0 blockers; W1 (plans 01-12) is the beta.61 cut; awaiting the navigator's gate (execute W1, A4 keep/drop, version beta.61). beta.59 cut earlier today; installed cache updated to beta.59
 progress:
   total_phases: 121
   completed_phases: 48
