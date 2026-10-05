@@ -62,6 +62,23 @@ try {
   check('authored Do NOT load line preserved', landed.includes('Do NOT load:'));
   check('authored Human check preserved', landed.includes('## Human check'));
 
+  // --- 369.25 FEYM-06: the block is seven marked parts, '## 7. FeyMinto' last, writer version v2 ---
+  const sevenHeadings = ['## 1. Job', '## 2. Methodology sequence', '## 3. Writing rules', '## 4. Gates', '## 5. Checks', '## 6. Commands that write here', '## 7. FeyMinto'];
+  const sevenIdx = sevenHeadings.map((h) => landed.indexOf(h));
+  check('block carries seven numbered parts in order, 7 = FeyMinto last',
+    sevenIdx.every((i, n) => i !== -1 && (n === 0 || i > sevenIdx[n - 1])) &&
+    landed.indexOf('## 7. FeyMinto') < landed.indexOf('mos:ruling:end -->'));
+  const canonPd = require(path.join(ROOT, 'lib', 'core', 'section-registry.cjs')).getSectionJob('problem-definition');
+  const ledgerPd = require(path.join(ROOT, 'data', 'section-command-ledger.json'));
+  const v2Fp = require('node:crypto').createHash('sha256').update(JSON.stringify({
+    job_id: canonPd.job_id,
+    secondary_job_id: canonPd.secondary_job_id,
+    primary: ledgerPd.rows[canonPd.job_id + '|*|*'] || null,
+    secondary: canonPd.secondary_job_id ? (ledgerPd.rows[canonPd.secondary_job_id + '|*|*'] || null) : null,
+    writer_contract_version: 'ruling-doc-writer-v2',
+  })).digest('hex');
+  check('writer version is ruling-doc-writer-v2 (fingerprint payload)', parsed.data.ruling_fingerprint === v2Fp);
+
   // --- L2 token band <= 500: measured over the GENERATED region only
   //     (frontmatter + the marked ruling block). The preserved authored
   //     template prose below the end marker is a separate, pre-existing L2
