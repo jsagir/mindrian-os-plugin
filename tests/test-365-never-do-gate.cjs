@@ -517,7 +517,11 @@ async function main() {
     // description), so its parity pin moves to the commit that landed that change; gate and chain
     // stay pinned to PLAN_BASE. Any later edit to research_run's registration must re-pin this.
     // quick 261002-cud re-pinned it for the offline field and the offline and canon-release description sentences.
-    const RESEARCH_BASE = '0b39f852828022f67e56993b94539c5757dca207';
+    // Re-pinned 2026-10-05 (369.2-10, once, after its last research.cjs commit): research_run's description now names the
+    // approval by its job and no longer says "grant" (navigator ruling 2026-10-05, 369.2-CONTEXT ruling_2026_10_05_grant_name).
+    // Its input schema is byte-identical to the previous pin; only the description moved. Any later edit to research_run's
+    // registration must re-pin this.
+    const RESEARCH_BASE = '55a1e4f665afe5d14e6484d5ff7c55c8e6cf9298';
     // Re-pinned 2026-10-04 (Phase 369 plan 26): gate_answer's recovery contract (durable consumption after the
     // withRoomTx commit, replayed, room_switched, stale_subject, gate_expired, unknown_gate, persistence_failed) is
     // in gate.cjs at b2f03de02, the last gate.cjs commit of that plan. Its description was rewritten within the
