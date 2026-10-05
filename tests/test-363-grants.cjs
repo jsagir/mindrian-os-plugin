@@ -309,17 +309,22 @@ leg('G10 a corrupt grants file is quarantined and readGrants never throws', func
   assert.equal(l.quarantined, true);
 });
 
+// 369.2-10 (ruling 2026-10-05, the word grant never reaches a user): the standing card is named by its job and says what a
+// standing approval does since plan 09 (it records terms and sends nothing); the body keeps every fact G11 pins.
 leg('G11 grantCard is an F.0 card with three options and a complete plain body', function () {
   const room = mkRoom('g11');
   const p = G.buildStandingProposal(room, { terms: [{ term: WS.term, synonyms: WS.synonyms }], now: NOW });
   const card = G.grantCard(p, { newTerms: [WS.term, 'sonic biofilm removal'], now: NOW });
   assert.equal(card.shape, 'F.0');
   assert.ok(card.options.length <= 3 && card.options.length === 3);
-  assert.deepEqual(card.options.map(function (o) { return o.label; }), ['Approve this standing grant (Recommended)', 'Approve this one run only', 'Not now']);
+  assert.deepEqual(card.options.map(function (o) { return o.label; }), ['Keep this standing approval (Recommended)', 'Approve this one run only', 'Not now']);
   const b = card.body_md;
-  ['openalex', 'fallback', 'whitespace-gap/v1', 'ws.exact', 'per hour', 'drp363-grant/1', 'revoke', WS.term, 'sonic biofilm removal', 'fetching only', 'filing still asks'].forEach(function (s) {
+  ['openalex', 'fallback', 'whitespace-gap/v1', 'ws.exact', 'per hour', 'revoke', WS.term, 'sonic biofilm removal', 'fetching only', 'filing still asks'].forEach(function (s) {
     assert.ok(b.toLowerCase().indexOf(s.toLowerCase()) !== -1, 'body missing: ' + s);
   });
+  // 369.2-10 (ruling 2026-10-05): the policy version is an id, so it rides in the payload and not in the body.
+  assert.equal(card.payload.policy_version, 'drp363-grant/1');
+  assert.equal(/grant/i.test(card.title + card.question + JSON.stringify(card.options) + b), false, 'the word grant never reaches a user');
   assert.ok(b.indexOf('2026-10-29') !== -1, 'expiry date shown');
   assert.equal(/[\u2014\u2013]/.test(JSON.stringify(card)), false);
   assert.equal(/great|excellent/i.test(b), false);

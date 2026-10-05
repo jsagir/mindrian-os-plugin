@@ -72,12 +72,12 @@
   },
   "standingCard": {
     "shape": "F.0",
-    "title": "Research grant",
-    "question": "Approve this research grant?",
+    "title": "Keep these search terms approved for this room.",
+    "question": "Keep this standing search approval?",
     "options": [
       {
         "id": "approve_standing",
-        "label": "Approve this standing grant (Recommended)",
+        "label": "Keep this standing approval (Recommended)",
         "recommended": true
       },
       {
@@ -89,7 +89,7 @@
         "label": "Not now"
       }
     ],
-    "body_md": "## Let this room look things up in OpenAlex?\n\nOpenAlex is a public index of scholarly papers. A grant lets the room send short search strings there. It covers fetching only; filing still asks each time.\n\n- Provider: openalex; fallback: none (if it is down, the run says so and stops)\n- What is searched: OpenAlex titles, abstracts and metadata; nothing else leaves the room\n- Search shapes allowed (by template id): whitespace-gap/v1: ws.exact, ws.synonym_cover, ws.prior_attempts, ws.absence_reason; concept-evidence/v1: ce.exact, ce.counter, ce.prior_success, ce.alternative, ce.pair\n- Caps per run: 3 searches, 5 results per search\n- Throttle: 1 room-started run per hour\n- Expires: 2026-11-01 (30 days from today)\n- Room scope: only this room (golden-room-366:5e6517f5cdfd); it does not carry to any other room\n- Policy version: drp363-grant/1\n- Revoke: tell Larry \"revoke the research grant\" at any time; the next search stops\n\nNew terms that would leave the room the first time (approving covers these):\n- alpha\n\nA grant never files anything. Anything worth keeping comes back as its own yes or no.",
+    "body_md": "## Keep these search terms approved for this room?\n\nOpenAlex is a public index of scholarly papers. This standing approval records the terms and search shapes the room accepts. It sends nothing by itself: each run still shows its exact searches and asks once before anything leaves. It covers fetching only; filing still asks each time.\n\n- Provider: openalex; fallback: none (if it is down, the run says so and stops)\n- What is searched: OpenAlex titles, abstracts and metadata; nothing else leaves the room\n- Search shapes allowed (by template id): whitespace-gap/v1: ws.exact, ws.synonym_cover, ws.prior_attempts, ws.absence_reason; concept-evidence/v1: ce.exact, ce.counter, ce.prior_success, ce.alternative, ce.pair\n- Caps per run: 3 searches, 5 results per search\n- Throttle: 1 room-started run per hour\n- Expires: 2026-11-01 (30 days from today)\n- Room scope: only this room (golden-room-366:5e6517f5cdfd); it does not carry to any other room\n- Revoke: tell Larry to revoke the search approval at any time; the next search stops\n\nNew terms that would leave the room the first time (approving covers these):\n- alpha\n\nA standing approval never files anything. Anything worth keeping comes back as its own yes or no.",
     "payload": {
       "grant_lifetime": "standing",
       "policy_version": "drp363-grant/1",

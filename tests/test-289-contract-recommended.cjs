@@ -265,7 +265,7 @@ async function armResearch() {
   const grantCardShape = {
     shape: 'F.0',
     options: [
-      { id: 'approve_standing', label: 'Approve this standing grant (Recommended)', recommended: true },
+      { id: 'approve_standing', label: 'Keep this standing approval (Recommended)', recommended: true },
       { id: 'approve_run', label: 'Approve this one run only' },
       { id: 'not_now', label: 'Not now' },
     ],

@@ -198,7 +198,8 @@ function makeFetch() {
     const pick = function (c) { return JSON.stringify({ shape: c.shape, title: c.title, question: c.question, options: c.options, body_md: c.body_md, payload: c.payload }); };
     // 369.2-10 (R02, ruling 2026-10-05): the openalex RUN card is now the job-named card (plan 09), so its golden
     // (GOLDEN.runCard in fixtures/366-theo-lane/golden.json) was re-captured from grants.grantCard; the standing card
-    // golden and every Theo card assertion above are untouched. The listed-strings form is pinned below the golden.
+    // golden (GOLDEN.standingCard) was re-captured too when that card was renamed by its job (ruling 2026-10-05, the
+    // word grant never reaches a user); every Theo card assertion above is untouched. The listed-strings form is pinned below.
     const same = pick(sCard) === JSON.stringify(GOLDEN.standingCard) && pick(rCard) === JSON.stringify(GOLDEN.runCard);
     const lCard = grants.grantCard(GOLDEN.runProposal, { newTerms: [], queries: ['alpha beta', 'gamma delta'], job: 'the golden question', now: Date.UTC(2026, 9, 2, 12, 0, 0) });
     const listed = lCard.title === 'See every search before it leaves, then approve this run once.'
