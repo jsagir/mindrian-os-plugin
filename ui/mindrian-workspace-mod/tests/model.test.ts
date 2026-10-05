@@ -167,12 +167,12 @@ test('mapGateList sorts by expiry, keeps option order and copies resumes', async
   expect(mapped.gates.state).toBe('ok')
   if (mapped.gates.state !== 'ok') return
   expect(mapped.gates.value.map((c) => c.gateId)).toEqual(['soon', 'late', 'none'])
-  expect(mapped.gates.value[0].resumes).toBe(true)
-  expect(mapped.gates.value[1].resumes).toBe(false)
-  expect(mapped.gates.value[1].options.map((o) => o.id)).toEqual(['a', 'b'])
-  expect(mapped.gates.value[1].options[1].rank).toBe(1)
-  expect(mapped.gates.value[1].subjectNodeId).toBe('n1')
-  expect(mapped.gates.value[1].evidenceNodeIds).toEqual(['e1'])
+  expect(mapped.gates.value[0]?.resumes).toBe(true)
+  expect(mapped.gates.value[1]?.resumes).toBe(false)
+  expect(mapped.gates.value[1]?.options.map((o) => o.id)).toEqual(['a', 'b'])
+  expect(mapped.gates.value[1]?.options[1]?.rank).toBe(1)
+  expect(mapped.gates.value[1]?.subjectNodeId).toBe('n1')
+  expect(mapped.gates.value[1]?.evidenceNodeIds).toEqual(['e1'])
 })
 
 test('mapGateList: no gates is ok with zero, an unreadable reply is unavailable', async () => {
@@ -194,12 +194,12 @@ test('mapGateList drops options with no string id and caps label and description
   })
   const mapped = mapGateList({ ok: true, gates: [long] })
   if (mapped.gates.state !== 'ok') throw new Error('expected ok')
-  const options = mapped.gates.value[0].options
+  const options = mapped.gates.value[0]?.options ?? []
   expect(options.length).toBe(1)
-  expect(options[0].label.length).toBe(200)
-  expect(options[0].description?.length).toBe(500)
-  expect(options[0].rank).toBe(null)
-  expect(options[0].recommended).toBe(false)
+  expect(options[0]?.label.length).toBe(200)
+  expect(options[0]?.description?.length).toBe(500)
+  expect(options[0]?.rank).toBe(null)
+  expect(options[0]?.recommended).toBe(false)
 })
 
 test('recommendedOption reads the option flag, never a card-level field', async () => {
