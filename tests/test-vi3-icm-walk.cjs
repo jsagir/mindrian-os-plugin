@@ -143,12 +143,11 @@ function append(rel, text) { fs.appendFileSync(path.join(B_DIR, rel), text, 'utf
   // nest C, solution-design: a BRAIN face with brain_query_count 0 and no MINTO
   w('solution-design/BRAIN.md', '---\nsection: "solution-design"\nbrain_query_count: 0\n---\n\n## Framework Chain Predictions\n(no signal)\n');
 
-  // room.db: a Room node and an identity row naming the room, written through the navigation write door
+  // room.db: birth already committed the Room node and the seven room.* keys (369.25-07); this adds one legacy row naming
+  // the room, written through the navigation write door, so room b keeps one identity row the owner did not write
   const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
-  const { insertNode } = require(path.join(ROOT, 'lib', 'core', 'node-insert.cjs'));
   const db = navigation.openRoomDbForCaller(B_DIR);
   try {
-    insertNode(db, 'room:' + B_SLUG, 'Room', JSON.stringify({ room: B_SLUG, created_by: 'system' }), { source_path: 'system:room-node', created_by: 'system', epistemic_type: 'observation' });
     db.prepare('INSERT INTO identity (key, value, updated_at) VALUES (?, ?, ?)').run('room_slug', B_SLUG, '2026-10-05T10:00:00Z');
   } finally { navigation.closeRoomDbForCaller(db); }
 })();
@@ -228,8 +227,11 @@ arm('I1 ROOM.md present, purpose or first heading present, CONTEXT.md job_id (ro
 // I2 small stable entry file
 // shell: wc -l < ROOM.md ; wc -c < ROOM.md ; grep -o '\[\[[^]]*\]\]' ROOM.md | wc -l
 // ---------------------------------------------------------------------------------------------------------------
+// 369.25-07 RE-MEASURED: the root ROOM.md gained one icm_self line (`  room_id: "<uuid>"`, 50 bytes) because birth now commits the
+// identity and the map projects it: root 35 lines 1042 bytes became 36 lines 1092 bytes (wc -l, wc -c on a fresh release
+// fixture room born offline); room b's root 41/1158 became 42/1208. No nest changes (nests are not rooms).
 const A_I2 = { // [lines, bytes] ; wikilinks are 0 in every nest of room a
-  '.': [35, 1042], assets: [21, 709], 'business-model': [44, 1467], 'competitive-analysis': [44, 1492], 'financial-model': [44, 1420],
+  '.': [36, 1092], assets: [21, 709], 'business-model': [44, 1467], 'competitive-analysis': [44, 1492], 'financial-model': [44, 1420],
   funding: [44, 1526], 'legal-ip': [44, 1429], 'market-analysis': [44, 1477], 'opportunity-bank': [44, 1523], 'problem-definition': [44, 1507],
   references: [21, 1031], 'solution-design': [44, 1474], strategy: [44, 1574], 'team-execution': [44, 1415], team: [21, 681],
 };
@@ -240,7 +242,7 @@ arm('I2 ROOM.md lines, bytes, wikilinks, over-60 flag (room a table, room b root
     eq([n.I2.lines, n.I2.bytes, n.I2.wikilinks, n.I2.over_60_lines], [A_I2[k][0], A_I2[k][1], 0, false], 'a ' + k + ' I2');
   });
   const b = report('b');
-  eq(nest(b, '.').I2, { lines: 41, bytes: 1158, wikilinks: 3, over_60_lines: false }, 'b root I2');
+  eq(nest(b, '.').I2, { lines: 42, bytes: 1208, wikilinks: 3, over_60_lines: false }, 'b root I2');
   eq(nest(b, 'problem-definition').I2, { lines: 54, bytes: 1764, wikilinks: 4, over_60_lines: false }, 'b A I2');
   eq(nest(b, 'market-analysis').I2, { lines: 65, bytes: 1708, wikilinks: 0, over_60_lines: true }, 'b B I2 (over 60 lines)');
   eq(nest(b, 'solution-design').I2, { lines: 44, bytes: 1464, wikilinks: 0, over_60_lines: false }, 'b C I2');
@@ -321,8 +323,9 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // 2026-10-06 on room a at HEAD b3be0e5c6 with `wc -c` per file, summed per nest, CONTEXT.md excluded.
 // Cross-check: solution-design = ROOM 1474 + FEYNMAN 113 = 1587 authored; its CONTEXT.md measured 4847, total 6434 tokens 1609,
 // the value that reddened the old pin [6423, 1606] when the ledger rebuild moved CONTEXT.md by 11 bytes.
+// 369.25-07 RE-MEASURED: the root is ROOM 1092 + MINTO 733 = 1825 (was 1775: the icm_self room_id line adds 50 bytes), wc -c.
 const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
-  '.': 1775, assets: 709, 'business-model': 1578, 'competitive-analysis': 1615, 'financial-model': 1533,
+  '.': 1825, assets: 709, 'business-model': 1578, 'competitive-analysis': 1615, 'financial-model': 1533,
   funding: 1623, 'legal-ip': 1528, 'market-analysis': 1590, 'opportunity-bank': 1638,
   'problem-definition': 1626, references: 1031, 'solution-design': 1587, strategy: 1673,
   'team-execution': 1526, team: 681,
@@ -357,7 +360,8 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
   const B = nest(b, 'market-analysis').I7;
   const bExpB = 33904 + contextBytes(B_DIR, 'market-analysis');
   eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 33904 + CONTEXT at test time)');
-  eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1891, 473], 'b root I7');
+  // 369.25-07 RE-MEASURED: b root ROOM 1208 + MINTO 733 = 1941 bytes (wc -c), ceil(1941 / 4) = 486 tokens (was 1891 / 473)
+  eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1941, 486], 'b root I7');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -377,16 +381,19 @@ arm('I8a MINTO sources that are also ROOM.md wikilinks, and the ones that appear
 // ---------------------------------------------------------------------------------------------------------------
 // I8b one home: identity
 // shell: grep -H '^room:' */MINTO.md ; sqlite3 -readonly room.db "select count(*) from identity; ... instr(key,slug)>0 or instr(value,slug)>0 ;
-//        select count(*) from nodes where id='room:<slug>'"  -> room a: 7 / 0 / 0 ; room b: 8 / 1 / 1
+//        select count(*) from nodes where id='room:<slug>'"  -> room a: 14 / 2 / 1 ; room b: 15 / 3 / 1
+// 369.25-07 RE-MEASURED: birth now commits the seven room.* keys and the Room node for every room, so room a went from
+// 7 / 0 / 0 to 14 / 2 / 1 (room.slug and room.canonical_path name the room) and room b from 8 / 1 / 1 to 15 / 3 / 1
+// (its extra legacy row room_slug still counts; the test no longer inserts the Room node itself, birth did).
 // ---------------------------------------------------------------------------------------------------------------
 arm('I8b MINTO room value, room.db present, Room node, identity rows naming the room, slug-vs-db agreement', () => {
   const a = report('a');
   eq(a.room, Object.assign({}, a.room, {
-    slug: A_SLUG, room_db: 'present', room_node: false, identity_rows_total: 7, identity_rows_naming_room: 0, slug_db_agreement: false,
-  }), 'a room identity (no Room node and no identity row on HEAD: expected)');
+    slug: A_SLUG, room_db: 'present', room_node: true, identity_rows_total: 14, identity_rows_naming_room: 2, slug_db_agreement: true,
+  }), 'a room identity (369.25-07: the owner committed the Room node and the seven keys at birth)');
   const b = report('b');
   eq([b.room.room_db, b.room.room_node, b.room.identity_rows_total, b.room.identity_rows_naming_room, b.room.slug_db_agreement],
-    ['present', true, 8, 1, true], 'b room identity');
+    ['present', true, 15, 3, true], 'b room identity');
   eq(nest(b, 'problem-definition').I8b, { minto_room: 'vi3-scaffold-b', matches_slug: true }, 'b A I8b');
   eq(nest(b, 'market-analysis').I8b, { minto_room: 'some-other-room', matches_slug: false }, 'b B I8b');
   eq(nest(b, 'solution-design').I8b, { minto_room: null, matches_slug: null }, 'b C I8b (MINTO missing)');
@@ -571,14 +578,14 @@ arm('M3 the room summary names the duplicates and the identity result (room a an
   [
     /== room summary ==/, /nests walked: 14/, /nests with every face: 0/,
     /MINTO sources also listed in ROOM\.md links: 0/, /Theo face restating CONTEXT\.md sequence: 0 command name\(s\)/,
-    /room identity in room\.db: no \(room\.db: present, Room node: no, identity rows naming the room: 0\)/,
-    /edit-surface marker absent: 12 of 12 face file\(s\)/, /duplications found: 1 of 3/,
+    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity rows naming the room: 2\)/,
+    /edit-surface marker absent: 12 of 12 face file\(s\)/, /duplications found: 0 of 3/,
   ].forEach((re) => check(re.test(ta), 'room a summary lacks ' + re + '\n' + ta.slice(ta.indexOf('== room summary ==')) ));
   const tb = mod().renderText(report('b'));
   [
     /nests walked: 14/, /nests with every face: 1/, /MINTO sources also listed in ROOM\.md links: 2/,
     /Theo face restating CONTEXT\.md sequence: 2 command name\(s\)/,
-    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity rows naming the room: 1\)/,
+    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity rows naming the room: 3\)/,
     /edit-surface marker absent: 14 of 16 face file\(s\)/, /duplications found: 2 of 3/,
   ].forEach((re) => check(re.test(tb), 'room b summary lacks ' + re + '\n' + tb.slice(tb.indexOf('== room summary =='))));
   const s = report('b').summary;
