@@ -17,6 +17,8 @@ key-files:
 commits:
   red: d30eb4592
   green: 0dd6e5037
+  i0_red: 8c651261b
+  i0_green: 68ada9bf7
 ---
 
 # Quick 261005-vi3: the ICM walk as a doctor tool (measurement first)
@@ -136,6 +138,21 @@ The audit's three duplications, measured on the live room: MINTO `sources:` reli
 - The referrer counts read `lib/`, `scripts/` and `hooks/` as files, like `grep -rIl`; the tool and its test add themselves to that count.
 - Node prints its SQLite `ExperimentalWarning` on stderr when a room.db is read; stdout is unaffected.
 - Not done on purpose: no CHANGELOG line (the peer executor holds CHANGELOG.md; the orchestrator adds it at the beta.61 close), no STATE.md or ROADMAP.md writes (a peer is live in the tree).
+
+## Extension: row I0, the eleven core sections (navigator ruling 2026-10-05)
+
+A room must carry all 11 core sections (`CORE_SECTIONS` in `lib/core/section-registry.cjs`: problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team-execution, legal-ip, financial-model, opportunity-bank, funding, strategy; personas is extended, not core). The room block of `--icm-walk` now carries `I0`: `core_present`, `core_total`, `core_missing`, `non_core_directories` (top-level nests outside the eleven). Text: one `I0` line under the root block, and a `core sections present: N of 11` line in the summary (`summary.core_sections_present`). "Present" means the directory exists under the root; `commands/doctor.md` and the skill mirror carry one more bullet.
+
+RED 8c651261b (arm I0 failing: `room.I0` undefined, 20 passed 1 failed), GREEN 68ada9bf7 (21 passed, 0 failed). Doc-parity still shows only the pre-existing `--none` violation; mirrors `--check` OK; contract parity ALL PASS; dash guard 0.
+
+| room | core present | missing | non-core directories |
+|---|---|---|---|
+| fixture room (release-fixture-09554f26) | 11 of 11 | none | assets, references, team (3) |
+| scaffolded test room, as built by `birthRoom` | 11 of 11 | none | assets, references, team (3) |
+| scaffolded test room with 8 core directories removed (problem-definition, market-analysis, solution-design kept) | 3 of 11 | business-model, competitive-analysis, team-execution, legal-ip, financial-model, opportunity-bank, funding, strategy | assets, references, team (3) |
+| live egain-des-liquid-conductor (read only) | 5 of 11 | market-analysis, business-model, team-execution, legal-ip, financial-model, strategy | assets, assumptions, references, team (4) |
+
+Note on the request: `birthRoom` scaffolds all 11 core sections, so the scaffolded room as built carries 11, not 3. The 3-section case is therefore a copy of it with 8 core directories removed, which is what the second half of the arm asserts. Live values match the coordinator's figures. Every number was first produced by a shell loop (`[ -d room/name ]` over the 11 names; nests that hold ROOM.md or CONTEXT.md and are not one of the 11).
 
 ## Self-Check: PASSED
 
