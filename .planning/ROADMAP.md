@@ -1787,10 +1787,10 @@ Plans:
 
 Plans:
 
-- [ ] 369.2-01 theoVerdict + room lexicon, one verdict for three verbs (R04)
-- [ ] 369.2-02 fence off the web fetchers at all three layers; A4 credential check behind MOS_369_2_A4 (R01, R25)
-- [ ] 369.2-03 Wave 0: tests/run-all-3692.sh, replay route, W1 closure test (R25, R01-R03)
-- [ ] 369.2-04 every perspective on the web slot rule; find-connections literature leaf (R03)
+- [x] 369.2-01 theoVerdict + room lexicon, one verdict for three verbs (R04)
+- [x] 369.2-02 fence off the web fetchers at all three layers; A4 credential check behind MOS_369_2_A4 (R01, R25)
+- [x] 369.2-03 Wave 0: tests/run-all-3692.sh, replay route, W1 closure test (R25, R01-R03)
+- [x] 369.2-04 every perspective on the web slot rule; find-connections literature leaf (R03)
 - [ ] 369.2-05 audit not_applicable; research policy line retired with the ledger gate; --offline read directly (R01)
 - [ ] 369.2-06 the 9 fence-pinning tests moved (R01)
 - [ ] 369.2-07 Theo test moves A (R04)
