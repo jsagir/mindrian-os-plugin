@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phases 369 and 369.1 COMPLETE and verified human_needed (2026-10-04); UATs filed; quick tasks A6 (364 Theo step fixtures) and answered_via (CR-02) in flight; beta.56 held (Theo canon window 25, Phase 26 row)
 last_updated: "2026-10-03T21:40:00.000Z"
-last_activity: 2026-10-05 -- Phase 369.2 EXECUTING: waves 1-4 done (plans 01-11); wave 5 (plan 12, the W1 close) dispatched and stops at the navigator's checkpoint (real-room read + the beta.61 cut). Rulings tonight: brief filed, room identity in room.db, FeyMinto (SEED-122) brought forward as Phase 369.3a
+last_activity: 2026-10-05 evening -- HANDOFF at .planning/HANDOFF-2026-10-05-evening-goal-continuation.md (read first after compaction). 369.2 wave 1: plans 01-11 complete, plan 12 executing to its checkpoint; the ICM walk tool landed (quick 261005-vi3, rows to add at the beta.61 close); Phase 369.3a (FeyMinto and Room Identity) inserted before 369.2 waves 2-4; rulings and seeds 122, 123 filed; beta.59 live
 progress:
   total_phases: 121
   completed_phases: 48
