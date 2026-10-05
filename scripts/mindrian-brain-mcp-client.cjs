@@ -119,7 +119,7 @@ function asContent(obj) {
 function honestRefusal(result, toolName) {
   if (result == null) return refusalResponse('unreachable', { tool: toolName });
   if (result && typeof result === 'object' && result.error === 'egress_blocked') {
-    return refusalResponse('egress_blocked', { tool: toolName, egress_class: result.egress_class });
+    return refusalResponse('egress_blocked', { tool: toolName, egress_class: result.egress_class, token_class: result.token_class || undefined });
   }
   return result;
 }
@@ -242,16 +242,10 @@ server.registerTool(
   },
   async ({ cypher, params }) => {
     const r = await brainClient.query(cypher, params);
-    // Phase 257 (D-05, G2, ACCEPTED GAP): query()'s null-return contract is
-    // NOT changed by this phase. query() returns null on a Part 8 block at
-    // lib/core/brain-client.cjs:884, BEFORE callTool() ever runs, so this
-    // call site can never see the egress_blocked sentinel -- honestRefusal()
-    // is a deliberate no-op on the block path here, always taking the
-    // `result == null` -> 'unreachable' branch. This conflation (a block
-    // reported as an outage) is a KNOWN and ACCEPTED gap for this phase,
-    // pinned by roughly 82 degradation tests keyed on query()'s null
-    // contract and by Plan 07's own invariant test so it cannot drift
-    // silently. See docs/257-NOTE-part8-enforcement-locus-rulings.md section 3.
+    // Phase 369.2 Plan 01 (CODE-07, J4, closes the 257 G2 gap): query() now
+    // returns the egress_blocked sentinel on a Part 8 block (null stays the
+    // transport-failure signal only), and honestRefusal() maps it, so a block
+    // is reported as egress_blocked, never as unreachable.
     return asContent(honestRefusal(r, 'brain_query'));
   }
 );

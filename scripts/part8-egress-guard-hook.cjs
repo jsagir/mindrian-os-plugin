@@ -99,6 +99,7 @@ const path = require('node:path');
 
 const LIB_CORE = path.join(__dirname, '..', 'lib', 'core');
 const GUARD_PATH = path.join(LIB_CORE, 'part8-egress-guard.cjs');
+const LEXICON_PATH = path.join(LIB_CORE, 'part8-room-lexicon.cjs');
 const ONTOLOGY_PATH = path.join(LIB_CORE, 'part8-egress-ontology.cjs');
 const SANITIZER_PATH = path.join(LIB_CORE, 'brain-response-sanitize.cjs');
 const BRAIN_CLIENT_PATH = path.join(LIB_CORE, 'brain-client.cjs');
@@ -250,7 +251,18 @@ function main() {
   let verdictObj;
   try {
     const guard = require(GUARD_PATH);
-    verdictObj = guard.classify(toolInput, { toolName: toolName });
+    // Phase 369.2 Plan 01 (CODE-07, J4): the hook asks the same Theo verdict
+    // the in-process verbs ask. The bound room is resolved through the one
+    // shared resolver (never the payload cwd directly) and its lexicon is
+    // read from room.db rows only, inside this hook's 2000 ms budget. A
+    // resolver miss is "no room bound" (null), never a throw.
+    let roomDir = null;
+    try {
+      roomDir = require(LEXICON_PATH).resolveLexiconRoom({});
+    } catch (_) {
+      roomDir = null;
+    }
+    verdictObj = guard.classify(toolInput, { toolName: toolName, roomDir: roomDir });
   } catch (_) {
     return allow(); // fail-OPEN on any classify resolution error (A3).
   }
@@ -264,6 +276,14 @@ function main() {
   const reason = verdictObj.reason || '';
 
   if (verdict === 'block') {
+    if (klass === 'room_content' || klass === 'room_check_unavailable') {
+      // Phase 369.2 Plan 01: a Theo free-form block names its class and token
+      // class, never the token and never the matched pattern.
+      return block(
+        'Canon Part 8: outbound Theo payload carries room content (' + klass + ', ' +
+        (verdictObj.token_class || 'none') + '). Blocked.'
+      );
+    }
     return block(
       'Canon Part 8: outbound Brain payload carries CONTENT-SET (' + klass + '). Blocked. ' + reason
     );
