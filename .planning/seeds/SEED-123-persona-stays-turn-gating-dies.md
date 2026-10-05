@@ -26,3 +26,7 @@ promotes_to: Phase 369.6 (the Larry contract) for the code readers and the voice
 - The prose deletion is two files and cheap; whether it ships in beta.61 or in 369.6 is the navigator's call at the next gate (it changes Larry's visible behavior in a cut that otherwise carries research changes).
 - The six code readers of turn_count are not prose and are not all gating: the saturation sensor, the nudge threshold and the D3 investment gradient use the count as a signal. Removing a reader without a map repeats the reader-map mistake Lawrence's own amendment 2 warns about. 369.6 maps them (what each reads, what it gates, what replaces it) before any is removed.
 - One corpus, two conclusions: the same 2026-10-05 LarrAI review audit is cited by theo-context's line 9 (against a persona) and by SEED-121 (for a Larry review spine). The parity test above should also pin which conclusion each surface carries, by name, so the contradiction stays visible until one is withdrawn.
+
+## Ruling 2026-10-05 night (navigator, at the plan 369.2-12 checkpoint card)
+
+The turn-staging prose deletion lands in Phase 369.6, not in beta.61. beta.61 (cut 2026-10-05, tag v2.0.0-beta.61 at 3aac790dc) keeps its ruled scope: 369.2 wave 1 plus the ICM walk tool. Everything else in this seed stays proposed until its own gate; the six code readers of turn_count are mapped in 369.6 before any is removed.
