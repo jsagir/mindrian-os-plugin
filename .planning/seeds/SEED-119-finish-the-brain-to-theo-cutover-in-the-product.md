@@ -53,3 +53,29 @@ promotes_to: Phase 369.5 (error and policy contracts, one name for Theo)
 
 A tester's first screen is a failed connector selling an upgrade to a decommissioned service. It
 is the first thing they read, before Larry says a word.
+
+## Rulings 2026-10-05 (navigator, verbatim: "so there will be no more brain key in user interaction ?. also why is mindrianOS still reffer to remote graph as brain. it need to call Theo, theo is that component of mindrianOS syste,")
+
+1. **No key in user interaction, at all.** The user never types, pastes, sees or is asked for a
+   key to reach Theo. Whatever token Theo requires on the wire is provisioned at install and
+   update time (decisions 1 and 5) and stored by the installer (0600, the existing
+   `~/.mindrian.env` slot, renamed), never surfaced in a prompt, a doctor line, an error or a
+   doc. `no_key` as a user-facing refusal disappears; a missing token is an install-state fault
+   that doctor repairs or names as "run the installer again", never "enter your Brain key".
+   Measured today: `lib/core/brain-client.cjs` sends `Authorization: Bearer <MINDRIAN_BRAIN_KEY>`
+   on every call and refuses with `no_key` when it is absent; `scripts/first-install-router.cjs`,
+   `build-brain-census.cjs`, `check-flagship-floor.cjs`, `probe-brain-contract.cjs` still say
+   "Brain key".
+2. **The name is Theo.** Decision 1 of this seed offered a choice; the navigator rules it: Theo is
+   the component of the MindrianOS system that holds the teaching graph, and every surface says
+   so. The MCP server `mindrian-brain` becomes `theo` (the `brain_*` verbs may keep aliases for
+   one release so nothing breaks on the wire, but help text, descriptions and errors say Theo);
+   `MINDRIAN_BRAIN_KEY` becomes `MINDRIAN_THEO_KEY` with the old name read as a fallback for one
+   release; `BRAIN_EGRESS_BLOCKED` and the `freeform_unproven` family become Theo-named reasons;
+   README, docs, `.claude/includes/decisions.md` (decisions 1 and 5 say "the Brain") and the Canon
+   Part 8 wording are updated, the canon by its own amendment procedure; the agent body's "If asked
+   about Theo by name" section is already right and stays.
+3. **Why it still says Brain (the honest history, for the planner):** the original remote graph
+   was the PWS Brain (`pws-brain-mcp.onrender.com`). The Phase 339 cutover (2026-09-03) pointed the
+   same shim, the same verbs and the same names at Theo so that nothing on the wire or in the
+   tests broke; the rename was never given its own phase. SEED-119 and Phase 369.5 are that phase.
