@@ -27,22 +27,16 @@ const JOBS: readonly JobName[] = ['where', 'yourMove', 'problem', 'frame', 'read
 // A seven-character hash-hex value, built from character classes (no literal color).
 const HEX_VALUE = /^#[0-9A-Fa-f]{6}$/
 
-const ASSET = 'assets/palette.json'
+// Where the mod reads its palette: its own copy, inside the plugin root (UI-SPEC R-04).
+export const PALETTE_ASSET = 'assets/palette.json'
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
-// Reads the palette from the plugin's own root. Never throws: a read failure, a parse failure,
-// a missing key or a value that is not a seven-character hex returns null, and the caller turns
-// plain mode on with note N03. There is no baked-in fallback (that would be a hardcoded color).
-export async function loadTheme($: EngineInterface): Promise<Theme | null> {
-  let raw: string
-  try {
-    raw = await $.fs.read(`${$.plugin.root}/${ASSET}`)
-  } catch {
-    return null
-  }
+// Pure: the palette text to a Theme, or null when the text is not JSON, has no `base`, lacks one
+// of the six keys, or holds a value that is not a seven-character hex. Never throws.
+export function parseTheme(raw: string): Theme | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
@@ -58,6 +52,23 @@ export async function loadTheme($: EngineInterface): Promise<Theme | null> {
     out[job] = value
   }
   return out as Theme
+}
+
+// Reads the palette from the plugin's own root. Never throws: a failed read or an invalid palette
+// returns null, and the caller turns plain mode on with note N03. There is no baked-in fallback
+// (that would be a hardcoded color).
+//
+// ENGINE RULE (measured in plan 03): the engine's static scan follows `$` only into functions
+// declared in the SAME file, never across an import. So `$` stays in this file; a hook file that
+// needs the theme spells its own `$.fs.read(...)` and hands the text to parseTheme.
+export async function loadTheme($: EngineInterface): Promise<Theme | null> {
+  let raw: string
+  try {
+    raw = await $.fs.read(`${$.plugin.root}/${PALETTE_ASSET}`)
+  } catch {
+    return null
+  }
+  return parseTheme(raw)
 }
 
 // The legal text-on-background pairs, exactly the measured ones (UI-SPEC Color table):
