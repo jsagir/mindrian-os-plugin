@@ -246,7 +246,7 @@ function gradeScaffolderRootRecreate(originalRoomDir, roomMapMod, roomLabel) {
 // ---------------------------------------------------------------------------
 const RULING_HEADINGS = [
   '## 1. Job', '## 2. Methodology sequence', '## 3. Writing rules',
-  '## 4. Gates', '## 5. Checks', '## 6. Commands that write here',
+  '## 4. Gates', '## 5. Checks', '## 6. Commands that write here', '## 7. FeyMinto',
 ];
 
 function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaffoldMod, roomLabel) {
@@ -259,7 +259,7 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
     return items;
   }
 
-  let allSixPresent = true;
+  let allSevenPresent = true;
   let orderOk = true;
   let fmOk = true;
   let fpOk = true;
@@ -271,7 +271,7 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
     const canonRow = sectionRegistry.getSectionJob(slug);
     if (!canonRow || !canonRow.job_id) continue; // undeclared job: falls back to verbatim copy, out of scope for this checklist
     const contextPath = path.join(tmpRoom, slug, 'CONTEXT.md');
-    if (!fs.existsSync(contextPath)) { allSixPresent = false; detail1.push(slug + ':no-context-md'); continue; }
+    if (!fs.existsSync(contextPath)) { allSevenPresent = false; detail1.push(slug + ':no-context-md'); continue; }
     gradedAny = true;
     const raw = fs.readFileSync(contextPath, 'utf8');
     const parsed = matter(raw);
@@ -279,7 +279,7 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
     let lastIdx = -1;
     for (const h of RULING_HEADINGS) {
       const idx = raw.indexOf(h);
-      if (idx === -1) { allSixPresent = false; detail1.push(slug + ':missing:' + h); }
+      if (idx === -1) { allSevenPresent = false; detail1.push(slug + ':missing:' + h); }
       else if (idx <= lastIdx) { orderOk = false; detail2.push(slug + ':out-of-order:' + h); }
       lastIdx = idx;
     }
@@ -309,7 +309,7 @@ function gradeRulingWriter(tmpRoom, sectionSlugs, sectionRegistry, ledger, scaff
     return items;
   }
 
-  items.push(codeItem('ruling-writer', 'item-1-six-parts', allSixPresent, detail1.join('; ') || 'all six parts present', roomLabel));
+  items.push(codeItem('ruling-writer', 'item-1-six-parts', allSevenPresent, detail1.join('; ') || 'all seven parts present', roomLabel));
   items.push(codeItem('ruling-writer', 'item-2-frontmatter-keys', fmOk, detail3.join('; ') || 'frontmatter carries all four generated keys', roomLabel));
   items.push(codeItem('ruling-writer', 'item-3-fingerprint-recomputes', fpOk, detail3.join('; ') || 'ruling_fingerprint recomputes to the same value', roomLabel));
   items.push(codeItem('ruling-writer', 'item-4-authored-prose-preserved', tailOk, detail4.join('; ') || 'authored prose below the end marker is byte-preserved', roomLabel));

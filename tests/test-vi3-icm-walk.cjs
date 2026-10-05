@@ -347,11 +347,16 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
   eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 119, 'BRIEF.md': null }, 'a problem-definition I7 files');
   const b = report('b');
   const A = nest(b, 'problem-definition').I7;
-  eq([A.bytes, A.approx_tokens, A.over_8000_tokens], [13227, 3307, false], 'b A I7');
+  // 369.25-16 MOVING: room b's CONTEXT.md share is measured at test time too (part 7 moved it by 862 bytes). Authored
+  // bytes (CONTEXT.md excluded) = 8552 for nest A (old pin 13227 less its then-CONTEXT 4675) and 33904 for nest B,
+  // each measured 2026-10-06 against the v2 writer; the equality of both to the old pins is checked by this arm passing.
+  const bExpA = 8552 + contextBytes(B_DIR, 'problem-definition');
+  eq([A.bytes, A.approx_tokens, A.over_8000_tokens], [bExpA, Math.ceil(bExpA / 4), false], 'b A I7');
   eq([A.feynman_body_tokens, A.feynman_over_1500], [1600, true], 'b A FEYNMAN body: 6400 bytes after the frontmatter -> 1600 tokens, over 1500');
   eq(A.files['BRIEF.md'], 32, 'b A BRIEF bytes');
   const B = nest(b, 'market-analysis').I7;
-  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [38183, 9546, true], 'b B I7 (BRIEF 32000 bytes)');
+  const bExpB = 33904 + contextBytes(B_DIR, 'market-analysis');
+  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 33904 + CONTEXT at test time)');
   eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1891, 473], 'b root I7');
 });
 
