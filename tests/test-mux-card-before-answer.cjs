@@ -26,9 +26,12 @@
  *       PreToolUse budget scripts/measure-hook-cold-start.cjs enforces)
  *   H8  garbage or empty stdin, a foreign tool name -> allow, exit 0, never throws
  *   H9  a card shown BEFORE the gate_render does not count (order matters) -> deny
- *   S1  research grant gate, elicitation dialog cancelled -> gate_answer card_pending, ledger entry open
+ *   S1  run approval gate, elicitation dialog cancelled -> gate_answer card_pending, ledger entry open
  *   S1b the same through gate_render
- *   S2  elicitation accepted -> consumed inline; a later relayed gate_answer is unknown_gate and writes nothing (pins today)
+ *   S2  run card (approve_run), elicitation accepted -> consumed inline; a later relayed gate_answer is unknown_gate and writes nothing (pins today)
+ *   B1  F.8 basket on the CLI rung, no card fired since the render, a typed "i accept" -> the hook denies; a fired card allows (369.2-11, R26)
+ *   B2  basket dialog cancelled -> the gate stays open, a relayed gate_answer is card_pending, nothing filed
+ *   B3  basket dialog accepted -> approved once, op file writes once; a second answer is unknown_gate, a second file is no_approved_basket
  *   S4  an elicitation entry whose dialog was accepted but not consumed inline (chain_run) passes exactly that choice
  *   S3  every gateLedger.mintGate( call site names a renderer
  *   D1  the doctrine sentence in larry-extended, research.md, larry-personality; the research mirror is fresh
@@ -257,12 +260,12 @@ async function serverArms() {
       tool: function (name, description, schema, handler) { captured.set(name, { handler: handler }); },
       registerTool: function (name, config, handler) { captured.set(name, { handler: handler }); },
       server: {
-        getClientCapabilities: function () { return { elicitation: {} }; },
-        getClientVersion: function () { return { name: 'vscode', version: '1.0.0' }; },
-        elicitInput: async function (_params) { state.calls += 1; return state.next; },
+        getClientCapabilities: function () { return state.cli === true ? {} : { elicitation: {} }; },
+        getClientVersion: function () { return { name: state.cli === true ? 'claude-code' : 'vscode', version: '1.0.0' }; },
+        elicitInput: async function (params) { state.calls += 1; return typeof state.next === 'function' ? state.next(params) : state.next; },
       },
     };
-    registerCoreTools(stub, { fallbackRoomDir: room.roomDir, pluginRoot: ROOT });
+    registerCoreTools(stub, state.cli === true ? { fallbackRoomDir: room.roomDir, pluginRoot: ROOT, surface: 'cli' } : { fallbackRoomDir: room.roomDir, pluginRoot: ROOT });
     return captured;
   }
   function parse(raw) {
@@ -295,10 +298,10 @@ async function serverArms() {
     if (req.gate.renderer !== 'elicitation') return 'renderer ' + req.gate.renderer + ' (the stub must reach rung a)';
     if (state.calls !== 1) return 'elicitInput calls ' + state.calls;
     const id = req.gate.gate_id;
-    const ans = await c.answer(id, ['approve_standing'], 'approve');
+    const ans = await c.answer(id, ['approve_run'], 'approve');
     if (!(ans.ok === false && ans.reason === 'card_pending')) return 'expected card_pending, got ' + JSON.stringify(ans).slice(0, 300);
     if (!gateLedger._internal._ledger.has(id)) return 'the ledger entry was consumed by the refusal';
-    if (grants.readGrants(room.roomDir, {}).grants.length !== 0) return 'a grant was written';
+    if (grants.findActiveGrant(room.roomDir, { lifetime: 'run', run_id: planned.run_id })) return 'a run grant was written';
     return true;
   });
 
@@ -317,24 +320,155 @@ async function serverArms() {
     return true;
   });
 
-  await arm('S2 research grant, dialog accepted: consumed inline, a later relayed gate_answer is unknown_gate (pins today)', async function () {
+  await arm('S2 run card, dialog accepted: consumed inline, a later relayed gate_answer is unknown_gate (pins today)', async function () {
+    // 369.2-11 (R02): the web grant card offers approve_run
     const room = buildRoom363({ role: 'founder' });
     rooms.push(room);
-    const state = { calls: 0, next: { action: 'accept', content: { choice: 'approve_standing' } } };
+    const state = { calls: 0, next: { action: 'accept', content: { choice: 'approve_run' } } };
     const c = client(room, 'sess-mux-s2', state);
     const planned = await plan(c);
     const req = await c.research({ op: 'grant_request', run_id: planned.run_id });
     if (req.ok !== true || !req.gate || !req.gate.gate_id) return 'no gate ' + JSON.stringify(req).slice(0, 300);
     if (req.gate.renderer !== 'elicitation') return 'renderer ' + req.gate.renderer;
     if (!req.gate.answer || !req.gate.resumed || req.gate.resumed.ok !== true) return 'not consumed inline: ' + JSON.stringify(req.gate).slice(0, 300);
-    if (grants.readGrants(room.roomDir, {}).grants.length !== 1) return 'the inline accept wrote no grant';
+    const first = grants.findActiveGrant(room.roomDir, { lifetime: 'run', run_id: planned.run_id });
+    if (!first) return 'the inline accept wrote no run grant';
+    if (grants.readGrants(room.roomDir, {}).grants.filter(function (g) { return g.lifetime !== 'run'; }).length !== 0) return 'the inline accept wrote a standing grant';
     if (gateLedger._internal._ledger.has(req.gate.gate_id)) return 'the inline accept left the entry open';
     // Measured on HEAD 465178e79 (the plan assumed replayed:true, but the inline consume writes no gate_answer
     // anchor in the room, so the entry is simply gone): a later relayed answer is refused unknown_gate, writes
     // nothing, and the one grant stands.
-    const again = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    const again = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
     if (!(again.ok === false && again.reason === 'unknown_gate')) return 'a later answer was not refused unknown_gate: ' + JSON.stringify(again).slice(0, 300);
-    if (grants.readGrants(room.roomDir, {}).grants.length !== 1) return 'the later answer changed the grant count';
+    const after = grants.findActiveGrant(room.roomDir, { lifetime: 'run', run_id: planned.run_id });
+    if (!after || after.grant_id !== first.grant_id) return 'the later answer changed the run grant';
+    return true;
+  });
+
+  // 369.2-11 (R26): the F.8 filing basket. A finished quick run is built hermetically: the plan is saved through
+  // research_run, its run is approved the way approvePlanReview writes it (the run grant), and run_quick drives the
+  // recorded OpenAlex replay as globalThis.fetch for the length of that one call.
+  const { makeReplayFetch } = require(path.join(__dirname, 'helpers', 'openalex-replay-363.cjs'));
+  async function finishedRun(c, room) {
+    const planned = await plan(c);
+    const approved = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'planner.cjs')).approvePlanReview(room.roomDir, planned.run_id, { approvedVia: 'mcp' });
+    if (!approved.ok) throw new Error('approvePlanReview refused: ' + JSON.stringify(approved).slice(0, 300));
+    const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
+    const prior = globalThis.fetch;
+    globalThis.fetch = replay;
+    let done;
+    try { done = await c.research({ op: 'run_quick', run_id: planned.run_id }); } finally { globalThis.fetch = prior; }
+    if (done.ok !== true || done.status !== 'done') throw new Error('run_quick did not finish: ' + JSON.stringify(done).slice(0, 300));
+    return planned.run_id;
+  }
+  // an elicitation reply that selects every option the dialog preselects (the basket's default-on items)
+  function acceptDefaults(params) {
+    const choices = params && params.requestedSchema && params.requestedSchema.properties && params.requestedSchema.properties.choices;
+    const ids = choices && Array.isArray(choices.default) ? choices.default : [];
+    return { action: 'accept', content: { choices: ids } };
+  }
+  function filedPath(room, runId) { return path.join(room.roomDir, '.mindrian', 'research-runs', runId, 'filing.json'); }
+
+  await arm('B1 basket gate_render with no card fired since: the hook denies a typed "i accept" (never shown as a card), a fired card allows', async function () {
+    const room = buildRoom363({ role: 'founder' });
+    rooms.push(room);
+    const state = { calls: 0, cli: true, next: { action: 'cancel' } };
+    const c = client(room, 'sess-mux-b1', state);
+    // the CLI rung: the host fires the card itself, so the result carries rendered.contract.superset_options
+    const runId = await finishedRun(c, room);
+    const b = await c.research({ op: 'basket', run_id: runId });
+    if (b.ok !== true || !b.gate || !b.gate.gate_id) return 'no basket gate ' + JSON.stringify(b).slice(0, 300);
+    const defaults = b.items.filter(function (i) { return i.default_on; });
+    if (defaults.length === 0) return 'no default-on items to file';
+    const gateId = b.gate.gate_id;
+    const ids = defaults.map(function (i) { return i.id; });
+    // the transcript the CLI would hold: the basket tool result carrying the gate, then prose, then "i accept"
+    function rec(type, message, extra) { return JSON.stringify(Object.assign({ parentUuid: null, isSidechain: false, type: type, message: message, sessionId: 'mux-session-b1', userType: 'external', cwd: room.roomDir }, extra || {})); }
+    const head = [
+      rec('user', { role: 'user', content: 'review what the research found and ask me what to file' }),
+      rec('assistant', { role: 'assistant', content: [{ type: 'tool_use', id: 'toolu_b1_01', name: 'mcp__plugin_mos_mindrian-os__research_run', input: { op: 'basket', run_id: runId } }] }),
+      rec('user', { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_b1_01', content: [{ type: 'text', text: JSON.stringify(b, null, 2) }] }] }),
+    ];
+    const prose = [
+      rec('assistant', { role: 'assistant', content: [{ type: 'text', text: 'The basket is ready. Shall I file the usual items?' }] }),
+      rec('user', { role: 'user', content: 'i accept' }),
+    ];
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mux-b1-'));
+    try {
+      const missing = path.join(dir, 'missing.jsonl');
+      fs.writeFileSync(missing, head.concat(prose).join('\n') + '\n');
+      const env = { tool_input: { gate_id: gateId, chosen: ids, verdict: 'approve' }, transcript_path: missing, session_id: 'mux-session-b1' };
+      const denied = runHook(envelope(env));
+      const reason = denyOf(denied);
+      if (reason === null) return 'expected deny on prose, got stdout ' + denied.stdout.slice(0, 300) + ' stderr ' + denied.stderr.slice(0, 200);
+      if (!/never shown as a card/.test(reason)) return 'reason ' + reason;
+      // positive control: the same basket with its card fired and answered is allowed
+      // the options the host fires are the gate's own (rendered.contract.superset_options): the basket items and "File nothing"
+      if (b.gate.renderer !== 'askuserquestion') return 'renderer ' + b.gate.renderer + ' (the stub must reach the CLI rung)';
+      const gateOptions = b.gate.rendered.contract.superset_options.map(function (o) { return { id: o.id, label: o.label }; });
+      const shownLabels = gateOptions.map(function (o) { return o.label; });
+      const labels = gateOptions.filter(function (o) { return ids.indexOf(o.id) !== -1; }).map(function (o) { return o.label; });
+      if (labels.length === 0) return 'the basket gate carries no labels for the default items: ' + JSON.stringify(gateOptions).slice(0, 300);
+      const asked = head.concat([
+        rec('assistant', { role: 'assistant', content: [{ type: 'tool_use', id: 'toolu_b1_02', name: 'AskUserQuestion', input: { questions: [{ question: 'File these?', header: 'Filing', multiSelect: true, options: shownLabels.map(function (l) { return { label: l, description: 'file' }; }) }] } }] }),
+        rec('user', { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_b1_02', content: 'Your questions have been answered: "File these?"="' + labels.join(', ') + '". You can now continue with these answers in mind.' }] }),
+      ]);
+      const fired = path.join(dir, 'fired.jsonl');
+      fs.writeFileSync(fired, asked.join('\n') + '\n');
+      const allowed = runHook(envelope(Object.assign({}, env, { transcript_path: fired })));
+      if (!isAllow(allowed)) return 'a fired basket card was not allowed: ' + allowed.stdout.slice(0, 300) + ' stderr ' + allowed.stderr.slice(0, 200);
+      if (fs.existsSync(filedPath(room, runId))) return 'something was filed';
+      return true;
+    } finally {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    }
+  });
+
+  await arm('B2 basket dialog cancelled: the gate stays open, a relayed gate_answer is card_pending, nothing is filed', async function () {
+    const room = buildRoom363({ role: 'founder' });
+    rooms.push(room);
+    const state = { calls: 0, next: { action: 'cancel' } };
+    const c = client(room, 'sess-mux-b2', state);
+    const runId = await finishedRun(c, room);
+    const callsBefore = state.calls;
+    const b = await c.research({ op: 'basket', run_id: runId });
+    if (b.ok !== true || !b.gate || !b.gate.gate_id) return 'no basket gate ' + JSON.stringify(b).slice(0, 300);
+    if (b.gate.renderer !== 'elicitation') return 'renderer ' + b.gate.renderer + ' (the stub must reach rung a)';
+    if (state.calls !== callsBefore + 1) return 'the basket dialog was not put to the navigator once: ' + (state.calls - callsBefore);
+    if (b.gate.answer) return 'a cancelled dialog produced an answer';
+    const ids = b.items.filter(function (i) { return i.default_on; }).map(function (i) { return i.id; });
+    if (ids.length === 0) return 'no default-on items';
+    const ans = await c.answer(b.gate.gate_id, ids, 'approve');
+    if (!(ans.ok === false && ans.reason === 'card_pending')) return 'expected card_pending, got ' + JSON.stringify(ans).slice(0, 300);
+    if (!gateLedger._internal._ledger.has(b.gate.gate_id)) return 'the ledger entry was consumed by the refusal';
+    const filed = await c.research({ op: 'file', gate_id: b.gate.gate_id });
+    if (filed.ok !== false) return 'op file accepted a basket that was never approved: ' + JSON.stringify(filed).slice(0, 200);
+    if (fs.existsSync(filedPath(room, runId))) return 'something was filed';
+    return true;
+  });
+
+  await arm('B3 basket dialog accepted with a selection: filed once through op file, a second answer and a second file are refused', async function () {
+    const room = buildRoom363({ role: 'founder' });
+    rooms.push(room);
+    const state = { calls: 0, next: { action: 'cancel' } };
+    const c = client(room, 'sess-mux-b3', state);
+    const runId = await finishedRun(c, room);
+    state.next = acceptDefaults;
+    const b = await c.research({ op: 'basket', run_id: runId });
+    if (b.ok !== true || !b.gate || !b.gate.gate_id) return 'no basket gate ' + JSON.stringify(b).slice(0, 300);
+    if (!b.gate.answer || !b.gate.resumed || b.gate.resumed.ok !== true || b.gate.resumed.approved_for_filing !== true) return 'not consumed inline: ' + JSON.stringify(b.gate).slice(0, 300);
+    if (gateLedger._internal._ledger.has(b.gate.gate_id)) return 'the inline accept left the entry open';
+    if (fs.existsSync(filedPath(room, runId))) return 'the basket answer alone filed something';
+    const ids = b.items.filter(function (i) { return i.default_on; }).map(function (i) { return i.id; });
+    const again = await c.answer(b.gate.gate_id, ids, 'approve');
+    if (!(again.ok === false && again.reason === 'unknown_gate')) return 'a second answer was not refused unknown_gate: ' + JSON.stringify(again).slice(0, 300);
+    const filed = await c.research({ op: 'file', gate_id: b.gate.gate_id });
+    if (filed.ok !== true) return 'file after the accepted basket ' + JSON.stringify(filed).slice(0, 400);
+    if (!fs.existsSync(filedPath(room, runId))) return 'filing.json not written';
+    const firstBytes = fs.readFileSync(filedPath(room, runId), 'utf8');
+    const twice = await c.research({ op: 'file', gate_id: b.gate.gate_id });
+    if (!(twice.ok === false && twice.reason === 'no_approved_basket')) return 'the approval was used twice: ' + JSON.stringify(twice).slice(0, 300);
+    if (fs.readFileSync(filedPath(room, runId), 'utf8') !== firstBytes) return 'the second file changed what was filed';
     return true;
   });
 
