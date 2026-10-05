@@ -1798,7 +1798,7 @@ Plans:
 - [x] 369.2-09 one run grant per run, exact strings on the card (R02)
 - [x] 369.2-10 CLI, ambient, MCP, acceptance suites on run grants (R02)
 - [x] 369.2-11 basket-card arms, docs, mirrors (R26, R02)
-- [ ] 369.2-12 W1 close: PB8-03 out of KNOWN, CHANGELOG; navigator reads the real-room run and cuts beta.61 (checkpoint)
+- [x] 369.2-12 W1 close: PB8-03 out of KNOWN, CHANGELOG; navigator reads the real-room run and cuts beta.61 (checkpoint; CUT 2026-10-05 as v2.0.0-beta.61 at 3aac790dc, receipt a47d99571, SUMMARY 03910777f)
 - [ ] 369.2-13 operations.cjs ledger, seven invariants (R05, R06)
 - [ ] 369.2-14 ledger wired into quick and deep; run.json.completion (R05)
 - [ ] 369.2-15 reserved counterevidence budget; status from operation ids; HARNESS-01 replay (R06)
