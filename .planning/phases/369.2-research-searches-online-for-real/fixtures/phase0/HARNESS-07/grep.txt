@@ -1,0 +1,186 @@
+commands/act.md:88:- `/mos:act --budget <N>` -- set max token budget (e.g. `--budget 100000`); applies to any mode
+commands/act.md:454:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); clamp N to 20 even though `plan.agents` already
+lib/core/chain-executor.cjs:307:// FAN-OUT IS DECLARED HERE AND EXECUTED THERE (WD-347-1 / SHARED-08)
+lib/core/chain-executor.cjs:309:// cell-fanout.cjs (lib/core/bono, its own :24-28) locks D-164-S2: that
+lib/core/chain-executor.cjs:310:// module MUST NOT require the sequential chain executor (the fan-out is
+lib/core/chain-executor.cjs:312:// other way round). This phase does NOT reverse that. A step's `fan_out`
+lib/core/chain-executor.cjs:315:// fan-out branch only, to cell-fanout.cjs::runCellFanout, the one fan-out
+lib/core/chain-executor.cjs:317:// never back, so there is exactly one fan-out implementation and the
+lib/core/chain-executor.cjs:319:// dispatch loop, its own cap authority beside resolveFanoutCap and the
+lib/core/chain-executor.cjs:320:// futures orchestrator's own frozen fan-out ceiling constant, and its own
+lib/core/chain-executor.cjs:329:let _cellFanout = null;
+lib/core/chain-executor.cjs:330:function _loadCellFanout() {
+lib/core/chain-executor.cjs:331:  if (_cellFanout !== null) return _cellFanout;
+lib/core/chain-executor.cjs:333:    _cellFanout = require('./bono/cell-fanout.cjs');
+lib/core/chain-executor.cjs:335:    _cellFanout = false;
+lib/core/chain-executor.cjs:337:  return _cellFanout;
+lib/core/chain-executor.cjs:340:// The default fan-out runner: a thin translation-only adapter over the
+lib/core/chain-executor.cjs:341:// lazily-required cell-fanout engine. No dispatch loop, no clamp, no
+lib/core/chain-executor.cjs:342:// per-cell critique -- all three already exist in runCellFanout. Production
+lib/core/chain-executor.cjs:343:// resolves here; a test may inject opts.fanOutFn to observe or replace the
+lib/core/chain-executor.cjs:344:// call without ever touching cell-fanout.cjs's require.cache.
+lib/core/chain-executor.cjs:345:function _defaultFanOutFn(callParams) {
+lib/core/chain-executor.cjs:346:  const engine = _loadCellFanout();
+lib/core/chain-executor.cjs:347:  if (!engine || typeof engine.runCellFanout !== 'function') {
+lib/core/chain-executor.cjs:350:  return engine.runCellFanout(callParams);
+lib/core/chain-executor.cjs:353:// Translate a step's declared `fan_out` array plus the shared input record
+lib/core/chain-executor.cjs:354:// id into the cell shape cell-fanout.cjs already takes (subdomains x hats),
+lib/core/chain-executor.cjs:355:// call the (possibly injected) fanOutFn EXACTLY ONCE, and map the returned
+lib/core/chain-executor.cjs:356:// cells back onto individual fan-out trace entries. Each declared step id
+lib/core/chain-executor.cjs:358:// the grid length equals the declared fan_out length -- one cell per
+lib/core/chain-executor.cjs:360:// the engine's own resolveFanoutCap is the one cap authority.
+lib/core/chain-executor.cjs:361:const FAN_OUT_HAT = 'declared';
+lib/core/chain-executor.cjs:363:async function _dispatchFanOut(step, inputRecordId, fanOutFn) {
+lib/core/chain-executor.cjs:364:  const stepIds = Array.isArray(step.fan_out)
+lib/core/chain-executor.cjs:365:    ? step.fan_out.filter(function (s) { return typeof s === 'string' || typeof s === 'number'; })
+lib/core/chain-executor.cjs:369:    hats: [FAN_OUT_HAT],
+lib/core/chain-executor.cjs:371:    // model call -- the declared fan-out is a routing shape, not a BONO
+lib/core/chain-executor.cjs:382:    cellResult = await fanOutFn(callParams);
+lib/core/chain-executor.cjs:389:      fan_out_step: cell.subdomain,
+lib/core/chain-executor.cjs:1020:  // (Wave-2 contract preserved byte-for-byte). This is ONE entry point, not a
+lib/core/chain-executor.cjs:1022:  // Phase 347-07 (SHARED-08): a declared fan_out or fan_in also forces the
+lib/core/chain-executor.cjs:1023:  // async path -- the fan-out delegation awaits the lazily-loaded
+lib/core/chain-executor.cjs:1024:  // cell-fanout engine, which the synchronous loop below cannot do. A chain
+lib/core/chain-executor.cjs:1028:  const hasFanRouting = list.some(function (s) {
+lib/core/chain-executor.cjs:1029:    return !!(s && ((Array.isArray(s.fan_out) && s.fan_out.length > 0) || (s.fan_in && typeof s.fan_in === 'object')));
+lib/core/chain-executor.cjs:1038:    hasFanRouting
+lib/core/chain-executor.cjs:1456: *     PARTIAL -- the upstream trace is PRESERVED, a { step, failure:{code,reason},
+lib/core/chain-executor.cjs:1595:    // shape, dead default, preserved seam for scripts/act-command.cjs).
+lib/core/chain-executor.cjs:1648:    // RUN: dispatch the per-step brick. A declared fan_out (SHARED-08,
+lib/core/chain-executor.cjs:1650:    // lazily-loaded cell-fanout engine through the translation-only adapter
+lib/core/chain-executor.cjs:1651:    // above (see this file's own fan-out header paragraph). Absent fan_out,
+lib/core/chain-executor.cjs:1658:    let fanOutOutcome = null;
+lib/core/chain-executor.cjs:1659:    const hasFanOut = Array.isArray(step && step.fan_out) && step.fan_out.length > 0;
+lib/core/chain-executor.cjs:1660:    if (hasFanOut) {
+lib/core/chain-executor.cjs:1661:      const fanOutFn = (typeof o.fanOutFn === 'function') ? o.fanOutFn : _defaultFanOutFn;
+lib/core/chain-executor.cjs:1667:        fanOutOutcome = await _dispatchFanOut(step, inputRecordId, fanOutFn);
+lib/core/chain-executor.cjs:1669:        fanOutOutcome = { entries: [], cellResult: { cells: [], dropped: [], plan: { requested: step.fan_out.length, dispatched: 0, capped: false } } };
+lib/core/chain-executor.cjs:1672:        chain_output: { fan_out: fanOutOutcome.entries, plan: fanOutOutcome.cellResult && fanOutOutcome.cellResult.plan },
+lib/core/chain-executor.cjs:1702:      // position, and return the upstream trace preserved with partial:true.
+lib/core/chain-executor.cjs:1778:    // SHARED-08: map the delegated fan-out engine's returned cells back onto
+lib/core/chain-executor.cjs:1782:    if (fanOutOutcome) {
+lib/core/chain-executor.cjs:1783:      for (const entry of fanOutOutcome.entries) {
+lib/core/chain-executor.cjs:1785:          step: { step: entry.fan_out_step, fan_out_of: _stepIdOf(step) },
+lib/workflow/f-selector-ranker.cjs:539://                      Framework') -> kept ELIGIBLE (a reserved slot)
+lib/workflow/f-selector-ranker.cjs:1048:  if (focusNodeId) { /* reserved for future hop-relative scoring */ }
+lib/workflow/f8-fanout-consumer.cjs:5: * Phase 188-06 -- consumeF8Fanout: the F.8 multi-select FAN-OUT consumer (SFS-03).
+lib/workflow/f8-fanout-consumer.cjs:17: * inject roomState.closer (a spy) so a fan-out can be counted WITHOUT a live room.db.
+lib/workflow/f8-fanout-consumer.cjs:19: * The two-channel split (MEDIUM-2), preserved PER ITEM:
+lib/workflow/f8-fanout-consumer.cjs:29: * fan-out returns an appliedCount (D-09 what's-next re-entry is a downstream family
+lib/workflow/f8-fanout-consumer.cjs:30: * consumer's job -- NOT wired here; this module ships the fan-out + appliedCount).
+lib/workflow/f8-fanout-consumer.cjs:84:// closer) so the fan-out is testable WITHOUT a live room.db (Part 9). Otherwise
+lib/workflow/f8-fanout-consumer.cjs:160:// consumeF8Fanout({ priorPayload, picks, roomState })
+lib/workflow/f8-fanout-consumer.cjs:174:function consumeF8Fanout(args) {
+lib/workflow/f8-fanout-consumer.cjs:200:  // The confirm itself succeeded (the fan-out ran); per-item failures degrade but
+lib/workflow/f8-fanout-consumer.cjs:206:  consumeF8Fanout: consumeF8Fanout,
+lib/workflow/memory-governance-closer.cjs:11: *   - the fan-out is f8-fanout-consumer.consumeF8Fanout (reused; 1 confirm -> N
+lib/workflow/memory-governance-closer.cjs:26: *     never aborts the confirmed fan-out (degrade-never-block, inherited verbatim
+lib/workflow/memory-governance-closer.cjs:27: *     from consumeF8Fanout).
+lib/workflow/memory-governance-closer.cjs:37: * f8-fanout-consumer's safe-require) so a load failure degrades to a structured
+lib/workflow/memory-governance-closer.cjs:68:// Lazy + tolerant require (mirrors f8-fanout-consumer / f1-pick-consumer): a
+lib/core/expert-genesis.cjs:25: *   - lib/core/futures/orchestrator.cjs::resolveFanoutCap the [1, FUTURES_FANOUT_CAP]
+lib/core/expert-genesis.cjs:42:const { resolveFanoutCap } = require('./futures/orchestrator.cjs');
+lib/core/expert-genesis.cjs:74: * framework) so that when resolveFanoutCap clamps the grid to the cost cap, the
+lib/core/expert-genesis.cjs:76: * gate keys on). The grid length is passed through resolveFanoutCap so it can
+lib/core/expert-genesis.cjs:97:  // A grid of length 0 stays empty; resolveFanoutCap floors at 1 for a non-empty
+lib/core/expert-genesis.cjs:100:  const cap = resolveFanoutCap({ fanout: grid.length });
+lib/core/expert-genesis.cjs:285: * runCellFanout (cost-governed by planDispatch, clamped by resolveFanoutCap),
+lib/core/expert-genesis.cjs:355:  //    planDispatch when roomDir is present, clamped by resolveFanoutCap). We pass
+lib/core/futures/orchestrator.cjs:76:function resolveFanoutCap(opts) {
+lib/core/futures/orchestrator.cjs:210:  const fanout = resolveFanoutCap({ fanout: opts.fanout });
+lib/core/futures/orchestrator.cjs:1357:  resolveFanoutCap,
+lib/core/bono/cell-fanout.cjs:19: *     lib/core/futures/orchestrator.cjs (resolveFanoutCap).
+lib/core/bono/cell-fanout.cjs:37:const { resolveFanoutCap, FUTURES_FANOUT_CAP } = require('../futures/orchestrator.cjs');
+lib/core/bono/cell-fanout.cjs:50:// idiom. resolveFanoutCap clamps a navigator override to [1, FUTURES_FANOUT_CAP];
+lib/core/bono/cell-fanout.cjs:166: * cap (the FUTURES_FANOUT_CAP clamp idiom via resolveFanoutCap), plans the
+lib/core/bono/cell-fanout.cjs:209:  // CLAMP the grid length to the cost-governor cap. resolveFanoutCap mirrors the
+lib/core/bono/cell-fanout.cjs:213:  const cap = resolveFanoutCap({ fanout: requestedCap });
+lib/core/research-planner/CONTEXT.md:54:| `lib/core/futures/orchestrator.cjs` `resolveFanoutCap` | the clamp on requested lanes at run time |
+lib/core/research-planner/plan.cjs:40:// resolveFanoutCap; this file only documents the clamp, the run modules call it.
+lib/core/research-planner/deep.cjs:206:  return orchestrator.resolveFanoutCap({ fanout: plan.budget.breadth });
+lib/core/eureka/grade-grant-examine.cjs:38: * resolveFanoutCap HARD-CLAMPS any requested cap to that ceiling -- it is a ceiling, not a
+lib/core/eureka/explore-chain.cjs:74:// idiom (the navigator-confirmed final design). resolveFanoutCap is the SAME
+lib/core/eureka/explore-chain.cjs:77:const { resolveFanoutCap } = require('../futures/orchestrator.cjs');
+lib/core/eureka/explore-chain.cjs:360:// resolveFanoutCap clamps N even though N is at most 3 here -- the SAME
+lib/core/eureka/explore-chain.cjs:368:  const cap = resolveFanoutCap({ fanout: fanSteps.length });
+lib/core/chain-executor.cjs:319:// dispatch loop, its own cap authority beside resolveFanoutCap and the
+lib/core/chain-executor.cjs:360:// the engine's own resolveFanoutCap is the one cap authority.
+lib/core/trending-to-absurd/orchestrator.cjs:58:  resolveFanoutCap,
+lib/core/trending-to-absurd/orchestrator.cjs:325:  resolveFanoutCap,
+commands/act.md:454:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); clamp N to 20 even though `plan.agents` already
+commands/deep-grade.md:103:file should adopt that same two-batch idiom rather than asking `resolveFanoutCap` to raise the
+commands/deep-grade.md:134:(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); four agents is well under that ceiling, but name it here
+commands/find-analogies.md:212:Clamp the fan through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap`
+commands/find-analogies.md:222:subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); a handful of query agents stays well
+commands/persona.md:156:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); 6 is already well under the cap, but clamp to 20
+commands/grade.md:136:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); at most 8 is already well under the cap, but
+commands/research.md:492:**No agent is dispatched before the navigator approves the deep research run.** That is already true here: the approval and the fetch are done. Say the status block `[RESEARCH] Dispatching N lane analysts` (N is the lane count `deep-next` returned, which the run already clamped with `resolveFanoutCap`), then in the same turn call the Agent tool once per lane, all together, each with `subagent_type: research-lane-analyst`. Each prompt carries only four things from that lane's payload: the records file path (under the room's `.mindrian/research-runs/<run_id>/lanes/`), each leaf's id and leaf question, its falsifier, and the lane id. Nothing else from the room goes into a prompt. If the Agent tool rejects the bare agent name, retry with the scoped name its error lists. Each analyst returns a JSON list of rows. Write each list to a scratch file and record it:
+commands/trending-to-absurd.md:91:20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) even though N is fixed at 4 here by the lens set.
+commands/scout.md:201:(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); N is at most 5, well under the cap, but clamp to 20 as
+commands/vault.md:213:through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap` (`FUTURES_FANOUT_CAP`, default
+lib/core/research-planner/deep.cjs:11: * mandatory counterevidence pass, stops for a named reason, and synthesizes the
+lib/core/research-planner/deep.cjs:22: *                   outside the approved family, provider or remaining budget
+lib/core/research-planner/deep.cjs:23: *   counterevidence {queries}; runCounterevidence fetches, recordLaneRows('CE')
+lib/core/research-planner/deep.cjs:27: * Stop reasons recorded as stop_reason: cap, saturation, budget, time,
+lib/core/research-planner/deep.cjs:28: * plurality_required, navigator_stop. A budget or time stop skips the
+lib/core/research-planner/deep.cjs:29: * counterevidence pass and the RunResult names it as an unresolved branch.
+lib/core/research-planner/deep.cjs:72:const BUDGETS = planMod.BUDGETS;
+lib/core/research-planner/deep.cjs:75:const DEEP_STEPS = Object.freeze(['fetch_round', 'dispatch_lanes', 'validate', 'reflect', 'extend_card', 'counterevidence', 'synthesize', 'done']);
+lib/core/research-planner/deep.cjs:80:const CE_NOT_RUN = 'counterevidence not run';
+lib/core/research-planner/deep.cjs:83:const DIGEST_CAP = 40;
+lib/core/research-planner/deep.cjs:149:  return Math.min(BUDGETS.DEEP_MAX_SEARCHES, base + lift);
+lib/core/research-planner/deep.cjs:153:// this run through an F.3 approval (families, hashes, a bounded cap lift).
+lib/core/research-planner/deep.cjs:206:  return orchestrator.resolveFanoutCap({ fanout: plan.budget.breadth });
+lib/core/research-planner/deep.cjs:211:  const cap = laneCapFor(plan);
+lib/core/research-planner/deep.cjs:237:  return specs.slice(0, cap);
+lib/core/research-planner/deep.cjs:260:  const perLane = plan.budget.queries_per_round;
+lib/core/research-planner/deep.cjs:321:  const budgetMs = num(o.budgetMs) && o.budgetMs > 0 ? o.budgetMs : Math.min(plan.budget.time_budget_ms, BUDGETS.DEEP_TIME_BUDGET_MS);
+lib/core/research-planner/deep.cjs:337:    budget_ms: budgetMs,
+lib/core/research-planner/deep.cjs:340:    max_rounds: plan.budget.rounds,
+lib/core/research-planner/deep.cjs:355:    max_searches_base: plan.budget.max_searches,
+lib/core/research-planner/deep.cjs:362:    stop_reason: null,
+lib/core/research-planner/deep.cjs:380:// fetching (shared by fetchRound and runCounterevidence)
+lib/core/research-planner/deep.cjs:404:    cache_hit: cacheHit, items: [], budget_stop: false,
+lib/core/research-planner/deep.cjs:409:    if (out.outcome === 'blocked' || out.failure_class === 'spend_limit_exceeded') out.budget_stop = true;
+lib/core/research-planner/deep.cjs:410:    if (env && (/budget_exhausted/.test(String(env.error || '')) || (isObj(env.payload) && env.payload.reason === 'budget_exhausted'))) out.budget_stop = true;
+lib/core/research-planner/deep.cjs:411:    if (meta && num(meta.remaining_usd) && meta.remaining_usd <= 0) out.budget_stop = true;
+lib/core/research-planner/deep.cjs:436:  const topRows = plan.budget.results_per_query;
+lib/core/research-planner/deep.cjs:450:    if (elapsed >= state.budget_ms) { state.stop_reason = state.stop_reason || 'time'; return { ok: true }; }
+lib/core/research-planner/deep.cjs:452:      state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:458:      if (v.reason === 'cap_exceeded') { state.stop_reason = state.stop_reason || 'budget'; return { ok: true }; }
+lib/core/research-planner/deep.cjs:470:    const waited = await withDeadline(cacheFn(SOURCE_ID, q.q, cacheRoom, envelopeFn), state.budget_ms - elapsed);
+lib/core/research-planner/deep.cjs:475:      info = { outcome: 'failed', failure_class: 'network_timeout', count: null, cost_usd: null, remaining_usd: null, x_query: null, cache_hit: false, items: [], budget_stop: false };
+lib/core/research-planner/deep.cjs:476:      state.stop_reason = state.stop_reason || 'time';
+lib/core/research-planner/deep.cjs:478:      info = { outcome: 'failed', failure_class: 'unknown_error', count: null, cost_usd: null, remaining_usd: null, x_query: null, cache_hit: false, items: [], budget_stop: false };
+lib/core/research-planner/deep.cjs:484:      if (info.budget_stop) state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:532:    if (state.stop_reason === 'budget' || state.stop_reason === 'time') return { ok: true };
+lib/core/research-planner/deep.cjs:550:  // cap hit truncates the round (a budget stop); anything else refuses it whole.
+lib/core/research-planner/deep.cjs:567:  if (truncated) state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:584:  return { ok: true, round: state.round, executed: state.executed.length - before, stop_reason: state.stop_reason, next_step: state.step };
+lib/core/research-planner/deep.cjs:641:    if (state.step !== 'counterevidence' || !state.ce.fetched || state.ce.recorded) return refuse('wrong_step', { step: state.step });
+
+lib/core/research-planner/ambient.cjs:9
+lib/core/research-planner/audit-ledger.cjs:0
+lib/core/research-planner/canon-release.cjs:0
+lib/core/research-planner/deep.cjs:30
+lib/core/research-planner/egress-policy.cjs:0
+lib/core/research-planner/evidence-rows.cjs:0
+lib/core/research-planner/families.cjs:0
+lib/core/research-planner/filing-stamped.cjs:0
+lib/core/research-planner/filing.cjs:0
+lib/core/research-planner/grants.cjs:6
+lib/core/research-planner/perspective.cjs:0
+lib/core/research-planner/plan.cjs:36
+lib/core/research-planner/planner.cjs:10
+lib/core/research-planner/pyramid.cjs:2
+lib/core/research-planner/question-templates.cjs:0
+lib/core/research-planner/quick.cjs:27
+lib/core/research-planner/sr-door.cjs:0
+lib/core/research-planner/sr-entry.cjs:0
+lib/core/research-planner/sr-filing.cjs:0
+lib/core/research-planner/sr-steps.cjs:0
+lib/core/research-planner/structure.cjs:0
+lib/core/research-planner/theo-lane.cjs:0
+lib/core/research-planner/verdict.cjs:0
+cap-hits 74
+reserve-hits 4

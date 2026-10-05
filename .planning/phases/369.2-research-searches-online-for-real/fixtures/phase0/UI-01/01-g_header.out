@@ -1,0 +1,32 @@
+2:// The shell header (D-10, UI-SPEC shell frame): zone 1 of the four-zone anatomy. The room name comes first
+3:// among the header's content (SKILL.md Zone 1: the multi-room canary), so the room selector precedes the
+4:// wordmark in the document; the grid areas in frame.css draw the wordmark at the left. The session indicator
+7:import { RoomSelector } from './RoomSelector.tsx';
+8:import { SessionIndicator } from './SessionIndicator.tsx';
+13:  const { rooms, current, statusOpen, setStatusOpen } = useShell();
+14:  const purpose = rooms.find((r) => r.slug === current)?.purpose;
+17:      <div className="sh-room">
+18:        <RoomSelector />
+30:        <SessionIndicator />
+----
+2:// The session indicator (plan 369-24, D-04, CANON369-06), built exactly as the navigator signed it in
+4:// indicatorModel(); this component only draws them: a 12 px StateMark (aria-hidden) beside the state words in
+5:// Label 12 mono, the browser copy line under the healthy words, and the state's one-click fix next to the words
+6:// as a text action. Colour never carries a state alone. The header instance announces each state change once
+44:// A brief catch-up or rebuild is not worth speaking: the browser copy states are announced only when they outlast
+47:// "The room was tidied since your last visit" note that arrives together with a rebuild.
+50:// Says each state change once. The first answer sets the baseline: a healthy first answer is silent.
+77:  const label = model.fix ? model.fix.label : null;
+78:  const sentence = label !== null && model.words.endsWith(label) && model.words.length > label.length ? model.words.slice(0, model.words.length - label.length).trimEnd() : model.words;
+81:    <div className="session-indicator" data-placement={placement} data-state={model.kind}>
+82:      <p className="si-line" data-line="state">
+85:        {fix !== null && label !== null ? (
+87:            <TextAction onClick={fix}>{label}</TextAction>
+---
+ui/shell/client/frame/ShellFrame.tsx:89:        version: typeof body.version === 'string' ? body.version : null,
+ui/shell/client/frame/ShellFrame.tsx:98:        setStatus((prev) => (prev ? { ...prev, connection: 'disconnected', readAt } : { connection: 'disconnected', lastAckAt: null, mcpSessionPrefix: null, roo
+ui/shell/client/frame/StatusPanel.tsx:71:        <div className="sp-row" data-row="version">
+ui/shell/client/frame/StatusPanel.tsx:72:          <dt>MindrianOS version</dt>
+ui/shell/client/frame/StatusPanel.tsx:73:          <dd>{status?.version ?? 'Not reported yet'}</dd>
+ui/shell/client/frame/shell-context.ts:12:  version: string | null;
+exit=0

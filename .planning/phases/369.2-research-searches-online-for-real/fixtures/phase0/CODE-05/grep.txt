@@ -1,0 +1,3 @@
+lib/core/research-planner/deep.cjs:197:function limiterSlot(plan, lim, leaves) {
+lib/core/research-planner/deep.cjs:202:  return nonEmpty(lim.statement) ? lim.statement.trim() : null;
+lib/core/research-planner/deep.cjs:275:        c = nonEmpty(spec.slot) ? families.composeFamily(CI_FAMILY, { limiter: spec.slot }, { templateIds: ROUND_ONE_TEMPLATES.slice(), round: 1 }) : refuse('bad_slot');

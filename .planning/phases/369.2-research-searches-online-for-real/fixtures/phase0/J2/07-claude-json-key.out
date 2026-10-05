@@ -1,0 +1,2 @@
+pws-brain-mcp key present anywhere in ~/.claude.json: True count= 1
+user-scope top-level mcpServers has it: False

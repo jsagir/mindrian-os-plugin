@@ -1,0 +1,30 @@
+## signal formula
+11: * the lane `structural`. There is no second substrate read and no second exclusion check.
+40:const STAGE_A_LANES = Object.freeze(['structural', 'icm_declared']);
+65: *   candidates: the eureka row shape, lane `structural` added, plus shared_frameworks (framework node ids).
+77:    const sharedFw = fa.filter(function (id) { return fb.indexOf(id) !== -1; }).sort();
+78:    const signal = c.shared_entities.length + sharedFw.length;
+82:    if (row.lanes.indexOf('structural') === -1) row.lanes.push('structural');
+83:    row.shared_frameworks = sharedFw;
+96:    canon_resolved: pool.counts.canon_resolved,
+100:    dropped_no_relational_signal: droppedNoSignal,
+102:    structural: kept.length,
+138:      dimension: 'an:structural_transfer',
+167:      { id: 'k1', label: 'Structural transfer', dimension: 'an:structural_transfer' },
+## sapphire under lib (files)
+lib/memory/test-rs-chain-feeder-core.cjs
+lib/memory/test-rs-chain-feeder-skill-spawn.cjs
+lib/memory/brain-md-invariants-validator.test.cjs
+lib/core/semantic-index/online-pattern-query.cjs
+lib/core/research-planner/question-templates.cjs
+lib/core/semantic-index/analogy-fitness.cjs
+lib/core/research-planner/perspectives/analogies-recall.cjs
+lib/memory/test-rs-discovery-engine.cjs
+lib/core/rs-chain-feeder.cjs
+lib/memory/brain-md-schema.test.cjs
+## sapphire in analogies-recall (count)
+5
+## tests
+test-214-analogy-fitness.cjs
+test-366-recall-analogies.cjs
+analogies-recall.cjs

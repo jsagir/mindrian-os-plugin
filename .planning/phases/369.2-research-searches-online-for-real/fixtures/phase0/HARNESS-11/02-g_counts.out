@@ -1,0 +1,32 @@
+lib/core/unknowns/verdict.cjs:185:    guard('corpus-graded-confirmed: the engine corpus equals the fixture graded-confirmed UNION (exactly the Academic/Operational confirmed rows, excludes the None/Practitioner/ungraded/
+lib/core/futures/orchestrator.cjs:736: * @returns {{ confirmed: Array<Object>, rejected: Array<Object>,
+lib/core/semantic-index/embedding-spine.cjs:18: * confirmed: MongoDB/mdbr-leaf-ir loads in transformers.js v4
+lib/core/gate-relevance.cjs:111:// minimal repro, confirmed: a genuinely-reached, correctly-never-fired F.8
+lib/core/navigation/verification.cjs:59:  confirmed: 'Confirmed by a person.',
+lib/core/navigation/file-evidence-readback.cjs:235:  const message = 'Filed and confirmed: ' + what + tier + src + '. ' +
+lib/core/temporal/supersession.cjs:81:  // A must currently be confirmed: the closed status taxonomy only allows
+lib/core/strategy/goal-gate.cjs:159: *   { ok: true, goal_written: false, anchor_confirmed: false } -- verdict is
+lib/core/strategy/goal-gate.cjs:161: *   { ok: true, goal_written: false, anchor_confirmed: boolean } -- verdict
+lib/core/strategy/goal-gate.cjs:164: *   { ok: true, goal_written: true, goal_version: number, anchor_confirmed:
+lib/core/strategy/goal-gate.cjs:167: *   { ok: true, goal_written: false, anchor_confirmed: boolean, reason:
+lib/core/strategy/goal-gate.cjs:198:    return { ok: true, goal_written: false, anchor_confirmed: false };
+lib/core/strategy/goal-gate.cjs:259:  const out = { ok: true, goal_written: goalWritten, anchor_confirmed: anchorConfirmed };
+lib/core/card-fire-sidechannel.cjs:98:// That FIRST pass was live-disconfirmed: the union unconditionally folds EVERY
+lib/mcp/tools/gate.cjs:92:      subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'floor_check_failed',
+lib/mcp/tools/gate.cjs:148:    subject_confirmed: confirmed,
+lib/mcp/tools/gate.cjs:187:    return { subject_node_id: null, subject_confirmed: false, subject_skip_reason: 'no_subject' };
+lib/mcp/tools/gate.cjs:190:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'strategy_card_owned_by_goal_gate' };
+lib/mcp/tools/gate.cjs:196:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'kind_not_general' };
+lib/mcp/tools/gate.cjs:202:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'kind_not_general' };
+lib/mcp/tools/gate.cjs:211:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_found' };
+lib/mcp/tools/gate.cjs:220:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_claim' };
+lib/mcp/tools/gate.cjs:235:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_proposed' };
+lib/mcp/tools/gate.cjs:241:    return { subject_node_id: subjectId, subject_confirmed: true, subject_skip_reason: null };
+lib/mcp/tools/gate.cjs:246:  return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: failReason };
+lib/mcp/tools/gate.cjs:815:      let reasoningNode = Object.assign({}, writeResult, { confirmed: confirmed });
+lib/mcp/tools/gate.cjs:829:          subject_confirmed: false,
+lib/mcp/tools/gate.cjs:834:        subject_confirmed: subjectPromotion.subject_confirmed,
+scripts/198-rollback-rehearsal.cjs:131:  log('  expand-only confirmed: ' + suspects.length + ' migration/.sql file(s) touched this phase, zero destructive DDL');
+scripts/huji-intake.cjs:509:    proposedCount = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type='claim' AND review_status='proposed'").get().n;
+ui/shell/client/views/tile-model.ts:47:  confirmed: { tile: 'red', word: 'CONFIRMED' },
+exit=0

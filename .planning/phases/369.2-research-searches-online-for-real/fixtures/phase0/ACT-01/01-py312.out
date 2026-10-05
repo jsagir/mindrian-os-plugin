@@ -1,0 +1,44 @@
+HOME=/tmp/phase0-home-kVZR
+Python 3.12.3
+{
+  "path": "/tmp/phase0-home-kVZR/MindrianRooms/p0room",
+  "created": "2026-10-05T12:06:40Z",
+  "last_opened": "2026-10-05T12:06:40Z",
+  "status": "active",
+  "venture_name": "P0",
+  "venture_stage": "idea",
+  "git_enabled": "false",
+  "git_remote": "",
+  "auto_push": "off",
+  "vercel_url": ""
+}
+create_exit=0
+p0room
+setactive_exit=0
+p0room
+getactive_exit=0
+{
+  "version": 1,
+  "active": "p0room",
+  "rooms": {
+    "p0room": {
+      "path": "/tmp/phase0-home-kVZR/MindrianRooms/p0room",
+      "created": "2026-10-05T12:06:40Z",
+      "last_opened": "2026-10-05T12:06:40Z",
+      "status": "active",
+      "venture_name": "P0",
+      "venture_stage": "idea",
+      "git_enabled": "false",
+      "git_remote": "",
+      "auto_push": "off",
+      "vercel_url": ""
+    }
+  },
+  "active_session": "cd7fca86-da84-4084-9260-f655b86621f9",
+  "active_session_at": "2026-10-05T12:06:40Z",
+  "active_session_pid": 2659951
+}--- resolve-room
+/tmp/phase0-home-kVZR/MindrianRooms/p0room
+resolve_exit=0
+--- on-cwd-changed
+oncwd_exit=0

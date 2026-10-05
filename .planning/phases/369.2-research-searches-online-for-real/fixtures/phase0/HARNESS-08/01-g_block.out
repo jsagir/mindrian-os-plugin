@@ -1,0 +1,15 @@
+scripts/check-card-fire.cjs:13: * no fired AskUserQuestion card it emits a Stop-block (decision:'block') +
+scripts/check-card-fire.cjs:19: * The block route is a JSON envelope `{ decision:'block', continue:false, ... }` written
+scripts/check-card-fire.cjs:21: * decision:'block' envelope to re-prompt the turn). It is NOT an exit-2 block; earlier
+scripts/check-card-fire.cjs:27: * `{ hook_event_name, transcript_path, stop_hook_active, session_id, ... }` -- it does
+scripts/check-card-fire.cjs:206:const MAX_FORCE_RETRIES = 3;
+scripts/check-card-fire.cjs:226:const MAX_SESSION_INTERCEPTS = 12;
+scripts/check-card-fire.cjs:730:      //       envelope with NO human-authored text field at all (a background subagent
+scripts/check-card-fire.cjs:738:      //       record, not a human turn -- a subagent hand-back, a background peer note, or
+scripts/check-card-fire.cjs:821://   - intercept-> the decision:block-on-exit-0 block: { decision:'block', reason,
+scripts/check-card-fire.cjs:869:      decision: 'block',
+scripts/check-card-fire.cjs:872:      reason: 'rendering your choices as a selectable card',
+scripts/check-card-fire.cjs:875:      systemMessage: 'Re-rendering your choices as a selectable card...',
+scripts/check-card-fire.cjs:1400://     a background task-notification or peer hand-back carrying a real text block now
+scripts/on-stop:106:              decision: 'block',
+exit=0

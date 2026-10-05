@@ -1,0 +1,6 @@
+560:    process.stdout.write(linkFor(port, armed.code) + '\n' + LINK_NOTE + '\n');
+572:    process.stdout.write('Opening the workspace in your browser on this computer. Sign-in happens there, once.\n');
+574:    process.stdout.write('The workspace is running on this computer, but no browser could be opened from here.\n'
+583:    process.stdout.write('running on 127.0.0.1:' + rec.port + ' (version ' + (rec.version || 'unknown') + ', pid ' + rec.pid + ')\n');
+585:    process.stdout.write('not running\n');
+633:        process.stdout.write(r.stopped ? 'stopped\n' : 'not running\n');

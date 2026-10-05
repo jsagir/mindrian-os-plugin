@@ -1,0 +1,135 @@
+lib/core/navigation/typed-domain.cjs:23: *     auto-confirmed by an agent (Part 9 role 5). Promotion to 'confirmed'
+lib/core/navigation/typed-domain.cjs:29: *     carry review_status 'confirmed' written by the system rule, no human byUser.
+lib/core/navigation/typed-domain.cjs:89://   - taxonomy === true -> 'confirmed' (system-bookkeeping; Part 9 v1.5 carve-out).
+lib/core/navigation/typed-domain.cjs:93:// a taxonomy node is then promoted to 'confirmed' by the system rule below (a
+lib/core/navigation/typed-domain.cjs:156:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/room-birth.cjs:208:          "VALUES (?, 'birth_gate_anchor', '{}', 'birth:nosession', 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/room-birth.cjs:228:        "VALUES (?, 'birth_gate_anchor', ?, ?, 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/room-birth.cjs:264:// NOT-NULL-safe insertNode helper, then promotes review_status to 'confirmed'
+lib/core/navigation/room-birth.cjs:297:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ? AND type = 'Section'").run(slug);
+lib/core/navigation/spine-events.cjs:294:        "VALUES (?, 'operator', '{}', 'system:operator', 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/lens-nodes.cjs:40: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/lens-nodes.cjs:43: *   audit node with created_by='system' review_status='confirmed'.
+lib/core/navigation/lens-nodes.cjs:97:// 1.0, review_status 'confirmed' (the Canon Part 9 v1.5 system-bookkeeping
+lib/core/navigation/lens-nodes.cjs:120:      review_status: 'confirmed',
+lib/core/navigation/governance.cjs:24:// when its review_status reads 'confirmed'.
+lib/core/navigation/typed-open-question.cjs:22: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/planning-artifacts.cjs:32: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/planning-artifacts.cjs:34: *   violation. Here review_status='confirmed' means write-completed (the artifact
+lib/core/navigation/planning-artifacts.cjs:37: *   a focus_changed audit node with created_by='system' review_status='confirmed'
+lib/core/navigation/planning-artifacts.cjs:102:// verbatim). created_by='system', confidence 1.0, review_status='confirmed' (the
+lib/core/navigation/planning-artifacts.cjs:139:      review_status: 'confirmed',
+lib/core/navigation/planning-artifacts.cjs:152:// review_status='confirmed'), properties {req_id, phase}. Defensive; never throws.
+lib/core/navigation/planning-artifacts.cjs:178:      review_status: 'confirmed',
+lib/core/navigation/confirm-node.cjs:43:  return promoteNodeStatus(db, id, row.review_status, 'confirmed', byUser, reason);
+lib/core/navigation/typed-frame.cjs:308:// 'confirmed' by the scoped system rule below (never a truth-claim promotion).
+lib/core/navigation/typed-frame.cjs:392:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/evidence-claim.cjs:23: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/evidence-claim.cjs:27: *   audit-node carve-out lets land 'confirmed' without a human; an EvidenceClaim
+lib/core/navigation/insights-stale.test.cjs:56:    options.review_status || 'confirmed',
+lib/core/navigation/insights-stale.test.cjs:111:    insertNode(db, 'claim:confirmed', 'claim', 40, { review_status: 'confirmed' });
+lib/core/navigation/reified-claim.cjs:44: *   column DEFAULT -- it is NEVER auto-confirmed. Promotion to 'confirmed' requires
+lib/core/navigation/synthetic-expert.cjs:23: *   auto-confirms it. Promotion to 'confirmed' rides the existing human
+lib/core/navigation/packet.cjs:63:      "AND review_status = 'confirmed' AND created_by = 'user' " +
+lib/core/navigation/explanation.cjs:29:      return shortId(p.claim) + ' is ' + (p.reviewStatus || 'confirmed') + ' but has no SUPPORTS edge (last touched ' + daysSince(p.lastSeenAt || Date.now()) + '
+lib/core/navigation/room-home.cjs:63:  // promotes a PROPOSED truth-claim node to 'confirmed' (Canon Part 9 role 5).
+lib/core/navigation/room-home.cjs:66:  // IN ('confirmed','validated') and the type set is WIDENED to the full
+lib/core/navigation/room-home.cjs:77:    + "AND review_status IN ('confirmed','validated') "
+lib/core/navigation/room-home.cjs:117:  // Phase 129.5-03: NARROWED from ('confirmed','needs_evidence') to
+lib/core/navigation/typed-claim.cjs:23: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/typed-opportunity.cjs:50: *   by this writer (Part 9 role 5). Promotion to 'confirmed' requires a human
+lib/core/navigation/ingestion.cjs:8:// not one per insight. The event's review_status='confirmed' because it records a fact
+lib/core/navigation/ingestion.cjs:12:// WHERE review_status = 'confirmed' AND (confirmed_by IS NULL OR confirmed_by != 'user')
+lib/core/navigation/ingestion.cjs:52:      // brain_insight row must never be review_status='confirmed' with a
+lib/core/navigation/insights.cjs:201:    + "AND n.review_status IN ('confirmed','needs_evidence') "
+lib/core/navigation/insights.cjs:367:  // Per RESEARCH section 2.5 simplification: 30 days old AND review_status='confirmed'.
+lib/core/navigation/insights.cjs:374:    + "WHERE n.type = 'decision' AND n.review_status = 'confirmed' AND n.last_seen_at < ?"
+lib/core/navigation/insights.cjs:399:const STALE_SETTLED_STATUSES = ['confirmed', 'validated'];
+lib/core/navigation/insights.cjs:447:    + "AND n.review_status IN ('proposed', 'confirmed') "
+lib/core/navigation/insights.cjs:487:    + "FROM nodes WHERE type = 'opportunity' AND review_status IN ('proposed','confirmed','validated')"
+lib/core/navigation/memory-artifacts.cjs:47: *   review_status='confirmed' WITHOUT a human byUser; the carve-out makes that
+lib/core/unknowns/verdict.cjs:185:    guard('corpus-graded-confirmed: the engine corpus equals the fixture graded-confirmed UNION (exactly the Academic/Operational confirmed rows, excludes the None/Practitioner/ungraded/
+lib/core/futures/orchestrator.cjs:736: * @returns {{ confirmed: Array<Object>, rejected: Array<Object>,
+lib/core/semantic-index/embedding-spine.cjs:18: * confirmed: MongoDB/mdbr-leaf-ir loads in transformers.js v4
+lib/core/gate-relevance.cjs:111:// minimal repro, confirmed: a genuinely-reached, correctly-never-fired F.8
+lib/core/navigation/verification.cjs:59:  confirmed: 'Confirmed by a person.',
+lib/core/navigation/file-evidence-readback.cjs:235:  const message = 'Filed and confirmed: ' + what + tier + src + '. ' +
+lib/core/temporal/supersession.cjs:81:  // A must currently be confirmed: the closed status taxonomy only allows
+lib/core/strategy/goal-gate.cjs:159: *   { ok: true, goal_written: false, anchor_confirmed: false } -- verdict is
+lib/core/strategy/goal-gate.cjs:161: *   { ok: true, goal_written: false, anchor_confirmed: boolean } -- verdict
+lib/core/strategy/goal-gate.cjs:164: *   { ok: true, goal_written: true, goal_version: number, anchor_confirmed:
+lib/core/strategy/goal-gate.cjs:167: *   { ok: true, goal_written: false, anchor_confirmed: boolean, reason:
+lib/core/strategy/goal-gate.cjs:198:    return { ok: true, goal_written: false, anchor_confirmed: false };
+lib/core/strategy/goal-gate.cjs:259:  const out = { ok: true, goal_written: goalWritten, anchor_confirmed: anchorConfirmed };
+lib/core/card-fire-sidechannel.cjs:98:// That FIRST pass was live-disconfirmed: the union unconditionally folds EVERY
+lib/mcp/tools/gate.cjs:92:      subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'floor_check_failed',
+lib/mcp/tools/gate.cjs:148:    subject_confirmed: confirmed,
+lib/mcp/tools/gate.cjs:187:    return { subject_node_id: null, subject_confirmed: false, subject_skip_reason: 'no_subject' };
+lib/mcp/tools/gate.cjs:190:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'strategy_card_owned_by_goal_gate' };
+lib/mcp/tools/gate.cjs:196:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'kind_not_general' };
+lib/mcp/tools/gate.cjs:202:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'kind_not_general' };
+lib/mcp/tools/gate.cjs:211:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_found' };
+lib/mcp/tools/gate.cjs:220:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_claim' };
+lib/mcp/tools/gate.cjs:235:    return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: 'subject_not_proposed' };
+lib/mcp/tools/gate.cjs:241:    return { subject_node_id: subjectId, subject_confirmed: true, subject_skip_reason: null };
+lib/mcp/tools/gate.cjs:246:  return { subject_node_id: subjectId, subject_confirmed: false, subject_skip_reason: failReason };
+lib/mcp/tools/gate.cjs:815:      let reasoningNode = Object.assign({}, writeResult, { confirmed: confirmed });
+lib/mcp/tools/gate.cjs:829:          subject_confirmed: false,
+lib/mcp/tools/gate.cjs:834:        subject_confirmed: subjectPromotion.subject_confirmed,
+scripts/198-rollback-rehearsal.cjs:131:  log('  expand-only confirmed: ' + suspects.length + ' migration/.sql file(s) touched this phase, zero destructive DDL');
+scripts/huji-intake.cjs:509:    proposedCount = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type='claim' AND review_status='proposed'").get().n;
+ui/shell/client/views/tile-model.ts:47:  confirmed: { tile: 'red', word: 'CONFIRMED' },
+banner-tokens: 0
+readiness-word: 170
+lib/core/enrichment-queue.cjs:55:  'readiness_score',
+lib/core/enrichment-queue.cjs:71:// Frozen missing-dimensions vocabulary (the four orchestration_readiness
+lib/core/enrichment-queue.cjs:76:// Phase 339 Plan 05 (FLIP-03), 2026-09-03: Theo's orchestration_readiness
+lib/core/enrichment-queue.cjs:79:// (/home/jsagi/Theo/src/mcp/content/orchestration-readiness.ts:52-73):
+lib/core/enrichment-queue.cjs:233:  const readiness_score = isValidReadinessScore(raw.readiness_score) ? raw.readiness_score : null;
+lib/core/enrichment-queue.cjs:243:    readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:368:    const readiness_score = isValidReadinessScore(entry.readiness_score) ? entry.readiness_score : null;
+lib/core/enrichment-queue.cjs:388:        readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:407:        readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:442:function inferMissingDimensionsFromScore(readinessScore, structureKnownPresent) {
+lib/core/enrichment-queue.cjs:443:  const score = Number.isInteger(readinessScore) ? Math.max(0, Math.min(4, readinessScore)) : 0;
+lib/core/enrichment-queue.cjs:464: *   - Incumbent RESOLVED orchestration_readiness: { readiness_score,
+
+0
+lib/core/memory/reconcile-memory-runner.cjs:42: *   created_by='system' review_status='confirmed'). The decision node is the ONE
+lib/core/unknowns/corpus-adapter.cjs:11: *      (EvidenceClaim, claim, CausalClaim) WHERE review_status='confirmed' AND
+lib/core/unknowns/corpus-adapter.cjs:171:      + "AND n.review_status = 'confirmed' "
+lib/core/unknowns/verdict.cjs:156:        "SELECT id FROM nodes WHERE id LIKE 'claim:uu-scan:%' AND review_status = 'confirmed'"
+lib/core/sensors/sensor-expert-skill.cjs:127:  "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'";
+lib/core/breakthrough/review-queue.cjs:154:      "FROM review_candidates WHERE review_status = 'pending' " +
+lib/core/expert-library.cjs:156:      "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'"
+lib/core/navigation.cjs:718:  //   so created_by='system' review_status='confirmed' is canon-legal without a
+lib/core/migrations/phase-109-nodes-provenance.cjs:161:  db.exec("UPDATE nodes SET review_status = 'proposed' WHERE review_status IS NULL");
+lib/core/migrations/phase-109-nodes-provenance.cjs:300:    "    CHECK(review_status IN ('proposed','confirmed','rejected','stale','superseded','needs_evidence','validated','invalidated')), " +
+lib/core/navigation/typed-domain.cjs:156:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/room-birth.cjs:297:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ? AND type = 'Section'").run(slug);
+lib/core/navigation/lens-nodes.cjs:40: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/lens-nodes.cjs:43: *   audit node with created_by='system' review_status='confirmed'.
+lib/core/navigation/planning-artifacts.cjs:32: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/planning-artifacts.cjs:34: *   violation. Here review_status='confirmed' means write-completed (the artifact
+lib/core/navigation/planning-artifacts.cjs:37: *   a focus_changed audit node with created_by='system' review_status='confirmed'
+lib/core/navigation/planning-artifacts.cjs:102:// verbatim). created_by='system', confidence 1.0, review_status='confirmed' (the
+lib/core/navigation/planning-artifacts.cjs:152:// review_status='confirmed'), properties {req_id, phase}. Defensive; never throws.
+lib/core/navigation/typed-frame.cjs:392:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/packet.cjs:63:      "AND review_status = 'confirmed' AND created_by = 'user' " +
+lib/core/navigation/room-home.cjs:77:    + "AND review_status IN ('confirmed','validated') "
+lib/core/navigation/room-home.cjs:126:    + "WHERE type = 'assumption' AND review_status IN ('needs_evidence') "
+lib/core/navigation/graph-integrity-counts.cjs:236:  + "WHERE review_status = 'proposed' AND created_at IS NOT NULL "
+lib/core/navigation/ingestion.cjs:8:// not one per insight. The event's review_status='confirmed' because it records a fact
+lib/core/navigation/ingestion.cjs:12:// WHERE review_status = 'confirmed' AND (confirmed_by IS NULL OR confirmed_by != 'user')
+lib/core/navigation/ingestion.cjs:52:      // brain_insight row must never be review_status='confirmed' with a
+lib/core/navigation/insights.cjs:201:    + "AND n.review_status IN ('confirmed','needs_evidence') "
+lib/core/navigation/insights.cjs:232:    + "WHERE n.type = 'assumption' AND n.review_status IN ('proposed', 'needs_evidence')"
+lib/core/navigation/insights.cjs:367:  // Per RESEARCH section 2.5 simplification: 30 days old AND review_status='confirmed'.
+lib/core/lazygraph-ops.cjs:44://                                human-confirmed truth-claim and decision nodes,
+lib/core/lazygraph-ops.cjs:983:  const nodeRows = conn.prepare('SELECT type, COUNT(*) AS cnt FROM nodes GROUP BY type').all();
+lib/core/lazygraph-ops.cjs:991:  const edgeRows = conn.prepare('SELECT type, COUNT(*) AS cnt FROM edges GROUP BY type').all();
+lib/core/lazygraph-ops.cjs
+lib/core/research-planner/perspectives/eureka-recall.cjs
+lib/core/research-planner/perspectives/whitespace-recall.cjs
+lib/core/semantic-index/tri-modal-index.cjs
+lib/core/eureka/opportunity-harvest.cjs

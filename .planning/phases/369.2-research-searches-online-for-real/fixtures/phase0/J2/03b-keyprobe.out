@@ -1,0 +1,12 @@
+variant b (cwd=/tmp): X=1
+HOME=/tmp/phase0-home-HDyN ~/.mindrian.env exists=false MINDRIAN_BRAIN_KEY set=false brainUrl=https://theo-mcp.onrender.com
+[mindrian-os] Brain key not loaded: MINDRIAN_BRAIN_KEY not set (env), and neither /tmp/phase0-home-HDyN/.mindrian.env nor /tmp/.env nor /tmp/phase0-home-HDyN/.mindrian-install.json contains a usable key
+getApiKey()=null
+isAvailable()=false
+(node:2742484) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+search("jobs to be done") RETURNED={"error":"egress_blocked","tool":"brain_search","egress_class":"freeform_unproven","reason":"Brain free-form channels accept closed-vocabulary methodology questions only (framework names, problem types, stages, command slugs); rephrase without room or venture details."} ms=55
+stats() RETURNED={"nodes":28139,"relationships":53324,"labels":[{"label":"BrainRecord","count":148,"declared":true},{"label":"CaseStudy","count":93,"declared":true},{"label":"Chapter","count":36,"declared":true},{"label":"Chunk","count":216,"declared":true},{"label":"Concept","count":0,"declared":true},{"label":"DomainConcept","count":6,"declared":true},{"label":"Example","count":47,"declared":true},{"label":"Framework","count":457,"declared":true},{"label":"GraphRagMeta","count":1,"declared":true},{"label":"Mention","count":13273,"declared":true},{"label":"MethodologyChunk","count":12401,"declared":true},{"la
+getAutoRegisterFailureReason()=null
+install token file exists=true
+exit=0

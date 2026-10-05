@@ -1,0 +1,7 @@
+scripts/label-355-gold.cjs:131:function saveSessionAtomic(sessionPath, session) {
+scripts/label-355-gold.cjs:652:      saveSessionAtomic(sessionPath, session);
+scripts/label-355-gold.cjs:697:      saveSessionAtomic(sessionPath, session);
+scripts/label-355-gold.cjs:707:      saveSessionAtomic(sessionPath, session);
+scripts/label-355-gold.cjs:714:      saveSessionAtomic(sessionPath, session);
+scripts/mindrian-mcp-server.cjs:310:// Session catch-up: register shutdown handler to save session state (all
+exit=0

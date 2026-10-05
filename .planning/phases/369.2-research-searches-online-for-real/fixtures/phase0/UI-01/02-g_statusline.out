@@ -1,0 +1,40 @@
+3:// Shows: project name │ room section context │ venture stage │ gaps │ context window
+35:// Map room section name to short exploration-stage label plus thematic
+45:  'business-model':         { label: 'BUSINESSCASE',  emoji: '\u{1F4B0}' }, // money bag
+48:  'financial-model':        { label: 'FINANCE',       emoji: '\u{1F4B5}' }, // dollar banknote
+86: * Read the current MindrianOS plugin version from .claude-plugin/plugin.json.
+106:        if (data && data.version) return data.version;
+198: * Phase 88.1-04 -- resolve the active section path inside a room. Tries in
+200: *   1. roomDir/.mindrian/active-section.json (written by Phase 84 smart-
+203: *   2. Most-recently-modified direct subdirectory of roomDir that contains
+211: * @param {string} roomDir - Absolute path to the active room
+214:function resolveActiveSectionPath(roomDir) {
+215:  if (!roomDir) return null;
+217:    const activeJson = path.join(roomDir, '.mindrian', 'active-section.json');
+222:          // Accept absolute or room-relative path.
+225:            : path.join(roomDir, data.section);
+236:    const entries = fs.readdirSync(roomDir, { withFileTypes: true })
+241:      const sectionPath = path.join(roomDir, d.name);
+274: * @param {string} roomDir - Absolute path to the active room
+277:function buildMintoSegment(roomDir) {
+279:  if (!roomDir) return '';
+281:  const sectionPath = resolveActiveSectionPath(roomDir);
+286:    const cached = statuslineCache.getCached(roomDir, sectionPath);
+292:      try { statuslineCache.setCached(roomDir, sectionPath, triple); } catch (_) {}
+339: *   2. roomDir/.mindrian/current-session.json {"session_id": "..."}
+345: * @param {string} roomDir - Absolute path to the active room
+348:function resolveSessionIdForDial(roomDir) {
+354:    const pointer = path.join(roomDir, '.mindrian', 'current-session.json');
+358:        if (parsed && typeof parsed.session_id === 'string'
+359:            && parsed.session_id.length > 0) {
+360:          return parsed.session_id;
+----
+grep: lib/statusline/statusline-mos: No such file or directory
+scripts/statusline-mos-dispatch:6:# This file is copied to ~/.claude/statusline-mos by the plugin's session-start
+scripts/statusline-mos-dispatch:8:# job: find an installed MindrianOS plugin version and `exec` that version's
+scripts/statusline-mos-dispatch:9:# scripts/statusline-mos -- which then resolves the *active* version (via
+scripts/statusline-mos-dispatch:14:# in plugin vN+1 takes effect on the next session with no re-stamp needed,
+scripts/statusline-mos-dispatch:15:# because this shim resolves at runtime. session-start re-stamps this file only
+scripts/statusline-mos-dispatch:21:# marketplace cache for the newest version dir and hands off to it. The handed-
+scripts/statusline-mos-dispatch:31:  # Print the newest "<...>/mos/<version>" dir found under any marketplace cache.
+exit=0

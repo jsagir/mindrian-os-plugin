@@ -1,0 +1,52 @@
+build ok true  ["uncovered:ws:extraction_failure"]
+leaves [{"id":"L1","lens":"ws.gap","corpus":"openalex","researchable":true,"nq":2},{"id":"L2","lens":"ws.gap","corpus":"openalex","researchable":true,"nq":0},{"id":"L3","lens":"ws.covered_elsewhere","corpus":"openalex","researchable":true,"nq":1}]
+budget {"breadth":4,"rounds":2,"queries_per_round":2,"results_per_query":5,"max_searches":16,"time_budget_ms":1200000,"counterevidence":true}
+laneSpecs "n/a (not exported)"
+roundOne [
+ {
+  "lane": "ws-gap",
+  "leaf_ids": [
+   "L1",
+   "L2"
+  ],
+  "nq": 2,
+  "queries": [
+   {
+    "lens_leaf": [
+     "L1",
+     "L2"
+    ],
+    "tpl": "ws.exact",
+    "q": "\"thin-film sensors\""
+   },
+   {
+    "lens_leaf": [
+     "L1",
+     "L2"
+    ],
+    "tpl": "ws.prior_attempts",
+    "q": "\"thin-film sensors\" AND (review OR survey OR \"systematic review\")"
+   }
+  ]
+ },
+ {
+  "lane": "ws-covered_elsewhere",
+  "leaf_ids": [
+   "L3"
+  ],
+  "nq": 1,
+  "queries": [
+   {
+    "lens_leaf": [
+     "L3"
+    ],
+    "tpl": "ws.synonym_cover",
+    "q": "\"thin-film sensors\" OR \"dielectric probes\""
+   }
+  ]
+ }
+]
+query count by first leaf id {"L1":2,"L3":1}
+leaves with zero queries ["L2"]
+netguard attempts 0
+exit=0

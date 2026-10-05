@@ -1,0 +1,6 @@
+# 01 g_export
+grep -rnIiE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next 'transcript.*export|export.*transcript|message_count|messageCount|sha256|checksum' lib scripts commands ui/shell/server ui/shell/client --include=*.cjs --include=*.ts --include=*.tsx --include=*.md --include=*.sh -l | head -30
+# 02 g_tx
+grep -rnIiE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next '(export|save|dump)[-_ ]?(session|transcript|conversation|chat)|(session|transcript|conversation|chat)[-_ ]?(export|dump)' lib scripts commands hooks ui/shell/server ui/shell/client agents skills --include=*.cjs --include=*.ts --include=*.tsx --include=*.md --include=*.json --include=*.sh | cut -c1-190 | head -25
+# 03 g_fields
+for p in 'session_id|sessionId' 'message_count|messageCount|messages_count' 'sha256|checksum|createHash' 'overwrite|already exists|unique' 'source_range|range'; do echo "== $p: export.md $(grep -ciE "$p" commands/export.md) generate-export.cjs $(grep -ciE "$p" scripts/generate-export.cjs) transcript-ingest $(grep -ciE "$p" scripts/transcript-ingest.cjs)"; done; grep -n 'transcript' commands/export.md | head -3; grep -n 'sha256\|createHash' scripts/generate-export.cjs | head -3

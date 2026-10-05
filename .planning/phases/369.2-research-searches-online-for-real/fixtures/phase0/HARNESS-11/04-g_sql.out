@@ -1,0 +1,31 @@
+lib/core/memory/reconcile-memory-runner.cjs:42: *   created_by='system' review_status='confirmed'). The decision node is the ONE
+lib/core/unknowns/corpus-adapter.cjs:11: *      (EvidenceClaim, claim, CausalClaim) WHERE review_status='confirmed' AND
+lib/core/unknowns/corpus-adapter.cjs:171:      + "AND n.review_status = 'confirmed' "
+lib/core/unknowns/verdict.cjs:156:        "SELECT id FROM nodes WHERE id LIKE 'claim:uu-scan:%' AND review_status = 'confirmed'"
+lib/core/sensors/sensor-expert-skill.cjs:127:  "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'";
+lib/core/breakthrough/review-queue.cjs:154:      "FROM review_candidates WHERE review_status = 'pending' " +
+lib/core/expert-library.cjs:156:      "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'"
+lib/core/navigation.cjs:718:  //   so created_by='system' review_status='confirmed' is canon-legal without a
+lib/core/migrations/phase-109-nodes-provenance.cjs:161:  db.exec("UPDATE nodes SET review_status = 'proposed' WHERE review_status IS NULL");
+lib/core/migrations/phase-109-nodes-provenance.cjs:300:    "    CHECK(review_status IN ('proposed','confirmed','rejected','stale','superseded','needs_evidence','validated','invalidated')), " +
+lib/core/navigation/typed-domain.cjs:156:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/room-birth.cjs:297:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ? AND type = 'Section'").run(slug);
+lib/core/navigation/lens-nodes.cjs:40: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/lens-nodes.cjs:43: *   audit node with created_by='system' review_status='confirmed'.
+lib/core/navigation/planning-artifacts.cjs:32: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/planning-artifacts.cjs:34: *   violation. Here review_status='confirmed' means write-completed (the artifact
+lib/core/navigation/planning-artifacts.cjs:37: *   a focus_changed audit node with created_by='system' review_status='confirmed'
+lib/core/navigation/planning-artifacts.cjs:102:// verbatim). created_by='system', confidence 1.0, review_status='confirmed' (the
+lib/core/navigation/planning-artifacts.cjs:152:// review_status='confirmed'), properties {req_id, phase}. Defensive; never throws.
+lib/core/navigation/typed-frame.cjs:392:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/packet.cjs:63:      "AND review_status = 'confirmed' AND created_by = 'user' " +
+lib/core/navigation/room-home.cjs:77:    + "AND review_status IN ('confirmed','validated') "
+lib/core/navigation/room-home.cjs:126:    + "WHERE type = 'assumption' AND review_status IN ('needs_evidence') "
+lib/core/navigation/graph-integrity-counts.cjs:236:  + "WHERE review_status = 'proposed' AND created_at IS NOT NULL "
+lib/core/navigation/ingestion.cjs:8:// not one per insight. The event's review_status='confirmed' because it records a fact
+lib/core/navigation/ingestion.cjs:12:// WHERE review_status = 'confirmed' AND (confirmed_by IS NULL OR confirmed_by != 'user')
+lib/core/navigation/ingestion.cjs:52:      // brain_insight row must never be review_status='confirmed' with a
+lib/core/navigation/insights.cjs:201:    + "AND n.review_status IN ('confirmed','needs_evidence') "
+lib/core/navigation/insights.cjs:232:    + "WHERE n.type = 'assumption' AND n.review_status IN ('proposed', 'needs_evidence')"
+lib/core/navigation/insights.cjs:367:  // Per RESEARCH section 2.5 simplification: 30 days old AND review_status='confirmed'.
+exit=0

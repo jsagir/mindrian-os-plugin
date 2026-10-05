@@ -1,0 +1,6 @@
+lib/core/research-planner/deep.cjs:225:    const byLens = {};
+lib/core/research-planner/deep.cjs:233:      const withSlots = own.filter(function (l) { return isObj(l.slots) && Object.keys(l.slots).length > 0; })[0] || own[0];
+lib/core/research-planner/deep.cjs:283:      if (kept.length >= perLane || claimed[q.q_hash]) return;
+lib/core/research-planner/deep.cjs:774:      if (kept.length >= perLane || seen[q.q_hash] || seen['q:' + q.q.toLowerCase()] || claimed[q.q_hash]) return;
+lib/core/research-planner/planner.cjs:207:    deepMod.roundOneQueries(plan).forEach(function (lane) {
+lib/core/research-planner/planner.cjs:208:      const leaf = plan.leaves.filter(function (l) { return l.id === lane.leaf_ids[0]; })[0];

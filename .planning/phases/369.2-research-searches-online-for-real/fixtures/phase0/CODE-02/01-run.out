@@ -1,0 +1,10 @@
+52843d875
+2.0.0-beta.58
+{"scholarly":"openalex","industry":"tavily","patent":"pubmed","brain":"brain-cypher","competitive-intelligence":"tavily","grants":"tavily"}
+patent= pubmed
+(node:2689495) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+355:`scholarly`, `industry`, `patent`, all at equal weight 1.0:
+360:MOS_LENS_SET='[{"lens":"scholarly","weight":1.0},{"lens":"industry","weight":1.0},{"lens":"patent","weight":1.0}]'
+368:academic + market + patent triple) on a single topic.
+exit=0

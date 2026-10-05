@@ -1,0 +1,8 @@
+== test-write-scope-set-membership.test.cjs
+PASS: test-write-scope-set-membership
+== test-write-scope-sub-room-ancestor.cjs
+  ok  e2e (d1): a registry entry with NO parent field widens nothing and never crashes
+  ok  e2e (d2): a malformed registry.json still fails OPEN, no new crash surface
+
+260728-051 sub-room ancestor write scope: 12/12 passed
+exit=0

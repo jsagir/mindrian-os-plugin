@@ -1,0 +1,4 @@
+# 01 g_counts
+for p in plan_delta planDelta 'stale' 'supersede|superseded'; do echo "== $p planner:$(grep -rnIE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next "$p" lib/core/research-planner | wc -l) navigation:$(grep -rnIE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next "$p" lib/core/navigation lib/core/navigation.cjs | wc -l)"; done; grep -rnIE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next 'plan_delta|planDelta|operator_intervention|operator.correction' lib scripts commands hooks | cut -c1-160 | head
+# 02 g_stale
+grep -rnIE --exclude-dir=dist --exclude-dir=node_modules --exclude-dir=.next "'stale'|markStale|mark_stale|propagateStale|stale_downstream" lib/core/navigation lib/core/navigation.cjs lib/core/research-planner lib/core/temporal | cut -c1-180 | head -25

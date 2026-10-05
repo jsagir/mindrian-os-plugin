@@ -1,0 +1,51 @@
+lib/core/navigation/typed-domain.cjs:23: *     auto-confirmed by an agent (Part 9 role 5). Promotion to 'confirmed'
+lib/core/navigation/typed-domain.cjs:29: *     carry review_status 'confirmed' written by the system rule, no human byUser.
+lib/core/navigation/typed-domain.cjs:89://   - taxonomy === true -> 'confirmed' (system-bookkeeping; Part 9 v1.5 carve-out).
+lib/core/navigation/typed-domain.cjs:93:// a taxonomy node is then promoted to 'confirmed' by the system rule below (a
+lib/core/navigation/typed-domain.cjs:156:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/room-birth.cjs:208:          "VALUES (?, 'birth_gate_anchor', '{}', 'birth:nosession', 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/room-birth.cjs:228:        "VALUES (?, 'birth_gate_anchor', ?, ?, 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/room-birth.cjs:264:// NOT-NULL-safe insertNode helper, then promotes review_status to 'confirmed'
+lib/core/navigation/room-birth.cjs:297:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ? AND type = 'Section'").run(slug);
+lib/core/navigation/spine-events.cjs:294:        "VALUES (?, 'operator', '{}', 'system:operator', 'system', NULL, 'confirmed', ?, ?)"
+lib/core/navigation/lens-nodes.cjs:40: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/lens-nodes.cjs:43: *   audit node with created_by='system' review_status='confirmed'.
+lib/core/navigation/lens-nodes.cjs:97:// 1.0, review_status 'confirmed' (the Canon Part 9 v1.5 system-bookkeeping
+lib/core/navigation/lens-nodes.cjs:120:      review_status: 'confirmed',
+lib/core/navigation/governance.cjs:24:// when its review_status reads 'confirmed'.
+lib/core/navigation/typed-open-question.cjs:22: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/planning-artifacts.cjs:32: *   created_by='system' review_status='confirmed' WITHOUT a human byUser; the
+lib/core/navigation/planning-artifacts.cjs:34: *   violation. Here review_status='confirmed' means write-completed (the artifact
+lib/core/navigation/planning-artifacts.cjs:37: *   a focus_changed audit node with created_by='system' review_status='confirmed'
+lib/core/navigation/planning-artifacts.cjs:102:// verbatim). created_by='system', confidence 1.0, review_status='confirmed' (the
+lib/core/navigation/planning-artifacts.cjs:139:      review_status: 'confirmed',
+lib/core/navigation/planning-artifacts.cjs:152:// review_status='confirmed'), properties {req_id, phase}. Defensive; never throws.
+lib/core/navigation/planning-artifacts.cjs:178:      review_status: 'confirmed',
+lib/core/navigation/confirm-node.cjs:43:  return promoteNodeStatus(db, id, row.review_status, 'confirmed', byUser, reason);
+lib/core/navigation/typed-frame.cjs:308:// 'confirmed' by the scoped system rule below (never a truth-claim promotion).
+lib/core/navigation/typed-frame.cjs:392:        db.prepare("UPDATE nodes SET review_status = 'confirmed' WHERE id = ?").run(nodeId);
+lib/core/navigation/evidence-claim.cjs:23: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/evidence-claim.cjs:27: *   audit-node carve-out lets land 'confirmed' without a human; an EvidenceClaim
+lib/core/navigation/insights-stale.test.cjs:56:    options.review_status || 'confirmed',
+lib/core/navigation/insights-stale.test.cjs:111:    insertNode(db, 'claim:confirmed', 'claim', 40, { review_status: 'confirmed' });
+lib/core/navigation/reified-claim.cjs:44: *   column DEFAULT -- it is NEVER auto-confirmed. Promotion to 'confirmed' requires
+lib/core/navigation/synthetic-expert.cjs:23: *   auto-confirms it. Promotion to 'confirmed' rides the existing human
+lib/core/navigation/packet.cjs:63:      "AND review_status = 'confirmed' AND created_by = 'user' " +
+lib/core/navigation/explanation.cjs:29:      return shortId(p.claim) + ' is ' + (p.reviewStatus || 'confirmed') + ' but has no SUPPORTS edge (last touched ' + daysSince(p.lastSeenAt || Date.now()) + '
+lib/core/navigation/room-home.cjs:63:  // promotes a PROPOSED truth-claim node to 'confirmed' (Canon Part 9 role 5).
+lib/core/navigation/room-home.cjs:66:  // IN ('confirmed','validated') and the type set is WIDENED to the full
+lib/core/navigation/room-home.cjs:77:    + "AND review_status IN ('confirmed','validated') "
+lib/core/navigation/room-home.cjs:117:  // Phase 129.5-03: NARROWED from ('confirmed','needs_evidence') to
+lib/core/navigation/typed-claim.cjs:23: *   'proposed' and is NEVER auto-confirmed by an agent. Promotion to 'confirmed'
+lib/core/navigation/typed-opportunity.cjs:50: *   by this writer (Part 9 role 5). Promotion to 'confirmed' requires a human
+lib/core/navigation/ingestion.cjs:8:// not one per insight. The event's review_status='confirmed' because it records a fact
+lib/core/navigation/ingestion.cjs:12:// WHERE review_status = 'confirmed' AND (confirmed_by IS NULL OR confirmed_by != 'user')
+lib/core/navigation/ingestion.cjs:52:      // brain_insight row must never be review_status='confirmed' with a
+lib/core/navigation/insights.cjs:201:    + "AND n.review_status IN ('confirmed','needs_evidence') "
+lib/core/navigation/insights.cjs:367:  // Per RESEARCH section 2.5 simplification: 30 days old AND review_status='confirmed'.
+lib/core/navigation/insights.cjs:374:    + "WHERE n.type = 'decision' AND n.review_status = 'confirmed' AND n.last_seen_at < ?"
+lib/core/navigation/insights.cjs:399:const STALE_SETTLED_STATUSES = ['confirmed', 'validated'];
+lib/core/navigation/insights.cjs:447:    + "AND n.review_status IN ('proposed', 'confirmed') "
+lib/core/navigation/insights.cjs:487:    + "FROM nodes WHERE type = 'opportunity' AND review_status IN ('proposed','confirmed','validated')"
+lib/core/navigation/memory-artifacts.cjs:47: *   review_status='confirmed' WITHOUT a human byUser; the carve-out makes that
+exit=0

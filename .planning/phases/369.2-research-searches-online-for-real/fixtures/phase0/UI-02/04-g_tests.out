@@ -1,0 +1,20 @@
+tests/test-369-gate-web-mapping.cjs
+tests/test-369-bakeoff-agent-native.cjs
+tests/test-369-shell-actions.cjs
+tests/test-369-human-only.cjs
+tests/e2e-369/egress-and-canon.cjs
+tests/e2e-369/journey.cjs
+tests/e2e-369/gate-button.cjs
+tests/test-369-bakeoff-workroom.cjs
+tests/test-av2-answered-via.cjs
+tests/test-369-views-copy.cjs
+tests/test-369-gate-mirror-shell.cjs
+ui/shell/server/human-origin.ts
+ui/shell/server/control.ts
+ui/shell/server/actions.ts
+
+tests/e2e-369/egress-and-canon.cjs:635:    await page.keyboard.press('Escape');
+tests/e2e-369/replica.cjs:564:      await page.keyboard.press('Escape');
+tests/e2e-369/gate-button.cjs:430:      await page.keyboard.press('Enter');
+tests/e2e-369/gate-button.cjs:431:      await page.keyboard.press('Enter');
+exit=0

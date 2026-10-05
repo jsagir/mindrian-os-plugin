@@ -1,0 +1,37 @@
+f58ec49 release: sync to v2.0.0-beta.57
+CHANGELOG.md
+LICENSE
+README.md
+agents
+assets
+commands
+data
+hooks
+lib
+npm-shrinkwrap.json
+output-styles
+package.json
+pipelines
+references
+scripts
+settings.json
+skills
+templates
+== /home/jsagi/dev/mindrian-marketplace/plugins/mos-desktop
+all paths: 2567
+paths with char outside [A-Za-z0-9._/-]: 53
+  bracket names ([ or ]): 52
+  @ names: 2
+  other outside-set (neither bracket nor @): 0
+== /home/jsagi/dev/MindrianOS-Plugin/lib/ui-shell/dist
+all paths: 314
+paths with char outside [A-Za-z0-9._/-]: 53
+  bracket names ([ or ]): 52
+  @ names: 2
+  other outside-set (neither bracket nor @): 0
+== Desktop copy: outside lib/ui-shell/dist
+bad paths outside: 0
+files under Desktop copy lib/ui-shell/dist: 271
+bad paths in plugin repo outside lib/ui-shell/dist (git-tracked): 5
+bad paths in plugin repo inside lib/ui-shell/dist (git-tracked): 49
+exit=0

@@ -1,0 +1,9 @@
+py=39
+PATH=registry-create RETURNED={"exit":1,"stdout_head":"","stderr":"Traceback (most recent call last):\n  File \"<string>\", line 39, in <module>\nAttributeError: module 'datetime' has no attribute 'UTC'\n"}
+exists $HOME/r1/.mindrian/room.db = false
+exists $HOME/r1/room.db = false
+GOVERNED_WRITE={"ok":false,"reason":"no_room_db","room_dir":"$HOME/r1"}  (openRoomDbForCaller returned null; same branch as lib/mcp/tools/graph.cjs memory_event handler)
+find .mindrian: "no .mindrian dir"
+(node:2711446) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

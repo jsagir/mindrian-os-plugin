@@ -1,0 +1,18 @@
+== MINDRIAN_BRAIN_KEY
+20: *   1. If MINDRIAN_BRAIN_KEY is set → calls Brain API
+261:// Order: MINDRIAN_BRAIN_KEY env -> ~/.mindrian.env -> CWD .env -> not-found.
+== Authorization / Bearer
+492:        'Authorization': `Bearer ${apiKey}`,
+712:            'Authorization': `Bearer ${key}`,
+== no_key
+444: * no_key failure-edge refusal copy (refusal-messaging.cjs) so the reason names
+== Tier 0
+22: *   3. If no key → returns null (Tier 0, no Brain)
+1893: *   Returns null if Brain unavailable (Tier 0 graceful degradation)
+2331:// with `source: 'tier0'` -- the counterfeit core the 250-01 doctrine kill
+== counts
+MINDRIAN_BRAIN_KEY: 2
+Authorization|Bearer: 2
+no_key: 1
+Tier 0|tier 0|tier0|TIER_0: 3
+distinct lines matching any: 8

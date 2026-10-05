@@ -1,0 +1,13 @@
+  ok   LEG B: a FLAPPING gate identity (which the per-gate counter cannot catch) STOPS at MAX_SESSION_INTERCEPTS
+  ok   LEG B: the per-gate counter genuinely never reached its own ceiling, proving the SESSION counter did the bounding
+  ok   WIRING: the MCP handler bumps the SAME on-disk store the CLI Stop hook reads (one counting path, not two)
+  ok   NON-REGRESSION: a terminal verdict CLEARS both counters, so an unrelated later gate starts from a fresh budget
+  ok   NON-REGRESSION: a fresh session still force-fires its first genuine gate (the ceiling bounds the loop, it does not disable the gate)
+  ok   NON-REGRESSION: the ceiling is per-session, so one session exhausting its budget never gags a concurrent session
+  ok   DEAD-BRANCH REPAIR: a terminal MCP verdict actually REACHES the lifecycle consumption wire (not just contains it in dead source)
+  ok   DEAD-BRANCH REPAIR: an ACTIVE force-loop still does NOT consume, so the record survives to be re-checked
+  ok   Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12, still declared in exactly one place
+  ok   ANTI-DRIFT: the MCP handler no longer hardcodes either counter to zero
+
+PASS test-198-stop-gate-retry-ceiling (15 assertions)
+exit=0

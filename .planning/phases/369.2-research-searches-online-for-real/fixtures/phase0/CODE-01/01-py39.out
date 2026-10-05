@@ -1,0 +1,18 @@
+HOME=/tmp/phase0-home-LbUQ
+Python 3.9.24
+Traceback (most recent call last):
+  File "<string>", line 39, in <module>
+AttributeError: module 'datetime' has no attribute 'UTC'
+create_exit=1
+[MindrianOS] Room not found: p0room
+  Fix: Run /mos:rooms to see available rooms
+setactive_exit=1
+
+getactive_exit=0
+{"version": 1, "active": "", "rooms": {}}
+--- resolve-room
+/tmp/phase0-home-LbUQ/MindrianRooms/p0room
+resolve_exit=0
+--- on-cwd-changed
+{"systemMessage":"Switched to room: p0room","suppressOutput":false}
+oncwd_exit=0

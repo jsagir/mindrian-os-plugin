@@ -1,0 +1,3 @@
+lib/core/research-planner/evidence-rows.cjs:78:function normalizeText(s) {
+lib/core/research-planner/evidence-rows.cjs:221:      dropped.unverified_quote += 1;
+lib/core/research-planner/deep.cjs:644:    if (state.recorded[state.round + ':' + lane]) return refuse('already_recorded');

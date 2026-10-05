@@ -1,0 +1,7 @@
+indexed abstract text: {}
+literal_lt   kept 0 dropped.unverified_quote 1
+encoded_lt   kept 1 dropped.unverified_quote 0
+literal_amp  kept 0 dropped.unverified_quote 1
+encoded_amp  kept 1 dropped.unverified_quote 0
+netguard 0
+exit=0

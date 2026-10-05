@@ -1,0 +1,32 @@
+scripts/release-lib/desktop-copy-gate.sh:263:  # The release-built UI dist (lib/ui-shell/dist, Phase 369) legitimately contains a .next/ server
+scripts/release-lib/desktop-copy-gate.sh:268:  if [ -d "$out_dir/lib/ui-shell/dist" ]; then
+scripts/release-lib/desktop-copy-gate.sh:269:    git -C "$mp_dir" add --force --all -- plugins/mos-desktop/lib/ui-shell/dist >/dev/null 2>&1
+scripts/release.sh:409:  echo "  Step 2.4  : UI shell freshness gate (Phase 369 plan 28: node scripts/build-ui-shell.cjs --check proves lib/ui-shell/dist matches ui/shell and ui/shared; HARD ABORT; release.sh never builds the UI; runs nothing under --dry-run)"
+scripts/release.sh:547:# Phase 369 Plan 28 (D-07, D-17, TS369-08): the UI shell freshness gate. lib/ui-shell/dist is a
+scripts/release.sh:548:# release-built artifact the maintainer builds with `node scripts/build-ui-shell.cjs` and commits
+scripts/release.sh:552:if ! node "$PLUGIN_DIR/scripts/build-ui-shell.cjs" --check; then
+scripts/release.sh:553:  echo -e "${RED}ABORT: Step 2.4: UI shell freshness gate failed (lib/ui-shell/dist is stale or missing)${NC}"
+scripts/release.sh:554:  echo "  Recovery: node scripts/build-ui-shell.cjs, then commit lib/ui-shell/dist"
+package.json:30:    "!scripts/build-ui-shell.cjs",
+grep: .npmignore: No such file or directory
+no '!lib/ui-shell' exclusion in package.json files
+    return 1
+  fi
+
+  # The release-built UI dist (lib/ui-shell/dist, Phase 369) legitimately contains a .next/ server
+  # build, which the marketplace repo's catalog-level .gitignore (D-06: no stray .next/ at the repo
+  # top) would swallow, silently dropping 259 files the payload needs. Force-add exactly that one
+  # path; every OTHER ignored file still fails the count check below. Found by the 369.1-14
+  # rehearsal against a clone of the real marketplace repo.
+  if [ -d "$out_dir/lib/ui-shell/dist" ]; then
+    git -C "$mp_dir" add --force --all -- plugins/mos-desktop/lib/ui-shell/dist >/dev/null 2>&1
+  fi
+
+  local ignored_line
+f58ec49 release: sync to v2.0.0-beta.57
+271
+2259
+49
+origin	https://github.com/jsagir/mindrian-marketplace.git (fetch)
+origin	https://github.com/jsagir/mindrian-marketplace.git (push)
+exit=0

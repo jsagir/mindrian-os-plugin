@@ -1,0 +1,11 @@
+191:/* Loading */
+192:.loading {
+201:<div id="app" class="loading">Loading Data Room...</div>
+213:    console.warn('MCP Apps bridge not available, using tool result data');
+227:      document.getElementById('app').innerHTML = '<p>Error parsing room data</p>';
+241:        console.error('Refresh failed:', e);
+
+17:  echo "ERROR: Room directory not found: $ROOM_DIR"
+49:  echo "ERROR: No available port in range ${PREFERRED_PORT}-${MAX_PORT}"
+73:  echo "ERROR: Failed to start server on port ${PORT}"
+exit=0

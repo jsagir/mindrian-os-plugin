@@ -1,0 +1,6 @@
+== session_id|sessionId: export.md 0 generate-export.cjs 0 transcript-ingest 0
+== message_count|messageCount|messages_count: export.md 0 generate-export.cjs 0 transcript-ingest 0
+== sha256|checksum|createHash: export.md 0 generate-export.cjs 0 transcript-ingest 0
+== overwrite|already exists|unique: export.md 1 generate-export.cjs 0 transcript-ingest 0
+== source_range|range: export.md 0 generate-export.cjs 0 transcript-ingest 0
+exit=0

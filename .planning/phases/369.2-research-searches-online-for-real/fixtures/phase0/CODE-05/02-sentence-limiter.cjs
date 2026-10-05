@@ -1,0 +1,11 @@
+const P=require('../_partialB-prelude.cjs');
+const room=P.buildRoom363({role:'researcher'});
+const built=P.planner.buildPlan(room.roomDir,P.qs('scientific-roadmapping'),{mode:'deep',now:new Date('2026-10-04T00:00:00Z')});
+const plan=JSON.parse(JSON.stringify(built.plan));
+const SENT='Thin wires cannot be reliably detected by the autonomous terminal guidance stack because contrast falls below sensor noise at range?';
+plan.perspective.limiters[0].statement=SENT;
+plan.leaves.forEach(l=>{l.slots={};l.queries=[];});
+const r1=P.deep.roundOneQueries(plan);
+console.log('sentence length',SENT.length);
+console.log(JSON.stringify(r1.filter(l=>l.lane==='LM1').map(l=>l.queries.map(q=>q.q)),null,1));
+console.log('netguard attempts',P.guard.attempts());room.cleanup();

@@ -1,0 +1,22 @@
+{"p":"How do I decide which customer segment to pursue first?","ask":"BLOCKED(freeform_unproven) freeform_unmatched","search":"BLOCKED(freeform_unproven) freeform_unmatched","query":"proceed freeform_unmatched","disagree":true}
+{"p":"What is the best way to validate a business idea?","ask":"BLOCKED(freeform_unproven) freeform_unmatched","search":"BLOCKED(freeform_unproven) freeform_unmatched","query":"proceed freeform_unmatched","disagree":true}
+{"p":"How should I use the Minto Pyramid framework to structure an argument?","ask":"BLOCKED(freeform_unproven) freeform_unproven","search":"BLOCKED(freeform_unproven) freeform_unproven","query":"proceed freeform_unproven","disagree":true}
+{"p":"Which framework fits a wicked problem?","ask":"proceed typed_question","search":"proceed typed_question","query":"proceed typed_question","disagree":false}
+{"p":"MATCH (f:Framework) WHERE f.name CONTAINS 'Minto' RETURN f.name","ask":"BLOCKED(freeform_unproven) freeform_unproven","search":"BLOCKED(freeform_unproven) freeform_unproven","query":"proceed freeform_unproven","disagree":true}
+{"p":"MATCH (n) RETURN labels(n) AS labels, count(*) AS c","ask":"BLOCKED(freeform_unproven) freeform_unproven","search":"BLOCKED(freeform_unproven) freeform_unproven","query":"proceed freeform_unproven","disagree":true}
+{"p":"How do I price my product for Tel Aviv customers?","ask":"BLOCKED(content_set) content_set","search":"BLOCKED(content_set) content_set","query":"BLOCKED(content_set) content_set","disagree":false}
+{"p":"Which chain of frameworks follows discovery stage for an ill-defined problem?","ask":"proceed typed_question","search":"proceed typed_question","query":"proceed typed_question","disagree":false}
+{"p":"How do I decide which customer segment to pursue first, using the framework approach?","ask":"BLOCKED(freeform_unproven) freeform_unproven","search":"BLOCKED(freeform_unproven) freeform_unproven","query":"proceed freeform_unproven","disagree":true}
+{"p":"MATCH (n) WHERE n.text CONTAINS 'customer segment' RETURN n","ask":"BLOCKED(freeform_unproven) freeform_unmatched","search":"BLOCKED(freeform_unproven) freeform_unmatched","query":"proceed freeform_unmatched","disagree":true}
+prompts=10 disagreements=7
+METHODOLOGY_TOKEN_SET.size=48
+QUESTION_FUNCTION_WORDS.size=94
+COMMAND_SLUG_SET.size=114
+CANONICAL_PHRASES.length=415
+TOKENS=["framework","frameworks","methodology","methodology_tier","reach_id","slug","phase","phase-id","problem-type","problem type","enum","edge-type","edge type","feeds_into","contradicts","precedes","chain","chains","traverse","sequence","targets","swot","porter","jobs-to-be-done","first-principles","value-chain","design-thinking","six-hats","discovery","investment","scoping","execution","stage","wicked","ill-defined","well-defined","undefined","udp","wdp","labels","relationshiptypes","propertykeys","nodetypeproperties","count","keys","schema","illdefined","welldefined"]
+FORBIDDEN_PATTERNS.length=15
+city regexes=1 source=\b(?:Haifa|Beersheba|Be'er\s?Sheva|Ramat\s+Gan|Tel\s+Aviv|Jerusalem|Herzliya|Netanya)\b
+city alternatives=8 ["Haifa","Beersheba","Be'er\\s?Sheva","Ramat\\s+Gan","Tel\\s+Aviv","Jerusalem","Herzliya","Netanya"]
+(node:2689780) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

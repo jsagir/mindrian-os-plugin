@@ -1,0 +1,8 @@
+composeForLeaf unknown slot q (handwritten string)   ok false reason bad_slot
+composeForLeaf slots.query handwritten               ok false reason bad_slot
+composeForLeaf slot with operator token AND          ok true reason 
+composeForLeaf unknown lens                          ok false reason unknown_lens
+composeFamily with 201-char term                     ok false reason bad_slot
+handwritten hash in a run plan: init ok true fetchRound {"ok":false,"reason":"hash_not_approved","query_index":4} replay calls 0
+netguard 0
+exit=0

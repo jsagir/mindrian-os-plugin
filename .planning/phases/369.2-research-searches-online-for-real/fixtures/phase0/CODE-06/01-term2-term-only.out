@@ -1,0 +1,12 @@
+mu.verify term+term2 -> true 
+   ce.exact "\"electrical cable\"" slot_terms ["electrical cable"]
+   ce.counter "\"electrical cable\" AND (limitation OR failure OR \"no effect\")" slot_terms ["electrical cable"]
+term2 text present in any query: false
+mu.verify term only -> true [
+  '"OTDRMARK optical fiber"',
+  '"OTDRMARK optical fiber" AND (limitation OR failure OR "no effect")'
+]
+composeFamily explicit exact+counter -> false bad_slot 
+any lens renders term2? lenses: []
+LENSES export undefined netguard 0
+exit=0

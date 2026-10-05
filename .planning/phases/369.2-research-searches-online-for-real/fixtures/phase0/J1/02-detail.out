@@ -1,0 +1,11 @@
+Desktop copy bad paths, files only: 49
+Desktop copy bad paths, dirs only: 4
+paths with both bracket and @: 1
+plugin repo tracked bad paths outside dist:
+ui/bakeoff/agent-native/overlay/app/routes/slice.$room.tsx
+ui/bakeoff/workroom/overlay/src/app/api/actions/[name]/route.ts
+ui/bakeoff/workroom/overlay/src/app/slice/[room]/page.tsx
+ui/shell/app/[...view]/page.tsx
+ui/shell/app/api/actions/[name]/route.ts
+plugin dist: files only:
+271

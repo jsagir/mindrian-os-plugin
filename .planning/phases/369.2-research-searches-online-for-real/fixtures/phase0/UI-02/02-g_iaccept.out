@@ -1,0 +1,31 @@
+lib/workflow/offer-closer.cjs:12: * the user's pick as a typed decision edge (accept/defer/reject) or a miss
+lib/workflow/offer-closer.cjs:21: *     accept/defer/reject typed edge) or recordSelectorMiss (a temporal miss
+lib/workflow/offer-closer.cjs:220:// _normalizePick(pick) -> 'accept' | 'defer' | 'reject' | 'Free-Text' | null
+lib/workflow/offer-closer.cjs:223:// routing key. The Free-Text escape routes to the miss path; accept/defer/reject
+lib/workflow/offer-closer.cjs:230:  if (lower === 'accept' || lower === 'approve') return 'accept';
+lib/workflow/offer-closer.cjs:233:  // A canonical command verb that is not the escape is treated as an accept of
+lib/workflow/offer-closer.cjs:235:  return 'accept';
+lib/workflow/offer-closer.cjs:279://   - 'accept'|'defer'|'reject' -> recordSelectorDecision (a typed cascade edge;
+lib/workflow/offer-closer.cjs:288:// On accept with artifactContent, the wikilink footer is injected idempotently
+lib/workflow/offer-closer.cjs:328:  // --- accept / defer / reject: a typed decision edge.
+lib/workflow/offer-closer.cjs:366:  // accept of a truth-claim node needs a nodeId; the closer only forwards one
+lib/workflow/offer-closer.cjs:367:  // when the consumer supplies it (offer accept that promotes a node). For an
+lib/workflow/offer-closer.cjs:368:  // accept of an offered MOVE (the common case) there is no node to confirm, so
+lib/workflow/offer-closer.cjs:369:  // we route the accept as a 'defer'-shaped persistence ONLY when a nodeId is
+lib/workflow/offer-closer.cjs:370:  // present; otherwise the accept is recorded as the move being taken via the
+lib/workflow/offer-closer.cjs:373:  if (route === 'accept' && typeof o.nodeId === 'string' && o.nodeId.length > 0) {
+lib/workflow/offer-closer.cjs:378:  } else if (route === 'accept') {
+lib/workflow/offer-closer.cjs:379:    // No node to confirm: the accept of a next-move offer is the move being
+lib/workflow/offer-closer.cjs:380:    // taken. There is no DEFERRED/REJECTED backoff edge for an accept; the
+lib/workflow/offer-closer.cjs:381:    // decision-edge writer's accept branch requires a nodeId. Signal the
+lib/workflow/offer-closer.cjs:383:    // wikilinks; no recordSelectorDecision call is made for a node-less accept.
+lib/workflow/offer-closer.cjs:392:  // On a successful accept WITH a node, optionally inject wikilinks too.
+lib/workflow/offer-closer.cjs:393:  if (r && r.ok && route === 'accept'
+lib/workflow/reach-hedge-ranker.cjs:266:// convention (accept = low loss, reject = high loss for the ENDORSING expert),
+lib/workflow/reach-hedge-ranker.cjs:286:  if (decision !== 'accept' && decision !== 'reject') return null; // defer / none -> skip
+lib/workflow/reach-hedge-ranker.cjs:458:      // a genuine user accept/reject/defer decision (selector-decisions.cjs),
+lib/workflow/memory-cascade-f9-adapter.cjs:206:  if (u === 'APPROVE' || u === 'ACCEPT') return 'APPROVE';
+lib/workflow/f8-fanout-consumer.cjs:20: *   (a) OUTCOME CHANNEL: the decision keyword accept|defer|reject|Free-Text is what
+lib/workflow/f8-fanout-consumer.cjs:23: *       coerce every reject to accept downstream.
+lib/workflow/f8-fanout-consumer.cjs:53:const OUTCOMES = Object.freeze(['accept', 'defer', 'reject', 'Free-Text']);
+exit=0

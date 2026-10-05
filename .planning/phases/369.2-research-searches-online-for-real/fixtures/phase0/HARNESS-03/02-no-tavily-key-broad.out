@@ -1,0 +1,10 @@
+TAVILY_API_KEY set? false
+runSourceLens ok true reason 
+lens_set returned (the plan still advertises): [{"lens":"scholarly","weight":1},{"lens":"industry","weight":1},{"lens":"patent","weight":1}]
+sources actually asked: ["openalex","tavily","pubmed"]
+result keys ok,findings,lens_set,rotation_ok,research_mode,providers,stage_envelopes,recovery,outcome,disclosure
+provider status fields: [{"provider":"openalex","lens":"scholarly","status":"empty","reason":"live_fetch","counts":{"items":0},"freshness":"live"},{"provider":"tavily","lens":"industry","status":"error","reason":"fetch_failed","counts":{"items":0},"freshness":"unknown"},{"provider":"pubmed","lens":"patent","status":"empty","reason":"live_fetch","counts":{"items":0},"freshness":"live"}]
+findings 0
+direct tavily envelope no key: {"run_id":null,"stage":"retrieval","engine":"tavily","status":"blocked","failure_class":"missing_credential","retryable":false,"attempt":1,"input_fingerprint":"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881","output_fingerprint":null,"started_at":"2026-10-05T12:10:50.963Z","completed_at":"2026-10-05T12:10:50.963Z","provenance":[],"warnings":[],"payload":{},"error":"TAVILY_API_KEY
+netguard attempts 0
+exit=0

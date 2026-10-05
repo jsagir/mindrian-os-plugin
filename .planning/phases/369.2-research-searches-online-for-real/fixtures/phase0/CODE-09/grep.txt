@@ -1,0 +1,4 @@
+lib/core/research-planner/deep.cjs:643:    if (state.step !== 'dispatch_lanes' || state.expected.indexOf(lane) === -1) return refuse('wrong_step', { step: state.step });
+lib/core/research-planner/deep.cjs:576:      state.recorded[state.round + ':' + lane] = true;
+lib/core/research-planner/deep.cjs:673:    state.recorded[state.round + ':' + lane] = true;
+scripts/research-planner.cjs:472:    case 'deep-record': {

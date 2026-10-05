@@ -1,0 +1,8 @@
+raw confirmed nodes (all types): 2
+readVerificationPortrait: {"claims_total":0,"claims_unchecked":0,"claims_checked":0,"claims_disputed":0,"claims_inconclusive":0,"records_total":0,"records_by_result":{"supports":0,"contradicts":0,"inconclusive":0},"records_by_rung":{"1":0,"2":0,"3":0,"4":0,"5":0,"unknown":0}}
+readStandingPortrait: {"claims_by_standing":{"located_source":0,"source_edge":0,"model_only":0,"none":0},"held":0,"records_total":0}
+listClaimsForChecking: {"ok":true,"total_matched":0,"claims":[]}
+confirmed claims (type=claim): 0
+(node:2717628) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

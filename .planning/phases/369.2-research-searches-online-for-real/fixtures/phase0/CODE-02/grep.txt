@@ -1,0 +1,4 @@
+lib/lens-engine/source-lens-driver.cjs:80:  patent: 'pubmed',
+lib/lens-engine/source-lens-driver.cjs:493:    const source = LENS_TO_SOURCE[lens] || null;
+skills/research/SKILL.md:355:`scholarly`, `industry`, `patent`, all at equal weight 1.0:
+commands/research.md:361:`scholarly`, `industry`, `patent`, all at equal weight 1.0:

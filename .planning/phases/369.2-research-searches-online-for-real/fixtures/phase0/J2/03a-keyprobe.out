@@ -1,0 +1,12 @@
+variant a (cwd=/tmp): MINDRIAN_DISABLE_AUTO_REGISTER=1
+HOME=/tmp/phase0-home-vToD ~/.mindrian.env exists=false MINDRIAN_BRAIN_KEY set=false brainUrl=https://theo-mcp.onrender.com
+[mindrian-os] Brain key not loaded: MINDRIAN_BRAIN_KEY not set (env), and neither /tmp/phase0-home-vToD/.mindrian.env nor /tmp/.env nor /tmp/phase0-home-vToD/.mindrian-install.json contains a usable key
+getApiKey()=null
+isAvailable()=false
+(node:2742468) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+search("jobs to be done") RETURNED={"error":"egress_blocked","tool":"brain_search","egress_class":"freeform_unproven","reason":"Brain free-form channels accept closed-vocabulary methodology questions only (framework names, problem types, stages, command slugs); rephrase without room or venture details."} ms=57
+stats() RETURNED=null
+getAutoRegisterFailureReason()="auto-registration disabled (MINDRIAN_DISABLE_AUTO_REGISTER set)"
+install token file exists=false
+exit=0

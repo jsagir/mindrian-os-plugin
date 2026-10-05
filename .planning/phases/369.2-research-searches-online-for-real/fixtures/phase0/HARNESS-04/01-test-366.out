@@ -1,0 +1,11 @@
+(node:2736201) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: N1 the planted analogies pair is a candidate; the lexical eureka pair is filtered out
+PASS: N2 every candidate: relational signal, lexical at or below the ceiling, lane structural
+PASS: N3 STATEMENT_TEMPLATE is frozen with slots, a fill rule and a host_hint
+PASS: N4 leaves carry no SAPPhIRE content; slots are short terms; closed pair; set validates
+PASS: N5 known pair excluded, cap honored, deterministic
+PASS: N6 constants, registry interface, no network code, zero network attempts
+--- test-366-recall-analogies ---
+PASS: 6 FAIL: 0
+exit=0

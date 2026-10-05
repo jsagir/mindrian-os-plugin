@@ -1,0 +1,31 @@
+409:  'rooms-list', 'rooms-new', 'rooms-open', 'rooms-close', 'rooms-archive', 'rooms-where',
+426:// rooms-open is now implemented and executes (see its branch below). rooms-new,
+428:// scope -- rooms-new has its own separate open RCA with a different root cause
+429:// (.planning/debug/intern-w1-rooms-new-silent-fail.md), and implementing it
+431:// claim to have done something. They get an explicit NOT EXECUTED banner and a
+450:const UNIMPLEMENTED_MUTATING_ORCHESTRATION = new Set([
+451:  'rooms-new', 'rooms-close', 'rooms-archive',
+601:// Grouped orchestration sub-commands (rooms-new, scout-health, act-chain, ...)
+629:  // per-subcommand file (e.g. commands/rooms-new.md) wins automatically.
+1006:          const unimplementedMutation = UNIMPLEMENTED_MUTATING_ORCHESTRATION.has(command);
+1008:            parts.push(`\n> **NOT EXECUTED.** This returns the \`${command}\` instructions, not a completed operation. Nothing has changed yet. Follow the Reference steps below and verify the result before reporting success.`);
+1862:      // member of UNIMPLEMENTED_MUTATING_ORCHESTRATION below, never wired to
+1865:      description: 'Manage rooms (rooms-list, rooms-new, rooms-open, rooms-close, rooms-archive, rooms-where), run scout intelligence (scout, scout-health, scout-deadlines, scout-competitors, scout-hsi, scout-snapshot), and handle admin, onboarding, models and scheduled tasks. rooms-open genuinely switches the active room. scout and its variants only return the scout reference plus current room context, not gathered intelligence; run /mos:scout on the CLI for the real scan (a .snapshots/ state capture, a competitor report, the HSI pipeline). scout-hsi returns no computed result here: call research_run with op perspective_recall and perspective "hsi"; the full HSI pipeline is `/mos:scout hsi` in Claude Code. Treat act, act-chain and act-swarm differently: they execute multi-step work with little supervision, so prefer act-dry-run first and do not invoke them for a decision the user has not already framed.',
+1967:      if (command === 'rooms-open') {
+2020:      // Same RCA, structural half: rooms-new / rooms-close / rooms-archive are
+2025:      // These are deliberately not implemented here -- rooms-new has its own
+2027:      // (.planning/debug/intern-w1-rooms-new-silent-fail.md).
+2028:      const unimplementedMutation = UNIMPLEMENTED_MUTATING_ORCHESTRATION.has(command);
+2030:        parts.push(`\n> **NOT EXECUTED.** This returns the \`${command}\` instructions, not a completed operation. Nothing has changed yet. Follow the Reference steps below and verify the result before reporting success.`);
+2047:        // Covers rooms-new/rooms-close/rooms-archive AND (F-1) the whole
+      // open RCA with a different root cause
+      // (.planning/debug/intern-w1-rooms-new-silent-fail.md).
+      const unimplementedMutation = UNIMPLEMENTED_MUTATING_ORCHESTRATION.has(command);
+      if (unimplementedMutation) {
+        parts.push(`\n> **NOT EXECUTED.** This returns the \`${command}\` instructions, not a completed operation. Nothing has changed yet. Follow the Reference steps below and verify the result before reporting success.`);
+        // Phase 355 D-23 (HIPS-03): scout-hsi is the one command in this
+        // set that reads as compute-shaped (a scout intelligence command),
+15d65f470 fix(276-08): room_content honesty - WRITE-surface enumeration, NOT-EXECUTED banner
+cef8ba05a fix: rooms-open now actually switches the active room instead of faking success
+ls: cannot access 'commands/rooms-new.md': No such file or directory
+exit=2

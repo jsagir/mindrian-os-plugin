@@ -1,0 +1,10 @@
+lib/core/navigation/explanation.cjs:32:    case 'stale':
+lib/core/navigation/insights.cjs:379:    explanation: renderExplanation('stale', { decision: r.id, lastSeenAt: r.last_seen_at }),
+lib/core/navigation/insights.cjs:438:    explanation: renderExplanation('stale', { decision: r.id, lastSeenAt: r.last_modified_at }),
+lib/core/navigation/memory-artifacts.cjs:240:// The optional `freshness` field is a closed enum ('fresh' | 'stale') derived
+lib/core/navigation/memory-artifacts.cjs:256:  if (freshness === 'fresh' || freshness === 'stale') {
+lib/core/navigation/claim-counter-metric.cjs:69:  'orphan', 'orphaned', 'dangling', 'broken', 'corrupt', 'stale', 'unhealthy',
+lib/core/temporal/dual-stamp.test.cjs:50:    "    CHECK(review_status IN ('proposed','confirmed','rejected','stale','superseded','needs_evidence','validated','invalidated')), " +
+lib/core/temporal/recency-decay.test.cjs:83:    { id: 'stale', created_at: ref - 240 * HOUR_MS },
+lib/core/temporal/recency-decay.test.cjs:88:  assert.equal(ranked[1].id, 'stale', 'the staler node ranks last');
+exit=0

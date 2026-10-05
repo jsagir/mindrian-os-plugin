@@ -1,0 +1,4 @@
+lib/core/research-planner/families.cjs:76:const FAMILY_SLOTS = Object.freeze({
+lib/core/research-planner/families.cjs:78:  'concept-evidence/v1': Object.freeze({ order: ['term', 'term2'], required: ['term'] }),
+lib/core/research-planner/families.cjs:196:  'mu.verify': lens('concept-evidence/v1', ['ce.exact', 'ce.counter'], ['ce.counter']),
+lib/core/research-planner/families.cjs:314:function normalizeSlots(familyId, slots, strict) {

@@ -1,0 +1,5 @@
+mode=312; python3 -> /usr/bin/python3
+RETURNED_OBJECT={"ok":true,"room":"a","active":"a","previous":"b","status":"active","session_bound":true,"abs_path":"/tmp/phase0-home-ofHx/MindrianRooms/a"}
+keys=ok,room,active,previous,status,session_bound,abs_path
+stderr_present_in_payload=false
+exit=0

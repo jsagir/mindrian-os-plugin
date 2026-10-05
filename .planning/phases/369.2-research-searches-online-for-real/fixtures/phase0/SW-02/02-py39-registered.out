@@ -1,0 +1,17 @@
+HOME=/tmp/phase0-home-EboI
+Python 3.12.3
+Python 3.9.24
+--- set-active a under 3.9 (active is b)
+b
+Traceback (most recent call last):
+  File "<string>", line 34, in <module>
+AttributeError: module 'datetime' has no attribute 'UTC'
+exit=1
+--- get-active after
+b
+--- on-cwd-changed room a under 3.9
+exit=0
+--- registry diff before/after (empty = unchanged)
+UNCHANGED
+--- resolve-room --adopt, legacy room/ dir, 3.9
+exit=1

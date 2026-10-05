@@ -1,0 +1,6 @@
+lib/core/research-planner/filing.cjs:893:function rollUpInto(roomDir, section, run, byLeaf, miss) {
+lib/core/research-planner/filing.cjs:898:    return { ok: false, reason: 'no_reasoning_file', section: section, note: 'No REASONING.md exists for ' + section + ' yet, so nothing was rolled up. ' + MINTO_NOTE };
+lib/core/research-planner/filing.cjs:874:  report.partial = report.not_landed.length > 0;
+lib/core/reasoning-ops.cjs:624:  if (!content) return { error: `No reasoning for section: ${section}` };
+lib/core/reasoning-ops.cjs:646:  if (!content) return { error: `No reasoning for section: ${section}` };
+lib/core/reasoning-ops.cjs:667:  if (!content) return { error: `No reasoning for section: ${section}` };

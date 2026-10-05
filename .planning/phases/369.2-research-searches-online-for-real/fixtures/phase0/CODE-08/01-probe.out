@@ -1,0 +1,8 @@
+fk pragma {"foreign_keys":1}
+edges DDL CREATE TABLE edges ( source TEXT NOT NULL, target TEXT NOT NULL, type TEXT NOT NULL, properties TEXT DEFAULT '{}', review_status TEXT DEFAULT NULL, PRIMARY KEY (source, target, type) )
+A src-exists target-missing {"ok":true,"edge_id":"edge:INFORMS:1791202074880:9021b63b","type":"INFORMS","source":"claim:artifact:src1","target":"claim:artifact:nope","written":true}
+B src-missing target-exists {"ok":true,"edge_id":"edge:INFORMS:1791202074880:be7c9028","type":"INFORMS","source":"claim:artifact:ghost","target":"claim:artifact:src1","written":true}
+C legacy-FK-db target-missing {"ok":false,"reason":"edge_write_failed","detail":"FOREIGN KEY constraint failed"}
+D legacy-FK-db source-missing {"ok":false,"reason":"edge_write_failed","detail":"FOREIGN KEY constraint failed"}
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

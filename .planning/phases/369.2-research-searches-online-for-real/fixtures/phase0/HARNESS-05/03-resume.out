@@ -1,0 +1,7 @@
+scripts/skillopt-funnel.cjs:180:    '--no-session-persistence',               // hermetic; never --continue/--resume
+scripts/huji-run-one.cjs:39: *     every gate passes AND feedback.md is non-empty. NEVER --continue/--resume
+scripts/huji-run-one.cjs:634:  // Isolation: never --continue/--resume across submissions.
+scripts/huji-run-one.cjs:635:  assert.ok(!aArgs.includes('--continue') && !aArgs.includes('--resume'), 'Stage A must not --continue/--resume');
+scripts/huji-run-one.cjs:636:  assert.ok(!bArgs.includes('--continue') && !bArgs.includes('--resume'), 'Stage B must not --continue/--resume');
+scripts/skillopt-genqueries.cjs:150:    '--no-session-persistence',               // hermetic; never --continue/--resume
+exit=0

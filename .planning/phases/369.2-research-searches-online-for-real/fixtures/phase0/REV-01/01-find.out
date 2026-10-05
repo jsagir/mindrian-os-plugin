@@ -1,0 +1,15 @@
+== 32664e65 under ~/MindrianRooms (file names)
+== 32664e65 under ~/.mindrian (file names)
+== 3f4b1d0a under ~/MindrianRooms (file names)
+== 3f4b1d0a under ~/.mindrian (file names)
+== research-runs dirs anywhere under MindrianRooms
+/home/jsagi/MindrianRooms/egain-des-liquid-conductor/.mindrian/research-runs
+== content grep for ids (files list, -l, no content printed)
+== ids in the repo planning tree (-l)
+/home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/369.2-INPUT.md
+/home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/369.2-ENGINEERING-BRIEF.md
+/home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/REV-01/commands.sh
+/home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/REV-01/01-find.out
+/home/jsagi/dev/MindrianOS-Plugin/.planning/seeds/SEED-118-lawrence-session-2026-10-04-twelve-defects.md
+/home/jsagi/dev/MindrianOS-Plugin/.planning/seeds/SEED-116-larry-session-quality-decay.md
+exit=0

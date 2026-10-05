@@ -1,0 +1,6 @@
+step dispatch_lanes lanes [ 'LM2', 'LM3', 'LM1', 'LM4' ]
+fetched record title as stored: "Capacity bound holds when ratio R &lt; 0.3 in the host"
+attempt 1 (literal <): {"ok":true,"lane":"LM2","round":1,"kept":0,"dropped":{"missing_field":0,"forbidden_key":0,"unknown_record":0,"unverified_quote":1,"hash_mismatch":0,"bad_label":0,"retracted_support":0},"searched_not_found":true,"all_recorded":false,"next_step":"dispatch_lanes"}
+attempt 2 (corrected, same lane): {"ok":false,"reason":"already_recorded"}
+netguard 0
+exit=0

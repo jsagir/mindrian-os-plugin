@@ -1,0 +1,5 @@
+mode=nopy; python3 -> none
+RETURNED_OBJECT={"ok":false,"reason":"set_active_failed","room":"a","previous":"b"}
+keys=ok,reason,room,previous
+stderr_present_in_payload=false
+exit=0

@@ -1,0 +1,60 @@
+82:function iso(ms) { return new Date(ms).toISOString(); }
+83:function clockOf(opts) { return opts && Number.isFinite(opts.now) ? opts.now : Date.now(); }
+84:function ensureDir(roomDir) { fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true }); }
+86:function atomicWriteJson(file, data) {
+92:function quarantine(file, nowMs) {
+99:function roomIdFor(roomDir) {
+104:function hasFilingKey(obj, depth) {
+111:function normTerm(t) { return String(t).trim().toLowerCase(); }
+117:function termsComposable(terms) {
+127:function templateIdsOf(familyId) {
+134:function grantsPath(roomDir) { return path.join(roomDir, GRANTS_RELPATH); }
+139:function readGrants(roomDir, opts) {
+152:function saveGrants(roomDir, grants) {
+157:function isApprovedVia(v) {
+162:function termEntry(t, atIso, via) {
+169:function writeGrant(roomDir, grant, opts) {
+243:function revokeGrant(roomDir, grantId, opts) {
+258:function extendTerms(roomDir, grantId, terms, approvedVia, opts) {
+304:function findActiveGrant(roomDir, opts) {
+322:function planFamilies(plan) {
+337:function buildStandingProposal(roomDir, opts) {
+362:function scopeGain(grant, proposal, terms) {
+396:function theoPairQ(term, term2) { return String(term) + '|' + String(term2); }
+397:function theoPairHash(term, term2) { return qHash(theoPairQ(term, term2)); }
+401:function theoLeafSlots(leaf) {
+415:function buildRunGrant(plan) {
+472:function validateExecutedQuery(query, grant, state) {
+520:function validateTheoCall(call, grant, state) {
+547:function theoGrantCard(p, opts) {
+597:function grantCard(proposal, opts) {
+
+11: * room, mints approval gates, and shapes answers.
+151:// approval gates (Canon Part 3: the one governed gate path)
+174:  // here and cannot be known earlier: approval_failed, when spec.resolve throws.
+189:      return refuse('approval_failed', { executed: false });
+433:    + '/ so a Claude Code session can run it with the /mos:research command. An approval here lasts about '
+485:  base.next_step = 'Show the plan card. When the navigator answers, call gate_answer with this gate_id. Approving saves the approval; nothing is fetched here.';
+742:      if (c.kind === 'plan_card_no_grant' && isObj(payload.never_do_proposal)) {
+827:          case 'grant_request': out = await opGrantRequest(env); break;
+830:          case 'run_quick': out = await opRunQuick(env); break;
+832:          case 'basket': out = await opBasket(env); break;
+833:          case 'file': out = opFile(env); break;
+880:    layer_why: 'Mints gate_render payloads through gate-ledger material_step gates and persists grants on approval; a gate-ledger tool, the rubric\'s own step 3 signa
+78:const FILING_KEY_RE = /^(file|filing|file_on_approve|files|file_on_grant)$/i;
+173:  if (hasFilingKey(grant)) return { ok: false, reason: 'grant_never_authorizes_filing' };
+571:function opFile(env) {
+572-  const gateId = env.input.gate_id;
+573-  if (typeof gateId !== 'string' || gateId.length === 0) return refuse('gate_id_required', { message: 'Filing needs the basket gate id, answered through gate_answer.'
+574-  pruneApprovals();
+575-  const rec = _approvedBaskets.get(gateId);
+576-  if (!rec) return refuse('no_approved_basket', { message: 'No approved basket for that gate id. Ask for a basket, answer it through gate_answer, then file.' });
+577-  if (rec.sessionKey !== ledgerKeyFor(env)) return refuse('session_mismatch');
+578-  if (rec.roomDir !== env.dir) return refuse('room_mismatch');
+579-  _approvedBaskets.delete(gateId); // single use, whatever filing answers
+580-  const res = planner.fileFromState(env.dir, rec.runId, { approved: true, items: rec.items }, { approvedVia: APPROVED_VIA });
+581-  return Object.assign({ op: 'file', run_id: rec.runId }, res, { ok: res && res.ok === true });
+582-}
+583-
+584-const GENERIC_NAMES = Object.freeze({ recall: 'perspective_recall', judge: 'perspective_judge' });
+585-const EUREKA_NAMES = Object.freeze({ recall: 'eureka_recall', judge: 'eureka_judge' });

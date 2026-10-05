@@ -1,0 +1,47 @@
+baseline hits in research-planner lib: 2
+lib/core/research-planner/sr-door.cjs:483:    question: nonEmpty(goal.target) ? 'What baseline figures are reported for ' + cap(goal.target) + (nonEmpty(goal.unit) ? ' in ' + cap(goal.unit) : '') + '?
+lib/core/research-planner/sr-entry.cjs:89:    why: 'A quantified goal with a baseline, unit, target and horizon is already on file, so the quantifying step is satisfied.',
+landscape|field.scan|state.of.the.art in research-planner + SR: 2
+lib/core/research-planner/perspective.cjs:49:  UnDefined: frozen(['Landscape', 'Vision']),
+lib/core/research-planner/perspective.cjs:52:  Wicked: frozen(['Landscape']),
+lib/core/research-planner/deep.cjs:215:    const ranking = perspectiveMod.rankByUnlock(plan.perspective, {});
+lib/core/research-planner/deep.cjs:908:    perspectiveMod.rankByUnlock(plan.perspective, {}).forEach(function (r) {
+lib/core/research-planner/deep.cjs:1239:  updated.ranking = perspectiveMod.rankByUnlock(updated, { supportByLimiter: support }).map(function (r) { return r.limiter_id; });
+lib/core/research-planner/perspective.cjs:126:// ------------------------------------------------------------- rankByUnlock
+lib/core/research-planner/perspective.cjs:136:function rankByUnlock(perspective, opts) {
+lib/core/research-planner/perspective.cjs:160:  const ranking = stored.length > 0 ? stored : planMod.rankingIds({ ranking: rankByUnlock(p, {}) });
+lib/core/research-planner/perspective.cjs:489:  perspective.ranking = rankByUnlock(perspective, { supportByLimiter: isObj(o.supportByLimiter) ? o.supportByLimiter : {} });
+lib/core/research-planner/perspective.cjs:505:  rankByUnlock: rankByUnlock,
+lib/core/research-planner/plan.cjs:589:// rank} objects from rankByUnlock() at build time, and plain id strings after a
+lib/core/research-planner/sr-door.cjs:607:  persp.rankByUnlock(pb.perspective, {}).forEach(function (r) {
+#!/usr/bin/env node
+'use strict';
+
+// Phase 363 (Deep Research Planner) Plan 01 Task 1 - pre-phase baseline test.
+//
+// Proves that tests/fixtures/363-pre-phase.json faithfully pins the state of
+// this repo the instant before any Phase 363 edit landed: the base commit,
+// the registry digests, the full-text, body and frontmatter-key fingerprints
+// of the eight command files 363 touches or must leave alone, the exact
+// anchor paragraphs later plans amend (research.md auto-dispatch rule, the
+// whitespace routing table, the scout / scheduled-tasks zero-egress
+// sentences), the count of commands carrying the quick-pass ask line, and
+// the dependency sets (D-01, DRP363-18).
+//
+// This test NEVER reads the working-tree copy of a command file: later 363
+// plans legitimately edit them. Every value is recomputed from
+// `git show <base_sha>:<path>` and compared with the fixture.
+//
+// The extraction helpers are exported so later test-363-*.cjs files reuse
+// the exact same slice rules instead of re-deriving them.
+//
+// exit 0  -> PASSED (all seven legs)
+// exit 1  -> FAILED
+// exit 77 -> SKIPPED (ENV GAP: git unavailable)
+//
+// House rule: hyphens only; the two dash characters appear below only as
+// JavaScript unicode escapes.
+
+const { scrubVendorKey, installNetGuard } = require('./helpers/hygiene-355.cjs');
+scrubVendorKey();
+exit=0

@@ -1,0 +1,6 @@
+verbatim quote                     kept 1 {}
+whitespace variant                 kept 1 {}
+paraphrase (not in text)           kept 0 {"unverified_quote":1}
+unknown record id                  kept 0 {"unknown_record":1}
+netguard 0
+exit=0

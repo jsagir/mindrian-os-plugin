@@ -1,0 +1,41 @@
+lib/core/expert-genesis.cjs:25: *   - lib/core/futures/orchestrator.cjs::resolveFanoutCap the [1, FUTURES_FANOUT_CAP]
+lib/core/expert-genesis.cjs:42:const { resolveFanoutCap } = require('./futures/orchestrator.cjs');
+lib/core/expert-genesis.cjs:74: * framework) so that when resolveFanoutCap clamps the grid to the cost cap, the
+lib/core/expert-genesis.cjs:76: * gate keys on). The grid length is passed through resolveFanoutCap so it can
+lib/core/expert-genesis.cjs:97:  // A grid of length 0 stays empty; resolveFanoutCap floors at 1 for a non-empty
+lib/core/expert-genesis.cjs:100:  const cap = resolveFanoutCap({ fanout: grid.length });
+lib/core/expert-genesis.cjs:285: * runCellFanout (cost-governed by planDispatch, clamped by resolveFanoutCap),
+lib/core/expert-genesis.cjs:355:  //    planDispatch when roomDir is present, clamped by resolveFanoutCap). We pass
+lib/core/futures/orchestrator.cjs:76:function resolveFanoutCap(opts) {
+lib/core/futures/orchestrator.cjs:210:  const fanout = resolveFanoutCap({ fanout: opts.fanout });
+lib/core/futures/orchestrator.cjs:1357:  resolveFanoutCap,
+lib/core/bono/cell-fanout.cjs:19: *     lib/core/futures/orchestrator.cjs (resolveFanoutCap).
+lib/core/bono/cell-fanout.cjs:37:const { resolveFanoutCap, FUTURES_FANOUT_CAP } = require('../futures/orchestrator.cjs');
+lib/core/bono/cell-fanout.cjs:50:// idiom. resolveFanoutCap clamps a navigator override to [1, FUTURES_FANOUT_CAP];
+lib/core/bono/cell-fanout.cjs:166: * cap (the FUTURES_FANOUT_CAP clamp idiom via resolveFanoutCap), plans the
+lib/core/bono/cell-fanout.cjs:209:  // CLAMP the grid length to the cost-governor cap. resolveFanoutCap mirrors the
+lib/core/bono/cell-fanout.cjs:213:  const cap = resolveFanoutCap({ fanout: requestedCap });
+lib/core/research-planner/CONTEXT.md:54:| `lib/core/futures/orchestrator.cjs` `resolveFanoutCap` | the clamp on requested lanes at run time |
+lib/core/research-planner/plan.cjs:40:// resolveFanoutCap; this file only documents the clamp, the run modules call it.
+lib/core/research-planner/deep.cjs:206:  return orchestrator.resolveFanoutCap({ fanout: plan.budget.breadth });
+lib/core/eureka/grade-grant-examine.cjs:38: * resolveFanoutCap HARD-CLAMPS any requested cap to that ceiling -- it is a ceiling, not a
+lib/core/eureka/explore-chain.cjs:74:// idiom (the navigator-confirmed final design). resolveFanoutCap is the SAME
+lib/core/eureka/explore-chain.cjs:77:const { resolveFanoutCap } = require('../futures/orchestrator.cjs');
+lib/core/eureka/explore-chain.cjs:360:// resolveFanoutCap clamps N even though N is at most 3 here -- the SAME
+lib/core/eureka/explore-chain.cjs:368:  const cap = resolveFanoutCap({ fanout: fanSteps.length });
+lib/core/chain-executor.cjs:319:// dispatch loop, its own cap authority beside resolveFanoutCap and the
+lib/core/chain-executor.cjs:360:// the engine's own resolveFanoutCap is the one cap authority.
+lib/core/trending-to-absurd/orchestrator.cjs:58:  resolveFanoutCap,
+lib/core/trending-to-absurd/orchestrator.cjs:325:  resolveFanoutCap,
+commands/act.md:454:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); clamp N to 20 even though `plan.agents` already
+commands/deep-grade.md:103:file should adopt that same two-batch idiom rather than asking `resolveFanoutCap` to raise the
+commands/deep-grade.md:134:(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); four agents is well under that ceiling, but name it here
+commands/find-analogies.md:212:Clamp the fan through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap`
+commands/find-analogies.md:222:subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); a handful of query agents stays well
+commands/persona.md:156:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); 6 is already well under the cap, but clamp to 20
+commands/grade.md:136:   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); at most 8 is already well under the cap, but
+commands/research.md:492:**No agent is dispatched before the navigator approves the deep research run.** That is already true here: the approval and the fetch are done. Say the status block `[RESEARCH] Dispatching N lane analysts` (N is the lane count `deep-next` returned, which the run already clamped with `resolveFanoutCap`), then in the same turn call the Agent tool once per lane, all together, each with `subagent_type: research-lane-analyst`. Each prompt carries only four things from that lane's payload: the records file path (under the room's `.mindrian/research-runs/<run_id>/lanes/`), each leaf's id and leaf question, its falsifier, and the lane id. Nothing else from the room goes into a prompt. If the Agent tool rejects the bare agent name, retry with the scoped name its error lists. Each analyst returns a JSON list of rows. Write each list to a scratch file and record it:
+commands/trending-to-absurd.md:91:20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) even though N is fixed at 4 here by the lens set.
+commands/scout.md:201:(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); N is at most 5, well under the cap, but clamp to 20 as
+commands/vault.md:213:through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap` (`FUTURES_FANOUT_CAP`, default
+exit=0

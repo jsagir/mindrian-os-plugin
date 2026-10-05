@@ -1,0 +1,5 @@
+lib/core/research-planner/deep.cjs:920:  const remaining = Math.max(0, capNow(state, state.max_searches_base) - state.searches_used);
+lib/core/research-planner/deep.cjs:922:    fresh.slice(remaining).forEach(function (q) { gaps.push({ branch: q.note, reason: 'over_cap' }); });
+lib/core/research-planner/deep.cjs:1162:    state.ce.run = executed > 0 || queries.length === 0;
+lib/core/research-planner/deep.cjs:1305:    counterevidence: { ran: !!state.ce.run, skipped: !!state.ce.skipped, skipped_reason: state.ce.skipped_reason, partial: !!state.ce.partial, queries: state.ce.queries.map(function (q) { return { template_id: q.template_id, q_hash: q.q_hash, leaf_ids: q.leaf_ids }; }), gaps: clone(state.ce.gaps) },
+lib/core/research-planner/deep.cjs:1251:  const ceNotRun = !state.ce.run;

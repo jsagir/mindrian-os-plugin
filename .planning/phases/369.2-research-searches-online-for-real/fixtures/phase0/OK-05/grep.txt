@@ -1,0 +1,2 @@
+lib/core/research-planner/evidence-rows.cjs:219:    const q = normalizeText(raw.quote);
+lib/core/research-planner/evidence-rows.cjs:221:      dropped.unverified_quote += 1;

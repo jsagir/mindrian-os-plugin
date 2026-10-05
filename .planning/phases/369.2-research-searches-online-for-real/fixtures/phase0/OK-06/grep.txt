@@ -1,0 +1,3 @@
+lib/core/research-planner/filing.cjs:897:    miss('roll-up', 'no_reasoning_file');
+lib/core/research-planner/filing.cjs:874:  report.partial = report.not_landed.length > 0;
+lib/core/research-planner/filing.cjs:526:    not_landed: [],

@@ -1,0 +1,4 @@
+lib/core/research-planner/planner.cjs:192:  if (plan.mode === 'quick') {
+lib/core/research-planner/planner.cjs:494:  if (plan.mode === 'quick') {
+lib/core/research-planner/planner.cjs:201:        if (count < BUDGETS.QUICK_MAX_QUERIES) { seen[q.q_hash] = true; count += 1; kept.push(q); return; }
+lib/core/research-planner/plan.cjs:42:const QUICK_MAX_QUERIES = 3;

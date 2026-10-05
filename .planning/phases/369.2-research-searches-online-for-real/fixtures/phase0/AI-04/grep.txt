@@ -1,0 +1,1 @@
+AI-04 | report schema|study.ready|original question.*scope|recommended next tests|unresolved gaps | surfaces:0 | lib+scripts(non-test):0 | tests:1

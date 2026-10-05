@@ -1,0 +1,11 @@
+AI-01 | first use|define.*(term|acronym)|acronym|pronoun|antecedent|glossary|referent | surfaces:0 | lib+scripts(non-test):69 | tests:11
+AI-02 | room.scoped (instruction|rule)|writing correction|correction.*rule|clarity validator|style_rule|durable rule | surfaces:0 | lib+scripts(non-test):1 | tests:1
+AI-03 | observer mode|observer_mode|execution facts|current method step | surfaces:0 | lib+scripts(non-test):0 | tests:0
+AI-04 | report schema|study.ready|original question.*scope|recommended next tests|unresolved gaps | surfaces:0 | lib+scripts(non-test):0 | tests:1
+AI-05 | names the active room|active room.*(artifacts|claims) used|name the (active )?room | surfaces:0 | lib+scripts(non-test):2 | tests:2
+AI-06 | evidence_status|pre-research|pre_research | surfaces:0 | lib+scripts(non-test):0 | tests:0
+AI-07 | method_output|source_verified_fact|derived_claim|testable_hypothesis | surfaces:0 | lib+scripts(non-test):0 | tests:0
+AI-08 | coverage checklist|deployed current practice|leading counterexample|landscape incomplete | surfaces:0 | lib+scripts(non-test):0 | tests:0
+AI-09 | comparability|unlike quantit|quantity type|ratio-like | surfaces:0 | lib+scripts(non-test):1 | tests:0
+AI-10 | supported_by_reported_figure|observed_in_session|bound to .*claim state|reserve.*confirmed | surfaces:0 | lib+scripts(non-test):0 | tests:1
+exit=0

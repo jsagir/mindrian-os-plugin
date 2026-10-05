@@ -1,0 +1,18 @@
+build ok true  []
+leaf slots echoed in plan: [{"id":"L1","lens":"mu.verify","slots":{"term":"ALPHAMARK_mu_verify_term"},"nq":0},{"id":"L6","lens":"ci.derivation","slots":{},"nq":0},{"id":"L9","lens":"ci.retest","slots":{"limiter":"LIMMARK anode interface resistance"},"nq":2}]
+round-one queries (8):
+  {"lane":"LM2","tpl":"ci.derivation","q":"\"LIMMARK anode interface resistance\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)","leaf_ids":["L9"]}
+  {"lane":"LM2","tpl":"ci.retest","q":"\"LIMMARK anode interface resistance\" AND (overcome OR circumvent OR \"new approach\")","leaf_ids":["L9"]}
+  {"lane":"LM3","tpl":"ci.derivation","q":"\"host volume swing\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)","leaf_ids":["L10"]}
+  {"lane":"LM3","tpl":"ci.retest","q":"\"host volume swing\" AND (overcome OR circumvent OR \"new approach\")","leaf_ids":["L10"]}
+  {"lane":"LM1","tpl":"ci.derivation","q":"\"cathode host capacity\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)","leaf_ids":["L7","L8"]}
+  {"lane":"LM1","tpl":"ci.retest","q":"\"cathode host capacity\" AND (overcome OR circumvent OR \"new approach\")","leaf_ids":["L7","L8"]}
+  {"lane":"LM4","tpl":"ci.derivation","q":"\"electrolyte cost floor\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)","leaf_ids":["L11"]}
+  {"lane":"LM4","tpl":"ci.retest","q":"\"electrolyte cost floor\" AND (overcome OR circumvent OR \"new approach\")","leaf_ids":["L11"]}
+ALPHAMARK appears in dispatched queries: false
+BETAMARK appears in dispatched queries: false
+LIMMARK appears in dispatched queries: true
+plan.leaves with queries attached: [{"id":"L7","nq":2},{"id":"L9","nq":2},{"id":"L10","nq":2},{"id":"L11","nq":2}]
+lens of leaves in lanes: [{"lane":"LM2","leaf_ids":["L9"]},{"lane":"LM3","leaf_ids":["L10"]},{"lane":"LM1","leaf_ids":["L7","L8"]},{"lane":"LM4","leaf_ids":["L11"]}]
+netguard attempts 0
+exit=0

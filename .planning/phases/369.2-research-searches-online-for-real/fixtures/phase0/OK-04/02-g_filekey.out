@@ -1,0 +1,18 @@
+78:const FILING_KEY_RE = /^(file|filing|file_on_approve|files|file_on_grant)$/i;
+173:  if (hasFilingKey(grant)) return { ok: false, reason: 'grant_never_authorizes_filing' };
+571:function opFile(env) {
+572-  const gateId = env.input.gate_id;
+573-  if (typeof gateId !== 'string' || gateId.length === 0) return refuse('gate_id_required', { message: 'Filing needs the basket gate id, answered through gate_answer.'
+574-  pruneApprovals();
+575-  const rec = _approvedBaskets.get(gateId);
+576-  if (!rec) return refuse('no_approved_basket', { message: 'No approved basket for that gate id. Ask for a basket, answer it through gate_answer, then file.' });
+577-  if (rec.sessionKey !== ledgerKeyFor(env)) return refuse('session_mismatch');
+578-  if (rec.roomDir !== env.dir) return refuse('room_mismatch');
+579-  _approvedBaskets.delete(gateId); // single use, whatever filing answers
+580-  const res = planner.fileFromState(env.dir, rec.runId, { approved: true, items: rec.items }, { approvedVia: APPROVED_VIA });
+581-  return Object.assign({ op: 'file', run_id: rec.runId }, res, { ok: res && res.ok === true });
+582-}
+583-
+584-const GENERIC_NAMES = Object.freeze({ recall: 'perspective_recall', judge: 'perspective_judge' });
+585-const EUREKA_NAMES = Object.freeze({ recall: 'eureka_recall', judge: 'eureka_judge' });
+exit=0

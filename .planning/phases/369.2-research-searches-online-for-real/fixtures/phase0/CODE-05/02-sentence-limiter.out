@@ -1,0 +1,9 @@
+sentence length 132
+[
+ [
+  "\"Thin wires cannot be reliably detected by the autonomous terminal guidance stack because contrast falls below sensor noise at range?\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)",
+  "\"Thin wires cannot be reliably detected by the autonomous terminal guidance stack because contrast falls below sensor noise at range?\" AND (overcome OR circumvent OR \"new approach\")"
+ ]
+]
+netguard attempts 0
+exit=0

@@ -1,0 +1,8 @@
+lib/mcp/tools/status.cjs:10://   - context_pct/context_source: reuses the SHIPPED lib/statusline/
+lib/mcp/tools/status.cjs:122:    context_pct: ctx.pct,
+lib/mcp/tools/status.cjs:137:          .describe("Optional native Claude Code statusline stdin context_window object, forwarded through to the SAME resolveCtxPct resolver the CLI statusline uses. Absent -> context_pct is null."),
+scripts/sessionstart-coordinator.cjs:203:    if (seg && seg.context_pct !== null && seg.context_pct !== undefined) {
+scripts/sessionstart-coordinator.cjs:204:      parts.push('Context: ' + seg.context_pct + '%');
+scripts/statusline-mos-dispatch:88:        if (seg.context_pct !== null && seg.context_pct !== undefined) {
+scripts/statusline-mos-dispatch:89:          parts.push('ctx:' + seg.context_pct + '%');
+exit=0

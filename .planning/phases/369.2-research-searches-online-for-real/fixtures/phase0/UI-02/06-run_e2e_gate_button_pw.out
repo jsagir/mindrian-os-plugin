@@ -1,0 +1,24 @@
+(node:2731532) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Phase 369-27 gate button, real browser
+  PASS 1 the recommendation is checked and the action is enabled; the evidence opens inline; no recommendation: nothing checked, the action is disabled (1501 ms)
+  PASS 2 Enter inside the option group does not answer (598 ms)
+  PASS 3 Approve shows Saving, then the recorded state with the rust square; the decision appears in Decisions (1943 ms)
+  PASS 4 Reject and Decide later show "Your answer is recorded." with no rust square (864 ms)
+  PASS 5 replayed: re-opening an answered gate id says it was already recorded (147 ms)
+  PASS 6 lost in transit: the response is dropped after the room saved it; the view checks by gate id, then shows the recorded state (2178 ms)
+  PASS 7 stale_subject: the claim changed after the card opened; the stale copy shows and nothing is saved (519 ms)
+  PASS 8 room_switched: the browser left the room after the decision opened; the room copy shows and nothing is saved (618 ms)
+  PASS 9 gate_expired through the test marker: "This decision is no longer open." and nothing is saved (369 ms)
+  PASS 10 a second signed-in session reads the first session's gate as raised elsewhere and is offered its options; after one session answers, the other reads "already recorded"; the stubbed session_mismatch copy renders (4310 ms)
+  PASS 11 human_only: an approve with a stale render nonce shows the human-only copy after the one automatic re-read; nothing is saved (895 ms)
+  PASS 12 persistence failure: the InlineError sits above the still-enabled actions; the next answer is recorded (773 ms)
+  PASS 13 the session indicator shows the risk tier while an answer is being checked (4459 ms)
+  PASS 14 a gate raised in Claude Code (the CLI process) shows live in Work and in Decisions with the raised wording; it opens with its provenance; Approve records it and Work made no readGate call (4711 ms)
+  PASS 15 replay_lookup_failed keeps the gate: "The room could not be checked just now." with Check again, never "no longer open"; a verdict mismatch keeps the options with its own refusal (959 ms)
+  PASS 16 answered elsewhere: a second browser context answers the gate first; the first session's click reads "This decision was already recorded." and writes nothing new (3484 ms)
+  PASS 17 radius 0 except the circle mark, one H1, one primary action, one ochre triangle (615 ms)
+  PASS 18 egress: only 127.0.0.1, no iframe, no unexpected console or page error, no CSP violation (14 ms)
+
+PASS: all 18 arms
+exit=0

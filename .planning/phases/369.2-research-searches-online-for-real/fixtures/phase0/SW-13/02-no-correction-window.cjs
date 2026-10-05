@@ -1,0 +1,24 @@
+const P=require('../_partialB-prelude.cjs');
+const {deep,grants,planner,corpus,replay}=P;
+(async()=>{
+const room=P.buildRoom363({role:'researcher'});
+const plan=planner.buildPlan(room.roomDir,P.qs('scientific-roadmapping'),{mode:'deep',now:new Date('2026-10-04T00:00:00Z')}).plan;
+const grant=grants.writeGrant(room.roomDir,grants.buildRunGrant(plan),{approved_via:P.VIA}).grant;
+const bodies=JSON.parse(JSON.stringify(P.BODIES));
+bodies.derivation_hit.results[0].title='Capacity bound holds when ratio R &lt; 0.3 in the host';
+const route=q=>/fundamental limit/.test(String(q))?'derivation_hit':'gap_primary_zero';
+const rp=replay.makeReplayFetch({route,bodies});
+const seam=async a=>{const prev=globalThis.fetch;globalThis.fetch=rp;try{return await corpus.fetchCorpusEnvelope(a)}finally{globalThis.fetch=prev}};
+deep.initDeepState(room.roomDir,plan,grant,{});const id=plan.run_id;
+await deep.fetchRound(room.roomDir,id,{fetchEnvelopeFn:seam});
+const n=deep.nextDeepStep(room.roomDir,id);console.log('step',n.step,'lanes',n.payload.lanes&&n.payload.lanes.map(l=>l.lane));
+const lane=n.payload.lanes[0];
+const recs=JSON.parse(P.fs.readFileSync(P.path.join(room.roomDir,lane.records_path),'utf8')).records;
+const r=recs.filter(x=>/&lt;/.test(JSON.stringify(x)))[0];
+console.log('fetched record title as stored:',JSON.stringify((r.title||r.display_name)));
+const row=q=>({leaf_id:lane.leaves[0].leaf_id,record_id:r.id,claim:'bound holds',quote:q,label:'derivation'});
+const a=deep.recordLaneRows(room.roomDir,id,lane.lane,[row('ratio R < 0.3 in the host')]);
+console.log('attempt 1 (literal <):',JSON.stringify(a));
+const b=deep.recordLaneRows(room.roomDir,id,lane.lane,[row('ratio R &lt; 0.3 in the host')]);
+console.log('attempt 2 (corrected, same lane):',JSON.stringify(b));
+console.log('netguard',P.guard.attempts());room.cleanup();})();

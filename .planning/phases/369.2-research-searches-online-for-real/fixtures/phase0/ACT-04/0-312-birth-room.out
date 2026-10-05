@@ -1,0 +1,10 @@
+py=312
+[room-birth] BRAIN derivation enqueued for room: r4
+PATH=birth-room RETURNED={"ok":true,"roomDir":"/tmp/phase0-home-THze/MindrianRooms/r4","slug":"r4","db_created":true}
+exists $HOME/r4/.mindrian/room.db = true
+exists $HOME/r4/room.db = false
+GOVERNED_WRITE={"ok":true,"eventId":"memory_event:node_created:1791202124941:9c0e168c"}
+find .mindrian: ["room-map.json","room.db"]
+(node:2711385) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

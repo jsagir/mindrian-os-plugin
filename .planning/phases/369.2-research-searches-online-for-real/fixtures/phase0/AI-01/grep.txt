@@ -1,0 +1,1 @@
+AI-01 | first use|define.*(term|acronym)|acronym|pronoun|antecedent|glossary|referent | surfaces:0 | lib+scripts(non-test):69 | tests:11

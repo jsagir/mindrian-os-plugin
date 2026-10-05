@@ -1,0 +1,1 @@
+AI-05 | names the active room|active room.*(artifacts|claims) used|name the (active )?room | surfaces:0 | lib+scripts(non-test):2 | tests:2

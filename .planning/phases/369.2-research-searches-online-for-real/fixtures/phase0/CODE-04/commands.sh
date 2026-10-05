@@ -1,0 +1,1 @@
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/CODE-04 && node 01-sr-slots.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed

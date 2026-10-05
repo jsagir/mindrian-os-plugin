@@ -1,0 +1,25 @@
+409:  'rooms-list', 'rooms-new', 'rooms-open', 'rooms-close', 'rooms-archive', 'rooms-where',
+1961:      // openRoom() is the Canon Part 7 chokepoint that wraps the one
+1967:      if (command === 'rooms-open') {
+1968:        const { openRoom } = require('../core/room-open.cjs');
+1969:        const result = openRoom({
+25: * .cjs code anywhere called `room-registry set-active`. The entire MCP surface
+31: * set-active. It returns ok:true only after reading `get-active` BACK off disk
+40: * in Node would create a second writer AND silently skip set-active's own side
+64:const REGISTRY_SCRIPT = path.join(__dirname, '..', '..', 'scripts', 'room-registry');
+199:  const wrote = runRegistry(['set-active', room], roomsHome);
+307:bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" set-active <name>
+413:      'To authorize, run: /mos:rooms switch ' + targetRoom,
+439:        'To authorize, run: /mos:rooms switch ' + targetRoom + ' (or re-bind this session to include it).',
+450:      'To authorize, run: /mos:rooms switch ' + targetRoom + '\n' +
+389:now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+614:now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+hooks/hooks.json:229:            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" write-scope-check",
+tests/part8-egress-guard-hook.test.cjs
+tests/test-225-answer-narrowing.cjs
+tests/test-237-executable-seam.cjs
+tests/test-room-bind-stdio-session-fallback.cjs
+tests/test-rooms-open-actually-switches.cjs
+tests/test-run-hook-cmd.cjs
+tests/test-write-scope-set-membership.test.cjs
+tests/test-write-scope-sub-room-ancestor.cjs

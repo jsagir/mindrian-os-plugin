@@ -1,0 +1,2 @@
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/CODE-05 && node 01-limiter-fallback.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/CODE-05 && node 02-sentence-limiter.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed

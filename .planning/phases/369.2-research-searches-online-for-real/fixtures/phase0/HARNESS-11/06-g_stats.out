@@ -1,0 +1,9 @@
+lib/core/lazygraph-ops.cjs:44://                                human-confirmed truth-claim and decision nodes,
+lib/core/lazygraph-ops.cjs:983:  const nodeRows = conn.prepare('SELECT type, COUNT(*) AS cnt FROM nodes GROUP BY type').all();
+lib/core/lazygraph-ops.cjs:991:  const edgeRows = conn.prepare('SELECT type, COUNT(*) AS cnt FROM edges GROUP BY type').all();
+lib/core/lazygraph-ops.cjs
+lib/core/research-planner/perspectives/eureka-recall.cjs
+lib/core/research-planner/perspectives/whitespace-recall.cjs
+lib/core/semantic-index/tri-modal-index.cjs
+lib/core/eureka/opportunity-harvest.cjs
+exit=0

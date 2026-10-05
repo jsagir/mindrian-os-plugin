@@ -1,0 +1,9 @@
+lib/core/research-planner/perspective.cjs:313:    errors.push('no_nameable_limiter');
+lib/core/research-planner/perspective.cjs:456:  if (limiters.length === 0 && depth === 'lite') { /* already reported as no_nameable_limiter */ }
+lib/core/research-planner/perspective.cjs:493:  if (depth === 'lite' && limiters.length < 1 && errors.indexOf('no_nameable_limiter') === -1) errors.push('no_nameable_limiter');
+lib/core/research-planner/planner.cjs:242:  if (perr.indexOf('no_nameable_limiter') !== -1) return true;
+lib/core/research-planner/planner.cjs:263:    status = perr.indexOf('no_nameable_limiter') !== -1 ? 'wish' : 'incomplete';
+lib/core/research-planner/planner.cjs:272:    errors.push('no_nameable_limiter');
+lib/core/research-planner/planner.cjs:275:    errors.push('no_nameable_limiter');
+lib/core/research-planner/planner.cjs:479:    return { next: 'needs_limiter', reason: 'no_nameable_limiter', card: card };
+lib/core/research-planner/planner.cjs:483:    return { next: 'revise', reason: 'no_nameable_limiter', card: notReadyCard(plan, 'Plan review: no nameable limiter', lines) };

@@ -1,0 +1,57 @@
+##### py=312
+[room-birth] BRAIN derivation enqueued for room: r4
+PATH=birth-room RETURNED={"ok":true,"roomDir":"/tmp/phase0-home-Mbif/MindrianRooms/r4","slug":"r4","db_created":true}
+exists $HOME/r4/.mindrian/room.db = true
+exists $HOME/r4/room.db = false
+GOVERNED_WRITE={"ok":true,"eventId":"memory_event:node_created:1791202144698:c1156d56"}
+find .mindrian: ["room-map.json","room.db"]
+-- registry.json:
+{
+  "version": 1,
+  "active": "r4",
+  "rooms": {
+    "r4": {
+      "path": "/tmp/phase0-home-Mbif/MindrianRooms/r4",
+      "created": "2026-10-05T12:09:04Z",
+      "last_opened": "2026-10-05T12:09:04Z",
+      "status": "active",
+      "venture_name": "r4",
+      "venture_stage": "Pre-Opportunity",
+      "git_enabled": "false",
+      "git_remote": "",
+      "auto_push": "off",
+      "vercel_url": ""
+    }
+  },
+  "active_session": "cd7fca86-da84-4084-9260-f655b86621f9",
+  "active_session_at": "2026-10-05T12:09:04Z",
+  "active_session_pid": 2659951
+-- room-registry list:
+[
+  {
+    "name": "r4",
+    "path": "/tmp/phase0-home-Mbif/MindrianRooms/r4",
+    "path_exists": true,
+    "status": "active",
+    "venture_name": "r4",
+    "venture_stage": "Pre-Opportunity",
+    "last_opened": "2026-10-05T12:09:04Z",
+    "git_enabled": "false",
+    "auto_push": "off"
+  }
+]
+-- get-active:
+r4
+##### py=39
+[room-birth] BRAIN derivation enqueued for room: r4
+PATH=birth-room RETURNED={"ok":true,"roomDir":"/tmp/phase0-home-0yyl/MindrianRooms/r4","slug":"r4","db_created":true}
+exists $HOME/r4/.mindrian/room.db = true
+exists $HOME/r4/room.db = false
+GOVERNED_WRITE={"ok":true,"eventId":"memory_event:node_created:1791202145146:87972df9"}
+find .mindrian: ["room-map.json","room.db"]
+-- registry.json:
+{"version": 1, "active": "", "rooms": {}}
+-- room-registry list:
+[]
+-- get-active:
+

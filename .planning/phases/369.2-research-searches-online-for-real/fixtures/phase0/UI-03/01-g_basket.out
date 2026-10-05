@@ -1,0 +1,38 @@
+lib/core/research-planner/sr-filing.cjs
+lib/core/research-planner/canon-release.cjs
+lib/core/research-planner/sr-door.cjs
+lib/core/research-planner/filing.cjs
+lib/core/research-planner/planner.cjs
+lib/core/research-planner/plan.cjs
+lib/hmi/shape-f9-renderer.test.cjs
+lib/hmi/shape-f8-renderer.cjs
+lib/hmi/shape-f9-renderer.cjs
+lib/hmi/dial-presenter.cjs
+lib/hmi/selector-dispatcher.cjs
+lib/hmi/f8-capture.test.cjs
+lib/hmi/f8-action-capture-cli.cjs
+lib/hmi/f9-ordered-capture-cli.cjs
+lib/hmi/shape-f8-renderer.test.cjs
+lib/workflow/memory-cascade-f9-adapter.cjs
+lib/workflow/f8-fanout-consumer.cjs
+lib/workflow/memory-governance-closer.cjs
+lib/workflow/session-binding-consumer.cjs
+lib/workflow/f8-consumer.test.cjs
+
+lib/core/research-planner/filing-stamped.cjs:22: * column never carries an explicit value (the mint default lands).
+lib/core/research-planner/filing-stamped.cjs:93:// explicit value -- the mint default lands, Part 9 role 5, no confirm path),
+lib/core/research-planner/filing-stamped.cjs:103:// only the bare pair (the ambient composition) gets sensible defaults: name
+lib/core/research-planner/filing-stamped.cjs:104:// is `${aText} x ${bText}`, sessionId defaults to 'ambient', section/jtbd/
+lib/core/research-planner/filing-stamped.cjs:105:// score are omitted, evidenceIds default to [a.handle, b.handle].
+lib/core/research-planner/filing.cjs:11: *     one opportunity item per candidate (default OFF), one roll-up item, one
+lib/core/research-planner/filing.cjs:186:      default_on: true,
+lib/core/research-planner/filing.cjs:207:          default_on: true,
+lib/core/research-planner/filing.cjs:215:          default_on: true,
+lib/core/research-planner/filing.cjs:229:        default_on: true,
+lib/core/research-planner/filing.cjs:241:        default_on: false,
+lib/core/research-planner/filing.cjs:250:        default_on: true,
+lib/core/research-planner/filing.cjs:261:        default_on: true,
+lib/core/research-planner/filing.cjs:298:  lines.push('Nothing has been written to the room yet. Each line below is one thing that could be filed. On means it is selected
+lib/core/research-planner/filing.cjs:301:    lines.push('- [' + (i.default_on ? 'on' : 'off') + '] ' + noDash(i.label));
+lib/core/research-planner/filing.cjs:321:      defaults: basket.filter(function (i) { return i.default_on; }).map(function (i) { return i.id; }),
+exit=0

@@ -1,0 +1,64 @@
+## guard call sites
+317:// This helper never touches the Part 8 egress belt (classify() at
+607:  // Quick 260819-c8j (WS-D2): the Part 8 in-process classify() belt at the
+616:  // classify() returns a verdict, it does not elicit. The 4 existing
+647:  // `ambiguous`-branch `reason` string in `part8-egress-guard.cjs` is a
+651:  // The host PreToolUse hook (`scripts/part8-egress-guard-hook.cjs`) still
+657:    const callToolEgressGuard = require('./part8-egress-guard.cjs');
+658:    const callToolEgressVerdict = callToolEgressGuard.classify(args, { toolName: toolName });
+937:    const queryEgressGuard = require('./part8-egress-guard.cjs');
+938:    const queryEgressVerdict = queryEgressGuard.classify(
+1049: * _typedFreeformGate(toolName, text) -> sentinel object | null
+1054: * callTool's own classify() belt (Quick 260819-c8j): that belt still runs on
+1061: * Maps `text` onto the same free-form key classify()'s own
+1064: * SAME classify() the callTool() belt and the PreToolUse hook already use.
+1078:function _typedFreeformGate(toolName, text) {
+1081:    guard = require('./part8-egress-guard.cjs');
+1091:  const verdict = guard.classify({ [key]: text }, { toolName: toolName });
+1108:  const gated = _typedFreeformGate('brain_search', queryText);
+1136:  const gated = _typedFreeformGate('brain_search', queryText);
+1521:  const gated = _typedFreeformGate('brain_ask', question);
+1798:      const hatEgressGuard = require('./part8-egress-guard.cjs');
+## city regex / aggregator in planner+web
+lib/core/research-planner/filing-stamped.cjs:62:// cross-room-aggregator.cjs's isRoomOptedOut idiom (first 2KB only;
+## audit used by web lines
+9: * slot value and every composed string passes the ONE shipped audit fence
+10: * (auditQueryString in lib/core/rs-egress-prompts.cjs, no private copy)
+20: * Known limit (363-RESEARCH.md Pitfall 7): the audit is a PII and financial
+31: *    The web lines are governed by that grant and the audit fence, not by Part 8.
+46:const { auditQueryString } = require('../rs-egress-prompts.cjs');
+73:// Slot names each family accepts, in the canonical audit order.
+353:// slotValues(order, slots) -> flat list of slot values in audit order.
+374:// composeFamily(familyId, slots, opts) -- opts: { templateIds, auditFn, round, destination }.
+380:  const auditFn = typeof options.auditFn === 'function' ? options.auditFn : auditQueryString;
+419:      auditFn(vals[i], SURFACE);
+431:      auditFn(q, SURFACE);
+441:      audit: 'pass',
+449:// composeForLeaf(leaf, opts) -- leaf = { lens, slots, corpus? }; opts = { round, auditFn }.
+477:  const r = composeFamily(map.family, leaf.slots, { templateIds: usable, auditFn: options.auditFn, round: round, destination: strict ? 'theo' : 'web' });
+40:const { FAMILIES, composableTerm, composableQuery, qHash } = require('./families.cjs');
+74:  'provider_not_in_policy', 'outside_family', 'audit_tripped', 'new_term',
+115:// (SEED-115, 2026-10-04; was composableTerm under SEED-104). The Theo pair path
+116:// below keeps the strict composableTerm rule (Canon Part 8 is about the Brain).
+256:// synonym must pass composableTerm before anything is written; a call that adds
+394:// theoPairQ(term, term2) -> the one string a lateral-path check is audited and
+405:  if (composableTerm(s.term) === null || composableTerm(s.term2) === null) return null;
+469:// query: {q, q_hash, template_id, family, provider, audit, slot_terms[], round, trigger}
+485:  if (q.audit !== 'pass') return { ok: false, reason: 'audit_tripped' };
+537:  if (terms.some(function (t) { return composableTerm(t) === null; })) return { ok: false, reason: 'term_not_composed' };
+## verb paths
+## web-line audit reaches the city regex? 
+9: *     -- scans a single outbound string against FORBIDDEN_PATTERNS;
+14: *        params, request body) against FORBIDDEN_PATTERNS; throws on hit;
+19: * Re-exports FORBIDDEN_PATTERNS from lib/core/cross-room-aggregator.cjs
+29:const crossRoomAggregator = require('./cross-room-aggregator.cjs');
+32:// FORBIDDEN_PATTERNS is re-exported BYTE-FOR-BYTE from cross-room-aggregator.
+36:const FORBIDDEN_PATTERNS = crossRoomAggregator.FORBIDDEN_PATTERNS;
+37:if (!Array.isArray(FORBIDDEN_PATTERNS) || FORBIDDEN_PATTERNS.length < 6) {
+39:    'rs-egress-prompts: FORBIDDEN_PATTERNS re-export failed; ' +
+40:    'Canon Part 8 drift risk (expected >= 6 patterns from cross-room-aggregator)'
+50:// FORBIDDEN_PATTERNS hit; returns input on pass for callsite chaining.
+52:function auditQueryString(s, surface) {
+57:  for (const re of FORBIDDEN_PATTERNS) {
+93:  for (const re of FORBIDDEN_PATTERNS) {
+110:  FORBIDDEN_PATTERNS,

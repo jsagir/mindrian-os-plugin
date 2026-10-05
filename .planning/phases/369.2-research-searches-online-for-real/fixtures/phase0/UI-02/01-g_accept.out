@@ -1,0 +1,51 @@
+ui/shell/client/copy.ts:358:        what: 'The room did not accept your answer.',
+ui/shell/client/copy.ts:376:  what: 'The room did not accept that answer.',
+ui/shared/node_modules/mingo/types/operators/update/_internal.d.ts:20: * @param f The update function which accepts containver value and key.
+ui/shared/node_modules/mingo/types/operators/expression/boolean/not.d.ts:3: * Returns the boolean value that is the opposite of its argument expression. Accepts a single argument expression.
+ui/shared/node_modules/mingo/types/operators/expression/boolean/and.d.ts:3: * Returns true only when all its expressions evaluate to true. Accepts any number of argument expressions.
+ui/shared/node_modules/mingo/types/operators/expression/boolean/or.d.ts:3: * Returns true when any of its expressions evaluates to true. Accepts any number of argument expressions.
+ui/shared/node_modules/rxdb/src/rx-collection-helper.ts:70: * Accepts an array of { id, type, data } objects (aligned with putAttachment API)
+ui/shared/node_modules/rxdb/src/plugins/dev-mode/error-messages.ts:887:        cause: 'The websocket server did not accept the connection before the connectionTimeout was reached.',
+ui/shared/node_modules/rxdb/src/plugins/replication-websocket/reconnecting-websocket.ts:194:         * stayed open long enough. Otherwise a server that accepts and
+ui/shared/node_modules/rxdb/src/plugins/replication-google-drive/google-drive-helper.ts:17: * accepts as a parent id and in queries. For 'drive' it is the regular 'root'.
+ui/shared/node_modules/rxdb/src/plugins/replication-google-drive/google-drive-helper.ts:390:            Accept: "application/json",
+ui/shared/node_modules/rxdb/src/types/util.d.ts:78: * Accepts string for document revision hashing,
+ui/shared/node_modules/rxdb/dist/types/rx-collection-helper.d.ts:11: * Accepts an array of { id, type, data } objects (aligned with putAttachment API)
+ui/shared/node_modules/rxdb/dist/types/plugins/replication-google-drive/google-drive-helper.d.ts:9: * accepts as a parent id and in queries. For 'drive' it is the regular 'root'.
+ui/shared/node_modules/rxdb/dist/types/types/util.d.ts:78: * Accepts string for document revision hashing,
+ui/shared/node_modules/jose/dist/types/jwks/remote.d.ts:5: * > Note: Fetch-like libraries may have incompatible TypeScript signatures even when they accept the
+ui/shared/node_modules/jose/dist/types/jwks/remote.d.ts:59:/** Values accepted by the {@link jwksCache} option. */
+ui/shared/node_modules/jose/dist/types/jwk/embedded.d.ts:5: * verification function's `algorithms` option to restrict accepted algorithms.
+ui/shared/node_modules/jose/dist/types/jwt/verify.d.ts:28: * Accepts a key or key resolver. Use this overload when forwarding either form; the result includes
+ui/shared/node_modules/jose/dist/types/jwt/decrypt.d.ts:27: * Accepts a key or key resolver. Use this overload when forwarding either form; the result includes
+ui/shared/node_modules/jose/dist/types/types.d.ts:252:/** Key or secret input accepted by all sign, verify, encrypt, and decrypt operations. */
+ui/shared/node_modules/jose/dist/types/types.d.ts:453:   * Accepted JWE "alg" (Algorithm) Header Parameter values. Defaults to all algorithms applicable
+ui/shared/node_modules/jose/dist/types/types.d.ts:459:   * Accepted JWE "enc" (Encryption Algorithm) Header Parameter values. Defaults to all algorithms
+ui/shared/node_modules/jose/dist/types/types.d.ts:522:   * Accepted JWS "alg" (Algorithm) Header Parameter values. Defaults to all algorithms applicable
+ui/shared/node_modules/jose/dist/types/types.d.ts:523:   * to the key or secret. Unsecured JWTs (`alg: "none"`) are never accepted.
+ui/shared/node_modules/jose/dist/types/types.d.ts:661:/** Node.js {@link !KeyObject} representation accepted as key input. */
+ui/shared/node_modules/jose/dist/types/types.d.ts:666:/** The runtime's Web Crypto {@link !CryptoKey} representation accepted as key input. */
+ui/shared/node_modules/jose/dist/types/types.d.ts:721:   * Set the "exp" (Expiration Time) Claim. Accepts a Unix timestamp in seconds, a Date, or a
+ui/shared/node_modules/jose/dist/types/types.d.ts:729:   * Set the "iat" (Issued At) Claim. Defaults to the current Unix timestamp in seconds. Accepts a
+ui/shared/node_modules/eventsource-parser/src/parse.ts:21: * @param config - Parser configuration. Accepts callbacks (see {@link ParserCallbacks})
+ui/shared/node_modules/eventsource-parser/src/types.ts:100: * Configuration accepted by {@link createParser}. Extends {@link ParserCallbacks} with
+ui/shared/node_modules/eventsource-parser/dist/index.d.ts:4: * @param config - Parser configuration. Accepts callbacks (see {@link ParserCallbacks})
+ui/shared/node_modules/eventsource-parser/dist/index.d.ts:145: * Configuration accepted by {@link createParser}. Extends {@link ParserCallbacks} with
+ui/shared/node_modules/zod/v4/classic/schemas.d.ts:348:    /** @deprecated This is now identical to `.int()`. Only numbers in the safe integer range are accepted. */
+ui/shared/node_modules/zod/v4/classic/schemas.d.ts:363:    /** @deprecated Number schemas no longer accept infinite values, so this always returns `true`. */
+ui/shared/node_modules/zod/v4/classic/schemas.d.ts:624:    /** @legacy Use `.values` instead. Accessing this property will throw an error if the literal accepts multiple values. */
+ui/shared/node_modules/zod/src/v4/core/compile.ts:743: * silently accepts input the runtime rejects. Formats that layer extra
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1399:  return schema._zod.optin === undefined && fastPathAcceptsAbsence(schema);
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1402:function fastPathAcceptsAbsence(schema: SomeType): boolean {
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1448:      return def.innerType ? fastPathAcceptsAbsence(def.innerType) : false;
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1457:      return def.innerType ? fastPathAcceptsAbsence(def.innerType) : true;
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1462:      return def.options ? def.options.some(fastPathAcceptsAbsence) : true;
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1465:      return fastPathAcceptsAbsence(def.left) && fastPathAcceptsAbsence(def.right);
+ui/shared/node_modules/zod/src/v4/core/compile.ts:1467:      return def.in ? fastPathAcceptsAbsence(def.in) : true;
+ui/shared/node_modules/zod/src/v4/core/json-schema-processors.ts:592: * accepts `"3"` — which is the deliberate trade, since throwing on it would reject an ordinary schema
+ui/shared/node_modules/zod/src/v4/core/errors.ts:257: * intrinsics so that `init` on a foreign object — it accepts any object —
+ui/shared/node_modules/zod/src/v4/core/tests/compile.test.ts:350:test("object required undefined-accepting properties distinguish absence", () => {
+ui/shared/node_modules/zod/src/v4/core/tests/compile.test.ts:1130:test("tuple with trailing optionals accepts short input (#5661)", () => {
+ui/shared/node_modules/zod/src/v4/core/tests/compile.test.ts:1140:test("tuple exactOptional rejects explicit undefined but accepts absence", () => {
+ui/shared/node_modules/zod/src/v4/core/tests/compile.test.ts:1185:test("multi-value literal accepts each value", () => {
+exit=0

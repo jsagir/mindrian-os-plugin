@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 106 Plan 04 -- statusline fallback echo (D-04 + D-06).
+ *
+ * SessionStart hook script. Composes a Larry-rendered prose state echo
+ * for surfaces where the rich statusline cannot fire:
+ *   - Claude Desktop (no statusline primitive)
+ *   - Cowork (deferred widget; interim Desktop-style echo)
+ *   - CLI post-detect repair window (banner suppression contract)
+ *
+ * Echo shape (CONTEXT.md D-04):
+ *   [MindrianOS v1.12.5 active . room: <slug> . operator: <op> . jtbd: <jtbd> . context: <pct>%]
+ *
+ * (separator is U+00B7 MIDDLE DOT, not the ASCII period; matches the
+ * canonical D-04 example in CONTEXT.md.)
+ *
+ * Sources:
+ *   - operator: lib/conversation/operator.cjs getCurrent(roomDir)
+ *   - jtbd: lib/hmi/jtbd-state.cjs getCurrent(roomDir)
+ *   - context: ~/.mindrian/bridge/{md5(workspaceDir).slice(0,8)}.json (written
+ *     by scripts/context-monitor every assistant-message turn)
+14
+exit=0

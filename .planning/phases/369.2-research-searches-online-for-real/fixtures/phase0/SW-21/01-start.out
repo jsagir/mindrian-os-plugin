@@ -1,0 +1,30 @@
+HOME=/tmp/phase0-home-Uj1M
+procs before: 9
+not running
+exit=0
+The workspace is running on this computer, but no browser could be opened from here.
+For a one-time sign-in link, run this in your own terminal:
+  node /home/jsagi/dev/MindrianOS-Plugin/lib/ui-shell/launch.cjs start
+main returned 0
+pipe_exit=0
+running on 127.0.0.1:3369 (version b87db0e5e8e9, pid 2731781)
+exit=0
+stopped
+exit=0
+procs after: 10
+--- diff before/after
+9a10
+> 2731738 /home/jsagi/.nvm/versions/node/v22.23.1/bin/node /home/jsagi/dev/MindrianOS-Plugin/scripts/mindrian-mcp-server.cjs
+--- state files
+/tmp/phase0-home-Uj1M/.mindrian:
+total 12
+drwx------ 3 jsagi jsagi 4096 Oct  5 15:10 .
+drwx------ 4 jsagi jsagi 4096 Oct  5 15:10 ..
+drwx------ 2 jsagi jsagi 4096 Oct  5 15:10 ui-shell
+
+/tmp/phase0-home-Uj1M/.mindrian/ui-shell:
+total 12
+drwx------ 2 jsagi jsagi 4096 Oct  5 15:10 .
+drwx------ 3 jsagi jsagi 4096 Oct  5 15:10 ..
+-rw------- 1 jsagi jsagi  115 Oct  5 15:10 shell.log
+cleanup: killed pid 2731738 (mindrian-mcp-server daemon spawned by this run under HOME=/tmp/phase0-home-Uj1M)

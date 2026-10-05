@@ -1,0 +1,122 @@
+2:// The shell header (D-10, UI-SPEC shell frame): zone 1 of the four-zone anatomy. The room name comes first
+3:// among the header's content (SKILL.md Zone 1: the multi-room canary), so the room selector precedes the
+4:// wordmark in the document; the grid areas in frame.css draw the wordmark at the left. The session indicator
+7:import { RoomSelector } from './RoomSelector.tsx';
+8:import { SessionIndicator } from './SessionIndicator.tsx';
+13:  const { rooms, current, statusOpen, setStatusOpen } = useShell();
+14:  const purpose = rooms.find((r) => r.slug === current)?.purpose;
+17:      <div className="sh-room">
+18:        <RoomSelector />
+30:        <SessionIndicator />
+----
+2:// The session indicator (plan 369-24, D-04, CANON369-06), built exactly as the navigator signed it in
+4:// indicatorModel(); this component only draws them: a 12 px StateMark (aria-hidden) beside the state words in
+5:// Label 12 mono, the browser copy line under the healthy words, and the state's one-click fix next to the words
+6:// as a text action. Colour never carries a state alone. The header instance announces each state change once
+44:// A brief catch-up or rebuild is not worth speaking: the browser copy states are announced only when they outlast
+47:// "The room was tidied since your last visit" note that arrives together with a rebuild.
+50:// Says each state change once. The first answer sets the baseline: a healthy first answer is silent.
+77:  const label = model.fix ? model.fix.label : null;
+78:  const sentence = label !== null && model.words.endsWith(label) && model.words.length > label.length ? model.words.slice(0, model.words.length - label.length).trimEnd() : model.words;
+81:    <div className="session-indicator" data-placement={placement} data-state={model.kind}>
+82:      <p className="si-line" data-line="state">
+85:        {fix !== null && label !== null ? (
+87:            <TextAction onClick={fix}>{label}</TextAction>
+---
+ui/shell/client/frame/ShellFrame.tsx:89:        version: typeof body.version === 'string' ? body.version : null,
+ui/shell/client/frame/ShellFrame.tsx:98:        setStatus((prev) => (prev ? { ...prev, connection: 'disconnected', readAt } : { connection: 'disconnected', lastAckAt: null, mcpSessionPrefix: null, roo
+ui/shell/client/frame/StatusPanel.tsx:71:        <div className="sp-row" data-row="version">
+ui/shell/client/frame/StatusPanel.tsx:72:          <dt>MindrianOS version</dt>
+ui/shell/client/frame/StatusPanel.tsx:73:          <dd>{status?.version ?? 'Not reported yet'}</dd>
+ui/shell/client/frame/shell-context.ts:12:  version: string | null;
+3:// Shows: project name │ room section context │ venture stage │ gaps │ context window
+35:// Map room section name to short exploration-stage label plus thematic
+45:  'business-model':         { label: 'BUSINESSCASE',  emoji: '\u{1F4B0}' }, // money bag
+48:  'financial-model':        { label: 'FINANCE',       emoji: '\u{1F4B5}' }, // dollar banknote
+86: * Read the current MindrianOS plugin version from .claude-plugin/plugin.json.
+106:        if (data && data.version) return data.version;
+198: * Phase 88.1-04 -- resolve the active section path inside a room. Tries in
+200: *   1. roomDir/.mindrian/active-section.json (written by Phase 84 smart-
+203: *   2. Most-recently-modified direct subdirectory of roomDir that contains
+211: * @param {string} roomDir - Absolute path to the active room
+214:function resolveActiveSectionPath(roomDir) {
+215:  if (!roomDir) return null;
+217:    const activeJson = path.join(roomDir, '.mindrian', 'active-section.json');
+222:          // Accept absolute or room-relative path.
+225:            : path.join(roomDir, data.section);
+236:    const entries = fs.readdirSync(roomDir, { withFileTypes: true })
+241:      const sectionPath = path.join(roomDir, d.name);
+274: * @param {string} roomDir - Absolute path to the active room
+277:function buildMintoSegment(roomDir) {
+279:  if (!roomDir) return '';
+281:  const sectionPath = resolveActiveSectionPath(roomDir);
+286:    const cached = statuslineCache.getCached(roomDir, sectionPath);
+292:      try { statuslineCache.setCached(roomDir, sectionPath, triple); } catch (_) {}
+339: *   2. roomDir/.mindrian/current-session.json {"session_id": "..."}
+345: * @param {string} roomDir - Absolute path to the active room
+348:function resolveSessionIdForDial(roomDir) {
+354:    const pointer = path.join(roomDir, '.mindrian', 'current-session.json');
+358:        if (parsed && typeof parsed.session_id === 'string'
+359:            && parsed.session_id.length > 0) {
+360:          return parsed.session_id;
+----
+grep: lib/statusline/statusline-mos: No such file or directory
+scripts/statusline-mos-dispatch:6:# This file is copied to ~/.claude/statusline-mos by the plugin's session-start
+scripts/statusline-mos-dispatch:8:# job: find an installed MindrianOS plugin version and `exec` that version's
+scripts/statusline-mos-dispatch:9:# scripts/statusline-mos -- which then resolves the *active* version (via
+scripts/statusline-mos-dispatch:14:# in plugin vN+1 takes effect on the next session with no re-stamp needed,
+scripts/statusline-mos-dispatch:15:# because this shim resolves at runtime. session-start re-stamps this file only
+scripts/statusline-mos-dispatch:21:# marketplace cache for the newest version dir and hands off to it. The handed-
+scripts/statusline-mos-dispatch:31:  # Print the newest "<...>/mos/<version>" dir found under any marketplace cache.
+58:        <div className="sp-row" data-row="connection">
+59:          <dt>Connection</dt>
+67:        <div className="sp-row" data-row="address">
+68:          <dt>Address</dt>
+71:        <div className="sp-row" data-row="version">
+72:          <dt>MindrianOS version</dt>
+75:        <div className="sp-row" data-row="mcp-session">
+76:          <dt>MCP session</dt>
+81:          data-row="browser-copy"
+86:          <dt>Browser copy</dt>
+90:        <div className="sp-row" data-row="last-update">
+91:          <dt>Last update</dt>
+
+ui/shell/client/frame/ShellHeader.tsx:9:import { STATUS_TRIGGER_ID } from './StatusPanel.tsx';
+ui/shell/client/frame/ShellHeader.tsx:13:  const { rooms, current, statusOpen, setStatusOpen } = useShell();
+ui/shell/client/frame/ShellHeader.tsx:35:          aria-expanded={statusOpen}
+ui/shell/client/frame/ShellHeader.tsx:37:          onClick={() => setStatusOpen(!statusOpen)}
+ui/shell/client/frame/ShellFrame.tsx:24:import { StatusPanel } from './StatusPanel.tsx';
+ui/shell/client/frame/ShellFrame.tsx:73:  const [statusOpen, setStatusOpen] = useState(false);
+ui/shell/client/frame/ShellFrame.tsx:179:    () => ({ port, pathname, status, unreachable, rooms, roomsState, current, waiting, roomEpoch, refresh, openRoom: switcher.openRoom, statusOpen, setStatusOpen }),
+ui/shell/client/frame/ShellFrame.tsx:180:    [port, pathname, status, unreachable, rooms, roomsState, current, waiting, roomEpoch, refresh, switcher.openRoom, statusOpen],
+ui/shell/client/frame/ShellFrame.tsx:197:            <StatusPanel />
+
+sed: can't read lib/statusline/statusline-fallback-echo.cjs: No such file or directory
+grep: lib/statusline/statusline-fallback-echo.cjs: No such file or directory
+0
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 106 Plan 04 -- statusline fallback echo (D-04 + D-06).
+ *
+ * SessionStart hook script. Composes a Larry-rendered prose state echo
+ * for surfaces where the rich statusline cannot fire:
+ *   - Claude Desktop (no statusline primitive)
+ *   - Cowork (deferred widget; interim Desktop-style echo)
+ *   - CLI post-detect repair window (banner suppression contract)
+ *
+ * Echo shape (CONTEXT.md D-04):
+ *   [MindrianOS v1.12.5 active . room: <slug> . operator: <op> . jtbd: <jtbd> . context: <pct>%]
+ *
+ * (separator is U+00B7 MIDDLE DOT, not the ASCII period; matches the
+ * canonical D-04 example in CONTEXT.md.)
+ *
+ * Sources:
+ *   - operator: lib/conversation/operator.cjs getCurrent(roomDir)
+ *   - jtbd: lib/hmi/jtbd-state.cjs getCurrent(roomDir)
+ *   - context: ~/.mindrian/bridge/{md5(workspaceDir).slice(0,8)}.json (written
+ *     by scripts/context-monitor every assistant-message turn)
+14

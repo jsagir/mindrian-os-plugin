@@ -1,0 +1,37 @@
+### no Authorization header
+HTTP/2 200 
+date: Mon, 05 Oct 2026 12:12:29 GMT
+content-type: text/event-stream
+content-length: 82760
+cache-control: no-cache, no-transform
+rndr-id: bc68e82c-eff9-4d43
+server: cloudflare
+x-powered-by: Express
+x-render-origin-server: Render
+cf-cache-status: DYNAMIC
+cf-ray: a45c55b5fb0ce8f3-TLV
+alt-svc: h3=":443"; ma=86400
+
+
+body bytes: 82760
+event: message
+data: {"result":{"tools":[{"name":"theo_health","title":"Theo startup health","description":"Theo's resolved startup state: whether graph tools are serving or quarantined, the remediation command when quarantined, and the detected RBAC and apoc.trigger capabilities of this instance. Also reports watcher_coverage, the Framework counts this process measured in canon at startup, whose 
+### Authorization: Bearer invalid
+HTTP/2 200 
+date: Mon, 05 Oct 2026 12:12:29 GMT
+content-type: text/event-stream
+content-length: 82760
+cache-control: no-cache, no-transform
+rndr-id: 45f5f008-82f6-40c9
+server: cloudflare
+x-powered-by: Express
+x-render-origin-server: Render
+cf-cache-status: DYNAMIC
+cf-ray: a45c55bcf86e0dd4-TLV
+alt-svc: h3=":443"; ma=86400
+
+
+body bytes: 82760
+event: message
+data: {"result":{"tools":[{"name":"theo_health","title":"Theo startup health","description":"Theo's resolved startup state: whether graph tools are serving or quarantined, the remediation command when quarantined, and the detected RBAC and apoc.trigger capabilities of this instance. Also reports watcher_coverage, the Framework counts this process measured in canon at startup, whose 
+curl exit=0

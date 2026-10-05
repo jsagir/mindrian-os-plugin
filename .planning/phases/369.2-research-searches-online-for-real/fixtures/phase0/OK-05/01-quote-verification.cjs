@@ -1,0 +1,10 @@
+const P=require('../_partialB-prelude.cjs');const ev=require(P.RP+'evidence-rows.cjs');
+const rec={id:'https://openalex.org/Wok5',title:'Ultrasonic cleaning removes biofilm',abstract:'Biofilm removal reached 92 percent after ten minutes of ultrasonic exposure.'};
+const idx=ev.recordsIndex([rec]);
+const mk=(q,rid)=>({leaf_id:'L1',record_id:rid||rec.id,claim:'c',quote:q,label:'supports'});
+const run=(n,row)=>{const v=ev.validateRows([row],idx,{leafIds:['L1'],lane:'T',retrievedAt:'2026-10-05T00:00:00Z'});console.log(n.padEnd(34),'kept',v.rows.length,JSON.stringify(Object.fromEntries(Object.entries(v.dropped).filter(([,x])=>x))));};
+run('verbatim quote',mk('reached 92 percent after ten minutes'));
+run('whitespace variant',mk('reached  92 percent\nafter ten minutes'));
+run('paraphrase (not in text)',mk('nearly all biofilm was gone within ten minutes'));
+run('unknown record id',mk('reached 92 percent','https://openalex.org/Wnope'));
+console.log('netguard',P.guard.attempts());

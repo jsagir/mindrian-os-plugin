@@ -1,0 +1,72 @@
+lib/workflow/f8-consumer.test.cjs:40:  src.indexOf('.openRoomDb(') === -1 && src.indexOf('openRoomDbForCaller') === -1);
+lib/workflow/f9-consumer.test.cjs:38:  src.indexOf('.openRoomDb(') === -1 && src.indexOf('openRoomDbForCaller') === -1);
+lib/memory/packet-chain-hint.test.cjs:46:  const db = openRoomDb(tmp);
+lib/memory/spine-events-correlation.test.cjs:53:  const db = openRoomDb(dir);
+lib/memory/spine-events-correlation.test.cjs:59:  const db = openRoomDb(roomDir);
+lib/memory/selector-decisions.test.cjs:34:  const db = openRoomDb(dir);
+lib/memory/local-chain-recommender.test.cjs:53:  const db = openRoomDb(dir);
+lib/memory/navigation-write-edge.test.cjs:28:  const db = openRoomDb(dir);
+lib/memory/navigation-write-edge.test.cjs:191:  const db2 = openRoomDb(dir);
+lib/memory/sessionstart-coordinator.test.cjs:36:  return { dir, db: openRoomDb(dir) };
+lib/memory/navigation-engine-offer.test.cjs:330:    db = openRoomDb(tmp);
+lib/memory/offer-closer.test.cjs:76:  const db = openRoomDb(tmp);
+lib/core/room-discard-cascade.cjs:95:      dbHandle = openRoomDb(roomDir);
+lib/core/room-discard-cascade.cjs:221:    const handle = openRoomDb(metaRoomDir);
+lib/core/graph-self-heal.cjs:241:    childDb = openRoomDb(folder);
+lib/core/graph-self-heal.cjs:253:    parentDb = openRoomDb(parentRoomDir);
+lib/core/graph-self-heal.cjs:270:      timelineDb = openRoomDb(folder);
+lib/core/graph-backfill.cjs:181:    db = openRoomDb(roomDir);
+lib/core/graph-backfill.cjs:248:    db = openRoomDb(roomDir);
+lib/core/graph-backfill.cjs:277:    db = openRoomDb(roomDir);
+lib/memory/selector-miss.test.cjs:39:  const db = openRoomDb(dir);
+lib/core/room-naming-selector.test.cjs:27:  const db = openRoomDb(roomDir);
+lib/core/room-naming-selector.test.cjs:177:    const dbBefore = openRoomDb(roomDir);
+lib/core/room-naming-selector.test.cjs:200:    const dbAfter = openRoomDb(result.room_dir);
+lib/core/room-naming-selector.cjs:302:    const handle = openRoomDb(roomDir);
+lib/core/room-naming-selector.cjs:325:    const handle = openRoomDb(metaRoomDir);
+lib/core/room-discard-cascade.test.cjs:23:  const db = openRoomDb(roomDir);
+lib/core/room-auto-create.cjs:212:    const initDb = roomDb.openRoomDb(roomPath);
+lib/core/room-auto-create.cjs:268:    const db = roomDb.openRoomDb(roomPath);
+lib/core/node-insert-overrides.test.cjs:67:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:81:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:95:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:109:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:123:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:139:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:154:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:169:    db = openRoomDb(roomDir);
+lib/core/node-insert-overrides.test.cjs:183:    db = openRoomDb(roomDir);
+lib/core/graph-refine-loop.cjs:131:      db = rdb.openRoomDb(roomDir);
+lib/core/node-insert-epistemic.test.cjs:58:    db = openRoomDb(roomDir);
+----
+scripts/198-rollback-rehearsal.cjs:16: *   STEP 2  Assert this phase shipped room.db changes EXPAND-ONLY: no DROP
+scripts/198-rollback-rehearsal.cjs:21: *   STEP 3  Take a pre-migration room.db snapshot through the SHIPPED
+scripts/198-rollback-rehearsal.cjs:34: * snapshot/restore rehearsal runs against a throwaway temp room.db under
+scripts/198-rollback-rehearsal.cjs:129:    'expand-only violated: destructive room.db DDL shipped this phase (' + offenders.join(', ') + ')'
+scripts/198-rollback-rehearsal.cjs:141:    const roomDbPath = path.join(roomDir, 'room.db');
+scripts/198-rollback-rehearsal.cjs:143:    // Pre-migration (last-known-good) room.db bytes.
+scripts/198-rollback-rehearsal.cjs:144:    fs.writeFileSync(roomDbPath, Buffer.from('SQLite format 3 -- pre-198 room.db rehearsal fixture\n'));
+scripts/198-rollback-rehearsal.cjs:159:      artifact: 'room.db',
+scripts/198-rollback-rehearsal.cjs:162:    // (b) Cut over: flag ON, an EXPAND-ONLY additive write mutates the room.db.
+scripts/198-rollback-rehearsal.cjs:166:    assert.notStrictEqual(cutSum, preSum, 'sanity: the cutover write actually mutated room.db');
+scripts/198-rollback-rehearsal.cjs:172:    assert.strictEqual(restoredSum, preSum, 'restore returned room.db to the last-known-good bytes byte-for-byte');
+scripts/198-rollback-rehearsal.cjs:178:      artifact: 'room.db',
+scripts/198-rollback-rehearsal.cjs:210:  log('STEP 2: assert this phase shipped room.db changes EXPAND-ONLY');
+scripts/act-command.cjs:97:// Phase 129-04: navigation.cjs is the ONLY door to room.db for this script (it
+scripts/agentshield-sessionstart-scan.cjs:27: * Local dedup cache: ~/.mindrian/agentshield/last-scan.json (NOT room.db, NOT a
+scripts/auto-explore-fingerprint.cjs:93:// ---------- room.db readers (LOCAL-only; no brain-client) ----------
+scripts/auto-explore-fingerprint.cjs:195:  let dbPath = path.join(roomDir, '.mindrian', 'room.db');
+scripts/auto-explore-fingerprint.cjs:198:  // roomDir has no room.db (Tier 0 / first-ever upload case), auto-create a placeholder
+scripts/auto-explore-fingerprint.cjs:200:  // a real placeholder room with a properly-migrated room.db. The fire child then writes
+scripts/auto-explore-fingerprint.cjs:201:  // into the freshly-created room.db. Never blocks the tool call -- any failure mode
+scripts/auto-explore-fingerprint.cjs:207:  // Tier 0 (suppression) when artifactCount < 0 (no room.db). The Tier 0 case is exactly
+scripts/auto-explore-fingerprint.cjs:236:        dbPath = path.join(roomDir, '.mindrian', 'room.db');
+scripts/auto-explore-fingerprint.cjs:246:  // Tier 0: room.db missing -> suppress (LOCAL-only routing per Brain Section 8.7).
+scripts/backfill-layer.cjs:141:// does (the rubric's own step 3-5 signals name behaviors -- touches room.db,
+scripts/build-ecosystem-graph.cjs:30:// this script used to issue could not survive a Phase-109-migrated room.db.
+scripts/build-ecosystem-graph.cjs:162:// <roomDir>/.mindrian/room.db that rebuildGraph wipes, erasing the memory_event
+scripts/build-ecosystem-graph.cjs:195:  const dbPath = path.join(resolved, '.mindrian', 'room.db');
+scripts/build-ecosystem-graph.cjs:222:    // this script opens the SAME <roomDir>/.mindrian/room.db shape (dbPath
+scripts/build-ecosystem-graph.cjs:326:    // 1299) against ANY room.db carrying the Phase-109 provenance migration,
+scripts/build-graph-from-sqlite.cjs:7: * own node-builder over room.db. This collapses the Desktop/Cowork dashboard
+---

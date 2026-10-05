@@ -1,0 +1,2 @@
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/SW-13 && node 01-quote-entity-verify.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/SW-13 && node 02-no-correction-window.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed

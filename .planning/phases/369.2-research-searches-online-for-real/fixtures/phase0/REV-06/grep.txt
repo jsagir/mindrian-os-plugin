@@ -1,0 +1,2 @@
+lib/core/research-planner/question-templates.cjs:468:function dimensionsFor(template, opts) {
+lib/core/research-planner/question-templates.cjs:470:  return template.dimensions.map(function (d) {

@@ -1,0 +1,94 @@
+13: * no fired AskUserQuestion card it emits a Stop-block (decision:'block') +
+15: * it degrades gracefully (log + allow) so a genuinely card-incapable surface cannot trap
+18: * Hook class: this runs on the Stop event (hooks/hooks.json Stop block), NOT PostToolUse.
+19: * The block route is a JSON envelope `{ decision:'block', continue:false, ... }` written
+20: * to stdout on exit 0 -- a valid Stop-block path (the Claude Code Stop hook honors a
+21: * decision:'block' envelope to re-prompt the turn). It is NOT an exit-2 block; earlier
+23: * that was doc drift, reconciled here (IN-01) to match the shipped Stop-block-on-exit-0
+34: * empty signals -> a safe no-op (never throws, never blocks spuriously).
+36: * Detection (CONTEXT decision 1: registry-keyed PRIMARY + output-text BACKSTOP):
+37: *   PRIMARY  (DEFERRED -- see doctrine note below) -- a render-coverage-registry
+38: *               gate-reaching surface (data/render-coverage-registry.json entries[] with
+40: *               tool-call fired. The enumeration is DERIVED from the registry, never
+44: *               with no fired card -- intercepted even for an OFF-registry surface.
+50: * lib/hmi/selector-dispatcher.cjs's pickShape trailer door (gated on payload.emitTelemetry
+58: * or oversized side-file all degrade to [] inside readReachedGates, never throwing here).
+61: * `ran_entries` / `reached_gate_entries` set that records which registry gate-reaching
+68: * Bounded escape (T-179-01 DoS mitigation): a LOCAL retry side-file
+76: * turn every time it re-emits the blocked gate, so any transcript-LENGTH value (e.g. an
+77: * assistant-message counter) would mint a fresh key every retry and the bounded escape would
+95: * The store is pruned on write by a TTL (WR-02: each entry carries { count, ts }; entries
+97: * MAX_FORCE_RETRIES the predicate returns degrade=true and the envelope is
+102: * When the model re-emits the SAME stuck gate with DIFFERENT option labels each retry (the most
+104: * signature FLAPS to a fresh key every retry, no single per-gate key ever reaches
+110: * sessions are unaffected). The predicate degrades if EITHER ceiling is reached. The session
+112: * by MAX_SESSION_INTERCEPTS REGARDLESS of how the gate content / per-gate key flaps. A degrade or
+119: * malformed JSONL line by the existing per-line try/catch.
+122: * { decision, reason, continue, stopReason, suppressOutput, systemMessage,
+125: * Canon Part 8 (The Graph Boundary): LOCAL-only. Reads the local registry + the hook
+127: * scripts/on-stop reads it) + the local retry side-file; makes ZERO Brain reads/writes
+138: * exit 0. The interceptor NEVER blocks the hook chain on a bug.
+177:// (full rationale and measurements at the withRetryStoreLock definition
+178:// below, near line 760). The retry-store fence is a separate, local, more
+182:// data/render-coverage-registry.json is the Phase 178 R15 substrate. The interceptor
+185:const REGISTRY_PATH = path.join(PLUGIN_ROOT, 'data', 'render-coverage-registry.json');
+187:// The LOCAL retry side-file for the bounded escape (Part 8 LOCAL-only).
+188:function retryFilePath() {
+194:// retryFilePath (MINDRIAN_HOME override honored) so a test / ops re-point isolates both
+203:// on the same turn-context (the per-gate key), degrade to log + allow so a card-incapable
+211:// retry (the single most natural LLM behavior under this interceptor's own "re-emit this
+212:// turn" re-prompt), the per-gate signature FLAPS to a fresh key every retry, no single per-
+217:// BOTH counters and degrade if EITHER ceiling is reached. The session ceiling is the load-
+222:// a normal multi-gate session is unaffected: the per-gate degrade fires first for each
+223:// genuinely-distinct gate (WR-07's two-distinct-gates case degrades per-gate long before the
+225:// counter cannot catch -- is bounded by this ceiling.
+231:// require-failure degrade branch, below) is exactly the case where that module's
+238:// The session-counter key prefix in the shared side-file. A session entry lives at
+245:// WR-02: the retry side-file TTL. Each store entry carries { count, ts }; on every write
+255:// SAME RETRY_TTL_MS as the retry side-file (WR-02) so it cannot grow without bound.
+285:// backstop-numbered-prose-retired (card-fire-relevance-check-gap, navigator decision
+287:// BYTE-IDENTICAL (the retry-key signature in gateSignature and the Phase 209 regex-matrix
+304:// already mandates firing AskUserQuestion for a real decision fork); the flat-text safety net
+326:  'decision',
+335:// loadRegistry() -- read the render-coverage registry. Pure local read; never throws
+336:// (returns { entries: [] } on any error so the interceptor degrades to the BACKSTOP
+337:// signal alone rather than blocking the hook chain).
+339:function loadRegistry() {
+340:  try {
+344:  } catch (_e) {
+350:// gateReachingEntries(registry) -- DERIVE the gate-reaching enumeration from the
+351:// registry's card-emission entries (Phase 178 R15). render-only-excluded entries are
+352:// NOT gate-reaching. Returns an array of entry paths. Never throws.
+354:function gateReachingEntries(registry) {
+355:  const reg = registry && typeof registry === 'object' ? registry : {};
+359:    if (e && e.render_coverage === 'card-emission' && typeof e.entry === 'string') {
+360:      out.push(e.entry);
+382:// option labels each retry, this per-gate signature DOES flap to a fresh key every retry, and
+384:// labels are empty) provably NEVER catches a flapping NON-empty signature. The flap is bounded
+387:// ceiling regardless of how this per-gate signature flaps, and degrades the run. The per-gate
+411:  //     lib/core/gate-relevance.cjs::extractOptionLabels so the retry-key signature and
+414:  //     byte-equivalent across the move, so retry keys do not change.
+424:// turnContextHash(turn) -- a STABLE LOCAL key for the bounded-escape retry counter.
+430://     output_text-derived key would mint a fresh key every retry.
+432://     assistant turn every time the interceptor blocks and it re-emits, so ANY
+435://     fresh key every retry -- a production livelock.
+439://       1. the reached-gate entry SET when present (PRIMARY signal -- deferred, no producer).
+450:// RESEARCH Code Example 3). The retry-key / dedup identity for a DECLARED
+532:// classifyCardFire(turn, registry) -- THE deterministic predicate.
+534:// Returns { intercept, reason, degrade }:
+535://   - intercept=true  : a reached gate fired no card; force it (decision:block-on-exit-0 re-prompt).
+536://   - intercept=false : ordinary turn, card already fired, or degraded.
+scripts/check-card-fire.cjs:13: * no fired AskUserQuestion card it emits a Stop-block (decision:'block') +
+scripts/check-card-fire.cjs:19: * The block route is a JSON envelope `{ decision:'block', continue:false, ... }` written
+scripts/check-card-fire.cjs:21: * decision:'block' envelope to re-prompt the turn). It is NOT an exit-2 block; earlier
+scripts/check-card-fire.cjs:27: * `{ hook_event_name, transcript_path, stop_hook_active, session_id, ... }` -- it does
+scripts/check-card-fire.cjs:206:const MAX_FORCE_RETRIES = 3;
+scripts/check-card-fire.cjs:226:const MAX_SESSION_INTERCEPTS = 12;
+scripts/check-card-fire.cjs:730:      //       envelope with NO human-authored text field at all (a background subagent
+scripts/check-card-fire.cjs:738:      //       record, not a human turn -- a subagent hand-back, a background peer note, or
+scripts/check-card-fire.cjs:821://   - intercept-> the decision:block-on-exit-0 block: { decision:'block', reason,
+scripts/check-card-fire.cjs:869:      decision: 'block',
+scripts/check-card-fire.cjs:872:      reason: 'rendering your choices as a selectable card',
+scripts/check-card-fire.cjs:875:      systemMessage: 'Re-rendering your choices as a selectable card...',
+scripts/check-card-fire.cjs:1400://     a background task-notification or peer hand-back carrying a real text block now
+scripts/on-stop:106:              decision: 'block',

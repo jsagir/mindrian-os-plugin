@@ -1,0 +1,15 @@
+'use strict';
+// Isolated in-memory room db: 2 confirmed whitespace-zone nodes, 0 claims; then 1 proposed claim.
+const navigation = require('/home/jsagi/dev/MindrianOS-Plugin/lib/core/navigation.cjs');
+const { DatabaseSync } = require('node:sqlite');
+const d = new DatabaseSync(':memory:');
+d.exec("CREATE TABLE nodes (id TEXT PRIMARY KEY, type TEXT NOT NULL, properties TEXT DEFAULT '{}', source_path TEXT NOT NULL, created_by TEXT NOT NULL CHECK(created_by IN ('user','larry','import','brain','system')), confidence REAL, review_status TEXT NOT NULL DEFAULT 'proposed', created_at INTEGER NOT NULL, last_seen_at INTEGER NOT NULL)");
+const ins = d.prepare("INSERT INTO nodes (id,type,properties,source_path,created_by,review_status,created_at,last_seen_at) VALUES (?,?,?,?,?,?,?,?)");
+ins.run('ws:zone-1','WhitespaceZone','{}','p','system','confirmed',1,1);
+ins.run('ws:zone-2','WhitespaceZone','{}','p','system','confirmed',1,1);
+console.log('raw confirmed nodes (all types):', d.prepare("SELECT COUNT(*) c FROM nodes WHERE review_status='confirmed'").get().c);
+console.log('readVerificationPortrait:', JSON.stringify(navigation.readVerificationPortrait(d)));
+console.log('readStandingPortrait:', JSON.stringify(navigation.readStandingPortrait(d)));
+const lc = navigation.listClaimsForChecking ? navigation.listClaimsForChecking(d) : 'n/a';
+console.log('listClaimsForChecking:', JSON.stringify(lc));
+console.log('confirmed claims (type=claim):', d.prepare("SELECT COUNT(*) c FROM nodes WHERE type='claim' AND review_status='confirmed'").get().c);

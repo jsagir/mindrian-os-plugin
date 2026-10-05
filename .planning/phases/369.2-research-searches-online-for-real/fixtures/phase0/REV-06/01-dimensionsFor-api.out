@@ -1,0 +1,9 @@
+template ids ["map-unknowns","root-cause","think-hats","whitespace","diffusion","scientific-roadmapping","eureka","rs","hsi","analogies","connections"]
+dimensionsFor(template object, {})           OK, dimensions: 4
+dimensionsFor(template object)               OK, dimensions: 4
+dimensionsFor(template id string, {})        THROW TypeError: Cannot read properties of undefined (reading 'map')
+dimensionsFor(template id string)            THROW TypeError: Cannot read properties of undefined (reading 'map')
+dimensionsFor(undefined, {})                 THROW TypeError: Cannot read properties of undefined (reading 'dimensions')
+dimensionsFor(templateForCommand(...))       OK, dimensions: 4
+netguard 0
+exit=0

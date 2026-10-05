@@ -1,0 +1,23 @@
+6d789ed8a ancestor of HEAD
+affafb368 ancestor of HEAD
+7b83bfb26 ancestor of HEAD
+ad5991618 ancestor of HEAD
+-- entity decode / correction window tokens in evidence-rows.cjs and deep.cjs (count)
+lib/core/research-planner/evidence-rows.cjs:0
+lib/core/research-planner/deep.cjs:0
+-- git log -S for tokens
+[&lt;]
+[decodeEntities]
+[lane_already_closed]
+[unused_slot]
+[provider_unavailable:patent]
+-- v16 touched files
+affafb368 feat(261004-v16): web search lines accept room phrases and questions (SEED-115)
+ lib/core/research-planner/families.cjs | 66 ++++++++++++++++++++++++----------
+ lib/core/research-planner/grants.cjs   | 18 +++++++---
+ lib/core/research-planner/plan.cjs     |  3 +-
+ lib/core/research-planner/planner.cjs  |  9 ++---
+ lib/core/research-planner/quick.cjs    | 20 +++++++++--
+ tests/test-v16-web-slot-prose.cjs      |  2 +-
+ 6 files changed, 87 insertions(+), 31 deletions(-)
+exit=0

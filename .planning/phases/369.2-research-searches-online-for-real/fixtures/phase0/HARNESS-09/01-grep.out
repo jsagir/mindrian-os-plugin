@@ -1,0 +1,22 @@
+families 5
+  whitespace-gap/v1 templates 4 ws.exact:primary ws.synonym_cover:falsifier_covered_elsewhere ws.prior_attempts:falsifier_tried_before ws.absence_reason:context
+  concept-evidence/v1 templates 5 ce.exact:primary ce.counter:falsifier ce.prior_success:prior ce.alternative:alternative ce.pair:pair
+  causal-link/v1 templates 2 cl.link:primary cl.break:falsifier
+  constraint-interrogation/v1 templates 4 ci.derivation:derivation ci.retest:retest ci.scurve:scurve ci.prior_attack:prior
+  diffusion/v1 templates 4 df.adoption:first_adopters df.capacity:absorptive_capacity df.dualuse:civil_defense_crossing df.timing:timing
+total templates 19
+(node:2732868) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+practice|instrument|mechanism|adjacent hits in families.cjs: 0
+53:// and of standalone AND / OR / NOT tokens. Synonyms are 1 to 3 distinct terms.
+58:  synonyms_min: 1,
+59:  synonyms_max: 3,
+77:  'whitespace-gap/v1': Object.freeze({ order: ['term', 'synonyms'], required: ['term'] }),
+92:    tpl('ws.synonym_cover', 'falsifier_covered_elsewhere', ['term', 'synonyms'], function (s) {
+93:      return q1(s.term) + ' OR ' + s.synonyms.map(q1).join(' OR ');
+193:  'ws.gap': lens('whitespace-gap/v1', ['ws.exact', 'ws.synonym_cover', 'ws.prior_attempts'], ['ws.synonym_cover', 'ws.prior_attempts']),
+194:  'ws.covered_elsewhere': lens('whitespace-gap/v1', ['ws.synonym_cover', 'ws.prior_attempts'], ['ws.prior_attempts']),
+302:// synonyms array, is prose-shaped.
+330:    if (name === 'synonyms') {
+same four words across research-planner dir:
+exit=0

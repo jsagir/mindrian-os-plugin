@@ -1,0 +1,13 @@
+build ok true  []
+cap (QUICK_MAX_QUERIES) 3 leaves 6 budget {"breadth":1,"rounds":1,"queries_per_round":3,"results_per_query":5,"max_searches":3,"time_budget_ms":60000,"counterevidence":false}
+limiters [{"id":"LM1","leaf_id":"L6"}]
+  L1 mu.verify nq 2 ["ce.exact","ce.counter"]
+  L2 mu.verify nq 1 ["ce.exact"]
+  L3 mu.blind_spot nq 0 []
+  L4 mu.blind_spot nq 0 []
+  L6 mu.reveal nq 0 []
+  L5 mu.reveal nq 0 []
+limiter-tied leaf L6 queries: 0
+trimmed info: ["ok","run_id","status","mode","plan","plan_hash","errors","warnings","perspective_errors","lenses_selected","lens_refused","local_only_leaves","quick_trimmed","structure_source","saved"]
+netguard 0
+exit=0

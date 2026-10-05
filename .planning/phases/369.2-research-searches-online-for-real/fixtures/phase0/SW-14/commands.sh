@@ -1,0 +1,1 @@
+cd /home/jsagi/dev/MindrianOS-Plugin/.planning/phases/369.2-research-searches-online-for-real/fixtures/phase0/SW-14 && node 01-quick-cap-order.cjs   # HOME and MINDRIAN_ROOMS_HOME isolated inside _partialB-prelude.cjs; net guard installed

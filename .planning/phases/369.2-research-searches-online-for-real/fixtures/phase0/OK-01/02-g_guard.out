@@ -1,0 +1,27 @@
+8: * payload on stdin, parses the target file path, and blocks the tool
+10: * active room, or targets a sealed room (GUARDRAIL.md present) regardless
+11: * of the active room.
+13: * Signaling: non-zero exit + stderr text. Exit 2 to block, exit 0 to allow.
+14: * On any parse/resolution failure: exit 0 (fail-open). A false block is
+30:// is not room-scoped, so the set-membership guard must never block it.
+261:// so 194's set-membership check received the WRONG slug and false-blocked every
+262:// write into a bound/active nested room (and would false-block born-wired
+325:// the warning context BEFORE writing the block reason to stderr and exiting 2.
+328:// the new schema. The stderr text remains the authoritative block reason.
+344:function block(message, systemMessage) {
+401:    return block(
+404:      'blocked write to rooms-root file ' + targetRoom + ' (active: ' + activeRoom + ')'
+411:    return block(
+414:      'blocked write to sealed room ' + targetRoom + ' (active: ' + activeRoom + ')'
+419:  // rooms (bound is a SET), so block only when the target is OUTSIDE that set.
+421:  // no-room session never false-blocks. An UNBOUND session degrades to the
+424:  // equality path, never a hard block.
+437:      return block(
+440:        'blocked write to ' + targetRoom + ': not in session bound set [' + binding.bound.join(', ') + ']'
+464 scripts/write-scope-check.cjs
+2
+scripts/write-scope-check
+scripts/write-scope-check.cjs
+test-write-scope-set-membership.test.cjs
+test-write-scope-sub-room-ancestor.cjs
+exit=0

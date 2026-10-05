@@ -1,0 +1,10 @@
+88:    if (!fs.existsSync(p)) return null;
+91:  } catch (_e) {
+92:    return null;
+109:function runRegistry(args, roomsHome) {
+111:    if (!fs.existsSync(REGISTRY_SCRIPT)) return null;
+120:  } catch (_e) {
+121:    return null;
+201:    return { ok: false, reason: 'set_active_failed', room: room, previous: previous };
+lib/core/room-open.cjs:201:    return { ok: false, reason: 'set_active_failed', room: room, previous: previous };
+lib/mcp/tool-router.cjs:1982:            set_active_failed: 'The room-registry set-active call did not succeed. The active room is UNCHANGED.',

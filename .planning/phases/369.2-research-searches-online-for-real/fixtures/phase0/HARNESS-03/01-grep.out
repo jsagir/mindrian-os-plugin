@@ -1,0 +1,40 @@
+provider_unavailable hits (lib scripts commands skills): 11
+lib/core/research-corpus.cjs:447:    return extractEnvelope('provider_unavailable', 'missing_key', []);
+lib/core/research-corpus.cjs:707:  if (status === 'provider_unavailable') {
+lib/core/url-ingest.cjs:25: *     'provider_unavailable' (or 'size_exceeded' when the bound refused it)
+lib/core/url-ingest.cjs:256:    else if (te.status === 'provider_unavailable') { status = 'blocked'; failureClass = 'missing_credential'; }
+lib/core/url-ingest.cjs:390:          : 'provider_unavailable';
+lib/core/url-ingest.cjs:400:        return makeEnvelope('provider_unavailable', 'insufficient_evidence', providers, null, 'empty_content');
+scripts/scout-cadence-runner.cjs:237:        // provider_unavailable / size_exceeded / blocked / error: state NOT
+commands/research.md:170:| `provider_unavailable` | Rung 1 failed - proceed to the degrade ladder below |
+commands/research.md:183:- **Rung 2 - WebFetch (Claude-orchestrated):** on `provider_unavailable`, YOU
+skills/research/SKILL.md:164:| `provider_unavailable` | Rung 1 failed - proceed to the degrade ladder below |
+skills/research/SKILL.md:177:- **Rung 2 - WebFetch (Claude-orchestrated):** on `provider_unavailable`, YOU
+TAVILY_API_KEY hits in lib scripts:
+lib/memory/run-feynman-tests.cjs:978:  // (one source, TAVILY_API_KEY required). T1 industry happy paid path
+lib/memory/mcp-stack-fallback.test.cjs:19: *   - rs-fetcher-industry.cjs:   1 source, TAVILY_API_KEY required. THIS
+lib/memory/mcp-stack-fallback.test.cjs:40: *   T2 Industry native fallback:    no TAVILY_API_KEY, opts.webSearch
+lib/memory/mcp-stack-fallback.test.cjs:44: *   T3 Industry cache fallback:     no TAVILY_API_KEY, no opts.webSearch,
+lib/memory/mcp-stack-fallback.test.cjs:179:  // Set TAVILY_API_KEY so the chokepoint won't short-circuit on
+lib/memory/mcp-stack-fallback.test.cjs:181:  const prev = process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:182:  process.env.TAVILY_API_KEY = 'test-key';
+lib/memory/mcp-stack-fallback.test.cjs:197:    if (prev === undefined) delete process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:198:    else process.env.TAVILY_API_KEY = prev;
+lib/memory/mcp-stack-fallback.test.cjs:208:  // T2: no TAVILY_API_KEY; opts.webSearch returns native results.
+lib/memory/mcp-stack-fallback.test.cjs:210:  const prev = process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:211:  delete process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:224:    if (prev !== undefined) process.env.TAVILY_API_KEY = prev;
+lib/memory/mcp-stack-fallback.test.cjs:232:  // T3: no TAVILY_API_KEY, no webSearch; cacheReader returns cached envelope.
+lib/memory/mcp-stack-fallback.test.cjs:234:  const prev = process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:235:  delete process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:249:    if (prev !== undefined) process.env.TAVILY_API_KEY = prev;
+lib/memory/mcp-stack-fallback.test.cjs:256:  // T4: no TAVILY_API_KEY, no webSearch, no cacheReader -> empty results,
+lib/memory/mcp-stack-fallback.test.cjs:259:  const prev = process.env.TAVILY_API_KEY;
+lib/memory/mcp-stack-fallback.test.cjs:260:  delete process.env.TAVILY_API_KEY;
+79:  industry: 'tavily',
+82:  'competitive-intelligence': 'tavily',
+83:  grants: 'tavily',
+95:  tavily: 'Practitioner',
+203:// The canonical url of a corpus item (id is a url for academic + tavily items).
+scripts/doctor.cjs:721://   curl / brain.mindrian / tavily in any of these functions.
+exit=0

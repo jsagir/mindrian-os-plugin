@@ -1,0 +1,28 @@
+--- py=312 step1 write to b (active a)
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"blocked write to b: active room is a"}}
+Blocked: write to b denied. Active room is a.
+To authorize, run: /mos:rooms switch b
+(Or save the artifact in the active room if it belongs there.)
+exit=2
+--- step2 remediation: set-active b
+b
+exit=0
+--- step3 retry write to b
+exit=0
+--- py=39 step1 write to b (active a)
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"blocked write to b: active room is a"}}
+Blocked: write to b denied. Active room is a.
+To authorize, run: /mos:rooms switch b
+(Or save the artifact in the active room if it belongs there.)
+exit=2
+--- step2 remediation: set-active b
+Traceback (most recent call last):
+  File "<string>", line 34, in <module>
+AttributeError: module 'datetime' has no attribute 'UTC'
+exit=1
+--- step3 retry write to b
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"blocked write to b: active room is a"}}
+Blocked: write to b denied. Active room is a.
+To authorize, run: /mos:rooms switch b
+(Or save the artifact in the active room if it belongs there.)
+exit=2

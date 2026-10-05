@@ -1,0 +1,9 @@
+py=312
+PATH=auto-create RETURNED={"ok":true,"room_dir":"/tmp/phase0-home-oUuu/MindrianRooms/untitled-2026-10-05-1208","slug":"untitled-2026-10-05-1208","registry_path":"/tmp/phase0-home-oUuu/MindrianRooms/.rooms/registry.json"}
+exists $HOME/untitled-2026-10-05-1208/.mindrian/room.db = true
+exists $HOME/untitled-2026-10-05-1208/room.db = false
+GOVERNED_WRITE={"ok":true,"eventId":"memory_event:node_created:1791202124548:33921628"}
+find .mindrian: ["room.db"]
+(node:2711351) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

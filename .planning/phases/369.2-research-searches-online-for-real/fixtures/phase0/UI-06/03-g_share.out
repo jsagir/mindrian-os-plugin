@@ -1,0 +1,6 @@
+
+lib/core/mva-deck-builder.cjs:17: *   - No raw error strings (Plan 118-02 agents already redact).
+lib/hmi/brain-review-packet.cjs:28: *      (the A3 PII-redaction sanitizer, the 6th Part-8 tripwire) before it is
+lib/hmi/brain-review-packet.cjs:160:  //    provided. The response is sanitized (A3 PII redaction) before it surfaces.
+lib/hmi/brain-review-packet.cjs:202: * redaction). Wrapped: if the sanitizer module is unavailable, return an empty
+exit=0

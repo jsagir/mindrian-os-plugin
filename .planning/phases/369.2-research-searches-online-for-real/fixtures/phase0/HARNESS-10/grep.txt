@@ -1,0 +1,5 @@
+lib/core/research-planner/deep.cjs:215:    const ranking = perspectiveMod.rankByUnlock(plan.perspective, {});
+lib/core/research-planner/deep.cjs:908:    perspectiveMod.rankByUnlock(plan.perspective, {}).forEach(function (r) {
+lib/core/research-planner/deep.cjs:1239:  updated.ranking = perspectiveMod.rankByUnlock(updated, { supportByLimiter: support }).map(function (r) { return r.limiter_id; });
+lib/core/research-planner/perspective.cjs:136:function rankByUnlock(perspective, opts) {
+lib/core/research-planner/sr-door.cjs:483:    question: nonEmpty(goal.target) ? 'What baseline figures are reported for ' + cap(goal.target) + (nonEmpty(goal.unit) ? ' in ' + cap(goal.unit) : '') + '?' : dimById['sr:goal'].prompt,

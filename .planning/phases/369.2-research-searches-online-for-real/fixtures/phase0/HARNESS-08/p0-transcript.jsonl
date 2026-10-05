@@ -1,0 +1,2 @@
+{"type":"user","message":{"role":"user","content":"which option should we pick for the next step, continue or stop"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Pick one for the next step:\n[1] Continue the research\n[2] Stop here\nWhich option do you want?"}]}}

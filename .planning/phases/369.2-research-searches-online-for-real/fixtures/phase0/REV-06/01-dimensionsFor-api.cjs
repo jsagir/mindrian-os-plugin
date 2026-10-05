@@ -1,0 +1,12 @@
+const P=require('../_partialB-prelude.cjs');
+const Q=require(P.RP+'question-templates.cjs');
+const id=Q.PLANNER_TEMPLATE_IDS[0];
+const t=(o,n)=>{try{const r=o();console.log(n.padEnd(44),'OK, dimensions:',Array.isArray(r)?r.length:typeof r);}catch(e){console.log(n.padEnd(44),'THROW',e.constructor.name+': '+e.message);}};
+console.log('template ids',JSON.stringify(Q.PLANNER_TEMPLATE_IDS));
+t(()=>Q.dimensionsFor(Q.TEMPLATES[id],{}),'dimensionsFor(template object, {})');
+t(()=>Q.dimensionsFor(Q.TEMPLATES[id]),'dimensionsFor(template object)');
+t(()=>Q.dimensionsFor(id,{}),'dimensionsFor(template id string, {})');
+t(()=>Q.dimensionsFor(id),'dimensionsFor(template id string)');
+t(()=>Q.dimensionsFor(undefined,{}),'dimensionsFor(undefined, {})');
+t(()=>Q.dimensionsFor(Q.templateForCommand('/mos:research')||Q.TEMPLATES[id],{}),'dimensionsFor(templateForCommand(...))');
+console.log('netguard',P.guard.attempts());

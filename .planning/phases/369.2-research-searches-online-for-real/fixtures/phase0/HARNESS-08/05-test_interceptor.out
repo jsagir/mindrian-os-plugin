@@ -1,0 +1,26 @@
+  ok - (BACKSTOP) off-registry ASCII-box gate glyphs with no card yields intercept=true
+  ok - (b) NEGATIVE: a non-gate ordinary turn yields intercept=false
+  ok - (b) NEGATIVE: a render-only-excluded surface is not gate-reaching -> intercept=false
+  ok - (c) NEGATIVE: reached-gate WITH a fired card yields intercept=false
+  ok - (d) BOUNDED ESCAPE: at MAX_FORCE_RETRIES the predicate returns degrade=true
+  ok - (d) BOUNDED ESCAPE: at the limit it stops forcing (intercept=false on degrade)
+  ok - (d) BOUNDED ESCAPE: below the limit it still intercepts
+  ok - buildEnforcementEnvelope is exported as a function
+  ok - ENVELOPE: an intercept envelope NEVER carries hookSpecificOutput (Stop has no such schema variant)
+  ok - ENVELOPE: an intercept envelope carries decision:block + continue:false
+  ok - ENVELOPE: an intercept envelope carries a non-empty systemMessage (the calm, human-facing surface)
+  ok - ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)
+  ok - ENVELOPE CR-06: an intercept envelope carries a non-empty string systemMessage
+  ok - ENVELOPE CR-06: the systemMessage does NOT leak the raw classification slug
+  ok - ENVELOPE CR-06: the reason field is a calm phrase, NOT the raw slug (Claude shows it verbatim)
+  ok - ENVELOPE CR-06: the degrade envelope reason is also a calm phrase, NOT the raw slug
+  ok - ENVELOPE CR-06: the degrade envelope carries NO systemMessage (suppressOutput path)
+  ok - gateReachingEntries is exported as a function
+  ok - REGISTRY-KEYED: gateReachingEntries returns only card-emission entries
+  ok - DETERMINISM: classifyCardFire is deterministic over identical input
+  ok - PART 8: no network / Brain symbols in check-card-fire.cjs
+  ok - DEFENSIVE: classifyCardFire never throws on malformed / missing input
+
+PASS 27 assertions
+>>> test-ga4-card-fire-interceptor.cjs: PASSED
+exit=0

@@ -1,0 +1,27 @@
+58:        <div className="sp-row" data-row="connection">
+59:          <dt>Connection</dt>
+67:        <div className="sp-row" data-row="address">
+68:          <dt>Address</dt>
+71:        <div className="sp-row" data-row="version">
+72:          <dt>MindrianOS version</dt>
+75:        <div className="sp-row" data-row="mcp-session">
+76:          <dt>MCP session</dt>
+81:          data-row="browser-copy"
+86:          <dt>Browser copy</dt>
+90:        <div className="sp-row" data-row="last-update">
+91:          <dt>Last update</dt>
+
+ui/shell/client/frame/ShellHeader.tsx:9:import { STATUS_TRIGGER_ID } from './StatusPanel.tsx';
+ui/shell/client/frame/ShellHeader.tsx:13:  const { rooms, current, statusOpen, setStatusOpen } = useShell();
+ui/shell/client/frame/ShellHeader.tsx:35:          aria-expanded={statusOpen}
+ui/shell/client/frame/ShellHeader.tsx:37:          onClick={() => setStatusOpen(!statusOpen)}
+ui/shell/client/frame/ShellFrame.tsx:24:import { StatusPanel } from './StatusPanel.tsx';
+ui/shell/client/frame/ShellFrame.tsx:73:  const [statusOpen, setStatusOpen] = useState(false);
+ui/shell/client/frame/ShellFrame.tsx:179:    () => ({ port, pathname, status, unreachable, rooms, roomsState, current, waiting, roomEpoch, refresh, openRoom: switcher.openRoom, statusOpen, setStatusOpen }),
+ui/shell/client/frame/ShellFrame.tsx:180:    [port, pathname, status, unreachable, rooms, roomsState, current, waiting, roomEpoch, refresh, switcher.openRoom, statusOpen],
+ui/shell/client/frame/ShellFrame.tsx:197:            <StatusPanel />
+
+sed: can't read lib/statusline/statusline-fallback-echo.cjs: No such file or directory
+grep: lib/statusline/statusline-fallback-echo.cjs: No such file or directory
+0
+exit=0

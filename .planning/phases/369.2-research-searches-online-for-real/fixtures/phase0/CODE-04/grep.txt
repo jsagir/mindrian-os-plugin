@@ -1,0 +1,5 @@
+lib/core/research-planner/planner.cjs:186:    if (c.ok) { composed[leaf.id] = c.queries; return; }
+lib/core/research-planner/planner.cjs:207:    deepMod.roundOneQueries(plan).forEach(function (lane) {
+lib/core/research-planner/deep.cjs:197:function limiterSlot(plan, lim, leaves) {
+lib/core/research-planner/deep.cjs:221:      specs.push({ lane: safeLane(lim.id), kind: 'limiter', limiter_id: lim.id, leaf_ids: own.map(function (l) { return l.id; }), slot: limiterSlot(plan, lim, own) });
+lib/core/research-planner/deep.cjs:275:        c = nonEmpty(spec.slot) ? families.composeFamily(CI_FAMILY, { limiter: spec.slot }, { templateIds: ROUND_ONE_TEMPLATES.slice(), round: 1 }) : refuse('bad_slot');

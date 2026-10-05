@@ -1,0 +1,15 @@
+limiters [{"id":"LM1","statement":"Cathode theoretical capacity","leaf_id":"L8"},{"id":"LM2","statement":"Interface resistance at the anode","leaf_id":"L9"},{"id":"LM3","statement":"Volume swing of the host","leaf_id":"L10"},{"id":"LM4","statement":"Electrolyte cost floor","leaf_id":"L11"}]
+exports has limiterSlot: undefined
+lanes with queries after unbinding slots: 4
+  LM2 ci.derivation "\"Interface resistance at the anode\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)"
+  LM2 ci.retest "\"Interface resistance at the anode\" AND (overcome OR circumvent OR \"new approach\")"
+  LM3 ci.derivation "\"Volume swing of the host\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)"
+  LM3 ci.retest "\"Volume swing of the host\" AND (overcome OR circumvent OR \"new approach\")"
+  LM1 ci.derivation "\"Cathode theoretical capacity\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)"
+  LM1 ci.retest "\"Cathode theoretical capacity\" AND (overcome OR circumvent OR \"new approach\")"
+  LM4 ci.derivation "\"Electrolyte cost floor\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)"
+  LM4 ci.retest "\"Electrolyte cost floor\" AND (overcome OR circumvent OR \"new approach\")"
+limiter statement length 28 quoted-whole-statement appears: true
+composeFamily(limiter=statement) ok true  ["\"Cathode theoretical capacity\" AND (\"fundamental limit\" OR \"theoretical limit\" OR bound)","\"Cathode theoretical capacity\" AND (overcome OR circumvent OR \"new approach\")","\"Cathode theoretical capacity\" AND (saturation OR plateau OR \"diminishing returns\")","\"Cathode theoretical capacity\" AND (review OR survey)"]
+netguard attempts 0
+exit=0

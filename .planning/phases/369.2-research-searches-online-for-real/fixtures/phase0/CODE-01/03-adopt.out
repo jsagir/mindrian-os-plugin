@@ -1,0 +1,14 @@
+--- 3.12
+/tmp/phase0-ws-Tr2y/room
+exit=0
+ls: cannot access '/tmp/phase0-ws-Tr2y/none/.rooms': No such file or directory
+/tmp/phase0-ws-Tr2y/.rooms:
+.
+..
+registry.json
+--- 3.9
+exit=1
+ls: cannot access '/tmp/phase0-ws-Q2ks/none/.rooms': No such file or directory
+/tmp/phase0-ws-Q2ks/.rooms:
+.
+..

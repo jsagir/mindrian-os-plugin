@@ -1,0 +1,63 @@
+## --run-tag occurrences (files / lines) in docs, commands, lib, scripts, agents, hooks
+0
+## --tag occurrences
+25
+commands/eureka.md:120:node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" eureka-judge --room ROOM_DIR --tag <run_tag> --judge none
+scripts/spike-366.cjs:31: *   node scripts/spike-366.cjs recall  --manifest <m> --arm <recall-arm> [--tag <t>]
+scripts/spike-366.cjs:282:  if (!TAG_RE.test(tag)) throw refuse('--tag is not a plain tag');
+scripts/spike-366.cjs:388:  const args = [JEV_SCRIPT, '--room', dir, '--tag', tag, '--max', String(perRoomCap)];
+scripts/spike-366.cjs:713:  '  node scripts/spike-366.cjs recall  --manifest <m> --arm <' + RECALL_ARMS.join('|') + '> [--tag <t>]',
+scripts/spike-366.cjs:730:      case '--manifest': case '--arm': case '--recall-arm': case '--repeat': case '--verdicts': case '--tag': case '--root': {
+scripts/spike-366.cjs:752:        case 'recall': res = await recallArm(a.flags['--manifest'], a.flags['--arm'], { tag: a.flags['--tag'] }); break;
+scripts/eureka-jev-judge.cjs:20: *   node scripts/eureka-jev-judge.cjs --room <roomDir> --tag <runTag> [--max N] [--check]
+scripts/eureka-jev-judge.cjs:91:  const tag = flags['--tag'];
+scripts/release.sh:431:  echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW; then promote to @latest (navigator 2026-08-10: bare npx always serves the newest release,
+scripts/release.sh:1063:  echo "  [DRY RUN] would run: npm publish --tag $NPM_TAG"
+scripts/release.sh:1065:  if npm publish --tag "$NPM_TAG"; then
+scripts/research-planner.cjs:24: *   perspective-recall --room <dir> --perspective <id> [--max <n>] [--tag <ts>] [--mode quick|deep] [--offline]
+scripts/research-planner.cjs:25: *   perspective-judge --room <dir> --perspective <id> --tag <ts> [--judge none] [--offline]
+scripts/research-planner.cjs:97:  '--tag': 'tag',
+scripts/research-planner.cjs:121:  'eureka-recall': { pos: [], flags: ['--room', '--max', '--tag', '--mode'], need: ['--room'] },
+scripts/research-planner.cjs:122:  'eureka-judge': { pos: [], flags: ['--room', '--tag', '--judge'], need: ['--room', '--tag'] },
+scripts/research-planner.cjs:123:  'perspective-recall': { pos: [], flags: ['--room', '--perspective', '--max', '--tag', '--mode', '--offline'], need: ['--room', '--perspective'] },
+scripts/research-planner.cjs:124:  'perspective-judge': { pos: [], flags: ['--room', '--perspective', '--tag', '--judge', '--offline'], need: ['--room', '--perspective', '--tag'] },
+scripts/research-planner.cjs:303:  const rec = mod.runRecall(room, { budgets: budgets, tag: flags['--tag'] || undefined });
+scripts/research-planner.cjs:321:  const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none', module: mod });
+scripts/huji-pin-smoketest.cjs:37: *   node scripts/huji-pin-smoketest.cjs --tag v1.15.3-beta.26   (skip auto-detection)
+scripts/huji-pin-smoketest.cjs:308:  const tagFlagIdx = argv.indexOf('--tag');
+scripts/huji-pin-smoketest.cjs:350:      console.error('FAIL: --tag ' + overrideTag + ' does not contain ' + RECIPE_NAME + ' in ' + RECIPE_FILE);
+skills/eureka/SKILL.md:117:node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scri
+## doctor judge reachability
+2
+2054:      // else. NEVER calls Jev, NEVER calls Theo, NEVER spawns
+4123:  // never by an LLM-judge. Soft-fail: a throw records an 'error' finding (exit
+## "run-tag" anywhere (excluding node_modules, .planning)
+scripts/scientific-roadmap.cjs:44: * <room>/.mindrian/scientific-roadmap/ with a run-tag file name; --input and
+tests/test-364-refusal-e2e.cjs:196:  C.check('X5 confirm creates the run state under the run folder with a run-tag name',
+count=2
+## doctor judge reachability lines (jev|judge reach|typesafe key)
+1
+0
+## judge-in-help text
+lib/mcp/tools/research.cjs:72:const eurekaJudge = require('../../core/research-planner/perspectives/eureka-judge.cjs');
+lib/mcp/tools/research.cjs:272:  if (c.next === 'grant') out.next_step = 'Ask for a grant: call research_run with op grant_request and this run_id.';
+lib/mcp/tools/research.cjs:273:  else if (c.next === 'run_quick') out.next_step = 'A grant already covers every search: call research_run with op run_quick and this run_id.';
+lib/mcp/tools/research.cjs:274:  else if (c.next === 'review') out.next_step = 'This is a deep plan: call research_run with op deep_plan and this run_id to review it.';
+lib/mcp/tools/research.cjs:275:  else if (c.next === 'revise') out.next_step = 'The plan is not ready. Change the questions and call op plan again.';
+lib/mcp/tools/research.cjs:331:    if (c.next === 'run_quick') return { ok: true, op: 'grant_request', covered: true, run_id: i.run_id, next: 'run_quick', next_step: 'A grant already covers every search: call op run_quick.' };
+lib/mcp/tools/research.cjs:357:    next_step: 'Show the card. When the navigator answers, call gate_answer with this gate_id. Nothing is saved until then.',
+lib/mcp/tools/research.cjs:371:  return { ok: true, op: 'grant_revoke', grant_id: id, revoked_at: res.grant.revoked_at, next_step: 'The next search under this grant stops. Ask for a new grant when you want to search again.' };
+## judge MCP next_step (line)
+677:    next_step: 'Stage A verdicts are in the run folder. The judge on this surface is none: read the passed pairs and
+## flag form --run-tag count (exact)
+0
+## --tag in eureka docs
+skills/eureka/SKILL.md:117:node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-r
+commands/eureka.md:120:node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" eureka-judge --room ROOM_DIR --tag <run_tag> --judge none
+## judge CLI usage line
+20: *   node scripts/eureka-jev-judge.cjs --room <roomDir> --tag <runTag> [--max N] [--check]
+## --help handled? (count of "--help" in script)
+0
+## doctor Jev/judge reachability (count of jev-devtime|loadKey|TYPESAFE in doctor + lib/core/doctor)
+2
+0

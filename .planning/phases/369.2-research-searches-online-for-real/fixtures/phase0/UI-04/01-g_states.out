@@ -1,0 +1,10 @@
+ui/shell/client/copy.ts:69:  rebuilding: 'Rebuilding',
+ui/shell/client/copy.ts:136:  empty: 'No evidence in this room yet. Sources you file in Claude Code appear here.',
+ui/shell/client/copy.ts:214:  empty: 'No decisions yet. When Larry proposes one, it waits here for you.',
+ui/shell/client/copy.ts:223:  empty: 'No deliverables yet. Finished documents filed to the room appear here.',
+ui/shell/client/copy.ts:231:  empty: 'No relations in this room yet. Typed links you file in Claude Code appear here.',
+ui/shell/client/copy.ts:244:export const RAISED_UNAVAILABLE = 'Decisions raised in other sessions could not be read just now.';
+ui/shell/client/views/format.ts:18:// "just now", "5m ago", "2h ago" under 24 hours, else "2 Oct 2026". Empty when the time is unknown.
+ui/shell/client/views/format.ts:67:// recognise is returned whole rather than dropped; an empty string means the room has no question.
+
+exit=0

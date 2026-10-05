@@ -1,0 +1,65 @@
+lib/core/research-planner/deep.cjs:11: * mandatory counterevidence pass, stops for a named reason, and synthesizes the
+lib/core/research-planner/deep.cjs:22: *                   outside the approved family, provider or remaining budget
+lib/core/research-planner/deep.cjs:23: *   counterevidence {queries}; runCounterevidence fetches, recordLaneRows('CE')
+lib/core/research-planner/deep.cjs:27: * Stop reasons recorded as stop_reason: cap, saturation, budget, time,
+lib/core/research-planner/deep.cjs:28: * plurality_required, navigator_stop. A budget or time stop skips the
+lib/core/research-planner/deep.cjs:29: * counterevidence pass and the RunResult names it as an unresolved branch.
+lib/core/research-planner/deep.cjs:72:const BUDGETS = planMod.BUDGETS;
+lib/core/research-planner/deep.cjs:75:const DEEP_STEPS = Object.freeze(['fetch_round', 'dispatch_lanes', 'validate', 'reflect', 'extend_card', 'counterevidence', 'synthesize', 'done']);
+lib/core/research-planner/deep.cjs:80:const CE_NOT_RUN = 'counterevidence not run';
+lib/core/research-planner/deep.cjs:83:const DIGEST_CAP = 40;
+lib/core/research-planner/deep.cjs:149:  return Math.min(BUDGETS.DEEP_MAX_SEARCHES, base + lift);
+lib/core/research-planner/deep.cjs:153:// this run through an F.3 approval (families, hashes, a bounded cap lift).
+lib/core/research-planner/deep.cjs:206:  return orchestrator.resolveFanoutCap({ fanout: plan.budget.breadth });
+lib/core/research-planner/deep.cjs:211:  const cap = laneCapFor(plan);
+lib/core/research-planner/deep.cjs:237:  return specs.slice(0, cap);
+lib/core/research-planner/deep.cjs:260:  const perLane = plan.budget.queries_per_round;
+lib/core/research-planner/deep.cjs:321:  const budgetMs = num(o.budgetMs) && o.budgetMs > 0 ? o.budgetMs : Math.min(plan.budget.time_budget_ms, BUDGETS.DEEP_TIME_BUDGET_MS);
+lib/core/research-planner/deep.cjs:337:    budget_ms: budgetMs,
+lib/core/research-planner/deep.cjs:340:    max_rounds: plan.budget.rounds,
+lib/core/research-planner/deep.cjs:355:    max_searches_base: plan.budget.max_searches,
+lib/core/research-planner/deep.cjs:362:    stop_reason: null,
+lib/core/research-planner/deep.cjs:380:// fetching (shared by fetchRound and runCounterevidence)
+lib/core/research-planner/deep.cjs:404:    cache_hit: cacheHit, items: [], budget_stop: false,
+lib/core/research-planner/deep.cjs:409:    if (out.outcome === 'blocked' || out.failure_class === 'spend_limit_exceeded') out.budget_stop = true;
+lib/core/research-planner/deep.cjs:410:    if (env && (/budget_exhausted/.test(String(env.error || '')) || (isObj(env.payload) && env.payload.reason === 'budget_exhausted'))) out.budget_stop = true;
+lib/core/research-planner/deep.cjs:411:    if (meta && num(meta.remaining_usd) && meta.remaining_usd <= 0) out.budget_stop = true;
+lib/core/research-planner/deep.cjs:436:  const topRows = plan.budget.results_per_query;
+lib/core/research-planner/deep.cjs:450:    if (elapsed >= state.budget_ms) { state.stop_reason = state.stop_reason || 'time'; return { ok: true }; }
+lib/core/research-planner/deep.cjs:452:      state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:458:      if (v.reason === 'cap_exceeded') { state.stop_reason = state.stop_reason || 'budget'; return { ok: true }; }
+lib/core/research-planner/deep.cjs:470:    const waited = await withDeadline(cacheFn(SOURCE_ID, q.q, cacheRoom, envelopeFn), state.budget_ms - elapsed);
+lib/core/research-planner/deep.cjs:475:      info = { outcome: 'failed', failure_class: 'network_timeout', count: null, cost_usd: null, remaining_usd: null, x_query: null, cache_hit: false, items: [], budget_stop: false };
+lib/core/research-planner/deep.cjs:476:      state.stop_reason = state.stop_reason || 'time';
+lib/core/research-planner/deep.cjs:478:      info = { outcome: 'failed', failure_class: 'unknown_error', count: null, cost_usd: null, remaining_usd: null, x_query: null, cache_hit: false, items: [], budget_stop: false };
+lib/core/research-planner/deep.cjs:484:      if (info.budget_stop) state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:532:    if (state.stop_reason === 'budget' || state.stop_reason === 'time') return { ok: true };
+lib/core/research-planner/deep.cjs:550:  // cap hit truncates the round (a budget stop); anything else refuses it whole.
+lib/core/research-planner/deep.cjs:567:  if (truncated) state.stop_reason = state.stop_reason || 'budget';
+lib/core/research-planner/deep.cjs:584:  return { ok: true, round: state.round, executed: state.executed.length - before, stop_reason: state.stop_reason, next_step: state.step };
+lib/core/research-planner/deep.cjs:641:    if (state.step !== 'counterevidence' || !state.ce.fetched || state.ce.recorded) return refuse('wrong_step', { step: state.step });
+
+lib/core/research-planner/ambient.cjs:9
+lib/core/research-planner/audit-ledger.cjs:0
+lib/core/research-planner/canon-release.cjs:0
+lib/core/research-planner/deep.cjs:30
+lib/core/research-planner/egress-policy.cjs:0
+lib/core/research-planner/evidence-rows.cjs:0
+lib/core/research-planner/families.cjs:0
+lib/core/research-planner/filing-stamped.cjs:0
+lib/core/research-planner/filing.cjs:0
+lib/core/research-planner/grants.cjs:6
+lib/core/research-planner/perspective.cjs:0
+lib/core/research-planner/plan.cjs:36
+lib/core/research-planner/planner.cjs:10
+lib/core/research-planner/pyramid.cjs:2
+lib/core/research-planner/question-templates.cjs:0
+lib/core/research-planner/quick.cjs:27
+lib/core/research-planner/sr-door.cjs:0
+lib/core/research-planner/sr-entry.cjs:0
+lib/core/research-planner/sr-filing.cjs:0
+lib/core/research-planner/sr-steps.cjs:0
+lib/core/research-planner/structure.cjs:0
+lib/core/research-planner/theo-lane.cjs:0
+lib/core/research-planner/verdict.cjs:0
+exit=0

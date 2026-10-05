@@ -1,0 +1,27 @@
+ui/shell/client/views/guarded.tsx:2:// A view needs an open room. With none open (or the room list still loading) the person gets the room picker's
+ui/shell/client/views/guarded.tsx:3:// "No room open" state instead of an empty view that looks like an empty room.
+ui/shell/client/views/evidence/AskLarry.tsx:25:// "nothing filed yet"; every other refusal, or an answer that never came, is "the room could not be read just now".
+ui/shell/client/views/evidence/DocumentDisplay.tsx:23:type Loaded = { phase: 'loading' } | { phase: 'ready'; markdown: string; truncated: boolean } | { phase: 'failed'; reason: string };
+ui/shell/client/views/evidence/DocumentDisplay.tsx:83:  const [loaded, setLoaded] = useState<Loaded>({ phase: 'loading' });
+ui/shell/client/views/evidence/DocumentDisplay.tsx:86:    setLoaded({ phase: 'loading' });
+ui/shell/client/views/evidence/DocumentDisplay.tsx:105:  if (loaded.phase === 'loading') return <p className="caption">{DOCUMENT_LOADING}</p>;
+ui/shell/client/views/evidence/EvidenceList.tsx:42:  if (items.length === 0) return <p>{EVIDENCE.empty}</p>;
+ui/shell/client/views/evidence/EvidenceView.tsx:37:  const reading = replica.loadingLine !== null && nodes.docs.length === 0;
+ui/shell/client/views/evidence/EvidenceView.tsx:48:        {reading ? <p>{replica.loadingLine}</p> : <EvidenceList items={items} titles={titles} partners={partners} gated={gated} selected={s
+ui/shell/client/views/decisions/DecisionsView.tsx:110:  const empty = ready && !raisedUnavailable && gates.length === 0 && proposed.length === 0 && settled.length === 0;
+ui/shell/client/views/decisions/DecisionsView.tsx:111:  const reading = replica.loadingLine !== null && replica.count === 0;
+ui/shell/client/views/decisions/DecisionsView.tsx:136:          <p>{replica.loadingLine}</p>
+ui/shell/client/views/decisions/DecisionsView.tsx:137:        ) : empty ? (
+ui/shell/client/views/decisions/DecisionsView.tsx:138:          <p>{DECISIONS.empty}</p>
+---
+173:    what: 'The room could not be read just now.',
+184:export const DOCUMENT_COULD_NOT_DISPLAY = 'This document could not be displayed.';
+204:      return 'The room could not read the file';
+243:// Under "Waiting for you" when the room's list of decisions raised elsewhere could not be read.
+244:export const RAISED_UNAVAILABLE = 'Decisions raised in other sessions could not be read just now.';
+349:    case 'lookup_failed':
+350:      // The room could not be asked whether an answer was saved. The decision is not gone: asking again is safe.
+352:        what: 'The room could not be checked just now.',
+368:    what: 'The room could not save your answer.',
+390:  what: 'This decision could not be shown.',
+exit=0

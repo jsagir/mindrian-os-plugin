@@ -1,0 +1,22 @@
+A default budget CE planned queries 3
+=== A default budget budget {"breadth":4,"rounds":2,"queries_per_round":2,"results_per_query":5,"max_searches":16,"time_budget_ms":1200000,"counterevidence":true}
+steps fetch_round>dispatch_lanes>validate>reflect>fetch_round>dispatch_lanes>validate>counterevidence>synthesize
+searches_used 15 cap 16 stop_reason cap
+runCounterevidence result {"ok":true,"executed":3,"stop_reason":"cap"}
+state.ce {"planned":3,"run":true,"partial":false,"gaps":[]}
+synthesize ok true run keys schema,run_id,mode,plan_hash,grant_ref,trigger,started_at,finished_at,stop_reason,queries,records_path,rows,dropped,leaves,verdict,answer_line,pyramid,perspective,governing_status,unresolved_branches,opportunity_candidates,contradictions,escalation_offer,local_checks,timings,filed,lanes,classifications,next_binding_constraint,next_version,weakest_branch,counterevidence,extensions
+run.counterevidence {"ran":true,"skipped":false,"skipped_reason":null,"partial":false,"queries":[{"template_id":"ci.derivation","q_hash":"sha256:9dd769f6344d588ad1f470e0b6e3da3142415f57b8c5b4eb76132fad656af1ac","leaf_ids":["L2"]},{"template_id":"ci.derivation","q_hash":"sha256:8e7add8bd914431cc0a0c202728f9844d9b035ef3a452a31300ce8e781ab934b","leaf_ids":["L9"]},{"template_id":"ci.derivation","q_hash":"sha256:a438cd7bb4655b87f630c40dacb6dcd4216b8f1c19ddc9f86643f6b1bff03467","leaf_ids":["L10"]}],"gaps":[]}
+run.unresolved_branches ["Tension","Goal","Paths","Paths from a 10X resurvey","Limiters","First adopters","Absorptive capacity","Civil and defense crossing","Timing"]
+run.verdict null run.status undefined run.stop_reason cap
+B max_searches=8 (round one only) CE planned queries 0
+=== B max_searches=8 (round one only) budget {"breadth":4,"rounds":2,"queries_per_round":2,"results_per_query":5,"max_searches":8,"time_budget_ms":1200000,"counterevidence":true}
+steps fetch_round>dispatch_lanes>validate>reflect>counterevidence>synthesize
+searches_used 8 cap 8 stop_reason saturation
+runCounterevidence result {"ok":true,"executed":0,"stop_reason":"saturation"}
+state.ce {"planned":0,"run":true,"partial":false,"gaps":[{"branch":"goal_falsifier","reason":"over_cap"},{"branch":"limiter_derivation","reason":"over_cap"},{"branch":"limiter_derivation","reason":"over_cap"}]}
+synthesize ok true run keys schema,run_id,mode,plan_hash,grant_ref,trigger,started_at,finished_at,stop_reason,queries,records_path,rows,dropped,leaves,verdict,answer_line,pyramid,perspective,governing_status,unresolved_branches,opportunity_candidates,contradictions,escalation_offer,local_checks,timings,filed,lanes,classifications,next_binding_constraint,next_version,weakest_branch,counterevidence,extensions
+run.counterevidence {"ran":true,"skipped":false,"skipped_reason":null,"partial":false,"queries":[],"gaps":[{"branch":"goal_falsifier","reason":"over_cap"},{"branch":"limiter_derivation","reason":"over_cap"},{"branch":"limiter_derivation","reason":"over_cap"}]}
+run.unresolved_branches ["Tension","Goal","Paths","Paths from a 10X resurvey","Limiters","First adopters","Absorptive capacity","Civil and defense crossing","Timing","goal_falsifier (counterevidence not composed: over_cap)","limiter_derivation (counterevidence not composed: over_cap)","limiter_derivation (counterevidence not composed: over_cap)"]
+run.verdict null run.status undefined run.stop_reason saturation
+netguard 0
+exit=0

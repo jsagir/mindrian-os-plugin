@@ -1,0 +1,25 @@
+## AI-01 files
+      7 scripts/build-framework-command-ledger.cjs
+      6 scripts/eval-icm-writers.cjs
+      6 scripts/entity-extract.cjs
+      5 scripts/build-orchestration-projection.cjs
+      5 lib/wiki/editor-dist/wiki-editor.js
+      5 lib/core/navigation/typed-entity.cjs
+      4 scripts/jev-devtime-client.cjs
+      4 scripts/build-section-command-ledger.cjs
+      4 lib/core/semantic-index/entity-extractor.cjs
+      2 lib/core/tone-filter.cjs
+      2 lib/core/research-planner/canon-release.cjs
+      2 lib/core/navigation.cjs
+## AI-02
+scripts/auto-explore-fingerprint.cjs:210:  // ordering correction is a Rule 3 blocker fix; documented in Plan 119-00 SUMMARY.
+## AI-05
+lib/core/research-planner/structure.cjs:195:// and is listed after the ones that name the room's rung.
+scripts/room-naming-selector.cjs:141:      'ready. Time to name the room (or discard it).',
+## AI-09
+lib/agents/auto-explore-agent.cjs:118: * across phases so cross-room comparability holds. 'bq_id' is the local registry
+## AI-04 test
+tests/test-221-matrix.cjs
+## AI-10 test
+tests/test-236-backfill-default-preserves-journal.cjs
+exit=0

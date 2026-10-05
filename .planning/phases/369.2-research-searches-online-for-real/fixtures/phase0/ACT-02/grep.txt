@@ -1,0 +1,16 @@
+agentshield-scan.yml
+.github/workflows/agentshield-scan.yml:0
+.github/workflows/agentshield-scan.yml:44:    runs-on: ubuntu-latest
+.github/workflows/agentshield-scan.yml:56:          node-version: '22'
+1
+481:                           Probes top-level imports against the runtime's python (python3
+482:                           preferred, python fallback). On missing deps emits an actionable
+3639:  // python. This dispatch lands BEFORE the class A-M flow so the gate is
+3656:        console.log(JSON.stringify({ ok: false, error: (e && e.message) || 'unknown', fix: 'Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)' }, null, 2));
+4413:// Python resolution: `python3` preferred (POSIX convention + Aryeh's tester
+4414:// machine has both py3.13 + py3.14 reachable via `python3`); falls back to
+4415:// `python` (Windows / older installs). Honors MINDRIAN_PYTHON env override
+4418:// JSON exit (always emits on --json): { ok, ready, missing, python, fix }.
+4421:// Phase-134-python-elimination-false-complete RCA, Change 1 (2026-08-27):
+4424:// missing deps via `python -m pip install --user`, instead of only printing
+exit=0

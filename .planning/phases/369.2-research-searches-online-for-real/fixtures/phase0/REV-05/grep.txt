@@ -1,0 +1,4 @@
+89:    const sha = crypto.createHash('sha256').update(String(roomDir || '')).digest('hex').slice(0, 16);
+124://     the top of openRoomDb runs first, so SQLite creates the file and the
+308:    // Runs AFTER phase-109 provenance so the tightened nodes table (with created_at)
+309:    // exists; backfills valid_from = created_at additively. Mirrors the phase-109

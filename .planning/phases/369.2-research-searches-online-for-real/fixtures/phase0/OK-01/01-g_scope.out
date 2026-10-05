@@ -1,0 +1,17 @@
+hooks/hooks.json
+scripts/admin-command-gate.cjs
+scripts/intent-classifier.cjs
+scripts/memory-lifecycle.cjs
+scripts/write-scope-check.cjs
+scripts/83-scope-injection.test.cjs
+scripts/part8-egress-guard-hook.cjs
+lib/memory/run-feynman-tests.cjs
+lib/core/session-binding.cjs
+lib/core/chain-step-dispatcher.cjs
+lib/core/room-open.cjs
+lib/core/arbitration.cjs
+lib/core/resolve-active-room.cjs
+lib/core/navigation/room-birth.cjs
+lib/mcp/tool-router.cjs
+229:            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" write-scope-check",
+exit=0

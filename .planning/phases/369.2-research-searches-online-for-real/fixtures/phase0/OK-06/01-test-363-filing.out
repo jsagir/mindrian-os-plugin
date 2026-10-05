@@ -1,0 +1,41 @@
+PASS: FI2 ledger.json holds only this run audit slice and its q hashes
+PASS: FI2 records.json has ids, titles and content hashes; rows.json has the rows
+PASS: FI3 one open-question node per researchable leaf (L5 has none)
+PASS: FI3 leaves with no SUPPORTS edge (L3, L4) read as open questions; supported leaves (L1, L2) do not
+PASS: FI3 one EvidenceClaim per unique URL, session research:<run_id>
+PASS: FI3 the paper cited by two leaves is one claim with two edges
+PASS: FI3 nothing is confirmed
+PASS: FI4 SUPPORTS edges reach supported leaves
+PASS: FI4 the contested leaf keeps both a SUPPORTS and a CONTRADICTS edge
+PASS: FI4 the contradicted leaf has a CONTRADICTS edge
+PASS: FI4 findContradictions returns the contested leaf CONTRADICTS edge
+PASS: FI4 findContradictions returns the contradicted leaf edge too
+PASS: FI5 one proposed claim node per classified limiter
+PASS: FI5 limiter claim is linked to its evidence claim and nothing is confirmed
+PASS: FI6 discarded path is in plan.json ratchet
+PASS: FI6 REJECTED_BECAUSE edge links the discarded path to the run home node
+PASS: FI7 approved candidate produced a node id and a card path
+PASS: FI7 card sits in opportunity-bank/ and links back to the run home
+PASS: FI7 opportunity node is DERIVED_FROM the run artifact node and SUPPORTS-linked to its evidence
+PASS: FI7 opportunity and its evidence stay proposed
+PASS: FI7 the run home links forward to the node and the card
+PASS: FI8 funding signal with funder and program files through fileOpportunity
+PASS: FI8 a funding signal without a program is not offered
+PASS: FI9 REASONING.md frontmatter gained the roll-up naming supported and contradicted leaves
+PASS: FI9 feynman-minto validate shows no new violations
+PASS: FI9 MINTO.md bytes are unchanged
+PASS: FI9 report says MINTO.md regenerates on the next generator run
+PASS: FI10 run home is linked to the originating section by an INFORMS or MAPS_TO_SECTION edge
+PASS: FI12 no claim or contradiction items when there are no rows
+PASS: FI12 filing an unresolved quick run works
+PASS: FI12 the report says unresolved
+PASS: FI12 no evidence claims filed
+PASS: FI13 no raw SQL write keywords in filing.cjs
+PASS: FI13 no network or Brain require in filing.cjs
+PASS: FI13 no sqlite driver require in filing.cjs
+PASS: FI13 no em-dash or en-dash character in filing.cjs or this test
+PASS: net guard zero attempts
+--- 363-14 research run filing ---
+PASS: 51 FAIL: 0
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

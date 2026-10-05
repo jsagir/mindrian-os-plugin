@@ -1,0 +1,10 @@
+init ok true
+PREMATURE record (step fetch_round): {"ok":false,"reason":"wrong_step","step":"fetch_round"}
+fetchRound {"ok":true,"round":1,"executed":8,"stop_reason":null,"next_step":"dispatch_lanes"}
+state.step dispatch_lanes expected ["LM3","LM1","LM4"] recorded {"1:LM2":true}
+empty-closed lane_results [{"lane":"LM2","round":1,"records":0,"rows_kept":0,"dropped_total":0,"searched_not_found":true}]
+RECORD against empty-closed lane LM2: {"ok":false,"reason":"wrong_step","step":"dispatch_lanes"}
+record expected lane LM3: {"ok":true,"lane":"LM3","round":1,"kept":0,"dropped":{"missing_field":0,"forbidden_key":0,"unknown_record":0,"unverified_quote":0,"hash_mismatch":0,"bad_label":0,"retracted_support":0},"searched_not_found":true,"all_recorded":false,"next_step":"dispatch_lanes"}
+record same lane again: {"ok":false,"reason":"already_recorded"}
+grep lane_already_closed in lib+scripts handled separately; netguard 0 replay calls 8
+exit=0

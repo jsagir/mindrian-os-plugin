@@ -1,0 +1,37 @@
+3:    "SessionStart": [
+113:    "PreCompact": [
+125:    "PostCompact": [
+137:    "Stop": [
+212:    "SessionEnd": [
+455:    "SubagentStop": [
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 95.5 -- Post-Compact memory pipeline consumer (READ side).
+ *
+ * Per D-01: 9th SessionStart entry (registered by Plan 95.5-03).
+ * Per D-02: staleness skip+delete (mtime>600s) AND post-consume forensic preserve.
+ * Per D-03: hookSpecificOutput.additionalContext ONLY; silent re-injection.
+ * Per D-04: stamp + validate (source_room_path + source_room_slug + written_at).
+ * Per D-04b: belt-and-suspenders mtime vs registry.last_opened.
+ * Per D-07: workspace guard direction REVERSE -- reads room state OUTSIDE plugin.
+ *
+ * Canon Part 8: zero network surface (LOCAL fs reads only).
+ * Canon Part 9: per-room memory locality (no cross-room leak).
+ * Phase 87 invariant: zero npm deps; Node built-ins + in-repo CJS modules.
+ */
+
+const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
+
+const ENVELOPE_ALLOWED = new Set([
+  'decision', 'reason', 'continue', 'stopReason',
+  'suppressOutput', 'systemMessage', 'hookSpecificOutput',
+]);
+
+function emitEnvelope(obj) {
+exit=0

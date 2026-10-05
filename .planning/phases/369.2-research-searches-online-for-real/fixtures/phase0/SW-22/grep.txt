@@ -1,0 +1,13 @@
+scripts/build-brain-census.cjs:533:      'AllNodesScan plan (the C1/C5 queries share it), so those two are answered directly from `brain_stats` ' +
+scripts/build-brain-census.cjs:1017:// (Theo's read allow-list rejects the whole-graph AllNodesScan plan both of
+docs/BRAIN-GRAPH-CENSUS.generated.md:28:Source: Theo live `brain_stats` + `brain_schema`. Theo's read allow-list rejects a whole-graph AllNodesScan plan (the C1/C5 queries share it), so those two are answered directly from `brain_stats` instead of Cypher; ever
+## plugin-side handling of a Theo read allow-list refusal
+lib/mcp/tools/sensors.cjs:139:    // and no substrate allow-list edit is needed. The distinction matters three
+lib/mcp/tools/room.cjs:91:// clean empty result -- a silent miss, not an error. The allowlist below is
+lib/core/brain-client.cjs:1292: * relationship-first -- Theo's read allow-list refuses
+lib/core/brain-client.cjs:1357:    // Label-anchored and never relationship-first: Theo's read allow-list
+lib/core/brain-client.cjs:2194:// allow-list: an unmapped token still passes THROUGH _normalizeBrainProblemType
+lib/core/brain-client.cjs:2197:// sensors are known to emit today -- a local allow-list would silently block
+lib/core/brain-client.cjs:2345://   (1) D-08 layer-3 origin allowlist (the belt to the schema's suspenders --
+lib/core/brain-client.cjs:2622:      + '" not in the closed allowlist (D-08): navigation_api | test_fixture');
+lib/core/refusal-messaging.cjs:458:      : 'this tool is not on the current key\'s tier allowlist';

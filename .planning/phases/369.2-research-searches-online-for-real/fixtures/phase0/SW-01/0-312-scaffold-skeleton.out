@@ -1,0 +1,9 @@
+py=312
+PATH=scaffold-skeleton RETURNED={"ok":true,"errors":[],"sections_created":11}
+exists $HOME/r2/.mindrian/room.db = false
+exists $HOME/r2/room.db = false
+GOVERNED_WRITE={"ok":false,"reason":"no_room_db","room_dir":"$HOME/r2"}  (openRoomDbForCaller returned null; same branch as lib/mcp/tools/graph.cjs memory_event handler)
+find .mindrian: ["room-map.json"]
+(node:2711340) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

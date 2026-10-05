@@ -1,0 +1,7 @@
+v22.23.1
+opened ok; exists= true
+{"c":0}
+(node:2719045) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+no ERR_SQLITE in supported-path outputs
+exit=0

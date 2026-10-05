@@ -1,0 +1,22 @@
+--- lib/scripts/hooks/bin
+lib/core/enrichment-queue.cjs:492:    // refusal shape on pws-brain-mcp.onrender.com is { grounded: false,
+lib/core/brain-response-sanitize.cjs:61:const BRAIN_TOOL_MATCHER = 'mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*';
+lib/core/brain-response-sanitize.cjs:125:const BRAIN_SHAPED_TOOL_MATCHER = 'mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)';
+lib/core/brain-response-sanitize.cjs:211: * mcp__pws-brain-mcp__* -- a direct HTTPS connector registered outside this
+lib/core/brain-response-sanitize.cjs:212: * plugin (lib/mcp/brain-composition-census.cjs's ruling: pws-brain-mcp is
+lib/core/brain-response-sanitize.cjs:222: * single server key is the reason this pattern DROPS the pws-brain-mcp
+lib/core/brain-response-sanitize.cjs:230: * "pws-brain-mcp".
+lib/mcp/brain-composition-census.cjs:50: *         genuinely uncovered surface is pws-brain-mcp, registered as
+lib/mcp/brain-composition-census.cjs:61: *         coverage without naming pws-brain-mcp as open is the same
+scripts/probe-brain-contract.cjs:10: * to pws-brain-mcp.onrender.com (or MINDRIAN_BRAIN_URL) using a READ key
+scripts/mindrian-brain-mcp-client.cjs:144:// and Cowork reach the remote pws-brain-mcp MCP server directly and are
+scripts/brain-response-sanitize-hook.cjs:12: * (mcp__mindrian-brain__brain_*) plus the canonical custom-connector name (mcp__pws-brain-mcp__brain_*, added 2026-08-19 - the live server registers under it on Desktop/claude
+scripts/part8-egress-guard-hook.cjs:32: * `mcp__pws-brain-mcp__*` -- a direct HTTPS connector with no local plugin
+scripts/part8-egress-guard-hook.cjs:46: * justifies; `mcp__pws-brain-mcp__*` and `mcp__theo__*` return to exit 2 on
+scripts/part8-egress-guard-hook.cjs:56: *     (`mcp__pws-brain-mcp__*`) and untrusted keys (`mcp__theo__brain_ask`
+scripts/part8-egress-guard-hook.cjs:79: * `mcp__pws-brain-mcp__*` (the direct HTTPS connector, no second
+scripts/part8-egress-guard-hook.cjs:227:  // (mcp__pws-brain-mcp__brain_*), so a theo-keyed call took the
+hooks/hooks.json:235:        "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+hooks/hooks.json:337:        "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+--- doctor --fix legacy connector legs
+4632:            + ' fix=`claude mcp remove mindrian-brain -s ' + s.scope + '`');

@@ -1,0 +1,21 @@
+lib/core/research-planner/sr-filing.cjs:7: * The door-side F.8 basket for /mos:scientific-roadmap. filing.buildBasket only
+lib/core/research-planner/sr-filing.cjs:149:    default_on: true,
+lib/core/research-planner/sr-filing.cjs:160:      default_on: true,
+lib/core/research-planner/sr-filing.cjs:169:      default_on: true,
+lib/core/research-planner/sr-filing.cjs:188:    const list = arr(items).map(function (i) { return '- [' + (i.default_on ? 'on' : 'off') + '] ' + noDash(i.label); });
+lib/core/research-planner/canon-release.cjs:194:          default_on: false,
+lib/core/research-planner/canon-release.cjs:497:        default_on: false,
+lib/core/research-planner/filing.cjs:7: *   - buildBasket(run, plan): the F.8 basket. One item per thing that could
+lib/core/research-planner/filing.cjs:158:// buildBasket
+lib/core/research-planner/filing.cjs:174:function buildBasket(run, plan) {
+lib/core/research-planner/filing.cjs:186:      default_on: true,
+lib/core/research-planner/filing.cjs:207:          default_on: true,
+lib/core/research-planner/filing.cjs:215:          default_on: true,
+lib/core/research-planner/filing.cjs:229:        default_on: true,
+lib/core/research-planner/filing.cjs:241:        default_on: false,
+lib/core/research-planner/filing.cjs:250:        default_on: true,
+lib/core/research-planner/filing.cjs:261:        default_on: true,
+lib/core/research-planner/filing.cjs:281:  const items = buildBasket(run, plan);
+lib/core/research-planner/filing.cjs:301:    lines.push('- [' + (i.default_on ? 'on' : 'off') + '] ' + noDash(i.label));
+lib/core/research-planner/filing.cjs:321:      defaults: basket.filter(function (i) { return i.default_on; }).map(function (i) { return i.id; }),
+exit=0

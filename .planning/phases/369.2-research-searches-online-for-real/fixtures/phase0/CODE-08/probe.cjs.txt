@@ -1,0 +1,17 @@
+const R='/home/jsagi/dev/MindrianOS-Plugin/';
+const fs=require('fs'),os=require('os'),path=require('path');
+const rdb=require(R+'lib/core/room-db.cjs');const nav=require(R+'lib/core/navigation.cjs');
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'phase0-room-'));
+const db=rdb.openRoomDb(dir);
+console.log('fk pragma',JSON.stringify(db.prepare('PRAGMA foreign_keys').get()));
+console.log('edges DDL',db.prepare("select sql from sqlite_master where name='edges'").get().sql.replace(/\s+/g,' ').slice(0,400));
+db.prepare("INSERT INTO nodes(id,type,properties,source_path,created_by,created_at,last_seen_at) VALUES (?,?,?,?,?,?,?)").run('claim:artifact:src1','Artifact','{}','x.md','user',1,1);
+const t=(label,p)=>console.log(label,JSON.stringify(nav.writeEdge(db,p)));
+t('A src-exists target-missing',{source_id:'claim:artifact:src1',target_id:'claim:artifact:nope',edge_type:'INFORMS'});
+t('B src-missing target-exists',{source_id:'claim:artifact:ghost',target_id:'claim:artifact:src1',edge_type:'INFORMS'});
+// legacy-variant: edges table with hard FK, the shape the reports hit
+const db2=new (require('node:sqlite').DatabaseSync)(':memory:');
+db2.exec('PRAGMA foreign_keys=ON; CREATE TABLE nodes(id TEXT PRIMARY KEY,type TEXT NOT NULL,properties TEXT DEFAULT \'{}\'); CREATE TABLE edges(source TEXT NOT NULL REFERENCES nodes(id), target TEXT NOT NULL REFERENCES nodes(id), type TEXT NOT NULL, properties TEXT DEFAULT \'{}\', PRIMARY KEY(source,target,type));');
+db2.prepare("INSERT INTO nodes VALUES('s','Artifact','{}')").run();
+console.log('C legacy-FK-db target-missing',JSON.stringify(nav.writeEdge(db2,{source_id:'s',target_id:'zz',edge_type:'INFORMS'})));
+console.log('D legacy-FK-db source-missing',JSON.stringify(nav.writeEdge(db2,{source_id:'zz',target_id:'s',edge_type:'INFORMS'})));

@@ -1,0 +1,5 @@
+lib/core/research-corpus.cjs:447:    return extractEnvelope('provider_unavailable', 'missing_key', []);
+lib/core/research-corpus.cjs:707:  if (status === 'provider_unavailable') {
+lib/lens-engine/source-lens-driver.cjs:79:  industry: 'tavily',
+lib/lens-engine/source-lens-driver.cjs:83:  grants: 'tavily',
+commands/research.md:361:`scholarly`, `industry`, `patent`, all at equal weight 1.0:

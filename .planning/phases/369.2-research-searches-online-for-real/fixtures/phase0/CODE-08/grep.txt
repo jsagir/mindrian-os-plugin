@@ -1,0 +1,15 @@
+## writeEdge never probes endpoints
+1048:function writeEdge(db, params) {
+1120:    return { ok: false, reason: 'edge_write_failed', detail: String(e.message || '').slice(0, 80) };
+## unknown_node:<id> typed endpoint error anywhere (count)
+0
+## CONTEXT.md rule
+31:## Why a dangling endpoint is legal
+37:Consequence, stated once: an edge whose endpoint has no node row is not a schema violation, it is a permitted state, and nothing anywhere rejects one. `writeEdge` validates params, the edge type, and review status, and then inserts; it never probes whether either endpoint has a node row.
+## artifact_file mints claim node not Artifact
+285:      const nodeId = navigation.REASONING_NODE_ID('claim:artifact', artifactId);
+300:          nodeType: 'claim',
+## opportunity-ops graph writes (count)
+0
+## hard FK only in legacy:
+lib/core/migrations/phase-109-session-focus.cjs:85:      "FOREIGN KEY (focus_node_id) REFERENCES nodes(id) " +

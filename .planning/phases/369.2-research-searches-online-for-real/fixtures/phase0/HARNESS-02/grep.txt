@@ -1,0 +1,3 @@
+lib/core/research-planner/audit-ledger.cjs:29:const OUTCOMES = Object.freeze(['ok', 'empty_valid', 'failed', 'blocked', 'cache_hit']);
+lib/core/research-planner/deep.cjs:490:    const audit = auditLedger.appendAudit(roomDir, {
+lib/core/research-planner/quick.cjs:679:    const audit = auditLedger.appendAudit(roomDir, {

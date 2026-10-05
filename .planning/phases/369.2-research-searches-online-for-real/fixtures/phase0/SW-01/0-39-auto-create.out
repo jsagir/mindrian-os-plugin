@@ -1,0 +1,5 @@
+py=39
+PATH=auto-create RETURNED={"ok":false,"reason":"registry_create_failed:Command failed: bash /home/jsagi/dev/MindrianOS-Plugin/scripts/room-registry /tm"}
+(node:2711477) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0

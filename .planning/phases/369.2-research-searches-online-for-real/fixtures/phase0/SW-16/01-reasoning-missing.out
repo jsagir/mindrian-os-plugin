@@ -1,0 +1,7 @@
+fixture room .reasoning exists: false 
+market-analysis/REASONING.md exists: false
+getReasoningFrontmatter(market-analysis): {"error":"No reasoning for section: market-analysis"}
+getReasoningFrontmatter(no-such-section): {"error":"No reasoning for section: no-such-section"}
+after rm, getReasoningFrontmatter: {"error":"No reasoning for section: market-analysis"}
+netguard 0
+exit=0

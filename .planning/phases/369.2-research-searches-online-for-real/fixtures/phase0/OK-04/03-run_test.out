@@ -1,0 +1,6 @@
+PASS: G11 grantCard is an F.0 card with three options and a complete plain body
+PASS: G12 static: grants.cjs does no network I/O and isRawQueryEdit is reused, not copied
+PASS: G13 no fetch attempted by any leg
+--- 363-09 grants ---
+PASS: 13 FAIL: 0
+exit=0

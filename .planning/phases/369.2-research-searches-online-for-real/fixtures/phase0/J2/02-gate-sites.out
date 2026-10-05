@@ -1,0 +1,50 @@
+== getApiKey( / isAvailable( / ensureAvailable( / resolveBrainKey( sites in brain-client
+181:// Phase 123 Plan-07: getApiKey() delegates to the single Brain-key resolver.
+259:// Phase 123 Plan-07: getApiKey() delegates to lib/core/resolve-brain-key.cjs.
+279:function getApiKey() {
+283:  const r = resolveBrainKey();
+304:function isAvailable() {
+305:  return !!getApiKey();
+310:// the getApiKey() memo idiom above) and must be commented as such: the id
+344:// mode 0600, and let the SAME process's next getApiKey() call pick it up.
+364: * updates the module's own memoized key so the CALLER's next getApiKey()
+366: * fresh resolveBrainKey() call would ALSO see the cache file now).
+426: * the synchronous isAvailable(), so silent registration actually fires on
+427: * that path -- isAvailable() alone cannot attempt an async network mint).
+434:async function ensureAvailable() {
+435:  if (isAvailable()) return true;
+437:  return isAvailable();
+596:  let key = getApiKey();
+601:    // ensureAvailable() (the shim's gate), so whichever surface consults
+1664:  if (!isAvailable()) return null;
+1760:  if (!isAvailable()) return null;
+1896:  if (!isAvailable()) return null;
+count: 20
+== resolve-brain-key.cjs key sites
+8: * shell test of MINDRIAN_BRAIN_KEY, brain-connector's skill detection). Three
+10: * ~/.mindrian.env was visible to brain-client but invisible to session-start,
+16: *   1. MINDRIAN_BRAIN_KEY env var     -- explicit operator intent, highest.
+17: *   2. <home>/.mindrian.env           -- global backup, persists across CWDs.
+47: * source is a key file (~/.mindrian.env or CWD .env), stat the mode. If any
+107: * Parse a single MINDRIAN_BRAIN_KEY=... line out of a (possibly multi-line)
+116:  const m = body.match(/^MINDRIAN_BRAIN_KEY\s*=\s*(.+?)\s*$/m);
+162: * @returns {{key: string|null, source: 'env'|'mindrian-env-file'|'cwd-env-file'|'install-token'|'not-found', available: boolean, reason: string|null}}
+171:  if (process.env.MINDRIAN_BRAIN_KEY) {
+172:    const v = _normalizeKey(process.env.MINDRIAN_BRAIN_KEY);
+178:  // (2) <home>/.mindrian.env
+179:  const mindrianEnvPath = path.join(home, '.mindrian.env');
+183:      return { key: null, source: 'mindrian-env-file', available: false, reason: perms.reason };
+189:        return { key: v, source: 'mindrian-env-file', available: true, reason: null };
+194:        source: 'mindrian-env-file',
+257:    reason: 'MINDRIAN_BRAIN_KEY not set (env), and neither ' + mindrianEnvPath
+== refusal returned when no key
+10: * reframed no_key copy are all byte-identical before and after the rename.
+18: * (no_key, unreachable, tier_denied, not_ready), honest per-kind reasons,
+49: *     status:          KIND_STATUS[kind] (DIRECTOR_NOT_AVAILABLE for no_key,
+59: *     upgrade_hint?:   present only for kind === 'no_key'
+96:// token at the first consult) is the DEFAULT path now, so a no_key refusal
+199:// no_key/tier_denied are validation-class, unreachable is transient-class
+207:const REFUSAL_KINDS = Object.freeze(['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
+259:// no_key keeps the byte-locked DIRECTOR_NOT_AVAILABLE wire string for
+265:  no_key: DIRECTOR_NOT_AVAILABLE,
+286:// Phase 250-04 (HONEST-03): the no_key reason/copy is reframed for the

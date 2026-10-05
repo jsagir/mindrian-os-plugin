@@ -1,0 +1,17 @@
+banner-tokens: 0
+readiness-word: 170
+lib/core/enrichment-queue.cjs:55:  'readiness_score',
+lib/core/enrichment-queue.cjs:71:// Frozen missing-dimensions vocabulary (the four orchestration_readiness
+lib/core/enrichment-queue.cjs:76:// Phase 339 Plan 05 (FLIP-03), 2026-09-03: Theo's orchestration_readiness
+lib/core/enrichment-queue.cjs:79:// (/home/jsagi/Theo/src/mcp/content/orchestration-readiness.ts:52-73):
+lib/core/enrichment-queue.cjs:233:  const readiness_score = isValidReadinessScore(raw.readiness_score) ? raw.readiness_score : null;
+lib/core/enrichment-queue.cjs:243:    readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:368:    const readiness_score = isValidReadinessScore(entry.readiness_score) ? entry.readiness_score : null;
+lib/core/enrichment-queue.cjs:388:        readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:407:        readiness_score: readiness_score,
+lib/core/enrichment-queue.cjs:442:function inferMissingDimensionsFromScore(readinessScore, structureKnownPresent) {
+lib/core/enrichment-queue.cjs:443:  const score = Number.isInteger(readinessScore) ? Math.max(0, Math.min(4, readinessScore)) : 0;
+lib/core/enrichment-queue.cjs:464: *   - Incumbent RESOLVED orchestration_readiness: { readiness_score,
+
+0
+exit=0
