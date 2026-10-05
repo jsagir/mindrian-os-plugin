@@ -61,6 +61,8 @@ const FALSIFIERS = {
   'hsi:divergence': 'ce.counter',
   'an:structural_transfer': 'ce.counter',
   'cn:lateral_path': 'ce.counter',
+  // 369.2-04, ruling 2026-10-05: connections gains the web literature dimension
+  'cn:literature_link': 'ce.counter',
 };
 const FRAMEWORKS = {
   rs: 'Reverse Salient Analysis',
@@ -173,7 +175,9 @@ leg('T6 rs leaves use cause and effect through causal-link; rule kinds exist', f
   };
   Object.keys(rules).forEach(function (id) {
     const r = Q.TEMPLATES[id].opportunity_rules;
-    assertTrue(r.length === 1 && r[0].kind === rules[id][0] && r[0].dimension === rules[id][1], id + ' opportunity rule');
+    // 369.2-04, ruling 2026-10-05: connections carries a second rule, for the literature dimension
+    assertTrue(r.length === (id === 'connections' ? 2 : 1) && r[0].kind === rules[id][0] && r[0].dimension === rules[id][1], id + ' opportunity rule');
+    if (id === 'connections') assertTrue(r[1].kind === 'cross_domain_transfer' && r[1].dimension === 'cn:literature_link', 'connections literature rule');
   });
   const famSrc = fs.readFileSync(path.join(ROOT, 'lib/core/research-planner/families.cjs'), 'utf8');
   assertTrue(Object.keys(F.FAMILIES).length === 5, 'five frozen families');

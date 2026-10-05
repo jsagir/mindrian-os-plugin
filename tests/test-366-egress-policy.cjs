@@ -210,11 +210,21 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
   // ----- E7 .. E10 the quick run honors the policy -----
   function clone(v) { return JSON.parse(JSON.stringify(v)); }
   // a planted room with one built, ready quick plan from the given perspective module
+// 369.2-04, ruling 2026-10-05: a connections set now also carries web literature leaves (cn:literature_link,
+// corpus openalex). These legs are about the THEO lane, so they keep a theo-only plan: the literature leaves and
+// their key line go, and one coverage note keeps the pyramid complete.
+function theoOnly(qs) {
+  const o = JSON.parse(JSON.stringify(qs));
+  o.leaves = o.leaves.filter(function (l) { return l.dimension !== 'cn:literature_link'; });
+  o.key_line = (o.key_line || []).filter(function (k) { return k.dimension !== 'cn:literature_link'; });
+  o.coverage_notes = [{ dimension: 'cn:literature_link', not_researchable_reason: 'This fixture exercises the Theo lane only.' }];
+  return o;
+}
   function mkPlan(mod) {
     seq += 1;
     const built = buildPerspectiveRoom(path.join(root, 'plan' + seq));
     const rec = mod.runRecall(built.roomDir, { tag: '20261002T13000' + seq + 'Z' });
-    const bp = planner.buildPlan(built.roomDir, rec.question_set, { mode: 'quick' });
+    const bp = planner.buildPlan(built.roomDir, mod === cnRecall ? theoOnly(rec.question_set) : rec.question_set, { mode: 'quick' });
     return { roomDir: built.roomDir, plan: bp && bp.ok ? bp.plan : null, bp: bp };
   }
   function approveRun(roomDir, plan) {
@@ -300,7 +310,9 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
     if (!runId) return 'no run id: ' + rec.stdout.slice(0, 200);
     const run = cli(['run-quick', runId, '--room', R, '--offline']);
     const lane = path.join(R, '.mindrian', 'research-runs', runId, 'theo-lane.json');
-    return (run.code === 0 && run.json && run.json.status === 'plan_only' && run.json.line === 'theo' && !fs.existsSync(lane) && !fs.existsSync(AUDIT_FILE(R))) || run.stdout.slice(0, 240);
+    // 369.2-04, ruling 2026-10-05: the connections plan is now mixed (Theo leaves plus a web literature leaf), so
+    // the offline plan-only answer names the research line first; still zero Theo calls, no lane file, no audit row.
+    return (run.code === 0 && run.json && run.json.status === 'plan_only' && run.json.line === 'research' && !fs.existsSync(lane) && !fs.existsSync(AUDIT_FILE(R))) || run.stdout.slice(0, 240);
   });
   await leg('E8c the --offline flag is valueless and only on the three commands; elsewhere it is refused', function () {
     seq += 1;

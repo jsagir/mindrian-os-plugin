@@ -132,7 +132,8 @@ leg('Y1 TEMPLATES has exactly the eleven ids with full dimension records', funct
     'rs': ['rs:lagging_component', 'rs:already_known', 'rs:worth_exploring'],
     'hsi': ['hsi:divergence', 'hsi:already_known'],
     'analogies': ['an:structural_transfer', 'an:already_known'],
-    'connections': ['cn:lateral_path', 'cn:already_known'],
+    // 369.2-04, ruling 2026-10-05: connections gains the literature dimension
+    'connections': ['cn:lateral_path', 'cn:literature_link', 'cn:already_known'],
     'scientific-roadmapping': ['sr:tension', 'sr:goal', 'sr:rung', 'sr:forum_insider', 'sr:forum_entrant', 'sr:forum_grounder', 'sr:paths', 'sr:paths_10x', 'sr:limiters', 'sr:ranking'],
   };
   Object.keys(stable).forEach(function (id) {

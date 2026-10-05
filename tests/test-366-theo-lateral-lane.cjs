@@ -80,12 +80,23 @@ function clone(v) { return JSON.parse(JSON.stringify(v)); }
 function samePair(p, a, b) { return !!p && ((p.a === a && p.b === b) || (p.a === b && p.b === a)); }
 function hasCanonPair(args, x, y) { return (args.from === x && args.to === y) || (args.from === y && args.to === x); }
 
+// 369.2-04, ruling 2026-10-05: a connections set now also carries web literature leaves (cn:literature_link,
+// corpus openalex). These legs are about the THEO lane, so they keep a theo-only plan: the literature leaves and
+// their key line go, and one coverage note keeps the pyramid complete.
+function theoOnly(qs) {
+  const o = JSON.parse(JSON.stringify(qs));
+  o.leaves = o.leaves.filter(function (l) { return l.dimension !== 'cn:literature_link'; });
+  o.key_line = (o.key_line || []).filter(function (k) { return k.dimension !== 'cn:literature_link'; });
+  o.coverage_notes = [{ dimension: 'cn:literature_link', not_researchable_reason: 'This fixture exercises the Theo lane only.' }];
+  return o;
+}
+
 // one planted room, one connections recall, one built quick plan
 function mk(extra) {
   seq += 1;
   const built = buildPerspectiveRoom(path.join(root, 'r' + seq));
   const rec = cn.runRecall(built.roomDir, { tag: '20261002T12000' + seq + 'Z' });
-  let qs = rec.question_set;
+  let qs = theoOnly(rec.question_set);
   if (typeof extra === 'function') qs = extra(clone(qs));
   const bp = planner.buildPlan(built.roomDir, qs, { mode: 'quick' });
   return { built: built, roomDir: built.roomDir, rec: rec, qs: qs, bp: bp, plan: bp && bp.ok ? bp.plan : null };

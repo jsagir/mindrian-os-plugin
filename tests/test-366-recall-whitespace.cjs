@@ -9,7 +9,7 @@
  *   W3  a known pair is excluded (shared store counts it), cap honored, output deterministic
  *   W4  rows keep the shared shape (zone_id only on zone_border rows); run files and STATUS written
  *   W5  questionSetFor uses the shipped ws:* dimensions; each pair leaf carries the closed pair
- *       (perspective 'whitespace'); a long zone name is never sent as an exact phrase (SEED-104)
+ *       (perspective 'whitespace'); a long zone name is a web slot under the web rule (369.2-04, was SEED-104 room-only)
  *   W6  constants, the shipped whitespace template unchanged, zero network attempts
  *   W7  no duplicate basket candidates: pair-carrying ws:gap_claim leaves, rolled supported, give exactly
  *       one literature_gap item per leaf, each carrying the leaf's pair
@@ -118,7 +118,7 @@ function substrateOf(roomDir) {
         || JSON.stringify({ shapeOk: shapeOk, zoneOnly: zoneOnly, back: !!back, things: things, inRoot: inRoot, lanesHdr: lanesHdr });
     });
 
-    await leg('W5 question set: ws:* dimensions, closed pair, SEED-104 long zone name never an exact phrase', function () {
+    await leg('W5 question set: ws:* dimensions, closed pair, long zone name is a web slot (369.2-04)', function () {
       const qs = rec.question_set;
       const shape = Q.validateQuestionSet(qs);
       const gap = qs.leaves.filter(function (l) { return l.dimension === 'ws:gap_claim'; });
@@ -131,12 +131,15 @@ function substrateOf(roomDir) {
       const room_ext = qs.leaves.filter(function (l) { return l.dimension === 'ws:extraction_failure'; })[0];
       const extOk = room_ext && room_ext.corpus === 'room' && Object.keys(room_ext.slots || {}).length === 0;
       const built = Y.buildPyramid(qs, {});
-      // long zone name (seven words, the SEED-104 shape): not researchable, no slots sent
+      // long zone name (seven words, the SEED-104 shape).
+      // 369.2-04, ruling 2026-10-05: the four-word cap is gone with the strict Theo rule on web slots; a zone named
+      // by a long phrase is now a researchable web slot under the web rule (cap 200). Its shaping is plan 369.2-21.
       const sub = substrateOf(room.roomDir);
-      sub.whitespace_zones[ZONE].title = 'small remote brackish groundwater installs without treatment budgets';
+      const LONG_ZONE = 'small remote brackish groundwater installs without treatment budgets';
+      sub.whitespace_zones[ZONE].title = LONG_ZONE;
       const rec2 = mod.questionSetFor(mod.runRecall(room.roomDir, { tag: TAG + 'd' }), sub, { tag: TAG });
       const longLeaf = rec2.leaves.filter(function (l) { return l.pair && samePair(l.pair, WS_PAIR[0], WS_PAIR[1]); })[0];
-      const longOk = longLeaf && longLeaf.researchable === false && longLeaf.corpus === 'room' && !longLeaf.slots;
+      const longOk = longLeaf && longLeaf.researchable === true && longLeaf.corpus === 'openalex' && !!longLeaf.slots && longLeaf.slots.term === LONG_ZONE && Object.keys(longLeaf.slots).length === 1;
       return (shape.ok === true && dimsOk && pairsOk && zoneOk && unlOk && extOk && built.ok !== false && longOk)
         || JSON.stringify({ shape: shape, dimsOk: dimsOk, pairsOk: pairsOk, zoneOk: !!zoneOk, unlOk: !!unlOk, extOk: !!extOk, built: built.ok, longOk: !!longOk, zoneLeaf: zoneLeaf, longLeaf: longLeaf });
     });
