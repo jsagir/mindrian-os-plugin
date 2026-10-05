@@ -36,9 +36,8 @@
  * CANON PART 8 (The Graph Boundary). LOCAL-only. This generator reads skills/,
  * .claude-plugin/plugin.json and ~/.claude/plugins/ metadata. It makes ZERO
  * network reach and it never reads, embeds, or transports key material: the
- * generated .mcp.json carries an install PATH and nothing else. Brain key
- * resolution stays entirely on lib/core/resolve-brain-key.cjs's existing
- * env/file precedence, untouched here (threat T-234-13).
+ * generated .mcp.json carries an install PATH and nothing else. Theo needs no
+ * credential, so there is none to carry (threat T-234-13).
  *
  * THE UPDATE STORY, STATED HONESTLY (234-RESEARCH.md Open Question 3).
  * There is NO auto-update mechanism on any foreign host, and this phase does not
@@ -408,7 +407,7 @@ function renderDistReadme(generic, zed, stamp) {
     'own machine to get a correct one, or edit the two `args` paths and the',
     '`MINDRIAN_OS_ROOT` env value by hand.',
     '',
-    'It carries a path and nothing else. No Brain key, no credential, ever.',
+    'It carries a path and nothing else. No credential, ever.',
     '',
   ].join('\n');
 }

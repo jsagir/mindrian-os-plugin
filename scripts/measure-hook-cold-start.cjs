@@ -10,7 +10,7 @@
  * What it does, in plain words: for each hook command it spawns the real
  * command n times inside a throwaway sandbox (throwaway HOME, rooms home, room
  * dir and cwd; Brain URL pointed at an unreachable loopback port; no session
- * id, no Brain key) feeding the representative stdin payload for that hook's
+ * id) feeding the representative stdin payload for that hook's
  * event, and records p50 / p95 / max wall time. Before the first spawn and after
  * the last it records `git status --short` of the checkout; any difference is
  * printed and exits 1 (a hook wrote into the shared tree). `--tree-check report`
@@ -128,7 +128,7 @@ function makeSandbox(prefix, opts) {
 /** hookEnv(sandbox, pluginRoot): hermetic env for one spawn. */
 function hookEnv(sandbox, pluginRoot, extra) {
   const env = Object.assign({}, process.env);
-  for (const k of ['MINDRIAN_BRAIN_KEY', 'MINDRIAN_MCP_FIRST', 'MINDRIAN_MCP_DAEMON', 'CLAUDE_CODE_SESSION_ID',
+  for (const k of ['MINDRIAN_MCP_FIRST', 'MINDRIAN_MCP_DAEMON', 'CLAUDE_CODE_SESSION_ID',
     'CLAUDE_ACTIVE_ROOM', 'CLAUDE_PROJECT_DIR']) delete env[k];
   env.HOME = sandbox.home;
   env.USERPROFILE = sandbox.home;

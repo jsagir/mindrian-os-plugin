@@ -1,16 +1,16 @@
 ---
 name: setup
-description: Configure optional integrations (Brain, Velma)
-help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
+description: Configure optional integrations (Velma, meetings, graph)
+help_jtbd: "Add optional integrations: graph, transcription, meeting sources."
 body_shape: E
 layer: "harness"
-layer_why: "Walks through wiring optional integrations (Brain, Velma); a configuration/tool-wiring operation over the harness."
+layer_why: "Walks through wiring optional integrations (Velma, meeting sources, graph); a configuration/tool-wiring operation over the harness."
 interactive_first_reward: schema_preview
 hitl_shape: "F.8"
 hitl_why: "Integrations are configured as an independent set the navigator connects in any order."
 argument-hint: "[brain|velma|graph]"
 serves_jtbd: ["explore"]
-teaching: "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder."
+teaching: "When you want to wire optional integrations like Velma or a meeting source, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder. Theo, the teaching graph, is part of MindrianOS and needs no setup."
 allowed-tools:
   - Read
   - Write
@@ -20,7 +20,7 @@ allowed-tools:
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
-  reason: "Utility command. One-time configuration surface (graph / Brain connect) the navigator runs deliberately; setup is an operator action, not a contextual reach."
+  reason: "Utility command. One-time configuration surface (graph / integrations) the navigator runs deliberately; setup is an operator action, not a contextual reach."
 ---
 
 <!-- mos:firing-block v2 -->
@@ -39,7 +39,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:setup
 
-You are Larry. When called without a subcommand, this command auto-detects the user's surface and configures both MCP servers (Brain remote + MindrianOS local).
+You are Larry. When called without a subcommand, this command auto-detects the user's surface and configures the MindrianOS MCP server. Theo, the teaching graph, is part of MindrianOS and needs no setup.
 
 ## Setup
 
@@ -90,33 +90,10 @@ Note: Cowork MCP configuration may be automatable via API in the future. For now
 Tell the user:
 > "On CLI, MindrianOS works through plugin commands and hooks directly. No MCP server configuration needed. If you want MCP tools on CLI too, start the server manually: `node {plugin_root}/scripts/mindrian-mcp-server.cjs`"
 
-### 3. Configure Brain MCP Server (if key exists)
+### 3. Theo (nothing to configure)
 
-Check if `MINDRIAN_BRAIN_KEY` is set (env or `.env` file). If set:
-
-**Desktop:** Add Brain to the same `claude_desktop_config.json`:
-```json
-{
-  "mindrian-brain": {
-    "url": "https://theo-mcp.onrender.com/mcp"
-  }
-}
-```
-No `Authorization` header is needed -- the remote Brain accepts a real key, a garbage key,
-or no header at all and returns identical results either way.
-
-**Cowork:** Tell the user:
-> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://theo-mcp.onrender.com/mcp. No header needed."
-
-The connector key `mindrian-brain` names the plugin's Brain slot, not the server behind it,
-so it never changes even when the server does -- see
-`docs/339-NOTE-theo-desktop-connector-key.md`. Mind the URL asymmetry too: a direct Desktop
-or Cowork connector uses the `/mcp` path because it hits the MCP endpoint itself, while the
-plugin's own bundled CLI shim uses the bare origin because its client appends `/mcp` (and
-`/register`) itself; swapping these produces `/mcp/mcp`, a 404 that reads as "Brain
-unreachable" rather than a config error.
-
-If Brain key is NOT set, remind: "Run `/mos:setup brain` to connect Larry's teaching graph for enhanced intelligence."
+Theo is part of MindrianOS and needs no key, so there is nothing to set up here. Do not ask the user for anything and do not add a second connector.
+`/mos:doctor` reports whether Theo is reachable right now.
 
 ### 4. Summary
 
@@ -125,7 +102,7 @@ Print a summary table:
 Surface: {surface}
 Transport: {transport}
 MindrianOS MCP: {configured/instructions provided}
-Brain MCP: {configured/not configured -- run /mos:setup brain}
+Theo: part of MindrianOS, nothing to configure (/mos:doctor reports reachability)
 Capabilities: hooks={hooks}, apps={apps}, tasks={tasks}, scripts={scripts}
 ```
 
@@ -135,156 +112,15 @@ Capabilities: hooks={hooks}, apps={apps}, tasks={tasks}, scripts={scripts}
 - On Desktop, always merge into existing `claude_desktop_config.json` -- never overwrite
 - On Cowork, provide the URL for manual configuration (automation may come later)
 - On CLI, no MCP config needed -- just inform the user
-- If Brain key exists, configure both servers together
 - Never echo full API keys -- show only first 4 characters
 
 ---
 
 # /mos:setup brain
 
-You are Larry. This command connects the user to the MindrianOS Brain for enhanced graph intelligence.
+You are Larry. Theo, the teaching graph, is part of MindrianOS and needs no key.
 
-## Setup
-
-1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
-
-## Flow
-
-### 1. Explain What Brain Adds (Brief)
-
-Tell the user conversationally:
-
-Brain connects Larry to his teaching graph -- 23,000+ nodes of framework relationships, grading calibration from 100+ real student projects, and cross-domain connection patterns. Everything works without it, but with Brain connected, Larry gets significantly smarter about which frameworks to recommend, how to grade your work, and what connections you might be missing.
-
-### 2. Check for Existing Brain Key
-
-Check if `MINDRIAN_BRAIN_KEY` is already set in the environment:
-
-```bash
-echo "${MINDRIAN_BRAIN_KEY:-not_set}"
-```
-
-If set, skip to Step 4 (Test Connection).
-
-Also check if `.mcp.json` in the workspace has an old `neo4j-brain` or `pinecone-brain` entry. If so, warn the user:
-
-> "I see you have direct Neo4j/Pinecone connections configured. That's the old pattern -- it uses shared credentials and hits quota limits. Let me switch you to the Brain API instead. One key, one connection, no quota issues."
-
-Remove `neo4j-brain` and `pinecone-brain` from `.mcp.json` if present.
-
-### 3. Get Brain API Key
-
-Ask the user:
-
-> "Do you have a Brain API key? If not, request one at mindrian-os.com/brain-access -- you'll get it within 24 hours."
-
-If the user provides a key:
-
-1. Save it to `.env` in the workspace root:
-```
-MINDRIAN_BRAIN_KEY=<their-key>
-```
-
-2. If `.env` already exists, append the key (don't overwrite other vars).
-
-3. Add `.env` to `.gitignore` if not already there.
-
-4. Also write a global backup to `~/.mindrian.env` so the key works from any directory:
-```bash
-# Append or update MINDRIAN_BRAIN_KEY in ~/.mindrian.env
-if [ -f ~/.mindrian.env ] && grep -q "MINDRIAN_BRAIN_KEY" ~/.mindrian.env; then
-  sed -i "s/MINDRIAN_BRAIN_KEY=.*/MINDRIAN_BRAIN_KEY=<their-key>/" ~/.mindrian.env
-else
-  echo "MINDRIAN_BRAIN_KEY=<their-key>" >> ~/.mindrian.env
-fi
-# SEC-02 (Phase 123 Plan-07): lock down permissions on POSIX (no-op on Windows).
-# Without this, lib/core/resolve-brain-key.cjs refuses to load the key from a
-# group/world-readable file and session-start shows "Brain: NOT loaded".
-chmod 600 "$HOME/.mindrian.env" 2>/dev/null || true
-```
-
-Tell the user: "Key saved to both your project `.env` and `~/.mindrian.env` (global backup, chmod 600). Brain will connect from any directory now."
-
-### 4. Test Connection
-
-Test in two stages. First wake the server and confirm it is reachable, then verify the API key.
-
-**Stage 1 -- Health check (no auth, wakes Render free tier):**
-
-```bash
-curl -s -w "\n%{http_code}" --max-time 60 https://theo-mcp.onrender.com/health
-```
-
-**Expected:** HTTP 200 with `{"status":"ok","server":"mindrian-brain","version":"1.0.0"}`
-
-If the health check returns a non-200 or times out, tell the user:
-> "Brain server is waking up (free tier sleeps after 15 minutes of inactivity). Give it 30 seconds and I will retry."
-
-Retry the health check once after 30 seconds. If it still fails:
-> "Can't reach the Brain server right now. Your key is saved -- Brain will connect automatically next time the server is up. Try `/mos:suggest-next` later to confirm."
-
-Do NOT proceed to Stage 2 if health check fails. The key is saved, setup is complete, verification is deferred.
-
-**Stage 2 -- Key verification (only after health returns 200):**
-
-```bash
-curl -s -w "\n%{http_code}" --max-time 15 \
-  -H "Authorization: Bearer <their-key>" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  https://theo-mcp.onrender.com/mcp \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
-```
-
-**Expected:** HTTP 200 with `"serverInfo":{"name":"mindrian-brain"}`
-
-### 5. Report Result
-
-**On success (200 on both stages):**
-> "Brain connected and verified. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
-
-**On health OK but key auth failure (401):**
-> "Brain server is up, but your key was rejected. Double-check the key you received, or request a new one at mindrian-os.com/brain-access"
-
-**On health OK but key verification timeout:**
-> "Brain server is up and your key is saved. Verification timed out but that is normal on first connect. Try `/mos:suggest-next` to confirm it works."
-
-**On health check failure (after retry):**
-> "Brain server is sleeping. Your key is saved and will connect automatically when the server wakes. Nothing else to do -- try a Brain command later."
-
-### 6. How Brain Commands Work on CLI
-
-Explain to the user:
-
-> "On CLI, Brain-powered commands (`/mos:suggest-next`, `/mos:find-connections`, `/mos:compare-ventures`, `/mos:deep-grade`, `/mos:research`) will automatically use your Brain API key to call the hosted Brain server. No MCP configuration needed -- the key in your `.env` is enough."
->
-> "On Desktop or Cowork, add this to your `claude_desktop_config.json`:"
-
-```json
-{
-  "mcpServers": {
-    "mindrian-brain": {
-      "url": "https://theo-mcp.onrender.com/mcp"
-    }
-  }
-}
-```
-
-No `Authorization` header is needed -- the remote Brain returns identical results with a
-real key, a garbage key, or no header at all. The connector key `mindrian-brain` names the
-plugin's Brain slot, not the server, and stays the same across a backend move -- see
-`docs/339-NOTE-theo-desktop-connector-key.md`. A direct connector needs the `/mcp` path
-because it hits the MCP endpoint itself, unlike the plugin's own bundled CLI shim, which
-defaults to the bare origin and appends `/mcp` (and `/register`) itself.
-
-## Important Rules
-
-- **Never echo API keys** back in the conversation
-- **Never write credentials** to any file in the plugin directory
-- The `.env` goes in the **workspace root**, not the plugin
-- If connection test fails, do not leave broken config -- offer to remove or retry
-- If user has old neo4j-brain/pinecone-brain config, migrate them to the API key pattern
-- This command handles `setup brain` only. For transcription setup, see below.
+Tell the user, in one short reply: there is nothing to configure. `/mos:doctor` reports whether Theo is reachable. Do not ask for anything, do not write any file, do not run any test.
 
 ---
 
@@ -314,7 +150,7 @@ If the user doesn't have one: "Sign up at velma.modulate.ai (or the Modulate pla
 
 ### 3. Write Configuration
 
-Write the VELMA_API_KEY to the user's project `.mcp.json` file (same file as Brain config if it exists). Add under a `velma` key in the `mcpServers` section or as a top-level `env` entry if .mcp.json uses that pattern.
+Write the VELMA_API_KEY to the user's project `.mcp.json` file (same file as any other MCP config if it exists). Add under a `velma` key in the `mcpServers` section or as a top-level `env` entry if .mcp.json uses that pattern.
 
 **Template (merge into existing .mcp.json):**
 
@@ -349,7 +185,7 @@ Run `scripts/transcribe-audio --help` to verify the script is accessible. If a s
 - **Never echo API keys** back in the conversation
 - **Never write credentials** to any file in the plugin directory
 - The `.mcp.json` goes in the **workspace root**, not the plugin
-- If `.mcp.json` already has Brain config, merge -- do not overwrite
+- If `.mcp.json` already has other MCP config, merge -- do not overwrite
 - Remind user to add `.mcp.json` to `.gitignore` if not already there
 
 ---
@@ -397,13 +233,13 @@ If `pip` is not available, suggest `pip3` or `python3 -m pip`.
 
 ### 3. Tier 2 Upgrade (Optional)
 
-If the user already has Brain configured (`MINDRIAN_BRAIN_KEY` or `PINECONE_API_KEY` set):
+If the user already has `PINECONE_API_KEY` set:
 
-> "You already have Brain connected -- HSI will automatically use Pinecone embeddings instead of local MiniLM. That gives you the highest quality semantic similarity. No additional setup needed."
+> "You already have Pinecone configured -- HSI will automatically use Pinecone embeddings instead of local MiniLM. That gives you the highest quality semantic similarity. No additional setup needed."
 
 If the user wants Tier 2 but doesn't have Pinecone:
 
-> "Tier 2 uses Pinecone embeddings from the Brain for better semantic matching. Set up Brain first with `/mos:setup brain`, then HSI automatically upgrades to Tier 2."
+> "Tier 2 uses Pinecone embeddings for better semantic matching. Set `PINECONE_API_KEY`, then HSI automatically upgrades to Tier 2."
 
 ### 4. Verify
 
@@ -436,7 +272,7 @@ After successful setup, explain briefly:
 ## Important Rules
 
 - HSI setup is purely local -- no external service needed for Tier 0 or Tier 1
-- Tier 2 requires Brain/Pinecone (handled by `/mos:setup brain`)
+- Tier 2 requires Pinecone (`PINECONE_API_KEY`)
 - If Python is not installed at all, do NOT try to install Python -- tell the user to install Python 3.8+ from python.org or their package manager
 - If `pip install` fails, suggest using a virtual environment: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-hsi.txt`
 - Never modify the user's system Python installation
@@ -583,7 +419,7 @@ If the user's project has a `.gitignore`, check if `.mcp.json` is already listed
 - If `.mcp.json` already has other configs (Brain, Velma), merge -- do not overwrite
 - If connection test fails, do not leave broken config -- offer to remove or retry
 - Only one meeting source can be active at a time (read-ai OR vexa OR recall-ai). If switching, remove the old entry before adding the new one.
-- This command handles `setup meetings` only. For Brain setup, see above. For transcription setup, see above.
+- This command handles `setup meetings` only. For transcription setup, see above.
 
 ---
 
@@ -657,4 +493,4 @@ Tell the user:
 - Always show dry-run results before executing
 - Let the user confirm each room individually -- no batch operations
 - If the user has only one room and it's already in ~/MindrianRooms/, skip the whole flow
-- This command handles `setup rooms` only. For Brain setup, see `/mos:setup brain`. For transcription, see `/mos:setup transcription`.
+- This command handles `setup rooms` only. For transcription, see `/mos:setup transcription`.

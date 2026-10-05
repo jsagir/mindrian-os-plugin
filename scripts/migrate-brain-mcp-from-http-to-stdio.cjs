@@ -25,10 +25,9 @@
  *   --help       usage
  *   (default)    execute the migration plan
  *
- * Two-key conflict case: when the legacy user-scope Bearer differs from the
- * current ~/.mindrian.env key (documented Wave-1 tester case), the script
- * REFUSES to auto-migrate and surfaces a one-line warning instructing the
- * user to reconcile keys manually.
+ * Quick 261005-l8g (SEED-119): the old two-key conflict refusal is gone. Theo
+ * needs no credential, so a legacy entry's header is simply a leftover and the
+ * entry is removed the same way whatever it carried.
  *
  * HARD RULE: zero em-dashes in this file (hyphens only).
  */
@@ -39,7 +38,6 @@ const path = require('node:path');
 const os = require('node:os');
 
 const snapshot = require('../lib/core/migration-snapshot.cjs');
-const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
 
 const SOURCE_NAME = 'mindrian-brain';
 
@@ -60,13 +58,6 @@ function getLegacyEntry(mockClaude) {
   }
 }
 
-function extractBearerKey(entry) {
-  const auth = entry && entry.headers && entry.headers.Authorization;
-  if (!auth) return null;
-  const m = String(auth).match(/^Bearer\s+(.+)$/);
-  return m ? m[1].trim() : null;
-}
-
 function planMigration(opts) {
   const o = opts || {};
   const homeDir = o.homeDir || os.homedir();
@@ -78,22 +69,9 @@ function planMigration(opts) {
   if (snapshot.isAlreadyMigrated(homeDir, SOURCE_NAME, fp)) {
     return { action: 'already_migrated', reason: 'idempotency_log_match', fingerprint: fp };
   }
-  const legacyKey = extractBearerKey(entry);
-  const currentResolved = (o.mockBrainKey !== undefined)
-    ? { key: o.mockBrainKey, available: !!o.mockBrainKey }
-    : resolveBrainKey({ home: homeDir });
-  if (legacyKey && currentResolved.available && legacyKey !== currentResolved.key) {
-    return {
-      action: 'refuse',
-      reason: 'two_key_conflict_rotate_required',
-      fingerprint: fp,
-      warning: 'legacy user-scope mindrian-brain Bearer differs from current ~/.mindrian.env key; '
-        + 'auto-migration refused -- run `claude mcp remove --scope user mindrian-brain` after rotating keys',
-    };
-  }
   return {
     action: 'remove',
-    reason: 'legacy_http_transport_matches_current_key',
+    reason: 'legacy_http_transport_entry',
     fingerprint: fp,
     entry_snapshot: entry,
   };
@@ -108,10 +86,6 @@ function executePlan(args) {
 
   if (!plan || plan.action === 'none' || plan.action === 'already_migrated') {
     return { executed: false, action: plan ? plan.action : 'none' };
-  }
-  if (plan.action === 'refuse') {
-    process.stderr.write('[migrate-brain-mcp] WARNING: ' + plan.warning + '\n');
-    return { executed: false, action: 'refused', warning: plan.warning };
   }
   // action === 'remove'
   if (dryRun) {
@@ -155,8 +129,7 @@ function usage() {
   return 'Usage: migrate-brain-mcp-from-http-to-stdio.cjs [--dry-run] [--help]\n'
     + '\n'
     + 'Removes legacy user-scope HTTP-transport mindrian-brain entries via the\n'
-    + 'supported `claude mcp remove --scope user` CLI. Idempotent; safe to re-run.\n'
-    + 'Refuses to auto-migrate when the legacy Bearer differs from ~/.mindrian.env.\n';
+    + 'supported `claude mcp remove --scope user` CLI. Idempotent; safe to re-run.\n';
 }
 
 function main(argv) {
@@ -183,7 +156,7 @@ function main(argv) {
   return 0;
 }
 
-module.exports = { main, planMigration, executePlan, getLegacyEntry, extractBearerKey, SOURCE_NAME };
+module.exports = { main, planMigration, executePlan, getLegacyEntry, SOURCE_NAME };
 
 if (require.main === module) {
   process.exit(main());

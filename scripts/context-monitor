@@ -57,29 +57,26 @@ const EXPLORATION_LABELS = {
 };
 
 /**
- * Detect whether the Brain MCP is configured for this user. Returns
- * 'connected', 'disconnected', or 'unknown'. The detection is a proxy,
- * not a live health check: we look for the MINDRIAN_BRAIN_KEY env var
- * (which the plugin's brain-connector skill expects) and optionally for
- * a brain health bridge file if it exists. A real liveness check would
- * require an MCP round-trip, which the statusline cannot do synchronously.
- * @returns {'connected'|'disconnected'|'unknown'}
+ * Theo status for the statusline. Returns 'connected' or 'disconnected'.
+ * Theo needs no key (quick 261005-l8g, SEED-119), so there is nothing to
+ * detect locally: the signal reads the Theo health cache if one exists
+ * (~/.mindrian/bridge/brain-health.json, status 'ok' or 'error') and
+ * otherwise assumes Theo is reachable. A real liveness check would require
+ * a network round-trip, which the statusline cannot do synchronously;
+ * /mos:doctor owns that check.
+ * @returns {'connected'|'disconnected'}
  */
 function detectBrainStatus() {
   try {
-    if (process.env.MINDRIAN_BRAIN_KEY && process.env.MINDRIAN_BRAIN_KEY.length > 0) {
-      const health = path.join(os.homedir(), '.mindrian', 'bridge', 'brain-health.json');
-      if (fs.existsSync(health)) {
-        try {
-          const h = JSON.parse(fs.readFileSync(health, 'utf8'));
-          if (h && h.status === 'ok') return 'connected';
-          if (h && h.status === 'error') return 'disconnected';
-        } catch (e) {}
-      }
-      return 'connected';
+    const health = path.join(os.homedir(), '.mindrian', 'bridge', 'brain-health.json');
+    if (fs.existsSync(health)) {
+      try {
+        const h = JSON.parse(fs.readFileSync(health, 'utf8'));
+        if (h && h.status === 'error') return 'disconnected';
+      } catch (e) {}
     }
   } catch (e) {}
-  return 'disconnected';
+  return 'connected';
 }
 
 /**
@@ -599,7 +596,7 @@ process.stdin.on('end', () => {
       fs.renameSync(bridgeFile + '.tmp', bridgeFile);
     } catch (e) {}
     // LEGACY: pre-121.5-03 colored bar composition retained ONLY for the
-    // graceful-fallback path below (Tier 0 / no-room case). Once the two-row
+    // graceful-fallback path below (no-room case). Once the two-row
     // renderer is the sole path, this block is dead. For now, keep both
     // representations available so the no-room fallback keeps the bar.
     let ctx = '';
@@ -683,7 +680,7 @@ process.stdin.on('end', () => {
       } catch (_e) { /* graceful fallback */ }
     }
 
-    // Fallback chain when STATE.md current_room absent (Tier 0):
+    // Fallback chain when STATE.md current_room absent:
     //   1. Registry rooms[active].name (legacy display name)
     //   2. Workspace dir basename
     if (!roomName && fs.existsSync(registryPath)) {
@@ -844,10 +841,9 @@ process.stdin.on('end', () => {
         pluginPart += ` ${updateHint}`;
         parts.push(pluginPart);
 
-        // Brain connection status. Green DNA if MINDRIAN_BRAIN_KEY is
-        // set (with optional health-bridge confirmation). Red DNA if
-        // not configured. This is a proxy, not a live health check -
-        // the statusline cannot do an MCP round-trip synchronously.
+        // Theo connection status. Green DNA unless the Theo health cache
+        // says 'error' (then red). This is a proxy, not a live health check -
+        // the statusline cannot do a network round-trip synchronously.
         const brainStatus = detectBrainStatus();
         if (brainStatus === 'connected') {
           parts.push(`\u{1F9EC} ${visual.ANSI.green}BRAIN${visual.ANSI.reset}`);
@@ -874,7 +870,7 @@ process.stdin.on('end', () => {
     // rowState we collected above. Version + update-glyph conditional come
     // from lib/statusline/version-resolver.cjs (SEED-007 anchored).
     //
-    // When no room is resolved (Tier 0 / cold start), emit only Row 1 with
+    // When no room is resolved (cold start), emit only Row 1 with
     // an empty Row 2 (room defaults to 'MindrianOS' in the renderer). This
     // preserves the SEED-007 contract: the version-of-record is ALWAYS
     // visible, even outside any room.

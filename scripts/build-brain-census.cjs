@@ -11,7 +11,7 @@
  *
  * Two deliberate departures from that precedent, documented here per the plan:
  *   1. NO --check release gate. The census needs live network plus (for Lane
- *      B) an operator-supplied admin key. A release gate must never depend on
+ *      B) an operator-tier session. A release gate must never depend on
  *      live network, so this generator carries no --check mode at all.
  *   2. The source of truth is live probes plus the committed state JSON, not
  *      a committed source file. loadSource()-equivalent input for Lane A/B is
@@ -33,8 +33,8 @@
  *       Run the per-framework read-tier census against the live deployment,
  *       merge under lane_a, render both artifacts.
  *   node scripts/build-brain-census.cjs --lane-b
- *       Run the C1-C9 aggregate Cypher set (admin key required via
- *       MINDRIAN_BRAIN_KEY / resolveBrainKey()), merge under lane_b, render.
+ *       Run the C1-C9 aggregate Cypher set (the remote decides whether it
+ *       answers; the script sends no credential), merge under lane_b, render.
  *   node scripts/build-brain-census.cjs --lane-b-input <path>
  *       Ingest an externally produced JSON (local-twin fallback) mapping
  *       query id to result rows, merge under lane_b with a drift caveat.
@@ -43,7 +43,7 @@
  *       data/brain-census.generated.json, zero network (idempotence check).
  *
  * No em-dashes anywhere (repo-wide fence). CJS only, no TypeScript, no new
- * npm packages (Node built-ins plus resolve-brain-key.cjs only).
+ * npm packages (Node built-ins only).
  */
 
 const fs = require('node:fs');
@@ -256,7 +256,7 @@ function scanMethodologyCommands() {
 }
 
 // ---------------------------------------------------------------------------
-// brainCall(toolName, args, key) - direct fetch POST to BRAIN_URL/mcp, the
+// brainCall(toolName, args) - direct fetch POST to BRAIN_URL/mcp, the
 // exact wire shape lib/core/brain-client.cjs uses (headers, jsonrpc 2.0
 // tools/call body, SSE "data: " line parse). Two deliberate differences from
 // brain-client (research Pitfall 2): on a non-OK response, return
@@ -270,14 +270,13 @@ function _looksSessionRequired(bodyText) {
   return typeof bodyText === 'string' && /session/i.test(bodyText) && /required|missing|invalid/i.test(bodyText);
 }
 
-async function _initializeOnce(key) {
+async function _initializeOnce() {
   const res = await fetch(BRAIN_URL + '/mcp', {
     method: 'POST',
     signal: AbortSignal.timeout(BRAIN_REQUEST_TIMEOUT_MS),
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json, text/event-stream',
-      Authorization: 'Bearer ' + key,
     },
     body: JSON.stringify({
       jsonrpc: '2.0',
@@ -310,7 +309,7 @@ function _classifyThrown(e) {
   return (e && e.name === 'TimeoutError') ? 'timeout' : 'hard_error';
 }
 
-async function brainCall(toolName, args, key) {
+async function brainCall(toolName, args) {
   const doCall = async () =>
     fetch(BRAIN_URL + '/mcp', {
       method: 'POST',
@@ -318,8 +317,7 @@ async function brainCall(toolName, args, key) {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json, text/event-stream',
-        Authorization: 'Bearer ' + key,
-      },
+        },
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: 2,
@@ -343,7 +341,7 @@ async function brainCall(toolName, args, key) {
       bodyText = '';
     }
     if (_looksSessionRequired(bodyText)) {
-      const initOk = await _initializeOnce(key).catch(() => false);
+      const initOk = await _initializeOnce().catch(() => false);
       if (initOk) {
         let retryRes;
         try {
@@ -845,10 +843,10 @@ function serializeArtifactJson(census) {
 // ---------------------------------------------------------------------------
 // Lane A live run.
 // ---------------------------------------------------------------------------
-async function _runLaneA(key) {
+async function _runLaneA() {
   const nowIso = () => new Date().toISOString();
 
-  const statsRes = await brainCall('brain_stats', {}, key);
+  const statsRes = await brainCall('brain_stats', {});
   const brainStats = statsRes.ok ? statsRes.result : null;
   if (!statsRes.ok) {
     process.stderr.write('[census] brain_stats failed: ' + statsRes.httpStatus + ' ' + statsRes.bodyText + '\n');
@@ -859,9 +857,9 @@ async function _runLaneA(key) {
   let successCount = 0;
 
   for (const fw of scanned.frameworks) {
-    const normalize = await brainCall('normalize_framework_name', { raw: fw.name }, key);
-    const readiness = await brainCall('orchestration_readiness', { framework_name: fw.name }, key);
-    const structure = await brainCall('discover_structure', { framework_name: fw.name }, key);
+    const normalize = await brainCall('normalize_framework_name', { raw: fw.name });
+    const readiness = await brainCall('orchestration_readiness', { framework_name: fw.name });
+    const structure = await brainCall('discover_structure', { framework_name: fw.name });
 
     if (normalize.ok || readiness.ok || structure.ok) successCount++;
 
@@ -892,7 +890,7 @@ async function _runLaneA(key) {
 
   const absenceProbes = [];
   for (const name of ABSENCE_PROBE_NAMES) {
-    const normalize = await brainCall('normalize_framework_name', { raw: name }, key);
+    const normalize = await brainCall('normalize_framework_name', { raw: name });
     absenceProbes.push({ name, normalize });
   }
 
@@ -908,12 +906,12 @@ async function _runLaneA(key) {
 // ---------------------------------------------------------------------------
 // Lane B live run against brain_query.
 // ---------------------------------------------------------------------------
-async function _runLaneB(key) {
+async function _runLaneB() {
   const results = {};
   let usedFallback = false;
 
   const c1 = CENSUS_QUERIES.find((q) => q.id === 'C1');
-  const r1 = await brainCall('brain_query', { cypher: c1.cypher }, key);
+  const r1 = await brainCall('brain_query', { cypher: c1.cypher });
   if (!r1.ok) {
     process.stderr.write('[census] Lane B brain_query failed on C1: ' + r1.httpStatus + ' ' + r1.bodyText + '\n');
     process.stderr.write('[census] hint: HTTP 403 means the supplied key is not in Render\'s BRAIN_HTTP_ADMIN_KEYS (admin-tier gate).\n');
@@ -922,26 +920,26 @@ async function _runLaneB(key) {
   results.C1 = Array.isArray(r1.result) ? r1.result[0] : r1.result;
 
   const c2 = CENSUS_QUERIES.find((q) => q.id === 'C2');
-  const r2 = await brainCall('brain_query', { cypher: c2.cypher }, key);
+  const r2 = await brainCall('brain_query', { cypher: c2.cypher });
   if (r2.ok) {
     results.C2 = r2.result;
   } else {
     usedFallback = true;
     for (const subId of ['C2a', 'C2b', 'C2c', 'C2d']) {
       const q = CENSUS_QUERIES.find((qq) => qq.id === subId);
-      const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+      const r = await brainCall('brain_query', { cypher: q.cypher });
       results[subId] = r.ok ? r.result : { error: r.bodyText };
     }
   }
 
   const c3 = CENSUS_QUERIES.find((q) => q.id === 'C3');
-  const r3 = await brainCall('brain_query', { cypher: c3.cypher }, key);
+  const r3 = await brainCall('brain_query', { cypher: c3.cypher });
   results.C3 = r3.ok ? (Array.isArray(r3.result) ? r3.result[0] : r3.result) : { error: r3.bodyText };
 
   const c4entries = CENSUS_QUERIES.filter((q) => q.id === 'C4');
   const c4merged = {};
   for (const q of c4entries) {
-    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    const r = await brainCall('brain_query', { cypher: q.cypher });
     const row = r.ok ? (Array.isArray(r.result) ? r.result[0] : r.result) : null;
     c4merged[q.sub] = row ? row[q.sub] : null;
   }
@@ -949,7 +947,7 @@ async function _runLaneB(key) {
 
   for (const id of ['C5', 'C6', 'C7', 'C8', 'C9']) {
     const q = CENSUS_QUERIES.find((qq) => qq.id === id);
-    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    const r = await brainCall('brain_query', { cypher: q.cypher });
     results[id] = r.ok ? r.result : { error: r.bodyText };
   }
 
@@ -1011,7 +1009,7 @@ function _isRefused(value) {
 }
 
 // ---------------------------------------------------------------------------
-// _runLaneBTheo(key, brainStats) - Theo lane B (quick task 260911-axz).
+// _runLaneBTheo(brainStats) - Theo lane B (quick task 260911-axz).
 // Additive only: never edits CENSUS_QUERIES or the incumbent _runLaneB
 // above. Sources C1 and C5 directly from the already-fetched brainStats
 // (Theo's read allow-list rejects the whole-graph AllNodesScan plan both of
@@ -1024,7 +1022,7 @@ function _isRefused(value) {
 // content-free, ambiguous/freeform_unproven; nothing here removes or rewords
 // a query, only how a refusal is recorded).
 // ---------------------------------------------------------------------------
-async function _runLaneBTheo(key, brainStats) {
+async function _runLaneBTheo(brainStats) {
   const results = {};
 
   // C1: Framework total from brain_stats.labels, not a Cypher count.
@@ -1040,7 +1038,7 @@ async function _runLaneBTheo(key, brainStats) {
 
   // C6-equivalent: brain_schema's relationship TYPE NAMES, no per-type
   // counts, plus a property_keys count.
-  const schemaRes = await brainCall('brain_schema', {}, key);
+  const schemaRes = await brainCall('brain_schema', {});
   const schemaOutcome = _theoQueryOutcome(schemaRes);
   if (_isRefused(schemaOutcome)) {
     results.C6 = schemaOutcome;
@@ -1053,26 +1051,26 @@ async function _runLaneBTheo(key, brainStats) {
   }
 
   const c2 = CENSUS_QUERIES.find((q) => q.id === 'C2');
-  const r2 = await brainCall('brain_query', { cypher: c2.cypher }, key);
+  const r2 = await brainCall('brain_query', { cypher: c2.cypher });
   const c2Outcome = _theoQueryOutcome(r2);
   results.C2 = c2Outcome;
   if (_isRefused(c2Outcome)) {
     for (const subId of ['C2a', 'C2b', 'C2c', 'C2d']) {
       const q = CENSUS_QUERIES.find((qq) => qq.id === subId);
-      const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+      const r = await brainCall('brain_query', { cypher: q.cypher });
       results[subId] = _theoQueryOutcome(r);
     }
   }
 
   const c3 = CENSUS_QUERIES.find((q) => q.id === 'C3');
-  const r3 = await brainCall('brain_query', { cypher: c3.cypher }, key);
+  const r3 = await brainCall('brain_query', { cypher: c3.cypher });
   const c3Outcome = _theoQueryOutcome(r3);
   results.C3 = _isRefused(c3Outcome) ? c3Outcome : (Array.isArray(c3Outcome) ? c3Outcome[0] : c3Outcome);
 
   const c4entries = CENSUS_QUERIES.filter((q) => q.id === 'C4');
   const c4merged = {};
   for (const q of c4entries) {
-    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    const r = await brainCall('brain_query', { cypher: q.cypher });
     const outcome = _theoQueryOutcome(r);
     if (_isRefused(outcome)) {
       c4merged[q.sub] = outcome;
@@ -1085,7 +1083,7 @@ async function _runLaneBTheo(key, brainStats) {
 
   for (const id of ['C7', 'C8', 'C9']) {
     const q = CENSUS_QUERIES.find((qq) => qq.id === id);
-    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    const r = await brainCall('brain_query', { cypher: q.cypher });
     results[id] = _theoQueryOutcome(r);
   }
 
@@ -1136,12 +1134,6 @@ async function main() {
   }
 
   if (argv.includes('--lane-a')) {
-    const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
-    const r = resolveBrainKey();
-    if (!r.available) {
-      console.error('Brain key unavailable: ' + r.reason);
-      process.exit(1);
-    }
 
     // Cold start, one retry (quick task 260911-axz): Theo runs on Render and
     // sleeps. A reachability probe up front, separate from _runLaneA's own
@@ -1149,12 +1141,12 @@ async function main() {
     // warm-up window before any real probing begins. Only a SECOND failure
     // after the warm-up concludes a real outage; this generator then stops
     // and reports rather than writing a partial artifact.
-    let reachProbe = await brainCall('brain_stats', {}, r.key);
+    let reachProbe = await brainCall('brain_stats', {});
     if (_isColdStartLikeFailure(reachProbe)) {
       console.error('[census] Theo unreachable on first attempt (' + (reachProbe.httpStatus || 'no status')
         + ' ' + reachProbe.bodyText + '); this may be a Render cold start. Waiting 30s and retrying ONCE.');
       await new Promise((resolve) => setTimeout(resolve, 30000));
-      reachProbe = await brainCall('brain_stats', {}, r.key);
+      reachProbe = await brainCall('brain_stats', {});
       if (_isColdStartLikeFailure(reachProbe)) {
         console.error('[census] Theo still unreachable after the 30s retry: ' + (reachProbe.httpStatus || 'no status')
           + ' ' + reachProbe.bodyText + '. Concluding a real outage, not a cold start. Refusing to write a partial artifact.');
@@ -1163,7 +1155,7 @@ async function main() {
     }
 
     const scanned = scanMethodologyCommands();
-    const laneAResult = await _runLaneA(r.key);
+    const laneAResult = await _runLaneA();
     const census = loadExisting();
     census.generated_note = GENERATED_NOTE;
     census.meta = Object.assign({}, census.meta, {
@@ -1190,22 +1182,16 @@ async function main() {
   }
 
   if (argv.includes('--lane-b')) {
-    const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
-    const r = resolveBrainKey();
-    if (!r.available) {
-      console.error('Brain key unavailable: ' + r.reason);
-      process.exit(1);
-    }
     // Shape detection (quick task 260911-axz): a brain_stats call selects
     // the Theo lane (_runLaneBTheo) when its shape matches; otherwise
     // _runLaneB runs exactly as today, unedited. Recognizing the
     // incumbent's shape first (via the absence check inside
     // _isTheoStatsShape) is the proof of inertness: the incumbent path
     // cannot change.
-    const statsProbe = await brainCall('brain_stats', {}, r.key);
+    const statsProbe = await brainCall('brain_stats', {});
     const brainStats = statsProbe.ok ? statsProbe.result : null;
     const isTheoShape = _isTheoStatsShape(brainStats);
-    const laneB = isTheoShape ? await _runLaneBTheo(r.key, brainStats) : await _runLaneB(r.key);
+    const laneB = isTheoShape ? await _runLaneBTheo(brainStats) : await _runLaneB();
     const laneBSource = isTheoShape
       ? 'theo-live brain_stats + brain_schema (whole-graph Cypher refused by Theo read allow-list)'
       : 'render-live';

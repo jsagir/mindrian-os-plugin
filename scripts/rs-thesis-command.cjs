@@ -9,7 +9,7 @@
  * brainClient.query(cypher) with a MATCH on RSDiscovery nodes. brain-client
  * routes to the REMOTE Brain (the origin resolved by getBrainUrl(),
  * lib/core/brain-client.cjs; named via the resolver rather than a host as
- * of phase 339, 2026-09-03) when MINDRIAN_BRAIN_KEY is set. RSDiscovery IS
+ * of phase 339, 2026-09-03). RSDiscovery IS
  * USER DATA -- sending it to the remote Brain is a Canon Part 8 breach
  * (LOCAL -> BRAIN: NO).
  *

@@ -27,7 +27,7 @@
  * process require), and this file's own test drives the export directly.
  *
  * NEVER requires brain-client.cjs, NEVER calls fetch, NEVER reads a vendor
- * key (no TYPESAFE_API_KEY, no MINDRIAN_BRAIN_KEY anywhere in this file).
+ * key (no TYPESAFE_API_KEY anywhere in this file).
  * The self-test drives lib/core/verification-stamp.cjs with an explicit
  * deps.callTool that always resolves null (Theo unreachable) -- the ONE wire
  * door in verification-stamp.cjs is therefore never opened by this file.

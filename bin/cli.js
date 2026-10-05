@@ -16,8 +16,8 @@
  *             mos@mindrian-marketplace. Requires the `claude` CLI on PATH (prints
  *             how to get it if missing). Flags pass through to `claude plugin
  *             install` (e.g. `--version 1.13.0-beta.9`); when a version is pinned
- *             the update step is skipped. The Brain key stays a printed hint --
- *             writing it to the environment is the one side effect left to you.
+ *             the update step is skipped. Theo needs no key, so there is nothing
+ *             left to configure after the install.
  *   doctor    Run /mos:doctor's diagnostic from OUTSIDE Claude Code so you catch
  *             install/drift problems before a session. Resolves the installed
  *             plugin (marketplace cache, dev clone, or MINDRIAN_OS_ROOT), then
@@ -202,10 +202,6 @@ switch (sub) {
 
     console.log('');
     console.log('MindrianOS is installed and current. Run `claude plugin list` to see the version.');
-    console.log('');
-    console.log('Optional -- connect the Brain for enriched intelligence:');
-    console.log('  inside Claude Code:  /mos:setup   (choose "Configure Brain", paste your key)');
-    console.log('  or set it directly:  export MINDRIAN_BRAIN_KEY="<your-key>"   (or add it to ~/.claude/.env)');
     console.log('');
     console.log('Verify:  mindrian-os doctor   (or /mos:doctor inside Claude Code)');
     console.log('Start:   open a fresh Claude Code session, then  /mos:onboard');

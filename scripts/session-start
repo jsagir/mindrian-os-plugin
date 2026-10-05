@@ -1865,50 +1865,10 @@ else
 fi
 escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
 
-# --- BEGIN Brain status (Phase 123, Plan-7) ---
-#
-# Brain status emission. Replaces the pre-Plan-7 MCP-centric drift check, which
-# tested only the shell env var MINDRIAN_BRAIN_KEY and missed the standard
-# install (key in ~/.mindrian.env); on an HTTP-path install it also emitted a
-# misleading MCP-server-not-found WARN even when the HTTP client was perfectly
-# healthy. The block below replaces that drift check entirely.
-#
-# This block shells out to lib/core/resolve-brain-key.cjs (the single Brain-key
-# resolver) and emits ONE of three positive status lines:
-#
-#   - "Brain: HTTP client active" -- key resolved (host dropped from the
-#     banner as of phase 339, 2026-09-03; see the comment below).
-#   - "Brain: NOT loaded -- permissions too open: ... (run: chmod 600 ~/.mindrian.env)"
-#     -- SEC-02 POSIX permission rejection (POSIX-only -- no-op on Windows).
-#   - "Brain: not configured (Tier 0)" -- no key found anywhere.
-#
-# The SEC-02 rejection routes through this same status channel -- never bare
-# stderr. The resolver returns { key, source, available, reason } as JSON;
-# we parse it with a tiny inline node one-liner (bash has no JSON parser and
-# adding jq as a dependency would couple session-start to a system package).
-#
-# Canon Part 8: the block is purely LOCAL -- the resolver only CHECKS for a
-# key, never calls Brain. The status line no longer names a host (phase
-# 339, 2026-09-03): this banner is prose a user reads on EVERY session
-# start, so a wrong host here would be a lie repeated constantly across an
-# origin change. Deriving it would mean shelling out to node from this bash
-# script on the session start path, adding a node spawn to print a hostname
-# for a purely cosmetic gain in startup latency paid on every session. The
-# origin already has one authoritative reporter: `node scripts/doctor.cjs`
-# class M layer 6.
-# ---------------------------------------------------------------------------
-_BRAIN_KEY_JSON="$(node "$PLUGIN_ROOT/lib/core/resolve-brain-key.cjs" 2>/dev/null || echo '{"available":false,"reason":"resolver failed"}')"
-_BRAIN_AVAILABLE="$(printf '%s' "$_BRAIN_KEY_JSON" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{try{process.stdout.write(String(JSON.parse(s).available));}catch(_){process.stdout.write('false');}})" 2>/dev/null)"
-_BRAIN_REASON="$(printf '%s' "$_BRAIN_KEY_JSON" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{try{const j=JSON.parse(s);process.stdout.write(j.reason||'');}catch(_){process.stdout.write('');}})" 2>/dev/null)"
-if [ "$_BRAIN_AVAILABLE" = "true" ]; then
-  echo "Brain: HTTP client active" >&2
-elif [ -n "$_BRAIN_REASON" ] && printf '%s' "$_BRAIN_REASON" | grep -q "permissions too open"; then
-  echo "Brain: NOT loaded -- $_BRAIN_REASON  (run: chmod 600 ~/.mindrian.env)" >&2
-else
-  echo "Brain: not configured (Tier 0)" >&2
-fi
-unset _BRAIN_KEY_JSON _BRAIN_AVAILABLE _BRAIN_REASON
-# --- END Brain status ---
+# --- Brain status: removed (quick 261005-l8g, SEED-119, ruling 2026-10-05) ---
+# Theo needs no key, so session-start has nothing to look up and prints no
+# Brain line. The hook runs offline and never probes the network; whether Theo
+# is reachable is reported by `/mos:doctor` (class M layer 6), never guessed here.
 
 # ---------------------------------------------------------------------------
 # Quick 260911-ddd (DDD-02): CLI-only pre-warm extra, never the only path.

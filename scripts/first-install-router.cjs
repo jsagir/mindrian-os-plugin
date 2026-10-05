@@ -68,7 +68,7 @@
  * sha256(prompt) as the largest string it ever writes.
  *
  * Absolutely forbidden in this file, per CONTEXT.md D-07: reading the
- * Anthropic, Tavily, or Brain key env vars, or requiring the Brain client
+ * Anthropic or Tavily key env vars, or requiring the Brain client
  * chokepoint (lib/core/brain-client.cjs) or its lower-level MCP client
  * (bin/mindrian-brain-mcp-client.cjs). This router needs none of them --
  * classification is local, and the only downstream verb (/mos:ignite) is

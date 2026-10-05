@@ -7,8 +7,8 @@
  * Phase 247-02 (CONTRACT-01), conformance leg 3: the LIVE drift probe.
  * Diffs the DEPLOYED Brain surface against data/brain-surface-contract.json.
  * This is a RELEASE GATE, not a commit gate -- it makes real network calls
- * to pws-brain-mcp.onrender.com (or MINDRIAN_BRAIN_URL) using a READ key
- * only. Per the 247-02 plan this script is authored and parse-checked here;
+ * to the Theo origin (MINDRIAN_BRAIN_URL overrides it) with no credential: Theo
+ * is called bare. Per the 247-02 plan this script is authored and parse-checked here;
  * it runs as part of the required live gate in 247-03 Task 3, and again at
  * every future release before a claim of "the contract holds" is made.
  *
@@ -19,10 +19,8 @@
  * `tools/list` (brainCall is tools/call-only). Canon Part 7: no new HTTP
  * client invented, the wire shape is copied, not reinvented.
  *
- * Key loading: identical to build-brain-census.cjs -- MINDRIAN_BRAIN_KEY env
- * or ~/.mindrian.env via lib/core/resolve-brain-key.cjs (SEC-02 permission
- * check included). The key is NEVER written to a tracked file and NEVER
- * printed in full -- only presence/absence and a length, never the value.
+ * No credential: like the rest of the Theo path this probe sends no
+ * Authorization header and loads nothing from disk or env (quick 261005-l8g).
  *
  * POST-CONTRACT-05 (brain repo @ 8b40b30, deployed 2026-08-11): two of the
  * five legs' expected truths changed on the deployed surface. This probe was
@@ -34,13 +32,13 @@
  * Five legs, each printing PASS/FAIL with verbatim httpStatus + body
  * evidence. Any leg failure sets the process exit code to 1.
  *
- *   a. tools/list on a read key -- every loop_tools name present.
+ *   a. tools/list on a bare call -- every loop_tools name present.
  *   b. per-tool retirement mode, read from contract.retired_remote:
  *      text2cypher keeps refusing with httpStatus 403 + a MoatViolation body
  *      (reachability retirement, unchanged); brain_ask_anything is now
  *      delisted entirely -- absent from tools/list, and calling it yields a
  *      JSON-RPC unknown-tool error, NOT a 403 MoatViolation.
- *   c. brain_query on a read key -- CONTRACT-05 moved it INTO the bounded
+ *   c. brain_query on a bare call -- CONTRACT-05 moved it INTO the bounded
  *      read tier: a bounded `MATCH ... RETURN ... LIMIT` read is ADMITTED
  *      (httpStatus 200, bounded rows, no refusal marker); a `CREATE` write
  *      is refused IN-BAND with a BoundedReadRefusal marker in the tool
@@ -57,8 +55,7 @@
  *      DROPs; a labeled expected-red leg does not flip the process exit code.
  *
  * Usage: node scripts/probe-brain-contract.cjs
- * Requires a read-tier Brain key (MINDRIAN_BRAIN_KEY env or ~/.mindrian.env).
- * No admin key is used or required.
+ * Requires only network reach to the Theo origin.
  *
  * No em-dashes.
  */
@@ -87,7 +84,7 @@ const BRAIN_REQUEST_TIMEOUT_MS = Number(process.env.MINDRIAN_BRAIN_TIMEOUT_MS) |
 const ABS_PATH_RE = /^(?:[/~]|[A-Za-z]:[\\/]|\\\\)/;
 
 // ---------------------------------------------------------------------------
-// mcpCall(method, params, key, idNum) -- raw JSON-RPC over the Brain's
+// mcpCall(method, params, idNum) -- raw JSON-RPC over the Brain's
 // Streamable HTTP transport. Generalizes build-brain-census.cjs's brainCall()
 // (tools/call-only) to also cover `initialize` and `tools/list`, keeping the
 // wire shape verbatim (headers, body, SSE "data: " line parse). Never
@@ -99,7 +96,7 @@ function _looksSessionRequired(bodyText) {
   return typeof bodyText === 'string' && /session/i.test(bodyText) && /required|missing|invalid/i.test(bodyText);
 }
 
-async function mcpCall(method, params, key, idNum) {
+async function mcpCall(method, params, idNum) {
   const doCall = async () =>
     fetch(BRAIN_URL + '/mcp', {
       method: 'POST',
@@ -107,7 +104,6 @@ async function mcpCall(method, params, key, idNum) {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json, text/event-stream',
-        Authorization: 'Bearer ' + key,
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -141,9 +137,9 @@ async function mcpCall(method, params, key, idNum) {
         protocolVersion: '2024-11-05',
         capabilities: {},
         clientInfo: { name: 'mindrian-contract-probe', version: '1.0.0' },
-      }, key, 1).catch(() => ({ ok: false }));
+      }, 1).catch(() => ({ ok: false }));
       if (initRes.ok) {
-        return mcpCall(method, params, key, idNum);
+        return mcpCall(method, params, idNum);
       }
     }
     return { ok: false, httpStatus: res.status, bodyText: bodyText };
@@ -176,8 +172,8 @@ async function mcpCall(method, params, key, idNum) {
   return { ok: true, httpStatus: res.status, result: parsed.result };
 }
 
-async function callTool(toolName, args, key) {
-  const r = await mcpCall('tools/call', { name: toolName, arguments: args || {} }, key, 2);
+async function callTool(toolName, args) {
+  const r = await mcpCall('tools/call', { name: toolName, arguments: args || {} }, 2);
   if (!r.ok) return r;
   const result = r.result;
   if (result && Array.isArray(result.content)) {
@@ -254,23 +250,14 @@ function reportExpectedRed(name, note, evidence) {
 async function main() {
   const contract = JSON.parse(fs.readFileSync(CONTRACT_PATH, 'utf8'));
 
-  const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
-  const keyInfo = resolveBrainKey();
-  if (!keyInfo.available) {
-    console.error('Brain key unavailable: ' + keyInfo.reason);
-    console.error('This probe needs a READ-tier key (MINDRIAN_BRAIN_KEY env or ~/.mindrian.env). No admin key is used.');
-    process.exit(1);
-  }
-  const key = keyInfo.key;
   console.log('Brain URL: ' + BRAIN_URL);
-  console.log('Key loaded from: ' + keyInfo.source + ' (length ' + key.length + ', value never printed)');
   console.log('');
 
   // --- Leg a: tools/list -- every loop_tools name present ---------------
   let listedNames = [];
-  const listRes = await mcpCall('tools/list', {}, key, 3);
+  const listRes = await mcpCall('tools/list', {}, 3);
   if (!listRes.ok) {
-    reportLeg('Leg a: tools/list reachable on a read key', false, {
+    reportLeg('Leg a: tools/list reachable on a bare call', false, {
       httpStatus: listRes.httpStatus,
       bodyText: listRes.bodyText,
     });
@@ -288,18 +275,18 @@ async function main() {
 
   // --- Leg b: each retired_remote tool -- per-tool retirement mode -------
   // CONTRACT-05: text2cypher keeps its reachability retirement (moat-gated,
-  // still listed, refuses 403 MoatViolation on a read key). brain_ask_anything
+  // still listed, refuses 403 MoatViolation on a bare call). brain_ask_anything
   // is now delisted from tools/list -- but that does NOT mean a direct
   // tools/call to it surfaces a JSON-RPC unknown-tool error. Brain repo
   // c58e764 put a deny-by-default READ_TOOLS allowlist gate IN FRONT OF
-  // registry dispatch: on a read key, `tools/call` checks the allowlist
+  // registry dispatch: on a bare call, `tools/call` checks the allowlist
   // before it ever looks up the tool by name, so ANY name not on the
   // allowlist -- retired, admin-only, or one that never existed -- draws the
   // identical 403 MoatViolation "not on the read allowlist" response. This
   // is deliberate: it denies a caller an existence oracle (no way to tell
   // "retired" apart from "never existed" by probing tools/call). A JSON-RPC
   // unknown-tool error would only ever reach a caller that already cleared
-  // the allowlist gate -- i.e. never, for a delisted tool, on a read key.
+  // the allowlist gate -- i.e. never, for a delisted tool, on a bare call.
   // So "delisted" here means: absent from tools/list (registry-level proof)
   // AND still 403 MoatViolation on direct call (allowlist-gate proof) -- the
   // gate answers first, registry dispatch is never reached.
@@ -308,7 +295,7 @@ async function main() {
     const mode = RETIREMENT_MODE[toolName] || 'refuse-403-moat';
     if (mode === 'delisted') {
       const isAbsent = !listedNames.includes(toolName);
-      const r = await callTool(toolName, { raw: 'probe', question: 'probe' }, key);
+      const r = await callTool(toolName, { raw: 'probe', question: 'probe' });
       const isGatedMoat = !r.ok && r.httpStatus === 403 && /MoatViolation/i.test(r.bodyText || '') && /not on the read allowlist/i.test(r.bodyText || '');
       const ok = isAbsent && isGatedMoat;
       reportLeg('Leg b: retired tool "' + toolName + '" is delisted (absent from tools/list, allowlist-gate 403 MoatViolation on direct call)', ok, {
@@ -317,9 +304,9 @@ async function main() {
         call_bodyText: r.ok ? '(unexpectedly succeeded)' : r.bodyText,
       });
     } else {
-      const r = await callTool(toolName, { raw: 'probe', question: 'probe' }, key);
+      const r = await callTool(toolName, { raw: 'probe', question: 'probe' });
       const is403Moat = !r.ok && r.httpStatus === 403 && /MoatViolation/i.test(r.bodyText || '');
-      reportLeg('Leg b: retired tool "' + toolName + '" refuses with 403 MoatViolation on a read key', is403Moat, {
+      reportLeg('Leg b: retired tool "' + toolName + '" refuses with 403 MoatViolation on a bare call', is403Moat, {
         httpStatus: r.httpStatus,
         bodyText: r.ok ? '(unexpectedly succeeded)' : r.bodyText,
       });
@@ -329,12 +316,12 @@ async function main() {
 
   // --- Leg c: brain_query -- bounded-read admission (CONTRACT-05) --------
   // c1: a bounded read is ADMITTED at HTTP 200 with real rows, no refusal.
-  const c1Res = await callTool('brain_query', { cypher: 'MATCH (n) RETURN n LIMIT 1' }, key);
+  const c1Res = await callTool('brain_query', { cypher: 'MATCH (n) RETURN n LIMIT 1' });
   const c1Text = c1Res.ok ? JSON.stringify(c1Res.result) : c1Res.bodyText || '';
   const c1NoRefusal = !/BoundedReadRefusal|MoatViolation/i.test(c1Text);
   const c1RowCount = c1Res.ok ? _countRows(c1Res.result) : 0;
   const c1Ok = c1Res.ok && c1Res.httpStatus === 200 && c1NoRefusal && c1RowCount > 0;
-  reportLeg('Leg c1: brain_query bounded read is ADMITTED on a read key (MATCH...LIMIT)', c1Ok, {
+  reportLeg('Leg c1: brain_query bounded read is ADMITTED on a bare call (MATCH...LIMIT)', c1Ok, {
     httpStatus: c1Res.httpStatus,
     row_count: c1RowCount,
     bodyText: c1Text.slice(0, 300),
@@ -342,7 +329,7 @@ async function main() {
 
   // c2: a write attempt is refused IN-BAND (HTTP 200 + BoundedReadRefusal in
   // the tool result text), never executed as a transport-level 403.
-  const c2Res = await callTool('brain_query', { cypher: 'CREATE (n:ContractProbeCanary) RETURN n' }, key);
+  const c2Res = await callTool('brain_query', { cypher: 'CREATE (n:ContractProbeCanary) RETURN n' });
   const c2Text = c2Res.ok ? JSON.stringify(c2Res.result) : c2Res.bodyText || '';
   const c2Ok = c2Res.ok && c2Res.httpStatus === 200 && /BoundedReadRefusal/i.test(c2Text);
   reportLeg('Leg c2: brain_query write attempt refused IN-BAND with BoundedReadRefusal (HTTP 200)', c2Ok, {
@@ -352,7 +339,7 @@ async function main() {
 
   // c3: live proof the refused CREATE never executed -- the canary node does
   // not exist, using the read admission c1 just proved.
-  const c3Res = await callTool('brain_query', { cypher: 'MATCH (n:ContractProbeCanary) RETURN n LIMIT 1' }, key);
+  const c3Res = await callTool('brain_query', { cypher: 'MATCH (n:ContractProbeCanary) RETURN n LIMIT 1' });
   const c3RowCount = c3Res.ok ? _countRows(c3Res.result) : -1;
   const c3Ok = c3Res.ok && c3RowCount === 0;
   reportLeg('Leg c3: refused CREATE never executed (zero ContractProbeCanary rows)', c3Ok, {
@@ -364,8 +351,8 @@ async function main() {
 
   // --- Leg d: search + brain_search -- no local-path leak -----------------
   const probeQuestion = 'jobs to be done framework';
-  const searchRes = await callTool('search', { query: probeQuestion, topK: 5 }, key);
-  const brainSearchRes = await callTool('brain_search', { query: probeQuestion, topK: 5 }, key);
+  const searchRes = await callTool('search', { query: probeQuestion, topK: 5 });
+  const brainSearchRes = await callTool('brain_search', { query: probeQuestion, topK: 5 });
 
   const searchLeak = searchRes.ok ? findAbsPathLeak(searchRes.result, 'search', 0) : null;
   const searchOk = searchRes.ok ? !searchLeak : false;
@@ -387,9 +374,9 @@ async function main() {
   console.log('');
 
   // --- Leg e: brain_stats -- index dispositions match the contract -------
-  const statsRes = await callTool('brain_stats', {}, key);
+  const statsRes = await callTool('brain_stats', {});
   if (!statsRes.ok) {
-    reportLeg('Leg e: brain_stats reachable on a read key', false, {
+    reportLeg('Leg e: brain_stats reachable on a bare call', false, {
       httpStatus: statsRes.httpStatus,
       bodyText: statsRes.bodyText,
     });

@@ -342,7 +342,7 @@ function buildRunCommand(run) {
 /**
  * buildRunEnv(run) -- the hermetic child env for one run (context block:
  * per-run mkdtemp MINDRIAN_HOME/ROOMS_HOME/ROOT, side-channel and probe-log
- * paths, MINDRIAN_DISABLE_AUTO_REGISTER, MINDRIAN_OPEN_BROWSER_DISABLE,
+ * paths, MINDRIAN_OPEN_BROWSER_DISABLE,
  * TYPESAFE_API_KEY stripped). HOME is intentionally left UNCHANGED (keychain
  * auth; never bare mode, T-359-22/T-359-23).
  */
@@ -358,7 +358,6 @@ function buildRunEnv(run) {
     env.CARD_FIRE_SIDECHANNEL_PATH = path.join(tmpDir, 'card-fire-reached.json');
     env.FORK359_PROBE_LOG = path.join(tmpDir, 'probe.jsonl');
   }
-  env.MINDRIAN_DISABLE_AUTO_REGISTER = '1';
   env.MINDRIAN_OPEN_BROWSER_DISABLE = '1';
   return env;
 }

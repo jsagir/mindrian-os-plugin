@@ -192,7 +192,7 @@ function _offlineCuration(mode, roomSlug) {
       brain_offline_from_start: true,
       // Phase 252-01 (SWEEP-01): additive disclosure via the rail; the
       // structured summary shape otherwise unchanged.
-      refusal_kind: 'no_key',
+      refusal_kind: 'unreachable',
     },
     exit_code: 0,
   };
@@ -510,9 +510,9 @@ async function dispatch(args) {
     summary.brain_offline_sections = targets.length;
     // Phase 252-01 (SWEEP-01): additive field, no shape break -- the rail's
     // kind name, for a caller that wants to distinguish the cause.
-    summary.refusal_kind = 'no_key';
+    summary.refusal_kind = 'unreachable';
     for (const sec of targets) {
-      summary.per_section.push({ section: sec, status: 'skipped', detail: 'no_key' });
+      summary.per_section.push({ section: sec, status: 'skipped', detail: 'unreachable' });
     }
     return { summary: summary, exit_code: 0 };
   }
@@ -650,7 +650,7 @@ function renderShapeE(summary) {
   if (summary.brain_offline_from_start === true) {
     // Phase 252-01 (SWEEP-01): the honesty rail's kind-appropriate one-liner
     // (250's export, no new refusal prose) replaces the old ad-hoc phrase.
-    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('no_key'));
+    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('unreachable'));
     lines.push('  ' + '-'.repeat(68));
     lines.push('  Sections requested: ' + summary.sections_requested);
     lines.push('  Cross-room:         ' + (summary.cross_room_enabled ? 'enabled' : 'disabled'));
@@ -662,7 +662,7 @@ function renderShapeE(summary) {
     }
     lines.push('  ' + '-'.repeat(68));
     lines.push('  NEXT');
-    lines.push('  ' + SYM.ARROW + ' Check MINDRIAN_BRAIN_KEY env var and retry');
+    lines.push('  ' + SYM.ARROW + ' Retry shortly; /mos:doctor reports whether Theo is reachable');
     lines.push('  ' + SYM.ARROW + ' /mos:diagnostics for algorithmic signals (no Brain needed)');
     lines.push('');
     return lines.join('\n');
@@ -723,8 +723,8 @@ function renderCurationReport(summary) {
   lines.push('  ' + '-'.repeat(68));
 
   if (summary.brain_offline_from_start === true) {
-    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('no_key'));
-    lines.push('  ' + SYM.ARROW + ' Check MINDRIAN_BRAIN_KEY env var and retry');
+    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('unreachable'));
+    lines.push('  ' + SYM.ARROW + ' Retry shortly; /mos:doctor reports whether Theo is reachable');
     lines.push('');
     return lines.join('\n');
   }

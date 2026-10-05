@@ -34,7 +34,7 @@
  * The gate LOGIC is a pure exported function (evaluateFloor: probe results
  * in, verdicts + exit code out) so tests/test-249-floor-gate.cjs injects
  * fixtures with ZERO network. The CLI main() below wires live brainCall over
- * it with the read-tier key from ~/.mindrian.env (lib/core/resolve-brain-key.cjs).
+ * it with no credential (Theo is called bare).
  *
  * Usage: node scripts/check-flagship-floor.cjs
  * Exit codes: 0 = every invoked framework clears the floor; 1 = at least one
@@ -172,9 +172,9 @@ function _resultKeys(res) {
   return Object.keys(res.result).join(', ');
 }
 
-async function probeFramework(name, key) {
-  const normRes = await brainCall('normalize_framework_name', { raw: name }, key);
-  const readyRes = await brainCall('orchestration_readiness', { framework_name: name }, key);
+async function probeFramework(name) {
+  const normRes = await brainCall('normalize_framework_name', { raw: name });
+  const readyRes = await brainCall('orchestration_readiness', { framework_name: name });
   const normalizeMatches = normRes.ok && normRes.result && Array.isArray(normRes.result.canonical_matches) ? normRes.result.canonical_matches.length : null;
   // Phase 262-02-inversion (CR-01 fix): the incumbent Brain's documented
   // "framework not found" sentinel is a `readiness` key that is PRESENT but
@@ -312,15 +312,6 @@ function renderFloorSummaryLines(result) {
 }
 
 async function main() {
-  const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
-  const keyInfo = resolveBrainKey();
-  if (!keyInfo.available) {
-    console.error('Brain key unavailable: ' + keyInfo.reason);
-    console.error('This gate needs a READ-tier key (MINDRIAN_BRAIN_KEY env or ~/.mindrian.env). No admin key is used.');
-    process.exit(1);
-  }
-  const key = keyInfo.key;
-
   const scanned = scanMethodologyCommands();
   let frameworks = scanned.frameworks;
   let ratificationLine;
@@ -359,7 +350,7 @@ async function main() {
 
   const probeResultsByName = {};
   for (const fw of frameworks) {
-    probeResultsByName[fw.name] = await probeFramework(fw.name, key);
+    probeResultsByName[fw.name] = await probeFramework(fw.name);
   }
 
   const result = evaluateFloor(frameworks, probeResultsByName);

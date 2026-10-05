@@ -87,8 +87,8 @@ async function main() {
 
   // Check Brain availability
   if (!brain.isAvailable()) {
-    console.log('Brain: No API key found (MINDRIAN_BRAIN_KEY not set). Writing empty baseline.');
-    writeEmptyResult(outputPath, 'no-api-key');
+    console.log('Brain: client unavailable (no origin configured). Writing empty baseline.');
+    writeEmptyResult(outputPath, 'brain-unavailable');
     process.exit(0);
   }
 

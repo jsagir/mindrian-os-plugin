@@ -7,7 +7,7 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "6f834a761afefd6aad40d8530cf18e7fa185dd0d4338382aa879eaa7bb94a60c",
+      "digest": "13c75a76e9063af570ccc74dc8ca2ea5b51368b412eac0c77e4fb57724032715",
       "source_count": 114
     },
     {
@@ -54,7 +54,7 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "73127dd6d97f95ecf0a88f64136458c1c68d04b041b8428c431a2ca4c5b41437"
+      "digest": "0d878b2bfeb2e2089335278e26ea1ff2722b001e6d8af35a406013e4471ec799"
     },
     {
       "role": "personality_skill",

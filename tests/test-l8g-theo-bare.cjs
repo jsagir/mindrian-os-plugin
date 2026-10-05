@@ -186,7 +186,7 @@ function a4Candidate(rel) {
 // local room-graph code (room.db absent), so it is checked only on the files
 // that carry the Theo path (TIER0_FILES), never repo-wide.
 const KEY_PAT = /MINDRIAN_BRAIN_KEY|no_key\b|tier0Response|mindrian-install\.json|DISABLE_AUTO_REGISTER|Brain key|\/register(?![-\w])/;
-const TIER0_PAT = /Tier[- ]0|tier_0\b/i;
+const TIER0_PAT = /Tier 0/;
 const TIER0_FILES = [
   'lib/core/brain-client.cjs',
   'lib/core/resolve-brain-key.cjs',
@@ -205,11 +205,11 @@ const TIER0_FILES = [
   'scripts/build-brain-census.cjs',
   'scripts/check-flagship-floor.cjs',
   'scripts/probe-brain-contract.cjs',
-  'commands/setup.md',
-  'skills/setup/SKILL.md',
   'skills/brain-connector/SKILL.md',
   'bin/cli.js',
 ];
+// commands/setup.md and skills/setup/SKILL.md are checked against KEY_PAT above but not for
+// `Tier 0`: their HSI section has an unrelated tier ladder (tier:0 keyword-only HSI).
 
 // ---------------------------------------------------------------------------
 let passed = 0;

@@ -67,7 +67,7 @@ You are Larry. This command resolves the expert network for a topic from the loc
 ## What it does
 
 1. Validates `<topic>` against Canon Part 8 (`auditQueryString` on the bound parameter; throws `ExternalEgressViolation` if forbidden bytes appear).
-2. `scripts/rs-experts-command.cjs`'s own BUG 2 fix note (2026-05-22, still current): the former Tier 1 path called `brainClient.query(cypher)`, which routes to the REMOTE Brain -- but Author/Paper/Institution nodes live in the user's LOCAL Aura mirror, not the Brain. That routing bug is fixed by REMOVAL: `brainClient` is never loaded by this command, and `brainClient.isAvailable()` does NOT gate an Aura-availability check here -- it checks the Brain key, a fully separate probe (Phase 252-01, SWEEP-01: this line previously named `brainClient.isAvailable()` as an Aura-availability detector, which was the wrong probe -- the Brain key and the Aura connection are unrelated).
+2. `scripts/rs-experts-command.cjs`'s own BUG 2 fix note (2026-05-22, still current): the former Tier 1 path called `brainClient.query(cypher)`, which routes to the REMOTE Brain -- but Author/Paper/Institution nodes live in the user's LOCAL Aura mirror, not the Brain. That routing bug is fixed by REMOVAL: `brainClient` is never loaded by this command, and `brainClient.isAvailable()` does NOT gate an Aura-availability check here -- it checks Brain-client availability, a fully separate probe (Phase 252-01, SWEEP-01: this line previously named `brainClient.isAvailable()` as an Aura-availability detector, which was the wrong probe -- Brain-client availability and the Aura connection are unrelated).
 3. No live Tier 1 Aura query path ships in the current command. Every invocation resolves to `refusal_code: AURA_TRANSPORT_ABSENT`, pointing to `/mos:rs-fetch`. When it does ship, its unreachable and query-failure branches read their copy from `lib/core/refusal-messaging.cjs` so no phrasing is invented at this surface. A local-only Aura transport (not `brain-client.cjs`) is a filed follow-up, not yet built.
 4. Emits Phase Gate-style transcript (CLI) or JSON (`--json`) carrying the Tier 0 guidance.
 
@@ -88,11 +88,11 @@ You are Larry. This command resolves the expert network for a topic from the loc
 
 ## Tier-0 LOCAL-only base (Canon Part 8, D-200-2 (b) unchanged half)
 
-Expert resolution (Author / Paper / Institution) is **LOCAL-only from `room.db`**. It needs NO Brain call and NO Brain key. Author names, ORCIDs, and institution affiliations are user artifacts (Canon Part 8: people/paper data is LOCAL and NEVER egresses to the Brain). The frontmatter deliberately carries no `mcp__mindrian-brain__*` tool, so this command cannot reach the remote Brain even if a key is present.
+Expert resolution (Author / Paper / Institution) is **LOCAL-only from `room.db`**. It needs NO Brain call. Author names, ORCIDs, and institution affiliations are user artifacts (Canon Part 8: people/paper data is LOCAL and NEVER egresses to the Brain). The frontmatter deliberately carries no `mcp__mindrian-brain__*` tool, so this command cannot reach the remote Brain.
 
 Degradation is clean by construction:
 
-- Brain key ABSENT -> no effect; Tier-0 resolves the whole expert network from `room.db`. No throw.
+- Theo unreachable -> no effect; Tier-0 resolves the whole expert network from `room.db`. No throw.
 - No live Tier 1 Aura query path ships today (see "What it does" above) -> Tier 0 guidance message pointing at `/mos:rs-fetch`, every invocation.
 
 The people-graph base is the local mind; the Brain is never the source of an expert's identity. This is the unchanged half of navigator decision D-200-2 (b): local-only Tier-0 stays the base.

@@ -7,7 +7,8 @@
  * Local stdio MCP server that proxies the 6 canonical Brain tools to the
  * remote Render-hosted Brain via lib/core/brain-client.cjs. Bundled with the
  * plugin via .mcp.json so every new install gets mindrian-brain auto-loaded
- * with zero user wiring beyond MINDRIAN_BRAIN_KEY in env / ~/.mindrian.env.
+ * with zero user wiring: Theo needs no credential, so there is nothing to
+ * configure (quick 261005-l8g, SEED-119).
  *
  * Canon Part 7: ~85% reuse of brain-client.cjs -- this file is JUST a stdio
  * transport wrapper. It contains zero network code; every Brain payload is
@@ -74,7 +75,7 @@ if (depHealOutcome && depHealOutcome.ok === false) {
 // either the full server or this one status tool, and the next session, with
 // the packages in place, serves the full server. The shared connect budget
 // above keeps the whole path inside the host's window. Only fs, path and
-// built-in-only lib modules are touched before the return. The Brain connection is not touched: the responder has no network code, so room content and the Brain key never leave this process (Canon Part 8).
+// built-in-only lib modules are touched before the return. The Brain connection is not touched: the responder has no network code, so room content never leaves this process (Canon Part 8).
 if (depHealOutcome && depHealOutcome.ok === false) {
   if (serveInstallResponderFor('mindrian-brain', depHealOutcome, healLog)) return;
 }
@@ -96,25 +97,11 @@ try {
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
-const { tier0Response: chokepointTier0, refusalResponse } = require('../lib/core/refusal-messaging.cjs');
+const { refusalResponse } = require('../lib/core/refusal-messaging.cjs');
 
 const pluginRoot = path.resolve(__dirname, '..');
 const pluginMeta = require('../.claude-plugin/plugin.json');
 const version = pluginMeta.version;
-
-// Tier-0 sentinel -- structured DIRECTOR_NOT_AVAILABLE response. Returned by
-// the 5 tools that surface raw Brain payloads (query/schema/search/stats/write).
-// brain_ask wraps Tier-0 differently (in a DirectiveEnvelope) so Larry's
-// surface reads a uniform shape regardless of tier.
-//
-// Phase 127-02 BRAIN-MCP-127-09 refactor: this is now a one-line passthrough
-// to the single chokepoint at lib/core/refusal-messaging.cjs (renamed from
-// tier0-messaging.cjs in Phase 252-01, SWEEP-01). The local symbol
-// is preserved so existing tests + tool closures keep their reference.
-// Delegation property: zero duplicate sentinel-shape definition lives here.
-function tier0Response(commandContext) {
-  return chokepointTier0(commandContext);
-}
 
 function asContent(obj) {
   return { content: [{ type: 'text', text: JSON.stringify(obj) }] };
@@ -126,7 +113,7 @@ function asContent(obj) {
 // Part 8 sentinel object `{error:'egress_blocked',...}` (a constitutional
 // block, distinct from an outage). Zero shape definition lives here (Part 7)
 // -- this helper only chooses WHICH chokepoint call to make, mirroring
-// tier0Response's one-line delegation immediately above. Any other result
+// the refusal chokepoint's one-line delegation. Any other result
 // (success payload, or a sentinel with a different .error) passes through
 // unchanged, by identity.
 function honestRefusal(result, toolName) {
@@ -137,16 +124,10 @@ function honestRefusal(result, toolName) {
   return result;
 }
 
-// Phase 250-04 (HONEST-03, SEED-011 Option A): every gate below awaits
-// brainClient.ensureAvailable() instead of calling the synchronous
-// isAvailable(). This IS the "first Brain consult" seam -- Larry's native
-// MCP tool calls in Claude Code CLI chat route through THIS shim (Desktop
-// and Cowork reach the remote pws-brain-mcp MCP server directly and are
-// unaffected), so without this change silent registration would only ever
-// fire for direct brain-client.cjs consumers (e.g. /mos: command scripts),
-// never for the primary chat-driven consult path. ensureAvailable() is a
-// pure passthrough to isAvailable() when a key already resolves (fast,
-// no network); it only awaits a mint attempt when the ladder is empty.
+// Quick 261005-l8g (SEED-119): there is no availability gate in front of any
+// tool below. Theo is called bare; the client carries no credential, so there
+// is nothing to resolve or register before the first call. An outage is the
+// client's null return, rendered here as the `unreachable` refusal.
 const server = new McpServer({ name: 'mindrian-brain', version: version });
 
 // ---------------------------------------------------------------------------
@@ -202,18 +183,13 @@ server.registerTool(
     inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
   },
   async ({ question }) => {
-    if (!(await brainClient.ensureAvailable())) {
-      // Keyless path unchanged (127-02 sentinel, byte-locked).
-      return asContent(wrapDirective(null, { brain_unreachable: true, command_context: 'brain_ask' }));
-    }
     const raw = await brainClient.ask(question);
     if (raw == null) {
-      // Phase 250-01 (HONEST-01, site #9 conflation fix): a VALID-key
-      // transport failure is honestly distinct from the keyless case above --
-      // wrap refusalResponse('unreachable', ...) in the SAME wrapDirective
-      // envelope mechanism via its typed-directive pass-through, so the
-      // envelope carries kind='unreachable' and an honest reason instead of
-      // silently reusing the keyless tier0 sentinel shape.
+      // Phase 250-01 (HONEST-01): a transport failure is an honest
+      // `unreachable` refusal -- wrap refusalResponse('unreachable', ...) in
+      // the wrapDirective envelope mechanism via its typed-directive
+      // pass-through, so the envelope carries kind='unreachable' and an
+      // honest reason.
       const refusal = refusalResponse('unreachable', { tool: 'brain_ask' });
       return asContent(wrapDirective({
         directive: { guided: { questions: [], framework: null, stage: 'tier_0_' + refusal.kind } },
@@ -265,7 +241,6 @@ server.registerTool(
     }),
   },
   async ({ cypher, params }) => {
-    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_query'));
     const r = await brainClient.query(cypher, params);
     // Phase 257 (D-05, G2, ACCEPTED GAP): query()'s null-return contract is
     // NOT changed by this phase. query() returns null on a Part 8 block at
@@ -289,7 +264,6 @@ server.registerTool(
     inputSchema: z.strictObject({}),
   },
   async () => {
-    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_schema'));
     const r = await brainClient.schema();
     return asContent(honestRefusal(r, 'brain_schema'));
   }
@@ -308,7 +282,6 @@ server.registerTool(
     }),
   },
   async ({ query, namespace, topK }) => {
-    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_search'));
     const r = await brainClient.smartSearch(query, { namespace: namespace, topK: topK });
     return asContent(honestRefusal(r, 'brain_search'));
   }
@@ -322,7 +295,6 @@ server.registerTool(
     inputSchema: z.strictObject({}),
   },
   async () => {
-    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_stats'));
     const r = await brainClient.stats();
     return asContent(honestRefusal(r, 'brain_stats'));
   }
@@ -332,11 +304,10 @@ server.registerTool(
 server.registerTool(
   'brain_write',
   {
-    description: 'Write Cypher to the Brain. The remote may refuse writes unconditionally regardless of key. Generic methodology framework writes only (Canon Part 8).',
+    description: 'Write Cypher to the Brain. The remote may refuse writes unconditionally. Generic methodology framework writes only (Canon Part 8).',
     inputSchema: z.strictObject({ cypher: z.string().describe('Cypher write query (generic methodology only).') }),
   },
   async ({ cypher }) => {
-    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_write'));
     const r = await brainClient.write(cypher);
     return asContent(honestRefusal(r, 'brain_write'));
   }
