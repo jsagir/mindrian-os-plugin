@@ -195,7 +195,7 @@ NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshne
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
 NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
 NO_REAL_ROOM_CHECK=0 # quick 261005-muy (navigator ruling 2026-10-05, RULE 10): the real-room receipt gate (Step 2.6) is ON by default; --no-real-room-check is the audited opt-out, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-cut-listener] [--no-real-room-check] [--dry-run]"
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-real-room-check] [--no-cut-listener] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in

@@ -96,7 +96,7 @@
 # STEP_BLOCK_COUNT 33 -> 35.
 
 35  STEP_BLOCK_COUNT
-4c7184b474edd24fbfa8a24daaabbf2a0182f0b0456f75d838efa90c7b2c1dea  # --- Step 0: Parse bump type + flags ---
+3e6a88d0561369cb5d4bf8472cdeb9cc83cfaded9d7707caaf05a6449a7749af  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
