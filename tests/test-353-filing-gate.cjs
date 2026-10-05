@@ -138,9 +138,11 @@ try {
   cleanupFixtureRoom(fx2);
 }
 
-// --- EVENT_TYPES untouched (102, R-353-K) ---
+// --- EVENT_TYPES: phase 353 added none (R-353-K) ---
+// MOVING: later phases add event types (365-04 and others); R-353-K's intent, that phase 353 added none, is unchanged.
+// Re-measure with node -e when another phase adds one.
 const memoryEvents = require(path.join(REPO, 'lib', 'core', 'navigation', 'memory-events.cjs'));
-check('EVENT_TYPES.size is 102 (untouched)', memoryEvents.EVENT_TYPES.size === 102);
+check('EVENT_TYPES.size is 106 (measured 2026-10-06)', memoryEvents.EVENT_TYPES.size === 106);
 
 console.log('');
 console.log('PASS=' + PASS + ' FAIL=' + FAIL);

@@ -315,25 +315,36 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // I7 load only what the step needs
 // shell: wc -c of ROOM.md CONTEXT.md MINTO.md FEYNMAN.md BRIEF.md, summed; tokens = (bytes + 3) / 4 (integer ceil)
 // ---------------------------------------------------------------------------------------------------------------
-const A_I7 = { // [bytes, tokens]
-  '.': [1775, 444], assets: [709, 178], 'business-model': [5914, 1479], 'competitive-analysis': [5927, 1482], 'financial-model': [5080, 1270],
-  funding: [7255, 1814], 'legal-ip': [5024, 1256], 'market-analysis': [5869, 1468], 'opportunity-bank': [7607, 1902],
-  'problem-definition': [6301, 1576], references: [1031, 258], 'solution-design': [6423, 1606], strategy: [7075, 1769],
-  'team-execution': [6055, 1514], team: [681, 171],
+// MOVING: CONTEXT.md is generated from data/section-command-ledger.json, which is rebuilt before every cut (a47d99571);
+// its share is measured at test time per the header's rule for values that depend on HEAD. The literals below are the
+// bytes of the files that are NOT generated (ROOM.md + MINTO.md + FEYNMAN.md + BRIEF.md that exist per nest), measured
+// 2026-10-06 on room a at HEAD b3be0e5c6 with `wc -c` per file, summed per nest, CONTEXT.md excluded.
+// Cross-check: solution-design = ROOM 1474 + FEYNMAN 113 = 1587 authored; its CONTEXT.md measured 4847, total 6434 tokens 1609,
+// the value that reddened the old pin [6423, 1606] when the ledger rebuild moved CONTEXT.md by 11 bytes.
+const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
+  '.': 1775, assets: 709, 'business-model': 1578, 'competitive-analysis': 1615, 'financial-model': 1533,
+  funding: 1623, 'legal-ip': 1528, 'market-analysis': 1590, 'opportunity-bank': 1638,
+  'problem-definition': 1626, references: 1031, 'solution-design': 1587, strategy: 1673,
+  'team-execution': 1526, team: 681,
 };
+function contextBytes(dir, k) {
+  const f = path.join(dir, k === '.' ? '' : k, 'CONTEXT.md');
+  return fs.existsSync(f) ? fs.statSync(f).size : 0;
+}
 const A_FEYNMAN_TOKENS = { // FEYNMAN.md bytes (wc -c): 111 123 113 97 99 113 115 119 113 99 111, no frontmatter, body = whole file
   'business-model': 28, 'competitive-analysis': 31, 'financial-model': 29, funding: 25, 'legal-ip': 25, 'market-analysis': 29,
   'opportunity-bank': 29, 'problem-definition': 30, 'solution-design': 29, strategy: 25, 'team-execution': 28,
 };
 arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEYNMAN 1500 body budget', () => {
   const a = report('a');
-  Object.keys(A_I7).forEach((k) => {
+  Object.keys(A_I7_AUTHORED).forEach((k) => {
     const n = nest(a, k);
-    eq([n.I7.bytes, n.I7.approx_tokens, n.I7.over_8000_tokens], [A_I7[k][0], A_I7[k][1], false], 'a ' + k + ' I7');
+    const expBytes = A_I7_AUTHORED[k] + contextBytes(A_DIR, k);
+    eq([n.I7.bytes, n.I7.approx_tokens, n.I7.over_8000_tokens], [expBytes, Math.ceil(expBytes / 4), false], 'a ' + k + ' I7');
     eq(n.I7.feynman_body_tokens, A_FEYNMAN_TOKENS[k] === undefined ? null : A_FEYNMAN_TOKENS[k], 'a ' + k + ' feynman_body_tokens');
     eq(n.I7.feynman_over_1500, A_FEYNMAN_TOKENS[k] === undefined ? null : false, 'a ' + k + ' feynman_over_1500');
   });
-  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': 4675, 'MINTO.md': null, 'FEYNMAN.md': 119, 'BRIEF.md': null }, 'a problem-definition I7 files');
+  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 119, 'BRIEF.md': null }, 'a problem-definition I7 files');
   const b = report('b');
   const A = nest(b, 'problem-definition').I7;
   eq([A.bytes, A.approx_tokens, A.over_8000_tokens], [13227, 3307, false], 'b A I7');

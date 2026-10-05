@@ -424,13 +424,11 @@ arm('R8 no em/en dash in the text this task added', () => {
   }
   check(bad.length === 0, 'dash found in: ' + bad.join(' | '));
 });
-arm('R9 CHANGELOG [Unreleased] names the python-floor fix (SEED-117)', () => {
+// MOVING: a CHANGELOG line leaves [Unreleased] at every cut (beta.59 cut moved this one); the arm checks the fix is recorded, not where.
+arm('R9 CHANGELOG names the python-floor fix (SEED-117), any section', () => {
   const cl = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-  const u = cl.indexOf('## [Unreleased]');
-  check(u !== -1, 'no ## [Unreleased] heading');
-  const next = cl.indexOf('\n## [', u + 5);
-  const sec = cl.slice(u, next === -1 ? cl.length : next);
-  check(/SEED-117/.test(sec) && /timezone\.utc/.test(sec), 'Unreleased section does not carry the SEED-117 / timezone.utc entry');
+  const hit = cl.split('\n').some((line) => /SEED-117/.test(line) && /timezone\.utc/.test(line));
+  check(hit, 'no CHANGELOG line carries both SEED-117 and timezone.utc');
 });
 
 console.log('\ntest-l9o-rooms-python-floor: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
