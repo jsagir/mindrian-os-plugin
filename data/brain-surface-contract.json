@@ -28,5 +28,12 @@
       "product_embeddings",
       "vector"
     ]
+  },
+  "_feyminto_note": "Phase 369.25: the four theo-mcp reads FeyMinto composes per nest; recommend_chain stands in for framework_route, which exists only in theo-context; documentary, not part of loop_tools (tests/test-247-contract-client.cjs pins 7)",
+  "feyminto_reads": {
+    "find_frameworks_for_problem_type": { "tier": "read", "args": { "problem_type": "enum4" } },
+    "commands_for_problem_type": { "tier": "read", "args": { "problem_type": "enum4", "limit": "int<=100 optional, omitted by FeyMinto" } },
+    "recommend_chain": { "tier": "read", "args": { "problem_type": "enum4", "max_steps": "int<=6" } },
+    "framework_neighborhood": { "tier": "read", "args": { "framework": "canonical framework name" } }
   }
 }
