@@ -1,7 +1,7 @@
 ---
 id: SEED-120
 title: "Live-use product backlog from a 2h23m session (LA with YS, beta.55): Accept does not advance, no visible room/session/run state, transcript export incomplete, blind approvals, no checkpoint/resume at the session limit, undefined terms, no study-ready report, no observer mode"
-status: seeded
+status: distributed (evidence seed; items owned by 369.2, 369.3 and 369.4 per SEED-PROGRAM-execution-truth-2026-10-05.md; ONB-01 and PREF-01 narration to the website track)
 priority: critical
 filed: 2026-10-05
 source: "navigator paste 2026-10-05 of a practical extraction over one 2:23:11 live-use conversation between Lawrence Aronhime (LA) and Yehonathan Sagir (YS); transcript evidence only, no code or logs were available to the extractor; filed verbatim below"

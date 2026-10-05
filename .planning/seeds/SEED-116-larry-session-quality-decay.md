@@ -1,11 +1,11 @@
 ---
 id: SEED-116
 title: "Larry decays over a long session: framework dumps return, em-dashes return, the Stop trailer leaks a session summary into every turn"
-status: seeded
+status: promoted (Phase 369.6, inserted 2026-10-05)
 priority: high
 filed: 2026-10-04
 source: navigator paste of a live session, 2026-10-04 ("started well but then decayed in quality")
-promotes_to: a quick or a short phase after 369.2; the detector half may ride the existing voice-mark and dash guards
+promotes_to: Phase 369.6 (the Larry contract; execution-truth program)
 ---
 
 # SEED-116: Larry session quality decay

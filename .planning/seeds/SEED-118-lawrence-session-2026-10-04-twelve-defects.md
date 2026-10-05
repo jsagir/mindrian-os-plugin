@@ -1,7 +1,7 @@
 ---
 id: SEED-118
 title: "Twelve defects and one positive finding from a full working session on beta.57 (room fiber-optic-drone-wicked, Claude Code CLI): the deep research run, the lenses, the graph edge writes, the Jev judge, the analogy recall and the Brain egress verbs"
-status: seeded
+status: distributed (evidence seed; items owned by 369.2 and 369.5 per SEED-PROGRAM-execution-truth-2026-10-05.md)
 priority: critical
 filed: 2026-10-04
 source: "mindrianos-session-2026-10-04-for-jonathan.md" (session report written for the navigator at the end of a working session on v2.0.0-beta.57; the defects section is copied below verbatim; the full transcript is the companion file mindrianos-session-transcript-2026-10-04.md in the navigator's Downloads, not copied into the repo)

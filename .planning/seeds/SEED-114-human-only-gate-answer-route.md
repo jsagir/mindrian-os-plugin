@@ -4,7 +4,7 @@ title: "A human-only route for gate_answer on the CLI and Desktop (the AskUserQu
 status: seeded
 filed: 2026-10-04
 source: navigator ruling on CR-02 of the Phase 369 code review (369-REVIEW.md, 369-REVIEW-FIX.md option 1), 2026-10-04
-promotes_to: a phase after 369.1, once the answered_via marker (option 2, a quick) has shipped and been measured
+promotes_to: Phase 369.3 (execution-truth program; see SEED-PROGRAM-execution-truth-2026-10-05.md)
 depends_on: Phase 369 (the browser's nonce-bound human-only path is the model), Phase 289 (session-scoped ledger, consume-after-checks)
 ---
 

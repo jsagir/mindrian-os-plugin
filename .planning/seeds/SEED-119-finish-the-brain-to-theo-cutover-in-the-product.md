@@ -1,11 +1,12 @@
 ---
 id: SEED-119
 title: "The Brain and Theo are still two things in the product: a decommissioned Brain is still configured, still asked for a key, still named in errors; finish the cutover on every user-facing surface"
-status: seeded
+status: promoted (Phase 369.5, inserted 2026-10-05)
 priority: critical
 filed: 2026-10-04
 source: navigator 2026-10-04, verbatim: "the brain and theo are stil seprates. mindrian wants a brain key where it was decomissioned and repaced by theo a while back"
 depends_on: Phase 339 (Theo cutover, 2026-09-03), decision 1 and 5 in .claude/includes/decisions.md (the entitlement check lives at install and update time, never per query)
+promotes_to: Phase 369.5 (error and policy contracts, one name for Theo)
 ---
 
 # SEED-119: one teaching graph, one name, no ghost key

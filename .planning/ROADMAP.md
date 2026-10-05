@@ -1789,6 +1789,50 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 369.2 to break down)
 
+### Phase 369.3: Reliable transitions: rooms, Accept, resume, admission control and hooks (execution-truth program, brief Phase 2) (INSERTED)
+
+**Goal:** Every guard that correctly denies has a tested recovery: deny, perform the prescribed remediation, verify state, retry the original action. Room creation and switching work on Python 3.9 with room.db created and read back before success is reported (SEED-117: CODE-01, SW-01, SW-02, SW-20, ACT-01..04); the Accept action submits exactly once from mouse, keyboard and typed text and persists the decision (SEED-120 BUG-01, brief UI-02, HARNESS-06), with the human-only gate route of SEED-114; a session limit leaves a checkpoint a new session resumes from (REC-01, HARNESS-05); autonomous fan-out has admission control with reserved counterevidence and synthesis capacity (HARNESS-07); a presentation-hook failure degrades to text and never blocks a run (HARNESS-08); quote verification gets a correction window (SW-13, ACT-05); the instruction-returning room tools execute or refuse (SW-15, REV-03). Map: .planning/seeds/SEED-PROGRAM-execution-truth-2026-10-05.md.
+**Requirements**: TBD (derive at plan time from the brief's tests 1, 13, 15, 17, 18, 19 and the register rows named above)
+**Depends on:** Phase 369.2 (Phase 0 status table and the operation ledger). If 369.2 planning finds this phase more than a day away, CODE-01 (datetime.timezone.utc at four sites, stderr surfaced) ships first as a quick.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.3 to break down)
+
+### Phase 369.4: Evidence inspectable: identity, approvals, reports, exports and observer mode (execution-truth program, brief Phase 3) (INSERTED)
+
+**Goal:** The user can see and control the state around the engine. Every window names room, session, task, run id, version and state (SEED-120 UX-01, brief UI-01); every approval card shows each item, its type, destination, effect and default (UX-02, UI-03); the study-ready report is the default close (OUT-01, AI-04) with four item labels, method_output, source_verified_fact, derived_claim, testable_hypothesis, each with verification status and source tier (AI-07, annex C16 renderer); observer mode shows current step, why, providers, evidence accepted and rejected, decisions requested, remaining work, from harness events, never invented (UX-03, AI-03); answers from room memory name the room and the artifacts used (AI-05); empty, indexing, unavailable and unsupported states look different (UI-04); exports carry session id, ordered count, checksum and a privacy receipt with leak canaries (BUG-02, UI-05, UI-06); an operator objection becomes a versioned plan delta and marks dependents stale (HARNESS-12, annex C04, C07, C08); roll-up prerequisites are declared (SW-16); the workspace launch says what it did (SW-21).
+**Requirements**: TBD (brief tests 14, 16, 22, 23, 25, 26 and the register rows named above)
+**Depends on:** Phase 369.2 (the ledger the UI renders), Phase 369.3 (the transitions the UI reports)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.4 to break down)
+
+### Phase 369.5: Error and policy contracts, and one name for Theo (execution-truth program, brief Phase 4 + SEED-119) (INSERTED)
+
+**Goal:** The three Brain verbs give one verdict on one table of prompts (CODE-07, SW-10); edge writes validate both endpoints and name the missing one as unknown_node (CODE-08, SW-09, ACT-09); a lane closed by an empty fetch reports lane_already_closed (CODE-09, SW-12, ACT-10); the Jev judge parses its documented command, reports its key state in doctor and judges one fixture (CODE-10, SW-17, SW-18, ACT-11); refusals name the user-visible correction, not the plan operator (SW-22); and the Brain-to-Theo cutover is finished on every user-facing surface (SEED-119): one name, no Brain-key prompt, the legacy pws-brain-mcp connector retired by doctor --fix, the guard hook's legacy branch removed.
+**Requirements**: TBD (brief tests 9, 10, 11, 12 and SEED-119's five decisions)
+**Depends on:** Phase 369.2 (the Theo content-not-shape classifier lands there; this phase unifies the verbs around it)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.5 to break down)
+
+### Phase 369.6: The Larry contract: voice and calibration (execution-truth program, AI behavior after the harness supplies true state) (INSERTED)
+
+**Goal:** Larry speaks as Larry and claims only what the executed state supports. From SEED-116 and the annex: a turn names the job and the move, never a leaf id or a verdict code; a term is defined at first use and every pronoun has a referent (AI-01, GEN-01); pre-research narration is hypothesis language with evidence_status: pre-research, and "every", "only", "proven", "confirmed", "kills", "decisive" require a cited executed operation or canonical claim state (AI-06, AI-10, annex C09-C14, C19); internal convergence is called consistency (C13); a changed objective is a new hypothesis (C08); quantities are typed before they are compared (AI-09, C10); a correction repairs the artifact, records a room-scoped rule and is checked on the next output, never ending in an apology (AI-02, A03); a coverage checklist runs before a landscape is presented (AI-08); the framework dump and the em-dash do not return mid-session; the product prints nothing into the chat that is not Larry's line or silence (Stop trailer, host-voice banners, instruction-returning tools). Measured on three recorded sessions before and after, not on one.
+**Requirements**: TBD (brief test 16 and annex section 5 fixtures; the no-dump and glyph detectors in lib/hmi)
+**Depends on:** Phase 369.2 (true execution state is what calibration is calibrated to), Phase 369.4 (the report schema the voice fills)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.6 to break down)
+
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
 **Navigator ruling (2026-10-01, relayed by the Theo session jsagi-f1):** "build a review contract into /mos:grade and /mos:deep-grade; seed it through plugin GSD." The paper author's verdict on an AI-generated 9-section student systems review (June 2025), verbatim: "Still too long. Too much jargon, including things none of us had any idea what they were talking about. 1-5 were good. 6 (tool analysis) is not necessary. 7 was incomprehensible, talking about tools that we did not understand. 8 was helpful. 9 was helpful, but too much of it."

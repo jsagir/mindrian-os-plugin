@@ -1,11 +1,11 @@
 ---
 id: SEED-117
 title: "/mos:rooms new crashes on Python 3.9 (datetime.UTC is 3.11+): a tester on macOS default Python cannot create a room; the recovery bypassed the room-creation chokepoint"
-status: seeded
+status: promoted (Phase 369.3, inserted 2026-10-05)
 priority: critical
 filed: 2026-10-04
 source: live session 2026-10-04 (navigator paste): "bash scripts/room-registry create <slug> exited with AttributeError: module 'datetime' has no attribute 'UTC'"; this machine runs Python 3.9.6
-promotes_to: a quick, immediately after 369.2 is planned (or inside its first wave); one-line fix plus a floor test
+promotes_to: Phase 369.3 (reliable transitions; CODE-01 ships first as a quick if 369.3 is more than a day away)
 ---
 
 # SEED-117: room creation fails on Python 3.9
