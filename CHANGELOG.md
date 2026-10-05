@@ -1,7 +1,15 @@
-## [Unreleased] -- v2.0.0-beta.60 (in progress)
+## [Unreleased] -- v2.0.0-beta.61 (in progress)
+
+### Changed
+- **Theo answers plain methodology questions**: a question such as "How do I decide which customer segment to pursue first?" reaches Theo on ask, search and query with one verdict; anything naming the room's own people, ventures, terms or private details is still refused, and the refusal says what kind of detail it was (Phase 369.2, CODE-07).
+- **Research searches the web with the room's own words**: no fence, policy line or term filter sits on the web search lines; a question naming a city, a person or a product leaves exactly as written after you approve the run (Phase 369.2, ruling 2026-10-05). The `research` line is gone from data/egress-policy.json; a room override that names it is ignored and reported. `--offline` still sends nothing.
+- **One approval per run, showing every search**: the approval card lists every search exactly as it will be sent; approving covers this run only. Room-started runs now wait for that card instead of running under a standing approval, so ambient room-started runs wait for the card too.
+- **The approval card is named by its job, not by "grant"** (navigator, 2026-10-05: "research is much more than just grants", rename it to a job statement): the card reads "See every search before it leaves, then approve this run once." Its body opens "These N searches will leave this machine for ..." and afterwards you read "Approved: N searches left for ..." or "Nothing left this machine." The word grant stays in code identifiers only.
+- **Every canvas perspective can search**: Eureka, analogies, whitespace, HSI, bottlenecks and find-connections propose searches from the room's own titles; find-connections adds a literature search beside its Theo check.
+- **The filing basket is a card, never prose**, now pinned for the basket as well as the approval: a typed "i accept" files nothing.
 
 ### Added
-- 
+- **Real-room release rule applies to this cut**: release.sh Step 2.6 refuses the cut without a receipt from `node scripts/real-room-run.cjs --read-by` on the cut sha (quick, deep, Eureka and analogies on a fixture room, read by a person); the Desktop leg is recorded with `--desktop-verified` (real-room-run).
 
 ## [2.0.0-beta.59] - 2026-10-05
 

@@ -23,6 +23,8 @@
 # exit 0  -> FAILED=0
 # exit 1  -> FAILED > 0
 #
+# 369.2-12 (2026-10-05): PB8-03 and FDA healed by the Theo content-not-shape verdict; run-all-361 signature re-recorded.
+#
 # House rule: hyphens only; the two dash characters are searched for below
 # only as printf byte escapes.
 
@@ -126,16 +128,24 @@ run_known "363: existing run-all-219 (one red leg: T-218-VD-5 encoder_unavailabl
   "Phase 219: PASS=12 FAIL=1 SKIP=0" \
   bash tests/run-all-219.sh
 run_known "363: existing run-all-221 (red at PLAN_BASE, outside 363)" \
-  "Phase 221: PASS=11 FAIL=3 SKIP=0" \
+  "Phase 221: PASS=12 FAIL=2 SKIP=0" \
   bash tests/run-all-221.sh
 run_known "363: existing run-all-164 (red at PLAN_BASE: canon-version assertion, outside 363)" \
   "    - canon-version assertion" \
   bash tests/run-all-164.sh
+# 369.2-12 (2026-10-05): 355.1 moved 63/5 -> 62/6 because test-3551-tri-polar pins hooks.json[PreToolUse]
+# to BASE_3551 and the PreToolUse card-before-answer hook (quick 261005-mux) changed it; not a 369.2 change.
 run_known "363: existing run-all-3551 (red at PLAN_BASE, outside 363)" \
-  "Phase 355.1: PASS=63 FAIL=5 SKIP=0" \
+  "Phase 355.1: PASS=62 FAIL=6 SKIP=0" \
   bash tests/run-all-3551.sh
 # 366-04: one of the three known reds healed before plan 04 (not by it); the two
-# left are the part8-egress-guard self-test and 209 declared-implies-wired.
+# left were the part8-egress-guard self-test and 209 declared-implies-wired.
+# 369.2-12 (2026-10-05): the part8-egress-guard self-test (PB8-03) healed by 369.2, but the count did
+# not move: run-all-361 measured PASSED=27 FAILED=2 SKIPPED=0 on the 369.2 W1 tree because
+# tests/test-fileval-readback.cjs ("database is not open", the Phase 141 closed-handle arm) is red,
+# and it is red on the pre-phase tree too (checked against git archive d79fd0575; not a 369.2 change).
+# The two reds are now 209 declared-implies-wired and fileval-readback; the signature string is
+# re-recorded from that measured run.
 run_known "363: existing run-all-361 (its 2 known reds, outside 363)" \
   "PASSED=27 FAILED=2 SKIPPED=0" \
   bash tests/run-all-361.sh
@@ -171,12 +181,8 @@ else
 fi
 
 # --- Pre-existing reds 363 does not own (signatures confirmed in 363-01) -----
-run_known "363: known red FDA known-tool-shapes" \
-  'shipped brain_ask methodology question (unproven free-form tokens): expected verdict "ambiguous"' \
-  node tests/test-260906-fda-known-tool-shapes.cjs
-run_known "363: known red part8-egress-guard self-test" \
-  'PB8-03: generic framework question must ALLOW' \
-  node lib/core/part8-egress-guard.test.cjs
+run "363: FDA known-tool-shapes (healed by 369.2)" node tests/test-260906-fda-known-tool-shapes.cjs
+run "363: part8-egress-guard self-test, PB8-03 (healed by 369.2)" node lib/core/part8-egress-guard.test.cjs
 run_known "363: known red 209 declared-implies-wired" \
   'if this list changed: either a surface was fixed' \
   node tests/test-209-declared-implies-wired.cjs
