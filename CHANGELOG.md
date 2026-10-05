@@ -10,6 +10,7 @@
 
 ### Added
 - **Real-room release rule applies to this cut**: release.sh Step 2.6 refuses the cut without a receipt from `node scripts/real-room-run.cjs --read-by` on the cut sha (quick, deep, Eureka and analogies on a fixture room, read by a person); the Desktop leg is recorded with `--desktop-verified` (real-room-run).
+- **`/mos:doctor --icm-walk`**: measures every nest of a room against the ten ICM invariants and the walk test (identity in room.db, edit-surface markers, one-home duplications, token budgets, the 11 core sections); writes nothing (quick 261005-vi3).
 
 ## [2.0.0-beta.59] - 2026-10-05
 
