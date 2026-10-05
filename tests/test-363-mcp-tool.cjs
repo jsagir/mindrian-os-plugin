@@ -458,6 +458,32 @@ async function main() {
     return true;
   });
 
+  // M13 --------------------------------------------------------------------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): one run grant per run on the web lines. The existing
+  // M12 above is the connectors export, so this leg takes the next number.
+  await leg('M13 grant_request without run_id refuses run_id_required; with run_id its gate offers approve_run and not_now only (369.2 R02)', async function () {
+    const room = newRoom('founder');
+    const c = client(room, 'sess-m13');
+    const planned = await planQuick(c);
+    const bare = await c.call({ op: 'grant_request' });
+    if (bare.ok !== false || bare.reason !== 'run_id_required') return 'bare grant_request ' + JSON.stringify(bare).slice(0, 300);
+    if (grants.readGrants(room.roomDir, {}).grants.length !== 0) return 'a refusal wrote a grant';
+    const req = await c.call({ op: 'grant_request', run_id: planned.run_id });
+    if (req.ok !== true || !req.gate || !req.gate.gate_id) return 'no gate ' + JSON.stringify(req).slice(0, 300);
+    const ids = optionIds(req.card).slice().sort();
+    if (JSON.stringify(ids) !== JSON.stringify(['approve_run', 'not_now'])) return 'card options ' + JSON.stringify(ids);
+    const standing = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
+    if (standing.ok !== false || standing.reason !== 'chosen_not_in_card_options') return 'approve_standing was not refused ' + JSON.stringify(standing).slice(0, 300);
+    if (JSON.stringify((standing.valid_option_ids || []).slice().sort()) !== JSON.stringify(['approve_run', 'not_now'])) return 'valid options ' + JSON.stringify(standing.valid_option_ids);
+    if (grants.readGrants(room.roomDir, {}).grants.length !== 0) return 'a refused answer wrote a grant';
+    const ans = await c.answer(req.gate.gate_id, ['approve_run'], 'approve');
+    if (ans.ok !== true || !ans.chain_result || ans.chain_result.ok !== true) return 'approve_run ' + JSON.stringify(ans).slice(0, 300);
+    const g = grants.findActiveGrant(room.roomDir, { lifetime: 'run', run_id: planned.run_id });
+    if (!g || g.approved_via.surface !== 'mcp') return 'no run grant from the gate';
+    if (grants.findActiveGrant(room.roomDir, { lifetime: 'standing' })) return 'a standing grant appeared';
+    return true;
+  });
+
   // guards -----------------------------------------------------------------
   check('dash guard: no em-dash or en-dash in the tool or this test', (function () {
     const files = [__filename, TOOL_PATH].filter(function (f) { return fs.existsSync(f); });

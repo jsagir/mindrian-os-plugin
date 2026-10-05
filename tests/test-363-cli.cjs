@@ -788,6 +788,30 @@ async function main() {
     return true;
   });
 
+  // C18 (369.2 R02): C13 to C17 already exist (C13 is the deep plan card), so this leg takes the next free number.
+  // 369.2-10 (R02, ruling 2026-10-05, A5): `grant approve <run proposal from plan>` writes ONE run
+  // grant for that run_id over the plan's q_hashes, never a standing grant.
+  await leg('C18 CLI grant approve of the run proposal writes a run grant for that run_id, never a standing grant (369.2 R02)', async function () {
+    const room = newRoom('founder');
+    const qsPath = writeScratch('qs-c14.json', qsFile('whitespace-quick'));
+    const planned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'quick']);
+    if (planned.code !== 0 || !planned.json || !planned.json.proposal) return 'plan ' + planned.code + ' ' + planned.stdout.slice(0, 200);
+    const runId = planned.json.run_id;
+    if (planned.json.proposal.lifetime !== 'run' || planned.json.proposal.run_id !== runId) return 'proposal is not the run proposal ' + JSON.stringify(planned.json.proposal).slice(0, 200);
+    const approved = cli(['grant', 'approve', writeScratch('prop-c14.json', planned.json.proposal), '--room', room.roomDir, '--approved-via', 'cli']);
+    if (approved.code !== 0 || !approved.json) return 'grant approve ' + approved.code + ' ' + approved.stdout.slice(0, 200);
+    const st = cli(['grant', 'status', '--room', room.roomDir]);
+    if (!st.json || st.json.standing !== null) return 'a standing grant exists ' + JSON.stringify(st.json && st.json.standing).slice(0, 200);
+    const runs = (st.json.runs || []).filter(function (g) { return g.run_id === runId; });
+    if (runs.length !== 1 || runs[0].lifetime !== 'run') return 'no run grant for ' + runId + ' in ' + JSON.stringify(st.json.runs).slice(0, 200);
+    const plan = readJson(path.join(runDir(room, runId), 'plan.json'));
+    const want = roundOneHashes(plan).sort();
+    const got = (runs[0].approved_hashes || []).slice().sort();
+    if (want.length === 0 || JSON.stringify(want) !== JSON.stringify(got)) return 'approved hashes differ ' + want.length + ' vs ' + got.length;
+    if (grants.readGrants(room.roomDir, {}).grants.filter(function (g) { return g.lifetime === 'standing'; }).length !== 0) return 'a standing grant is on disk';
+    return true;
+  });
+
   // the em-dash rule holds for the files this plan writes
   await leg('C-dash the facade, the CLI and this test carry no em-dash or en-dash', async function () {
     const files = [PLANNER_PATH, CLI_PATH, __filename];

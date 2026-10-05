@@ -443,6 +443,58 @@ async function main() {
       JSON.stringify({ o: out.outcome, urls: urls.indexOf(room.marker), audit: audit.indexOf(room.marker), state: stateText.indexOf(room.marker) }));
   }
 
+  // ---- M12 (369.2 R02): a standing grant never sends; the card is a run grant -----------
+  // 369.2-10 (R02, ruling 2026-10-05, A5): a room-started pass under a covering STANDING grant
+  // records a plan-only card whose proposal is a run grant listing every exact string. Zero
+  // replay calls, no run, no audit.
+  let m12 = null;
+  {
+    const room = newRoom();
+    standingGrant(room);
+    const replay = replayZero();
+    const out = await AMBIENT.maybeQuick(room.roomDir, compWithWhitespace(), optsFor(replay, { deltaHash: 'e'.repeat(64) }));
+    let prop = null;
+    let plan = null;
+    try { prop = JSON.parse(fileText(room, path.join('.mindrian', 'research-runs', out.run_id, 'proposal.json'))).proposal; } catch (_e) { prop = null; }
+    try { plan = planner.loadPlan(room.roomDir, out.run_id).plan; } catch (_e) { plan = null; }
+    const qHashes = [];
+    ((plan && plan.leaves) || []).forEach(function (leaf) {
+      ((leaf && leaf.queries) || []).forEach(function (q) { if (q && qHashes.indexOf(q.q_hash) === -1) qHashes.push(q.q_hash); });
+    });
+    const same = !!prop && Array.isArray(prop.approved_hashes) && qHashes.length > 0
+      && JSON.stringify(prop.approved_hashes.slice().sort()) === JSON.stringify(qHashes.slice().sort());
+    m12 = { room: room, out: out, replay: replay, plan: plan };
+    check('M12 a covering standing grant -> plan_card_reask with a run-grant proposal over the plan q_hashes, zero calls (369.2 R02)',
+      out.outcome === 'plan_card_reask' && out.reason === 'hash_not_approved'
+      && !!prop && prop.lifetime === 'run' && same
+      && replay.calls.length === 0 && auditLedger.readAudit(room.roomDir, {}).length === 0
+      && !fs.existsSync(path.join(room.roomDir, '.mindrian', 'research-runs', out.run_id, 'run.json')),
+      JSON.stringify({ out: out, life: prop && prop.lifetime, same: same, calls: replay.calls.length }));
+  }
+
+  // ---- M13 (369.2 R02): once the run grant is approved, run-quick sends exactly those strings
+  {
+    const room = m12.room;
+    const runId = m12.out.run_id;
+    const ap = planner.approvePlanReview(room.roomDir, runId, { approvedVia: { surface: 'cli' } });
+    const loaded = planner.loadPlan(room.roomDir, runId);
+    const replay = replayZero();
+    const quickMod = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'quick.cjs'));
+    const res = await quickMod.runQuick(room.roomDir, loaded.plan, {
+      trigger: 'ambient', budgetMs: BIG_BUDGET, now: NOW, fetchEnvelopeFn: seam(replay),
+    });
+    const sent = replay.calls.length;
+    const want = quickMod.queriesOf(loaded.plan).length;
+    let run = null;
+    try { run = JSON.parse(fileText(room, path.join('.mindrian', 'research-runs', runId, 'run.json'))); } catch (_e) { run = null; }
+    const audit = auditLedger.readAudit(room.roomDir, { run_id: runId });
+    check('M13 after approvePlanReview on the card run_id, one quick run sends exactly the card strings, audit written, evidence card returned, unfiled (369.2 R02)',
+      ap && ap.ok === true && res && res.status === 'done' && sent >= 1 && sent <= 3 && sent === want
+      && audit.length >= 1 && !!run && run.filed === false && !!res.card
+      && !fs.existsSync(path.join(room.roomDir, 'research')),
+      JSON.stringify({ ap: ap && (ap.ok || ap.reason), st: res && (res.status + ':' + res.reason), sent: sent, want: want, audit: audit.length }));
+  }
+
   // ---- dash guard ------------------------------------------------------------
   {
     const files = [AMBIENT_FILE, path.join(ROOT, 'tests', 'test-363-ambient.cjs')];
