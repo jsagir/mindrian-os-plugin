@@ -1822,17 +1822,17 @@ Plans:
 - [ ] 369.2-33 closure legs D1-D12 and the rest (R25)
 - [ ] 369.2-34 closure green, completion report, VALIDATION flip, CHANGELOG; navigator reads both rooms and decides the cut (checkpoint)
 
-### Phase 369.3a: FeyMinto and Room Identity: the one authority, proven on the room and consumed by its nests (brief 2026-10-05 prove one authority; SEED-122) (INSERTED 2026-10-05, navigator: "bring it fw")
+### Phase 369.25: FeyMinto and Room Identity (spoken: 369.3a): the one authority, proven on the room and consumed by its nests (brief 2026-10-05 prove one authority; SEED-122) (INSERTED 2026-10-05, navigator: "bring it fw"; ROADMAP id 369.25 because the GSD tooling pads a letter suffix away, 369.3a would collide with 369.3)
 
 **Goal:** The room identity lives in room.db (Room node + identity rows) and is the one owner every path reads; the working sequence create -> register -> bind -> inspect -> governed write -> read back -> restart -> inspect again passes on the CLI and the Windows shape with the brief's eight failure tests failing first for the real reason; FeyMinto (the per-folder reasoning layer, its name on every surface) is keyed to that identity (FEYNMINTO-07), asks Theo per nest which frameworks, operations and /mos: commands to consider (Part 8 handles only, provenance on the face, "not asked" never silent), marks each recommendation runnable here / instruction-only / assisted, and is the one path the navigation engine reads its next move from; the extracted contract (state, owner, evidence, legal transition, readback, failure behavior, projections) is mapped onto the Layer Contract. Design: .planning/briefs/2026-10-05-prove-one-authority/FEYMINTO-CROSS.md.
 **Depends on:** Phase 369.2 wave 1 (the beta.61 cut); the rooms quick 261005-l9o. Ships as the cut after beta.61; 369.2 waves 2-4 follow it and carry the pattern.
 **Amendments adopted (Lawrence, 2026-10-05, AMENDMENTS-RECONCILIATION-2026-10-05.md):** a ninth failure test, a session of work accumulating against a never-ready room, and the question why the heal-first net (graph-backfill.cjs step 0) did not fire; at least one readback per slice by a reader other than the writer; AN-01 (a null anchor on a successful filing gets a typed reason, never null); the Subject Audit as a slice with a test (a nest whose recommended frameworks share a premise renders the premise, never corroboration); owner the navigator, stop condition the design v2 practical test, 369.2 waves 2-4 proceed in parallel and are not gated on this phase.
-**Requirements**: TBD (derive at /gsd-plan-phase 369.3a from the brief section 4, SEED-122 and FEYMINTO-CROSS.md)
+**Requirements**: TBD (derive at /gsd-plan-phase 369.25 from the brief section 4, SEED-122 and FEYMINTO-CROSS.md)
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.3a to break down)
+- [ ] TBD (run /gsd-plan-phase 369.25 to break down)
 
 ### Phase 369.3: Reliable transitions: rooms, Accept, resume, admission control and hooks (execution-truth program, brief Phase 2) (INSERTED)
 
