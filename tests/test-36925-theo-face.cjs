@@ -120,7 +120,7 @@ function sections(body) {
   const parts = body.split(/^## /m);
   for (const p of parts.slice(1)) {
     const nl = p.indexOf('\n');
-    out.push({ heading: '## ' + (nl < 0 ? p : p.slice(0, nl)), text: nl < 0 ? '' : p.slice(nl + 1).replace(/\s+$/, '') });
+    out.push({ heading: '## ' + (nl < 0 ? p : p.slice(0, nl)), text: nl < 0 ? '' : p.slice(nl + 1).replace(/^\s+|\s+$/g, '') });
   }
   return out;
 }
@@ -239,7 +239,7 @@ arm('F4 ledger sequence is a link plus counts; contract-only and table-only carr
   check(sources.table_only.length > 0, 'fixture has a table_only name');
   for (const n of sources.table_only) {
     const l = text.split('\n').find((x) => x.indexOf('/mos:' + n + ' ') !== -1);
-    check(l && /\(source: navigator table\)\s*$/.test(l), 'table_only ' + n + ' tagged navigator table: ' + l);
+    check(l && /\(source: [^)]*navigator table[^)]*\)\s*$/.test(l) && !/\(source: [^)]*contract/.test(l), 'table_only ' + n + ' tagged navigator table and not contract (it may also be in the ledger): ' + l);
   }
   const pd = cs.sourcesForSection('problem-definition');
   const r2 = render(input('problem-definition', askedResult()));
@@ -247,12 +247,25 @@ arm('F4 ledger sequence is a link plus counts; contract-only and table-only carr
   check(pd.contract_only.length > 0, 'problem-definition fixture has contract_only names');
   for (const n of pd.contract_only) {
     const l = t2.split('\n').find((x) => x.indexOf('/mos:' + n + ' ') !== -1);
-    check(l && /\(source: contract\)\s*$/.test(l), 'contract_only ' + n + ' tagged contract: ' + l);
+    check(l && /\(source: contract[;)]/.test(l) && !/\(source: [^)]*navigator table/.test(l), 'contract_only ' + n + ' tagged contract and not navigator table: ' + l);
   }
   const agreeName = pd.agreement[0];
   const al = t2.split('\n').find((x) => x.indexOf('/mos:' + agreeName + ' ') !== -1);
   check(al && /\(source: [^)]*;[^)]*\)\s*$/.test(al), 'agreement name carries more than one source tag: ' + al);
   eq(t2.split('\n').filter((x) => x.indexOf('/mos:' + agreeName + ' ') !== -1).length, 1, 'agreement name listed once');
+});
+
+arm('F4b every command name in the Command sources section is listed once, across all eleven sections', () => {
+  const sections11 = ['problem-definition', 'market-analysis', 'solution-design', 'business-model', 'competitive-analysis',
+    'team-execution', 'legal-ip', 'financial-model', 'opportunity-bank', 'funding', 'strategy'];
+  for (const sec of sections11) {
+    const r = render(input(sec, askedResult()));
+    const names = sectionText(r.body, H.src).split('\n').filter((l) => /^- \/mos:/.test(l)).map((l) => l.match(/^- \/mos:([a-z0-9-]+) /)[1]);
+    eq(names.length, new Set(names).size, 'a name is listed twice in ' + sec);
+    const s = cs.sourcesForSection(sec);
+    const want = new Set(s.agreement.concat(s.contract_only, s.table_only));
+    eq(names.slice().sort(), [...want].sort(), 'names listed in ' + sec + ' are agreement plus contract_only plus table_only');
+  }
 });
 
 arm('F5 at most three why-it-fits lines, naming lens and job, linking the open question', () => {
