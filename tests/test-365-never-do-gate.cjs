@@ -536,7 +536,11 @@ async function main() {
     // Re-pinned 2026-10-04 (quick 261004-av2, once, after its last gate.cjs commit): gate.cjs gained the answered_via marker
     // (CR-02 option 2, SEED-114); the gate_render and gate_answer descriptions, titles and input schemas are byte-identical
     // to cd27faa94, so only the byte-identity pin moves.
-    const GATE_BASE = 'ea60b398b91e05b6013b882e84a9366715c06cba';
+    // Re-pinned 2026-10-05 (quick 261005-mux, once, after its last gate.cjs commit): gate.cjs gained the card_pending
+    // refusal (a relayed gate_answer on an open elicitation-rendered gate) and its mint stores the renderer; the
+    // gate_render and gate_answer descriptions, titles and input schemas are byte-identical to ea60b398b, so only the
+    // byte-identity pin moves.
+    const GATE_BASE = '80ef6a9d5787384f8aa14d20c005ba8681689e10';
     const probe = spawnSync('git', ['cat-file', '-e', PLAN_BASE + ':lib/mcp/tools/chain.cjs'], { cwd: ROOT });
     if (probe.status !== 0) {
       console.log('SKIP: N12 PLAN_BASE object not available (shallow clone)');
@@ -614,6 +618,8 @@ async function main() {
       // gate.cjs commit of the gap closure; see the dated comment on GATE_BASE above for what moved.
       // Re-pinned 2026-10-04 (quick 261004-av2, once, after its last gate.cjs commit): GATE_BASE is now ea60b398b, the commit that
       // added the answered_via marker; see the dated comment on GATE_BASE above.
+      // Re-pinned 2026-10-05 (quick 261005-mux, once, after its last gate.cjs commit): GATE_BASE is now 80ef6a9d5, the commit that
+      // added card_pending and the stored renderer; see the dated comment on GATE_BASE above.
       check('N12 lib/mcp/tools/gate.cjs is byte-identical to GATE_BASE',
         spawnSync('git', ['diff', '--quiet', GATE_BASE, '--', 'lib/mcp/tools/gate.cjs'], { cwd: ROOT }).status === 0);
     }
