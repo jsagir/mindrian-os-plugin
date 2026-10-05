@@ -111,6 +111,47 @@ let degradeRes;
   ok('Test 4: zero-leak - JSON.stringify of the degrade envelope carries no offending content');
 }
 
+// ---------- 369.2 ruling 2026-10-05 (added beside Tests 3 and 4) ----------
+// The online leg is a web line: the default check is the credential check
+// (auditWebCredential), so a money figure composes and dispatches; a credential
+// keyword is refused per A4 and the degrade envelope never echoes it.
+const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';
+
+// Test 3b: web line - a money-figure keyword composes (ok:true) and rides into a query.
+{
+  const res = composePatternQueries({
+    functionalKeywords: [POISON, 'background subtraction'],
+    trizPrinciples: ['Separation'],
+    abstractFunction: 'recover a rare signal from vast background noise',
+  });
+  assert.strictEqual(res.ok, true, 'Test 3b: a money-figure keyword composes ok:true on the web line (369.2 ruling 2026-10-05)');
+  assert.ok(res.queries.some(function (x) { return x.q.indexOf('3.5M') !== -1; }), 'Test 3b: a composed query carries 3.5M unchanged');
+  ok('Test 3b: web line - the money figure composes and dispatches (369.2 ruling 2026-10-05)');
+}
+
+// Test 3c / 4b: A4 - a credential keyword degrades (keep) with a zero-leak envelope, or composes (drop).
+{
+  const SECRET = 'abc123secretvalue';
+  const res = composePatternQueries({
+    functionalKeywords: ['rare-signal api_key=' + SECRET, 'background subtraction'],
+    trizPrinciples: ['Separation'],
+    abstractFunction: 'recover a rare signal from vast background noise',
+  });
+  if (A4_3692 === 'keep') {
+    assert.strictEqual(res.ok, false, 'Test 3c: a credential keyword returns ok:false');
+    assert.strictEqual(res.degrade, 'local-only', 'Test 3c: degrade is local-only');
+    assert.strictEqual(res.reason, 'egress_violation', 'Test 3c: reason is egress_violation');
+    assert.ok(!('queries' in res), 'Test 3c: NO queries field on a violation envelope');
+    const serialized = JSON.stringify(res);
+    assert.ok(serialized.indexOf(SECRET) === -1 && serialized.indexOf('api_key') === -1,
+      'Test 4b: the degrade envelope never echoes the credential (369.2 ruling 2026-10-05)');
+    ok('Test 3c and 4b: A4=keep credential keyword -> local-only degrade, zero-leak envelope (369.2 ruling 2026-10-05)');
+  } else {
+    assert.strictEqual(res.ok, true, 'Test 3c: A4=drop, a credential keyword composes like any other');
+    ok('Test 3c: A4=drop credential keyword composes (369.2 ruling 2026-10-05)');
+  }
+}
+
 // ---------- Test 5: empty pattern -> no audit, empty_pattern reason ----------
 {
   let calls = 0;

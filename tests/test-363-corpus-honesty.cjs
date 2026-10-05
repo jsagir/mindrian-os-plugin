@@ -323,6 +323,62 @@ async function main() {
       'threw=' + (threw && threw.name) + ' calls=' + s.calls.length);
   }
 
+  // ---- L14b - L14d (369.2 ruling 2026-10-05): web lines free, Brain line fenced, credentials per A4 ----
+  const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';
+  const PLANTED_3692 = 'contact jane.roe@example.com about biofilm';
+  {
+    resetLedger();
+    const s = stubFetch(function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); });
+    let threw = null;
+    try {
+      await corpus.fetchCorpusEnvelope({ source: 'openalex', query: PLANTED_3692, limit: 5 });
+    } catch (e) {
+      threw = e;
+    } finally {
+      s.restore();
+    }
+    let sent = null;
+    try { sent = new URL(s.calls[0] && s.calls[0].url).searchParams.get('search'); } catch (_e) { sent = null; }
+    check('L14b web line: a room string on openalex dispatches once with q unchanged (369.2 ruling 2026-10-05)',
+      threw === null && s.calls.length === 1 && sent === PLANTED_3692,
+      'threw=' + (threw && threw.name) + ' calls=' + s.calls.length + ' q=' + JSON.stringify(sent));
+  }
+  {
+    resetLedger();
+    const secret = 'abc123secretvalue';
+    const s = stubFetch(function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); });
+    let threw = null;
+    try {
+      await corpus.fetchCorpusEnvelope({ source: 'openalex', query: 'biofilm api_key=' + secret, limit: 5 });
+    } catch (e) {
+      threw = e;
+    } finally {
+      s.restore();
+    }
+    const refused = threw instanceof ExternalEgressViolation && threw.meta.matched_pattern === 'credential'
+      && threw.meta.sample === '' && String(threw.message).indexOf(secret) === -1 && s.calls.length === 0;
+    check('L14c A4=' + A4_3692 + (A4_3692 === 'keep'
+      ? ' credential-shaped query refused pre-dispatch: zero calls, no echo (369.2 ruling 2026-10-05)'
+      : ' credential-shaped query dispatches once (369.2 ruling 2026-10-05)'),
+      A4_3692 === 'keep' ? refused : (threw === null && s.calls.length === 1),
+      'threw=' + (threw && threw.name) + ' calls=' + s.calls.length);
+  }
+  {
+    resetLedger();
+    const s = stubFetch(function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); });
+    let threw = null;
+    try {
+      await corpus.fetchCorpusEnvelope({ source: 'brain-cypher', query: PLANTED_3692, limit: 5 });
+    } catch (e) {
+      threw = e;
+    } finally {
+      s.restore();
+    }
+    check('L14d brain-cypher (the Theo line) still throws ExternalEgressViolation on the room string with zero calls (369.2 ruling 2026-10-05)',
+      threw instanceof ExternalEgressViolation && s.calls.length === 0,
+      'threw=' + (threw && threw.name) + ' calls=' + s.calls.length);
+  }
+
   // ---- L15: a spent local budget is a typed spend limit, never empty_valid ----
   {
     resetLedger();

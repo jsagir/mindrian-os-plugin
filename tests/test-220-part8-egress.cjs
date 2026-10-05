@@ -199,6 +199,56 @@ async function main() {
     } finally { restore(); }
   });
 
+  // 369.2 ruling 2026-10-05 (added beside Gate 1b): tavily-extract is a web line,
+  // so a room-content URL dispatches once with its words unchanged; a credential
+  // in the URL is refused per A4.
+  const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';
+
+  await test('Gate 1b-web (369.2 ruling 2026-10-05): planted room-content URL dispatches exactly once, urls unchanged', async function () {
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    const state = stubFetch();
+    try {
+      const planted = derivePlantedQuery();
+      assert.ok(planted, 'a planted room-content URL exists');
+      let thrown = null;
+      try {
+        await fetchCorpus({ source: 'tavily-extract', query: planted.url });
+      } catch (err) {
+        thrown = err;
+      }
+      assert.strictEqual(thrown, null, 'a web line must not throw on a room string; got ' + (thrown && thrown.name));
+      assert.strictEqual(state.calls, 1, 'exactly one outbound request; got ' + state.calls);
+      assert.strictEqual(JSON.parse(state.captured[0].init.body).urls, planted.url, 'urls reaches the wire unchanged');
+    } finally { restore(); }
+  });
+
+  await test('Gate 1c (369.2 ruling 2026-10-05): A4=' + A4_3692 + ' credential-shaped URL ' + (A4_3692 === 'keep'
+    ? 'is refused pre-dispatch: ExternalEgressViolation, zero fetch, no echo'
+    : 'dispatches like any other URL'), async function () {
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    const state = stubFetch();
+    try {
+      const secret = 'abc123secretvalue';
+      const url = 'https://example.com/page?api_key=' + secret;
+      let thrown = null;
+      try {
+        await fetchCorpus({ source: 'tavily-extract', query: url });
+      } catch (err) {
+        thrown = err;
+      }
+      if (A4_3692 === 'keep') {
+        assert.ok(thrown instanceof ExternalEgressViolation, 'credential URL rejected; got ' + (thrown && thrown.name));
+        assert.strictEqual(thrown.meta.matched_pattern, 'credential', 'matched_pattern is credential');
+        assert.strictEqual(thrown.meta.sample, '', 'no echo in the violation sample');
+        assert.strictEqual(String(thrown.message).indexOf(secret), -1, 'no echo in the message');
+        assert.strictEqual(state.calls, 0, 'zero fetch; got ' + state.calls);
+      } else {
+        assert.strictEqual(thrown, null, 'drop: no throw');
+        assert.strictEqual(state.calls, 1, 'drop: one outbound request');
+      }
+    } finally { restore(); }
+  });
+
   await test('Gate 2a: clean URL -> captured body carries ONLY {api_key, urls, extract_depth, format}', async function () {
     process.env.TAVILY_API_KEY = 'test-key-not-real';
     const state = stubFetch();

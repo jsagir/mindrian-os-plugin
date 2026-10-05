@@ -39,6 +39,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
+// 369.2-06 (2026-10-05): the web-line legs below dispatch through the REAL
+// fetchCorpus, which records telemetry under os.homedir(); point HOME, USERPROFILE
+// and MINDRIAN_ROOMS_HOME at mkdtemp dirs BEFORE any repo module loads.
+const real3692 = require('./helpers/real-corpus-3692.cjs');
+const hermetic3692 = real3692.hermeticEnv();
+['HOME', 'USERPROFILE', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_BRAIN_URL'].forEach(function (k) {
+  process.env[k] = hermetic3692[k];
+});
+real3692.VENDOR_KEYS.forEach(function (k) { delete process.env[k]; });
+
 const ENGINE_PATH = path.resolve(__dirname, '..', 'scripts', 'rs-discovery-engine.cjs');
 const { runDiscovery } = require(ENGINE_PATH);
 
@@ -366,6 +376,62 @@ record('C Canon Part 8 preserved: a planted forbidden flat_query rejects pre-egr
       + JSON.stringify(cachedFiles));
 
   fs.rmSync(room, { recursive: true, force: true });
+});
+
+// ---------- 369.2 ruling 2026-10-05: web lines send the room's words; A4 pins credentials ----------
+//
+// Added beside Assertion C. The fixture's planted string is a room-content
+// string (a money figure). On a WEB source it now dispatches exactly once with
+// its words unchanged; a credential-shaped variant is refused before dispatch
+// under A4=keep and dispatches under A4=drop. Driven through the REAL
+// fetchCorpus and the OpenAlex replay at globalThis.fetch (no new mock layer).
+
+const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';
+
+async function runMatrixThroughRealCorpus(q) {
+  const room = mkTmpRoom();
+  const mocks = buildDownstreamMocks();
+  mocks.fetchCorpus = realCorpus.fetchCorpus;
+  mocks.researchCache = realCache;
+  mocks.queryMatrix = {
+    generateQueryMatrix: function () {
+      return { a_intersect_b: [q], a_leads_to_b: [], b_leads_to_a: [], adjacent: [] };
+    },
+  };
+  const out = await real3692.withReplay(function () { return 'gap_primary_zero'; }, function () {
+    return runDiscovery(FIXTURE.topic, { room_dir: room, _test_mocks: mocks });
+  });
+  fs.rmSync(room, { recursive: true, force: true });
+  return out;
+}
+
+record('C2 web line: the planted room string dispatches once, words unchanged (369.2 ruling 2026-10-05)', async function () {
+  const planted = FIXTURE.forbidden_query_matrix.a_intersect_b[0];
+  const out = await runMatrixThroughRealCorpus(planted);
+  assert.equal(out.error, null,
+    'a web line must not throw on a room string; got ' + (out.error && out.error.name + ': ' + out.error.message));
+  const hits = out.calls.filter(function (c) { return typeof c.q === 'string' && c.q.indexOf(planted) !== -1; });
+  assert.equal(hits.length, 1,
+    'the planted string must reach the wire exactly once, q unchanged; hits=' + hits.length + ' total calls=' + out.calls.length);
+});
+
+record('C3 A4=' + A4_3692 + ' credential-shaped string ' + (A4_3692 === 'keep'
+  ? 'is refused pre-dispatch: zero calls, no echo (369.2 ruling 2026-10-05)'
+  : 'dispatches like any other string (369.2 ruling 2026-10-05)'), async function () {
+  const secret = 'abc123secretvalue';
+  const q = 'our quantum imaging runway api_key=' + secret;
+  const out = await runMatrixThroughRealCorpus(q);
+  if (A4_3692 === 'keep') {
+    assert.ok(out.error, 'expected ExternalEgressViolation on a credential-shaped web query');
+    assert.equal(out.error.name, 'ExternalEgressViolation', 'got ' + out.error.name);
+    assert.equal(out.error.meta && out.error.meta.matched_pattern, 'credential');
+    assert.equal(out.error.meta && out.error.meta.sample, '', 'the violation carries no echo of the string');
+    assert.equal(String(out.error.message).indexOf(secret), -1, 'the message does not echo the secret');
+    assert.equal(out.calls.length, 0, 'zero provider calls; got ' + out.calls.length);
+  } else {
+    assert.equal(out.error, null, 'drop: no throw');
+    assert.equal(out.calls.filter(function (c) { return c.q.indexOf(q) !== -1; }).length, 1, 'drop: one call, q unchanged');
+  }
 });
 
 // ---------- Report ----------

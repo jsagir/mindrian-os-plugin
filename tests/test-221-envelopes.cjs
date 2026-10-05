@@ -520,6 +520,92 @@ console.log('=== 221-01 envelope suite: starting ===');
     }
   });
 
+  // 369.2 ruling 2026-10-05 (added beside B6): web sources send the room's words
+  // as written; the Brain line keeps the CONTENT-SET fence; a credential in a web
+  // query is refused per A4. Same stub idiom as B6 (global.fetch counted).
+  const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';
+
+  await recordAsync('B6b web line: the planted string dispatches once through BOTH entry points, q unchanged (369.2 ruling 2026-10-05)', async function () {
+    scrubForceEnv();
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    const planted = 'oncology venture valuation $5.2M cancer treatment';
+    try {
+      const m = freshCorpus();
+      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
+        const bodies = [];
+        installFetchStub(async function (_url, init) {
+          bodies.push(JSON.parse(init.body));
+          return okJsonResponse({ results: [] });
+        });
+        let threw = null;
+        try { await m[fn]({ source: 'tavily', query: planted }); } catch (e) { threw = e; }
+        assert.equal(threw, null, fn + ' must not throw on a room string for a web source; got ' + (threw && threw.name));
+        assert.equal(fetchCallCount, 1, fn + ': exactly one dispatch; got ' + fetchCallCount);
+        assert.equal(bodies[0].query, planted, fn + ': q reaches the wire unchanged');
+      }
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B6c A4=' + A4_3692 + ' credential-shaped web query ' + (A4_3692 === 'keep'
+    ? 'is refused by BOTH entry points: zero fetch, no echo (369.2 ruling 2026-10-05)'
+    : 'dispatches like any other string (369.2 ruling 2026-10-05)'), async function () {
+    scrubForceEnv();
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    const secret = 'abc123secretvalue';
+    const q = 'oncology venture api_key=' + secret;
+    installFetchStub(async function () { return okJsonResponse({ results: [] }); });
+    try {
+      const m = freshCorpus();
+      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
+        installFetchStub(async function () { return okJsonResponse({ results: [] }); });
+        let threw = null;
+        try { await m[fn]({ source: 'tavily', query: q }); } catch (e) { threw = e; }
+        if (A4_3692 === 'keep') {
+          assert.ok(threw, fn + ' throws on a credential-shaped query');
+          assert.equal(threw.name, 'ExternalEgressViolation', fn + ' throws ExternalEgressViolation');
+          assert.equal(threw.meta && threw.meta.matched_pattern, 'credential');
+          assert.equal(threw.meta && threw.meta.sample, '', fn + ': no echo in the violation');
+          assert.equal(String(threw.message).indexOf(secret), -1, fn + ': no echo in the message');
+          assert.equal(fetchCallCount, 0, fn + ': zero fetch before the throw; got ' + fetchCallCount);
+        } else {
+          assert.equal(threw, null, fn + ' drop: no throw');
+          assert.equal(fetchCallCount, 1, fn + ' drop: one dispatch');
+        }
+      }
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B6d brain-cypher (the Theo line) still throws on the planted string through BOTH entry points: zero Brain call, zero fetch (369.2 ruling 2026-10-05)', async function () {
+    scrubForceEnv();
+    const brain = require(path.resolve(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
+    const savedIsAvailable = brain.isAvailable;
+    const savedQuery = brain.query;
+    let brainCalls = 0;
+    brain.isAvailable = function () { return true; };
+    brain.query = async function () { brainCalls += 1; return { records: [] }; };
+    installFetchStub(async function () { throw new Error('brain path must not fetch'); });
+    try {
+      const m = freshCorpus();
+      const planted = 'oncology venture valuation $5.2M cancer treatment';
+      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
+        let threw = null;
+        try { await m[fn]({ source: 'brain-cypher', query: planted }); } catch (e) { threw = e; }
+        assert.ok(threw, fn + ' throws on the planted brain-cypher query');
+        assert.equal(threw.name, 'ExternalEgressViolation', fn + ' throws ExternalEgressViolation');
+      }
+      assert.equal(brainCalls, 0, 'zero Brain calls; got ' + brainCalls);
+      assert.equal(fetchCallCount, 0, 'zero fetch; got ' + fetchCallCount);
+    } finally {
+      brain.isAvailable = savedIsAvailable;
+      brain.query = savedQuery;
+      restoreFetch();
+    }
+  });
+
   // =========================================================================
   // Group C -- 221-02 Task 0 (the absorbed 221-01 Task 3): typed per-provider
   // envelopes on the source-lens driver seam. fetchSourceCached consumes
