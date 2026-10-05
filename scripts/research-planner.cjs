@@ -405,6 +405,11 @@ async function handle(cmd, pos, flags) {
       if (!proposal || typeof proposal !== 'object') return { ok: false, reason: 'bad_json' };
       const terms = flags['--terms'] ? listOf(readInput(flags['--terms']), 'terms') : [];
       if (terms === null) return { ok: false, reason: 'bad_json' };
+      // 369.2 R02 (A5): a run-lifetime proposal is the approval of one planned run (the card the plan
+      // step printed); only an explicit standing proposal (the grant propose door) takes the standing path.
+      if (proposal.lifetime === 'run' && typeof proposal.run_id === 'string' && planner.RUN_ID_RE.test(proposal.run_id)) {
+        return planner.approvePlanReview(room, proposal.run_id, { approvedVia: via });
+      }
       return planner.approveStandingGrant(room, proposal, { approvedVia: via, terms: terms });
     }
     case 'grant status':
@@ -438,6 +443,7 @@ async function handle(cmd, pos, flags) {
           run_id: res.run.run_id,
           verdict: res.run.verdict,
           answer_line: res.run.answer_line,
+          approval_line: res.approval_line,
           escalation_offer: res.run.escalation_offer,
           card: res.card,
           state_dir: res.state_dir,
