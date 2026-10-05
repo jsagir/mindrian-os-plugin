@@ -268,6 +268,12 @@ function parseArgs(argv) {
     // always-exit-0 contract (rotation either succeeds or the state dir is
     // not writable; neither case is a doctor-drift finding).
     resetInstallId: false,
+    // Quick 261005-vi3: --icm-walk [--room <dir>] is a SIBLING flag (like --bind-check), NOT a class flag and
+    // deliberately NOT added to the --all block: a measurement-only walk of the room root and every nest
+    // against the ten ICM invariants (lib/core/doctor/icm-walk-module.cjs). It writes nothing, fixes
+    // nothing, and exits 0 once it has printed its report.
+    icmWalk: false,
+    roomDir: null,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -303,6 +309,8 @@ function parseArgs(argv) {
     // per-install bucket key. SIBLING flag, own exit-0 contract, see the
     // parseArgs default comment above.
     else if (arg === '--reset-install-id') flags.resetInstallId = true;
+    else if (arg === '--icm-walk') flags.icmWalk = true;
+    else if (arg.startsWith('--room=')) flags.roomDir = arg.slice('--room='.length);
     else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
@@ -351,6 +359,13 @@ function parseArgs(argv) {
     const bcIdx = argv.indexOf('--bind-check');
     if (bcIdx !== -1 && typeof argv[bcIdx + 1] === 'string' && !argv[bcIdx + 1].startsWith('--')) {
       flags.bindCheckDir = argv[bcIdx + 1];
+    }
+  }
+  // Quick 261005-vi3: capture the space-separated `--room <dir>` value for --icm-walk, the --bind-check idiom.
+  if (flags.icmWalk && !flags.roomDir) {
+    const rmIdx = argv.indexOf('--room');
+    if (rmIdx !== -1 && typeof argv[rmIdx + 1] === 'string' && !argv[rmIdx + 1].startsWith('--')) {
+      flags.roomDir = argv[rmIdx + 1];
     }
   }
   // Quick 260914-ntk (Finding 1b): capture the space-separated `--fix eureka`
@@ -455,6 +470,17 @@ Bind-time lifecycle job (Phase 194-07 -- separate from class flags):
                            co-session is present in this room -- detect-only, an
                            environment condition the user cannot repair locally; never
                            touches report.healthy or the exit code (still never-block).
+
+ICM walk (quick 261005-vi3 -- separate from class flags, NOT part of --all):
+  --icm-walk [--room <dir>] [--json]
+                           measurement-only walk of the room root and every nest against the ten
+                           ICM invariants and the walk test: counts, bytes, approximate tokens and
+                           presence booleans, a missing file reported as missing, never scored.
+                           Names the measured duplications (MINTO sources relisting ROOM.md links,
+                           room identity by slug with no Room node in room.db, the Theo face
+                           restating CONTEXT.md's sequence) and the edit-surface marker absence.
+                           --room defaults to the registry's active room. Writes nothing, fixes
+                           nothing, sends nothing; exits 0 after printing.
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
   --acceptance             run the 7-point release-gate checklist (install-state +
@@ -3564,6 +3590,24 @@ function _walResetAdvisory(opts) {
 
 function main() {
   const flags = parseArgs(process.argv.slice(2));
+
+  // Quick 261005-vi3: --icm-walk dispatch. Own dispatch BEFORE the class-flag block and BEFORE --acceptance,
+  // like --bind-check below: a measurement-only sibling mode that writes nothing. It exits 0 once the report
+  // is printed; a room that cannot be resolved is the one honest non-zero (exit 1, reason on stderr).
+  if (flags.icmWalk) {
+    const icmWalk = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'icm-walk-module.cjs'));
+    let report;
+    try {
+      report = icmWalk.walkRoom(icmWalk.resolveRoomDir(flags.roomDir));
+    } catch (e) {
+      console.error('doctor --icm-walk: ' + (e && e.message ? e.message : String(e)));
+      process.exitCode = 1;
+      return;
+    }
+    console.log(flags.json ? JSON.stringify(report, null, 2) : icmWalk.renderText(report).replace(/\n$/, ''));
+    process.exitCode = 0;
+    return;
+  }
 
   // Phase 194-07 (PSB-14 / PSB-13 / D-10): --bind-check <roomDir> runs the
   // BIND-TIME local room-health job and rides the stale-reap cadence. Its

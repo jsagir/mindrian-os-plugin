@@ -2,7 +2,7 @@
 name: doctor
 description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
+argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
 layer: "harness"
 layer_why: "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
@@ -131,10 +131,20 @@ These siblings own their own exit contracts and are not part of the class-flag d
 - `--reset-install-id` -> rotates the opaque per-install bucket key the plugin sends to Theo, prints `install id rotated`, never prints the value, and always exits 0. Full contract: `docs/THEO-INSTALL-ID.md`.
 - `--post-update` -> the post-`claude plugin update` confirmation pass.
 - `--bind-check <roomDir>` -> a lightweight LOCAL room-health check run at BIND-TIME (never per-turn, never a Brain call). NEVER-BLOCK: an unhealthy room degrades to an advisory and STILL exits 0.
+- `--icm-walk [--room <dir>] [--json]` -> the ICM walk (below): a measurement-only report of the room root and every nest against the ten ICM invariants and the walk test. NOT part of `--all`; `--room` defaults to the registry's active room; writes nothing, fixes nothing, exits 0 after printing.
 - `--light-npx` -> the lighter npx-roundtrip variant for `--acceptance`.
 - `--simulate-write=<path>` -> class C test seam: simulate a write to a specific room path.
 - `--scan-commands=<dir>` / `--scan-scripts=<dir>` -> class F test seams: point the UI scan at scratch directories.
 - `--help` (or `-h`) -> print the usage text and exit 0.
+
+## The `--icm-walk` mode (the ICM walk, measurement only)
+
+`/mos:doctor --icm-walk` walks the room root and every nest (a folder holding a `ROOM.md` or a `CONTEXT.md`) and prints one block of measured rows per nest, then a room summary. It is the audit in `FEYNMINTO-ICM-AUDIT.md` turned into a tool, so a change to a nest's faces can be measured before and after.
+- The rows are the ten ICM invariants and the walk test: the job stated inside (I1), the entry file's lines, bytes and wikilinks (I2), the `CONTEXT.md` contract parts (I4), generated against authored files (I5), the edit-surface marker on each face (I6), loaded bytes and approximate tokens (I7), the one-home checks for sources, room identity and the Theo face (I8a, I8b, I8c), state by scanning (I9), scaffold markers (I10) and the reads needed to find your way (W).
+- Every value is a count, a byte or approximate-token figure (bytes divided by four) or a presence flag. A file that is not there reads `missing` and is never scored; the only words beyond the numbers are the measured flags (over 60 lines, over 8000 tokens, over budget, duplicate, stale, no Room node).
+- The summary names the three duplications when they exist in that room (MINTO sources relisting `ROOM.md` links, room identity by slug with no Room node or identity row in `room.db`, the Theo face restating the `CONTEXT.md` sequence) and how many face files carry no edit-surface marker.
+- `room.db` is read through the navigation read-only door on a throwaway copy, so a room with no `room.db` still walks its files and says `room.db: missing`.
+- It writes nothing, fixes nothing and sends nothing (Canon Part 8: local reads only); `--json` carries the same values.
 
 ## The `--report-registration-bug` mode (escalation reporter)
 
