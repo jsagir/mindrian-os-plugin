@@ -1,0 +1,111 @@
+{
+  "provenance": "navigator-supplied 2026-10-06; a model relevance judgment from the eleven section contracts and data/section-job-canon.json; 'existing' is section contract text, 'supporting' and 'additional_fit' are judgment; filed verbatim from .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/369.25-SECTION-COMMAND-RELEVANCE.md; LOCAL prior, never sent to Theo (Canon Part 8)",
+  "sections": {
+    "problem-definition": {
+      "existing": ["beautiful-question", "diagnose", "explore-domains"],
+      "supporting": ["jtbd", "discover", "root-cause", "causal", "map-unknowns"],
+      "additional_fit": [],
+      "why": "Establish the problem, who experiences it, the intended progress, its causes and what remains unclear."
+    },
+    "market-analysis": {
+      "existing": ["analyze-needs", "user-needs"],
+      "supporting": ["macro-trends", "explore-trends", "analyze-timing", "diffusion", "dominant-designs", "mullins"],
+      "additional_fit": [],
+      "why": "Understand customers, their current behavior, market conditions, timing and adoption."
+    },
+    "solution-design": {
+      "existing": ["bono"],
+      "supporting": ["find-analogies", "find-connections", "analyze-systems", "systems-thinking", "hat-briefing"],
+      "additional_fit": [],
+      "why": "Develop alternatives, connect useful ideas, examine the solution's structure and explain design choices."
+    },
+    "business-model": {
+      "existing": ["lean-canvas", "validate-proposition"],
+      "supporting": ["mullins", "explore-futures", "analyze-systems"],
+      "additional_fit": [],
+      "why": "Explain how value is created, who pays, how revenue works and which assumptions sustain the model. Value proposition already belongs inside this section."
+    },
+    "competitive-analysis": {
+      "existing": ["compare-ventures"],
+      "supporting": ["challenge-assumptions"],
+      "additional_fit": ["scout"],
+      "why": "Identify alternatives, compare on relevant dimensions and test whether claimed advantages survive competition."
+    },
+    "team-execution": {
+      "existing": ["leadership"],
+      "supporting": ["think-hats", "hat-briefing"],
+      "additional_fit": ["persona", "rs-experts"],
+      "why": "Understand roles, adaptive challenges, missing expertise and who should act or advise."
+    },
+    "legal-ip": {
+      "existing": [],
+      "supporting": ["challenge-assumptions"],
+      "additional_fit": ["research", "map-unknowns", "validate"],
+      "why": "Organize questions about agreements, ownership, protection and regulatory exposure. The contract explicitly records no dedicated methodology command for this section."
+    },
+    "financial-model": {
+      "existing": [],
+      "supporting": ["build-thesis", "grade", "deep-grade"],
+      "additional_fit": ["challenge-assumptions", "scenario-plan", "validate"],
+      "why": "Examine financial assumptions, sensitivities and whether the economic argument holds. The contract records no direct financial-modeling command; these are supporting tools."
+    },
+    "opportunity-bank": {
+      "existing": ["futures", "score-innovation", "trending-to-absurd", "whitespace", "opportunities"],
+      "supporting": [],
+      "additional_fit": ["eureka", "qualify-opportunity", "explore-opportunity", "auto-explore"],
+      "why": "Discover, retain, investigate and qualify opportunities before committing to them."
+    },
+    "funding": {
+      "existing": ["funding"],
+      "supporting": ["mullins", "grade", "deep-grade"],
+      "additional_fit": ["grade-grant"],
+      "why": "Track funding opportunities and applications, assess readiness, and review a submission against its rubric. The financial model explains the need; Funding manages the pursuit."
+    },
+    "strategy": {
+      "existing": ["scenario-plan", "find-bottlenecks", "rs-fetch", "rs-experts", "rs-explain", "rs-thesis"],
+      "supporting": [],
+      "additional_fit": ["scientific-roadmap", "explore-futures"],
+      "why": "Decide where to go, identify what prevents progress, explore alternatives and formulate the next consequential investigation."
+    }
+  },
+  "no_dedicated_command": ["legal-ip", "financial-model"],
+  "areas": {
+    "meetings": {
+      "commands": ["file-meeting", "speakers", "reanalyze"],
+      "why": "Turn conversations into attributed material, identify speakers and reconsider extracted findings. Meetings are sources that can feed several content sections."
+    },
+    "people-team-profiles": {
+      "commands": ["persona", "skill", "speakers", "rs-experts"],
+      "why": "Maintain perspectives and expertise associated with people or generated experts. The repo distinguishes structural team/ from the analytical team-execution/ section."
+    },
+    "reasoning-within-every-section": {
+      "commands": ["mos-reason", "structure-argument", "build-knowledge", "validate", "brain-derive", "models"],
+      "why": "Develop the section's argument, examine its evidence and select relevant methodology. These should follow the selected section's job."
+    },
+    "research-within-every-section": {
+      "commands": ["research", "intel-pipeline", "reanalyze"],
+      "why": "Investigate the question belonging to that section. Market research and legal research share an execution capability but have different purposes and evidence requirements."
+    },
+    "briefs-and-presentations": {
+      "commands": ["mva-brief", "deck", "present", "show", "export", "publish", "vault", "wiki", "visualize"],
+      "why": "Assemble or expose work from selected sections or the whole room. They remain part of the product rather than being excluded as operational."
+    },
+    "history-and-continuity": {
+      "commands": ["memory", "snapshot", "feynman-timeline-refresh", "dial-memory-refresh", "correct-reference-now", "memory-cortex-reach"],
+      "why": "Preserve or inspect prior work, changes and continuity. These are legacy command roles, not adoption of their old behavior."
+    },
+    "navigation-and-execution": {
+      "commands": ["act", "pipeline", "suggest-next", "scheduled-tasks", "mva-option", "explain-decision", "operator", "stance"],
+      "why": "Choose, dispatch, schedule or explain work across the relevant sections."
+    },
+    "room-access-and-overview": {
+      "commands": ["ignite", "new-project", "discover", "rooms", "organize", "room", "mos", "onboard", "help", "splash", "status", "dashboard", "radar", "graph", "query"],
+      "why": "Create, enter, navigate and inspect the room and its contents."
+    },
+    "quality-and-platform-maintenance": {
+      "commands": ["diagnostics", "doctor", "heal", "hmi-status", "mva-report", "agentshield", "admin", "setup", "update", "dogfood-flush", "new-surface", "ingest-methodology", "pws-brain"],
+      "why": "Keep the workspace and its capabilities usable, inspect behavior and maintain the system supporting every section."
+    }
+  },
+  "rule": "The section sets the purpose. The current question and problem type determine which command is useful there, not a permanent rule that every section always runs the same tools."
+}
