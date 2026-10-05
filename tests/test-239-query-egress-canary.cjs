@@ -15,7 +15,7 @@
  *   - content canary: CANARY7F3A2B
  *   - PII canary:     jane@startup.com
  *
- * Seven legs:
+ * Eight legs (LEG 8 added by 369.2-08, CODE-07; LEG 4 moved ambiguous -> block):
  *   LEG 1 - opportunity-field canary (SC2 door one)
  *   LEG 2 - Blue Hat methodology-note canary (SC2 door two)
  *   LEG 3 - PII canary (opportunity.domain = jane@startup.com)
@@ -190,7 +190,15 @@ async function main() {
         ' templated-cypher=' + JSON.stringify(v2) +
         ' raw-field=' + JSON.stringify(v3) + '\n'
     );
-    assert.strictEqual(v1.verdict, 'ambiguous', 'bare-cypher canary must classify ambiguous');
+    // 369.2-08 (CODE-07, 2026-10-05): the one-verdict model. A free-form Theo
+    // string is never ambiguous any more: it is allow (plain question) or block
+    // (room content). The bare canary is an identifier no methodology handle
+    // matches, so it BLOCKS as room_content/identifier. It moved from
+    // ambiguous to block, never to allow: the canary still never reaches the
+    // wire (LEGs 1-3 and the zero-wire asserts above are unchanged).
+    assert.strictEqual(v1.verdict, 'block', '369.2-08: bare-cypher canary must classify block (room_content)');
+    assert.strictEqual(v1.class, 'room_content', 'bare-cypher canary class must be room_content, got ' + JSON.stringify(v1));
+    assert.strictEqual(v1.token_class, 'identifier', 'bare-cypher canary token_class must be identifier, got ' + JSON.stringify(v1));
     // 354-06 (D-354-EGR): the measured laundering this leg used to pin
     // (a bare "Framework" keyword hit inside an assembled Cypher string
     // earning 'allow') is CLOSED by the same structural-proof fix that
@@ -204,7 +212,9 @@ async function main() {
     // guard (the actual production control for suggestValidationSteps)
     // still runs upstream of any template assembly and is unaffected --
     // see the coupling note below, now doubly true (both tiers refuse it).
-    assert.strictEqual(v2.verdict, 'ambiguous', '354-06: templated-cypher canary must now classify ambiguous (the measured laundering is closed, not merely bypassed)');
+    // 369.2-08 (CODE-07, 2026-10-05): the templated string now BLOCKS (the
+    // canary is an identifier), a stronger close than 354-06's ambiguous.
+    assert.strictEqual(v2.verdict, 'block', '369.2-08: templated-cypher canary must now classify block (the measured laundering is closed, not merely bypassed)');
     assert.notStrictEqual(
       v3.verdict,
       'allow',

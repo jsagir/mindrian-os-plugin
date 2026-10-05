@@ -63,11 +63,16 @@ function baseDirective() {
 // ---------------------------------------------------------------------------
 // Arm 1: disclosure survives.
 // ---------------------------------------------------------------------------
+// 369.2-08 (CODE-07, 2026-10-05): the fixture now carries a LIVE ambiguous
+// verdict (unproven_packet, "packet shape not proven"); a free-form string is
+// allow or block and is never ambiguous any more, so freeform_unmatched can no
+// longer be the class a disclosure names. The wrapDirective contract under test
+// (all five fields survive) is unchanged.
 test('Arm 1: egress_disclosure survives wrapDirective with all five fields intact', () => {
   const disclosure = {
     verdict: 'ambiguous',
-    egress_class: 'freeform_unmatched',
-    reason: 'no methodology vocabulary match',
+    egress_class: 'unproven_packet',
+    reason: 'packet shape not proven',
     tool: 'brain_ask',
     disposition: 'proceeded',
   };
@@ -75,8 +80,8 @@ test('Arm 1: egress_disclosure survives wrapDirective with all five fields intac
 
   assert.ok(env.egress_disclosure, 'egress_disclosure must be present');
   assert.equal(env.egress_disclosure.verdict, 'ambiguous');
-  assert.equal(env.egress_disclosure.egress_class, 'freeform_unmatched');
-  assert.equal(env.egress_disclosure.reason, 'no methodology vocabulary match');
+  assert.equal(env.egress_disclosure.egress_class, 'unproven_packet');
+  assert.equal(env.egress_disclosure.reason, 'packet shape not proven');
   assert.equal(env.egress_disclosure.tool, 'brain_ask');
   assert.equal(env.egress_disclosure.disposition, 'proceeded');
 });
@@ -147,7 +152,7 @@ test('Arm 4: a canary on an unknown top-level key never reaches the envelope (no
 // mutate the envelope's copies.
 // ---------------------------------------------------------------------------
 test('Arm 5: mutating the source egress_disclosure/refusal after the call does not change the envelope copies', () => {
-  const disclosure = { verdict: 'ambiguous', egress_class: 'freeform_unmatched', reason: 'x', tool: 'brain_ask', disposition: 'proceeded' };
+  const disclosure = { verdict: 'ambiguous', egress_class: 'unproven_packet', reason: 'x', tool: 'brain_ask', disposition: 'proceeded' };
   const refusal = refusalResponse('unreachable', { tool: 'brain_ask' });
 
   const env = wrapDirective(

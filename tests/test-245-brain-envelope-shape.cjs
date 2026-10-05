@@ -361,7 +361,7 @@ function claimB() {
 // CLAIM (c): a content-free Cypher label census ALLOWS.
 // ---------------------------------------------------------------------------
 function claimC() {
-  console.log('--- CLAIM (c): content-free graph introspection is never blocked (ambiguous/freeform_unproven) ---');
+  console.log('--- CLAIM (c): content-free graph introspection is never blocked (allow, 369.2-08) ---');
 
   // Re-pinned for D-354-EGR (commit 8f87980e5, 354-06). Before it, these two
   // Cypher strings classified allow; a free-form string is now allow only when
@@ -389,9 +389,15 @@ function claimC() {
       v.class !== 'freeform_unmatched',
       'CLAIM c: ' + label + ' must not fall back to freeform_unmatched, got ' + JSON.stringify(v)
     );
+    // 369.2-08 (CODE-07, 2026-10-05): MOVED from ambiguous/freeform_unproven
+    // (D-354-EGR) to allow. A free-form Theo string is allow or block, never
+    // ambiguous; a content-free Cypher census carries no room token, so it
+    // allows as typed_question or generic_question. It never blocks (asserted
+    // above) and the CONTENT-SET scan above still reports no hit; the poisoned
+    // negative control below still blocks.
     ok(
-      v.verdict === 'ambiguous' && v.class === 'freeform_unproven',
-      'CLAIM c: ' + label + ' must classify ambiguous/freeform_unproven under D-354-EGR, got ' + JSON.stringify(v)
+      v.verdict === 'allow' && (v.class === 'typed_question' || v.class === 'generic_question'),
+      'CLAIM c: ' + label + ' must classify allow (typed_question or generic_question) under the one-verdict model, got ' + JSON.stringify(v)
     );
 
     const hook = spawnSync(process.execPath, [GUARD_HOOK], {

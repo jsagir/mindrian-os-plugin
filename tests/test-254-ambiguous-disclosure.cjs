@@ -26,6 +26,11 @@
  * payload can be driven straight to 'ambiguous', 'block', or 'allow'
  * without constructing a typed packet shape.
  *
+ * 369.2-08 (CODE-07, 2026-10-05): free-form Theo strings are allow or block, never
+ * ambiguous, so the ambiguous fixtures below are typed PACKETS driven through
+ * callTool; Arms 7 and 8 moved (no key gate since l8g; CR-01 retired as written);
+ * Arms 9 and 10 added.
+ *
  * Seven arms (each payload's verdict is asserted via a direct classify()
  * call BEFORE it is used on the wire, per the plan's explicit instruction --
  * a wire arm built on a mis-assumed verdict silently tests nothing):
@@ -72,6 +77,17 @@ const BLOCK_TEXT = 'contact me at jane@startup.com';
 const ALLOW_TEXT = 'framework chain analysis sequence';
 const CANARY = 'CANARY254D2A9';
 const CANARY_TEXT = CANARY + ' unrelated content probe';
+
+// 369.2-08 (CODE-07, 2026-10-05): the ambiguous fixtures are TYPED PACKETS now.
+// A free-form Theo string (ask, search, query) is allow or block under the one
+// verdict (theoVerdict) and is never ambiguous; an unproven packet
+// (packet_version or job present, shape not proven MOVE-SET) is the shape that
+// still classifies ambiguous/unproven_packet, and callTool's belt still
+// discloses it and proceeds (D-02 Option A, unchanged). PACKET_TOOL names no
+// real tool: callTool dispatches any name and the capture server answers it.
+const PACKET_TOOL = 'brain_packet_probe';
+const AMBIGUOUS_PACKET = { job: AMBIGUOUS_TEXT };
+const CANARY_PACKET = { job: 'framework_chain', note: CANARY_TEXT };
 
 /**
  * ORDERING CONTRACT (load-bearing, from tests/helpers/brain-capture-server.cjs's
@@ -125,11 +141,11 @@ async function main() {
     resetCaptured();
     resetToolScript();
 
-    const verdict = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
+    const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
 
     const before = captured.length;
-    const result = await brain.ask(AMBIGUOUS_TEXT);
+    const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
 
     assert.ok(captured.length > before, 'the call must have proceeded to the wire (captured.length grew)');
     assert.ok(result && typeof result === 'object', 'result must be a non-null object');
@@ -142,7 +158,7 @@ async function main() {
       typeof result.egress_disclosure.egress_class === 'string' && result.egress_disclosure.egress_class.length > 0,
       'egress_class must be a non-empty string'
     );
-    assert.strictEqual(result.egress_disclosure.tool, 'brain_ask');
+    assert.strictEqual(result.egress_disclosure.tool, PACKET_TOOL);
     assert.strictEqual(result.egress_disclosure.disposition, 'proceeded');
     process.stdout.write('    Arm 1 disclosure: ' + JSON.stringify(result.egress_disclosure) + '\n');
   });
@@ -161,7 +177,16 @@ async function main() {
     const result = await brain.ask(BLOCK_TEXT);
 
     assert.strictEqual(captured.length, 0, 'a blocked payload must open no socket at all');
-    assert.deepStrictEqual(result, { error: 'egress_blocked', tool: 'brain_ask', egress_class: 'content_set' });
+    // 369.2-08 (CODE-07, 2026-10-05): the block sentinel is the one Theo
+    // vocabulary {error, tool, egress_class, token_class, reason}; it was the
+    // three-key shape before plan 01. Still a sentinel, still no disclosure,
+    // still no echo of the payload.
+    assert.strictEqual(result.error, 'egress_blocked');
+    assert.strictEqual(result.tool, 'brain_ask');
+    assert.strictEqual(result.egress_class, 'content_set');
+    assert.strictEqual(result.token_class, null, 'a CONTENT-SET hit names no token class');
+    assert.ok(typeof result.reason === 'string' && result.reason.length > 0, 'the sentinel must carry a plain-language reason');
+    assert.ok(JSON.stringify(result).indexOf('jane@startup.com') === -1, 'the sentinel must never echo the blocked content');
     assert.ok(!Object.prototype.hasOwnProperty.call(result, 'egress_disclosure'), 'a sentinel must never carry a disclosure');
   });
 
@@ -193,10 +218,10 @@ async function main() {
     resetCaptured();
     setToolScript([{ status: 500 }]); // last entry repeats -- exhausts the retry budget
 
-    const verdict = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
+    const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
 
-    const result = await brain.ask(AMBIGUOUS_TEXT);
+    const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
 
     assert.strictEqual(result, null, 'result must be EXACTLY null -- a decorated object would make a refusal invisible');
     resetToolScript();
@@ -210,10 +235,10 @@ async function main() {
     resetCaptured();
     resetToolScript();
 
-    const verdict = guard.classify({ question: CANARY_TEXT }, { toolName: 'brain_ask' });
+    const verdict = guard.classify(CANARY_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
 
-    const result = await brain.ask(CANARY_TEXT);
+    const result = await brain.callTool(PACKET_TOOL, CANARY_PACKET);
 
     const wire = JSON.stringify(captured);
     assert.ok(wire.includes(CANARY), 'the call proceeded (Option A), so the canary really did egress on the wire');
@@ -233,10 +258,10 @@ async function main() {
     resetCaptured();
     setToolScript([{ status: 403, body: JSON.stringify({ error: { message: 'Brain denied tier access (test)' } }) }]);
 
-    const verdict = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
+    const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
 
-    const result = await brain.ask(AMBIGUOUS_TEXT);
+    const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
 
     assert.ok(result && typeof result === 'object', 'result must be a non-null object');
     assert.strictEqual(result.error, 'tier_denied');
@@ -248,22 +273,24 @@ async function main() {
   });
 
   // -------------------------------------------------------------------------
-  // Arm 7: belt still first (regression pin -- ordering unchanged).
+  // Arm 7 (369.2-08, CODE-07, 2026-10-05): the belt is still first, and there is
+  // no key gate in front of it. The Phase 254 arm pinned "no key -> bare null,
+  // the key gate precedes the belt". Quick 261005-l8g (SEED-119) removed every
+  // credential gate: the client calls Theo bare, so the belt is now the FIRST
+  // thing callTool runs with or without a key. The arm moved to pin that:
+  // a block payload with NO key gets the egress_blocked sentinel and opens no
+  // socket, and the same payload with a key gets the same sentinel.
   // -------------------------------------------------------------------------
-  await record('Arm 7: the key gate still precedes the belt', async () => {
+  await record('Arm 7 (369.2 CODE-07): the belt is first with no key gate -- a block is refused the same with or without a key', async () => {
     resetCaptured();
     resetToolScript();
 
     const verdict = guard.classify({ question: BLOCK_TEXT }, { toolName: 'brain_ask' });
     assert.strictEqual(verdict.verdict, 'block', 'fixture payload must classify block before use on the wire');
 
-    // Sub-case A: block payload, NO key set -- the key gate runs before the
-    // belt, so this must still return bare null (byte-unchanged no-key
-    // contract), never the egress_blocked sentinel.
-    // Full ladder isolation (mirrors tests/test-c8j-brain-wire.cjs Leg 8): a
-    // fresh tmp HOME with no .mindrian.env / .mindrian-install.json, and a
-    // temporary chdir so <cwd>/.env (this repo carries a real one) cannot
-    // resolve a real key out from under the test. Restored in `finally`.
+    // Sub-case A: block payload, NO key set. Full ladder isolation (a fresh tmp
+    // HOME and a temporary chdir) so no real key or .env can resolve; restored
+    // in `finally`.
     const prevDisable = process.env.MINDRIAN_DISABLE_AUTO_REGISTER;
     const prevHome = process.env.HOME;
     const prevCwd = process.cwd();
@@ -274,7 +301,8 @@ async function main() {
     try {
       const brainNoKey = freshBrainClient(url, null);
       const resultNoKey = await brainNoKey.ask(BLOCK_TEXT);
-      assert.strictEqual(resultNoKey, null, 'no key -> null; the key gate precedes the belt, byte-unchanged');
+      assert.ok(resultNoKey && resultNoKey.error === 'egress_blocked', 'no key -> the belt still refuses the block (no key gate in front of it), got ' + JSON.stringify(resultNoKey));
+      assert.strictEqual(resultNoKey.egress_class, 'content_set');
       assert.strictEqual(captured.length, 0, 'no transport call should have been made');
     } finally {
       process.chdir(prevCwd);
@@ -284,32 +312,38 @@ async function main() {
       fs.rmSync(tmpHome, { recursive: true, force: true });
     }
 
-    // Sub-case B: same block payload, WITH a key -- returns egress_blocked.
+    // Sub-case B: same block payload, WITH a key, returns the same sentinel.
     const brainWithKey = freshBrainClient(url, 'test-key-not-real');
     resetCaptured();
     const resultWithKey = await brainWithKey.ask(BLOCK_TEXT);
-    assert.deepStrictEqual(resultWithKey, { error: 'egress_blocked', tool: 'brain_ask', egress_class: 'content_set' });
+    assert.strictEqual(resultWithKey.error, 'egress_blocked');
+    assert.strictEqual(resultWithKey.tool, 'brain_ask');
+    assert.strictEqual(resultWithKey.egress_class, 'content_set');
+    assert.strictEqual(captured.length, 0, 'a blocked payload must open no socket at all');
   });
 
   // -------------------------------------------------------------------------
-  // Arm 8: CR-01 regression -- query()'s own top-level disclosure (254-REVIEW.md).
+  // Arm 8 (369.2-08, CODE-07, 2026-10-05): the CR-01 regression is RETIRED AS
+  // WRITTEN. It drove an ambiguous cypher string through query() and pinned that
+  // query()'s bare-array normalization carried egress_disclosure to the TOP
+  // level of {records}. query() sends its string as a free-form brain_query
+  // field, and a free-form verdict is allow or block, never ambiguous, so no
+  // free-form string can reach that carry any more; the packet path is the only
+  // ambiguous source and query() never carries a packet. Arm 8 now pins what
+  // remains true: query() on a plain question proceeds, normalizes the bare
+  // array to {records:[...]} and carries NO egress_disclosure at any level
+  // (allow stays byte-unchanged).
   // -------------------------------------------------------------------------
   await record(
-    "Arm 8: query()'s bare-array normalization preserves egress_disclosure at the top level (CR-01)",
+    "Arm 8 (369.2 CODE-07): query() on a plain question normalizes to { records } with no egress_disclosure anywhere",
     async () => {
       const brain = freshBrainClient(url);
       resetCaptured();
       resetToolScript();
 
-      const verdict = guard.classify({ cypher: AMBIGUOUS_TEXT }, { toolName: 'brain_query' });
-      assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+      const verdict = guard.classify({ cypher: ALLOW_TEXT }, { toolName: 'brain_query' });
+      assert.strictEqual(verdict.verdict, 'allow', 'fixture payload must classify allow before use on the wire');
 
-      // The Brain MCP brain_query tool's normal shape: JSON.stringify(records)
-      // where records is a BARE ARRAY of row objects (query()'s own docblock,
-      // lib/core/brain-client.cjs:797-830). This is the exact shape CR-01
-      // found broken -- _attachEgressDisclosure attaches egress_disclosure to
-      // this array, then query()'s `{ records: result }` wrapper constructs a
-      // brand-new object that must explicitly carry the property forward.
       const bareArrayBody =
         'data: ' +
         JSON.stringify({
@@ -320,22 +354,13 @@ async function main() {
         '\n';
       setToolScript([{ body: bareArrayBody }]);
 
-      const result = await brain.query(AMBIGUOUS_TEXT);
+      const result = await brain.query(ALLOW_TEXT);
 
       assert.ok(result && typeof result === 'object', 'result must be a non-null object');
       assert.ok(Array.isArray(result.records), "query() must still normalize to { records: [...] }");
       assert.strictEqual(result.records.length, 1);
-      assert.ok(
-        Object.prototype.hasOwnProperty.call(result, 'egress_disclosure'),
-        "CR-01: query()'s own returned shape must carry egress_disclosure at the TOP level, not nested at result.records.egress_disclosure"
-      );
-      assert.strictEqual(result.egress_disclosure.verdict, 'ambiguous');
-      assert.strictEqual(result.egress_disclosure.tool, 'brain_query');
-      assert.strictEqual(result.egress_disclosure.disposition, 'proceeded');
-      assert.ok(
-        !Object.prototype.hasOwnProperty.call(result.records, 'egress_disclosure'),
-        'the disclosure must not remain stranded on the nested records array once query() normalizes'
-      );
+      assert.ok(!Object.prototype.hasOwnProperty.call(result, 'egress_disclosure'), 'an allow verdict must leave no egress_disclosure at the top level');
+      assert.ok(!Object.prototype.hasOwnProperty.call(result.records, 'egress_disclosure'), 'an allow verdict must leave no egress_disclosure on the records array');
 
       resetToolScript();
     }

@@ -13,16 +13,19 @@
  *
  * Cases (per 354-06-PLAN.md Task 1):
  *   A. transport capture: brain.ask(PRIVATE) opens no wire, egress_blocked
- *      sentinel, class freeform_unproven.
+ *      sentinel, class content_set or room_content (369.2-08, CODE-07; was
+ *      freeform_unproven before the one-verdict model).
  *   B. same proof for brain.search() and brain.smartSearch().
  *   C. classify() itself never returns allow for PRIVATE; class
- *      freeform_unproven.
+ *      content_set or room_content (369.2-08; was freeform_unproven).
  *   D. private corpus: >=10 sentences, one methodology word next to
  *      unproven prose each, all refused with zero captured bytes.
  *   E. generic corpus: >=20 questions built ONLY from canonical vocabulary,
  *      including every internal template instantiated with canonical
  *      inputs (brain-router.cjs, rs-chain-feeder.cjs, rs-explain-command.cjs)
  *      -- every one allows (class typed_question) and forwards.
+ *   G. (369.2-08) plain question allows and reaches the wire on ask, search,
+ *      query.
  *   F. shim end-to-end: bin/mindrian-brain-mcp-client.cjs via
  *      StdioClientTransport, brain_ask(PRIVATE) renders the honest
  *      egress_blocked refusal and the capture server records nothing
@@ -143,6 +146,21 @@ function buildGenericCorpus() {
 
 const GENERIC_CORPUS = buildGenericCorpus();
 
+// 369.2-08 (CODE-07, 2026-10-05): the one-verdict model. A free-form string is
+// never ambiguous any more, so PRIVATE no longer reads freeform_unproven: it
+// BLOCKS as content_set (a CONTENT-SET hit) or room_content (a token no
+// methodology handle matches), and room_content always names a token_class.
+// The zero-wire asserts in each case are unchanged: a room-content canary
+// stays red. `field` is 'egress_class' on a sentinel and 'class' on a verdict.
+function assertPrivateClass(obj, field) {
+  const f = field === 'class' ? 'class' : 'egress_class';
+  const cls = obj && obj[f];
+  assert.ok(cls === 'content_set' || cls === 'room_content', 'expected ' + f + ' content_set or room_content, got: ' + JSON.stringify(obj));
+  if (cls === 'room_content') {
+    assert.ok(typeof obj.token_class === 'string' && obj.token_class.length > 0, 'room_content must name a token_class, got: ' + JSON.stringify(obj));
+  }
+}
+
 let passed = 0;
 let failed = 0;
 function check(name, fn) {
@@ -186,7 +204,7 @@ async function main() {
   // -------------------------------------------------------------------------
   // Case A: transport capture, brain.ask(PRIVATE).
   // -------------------------------------------------------------------------
-  await check('Case A: brain.ask(PRIVATE) opens no Brain wire, egress_blocked/freeform_unproven', async () => {
+  await check('Case A: brain.ask(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content', async () => {
     resetCaptured();
     const result = await brain.ask(PRIVATE);
     assert.ok(!capturedContains('cedar'), 'PRIVATE\'s "cedar" marker must never reach the capture server, captured: ' + JSON.stringify(captured));
@@ -194,39 +212,39 @@ async function main() {
     assert.strictEqual(captured.length, 0, 'zero tools/call requests expected, captured: ' + JSON.stringify(captured));
     assert.ok(result && typeof result === 'object', 'ask() must return an object, got: ' + JSON.stringify(result));
     assert.strictEqual(result.error, 'egress_blocked', 'expected error egress_blocked, got: ' + JSON.stringify(result));
-    assert.strictEqual(result.egress_class, 'freeform_unproven', 'expected egress_class freeform_unproven, got: ' + JSON.stringify(result));
+    assertPrivateClass(result);
   });
 
   // -------------------------------------------------------------------------
   // Case B: search channels.
   // -------------------------------------------------------------------------
-  await check('Case B1: brain.search(PRIVATE) opens no Brain wire, egress_blocked/freeform_unproven', async () => {
+  await check('Case B1: brain.search(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content', async () => {
     resetCaptured();
     const result = await brain.search(PRIVATE);
     assert.ok(!capturedContains('cedar'), 'search: PRIVATE\'s "cedar" marker must never reach the capture server');
     assert.strictEqual(captured.length, 0, 'search: zero tools/call requests expected, captured: ' + JSON.stringify(captured));
     assert.ok(result && typeof result === 'object');
     assert.strictEqual(result.error, 'egress_blocked');
-    assert.strictEqual(result.egress_class, 'freeform_unproven');
+    assertPrivateClass(result);
   });
 
-  await check('Case B2: brain.smartSearch(PRIVATE) opens no Brain wire, egress_blocked/freeform_unproven', async () => {
+  await check('Case B2: brain.smartSearch(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content', async () => {
     resetCaptured();
     const result = await brain.smartSearch(PRIVATE);
     assert.ok(!capturedContains('cedar'), 'smartSearch: PRIVATE\'s "cedar" marker must never reach the capture server');
     assert.strictEqual(captured.length, 0, 'smartSearch: zero tools/call requests expected, captured: ' + JSON.stringify(captured));
     assert.ok(result && typeof result === 'object');
     assert.strictEqual(result.error, 'egress_blocked');
-    assert.strictEqual(result.egress_class, 'freeform_unproven');
+    assertPrivateClass(result);
   });
 
   // -------------------------------------------------------------------------
   // Case C: classify() itself.
   // -------------------------------------------------------------------------
-  await check('Case C: classify(PRIVATE) never returns allow, class freeform_unproven', async () => {
+  await check('Case C: classify(PRIVATE) never returns allow, class content_set or room_content', async () => {
     const verdict = guard.classify({ question: PRIVATE }, { toolName: 'brain_ask' });
     assert.notStrictEqual(verdict.verdict, 'allow', 'PRIVATE must not classify allow, got: ' + JSON.stringify(verdict));
-    assert.strictEqual(verdict.class, 'freeform_unproven', 'expected class freeform_unproven, got: ' + JSON.stringify(verdict));
+    assertPrivateClass(verdict, 'class');
   });
 
   // -------------------------------------------------------------------------

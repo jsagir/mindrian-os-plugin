@@ -157,3 +157,35 @@ test('Arm 6: egress_blocked copy never says unreachable or down', () => {
   assert.ok(!/unreachable/i.test(line), 'larryRefusalLine must not use the word unreachable');
   assert.ok(!/\bdown\b/i.test(line), 'larryRefusalLine must not use the word down');
 });
+
+// ---------------------------------------------------------------------------
+// Arm 7 (369.2-08, CODE-07, 2026-10-05): the one Theo verdict's classes survive
+// the refusal chokepoint. Before this move the shim coerced room_content,
+// room_check_unavailable and generic_question to 'unknown' and dropped the
+// token_class, so the honest class was lost on every room-content block.
+// ---------------------------------------------------------------------------
+test('Arm 7a (369.2 CODE-07): room_content, room_check_unavailable and generic_question survive egress_class coercion', () => {
+  const mod = freshChokepoint();
+  ['room_content', 'room_check_unavailable', 'generic_question'].forEach((cls) => {
+    const r = mod.refusalResponse('egress_blocked', { tool: 'brain_query', egress_class: cls });
+    assert.match(r.reason, new RegExp('class: ' + cls), cls + ' must be named in the reason, not coerced to unknown: ' + r.reason);
+    assert.ok(!/class: unknown/.test(r.reason), cls + ' must not coerce to unknown');
+  });
+});
+
+test('Arm 7b (369.2 CODE-07): token_class is carried only from the closed guard vocabulary, never a caller string', () => {
+  const mod = freshChokepoint();
+  const guard = require(path.join(REPO_ROOT, 'lib', 'core', 'part8-egress-guard.cjs'));
+  assert.ok(Array.isArray(guard.TOKEN_CLASSES) && guard.TOKEN_CLASSES.length > 0, 'guard must export TOKEN_CLASSES');
+  guard.TOKEN_CLASSES.forEach((tc) => {
+    const r = mod.refusalResponse('egress_blocked', { tool: 'brain_query', egress_class: 'room_content', token_class: tc });
+    assert.strictEqual(r.token_class, tc, 'every guard token class must pass through: ' + tc);
+  });
+  // A string outside the closed set is dropped (a caller string can never ride a refusal).
+  const bad = mod.refusalResponse('egress_blocked', { tool: 'brain_query', egress_class: 'room_content', token_class: 'CANARY7F3A2B dana@acme.io' });
+  assert.ok(!Object.prototype.hasOwnProperty.call(bad, 'token_class'), 'an unrecognized token_class must be dropped');
+  assert.ok(JSON.stringify(bad).indexOf('CANARY7F3A2B') === -1, 'the refusal must never echo a caller string');
+  // Only egress_blocked carries one.
+  const other = mod.refusalResponse('unreachable', { tool: 'brain_query', token_class: 'name' });
+  assert.ok(!Object.prototype.hasOwnProperty.call(other, 'token_class'), 'only egress_blocked carries token_class');
+});

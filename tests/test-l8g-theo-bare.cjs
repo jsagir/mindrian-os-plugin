@@ -27,7 +27,7 @@
  *   A5 scripts/session-start run offline under the isolated HOME prints no
  *      "Brain key" / "Tier 0" / "not configured" line.
  *   A6 dash guard: no em or en dash in the files this quick touches.
- *   A7 Part 8 stays: the two egress suites do not get worse.
+ *   A7 Part 8 stays: the two egress suites exit 0 (369.2-08: no tolerated red).
  *
  * No em-dashes (hyphens only).
  */
@@ -364,20 +364,19 @@ async function main() {
     assert.equal(hits.length, 0, hits.length + ' dash(es): ' + hits.join(', '));
   });
 
-  await record('A7 Part 8 stays: test-239 canary exits 0; test-257 egress invariant fails nowhere new', async () => {
+  await record('A7 Part 8 stays: test-239 canary and test-257 egress invariant both exit 0', async () => {
     const a = await run('node', [path.join(REPO, 'tests', 'test-239-query-egress-canary.cjs')], { cwd: REPO });
     assert.equal(a.code, 0, 'test-239-query-egress-canary exited ' + a.code + '\n' + a.out.slice(-600));
     const b = await run('node', [path.join(REPO, 'tests', 'test-257-brain-tool-egress-invariant.cjs')], { cwd: REPO });
-    // Baseline on HEAD before this quick (measured): exit 1, exactly one FAIL, Arm 2, because the
-    // shim's startup pre-warm (quick 260911-ddd) sends a content-free theo_health call that the
-    // suite's zero-socket assertion counts. That red is pre-existing and not this quick's to fix;
-    // this arm only forbids any failure beyond it.
-    const fails = b.out.split('\n').filter((l) => /^\s+FAIL /.test(l));
-    const unexpected = fails.filter((l) => !/Arm 2:/.test(l));
-    assert.equal(unexpected.length, 0, 'test-257 invariant has new failures:\n' + unexpected.join('\n'));
-    if (fails.length > 0) {
-      assert.ok(/theo_health/.test(b.out), 'the Arm 2 failure is no longer the known theo_health pre-warm capture:\n' + b.out.slice(-800));
-    }
+    // 369.2-08 (CODE-07, 2026-10-05): this arm used to tolerate exactly one known
+    // red, test-257 Arm 2, because the shim's startup pre-warm (quick 260911-ddd)
+    // sends a content-free theo_health call that the suite's zero-socket
+    // assertion counted. 369.2-08 root-caused it (the pre-warm lands inside the
+    // second canary call's window; the Part 8 check itself runs first and opens
+    // no socket) and fixed it in the suite, which now ignores only that empty
+    // theo_health shape. The suite exits 0, so the arm asks for exactly that:
+    // no tolerated failure remains.
+    assert.equal(b.code, 0, 'test-257-brain-tool-egress-invariant exited ' + b.code + '\n' + b.out.slice(-600));
   });
 
   server.close();

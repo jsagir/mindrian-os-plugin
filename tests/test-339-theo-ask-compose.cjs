@@ -441,12 +441,21 @@ test('Arm 3a: an egress_blocked sentinel passes through ask() unchanged, zero ne
     // than callTool()'s own belt sentinel. tool/egress_class are unchanged
     // (classify()'s content_set verdict is byte-identical either way);
     // fetchCalls stays 0 either way (both enforcement points are pre-wire).
-    assert.deepStrictEqual(result, {
-      error: 'egress_blocked',
-      tool: 'brain_ask',
-      egress_class: 'content_set',
-      reason: 'Brain free-form channels accept closed-vocabulary methodology questions only (framework names, problem types, stages, command slugs); rephrase without room or venture details.',
-    });
+    // 369.2-08 (CODE-07, 2026-10-05): the sentinel is the one Theo vocabulary
+    // {error, tool, egress_class, token_class, reason}. The old reason text
+    // ("Brain free-form channels accept closed-vocabulary methodology questions
+    // only ...") belonged to the shape-based gate and is gone; the reason now
+    // names the CLASS in plain language and never echoes the content. This arm
+    // pins the stable fields exactly and the reason by property, so a rewording
+    // of the sentence does not turn it red while an echo of the email would.
+    assert.equal(result.error, 'egress_blocked');
+    assert.equal(result.tool, 'brain_ask');
+    assert.equal(result.egress_class, 'content_set');
+    assert.equal(result.token_class, null);
+    assert.equal(typeof result.reason, 'string');
+    assert.ok(result.reason.length > 0, 'the sentinel must carry a plain-language reason');
+    assert.ok(result.reason.indexOf('jane@startup.com') === -1 && result.reason.indexOf('startup') === -1, 'the reason must never echo the blocked content');
+    assert.deepEqual(Object.keys(result).sort(), ['egress_class', 'error', 'reason', 'token_class', 'tool']);
     assert.equal(fetchCalls, 0);
   } finally {
     global.fetch = origFetch;

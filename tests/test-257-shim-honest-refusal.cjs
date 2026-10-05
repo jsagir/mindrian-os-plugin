@@ -18,22 +18,26 @@
  * Phase 254 precedent text `banana pancake recipe probe`
  * (freeform_unmatched -> ambiguous).
  *
- * Eight arms (per 257-06-PLAN.md Task 3):
+ * Nine arms (per 257-06-PLAN.md Task 3; Arms 4, 7, 8 moved and Arm 9 added by
+ * 369.2-08, CODE-07, 2026-10-05):
  *   Arm 1 - G1 on the wire: brain_ask + the canary -> typed egress_blocked
  *           refusal, zero bytes reach the capture server.
  *   Arm 2 - anti-regression on the measured BEFORE shape (the empty,
  *           refusal-less DirectiveEnvelope G1 used to render).
  *   Arm 3 - block is not outage (mode_rationale, BRAIN_UNREACHABLE absence).
- *   Arm 4 - G3 on the wire: an ambiguous verdict proceeds AND its
- *           egress_disclosure reaches the model via wrapDirective.
+ *   Arm 4 - (369.2-08) the formerly ambiguous text is a plain question: it
+ *           proceeds with no egress_disclosure (no shim verb carries a packet,
+ *           so ambiguity is unreachable here; see test-254 Arm 9).
  *   Arm 5 - no laundering: the canary never rides the response or the wire.
  *   Arm 6 - the other tools: brain_search and brain_write also convert the
  *           sentinel to a typed refusal.
- *   Arm 7 - the accepted G2 gap, PINNED: brain_query still reports
- *           'unreachable' on a block (D-05, out of scope this phase).
+ *   Arm 7 - (369.2-08) G2 closed: brain_query on a block reports
+ *           egress_blocked, never 'unreachable'.
  *   Arm 8 - honestRefusal() unit arms, in process, extracted from the real
  *           shim source (never a hand-duplicated copy of its logic) so a
  *           future edit to the real function is what this arm actually pins.
+ *   Arm 9 - (369.2-08) brain_query on a block answers egress_blocked with a
+ *           token_class.
  *
  * Tool names for Arms 6/7 are asserted present in the server's own live
  * `tools/list` response before being used, per 257-RESEARCH.md Pitfall 4
@@ -51,6 +55,11 @@ const path = require('node:path');
 
 const REPO = path.resolve(__dirname, '..');
 const SHIM = path.join(REPO, 'bin', 'mindrian-brain-mcp-client.cjs');
+// 369.2-08 (CODE-07, 2026-10-05): the real shim moved to scripts/ in 369.1 (D-10);
+// bin/ holds a 396-byte forwarding launcher. Arm 8 extracts honestRefusal() from
+// the real source, so it must read this path (it read the launcher before, a
+// pre-existing red: the marker was never found in a one-line require).
+const SHIM_SRC = path.join(REPO, 'scripts', 'mindrian-brain-mcp-client.cjs');
 
 const {
   startCaptureServer,
@@ -66,6 +75,18 @@ const { refusalResponse } = require(path.join(REPO, 'lib', 'core', 'refusal-mess
 const CANARY_TOKEN = 'CANARY7F3A2B';
 const CANARY = CANARY_TOKEN + ' dana@acme.io';
 const AMBIGUOUS_TEXT = 'banana pancake recipe probe';
+
+// 369.2-08 (CODE-07, 2026-10-05): the shim fires ONE content-free theo_health
+// pre-warm at startup (quick 260911-ddd, scripts/mindrian-brain-mcp-client.cjs
+// main(), lib/core/brain-prewarm.cjs: callTool('theo_health', {}), an empty
+// payload). It lands on the capture server a few ms after the handshake, which
+// races any zero-wire assertion. The blocked CALL under test opens no socket;
+// the pre-warm is the shim's own startup probe. wireCalls() drops exactly that
+// shape (name theo_health, empty arguments) and nothing else, so a blocked call
+// that opened a socket still shows.
+function wireCalls() {
+  return captured.filter((c) => !(c && c.name === 'theo_health' && c.arguments && Object.keys(c.arguments).length === 0));
+}
 
 const spawnedProcs = [];
 const spawnedPids = [];
@@ -200,7 +221,7 @@ function parseEnvelope(resp) {
 // (pure text slicing over the real file, not a parser).
 // ---------------------------------------------------------------------------
 function extractHonestRefusalFn() {
-  const src = fs.readFileSync(SHIM, 'utf8');
+  const src = fs.readFileSync(SHIM_SRC, 'utf8');
   const marker = 'function honestRefusal(result, toolName) {';
   const startIdx = src.indexOf(marker);
   assert.ok(startIdx !== -1, 'honestRefusal( definition not found in shim source -- Task 2 helper missing or renamed');
@@ -250,7 +271,7 @@ async function main() {
       assert.strictEqual(envelopeA.refusal && envelopeA.refusal.kind, 'egress_blocked');
       assert.strictEqual(envelopeA.refusal && envelopeA.refusal.status, 'BRAIN_EGRESS_BLOCKED');
       assert.strictEqual(envelopeA.directive && envelopeA.directive.guided && envelopeA.directive.guided.stage, 'tier_0_egress_blocked');
-      assert.strictEqual(captured.length, 0, 'a blocked call must open no socket at all; captured: ' + capturedA);
+      assert.strictEqual(wireCalls().length, 0, 'a blocked call must open no socket at all; captured: ' + capturedA);
     });
 
     await record('Arm 2: anti-regression -- the measured BEFORE (empty, refusal-less) shape cannot return', async () => {
@@ -273,38 +294,30 @@ async function main() {
     });
 
     // -------------------------------------------------------------------
-    // Group B (Arm 4): G3 on the wire -- an ambiguous verdict proceeds and
-    // its egress_disclosure survives wrapDirective for brain_ask.
+    // Group B (Arm 4), RETIRED AS WRITTEN by 369.2-08 (CODE-07, 2026-10-05).
+    // The Phase 257 arm drove an ambiguous brain_ask through the shim and
+    // asserted its egress_disclosure reached the model. A free-form Theo string
+    // is now allow or block, never ambiguous (theoVerdict), and NO shim verb
+    // carries a typed packet (the six shim tools are brain_ask, brain_query,
+    // brain_schema, brain_search, brain_stats, brain_write, all free-form or
+    // empty), so an ambiguous verdict is unreachable from this shim. The old
+    // text 'banana pancake recipe probe' is a plain question and now proceeds.
+    // The disclosure contract itself is pinned where ambiguity still exists:
+    // tests/test-254-ambiguous-disclosure.cjs Arm 9 (an unproven packet
+    // through callTool) and tests/test-257-envelope-passthrough.cjs (the
+    // wrapDirective carry). Arm 4 now pins the new truth on the wire: the
+    // formerly ambiguous text proceeds and carries NO egress_disclosure.
     // -------------------------------------------------------------------
     resetCaptured();
     resetToolScript();
-    const ambiguousBody =
-      'data: ' +
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        result: {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              directive: { guided: { questions: [], framework: null, stage: 'ambiguous_probe' } },
-              next_gate: { sub_shape: 'F.1', options: ['proceed'] },
-            }),
-          }],
-        },
-      }) +
-      '\n';
-    setToolScript([{ body: ambiguousBody }]);
     const groupB = await driveShim(url, [{ name: 'brain_ask', arguments: { question: AMBIGUOUS_TEXT } }]);
     const envelopeB = parseEnvelope(groupB.calls[0]);
-    const capturedBLen = captured.length;
-    resetToolScript();
+    const capturedBAsk = captured.filter((c) => c.name !== 'theo_health').length;
 
-    await record('Arm 4: G3 on the wire -- ambiguous proceeds and egress_disclosure reaches the model', async () => {
-      assert.ok(envelopeB.egress_disclosure, 'expected an own egress_disclosure key on the envelope: ' + JSON.stringify(envelopeB));
-      assert.strictEqual(envelopeB.egress_disclosure.verdict, 'ambiguous');
-      assert.strictEqual(envelopeB.egress_disclosure.disposition, 'proceeded');
-      assert.ok(capturedBLen > 0, 'an ambiguous verdict must proceed to the wire (Phase 254 D-02 Option A); captured.length was 0');
+    await record('Arm 4 (369.2 CODE-07): the formerly ambiguous text is a plain question - it proceeds with no egress_disclosure', async () => {
+      assert.ok(capturedBAsk > 0, 'a plain question must reach the wire; captured.length (without the pre-warm) was 0');
+      assert.ok(!Object.prototype.hasOwnProperty.call(envelopeB, 'egress_disclosure'), 'an allow verdict must carry no egress_disclosure: ' + JSON.stringify(envelopeB));
+      assert.ok(!Object.prototype.hasOwnProperty.call(envelopeB, 'refusal'), 'a plain question must not be refused: ' + JSON.stringify(envelopeB));
     });
 
     // -------------------------------------------------------------------
@@ -320,6 +333,9 @@ async function main() {
         { name: 'brain_search', arguments: { query: CANARY } },
         { name: 'brain_write', arguments: { cypher: CANARY } },
         { name: 'brain_query', arguments: { cypher: CANARY } },
+        // 369.2-08: a token-only canary (no email pattern) reaches room_content
+        // with a token_class, which the email canary above (content_set) does not.
+        { name: 'brain_query', arguments: { cypher: CANARY_TOKEN } },
       ],
       { toolsList: true }
     );
@@ -329,7 +345,8 @@ async function main() {
     const searchResult = groupC.calls[0] && groupC.calls[0].result;
     const writeResult = groupC.calls[1] && groupC.calls[1].result;
     const queryResult = groupC.calls[2] && groupC.calls[2].result;
-    const capturedCLen = captured.length;
+    const queryTokenResult = groupC.calls[3] && groupC.calls[3].result;
+    const capturedCLen = wireCalls().length;
 
     function contentJson(result) {
       const content = result && result.content && result.content[0];
@@ -352,17 +369,17 @@ async function main() {
       assert.strictEqual(capturedCLen, 0, 'a blocked brain_search/brain_write/brain_query call must open no socket at all');
     });
 
-    await record('Arm 7: the accepted G2 gap, PINNED -- brain_query still reports unreachable on a block (D-05)', async () => {
+    // 369.2-08 (CODE-07, 2026-10-05): Arm 7 MOVED. It pinned the accepted G2 gap
+    // (D-05): brain_query returned null on a Part 8 block BEFORE callTool ran, so
+    // the shim reported 'unreachable', a block read as an outage. Plan 01 closed
+    // it: query() now returns the egress_blocked sentinel and honestRefusal()
+    // maps it. The arm now pins the closed gap, and keeps the old kind out.
+    await record('Arm 7 (369.2 CODE-07): G2 closed -- brain_query on a block reports egress_blocked, never unreachable', async () => {
       assert.ok(listedNames.indexOf('brain_query') !== -1, 'brain_query must appear in the live tools/list result; got: ' + JSON.stringify(listedNames));
       const queryRefusal = contentJson(queryResult);
-      // This is the KNOWN, ACCEPTED conflation (D-05): query() returns null
-      // on a Part 8 block BEFORE callTool() ever runs
-      // (lib/core/brain-client.cjs:884), so this call site can never see the
-      // egress_blocked sentinel. If this arm ever starts failing because the
-      // kind became 'egress_blocked', that is a contract change to query()
-      // and it needs its own phase -- do not "fix" this arm to match.
-      assert.strictEqual(queryRefusal.kind, 'unreachable');
-      assert.notStrictEqual(queryRefusal.kind, 'egress_blocked');
+      assert.strictEqual(queryRefusal.kind, 'egress_blocked', 'a block must read egress_blocked, got: ' + JSON.stringify(queryRefusal));
+      assert.notStrictEqual(queryRefusal.kind, 'unreachable', 'a block must never read as an outage (G2)');
+      assert.strictEqual(queryRefusal.status, 'BRAIN_EGRESS_BLOCKED');
     });
 
     // -------------------------------------------------------------------
@@ -379,6 +396,12 @@ async function main() {
       assert.strictEqual(r2.kind, 'egress_blocked');
       assert.strictEqual(r2.status, 'BRAIN_EGRESS_BLOCKED');
 
+      // 369.2-08 (CODE-07): a room_content block names its class and token_class.
+      const r2b = honestRefusal({ error: 'egress_blocked', tool: 'brain_query', egress_class: 'room_content', token_class: 'identifier' }, 'brain_query');
+      assert.strictEqual(r2b.kind, 'egress_blocked');
+      assert.strictEqual(r2b.token_class, 'identifier');
+      assert.match(r2b.reason, /class: room_content/);
+
       const passthroughInput = { records: [{ a: 1 }] };
       const r3 = honestRefusal(passthroughInput, 'brain_query');
       assert.strictEqual(r3, passthroughInput, 'a success payload must pass through unchanged, by identity');
@@ -394,7 +417,7 @@ async function main() {
     // token_class, from the same Part 8 sentinel every other Theo verb uses.
     // -------------------------------------------------------------------
     await record('Arm 9 (369.2 CODE-07): brain_query on a block answers kind egress_blocked with a token_class', async () => {
-      const queryRefusal = contentJson(queryResult);
+      const queryRefusal = contentJson(queryTokenResult);
       assert.strictEqual(queryRefusal.kind, 'egress_blocked', 'brain_query block must read egress_blocked, got: ' + JSON.stringify(queryRefusal));
       assert.strictEqual(queryRefusal.status, 'BRAIN_EGRESS_BLOCKED');
       assert.ok(typeof queryRefusal.token_class === 'string' && queryRefusal.token_class.length > 0, 'the refusal must name a token_class, got: ' + JSON.stringify(queryRefusal));

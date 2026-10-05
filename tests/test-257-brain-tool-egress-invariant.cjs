@@ -37,10 +37,10 @@
  *   Arm 1 - derive the tool list from a real tools/list; reconcile
  *           EXPECTATION_MAP against it in both directions.
  *   Arm 2 - zero egress on a canary, per canary-carrying tool.
- *   Arm 3 - honest typed refusal, per tool (egress_blocked, or the pinned
- *           G2 gap on brain_query).
- *   Arm 4 - ambiguous proceeds and discloses (brain_ask, the first real
- *           consumer of Phase 254's COMP-02 egress_disclosure field).
+ *   Arm 3 - honest typed refusal, per tool (egress_blocked on every
+ *           canary-carrying tool; 369.2-08 closed the G2 gap on brain_query).
+ *   Arm 4 - (369.2-08) the formerly ambiguous text proceeds and a question
+ *           naming a venture is refused before the wire.
  *   Arm 5 - allow still works (the guard discriminates, it does not block
  *           unconditionally).
  *   Arm 6 - no laundering: the canary never rides any Arm 2 response body
@@ -80,6 +80,33 @@ const CANARY_TOKEN = 'CANARY7F3A2B';
 const CANARY = CANARY_TOKEN + ' dana@acme.io';
 const AMBIGUOUS_TEXT = 'banana pancake recipe probe';
 const ALLOW_TEXT = 'What framework should I use for an ill-defined problem?';
+// 369.2-08 (CODE-07, 2026-10-05): a venture-style proper name the content check
+// refuses (room_content, token_class name). It replaces the old Arm 4 fixture
+// 'banana pancake recipe probe', which was ambiguous before the one-verdict
+// model and is now a plain question that proceeds.
+const VENTURE_TEXT = 'What should Quillow Systems do about the Vellichor Ledger rollout?';
+
+// 369.2-08 (CODE-07, 2026-10-05): ROOT CAUSE of the old Arm 2 red ("a blocked
+// call must open no socket at all; captured: [{name: theo_health}]"). It was
+// never a probe ahead of the Part 8 check on the blocked path. callTool's belt
+// is the FIRST statement of callTool (brain-client.cjs, before _ensureSession),
+// and the blocked brain_query returns before any session or fetch. The captured
+// theo_health is the SHIM'S OWN STARTUP PRE-WARM (quick 260911-ddd:
+// scripts/mindrian-brain-mcp-client.cjs main() -> lib/core/brain-prewarm.cjs ->
+// callTool('theo_health', {}), content-free, empty arguments). The shim answers
+// `initialize` ~190 ms after spawn, the pre-warm opens its session and lands its
+// tools/call ~15 ms later, which falls inside the SECOND canary call's window
+// (brain_ask returned before it, brain_query was running when it arrived). A
+// scratch probe with wire timestamps showed: initialize 201 ms, brain_ask call
+// 206 -> return 216, theo_health on the wire at 216, brain_query 216 -> 217.
+// So the production code is correct and no check moves. The suite's
+// zero-socket assertion must not count the shim's own startup probe, so
+// wireCalls() drops exactly that shape (name theo_health, EMPTY arguments) and
+// nothing else: a blocked call that really opened a socket still shows, and a
+// theo_health that carried arguments would still show.
+function wireCalls(list) {
+  return list.filter((c) => !(c && c.name === 'theo_health' && c.arguments && Object.keys(c.arguments).length === 0));
+}
 
 // ---------------------------------------------------------------------------
 // EXPECTATION_MAP: the ONE place a Brain tool name is allowed to appear as a
@@ -103,7 +130,8 @@ const ALLOW_TEXT = 'What framework should I use for an ill-defined problem?';
 // ---------------------------------------------------------------------------
 const EXPECTATION_MAP = {
   brain_ask: { canaryCarrying: true, freeTextField: 'question', expectedKind: 'egress_blocked' },
-  brain_query: { canaryCarrying: true, freeTextField: 'cypher', expectedKind: 'unreachable_known_gap' },
+  // 369.2-08 (CODE-07, 2026-10-05): G2 closed. This was 'unreachable_known_gap'.
+  brain_query: { canaryCarrying: true, freeTextField: 'cypher', expectedKind: 'egress_blocked' },
   brain_schema: { canaryCarrying: false, freeTextField: null, expectedKind: null },
   brain_search: { canaryCarrying: true, freeTextField: 'query', expectedKind: 'egress_blocked' },
   brain_stats: { canaryCarrying: false, freeTextField: null, expectedKind: null },
@@ -290,7 +318,7 @@ async function main() {
       const envelope = parseEnvelope(resp);
       canaryResults[toolName] = {
         envelope: envelope,
-        capturedCount: captured.length,
+        capturedCount: wireCalls(captured).length,
         capturedSnapshot: JSON.stringify(captured),
         wire: JSON.stringify(envelope),
       };
@@ -337,23 +365,14 @@ async function main() {
               'brain_ask: expected directive.guided.stage === tier_0_egress_blocked'
             );
           }
-        } else if (cfg.expectedKind === 'unreachable_known_gap') {
-          // brain_query ONLY. This is G2, a DELIBERATE PIN, not an
-          // oversight: query() returns null at lib/core/brain-client.cjs:884
-          // on a Part 8 block, BEFORE callTool() ever runs, so this call
-          // site can never see the richer {error:'egress_blocked',...}
-          // sentinel. The null contract itself is pinned by roughly 82
-          // degradation tests keyed on it (lib/core/brain-client.cjs:640-643
-          // and :577). D-05 (257-CONTEXT.md) accepted this conflation as
-          // out of scope for Phase 257, and
-          // docs/257-NOTE-part8-enforcement-locus-rulings.md section 3
-          // records the ruling. If this assertion ever needs to change to
-          // 'egress_blocked', that is a contract change to query() and it
-          // requires its own phase -- do not "fix" this arm to match a
-          // drifted implementation; fix the implementation back, or open a
-          // new phase.
-          assert.strictEqual(getKind(toolName, envelope), 'unreachable', 'brain_query: expected the pinned G2 gap, kind === unreachable');
-          assert.notStrictEqual(getKind(toolName, envelope), 'egress_blocked', 'brain_query: kind must NOT be egress_blocked (that would mean the G2 contract changed silently)');
+          // 369.2-08 (CODE-07, 2026-10-05): brain_query is no longer the pinned
+          // G2 gap ('unreachable' on a block). query() returns the
+          // egress_blocked sentinel and the shim maps it, so every
+          // canary-carrying tool answers egress_blocked and brain_query must
+          // never read as an outage.
+          if (toolName === 'brain_query') {
+            assert.notStrictEqual(getKind(toolName, envelope), 'unreachable', 'brain_query: a block must never read as an outage (G2 closed)');
+          }
         } else {
           assert.fail(toolName + ': EXPECTATION_MAP entry has no recognized expectedKind');
         }
@@ -361,45 +380,49 @@ async function main() {
     });
 
     // -----------------------------------------------------------------
-    // Arm 4: AMBIGUOUS PROCEEDS AND DISCLOSES (brain_ask).
+    // Arm 4 (369.2-08, CODE-07, 2026-10-05): MOVED. Phase 254 pinned "ambiguous
+    // proceeds and discloses"; 354-06 moved it to "an ambiguous free-form
+    // brain_ask question is refused before the wire". Both rested on a free-form
+    // string being able to come back ambiguous. Under the one verdict
+    // (theoVerdict) it cannot: a free-form Theo string is allow or block. The
+    // old fixture 'banana pancake recipe probe' is a plain question and now
+    // proceeds; the question that is refused before the wire is the one that
+    // names room content. Arm 4 pins both halves on the real shim wire, and the
+    // disclosure contract lives where ambiguity still exists (unproven packets:
+    // tests/test-254-ambiguous-disclosure.cjs Arm 9).
     // -----------------------------------------------------------------
-    const ambiguousVerdict = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
-    let allowCapturedCount = 0;
-    let allowWire = '';
-    // 354-06 (D-354-EGR) SUPERSEDES this arm's original Phase 254 D-02
-    // Option A pin FOR THE brain_ask/brain_search CHANNELS SPECIFICALLY.
-    // The plan's own objective states the impact directly: "a model-issued
-    // brain_ask or brain_search containing any token outside the closed
-    // vocabulary... is refused with the existing honest egress_blocked
-    // envelope... instead of being forwarded with a disclosure." callTool's
-    // general belt (the other 14 wrappers) keeps disclose-and-proceed,
-    // unchanged -- only ask()/search()/smartSearch()'s own pre-callTool
-    // _typedFreeformGate (lib/core/brain-client.cjs) refuses an ambiguous
-    // free-form question outright, the same as a block verdict, because
-    // for these two natural-language channels "ambiguous" and "block" are
-    // both "not proven closed-vocabulary" -- there is no safe partial
-    // disclosure of an unproven free-form question the way there is for a
-    // typed packet field. Re-verify the arm's own new claim with the
-    // suite's live capture server rather than assuming it.
-    await record('Arm 4 (354-06): an ambiguous free-form brain_ask question is refused before the wire, not disclosed-and-proceeded', async () => {
-      assert.strictEqual(ambiguousVerdict.verdict, 'ambiguous', 'fixture text no longer classifies ambiguous -- the arm would silently become an allow arm; verdict was: ' + JSON.stringify(ambiguousVerdict));
+    await record('Arm 4 (369.2 CODE-07): the formerly ambiguous text proceeds; a question naming a venture is refused before the wire', async () => {
+      const formerlyAmbiguous = guard.classify({ question: AMBIGUOUS_TEXT }, { toolName: 'brain_ask' });
+      assert.strictEqual(formerlyAmbiguous.verdict, 'allow', 'the old ambiguous fixture must now classify allow, got: ' + JSON.stringify(formerlyAmbiguous));
+      const venture = guard.classify({ question: VENTURE_TEXT }, { toolName: 'brain_ask' });
+      assert.strictEqual(venture.verdict, 'block', 'the venture fixture must classify block, got: ' + JSON.stringify(venture));
+      assert.strictEqual(venture.class, 'room_content');
 
       resetCaptured();
       resetToolScript();
-      const resp = await shim.request('tools/call', { name: 'brain_ask', arguments: { question: AMBIGUOUS_TEXT } });
-      const envelope = parseEnvelope(resp);
-      const capturedLen = captured.length;
-      resetToolScript();
+      const okResp = await shim.request('tools/call', { name: 'brain_ask', arguments: { question: AMBIGUOUS_TEXT } });
+      const okEnvelope = parseEnvelope(okResp);
+      const okWire = wireCalls(captured).length;
+      assert.ok(okWire > 0, 'a plain question must reach the wire; captured (without the pre-warm) was 0');
+      assert.ok(!Object.prototype.hasOwnProperty.call(okEnvelope, 'refusal'), 'a plain question must not be refused: ' + JSON.stringify(okEnvelope));
+      assert.ok(!Object.prototype.hasOwnProperty.call(okEnvelope, 'egress_disclosure'), 'an allow carries no egress_disclosure');
 
-      assert.strictEqual(capturedLen, 0, '354-06: an ambiguous free-form brain_ask question must open no socket at all (D-354-EGR); captured.length was ' + capturedLen);
-      assert.strictEqual(getKind('brain_ask', envelope), 'egress_blocked', '354-06: expected kind egress_blocked, got envelope: ' + JSON.stringify(envelope));
-      assert.strictEqual(getStatus('brain_ask', envelope), 'BRAIN_EGRESS_BLOCKED', '354-06: expected status BRAIN_EGRESS_BLOCKED');
+      resetCaptured();
+      const blockResp = await shim.request('tools/call', { name: 'brain_ask', arguments: { question: VENTURE_TEXT } });
+      const blockEnvelope = parseEnvelope(blockResp);
+      const blockWire = wireCalls(captured).length;
+      assert.strictEqual(blockWire, 0, 'a question naming a venture must open no socket at all; captured: ' + JSON.stringify(captured));
+      assert.strictEqual(getKind('brain_ask', blockEnvelope), 'egress_blocked', 'expected kind egress_blocked, got envelope: ' + JSON.stringify(blockEnvelope));
+      assert.strictEqual(getStatus('brain_ask', blockEnvelope), 'BRAIN_EGRESS_BLOCKED', 'expected status BRAIN_EGRESS_BLOCKED');
+      assert.ok(JSON.stringify(blockEnvelope).indexOf('Quillow') === -1 && JSON.stringify(blockEnvelope).indexOf('Vellichor') === -1, 'the refusal must never echo the venture name');
     });
 
     // -----------------------------------------------------------------
     // Arm 5: ALLOW STILL WORKS. Without this arm the whole suite would
     // pass if the guard started blocking unconditionally.
     // -----------------------------------------------------------------
+    let allowCapturedCount = 0;
+    let allowWire = '';
     const allowVerdict = guard.classify({ question: ALLOW_TEXT }, { toolName: 'brain_ask' });
     await record('Arm 5: allow still works -- the guard discriminates, it does not block unconditionally', async () => {
       assert.strictEqual(allowVerdict.verdict, 'allow', 'fixture text no longer classifies allow -- verdict was: ' + JSON.stringify(allowVerdict));
@@ -408,7 +431,7 @@ async function main() {
       resetToolScript();
       const resp = await shim.request('tools/call', { name: 'brain_ask', arguments: { question: ALLOW_TEXT } });
       const envelope = parseEnvelope(resp);
-      allowCapturedCount = captured.length;
+      allowCapturedCount = wireCalls(captured).length;
       allowWire = JSON.stringify(envelope);
 
       assert.ok(allowCapturedCount > 0, 'an allow verdict must proceed to the wire; captured.length was 0');
