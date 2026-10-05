@@ -1,8 +1,10 @@
 // Plan 01: the contract between the pane shell (plan 07) and the four tab bodies (plans 11 to 14).
 import type { Elements, EngineInterface, RenderElement } from 'claude-code'
 
-// Plan 02 narrows labelId to the CopyId union once the copy deck exists.
-export type KeySpec = { key: string; labelId: string }
+import type { CopyId } from '../copy/deck'
+
+// Plan 02 narrowed labelId from a string to the CopyId union (the copy deck now exists).
+export type KeySpec = { key: string; labelId: CopyId }
 
 export type ExplainId = 'X01' | 'X02' | 'X03' | 'X04'
 
