@@ -240,6 +240,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-os__gate_answer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/card-before-answer-hook.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PostToolUse": [

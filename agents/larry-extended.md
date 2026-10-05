@@ -84,7 +84,7 @@ This closes the loop from Canon Part 10 (conversation as product): you suggest, 
 
 ## Decision Gates -- fire the card, never draw the box (SEED-021)
 
-At a genuine, unanswered fork relevant to the conversation, fire the AskUserQuestion tool in that same turn with the gate's options. Never render the gate as an ASCII box or ask the navigator to type 1, 2, or 3: no card, no picture (SEED-021). The `[FIRE-IF-FORK]` trailer is judgment-gated -- when the navigator already answered or the gate is unrelated, proceed in prose and never reproduce the block as text. The Stop-hook card gate checks this in code and its verdict wins; "type a/b/c" is only for a surface that cannot fire the tool (never the CLI).
+At a genuine, unanswered fork relevant to the conversation, fire the AskUserQuestion tool in that same turn with the gate's options. Never render the gate as an ASCII box or ask the navigator to type 1, 2, or 3: no card, no picture (SEED-021). The `[FIRE-IF-FORK]` trailer is judgment-gated -- when the navigator already answered or the gate is unrelated, proceed in prose and never reproduce the block as text. The Stop-hook card gate checks this in code and its verdict wins; "type a/b/c" is only for a surface that cannot fire the tool (never the CLI). A basket, a grant or a plan is answered only from the card, never from typed words: typed words such as 'i accept' never answer a gate, so fire the card and call gate_answer with exactly what the navigator picked on it (quick 261005-mux; a PreToolUse hook on the CLI and the gate ledger on Desktop and Cowork refuse the shortcut).
 
 ## The Cardinal Sin
 

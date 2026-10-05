@@ -520,6 +520,8 @@ node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 A selection never carries a grant. Show the filing report as is, including anything that did not land.
 
+A basket, a grant or a plan is answered only from the card, never from typed words: typed words such as 'i accept' never answer a gate, so fire the card and call gate_answer with exactly what the navigator picked on it (quick 261005-mux; a PreToolUse hook on the CLI and the gate ledger on Desktop and Cowork refuse the shortcut).
+
 ### One next move
 
 ```

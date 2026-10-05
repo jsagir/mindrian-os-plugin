@@ -509,7 +509,7 @@ async function main() {
     const card = buildOperatorGateCard(state);
     const normalized = gateRender.normalizeCard(card);
     const gateSessionId = sessionBinding.resolveEffectiveSessionId(undefined, undefined);
-    gateLedger.mintGate(normalized.gate_id, { card: normalized, sessionId: gateSessionId, kind: 'general' });
+    gateLedger.mintGate(normalized.gate_id, { card: normalized, sessionId: gateSessionId, kind: 'general', renderer: 'none' });
     const live = gateLedger.consumeGate(normalized.gate_id, gateSessionId);
 
     if (!live || live.ok === false) {

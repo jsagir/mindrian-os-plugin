@@ -29,6 +29,7 @@
  *   S1  research grant gate, elicitation dialog cancelled -> gate_answer card_pending, ledger entry open
  *   S1b the same through gate_render
  *   S2  elicitation accepted -> consumed inline; a later relayed gate_answer is unknown_gate and writes nothing (pins today)
+ *   S4  an elicitation entry whose dialog was accepted but not consumed inline (chain_run) passes exactly that choice
  *   S3  every gateLedger.mintGate( call site names a renderer
  *   D1  the doctrine sentence in larry-extended, research.md, larry-personality; the research mirror is fresh
  *   D2  dash guard over touched files; CHANGELOG entry present
@@ -334,6 +335,29 @@ async function serverArms() {
     const again = await c.answer(req.gate.gate_id, ['approve_standing'], 'approve');
     if (!(again.ok === false && again.reason === 'unknown_gate')) return 'a later answer was not refused unknown_gate: ' + JSON.stringify(again).slice(0, 300);
     if (grants.readGrants(room.roomDir, {}).grants.length !== 1) return 'the later answer changed the grant count';
+    return true;
+  });
+
+  await arm('S4 an elicitation entry whose dialog was ACCEPTED but not consumed inline (chain_run) lets exactly that choice through', async function () {
+    const gateRender = require(path.join(ROOT, 'lib', 'mcp', 'gate-render.cjs'));
+    const room = buildRoom363({ role: 'founder' });
+    rooms.push(room);
+    const c = client(room, 'sess-mux-s4', { calls: 0, next: { action: 'cancel' } });
+    const opts = [{ id: 'approve', label: 'Approve' }, { id: 'reject', label: 'Reject' }, { id: 'defer', label: 'Defer' }];
+    function mintEntry(id, accepted) {
+      const card = gateRender.normalizeCard({ gate_id: id, header: 'S4 probe', options: opts });
+      gateLedger.mintGate(id, { card: card, sessionId: 'sess-mux-s4', kind: 'general', renderer: 'elicitation', elicited_answer: accepted });
+    }
+    mintEntry('g-mux-s4-dismissed', null);
+    mintEntry('g-mux-s4-other', ['reject']);
+    mintEntry('g-mux-s4-same', ['approve']);
+    const dismissed = await c.answer('g-mux-s4-dismissed', ['approve'], 'approve');
+    if (!(dismissed.ok === false && dismissed.reason === 'card_pending')) return 'dismissed: ' + JSON.stringify(dismissed).slice(0, 200);
+    const other = await c.answer('g-mux-s4-other', ['approve'], 'approve');
+    if (!(other.ok === false && other.reason === 'card_pending')) return 'a relay naming another choice than the accepted one: ' + JSON.stringify(other).slice(0, 200);
+    const same = await c.answer('g-mux-s4-same', ['approve'], 'approve');
+    if (same.ok !== true) return 'the accepted choice was refused: ' + JSON.stringify(same).slice(0, 200);
+    if (!gateLedger._internal._ledger.has('g-mux-s4-dismissed') || !gateLedger._internal._ledger.has('g-mux-s4-other')) return 'a refusal consumed an entry';
     return true;
   });
 
