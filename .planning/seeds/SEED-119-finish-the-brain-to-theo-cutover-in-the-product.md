@@ -79,3 +79,24 @@ is the first thing they read, before Larry says a word.
    was the PWS Brain (`pws-brain-mcp.onrender.com`). The Phase 339 cutover (2026-09-03) pointed the
    same shim, the same verbs and the same names at Theo so that nothing on the wire or in the
    tests broke; the rename was never given its own phase. SEED-119 and Phase 369.5 are that phase.
+
+## Correction and ruling 2026-10-05 (navigator, verbatim: "user doens need a key to interact with theo so why even mention it ?")
+
+Measured the same minute, with no Authorization header at all, from this machine:
+`POST https://theo-mcp.onrender.com/mcp tools/list` answered HTTP 200 with the full tool list, and
+`tools/call brain_stats` answered with the graph (28,139 nodes, 53,324 relationships). **Theo needs
+no key.** Ruling 1 above is therefore corrected: there is no token to provision at install either.
+The only key gate on the Theo path is the plugin's own: `lib/core/brain-client.cjs` resolves
+`MINDRIAN_BRAIN_KEY` (env, `~/.mindrian.env`, CWD `.env`), sends it as a Bearer header Theo does
+not need, and when it is absent returns "Tier 0, no Brain" or refuses with `no_key`, so a user
+without that file is refused methodology by the plugin while Theo would have answered. That is a
+self-inflicted outage for every fresh install.
+
+The ruling: **the key concept is removed from the Theo path entirely.** No env var, no
+`~/.mindrian.env` slot for it, no Bearer header, no Tier 0 branch, no `no_key` refusal, no
+"Brain key unavailable" in any script, no key sentence in any doc, prompt or doctor line.
+The client calls Theo bare. The install and update entitlement of decisions 1 and 5 is a
+different matter (the right to install MindrianOS) and never names Theo. Tests that pin the key
+gate (the brain egress suites, test-148/149/150, test-257's key branches, the Tier 0 legs) move
+with it. This is the FIRST plan of Phase 369.5, and ships as a quick before it if 369.5 is more
+than a few days away, because it is the cheapest fix with the largest reach in the program.
