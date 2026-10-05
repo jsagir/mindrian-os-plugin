@@ -158,6 +158,22 @@ arm('C7 a framework that a registry command lists is not assisted and names that
   sameSet(r.commands, owners, 'the mapping commands');
 });
 
+arm('C8 a command whose file name differs from its name: key (validate-proposition in value-proposition.md) is still runnable on CLI', () => {
+  const file = path.join(ROOT, 'commands', 'value-proposition.md');
+  check(fs.existsSync(file) && !fs.existsSync(path.join(ROOT, 'commands', 'validate-proposition.md')), 'precondition: the intentional file-name mismatch is present');
+  check(/^name:\s*validate-proposition\s*$/m.test(fs.readFileSync(file, 'utf8')), 'precondition: the file declares name: validate-proposition');
+  const { capabilityFor } = loadCap();
+  const r = capabilityFor('validate-proposition', { kind: 'command' });
+  eq(r.cli, 'runnable', 'cli');
+  eq(r.mcp, expectedMcp('validate-proposition'), 'mcp');
+});
+
+arm('C9 every non-internal registry command resolves to a command file by file name or name: key, so none is marked instruction-only for a missing file', () => {
+  const { capabilityFor } = loadCap();
+  const bad = registry.filter((c) => c.surface === 'navigator').map((c) => capabilityFor(bare(c.command), { kind: 'command' })).filter((r) => r.cli !== 'runnable');
+  eq(bad.map((r) => r.name), [], 'navigator-surface commands not runnable on CLI');
+});
+
 // ---- the three command sources -----------------------------------------------------------------------------
 arm('S1 counts: contract and table equal the R6 fixture; ledger equals the row read independently (MOVING)', () => {
   if (!fs.existsSync(R6)) throw new Skip('the R6 fixture is not in this checkout (.planning/ is not shipped)');
