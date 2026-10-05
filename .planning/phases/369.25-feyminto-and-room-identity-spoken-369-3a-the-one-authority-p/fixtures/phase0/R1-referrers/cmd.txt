@@ -1,0 +1,1 @@
+cd /home/jsagi/dev/MindrianOS-Plugin && node .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R1-referrers/measure.cjs .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R1-referrers

@@ -1,0 +1,24 @@
+# callers of runDeriveBackfill outside tests (grep -rn "runDeriveBackfill" lib scripts commands skills hooks agents --include=* excluding test files)
+lib/workflow/reach-hedge-ranker.cjs:562:// precedent on runDeriveBackfill. It exists because a caller that declares itself a
+lib/core/graph-backfill.cjs:10: * runDeriveBackfill({roomDir, approvedBy, deriveFn, selfCritiqueFn}) ->
+lib/core/graph-backfill.cjs:45: *   score-based default is ASYNC (scoreMeasured is async), so runDeriveBackfill
+lib/core/graph-backfill.cjs:380:    // structural index itself. See the runDeriveBackfill jsdoc for why this is a
+lib/core/graph-backfill.cjs:457:    // structural index itself. See the runDeriveBackfill jsdoc.
+lib/core/graph-backfill.cjs:514:// useAsync comment in runDeriveBackfill.
+lib/core/graph-backfill.cjs:532: * runDeriveBackfill({roomDir, approvedBy, approveFolders, deriveFn, selfCritiqueFn, probeOpts, skipRebuild})
+lib/core/graph-backfill.cjs:562:function runDeriveBackfill(args) {
+lib/core/graph-backfill.cjs:607:module.exports = { runDeriveBackfill, _localCueDeriveFn };
+scripts/graph-heal-pipeline.cjs:145: *   approveFolders   forwarded VERBATIM to runDeriveBackfill. This is how a test
+scripts/graph-heal-pipeline.cjs:257:  // The existing runDeriveBackfill on its already-LOCAL score-based producer
+scripts/graph-heal-pipeline.cjs:279:      const { runDeriveBackfill } = require('../lib/core/graph-backfill.cjs');
+scripts/graph-heal-pipeline.cjs:285:      const r = await runDeriveBackfill(args);
+scripts/hedge-refit-pipeline.cjs:132:    // runDeriveBackfill's opts.
+commands/graph.md:172:const { runDeriveBackfill } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/graph-backfill.cjs');
+commands/graph.md:179:  const res = await runDeriveBackfill({
+commands/graph.md:189:As of Phase 224 (D-03 amended) the DEFAULT deriver is the SCORE-BASED producer (`lib/core/graph-derive-classifier.cjs` consuming the LOCAL `rs-differential-scorer` `scoreMeasured
+skills/graph/SKILL.md:170:const { runDeriveBackfill } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs)
+skills/graph/SKILL.md:177:  const res = await runDeriveBackfill({
+skills/graph/SKILL.md:187:As of Phase 224 (D-03 amended) the DEFAULT deriver is the SCORE-BASED producer (`lib/core/graph-derive-classifier.cjs` consuming the LOCAL `rs-differential-scorer` `scoreMeas
+
+# hooks.json commands that mention backfill / graph-heal-pipeline (grep -n -i "backfill\|heal" hooks/hooks.json)
+(none)

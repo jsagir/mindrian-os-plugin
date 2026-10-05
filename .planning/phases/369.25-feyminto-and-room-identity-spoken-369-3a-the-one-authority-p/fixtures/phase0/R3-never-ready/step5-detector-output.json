@@ -1,0 +1,62 @@
+{
+  "detector": "detectUnsentineledArtifactFolder(roomDir)",
+  "count": 14,
+  "folders": [
+    {
+      "folder": "assets",
+      "artifactCount": 1
+    },
+    {
+      "folder": "business-model",
+      "artifactCount": 3
+    },
+    {
+      "folder": "competitive-analysis",
+      "artifactCount": 3
+    },
+    {
+      "folder": "financial-model",
+      "artifactCount": 3
+    },
+    {
+      "folder": "funding",
+      "artifactCount": 4
+    },
+    {
+      "folder": "legal-ip",
+      "artifactCount": 3
+    },
+    {
+      "folder": "market-analysis",
+      "artifactCount": 3
+    },
+    {
+      "folder": "opportunity-bank",
+      "artifactCount": 4
+    },
+    {
+      "folder": "problem-definition",
+      "artifactCount": 3
+    },
+    {
+      "folder": "references",
+      "artifactCount": 3
+    },
+    {
+      "folder": "solution-design",
+      "artifactCount": 3
+    },
+    {
+      "folder": "strategy",
+      "artifactCount": 3
+    },
+    {
+      "folder": "team",
+      "artifactCount": 1
+    },
+    {
+      "folder": "team-execution",
+      "artifactCount": 3
+    }
+  ]
+}

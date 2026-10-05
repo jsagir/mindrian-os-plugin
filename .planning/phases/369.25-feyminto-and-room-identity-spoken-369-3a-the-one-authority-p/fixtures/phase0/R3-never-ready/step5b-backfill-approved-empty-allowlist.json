@@ -1,0 +1,92 @@
+{
+  "healed": [
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/assets",
+      "slug": "assets",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/business-model",
+      "slug": "business-model",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/competitive-analysis",
+      "slug": "competitive-analysis",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/financial-model",
+      "slug": "financial-model",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/funding",
+      "slug": "funding",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/legal-ip",
+      "slug": "legal-ip",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/market-analysis",
+      "slug": "market-analysis",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/opportunity-bank",
+      "slug": "opportunity-bank",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/problem-definition",
+      "slug": "problem-definition",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/references",
+      "slug": "references",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/solution-design",
+      "slug": "solution-design",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/strategy",
+      "slug": "strategy",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/team",
+      "slug": "team",
+      "ok": false,
+      "reason": "no_approval"
+    },
+    {
+      "folder": "<tmp>/rooms/never-ready-fixture/team-execution",
+      "slug": "team-execution",
+      "ok": false,
+      "reason": "no_approval"
+    }
+  ],
+  "typedEdgesBefore": 0,
+  "typedEdgesAfter": 0,
+  "rooms": [],
+  "skipped": "encoder_unavailable"
+}

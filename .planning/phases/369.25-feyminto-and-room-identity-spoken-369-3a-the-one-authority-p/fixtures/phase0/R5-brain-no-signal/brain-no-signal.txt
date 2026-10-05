@@ -1,0 +1,43 @@
+R5 classification of the nine "(no signal)" sections in the live egain problem-definition/BRAIN.md
+Read-only: cat, grep and ls (measure.sh). The directory listing with mtimes was identical before and after (listing-diff.txt is empty).
+Raw file text: brain-raw.txt. Code read: lib/core/brain-derivation.cjs (assembleBrainMd, renderRecords, deriveSection), lib/core/brain-derivation-prompts.cjs, lib/core/brain-client.cjs.
+
+WHAT THE FILE ITSELF SHOWS (measured)
+  cost_tokens 420, so 420 / 60 = 7 calls returned (deriveSection adds 60 per call that returned without throwing).
+  brain_query_count 0, sections 9, sections whose body is the plain line "(no signal)": 9.
+  brain_graph_version 0 (the default when brain_schema returned no numeric brain_graph_version).
+  No section carries "(no signal -- skipped)" or "(no signal -- brain-error)": assembleBrainMd (brain-derivation.cjs:314-324) prints those two
+  suffixed forms for a skipped section and for a thrown error, so every one of the nine entries was exactly { empty: true }.
+  brain_query_count counts entries that are neither skipped nor empty (brain-derivation.cjs:518-520), so 0 says "no entry had text", not "no query was sent".
+
+CLASS PER SECTION
+  Pattern Matches                        mode search  asked (7 calls returned)   class: needs evidence (one of: genuinely empty / shape mismatch / egress blocked / transport null)
+  Cross-Domain Analogies                 mode search  asked                      class: needs evidence (same four)
+  Wicked Indicators                      mode query   asked                      class: needs evidence (same four plus tier denied; brain_query is the admin-gated verb, SECTION_BUILDERS comment :66-74)
+  Unfilled Opportunity Matches           mode query   asked                      class: needs evidence (same five)
+  Framework Chain Predictions            mode search  asked                      class: needs evidence (same four)
+  Assessment Thinking Chain Position     mode query   asked                      class: needs evidence (same five)
+  ProblemType Classification             mode query   asked                      class: needs evidence (same five)
+  Flagged Contradictions (cross-room)    builder returned null (not asked): buildFlaggedContradictionsXroomQuery is a stub that returns null by contract (brain-derivation-prompts.cjs:287-291)
+  HSI Signals                            builder returned null (not asked): buildHsiSignalsQuery returns null unless ctx.reverse_salient_present (brain-derivation-prompts.cjs:294-296)
+
+HOW THE TWO NOT-ASKED ROWS ARE DECIDED
+  Exactly two builders can return null (grep "return null" in brain-derivation-prompts.cjs gives :291 and :296). 9 sections - 2 null builders = 7 calls = 420 tokens.
+  A section left out by only_sections would print "(no signal -- skipped)", which this file never does, so the 2 uncounted sections are the 2 null builders, not skips.
+  So: 2 not asked (builder returned null), 7 asked and answered with something renderRecords turned into { empty: true }.
+
+WHY THE SEVEN ASKED ROWS CANNOT BE SPLIT FROM THE FILE
+  renderRecords (brain-derivation.cjs:332-352) returns { empty: true } for: a null result (transport failure: callTool returns null, no throw), an object with
+  neither a records nor a matches array (this covers the egress_blocked sentinel from brain-client.cjs:877-885, a tier_denied object, and any response shape
+  other than records / matches, for example a brain_search answer keyed another way), and an empty records or matches array (genuinely empty).
+  All four print the same "(no signal)" and each adds the same 60 tokens, so the file carries no bit that tells them apart.
+  Code-read lean, NOT a measurement: the three search rows pass through the Part 8 typed-freeform gate (brain-client.cjs search(), _typedFreeformGate), so an
+  egress_blocked sentinel is possible there; the four query rows go through brain_query, which the code comment says fails or returns empty for a non-admin user.
+
+THE RUN THAT DECIDES IT (named, not run here; plan 17 RED test)
+  Call deriveSection for one nest with an injected callTool that logs the response class of each of the seven calls (records array, matches array,
+  egress_blocked sentinel, tier_denied object, null, other object) and the reason each call was or was not made. The injected callTool never touches the
+  network, so it is Part 8 safe, and the log becomes the "queries sent / rows returned / refusals" provenance block of TFACE-02.
+
+ALSO RECORDED
+  session-start prints this face as "Brain derivation: fresh" (triple-context-formatter.cjs:274-285, RESEARCH Pitfall 7, carried over and not re-measured here) although no answer was read from it.

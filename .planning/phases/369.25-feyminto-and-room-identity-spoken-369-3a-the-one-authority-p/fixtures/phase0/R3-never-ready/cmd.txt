@@ -1,0 +1,2 @@
+cd /home/jsagi/dev/MindrianOS-Plugin && node .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R3-never-ready/measure.cjs .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R3-never-ready
+cd /home/jsagi/dev/MindrianOS-Plugin && (see lead1-callers.txt header for the grep commands)

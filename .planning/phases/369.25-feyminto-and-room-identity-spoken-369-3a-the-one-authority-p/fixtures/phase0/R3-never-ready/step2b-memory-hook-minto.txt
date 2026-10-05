@@ -1,0 +1,9 @@
+# step2b-memory-hook-minto
+# command: node <repo>/scripts/memory-artifact-graph-hook.cjs
+# cwd: <tmp>/rooms/never-ready-fixture
+# exit: 0 signal: none
+## stdout
+
+## stderr
+[memory-artifact-graph-hook] 16 memory node(s) upserted, 0 unchanged, 0 decision node(s), 1 cortex edge(s)
+

@@ -1,0 +1,8 @@
+# step4b-derive-drain
+# command: node <repo>/scripts/gsd-graph-derive-drain.cjs
+# cwd: <tmp>/rooms/never-ready-fixture
+# exit: 0 signal: none
+## stdout
+
+## stderr
+

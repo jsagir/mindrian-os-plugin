@@ -1,0 +1,66 @@
+# R5 raw read of /home/jsagi/MindrianRooms/egain-des-liquid-conductor/problem-definition/BRAIN.md (cat, no writes)
+---
+section: "problem-definition"
+brain_generated_at: "2026-10-05T20:49:38.469Z"
+brain_graph_version: 0
+governing_thought_hash: "sha256:b0641ee620a09fbb6b9bbdd1f024e9b39a637d59451f71c851f7f98d9b685995"
+staleness: "fresh"
+author: "brain"
+stale_reason: null
+prompt_version: 1
+cost_tokens: 420
+brain_query_count: 0
+---
+
+## Pattern Matches
+(no signal)
+
+## Cross-Domain Analogies
+(no signal)
+
+## Wicked Indicators
+(no signal)
+
+## Unfilled Opportunity Matches
+(no signal)
+
+## Framework Chain Predictions
+(no signal)
+
+## Assessment Thinking Chain Position
+(no signal)
+
+## ProblemType Classification
+(no signal)
+
+## Flagged Contradictions (cross-room)
+(no signal)
+
+## HSI Signals
+(no signal)
+
+
+# sections and their body
+14:## Pattern Matches
+15:(no signal)
+17:## Cross-Domain Analogies
+18:(no signal)
+20:## Wicked Indicators
+21:(no signal)
+23:## Unfilled Opportunity Matches
+24:(no signal)
+26:## Framework Chain Predictions
+27:(no signal)
+29:## Assessment Thinking Chain Position
+30:(no signal)
+32:## ProblemType Classification
+33:(no signal)
+35:## Flagged Contradictions (cross-room)
+36:(no signal)
+38:## HSI Signals
+39:(no signal)
+
+# arithmetic
+cost_tokens = 420; one call returned adds 60 (lib/core/brain-derivation.cjs cost estimate), so calls returned = 7
+sections = 9; sections with (no signal) = 9
+brain_graph_version = 0 (0 is the default when brain_schema returned no numeric brain_graph_version)

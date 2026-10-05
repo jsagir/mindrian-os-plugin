@@ -1,0 +1,22 @@
+[
+  {
+    "sub_process": "minto-debouncer enqueue",
+    "exit": 0,
+    "room_db_created": false
+  },
+  {
+    "sub_process": "stamp-artifact-write",
+    "exit": 0,
+    "room_db_created": false
+  },
+  {
+    "sub_process": "recompile-room-references",
+    "exit": 0,
+    "room_db_created": false
+  },
+  {
+    "sub_process": "scripts/mindrian-tools.cjs cascade",
+    "exit": 0,
+    "room_db_created": true
+  }
+]

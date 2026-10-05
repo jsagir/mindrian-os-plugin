@@ -1,0 +1,9 @@
+# step3-on-stop
+# command: bash <repo>/scripts/on-stop
+# cwd: <tmp>/rooms/never-ready-fixture
+# exit: 0 signal: none
+## stdout
+{"continue":true,"systemMessage":"session snapshot saved, 14 sections scanned, 1 regen pending, health low | guardian: critical in section assets (existence, glyph low); 15 violations across 15 sections"}
+
+## stderr
+

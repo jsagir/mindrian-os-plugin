@@ -1,0 +1,62 @@
+{
+  "head_birth_ok": true,
+  "birth_keys": [
+    "ok",
+    "roomDir",
+    "slug",
+    "db_created"
+  ],
+  "identity": [
+    {
+      "key": "change_log_epoch",
+      "value": "876de9a1-0844-45b4-a48d-2fa9d5bc18b4"
+    },
+    {
+      "key": "change_log_floor",
+      "value": "0"
+    },
+    {
+      "key": "phase_109_migration_v1",
+      "value": "2026-10-05T23:27:30.004Z"
+    },
+    {
+      "key": "phase_109_session_focus_v1",
+      "value": "2026-10-05T23:27:30.005Z"
+    },
+    {
+      "key": "phase_160_bitemporal_migration_v1",
+      "value": "2026-10-05T23:27:30.005Z"
+    },
+    {
+      "key": "phase_222_ranker_weights_v1",
+      "value": "2026-10-05T23:27:30.005Z"
+    },
+    {
+      "key": "phase_224_edge_review_status_v1",
+      "value": "2026-10-05T23:27:30.006Z"
+    }
+  ],
+  "room_nodes": [],
+  "identity_keys": [
+    "change_log_epoch",
+    "change_log_floor",
+    "phase_109_migration_v1",
+    "phase_109_session_focus_v1",
+    "phase_160_bitemporal_migration_v1",
+    "phase_222_ranker_weights_v1",
+    "phase_224_edge_review_status_v1"
+  ],
+  "identity_rows": 7,
+  "identity_rows_naming_room": 0,
+  "scanRoom_roomName": "p0-r2-room",
+  "scanRoom_roomName_of_renamed_copy": "p0-r2-renamed-copy",
+  "renamed_copy_room_db_identity_after_copy": [
+    "change_log_epoch",
+    "change_log_floor",
+    "phase_109_migration_v1",
+    "phase_109_session_focus_v1",
+    "phase_160_bitemporal_migration_v1",
+    "phase_222_ranker_weights_v1",
+    "phase_224_edge_review_status_v1"
+  ]
+}

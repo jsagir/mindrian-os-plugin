@@ -1,0 +1,38 @@
+tag v2.0.0-beta.57 = d6a4c084d07392e166d1d20d2c61dba692ca8378
+HEAD = 40b397b552df7d3d8c0abdea9c25e7e98bc362ca (2.0.0-beta.62)
+
+== v2.0.0-beta.57: lib/vault/room-scanner.cjs (roomName source)
+346:    roomName: path.basename(absRoom),
+== v2.0.0-beta.57: scripts/vault-section-minto-generator.cjs (MINTO room: line)
+623:    `room: ${room.roomName}`,
+== v2.0.0-beta.57: room-birth.cjs Room node insert and its guard
+778:    ).get('room:' + slug, 'room:' + parent);
+861:  const bornWired = options.bornWired === true && parent.length > 0;
+870:  if (bornWired) {
+1021:    if (bornWired) {
+1026:    if (bornWired) { _bornWiredRollback(roomDir, slug, roomsHomeForBirth, null, parent, parentRoomDir); }
+1134:    if (bornWired) {
+1138:          'room:' + slug,
+1154:        source_id: 'room:' + slug,
+1174:    if (bornWired) { _bornWiredRollback(roomDir, slug, roomsHomeForBirth, null, parent, parentRoomDir); }
+1387:  if (bornWired) {
+== v2.0.0-beta.57: identity keys inserted by room-birth.cjs (INSERT INTO identity / setIdentity)
+(no output above = none)
+
+== HEAD: lib/vault/room-scanner.cjs (roomName source)
+346:    roomName: path.basename(absRoom),
+== HEAD: scripts/vault-section-minto-generator.cjs (MINTO room: line)
+623:    `room: ${room.roomName}`,
+== HEAD: room-birth.cjs Room node insert and its guard
+833:    ).get('room:' + slug, 'room:' + parent);
+916:  const bornWired = options.bornWired === true && parent.length > 0;
+925:  if (bornWired) {
+1079:    if (bornWired) {
+1084:    if (bornWired) { _bornWiredRollback(roomDir, slug, roomsHomeForBirth, null, parent, parentRoomDir); }
+1192:    if (bornWired) {
+1196:          'room:' + slug,
+1212:        source_id: 'room:' + slug,
+1232:    if (bornWired) { _bornWiredRollback(roomDir, slug, roomsHomeForBirth, null, parent, parentRoomDir); }
+1477:  if (bornWired) {
+== HEAD: identity keys inserted by room-birth.cjs (INSERT INTO identity / setIdentity)
+(no output above = none)

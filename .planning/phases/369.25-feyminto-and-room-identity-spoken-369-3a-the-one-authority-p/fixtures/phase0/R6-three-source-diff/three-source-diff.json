@@ -1,0 +1,345 @@
+{
+  "registry_check_not_vacuous": true,
+  "method": "contract = /mos: names under \"## Commands that write here\" minus Note: lines; ledger = data/section-command-ledger.json row <job>|*|*, job from data/section-job-canon.json; table = backticked names in column 2 of 369.25-SECTION-COMMAND-RELEVANCE.md; CONTEXT s2 top 3 = first 3 of the ledger row",
+  "ledger_built_at": "2026-10-05T20:32:54.781Z",
+  "sections": {
+    "problem-definition": {
+      "job": "find-problem",
+      "contract_commands": [
+        "beautiful-question",
+        "diagnose",
+        "explore-domains",
+        "root-cause",
+        "causal",
+        "map-unknowns",
+        "build-knowledge",
+        "validate",
+        "research"
+      ],
+      "ledger_row_commands_count": 15,
+      "table_commands": [
+        "beautiful-question",
+        "diagnose",
+        "explore-domains",
+        "jtbd",
+        "discover",
+        "root-cause",
+        "causal",
+        "map-unknowns"
+      ],
+      "context_s2_top3": [
+        "beautiful-question",
+        "analyze-needs",
+        "user-needs"
+      ],
+      "top3_in_contract": "1/3",
+      "table_names_not_in_contract": [
+        "jtbd",
+        "discover"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "market-analysis": {
+      "job": "understand-market",
+      "contract_commands": [
+        "analyze-needs",
+        "user-needs",
+        "macro-trends",
+        "analyze-timing",
+        "diffusion",
+        "explore-trends",
+        "dominant-designs",
+        "mullins"
+      ],
+      "ledger_row_commands_count": 17,
+      "table_commands": [
+        "analyze-needs",
+        "user-needs",
+        "macro-trends",
+        "explore-trends",
+        "analyze-timing",
+        "diffusion",
+        "dominant-designs",
+        "mullins"
+      ],
+      "context_s2_top3": [
+        "macro-trends",
+        "explore-trends",
+        "radar"
+      ],
+      "top3_in_contract": "2/3",
+      "table_names_not_in_contract": [],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "solution-design": {
+      "job": "design-solution",
+      "contract_commands": [
+        "bono",
+        "find-analogies",
+        "find-connections",
+        "analyze-systems",
+        "systems-thinking",
+        "hat-briefing"
+      ],
+      "ledger_row_commands_count": 9,
+      "table_commands": [
+        "bono",
+        "find-analogies",
+        "find-connections",
+        "analyze-systems",
+        "systems-thinking",
+        "hat-briefing"
+      ],
+      "context_s2_top3": [
+        "find-analogies",
+        "find-connections",
+        "systems-thinking"
+      ],
+      "top3_in_contract": "3/3",
+      "table_names_not_in_contract": [],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "business-model": {
+      "job": "model-business",
+      "contract_commands": [
+        "lean-canvas",
+        "validate-proposition",
+        "explore-futures",
+        "mullins",
+        "analyze-systems"
+      ],
+      "ledger_row_commands_count": 5,
+      "table_commands": [
+        "lean-canvas",
+        "validate-proposition",
+        "mullins",
+        "explore-futures",
+        "analyze-systems"
+      ],
+      "context_s2_top3": [
+        "lean-canvas",
+        "mullins",
+        "validate-proposition"
+      ],
+      "top3_in_contract": "3/3",
+      "table_names_not_in_contract": [],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "competitive-analysis": {
+      "job": "understand-market",
+      "contract_commands": [
+        "compare-ventures",
+        "challenge-assumptions"
+      ],
+      "ledger_row_commands_count": 17,
+      "table_commands": [
+        "compare-ventures",
+        "challenge-assumptions",
+        "scout"
+      ],
+      "context_s2_top3": [
+        "macro-trends",
+        "explore-trends",
+        "radar"
+      ],
+      "top3_in_contract": "0/3",
+      "table_names_not_in_contract": [
+        "scout"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "team-execution": {
+      "job": "plan-execution",
+      "contract_commands": [
+        "leadership",
+        "hat-briefing",
+        "think-hats"
+      ],
+      "ledger_row_commands_count": 14,
+      "table_commands": [
+        "leadership",
+        "think-hats",
+        "hat-briefing",
+        "persona",
+        "rs-experts"
+      ],
+      "context_s2_top3": [
+        "act",
+        "pipeline",
+        "intel-pipeline"
+      ],
+      "top3_in_contract": "0/3",
+      "table_names_not_in_contract": [
+        "persona",
+        "rs-experts"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "legal-ip": {
+      "job": "protect-assets",
+      "contract_commands": [
+        "challenge-assumptions"
+      ],
+      "ledger_row_commands_count": 1,
+      "table_commands": [
+        "challenge-assumptions",
+        "research",
+        "map-unknowns",
+        "validate"
+      ],
+      "context_s2_top3": [
+        "challenge-assumptions"
+      ],
+      "top3_in_contract": "1/1",
+      "table_names_not_in_contract": [
+        "research",
+        "map-unknowns",
+        "validate"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "financial-model": {
+      "job": "model-finances",
+      "contract_commands": [
+        "build-thesis",
+        "grade",
+        "deep-grade"
+      ],
+      "ledger_row_commands_count": 3,
+      "table_commands": [
+        "build-thesis",
+        "grade",
+        "deep-grade",
+        "challenge-assumptions",
+        "scenario-plan",
+        "validate"
+      ],
+      "context_s2_top3": [
+        "grade",
+        "deep-grade",
+        "build-thesis"
+      ],
+      "top3_in_contract": "3/3",
+      "table_names_not_in_contract": [
+        "challenge-assumptions",
+        "scenario-plan",
+        "validate"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "opportunity-bank": {
+      "job": "explore",
+      "contract_commands": [
+        "futures",
+        "score-innovation",
+        "trending-to-absurd",
+        "whitespace",
+        "explore-futures",
+        "opportunities"
+      ],
+      "ledger_row_commands_count": 45,
+      "table_commands": [
+        "futures",
+        "score-innovation",
+        "trending-to-absurd",
+        "whitespace",
+        "opportunities",
+        "eureka",
+        "qualify-opportunity",
+        "explore-opportunity",
+        "auto-explore"
+      ],
+      "context_s2_top3": [
+        "explore-trends",
+        "think-hats",
+        "bono"
+      ],
+      "top3_in_contract": "0/3",
+      "table_names_not_in_contract": [
+        "eureka",
+        "qualify-opportunity",
+        "explore-opportunity",
+        "auto-explore"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "funding": {
+      "job": "plan-execution",
+      "contract_commands": [
+        "mullins",
+        "grade",
+        "deep-grade",
+        "funding"
+      ],
+      "ledger_row_commands_count": 14,
+      "table_commands": [
+        "funding",
+        "grade-grant",
+        "mullins",
+        "grade",
+        "deep-grade"
+      ],
+      "context_s2_top3": [
+        "act",
+        "pipeline",
+        "intel-pipeline"
+      ],
+      "top3_in_contract": "0/3",
+      "table_names_not_in_contract": [
+        "grade-grant"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    },
+    "strategy": {
+      "job": "find-bottleneck",
+      "contract_commands": [
+        "scenario-plan",
+        "find-bottlenecks",
+        "rs-experts",
+        "rs-explain",
+        "rs-fetch",
+        "rs-thesis"
+      ],
+      "ledger_row_commands_count": 10,
+      "table_commands": [
+        "scenario-plan",
+        "find-bottlenecks",
+        "rs-fetch",
+        "rs-experts",
+        "rs-explain",
+        "rs-thesis",
+        "scientific-roadmap",
+        "explore-futures"
+      ],
+      "context_s2_top3": [
+        "find-bottlenecks",
+        "scientific-roadmap",
+        "rs-experts"
+      ],
+      "top3_in_contract": "2/3",
+      "table_names_not_in_contract": [
+        "scientific-roadmap",
+        "explore-futures"
+      ],
+      "contract_only_not_in_ledger_or_table": [],
+      "missing_from_command_registry": []
+    }
+  },
+  "sections_whose_context_s2_names_none_of_their_contract_commands": [
+    "competitive-analysis",
+    "team-execution",
+    "opportunity-bank",
+    "funding"
+  ],
+  "cells_differing_from_research_table": []
+}

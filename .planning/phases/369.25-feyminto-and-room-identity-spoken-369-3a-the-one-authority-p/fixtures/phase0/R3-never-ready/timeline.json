@@ -1,0 +1,224 @@
+[
+  {
+    "label": "0-built (scaffold + eleven plain-fs artifacts)",
+    "room_db_exists": false,
+    "registry_exists": false,
+    "identity_keys": null,
+    "identity_naming_room": null,
+    "room_nodes": null,
+    "node_count": null,
+    "edge_count": null,
+    "nodes_by_type": null,
+    "eleven_notes_indexed": null
+  },
+  {
+    "label": "step1-post-write",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 3,
+    "edge_count": 1,
+    "nodes_by_type": {
+      "Artifact": 1,
+      "Section": 1,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 1,
+    "exit": 0
+  },
+  {
+    "label": "step2a-memory-hook-artifact",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 3,
+    "edge_count": 1,
+    "nodes_by_type": {
+      "Artifact": 1,
+      "Section": 1,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 1,
+    "exit": 0
+  },
+  {
+    "label": "step2b-memory-hook-minto",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 20,
+    "edge_count": 2,
+    "nodes_by_type": {
+      "Artifact": 1,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 1,
+    "exit": 0
+  },
+  {
+    "label": "step3-on-stop",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 20,
+    "edge_count": 2,
+    "nodes_by_type": {
+      "Artifact": 1,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 1,
+    "exit": 0
+  },
+  {
+    "label": "step4a-session-start",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 43,
+    "edge_count": 102,
+    "nodes_by_type": {
+      "Artifact": 24,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 11,
+    "exit": 0
+  },
+  {
+    "label": "step4b-derive-drain",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 43,
+    "edge_count": 102,
+    "nodes_by_type": {
+      "Artifact": 24,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 11,
+    "exit": 0
+  },
+  {
+    "label": "step5a-backfill-no-approval",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 43,
+    "edge_count": 102,
+    "nodes_by_type": {
+      "Artifact": 24,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 11
+  },
+  {
+    "label": "step5b-backfill-approved-empty-allowlist",
+    "room_db_exists": true,
+    "registry_exists": false,
+    "identity_keys": [
+      "phase_109_migration_v1",
+      "phase_109_session_focus_v1",
+      "phase_160_bitemporal_migration_v1",
+      "phase_222_ranker_weights_v1",
+      "phase_224_edge_review_status_v1",
+      "change_log_epoch",
+      "change_log_floor"
+    ],
+    "identity_naming_room": 0,
+    "room_nodes": [],
+    "node_count": 43,
+    "edge_count": 102,
+    "nodes_by_type": {
+      "Artifact": 24,
+      "Section": 1,
+      "governing_thought": 1,
+      "memory_artifact": 16,
+      "memory_event": 1
+    },
+    "eleven_notes_indexed": 11
+  }
+]

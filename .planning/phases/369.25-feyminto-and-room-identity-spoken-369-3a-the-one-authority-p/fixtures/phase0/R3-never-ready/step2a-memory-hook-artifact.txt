@@ -1,0 +1,8 @@
+# step2a-memory-hook-artifact
+# command: node <repo>/scripts/memory-artifact-graph-hook.cjs
+# cwd: <tmp>/rooms/never-ready-fixture
+# exit: 0 signal: none
+## stdout
+
+## stderr
+

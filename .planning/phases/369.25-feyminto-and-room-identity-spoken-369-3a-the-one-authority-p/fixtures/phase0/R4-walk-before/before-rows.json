@@ -1,0 +1,85 @@
+{
+  "head": "2152a81d6ccba98118d172633b6c80d197dd36a4",
+  "room_a": {
+    "I0_core_present": "11 of 11",
+    "I0_non_core": [
+      "assets",
+      "references",
+      "team"
+    ],
+    "I1_nests_with_room_md": "15 of 15",
+    "I5_md_files_total": 47,
+    "I5_generated_marked_total": 26,
+    "I5_authored_total": 21,
+    "I6_faces_present": "MINTO.md 1, FEYNMAN.md 11, BRAIN.md 0",
+    "I6_edit_surface_marker_absent": "12 of 12",
+    "I7_over_8000_tokens": 0,
+    "I7_max_approx_tokens": 1902,
+    "I7_solution_design_bytes": 6434,
+    "I8a_minto_sources_total": 0,
+    "I8a_in_room_md_total": 0,
+    "I8b_minto_room_matches_slug": "0 of 0",
+    "I8c_brain_md_present": 0,
+    "I8c_restated": 0,
+    "M3_room_summary": {
+      "nests_walked": 14,
+      "nests_with_every_face": 0,
+      "minto_sources_in_room_md": 0,
+      "theo_face_restated_commands": 0,
+      "identity_in_room_db": false,
+      "edit_surface_marker_absent": 12,
+      "face_files_present": 12,
+      "core_sections_present": 11,
+      "core_sections_total": 11,
+      "duplications_found": 1,
+      "duplications_possible": 3
+    },
+    "M3_room_block": {
+      "room_node": false,
+      "identity_rows_total": 7,
+      "identity_rows_naming_room": 0,
+      "slug_db_agreement": false
+    }
+  },
+  "room_b": {
+    "I0_core_present": "11 of 11",
+    "I0_non_core": [
+      "assets",
+      "references",
+      "team"
+    ],
+    "I1_nests_with_room_md": "15 of 15",
+    "I5_md_files_total": 42,
+    "I5_generated_marked_total": 26,
+    "I5_authored_total": 16,
+    "I6_faces_present": "MINTO.md 1, FEYNMAN.md 11, BRAIN.md 0",
+    "I6_edit_surface_marker_absent": "12 of 12",
+    "I7_over_8000_tokens": 0,
+    "I7_max_approx_tokens": 1898,
+    "I7_solution_design_bytes": 6418,
+    "I8a_minto_sources_total": 0,
+    "I8a_in_room_md_total": 0,
+    "I8b_minto_room_matches_slug": "0 of 0",
+    "I8c_brain_md_present": 0,
+    "I8c_restated": 0,
+    "M3_room_summary": {
+      "nests_walked": 14,
+      "nests_with_every_face": 0,
+      "minto_sources_in_room_md": 0,
+      "theo_face_restated_commands": 0,
+      "identity_in_room_db": false,
+      "edit_surface_marker_absent": 12,
+      "face_files_present": 12,
+      "core_sections_present": 11,
+      "core_sections_total": 11,
+      "duplications_found": 1,
+      "duplications_possible": 3
+    },
+    "M3_room_block": {
+      "room_node": false,
+      "identity_rows_total": 7,
+      "identity_rows_naming_room": 0,
+      "slug_db_agreement": false
+    }
+  }
+}

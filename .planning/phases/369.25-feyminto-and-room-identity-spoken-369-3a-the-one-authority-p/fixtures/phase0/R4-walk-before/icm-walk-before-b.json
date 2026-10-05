@@ -1,0 +1,1532 @@
+{
+  "schema": "mos.icm-walk/1",
+  "room": {
+    "slug": "phase0-b",
+    "room_db": "present",
+    "room_node": false,
+    "identity_rows_total": 7,
+    "identity_rows_naming_room": 0,
+    "slug_db_agreement": false,
+    "research_runs": {
+      "runs": 0,
+      "plan_json": 0,
+      "run_json": 0,
+      "operations_json": 0
+    },
+    "I0": {
+      "core_present": 11,
+      "core_total": 11,
+      "core_missing": [],
+      "non_core_directories": [
+        "assets",
+        "references",
+        "team"
+      ]
+    }
+  },
+  "referrers": {
+    "MINTO.md": 128,
+    "FEYNMAN.md": 23,
+    "BRAIN.md": 64
+  },
+  "nests": [
+    {
+      "nest": ".",
+      "kind": "root",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": null
+      },
+      "I2": {
+        "lines": 35,
+        "bytes": 994,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": false,
+        "inputs": null,
+        "process": null,
+        "outputs": null,
+        "human_check": null,
+        "ruling_job": null,
+        "ruling_methodology_sequence": null,
+        "ruling_writing_rules": null,
+        "generated_at": null
+      },
+      "I5": {
+        "md_files": 4,
+        "generated_marked": 1,
+        "authored": 3
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 994,
+          "CONTEXT.md": null,
+          "MINTO.md": 733,
+          "FEYNMAN.md": null,
+          "BRIEF.md": null
+        },
+        "bytes": 1727,
+        "approx_tokens": 432,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": null,
+        "feynman_over_1500": null
+      },
+      "I8a": {
+        "minto_sources": 0,
+        "in_room_md": 0,
+        "absent_from_room_md": 0
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": null,
+        "restated": null
+      },
+      "I9": {
+        "state_md": true,
+        "last_activity": "2026-10-05T23:23:20.084Z",
+        "newest_file_mtime": "2026-10-05T23:23:20.194Z",
+        "stale": true
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 0
+      },
+      "W": {
+        "reads_needed": 1,
+        "room_md_routes": false,
+        "status_scannable": true,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "assets",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": null
+      },
+      "I2": {
+        "lines": 21,
+        "bytes": 693,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": false,
+        "inputs": null,
+        "process": null,
+        "outputs": null,
+        "human_check": null,
+        "ruling_job": null,
+        "ruling_methodology_sequence": null,
+        "ruling_writing_rules": null,
+        "generated_at": null
+      },
+      "I5": {
+        "md_files": 1,
+        "generated_marked": 1,
+        "authored": 0
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 693,
+          "CONTEXT.md": null,
+          "MINTO.md": null,
+          "FEYNMAN.md": null,
+          "BRIEF.md": null
+        },
+        "bytes": 693,
+        "approx_tokens": 174,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": null,
+        "feynman_over_1500": null
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": null,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.100Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 0
+      },
+      "W": {
+        "reads_needed": 1,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "business-model",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "model-business"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1451,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1451,
+          "CONTEXT.md": 4336,
+          "MINTO.md": null,
+          "FEYNMAN.md": 111,
+          "BRIEF.md": null
+        },
+        "bytes": 5898,
+        "approx_tokens": 1475,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 28,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.150Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "competitive-analysis",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "understand-market"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1476,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1476,
+          "CONTEXT.md": 4312,
+          "MINTO.md": null,
+          "FEYNMAN.md": 123,
+          "BRIEF.md": null
+        },
+        "bytes": 5911,
+        "approx_tokens": 1478,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 31,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 6,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.158Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "financial-model",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "model-finances"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1404,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1404,
+          "CONTEXT.md": 3547,
+          "MINTO.md": null,
+          "FEYNMAN.md": 113,
+          "BRIEF.md": null
+        },
+        "bytes": 5064,
+        "approx_tokens": 1266,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 29,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.174Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "funding",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "plan-execution"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1510,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1510,
+          "CONTEXT.md": 5632,
+          "MINTO.md": null,
+          "FEYNMAN.md": 97,
+          "BRIEF.md": null
+        },
+        "bytes": 7239,
+        "approx_tokens": 1810,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 25,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.182Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "legal-ip",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "protect-assets"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1413,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1413,
+          "CONTEXT.md": 3496,
+          "MINTO.md": null,
+          "FEYNMAN.md": 99,
+          "BRIEF.md": null
+        },
+        "bytes": 5008,
+        "approx_tokens": 1252,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 25,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 1,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.166Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "market-analysis",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "understand-market"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1461,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1461,
+          "CONTEXT.md": 4279,
+          "MINTO.md": null,
+          "FEYNMAN.md": 113,
+          "BRIEF.md": null
+        },
+        "bytes": 5853,
+        "approx_tokens": 1464,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 29,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.138Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "opportunity-bank",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "explore"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1507,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1507,
+          "CONTEXT.md": 5969,
+          "MINTO.md": null,
+          "FEYNMAN.md": 115,
+          "BRIEF.md": null
+        },
+        "bytes": 7591,
+        "approx_tokens": 1898,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 29,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.178Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "problem-definition",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "find-problem"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1491,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1491,
+          "CONTEXT.md": 4675,
+          "MINTO.md": null,
+          "FEYNMAN.md": 119,
+          "BRIEF.md": null
+        },
+        "bytes": 6285,
+        "approx_tokens": 1572,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 30,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.130Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "references",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": null
+      },
+      "I2": {
+        "lines": 21,
+        "bytes": 1015,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": false,
+        "inputs": null,
+        "process": null,
+        "outputs": null,
+        "human_check": null,
+        "ruling_job": null,
+        "ruling_methodology_sequence": null,
+        "ruling_writing_rules": null,
+        "generated_at": null
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 1,
+        "authored": 2
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1015,
+          "CONTEXT.md": null,
+          "MINTO.md": null,
+          "FEYNMAN.md": null,
+          "BRIEF.md": null
+        },
+        "bytes": 1015,
+        "approx_tokens": 254,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": null,
+        "feynman_over_1500": null
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": null,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.100Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 0
+      },
+      "W": {
+        "reads_needed": 1,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "solution-design",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "design-solution"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1458,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1458,
+          "CONTEXT.md": 4847,
+          "MINTO.md": null,
+          "FEYNMAN.md": 113,
+          "BRIEF.md": null
+        },
+        "bytes": 6418,
+        "approx_tokens": 1605,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 29,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.146Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "strategy",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "find-bottleneck"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1558,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1558,
+          "CONTEXT.md": 5402,
+          "MINTO.md": null,
+          "FEYNMAN.md": 99,
+          "BRIEF.md": null
+        },
+        "bytes": 7059,
+        "approx_tokens": 1765,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 25,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 6,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.190Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "team",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": null
+      },
+      "I2": {
+        "lines": 21,
+        "bytes": 665,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": false,
+        "inputs": null,
+        "process": null,
+        "outputs": null,
+        "human_check": null,
+        "ruling_job": null,
+        "ruling_methodology_sequence": null,
+        "ruling_writing_rules": null,
+        "generated_at": null
+      },
+      "I5": {
+        "md_files": 1,
+        "generated_marked": 1,
+        "authored": 0
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 665,
+          "CONTEXT.md": null,
+          "MINTO.md": null,
+          "FEYNMAN.md": null,
+          "BRIEF.md": null
+        },
+        "bytes": 665,
+        "approx_tokens": 167,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": null,
+        "feynman_over_1500": null
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": null,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.102Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 0
+      },
+      "W": {
+        "reads_needed": 1,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    },
+    {
+      "nest": "team-execution",
+      "kind": "nest",
+      "I1": {
+        "room_md": true,
+        "purpose_or_heading": true,
+        "job_id": "plan-execution"
+      },
+      "I2": {
+        "lines": 44,
+        "bytes": 1399,
+        "wikilinks": 0,
+        "over_60_lines": false
+      },
+      "I4": {
+        "context_md": true,
+        "inputs": true,
+        "process": true,
+        "outputs": true,
+        "human_check": true,
+        "ruling_job": true,
+        "ruling_methodology_sequence": true,
+        "ruling_writing_rules": true,
+        "generated_at": true
+      },
+      "I5": {
+        "md_files": 3,
+        "generated_marked": 2,
+        "authored": 1
+      },
+      "I6": {
+        "faces": {
+          "MINTO.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          },
+          "FEYNMAN.md": {
+            "present": true,
+            "edit_surface_marker": false,
+            "governing_thought_placeholder": null
+          },
+          "BRAIN.md": {
+            "present": false,
+            "edit_surface_marker": null,
+            "governing_thought_placeholder": null
+          }
+        }
+      },
+      "I7": {
+        "files": {
+          "ROOM.md": 1399,
+          "CONTEXT.md": 4529,
+          "MINTO.md": null,
+          "FEYNMAN.md": 111,
+          "BRIEF.md": null
+        },
+        "bytes": 6039,
+        "approx_tokens": 1510,
+        "over_8000_tokens": false,
+        "feynman_body_tokens": 28,
+        "feynman_over_1500": false
+      },
+      "I8a": {
+        "minto_sources": null,
+        "in_room_md": null,
+        "absent_from_room_md": null
+      },
+      "I8b": {
+        "minto_room": null,
+        "matches_slug": null
+      },
+      "I8c": {
+        "brain_md": false,
+        "brain_query_count": null,
+        "context_command_names": 3,
+        "restated": null
+      },
+      "I9": {
+        "state_md": false,
+        "last_activity": null,
+        "newest_file_mtime": "2026-10-05T23:23:20.162Z",
+        "stale": null
+      },
+      "I10": {
+        "auto_scaffolded_files": 1,
+        "seeded_at_birth_files": 1
+      },
+      "W": {
+        "reads_needed": 2,
+        "room_md_routes": false,
+        "status_scannable": false,
+        "referrers": {
+          "MINTO.md": 128,
+          "FEYNMAN.md": 23,
+          "BRAIN.md": 64
+        }
+      }
+    }
+  ],
+  "summary": {
+    "nests_walked": 14,
+    "nests_with_every_face": 0,
+    "minto_sources_in_room_md": 0,
+    "theo_face_restated_commands": 0,
+    "identity_in_room_db": false,
+    "edit_surface_marker_absent": 12,
+    "face_files_present": 12,
+    "core_sections_present": 11,
+    "core_sections_total": 11,
+    "duplications_found": 1,
+    "duplications_possible": 3
+  }
+}

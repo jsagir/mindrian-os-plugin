@@ -1,0 +1,7 @@
+R1 referrer re-count at HEAD (grep -rlIF "<FACE>.md" lib scripts hooks)
+
+MINTO.md: 128 files (CONTEXT said 128, delta 0); test files 45, non-test 83; non-test roles reader 23, writer 1, both 6, mention 53
+FEYNMAN.md: 23 files (CONTEXT said 23, delta 0); test files 0, non-test 23; non-test roles reader 6, writer 1, both 0, mention 16
+BRAIN.md: 64 files (CONTEXT said 64, delta 0); test files 18, non-test 46; non-test roles reader 9, writer 3, both 1, mention 33
+
+Role heuristic: reader/writer is read from the +-8 lines around each non-comment occurrence (readFileSync, matter, readTriple ... vs writeFileSync, rename, render, generate ...); mention = only comment/string. It is a classifier over text, not a call graph. Most remaining mention rows are exclusion lists (SKIP_FILES / reserved-name arrays), schema tables or prose. One hand override: BRAIN|lib/core/cross-room-aggregator.cjs is a reader.

@@ -1,0 +1,11 @@
+total 44
+drwxr-xr-x  2 jsagi jsagi 4096 2026-10-06 01:47:46.743551894 +0300 .
+drwxr-xr-x 15 jsagi jsagi 4096 2026-10-06 02:22:04.399964674 +0300 ..
+-rw-r--r--  1 jsagi jsagi  685 2026-10-05 23:49:38.466045999 +0300 BRAIN.md
+-rw-r--r--  1 jsagi jsagi 4675 2026-10-02 00:16:08.229009027 +0300 CONTEXT.md
+-rw-r--r--  1 jsagi jsagi  774 2026-10-06 01:44:45.405446767 +0300 FEYNMAN.md
+-rw-r--r--  1 jsagi jsagi 3888 2026-10-06 01:47:46.731551767 +0300 MINTO.md
+-rw-r--r--  1 jsagi jsagi 2107 2026-10-05 23:47:57.973100675 +0300 ROOM.md
+-rw-r--r--  1 jsagi jsagi 2680 2026-10-02 00:16:32.622310359 +0300 core-hypothesis.md
+-rw-r--r--  1 jsagi jsagi 2117 2026-10-05 23:47:57.844890615 +0300 four-lenses-pass.md
+-rw-r--r--  1 jsagi jsagi 1939 2026-10-02 00:16:38.634949103 +0300 scientific-roadmap.md

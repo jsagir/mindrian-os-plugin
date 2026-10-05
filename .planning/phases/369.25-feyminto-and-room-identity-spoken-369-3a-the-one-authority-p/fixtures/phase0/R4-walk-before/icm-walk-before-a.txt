@@ -1,0 +1,222 @@
+== room root: release-fixture-2152a81d ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: none
+  I2  lines=35 bytes=1042 wikilinks=0
+  I4  CONTEXT.md: missing
+  I5  md files=4 generated-marked=1 authored=3
+  I6  MINTO.md: present, edit-surface marker no | FEYNMAN.md: missing | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1042 CONTEXT.md=missing MINTO.md=733 FEYNMAN.md=missing BRIEF.md=missing | total bytes=1775 approx tokens=444 | FEYNMAN body tokens=missing
+  I8a  MINTO sources=0 also in ROOM.md links=0 in no ROOM.md link=0
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=n/a restated in BRAIN.md=n/a
+  I9  STATE.md: present, last activity 2026-10-05T23:23:18.457Z | newest file 2026-10-05T23:23:18.570Z [stale]
+  I10  auto_scaffolded files=1 seeded-at-birth files=0
+  W  reads to orient=1 | ROOM.md routes: no | status scannable: yes | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+  room.db: present | Room node: no | identity rows: 7 total, 0 naming the room | research runs: 4 (plan.json 4, run.json 0, operations.json 0)
+  I0  core sections present: 11 of 11 | missing: none | non-core directories (3): assets, references, team
+
+== nest: assets ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: none
+  I2  lines=21 bytes=709 wikilinks=0
+  I4  CONTEXT.md: missing
+  I5  md files=1 generated-marked=1 authored=0
+  I6  MINTO.md: missing | FEYNMAN.md: missing | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=709 CONTEXT.md=missing MINTO.md=missing FEYNMAN.md=missing BRIEF.md=missing | total bytes=709 approx tokens=178 | FEYNMAN body tokens=missing
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=n/a restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.473Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=0
+  W  reads to orient=1 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: business-model ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: model-business
+  I2  lines=44 bytes=1467 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1467 CONTEXT.md=4336 MINTO.md=missing FEYNMAN.md=111 BRIEF.md=missing | total bytes=5914 approx tokens=1479 | FEYNMAN body tokens=28/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.526Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: competitive-analysis ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: understand-market
+  I2  lines=44 bytes=1492 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=4 generated-marked=2 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1492 CONTEXT.md=4312 MINTO.md=missing FEYNMAN.md=123 BRIEF.md=missing | total bytes=5927 approx tokens=1482 | FEYNMAN body tokens=31/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=6 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.784Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: financial-model ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: model-finances
+  I2  lines=44 bytes=1420 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1420 CONTEXT.md=3547 MINTO.md=missing FEYNMAN.md=113 BRIEF.md=missing | total bytes=5080 approx tokens=1270 | FEYNMAN body tokens=29/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.550Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: funding ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: plan-execution
+  I2  lines=44 bytes=1526 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1526 CONTEXT.md=5632 MINTO.md=missing FEYNMAN.md=97 BRIEF.md=missing | total bytes=7255 approx tokens=1814 | FEYNMAN body tokens=25/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.558Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: legal-ip ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: protect-assets
+  I2  lines=44 bytes=1429 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1429 CONTEXT.md=3496 MINTO.md=missing FEYNMAN.md=99 BRIEF.md=missing | total bytes=5024 approx tokens=1256 | FEYNMAN body tokens=25/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=1 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.542Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: market-analysis ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: understand-market
+  I2  lines=44 bytes=1477 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=4 generated-marked=2 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1477 CONTEXT.md=4279 MINTO.md=missing FEYNMAN.md=113 BRIEF.md=missing | total bytes=5869 approx tokens=1468 | FEYNMAN body tokens=29/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.785Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: opportunity-bank ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: explore
+  I2  lines=44 bytes=1523 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1523 CONTEXT.md=5969 MINTO.md=missing FEYNMAN.md=115 BRIEF.md=missing | total bytes=7607 approx tokens=1902 | FEYNMAN body tokens=29/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.554Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: problem-definition ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: find-problem
+  I2  lines=44 bytes=1507 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=4 generated-marked=2 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1507 CONTEXT.md=4675 MINTO.md=missing FEYNMAN.md=119 BRIEF.md=missing | total bytes=6301 approx tokens=1576 | FEYNMAN body tokens=30/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.785Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: references ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: none
+  I2  lines=21 bytes=1031 wikilinks=0
+  I4  CONTEXT.md: missing
+  I5  md files=3 generated-marked=1 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: missing | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1031 CONTEXT.md=missing MINTO.md=missing FEYNMAN.md=missing BRIEF.md=missing | total bytes=1031 approx tokens=258 | FEYNMAN body tokens=missing
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=n/a restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.474Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=0
+  W  reads to orient=1 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: solution-design ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: design-solution
+  I2  lines=44 bytes=1474 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=4 generated-marked=2 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1474 CONTEXT.md=4847 MINTO.md=missing FEYNMAN.md=113 BRIEF.md=missing | total bytes=6434 approx tokens=1609 | FEYNMAN body tokens=29/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.785Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: strategy ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: find-bottleneck
+  I2  lines=44 bytes=1574 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=4 generated-marked=2 authored=2
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1574 CONTEXT.md=5402 MINTO.md=missing FEYNMAN.md=99 BRIEF.md=missing | total bytes=7075 approx tokens=1769 | FEYNMAN body tokens=25/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=6 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.785Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: team ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: none
+  I2  lines=21 bytes=681 wikilinks=0
+  I4  CONTEXT.md: missing
+  I5  md files=1 generated-marked=1 authored=0
+  I6  MINTO.md: missing | FEYNMAN.md: missing | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=681 CONTEXT.md=missing MINTO.md=missing FEYNMAN.md=missing BRIEF.md=missing | total bytes=681 approx tokens=171 | FEYNMAN body tokens=missing
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=n/a restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.474Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=0
+  W  reads to orient=1 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== nest: team-execution ==
+  I1  ROOM.md: present | purpose or heading: yes | job_id: plan-execution
+  I2  lines=44 bytes=1415 wikilinks=0
+  I4  CONTEXT.md: present | parts: inputs yes, process yes, outputs yes, human check yes | ruling: job yes, methodology sequence yes, writing rules yes | generated_at: yes
+  I5  md files=3 generated-marked=2 authored=1
+  I6  MINTO.md: missing | FEYNMAN.md: present, edit-surface marker no | BRAIN.md: missing | governing_thought_placeholder: n/a
+  I7  ROOM.md=1415 CONTEXT.md=4529 MINTO.md=missing FEYNMAN.md=111 BRIEF.md=missing | total bytes=6055 approx tokens=1514 | FEYNMAN body tokens=28/1500
+  I8a  MINTO.md or ROOM.md: missing
+  I8b  MINTO room: n/a | matches slug: n/a
+  I8c  BRAIN.md: missing | CONTEXT section-2 command names=3 restated in BRAIN.md=n/a
+  I9  STATE.md: missing | newest file 2026-10-05T23:23:18.538Z
+  I10  auto_scaffolded files=1 seeded-at-birth files=1
+  W  reads to orient=2 | ROOM.md routes: no | status scannable: no | referrers MINTO.md=128 FEYNMAN.md=23 BRAIN.md=64
+
+== room summary ==
+room: release-fixture-2152a81d
+nests walked: 14
+nests with every face: 0
+core sections present: 11 of 11
+MINTO sources also listed in ROOM.md links: 0
+Theo face restating CONTEXT.md sequence: 0 command name(s)
+room identity in room.db: no (room.db: present, Room node: no, identity rows naming the room: 0) [no Room node or identity row: the slug is the only identity]
+edit-surface marker absent: 12 of 12 face file(s)
+duplications found: 1 of 3

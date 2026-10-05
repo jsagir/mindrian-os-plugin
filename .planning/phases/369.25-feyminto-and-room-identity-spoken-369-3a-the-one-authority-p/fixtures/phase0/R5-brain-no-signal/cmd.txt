@@ -1,0 +1,1 @@
+cd /home/jsagi/dev/MindrianOS-Plugin && bash .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R5-brain-no-signal/measure.sh .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/fixtures/phase0/R5-brain-no-signal   (then brain-no-signal.txt is the classification written from brain-raw.txt)

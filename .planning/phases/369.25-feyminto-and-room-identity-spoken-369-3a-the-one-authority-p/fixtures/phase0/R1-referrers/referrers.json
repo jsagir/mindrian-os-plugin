@@ -1,0 +1,2946 @@
+[
+  {
+    "face": "MINTO",
+    "path": "lib/brain/ROOM.md",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "35: Per `CLAUDE.md` Decision #15, every directory in the data room (and the lib tree by extension under this milestone's policy) carries a ROOM.md identity file. `l",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/act-jtbd-blurb.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/brain-derivation.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/brain-md-schema.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/decision-capture.cjs",
+    "occurrences": 9,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "472: const mintoPath = path.join(roomPath, section, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "decision_log",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/doctor/icm-walk-module.cjs",
+    "occurrences": 13,
+    "code_occurrences": 9,
+    "role": "reader",
+    "first_code_line": "59: const FACES = ['MINTO.md', 'FEYNMAN.md', 'BRAIN.md'];",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology",
+      "sources",
+      "governing_thought",
+      "governing_thought_placeholder",
+      "last_generated_at"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/doctor/room-md-module.cjs",
+    "occurrences": 9,
+    "code_occurrences": 5,
+    "role": "reader",
+    "first_code_line": "126: const hasMinto = fs.existsSync(path.join(subdir, 'MINTO.md'));",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/eureka/reasoning-mode.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "80: const SKIP_FILES = Object.freeze(new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']));",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/folder-memory-async.cjs",
+    "occurrences": 3,
+    "code_occurrences": 3,
+    "role": "reader",
+    "first_code_line": "33: const RESERVED = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'TEAM-STATE.md']);",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "reasoning_health_score",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/folder-memory-shared.cjs",
+    "occurrences": 5,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "governing_thought_placeholder",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/folder-memory.cjs",
+    "occurrences": 6,
+    "code_occurrences": 3,
+    "role": "reader",
+    "first_code_line": "44: const RESERVED = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'TEAM-STATE.md']);",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "reasoning_health_score",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/frontmatter-schemas.cjs",
+    "occurrences": 8,
+    "code_occurrences": 3,
+    "role": "mention",
+    "first_code_line": "291: 'MINTO.md': Object.freeze({",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "related",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/graph-derive-classifier.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "227: 'ROOM.md', 'STATE.md', 'MINTO.md', 'FEYNMAN.md', 'BRAIN.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "related"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/graph-self-heal.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/intel-pipeline.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "189: try { out.minto = fs.existsSync(path.join(roomDir, 'MINTO.md')); } catch (_e) { /* ignore */ }",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology",
+      "sources",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/memory/reconcile-memory-runner.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "76: 'MINTO.md': 'MINTO',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought",
+      "decision_log",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/mva-rule-linter.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/navigation/room-birth.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "sources",
+      "related"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/research-planner/CONTEXT.md",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "102: The pyramid is not a second store. It rolls up into the room's existing `REASONING.md` and graph edges. `MINTO.md`, if a human wants one, is generated from thos",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/research-planner/filing.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "885: const MINTO_NOTE = 'MINTO.md is not edited here; it regenerates on the next vault-section-minto generator run.';",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology",
+      "sources",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/room-auto-create.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/room-discard-cascade.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/room-skeleton-scaffold.cjs",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "both",
+    "first_code_line": "737: const mintoPath = path.join(roomDir, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology",
+      "related"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/room-skeleton-scaffold.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "91: test('Test 4: MINTO.md is sentinel-bounded', () => {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/rs-engine.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "97: const SKIP_FILES = new Set(['STATE.md', 'ROOM.md', 'MINTO.md']);",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/rs_corpus_exclude.py",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "60: SKIP_FILES = {\"STATE.md\", \"ROOM.md\", \"MINTO.md\"}",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/rs_rooms.py",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "28: - Skip files (STATE.md, ROOM.md, MINTO.md -- metadata, not venture content).",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/scaffold-predicate.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/semantic-index/scaffold-template-index.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/core/statusline-cache.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology",
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/hmi/ROOM.md",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "39: Per `CLAUDE.md` Decision #15, every directory in the data room (and the lib tree by extension under this milestone's policy) carries a ROOM.md identity file. `l",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/import/enricher.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "both",
+    "first_code_line": "175: const mintoAbs = path.join(roomDir, section, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/import/enricher.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "142: const mintoPath = path.join(room, 'problem-definition', 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/import/integration.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "89: else if (entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'ROOM.md' && entry.name !== 'STATE.md' && entry.name !== 'MINTO.md') n++;",
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/import/manifest.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "114: mintoStubsToRemove.push(path.join(f.destination_section, 'MINTO.md'));",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/import/report.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "90: lines.push('> This import has been UNDONE. Files were moved to `imports/' + (manifest.import_id || '') + '/undone/`. ROOM.md and MINTO.md scaffolds scoped to th",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/mcp/app-views.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "50: 'ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'JTBD.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/aaak-compress.cjs",
+    "occurrences": 9,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/brain-derivation-graceful-degradation.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "202: writeFile(path.join(sectionPath, 'MINTO.md'), [",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/brain-derivation-queue.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "486: const mintoPath = path.join(sectionDir, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "parent-moc",
+      "methodology",
+      "sources",
+      "related",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/brain-derivation.test.cjs",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "both",
+    "first_code_line": "215: writeFile(path.join(sectionPath, 'MINTO.md'), lines.join('\\n'));",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/brain-derive-command.test.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "108: writeFile(path.join(sp, 'MINTO.md'), [",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room_slug",
+      "room:",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/brain-md-invariants-validator.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "628: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "reasoning_health_score",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/cross-room-aggregator.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "133: writeFile(path.join(sectionDir, 'MINTO.md'), fm.join('\\n'));",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "related",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/dashboard-server.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "both",
+    "first_code_line": "86: fs.writeFileSync(path.join(dir, 'MINTO.md'), '# minto seed\\n');",
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/decision-capture.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 6,
+    "role": "both",
+    "first_code_line": "158: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "parent-moc",
+      "methodology",
+      "sources",
+      "related",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/feynman-minto-guardian.test.cjs",
+    "occurrences": 16,
+    "code_occurrences": 10,
+    "role": "both",
+    "first_code_line": "103: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), '# broken\\n');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/feynman-minto-invariants.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "sources",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/feynman-prompts.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "117: 'for the MINTO.md header in the same pass.',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/folder-memory-quadruple.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "118: fs.writeFileSync(path.join(dir, 'MINTO.md'), lines.join('\\n'), 'utf8');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/folder-memory.test.cjs",
+    "occurrences": 7,
+    "code_occurrences": 4,
+    "role": "both",
+    "first_code_line": "119: fs.writeFileSync(path.join(dir, 'MINTO.md'), lines.join('\\n'), 'utf8');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/frontmatter-schema-validator.test.cjs",
+    "occurrences": 7,
+    "code_occurrences": 2,
+    "role": "both",
+    "first_code_line": "229: const mintoPath = path.join(tmp, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/guardian-onstop-reaches-user.test.cjs",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "119: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), frontmatter);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/heal-command.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "methodology",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/minto-debounce-consumer-census.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "both",
+    "first_code_line": "245: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "methodology",
+      "governing_thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/minto-migration-v88.test.cjs",
+    "occurrences": 7,
+    "code_occurrences": 7,
+    "role": "both",
+    "first_code_line": "47: fs.writeFileSync(path.join(sdir, 'MINTO.md'), sf.content);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "methodology",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/minto-schema-v88.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 4,
+    "role": "both",
+    "first_code_line": "132: return fs.readFileSync(path.join(sectionDir, 'MINTO.md'), 'utf-8');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/mos-status-renderer.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 4,
+    "role": "writer",
+    "first_code_line": "139: path.join(dir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/navigation-invariants.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "65: fs.writeFileSync(path.join(sec, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/offer-presenter.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "429: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/on-stop-snapshot.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "147: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), frontmatter);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/post-compact-reinjection.test.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "161: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), body);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room_slug",
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/post-write-triple.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/pre-compact-snapshot.test.cjs",
+    "occurrences": 5,
+    "code_occurrences": 3,
+    "role": "both",
+    "first_code_line": "154: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), frontmatter);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/precommit-real-commit.test.cjs",
+    "occurrences": 8,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "123: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "related",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/problem-type-router.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "460: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/recompile-room-references.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 3,
+    "role": "both",
+    "first_code_line": "239: run('test 5 -- ROOM.md / STATE.md / MINTO.md filtered from artifact list', () => {",
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/record-decision-dual-write.test.cjs",
+    "occurrences": 11,
+    "code_occurrences": 7,
+    "role": "both",
+    "first_code_line": "71: const mintoPath = path.join(dir, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/room-minto-hook.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 8,
+    "role": "writer",
+    "first_code_line": "122: record('Test 2: Data-Room commit blocks without ROOM.md/MINTO.md', () => {",
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/run-feynman-tests.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "methodology",
+      "sources",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/session-start-brain-staleness.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "103: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), body);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/session-start-triple-injection.test.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "124: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), body);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/sessionstart-banner-formatter.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "room_slug",
+      "room:",
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/sessionstart-minto-banner.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/skill-activation-router.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "323: path.join(sectionDir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "methodology",
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/stamp-artifact-write.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 10,
+    "role": "both",
+    "first_code_line": "60: fs.writeFileSync(path.join(sectionDir, 'MINTO.md'), content);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Argument Structure",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/userpromptsubmit-integration.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "137: path.join(sdir, 'MINTO.md'),",
+    "is_test": true,
+    "keys_or_blocks": [
+      "schema_version",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/validators/README.md",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "90: freshness, coherence, and atomicity violations in the section's MINTO.md.",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/validators/brain-md-invariants.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/validators/minto-invariants.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "31: const mintoPath = path.join(sectionDir, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/validators/stale-lifecycle.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "74: const mintoPath = path.join(roomDir, section, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/memory/vault-section-minto-generator-atomic.test.cjs",
+    "occurrences": 19,
+    "code_occurrences": 9,
+    "role": "both",
+    "first_code_line": "112: return path.join(roomDir, SECTION, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "methodology",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/quickview/hub-server.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "64: const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/quickview/server.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "37: const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']);",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/vault/room-scanner.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "38: 'MINTO.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/wiki/page-renderer.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "26: 'MINTO.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/wiki/room-home.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "lib/workflow/ROOM.md",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "38: Per `CLAUDE.md` Decision #15, every directory in the data room (and the lib tree by extension under this milestone's policy) carries a ROOM.md identity file. `l",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/auto-explore-fire.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/brain-derive-command.cjs",
+    "occurrences": 5,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "360: const mintoPath = path.join(roomPath, ent.name, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room_slug",
+      "room:",
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/compute-blindspot-mass.py",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "28: SKIP_FILES = {\"STATE.md\", \"ROOM.md\", \"MINTO.md\", \"WHITESPACE.md\"}",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/compute-disruption-index.py",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "29: SKIP_FILES = {\"STATE.md\", \"ROOM.md\", \"MINTO.md\", \"WHITESPACE.md\"}",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/compute-element-novelty.py",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "60: SKIP_FILES = {\"STATE.md\", \"ROOM.md\", \"MINTO.md\", \"WHITESPACE.md\"}",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/compute-whitespace-embeddings.py",
+    "occurrences": 2,
+    "code_occurrences": 2,
+    "role": "mention",
+    "first_code_line": "66: SKIP_FILES = {\"STATE.md\", \"ROOM.md\", \"MINTO.md\"}",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/context-monitor",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "239: const mintoPath = path.join(sectionPath, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "sources",
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/doctor.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "407: --room-md                class E (ROOM.md/MINTO.md presence under .room-root)",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/eval-icm-writers.cjs",
+    "occurrences": 5,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "374: const mintoPath = path.join(dirAbs, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/extract-room-intelligence.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "35: const REASONING_FILES = ['MINTO.md', 'REASONING.md'];",
+    "is_test": false,
+    "keys_or_blocks": [
+      "methodology",
+      "sources",
+      "Governing Thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/feynman-minto-guardian.cjs",
+    "occurrences": 8,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "209: if (!fs.existsSync(path.join(sectionDir, 'MINTO.md'))) {",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-deck.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "51: .filter(f => f.endsWith('.md') && f !== 'ROOM.md' && f !== 'MINTO.md')",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-export.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "44: const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']);",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-hub.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "27: 'MINTO.md', 'JTBD.md', 'ROOM-INTELLIGENCE.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-presentation.cjs",
+    "occurrences": 7,
+    "code_occurrences": 3,
+    "role": "both",
+    "first_code_line": "347: const mintoPath = path.join(roomDir, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "sources",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-presentation.test.cjs",
+    "occurrences": 3,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "112: writeFile(path.join(sec, 'MINTO.md'), '# Minto\\n');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "related",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-section-intelligence.cjs",
+    "occurrences": 5,
+    "code_occurrences": 3,
+    "role": "reader",
+    "first_code_line": "89: '  <dir>            single dir mode -- generate ROOM.md + MINTO.md in <dir>',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/generate-snapshot.cjs",
+    "occurrences": 3,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "38: 'ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'JTBD.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/heal-command.cjs",
+    "occurrences": 7,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "151: if (f === 'ROOM.md' || f === 'STATE.md' || f === 'MINTO.md' || f === 'BRAIN.md') continue;",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "methodology",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/hooks/pre-commit",
+    "occurrences": 8,
+    "code_occurrences": 4,
+    "role": "mention",
+    "first_code_line": "136: if [ ! -f \"$abs_dir/MINTO.md\" ]; then",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/hooks/pre-commit-room-minto-guard.sh",
+    "occurrences": 8,
+    "code_occurrences": 4,
+    "role": "mention",
+    "first_code_line": "136: if [ ! -f \"$abs_dir/MINTO.md\" ]; then",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "sources"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/intent-classifier.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "1028: const mintoPath = path.join(sectionPath, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "methodology",
+      "related",
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/memory-artifact-graph-hook.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "62: 'ROOM.md', 'STATE.md', 'MINTO.md', 'BRAIN.md', 'FEYNMAN.md', 'USER.md',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/migrate-minto-schema-v88.cjs",
+    "occurrences": 3,
+    "code_occurrences": 2,
+    "role": "mention",
+    "first_code_line": "45: 'Backfills the five Phase 88 frontmatter fields on every MINTO.md under\\n' +",
+    "is_test": false,
+    "keys_or_blocks": [
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/migrate-room-sections-v275.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "413: if (!fs.existsSync(path.join(roomDir, 'MINTO.md'))) planned.push('create MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "related"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/mos-status.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "209: fs.existsSync(path.join(abs, 'MINTO.md'));",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "governing_thought",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/post-write",
+    "occurrences": 4,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "197: ROOM.md|STATE.md|MINTO.md)",
+    "is_test": false,
+    "keys_or_blocks": [
+      "last_artifact_write_seen_at"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/recompile-room-references.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "112: 'MINTO.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/session-start",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "948: const mpath = path.join(sp, \"MINTO.md\");",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "room_slug",
+      "room:",
+      "methodology",
+      "related",
+      "governing_thought",
+      "reasoning_health_score"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/setup-hooks.sh",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/stamp-artifact-write.cjs",
+    "occurrences": 6,
+    "code_occurrences": 1,
+    "role": "both",
+    "first_code_line": "234: const mintoPath = path.join(secAbs, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "last_generated_at",
+      "last_artifact_write_seen_at"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-export-orchestrator.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "273: ['Section MINTO.md generator', 'vault-section-minto-generator.cjs'],",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-import.cjs",
+    "occurrences": 7,
+    "code_occurrences": 4,
+    "role": "both",
+    "first_code_line": "563: const nonMeta = entries.filter(function (n) { return n !== 'ROOM.md' && n !== 'MINTO.md' && n !== 'STATE.md'; });",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-regenerate-all.cjs",
+    "occurrences": 4,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "119: const mintoPath = path.join(section.dir, 'MINTO.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-regenerate-all.test.cjs",
+    "occurrences": 12,
+    "code_occurrences": 5,
+    "role": "both",
+    "first_code_line": "60: const seededMinto = path.join(sectionDir, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-rules-generator.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "158: Every directory has a ROOM.md (ICM Layer 0). Every section folder has the trifecta: ROOM.md (identity) + STATE.md (status) + MINTO.md (reasoning). Welcome to Mi",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "parent-moc",
+      "methodology",
+      "sources",
+      "related"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-section-minto-generator.cjs",
+    "occurrences": 31,
+    "code_occurrences": 15,
+    "role": "both",
+    "first_code_line": "576: const relatedArr = siblings.map((s) => `../${s}/MINTO.md`);",
+    "is_test": false,
+    "keys_or_blocks": [
+      "schema_version",
+      "room:",
+      "parent-moc",
+      "methodology",
+      "sources",
+      "related",
+      "governing_thought",
+      "governing_thought_placeholder",
+      "last_generated_at",
+      "last_artifact_write_seen_at",
+      "reasoning_health_score",
+      "flagged_weaknesses",
+      "decision_log",
+      "Argument Structure",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-section-minto-generator.integration.test.cjs",
+    "occurrences": 20,
+    "code_occurrences": 18,
+    "role": "both",
+    "first_code_line": "216: const mintoPath = path.join(fx.roomDir, fx.section, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "methodology",
+      "sources",
+      "governing_thought",
+      "last_generated_at",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-section-minto-generator.test.cjs",
+    "occurrences": 9,
+    "code_occurrences": 7,
+    "role": "both",
+    "first_code_line": "32: const MINTO_TARGET = path.join(FIXTURE_ROOM, SECTION, 'MINTO.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "methodology",
+      "sources",
+      "Governing Thought",
+      "section-minto"
+    ]
+  },
+  {
+    "face": "MINTO",
+    "path": "scripts/vault-section-state-generator.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "265: `- Section reasoning: [[MINTO.md|${section.name} MINTO]]`,",
+    "is_test": false,
+    "keys_or_blocks": [
+      "room:",
+      "parent-moc",
+      "sources"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/doctor/icm-walk-module.cjs",
+    "occurrences": 7,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "59: const FACES = ['MINTO.md', 'FEYNMAN.md', 'BRAIN.md'];",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/eureka/candidate-exclusion.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "181: return segs[segs.length - 1] === 'FEYNMAN.md';",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/feynman/ROOM.md",
+    "occurrences": 5,
+    "code_occurrences": 5,
+    "role": "writer",
+    "first_code_line": "3: Phase 124 (FEYNMAN.md temporal awareness) renderer + runner ship here.",
+    "is_test": false,
+    "keys_or_blocks": [
+      "timeline_last_rendered",
+      "TIMELINE_AUTO_START"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/feynman/dial-memory-runner.cjs",
+    "occurrences": 4,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "63: return path.join(roomDir, sectionSlug, 'FEYNMAN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "timeline_last_rendered",
+      "dial_memory_last_rendered"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/feynman/feynman-seed-writer.cjs",
+    "occurrences": 10,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "79: return path.join(roomDir, sectionSlug, 'FEYNMAN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/feynman/timeline-renderer.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/feynman/timeline-runner.cjs",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "162: const feyPath = path.join(roomDir, ent.name, 'FEYNMAN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "timeline_last_rendered",
+      "TIMELINE_AUTO_START",
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/folder-memory-async.cjs",
+    "occurrences": 3,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "223: const feyPath = path.join(sectionPath, 'FEYNMAN.md');",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/folder-memory.cjs",
+    "occurrences": 6,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "278: const feyPath = path.join(sectionPath, 'FEYNMAN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/graph-derive-classifier.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "227: 'ROOM.md', 'STATE.md', 'MINTO.md', 'FEYNMAN.md', 'BRAIN.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/graph-self-heal.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/memory/reconcile-memory-runner.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "78: 'FEYNMAN.md': 'FEYNMAN',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/navigation/memory-events.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/navigation/room-birth.cjs",
+    "occurrences": 4,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/research-planner/perspectives/eureka-recall.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "154: if (rel.split('/').pop() === 'FEYNMAN.md') out.push(rel);",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/core/scaffold-predicate.cjs",
+    "occurrences": 5,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)",
+      "Dial Memory (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "lib/memory/run-feynman-tests.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/backfill-layer.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/compute-state",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/dogfood-derive.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/feynman-timeline-refresh-command.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "164: lines.push('  No FEYNMAN.md sections found under the active room.');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)"
+    ]
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/memory-artifact-graph-hook.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "62: 'ROOM.md', 'STATE.md', 'MINTO.md', 'BRAIN.md', 'FEYNMAN.md', 'USER.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "FEYNMAN",
+    "path": "scripts/session-start",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "Timeline (auto)",
+      "Dial Memory (auto)"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/agents/reverse-salient-agent.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/brain/chain-recommender.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/brain-derivation-queue.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought_hash"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/brain-derivation.cjs",
+    "occurrences": 12,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "252: const finalPath = path.join(sectionPath, 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "prompt_version",
+      "cost_tokens",
+      "brain_query_count",
+      "(no signal)",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/brain-md-schema.cjs",
+    "occurrences": 13,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "223: '\" (BRAIN.md frontmatter is flat scalars only)',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/brain-md-staleness.cjs",
+    "occurrences": 6,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "241: const brainMdPath = path.join(sectionPath, 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/cross-room-aggregator.cjs",
+    "occurrences": 8,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "345: const brainMdPath = path.join(abs, 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought_hash",
+      "(no signal)",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/doctor/icm-walk-module.cjs",
+    "occurrences": 9,
+    "code_occurrences": 7,
+    "role": "reader",
+    "first_code_line": "59: const FACES = ['MINTO.md', 'FEYNMAN.md', 'BRAIN.md'];",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_query_count"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/folder-memory-async.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "184: const brainPath = path.join(sectionPath, 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/folder-memory-shared.cjs",
+    "occurrences": 8,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "901: brain.flagged_weaknesses = []; // BRAIN.md schema does not populate this",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/folder-memory.cjs",
+    "occurrences": 8,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "212: const brainPath = path.join(sectionPath, 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/framework-chain-composer.cjs",
+    "occurrences": 4,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/graph-derive-classifier.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "227: 'ROOM.md', 'STATE.md', 'MINTO.md', 'FEYNMAN.md', 'BRAIN.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/graph-self-heal.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/memory/reconcile-memory-runner.cjs",
+    "occurrences": 6,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "77: 'BRAIN.md': 'BRAIN',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation-engine-offer.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation-engine-shared.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation-engine.cjs",
+    "occurrences": 11,
+    "code_occurrences": 2,
+    "role": "mention",
+    "first_code_line": "1639: rationale.push('Tier 0 fallback: BRAIN.md absent.');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation/get-domains-for-trends.cjs",
+    "occurrences": 7,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "224: const brainPath = path.join(base, 'problem-definition', 'BRAIN.md');",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation/memory-artifacts.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation/projections.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/navigation/room-birth.cjs",
+    "occurrences": 13,
+    "code_occurrences": 5,
+    "role": "both",
+    "first_code_line": "736: '# BRAIN.md\\n\\n' +",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/problem-type-router.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "(no signal)"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/reader/decide-projection-reader.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/rs-chain-feeder.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/rs-query-to-text.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/core/scaffold-predicate.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/hmi/cross-room-memory.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "governing_thought_hash"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/hmi/dial-reach-orchestrator.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/hmi/selector-dispatcher.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/hmi/tier-check.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-derivation-graceful-degradation.test.cjs",
+    "occurrences": 52,
+    "code_occurrences": 23,
+    "role": "both",
+    "first_code_line": "323: const p = path.join(sectionPath, 'BRAIN.md');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "prompt_version",
+      "cost_tokens",
+      "brain_query_count",
+      "(no signal)",
+      "Pattern Matches"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-derivation.test.cjs",
+    "occurrences": 25,
+    "code_occurrences": 23,
+    "role": "both",
+    "first_code_line": "254: await runAsync('Test 01: happy path -> success:true, BRAIN.md written', async function () {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "staleness",
+      "cost_tokens",
+      "(no signal)",
+      "Pattern Matches",
+      "ProblemType Classification"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-derive-command.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 4,
+    "role": "mention",
+    "first_code_line": "196: return { success: true, brain_md_path: path.join(roomPath, section, 'BRAIN.md'), violations: [], cost_tokens: 540 };",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "cost_tokens"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-md-invariants-validator.test.cjs",
+    "occurrences": 40,
+    "code_occurrences": 19,
+    "role": "both",
+    "first_code_line": "213: run('Test 01: BRAIN.md absent -> zero violations (absence is valid)', function () {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "HSI Signals"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-md-schema.test.cjs",
+    "occurrences": 5,
+    "code_occurrences": 2,
+    "role": "mention",
+    "first_code_line": "145: run('Test 01: valid BRAIN.md -> {valid:true, violations:[], severity:null}', function () {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "cost_tokens",
+      "brain_query_count",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/brain-md-staleness.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 6,
+    "role": "writer",
+    "first_code_line": "178: fs.writeFileSync(path.join(sectionPath, 'BRAIN.md'), '---\\nbroken: no closing delim\\n\\n## Heading\\n\\nBody.\\n');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "(no signal)",
+      "Pattern Matches"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/chain-recommender.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/cross-room-aggregator.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "183: writeFile(path.join(sectionDir, 'BRAIN.md'), fm.join('\\n'));",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "prompt_version",
+      "cost_tokens",
+      "brain_query_count",
+      "(no signal)",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/explain-decision-command.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "150: chosen_rationale: 'Mode A: BRAIN.md fresh; pattern_matches confidence above 0.7 floor.',",
+    "is_test": true,
+    "keys_or_blocks": [
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/explain-decision-footer.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 3,
+    "role": "mention",
+    "first_code_line": "146: chosen_rationale: 'Mode A: BRAIN.md fresh; pattern_matches confidence above 0.7 floor.',",
+    "is_test": true,
+    "keys_or_blocks": [
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/folder-memory-quadruple.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 9,
+    "role": "both",
+    "first_code_line": "149: fs.writeFileSync(path.join(dir, 'BRAIN.md'), lines.join('\\n'), 'utf8');",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "(no signal)",
+      "Pattern Matches",
+      "Cross-Domain Analogies",
+      "Wicked Indicators",
+      "Unfilled Opportunity Matches",
+      "Framework Chain Predictions",
+      "ProblemType Classification",
+      "HSI Signals",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/framework-chain-composer.test.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "(no signal)"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/navigation-engine-core.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 2,
+    "role": "reader",
+    "first_code_line": "621: run('Test 28: FORBIDDEN direct fs reads on BRAIN.md (grep)', () => {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/navigation-engine-offer.test.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/problem-type-router.test.cjs",
+    "occurrences": 14,
+    "code_occurrences": 6,
+    "role": "writer",
+    "first_code_line": "398: run('Test 21: decide() with tier_0 (absent BRAIN.md) -- no regression', () => {",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason",
+      "(no signal)",
+      "ProblemType Classification"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/run-feynman-tests.cjs",
+    "occurrences": 14,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "Flagged Contradictions"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/session-start-brain-staleness.test.cjs",
+    "occurrences": 8,
+    "code_occurrences": 3,
+    "role": "writer",
+    "first_code_line": "129: fs.writeFileSync(path.join(sectionDir, 'BRAIN.md'), body);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "(no signal)",
+      "Pattern Matches"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/test-rs-query-to-text.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/triple-context-formatter.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_generated_at",
+      "brain_graph_version",
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/userpromptsubmit-integration.test.cjs",
+    "occurrences": 4,
+    "code_occurrences": 2,
+    "role": "writer",
+    "first_code_line": "149: fs.writeFileSync(path.join(sdir, 'BRAIN.md'), s.brainBody);",
+    "is_test": true,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness",
+      "Pattern Matches",
+      "Wicked Indicators"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "lib/memory/validators/brain-md-invariants.cjs",
+    "occurrences": 12,
+    "code_occurrences": 4,
+    "role": "reader",
+    "first_code_line": "300: 'BRAIN.md governing_thought_hash does not match current triple (derivation stale, enqueue regen)',",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "governing_thought_hash",
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/backfill-correlation-id.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/brain-derivation-drain.cjs",
+    "occurrences": 3,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/brain-derive-command.cjs",
+    "occurrences": 5,
+    "code_occurrences": 3,
+    "role": "writer",
+    "first_code_line": "632: lines.push('  (DRY-RUN - no Brain calls fired, no BRAIN.md written)');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "brain_graph_version",
+      "staleness",
+      "cost_tokens",
+      "brain_query_count"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/build-corpus-stats.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "145: 'docs/THE-BRAIN.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/doctor.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "writer",
+    "first_code_line": "2461: { id: 'ACPT-05', file: 'test-acpt-05-brain-derive-tier-rise.cjs', label: 'BRAIN.md derive raises tier_mode above tier_0 (hermetic; live mode_a self-skips)' },",
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/explain-decision-command.cjs",
+    "occurrences": 2,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "252: lines.push('## BRAIN.md signal');",
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/heal-command.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "reader",
+    "first_code_line": "151: if (f === 'ROOM.md' || f === 'STATE.md' || f === 'MINTO.md' || f === 'BRAIN.md') continue;",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/intent-classifier.cjs",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/memory-artifact-graph-hook.cjs",
+    "occurrences": 1,
+    "code_occurrences": 1,
+    "role": "mention",
+    "first_code_line": "62: 'ROOM.md', 'STATE.md', 'MINTO.md', 'BRAIN.md', 'FEYNMAN.md', 'USER.md',",
+    "is_test": false,
+    "keys_or_blocks": []
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/session-start",
+    "occurrences": 2,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": [
+      "staleness",
+      "stale_reason"
+    ]
+  },
+  {
+    "face": "BRAIN",
+    "path": "scripts/vault-section-minto-generator.cjs",
+    "occurrences": 1,
+    "code_occurrences": 0,
+    "role": "mention",
+    "first_code_line": null,
+    "is_test": false,
+    "keys_or_blocks": []
+  }
+]

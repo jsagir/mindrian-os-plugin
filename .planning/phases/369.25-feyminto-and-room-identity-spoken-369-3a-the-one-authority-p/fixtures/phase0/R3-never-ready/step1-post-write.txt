@@ -1,0 +1,9 @@
+# step1-post-write
+# command: bash <repo>/scripts/post-write
+# cwd: <tmp>/rooms/never-ready-fixture
+# exit: 0 signal: none
+## stdout
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"queued MINTO regen for problem-definition, recompiled references (phase0-problem-definition-note.md)"}}
+
+## stderr
+
