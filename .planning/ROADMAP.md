@@ -1822,6 +1822,17 @@ Plans:
 - [ ] 369.2-33 closure legs D1-D12 and the rest (R25)
 - [ ] 369.2-34 closure green, completion report, VALIDATION flip, CHANGELOG; navigator reads both rooms and decides the cut (checkpoint)
 
+### Phase 369.3a: FeyMinto and Room Identity: the one authority, proven on the room and consumed by its nests (brief 2026-10-05 prove one authority; SEED-122) (INSERTED 2026-10-05, navigator: "bring it fw")
+
+**Goal:** The room identity lives in room.db (Room node + identity rows) and is the one owner every path reads; the working sequence create -> register -> bind -> inspect -> governed write -> read back -> restart -> inspect again passes on the CLI and the Windows shape with the brief's eight failure tests failing first for the real reason; FeyMinto (the per-folder reasoning layer, its name on every surface) is keyed to that identity (FEYNMINTO-07), asks Theo per nest which frameworks, operations and /mos: commands to consider (Part 8 handles only, provenance on the face, "not asked" never silent), marks each recommendation runnable here / instruction-only / assisted, and is the one path the navigation engine reads its next move from; the extracted contract (state, owner, evidence, legal transition, readback, failure behavior, projections) is mapped onto the Layer Contract. Design: .planning/briefs/2026-10-05-prove-one-authority/FEYMINTO-CROSS.md.
+**Depends on:** Phase 369.2 wave 1 (the beta.61 cut); the rooms quick 261005-l9o. Ships as the cut after beta.61; 369.2 waves 2-4 follow it and carry the pattern.
+**Requirements**: TBD (derive at /gsd-plan-phase 369.3a from the brief section 4, SEED-122 and FEYMINTO-CROSS.md)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.3a to break down)
+
 ### Phase 369.3: Reliable transitions: rooms, Accept, resume, admission control and hooks (execution-truth program, brief Phase 2) (INSERTED)
 
 **Goal:** Every guard that correctly denies has a tested recovery: deny, perform the prescribed remediation, verify state, retry the original action. Room creation and switching work on Python 3.9 with room.db created and read back before success is reported (SEED-117: CODE-01, SW-01, SW-02, SW-20, ACT-01..04); the Accept action submits exactly once from mouse, keyboard and typed text and persists the decision (SEED-120 BUG-01, brief UI-02, HARNESS-06), with the human-only gate route of SEED-114; a session limit leaves a checkpoint a new session resumes from (REC-01, HARNESS-05); autonomous fan-out has admission control with reserved counterevidence and synthesis capacity (HARNESS-07); a presentation-hook failure degrades to text and never blocks a run (HARNESS-08); quote verification gets a correction window (SW-13, ACT-05); the instruction-returning room tools execute or refuse (SW-15, REV-03). Map: .planning/seeds/SEED-PROGRAM-execution-truth-2026-10-05.md.

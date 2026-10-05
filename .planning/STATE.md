@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phases 369 and 369.1 COMPLETE and verified human_needed (2026-10-04); UATs filed; quick tasks A6 (364 Theo step fixtures) and answered_via (CR-02) in flight; beta.56 held (Theo canon window 25, Phase 26 row)
 last_updated: "2026-10-03T21:40:00.000Z"
-last_activity: 2026-10-05 -- Phase 369.2 EXECUTING: waves 1-3 done (plans 01-09; the approval card is named by its job per the navigator's ruling, G8 pins no word grant on the card); wave 4 (plans 10, 11) dispatched; the 2026-10-05 brief (prove one authority) filed at .planning/briefs/2026-10-05-prove-one-authority, sequencing held for discussion
+last_activity: 2026-10-05 -- Phase 369.2 EXECUTING (waves 1-3 done, wave 4 running; plan 12 = beta.61 checkpoint). Navigator rulings tonight: the 2026-10-05 brief (prove one authority) filed; room identity lives in room.db; FeyMinto named (SEED-122) and brought forward: Phase 369.3a inserted (Room Identity exemplar + FeyMinto as its first consumer, FEYMINTO-CROSS.md), ships as the cut after beta.61, then 369.2 waves 2-4, then 369.3
 progress:
   total_phases: 121
   completed_phases: 48
