@@ -76,7 +76,7 @@ leg('F3 each query carries q_hash, audit pass, family, template_id, role, slot_t
   r.queries.forEach(function (x) {
     eq(x.q_hash, sha(x.q), 'q_hash');
     eq(x.q_hash, F.qHash(x.q), 'qHash export');
-    eq(x.audit, 'pass');
+    eq(x.audit, 'not_applicable', 'web line: no policy audit (369.2-05)');
     eq(x.family, 'whitespace-gap/v1');
     assertTrue(typeof x.template_id === 'string' && typeof x.role === 'string', 'ids');
     assertTrue(Array.isArray(x.slot_terms) && x.slot_terms.indexOf('acoustic biofilm disruption') >= 0, 'slot_terms has term');
@@ -84,6 +84,9 @@ leg('F3 each query carries q_hash, audit pass, family, template_id, role, slot_t
   });
   const syn = r.queries[1].slot_terms;
   assertTrue(syn.indexOf('sonic biofilm removal') >= 0 && syn.indexOf('ultrasonic biofilm control') >= 0, 'synonyms listed');
+  // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
+  const theo = F.composeFamily('whitespace-gap/v1', WS_SLOTS, { destination: 'theo' });
+  eq(theo.queries[0].audit, 'pass', 'theo destination keeps the Part 8 audit');
 });
 
 leg('F4 the other four families compose ok within 200 chars', function () {
@@ -107,10 +110,14 @@ leg('F4 the other four families compose ok within 200 chars', function () {
   eq(cl.queries[1].q, '"sleep loss" AND "memory decline" AND (confound OR "no association" OR "not associated")');
 });
 
-leg('F5 egress violation returns local-only with no echo of slot or string', function () {
+leg('F5 egress violation (theo destination) returns local-only with no echo; the same slot composes on the web line', function () {
+  // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
   const bad = ['reach me at a.person@example.com', 'a $5M market', 'Acme Corp thermal design'];
   bad.forEach(function (v) {
-    const r = F.composeFamily('whitespace-gap/v1', { term: v });
+    const w = F.composeFamily('whitespace-gap/v1', { term: v });
+    eq(w.ok, true, 'web line composes the slot');
+    assertTrue(w.queries[0].q.indexOf(v) >= 0, 'web query carries the slot as written');
+    const r = F.composeFamily('whitespace-gap/v1', { term: v }, { destination: 'theo' });
     eq(r.ok, false);
     eq(r.degrade, 'local-only');
     eq(r.reason, 'egress_violation');
@@ -166,9 +173,15 @@ leg('F7 unknown family refused; template subset composes only listed ids', funct
   eq(u.reason, 'unknown_template');
 });
 
-leg('F8 injected auditFn: once per slot value then once per composed string; throw maps to egress_violation', function () {
+leg('F8 injected auditFn (theo destination): once per slot value then once per composed string; throw maps to egress_violation; zero calls on the web line', function () {
+  // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
+  const webCalls = [];
+  const w = F.composeFamily('whitespace-gap/v1', WS_SLOTS, { templateIds: ['ws.exact', 'ws.synonym_cover'], auditFn: function (s) { webCalls.push(s); return s; } });
+  eq(w.ok, true);
+  eq(webCalls.length, 0, 'the web line runs no audit function');
   const calls = [];
   const r = F.composeFamily('whitespace-gap/v1', WS_SLOTS, {
+    destination: 'theo',
     templateIds: ['ws.exact', 'ws.synonym_cover'],
     auditFn: function (s, surface) { calls.push(s); eq(surface, 'research-planner'); return s; },
   });
@@ -180,6 +193,7 @@ leg('F8 injected auditFn: once per slot value then once per composed string; thr
   eq(calls[3], '"acoustic biofilm disruption"');
   let n = 0;
   const t = F.composeFamily('whitespace-gap/v1', WS_SLOTS, {
+    destination: 'theo',
     auditFn: function (s) { n += 1; if (n === 4) throw new Error('boom ' + s); return s; },
   });
   eq(t.ok, false);

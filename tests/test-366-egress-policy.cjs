@@ -85,8 +85,9 @@ function auditRecord(provider) {
     failure_class: null, count: 0, cost_usd: null, remaining_usd: null, x_query: null, latency_ms: 1,
   };
 }
-const LINES = ['vector_model_download', 'judge_jev', 'research', 'citation_check', 'prose', 'theo', 'entity_extraction'];
-const DEFAULTS = { vector_model_download: false, judge_jev: false, research: true, citation_check: false, prose: true, theo: true, entity_extraction: false };
+// 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
+const LINES = ['vector_model_download', 'judge_jev', 'citation_check', 'prose', 'theo', 'entity_extraction'];
+const DEFAULTS = { vector_model_download: false, judge_jev: false, citation_check: false, prose: true, theo: true, entity_extraction: false };
 
 (async function main() {
   await leg('E0 the reader module loads', function () {
@@ -99,34 +100,34 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
   }
 
   // ----- E1 -----
-  await leg('E1 loadEgressPolicy returns the seven lines with the planning defaults', function () {
+  await leg('E1 loadEgressPolicy returns the six non-web lines with the planning defaults (369.2-05)', function () {
     const room = mkRoom();
     const p = egress.loadEgressPolicy(room);
     const names = Object.keys(p.lines).sort().join(',');
     const defaultsOk = LINES.every(function (l) { return egress.lineAllowed(p, l) === DEFAULTS[l]; });
     const fileCount = Object.keys(require(path.join(REPO_ROOT, 'data/egress-policy.json')).lines).length;
-    return (names === LINES.slice().sort().join(',') && defaultsOk && fileCount === 7 && p.offline === false && Array.isArray(p.ignored) && p.ignored.length === 0) ||
+    return (names === LINES.slice().sort().join(',') && defaultsOk && fileCount === 6 && p.offline === false && Array.isArray(p.ignored) && p.ignored.length === 0) ||
       JSON.stringify({ names: names, defaultsOk: defaultsOk, fileCount: fileCount, ignored: p.ignored });
   });
   await leg('E1b a line with no entry (or a null line) is never allowed', function () {
     const p = egress.loadEgressPolicy(mkRoom());
-    return (egress.lineAllowed(p, 'no_such_line') === false && egress.lineAllowed(p, null) === false && egress.lineAllowed(null, 'research') === false) || 'unknown line allowed';
+    return (egress.lineAllowed(p, 'no_such_line') === false && egress.lineAllowed(p, null) === false && egress.lineAllowed(null, 'theo') === false) || 'unknown line allowed';
   });
 
   // ----- E2 -----
-  await leg('E2 a room override can turn research off; judge_jev true cannot widen and is reported', function () {
+  await leg('E2 a room override can turn theo off; judge_jev true cannot widen and is reported (369.2-05: research is not a line)', function () {
     const room = mkRoom();
-    writeOverride(room, { schema: 'mos.egress-policy/1', lines: { research: { default: false }, judge_jev: { default: true } } });
+    writeOverride(room, { schema: 'mos.egress-policy/1', lines: { theo: { default: false }, judge_jev: { default: true } } });
     const p = egress.loadEgressPolicy(room);
     const named = p.ignored.some(function (x) { return /judge_jev/.test(String(x)); });
-    return (egress.lineAllowed(p, 'research') === false && egress.lineAllowed(p, 'judge_jev') === false && egress.lineAllowed(p, 'theo') === true && named) ||
-      JSON.stringify({ research: egress.lineAllowed(p, 'research'), jev: egress.lineAllowed(p, 'judge_jev'), ignored: p.ignored });
+    return (egress.lineAllowed(p, 'theo') === false && egress.lineAllowed(p, 'judge_jev') === false && egress.lineAllowed(p, 'prose') === true && named) ||
+      JSON.stringify({ theo: egress.lineAllowed(p, 'theo'), jev: egress.lineAllowed(p, 'judge_jev'), ignored: p.ignored });
   });
-  await leg('E2b a bare boolean override works the same; an unknown line is ignored and named', function () {
+  await leg('E2b a bare boolean override works the same; an unknown line (research included, 369.2-05) is ignored and named', function () {
     const room = mkRoom();
-    writeOverride(room, { lines: { theo: false, mystery: true } });
+    writeOverride(room, { lines: { theo: false, mystery: true, research: false } });
     const p = egress.loadEgressPolicy(room);
-    return (egress.lineAllowed(p, 'theo') === false && p.ignored.some(function (x) { return /mystery/.test(String(x)); })) || JSON.stringify(p.ignored);
+    return (egress.lineAllowed(p, 'theo') === false && p.ignored.some(function (x) { return /mystery/.test(String(x)); }) && p.ignored.some(function (x) { return /research/.test(String(x)); })) || JSON.stringify(p.ignored);
   });
 
   // ----- E3 -----
@@ -136,11 +137,12 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
   });
 
   // ----- E4 -----
-  await leg('E4 lineForProvider maps the vendors and is null for an unknown one', function () {
-    const got = ['openalex', 'theo', 'typesafe', 'anthropic', 'huggingface'].map(egress.lineForProvider).join(',');
-    return (got === 'research,theo,judge_jev,prose,vector_model_download' && egress.lineForProvider('bogus-vendor') === null && egress.lineForProvider(undefined) === null) || got;
+  await leg('E4 lineForProvider maps the non-web vendors, is null for a web provider and for an unknown one; WEB_PROVIDERS lists the web ones (369.2-05)', function () {
+    const got = ['theo', 'typesafe', 'anthropic', 'huggingface'].map(egress.lineForProvider).join(',');
+    const web = Array.isArray(egress.WEB_PROVIDERS) && ['openalex', 'tavily', 'patents'].every(function (p) { return egress.WEB_PROVIDERS.indexOf(p) >= 0; });
+    return (got === 'theo,judge_jev,prose,vector_model_download' && egress.lineForProvider('openalex') === null && web && egress.lineForProvider('bogus-vendor') === null && egress.lineForProvider(undefined) === null) || JSON.stringify({ got: got, web: web });
   });
-  await leg('E4b every provider string the planner can write maps to a non-null line', function () {
+  await leg('E4b every provider string the planner can write maps to a non-null line or is a web provider (369.2-05)', function () {
     const found = {};
     (function walk(dir) {
       fs.readdirSync(dir, { withFileTypes: true }).forEach(function (d) {
@@ -157,23 +159,24 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
     })(RP);
     grants.STANDING_SCOPE.providers.forEach(function (p) { found[p] = 'grants.STANDING_SCOPE'; });
     found[grants.THEO_PROVIDER] = 'grants.THEO_PROVIDER';
-    const missing = Object.keys(found).filter(function (p) { return egress.lineForProvider(p) === null; });
+    const missing = Object.keys(found).filter(function (p) { return egress.lineForProvider(p) === null && egress.WEB_PROVIDERS.indexOf(p) === -1; });
     return (Object.keys(found).length >= 2 && missing.length === 0) || 'no policy entry for provider(s): ' + missing.map(function (p) { return p + ' (' + found[p] + ')'; }).join(', ');
   });
 
   // ----- E5 -----
-  await leg('E5 appendAudit refuses an off line with egress_line_off and writes nothing', function () {
+  await leg('E5 appendAudit refuses an off non-web line (theo) with egress_line_off and writes nothing; a web record is never policy-gated (369.2-05)', function () {
     const room = mkRoom();
-    writeOverride(room, { lines: { research: { default: false } } });
-    const res = auditLedger.appendAudit(room, auditRecord('openalex'));
+    writeOverride(room, { lines: { theo: { default: false } } });
+    const res = auditLedger.appendAudit(room, auditRecord('theo'));
     const wrote = fs.existsSync(path.join(room, '.mindrian', 'research-audit.jsonl'));
-    return (res.ok === false && res.reason === 'egress_line_off' && !wrote) || JSON.stringify({ res: res, wrote: wrote });
+    const webRes = auditLedger.appendAudit(room, auditRecord('openalex'));
+    return (res.ok === false && res.reason === 'egress_line_off' && !wrote && webRes.ok === true) || JSON.stringify({ res: res, wrote: wrote, webRes: webRes });
   });
   await leg('E5b an allowed line writes; an injected policy is honored; an unknown provider is refused', function () {
     const room = mkRoom();
     const ok = auditLedger.appendAudit(room, auditRecord('openalex'));
     const theo = auditLedger.appendAudit(room, auditRecord('theo'));
-    const off = auditLedger.appendAudit(room, auditRecord('openalex'), { policy: egress.loadEgressPolicy(room, { offline: true }) });
+    const off = auditLedger.appendAudit(room, auditRecord('theo'), { policy: egress.loadEgressPolicy(room, { offline: true }) });
     const unknown = auditLedger.appendAudit(room, auditRecord('bogus-vendor'));
     const rows = auditLedger.readAudit(room, {});
     return (ok.ok === true && theo.ok === true && off.ok === false && off.reason === 'egress_line_off' && unknown.ok === false && unknown.reason === 'egress_line_off' && rows.length === 2) ||
@@ -191,20 +194,20 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, research: tru
     const room = mkRoom();
     writeOverride(room, '{ not json');
     const p = egress.loadEgressPolicy(room);
-    return (egress.lineAllowed(p, 'research') === true && p.ignored.some(function (x) { return /egress-policy\.json/.test(String(x)); })) || JSON.stringify(p.ignored);
+    return (egress.lineAllowed(p, 'theo') === true && p.ignored.some(function (x) { return /egress-policy\.json/.test(String(x)); })) || JSON.stringify(p.ignored);
   });
   await leg('E6b an override that is a symlink out of the room is ignored', function () {
     const room = mkRoom();
     const outside = path.join(root, 'outside-policy.json');
-    fs.writeFileSync(outside, JSON.stringify({ lines: { research: { default: false } } }), 'utf8');
+    fs.writeFileSync(outside, JSON.stringify({ lines: { theo: { default: false } } }), 'utf8');
     fs.symlinkSync(outside, path.join(room, '.mindrian', 'egress-policy.json'));
     const p = egress.loadEgressPolicy(room);
-    return (egress.lineAllowed(p, 'research') === true && p.ignored.length >= 1) || JSON.stringify({ research: egress.lineAllowed(p, 'research'), ignored: p.ignored });
+    return (egress.lineAllowed(p, 'theo') === true && p.ignored.length >= 1) || JSON.stringify({ theo: egress.lineAllowed(p, 'theo'), ignored: p.ignored });
   });
   await leg('E6c a room that does not exist or a non-string room still returns the plugin default', function () {
     const a = egress.loadEgressPolicy(path.join(root, 'no-such-room'));
     const b = egress.loadEgressPolicy(undefined);
-    return (egress.lineAllowed(a, 'research') === true && egress.lineAllowed(b, 'research') === true) || 'default not returned';
+    return (egress.lineAllowed(a, 'theo') === true && egress.lineAllowed(b, 'theo') === true) || 'default not returned';
   });
 
   // ----- E7 .. E10 the quick run honors the policy -----
@@ -247,19 +250,19 @@ function theoOnly(qs) {
   const eu = mkPlan(eurekaRecall);
   const cn = mkPlan(cnRecall);
 
-  await leg('E7 research line off (room override): zero fetches, plan only, not sent, plan card intact', async function () {
+  await leg('E7 a room override naming research is ignored and named: the web line is not policy-gated, the run reaches the fetcher (369.2-05)', async function () {
+    // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
     if (!eu.plan) return 'no plan ' + JSON.stringify(eu.bp && eu.bp.errors);
     writeOverride(eu.roomDir, { lines: { research: { default: false } } });
+    const pol = egress.loadEgressPolicy(eu.roomDir);
+    const namedIgnored = pol.ignored.some(function (x) { return /research/.test(String(x)); });
     const w = approveRun(eu.roomDir, eu.plan);
     if (!w.ok) return 'grant ' + JSON.stringify(w);
     const f = stubFetch();
     const r = await quick.runQuick(eu.roomDir, eu.plan, { fetchEnvelopeFn: f.fn });
     const cover = quick.coverFor(eu.roomDir, eu.plan, {});
-    const cardOk = !!r.card && typeof r.card.body_md === 'string' && r.card.body_md.indexOf(eu.plan.pyramid.stated_question.replace(/\s+/g, ' ').trim()) !== -1;
-    const stateWritten = fs.existsSync(path.join(eu.roomDir, '.mindrian', 'research-runs', eu.plan.run_id, 'run.json'));
-    return (r.status === 'plan_only' && r.reason === 'egress_line_off' && r.line === 'research' && r.sent === false && /not sent/i.test(r.answer_line || '') && f.n === 0 &&
-      cardOk && !fs.existsSync(AUDIT_FILE(eu.roomDir)) && !stateWritten && cover.covered === false && cover.reason === 'egress_line_off') ||
-      JSON.stringify({ s: r.status, reason: r.reason, line: r.line, sent: r.sent, fetch: f.n, cardOk: cardOk, cover: cover.reason, audit: fs.existsSync(AUDIT_FILE(eu.roomDir)) });
+    return (namedIgnored && f.n >= 1 && r.reason !== 'egress_line_off' && cover.reason !== 'egress_line_off') ||
+      JSON.stringify({ namedIgnored: namedIgnored, s: r.status, reason: r.reason, fetch: f.n, cover: cover.reason });
   });
   await leg('E7b opts.offline gives the same answer with no override file', async function () {
     const m = mkPlan(eurekaRecall);
@@ -312,7 +315,8 @@ function theoOnly(qs) {
     const lane = path.join(R, '.mindrian', 'research-runs', runId, 'theo-lane.json');
     // 369.2-04, ruling 2026-10-05: the connections plan is now mixed (Theo leaves plus a web literature leaf), so
     // the offline plan-only answer names the research line first; still zero Theo calls, no lane file, no audit row.
-    return (run.code === 0 && run.json && run.json.status === 'plan_only' && run.json.line === 'research' && !fs.existsSync(lane) && !fs.existsSync(AUDIT_FILE(R))) || run.stdout.slice(0, 240);
+    // 369.2-05: --offline is read directly; the answer names reason offline, not a policy line.
+    return (run.code === 0 && run.json && run.json.status === 'plan_only' && run.json.reason === 'offline' && run.json.offline === true && !fs.existsSync(lane) && !fs.existsSync(AUDIT_FILE(R))) || run.stdout.slice(0, 240);
   });
   await leg('E8c the --offline flag is valueless and only on the three commands; elsewhere it is refused', function () {
     seq += 1;

@@ -217,8 +217,9 @@ async function main() {
     return true;
   });
 
-  // C3: an audit-tripping slot keeps that leaf in the room and builds the rest.
-  await leg('C3 audit-tripped slot: leaf local only without the string, rest built', async function () {
+  // C3 (369.2-05, ruling 2026-10-05): the web lines are not policy-gated; a slot naming an email composes and the
+  // string rides into the plan as written; the Part 8 fence is the Theo line only (test-363-families F5).
+  await leg('C3 web slot naming an email composes; the string is in the plan; rest built', async function () {
     const room = newRoom('founder');
     const trip = 'reach me at jane.doe@example.com';
     const qs = qsFile('whitespace-quick');
@@ -227,16 +228,16 @@ async function main() {
     if (r.status !== 'ready') return 'status ' + r.status + ' ' + JSON.stringify(r.errors);
     const l1 = r.plan.leaves.filter(function (l) { return l.id === 'L1'; })[0];
     const l2 = r.plan.leaves.filter(function (l) { return l.id === 'L2'; })[0];
-    if (l1.researchable !== false || !l1.not_researchable_reason) return 'L1 not local only';
+    if (l1.researchable !== true || !Array.isArray(l1.queries) || l1.queries.length === 0) return 'L1 not researchable on the web line';
     if (l2.queries.length === 0) return 'L2 has no queries';
     const blob = JSON.stringify(r) + fs.readFileSync(path.join(runDir(room, r.run_id), 'plan.json'), 'utf8');
-    if (blob.indexOf('jane.doe') !== -1) return 'the tripped string survived into the plan or result';
+    if (blob.indexOf('jane.doe') === -1) return 'the slot string did not reach the plan';
     const room2 = newRoom('founder');
     const qs2 = qsFile('whitespace-quick');
     qs2.leaves[0].slots = { term: trip };
     qs2.leaves[1].slots = { term: trip, synonyms: ['dielectric probes'] };
     const r2 = await PLANNER.buildPlan(room2.roomDir, qs2, { mode: 'quick' });
-    if (r2.status !== 'local_only') return 'both tripped: status ' + r2.status;
+    if (r2.status !== 'ready') return 'both web slots: status ' + r2.status;
     return true;
   });
 

@@ -106,16 +106,14 @@ async function planQuick(c) {
   const runId = p1.run_id;
   let r1 = null;
 
-  await leg('P1 research line off: typed plan_only, never run_refused', async function () {
+  await leg('P1 an override naming research is ignored (369.2-05): run_quick answers reask with a gate, never plan_only, never run_refused', async function () {
+    // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
     if (p1.ok !== true || p1.status !== 'ready') return 'plan ' + JSON.stringify(p1).slice(0, 300);
     writeOverride(room, { lines: { research: { default: false } } });
     const raw = await c.raw({ op: 'run_quick', run_id: runId });
     r1 = parse(raw);
-    return (r1.ok === true && r1.op === 'run_quick' && r1.status === 'plan_only' && r1.reason === 'egress_line_off' && r1.line === 'research'
-      && r1.offline === false && r1.sent === false && r1.outcome === 'plan_only_not_sent' && /not sent/i.test(String(r1.answer_line))
-      && r1.card && typeof r1.card.body_md === 'string' && r1.card.body_md.length > 0
-      && /egress-policy\.json/.test(String(r1.next_step)) && /research/.test(String(r1.next_step))
-      && raw.isError !== true && r1.reason !== 'run_refused') || JSON.stringify(r1).slice(0, 500);
+    return (r1.ok === true && r1.op === 'run_quick' && r1.status === 'reask' && !!r1.gate && r1.reason !== 'egress_line_off' && r1.reason !== 'run_refused'
+      && raw.isError !== true && net.attempts() === 0) || JSON.stringify(r1).slice(0, 500);
   });
 
   await leg('P2 the plan_only answer sends nothing and writes no run state or audit row', function () {
@@ -127,8 +125,9 @@ async function planQuick(c) {
     removeOverride(room);
     const p = await planQuick(c);
     const r = await c.call({ op: 'run_quick', run_id: p.run_id, offline: true });
-    return (r.ok === true && r.status === 'plan_only' && r.offline === true && r.line === 'research' && r.sent === false
-      && /offline was on/i.test(String(r.next_step)) && net.attempts() === 0) || JSON.stringify(r).slice(0, 500);
+    // 369.2-05: --offline is read directly; the answer names reason offline, not a policy line.
+    return (r.ok === true && r.status === 'plan_only' && r.offline === true && r.reason === 'offline' && r.sent === false
+      && /offline/i.test(String(r.next_step)) && net.attempts() === 0) || JSON.stringify(r).slice(0, 500);
   });
 
   await leg('P4 no override, offline absent, no grant: the existing reask answer', async function () {

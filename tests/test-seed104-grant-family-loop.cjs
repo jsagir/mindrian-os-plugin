@@ -637,10 +637,12 @@ async function main() {
     const canon = { id: 'k', title: '1. Something. Else here', title_from_field: false, canon_handle: 'Six Thinking Hats' };
     assert.equal(at(canon, {}, []), 'Six Thinking Hats');
     const st = eurekaRecall._test.slotTerm;
-    assert.equal(st('**Claim.** A stable'), null);
+    // 369.2-04/05, ruling 2026-10-05: slotTerm is the WEB slot rule (markdown stripped, cap 200); the field rule
+    // above (a claim body never becomes a term) is abstractTerm's and still holds.
+    assert.equal(st('**Claim.** A stable'), 'Claim. A stable');
     assert.equal(st('  thin film   sensors '), 'thin film sensors');
     assert.equal(st('a "quoted" AND (paren) term'), 'a quoted paren term');
-    assert.equal(st('x'.repeat(81)), null);
+    assert.equal(st('x'.repeat(201)), null);
   });
   await leg('E7 questionSetFor: a pair with no clean term is a local-only leaf; a side-unique entity gives it a term', function () {
     const bare = buildEurekaRoom();
