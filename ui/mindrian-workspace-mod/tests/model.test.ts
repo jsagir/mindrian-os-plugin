@@ -13,8 +13,10 @@ import {
   placeFrom,
   recommendedOption,
 } from '../src/model/mappers'
-import { ok } from '../src/model/view-model'
-import type { GateCard } from '../src/model/view-model'
+import { SAMPLES, SAMPLE_NAMES } from '../src/model/fixtures'
+import { SAMPLE_ENV, chooseViewModel } from '../src/model/read'
+import { isViewModel, ok } from '../src/model/view-model'
+import type { GateCard, ViewModel } from '../src/model/view-model'
 
 const textReply = (text: string, isError = false) => ({ content: [{ type: 'text', text }], isError })
 
@@ -218,4 +220,120 @@ test('choiceOptions ranks ascending, nulls last, at most three, none for multi',
   expect(choiceOptions(card({ options, selectMode: 'multi' }))).toEqual([])
   const ties = [option('x', null), option('y', null)]
   expect(choiceOptions(card({ options: ties })).map((o) => o.id)).toEqual(['x', 'y'])
+})
+
+// ---------------------------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------------------------
+
+const gatesOf = (m: ViewModel): GateCard[] => (m.gates.state === 'ok' ? m.gates.value : [])
+
+test('every sample is a valid view model marked as a sample', async () => {
+  expect(SAMPLE_NAMES.length).toBe(11)
+  for (const name of SAMPLE_NAMES) {
+    const m = SAMPLES[name]
+    expect(isViewModel(m)).toBe(true)
+    expect(m.source).toBe('sample')
+    expect(m.sampleName).toBe(name)
+  }
+})
+
+test('SAMPLES.wide is the first concept state', async () => {
+  const m = SAMPLES.wide
+  expect(m.place.isBound).toBe(true)
+  expect(m.place.room).toEqual(ok('Sample room (sample)'))
+  expect(m.place.folder).toEqual(ok('Funding (sample)'))
+  expect(m.purpose).toEqual(ok('building the funding case (sample)'))
+  expect(m.health).toEqual(ok('sound'))
+  expect(m.context).toEqual(ok(62))
+  expect(m.waiting).toEqual(ok(1))
+  expect(m.next.step).toEqual(ok('look at the evidence behind your funding choice (sample)'))
+  expect(m.next.reason).toEqual({ state: 'not_recorded' })
+  expect(m.next.command).toBe(null)
+  expect(m.next.method).toEqual(ok('Assumption Challenging'))
+
+  const cards = gatesOf(m)
+  expect(cards.length).toBe(1)
+  const first = cards[0]
+  expect(first?.selectMode).toBe('single')
+  expect(first?.options.length).toBe(3)
+  expect(first?.options.map((o) => o.rank)).toEqual([1, 2, 3])
+  expect(first?.options[0]?.recommended).toBe(true)
+  expect(first?.options[0]?.description).not.toBe(null)
+  expect(first?.approving).toEqual([first?.options[0]?.id])
+})
+
+test('SAMPLES.narrow carries the same facts as wide', async () => {
+  expect({ ...SAMPLES.narrow, sampleName: 'wide' }).toEqual(SAMPLES.wide)
+})
+
+test('SAMPLES.missing keeps the waiting decision and invents no next step or purpose', async () => {
+  const m = SAMPLES.missing
+  expect(m.purpose).toEqual({ state: 'no_purpose' })
+  expect(m.next.step).toEqual({ state: 'not_recorded' })
+  expect(m.waiting).toEqual(SAMPLES.wide.waiting)
+  expect(m.gates).toEqual(SAMPLES.wide.gates)
+})
+
+test('the honest variants reach every situation of UI-SPEC 10.3', async () => {
+  expect(SAMPLES.empty.waiting).toEqual(ok(0))
+  expect(SAMPLES.empty.gates).toEqual(ok([]))
+  expect(SAMPLES.noroom.place.isBound).toBe(false)
+  expect(SAMPLES.noroom.place.room).toEqual({ state: 'unavailable' })
+  expect(SAMPLES.limit.context).toEqual(ok(85))
+  expect(SAMPLES.drift.health).toEqual(ok('drift'))
+  expect(SAMPLES.broken.health).toEqual(ok('broken'))
+  expect(SAMPLES.several.waiting).toEqual(ok(3))
+  expect(gatesOf(SAMPLES.several).length).toBe(3)
+  expect(SAMPLES.nofile.purpose).toEqual({ state: 'no_room_file' })
+  expect(SAMPLES.unreadable.purpose).toEqual({ state: 'unavailable' })
+  expect(SAMPLES.unreadable.context).toEqual({ state: 'unavailable' })
+  expect(SAMPLES.unreadable.waiting).toEqual({ state: 'unavailable' })
+})
+
+test('only the third card of the several sample resumes a halted step', async () => {
+  for (const name of SAMPLE_NAMES) {
+    const resumes = gatesOf(SAMPLES[name]).map((c) => c.resumes)
+    if (name === 'several') expect(resumes).toEqual([false, false, true])
+    else expect(resumes.every((r) => r === false)).toBe(true)
+  }
+})
+
+test('sample strings are marked (sample) and gate ids cannot collide with real ones', async () => {
+  for (const name of SAMPLE_NAMES) {
+    const m = SAMPLES[name]
+    for (const seen of [m.place.folder, m.purpose, m.next.step]) {
+      if (seen.state === 'ok' && typeof seen.value === 'string') expect(seen.value.endsWith('(sample)')).toBe(true)
+    }
+    for (const c of gatesOf(m)) {
+      expect(c.header.endsWith('(sample)')).toBe(true)
+      expect(c.gateId.startsWith('sample-gate-')).toBe(true)
+    }
+  }
+})
+
+// ---------------------------------------------------------------------------------------------
+// readViewModel
+// ---------------------------------------------------------------------------------------------
+
+test('chooseViewModel prefers the session atom, then the env switch, then the live value', async () => {
+  const live = { ...SAMPLES.wide, source: 'live', sampleName: null }
+  expect(chooseViewModel('limit', 'missing', live)).toEqual(SAMPLES.limit)
+  expect(chooseViewModel(null, 'missing', live)).toEqual(SAMPLES.missing)
+  expect(chooseViewModel(null, undefined, live)).toEqual(live)
+})
+
+test('chooseViewModel ignores an invalid sample name and refuses a live value that is not a view model', async () => {
+  expect(chooseViewModel('nonsense', 'missing', null)).toEqual(SAMPLES.missing)
+  expect(chooseViewModel(null, 'nonsense', null)).toBe(null)
+  expect(chooseViewModel(null, undefined, { not: 'a view model' })).toBe(null)
+  expect(chooseViewModel(7, 7, 7)).toBe(null)
+})
+
+// readViewModel itself cannot run in a bare test: the test engine has no $.state and no $.env, and
+// a test's own hook may not call $.state.get (the host scans the plugin's module for the calls it
+// makes). The selection rule is covered above through chooseViewModel; the end-to-end read is
+// owed to the mount tests of plans 06 and 07, once a registrar hook calls readViewModel.
+test('the env switch has the one agreed name', async () => {
+  expect(SAMPLE_ENV).toBe('MOS_WORKSPACE_SAMPLE')
 })
