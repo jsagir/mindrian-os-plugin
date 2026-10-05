@@ -2170,6 +2170,90 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Quick 261005-l9o (SEED-117, CODE-01 / SW-02 / SW-20) -- the Python floor.
+      //
+      // The room registry, resolve-room and on-cwd-changed run embedded Python.
+      // macOS ships Python 3.9, Windows ships none; one Python 3.11-only call in
+      // those scripts means no tester on a stock machine can create or switch a
+      // room (the registry stays empty and every write path sticks). This point
+      // names the python3 the machine would run and counts the 3.11-only APIs left
+      // under scripts/, so the regression surfaces at release time instead of in a
+      // tester's bug report 16 days later.
+      //
+      // Status: FAIL when any 3.11-only API is found. WARN (ok, finding set) when
+      // python3 is missing or older than 3.9: that is a property of the machine
+      // running the doctor, not of the release, so it must not brick the train.
+      // The pattern is assembled from pieces so this file never matches itself.
+      //
+      // Canon Part 8: a local file read and one local `python3 --version` spawn.
+      // Zero network.
+      id: 'python-floor',
+      label: 'room scripts hold the Python 3.9 floor: python3 version resolved, 0 Python 3.11-only APIs under scripts/',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'python-floor') {
+          return { ok: false, finding: 'python-floor synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        let python3Version = 'not found';
+        try {
+          const pv = cp.spawnSync('python3', ['--version'], { encoding: 'utf8', timeout: 10000 });
+          if (!pv.error && pv.status === 0) {
+            python3Version = (((pv.stdout || '') + (pv.stderr || '')).trim().split('\n')[0] || '').replace(/^Python\s+/i, '') || 'unknown';
+          }
+        } catch (_e) { /* stays 'not found' */ }
+        const apiRe = new RegExp(['datetime' + '\\.' + 'UTC', 'tom' + 'llib', 'Exception' + 'Group'].join('|'));
+        const hits = [];
+        const walkScripts = function (dir) {
+          let ents;
+          try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch (_e) { return; }
+          for (const ent of ents) {
+            if (ent.name === 'node_modules' || ent.name === '.git') continue;
+            const full = path.join(dir, ent.name);
+            if (ent.isDirectory()) { walkScripts(full); continue; }
+            if (!ent.isFile()) continue;
+            let buf;
+            try {
+              if (fs.statSync(full).size > 3 * 1024 * 1024) continue;
+              buf = fs.readFileSync(full);
+            } catch (_e) { continue; }
+            if (buf.includes(0)) continue;
+            const lines = buf.toString('utf8').split('\n');
+            for (let i = 0; i < lines.length; i++) {
+              if (apiRe.test(lines[i])) hits.push(path.relative(pluginRoot, full) + ':' + (i + 1));
+            }
+          }
+        };
+        walkScripts(path.join(pluginRoot, 'scripts'));
+        const m = /^(\d+)\.(\d+)/.exec(python3Version);
+        const belowFloor = m ? (Number(m[1]) < 3 || (Number(m[1]) === 3 && Number(m[2]) < 9)) : true;
+        const detail = {
+          python3_version: python3Version,
+          python_floor: '3.9',
+          py311_only_api_hits: hits.length,
+          hit_sample: hits.slice(0, 10),
+        };
+        if (hits.length > 0) {
+          return {
+            ok: false,
+            finding: hits.length + ' Python 3.11-only API use(s) under scripts/ (first: ' + hits[0] + '); the room scripts must run on Python 3.9',
+            detail: detail,
+          };
+        }
+        if (belowFloor) {
+          return {
+            ok: true,
+            finding: python3Version === 'not found'
+              ? 'WARN: python3 not found on PATH; the room registry needs python3 (3.9 or newer) until the Node rewrite lands'
+              : 'WARN: python3 is ' + python3Version + ', below the 3.9 floor the room scripts target',
+            detail: detail,
+          };
+        }
+        return { ok: true, finding: null, detail: detail };
+      },
+    },
   ];
 }
 

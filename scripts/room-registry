@@ -37,6 +37,27 @@ REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
 
+# Quick 261005-l9o (SEED-117, SW-20): the registry is written by embedded Python.
+# A machine with no python3 on PATH used to die inside the first stanza with a
+# bare "command not found" that the caller then swallowed; name the cause and the
+# way out instead, so the line a tester pastes into a bug report is actionable.
+# Every subcommand needs python3, so this runs before any of them.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "room-registry: python3 not found on PATH (the room registry needs python3 until the Node rewrite lands; on Windows install Python 3 or run inside WSL)" >&2
+  exit 127
+fi
+
+# On a failure path only, say which python3 ran. The Python traceback alone does not
+# carry the interpreter version, and the version is what separates "stock macOS 3.9"
+# from "a bug on every Python". A clean exit prints nothing.
+_rr_exit_note() {
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "room-registry: exited ${rc}; python3 is $(python3 --version 2>&1 | head -n 1)" >&2
+  fi
+}
+trap _rr_exit_note EXIT
+
 # RCA registry-active-session-unbound-inheritance -- ownership stamp for the
 # machine-wide `active` field.
 #
@@ -386,7 +407,7 @@ with open(reg_file) as f:
 old_active = reg.get('active', '')
 if old_active and old_active in reg.get('rooms', {}):
     reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 reg['rooms'][name] = {
     'path': rpath,
     'created': now,
@@ -611,7 +632,7 @@ if name not in reg.get('rooms', {}):
 old_active = reg.get('active', '')
 if old_active and old_active in reg.get('rooms', {}) and old_active != name:
     reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 reg['rooms'][name]['status'] = 'active'
 reg['rooms'][name]['last_opened'] = now
 reg['active'] = name

@@ -119,6 +119,10 @@ above already requires; never hedge a FABRICATION and let it pass as an estimate
 
 Read room/ for project context. Reference STATE.md for completeness/gaps. Greet returning users with awareness: "I see you were working on X." Read USER.md for user context.
 
+## When a room create or switch fails (SEED-117)
+
+Report the failure line verbatim (it carries the Python error and the Python version), file a bug seed with the version and machine, and stop. Never hand-build a room: do not write the registry by hand, do not create the folders and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create skips the wiring the chokepoint guarantees. On the CLI one command makes a room, `/mos:rooms new <slug>`; call it rather than rebuilding it from shell steps.
+
 ## Non-Methodology Questions
 
 Help + nudge: answer, then "By the way, if this is for your venture, we could use [framework] to map this systematically."

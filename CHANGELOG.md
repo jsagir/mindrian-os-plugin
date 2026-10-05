@@ -2,9 +2,11 @@
 
 ### Changed
 - **Research can search the web with the room's own words** (SEED-115, quick 261004-v16). A search slot on the web lines (Tavily, WebSearch fallback) now takes a room phrase or a room question, up to 200 characters, markdown stripped, sent exactly as the grant card shows it. The strict short-term rule now applies only where it belongs: the Brain (Theo) lines, which never see room text (Canon Part 8 unchanged). Phase 369.2 completes this (query composition from room questions, the per-term grant loop retired on the web lines, the city-name fence ruled on).
+- **No key on the Theo path**: the client calls Theo bare; the Tier 0 branch, the no_key refusal, the bearer header, the silent /register leg and every Brain-key prompt are gone (SEED-119; Phase 0 fixture J2). A fresh install with nothing configured gets a Theo answer on the first call; an outage is the `unreachable` refusal and nothing else.
 
 ### Fixed
 - **Desktop copy without the workspace build**: `lib/ui-shell/dist` is dropped from `plugins/mos-desktop` and the payload gate refuses bracket or @ paths; Desktop marketplace sync works again (Phase 0 fixture J1: 53 bad paths, all inside the dist). The CLI install keeps the workspace (quick 261005-l8h).
+- **Rooms work on stock macOS (Python 3.9) and name the error on Windows**: datetime.timezone.utc at four sites, registry stderr surfaced in the rooms-open failure, birthRoom requires a room.db read-back and a registry entry or rolls back, the scaffold result says ready:false, the agent stops on a failed create instead of hand-building a room, and doctor carries a python-floor point (SEED-117, CODE-01, SW-01, SW-20, ACT-04, quick 261005-l9o).
 
 ### Added
 - 

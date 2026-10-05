@@ -251,6 +251,24 @@ arm('R2 runtime python3.9: resolve-room --adopt writes the registry', () => {
   check(fs.existsSync(path.join(w, '.rooms', 'registry.json')), 'no registry written by --adopt');
 });
 
+arm('R2 runtime python3.9: on-cwd-changed stamps last_opened in a legacy workspace registry', () => {
+  if (!PY39) throw new Skip(SKIP39);
+  const w = mk('cwd');
+  fs.mkdirSync(path.join(w, 'ws', 'room'), { recursive: true });
+  fs.mkdirSync(path.join(w, 'ws', '.rooms'), { recursive: true });
+  fs.mkdirSync(path.join(w, 'elsewhere'));
+  fs.writeFileSync(path.join(w, 'ws', 'room', 'STATE.md'), 'project_name: X\n');
+  const regPath = path.join(w, 'ws', '.rooms', 'registry.json');
+  const stale = '2020-01-01T00:00:00Z';
+  fs.writeFileSync(regPath, JSON.stringify({ version: 1, active: 'default', rooms: { default: { path: 'room', created: stale, last_opened: stale, status: 'active' } } }));
+  const env = Object.assign({}, process.env, { HOME: w, USERPROFILE: w, MINDRIAN_ROOMS_HOME: path.join(w, 'none') });
+  env.PATH = shim39() + path.delimiter + process.env.PATH;
+  const r = bash(path.join(ROOT, 'scripts', 'on-cwd-changed'), [path.join(w, 'ws')], env, path.join(w, 'elsewhere'));
+  check(r.status === 0, 'on-cwd-changed exit ' + r.status + ': ' + (r.stderr || '').slice(-200));
+  const lo = JSON.parse(fs.readFileSync(regPath, 'utf8')).rooms.default.last_opened;
+  check(lo !== stale && /Z$/.test(lo), 'last_opened was not restamped under python3.9: ' + lo);
+});
+
 // ---------------------------------------------------------------------------
 // R3 stderr surfaced in the openRoom failure payload
 // ---------------------------------------------------------------------------
