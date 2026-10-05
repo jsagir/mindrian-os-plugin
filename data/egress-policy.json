@@ -1,6 +1,6 @@
 {
   "schema": "mos.egress-policy/1",
-  "note": "One list of every line the research planner can send anything out on (Phase 366, ADR-E16). The audit ledger reads it: a record for a provider whose line is off is refused. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
+  "note": "Every non-web line the research planner can send anything out on. The web search lines (OpenAlex, Tavily, patents) are not policy lines (navigator ruling 2026-10-05): the one gate there is the run grant card showing the exact strings, and the audit ledger records every string. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
   "lines": {
     "vector_model_download": {
       "endpoint": "huggingface.co",
@@ -13,12 +13,6 @@
       "default": false,
       "scope": "dev-time only until the navigator rules (355 D-44)",
       "providers": ["typesafe"]
-    },
-    "research": {
-      "endpoint": "OpenAlex and registered research adapters",
-      "default": true,
-      "scope": "per grant",
-      "providers": ["openalex"]
     },
     "citation_check": {
       "endpoint": "api.typesafe.ai citation_check",
