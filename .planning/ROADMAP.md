@@ -1711,6 +1711,7 @@ Plans:
 - [x] 369-31-PLAN.md -- Close-out: phase gate, requirement rows with measured proof, validation sign-off (core e2e legs must have run), research trail in both homes
 
 **Gap closure (2026-10-04, after verification gaps_found; 15 plans, 10 waves, re-verified 8/8):**
+
 - [x] 369-33-PLAN.md -- gap closure
 - [x] 369-34-PLAN.md -- gap closure
 - [x] 369-35-PLAN.md -- gap closure
@@ -1726,6 +1727,18 @@ Plans:
 - [x] 369-45-PLAN.md -- gap closure
 - [x] 369-46-PLAN.md -- gap closure
 - [x] 369-47-PLAN.md -- gap closure
+
+### Phase 369.26: Mindrian Workspace mod: an orientation band and docked Review pane drawn natively in Claude Code, from spikes 008 and 009 and the navigator concept images (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 369
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 369.26 to break down)
+
 ### Phase 369.1: Desktop plugin install: MindrianOS installable from Claude Desktop Customize > Plugins > Add marketplace (a Desktop-syncable marketplace source beside the npm source, and dependency loading proven on the hookless surface) (INSERTED)
 
 **Goal:** A person installs MindrianOS from Customize > Plugins > Add marketplace with `jsagir/mindrian-marketplace` and gets a working Larry plus the room tools in Cowork and in the Desktop Code tab, with no terminal step (navigator ruling 2026-10-04: Desktop's Chat ignores a plugin's local MCP servers by design and gets skills and commands only; a `.mcpb` desktop extension for Chat is a follow-up seed). Measured 2026-10-04: the dialog answers "Marketplace sync failed" because Desktop's marketplace sync fetches only github / git / relative-path / archive plugin sources and our one plugin is `source: npm` (`@mindrian_os/cli`, pinned per release by RULE 5); the repo is public and the manifest is reachable on `master` (HTTP 200), so the address is not the fault. Two deliverables, both researched before built: (1) a Desktop-syncable source BESIDE the npm source in `marketplace.json` (preferred candidate: an `archive` source pointing at the already-published npm tarball `https://registry.npmjs.org/@mindrian_os/cli/-/cli-<version>.tgz` with a sha256 pin, written by `release.sh` in the RULE 5 lockstep; verify that Desktop accepts a .tgz whose files sit under `package/`, else publish the tarball as a GitHub release asset or a zip); (2) proof that the per-machine dependency install (Phase 341, RULE 8: `npm-shrinkwrap.json` installed by the loader with `npm ci --ignore-scripts`) actually runs on the hookless Desktop surface, or a Desktop-safe loading path if a SessionStart hook never fires there, so `bin/mindrian-mcp-server.cjs` and the Brain shim start with their packages present. Tri-polar: CLI install unchanged; Cowork checked the same way. Clean-up in the same phase: the stray `.next/` build directory committed at the marketplace repo's top level. Navigator priority (2026-10-04): critical, next after 369. Grounding: code.claude.com/docs/en/plugins/marketplace-reference (plugin sources), /plugins/host-marketplace (private access), /plugins/install (add a marketplace); anthropics/claude-code issues #61271 and #17201.
