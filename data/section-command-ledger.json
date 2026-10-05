@@ -1,13 +1,13 @@
 {
-  "built_at": "2026-10-04T18:12:12.041Z",
+  "built_at": "2026-10-05T14:37:53.416Z",
   "build_mode": "jev-scored",
-  "plugin_version": "2.0.0-beta.56",
+  "plugin_version": "2.0.0-beta.58",
   "theo_frameworks": 414,
   "jev_model": "jev-1.13.0",
   "confidence_floor": 0.3,
   "floor_basis": "swept over evals/icm/cases/turns.json (12 labeled turns), argmax top-3 hit rate",
   "floor_hit_rate": 0.5,
-  "wall_ms": 48177,
+  "wall_ms": 47088,
   "jev_calls": 12,
   "input_tokens": 26293,
   "output_tokens": 1905,
@@ -18,64 +18,64 @@
       {
         "command": "/mos:find-analogies",
         "framework": "Four Lenses of Innovation",
-        "score": 1.06,
-        "confidence": 0.5,
+        "score": 1.02,
+        "confidence": 0.54,
         "source": "framework-matched"
       },
       {
         "command": "/mos:find-connections",
         "framework": "Usher's Model of Cumulative Synthesis",
-        "score": 1.03,
-        "confidence": 0.51,
+        "score": 0.99,
+        "confidence": 0.48,
         "source": "framework-matched"
       },
       {
         "command": "/mos:bono",
         "framework": "Six Thinking Hats",
-        "score": 0.97,
-        "confidence": 0.32,
+        "score": 0.9,
+        "confidence": 0.29,
         "source": "ground-truth"
       },
       {
         "command": "/mos:systems-thinking",
         "framework": "Systems Thinking",
-        "score": 0.81,
-        "confidence": 0.48,
+        "score": 0.82,
+        "confidence": 0.5,
         "source": "framework-matched"
       },
       {
         "command": "/mos:analyze-systems",
         "framework": "Systems Thinking",
         "score": 0.78,
-        "confidence": 0.46,
+        "confidence": 0.47,
         "source": "framework-matched"
       },
       {
         "command": "/mos:rs-experts",
         "framework": "Reverse Salient Analysis",
-        "score": 0.77,
-        "confidence": 0.42,
+        "score": 0.74,
+        "confidence": 0.41,
         "source": "framework-matched"
       },
       {
         "command": "/mos:rs-explain",
         "framework": "Reverse Salient Analysis",
-        "score": 0.68,
-        "confidence": 0.33,
+        "score": 0.63,
+        "confidence": 0.27,
         "source": "framework-matched"
       },
       {
         "command": "/mos:rs-fetch",
         "framework": "Reverse Salient Analysis",
-        "score": 0.67,
-        "confidence": 0.3,
+        "score": 0.62,
+        "confidence": 0.26,
         "source": "framework-matched"
       },
       {
         "command": "/mos:hat-briefing",
         "framework": "Six Thinking Hats",
-        "score": 0.25,
-        "confidence": 0.62,
+        "score": 0.24,
+        "confidence": 0.64,
         "source": "framework-matched"
       }
     ],
@@ -83,21 +83,28 @@
       {
         "command": "/mos:explore-trends",
         "framework": "S-Curve Analysis",
-        "score": 1.87,
-        "confidence": 0.81,
+        "score": 1.86,
+        "confidence": 0.79,
         "source": "ground-truth"
       },
       {
         "command": "/mos:think-hats",
         "framework": "Six Thinking Hats",
-        "score": 1.76,
-        "confidence": 0.64,
+        "score": 1.77,
+        "confidence": 0.66,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:bono",
+        "framework": "Six Thinking Hats",
+        "score": 1.68,
+        "confidence": 0.52,
         "source": "ground-truth"
       },
       {
         "command": "/mos:opportunities",
         "framework": null,
-        "score": 1.67,
+        "score": 1.66,
         "confidence": 0.5,
         "source": "framework-matched"
       },
@@ -109,210 +116,196 @@
         "source": "ground-truth"
       },
       {
-        "command": "/mos:bono",
-        "framework": "Six Thinking Hats",
-        "score": 1.65,
-        "confidence": 0.48,
-        "source": "ground-truth"
-      },
-      {
         "command": "/mos:splash",
         "framework": null,
-        "score": 1.64,
-        "confidence": 0.46,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:explore-opportunity",
-        "framework": null,
-        "score": 1.5,
-        "confidence": 0.26,
+        "score": 1.6,
+        "confidence": 0.4,
         "source": "ground-truth"
       },
       {
         "command": "/mos:explore-domains",
         "framework": "Domain Selection",
-        "score": 1.47,
-        "confidence": 0.21,
+        "score": 1.58,
+        "confidence": 0.37,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "framework": null,
+        "score": 1.4,
+        "confidence": 0.1,
         "source": "ground-truth"
       },
       {
         "command": "/mos:whitespace",
         "framework": "HSI Semantic Surprise Analysis Assistant",
-        "score": 1.2,
-        "confidence": 0.25,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:beautiful-question",
-        "framework": "Beautiful Question Framework",
-        "score": 1.08,
-        "confidence": 0.14,
+        "score": 1.26,
+        "confidence": 0.17,
         "source": "ground-truth"
       },
       {
         "command": "/mos:eureka",
         "framework": null,
-        "score": 1.05,
-        "confidence": 0.4,
+        "score": 1.1,
+        "confidence": 0.38,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:beautiful-question",
+        "framework": "Beautiful Question Framework",
+        "score": 1,
+        "confidence": 0.14,
         "source": "ground-truth"
       },
       {
         "command": "/mos:build-knowledge",
         "framework": "Ackoff Pyramid",
-        "score": 1.01,
-        "confidence": 0.29,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:futures",
-        "framework": "Futures Wheel",
-        "score": 0.88,
-        "confidence": 0.32,
+        "score": 1,
+        "confidence": 0.33,
         "source": "ground-truth"
       },
       {
         "command": "/mos:research",
         "framework": "Hypothesis-Driven Problem Solving",
-        "score": 0.84,
-        "confidence": 0.41,
+        "score": 0.89,
+        "confidence": 0.43,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:scout",
-        "framework": null,
-        "score": 0.83,
-        "confidence": 0.1,
+        "command": "/mos:futures",
+        "framework": "Futures Wheel",
+        "score": 0.89,
+        "confidence": 0.29,
         "source": "ground-truth"
       },
       {
         "command": "/mos:auto-explore",
         "framework": null,
-        "score": 0.77,
+        "score": 0.83,
+        "confidence": 0.11,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:scout",
+        "framework": null,
+        "score": 0.79,
         "confidence": 0,
         "source": "ground-truth"
       },
       {
         "command": "/mos:trending-to-absurd",
         "framework": "Trending to the Absurd",
-        "score": 0.76,
+        "score": 0.75,
         "confidence": 0.37,
         "source": "ground-truth"
       },
       {
         "command": "/mos:structure-argument",
         "framework": "The Pyramid Principle",
-        "score": 0.7,
-        "confidence": 0.37,
+        "score": 0.74,
+        "confidence": 0.4,
         "source": "ground-truth"
       },
       {
         "command": "/mos:qualify-opportunity",
         "framework": null,
-        "score": 0.54,
-        "confidence": 0.2,
+        "score": 0.6,
+        "confidence": 0.22,
         "source": "ground-truth"
       },
       {
         "command": "/mos:mos-reason",
         "framework": "The Pyramid Principle",
-        "score": 0.52,
-        "confidence": 0.23,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:explore-futures",
-        "framework": "Scenario Planning",
-        "score": 0.37,
-        "confidence": 0.45,
-        "source": "framework-matched"
-      },
-      {
-        "command": "/mos:help",
-        "framework": null,
-        "score": 0.34,
-        "confidence": 0.49,
+        "score": 0.51,
+        "confidence": 0.24,
         "source": "ground-truth"
       },
       {
         "command": "/mos:ignite",
         "framework": null,
-        "score": 0.34,
-        "confidence": 0.49,
+        "score": 0.36,
+        "confidence": 0.47,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:explore-futures",
+        "framework": "Scenario Planning",
+        "score": 0.35,
+        "confidence": 0.48,
+        "source": "framework-matched"
+      },
+      {
+        "command": "/mos:status",
+        "framework": null,
+        "score": 0.33,
+        "confidence": 0.51,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:help",
+        "framework": null,
+        "score": 0.32,
+        "confidence": 0.52,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:mva-option",
+        "framework": null,
+        "score": 0.31,
+        "confidence": 0.53,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:new-surface",
+        "framework": null,
+        "score": 0.31,
+        "confidence": 0.54,
         "source": "ground-truth"
       },
       {
         "command": "/mos:scenario-plan",
         "framework": "Scenario Planning",
         "score": 0.31,
-        "confidence": 0.54,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:find-bottlenecks",
-        "framework": "Reverse Salient Analysis",
-        "score": 0.31,
         "confidence": 0.53,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:mva-option",
+        "command": "/mos:mos",
         "framework": null,
         "score": 0.3,
         "confidence": 0.56,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:status",
-        "framework": null,
-        "score": 0.29,
-        "confidence": 0.57,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:new-surface",
-        "framework": null,
-        "score": 0.28,
-        "confidence": 0.58,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:mos",
-        "framework": null,
-        "score": 0.27,
-        "confidence": 0.6,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:score-innovation",
-        "framework": "HSI Semantic Surprise Analysis Assistant",
-        "score": 0.27,
-        "confidence": 0.59,
+        "command": "/mos:find-bottlenecks",
+        "framework": "Reverse Salient Analysis",
+        "score": 0.3,
+        "confidence": 0.55,
         "source": "ground-truth"
       },
       {
         "command": "/mos:rs-thesis",
         "framework": "Reverse Salient Analysis",
+        "score": 0.27,
+        "confidence": 0.59,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:score-innovation",
+        "framework": "HSI Semantic Surprise Analysis Assistant",
         "score": 0.26,
         "confidence": 0.61,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:mva-brief",
+        "command": "/mos:new-project",
         "framework": null,
         "score": 0.25,
         "confidence": 0.63,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:rs-explain",
-        "framework": "Reverse Salient Analysis",
-        "score": 0.25,
-        "confidence": 0.63,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:new-project",
+        "command": "/mos:setup",
         "framework": null,
         "score": 0.23,
         "confidence": 0.66,
@@ -322,33 +315,33 @@
         "command": "/mos:rs-experts",
         "framework": "Reverse Salient Analysis",
         "score": 0.23,
+        "confidence": 0.65,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:rs-explain",
+        "framework": "Reverse Salient Analysis",
+        "score": 0.22,
         "confidence": 0.66,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:setup",
+        "command": "/mos:mva-brief",
         "framework": null,
         "score": 0.21,
         "confidence": 0.68,
         "source": "ground-truth"
       },
       {
-        "command": "/mos:rs-fetch",
-        "framework": "Reverse Salient Analysis",
-        "score": 0.21,
-        "confidence": 0.69,
+        "command": "/mos:operator",
+        "framework": null,
+        "score": 0.2,
+        "confidence": 0.7,
         "source": "ground-truth"
       },
       {
         "command": "/mos:leadership",
         "framework": "Adaptive Leadership",
-        "score": 0.2,
-        "confidence": 0.71,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:onboard",
-        "framework": null,
         "score": 0.18,
         "confidence": 0.73,
         "source": "ground-truth"
@@ -356,26 +349,33 @@
       {
         "command": "/mos:skill",
         "framework": null,
+        "score": 0.18,
+        "confidence": 0.73,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "framework": "Reverse Salient Analysis",
+        "score": 0.18,
+        "confidence": 0.72,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:onboard",
+        "framework": null,
         "score": 0.17,
-        "confidence": 0.75,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:operator",
-        "framework": null,
-        "score": 0.16,
-        "confidence": 0.76,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:query",
-        "framework": null,
-        "score": 0.11,
-        "confidence": 0.83,
+        "confidence": 0.74,
         "source": "ground-truth"
       },
       {
         "command": "/mos:graph",
+        "framework": null,
+        "score": 0.1,
+        "confidence": 0.85,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:query",
         "framework": null,
         "score": 0.1,
         "confidence": 0.84,
@@ -391,7 +391,7 @@
       {
         "command": "/mos:suggest-next",
         "framework": null,
-        "score": 0.07,
+        "score": 0.08,
         "confidence": 0.89,
         "source": "ground-truth"
       }
@@ -401,7 +401,7 @@
         "command": "/mos:find-bottlenecks",
         "framework": "Reverse Salient Analysis",
         "score": 1.97,
-        "confidence": 0.95,
+        "confidence": 0.96,
         "source": "ground-truth"
       },
       {
@@ -421,50 +421,50 @@
       {
         "command": "/mos:rs-fetch",
         "framework": "Reverse Salient Analysis",
-        "score": 1.3,
-        "confidence": 0,
+        "score": 1.38,
+        "confidence": 0.06,
         "source": "ground-truth"
       },
       {
         "command": "/mos:systems-thinking",
         "framework": "Systems Thinking",
-        "score": 1.24,
-        "confidence": 0.45,
+        "score": 1.31,
+        "confidence": 0.36,
         "source": "ground-truth"
       },
       {
         "command": "/mos:rs-explain",
         "framework": "Reverse Salient Analysis",
-        "score": 1.18,
+        "score": 1.23,
         "confidence": 0,
         "source": "ground-truth"
       },
       {
         "command": "/mos:rs-thesis",
         "framework": "Reverse Salient Analysis",
-        "score": 1.15,
-        "confidence": 0.13,
+        "score": 1.2,
+        "confidence": 0,
         "source": "ground-truth"
       },
       {
         "command": "/mos:analyze-systems",
         "framework": "Systems Thinking",
-        "score": 1.15,
+        "score": 1.14,
         "confidence": 0.57,
         "source": "ground-truth"
       },
       {
         "command": "/mos:causal",
         "framework": "Root Cause Analysis",
-        "score": 0.59,
-        "confidence": 0.11,
+        "score": 0.6,
+        "confidence": 0.1,
         "source": "ground-truth"
       },
       {
         "command": "/mos:scenario-plan",
         "framework": "Scenario Planning",
-        "score": 0.04,
-        "confidence": 0.94,
+        "score": 0.05,
+        "confidence": 0.93,
         "source": "ground-truth"
       }
     ],
@@ -472,106 +472,106 @@
       {
         "command": "/mos:beautiful-question",
         "framework": "Beautiful Question Framework",
-        "score": 1.88,
-        "confidence": 0.82,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:analyze-needs",
-        "framework": "Jobs to Be Done (JTBD)",
-        "score": 1.82,
-        "confidence": 0.73,
+        "score": 1.89,
+        "confidence": 0.84,
         "source": "ground-truth"
       },
       {
         "command": "/mos:user-needs",
         "framework": "Jobs to Be Done (JTBD)",
-        "score": 1.8,
-        "confidence": 0.7,
+        "score": 1.84,
+        "confidence": 0.75,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:analyze-needs",
+        "framework": "Jobs to Be Done (JTBD)",
+        "score": 1.83,
+        "confidence": 0.75,
         "source": "ground-truth"
       },
       {
         "command": "/mos:explore-domains",
         "framework": "Domain Selection",
-        "score": 1.79,
-        "confidence": 0.69,
+        "score": 1.77,
+        "confidence": 0.65,
         "source": "ground-truth"
       },
       {
         "command": "/mos:root-cause",
         "framework": "Root Cause Analysis",
-        "score": 1.65,
-        "confidence": 0.48,
+        "score": 1.7,
+        "confidence": 0.54,
         "source": "framework-matched"
       },
       {
         "command": "/mos:causal",
         "framework": "Root Cause Analysis",
-        "score": 1.59,
-        "confidence": 0.39,
+        "score": 1.61,
+        "confidence": 0.41,
         "source": "framework-matched"
       },
       {
         "command": "/mos:auto-explore",
         "framework": null,
         "score": 1.46,
-        "confidence": 0.19,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:futures",
-        "framework": "Futures Wheel",
-        "score": 0.87,
-        "confidence": 0.48,
+        "confidence": 0.2,
         "source": "ground-truth"
       },
       {
         "command": "/mos:diagnose",
         "framework": "Problem Definition Transformation Framework",
-        "score": 0.82,
-        "confidence": 0,
+        "score": 0.85,
+        "confidence": 0.11,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:futures",
+        "framework": "Futures Wheel",
+        "score": 0.85,
+        "confidence": 0.5,
         "source": "ground-truth"
       },
       {
         "command": "/mos:whitespace",
         "framework": "HSI Semantic Surprise Analysis Assistant",
-        "score": 0.69,
-        "confidence": 0.45,
+        "score": 0.63,
+        "confidence": 0.38,
         "source": "ground-truth"
-      },
-      {
-        "command": "/mos:validate",
-        "framework": "Jobs to Be Done (JTBD)",
-        "score": 0.32,
-        "confidence": 0.51,
-        "source": "framework-matched"
       },
       {
         "command": "/mos:map-unknowns",
         "framework": "Knowns and Unknowns Matrix Framework",
-        "score": 0.31,
-        "confidence": 0.54,
+        "score": 0.34,
+        "confidence": 0.48,
+        "source": "framework-matched"
+      },
+      {
+        "command": "/mos:validate",
+        "framework": "Jobs to Be Done (JTBD)",
+        "score": 0.29,
+        "confidence": 0.56,
         "source": "framework-matched"
       },
       {
         "command": "/mos:research",
         "framework": "Hypothesis-Driven Problem Solving",
         "score": 0.27,
-        "confidence": 0.6,
+        "confidence": 0.59,
         "source": "framework-matched"
       },
       {
         "command": "/mos:build-knowledge",
         "framework": "Ackoff Pyramid",
-        "score": 0.25,
-        "confidence": 0.63,
+        "score": 0.19,
+        "confidence": 0.72,
         "source": "framework-matched"
       },
       {
         "command": "/mos:trending-to-absurd",
         "framework": "Trending to the Absurd",
-        "score": 0.15,
-        "confidence": 0.77,
+        "score": 0.12,
+        "confidence": 0.82,
         "source": "framework-matched"
       }
     ],
@@ -579,22 +579,22 @@
       {
         "command": "/mos:lean-canvas",
         "framework": "Lean Canvas",
-        "score": 1.58,
-        "confidence": 0.37,
+        "score": 1.61,
+        "confidence": 0.41,
         "source": "ground-truth"
       },
       {
         "command": "/mos:mullins",
         "framework": "Mullins Model",
-        "score": 0.97,
-        "confidence": 0.49,
+        "score": 1.01,
+        "confidence": 0.48,
         "source": "framework-matched"
       },
       {
         "command": "/mos:validate-proposition",
         "framework": "PWS Value Proposition",
         "score": 0.59,
-        "confidence": 0.11,
+        "confidence": 0.22,
         "source": "ground-truth"
       },
       {
@@ -607,31 +607,31 @@
       {
         "command": "/mos:analyze-systems",
         "framework": "Systems Thinking",
-        "score": 0.27,
-        "confidence": 0.6,
+        "score": 0.26,
+        "confidence": 0.61,
         "source": "framework-matched"
       }
     ],
     "model-finances|*|*": [
       {
-        "command": "/mos:grade",
+        "command": "/mos:deep-grade",
         "framework": "PWS Triple Validation Compass",
-        "score": 1.01,
-        "confidence": 0.28,
+        "score": 0.92,
+        "confidence": 0.17,
         "source": "framework-matched"
       },
       {
-        "command": "/mos:deep-grade",
+        "command": "/mos:grade",
         "framework": "PWS Triple Validation Compass",
-        "score": 0.87,
-        "confidence": 0.18,
+        "score": 0.91,
+        "confidence": 0.26,
         "source": "framework-matched"
       },
       {
         "command": "/mos:build-thesis",
         "framework": "PWS Value Proposition",
-        "score": 0.18,
-        "confidence": 0.74,
+        "score": 0.21,
+        "confidence": 0.68,
         "source": "ground-truth"
       }
     ],
@@ -639,99 +639,99 @@
       {
         "command": "/mos:act",
         "framework": null,
-        "score": 1.87,
-        "confidence": 0.8,
+        "score": 1.84,
+        "confidence": 0.77,
         "source": "ground-truth"
       },
       {
         "command": "/mos:pipeline",
         "framework": null,
-        "score": 1.82,
-        "confidence": 0.73,
+        "score": 1.78,
+        "confidence": 0.67,
         "source": "ground-truth"
       },
       {
         "command": "/mos:intel-pipeline",
         "framework": null,
-        "score": 1.57,
-        "confidence": 0.35,
+        "score": 1.61,
+        "confidence": 0.41,
         "source": "ground-truth"
       },
       {
         "command": "/mos:scheduled-tasks",
         "framework": null,
-        "score": 1.5,
-        "confidence": 0.25,
+        "score": 1.48,
+        "confidence": 0.21,
         "source": "ground-truth"
       },
       {
         "command": "/mos:suggest-next",
         "framework": null,
-        "score": 1.05,
-        "confidence": 0.28,
+        "score": 0.98,
+        "confidence": 0.31,
         "source": "ground-truth"
       },
       {
         "command": "/mos:scenario-plan",
         "framework": "Scenario Planning",
-        "score": 0.56,
-        "confidence": 0.27,
+        "score": 0.6,
+        "confidence": 0.32,
         "source": "ground-truth"
-      },
-      {
-        "command": "/mos:grade",
-        "framework": "PWS Triple Validation Compass",
-        "score": 0.31,
-        "confidence": 0.54,
-        "source": "framework-matched"
       },
       {
         "command": "/mos:think-hats",
         "framework": "Six Thinking Hats",
-        "score": 0.29,
-        "confidence": 0.56,
+        "score": 0.32,
+        "confidence": 0.52,
         "source": "framework-matched"
       },
       {
-        "command": "/mos:deep-grade",
+        "command": "/mos:grade",
         "framework": "PWS Triple Validation Compass",
-        "score": 0.24,
-        "confidence": 0.64,
+        "score": 0.3,
+        "confidence": 0.55,
         "source": "framework-matched"
       },
       {
         "command": "/mos:leadership",
         "framework": "Adaptive Leadership",
-        "score": 0.2,
-        "confidence": 0.71,
+        "score": 0.23,
+        "confidence": 0.65,
         "source": "ground-truth"
+      },
+      {
+        "command": "/mos:deep-grade",
+        "framework": "PWS Triple Validation Compass",
+        "score": 0.22,
+        "confidence": 0.68,
+        "source": "framework-matched"
       },
       {
         "command": "/mos:hat-briefing",
         "framework": "Six Thinking Hats",
-        "score": 0.17,
-        "confidence": 0.75,
+        "score": 0.15,
+        "confidence": 0.77,
         "source": "framework-matched"
       },
       {
         "command": "/mos:analyze-needs",
         "framework": "Jobs to Be Done (JTBD)",
-        "score": 0.1,
-        "confidence": 0.85,
+        "score": 0.11,
+        "confidence": 0.84,
         "source": "framework-matched"
       },
       {
         "command": "/mos:mullins",
         "framework": "Mullins Model",
-        "score": 0.08,
-        "confidence": 0.87,
+        "score": 0.1,
+        "confidence": 0.86,
         "source": "framework-matched"
       },
       {
         "command": "/mos:funding",
         "framework": null,
-        "score": 0.07,
-        "confidence": 0.89,
+        "score": 0.06,
+        "confidence": 0.92,
         "source": "framework-matched"
       }
     ],
@@ -739,8 +739,8 @@
       {
         "command": "/mos:challenge-assumptions",
         "framework": "Red Teaming",
-        "score": 0.58,
-        "confidence": 0.13,
+        "score": 0.53,
+        "confidence": 0.21,
         "source": "framework-matched"
       }
     ],
@@ -748,15 +748,15 @@
       {
         "command": "/mos:macro-trends",
         "framework": "PEST Analysis",
-        "score": 1.83,
-        "confidence": 0.74,
+        "score": 1.91,
+        "confidence": 0.86,
         "source": "framework-matched"
       },
       {
         "command": "/mos:explore-trends",
         "framework": "S-Curve Analysis",
-        "score": 1.69,
-        "confidence": 0.54,
+        "score": 1.66,
+        "confidence": 0.48,
         "source": "framework-matched"
       },
       {
@@ -769,22 +769,29 @@
       {
         "command": "/mos:analyze-timing",
         "framework": "S-Curve Analysis",
-        "score": 1.38,
-        "confidence": 0.28,
+        "score": 1.44,
+        "confidence": 0.16,
         "source": "framework-matched"
       },
       {
         "command": "/mos:mullins",
         "framework": "Mullins Model",
-        "score": 1.1,
-        "confidence": 0.16,
+        "score": 1.09,
+        "confidence": 0.08,
         "source": "framework-matched"
       },
       {
         "command": "/mos:dominant-designs",
         "framework": "Dominant Design",
-        "score": 1.02,
-        "confidence": 0.76,
+        "score": 1.01,
+        "confidence": 0.77,
+        "source": "framework-matched"
+      },
+      {
+        "command": "/mos:diffusion",
+        "framework": "Adoption-Capacity Theory",
+        "score": 0.87,
+        "confidence": 0.63,
         "source": "framework-matched"
       },
       {
@@ -795,53 +802,46 @@
         "source": "ground-truth"
       },
       {
-        "command": "/mos:diffusion",
-        "framework": "Adoption-Capacity Theory",
-        "score": 0.86,
-        "confidence": 0.63,
-        "source": "framework-matched"
-      },
-      {
         "command": "/mos:research",
         "framework": "Hypothesis-Driven Problem Solving",
-        "score": 0.28,
-        "confidence": 0.57,
+        "score": 0.33,
+        "confidence": 0.51,
         "source": "ground-truth"
       },
       {
         "command": "/mos:challenge-assumptions",
         "framework": "Red Teaming",
-        "score": 0.25,
-        "confidence": 0.63,
+        "score": 0.3,
+        "confidence": 0.55,
         "source": "framework-matched"
       },
       {
         "command": "/mos:explore-domains",
         "framework": "Domain Selection",
-        "score": 0.22,
-        "confidence": 0.67,
+        "score": 0.3,
+        "confidence": 0.55,
         "source": "ground-truth"
-      },
-      {
-        "command": "/mos:scenario-plan",
-        "framework": "Scenario Planning",
-        "score": 0.16,
-        "confidence": 0.77,
-        "source": "framework-matched"
       },
       {
         "command": "/mos:scout",
         "framework": null,
-        "score": 0.16,
-        "confidence": 0.76,
+        "score": 0.21,
+        "confidence": 0.69,
         "source": "ground-truth"
       },
       {
         "command": "/mos:user-needs",
         "framework": "Jobs to Be Done (JTBD)",
-        "score": 0.15,
-        "confidence": 0.77,
+        "score": 0.19,
+        "confidence": 0.72,
         "source": "ground-truth"
+      },
+      {
+        "command": "/mos:scenario-plan",
+        "framework": "Scenario Planning",
+        "score": 0.15,
+        "confidence": 0.78,
+        "source": "framework-matched"
       },
       {
         "command": "/mos:analyze-needs",
@@ -854,14 +854,14 @@
         "command": "/mos:compare-ventures",
         "framework": "PWS Triple Validation Compass",
         "score": 0.09,
-        "confidence": 0.86,
+        "confidence": 0.87,
         "source": "ground-truth"
       },
       {
         "command": "/mos:auto-explore",
         "framework": null,
-        "score": 0.07,
-        "confidence": 0.89,
+        "score": 0.08,
+        "confidence": 0.87,
         "source": "ground-truth"
       }
     ],
@@ -869,50 +869,50 @@
       {
         "command": "/mos:validate-proposition",
         "framework": "PWS Value Proposition",
-        "score": 1.9,
-        "confidence": 0.86,
+        "score": 1.91,
+        "confidence": 0.87,
         "source": "ground-truth"
       },
       {
         "command": "/mos:challenge-assumptions",
         "framework": "Red Teaming",
-        "score": 1.81,
-        "confidence": 0.71,
+        "score": 1.76,
+        "confidence": 0.65,
         "source": "framework-matched"
       },
       {
         "command": "/mos:validate",
         "framework": "Jobs to Be Done (JTBD)",
-        "score": 1.64,
-        "confidence": 0.46,
+        "score": 1.76,
+        "confidence": 0.64,
         "source": "ground-truth"
       },
       {
         "command": "/mos:map-unknowns",
         "framework": "Knowns and Unknowns Matrix Framework",
-        "score": 1.54,
-        "confidence": 0.31,
-        "source": "ground-truth"
-      },
-      {
-        "command": "/mos:feynman-timeline-refresh",
-        "framework": null,
-        "score": 1.05,
-        "confidence": 0.22,
+        "score": 1.55,
+        "confidence": 0.32,
         "source": "ground-truth"
       },
       {
         "command": "/mos:structure-argument",
         "framework": "The Pyramid Principle",
-        "score": 1.03,
-        "confidence": 0.69,
+        "score": 1.1,
+        "confidence": 0.64,
+        "source": "ground-truth"
+      },
+      {
+        "command": "/mos:feynman-timeline-refresh",
+        "framework": null,
+        "score": 1.09,
+        "confidence": 0.29,
         "source": "ground-truth"
       },
       {
         "command": "/mos:dial-memory-refresh",
         "framework": null,
-        "score": 0.87,
-        "confidence": 0.11,
+        "score": 0.83,
+        "confidence": 0.1,
         "source": "ground-truth"
       },
       {
@@ -925,8 +925,8 @@
       {
         "command": "/mos:lean-canvas",
         "framework": "Lean Canvas",
-        "score": 0.25,
-        "confidence": 0.62,
+        "score": 0.28,
+        "confidence": 0.58,
         "source": "ground-truth"
       },
       {
@@ -939,8 +939,8 @@
       {
         "command": "/mos:scientific-roadmap",
         "framework": "Scientific Roadmapping",
-        "score": 0.17,
-        "confidence": 0.74,
+        "score": 0.19,
+        "confidence": 0.72,
         "source": "ground-truth"
       }
     ]
