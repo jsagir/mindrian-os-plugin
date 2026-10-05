@@ -46,8 +46,10 @@
  * it, an A/B with no real difference between the arms would report a delta
  * of zero and look exactly like a legitimate null finding.
  *
- * CANON PART 8. part8-hygiene reuses lib/core/part8-egress-guard.classify
- * over every bundle this harness would send, NEVER a hand-rolled egress
+ * CANON PART 8. part8-hygiene reuses lib/core/part8-egress-guard.scanForContent
+ * (the CONTENT-SET scan; 369.2-08 moved it off classify, whose free-form Theo
+ * verdict blocks synthetic venture names that never go to Theo) over every
+ * bundle this harness would send, NEVER a hand-rolled egress
  * regex (huji-eval's D4 doctrine). The harness also refuses outright to run
  * against any room dir resolving under the real rooms home
  * ($HOME/MindrianRooms or $MINDRIAN_ROOMS_HOME) -- it runs against the
@@ -307,8 +309,8 @@ function realRoomsHomeRoots() {
 }
 
 // ---------------------------------------------------------------------------
-// checkPart8Hygiene -- reuses lib/core/part8-egress-guard.classify over every
-// bundle the harness would send, NEVER a hand-rolled egress regex. Adds the
+// checkPart8Hygiene -- reuses lib/core/part8-egress-guard.scanForContent (the
+// CONTENT-SET scan, 369.2-08) over every bundle the harness would send, NEVER a hand-rolled egress regex. Adds the
 // per-unit entity grep layer huji-eval's D4 uses: any real-rooms-home path
 // surviving in a payload is a breach even if the guard passed it. Zero
 // tolerance. Refuses outright, naming the path, if the room dir under test
@@ -342,9 +344,21 @@ function checkPart8Hygiene(opts) {
           continue;
         }
         const payload = { question: bundle.text };
-        const verdict = guard.classify(payload, { toolName: 'brain_ask' });
-        if (verdict.verdict === 'block') {
-          violations.push(task.id + ' (withContext=' + withContext + '): guard block: ' + verdict.reason);
+        // 369.2-08 (CODE-07, 2026-10-05): the check is the CONTENT-SET scan, not
+        // the free-form Theo verdict. This harness never sends a bundle to
+        // Theo: the WITH-context arm deliberately carries the synthetic fixture
+        // room's own artifact text to the answering MODEL (spawnAnswer), which
+        // is the manipulated variable of the A/B. Under content-not-shape a
+        // venture-like proper name in a free-form string is room content for a
+        // Theo wire and blocks, which is correct there and wrong here: the
+        // fixture's names ("Quillow Systems", "Vellichor Ledger") are synthetic
+        // by design. What this gate must still prove is that the fixture holds
+        // no real data pattern (email, secret, key, path): the default-deny
+        // CONTENT-SET scan, the same scan the guard runs first on every call,
+        // and the entity grep below for any real rooms-home path.
+        const scan = guard.scanForContent(payload);
+        if (scan.hit) {
+          violations.push(task.id + ' (withContext=' + withContext + '): CONTENT-SET hit: ' + scan.matched_pattern);
         }
         for (const forbidden of realRoomsHomeRoots()) {
           if (bundle.text.indexOf(forbidden) !== -1) {
