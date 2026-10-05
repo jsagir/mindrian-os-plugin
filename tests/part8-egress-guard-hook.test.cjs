@@ -18,10 +18,16 @@
 //   - verdict block (CONTENT-SET)    -> exit 2 + Part 8 stderr message (PB8-04)
 //   - clean MOVE-SET                 -> exit 0 (PB8-04)
 //   - malformed/garbage stdin        -> exit 0 fail-OPEN (A3 accepted risk)
-//   - ambiguous (freeform_unmatched/unknown) + TRUSTED scope -> exit 0, proceeds
-//     to the shim (quick task 260917-dgf; was exit 2 after rendering the F.1
+//   - 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
+//     A plain methodology string is allow (exit 0 on every scope); a string
+//     with room content is block (exit 2 on every scope). Only a payload that
+//     is NOT a free-form string stays ambiguous: an unproven MOVE-SET packet
+//     (class unproven_packet) or an unknown payload shape (class unknown).
+//   - ambiguous (unknown) + TRUSTED shim-backed scope -> exit 0, proceeds to
+//     the shim (quick task 260917-dgf; was exit 2 after rendering the F.1
 //     gate, PB8-07). A PreToolUse hook cannot render the card anyway; the
 //     disclosure now lives at lib/core/brain-client.cjs::callTool.
+//   - ambiguous (unproven_packet) + Brain available -> exit 2 with the F.1 gate
 //   - ambiguous + Brain-less         -> exit 0, LOCAL-log only, no gate (PB8-08, D-08a)
 //
 // Test seam for the isAvailable branch: the hook honors PART8_FORCE_BRAIN_AVAILABLE
@@ -192,10 +198,28 @@ async function main() {
   });
   const NON_BRAIN = envelope({ tool_name: 'Write', tool_input: { path: 'x.md' }, session_id: 's3' });
   const GARBAGE = 'this is not json at all }{';
-  const AMBIGUOUS = envelope({
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
+  // History: AMBIGUOUS used to be a free-form string, 'opaque blob with no
+  // clear content and no proven move-set shape' (class freeform_unmatched).
+  // That string is now a plain methodology string with no room-local token, so
+  // the hook allows it (PLAIN_STRING). The ambiguous branch is exercised on
+  // payloads that are still ambiguous: an unknown payload shape on a
+  // shim-backed scope (AMBIGUOUS_UNKNOWN, class unknown) and an unproven
+  // MOVE-SET packet (AMBIGUOUS_PACKET, class unproven_packet).
+  const PLAIN_STRING = envelope({
     tool_name: ASK_TOOL_NAME,
     tool_input: { question: 'opaque blob with no clear content and no proven move-set shape' },
     session_id: 's4',
+  });
+  const AMBIGUOUS_UNKNOWN = envelope({
+    tool_name: ASK_TOOL_NAME,
+    tool_input: { a: 1 },
+    session_id: 's4u',
+  });
+  const AMBIGUOUS_PACKET = envelope({
+    tool_name: ASK_TOOL_NAME,
+    tool_input: { packet_version: '1.0', job: 'not_a_shipped_job', summary: 'raw prose' },
+    session_id: 's4p',
   });
   // Threat T3 (Phase 239, widened by quick task 260906-gr1): DELIBERATE
   // hand-typed literal. A foreign MCP server whose name merely resembles the
@@ -294,20 +318,33 @@ async function main() {
   // the PART8_FORCE_BRAIN_AVAILABLE test seam.
   // -------------------------------------------------------------------------
   if (fs.existsSync(GATE)) {
-    // Quick task 260917-dgf: an ambiguous freeform_unmatched verdict on a
-    // TRUSTED plugin scope now proceeds to the shim (exit 0) instead of
+    // Quick task 260917-dgf: an ambiguous verdict (class unknown) on a
+    // TRUSTED shim-backed plugin scope proceeds to the shim (exit 0) instead of
     // rendering the F.1 gate at the hook. The gate-render contract itself
     // (Reformulate/Cancel, no send-anyway verb) is still asserted below by
     // pb8_07_verbs, directly against the renderer; only this hook-leg
     // disposition moved.
+    // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
     (function pb8_07_trusted_scope_proceeds() {
-      const r = runHook(AMBIGUOUS, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
-      assert.strictEqual(r.status, 0, '260917-dgf: ambiguous freeform_unmatched on a TRUSTED scope must exit 0 (proceeds to the shim)');
+      const r = runHook(AMBIGUOUS_UNKNOWN, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+      assert.strictEqual(r.status, 0, '260917-dgf: ambiguous (unknown) on a TRUSTED scope must exit 0 (proceeds to the shim)');
+      const p = runHook(PLAIN_STRING, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+      assert.strictEqual(p.status, 0, '369.2-07: a plain free-form string is allow, exit 0 (never ambiguous)');
+    })();
+
+    // PB8-07 (369.2-07): an unproven MOVE-SET packet is still ambiguous and
+    // still reaches the F.1 gate path: exit 2 with stderr, Brain available.
+    (function pb8_07_unproven_packet_blocks() {
+      const r = runHook(AMBIGUOUS_PACKET, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+      assert.strictEqual(r.status, 2, 'PB8-07: an unproven packet is ambiguous and must exit 2 with Brain available');
+      assert.ok(r.stderr.trim().length > 0, 'PB8-07: the ambiguous block must carry stderr text');
     })();
 
     // PB8-08: ambiguous + Brain-less -> exit 0, LOCAL-log only, no gate (D-08a).
+    // 369.2-07: runs on the unproven packet, whose class is NOT in the
+    // shim-backed allow list, so the Brain-less branch is what allows it.
     (function pb8_08_degrade() {
-      const r = runHook(AMBIGUOUS, { PART8_FORCE_BRAIN_AVAILABLE: '0' });
+      const r = runHook(AMBIGUOUS_PACKET, { PART8_FORCE_BRAIN_AVAILABLE: '0' });
       assert.strictEqual(r.status, 0, 'PB8-08: ambiguous + Brain-less must exit 0 (LOCAL-log, no gate)');
     })();
 

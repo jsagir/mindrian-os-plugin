@@ -184,10 +184,12 @@ function armE() {
 
   expectVerdict({}, FIND, 'allow', 'empty_payload', 'empty payload under find_connections tool name');
   expectVerdict({ a: 1 }, FIND, 'ambiguous', 'unknown', 'generic {a:1} under find_connections tool name');
-  // 354-06 (D-354-EGR): keyword presence no longer proves "generic"; every
-  // token must be structurally proven closed-vocabulary. 'pottery' and
-  // 'kiln' are not, so this is ambiguous (freeform_unproven), never
-  // allow. Was: 'allow' / 'move_set'.
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
+  // History: 354-06 (D-354-EGR) made this string ambiguous (freeform_unproven)
+  // because 'pottery' and 'kiln' are not closed-vocabulary tokens; before that
+  // it was 'allow' / 'move_set'. The string carries no room-local token, so the
+  // one-verdict model allows it as generic_question. Room content stays blocked
+  // (legs369207 at LEG 2).
   // Quick 261001-lsd re-pin: was 'lean startup methodology'; 355-08 (f55f004f6)
   // made 'lean startup' a canonical framework phrase in
   // data/framework-names.json, so that payload is now correctly allowed.
@@ -195,9 +197,9 @@ function armE() {
   expectVerdict(
     { question: 'pottery kiln methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
-    'ambiguous',
-    'freeform_unproven',
-    'shipped brain_ask methodology question (unproven free-form tokens)'
+    'allow',
+    'generic_question',
+    'shipped brain_ask methodology question (no room-local token)'
   );
   expectVerdict(
     { cypher: 'note from jane@startup.com re: 2.3M ARR model' },
@@ -345,6 +347,15 @@ async function hookLeg() {
     liveness.resolveServerName()
   );
 
+  // 369.2-07 (CODE-07, 2026-10-05): plain question green, room content red.
+  // Placed before the find_connections SKIP so it still runs when that live
+  // name is absent (the SKIP below is pre-existing env behavior).
+  const askScoped = allScoped.find(function (n) {
+    return n.indexOf('mcp__plugin_') === 0 && n.indexOf('brain_ask') !== -1;
+  });
+  ok(!!askScoped, 'setup: no live plugin-scoped name found containing "brain_ask"');
+  legs369207(guard, HOOK, askScoped).forEach(function (r) { ok(r[0], r[1]); });
+
   const findScoped = allScoped.find(function (n) {
     return n.indexOf('mcp__plugin_') === 0 && n.indexOf('find_connections') !== -1;
   });
@@ -401,13 +412,6 @@ async function hookLeg() {
   // Case D: Brain-less, the clean call must stay exit 0 too.
   const d = runHook(clean, { PART8_FORCE_BRAIN_AVAILABLE: '0' });
   ok(d.status === 0, 'HOOK D: the clean call must exit 0 Brain-less too, got ' + d.status);
-
-  // 369.2-07 (CODE-07, 2026-10-05): plain question green, room content red.
-  const askScoped = allScoped.find(function (n) {
-    return n.indexOf('mcp__plugin_') === 0 && n.indexOf('brain_ask') !== -1;
-  });
-  ok(!!askScoped, 'setup: no live plugin-scoped name found containing "brain_ask"');
-  legs369207(guard, HOOK, askScoped).forEach(function (r) { ok(r[0], r[1]); });
 
   console.log('LEG 2 ok (' + checks + ' assertions cumulative)');
 }

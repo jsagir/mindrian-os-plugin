@@ -8,17 +8,16 @@
  * CENSUS_QUERIES) is content-free at the Part 8 egress boundary:
  *   1. scanForContent() (the default-deny CONTENT-SET scan, the actual
  *      boundary) reports no hit,
- *   2. classify() never returns 'block' and never falls back to
- *      'freeform_unmatched' (the vocabulary-regression tripwire this file has
- *      always carried),
- *   3. the verdict is the documented post-354-06 contract: ambiguous /
- *      freeform_unproven. Since commit 8f87980e5 "generic" means structurally
- *      proven against a closed NATURAL-LANGUAGE vocabulary; Cypher keywords
- *      (MATCH, RETURN, a variable name) are outside it, so no Cypher string
- *      classifies allow. This is intentional (test-239 LEG 4: the template
- *      laundering canary is the same class). Pinning the exact class means a
- *      future change that widens or narrows it turns this red and gets a
- *      conscious review, instead of drifting.
+ *   2. classify() never returns 'block' for a census string, with or without
+ *      a room bound (a census string carries no room-local token),
+ *   3. the verdict is the one-verdict contract of 369.2-07 (CODE-07,
+ *      2026-10-05): every census string is allow, class typed_question or
+ *      generic_question. History: post-354-06 (commit 8f87980e5) these strings
+ *      classified ambiguous / freeform_unproven because Cypher keywords were
+ *      outside the closed natural-language vocabulary; the shape-based
+ *      refusal retired with J4 (a plain string is judged by content, never by
+ *      shape). Pinning the allow class set means a future change that blocks a
+ *      census string, or lets it go ambiguous again, turns this red.
  *   4. the live disposition on the shim-backed scope is unchanged: the
  *      PreToolUse hook exits 0 for every census string (the shim, then
  *      brain-client.cjs, still carries it with an additive egress_disclosure).
@@ -147,6 +146,7 @@ function main() {
     ok(ids.includes(id), 'CENSUS_QUERIES must include id ' + id + ', got ' + JSON.stringify(ids));
   }
 
+  const lexiconRoom = buildLexiconRoom369207();
   for (const q of queries) {
     const label = 'entry ' + q.id + ' (' + (q.sub || '') + ')';
     ok(typeof q.cypher === 'string' && q.cypher.length > 0, label + ' must carry a non-empty cypher string');
@@ -158,13 +158,17 @@ function main() {
     // 2 + 3. Verdict contract, each asserted EXPLICITLY (never folded).
     const verdict = guard.classify({ cypher: q.cypher }, { toolName: PLUGIN_SCOPED_QUERY });
     ok(verdict.verdict !== 'block', label + ' must never classify block, got ' + JSON.stringify(verdict));
+    // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
     ok(
-      verdict.class !== 'freeform_unmatched',
-      label + ' must not fall back to freeform_unmatched (vocabulary regression), got ' + JSON.stringify(verdict)
+      verdict.verdict === 'allow' && (verdict.class === 'typed_question' || verdict.class === 'generic_question'),
+      label + ' must classify allow with class typed_question or generic_question (369.2 CODE-07), got ' + JSON.stringify(verdict)
     );
+    // The same string with a lexicon room bound still allows: no census string
+    // carries a room-local token.
+    const bound = guard.classify({ cypher: q.cypher }, { toolName: PLUGIN_SCOPED_QUERY, roomDir: lexiconRoom.roomDir });
     ok(
-      verdict.verdict === 'ambiguous' && verdict.class === 'freeform_unproven',
-      label + ' must classify ambiguous/freeform_unproven under D-354-EGR (354-06), got ' + JSON.stringify(verdict)
+      bound.verdict === 'allow',
+      label + ' must stay allow with a room bound (carries no room content), got ' + JSON.stringify(bound)
     );
 
     // 4. Live disposition on the shim-backed scope: proceeds (exit 0).
@@ -177,6 +181,8 @@ function main() {
     { toolName: PLUGIN_SCOPED_QUERY }
   );
   ok(poisoned.verdict === 'block', 'negative control: Cypher with embedded user content must classify block, got ' + JSON.stringify(poisoned));
+
+  lexiconRoom.cleanup();
 
   // 369.2-07 (CODE-07, 2026-10-05): plain question green, room content red.
   legs369207(guard, HOOK, 'mcp__plugin_mos_mindrian-brain__brain_ask').forEach(function (r) { ok(r[0], r[1]); });

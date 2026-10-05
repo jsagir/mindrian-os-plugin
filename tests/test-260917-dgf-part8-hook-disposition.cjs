@@ -31,13 +31,17 @@
  * branch specifically. Only `mcp__mindrian-brain__*` (project scope) and
  * `mcp__plugin_mos_mindrian-brain__*` (plugin scope) are shim-backed.
  *
- * LEG 0 (classifier unchanged, the mutation guard). Calls
- * `lib/core/part8-egress-guard.cjs::classify()` DIRECTLY on the four A-payloads
- * and asserts each still returns ambiguous / freeform_unmatched. This leg must
- * pass BOTH before and after Task 2. Its job is to make it impossible to "fix"
- * this defect by widening METHODOLOGY_VOCAB or otherwise editing the
- * classifier: if someone does, this leg goes red and names the file that must
- * not have changed.
+ * LEG 0 (the classifier verdicts, re-derived 2026-10-05). Calls
+ * `lib/core/part8-egress-guard.cjs::classify()` DIRECTLY. History: this leg
+ * asserted the four A-payloads (and G, H) returned ambiguous /
+ * freeform_unmatched, as the mutation guard against "fixing" this defect by
+ * widening METHODOLOGY_VOCAB. 369.2-07 (CODE-07, 2026-10-05): free-form strings
+ * are allow or block by content, never ambiguous, so those rows now assert
+ * allow with class typed_question or generic_question (the verdict theoVerdict
+ * gives them), and LEG 0 gains rows for what is still ambiguous (an unproven
+ * MOVE-SET packet, an unknown payload shape) and rows for room content (still
+ * block). The hook disposition legs below keep their original meaning on
+ * payloads that are still ambiguous.
  *
  * LEG 1 (hook exit codes, child process). Drives
  * `scripts/part8-egress-guard-hook.cjs` as a child process with a synthetic
@@ -59,9 +63,8 @@
  *
  * FAILURE REPORTING: does NOT throw on the first failure. Accumulates
  * failures and prints one `FAIL: <case-id> <message>` line per failure, then
- * process.exit(1) if any failed. The RED run (before Task 2 lands) must print
- * exactly four FAIL lines (A1, A2, A3, A4) and nothing else -- the evidence
- * that B/C/D/E/F already hold and only the disposition is wrong.
+ * process.exit(1) if any failed. (Original RED evidence, quick 260917-dgf: four
+ * FAIL lines A1-A4. 369.2-07 re-pin: green with 0 FAIL lines.)
  *
  * Zero-dep: node:assert, node:path, node:child_process only. CJS only.
  * NO em-dashes, NO en-dashes -- hyphens only.
@@ -114,18 +117,55 @@ function leg0ClassifierUnchanged() {
     ['A2', { query: 'dual-use' }, TRUSTED_SEARCH],
     ['A3', { cypher: 'MATCH (c:Chapter) WHERE c.id IN ["ch-12","ch-27"] RETURN c.id, c.title' }, TRUSTED_QUERY],
     ['A4', { question: 'what comes after customer interviews when the market is unproven' }, TRUSTED_ASK],
-    // Quick task 260917-ild: both new tool names still classify as verdict
-    // ambiguous, class freeform_unmatched, so case G's exit 2 is proven to
-    // come from the disposition and not from a different classification.
+    // Quick task 260917-ild: both new tool names classify the same plain
+    // string; the hook legs G and H below prove the disposition differs by
+    // route only where a payload is still ambiguous.
     ['G', { query: 'effectuation' }, DIRECT_SEARCH],
     ['H', { query: 'effectuation' }, PROJECT_SEARCH],
   ];
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by
+  // content, never ambiguous. Was: verdict ambiguous, class freeform_unmatched.
   cases.forEach(function (c) {
     const id = 'LEG0-' + c[0];
     const r = guard.classify(c[1], { toolName: c[2] });
-    check(id, r && r.verdict === 'ambiguous', id + ': expected verdict ambiguous, got ' + JSON.stringify(r));
-    check(id, r && r.class === 'freeform_unmatched', id + ': expected class freeform_unmatched, got ' + JSON.stringify(r));
+    check(id, r && r.verdict === 'allow', id + ': expected verdict allow, got ' + JSON.stringify(r));
+    check(id, r && (r.class === 'typed_question' || r.class === 'generic_question'),
+      id + ': expected class typed_question or generic_question, got ' + JSON.stringify(r));
   });
+
+  // Room content stays blocked on every free-form verb and scope (a room-local
+  // token, not the shape, is what blocks).
+  const canaryRows = [
+    ['R1', { query: 'CANARY7F3A2B' }, TRUSTED_SEARCH],
+    ['R2', { cypher: 'MATCH (f:Framework) WHERE f.name = "CANARY7F3A2B" RETURN f' }, TRUSTED_QUERY],
+    ['R3', { question: 'Which framework fits CANARY7F3A2B?' }, TRUSTED_ASK],
+    ['R4', { query: 'CANARY7F3A2B' }, DIRECT_SEARCH],
+  ];
+  canaryRows.forEach(function (c) {
+    const id = 'LEG0-' + c[0];
+    const r = guard.classify(c[1], { toolName: c[2], roomDir: null });
+    check(id, r && r.verdict === 'block' && r.class === 'room_content' && r.token_class === 'identifier',
+      id + ': room content must block room_content/identifier, got ' + JSON.stringify(r));
+  });
+
+  // What is still ambiguous: payloads that are not free-form strings.
+  const unproven = r0Packet();
+  [
+    ['P1', unproven, TRUSTED_ASK, 'unproven_packet'],
+    ['P2', unproven, DIRECT_SEARCH, 'unproven_packet'],
+    ['U1', { a: 1 }, DIRECT_SEARCH, 'unknown'],
+    ['U2', { a: 1 }, PROJECT_SEARCH, 'unknown'],
+  ].forEach(function (c) {
+    const id = 'LEG0-' + c[0];
+    const r = guard.classify(c[1], { toolName: c[2] });
+    check(id, r && r.verdict === 'ambiguous' && r.class === c[3],
+      id + ': expected ambiguous/' + c[3] + ' (not a free-form string), got ' + JSON.stringify(r));
+  });
+}
+
+// An unproven MOVE-SET packet: typed structure that failed proof.
+function r0Packet() {
+  return { packet_version: '1.0', job: 'not_a_shipped_job', summary: 'raw prose' };
 }
 
 // ---------------------------------------------------------------------------
@@ -142,9 +182,11 @@ function envelope(toolName, toolInput, sessionId) {
 }
 
 function leg1HookDisposition() {
-  // A1-A4 (exit 0 expected AFTER Task 2; today these are the RED evidence):
-  // a trusted plugin scope, an ambiguous freeform_unmatched verdict, Brain
-  // available -- the call must reach the shim, not die at the hook.
+  // A1-A4 (exit 0): a trusted plugin scope, a plain methodology string, Brain
+  // available -- the call must reach the shim, not die at the hook. History:
+  // these were ambiguous freeform_unmatched verdicts that the hook had to hand
+  // to the shim (quick 260917-dgf); 369.2-07 (CODE-07, 2026-10-05): the verdict
+  // is now allow, so exit 0 holds for a content reason, on every scope.
   const aCases = [
     ['A1', TRUSTED_SEARCH, { query: 'effectuation' }, 'p260917-a1'],
     ['A2', TRUSTED_SEARCH, { query: 'dual-use' }, 'p260917-a2'],
@@ -154,7 +196,7 @@ function leg1HookDisposition() {
   aCases.forEach(function (c) {
     const id = c[0];
     const r = runHook(envelope(c[1], c[2], c[3]), { PART8_FORCE_BRAIN_AVAILABLE: '1' });
-    check(id, r.status === 0, id + ': expected exit 0 (trusted scope, ambiguous freeform_unmatched must proceed to the shim), got ' + r.status + ' stderr=' + JSON.stringify(r.stderr));
+    check(id, r.status === 0, id + ': expected exit 0 (trusted scope, plain methodology string is allow and proceeds to the shim), got ' + r.status + ' stderr=' + JSON.stringify(r.stderr));
     check(id, !/part 8/i.test(r.stderr), id + ': expected no Part 8 text on stderr, got ' + JSON.stringify(r.stderr));
   });
 
@@ -169,11 +211,27 @@ function leg1HookDisposition() {
     check('B', r.stderr && r.stderr.trim().length > 0 && /part 8/i.test(r.stderr), 'B: block must carry Part 8 stderr text, got ' + JSON.stringify(r.stderr));
   })();
 
-  // C (exit 2, passes today and after): untrusted Brain-shaped key keeps the
-  // block. This is also where the F.1 gate render coverage now lives.
+  // C (exit 2): untrusted Brain-shaped key keeps the block for what is still
+  // ambiguous. This is also where the F.1 gate render coverage now lives.
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by
+  // content, never ambiguous. A free-form block exits 2 on every scope and a
+  // free-form allow exits 0 on every scope, so C-allow and C-block pin the
+  // string rows; C keeps its original meaning on an unproven packet, which is
+  // still ambiguous. Was: a plain query on this scope exited 2.
   (function caseC() {
+    const allowRun = runHook(
+      envelope(UNTRUSTED_SEARCH, { query: 'effectuation' }, 'p260917-c-allow'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('C-allow', allowRun.status === 0, 'C-allow: a plain methodology string on an untrusted Brain-shaped key is allow, exit 0, got ' + allowRun.status + ' stderr=' + JSON.stringify(allowRun.stderr));
+    const blockRun = runHook(
+      envelope(UNTRUSTED_SEARCH, { query: 'CANARY7F3A2B' }, 'p260917-c-block'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('C-block', blockRun.status === 2, 'C-block: room content on an untrusted Brain-shaped key must exit 2, got ' + blockRun.status);
+    check('C-block', blockRun.stderr && blockRun.stderr.trim().length > 0, 'C-block: block must carry non-empty stderr, got ' + JSON.stringify(blockRun.stderr));
     const r = runHook(
-      envelope(UNTRUSTED_SEARCH, { query: 'effectuation' }, 'p260917-c'),
+      envelope(UNTRUSTED_SEARCH, r0Packet(), 'p260917-c'),
       { PART8_FORCE_BRAIN_AVAILABLE: '1' }
     );
     check('C', r.status === 2, 'C: an ambiguous payload on an untrusted Brain-shaped key must still exit 2, got ' + r.status);
@@ -210,27 +268,56 @@ function leg1HookDisposition() {
 
   // G (exit 2, Codex F1): the direct HTTPS connector (mcp__pws-brain-mcp__*)
   // has no local plugin code in its path, so brain-client.cjs::callTool's
-  // second classification never runs there. RED today (exits 0): the
-  // pre-260917-ild hook keys the ambiguous allow on isBrainTool, which also
-  // trusts this scope.
+  // second classification never runs there. The pre-260917-ild hook keyed the
+  // ambiguous allow on isBrainTool, which also trusts this scope.
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by
+  // content, never ambiguous. G runs on the unproven packet (still ambiguous);
+  // G-unknown runs on an unknown-class payload, the same payload H sends down
+  // the shim-backed route, so the route distinction stays covered; G-allow and
+  // G-block pin the free-form string rows on this scope. Was: a plain query on
+  // this scope exited 2.
   (function caseG() {
     const r = runHook(
-      envelope(DIRECT_SEARCH, { query: 'effectuation' }, 'p260917-g'),
+      envelope(DIRECT_SEARCH, r0Packet(), 'p260917-g'),
       { PART8_FORCE_BRAIN_AVAILABLE: '1' }
     );
     check('G', r.status === 2, 'G: an ambiguous payload on the direct connector (no second classification behind it) must exit 2, got ' + r.status);
     check('G', r.stderr && r.stderr.trim().length > 0, 'G: block must carry non-empty stderr, got ' + JSON.stringify(r.stderr));
+    const u = runHook(
+      envelope(DIRECT_SEARCH, { a: 1 }, 'p260917-g-unknown'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('G-unknown', u.status === 2, 'G-unknown: an unknown-class payload on the direct connector must exit 2 (the shim-backed allow does not reach it), got ' + u.status);
+    const a = runHook(
+      envelope(DIRECT_SEARCH, { query: 'effectuation' }, 'p260917-g-allow'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('G-allow', a.status === 0, 'G-allow: a plain methodology string on the direct connector is allow, exit 0, got ' + a.status + ' stderr=' + JSON.stringify(a.stderr));
+    const b = runHook(
+      envelope(DIRECT_SEARCH, { query: 'CANARY7F3A2B' }, 'p260917-g-block'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('G-block', b.status === 2, 'G-block: room content on the direct connector must exit 2, got ' + b.status);
   })();
 
   // H (exit 0, Codex F1 non-overshoot pin): the project-scope shim-backed
   // name keeps the allow the shim's own egress_disclosure already justifies.
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by
+  // content, never ambiguous. H runs on an unknown-class payload (still
+  // ambiguous, class in the shim-backed allow list); H-allow pins the plain
+  // string on this scope. Was: the plain query itself was the ambiguous row.
   (function caseH() {
     const r = runHook(
-      envelope(PROJECT_SEARCH, { query: 'effectuation' }, 'p260917-h'),
+      envelope(PROJECT_SEARCH, { a: 1 }, 'p260917-h'),
       { PART8_FORCE_BRAIN_AVAILABLE: '1' }
     );
     check('H', r.status === 0, 'H: an ambiguous payload on the project-scope shim-backed name must proceed to the shim, got ' + r.status + ' stderr=' + JSON.stringify(r.stderr));
     check('H', !/part 8/i.test(r.stderr), 'H: expected no Part 8 text on stderr, got ' + JSON.stringify(r.stderr));
+    const a = runHook(
+      envelope(PROJECT_SEARCH, { query: 'effectuation' }, 'p260917-h-allow'),
+      { PART8_FORCE_BRAIN_AVAILABLE: '1' }
+    );
+    check('H-allow', a.status === 0, 'H-allow: a plain methodology string on the project scope is allow, exit 0, got ' + a.status);
   })();
 }
 

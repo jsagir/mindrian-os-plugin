@@ -189,11 +189,14 @@ function unitLeg() {
     'CONTENT-SET payload'
   );
 
-  // 354-06 (D-354-EGR): the free-form allow path now requires structural
-  // proof, not keyword presence. 'pottery kiln methodology' carries
-  // 'methodology' (a methodology-vocabulary hit) next to 'pottery' and
-  // 'kiln', neither of which is closed-vocabulary -- ambiguous
-  // (freeform_unproven), never allow. Was: 'allow' / 'move_set'.
+  // 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
+  // History: 354-06 (D-354-EGR) made 'pottery kiln methodology' ambiguous
+  // (freeform_unproven) because 'pottery' and 'kiln' are not closed-vocabulary
+  // tokens; before that it was 'allow' / 'move_set'. Under the one-verdict
+  // model the string carries no room-local token (no CONTENT-SET hit, no
+  // lexicon term, no identifier, no private-venture context), so it is a plain
+  // methodology question: allow, class generic_question. Room content is still
+  // blocked by the legs added in 369.2-07 (legs369207 at LEG 2).
   // Quick 261001-lsd re-pin: the fixture used to be 'lean startup methodology',
   // but 355-08 (f55f004f6) regenerated data/framework-names.json and 'lean
   // startup' became a canonical framework phrase, so that payload now proves
@@ -202,9 +205,9 @@ function unitLeg() {
   expectVerdict(
     { question: 'pottery kiln methodology' },
     'mcp__plugin_mos_mindrian-brain__brain_ask',
-    'ambiguous',
-    'freeform_unproven',
-    'brain_ask methodology question (unproven free-form tokens)'
+    'allow',
+    'generic_question',
+    'brain_ask methodology question (no room-local token)'
   );
 
   // Quick task 260807-h5s is the reversal authority: the Phase 245 D-28 FLAGGED
