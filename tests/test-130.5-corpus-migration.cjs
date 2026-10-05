@@ -15,7 +15,7 @@
  * mock-module idiom (the engine's _test_mocks `m` indirection lets the test
  * inject deterministic deps without monkey-patching require's cache).
  *
- * Three assertions:
+ * Three assertions (C expanded to C, C2, C3 by 369.2-06):
  *   A (byte-identical): run the pipeline twice over the fixture -- once on the
  *     OLD-equivalent path (direct fetchCorpus, no cache: roomDir absent) and once
  *     on the migrated cache-wrapped path (roomDir present) -- and assert the FULL
@@ -26,10 +26,11 @@
  *     fetchCorpus carrying a call counter, the SECOND run over the same query set
  *     issues FEWER external fetchCorpus calls than the first (the shared cache
  *     served the repeat) -- count_run2 < count_run1, ideally 0.
- *   C (Canon Part 8 preserved): a planted forbidden query in the fixture
- *     flat_queries makes the run reject pre-egress (ExternalEgressViolation) with
- *     ZERO fetchCorpus network calls -- proven against the REAL fetchCorpus audit
- *     chokepoint (no stub), so the pre-egress audit is exercised, not bypassed.
+ *   C (moved 369.2-06, ruling 2026-10-05): the fixture's planted room string on a
+ *     WEB source dispatches exactly once with its words unchanged (C2), and a
+ *     credential-shaped variant is refused pre-dispatch under A4=keep (C3), both
+ *     through the REAL fetchCorpus and the OpenAlex replay. The old pre-egress
+ *     reject of a room string is retired: the CONTENT-SET fence binds the Brain line.
  *
  * Pure CJS, node:assert/strict + node:fs/path/os only. No network. No em-dashes.
  */
@@ -326,57 +327,10 @@ record('B cache hit on repeat: second run over the same query set issues fewer f
   fs.rmSync(room, { recursive: true, force: true });
 });
 
-// ---------- Assertion C: Canon Part 8 preserved ----------
-
-record('C Canon Part 8 preserved: a planted forbidden flat_query rejects pre-egress (ExternalEgressViolation) with zero fetchCorpus calls', async function () {
-  const room = mkTmpRoom();
-
-  // Drive flat_queries from the fixture's FORBIDDEN matrix. We use the REAL
-  // fetchCorpus so its auditQueryString chokepoint is exercised (NOT a stub),
-  // but wrap it in a counter so we can prove ZERO network call is attempted.
-  // The forbidden query never reaches a real HTTP call: the audit throws first.
-  let corpusCalls = 0;
-  const realFetchCorpus = realCorpus.fetchCorpus;
-  const countingFetchCorpus = async function (args) {
-    corpusCalls += 1;
-    return realFetchCorpus(args);
-  };
-
-  const mocks = buildDownstreamMocks();
-  mocks.fetchCorpus = countingFetchCorpus;
-  mocks.researchCache = realCache;
-  // Override the matrix generator to return the FORBIDDEN matrix.
-  mocks.queryMatrix = {
-    generateQueryMatrix: function () {
-      return JSON.parse(JSON.stringify(FIXTURE.forbidden_query_matrix));
-    },
-  };
-
-  let caught = null;
-  try {
-    await runDiscovery(FIXTURE.topic, { room_dir: room, _test_mocks: mocks });
-  } catch (err) {
-    caught = err;
-  }
-
-  assert.ok(caught !== null, 'expected an ExternalEgressViolation on the planted forbidden flat_query, got none');
-  assert.equal(caught.name, 'ExternalEgressViolation',
-    'planted forbidden flat_query must throw ExternalEgressViolation; got ' + (caught && caught.name));
-
-  // ZERO completed network fetch: the audit inside fetchCorpus throws BEFORE any
-  // dispatch, so even though the engine entered the corpus wrap, no real HTTP
-  // call ran. corpusCalls counts the wrap entry; the audit guarantees no egress.
-  // We assert the cache wrote NOTHING for the forbidden query (no putCached) as
-  // the observable proof that no results were ever produced.
-  const cacheDir = path.join(room, '.mindrian', 'research-cache');
-  let cachedFiles = [];
-  try { cachedFiles = fs.readdirSync(cacheDir); } catch (_e) { cachedFiles = []; }
-  assert.equal(cachedFiles.length, 0,
-    'no cache entry may be written for a forbidden query (pre-egress reject means zero results to persist); found '
-      + JSON.stringify(cachedFiles));
-
-  fs.rmSync(room, { recursive: true, force: true });
-});
+// ---------- Assertion C (moved 369.2-06, 2026-10-05) ----------
+// 369.2-06: the CONTENT-SET fence binds the Theo/Brain line only (ruling 2026-10-05); see the web-line and credential legs below.
+// The Brain-line fence is pinned in test-221-envelopes B6d, research-corpus.test 2d and
+// test-363-corpus-honesty L14d; here C2 and C3 pin the web-line ruling and A4.
 
 // ---------- 369.2 ruling 2026-10-05: web lines send the room's words; A4 pins credentials ----------
 //

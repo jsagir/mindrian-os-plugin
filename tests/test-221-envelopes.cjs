@@ -501,24 +501,7 @@ console.log('=== 221-01 envelope suite: starting ===');
     }
   });
 
-  await recordAsync('B6 audit chokepoint UNTOUCHED: ExternalEgressViolation thrown by BOTH entry points, zero fetch', async function () {
-    scrubForceEnv();
-    process.env.TAVILY_API_KEY = 'test-key-not-real';
-    installFetchStub(async function () { return okJsonResponse({ results: [] }); });
-    try {
-      const m = freshCorpus();
-      const planted = 'oncology venture valuation $5.2M cancer treatment';
-      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
-        let threw = null;
-        try { await m[fn]({ source: 'tavily', query: planted }); } catch (e) { threw = e; }
-        assert.ok(threw, fn + ' throws on the planted query');
-        assert.equal(threw.name, 'ExternalEgressViolation', fn + ' throws ExternalEgressViolation, never a softened envelope');
-      }
-      assert.equal(fetchCallCount, 0, 'NO fetch before the throw; got ' + fetchCallCount);
-    } finally {
-      restoreFetch();
-    }
-  });
+  // B6 (moved 369.2-06, 2026-10-05): 369.2-06: the CONTENT-SET fence binds the Theo/Brain line only (ruling 2026-10-05); see the web-line and credential legs (B6b, B6c, B6d).
 
   // 369.2 ruling 2026-10-05 (added beside B6): web sources send the room's words
   // as written; the Brain line keeps the CONTENT-SET fence; a credential in a web

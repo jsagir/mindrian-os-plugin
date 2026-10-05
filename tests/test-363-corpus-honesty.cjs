@@ -9,7 +9,8 @@
 // L10-L11 query fidelity, select list, per-page
 // L12     normalized papers carry retraction and venue fields additively
 // L13     legacy academic envelope shape unchanged
-// L14     a tripped Part 8 audit makes zero provider calls
+// L14     (moved 369.2-06, ruling 2026-10-05) L14b web line dispatches a room string once,
+//         L14c a credential is refused per A4, L14d brain-cypher still throws with zero calls
 //
 // Hygiene: HOME points at a mkdtemp dir BEFORE any repo module loads (the
 // telemetry ledger lives under os.homedir()), the vendor key is scrubbed, the
@@ -306,22 +307,8 @@ async function main() {
       'ok=' + JSON.stringify(okEnv && Object.keys(okEnv)) + ' legacyFail=' + JSON.stringify(legacyFail));
   }
 
-  // ---- L14: audit trips before any call ----
-  {
-    resetLedger();
-    const s = stubFetch(function () { return makeResponse(200, OK_HEADERS, { meta: { count: 0 }, results: [] }); });
-    let threw = null;
-    try {
-      await corpus.fetchCorpusEnvelope({ source: 'openalex', query: 'contact jane.roe@example.com about biofilm', limit: 5 });
-    } catch (e) {
-      threw = e;
-    } finally {
-      s.restore();
-    }
-    check('L14 tripped Part 8 audit throws ExternalEgressViolation with zero provider calls',
-      threw instanceof ExternalEgressViolation && s.calls.length === 0,
-      'threw=' + (threw && threw.name) + ' calls=' + s.calls.length);
-  }
+  // ---- L14 (moved 369.2-06, 2026-10-05) ----
+  // 369.2-06: the CONTENT-SET fence binds the Theo/Brain line only (ruling 2026-10-05); see the web-line and credential legs (L14b, L14c, L14d).
 
   // ---- L14b - L14d (369.2 ruling 2026-10-05): web lines free, Brain line fenced, credentials per A4 ----
   const A4_3692 = process.env.MOS_369_2_A4 === 'drop' ? 'drop' : 'keep';

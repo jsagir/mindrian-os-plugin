@@ -15,12 +15,13 @@
  *   Test 2: call-count contract - an injected counting auditFn is called once
  *           per returned query, and every call is synchronous (already done the
  *           instant composePatternQueries returns; no deferred audit).
- *   Test 3: violation -> degrade - a poisoned keyword ('raises $3.5M') that the
- *           REAL default fence catches returns ok:false, degrade:'local-only',
- *           reason:'egress_violation' with NO queries field (proves the shipped
- *           fence is wired by default, not just the injected seam).
- *   Test 4: zero leak - JSON.stringify of the Test-3 degrade envelope never
- *           contains the poisoned substring.
+ *   Test 3: (moved 369.2-06, ruling 2026-10-05) web line - a money-figure keyword
+ *           ('raises $3.5M') composes ok:true and rides into a query (3b); a
+ *           credential keyword is refused by the REAL default check and returns
+ *           ok:false, degrade:'local-only', reason:'egress_violation' with NO
+ *           queries field (3c, A4=keep).
+ *   Test 4: (moved 369.2-06) zero leak - the credential degrade envelope never
+ *           contains the credential (4b).
  *   Test 5: empty pattern - all-empty fields return ok:false,
  *           reason:'empty_pattern' WITHOUT ever calling auditFn.
  *   Test 6: module purity - the source has zero network tokens and no private
@@ -84,32 +85,9 @@ const CLEAN = {
   ok('Test 2: injected auditFn called once per query, synchronously, before return');
 }
 
-// ---------- Test 3: violation -> degrade via the DEFAULT fence ----------
+// ---------- Tests 3 and 4 (moved 369.2-06, 2026-10-05) ----------
+// 369.2-06: the CONTENT-SET fence binds the Theo/Brain line only (ruling 2026-10-05); see the web-line and credential legs (Tests 3b, 3c, 4b).
 const POISON = 'raises $3.5M';
-let degradeRes;
-{
-  const poisoned = {
-    functionalKeywords: [POISON, 'background subtraction'],
-    trizPrinciples: ['Separation'],
-    abstractFunction: 'recover a rare signal from vast background noise',
-  };
-  // NO injected auditFn -> proves the real shipped fence is wired by default.
-  degradeRes = composePatternQueries(poisoned);
-  assert.strictEqual(degradeRes.ok, false, 'Test 3: poisoned pattern returns ok:false');
-  assert.strictEqual(degradeRes.degrade, 'local-only', 'Test 3: degrade is local-only');
-  assert.strictEqual(degradeRes.reason, 'egress_violation', 'Test 3: reason is egress_violation');
-  assert.ok(!('queries' in degradeRes), 'Test 3: NO queries field on a violation envelope');
-  assert.strictEqual(typeof degradeRes.family, 'string', 'Test 3: family named on the envelope');
-  ok('Test 3: default fence catches the money figure -> local-only degrade, no queries');
-}
-
-// ---------- Test 4: zero leak - degrade envelope never echoes the poison ----------
-{
-  const serialized = JSON.stringify(degradeRes);
-  assert.ok(serialized.indexOf('3.5M') === -1, 'Test 4: degrade envelope does not contain the poison substring');
-  assert.ok(serialized.indexOf(POISON) === -1, 'Test 4: degrade envelope does not contain the full poison string');
-  ok('Test 4: zero-leak - JSON.stringify of the degrade envelope carries no offending content');
-}
 
 // ---------- 369.2 ruling 2026-10-05 (added beside Tests 3 and 4) ----------
 // The online leg is a web line: the default check is the credential check

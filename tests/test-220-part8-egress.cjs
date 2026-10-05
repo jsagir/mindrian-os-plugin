@@ -4,11 +4,12 @@
  * 'tavily-extract' source (the constitutional heart of Plan 01).
  *
  * Three gates:
- *   1. FAIL-CLOSED: a room-content-bearing query string attempts ZERO fetch.
- *      The planted string is DERIVED at run time FROM FORBIDDEN_PATTERNS
- *      (rs-egress-prompts.cjs re-export) so this test never rots against the
- *      Canon-authoritative pattern list. fetchCorpus must reject with
- *      ExternalEgressViolation BEFORE the network stub is ever touched.
+ *   1. WEB LINE (moved 369.2-06, ruling 2026-10-05): a room-content-bearing URL
+ *      DISPATCHES exactly once with its words unchanged (the CONTENT-SET fence
+ *      binds the Theo/Brain line only), and a credential-shaped URL is refused
+ *      pre-dispatch with zero fetch and no echo (A4=keep). The planted string is
+ *      still DERIVED at run time FROM FORBIDDEN_PATTERNS (rs-egress-prompts.cjs
+ *      re-export) so this test never rots against the pattern list.
  *   2. OUTBOUND PAYLOAD AUDIT: the captured request body carries ONLY the
  *      allowlisted keys {api_key, urls, extract_depth, format} -- the URL plus
  *      generic extract config handles. A mechanical key walk fails on ANY
@@ -181,23 +182,7 @@ async function main() {
     console.log('        planted against pattern: ' + planted.pattern.slice(0, 60));
   });
 
-  await test('Gate 1b: planted room-content query -> ExternalEgressViolation + ZERO fetch attempted', async function () {
-    process.env.TAVILY_API_KEY = 'test-key-not-real';
-    const state = stubFetch();
-    try {
-      const planted = derivePlantedQuery();
-      let thrown = null;
-      try {
-        await fetchCorpus({ source: 'tavily-extract', query: planted.url });
-      } catch (err) {
-        thrown = err;
-      }
-      assert.ok(thrown, 'fetchCorpus rejected the planted query');
-      assert.ok(thrown instanceof ExternalEgressViolation,
-        'rejection is ExternalEgressViolation, got: ' + (thrown && thrown.name));
-      assert.strictEqual(state.calls, 0, 'fetch stub call count is 0 -- zero bytes attempted the wire');
-    } finally { restore(); }
-  });
+  // Gate 1b (moved 369.2-06, 2026-10-05): 369.2-06: the CONTENT-SET fence binds the Theo/Brain line only (ruling 2026-10-05); see the web-line and credential legs (Gate 1b-web, Gate 1c).
 
   // 369.2 ruling 2026-10-05 (added beside Gate 1b): tavily-extract is a web line,
   // so a room-content URL dispatches once with its words unchanged; a credential
