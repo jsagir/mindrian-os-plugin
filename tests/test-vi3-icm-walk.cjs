@@ -477,6 +477,43 @@ arm('W reads needed to orient, ROOM.md routes, status scannable, referrers of th
 });
 
 // ---------------------------------------------------------------------------------------------------------------
+// I0 the eleven core sections (navigator ruling 2026-10-05: a room carries all 11 of CORE_SECTIONS)
+// shell: for c in <the 11 names, section-registry.cjs CORE_SECTIONS order>; do [ -d $room/$c ] ...; done  -> present / missing ;
+//        top-level nests (ROOM.md or CONTEXT.md) whose name is not one of the 11
+//   room a (fixture): 11 present, none missing, non-core assets references team
+//   room b as built (birthRoom scaffolds all 11): 11 present, none missing, non-core assets references team
+//   room b with 8 core directories removed (a copy kept: problem-definition market-analysis solution-design): 3 present,
+//        missing business-model competitive-analysis team-execution legal-ip financial-model opportunity-bank funding strategy,
+//        non-core assets references team
+//   live room (read only, measured by the same loop): 5 present, missing market-analysis business-model team-execution legal-ip
+//        financial-model strategy, non-core assets assumptions references team
+// ---------------------------------------------------------------------------------------------------------------
+arm('I0 core sections present N of 11, the missing names, the non-core directories (fixture room: all 11; scaffolded room: all 11 as built, 3 after removing 8)', () => {
+  const a = report('a');
+  eq(a.room.I0, { core_present: 11, core_total: 11, core_missing: [], non_core_directories: ['assets', 'references', 'team'] }, 'a I0');
+  eq(report('b').room.I0, { core_present: 11, core_total: 11, core_missing: [], non_core_directories: ['assets', 'references', 'team'] }, 'b I0 as built');
+  const three = path.join(mk('three'), B_SLUG);
+  const gone = ['business-model', 'competitive-analysis', 'team-execution', 'legal-ip', 'financial-model', 'opportunity-bank', 'funding', 'strategy'];
+  fs.cpSync(B_DIR, three, { recursive: true, filter: (src) => path.basename(src) !== '.mindrian' && gone.indexOf(path.basename(src)) === -1 });
+  const t = mod().walkRoom(three);
+  eq(t.room.I0, {
+    core_present: 3, core_total: 11,
+    core_missing: ['business-model', 'competitive-analysis', 'team-execution', 'legal-ip', 'financial-model', 'opportunity-bank', 'funding', 'strategy'],
+    non_core_directories: ['assets', 'references', 'team'],
+  }, 'b with 8 core directories removed');
+  const ta = mod().renderText(a);
+  check(/^  I0  core sections present: 11 of 11 \| missing: none \| non-core directories \(3\): assets, references, team$/m.test(ta), 'room a I0 text row:\n' + ta.slice(0, 900));
+  check(/^core sections present: 11 of 11$/m.test(ta), 'room a summary lacks the core sections line');
+  const tt = mod().renderText(t);
+  check(/^  I0  core sections present: 3 of 11 \| missing: business-model, competitive-analysis, team-execution, legal-ip, financial-model, opportunity-bank, funding, strategy \| non-core directories \(3\): assets, references, team$/m.test(tt), 'three-section I0 text row');
+  check(/^core sections present: 3 of 11$/m.test(tt), 'three-section summary line');
+  eq(report('a').summary.core_sections_present, 11, 'a summary.core_sections_present');
+  eq(t.summary.core_sections_present, 3, 'three-section summary.core_sections_present');
+  // the I0 row is a room-block row: it appears once in the text, not once per nest
+  eq(ta.split('\n').filter((l) => l.indexOf('  I0  ') === 0).length, 1, 'one I0 row per run');
+});
+
+// ---------------------------------------------------------------------------------------------------------------
 // M1 the tool writes nothing
 // ---------------------------------------------------------------------------------------------------------------
 arm('M1 the tool writes nothing: tree hash of both rooms, the rooms homes and HOME equal before and after (module and CLI, room.db present)', () => {
