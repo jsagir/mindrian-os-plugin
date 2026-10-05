@@ -1,0 +1,6 @@
+{
+  "name": "mindrian-workspace",
+  "version": "0.1.0",
+  "description": "Shows where you are in your data room and what to do next, above the prompt, with a side panel for decisions.",
+  "author": { "name": "MindrianOS" }
+}

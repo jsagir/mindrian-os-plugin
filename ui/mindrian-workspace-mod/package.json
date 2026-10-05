@@ -1,0 +1,13 @@
+{
+  "name": "mos-workspace-mod",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Mindrian Workspace mod: an orientation band above the prompt and a docked review pane, drawn natively in Claude Code. A walled package (Phase 369 D-17 precedent): it declares no dependency of any kind and never enters the root package.json, the root files array or the npm tarball. The engine lays its own types.",
+  "scripts": {
+    "typecheck": "node scripts/typecheck.cjs",
+    "validate": "claude plugin validate .",
+    "test": "claude plugin test .",
+    "sync": "node scripts/sync-assets.cjs"
+  }
+}
