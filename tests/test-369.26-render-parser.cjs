@@ -261,5 +261,213 @@ scenario('summarize: reports which SGR forms were seen, whether any background e
   assert.strictEqual(none.dimCells, 0);
 });
 
-process.stdout.write('\n' + passed + ' passed, ' + failed + ' failed\n');
-process.exit(failed ? 1 : 0);
+
+// ---- 369.26-17: the pure additions for the final render check (records hash, MCP name parsing,
+// script runner, deck lookup, round trip judging) and the live fixture room ----------------------
+
+const LIB_DIR = path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'lib');
+const requireLive = (name) => require(path.join(LIB_DIR, name));
+
+scenario('17 hashRecords: stable under row and key order, changes when a row changes, 64 hex', () => {
+  const P = requireLive('live-pure.cjs');
+  const a = P.hashRecords([{ id: 'x', type: 'decision', n: 1 }, { id: 'y', type: 'claim' }]);
+  const b = P.hashRecords([{ type: 'claim', id: 'y' }, { n: 1, type: 'decision', id: 'x' }]);
+  assert.strictEqual(a, b);
+  assert.ok(/^[0-9a-f]{64}$/.test(a));
+  assert.notStrictEqual(a, P.hashRecords([{ id: 'x', type: 'decision', n: 2 }, { id: 'y', type: 'claim' }]));
+  assert.notStrictEqual(a, P.hashRecords([{ id: 'x', type: 'decision', n: 1 }]));
+  assert.strictEqual(P.hashRecords([]), P.hashRecords([]));
+});
+
+scenario('17 parseMcpServerNames: reads plugin-qualified names and status words out of canned /mcp text', () => {
+  const P = requireLive('live-pure.cjs');
+  const canned = [
+    'Manage MCP servers',
+    '3 servers',
+    '',
+    '  Plugin MCPs',
+    '  ❯ plugin:mos:mindrian-os · ✔ connected',
+    '    plugin:mos:mindrian-brain · ✔ connected',
+    '  User MCPs',
+    '    notion · ✘ failed',
+    '',
+    '  https://code.claude.com/docs/en/mcp for help',
+  ].join('\n');
+  const r = P.parseMcpServerNames(canned);
+  assert.ok(r.names.includes('plugin:mos:mindrian-os'), JSON.stringify(r));
+  assert.ok(r.names.includes('plugin:mos:mindrian-brain'));
+  assert.ok(r.names.includes('notion'));
+  assert.strictEqual(r.statuses['plugin:mos:mindrian-os'], 'connected');
+  assert.strictEqual(r.statuses.notion, 'failed');
+  assert.deepStrictEqual(P.parseMcpServerNames('nothing here').names, []);
+  assert.strictEqual(P.compareServerName(r.names, 'plugin:mos:mindrian-os').verdict, 'match');
+  const miss = P.compareServerName(['plugin:mos:other-os', 'notion'], 'plugin:mos:mindrian-os');
+  assert.strictEqual(miss.verdict, 'differs');
+  assert.deepStrictEqual(miss.closest, ['plugin:mos:other-os']);
+  assert.strictEqual(P.compareServerName([], 'x').verdict, 'not_seen');
+});
+
+scenario('17 parseScript: keys, waits, captures, bursts and inspects parse in order; a bad line names its number', () => {
+  const P = requireLive('live-pure.cjs');
+  const steps = P.parseScript(['# the round trip', 'wait 1500', 'type o', '', 'capture opened', 'burst 1 1', 'key Enter', 'inspect after'].join('\n'));
+  assert.deepStrictEqual(steps, [
+    { op: 'wait', ms: 1500 },
+    { op: 'type', text: 'o' },
+    { op: 'capture', name: 'opened' },
+    { op: 'burst', keys: ['1', '1'] },
+    { op: 'key', name: 'Enter' },
+    { op: 'inspect', name: 'after' },
+  ]);
+  assert.deepStrictEqual(P.parseScript('type hello world')[0], { op: 'type', text: 'hello world' });
+  assert.throws(() => P.parseScript('wait soon'), /line 1/);
+  assert.throws(() => P.parseScript('type a\nfly away'), /line 2/);
+  assert.throws(() => P.parseScript('burst'), /line 1/);
+  for (const name of Object.keys(P.PRESETS)) assert.ok(P.parseScript(P.PRESETS[name]).length > 0, 'preset ' + name);
+  for (const need of ['roundtrip', 'decide-later', 'double-press', 'o-empty', 'o-after-text', 'digit-in-pane', 'h-empty']) assert.ok(P.PRESETS[need], 'preset ' + need);
+});
+
+scenario('17 deckStringFrom: reads a deck line, decodes escapes, and refuses an unknown id', () => {
+  const P = requireLive('live-pure.cjs');
+  const src = "export const COPY = {\n  'D24': 'Saved to your data room: {label}.',\n  'B67': ' \\u00b7 ',\n  'B10': \"You're in: {folder}\",\n}\n";
+  assert.strictEqual(P.deckStringFrom(src, 'D24'), 'Saved to your data room: {label}.');
+  assert.strictEqual(P.deckStringFrom(src, 'B67'), ' ' + DOT + ' ');
+  assert.strictEqual(P.deckStringFrom(src, 'B10'), "You're in: {folder}");
+  assert.strictEqual(P.deckStringFrom(src, 'Z99'), null);
+  const real = P.readDeck(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'src', 'copy', 'deck.ts'));
+  assert.strictEqual(real.D24, 'Saved to your data room: {label}.');
+  assert.ok(real.E01 && real.E04 && real.P115 && real.B60);
+});
+
+scenario('17 judgeRoundTrip: the verdicts follow the frames and the room, and a missing frame stays PENDING', () => {
+  const P = requireLive('live-pure.cjs');
+  const deck = { B60: 'A decision is waiting', P110: 'A decision is waiting for you', E01: 'This decision card is not one this window drew. Ask for it again.', E04: 'E04 words', P115: 'Ask it here', D23: 'Saving your decision', D24Prefix: 'Saved to your data room' };
+  const frames = {
+    band: 'You are in: Funding   A decision is waiting   This folder is for: x (sample)',
+    opened: 'Room Think Sources Review\nA decision is waiting for you\n[1] Yes, go with it',
+    direct: 'A decision is waiting for you\nThis decision card is not one this window drew. Ask for it again.\nAsk it here',
+    mirrored: 'A decision is waiting for you\n[1] Yes, go with it',
+    saved: 'Saved to your data room: Yes, go with it.',
+  };
+  const inspection = { after: { decisionNodes: ['decision:gate:g2'], gateAnswer: { found: true, verdict: 'approve', chosen: ['yes'], answeredVia: 'mcp_relayed' }, recordsHash: 'h2' }, before: { decisionNodes: [], gateAnswer: { found: false }, recordsHash: 'h1' } };
+  const v = P.judgeRoundTrip({ frames, inspection, deck });
+  const by = Object.fromEntries(v.map((x) => [x.id, x]));
+  assert.strictEqual(by.a.result, 'PASS');
+  assert.strictEqual(by.b.result, 'PASS');
+  assert.strictEqual(by.c.result, 'PASS');
+  assert.strictEqual(by.d.result, 'PASS');
+  assert.strictEqual(by.e.result, 'PASS');
+  assert.strictEqual(by.f.result, 'PASS');
+  assert.ok(/mcp_relayed/.test(by.f.detail));
+  assert.strictEqual(by.saving.result, 'PENDING-HUMAN');
+
+  // saved shown with nothing in the room is the one failure that matters most
+  const lie = P.judgeRoundTrip({ frames, inspection: { after: { decisionNodes: [], gateAnswer: { found: false }, recordsHash: 'h1' }, before: inspection.before }, deck });
+  assert.strictEqual(lie.find((x) => x.id === 'e').result, 'FAIL');
+  assert.strictEqual(lie.find((x) => x.id === 'f').result, 'FAIL');
+  // a saved sentence in a frame BEFORE the press is also a failure
+  const early = P.judgeRoundTrip({ frames: Object.assign({}, frames, { direct: frames.direct + '\nSaved to your data room: Yes.' }), inspection, deck });
+  assert.strictEqual(early.find((x) => x.id === 'c').result, 'FAIL');
+  // no frames at all: everything is PENDING-HUMAN, nothing is faked
+  const none = P.judgeRoundTrip({ frames: {}, inspection: {}, deck });
+  assert.ok(none.every((x) => x.result === 'PENDING-HUMAN'), JSON.stringify(none));
+});
+
+scenario('17 judgeDecideLater and judgeDoublePress: hash equality and exactly one decision node', () => {
+  const P = requireLive('live-pure.cjs');
+  const ok = P.judgeDecideLater({ before: { recordsHash: 'h' }, after: { recordsHash: 'h' }, frames: { after: 'A decision is waiting' }, deck: { B60: 'A decision is waiting' } });
+  assert.strictEqual(ok.result, 'PASS');
+  assert.strictEqual(P.judgeDecideLater({ before: { recordsHash: 'h' }, after: { recordsHash: 'z' }, frames: { after: 'A decision is waiting' }, deck: { B60: 'A decision is waiting' } }).result, 'FAIL');
+  assert.strictEqual(P.judgeDecideLater({ before: null, after: null, frames: {}, deck: {} }).result, 'PENDING-HUMAN');
+  assert.strictEqual(P.judgeDoublePress({ after: { decisionNodes: ['d1'] } }).result, 'PASS');
+  assert.strictEqual(P.judgeDoublePress({ after: { decisionNodes: ['d1', 'd2'] } }).result, 'FAIL');
+  assert.strictEqual(P.judgeDoublePress({ after: null }).result, 'PENDING-HUMAN');
+});
+
+scenario('17 live-room: exports exactly buildLiveRoom and inspectLiveRoom and never names the real rooms home', () => {
+  const L = requireLive('live-room.cjs');
+  assert.deepStrictEqual(Object.keys(L).sort(), ['buildLiveRoom', 'inspectLiveRoom']);
+  const src = require('node:fs').readFileSync(path.join(LIB_DIR, 'live-room.cjs'), 'utf8');
+  assert.ok(!/MindrianRooms/.test(src), 'the helper never names ~/MindrianRooms');
+  assert.ok(!/—/.test(src), 'no em-dash');
+});
+
+(async () => {
+  let client = true;
+  try { require('@modelcontextprotocol/client'); } catch (e) { client = false; }
+  if (!client) {
+    process.stdout.write('  SKIPPED live-room round trip (ENV GAP: @modelcontextprotocol/client cannot be loaded)\n');
+  } else {
+    const fs = require('node:fs');
+    const os = require('node:os');
+    let L = null;
+    try { L = requireLive('live-room.cjs'); } catch (e) { L = null; }
+    const P = (() => { try { return requireLive('live-pure.cjs'); } catch (e) { return null; } })();
+    let live = null;
+    let mod = null;
+    try {
+      if (!L || !P) throw new Error('live-room.cjs or live-pure.cjs is missing');
+      const { cliClient } = require(path.join(REPO, 'tests', 'helpers', 'cli-gate-369.cjs'));
+      live = await L.buildLiveRoom({});
+      assert.ok(live.roomsHome.startsWith(os.tmpdir()), 'the rooms home is under the OS temp dir');
+      assert.ok(/^gate-/.test(live.gateId), 'a raised gate id: ' + live.gateId);
+      assert.ok(fs.existsSync(path.join(live.folderDir, 'ROOM.md')), 'the folder holds a ROOM.md');
+      assert.ok(/\(sample\)/.test(fs.readFileSync(path.join(live.folderDir, 'ROOM.md'), 'utf8')), 'the purpose is marked (sample)');
+      const before = L.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId });
+      assert.deepStrictEqual(before.decisionNodes, []);
+      assert.strictEqual(before.gateAnswer.found, false);
+      assert.ok(/^[0-9a-f]{64}$/.test(before.recordsHash));
+      const again = L.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId });
+      assert.strictEqual(again.recordsHash, before.recordsHash, 'reading the room twice does not change it');
+
+      // another session of the same room: lists the card, is refused a direct answer, mirrors, answers once
+      mod = await cliClient({ roomsHome: live.roomsHome, home: live.home, sessionId: 'live-room-test-mod' });
+      await mod.bind(live.slug);
+      const listed = await mod.call('gate_list', {});
+      assert.strictEqual(listed.ok, true, JSON.stringify(listed));
+      assert.strictEqual(listed.count, 1);
+      assert.strictEqual(listed.gates[0].gate_id, live.gateId);
+      assert.deepStrictEqual(listed.gates[0].options.map((o) => o.id), ['yes', 'later', 'no']);
+      assert.strictEqual(listed.gates[0].options[0].recommended, true);
+      const direct = await mod.call('gate_answer', { gate_id: live.gateId, chosen: ['yes'], verdict: 'approve' });
+      assert.strictEqual(direct.ok, false);
+      assert.strictEqual(direct.reason, 'unknown_gate');
+      assert.strictEqual(L.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId }).recordsHash, before.recordsHash, 'a refused press and a read write nothing');
+      const m = await mod.call('gate_render', { mirror_of: live.gateId, options: listed.gates[0].options.map((o) => ({ id: o.id, label: o.id })) });
+      assert.strictEqual(m.ok, true, JSON.stringify(m));
+      assert.strictEqual(L.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId }).recordsHash, before.recordsHash, 'a mirror leaves no record of its own');
+      const [a1, a2] = await Promise.all([
+        mod.call('gate_answer', { gate_id: m.gate_id, chosen: ['yes'], verdict: 'approve' }),
+        mod.call('gate_answer', { gate_id: m.gate_id, chosen: ['yes'], verdict: 'approve' }),
+      ]);
+      assert.strictEqual(a1.ok && a2.ok, true, JSON.stringify([a1, a2]));
+      const after = L.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId });
+      assert.strictEqual(after.decisionNodes.length, 1, 'two presses at once leave exactly one decision node');
+      assert.strictEqual(after.gateAnswer.found, true);
+      assert.strictEqual(after.gateAnswer.verdict, 'approve');
+      assert.deepStrictEqual(after.gateAnswer.chosen, ['yes']);
+      assert.strictEqual(after.gateAnswer.answeredVia, 'mcp_relayed');
+      assert.notStrictEqual(after.recordsHash, before.recordsHash);
+      passed += 1;
+      process.stdout.write('  ok 17 live-room: a real raised card is listed, refused directly, mirrored without a record, saved once, and read back as mcp_relayed\n');
+    } catch (e) {
+      failed += 1;
+      process.stdout.write('  FAIL 17 live-room round trip\n    ' + (e.stack || e.message || String(e)) + '\n');
+    } finally {
+      if (mod) { try { await mod.close(); } catch (e) { /* best effort */ } }
+      if (live) {
+        const home = live.roomsHome;
+        try { await live.close(); } catch (e) { /* best effort */ }
+        try {
+          assert.ok(!fs.existsSync(home), 'close() removes the live room: ' + home);
+          passed += 1;
+          process.stdout.write('  ok 17 live-room close removes the hermetic rooms home\n');
+        } catch (e) {
+          failed += 1;
+          process.stdout.write('  FAIL 17 live-room cleanup\n    ' + e.message + '\n');
+        }
+      }
+    }
+  }
+  process.stdout.write('\n' + passed + ' passed, ' + failed + ' failed\n');
+  process.exit(failed ? 1 : 0);
+})();
