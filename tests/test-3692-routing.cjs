@@ -432,10 +432,12 @@ async function main() {
     const spent = r1.reduce(function (n, l) { return n + l.queries.length; }, 0);
     console.log('R3c leaves on the lens ' + same.length + ', queries spent ' + spent + ', by leaf ' + JSON.stringify(by));
     same.forEach(function (l) { assert.ok(by[l.id] >= 1, 'leaf ' + l.id + ' has ' + (by[l.id] || 0) + ' queries'); });
-    assert.ok(spent >= same.length, 'the lane spent ' + spent + ' queries for ' + same.length + ' leaves');
+    const gapLane = r1.filter(function (l) { return l.lane === 'ws-gap'; })[0];
+    assert.ok(gapLane && gapLane.queries.length >= same.length, 'the ws-gap lane spent ' + (gapLane ? gapLane.queries.length : 0) + ' queries for ' + same.length + ' leaves');
     // a cap of 1 search leaves the others without one: each is named in the ledger
     const tight = clone(plan);
     tight.budget.max_searches = 2;
+    tight.status = 'ready'; // the whitespace set names no limiter, see R3b
     tight.plan_hash = planMod.planHash(tight);
     const r1t = deepMod.roundOneQueries(tight);
     const sent = r1t.reduce(function (n, l) { return n + l.queries.length; }, 0);
