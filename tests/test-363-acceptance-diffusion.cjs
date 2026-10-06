@@ -139,7 +139,12 @@ function analyst(p, round) {
   if (round === 2 && p.lane === 'LM3') rows.push(rowOf('scurve_headroom', 0, 'L15', 'scurve_headroom'));
   return rows;
 }
-async function driveDeep(room, plan) {
+async function driveDeep(room, planIn) {
+  // 369.2-24 (HARNESS-10): the field scan spends searches of the cap that this leg's round two needs, and this
+  // leg tests the diffusion reading, not the scan (test-3692-baseline owns that): the scan is set to 0 here
+  const rev = planner.revisePlan(room.roomDir, planIn.run_id, { op: 'set_budget', budget: { baseline_max: 0 } }, {});
+  if (!rev.ok) return { error: 'revisePlan ' + JSON.stringify(rev).slice(0, 200) };
+  const plan = rev.plan;
   const replay = makeReplayFetch({ route: srRoute, bodies: BODIES });
   const appr = planner.approvePlanReview(room.roomDir, plan.run_id, { approvedVia: 'cli' });
   if (!appr.ok) return { error: 'approvePlanReview ' + JSON.stringify(appr) };

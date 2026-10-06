@@ -50,6 +50,7 @@ const Module = require('node:module');
 const ROOT = path.resolve(__dirname, '..');
 const RP = path.join(ROOT, 'lib', 'core', 'research-planner');
 const planner = require(path.join(RP, 'planner.cjs'));
+const planMod = require(path.join(RP, 'plan.cjs'));
 const grants = require(path.join(RP, 'grants.cjs'));
 const deep = require(path.join(RP, 'deep.cjs'));
 const ev = require(path.join(RP, 'evidence-rows.cjs'));
@@ -74,6 +75,10 @@ function fakeFetch(rp) {
 function session(route, bodies) {
   const room = buildRoom363({ role: 'researcher' });
   const plan = planner.buildPlan(room.roomDir, QS, { mode: 'deep', now: new Date('2026-10-04T00:00:00Z') }).plan;
+  // 369.2-24 (HARNESS-10): a deep SR run now opens with round 0, the field scan. These legs test how a lane is
+  // recorded in round one, so the plan goes without the scan (test-3692-baseline owns round 0)
+  delete plan.baseline;
+  plan.plan_hash = planMod.planHash(plan);
   const grant = grants.writeGrant(room.roomDir, grants.buildRunGrant(plan), { approved_via: VIA }).grant;
   const rp = makeReplayFetch({ route: route, bodies: bodies || BODIES });
   const init = deep.initDeepState(room.roomDir, plan, grant, {});

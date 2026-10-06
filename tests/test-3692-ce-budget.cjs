@@ -112,10 +112,13 @@ function analyst(p, round) {
   if (round === 2 && p.lane === 'LM2') rows.push(rowOf('scurve_ceiling', 0, 'L9', 'scurve_ceiling'));
   return rows;
 }
-function deepPlan(room, budget) {
+function deepPlan(room, budget, noScan) {
   const built = planner.buildPlan(room.roomDir, clone(QS_SR), { mode: 'deep', now: new Date('2026-10-04T00:00:00Z') });
   const plan = built.plan;
   Object.assign(plan.budget, budget || {});
+  // 369.2-24 (HARNESS-10): B2 probes the pass with no reserve at a cap the field scan would fill on its own;
+  // it runs without the scan (test-3692-baseline BE5 runs the cap-8 replay with it)
+  if (noScan === true) delete plan.baseline;
   plan.plan_hash = planMod.planHash(plan);
   return plan;
 }
@@ -165,9 +168,9 @@ async function driveDeep(room, plan) {
   return result;
 }
 // one full scenario: plan at a cap, optional reserve seam, driven to synthesize
-async function scenario(cap, initOpts) {
+async function scenario(cap, initOpts, noScan) {
   const room = newRoom();
-  const plan = deepPlan(room, cap === null ? {} : { max_searches: cap });
+  const plan = deepPlan(room, cap === null ? {} : { max_searches: cap }, noScan);
   deepInit(room, plan, initOpts);
   const result = await driveDeep(room, plan);
   const ledger = operations.readLedger(room.roomDir, plan.run_id);
@@ -191,7 +194,7 @@ async function main() {
 
   // ---- B2 cap 8, reserve 0 ----
   await leg('B2 cap 8 with ceReserve 0: the pass ops are not_executed with search_cap, status partial, completion false', async function () {
-    const s = await scenario(8, { ceReserve: 0 });
+    const s = await scenario(8, { ceReserve: 0 }, true);
     const ceOps = s.ledger.operations.filter(isCe);
     const ce = s.run.counterevidence;
     console.log('B2 measured: ce_reserve=' + s.state.ce_reserve + ' CE pass ops=' + ceOps.length + ' states=' + byState({ operations: ceOps }) + ' status=' + (ce && ce.status) + ' executed=' + (ce && ce.executed) + ' planned=' + (ce && ce.planned) + ' complete=' + (s.run.completion && s.run.completion.complete));
