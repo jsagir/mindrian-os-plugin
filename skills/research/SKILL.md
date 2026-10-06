@@ -367,6 +367,8 @@ The only difference is the fixed lens_set; presentation, the F.1 gate, and wirin
 are identical. Use `--broad` for comprehensive parallel-angle intelligence (the
 academic + market + patent triple) on a single topic.
 
+The patent lens searches PatentsView when PATENTSVIEW_API_KEY is set; without it the lens says it has no patent source before searching, and returns nothing. It never searches a biomedical index under a patent label.
+
 ## Plan-run mode (the one research runner)
 
 This is the one place research plans run. A first-wave command (a methodology that asked a question set, such as `/mos:map-unknowns`, `/mos:root-cause`, `/mos:diffusion` or `/mos:whitespace`) never fetches on its own: it saves a plan and hands you a run id, and you run it here. The existing topic mode and URL mode above are unchanged; this mode starts when one of three things is true: a command handed you a run id, the navigator asked for a research plan, or a room-started card is waiting.

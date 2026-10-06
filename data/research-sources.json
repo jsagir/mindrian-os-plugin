@@ -32,6 +32,14 @@
       "note": "Gated only by the existing TAVILY_API_KEY env var, not opt-in. Snippet-only web results. Missing key degrades to an empty envelope (no throw)."
     },
     {
+      "id": "patents",
+      "enabled": true,
+      "kind": "patent",
+      "gates": ["env:PATENTSVIEW_API_KEY"],
+      "endpoint": "https://search.patentsview.org/api/v1/patent/",
+      "note": "PatentsView PatentSearch API; key from PatentsView sent as the X-Api-Key header only, read at call time. No keyless fallback by default (369.2 A1): the keyless google_patents scrape and the USPTO path in rs-fetcher-patents.cjs are not wired to the patent lens. NOT in default_sources. A missing key means the patent lens answers provider_unavailable:patent before any dispatch. Delegated to lib/core/rs-fetcher-patents.cjs fetchPatentSearch."
+    },
+    {
       "id": "tavily-extract",
       "enabled": true,
       "kind": "web",
