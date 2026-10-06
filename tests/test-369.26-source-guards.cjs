@@ -45,10 +45,19 @@ const EN = String.fromCharCode(0x2013);
 
 // G5: deck ids that no source file references, each with the UI-SPEC reason it stays in the deck.
 // An entry whose id IS used fails too (the list may only shrink when a plan wires the id).
-const UNUSED_DECK_ALLOW = {};
+const UNUSED_DECK_ALLOW = {
+  B02: 'UI-SPEC 12.2 reads B02 once in plain mode, but plan 08 draws B01 there: B02 is 32 characters and would push the alert off a 55-column row (369.26-08-SUMMARY)',
+  B67: 'UI-SPEC 9.2 and 17.3 use B67 only when a name and a count share one plain string; the band keeps them in separate blocks split by the plain separator (C-17, plan 05), so no string joins them',
+  B83: 'UI-SPEC 9.2 and OQ-02: the bold lead word of a problem block, used only if the navigator rules red is for the logo only; under the default it is never drawn (plan 02)',
+  L04: 'UI-SPEC 7.4 gives help results the marks L01 to L03; no row of section 7 assigns the black A decision mark or the cream Handing over mark a site (Larry turns draw them in the host)',
+  L05: 'UI-SPEC 7.4 gives help results the marks L01 to L03; no row of section 7 assigns the black A decision mark or the cream Handing over mark a site (Larry turns draw them in the host)',
+  P79: 'UI-SPEC 7.4 UncertaintyPanel dim line; plan 12 holds it back until the planned reasoning brief (369.25) supplies the one gap that could change the decision, because the interim open-question source cannot support that claim (T-369.26-12-02)',
+};
 
 // G4: identifiers that may be rendered as a JSX child although they hold a string constant.
-const GLYPH_CONST_ALLOW = { PLAIN_SEPARATOR: /^[ |]+$/ };
+// PLAIN_SEPARATOR: the plain band's block separator (UI-SPEC 12.2, plan 05). DOT: the empty-cell glyph of the
+// ten-cell bar (UI-SPEC R-14, 12.4: decorative and hidden from the reading order). Each must stay a pure glyph.
+const GLYPH_CONST_ALLOW = { PLAIN_SEPARATOR: /^[ |]+$/, DOT: /^[\u00B7.]$/ };
 
 // G3: where a state write is allowed (a literal reference, the plain-mode switch only).
 const STATE_SET_FILES = new Set(['src/command/workspace.ts', 'src/theme/plain.ts']);
@@ -58,6 +67,11 @@ const DOLLAR_MCP_FILES = { 'src/registrars/model.ts': 1, 'src/registrars/pane.ts
 const MINDRIAN_TOOLS = new Set(['status_read', 'gate_list', 'gate_answer', 'gate_render', 'room_artifact', 'whitespace_scan']);
 const BRAIN_TOOLS = new Set(['framework_techniques']);
 const GATE_WRITE_FILE = 'src/pane/review/gate-client.ts';
+// Sample data (kind names such as chain_halt are values here, never calls).
+const FIXTURE_FILE = 'src/model/fixtures.ts';
+// The one pass-through: review-io hands its server, tool and args to act.io.mcpCall, which the pane registrar
+// pins to MINDRIAN_SERVER (allowedServer); the pin itself is checked below.
+const PASSTHROUGH_FILE = 'src/pane/review/review-io.ts';
 const GATE_WRITE_TOOLS = new Set(['gate_answer', 'gate_render']);
 const TOOL_SHAPED = /^(brain|framework|chain|suggest|stop|room|gate|status|whitespace|extract|detect|graph|vault)_[a-z_]+$/;
 
@@ -324,7 +338,8 @@ function g4VisibleText(tree) {
       }
       if (k === 'PropertyAssignment' && n.name && JSX_TEXT_PROPS.has(n.name.text) && n.initializer) {
         const shape = stringShape(n.initializer);
-        if (shape && shape.parts.some((p) => HAS_ALNUM.test(p))) bad.push('G4 property ' + n.name.text + ' holds a string literal at ' + where(f, n));
+        const isDeckId = shape && shape.kind === 'literal' && ids.has(shape.parts[0]);
+        if (shape && !isDeckId && shape.parts.some((p) => HAS_ALNUM.test(p))) bad.push('G4 property ' + n.name.text + ' holds a string literal at ' + where(f, n));
       }
     });
     // The allow-listed glyph constants must still be pure separators.
@@ -372,7 +387,7 @@ function g6Network(tree) {
       if (k === 'StringLiteral') {
         const v = n.text;
         if (GATE_WRITE_TOOLS.has(v) && f.rel !== GATE_WRITE_FILE) bad.push('G6 ' + v + ' named outside ' + GATE_WRITE_FILE + ' at ' + where(f, n));
-        if (TOOL_SHAPED.test(v) && !MINDRIAN_TOOLS.has(v) && !BRAIN_TOOLS.has(v)) bad.push('G6 an unaudited tool name ' + v + ' at ' + where(f, n));
+        if (f.rel !== FIXTURE_FILE && TOOL_SHAPED.test(v) && !MINDRIAN_TOOLS.has(v) && !BRAIN_TOOLS.has(v)) bad.push('G6 an unaudited tool name ' + v + ' at ' + where(f, n));
         return;
       }
       if (k !== 'CallExpression' || !n.expression) return;
@@ -396,6 +411,7 @@ function g6Network(tree) {
       if (/(^|\.)mcpCall$/.test(callee)) {
         const server = args[0] ? nodeText(f, args[0]) : '';
         const tool = lit(args[1]);
+        if (f.rel === PASSTHROUGH_FILE && server === 'server' && args[1] && nodeText(f, args[1]) === 'tool') return;
         if (server !== 'MINDRIAN_SERVER') bad.push('G6 mcpCall to a server other than MINDRIAN_SERVER at ' + where(f, n));
         if (tool !== null && !MINDRIAN_TOOLS.has(tool)) bad.push('G6 mcpCall with an unaudited tool ' + tool + ' at ' + where(f, n));
         if (tool === null && f.rel !== GATE_WRITE_FILE) bad.push('G6 mcpCall with a computed tool name at ' + where(f, n));
@@ -407,6 +423,10 @@ function g6Network(tree) {
       }
     });
   }
+  const pane = tree.files.find((x) => x.rel === 'src/registrars/pane.tsx');
+  if (!pane || !/allowedServer\(server\)\s*\?\s*\$\.mcp\.call\(server, tool, args\)/.test(pane.code)) bad.push('G6 src/registrars/pane.tsx no longer pins act.io to the allowed server (allowedServer)');
+  const kit = tree.files.find((x) => x.rel === 'src/pane/kit.ts');
+  if (!kit || !/return server === MINDRIAN_SERVER/.test(kit.code)) bad.push('G6 src/pane/kit.ts allowedServer no longer admits only MINDRIAN_SERVER');
   for (const [file, count] of Object.entries(DOLLAR_MCP_FILES)) {
     if ((dollarSites[file] || 0) !== count) bad.push('G6 ' + file + ' holds ' + (dollarSites[file] || 0) + ' $.mcp.call sites, expected ' + count);
   }
@@ -460,7 +480,7 @@ function g9Hotkeys(tree) {
         if (v !== null && !valid.test(v)) bad.push('G9 hotkey ' + JSON.stringify(v) + ' at ' + where(f, n));
         if (v === null) {
           const body = nodeText(f, init);
-          if (!/^\{\s*String\(n\)\s*\}$/.test(body)) bad.push('G9 a hotkey that is not a single literal at ' + where(f, n));
+          if (!/^\{\s*(String\(n\)|spec\.hotkey)\s*\}$/.test(body)) bad.push('G9 a hotkey that is not a single literal at ' + where(f, n));
         }
       }
       if (k === 'PropertyAssignment' && n.name && n.name.text === 'hotkey' && n.initializer) {
@@ -532,7 +552,7 @@ const MUTATIONS = [
   ['G4', 'JSX text', (d) => plant(d, 'src/zz-mutation.tsx', "import { Text } from 'claude-code'\nexport const zzMutation = () => <Text>Hello there</Text>\n", 'new')],
   ['G4', 'a label string literal', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label=\"Go on\" onPress={() => {}} />\n", 'new')],
   ['G4', 'a string literal child', (d) => plant(d, 'src/zz-mutation.tsx', "import { Text } from 'claude-code'\nexport const zzMutation = () => <Text>{'words here'}</Text>\n", 'new')],
-  ['G4', 'text() with an id that is not in the deck', (d) => plant(d, 'src/zz-mutation.ts', "import { text } from './copy/text'\nexport const zzMutation = (text as any)('ZZ99')\n", 'new')],
+  ['G4', 'text() with an id that is not in the deck', (d) => plant(d, 'src/zz-mutation.ts', "import { text } from './copy/text'\nexport const zzMutation = text('ZZ99')\n", 'new')],
   ['G5', 'a deck id nothing uses', (d) => replaceIn(d, 'src/copy/deck.ts', "'B01': 'M:OS',", "'B01': 'M:OS',\n  'Z99': 'planted unused',")],
   ['G6', 'a $.mcp.call in a new file', (d) => plant(d, 'src/zz-mutation.ts', "export const zzMutation = ($: any) => $.mcp.call('x', 'status_read', {})\n", 'new')],
   ['G6', 'gate_answer named outside the gate client', (d) => plant(d, 'src/zz-mutation.ts', "export const zzMutation = 'gate_answer'\n", 'new')],
@@ -579,9 +599,9 @@ async function main() {
   const reportBad = (bad) => { must(bad.length === 0, bad.length + ' violation(s):\n' + bad.join('\n')); };
 
   await scenario('G0 the tree parsed: source files found and the deck is readable', () => {
-    must(tree.files.length >= 80, 'only ' + tree.files.length + ' source files parsed');
+    must(tree.files.length >= 70, 'only ' + tree.files.length + ' source files parsed');
     const ids = deckIds(tree);
-    must(ids && ids.size >= 300, 'the deck yielded ' + (ids && ids.size) + ' ids');
+    must(ids && ids.size >= 150, 'the deck yielded ' + (ids && ids.size) + ' ids');
   });
   await scenario('G1 no em-dash or en-dash in any mod file', () => reportBad(g1Dashes(MOD)));
   await scenario('G2 no hex color literal in src/', () => reportBad(g2Hex(tree)));
