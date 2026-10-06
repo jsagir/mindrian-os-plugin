@@ -27,6 +27,7 @@ import type { RefusalCopyId } from './refusals'
 import { checkingEntry, refusedEntry, savedEntry } from './state'
 import type { LastResult, PhaseEntry } from './state'
 import { verdictFor } from './verdicts'
+import type { Verdict } from './verdicts'
 import type { GateCard, GateOption } from '../../model/view-model'
 
 // The closures the hook file builds over `$`. Each state closure spells its own literal reference
@@ -106,6 +107,15 @@ async function copyAfterDefer(io: ReviewIo, card: GateCard): Promise<'D13' | 'D2
   return listed !== null && listed.includes(card.gateId) ? 'D13' : 'D24'
 }
 
+// Two guards stand between a second press and a second gate_answer, either of which alone stops it:
+//  1. an in-process one: a press that arrives while another for the same card is still running is
+//     ignored at once, with no await before the check, so it holds whatever the state store offers;
+//  2. the state claim: `saving` with this press's token is written through io.claimSaving, and only
+//     the press whose token is the one stored goes on. It is also what the card draws as D23.
+// The second matters when the store's write is a versioned compare-and-set (`update`); the first
+// is what keeps the guarantee when a write is a plain merge that cannot compare.
+const inFlight = new Set<string>()
+
 export async function pressChoice(io: ReviewIo, card: GateCard, option: GateOption): Promise<PressResult> {
   // A multi-answer card stays in the conversation's own dialog (D30); an option not on this card is
   // not one the mod saves.
@@ -114,6 +124,16 @@ export async function pressChoice(io: ReviewIo, card: GateCard, option: GateOpti
   const verdict = verdictFor(card, option)
   if (verdict === null) return { kind: 'not_savable' }
 
+  if (inFlight.has(card.gateId)) return { kind: 'ignored' }
+  inFlight.add(card.gateId)
+  try {
+    return await saveOnce(io, card, option, verdict)
+  } finally {
+    inFlight.delete(card.gateId)
+  }
+}
+
+async function saveOnce(io: ReviewIo, card: GateCard, option: GateOption, verdict: Verdict): Promise<PressResult> {
   // The in-flight guard: only the press whose claim is the one stored goes on.
   const claim = newClaim()
   let held: string | null

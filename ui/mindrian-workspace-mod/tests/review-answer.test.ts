@@ -615,6 +615,45 @@ test('pressChoice: two concurrent presses produce exactly one gate_answer call',
   expect(st.last).toHaveLength(1)
 })
 
+test('pressChoice: two concurrent presses stay one call even when the store cannot compare (a plain merge)', async () => {
+  const st = makeStand()
+  // A store whose write is a plain overwrite: every press "wins" its own claim.
+  st.io.claimSaving = (gateId, claim) => {
+    st.phase = withPhase(st.phase, gateId, savingEntry(claim))
+    return Promise.resolve(claim)
+  }
+  const c = card()
+  const [a, b] = await Promise.all([pressChoice(st.io, c, opt('approve')), pressChoice(st.io, c, opt('approve'))])
+  expect(answers(st)).toHaveLength(1)
+  expect([a.kind, b.kind].sort()).toEqual(['ignored', 'saved'])
+})
+
+test('pressChoice: presses on different cards do not block each other, and a finished press releases its card', async () => {
+  const st = makeStand()
+  const one = card({ gateId: 'g-1' })
+  const two = card({ gateId: 'g-2' })
+  const both = await Promise.all([pressChoice(st.io, one, opt('approve')), pressChoice(st.io, two, opt('approve'))])
+  expect(both.map((r) => r.kind)).toEqual(['saved', 'saved'])
+  expect(answers(st)).toHaveLength(2)
+  // The same card can be pressed again once the first press is done (a replay says so).
+  const again = await pressChoice(st.io, one, opt('approve'))
+  expect(again.kind).toBe('saved')
+  expect(answers(st)).toHaveLength(3)
+})
+
+test('pressChoice: a store that refuses the claim fails the press cleanly and releases the card', async () => {
+  const st = makeStand()
+  let n = 0
+  const real = st.io.claimSaving
+  st.io.claimSaving = (gateId, claim) => {
+    n += 1
+    return n === 1 ? Promise.reject(new Error('state refused')) : real(gateId, claim)
+  }
+  expect(await pressChoice(st.io, card(), opt('approve'))).toEqual({ kind: 'failed' })
+  expect(answers(st)).toHaveLength(0)
+  expect(await pressChoice(st.io, card(), opt('approve'))).toEqual({ kind: 'saved', copyId: 'D24' })
+})
+
 test('pressChoice: ok and not replayed is D24 with the label, sets the result and refreshes once', async () => {
   const st = makeStand()
   const c = card()

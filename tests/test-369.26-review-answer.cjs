@@ -4,8 +4,9 @@
 // the mod (never the repo tree):
 //   1. the recipe in tests/fixtures/review-io-recipe.ts (how the hook file builds a ReviewIo) passes
 //      the engine's static scan, and validate lists the review state keys it reads and writes;
-//   2. the in-flight guard is mutation-tested: with the claim check removed from a copy of the
-//      machine, the concurrency arm FAILS (and passes on an untouched copy, so the arm discriminates).
+//   2. the in-flight guards are mutation-tested: with the in-process guard (and then also the state
+//      claim check) removed from a copy of the machine, the concurrency arms FAIL (and pass on an
+//      untouched copy, so each arm discriminates).
 // Exit 77 (ENV GAP, never a pass) when the claude binary is not on PATH.
 // Hyphens only. CJS, Node built-ins only. Hermetic: writes only to a temp dir it removes.
 'use strict';
@@ -131,19 +132,31 @@ function runTests(dest) {
   return (r.stdout || '') + (r.stderr || '');
 }
 
-scenario('mutation: with the claim check removed the concurrency arm fails (and passes untouched)', () => {
+scenario('mutation: the in-flight guards are load-bearing (each arm fails when its guard is removed, and passes untouched)', () => {
   if (!HAVE_CLAUDE) return 'skip';
-  const arm = 'pressChoice: two concurrent presses produce exactly one gate_answer call';
+  const atomic = 'pressChoice: two concurrent presses produce exactly one gate_answer call';
+  const plain = 'pressChoice: two concurrent presses stay one call even when the store cannot compare (a plain merge)';
+  const inProcess = "if (inFlight.has(card.gateId)) return { kind: 'ignored' }";
+  const claimCheck = "if (held !== claim) return { kind: 'ignored' }";
   withScratch((dest) => {
     const untouched = runTests(dest);
-    assert.ok(untouched.includes('(pass) ' + arm), 'the arm does not pass on an untouched copy\n' + untouched.slice(-1500));
+    assert.ok(untouched.includes('(pass) ' + atomic), 'the atomic-store arm does not pass untouched\n' + untouched.slice(-1500));
+    assert.ok(untouched.includes('(pass) ' + plain), 'the plain-merge arm does not pass untouched\n' + untouched.slice(-1500));
     const f = path.join(dest, 'src', 'pane', 'review', 'answer-machine.ts');
     const before = fs.readFileSync(f, 'utf8');
-    const guard = "if (held !== claim) return { kind: 'ignored' }";
-    assert.ok(before.includes(guard), 'the claim check is not where this guard expects it');
-    fs.writeFileSync(f, before.replace(guard, 'void held'));
-    const mutated = runTests(dest);
-    assert.ok(mutated.includes('(fail) ' + arm), 'removing the claim check did not fail the concurrency arm\n' + mutated.slice(-1500));
+    assert.ok(before.includes(inProcess), 'the in-process guard is not where this test expects it');
+    assert.ok(before.includes(claimCheck), 'the claim check is not where this test expects it');
+
+    // Only the in-process guard removed: a store that cannot compare lets both presses through.
+    fs.writeFileSync(f, before.replace(inProcess, 'void inFlight'));
+    const noProcess = runTests(dest);
+    assert.ok(noProcess.includes('(fail) ' + plain), 'removing the in-process guard did not fail the plain-merge arm\n' + noProcess.slice(-1500));
+
+    // Both removed: even a store that compares lets both presses through.
+    fs.writeFileSync(f, before.replace(inProcess, 'void inFlight').replace(claimCheck, 'void held'));
+    const neither = runTests(dest);
+    assert.ok(neither.includes('(fail) ' + atomic), 'removing both guards did not fail the concurrency arm\n' + neither.slice(-1500));
+    assert.ok(neither.includes('(fail) ' + plain), 'removing both guards did not fail the plain-merge arm\n' + neither.slice(-1500));
   });
 });
 
