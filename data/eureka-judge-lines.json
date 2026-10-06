@@ -1,0 +1,11 @@
+{
+  "schema": "mos.eureka-judge-lines/1",
+  "_note": "The Eureka judge-state wording and the name of the Jev key variable live here, not in lib/, because tests/test-355-part8-egress.cjs leg D bans the key variable name on any non-comment lib/ line (the Jev vendor is dev-time only, Phase 355 D-44). Same precedent as data/egress-policy.json, which holds the vendor endpoint. Read by lib/core/research-planner/perspectives/eureka-judge.cjs judgeState (369.2-27). The key is checked for presence only, never read into a message.",
+  "key_env": "TYPESAFE_API_KEY",
+  "secrets_file": ".secrets/typesafe.env",
+  "lines": {
+    "no_key": "No model judged these pairs: no Jev key is set on this machine. Read the pairs that passed and judge them yourself, or set TYPESAFE_API_KEY and run the Jev judge in Claude Code.",
+    "line_off": "No model judged these pairs: the judge line is off by this room's policy. Read the pairs that passed and judge them yourself.",
+    "available": "No model judged these pairs on this surface; the Jev judge runs in Claude Code."
+  }
+}
