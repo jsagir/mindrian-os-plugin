@@ -5,12 +5,13 @@
 // nothing, so each Button's onPress is captured as the view draws and called directly); Task 2 adds
 // the real pane on the real id.
 import type { On, RenderElement } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
 import type { GateCard, GateOption } from '../src/model/view-model'
+import { ok } from '../src/model/view-model'
 import { emptyBody, mergeBody, replaceBody } from '../src/pane/kit'
 import type { BodySlice, BodyState } from '../src/pane/kit'
 import { buildPane } from '../src/pane/pane'
@@ -18,12 +19,14 @@ import type { PaneDeps, PaneInput } from '../src/pane/pane'
 import { CHOICE_FORM, ChoiceButtons, choiceLabel } from '../src/pane/review/choice-buttons'
 import { consequenceFor, consequenceWords, isSavable, suggestedChoice } from '../src/pane/review/consequence'
 import { expiryWords, formatExpiry } from '../src/pane/review/expiry'
+import { reviewBody } from '../src/pane/bodies/review'
+import { listState } from '../src/pane/review/decision-list'
 import { ProposalCard } from '../src/pane/review/proposal-card'
-import { readReview, reviewIo } from '../src/pane/review/review-io'
+import { readReview, reviewIo, runChoice } from '../src/pane/review/review-io'
 import { pressChoice } from '../src/pane/review/answer-machine'
 import { savedEntry, savingEntry, refusedEntry, checkingEntry } from '../src/pane/review/state'
 import type { ShellActions, TabBody, TabContext } from '../src/pane/types'
-import { MINDRIAN_SERVER, PLUGIN_NAME } from '../src/runtime/ids'
+import { MINDRIAN_SERVER, PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -766,4 +769,450 @@ test('ChoiceButtons exports CHOICE_FORM and both forms draw without error', asyn
     }
     await ui.unmount()
   }
+})
+
+// =============================================================================================
+// Task 2: the decision list, the foreign-card path and the Review tab body
+// =============================================================================================
+
+const REVIEW = reviewBody as TabBody
+
+function ctxFor(vm: typeof SAMPLES.wide, body: BodyState, act: ShellActions, over: Partial<TabContext> = {}): TabContext {
+  return {
+    el: undefined as never,
+    vm,
+    theme: THEME,
+    mode: COLOR,
+    bodyColumns: 100,
+    isFocused: true,
+    tab: 'review',
+    body,
+    detailsOpen: false,
+    act,
+    ...over,
+  }
+}
+
+const withReview = (review: BodySlice): BodyState => ({ ...emptyBody(), review })
+
+test('reviewBody is defined, names X04, and its keys follow what is drawn: 1 to 3 H15, d H16, i H19', () => {
+  expect(REVIEW).toBeDefined()
+  expect(REVIEW.explainId).toBe('X04')
+  const act = memAct(newMem())
+  const keys = (vm: typeof SAMPLES.wide, review: BodySlice = {}) =>
+    REVIEW.keys(ctxFor(vm, withReview(review), act)).map((k) => k.key + ':' + k.labelId)
+  expect(keys(SAMPLES.wide)).toEqual(['1-3:H15', 'd:H16'])
+  // Nothing waits, the room is unreadable, no room: only Help (the shell adds it), so no body keys.
+  expect(keys(SAMPLES.empty)).toEqual([])
+  expect(keys(SAMPLES.unreadable)).toEqual([])
+  expect(keys(SAMPLES.noroom)).toEqual([])
+  // A card the mod cannot save has Decide later and no digits.
+  expect(keys(SAMPLES.several, { openCard: 'sample-gate-2' })).toEqual(['d:H16'])
+  // A card from another conversation: Ask it here and Decide later, no digits.
+  expect(keys(SAMPLES.wide, { foreign: [WIDE_CARD.gateId] })).toEqual(['d:H16', 'i:H19'])
+  // Saving: no keys at all for that card.
+  expect(keys(SAMPLES.wide, { phase: { [WIDE_CARD.gateId]: savingEntry('c') } })).toEqual([])
+})
+
+test('reviewBody.onOpen refreshes the live model, clears the settled mark, and makes no call for a sample', async () => {
+  const mem = newMem()
+  let sample: string | null = null
+  const act: ShellActions = { ...memAct(mem), sampleName: async () => sample }
+  await act.patch('review', { settled: 'g-old' })
+  await REVIEW.onOpen?.(act)
+  expect(mem.refreshed).toBe(1)
+  expect(mem.body.review.settled).toBeUndefined()
+  sample = 'wide'
+  await REVIEW.onOpen?.(act)
+  expect(mem.refreshed).toBe(1)
+  expect(mem.calls).toEqual([])
+})
+
+test('detailsExtra lists, under D02, each option description of the open card in full', async ($, on) => {
+  const described = card({
+    options: [
+      opt('approve', { rank: 1, recommended: true, description: 'LONG ONE '.repeat(12).trim() }),
+      opt('defer', { rank: 2, description: 'TWO' }),
+      opt('reject', { rank: 3 }),
+    ],
+  })
+  const vm: typeof SAMPLES.wide = { ...SAMPLES.wide, gates: ok([described]) }
+  const body: TabBody = {
+    view: () => null,
+    keys: () => [],
+    explainId: 'X04',
+    detailsExtra: (ctx) => REVIEW.detailsExtra?.(ctx) ?? null,
+  }
+  const mem = newMem()
+  const cur = { input: paneInput(mem, viewOf(), { vm, detailsOpen: { ...NONE_OPEN, review: true } }), deps: depsOf(body) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal', 100)
+  const all = shown(await ui.drawn())
+  expect(all).toContain(text('D02'))
+  expect(all).toContain('LONG ONE '.repeat(12).trim())
+  expect(all).toContain('TWO')
+  await ui.unmount()
+  // No description anywhere: nothing extra.
+  const none = ctxFor({ ...SAMPLES.wide, gates: ok([card({ options: [opt('approve', { rank: 1 })] })]) }, emptyBody(), memAct(newMem()))
+  expect(REVIEW.detailsExtra?.(none)).toBeNull()
+})
+
+// ---- listState: pure --------------------------------------------------------------------------------
+
+test('listState: the open card is the open one, else the first not set aside by soonest expiry; the rest are the others', () => {
+  const cards = [card({ gateId: 'late', expiresAt: 9000 }), card({ gateId: 'soon', expiresAt: 1000 }), card({ gateId: 'none', expiresAt: null })]
+  const vm = { ...SAMPLES.wide, gates: ok(cards) }
+  const ctx = (review: BodySlice) => ctxFor(vm, withReview(review), memAct(newMem()))
+  const a = listState(ctx({}))
+  expect(a.kind).toBe('cards')
+  if (a.kind !== 'cards') return
+  expect(a.open?.gateId).toBe('soon')
+  expect(a.others.map((c) => c.gateId)).toEqual(['late', 'none'])
+  const b = listState(ctx({ openCard: 'late' }))
+  if (b.kind !== 'cards') return
+  expect(b.open?.gateId).toBe('late')
+  const c = listState(ctx({ dismissed: ['soon'] }))
+  if (c.kind !== 'cards') return
+  expect(c.open?.gateId).toBe('late')
+  expect(c.others.map((x) => x.gateId)).toEqual(['soon', 'none'])
+  // Every card set aside: no open card, all of them listed.
+  const d = listState(ctx({ dismissed: ['soon', 'late', 'none'] }))
+  if (d.kind !== 'cards') return
+  expect(d.open).toBeNull()
+  expect(d.others).toHaveLength(3)
+  // A card the runtime answered is no longer waiting, whatever the model still lists.
+  const e = listState(ctx({ phase: { soon: savedEntry('D24', 'Yes') } }))
+  if (e.kind !== 'cards') return
+  expect(e.waiting.map((x) => x.gateId)).toEqual(['late', 'none'])
+  // A wait that stays open (D13) is still waiting.
+  const f = listState(ctx({ phase: { soon: savedEntry('D13', '') } }))
+  if (f.kind !== 'cards') return
+  expect(f.waiting).toHaveLength(3)
+  expect(listState(ctxFor(SAMPLES.empty, emptyBody(), memAct(newMem()))).kind).toBe('empty')
+  expect(listState(ctxFor(SAMPLES.unreadable, emptyBody(), memAct(newMem()))).kind).toBe('unreadable')
+  expect(listState(ctxFor(SAMPLES.noroom, emptyBody(), memAct(newMem()))).kind).toBe('noroom')
+})
+
+// ---- the real pane at the Review tab ----------------------------------------------------------------
+
+type Beneath = {
+  mcp: { server: string; tool: string; args: Record<string, unknown> }[]
+  toasts: string[]
+  focused: string[]
+  submits: unknown[]
+  answer: (tool: string, args: Record<string, unknown>) => unknown
+}
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+function wireReal(on: On, env: Record<string, string>, answer?: Beneath['answer']): Beneath {
+  const beneath: Beneath = {
+    mcp: [],
+    toasts: [],
+    focused: [],
+    submits: [],
+    answer:
+      answer ??
+      ((tool) =>
+        tool === 'gate_list'
+          ? reply({ ok: true, room: 'a', count: 0, gates: [] })
+          : reply({ ok: true, segments: { room_binding: { bound: true, source: 'session', registry_fallback: false, slug: 'a' } } })),
+  }
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('ROOM.md')) return { value: '---\npurpose: Funding routes\n---\n' }
+    return { value: '{"status":"sound","at":1}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('mcp.call', (_$, e) => {
+    const args = (e.args ?? {}) as Record<string, unknown>
+    beneath.mcp.push({ server: e.server, tool: e.tool, args })
+    return { value: beneath.answer(e.tool, args) as never }
+  })
+  on('prompt.submit', (_$, e) => {
+    beneath.submits.push(e)
+    return { text: e.text }
+  })
+  on('ui.toast', (_$, e) => {
+    beneath.toasts.push(e.text)
+    return { value: undefined }
+  })
+  return beneath
+}
+
+const mountReal = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: PANE_ID })
+
+type Ui = Awaited<ReturnType<typeof mountReal>>
+
+// Go to the Review tab, and put the tab back at the end of a pass (a pane's state persists in a test).
+async function openReview(ui: Ui): Promise<void> {
+  await ui.press({ key: 'tab:review' })
+}
+async function leaveReview(ui: Ui): Promise<void> {
+  await ui.press({ key: 'tab:room' })
+}
+
+const answers = (b: Beneath) => b.mcp.filter((c) => c.tool === 'gate_answer')
+
+for (const surface of SURFACES) {
+  test('the real pane at Review (' + surface + '): the wide sample draws P110 and the open card with its three choices', async ($, on) => {
+    const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+    const ui = await mountReal($, surface)
+    await openReview(ui)
+    const root = shown(await ui.drawn())
+    expect(root).toContain(text('P110'))
+    expect(root).toContain(WIDE_CARD.header)
+    for (const k of ['choice:1', 'choice:2', 'choice:3', 'review:later']) expect(await ui.find({ type: 'Button', key: k })).toBeDefined()
+    const hint = shown(await ui.find({ key: 'hint-line' }))
+    expect(hint).toContain('1-3: ' + text('H15'))
+    expect(hint).toContain('d: ' + text('H16'))
+    expect(beneath.mcp).toEqual([])
+    await leaveReview(ui)
+    await ui.unmount()
+  })
+}
+
+test('the real pane at Review: several decisions say P116 with the real count, open the soonest, list the others under P117 and open one with a press', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'several' })
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  let root = shown(await ui.drawn())
+  expect(root).toContain(text('P116', { n: 3 }))
+  expect(root).toContain('Which grant route should the funding case take? (sample)')
+  expect(root).toContain(text('P117'))
+  const others = ['Which customer group should you test first? (sample)', 'Run the next step of the funding chain? (sample)']
+  const second = await ui.find({ type: 'Button', key: 'review:open:sample-gate-2' })
+  const third = await ui.find({ type: 'Button', key: 'review:open:sample-gate-3' })
+  expect([second?.props.label, third?.props.label]).toEqual(others)
+  // The first card's own header is not a list button, and no list button has a hotkey.
+  expect(await ui.find({ type: 'Button', key: 'review:open:sample-gate-1' })).toBeUndefined()
+  expect(second?.props.hotkey).toBeUndefined()
+  // Open the second: its card is drawn (read-only: its choices are not classified), the first joins the list.
+  await ui.press({ key: 'review:open:sample-gate-2' })
+  root = shown(await ui.drawn())
+  expect(root).toContain(text('P116', { n: 3 }))
+  expect(await ui.find({ key: 'choice:1' })).toBeUndefined()
+  expect(root).toContain(text('D30'))
+  expect(await ui.find({ type: 'Button', key: 'review:open:sample-gate-1' })).toBeDefined()
+  await leaveReview(ui)
+  await ui.unmount()
+})
+
+
+for (const [sample, words] of [
+  ['empty', text('P111')],
+  ['unreadable', text('P112')],
+  ['noroom', text('P12')],
+] as const) {
+  test('the real pane at Review: the "' + sample + '" situation draws ' + words, async ($, on) => {
+    wireReal(on, { MOS_WORKSPACE_SAMPLE: sample })
+    const ui = await mountReal($, 'terminal')
+    await openReview(ui)
+    const root = shown(await ui.drawn())
+    expect(root).toContain(words)
+    expect(await ui.find({ key: 'review:card' })).toBeUndefined()
+    if (sample === 'noroom') {
+      for (const other of [text('P111'), text('P112'), text('P110')]) expect(root).not.toContain(other)
+    }
+    await leaveReview(ui)
+    await ui.unmount()
+  })
+}
+
+test('the real pane: pressing 1 sends one gate_answer to the Mindrian OS server, shows D23 while it is open, D24 only after ok, and never submits', async ($, on) => {
+  let release: (v: unknown) => void = () => {}
+  const open = new Promise<unknown>((r) => {
+    release = r
+  })
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, (tool) => (tool === 'gate_answer' ? open : reply({ ok: true, count: 0, gates: [] })))
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await ui.press({ key: 'choice:1' })
+  await settle()
+  // The call is open: saving, no choices, no saved words.
+  let root = shown(await ui.drawn())
+  expect(root).toContain(text('D23'))
+  expect(root).not.toContain('Saved to your data room')
+  expect(await ui.find({ key: 'choice:1' })).toBeUndefined()
+  expect(answers(beneath)).toHaveLength(1)
+  release(reply({ ok: true, verdict: 'approve', chosen: ['approve'] }))
+  await settle()
+  root = shown(await ui.drawn())
+  expect(root).toContain(text('D24', { label: 'Apply to the regional innovation grant (sample)' }))
+  expect(root).not.toContain(text('D23'))
+  const sent = answers(beneath)
+  expect(sent).toHaveLength(1)
+  expect(sent[0]?.server).toBe(MINDRIAN_SERVER)
+  expect(sent[0]?.args).toEqual({ gate_id: WIDE_CARD.gateId, chosen: ['approve'], verdict: 'approve' })
+  expect(beneath.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  expect(beneath.submits).toEqual([])
+  // The Room tab now says what was saved (P55), from the same slice.
+  await ui.press({ key: 'tab:room' })
+  expect(shown(await ui.find({ key: 'room:result' }))).toContain(
+    text('D24', { label: 'Apply to the regional innovation grant (sample)' }),
+  )
+  await ui.unmount()
+})
+
+test('the real pane: two presses at once send one gate_answer', async ($, on) => {
+  let release: (v: unknown) => void = () => {}
+  const open = new Promise<unknown>((r) => {
+    release = r
+  })
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, (tool) => (tool === 'gate_answer' ? open : reply({ ok: true, count: 0, gates: [] })))
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await Promise.all([ui.press({ key: 'choice:1' }), ui.press({ key: 'choice:1' }).catch(() => undefined)])
+  await settle()
+  expect(answers(beneath)).toHaveLength(1)
+  release(reply({ ok: true, verdict: 'approve', chosen: ['approve'] }))
+  await settle()
+  expect(answers(beneath)).toHaveLength(1)
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
+})
+
+test('the real pane: a refusal keeps the card, shows the E sentence, and says nothing was saved', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, (tool) =>
+    tool === 'gate_answer' ? reply({ ok: false, reason: 'gate_expired' }) : reply({ ok: true, count: 0, gates: [] }),
+  )
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await ui.press({ key: 'choice:2' })
+  await settle()
+  const root = shown(await ui.drawn())
+  expect(root).toContain(text('E02'))
+  expect(root).toContain(WIDE_CARD.header)
+  expect(root).not.toContain('Saved to your data room')
+  expect(await ui.find({ key: 'choice:1' })).toBeDefined()
+  expect(answers(beneath)).toHaveLength(1)
+  // The Room tab draws no "what just changed".
+  await ui.press({ key: 'tab:room' })
+  expect(await ui.find({ key: 'room:result' })).toBeUndefined()
+  await ui.unmount()
+})
+
+test('the real pane: a card from another conversation shows the refusal, then P115 draws it here and later answers use the new id', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, (tool, args) => {
+    if (tool === 'gate_answer') {
+      return args.gate_id === 'L-1'
+        ? reply({ ok: true, verdict: 'approve', chosen: ['approve'] })
+        : reply({ ok: false, reason: 'session_mismatch' })
+    }
+    if (tool === 'gate_render') return reply({ ok: true, gate_id: 'L-1' })
+    return reply({ ok: true, count: 0, gates: [] })
+  })
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await ui.press({ key: 'choice:1' })
+  await settle()
+  let root = shown(await ui.drawn())
+  expect(root).toContain(text('E04'))
+  const ask = await ui.find({ type: 'Button', key: 'review:ask' })
+  expect(ask?.props.label).toBe(text('P115'))
+  expect(ask?.props.hotkey).toBe('i')
+  expect(await ui.find({ key: 'choice:1' })).toBeUndefined()
+
+  await ui.press({ key: 'review:ask' })
+  await settle()
+  const rendered = beneath.mcp.filter((c) => c.tool === 'gate_render')
+  expect(rendered).toHaveLength(1)
+  expect(rendered[0]?.server).toBe(MINDRIAN_SERVER)
+  expect(rendered[0]?.args.mirror_of).toBe(WIDE_CARD.gateId)
+  expect((rendered[0]?.args.options as { id: string }[]).map((o) => o.id)).toEqual(['approve', 'defer', 'reject'])
+  // Drawn here: the refusal is gone and the choices are back.
+  root = shown(await ui.drawn())
+  expect(root).not.toContain(text('E04'))
+  expect(await ui.find({ key: 'choice:1' })).toBeDefined()
+  expect(await ui.find({ key: 'review:ask' })).toBeUndefined()
+
+  await ui.press({ key: 'choice:1' })
+  await settle()
+  const sent = answers(beneath)
+  expect(sent.map((c) => c.args.gate_id)).toEqual([WIDE_CARD.gateId, 'L-1'])
+  expect(shown(await ui.drawn())).toContain(text('D24', { label: 'Apply to the regional innovation grant (sample)' }))
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
+})
+
+test('the real pane: Decide later makes zero calls, says D14 in the card place, lists the card under P117, and a press brings it back', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await ui.press({ key: 'review:later' })
+  await settle()
+  expect(beneath.mcp).toEqual([])
+  expect(beneath.toasts).toContain(text('D14'))
+  let root = shown(await ui.drawn())
+  expect(root).toContain(text('D14'))
+  expect(root).toContain(text('P117'))
+  expect(await ui.find({ key: 'choice:1' })).toBeUndefined()
+  const back = await ui.find({ type: 'Button', key: 'review:open:' + WIDE_CARD.gateId })
+  expect(back?.props.label).toBe(WIDE_CARD.header)
+  // It is still waiting: the Room tab still says one decision waits.
+  await ui.press({ key: 'review:open:' + WIDE_CARD.gateId })
+  await settle()
+  root = shown(await ui.drawn())
+  expect(await ui.find({ key: 'choice:1' })).toBeDefined()
+  expect(root).not.toContain(text('D14'))
+  expect(beneath.mcp).toEqual([])
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
+})
+
+test('after a save the open card moves to the next waiting one and the keyboard returns to the tab strip', async () => {
+  const mem = newMem()
+  const act = memAct(mem)
+  const second = card({ gateId: 'g-2', header: 'Second question?' })
+  const first = card({ gateId: 'g-1' })
+  const approve = first.options[0] as GateOption
+  const result = await runChoice(act, {}, first, approve, [first, second], 'tab:review')
+  expect(result.kind).toBe('saved')
+  expect(mem.body.review.openCard).toBe('g-2')
+  expect(mem.body.review.settled).toBe('g-1')
+  expect(mem.focused).toEqual(['tab:review'])
+  // The last card: no next one, the open mark is cleared.
+  const mem2 = newMem()
+  await runChoice(memAct(mem2), { openCard: 'g-1' }, first, approve, [first], 'tab:review')
+  expect(mem2.body.review.openCard).toBeUndefined()
+  expect(mem2.body.review.settled).toBe('g-1')
+  // A wait that stays open (D13) does not move anything.
+  const mem3 = newMem((tool) => (tool === 'gate_list' ? reply({ ok: true, count: 1, gates: [] }) : reply({ ok: true, verdict: 'defer', chosen: ['defer'] })))
+  const defer = first.options[1] as GateOption
+  await runChoice(memAct(mem3), {}, first, defer, [first, second], 'tab:review')
+  expect(mem3.focused).toEqual(['tab:review'])
+})
+
+test('the real pane: after a save on the first of three the heading says two and the next card is open', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'several' }, (tool) =>
+    tool === 'gate_answer' ? reply({ ok: true, verdict: 'approve', chosen: ['approve'] }) : reply({ ok: true, count: 0, gates: [] }),
+  )
+  const ui = await mountReal($, 'terminal')
+  await openReview(ui)
+  await ui.press({ key: 'choice:1' })
+  await settle()
+  const root = shown(await ui.drawn())
+  expect(root).toContain(text('P116', { n: 2 }))
+  expect(root).toContain('Which customer group should you test first? (sample)')
+  expect(root).toContain(text('D24', { label: 'Apply to the regional innovation grant (sample)' }))
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
 })
