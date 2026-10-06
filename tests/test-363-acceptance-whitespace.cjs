@@ -404,7 +404,13 @@ async function main() {
     const hit = nr.filter(function (n) { return n.dimension === 'ws:irrelevant'; })[0];
     if (!hit || !/navigator judgment/.test(hit.reason)) return 'coverage did not list ws:irrelevant as not researchable ' + JSON.stringify(nr);
     // "Shown as such": the plan review card (F.6) lists it under its own heading.
-    const qsPath = writeScratch('qs-w4-deep.json', whitespaceQs(room.zones.twoSection, { limiter: true }));
+    // 369.2-17 (CODE-05): a limiter lane with no bound slots.limiter is refused, never searched with the limiter
+    // sentence, so this deep plan binds the first limiter through its own ci.retest leaf (the second lane stays
+    // refused and shows on the card).
+    const w4qs = whitespaceQs(room.zones.twoSection, { limiter: true });
+    w4qs.leaves.push({ id: 'L4', parent: 'K1', question: 'Is the gap a vocabulary gap rather than an absence of work?', origin: 'framework_dimension', dimension: 'ws:gap_claim', lens: 'ci.retest', researchable: true, falsifier: { text: 'A re-test that finds the gap is real.' }, slots: { limiter: 'vocabulary gap' }, corpus: 'openalex' });
+    w4qs.perspective.limiters[0].leaf_id = 'L4';
+    const qsPath = writeScratch('qs-w4-deep.json', w4qs);
     const deepPlanned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep', '--section', 'market-analysis'], { preload: preloadZero() });
     if (deepPlanned.code !== 0 || !deepPlanned.json || !deepPlanned.json.card || deepPlanned.json.card.shape !== 'F.6') return 'deep plan ' + deepPlanned.stdout.slice(0, 300);
     const shown = deepPlanned.json.card.body_md;
