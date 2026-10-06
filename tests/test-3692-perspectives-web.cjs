@@ -121,7 +121,7 @@ function setOf(id) {
 }
 
 // A web leaf built from the room's own sentence titles: researchable, openalex, every slot value is one of
-// the retitled sentences, and the composer turns it into at least one query holding the cleaned title.
+// the retitled sentences, and the composer turns it into at least one query holding the shaped title (369.2-21).
 function sentenceWebLeaf(leaves, dimension) {
   const hits = leaves.filter(function (l) {
     if (dimension && l.dimension !== dimension) return false;
@@ -133,7 +133,14 @@ function sentenceWebLeaf(leaves, dimension) {
     const r = families.composeForLeaf(hits[i]);
     if (r.ok === true && r.queries.length >= 1) {
       const vals = Object.keys(hits[i].slots).map(function (k) { return hits[i].slots[k]; });
-      const holds = r.queries.some(function (x) { return vals.some(function (v) { return x.q.indexOf(v) !== -1; }); });
+      // 369.2-21 (brief reconciliation): a sentence title is shaped, never quoted whole, so the query holds every
+      // token of shapeWebPhrase(title) instead of the whole title
+      const holds = r.queries.some(function (x) {
+        return vals.some(function (v) {
+          const sh = families.shapeWebPhrase(v);
+          return sh !== null && sh.value.split(' ').every(function (t) { return x.q.toLowerCase().indexOf(t) !== -1; });
+        });
+      });
       if (holds) return { leaf: hits[i], compose: r };
     }
   }

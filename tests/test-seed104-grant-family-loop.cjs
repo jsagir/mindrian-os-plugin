@@ -263,7 +263,11 @@ async function main() {
     const long = '**Claim.** A stable, flowable emulsion of eutectic gallium-indium EGaIn';
     const w = families.composeForLeaf({ lens: 'eu.transfer', slots: { term: long, term2: 'gallium oxide' } });
     assert.equal(w.ok, true, JSON.stringify(w).slice(0, 200));
-    assert.ok(w.queries.every(function (q) { return q.q.indexOf('Claim. A stable, flowable emulsion of eutectic gallium-indium EGaIn') !== -1; }));
+    // MOVED 2026-10-06 (369.2-21, brief reconciliation): a sentence-shaped web slot is shaped to its first eight
+    // content tokens, never quoted whole; the card shows the shaped string
+    const shapedLong = families.shapeWebPhrase(long).value;
+    assert.ok(w.queries.every(function (q) { return shapedLong.split(' ').every(function (t) { return q.q.toLowerCase().indexOf(t) !== -1; }); }), shapedLong);
+    assert.ok(w.queries.every(function (q) { return q.q.indexOf('Claim. A stable, flowable emulsion of eutectic gallium-indium EGaIn') === -1; }));
     const r = families.composeForLeaf({ lens: 'eu.transfer', corpus: 'theo', slots: { term: long, term2: 'gallium oxide' } });
     assert.equal(r.ok, false);
     assert.equal(r.reason, 'term_not_composed');

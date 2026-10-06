@@ -51,6 +51,10 @@ const NOW = Date.parse('2026-10-04T00:00:00.000Z');
 const VIA = { surface: 'cli', decision_node_id: 'dn-v16-test' };
 const QUESTION = 'Which hospitals in Israel procure imaging equipment? How do they pay for it, and who signs off on the purchase?';
 const PHRASE = 'MOTJ cold chain losses in rural clinics 2025';
+// 369.2-21 (brief reconciliation): PHRASE has 8 words, so it is shaped; SHORT has 4 and stays verbatim and quoted
+const SHORT = 'MOTJ cold chain losses';
+function shapedTokens(v) { return families.shapeWebPhrase(v).value.split(' '); }
+function holdsTokens(q, v) { return shapedTokens(v).every(function (t) { return q.toLowerCase().indexOf(t) !== -1; }); }
 
 const rooms = [];
 function newRoom() { const r = buildRoom363({ role: 'founder' }); rooms.push(r); return r; }
@@ -74,13 +78,19 @@ async function main() {
     assert.equal(families.SLOT_RULES.query_max_chars, 200);
   });
 
-  await leg('W2 composeFamily and composeForLeaf on a web destination keep the phrase verbatim, no term_not_composed', function () {
+  // 369.2-21 (brief reconciliation): a sentence is shaped, never quoted whole. A web question composes to its
+  // first eight content tokens, unquoted; a short phrase stays verbatim and quoted; no term_not_composed.
+  await leg('W2 composeFamily and composeForLeaf on a web destination shape a sentence and keep a short phrase verbatim, no term_not_composed', function () {
     const a = families.composeFamily('concept-evidence/v1', { term: QUESTION });
     assert.equal(a.ok, true, JSON.stringify(a).slice(0, 200));
-    assert.ok(a.queries.every(function (q) { return q.q.indexOf(QUESTION) !== -1; }));
-    const b = families.composeForLeaf({ lens: 'mu.verify', corpus: 'openalex', slots: { term: PHRASE } });
+    assert.ok(a.queries.every(function (q) { return holdsTokens(q.q, QUESTION); }), 'every shaped token is in q');
+    assert.ok(a.queries.every(function (q) { return q.q.indexOf(QUESTION) === -1 && q.q.indexOf('"' + shapedTokens(QUESTION)[0]) === -1; }), 'the question is unquoted and not whole');
+    const b = families.composeForLeaf({ lens: 'mu.verify', corpus: 'openalex', slots: { term: SHORT } });
     assert.equal(b.ok, true, JSON.stringify(b).slice(0, 200));
-    assert.ok(b.queries.length > 0 && b.queries.every(function (q) { return q.q.indexOf(PHRASE) !== -1; }));
+    assert.ok(b.queries.length > 0 && b.queries.every(function (q) { return q.q.indexOf('"' + SHORT + '"') !== -1; }));
+    const long = families.composeForLeaf({ lens: 'mu.verify', corpus: 'openalex', slots: { term: PHRASE } });
+    assert.equal(long.ok, true, JSON.stringify(long).slice(0, 200));
+    assert.ok(long.queries.every(function (q) { return holdsTokens(q.q, PHRASE) && q.q.indexOf(PHRASE) === -1; }), 'an 8-word phrase is shaped');
     const c = families.composeForLeaf({ lens: 'mu.verify', slots: { term: '  MOTJ   cold chain  ' } });
     assert.equal(c.ok, true);
     assert.ok(c.queries[0].q.indexOf('MOTJ cold chain') !== -1);
@@ -112,8 +122,8 @@ async function main() {
     const built = planner.buildPlan(room, qs, { mode: 'quick', now: new Date(NOW) });
     assert.equal(built.ok, true, JSON.stringify(built).slice(0, 200));
     const plan = built.plan;
-    const withQ = plan.leaves.filter(function (l) { return (l.queries || []).some(function (q) { return q.q.indexOf(QUESTION) !== -1; }); });
-    assert.ok(withQ.length > 0, 'the composed query carries the question as written');
+    const withQ = plan.leaves.filter(function (l) { return (l.queries || []).some(function (q) { return holdsTokens(q.q, QUESTION) && q.q.indexOf(QUESTION) === -1; }); });
+    assert.ok(withQ.length > 0, 'the composed query carries the shaped question, not the question whole (369.2-21)');
     const cover = quick.coverFor(room, plan, { now: NOW });
     assert.notEqual(cover.reason, 'term_not_composed');
     const replay = makeReplayFetch({ route: function () { return 'gap_primary_zero'; } });
