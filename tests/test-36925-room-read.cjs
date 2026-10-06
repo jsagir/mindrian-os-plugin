@@ -11,6 +11,7 @@
  *   RR2  readRoomFeyMinto on a room whose faces were derived with an injected callTool (canned rows) reports asked
  *        true, frameworks_named from suggested_frameworks and commands_runnable_here from the cli markers of
  *        suggested_commands (checked against the raw BRAIN.md frontmatter, not through the module under test)
+ *   RR4  the hermetic offline receipt carries feyminto.nests (counts only, never names or ids)
  *   RR3  formatFeyMintoBlock voice: It tried / per-nest lines / It could not; names only
  *   dash guard
  *
@@ -107,10 +108,25 @@ async function main() {
     !!block && (!rid || (block.indexOf(rid) === -1 && String(JSON.stringify(entries)).indexOf(rid) === -1)) && !/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/.test(block) && !/room_id|node_id/.test(block) && block.indexOf(iso.home) === -1, block.slice(0, 500));
   check('RR1 the text report prints the FeyMinto block before the negative block', text.indexOf('== FeyMinto ==') !== -1 && text.indexOf('== FeyMinto ==') < text.indexOf('== Negative leg: rooms that are not ready =='));
 
+  // RR4: the receipt carries the per-nest feyminto summary (hermetic: temp HOME, temp receipt dir, offline)
+  const rc4 = path.join(iso.home, 'rr4-receipts');
+  const r4 = cp.spawnSync(process.execPath, [RUN, '--offline', '--json', '--read-by', 'Test Reader', '--rooms-home', path.join(iso.home, 'rr4-rooms'), '--receipt-dir', rc4], { encoding: 'utf8', env, timeout: 240000, maxBuffer: 32 * 1024 * 1024 });
+  const rfiles = safe(() => fs.readdirSync(rc4).filter((f) => /\.json$/.test(f)), []);
+  const receipt = rfiles.length === 1 ? safe(() => JSON.parse(fs.readFileSync(path.join(rc4, rfiles[0]), 'utf8')), null) : null;
+  const nests = receipt && receipt.feyminto && receipt.feyminto.nests;
+  check('RR4 the hermetic receipt carries feyminto.nests with one summary per core nest: nest, asked, not_asked_reason, counts of frameworks and commands',
+    r4.status === 0 && Array.isArray(nests) && nests.length === CORE.length && nests.every((n) => typeof n.nest === 'string' && n.asked === false && n.not_asked_reason === 'offline' && n.frameworks_named === 0 && n.commands_runnable_here === 0), 'code ' + r4.status + ' ' + String(JSON.stringify(receipt && receipt.feyminto)).slice(0, 400));
+
   // ---- RR2 -----------------------------------------------------------------------------------------------------
   const iso2 = H.mkIsolatedHome('rr2');
   const born = H.birthFixtureRoom({ iso: iso2, slug: 'rr2-room' });
   check('RR2 setup: a born room', born && born.ok === true, JSON.stringify(born).slice(0, 200));
+  // one nest with artifacts that name frameworks and a generated MINTO.md, so it carries a handle to send
+  const SEC = 'problem-definition';
+  fs.writeFileSync(path.join(born.roomDir, SEC, 'interview-notes.md'), '---\ntitle: Zanzibar onboarding interview\nframework: 5 Whys Technique\n---\n# Zanzibar onboarding interview\n\nFounders say onboarding takes three weeks.\n', 'utf8');
+  fs.writeFileSync(path.join(born.roomDir, SEC, 'problem-statement.md'), '---\ntitle: Problem statement\nframeworks: [80/20 Rule, Quokka Method]\n---\n# Problem statement\n\nNew hires wait too long to be useful.\n', 'utf8');
+  const gen = cp.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'vault-section-minto-generator.cjs'), '--write', born.roomDir, '--section', SEC], { env: iso2.env, encoding: 'utf8', timeout: 60000 });
+  check('RR2 setup: the MINTO generator ran for ' + SEC, gen.status === 0, String(gen.stderr).slice(-200));
   installFakeBrain();
   const mod = safe(() => require(MOD), null);
   if (!mod) {
@@ -137,8 +153,11 @@ async function main() {
     check('RR2 queries_sent is a number for asked nests and 0 or null for the rest', (leg || []).every((e) => (e.asked ? typeof e.queries_sent === 'number' && e.queries_sent > 0 : (e.queries_sent === 0 || e.queries_sent === null))), JSON.stringify((leg || []).map((e) => [e.nest, e.asked, e.queries_sent])));
     const read = mod.readRoomFeyMinto(born.roomDir);
     check('RR2 readRoomFeyMinto (no derivation) reads the same entries', JSON.stringify(read.map((e) => [e.nest, e.asked, e.frameworks_named, e.commands_runnable_here])) === JSON.stringify(leg.map((e) => [e.nest, e.asked, e.frameworks_named, e.commands_runnable_here])));
+    const brainHash = (d) => H.treeHash(d);
+    const beforeOffline = brainHash(born.roomDir);
     const offlineLeg = await mod.feymintoLeg(born.roomDir, { offline: true });
-    check('RR2 feymintoLeg offline sends nothing: every nest not asked, reason offline', offlineLeg.length === CORE.length && offlineLeg.every((e) => e.asked === false && e.not_asked_reason === 'offline'), JSON.stringify(offlineLeg.map((e) => [e.nest, e.asked, e.not_asked_reason])).slice(0, 300));
+    check('RR2 feymintoLeg offline writes nothing (room tree hash unchanged)', brainHash(born.roomDir) === beforeOffline);
+    check('RR2 feymintoLeg offline sends nothing: a nest already asked keeps its recorded answer, every other nest reads not asked with reason offline', offlineLeg.length === CORE.length && offlineLeg.every((e) => (e.asked === true ? askedEntries.some((a) => a.nest === e.nest) : e.not_asked_reason === 'offline')) && offlineLeg.filter((e) => e.asked).length === askedEntries.length, JSON.stringify(offlineLeg.map((e) => [e.nest, e.asked, e.not_asked_reason])).slice(0, 300));
 
     // ---- RR3 ---------------------------------------------------------------------------------------------------
     const fmt = mod.formatFeyMintoBlock(leg);

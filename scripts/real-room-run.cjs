@@ -41,6 +41,7 @@
  * Receipt <receipt-dir>/<full sha>.json:
  *   { schema, sha, version, room, reader, read_at, offline,
  *     perspectives: { quick|deep|eureka|analogies: { status, counts: {numbers} } },
+ *     feyminto: { nests: [{ nest, asked, not_asked_reason, frameworks_named: <count>, commands_runnable_here: <count> }] },
  *     negative_leg: { fixture, rooms: [{ injection, jobs: { <job>: { refused, not_ready_reason } } }], all_refused },
  *     providers: { tavily, openalex }, desktop_verified: { mac, win } }
  *
@@ -68,6 +69,7 @@ const DEFAULT_SEED = path.join(ROOT, 'tests', 'fixtures', 'release-room');
 const SCHEMA = 'mos.real-room-receipt/1';
 const MAX_DEEP_STEPS = 80;
 const negativeLeg = require(path.join(ROOT, 'scripts', 'release-lib', 'real-room-negative-leg.cjs'));
+const roomRead = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'room-read.cjs'));
 
 // -- small helpers -------------------------------------------------------------
 function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
@@ -574,6 +576,8 @@ function reportText(res) {
   a.examples.forEach(function (s) { L.push('  pair: ' + s); });
   L.push('  It could not: fill the SAPPhIRE statement - ' + a.statement_note + '.');
   L.push('');
+  L.push(roomRead.formatFeyMintoBlock(res.jobs.feyminto));
+  L.push('');
   L.push(negativeLeg.formatNegativeBlock(res.negative_leg));
   L.push('');
   if (res.receipt && res.receipt.written) {
@@ -618,6 +622,7 @@ function buildReceipt(res) {
       analogies: { status: a.status, counts: { pairs: a.pairs, structural_pairs: a.structural_pairs, things: a.things } },
     },
     providers: { tavily: res.providers.tavily, openalex: res.providers.openalex },
+    feyminto: { nests: res.jobs.feyminto.map(function (n) { return { nest: n.nest, asked: n.asked, not_asked_reason: n.not_asked_reason, frameworks_named: n.frameworks_named.length, commands_runnable_here: n.commands_runnable_here.length }; }) },
     negative_leg: negativeSummary(res.negative_leg),
     desktop_verified: { mac: null, win: null },
   };
@@ -660,6 +665,8 @@ async function runCeremony(opts, receiptDir) {
     const eureka = jobEureka(ctx);
     progress('analogies');
     const analogies = jobAnalogies(ctx);
+    progress('feyminto');
+    const feyminto = await roomRead.feymintoLeg(room.roomDir, { offline: opts.offline });
     progress('negative leg');
     const negative = negativeLeg.runNegativeLeg({ roomsHome: roomsHome, sha: sha, plannerCli: PLANNER_CLI, seedDir: seedDir, scratch: SCRATCH });
     const res = {
@@ -667,7 +674,7 @@ async function runCeremony(opts, receiptDir) {
       sha: sha, version: version, offline: opts.offline, read_by: opts.readBy || null,
       providers: providers,
       room: { slug: room.slug, dir: room.roomDir, indexed: room.indexed, seeded: room.seeded, registered: room.registered },
-      jobs: { quick: quick, deep: deep, eureka: eureka, analogies: analogies },
+      jobs: { quick: quick, deep: deep, eureka: eureka, analogies: analogies, feyminto: feyminto },
       negative_leg: negative,
       receipt: { written: false, file: null, read_at: null },
     };
