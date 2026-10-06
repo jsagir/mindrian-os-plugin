@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.62 (in progress)
+## [2.0.0-beta.63] - 2026-10-06
 
 ### Added
 - **BONO and the intelligence pipeline can close the loop from the command line**: `node scripts/close-loop.cjs close` writes a run's claims and conclusion into the room graph in one step, links a re-run to the earlier conclusion once you have confirmed it, `version-log` lists a topic's conclusions newest first, and `offer-experts` and `file-expert` offer the run's hats as reusable experts, filed as proposed so only you confirm them.
