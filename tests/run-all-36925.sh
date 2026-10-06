@@ -113,7 +113,7 @@ run_if "36925: room-read (369.25-23)"                       tests/test-36925-roo
 run_if "36925: negative-leg (369.25-23)"                    tests/test-36925-negative-leg.cjs            node tests/test-36925-negative-leg.cjs
 run_if "36925: practical (369.25-24)"                       tests/test-36925-practical.cjs               node tests/test-36925-practical.cjs
 
-# --- 2. Regression legs (measured on HEAD in 369.25-02: every one exit 0 except the run_known below) -
+# --- 2. Regression legs (measured on HEAD in 369.25-02: every one exit 0; the muy leg joined them in 369.25-24) -
 run "36925 regression: test-vi3-icm-walk" node tests/test-vi3-icm-walk.cjs
 run "36925 regression: test-l9o-rooms-python-floor" node tests/test-l9o-rooms-python-floor.cjs
 run "36925 regression: test-353-filing-gate" node tests/test-353-filing-gate.cjs
@@ -142,12 +142,10 @@ run "36925 regression: brain-derivation.test" node lib/memory/brain-derivation.t
 run "36925 regression: minto-debouncer.test" node lib/memory/minto-debouncer.test.cjs
 run "36925 regression: on-stop-snapshot.test" node lib/memory/on-stop-snapshot.test.cjs
 
-# --- 2b. Pre-existing reds this phase does not own (signature measured on HEAD in 369.25-02) ------
-# G10b is the same class as the three re-pins in 369.25-02 (a CHANGELOG [Unreleased] pin that a cut moved);
-# its owner is the release train, not this phase.
-run_known "36925 regression: muy real-room rule (CHANGELOG [Unreleased] lacks the real-room entry)" \
-  'FAIL: G10b CHANGELOG [Unreleased] names the real-room release rule' \
-  node tests/test-muy-real-room-rule.cjs
+# --- 2b. The muy real-room rule is a plain run leg (369.25-24) ---------------------------------------
+# It was a run_known leg while its G10b pinned a CHANGELOG [Unreleased] line the beta.61 cut moved. Plan 24 re-pinned G10b
+# to the whole CHANGELOG (MOVING marker) and added the negative-leg arms G11-G13, so it must pass outright now.
+run "36925 regression: muy real-room rule (receipt gate incl. the negative leg)" node tests/test-muy-real-room-rule.cjs
 
 # --- 3. Gates (plain run) -------------------------------------------------------------------------
 run "36925: connector-registry generator --check"       node scripts/build-connector-registry.cjs --check
