@@ -192,8 +192,10 @@ async function main() {
     const room = newRoom();
     const plan = build(room, 'quick');
     const l1 = leafOf(plan, 'L1');
-    const cut = Array.isArray(l1.queries_cut) ? l1.queries_cut : [];
-    assert.ok(cut.length > 0, 'the quick plan cut nothing: the cap of 3 cannot hold four kinds');
+    // 369.2-22 (SW-14): every trimmed query of every leaf is kept and closed as a quick_cap op, not only a kinds leaf's
+    const cut = [];
+    plan.leaves.forEach(function (l) { (Array.isArray(l.queries_cut) ? l.queries_cut : []).forEach(function (c) { cut.push(Object.assign({ leaf_id: l.id }, c)); }); });
+    assert.ok(l1.queries_cut.length > 0, 'the quick plan cut nothing on L1: the cap of 3 cannot hold four kinds');
     approveRun(room, plan);
     const out = await quickMod.runQuick(room.roomDir, plan, { fetchEnvelopeFn: real.realFetchEnvelope(function () { return 'gap_primary_zero'; }), now: Date.now() });
     assert.strictEqual(out.status, 'done', 'runQuick ' + out.status + ' ' + (out.reason || ''));
@@ -205,7 +207,7 @@ async function main() {
     // query is closed with its own kind
     cut.forEach(function (c) {
       const want = operations.FALSIFIER_TEMPLATES.indexOf(c.template_id) !== -1 ? 'falsifier' : c.kind;
-      assert.ok(miss.some(function (o) { return o.kind === want && o.template_id === c.template_id && o.plan_dimension === 'L1'; }), 'no quick_cap op for cut ' + JSON.stringify(c));
+      assert.ok(miss.some(function (o) { return o.kind === want && o.template_id === c.template_id && o.plan_dimension === c.leaf_id; }), 'no quick_cap op for cut ' + JSON.stringify(c));
     });
     assert.ok(cut.some(function (c) { return c.kind === 'adjacent'; }), 'the adjacent kind was not cut');
     assert.ok(miss.some(function (o) { return o.kind === 'adjacent'; }), 'no adjacent op in the ledger');

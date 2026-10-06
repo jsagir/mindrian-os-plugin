@@ -121,6 +121,9 @@ function inputQuestionSet() {
   qs.leaves[1].slots = { cause: 'planted account', effect: 'student belief' };
   // two leaves: the quick cap of 3 searches reaches both, so no leaf is left without a composed search
   qs.leaves = qs.leaves.slice(0, 2);
+  // 369.2-22 (SW-14): a search the cap cuts is now a not_executed quick_cap op and keeps the verdict unresolved, so
+  // the plan must fit the cap whole: leaf one composes 2 searches, leaf two takes the one-search lens rc.6m (3 in all)
+  qs.leaves[1].lens = 'rc.6m';
   return qs;
 }
 
