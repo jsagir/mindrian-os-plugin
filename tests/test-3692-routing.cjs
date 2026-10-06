@@ -434,23 +434,26 @@ async function main() {
     same.forEach(function (l) { assert.ok(by[l.id] >= 1, 'leaf ' + l.id + ' has ' + (by[l.id] || 0) + ' queries'); });
     const gapLane = r1.filter(function (l) { return l.lane === 'ws-gap'; })[0];
     assert.ok(gapLane && gapLane.queries.length >= same.length, 'the ws-gap lane spent ' + (gapLane ? gapLane.queries.length : 0) + ' queries for ' + same.length + ' leaves');
-    // a cap of 1 search leaves the others without one: each is named in the ledger
+    // a cap of 1 search: the run spends it on the first query and every other leaf's query is closed search_cap
     const tight = clone(plan);
     tight.budget.max_searches = 2;
     tight.status = 'ready'; // the whitespace set names no limiter, see R3b
     tight.plan_hash = planMod.planHash(tight);
     const r1t = deepMod.roundOneQueries(tight);
-    const sent = r1t.reduce(function (n, l) { return n + l.queries.length; }, 0);
-    assert.strictEqual(sent, 1, 'a cap of 1 sent ' + sent + ' queries');
-    assert.ok(Array.isArray(r1t.cut) && r1t.cut.length >= 1, 'roundOneQueries returned no cut list');
     const sentBy = countByLeaf(r1t);
+    same.forEach(function (l) { assert.ok(sentBy[l.id] >= 1, 'a tight cap dropped leaf ' + l.id + ' before the run (' + JSON.stringify(sentBy) + ')'); });
     deepInit(room, tight);
+    const fr = await deepMod.fetchRound(room.roomDir, tight.run_id, { fetchEnvelopeFn: deepSeam() });
+    assert.ok(fr.ok, 'fetchRound ' + JSON.stringify(fr).slice(0, 200));
     const ledger = operations.readLedger(room.roomDir, tight.run_id);
-    const left = same.filter(function (l) { return !sentBy[l.id]; });
-    assert.ok(left.length >= 1, 'no leaf was left without a query');
+    const ran = ledger.operations.filter(function (o) { return o.state === 'executed_with_results' || o.state === 'executed_empty'; });
+    assert.strictEqual(ran.length, 1, 'a cap of 1 ran ' + ran.length + ' searches');
+    const left = same.filter(function (l) { return ran.every(function (o) { return o.plan_dimension !== l.id; }); });
+    assert.ok(left.length >= 1, 'no leaf was left without a search');
     left.forEach(function (l) {
-      const capped = ledger.operations.filter(function (o) { return o.plan_dimension === l.id && o.state === 'not_executed' && o.reason === 'search_cap'; });
-      assert.ok(capped.length >= 1, 'leaf ' + l.id + ' has no not_executed search_cap op: ' + JSON.stringify(ledger.operations.filter(function (o) { return o.plan_dimension === l.id; }).map(function (o) { return [o.state, o.reason]; })));
+      const mine = ledger.operations.filter(function (o) { return o.plan_dimension === l.id; });
+      const capped = mine.filter(function (o) { return o.state === 'not_executed' && o.reason === 'search_cap'; });
+      assert.ok(capped.length >= 1, 'leaf ' + l.id + ' has no not_executed search_cap op: ' + JSON.stringify(mine.map(function (o) { return [o.state, o.reason]; })));
     });
     return true;
   });
