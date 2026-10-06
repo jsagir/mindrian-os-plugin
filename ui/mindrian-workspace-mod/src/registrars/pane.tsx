@@ -29,8 +29,8 @@ import { decideMode } from '../theme/plain'
 import { PALETTE_ASSET } from '../theme/theme'
 
 // The pane id as a literal of this file, because the engine's listing (and its scan of a matcher)
-// reads a literal or a const of the same file, not an imported one; tests/pane.test.tsx asserts it
-// equals PANE_ID in src/runtime/ids.ts.
+// reads a literal or a const of the same file, not an imported one; tests/pane.test.tsx mounts the real
+// pane on PANE_ID in src/runtime/ids.ts, so a drift makes every registrar arm fail.
 const PANE = 'mindrian-workspace'
 
 const tabAtom = atom({ plugin: 'mindrian-workspace', key: 'tab' } as const, INITIAL.tab)
