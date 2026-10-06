@@ -151,6 +151,19 @@ const GOOD = (tool) => {
     const r7 = await ask.askTheoForNest(handlesFull, { callTool: t7, atBirth: true, now: () => 'T', origin: 'o' });
     ok(t7.calls.length === 0 && r7.asked === false && r7.not_asked === 'at_birth', 'Q7 at_birth sends nothing', JSON.stringify(r7));
 
+    // Q8 (369.25-17 carry-over from plan 08): the find_frameworks row's matched and total reach results.coverage
+    const r8 = await ask.askTheoForNest({ problem_type: 'IllDefined' }, { callTool: stubCallTool(GOOD), now: () => 'T', origin: 'o' });
+    ok(r8.results.coverage && r8.results.coverage.matched === 2 && r8.results.coverage.total === 9, 'Q8 row matched and total are carried into results.coverage', JSON.stringify(r8.results.coverage));
+    const TOP = (tool, args) => (tool === 'find_frameworks_for_problem_type'
+      ? { rows: [{ problemType: 'IllDefined', chapters: [{ chapterId: 'c1' }] }], coverage: { matched: 4, total: 33, status: 'partial' } }
+      : GOOD(tool, args));
+    const r8b = await ask.askTheoForNest({ problem_type: 'IllDefined' }, { callTool: stubCallTool(TOP), now: () => 'T', origin: 'o' });
+    ok(r8b.results.coverage && r8b.results.coverage.matched === 4 && r8b.results.coverage.total === 33 && Object.keys(r8b.results.coverage).length === 2,
+      'Q8 a top-level coverage block wins and only matched and total are kept', JSON.stringify(r8b.results.coverage));
+    const NONE = (tool, args) => (tool === 'find_frameworks_for_problem_type' ? { rows: [{ problemType: 'IllDefined', chapters: [{ chapterId: 'c1' }] }] } : GOOD(tool, args));
+    const r8c = await ask.askTheoForNest({ problem_type: 'IllDefined' }, { callTool: stubCallTool(NONE), now: () => 'T', origin: 'o' });
+    ok(!('coverage' in r8c.results), 'Q8 no matched or total from Theo means no coverage key (the face then says it was not returned)', JSON.stringify(r8c.results.coverage));
+
     // enum and lines
     const keys = Object.keys(ask.NOT_ASKED).sort().join(',');
     ok(keys === 'at_birth,egress_blocked,no_handle_to_send,offline,room_not_ready,theo_unavailable', 'NOT_ASKED is the closed six', keys);
