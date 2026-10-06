@@ -500,7 +500,9 @@ function newestMtimeMs(dirRel, roomDir, maxdepth) {
 }
 arm('I9 STATE.md present, last activity vs the newest artifact mtime (stale flag), research-run counts', () => {
   const a = report('a');
-  eq(a.room.research_runs, { runs: 4, plan_json: 4, run_json: 0, operations_json: 0 }, 'a research_runs');
+  // 369.2-32: the release run also reads the Bottlenecks, HSI and Whitespace perspectives (each builds its own plan;
+  // Connections found no pair on this room and builds none), so the fixture room holds 4 + 3 plans after the run.
+  eq(a.room.research_runs, { runs: 7, plan_json: 7, run_json: 0, operations_json: 0 }, 'a research_runs');
   const stateText = fs.readFileSync(path.join(A_DIR, 'STATE.md'), 'utf8');
   const created = /^auto_created_at: '?([^'\n]+)'?$/m.exec(stateText)[1];
   const root = nest(a, '.').I9;
