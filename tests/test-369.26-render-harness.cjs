@@ -336,6 +336,60 @@ scenario('secrets are handed to the child by name but never written to any file 
   assert.ok(!ps.includes(SECRET), 'the secret is never on a command line');
 });
 
+// ---- quick fix: the workspace trust dialog must be answered "Yes", never by Enter on "No, exit" ----
+
+scenario('trust dialog reader: finds which row carries the pointer, in both row orders, and says absent when there is no dialog', () => {
+  const mod = require(RC);
+  const P = String.fromCharCode(0x276f);
+  const dlg = (a, b) => ' Quick safety check: Is this a project you trust?\n\n Security guide\n\n ' + a + '\n   ' + b + '\n\n Enter to confirm\n';
+  const noFirst = mod.trustDialogState(dlg(P + ' No, exit', 'Yes, I trust this folder'));
+  assert.strictEqual(noFirst.state, 'no');
+  assert.strictEqual(noFirst.selected, 'No, exit');
+  assert.deepStrictEqual(noFirst.rows, ['No, exit', 'Yes, I trust this folder']);
+  const yesFirst = mod.trustDialogState(dlg(P + ' Yes, I trust this folder', 'No, exit'));
+  assert.strictEqual(yesFirst.state, 'yes');
+  const yesSecond = mod.trustDialogState(dlg('  No, exit', P + ' Yes, I trust this folder'));
+  assert.strictEqual(yesSecond.state, 'yes');
+  assert.strictEqual(mod.trustDialogState(dlg('  No, exit', 'Yes, I trust this folder')).state, 'unknown');
+  assert.strictEqual(mod.trustDialogState('> hello\n  the band is drawn\n').state, 'absent');
+  assert.strictEqual(mod.trustDialogState('').state, 'absent');
+});
+
+scenario('trust dialog with "No, exit" first and selected by default: the harness moves to Yes before Enter, run ends ok, answered says what was chosen', () => {
+  const { json } = runRc('trust-no', ['FAKE_MODE=trust-no']);
+  assert.ok(json, 'json written');
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered) + ' ' + json.status);
+  assert.notStrictEqual(json.exitCode, 1, 'the fake exits 1 if Enter lands on No');
+  const a = json.answered.join(' | ');
+  assert.ok(/pressed Down/.test(a), a);
+  assert.ok(/chose: Yes, I trust this folder/.test(a), a);
+  assert.ok(/the pointer was on "No, exit"/.test(a), a);
+  assert.ok(!/pressed Enter \(Yes, trust this scratch folder\)/.test(a), 'the old false log line is gone');
+});
+
+scenario('trust dialog with Yes already selected: the harness does not move away, presses Enter, run ends ok', () => {
+  const { json } = runRc('trust-yes', ['FAKE_MODE=trust-yes']);
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  const a = json.answered.join(' | ');
+  assert.ok(/already on "Yes, I trust this folder"/.test(a), a);
+  assert.ok(!/Down|Up/.test(a), 'no movement key was pressed: ' + a);
+});
+
+scenario('trust dialog with the Yes row first (other row order): no movement, run ends ok', () => {
+  const { json } = runRc('trust-yes-first', ['FAKE_MODE=trust-yes-first']);
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  assert.ok(!/Down|Up/.test(json.answered.join(' | ')));
+});
+
+scenario('no trust dialog on screen: nothing is answered and the run is unchanged', () => {
+  const { json } = runRc('trust-absent', ['FAKE_MODE=good']);
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok');
+  assert.deepStrictEqual(json.answered, []);
+});
+
 scenario('cleanup: no scratch folder and no private tmux server is left behind', () => {
   assert.strictEqual(scratchCount(), before);
   assert.strictEqual(harnessTmuxProcs(), 0);

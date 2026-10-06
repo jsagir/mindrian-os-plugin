@@ -381,6 +381,30 @@ function analyze(grid, ansiText, ctx) {
   return { items, info, summary };
 }
 
+// ---- the workspace trust dialog ----------------------------------------------------------------
+
+// The dialog lists its choices as rows and marks the selected one with a pointer (U+276F or >). In
+// claude 2.1.290 the first row is "No, exit" and it is the one selected by default, so a plain Enter
+// quits the session with code 1. This reads which row carries the pointer, from the plain screen text.
+//   state: 'absent' (no dialog on screen), 'yes' (the pointer is on "Yes, I trust this folder"),
+//          'no' (the pointer is on a different row, normally "No, exit"), 'unknown' (dialog seen but no
+//          pointer row could be read)
+const TRUST_SEEN_RE = /Do you trust the files in this folder|trust this folder|Yes, I trust/i;
+function trustDialogState(screen) {
+  const text = String(screen || '');
+  if (!TRUST_SEEN_RE.test(text)) return { state: 'absent', selected: null, rows: [] };
+  const rows = [];
+  let selected = null;
+  for (const line of text.split('\n')) {
+    const m = /^\s*([❯›>])?\s*((?:Yes|No)\b[^\n]*?)\s*$/.exec(line);
+    if (!m) continue;
+    rows.push(m[2]);
+    if (m[1]) selected = m[2];
+  }
+  if (selected === null) return { state: 'unknown', selected, rows };
+  return { state: /^Yes\b/i.test(selected) ? 'yes' : 'no', selected, rows };
+}
+
 // ---- one run ---------------------------------------------------------------------------------
 
 // The screen as two coherent blocks of text (everything left of a docked pane, then the pane), so a
@@ -580,12 +604,39 @@ async function runOne(opts) {
       if (em) { exitCode = Number(em[1]); exited = true; break; }
       if (screen.trim() !== '') lastBeforeExit = screen;
       const quiet = Date.now() < quietUntil;
-      if (!quiet && /Do you trust the files in this folder|trust this folder|Yes, I trust/i.test(screen) && !opts.program) {
-        keyName('Enter');
-        res.answered.push('trust dialog: pressed Enter (Yes, trust this scratch folder)');
-        pressed();
-        await sleep(150);
-        continue;
+      const trust = quiet ? { state: 'absent' } : trustDialogState(screen);
+      if (trust.state !== 'absent') {
+        // Never press Enter while the pointer sits on "No, exit" (the default in claude 2.1.290): move
+        // the pointer to the "Yes, I trust this folder" row first, re-reading the screen after each key.
+        // No readable pointer row yet (the dialog is still drawing): press nothing, read again.
+        if (trust.state === 'unknown') {
+          if (!res.answered.some((a) => /pointer row not readable/.test(a))) res.answered.push('trust dialog: pointer row not readable yet; pressed nothing, reading again');
+          await sleep(150);
+          continue;
+        }
+        let cur = trust;
+        const moves = [];
+        const order = ['Down', 'Down', 'Up', 'Down'];
+        for (let i = 0; i < order.length && cur.state !== 'yes'; i += 1) {
+          keyName(order[i]);
+          moves.push(order[i]);
+          await sleep(250);
+          screen = cap();
+          if (EXIT_RE.test(screen)) break;
+          cur = trustDialogState(screen);
+          if (cur.state === 'absent') break;
+        }
+        if (cur.state === 'yes') {
+          keyName('Enter');
+          res.answered.push('trust dialog: ' + (moves.length ? 'the pointer was on "' + trust.selected + '"; pressed ' + moves.join(', ') + ' until it sat on "' + cur.selected + '"; ' : 'the pointer was already on "' + cur.selected + '"; ') + 'then pressed Enter (chose: Yes, I trust this folder)');
+          pressed();
+          await sleep(150);
+          continue;
+        }
+        if (cur.state === 'absent') continue; // the dialog went away or the session ended; the next read says which
+        res.answered.push('trust dialog: could not put the pointer on "Yes, I trust this folder" (pressed ' + (moves.join(', ') || 'nothing') + '; pointer on "' + (cur.selected || 'no readable row') + '"); did NOT press Enter');
+        fail('trust_dialog_unanswered');
+        break;
       }
       if (!quiet && /Press Enter to continue/i.test(screen) && !opts.program) {
         keyName('Enter');
@@ -1141,7 +1192,7 @@ function summaryLine(r) {
   return r.label + ' -> ' + r.status + (parts.length ? ' [' + parts.join(' ') + ']' : '') + (r.status === 'band_not_drawn' ? ' (the band never appeared; see ' + (r.files.txt || 'the capture') + ')' : '') + (r.status === 'session_exited' ? ' (the session ended; see ' + (r.files.txt || 'the capture') + ' and ' + (r.files.debugLog || 'the debug log') + ')' : '');
 }
 
-module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript };
+module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript, trustDialogState };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write('render-check: ' + (e.stack || e.message) + '\n'); process.exit(1); });

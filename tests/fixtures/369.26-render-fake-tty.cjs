@@ -6,6 +6,12 @@
 //            cream purpose and next rows, a dim hint; a prompt box under it
 //   mutated  the same, but one logo cell (row 1, col 4: yellow) is painted red
 //   flat     the same words with no color escapes at all and no logo
+//   trust-no   the workspace trust dialog first, laid out like claude 2.1.290: "No, exit" is the FIRST row
+//              and selected by default. Down/Up move the pointer; Enter on "No, exit" ends the program
+//              with exit code 1 (what the real claude does); Enter on "Yes, I trust this folder" clears
+//              the screen and draws the good band.
+//   trust-yes  the same dialog with "Yes, I trust this folder" selected by default (Enter there draws the band)
+//   trust-yes-first  the dialog with the Yes row FIRST and selected (the other row order)
 // FAKE_PANE=1 also draws a pane title row and a tab strip starting at column 95.
 // Not a mod, not shipped: test tooling only.
 'use strict';
@@ -13,7 +19,9 @@
 const E = String.fromCharCode(27);
 const CSI = E + '[';
 const DOT = String.fromCharCode(0x00b7);
-const mode = process.env.FAKE_MODE || 'good';
+const rawMode = process.env.FAKE_MODE || 'good';
+const trustMode = /^trust-/.test(rawMode);
+const mode = trustMode ? 'good' : rawMode;
 const pane = process.env.FAKE_PANE === '1';
 
 const HEX = {
@@ -25,6 +33,7 @@ const reset = mode === 'flat' ? '' : CSI + '0m';
 const dim = mode === 'flat' ? '' : CSI + '2m';
 const at = (row, col) => CSI + (row + 1) + ';' + (col + 1) + 'H';
 
+function drawBand() {
 let out = CSI + '2J' + CSI + 'H';
 
 const LOGO = ['BBBKRRKCKG', 'BBBKYYKCKG', 'BBBKYYKCKK'];
@@ -65,4 +74,32 @@ if (pane) {
 out += at(12, 0);
 
 process.stdout.write(out);
+}
+
+function trustDialog() {
+  const rows = rawMode === 'trust-yes-first' ? ['Yes, I trust this folder', 'No, exit'] : ['No, exit', 'Yes, I trust this folder'];
+  let sel = rawMode === 'trust-no' ? rows.indexOf('No, exit') : rows.indexOf('Yes, I trust this folder');
+  const paint = () => {
+    let o = CSI + '2J' + CSI + 'H';
+    o += ' Accessing workspace:\n\n /tmp/fake-scratch/cwd\n\n Quick safety check: Is this a project you created or one you trust?\n\n Security guide\n\n';
+    rows.forEach((r, i) => { o += (i === sel ? ' ' + String.fromCharCode(0x276f) + ' ' : '   ') + r + '\n'; });
+    o += '\n Enter to confirm \u00b7 Esc to cancel\n';
+    process.stdout.write(o);
+  };
+  paint();
+  process.stdin.setRawMode(true);
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (d) => {
+    if (/\u001b(\[|O)B/.test(d)) { sel = (sel + 1) % rows.length; paint(); }
+    else if (/\u001b(\[|O)A/.test(d)) { sel = (sel + rows.length - 1) % rows.length; paint(); }
+    else if (/[\r\n]/.test(d)) {
+      if (/^No/.test(rows[sel])) process.exit(1);
+      process.stdin.setRawMode(false);
+      process.stdin.pause();
+      drawBand();
+    }
+  });
+}
+
+if (trustMode) trustDialog(); else drawBand();
 setInterval(() => {}, 60000);
