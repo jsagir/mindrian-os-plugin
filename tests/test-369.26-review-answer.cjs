@@ -68,6 +68,9 @@ scenario('the review folder names no Brain server and holds no $, atom, read or 
   }
 });
 
+// Built from char codes so this file passes its own guard.
+const LONG_DASH = new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']');
+
 scenario('the review files and their tests hold no em-dash or en-dash', () => {
   const files = walk(REVIEW, []).concat([
     path.join(MOD, 'tests', 'review-answer.test.ts'),
@@ -75,7 +78,7 @@ scenario('the review files and their tests hold no em-dash or en-dash', () => {
   ]);
   for (const f of files) {
     const s = fs.readFileSync(f, 'utf8');
-    assert.ok(!/[–—]/.test(s), f + ' has a long dash');
+    assert.ok(!LONG_DASH.test(s), f + ' has a long dash');
   }
 });
 
