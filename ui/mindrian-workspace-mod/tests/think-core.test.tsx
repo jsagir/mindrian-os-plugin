@@ -295,6 +295,28 @@ test('loadThink writes one model with understanding, uncertainty and gaps throug
   expect(tools).toEqual(['room_artifact', 'status_read', 'whitespace_scan'])
 })
 
+test('loadThink reuses the titles an earlier load left in the slice and writes the cache back', async () => {
+  const { io, calls } = fakeIo({
+    scan: scanOf([claim('funding/a/a.md')]),
+    artifacts: { 'funding/a/a.md': '# Grant terms' },
+  })
+  const first = fakeAct(io)
+  await loadThink(first.act)
+  const cache = first.patches.find((p) => 'titleCache' in p.partial)?.partial.titleCache
+  expect(cache).toEqual({ 'p:funding/a/a.md': 'Grant terms' })
+  expect(calls.filter((c) => c.tool === 'room_artifact')).toHaveLength(1)
+
+  // A second load whose slice already holds the cache reads no artifact.
+  const second = fakeAct(io)
+  second.act.update = async (_tab, fn) => {
+    fn({ titleCache: cache })
+  }
+  await loadThink(second.act)
+  expect(calls.filter((c) => c.tool === 'room_artifact')).toHaveLength(1)
+  const model = second.patches.find((p) => 'model' in p.partial)?.partial.model as ThinkModel
+  expect(model.gaps).toEqual(ok({ points: ['Grant terms'], total: 1, more: 0 }))
+})
+
 test('loadThink in sample mode writes the fixture for that sample and makes no call', async () => {
   const { io, calls } = fakeIo({})
   const { act, patches } = fakeAct(io, 'wide')
