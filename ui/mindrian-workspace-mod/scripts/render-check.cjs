@@ -31,11 +31,14 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const G = require('./lib/ansi-grid.cjs');
+const P = require('./lib/live-pure.cjs');
 
 const MOD = path.resolve(__dirname, '..');
 const REPO = path.resolve(MOD, '..', '..');
 const DEFAULT_OUT = path.join(REPO, '.planning', 'spikes', '008-mods-types-and-surfaces', 'render-check');
 const PALETTE_PATH = path.join(MOD, 'assets', 'palette.json');
+const DECK_PATH = path.join(MOD, 'src', 'copy', 'deck.ts');
+const IDS_PATH = path.join(MOD, 'src', 'runtime', 'ids.ts');
 
 // UI-SPEC 17.2: the twelve checks, the plan that closes the ones this plan cannot reach, and the
 // fallback the spec already allows if the check fails.
@@ -349,6 +352,89 @@ function analyze(grid, ansiText, ctx) {
 
 // ---- one run ---------------------------------------------------------------------------------
 
+// The screen as two coherent blocks of text (everything left of a docked pane, then the pane), so a
+// sentence that wraps inside the pane is still one sentence for a text search.
+function frameText(grid) {
+  const tab = findTabStrip(grid);
+  const paneCol = tab && tab.col > grid.cols / 3 ? Math.max(0, tab.col - 1) : null;
+  if (paneCol === null) return rowsText(grid).join('\n');
+  return rowsText(sliceGrid(grid, 0, paneCol)).join('\n') + '\n' + rowsText(sliceGrid(grid, paneCol, grid.cols)).join('\n');
+}
+
+function readDeckSafe() {
+  try { return P.readDeck(DECK_PATH); } catch (e) { return {}; }
+}
+
+// The three-file throwaway mod for item 4: one cell of the half-block glyph, red over yellow. Written
+// under the scratch folder, never under the repo.
+function writeHalfblockProbe(dir) {
+  fs.mkdirSync(path.join(dir, '.claude-plugin'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'hooks'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos-halfblock-probe', version: '0.0.1', description: 'Throwaway render probe: draws the half-block glyph red over yellow in one cell.', author: { name: 'MindrianOS' } }, null, 2) + '\n');
+  fs.writeFileSync(path.join(dir, 'hooks', 'hooks.json'), JSON.stringify({ modules: ['../src/register.tsx'] }, null, 2) + '\n');
+  fs.writeFileSync(
+    path.join(dir, 'src', 'register.tsx'),
+    [
+      "import type { Register } from 'claude-code'",
+      '',
+      'export const register: Register = (on) => {',
+      "  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {",
+      '    const { Box, Text } = $.ui.resolve(e)',
+      '    return (',
+      '      <Box flexDirection="row">',
+      '        <Text color="#A63D2F" backgroundColor="#C8A43C">{\'\\u2580\'}</Text>',
+      "        <Text>{' half-block probe'}</Text>",
+      '      </Box>',
+      '    )',
+      '  })',
+      '}',
+      '',
+    ].join('\n'),
+  );
+  return dir;
+}
+
+// Item 4: is there a cell holding U+2580 whose foreground is red and whose background is yellow.
+function analyzeHalfblock(grid, palette) {
+  for (let r = 0; r < grid.rows; r += 1) {
+    for (let c = 0; c < grid.cols; c += 1) {
+      const cell = grid.cells[r][c];
+      if (cell.ch !== '\u2580') continue;
+      const fg = G.nearest(cell.fg, palette, ['mondrian_red', 'mondrian_yellow', 'mondrian_blue', 'cream', 'mondrian_black']);
+      const bg = G.nearest(cell.bg, palette, ['mondrian_red', 'mondrian_yellow', 'mondrian_blue', 'cream', 'mondrian_black']);
+      const ok = !!fg && !!bg && fg.key === 'mondrian_red' && bg.key === 'mondrian_yellow';
+      return { result: ok ? 'PASS' : 'FAIL', detail: 'U+2580 found at row ' + r + ', col ' + c + ': foreground ' + (fg ? fg.key : 'default') + ', background ' + (bg ? bg.key : 'default') + (ok ? ' (red over yellow in one cell)' : ' (not red over yellow)'), data: { row: r, col: c } };
+    }
+  }
+  return { result: 'FAIL', detail: 'no U+2580 cell reached the screen (the probe band did not draw or the glyph was dropped)', data: {} };
+}
+
+// Open the workspace pane by its slash command (never by a hotkey, so a script does not depend on
+// item 7). The slash name is read off the screen the way a person would see it.
+async function openPane(h, tab) {
+  h.keysLit('/workspace');
+  await sleep(1200);
+  const seen = h.cap();
+  const found = seen.match(/\/(?:[\w.-]+:)?workspace\b[\w.:-]*/g) || [];
+  found.sort((a, b) => b.length - a.length);
+  const slash = found[0] || '/workspace';
+  h.res.slashName = slash;
+  if (slash !== '/workspace') { h.keyName('C-u'); await sleep(300); h.keysLit(slash); await sleep(600); }
+  if (tab) { h.keysLit(' ' + tab); await sleep(400); }
+  let opened = false;
+  for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
+    h.keyName('Enter');
+    for (let w = 0; w < 10 && !opened; w += 1) {
+      await sleep(500);
+      const screen = h.cap();
+      opened = G.findText(G.parseAnsi(screen, h.cols, h.rows), 'Sources') !== null && /Room/.test(screen) && /Review/.test(screen);
+    }
+  }
+  h.res.paneOpenedByCommand = opened;
+  return opened;
+}
+
 async function runOne(opts) {
   const { cols, rows } = parseSize(opts.size);
   runCounter += 1;
@@ -359,26 +445,41 @@ async function runOne(opts) {
   fs.mkdirSync(out, { recursive: true });
   const label = opts.label || (opts.sample + '-' + opts.size + '-' + opts.pane);
   const scratchRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-ws-scratch-'));
-  const cwd = path.join(scratchRoot, 'cwd');
-  const roomsHome = path.join(scratchRoot, 'rooms');
+  let cwd = path.join(scratchRoot, 'cwd');
+  let roomsHome = path.join(scratchRoot, 'rooms');
   const debugLog = path.join(scratchRoot, 'debug.log');
   fs.mkdirSync(cwd);
   fs.mkdirSync(roomsHome);
 
+  // A live run: a hermetic room with one raised card, the sample switch OFF, the session bound.
+  let live = null;
+  let LR = null;
+  if (opts.live) {
+    LR = require('./lib/live-room.cjs');
+    live = await LR.buildLiveRoom({ folderName: opts.folderName });
+    cwd = live.folderDir;
+    roomsHome = live.roomsHome;
+  }
+  const probeDir = opts.probe === 'halfblock' ? writeHalfblockProbe(path.join(scratchRoot, 'halfblock-probe')) : null;
+
   const envList = (opts.env || []).slice();
   const noColorRun = envList.some((e) => /^NO_COLOR=./.test(e) || e === 'TERM=dumb');
-  const assigns = ['MOS_WORKSPACE_SAMPLE=' + opts.sample, 'MINDRIAN_ROOMS_HOME=' + roomsHome].concat(envList);
+  const assigns = (live ? [] : ['MOS_WORKSPACE_SAMPLE=' + opts.sample]).concat(['MINDRIAN_ROOMS_HOME=' + roomsHome], envList);
+  if (live) assigns.push('CLAUDE_ACTIVE_ROOM=' + live.slug, 'CLAUDE_CODE_SESSION_ID=' + live.sessionId);
   if (process.env.COLORTERM && !envList.some((e) => e.startsWith('COLORTERM='))) assigns.push('COLORTERM=' + process.env.COLORTERM);
   const unsets = ['NO_COLOR', 'CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID', 'CLAUDE_ACTIVE_ROOM'];
   let inner;
   if (opts.program) inner = 'sh -c ' + shq(opts.program);
-  else inner = 'claude --plugin-dir ' + shq(MOD) + ' --debug-file ' + shq(debugLog);
+  else {
+    const dirs = probeDir ? [probeDir] : [MOD].concat(opts.repoPlugin ? [REPO] : []);
+    inner = 'claude ' + dirs.map((d) => '--plugin-dir ' + shq(d)).join(' ') + (live ? ' --session-id ' + shq(live.sessionId) : '') + ' --debug-file ' + shq(debugLog);
+  }
   const command = 'env ' + unsets.map((u) => '-u ' + u).join(' ') + ' ' + assigns.map(shq).join(' ') + ' ' + inner;
 
   const res = {
-    label, sample: opts.sample, size: opts.size, pane: opts.pane, keys: opts.keys || null, env: envList,
+    label, sample: live ? '(live room)' : opts.sample, size: opts.size, pane: opts.pane, keys: opts.keys || null, env: envList,
     status: 'started', answered: [], slashName: null, files: {}, logCounts: {}, host: {},
-    items: {}, info: {},
+    items: {}, info: {}, frames: {}, inspections: {}, judgement: null, mcp: null, script: opts.scriptName || null,
   };
   const fail = (s) => { if (res.status === 'started') res.status = s; };
   let screen = '';
@@ -393,9 +494,10 @@ async function runOne(opts) {
     const alive = () => tmux(['has-session', '-t', name]).status === 0;
     const keysLit = (s) => tmux(['send-keys', '-t', name, '-l', s]);
     const keyName = (k) => tmux(['send-keys', '-t', name, k]);
+    const h = { cap, keysLit, keyName, cols, rows, res };
 
     // wait for the band (answering a trust or onboarding dialog only when its text is recognized)
-    const readyRe = opts.readyText ? new RegExp(opts.readyText) : BAND_READY;
+    const readyRe = opts.readyText ? new RegExp(opts.readyText) : probeDir ? /half-block probe/ : BAND_READY;
     const deadline = Date.now() + (opts.timeoutSec || 60) * 1000;
     let ready = false;
     while (Date.now() < deadline) {
@@ -420,29 +522,49 @@ async function runOne(opts) {
       fail(alive() ? 'band_not_drawn' : 'session_exited');
     } else {
       await sleep(1200);
-      if (opts.pane === 'open') {
-        keysLit('/workspace');
-        await sleep(1200);
-        const seen = cap();
-        const found = seen.match(/\/(?:[\w.-]+:)?workspace\b[\w.:-]*/g) || [];
-        found.sort((a, b) => b.length - a.length);
-        const slash = found[0] || '/workspace';
-        res.slashName = slash;
-        if (slash !== '/workspace') { keyName('C-u'); await sleep(300); keysLit(slash); await sleep(600); }
-        let opened = false;
-        for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
-          keyName('Enter');
-          for (let w = 0; w < 10 && !opened; w += 1) {
-            await sleep(500);
-            screen = cap();
-            opened = G.findText(G.parseAnsi(screen, cols, rows), 'Sources') !== null && /Room/.test(screen) && /Review/.test(screen);
-          }
-        }
-        res.paneOpenedByCommand = opened;
-      }
+      if (opts.pane === 'open') await openPane(h, null);
       if (opts.keys) {
         keysLit(opts.keys);
         await sleep(1800);
+      }
+      if (opts.listMcp) {
+        keysLit('/mcp');
+        await sleep(600);
+        keyName('Enter');
+        await sleep(3500);
+        const mcpAnsi = tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '';
+        const mcpText = cap();
+        fs.writeFileSync(path.join(out, label + '-mcp.ansi'), mcpAnsi);
+        fs.writeFileSync(path.join(out, label + '-mcp.txt'), mcpText);
+        const parsed = P.parseMcpServerNames(mcpText);
+        const ids = fs.readFileSync(IDS_PATH, 'utf8');
+        const want = (key) => { const m = new RegExp(key + " = '([^']+)'").exec(ids); return m ? m[1] : null; };
+        res.mcp = { names: parsed.names, statuses: parsed.statuses, mindrian: Object.assign({ expected: want('MINDRIAN_SERVER') }, P.compareServerName(parsed.names, want('MINDRIAN_SERVER') || '')), brain: Object.assign({ expected: want('BRAIN_SERVER') }, P.compareServerName(parsed.names, want('BRAIN_SERVER') || '')), files: [label + '-mcp.ansi', label + '-mcp.txt'] };
+        keyName('Escape');
+        await sleep(800);
+      }
+      if (opts.script) {
+        for (const step of opts.script) {
+          if (step.op === 'wait') await sleep(step.ms);
+          else if (step.op === 'type') keysLit(step.text);
+          else if (step.op === 'key') keyName(step.name);
+          else if (step.op === 'burst') tmux(['send-keys', '-t', name].concat(step.keys));
+          else if (step.op === 'open') await openPane(h, step.tab || null);
+          else if (step.op === 'capture') {
+            const a = tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '';
+            const t = tmux(['capture-pane', '-p', '-t', name]).stdout || '';
+            const g = G.parseAnsi(a, cols, rows);
+            res.frames[step.name] = frameText(g);
+            fs.writeFileSync(path.join(out, label + '-' + step.name + '.ansi'), a);
+            fs.writeFileSync(path.join(out, label + '-' + step.name + '.txt'), t);
+            fs.writeFileSync(path.join(out, label + '-' + step.name + '.html'), G.toHtml(g, { title: label + ' ' + step.name }));
+          } else if (step.op === 'inspect') {
+            if (!live) res.inspections[step.name] = { error: 'no live room in this run' };
+            else {
+              try { res.inspections[step.name] = LR.inspectLiveRoom({ roomsHome: live.roomsHome, slug: live.slug, gateId: live.gateId }); } catch (e) { res.inspections[step.name] = { error: String(e && e.message || e) }; }
+            }
+          }
+        }
       }
     }
 
@@ -455,6 +577,7 @@ async function runOne(opts) {
     res.items = a.items;
     res.info = a.info;
     res.info.sgrForms = a.summary.forms;
+    if (probeDir && ready) res.items[4] = analyzeHalfblock(grid, palette);
     if (ready === false) {
       res.items = {};
     }
@@ -463,6 +586,18 @@ async function runOne(opts) {
     fs.writeFileSync(path.join(out, label + '.txt'), plain);
     fs.writeFileSync(path.join(out, label + '.html'), G.toHtml(grid, { title: label }));
     res.files = { ansi: label + '.ansi', txt: label + '.txt', html: label + '.html', json: label + '.json' };
+
+    // what the script's frames and the room say, judged by the fixed rules in lib/live-pure.cjs
+    if (ready && opts.script && opts.scriptName) res.judgement = judgeScript(opts.scriptName, res, readDeckSafe());
+    if (ready && res.judgement && opts.scriptName === 'roundtrip') {
+      const by = Object.fromEntries(res.judgement.verdicts.map((v) => [v.id, v]));
+      if (by.c && by.c.result === 'PASS') res.items[6] = { result: 'PASS', detail: 'a digit press reached the boxed choice button (the runtime answered it); the wrapped label and the look are the human\'s check', data: {} };
+      else if (by.e && by.e.result === 'PASS') res.items[6] = { result: 'PASS', detail: 'the digit press saved the decision through the boxed button; the wrapped label and the look are the human\'s check', data: {} };
+    }
+    if (ready && res.judgement && res.judgement.kind === 'key') {
+      const v = res.judgement.verdicts[0];
+      res.items[7] = { result: v.result === 'PENDING-HUMAN' ? 'INCONCLUSIVE' : v.result, detail: opts.scriptName + ': ' + v.detail, data: { script: opts.scriptName } };
+    }
 
     // the engine's own refusals, from its debug log
     let log = '';
@@ -476,15 +611,30 @@ async function runOne(opts) {
     if (res.status === 'started') res.status = 'ok';
   } finally {
     tmux(['kill-session', '-t', name]);
+    tmux(['kill-server']);
+    if (live) { try { await live.close(); } catch (e) { /* best effort */ } }
     try { fs.rmSync(scratchRoot, { recursive: true, force: true }); } catch (e) { /* best effort */ }
   }
   fs.writeFileSync(path.join(out, label + '.json'), JSON.stringify(res, null, 2) + '\n');
   return res;
 }
 
+// judgeScript: the verdicts for a preset, from its frames and read-backs. A frame that was not
+// captured stays PENDING-HUMAN (see lib/live-pure.cjs); nothing is guessed.
+function judgeScript(scriptName, res, deck) {
+  const ins = res.inspections;
+  if (scriptName === 'roundtrip') return { kind: 'roundtrip', verdicts: P.judgeRoundTrip({ frames: res.frames, inspection: ins, deck }) };
+  if (scriptName === 'decide-later') return { kind: 'decide-later', verdicts: [P.judgeDecideLater({ before: ins.before, after: ins.after, frames: res.frames, deck })] };
+  if (scriptName === 'double-press') return { kind: 'double-press', verdicts: [P.judgeDoublePress({ after: ins.after })] };
+  const typed = { 'o-empty': 'o', 'o-after-text': 'helloo', 'h-empty': 'h', 'digit-in-pane': '1' }[scriptName];
+  if (typed !== undefined) return { kind: 'key', verdicts: [P.judgeKeyRun(scriptName, typed, res.frames, deck)] };
+  return null;
+}
+
 // ---- roll-up and INTERIM.md ---------------------------------------------------------------------
 
-function rollUp(results) {
+function rollUp(results, mode) {
+  const finalMode = mode === 'final';
   const rows = [];
   for (const it of ITEMS) {
     const hits = [];
@@ -492,7 +642,10 @@ function rollUp(results) {
     let result;
     let evidence = '';
     let detail = '';
-    if (it.later && hits.length === 0) {
+    if (finalMode && hits.length === 0) {
+      result = 'NOT REACHED';
+      detail = 'no run produced the evidence for this item; see the run table for failed or skipped runs';
+    } else if (it.later && hits.length === 0) {
       result = 'NOT REACHED';
       detail = 'needs a component built in ' + it.later + '; ' + it.later + ' closes it';
     } else if (hits.length === 0) {
@@ -503,7 +656,7 @@ function rollUp(results) {
       const passes = hits.filter((h) => h.entry.result === 'PASS');
       if (fails.length) { result = 'FAIL'; evidence = fails.map((h) => h.run.files.html || h.run.label).slice(0, 3).join(', '); detail = fails.map((h) => h.run.label + ': ' + h.entry.detail).slice(0, 3).join(' | '); }
       else if (passes.length) { result = 'PASS'; evidence = passes[0].run.files.html || passes[0].run.label; detail = passes.map((h) => h.run.label + ': ' + h.entry.detail).slice(0, 2).join(' | '); }
-      else { result = 'INCONCLUSIVE (plan 17 closes it)'; evidence = hits[0].run.files.html || hits[0].run.label; detail = hits.map((h) => h.run.label + ': ' + h.entry.detail).slice(0, 2).join(' | '); }
+      else { result = finalMode ? 'INCONCLUSIVE (read the evidence)' : 'INCONCLUSIVE (plan 17 closes it)'; evidence = hits[0].run.files.html || hits[0].run.label; detail = hits.map((h) => h.run.label + ': ' + h.entry.detail).slice(0, 2).join(' | '); }
     }
     rows.push({ n: it.n, name: it.name, result, evidence, detail, fallback: it.fallback, later: it.later });
   }
@@ -626,6 +779,19 @@ const HELP = [
   '  --ready-text <regex>     test mode: the text that means the program has drawn',
   '  --write-pending          write a PENDING INTERIM.md (no live run yet) and exit',
   '',
+  'The final check (plan 369.26-17), on the finished mod:',
+  '  --final                  run everything: the size matrix, every state, the key runs, the probes and the live gate round trips;',
+  '                           write <out>/final/ (captures, summary.json, FINAL-RUN.md). One command, in your own logged-in terminal:',
+  '                             node ui/mindrian-workspace-mod/scripts/render-check.cjs --final',
+  '  --group <name>           with --final: size | states | keys | probes | live (default all)',
+  '  --live                   build a hermetic room with one raised card; sample switch OFF; the session bound to the room',
+  '  --script <name|file>     play a key script after the band is up; a preset name (roundtrip, decide-later, double-press,',
+  '                           o-empty, o-after-text, h-empty, digit-in-pane) or a file of steps (wait, type, key, burst, open, capture, inspect)',
+  '  --probe halfblock        load a throwaway three-file mod that draws U+2580 red over yellow (item 4)',
+  '  --list-mcp               type /mcp and record the server names the session lists',
+  '  --folder-name <name>     live room: the folder name (a long one proves truncation, item 12)',
+  '  --repo-plugin            also load this repo as a plugin (its servers), when the installed plugin is missing or older',
+  '',
   'Exit: 0 ok, 1 a run failed, 2 bad arguments, 77 ENV GAP (no tmux, no claude, or not logged in).',
 ].join('\n');
 
@@ -646,6 +812,14 @@ function parseArgs(argv) {
     else if (a === '--program') o.program = val();
     else if (a === '--ready-text') o.readyText = val();
     else if (a === '--write-pending') o.writePending = true;
+    else if (a === '--live') o.live = true;
+    else if (a === '--script') o.scriptArg = val();
+    else if (a === '--probe') { o.probe = val(); if (o.probe !== 'halfblock') throw new Error('--probe wants halfblock'); }
+    else if (a === '--list-mcp') o.listMcp = true;
+    else if (a === '--folder-name') o.folderName = val();
+    else if (a === '--repo-plugin') o.repoPlugin = true;
+    else if (a === '--final') o.final = true;
+    else if (a === '--group') o.group = val();
     else if (a === '--help' || a === '-h') o.help = true;
     else throw new Error('unknown option ' + a);
   }
@@ -668,10 +842,22 @@ async function main(argv) {
   }
   process.stdout.write('render-check: ' + host.tmux + '; claude ' + (host.claude || '(test program)') + '; ' + host.login + '\n');
 
+  if (o.scriptArg) {
+    try { Object.assign(o, resolveScript(o.scriptArg)); } catch (e) { process.stderr.write('render-check: ' + e.message + '\n'); return 2; }
+  }
+
+  if (o.final) return runFinal(o, host);
+
   if (!o.all) {
     const out = o.out || path.join(DEFAULT_OUT, 'interim');
-    const r = await runOne(Object.assign({}, o, { out }));
+    let r;
+    try { r = await runOne(Object.assign({}, o, { out })); } catch (e) {
+      if (e && e.envGap) { process.stdout.write(e.message + '\n'); return 77; }
+      throw e;
+    }
     process.stdout.write(summaryLine(r) + '\n');
+    if (r.judgement) for (const v of r.judgement.verdicts) process.stdout.write('  ' + v.id + ': ' + v.result + ' - ' + v.detail + '\n');
+    if (r.mcp) process.stdout.write('  /mcp names: ' + (r.mcp.names.join(', ') || '(none parsed; read the -mcp.txt capture)') + '\n');
     return r.status === 'ok' ? 0 : 1;
   }
 
@@ -694,12 +880,157 @@ async function main(argv) {
   return bad ? 1 : 0;
 }
 
+// --script value: a preset name (optionally preset:name) or a file path.
+function resolveScript(arg) {
+  const name = arg.replace(/^preset:/, '');
+  if (Object.prototype.hasOwnProperty.call(P.PRESETS, name)) return { script: P.parseScript(P.PRESETS[name]), scriptName: name };
+  if (!fs.existsSync(arg)) throw new Error('--script ' + arg + ' is neither a preset (' + Object.keys(P.PRESETS).join(', ') + ') nor a file');
+  return { script: P.parseScript(fs.readFileSync(arg, 'utf8')), scriptName: path.basename(arg, path.extname(arg)) };
+}
+
+const FINAL_SIZES = ['55x40', '80x24', '110x30', '120x40', '160x45', '200x60'];
+const LONG_FOLDER = 'Funding-and-grant-applications-for-the-first-three-pilot-sites';
+
+// The runs of the final check, by group. A run is { label, ...runOne options }.
+function finalRuns(group) {
+  const all = [];
+  const add = (g, run) => { if (!group || group === g) all.push(Object.assign({ group: g }, run)); };
+  for (const sample of ['wide', 'narrow', 'missing']) {
+    for (const size of FINAL_SIZES) for (const pane of ['none', 'open']) add('size', { label: 'size-' + sample + '-' + size + '-' + pane, sample, size, pane });
+  }
+  add('size', { label: 'size-wide-72x30-none', sample: 'wide', size: '72x30', pane: 'none' });
+  for (const sample of ['empty', 'limit', 'drift', 'broken', 'several', 'nofile', 'noroom', 'unreadable']) {
+    for (const size of ['160x45', '55x40']) add('states', { label: 'state-' + sample + '-' + size, sample, size, pane: 'none' });
+  }
+  for (const name of ['o-empty', 'o-after-text', 'h-empty', 'digit-in-pane']) {
+    add('keys', Object.assign({ label: 'key-' + name, sample: 'wide', size: '160x45', pane: 'none', scriptName: name, script: P.parseScript(P.PRESETS[name]) }));
+  }
+  add('keys', { label: 'color-no-color', sample: 'wide', size: '160x45', pane: 'none', env: ['NO_COLOR=1'] });
+  add('keys', { label: 'color-term-dumb', sample: 'wide', size: '160x45', pane: 'none', env: ['TERM=dumb'] });
+  add('probes', { label: 'probe-halfblock', sample: 'wide', size: '160x45', pane: 'none', probe: 'halfblock' });
+  add('probes', { label: 'probe-list-mcp', sample: 'wide', size: '160x45', pane: 'none', listMcp: true });
+  for (const name of ['roundtrip', 'decide-later', 'double-press']) {
+    add('live', { label: 'live-' + name, sample: 'wide', size: '160x45', pane: 'none', live: true, scriptName: name, script: P.parseScript(P.PRESETS[name]) });
+  }
+  add('live', { label: 'live-long-folder-72x30', sample: 'wide', size: '72x30', pane: 'none', live: true, folderName: LONG_FOLDER });
+  return all;
+}
+
+function mdCell(s) { return String(s === undefined || s === null ? '' : s).replace(/\|/g, '/').replace(/\n/g, ' '); }
+
+function buildFinalReport(results, meta) {
+  const L = [];
+  L.push('# Spike 008 final render check: machine measurements (plan 369.26-17)');
+  L.push('');
+  L.push('Generated ' + meta.generated + '. Host: ' + meta.host + '. Written by `node ui/mindrian-workspace-mod/scripts/render-check.cjs --final`.');
+  L.push('');
+  L.push('Every row below is MEASURED BY A MACHINE from a real capture. A PASS here means the paint and the keys behaved; whether it LOOKS right is still the person\'s reading of the HTML pictures next to it. Nothing here is a verdict: the verdict is written in RESULTS.md after the person has read this.');
+  L.push('');
+  L.push('## Runs');
+  L.push('');
+  L.push('| Run | Sample | Size | Pane | Status | Evidence |');
+  L.push('|---|---|---|---|---|---|');
+  for (const r of results) {
+    L.push('| ' + [r.label, r.sample, r.size, r.pane + (r.script ? ' + script ' + r.script : '') + (r.env.length ? ' ' + r.env.join(' ') : ''), r.status + (r.logEvidence && r.logEvidence.length ? ' (' + r.logEvidence.length + ' engine log lines, see json)' : ''), r.files.html || ''].map(mdCell).join(' | ') + ' |');
+  }
+  L.push('');
+  L.push('## UI-SPEC 17.2 items (machine part)');
+  L.push('');
+  L.push('| # | Check | Result | Evidence file | Measured | If it fails, the fallback |');
+  L.push('|---|---|---|---|---|---|');
+  const rows = rollUp(results, 'final');
+  for (const r of rows) L.push('| ' + [r.n, r.name, r.result, r.evidence, r.detail, r.fallback].map(mdCell).join(' | ') + ' |');
+  L.push('');
+  const live = results.filter((r) => r.judgement && r.judgement.kind !== 'key');
+  L.push('## Live gate round trip');
+  L.push('');
+  if (live.length === 0) L.push('PENDING-HUMAN: no live run produced a read-back in this run.');
+  for (const r of live) {
+    L.push('### ' + r.label);
+    L.push('');
+    L.push('| Step | Result | What was measured |');
+    L.push('|---|---|---|');
+    for (const v of r.judgement.verdicts) L.push('| ' + [v.id + ': ' + v.step, v.result, v.detail].map(mdCell).join(' | ') + ' |');
+    const ins = r.inspections || {};
+    const a = ins.after;
+    if (a && a.gateAnswer) L.push('', 'Recorded answer route read from the room: `answered_via = ' + (a.gateAnswer.answeredVia || 'n/a') + '`; decision nodes: ' + (a.decisionNodes || []).length + '; records hash before ' + ((ins.before && ins.before.recordsHash) || 'n/a') + ', after ' + a.recordsHash + '.');
+    L.push('');
+  }
+  const mcp = results.find((r) => r.mcp);
+  L.push('## MCP server names (item for ids.ts)');
+  L.push('');
+  if (!mcp) L.push('PENDING-HUMAN: the `/mcp` capture did not run.');
+  else {
+    L.push('Names parsed from the real `/mcp` screen: ' + (mcp.mcp.names.length ? mcp.mcp.names.map((n) => '`' + n + '`').join(', ') : '(none parsed: read `' + mcp.mcp.files.join('` or `') + '`)') + '.');
+    L.push('');
+    L.push('- MINDRIAN_SERVER `' + mcp.mcp.mindrian.expected + '`: ' + mcp.mcp.mindrian.verdict + (mcp.mcp.mindrian.verdict === 'differs' ? ' (closest: ' + mcp.mcp.mindrian.closest.join(', ') + ')' : ''));
+    L.push('- BRAIN_SERVER `' + mcp.mcp.brain.expected + '`: ' + mcp.mcp.brain.verdict + (mcp.mcp.brain.verdict === 'differs' ? ' (closest: ' + mcp.mcp.brain.closest.join(', ') + ')' : ''));
+  }
+  L.push('');
+  L.push('## Numbers for the UNVERIFIED risks');
+  L.push('');
+  const docked = results.filter((r) => r.pane === 'open' && r.info && r.info.band);
+  L.push('| Risk | Measured |');
+  L.push('|---|---|');
+  L.push('| R-02 band width and rows when docked | ' + (docked.length ? docked.map((r) => r.label + ': pane at col ' + (r.info.paneCol === null || r.info.paneCol === undefined ? 'n/a' : r.info.paneCol) + ', band fill to col ' + r.info.band.filledRightEdge + ', rows between band top and prompt ' + r.info.band.rowsAboveTheirPrompt).join('; ') : 'PENDING-HUMAN (no docked run)') + ' |');
+  const keyRuns = results.filter((r) => r.judgement && r.judgement.kind === 'key');
+  L.push('| R-03 hotkeys with the prompt focused | ' + (keyRuns.length ? keyRuns.map((r) => r.script + ': ' + r.judgement.verdicts[0].result + ' (' + r.judgement.verdicts[0].detail + ')').join('; ') : 'PENDING-HUMAN') + ' |');
+  const nc = results.filter((r) => r.items && r.items[11]);
+  L.push('| R-15 NO_COLOR and TERM=dumb | ' + (nc.length ? nc.map((r) => r.label + ': ' + r.items[11].detail).join('; ') : 'PENDING-HUMAN') + ' |');
+  const dim = results.find((r) => r.items && r.items[5]);
+  L.push('| R-18 dim text | ' + (dim ? dim.label + ': ' + dim.items[5].detail : 'PENDING-HUMAN') + ' |');
+  const titles = results.filter((r) => r.items && r.items[9]);
+  L.push('| R-21 engine pane title | ' + (titles.length ? titles.slice(0, 3).map((r) => r.label + ': ' + r.items[9].detail).join('; ') : 'PENDING-HUMAN') + ' |');
+  const dots = results.find((r) => r.items && r.items[10]);
+  L.push('| R-26 glyph bytes (the middle dot) | ' + (dots ? dots.label + ': ' + dots.items[10].detail : 'PENDING-HUMAN') + ' |');
+  const hb = results.find((r) => r.items && r.items[4]);
+  L.push('| R-19 / R-26 half-block glyph | ' + (hb ? hb.label + ': ' + hb.items[4].detail : 'PENDING-HUMAN') + ' |');
+  L.push('');
+  L.push('## What the machine cannot judge (the person reads the HTML pictures)');
+  L.push('');
+  L.push('Item 1 to 3 and 5: whether the blocks, the logo cells, the ten-cell bar and the dim text LOOK right and read on black and on cream. Item 6: whether the boxed choice buttons look right and wrap. Item 10: whether the triangle and the middle dot draw in your terminal font. Item 12: whether the shortened folder name reads well.');
+  L.push('');
+  L.push('## Navigator answer');
+  L.push('');
+  L.push('(not yet given)');
+  L.push('');
+  return L.join('\n');
+}
+
+async function runFinal(o, host) {
+  const out = path.resolve(o.out || DEFAULT_OUT);
+  const dir = path.join(out, 'final');
+  fs.mkdirSync(dir, { recursive: true });
+  const runs = finalRuns(o.group || null);
+  const results = [];
+  let bad = 0;
+  for (const run of runs) {
+    process.stdout.write('running ' + run.label + ' ...\n');
+    let r;
+    try {
+      r = await runOne(Object.assign({}, o, run, { out: dir, env: (o.env || []).concat(run.env || []), program: o.program, label: run.label }));
+    } catch (e) {
+      if (e && e.envGap) { process.stdout.write(e.message + '\n'); return 77; }
+      throw e;
+    }
+    results.push(r);
+    process.stdout.write('  ' + summaryLine(r) + '\n');
+    if (r.judgement) for (const v of r.judgement.verdicts) process.stdout.write('    ' + v.id + ': ' + v.result + ' - ' + v.detail + '\n');
+    if (r.status !== 'ok') bad += 1;
+  }
+  const meta = { generated: new Date().toISOString(), host: host.tmux + ', claude ' + host.claude + ', COLORTERM ' + (process.env.COLORTERM || '(unset)') + ', default-terminal ' + ((results[0] && results[0].host.defaultTerminal) || '?') };
+  fs.writeFileSync(path.join(dir, 'FINAL-RUN.md'), buildFinalReport(results, meta));
+  fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(results.map((r) => ({ label: r.label, status: r.status, size: r.size, pane: r.pane, items: r.items, judgement: r.judgement, mcp: r.mcp, inspections: r.inspections, info: r.info })), null, 2) + '\n');
+  process.stdout.write('\nwrote ' + path.join(dir, 'FINAL-RUN.md') + '\nopen the .html files under ' + dir + ' in a browser, read FINAL-RUN.md, then fill RESULTS.md from the template.\n');
+  return bad ? 1 : 0;
+}
+
 function summaryLine(r) {
   const parts = Object.keys(r.items).sort((a, b) => a - b).map((k) => k + ':' + r.items[k].result);
   return r.label + ' -> ' + r.status + (parts.length ? ' [' + parts.join(' ') + ']' : '') + (r.status === 'band_not_drawn' ? ' (the band never appeared; see ' + (r.files.txt || 'the capture') + ')' : '');
 }
 
-module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip };
+module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write('render-check: ' + (e.stack || e.message) + '\n'); process.exit(1); });

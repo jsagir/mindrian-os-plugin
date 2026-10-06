@@ -388,7 +388,7 @@ scenario('17 live-room: exports exactly buildLiveRoom and inspectLiveRoom and ne
   assert.deepStrictEqual(Object.keys(L).sort(), ['buildLiveRoom', 'inspectLiveRoom']);
   const src = require('node:fs').readFileSync(path.join(LIB_DIR, 'live-room.cjs'), 'utf8');
   assert.ok(!/MindrianRooms/.test(src), 'the helper never names ~/MindrianRooms');
-  assert.ok(!/—/.test(src), 'no em-dash');
+  assert.ok(!/\u2014/.test(src), 'no em-dash');
 });
 
 (async () => {

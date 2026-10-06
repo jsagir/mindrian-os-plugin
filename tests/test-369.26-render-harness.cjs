@@ -163,9 +163,87 @@ scenario('INTERIM.md: pending form has twelve rows; a real roll-up has twelve, n
   assert.ok(fs.readFileSync(path.join(dir, 'INTERIM.md'), 'utf8').includes('approved by test'), 'the navigator answer survives a re-run');
 });
 
+// ---- 369.26-17: the script runner, the live room, the probe and the final report ------------------
+
+const liveDirCount = () => fs.readdirSync(os.tmpdir()).filter((n) => n.startsWith('mos-ws-live-')).length;
+const liveBefore = liveDirCount();
+
+scenario('17 script runner: type, key, burst and capture reach the real screen in order; inspect without a live room says so', () => {
+  const script = path.join(TMP, 's-keys.txt');
+  fs.writeFileSync(script, 'wait 300\ncapture one\ntype abc\nkey Enter\nburst x y\nwait 300\ncapture two\ninspect nothing\n');
+  const { r, out, json } = runRc('script', ['FAKE_MODE=good'], ['--script', script]);
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  assert.deepStrictEqual(Object.keys(json.frames), ['one', 'two']);
+  assert.ok(/abc/.test(json.frames.two) && !/abc/.test(json.frames.one), 'typed text shows only in the later frame');
+  assert.ok(/xy/.test(json.frames.two), 'a burst of two keys went in as one command');
+  assert.ok(json.inspections.nothing.error, 'no live room: said so, nothing faked');
+  for (const ext of ['ansi', 'txt', 'html']) assert.ok(fs.statSync(path.join(out, 'script-two.' + ext)).size > 0, ext);
+});
+
+scenario('17 live run: a hermetic room is built, read back (no decision yet), and removed with its child process', () => {
+  const script = path.join(TMP, 's-live.txt');
+  fs.writeFileSync(script, 'wait 200\ninspect before\n');
+  const { r, json } = runRc('live', ['FAKE_MODE=good'], ['--live', '--script', script]);
+  if (/ENV GAP/.test(r.stdout)) { process.stdout.write('    SKIPPED live arm (ENV GAP: MCP client package missing)\n'); return; }
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  assert.strictEqual(json.inspections.before.readable, true);
+  assert.deepStrictEqual(json.inspections.before.decisionNodes, []);
+  assert.strictEqual(json.inspections.before.gateAnswer.found, false);
+  assert.strictEqual(liveDirCount(), liveBefore, 'the live room folder was removed');
+});
+
+scenario('17 half-block probe: the three-file throwaway mod is written outside the repo, validates, and the glyph check reads red over yellow', () => {
+  const mod = require(RC);
+  const dir = path.join(TMP, 'probe-mod');
+  mod.writeHalfblockProbe(dir);
+  assert.deepStrictEqual(fs.readdirSync(dir).sort(), ['.claude-plugin', 'hooks', 'src']);
+  assert.ok(!path.resolve(dir).startsWith(REPO), 'not under the repo');
+  assert.ok(fs.readFileSync(path.join(dir, 'src', 'register.tsx'), 'utf8').includes('u2580'));
+  const v = spawnSync('claude', ['plugin', 'validate', dir], { encoding: 'utf8', timeout: 60000 });
+  if (!v.error) assert.ok(/Validation passed/.test(v.stdout + v.stderr), v.stdout + v.stderr);
+  const G = require(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'lib', 'ansi-grid.cjs'));
+  const E = String.fromCharCode(27);
+  const pal = JSON.parse(fs.readFileSync(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'assets', 'palette.json'), 'utf8'));
+  const good = G.parseAnsi(E + '[38;2;166;61;47m' + E + '[48;2;200;164;60m▀' + E + '[0m', 4, 1);
+  assert.strictEqual(mod.analyzeHalfblock(good, pal).result, 'PASS');
+  const bad = G.parseAnsi(E + '[38;2;166;61;47m▀' + E + '[0m', 4, 1);
+  assert.strictEqual(mod.analyzeHalfblock(bad, pal).result, 'FAIL');
+  assert.strictEqual(mod.analyzeHalfblock(G.parseAnsi('plain', 4, 1), pal).result, 'FAIL');
+});
+
+scenario('17 final report: twelve item rows, every live step PENDING-HUMAN with no frames, and the navigator answer left open', () => {
+  const mod = require(RC);
+  const P = require(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'lib', 'live-pure.cjs'));
+  const fake = { label: 'live-roundtrip', sample: '(live room)', size: '160x45', pane: 'none', env: [], script: 'roundtrip', status: 'ok', files: { html: 'live-roundtrip.html' }, items: {}, info: {}, host: {}, frames: {}, inspections: {}, judgement: { kind: 'roundtrip', verdicts: P.judgeRoundTrip({ frames: {}, inspection: {}, deck: {} }) } };
+  const md = mod.buildFinalReport([fake], { generated: 'now', host: 'test' });
+  for (let n = 1; n <= 12; n += 1) assert.ok(new RegExp('^\\| ' + n + ' \\|', 'm').test(md), 'row ' + n);
+  assert.ok(/PENDING-HUMAN/.test(md));
+  assert.ok(!/\| PASS \|/.test(md.split('## Live gate round trip')[1].split('## MCP')[0]), 'no live step is passed without a frame');
+  assert.ok(/Navigator answer[\s\S]*\(not yet given\)/.test(md));
+  assert.ok(!/\u2014/.test(md), 'no em-dash');
+  const runs = mod.finalRuns(null);
+  assert.strictEqual(new Set(runs.map((x) => x.label)).size, runs.length, 'labels are unique');
+  for (const sample of ['wide', 'narrow', 'missing']) for (const size of ['55x40', '80x24', '110x30', '120x40', '160x45', '200x60']) for (const pane of ['none', 'open']) assert.ok(runs.some((x) => x.label === 'size-' + sample + '-' + size + '-' + pane), sample + size + pane);
+  for (const sample of ['empty', 'limit', 'drift', 'broken', 'several', 'nofile', 'noroom', 'unreadable']) assert.ok(runs.some((x) => x.label === 'state-' + sample + '-160x45') && runs.some((x) => x.label === 'state-' + sample + '-55x40'), sample);
+  assert.ok(runs.some((x) => x.label === 'size-wide-72x30-none'));
+  assert.ok(runs.some((x) => x.probe === 'halfblock') && runs.some((x) => x.listMcp));
+  assert.strictEqual(runs.filter((x) => x.live).length, 4);
+});
+
+scenario('17 --final not logged in: exit 77, nothing written', () => {
+  const bin = path.join(TMP, 'bin2');
+  fs.mkdirSync(bin);
+  fs.writeFileSync(path.join(bin, 'claude'), '#!/bin/sh\nif [ "$1" = "--version" ]; then echo "9.9.9 (fake)"; exit 0; fi\nif [ "$1" = "auth" ]; then echo \'{"loggedIn": false}\'; exit 0; fi\nexit 3\n', { mode: 0o755 });
+  const out = path.join(TMP, 'finalnologin');
+  const r = spawnSync('node', [RC, '--final', '--out', out], { encoding: 'utf8', env: Object.assign({}, process.env, { PATH: bin + path.delimiter + process.env.PATH }), timeout: 60000 });
+  assert.strictEqual(r.status, 77, r.stdout + r.stderr);
+  assert.strictEqual(fs.existsSync(out), false);
+});
+
 scenario('cleanup: no scratch folder and no private tmux server is left behind', () => {
   assert.strictEqual(scratchCount(), before);
   assert.strictEqual(harnessTmuxProcs(), 0);
+  assert.strictEqual(liveDirCount(), liveBefore);
 });
 
 fs.rmSync(TMP, { recursive: true, force: true });
