@@ -14,6 +14,15 @@
       "description": "Capability ledger staleness (Phase 265): warns when data/capability-ledger.json's ledger_covers.to trails the installed claude --version beyond MINDRIAN_LEDGER_MAX_VERSION_LAG. Check-only, cadence always."
     },
     {
+      "id": "research-providers",
+      "introduced_version": "2.0.0-beta.64",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/research-providers-module.cjs",
+      "description": "Research provider reachability matrix (Phase 369.2, HARNESS-03): lens -> provider -> ready, no key, line off or not checked. Check-only, cadence always, zero network."
+    },
+    {
       "id": "mcp-surface",
       "introduced_version": "2.0.0-beta.12",
       "cadence": "always",

@@ -119,7 +119,7 @@ const doctorModules = require(path.join(REPO, 'data', 'doctor-modules.json'));
 const row = doctorModules.modules.find((m) => m.id === 'section-ruling');
 check('registry row exists', !!row);
 check('registry row carries exactly 7 keys, no auto_heal', !!row && Object.keys(row).length === 7 && !('auto_heal' in row));
-check('registry has 27 modules total', doctorModules.modules.length === 27);
+check('registry has 28 modules total (27 plus research-providers, 369.2-26)', doctorModules.modules.length === 28);
 check('runner path exists on disk', !!row && fs.existsSync(path.join(REPO, row.runner)));
 
 console.log('');

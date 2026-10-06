@@ -276,7 +276,7 @@ async function main() {
     const out = await runWith(['scholarly', 'industry', 'competitive-intelligence', 'grants'], {});
     const line = out.result && out.result.answer_line;
     check('PF2 the answer line is the one sentence naming the three Tavily lenses', typeof line === 'string' && line.indexOf(SENTENCE) !== -1, 'answer_line=' + JSON.stringify(line));
-    check('PF2 the answer line has no dash characters', typeof line === 'string' && !/[–—]/.test(line), 'line=' + line);
+    check('PF2 the answer line has no dash characters', typeof line === 'string' && !/[\u2013\u2014]/.test(line), 'line=' + line);
     const one = await runWith(['scholarly', 'industry'], {});
     check('PF2 one unavailable Tavily lens reads in the singular',
       !!one.result && one.result.answer_line === 'Industry search needs a Tavily key, and none is set, so industry was not searched.',
