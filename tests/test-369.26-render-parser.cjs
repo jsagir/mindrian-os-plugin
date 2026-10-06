@@ -334,7 +334,10 @@ scenario('17 deckStringFrom: reads a deck line, decodes escapes, and refuses an 
   assert.strictEqual(P.deckStringFrom(src, 'B10'), "You're in: {folder}");
   assert.strictEqual(P.deckStringFrom(src, 'Z99'), null);
   const real = P.readDeck(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'src', 'copy', 'deck.ts'));
-  assert.strictEqual(real.D24, 'Saved to your data room: {label}.');
+  assert.strictEqual(real.D24, 'You chose {label}. Saved to your data room.');
+  // The saved-sentence match is the persistence claim after the label (C-30), not the words "You chose".
+  assert.strictEqual(P.deckPrefix(real.D24), 'Saved to your data room');
+  assert.strictEqual(P.deckPrefix('Saved to your data room: {label}.'), 'Saved to your data room');
   assert.ok(real.E01 && real.E04 && real.P115 && real.B60);
 });
 

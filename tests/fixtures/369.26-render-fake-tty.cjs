@@ -2,9 +2,10 @@
 //
 // It prints a band like the WIDE concept using KNOWN ANSI, at fixed positions, then sits still so
 // tmux can capture it. FAKE_MODE picks what it draws:
-//   good     truecolor band: logo, blue place, yellow waiting, black context with a 6-of-10 bar,
-//            cream purpose and next rows, a dim hint; a prompt box under it
-//   mutated  the same, but one logo cell (row 1, col 4: yellow) is painted red
+//   good     truecolor band in the C-30 and C-32 design: the M:OS text mark (bold, cream on black),
+//            a paper place block, a black waiting block, a paper context block with a 6-of-10
+//            black bar, paper purpose and next rows, a hint; a prompt box under it
+//   mutated  the same, but the M:OS mark is drawn without bold
 //   flat     the same words with no color escapes at all and no logo
 //   trust-no   the workspace trust dialog first, laid out like claude 2.1.290: "No, exit" is the FIRST row
 //              and selected by default. Down/Up move the pointer; Enter on "No, exit" ends the program
@@ -36,25 +37,24 @@ const at = (row, col) => CSI + (row + 1) + ';' + (col + 1) + 'H';
 function drawBand() {
 let out = CSI + '2J' + CSI + 'H';
 
-const LOGO = ['BBBKRRKCKG', 'BBBKYYKCKG', 'BBBKYYKCKK'];
-if (mode === 'mutated') LOGO[1] = LOGO[1].slice(0, 4) + 'R' + LOGO[1].slice(5);
+const bold = mode === 'flat' || mode === 'mutated' ? '' : CSI + '1m';
 for (let r = 0; r < 3; r += 1) {
   out += at(r, 0);
   if (mode === 'flat') out += r === 0 ? 'M:OS' : '';
-  else for (const k of LOGO[r]) out += bg(k) + ' ';
+  else out += bg('K') + fg('C') + bold + (r === 0 ? ' M:OS ' : '      ');
   out += reset;
 }
 
 const WIDTH = 91;
-// row 0: place (blue), frame, waiting (yellow), frame, context (black block with the bar)
-out += at(0, 10) + bg('B') + fg('C') + " You're in: Funding (sample) " + reset;
+// row 0: place (paper), frame, waiting (black, bold cream), frame, context (paper block with the bar)
+out += at(0, 10) + bg('C') + fg('K') + " You're in: Funding (sample) " + reset;
 out += at(0, 38) + bg('K') + ' ' + reset;
-out += at(0, 39) + bg('Y') + fg('K') + ' A decision is waiting ' + reset;
+out += at(0, 39) + bg('K') + fg('C') + CSI + '1m' + ' A decision is waiting ' + reset;
 out += at(0, 62) + bg('K') + ' ' + reset;
-out += at(0, 63) + bg('K') + fg('C') + 'Context used: 62% ' + reset;
+out += at(0, 63) + bg('C') + fg('K') + ' Context used: 62% ' + reset;
 let bar = '';
-for (let i = 0; i < 10; i += 1) bar += i < 6 ? (mode === 'flat' ? '#' : bg('Y') + ' ' + reset) : DOT;
-out += at(0, 81) + bar;
+for (let i = 0; i < 10; i += 1) bar += i < 6 ? (mode === 'flat' ? '#' : bg('K') + ' ' + reset) : bg('C') + fg('K') + DOT + reset;
+out += at(0, 82) + bar;
 // rows 1 and 2: cream, black text, grown to the full width
 const purpose = ' This folder is for: building the funding case (sample)';
 const next = ' Next: look at the evidence (sample)';

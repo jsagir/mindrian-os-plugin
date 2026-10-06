@@ -64,19 +64,19 @@ scenario('good known ANSI: tmux capture to parser to checks gives PASS on items 
   assert.strictEqual(json.status, 'ok');
   for (const n of ['1', '2', '3', '5', '10']) assert.strictEqual(json.items[n] && json.items[n].result, 'PASS', 'item ' + n + ': ' + JSON.stringify(json.items[n]));
   assert.strictEqual(json.items['3'].data.filled, 6);
-  assert.strictEqual(json.items['2'].data.variant, 'tall');
+  assert.strictEqual(json.items['2'].data.variant, 'text');
   assert.ok(json.info.sgrForms['48;2'] > 0, 'truecolor background escapes were captured through tmux');
   for (const ext of ['ansi', 'txt', 'html', 'json']) assert.ok(fs.statSync(path.join(out, 'good.' + ext)).size > 0, ext);
   assert.ok(fs.readFileSync(path.join(out, 'good.html'), 'utf8').startsWith('<!doctype html>'));
-  assert.ok(fs.readFileSync(path.join(out, 'good.ansi'), 'utf8').includes('\u001b[48;2;30;58;110m'), 'the blue fill is in the raw capture');
+  assert.ok(fs.readFileSync(path.join(out, 'good.ansi'), 'utf8').includes('\u001b[48;2;245;240;232m'), 'the paper fill is in the raw capture');
 });
 
-scenario('mutated logo: one wrong cell is named, the blocks still pass', () => {
+scenario('mutated mark: M:OS drawn without bold is named, the blocks still pass (C-32)', () => {
   const { json } = runRc('mutated', ['FAKE_MODE=mutated']);
   assert.ok(json);
   assert.strictEqual(json.items['1'].result, 'PASS');
   assert.strictEqual(json.items['2'].result, 'FAIL');
-  assert.ok(/row 1 col 4 wanted mondrian_yellow got mondrian_red/.test(json.items['2'].detail), json.items['2'].detail);
+  assert.ok(/not bold/.test(json.items['2'].detail), json.items['2'].detail);
 });
 
 scenario('flat output with no colors: item 1 FAILS (no fill), item 2 does not pass', () => {

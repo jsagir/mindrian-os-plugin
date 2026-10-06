@@ -204,9 +204,15 @@ function readDeck(file) {
   return out;
 }
 
-// 'Saved to your data room: {label}.' -> 'Saved to your data room'
+// The fixed words of a deck string around its placeholder, used to find a saved sentence on screen.
+//   'Saved to your data room: {label}.'           -> 'Saved to your data room'   (the words before)
+//   'You chose {label}. Saved to your data room.' -> 'Saved to your data room'   (C-30: the words after
+//                                                    the label are the persistence claim, so they are the match)
 function deckPrefix(s) {
-  const cut = String(s || '').split('{')[0];
+  const str = String(s || '');
+  const tail = str.slice(str.lastIndexOf('}') + 1).replace(/^[\s:.]+|[\s:.]+$/g, '');
+  if (str.includes('}') && tail.length >= 8) return tail;
+  const cut = str.split('{')[0];
   return cut.replace(/[\s:.]+$/, '');
 }
 

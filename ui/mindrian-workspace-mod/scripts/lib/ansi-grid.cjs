@@ -21,7 +21,8 @@ const ESC = '\u001b';
 // left out; the candidates the nearest-colour search may choose from.
 const BAND_KEYS = ['mondrian_red', 'mondrian_blue', 'mondrian_yellow', 'mondrian_black', 'cream', 'success_green'];
 
-// UI-SPEC 6.3, cell for cell. 'frame' means mondrian_black (or the terminal default, see opts).
+// LEGACY (C-32): the five-rectangle logo is retired from the mod; these tables stay only for the
+// parser's own fixtures (tests/test-369.26-render-parser.cjs). UI-SPEC 6.3, cell for cell. 'frame' means mondrian_black (or the terminal default, see opts).
 const LOGO_TALL = [
   ['mondrian_blue', 'mondrian_blue', 'mondrian_blue', 'frame', 'mondrian_red', 'mondrian_red', 'frame', 'cream', 'frame', 'success_green'],
   ['mondrian_blue', 'mondrian_blue', 'mondrian_blue', 'frame', 'mondrian_yellow', 'mondrian_yellow', 'frame', 'cream', 'frame', 'success_green'],
@@ -437,7 +438,10 @@ function findLogo(grid, palette, variant, opts) {
 // ---- the context bar -------------------------------------------------------------------------
 
 const DOT = '·';
-const FILL_KEYS = ['mondrian_yellow', 'cream'];
+// C-32: the bar's filled cells are black on the paper block. Cream is NOT a fill any more (the paper
+// block around the bar is cream, so counting it would shift the bar by one cell); yellow stays
+// accepted only so the old parser fixtures still read.
+const FILL_KEYS = ['mondrian_black', 'mondrian_yellow'];
 
 function barKind(cell, palette) {
   if (cell.ch === DOT) return 'empty';

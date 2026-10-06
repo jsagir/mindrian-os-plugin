@@ -231,8 +231,9 @@ function analyze(grid, ansiText, ctx) {
   // 1: every block that is drawn sits on the right fill.
   if (!noColorRun) {
     const exp = [
-      { name: 'place', texts: ["You're in:", 'Funding (sample)'], key: 'mondrian_blue' },
-      { name: 'waiting', texts: ['A decision is waiting', 'decisions are waiting', 'decision waiting'], key: 'mondrian_yellow' },
+      // C-30 and C-32: place is a paper block; a waiting decision is a black block (no yellow, no blue).
+      { name: 'place', texts: ["You're in:", 'Funding (sample)'], key: 'cream' },
+      { name: 'waiting', texts: ['A decision is waiting', 'decisions are waiting', 'decision waiting'], key: 'mondrian_black' },
       { name: 'purpose', texts: ['This folder is for:'], key: 'cream' },
       { name: 'next', texts: ['Next:'], key: 'cream' },
     ];
@@ -261,22 +262,19 @@ function analyze(grid, ansiText, ctx) {
       }
     }
 
-    // 2: logo. The band has three rows (a "Next:" row) when it draws the tall logo and one row
-    // when it draws the compact one, so that tells which table the logo must match. Matching the
-    // other table by accident (a window of the tall logo can look like the compact one) does not count.
-    const wantVariant = G.findText(left, 'Next:') ? 'tall' : 'compact';
-    const found = G.findLogo(left, palette, wantVariant);
-    if (found.ok) {
-      items[2] = { result: 'PASS', detail: wantVariant + ' ' + (wantVariant === 'tall' ? '10x3' : '9x1') + ' logo matches UI-SPEC 6.3 at row ' + found.origin.row + ', col ' + found.origin.col, data: { variant: wantVariant, origin: found.origin } };
-    } else if (G.findText(left, 'M:OS')) {
-      items[2] = { result: 'INCONCLUSIVE', detail: 'the band drew the text mark M:OS instead of a logo (the design does this below 30 columns or when there is no room for the mark).', data: { variant: 'text' } };
+    // 2: the mark. C-32: the five-rectangle logo is retired; every tier draws the plain text mark M:OS,
+    // bold, light words on a black cell. Nothing here reads a rectangle grid any more.
+    const mark = G.findText(left, 'M:OS');
+    if (mark) {
+      const cell = left.cells[mark.row][mark.col];
+      const bg = G.effectiveBg(cell);
+      const near = bg === null ? null : G.nearest(bg, palette, ['mondrian_black', 'cream', 'mondrian_blue', 'mondrian_red', 'mondrian_yellow']);
+      const onBlack = !!near && near.key === 'mondrian_black';
+      items[2] = onBlack && cell.bold
+        ? { result: 'PASS', detail: 'the text mark M:OS is bold on a black cell at row ' + mark.row + ', col ' + mark.col, data: { variant: 'text', origin: { row: mark.row, col: mark.col } } }
+        : { result: 'FAIL', detail: 'the text mark M:OS was found but is ' + (cell.bold ? 'bold' : 'not bold') + ' on ' + (near ? near.key : 'the terminal default'), data: { variant: 'text' } };
     } else {
-      const mm = found.detail && found.detail.mismatch;
-      items[2] = {
-        result: 'FAIL',
-        detail: 'the ' + wantVariant + ' logo does not match: ' + found.mismatches + ' wrong cells at its closest place' + (mm ? ' (first: row ' + mm.row + ' col ' + mm.col + ' wanted ' + mm.expected + ' got ' + mm.got + ')' : ''),
-        data: { variant: wantVariant, mismatches: found.mismatches, origin: found.origin },
-      };
+      items[2] = { result: 'FAIL', detail: 'the text mark M:OS is not on the screen at the band rows.', data: { variant: 'text' } };
     }
     info.logoVariant = items[2].data && items[2].data.variant && items[2].result === 'PASS' ? items[2].data.variant : null;
   }
