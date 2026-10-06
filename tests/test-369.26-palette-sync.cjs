@@ -70,6 +70,11 @@ scenario('sync-assets.cjs --check exits 1 on drift and says which asset', () => 
     fs.copyFileSync(path.join(REPO, 'data', 'framework-names.json'), path.join(repo, 'data', 'framework-names.json'));
     fs.copyFileSync(path.join(REPO, 'references', 'visual', 'palette.json'), path.join(mod, 'assets', 'palette.json'));
     fs.copyFileSync(path.join(REPO, 'data', 'framework-names.json'), path.join(mod, 'assets', 'framework-names.json'));
+    // Plan 15 appended the registry pair: the scratch repo carries both pairs too.
+    for (const name of ['command-registry.json', 'section-job-canon.json']) {
+      fs.copyFileSync(path.join(REPO, 'data', name), path.join(repo, 'data', name));
+      fs.copyFileSync(path.join(REPO, 'data', name), path.join(mod, 'assets', name));
+    }
     const run = () => spawnSync(process.execPath, [path.join(mod, 'scripts', 'sync-assets.cjs'), '--check'], { encoding: 'utf8' });
     assert.strictEqual(run().status, 0, 'scratch copy starts equal');
     fs.appendFileSync(path.join(mod, 'assets', 'palette.json'), ' ');
