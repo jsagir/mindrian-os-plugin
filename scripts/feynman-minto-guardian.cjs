@@ -322,11 +322,25 @@ function runSessionStart(roomDir, validators) {
   // Room-scoped validators (snapshot-integrity, queue-health, stale-lifecycle)
   const roomViols = validateRoomScope(roomDir, validators, ctx);
   if (roomViols.length > 0) {
+    // Phase 369.25 plan 12: a room-scoped validator (room-identity-invariants,
+    // FEYNMINTO-11) can only reach the enqueue gate above through a section
+    // result, and it reports at room scope. A critical violation that names a
+    // section and asks for regenerate_face enqueues that section here, once.
+    // A not-ready identity carries repair_room_identity, never regenerate_face,
+    // so a room with no id enqueues nothing (T-369.25-12-02).
+    const regenSeen = new Set();
+    for (const rv of roomViols) {
+      if (rv && rv.severity === 'critical' && rv.action_hint === 'regenerate_face' &&
+          typeof rv.section === 'string' && rv.section.length > 0 && !regenSeen.has(rv.section)) {
+        regenSeen.add(rv.section);
+        enqueueRegenSafe(roomDir, rv.section, 'guardian:identity-repair');
+      }
+    }
     report.sections['__room__'] = {
       minto_path: null,
       violations: roomViols,
       severity: aggregateSeverity(roomViols),
-      action_taken: 'none',
+      action_taken: regenSeen.size > 0 ? 'enqueued_regen' : 'none',
     };
   }
   // session-start does NOT write invariant-report by default (keep the
