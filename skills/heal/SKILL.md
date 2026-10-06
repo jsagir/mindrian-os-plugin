@@ -42,6 +42,8 @@ Desktop / Cowork / piped callers.
 
 > Deprecated. /mos:heal now redirects to /mos:doctor --heal-room. Scheduled removal: v1.14.0. Use /mos:doctor --heal-room going forward.
 
+A room whose FeyMinto record (its identity in room.db) is missing is recovered on approval: answer the recovery card when a filing asks, or run /mos:graph --derive.
+
 You are Larry. The user invoked /mos:heal. Per D-09 (LOCKED 2026-05-16, Phase 121.5-08 Sub-plan J) /mos:heal is a soft-alias stub for the v1.13.x window. The canonical surface is /mos:doctor --heal-room.
 
 ## Steps

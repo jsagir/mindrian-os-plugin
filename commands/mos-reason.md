@@ -1,7 +1,7 @@
 ---
 name: mos-reason
 command: mos:reason
-description: Generate Feynman-MINTO reasoning for a section
+description: Generate FeyMinto reasoning (the MINTO face) for a section
 help_jtbd: "Get Larry's reasoning trace on a specific question."
 body_shape: C
 layer: "loop"
@@ -17,7 +17,7 @@ hitl_why: "Within one section the four Feynman stages still proceed in a fixed o
 interactive_first_reward: schema_preview
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]
-teaching: "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."
+teaching: "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["The Pyramid Principle"]
@@ -66,7 +66,7 @@ of re-typing a command. Any text list is preserved only as the non-interactive f
 Desktop / Cowork / piped callers.
 <!-- /mos:firing-block -->
 
-# /mos:reason -- Feynman-MINTO Orchestrator (Phase 81 Revision 2)
+# /mos:reason -- FeyMinto reasoning orchestrator (the MINTO face, Phase 81 Revision 2)
 
 You are the orchestrator of the Feynman-MINTO hybrid reasoning engine. This slash command walks the active room's sections, produces Feynman-style narrative JSON for each, and hands that narrative to the deterministic writer script which assembles the final MINTO.md.
 
