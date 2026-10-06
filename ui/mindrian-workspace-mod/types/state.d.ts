@@ -13,6 +13,11 @@ declare module 'claude-code' {
       keysOpen: boolean
       explainOpen: boolean
       detailsOpen: Record<'room' | 'think' | 'sources' | 'review', boolean>
+      // Plan 11 (the pane body kit): one slice of JSON per tab, written only through act.patch and
+      // act.update, read as ctx.body. An index signature on purpose: a nested Record<string, unknown>
+      // makes the engine list a phantom state key named Record (ENGINE-RULES rule 9). Shape and
+      // guards: src/pane/kit.ts.
+      body: Record<'room' | 'think' | 'sources' | 'review', { [key: string]: unknown }>
       // Plan 10 (the review answer path). JSON data only, written inline because this file may not
       // import. Shapes mirror src/pane/review/state.ts (PhaseEntry, LastResult); starting values are
       // reviewInitial() there. Keyed by the RECORDED gate id the card was listed under.

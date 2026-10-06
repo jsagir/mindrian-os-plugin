@@ -11,10 +11,12 @@
 import type { Elements, RenderElement } from 'claude-code'
 
 import type { CopyId } from '../copy/deck'
+import type { LiveIo } from '../model/live/io'
 import type { ViewModel } from '../model/view-model'
 import type { TabId } from '../runtime/ids'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
+import type { BodySlice, BodyState } from './kit'
 
 // Plan 02 narrowed labelId from a string to the CopyId union (the copy deck now exists); plan 07
 // narrows it again to the hint labels (H01 to H22), the ids a key line is made of. None of them
@@ -29,7 +31,8 @@ export type ExplainId = 'X01' | 'X02' | 'X03' | 'X04'
 // are plain. Select is absent on mobile: check `'Select' in el` before using it.
 export type PaneEl = Elements[keyof Elements]
 
-// What a body can do. Every member is a closure over the hook file's `$`.
+// What a body can do. Every member is a closure over the hook file's `$` (or an object of them).
+// Plan 11 added the body kit (369.26-ENGINE-RULES.md, "Pane body recipe"): everything after `toast`.
 export type Actions = {
   // Go to a tab: writes the tab, moves focus to the new view, runs that tab's onOpen.
   setTab: (tab: TabId) => Promise<void>
@@ -37,6 +40,26 @@ export type Actions = {
   fill: (text: string) => Promise<boolean>
   // Show a short line for a few seconds (deck text only).
   toast: (message: string) => void
+  // The narrow set of reads a loader may make (plan 06's LiveIo), built in the hook file. Its
+  // `mcpCall` rejects, without making a call, for any server except MINDRIAN_SERVER, so a body
+  // can never reach the Brain through it (Canon Part 8).
+  io: LiveIo
+  // Merge JSON into one tab's slice of the `body` state (a key whose value is undefined is
+  // removed). A write belongs in a press, select or open handler, never in a view.
+  patch: (tab: TabId, partial: BodySlice) => Promise<void>
+  // A functional update of one tab's slice: `fn` gets the current slice and returns the next one.
+  // Use it when the new value depends on the old (a claim that must read before it writes).
+  update: (tab: TabId, fn: (slice: BodySlice) => BodySlice) => Promise<void>
+  // Read the live model again and write it to the `viewModel` key. Never rejects.
+  refresh: () => Promise<void>
+  // The text of one derived asset under the plugin's assets folder. `name` is a bare file name:
+  // a slash, a backslash, a dot name or a `..` rejects without reading.
+  readAsset: (name: string) => Promise<string>
+  // The active sample name (the session's sample, else the dev switch) or null for the real room.
+  // `onOpen(act)` has no `ctx`, so a loader asks here and skips MCP in sample mode.
+  sampleName: () => Promise<string | null>
+  // Ask the pane to move the keyboard to a keyed control. A refused move is ignored.
+  focus: (key: string) => Promise<void>
 }
 
 // The shell's own actions: what a body can do, plus the three sub-panel toggles the shell's
@@ -56,6 +79,11 @@ export type TabContext = {
   bodyColumns: number
   isFocused: boolean
   tab: TabId
+  // The whole `body` state, one slice per tab (JSON only). A body reads `ctx.body.<tab>.<key>` and
+  // narrows it with its own guard.
+  body: BodyState
+  // The shell's details flag for the active tab (for the one line a body shows only while open).
+  detailsOpen: boolean
   act: Actions
 }
 

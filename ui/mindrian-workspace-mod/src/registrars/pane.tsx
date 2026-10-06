@@ -16,7 +16,10 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import { registerWorkspaceCommand } from '../command/workspace'
+import type { LiveIo } from '../model/live/io'
+import { refreshViewModel } from '../model/live/refresh'
 import { chooseViewModel } from '../model/read'
+import { allowedServer, asBody, isAssetName, mergeBody, replaceBody } from '../pane/kit'
 import { buildPane } from '../pane/pane'
 import { paneLayout } from '../pane/layout'
 import { closeDecision, closedFor, flipped } from '../pane/state'
@@ -40,22 +43,47 @@ const detailsOpenAtom = atom({ plugin: 'mindrian-workspace', key: 'detailsOpen' 
 const plainAtom = atom({ plugin: 'mindrian-workspace', key: 'plain' } as const, INITIAL.plain)
 const sampleAtom = atom({ plugin: 'mindrian-workspace', key: 'sample' } as const, INITIAL.sample)
 const viewModelAtom = atom({ plugin: 'mindrian-workspace', key: 'viewModel' } as const, INITIAL.viewModel)
+// Plan 11: the one generic body state (a slice of JSON per tab). Declared here once, read by the
+// render hook and written only by act.patch and act.update below.
+const bodyAtom = atom({ plugin: 'mindrian-workspace', key: 'body' } as const, INITIAL.body)
+
+// The narrow set of reads a body's loader may make (plan 06's recipe, ENGINE-RULES rule 14), built
+// over this file's `$` with every name spelled as a literal. Differences from the model
+// registrar's copy: `mcpCall` refuses every server except the Mindrian OS server, so a body can
+// never reach the Brain (Canon Part 8); there is no write here. Exported for the kit's tests.
+export function makeIo($: EngineInterface): LiveIo {
+  return {
+    mcpCall: (server, tool, args) =>
+      allowedServer(server) ? $.mcp.call(server, tool, args) : Promise.reject(new Error('server_not_allowed')),
+    envGet: (name) => {
+      if (name === 'MINDRIAN_ROOMS_HOME') return $.env.get('MINDRIAN_ROOMS_HOME')
+      if (name === 'HOME') return $.env.get('HOME')
+      return $.env.get('USERPROFILE')
+    },
+    cwd: () => $.session.cwd(),
+    fsExists: (path) => $.fs.exists(path),
+    fsRead: (path) => $.fs.read(path),
+    usage: () => $.session.usage(),
+    now: () => $.clock.now(),
+  }
+}
 
 // The closures a body and the shell's buttons run, over this hook's `$`. `focusKey` says which
 // keyed control to focus after a tab press (null: none), because only the render hook knows the
 // width and the mode that decide what the strip drew.
-function makeAct($: EngineInterface, focusKey: (tab: TabId) => string | null): ShellActions {
+//
+// Plan 11 added the body kit (369.26-ENGINE-RULES.md, "Pane body recipe"): `io`, `patch`, `update`,
+// `refresh`, `readAsset`, `sampleName` and `focus`. A body gets these closures and never `$`.
+// Exported for the kit's tests (a test hook builds a real act over its own `$`).
+export function makeAct($: EngineInterface, focusKey: (tab: TabId) => string | null): ShellActions {
+  const io = makeIo($)
   const act: ShellActions = {
     setTab: async (tab) => {
       await update($, tabAtom, () => tab)
       const key = focusKey(tab)
       if (key !== null) {
-        try {
-          // The first control of the new view (UI-SPEC 8.3). Best effort: a refused move is ignored.
-          await $.ui.focus({ requestId: PANE, key })
-        } catch {
-          // ignored on purpose
-        }
+        // The first control of the new view (UI-SPEC 8.3). Best effort: a refused move is ignored.
+        await act.focus(key)
       }
       try {
         await tabBodies[tab]?.onOpen?.(act)
@@ -79,6 +107,41 @@ function makeAct($: EngineInterface, focusKey: (tab: TabId) => string | null): S
     toggleDetails: async (tab) => {
       await update($, detailsOpenAtom, (rec) => flipped(rec, tab))
     },
+    io,
+    patch: async (tab, partial) => {
+      await update($, bodyAtom, (rec) => mergeBody(asBody(rec), tab, partial))
+    },
+    update: async (tab, fn) => {
+      await update($, bodyAtom, (rec) => {
+        const body = asBody(rec)
+        return replaceBody(body, tab, fn(body[tab]))
+      })
+    },
+    refresh: async () => {
+      try {
+        const vm = await refreshViewModel(io)
+        await update($, viewModelAtom, () => vm)
+      } catch {
+        // Never rejects: a dead server or a refused write leaves the model as it was.
+      }
+    },
+    readAsset: async (name) => {
+      if (!isAssetName(name)) throw new Error('bad_asset_name')
+      return await $.fs.read(`${$.plugin.root}/assets/${name}`)
+    },
+    sampleName: async () => {
+      const fromAtom = await read($, sampleAtom)
+      const fromEnv = await $.env.get('MOS_WORKSPACE_SAMPLE')
+      const sample = chooseViewModel(fromAtom, fromEnv, null)
+      return sample === null ? null : sample.sampleName
+    },
+    focus: async (key) => {
+      try {
+        await $.ui.focus({ requestId: PANE, key })
+      } catch {
+        // A refused move is ignored on purpose.
+      }
+    },
   }
   return act
 }
@@ -92,6 +155,7 @@ export const registerPane: Register = (on) => {
     const keysOpen = await read($, keysOpenAtom)
     const explainOpen = await read($, explainOpenAtom)
     const detailsOpen = await read($, detailsOpenAtom)
+    const body = asBody(await read($, bodyAtom))
     // The Pane props carry no working flag. The store holds the id of the session whose turn is
     // running (written by the turn hooks below), so a flag a crashed session left behind is another
     // session's id and reads as idle here.
@@ -142,6 +206,7 @@ export const registerPane: Register = (on) => {
         keysOpen,
         explainOpen,
         detailsOpen,
+        body,
         act,
       },
       { bodies: tabBodies },

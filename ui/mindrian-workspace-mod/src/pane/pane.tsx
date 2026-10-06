@@ -16,6 +16,7 @@ import { detailsBlock, detailsButton } from './details-block'
 import { explainNote } from './explain-note'
 import { hintLine } from './hint-line'
 import { ink, page } from './ink'
+import type { BodyState } from './kit'
 import { keysPanel } from './keys-panel'
 import { paneLayout } from './layout'
 import { EXPLAIN_FOR_TAB, keyList } from './state'
@@ -38,6 +39,8 @@ export type PaneInput = {
   keysOpen: boolean
   explainOpen: boolean
   detailsOpen: Record<TabId, boolean>
+  // The `body` state: one slice per tab, handed to the active body as ctx.body (plan 11).
+  body: BodyState
   act: ShellActions
 }
 
@@ -78,6 +81,8 @@ export function buildPane(el: PaneEl, input: PaneInput, deps: PaneDeps): RenderE
           bodyColumns: input.bodyColumns,
           isFocused: input.isFocused,
           tab,
+          body: input.body,
+          detailsOpen: input.detailsOpen[tab],
           act: input.act,
         }
 

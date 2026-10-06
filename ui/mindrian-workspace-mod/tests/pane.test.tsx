@@ -14,6 +14,7 @@ import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
+import { emptyBody } from '../src/pane/kit'
 import { paneLayout } from '../src/pane/layout'
 import { buildPane } from '../src/pane/pane'
 import type { PaneDeps, PaneInput, ShellActions } from '../src/pane/pane'
@@ -61,6 +62,22 @@ const ACT: ShellActions = {
   },
   fill: async () => true,
   toast: () => {},
+  // The body kit (plan 11): the shell tests never call these.
+  io: {
+    mcpCall: async () => ({}),
+    envGet: async () => undefined,
+    cwd: async () => '/r',
+    fsExists: async () => false,
+    fsRead: async () => '',
+    usage: async () => ({}),
+    now: async () => 0,
+  },
+  patch: async () => {},
+  update: async () => {},
+  refresh: async () => {},
+  readAsset: async () => '',
+  sampleName: async () => null,
+  focus: async () => {},
   toggleKeys: async () => {
     calls.push('toggleKeys')
   },
@@ -87,6 +104,7 @@ function input(over: Partial<PaneInput> = {}): PaneInput {
     keysOpen: false,
     explainOpen: false,
     detailsOpen: NONE_OPEN,
+    body: emptyBody(),
     act: ACT,
     ...over,
   }

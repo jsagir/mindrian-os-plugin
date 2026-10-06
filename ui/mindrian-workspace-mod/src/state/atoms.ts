@@ -23,6 +23,7 @@
 // A new key is declared in types/state.d.ts (the one contract the manifest names), and its REF and
 // starting value are added here by the plan that owns it.
 import type { TabId } from '../runtime/ids'
+import { emptyBody } from '../pane/kit'
 
 const noneOpen = (): Record<TabId, boolean> => ({
   room: false,
@@ -41,6 +42,8 @@ export const VIEW_MODEL_REF = { plugin: 'mindrian-workspace', key: 'viewModel' }
 export const KEYS_OPEN_REF = { plugin: 'mindrian-workspace', key: 'keysOpen' } as const
 export const EXPLAIN_OPEN_REF = { plugin: 'mindrian-workspace', key: 'explainOpen' } as const
 export const DETAILS_OPEN_REF = { plugin: 'mindrian-workspace', key: 'detailsOpen' } as const
+// Plan 11: the one generic body state, a slice of JSON per tab (see src/pane/kit.ts).
+export const BODY_REF = { plugin: 'mindrian-workspace', key: 'body' } as const
 
 // The starting value of each key (what an atom reads while nothing has been written).
 export const INITIAL = {
@@ -51,4 +54,5 @@ export const INITIAL = {
   keysOpen: false,
   explainOpen: false,
   detailsOpen: noneOpen(),
+  body: emptyBody(),
 }

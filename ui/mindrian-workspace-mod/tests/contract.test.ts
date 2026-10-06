@@ -27,6 +27,8 @@ export type InitialMatchesTheDeclaration = Assert<
       keysOpen: boolean
       explainOpen: boolean
       detailsOpen: Record<TabId, boolean>
+      // plan 11: the pane body kit (src/pane/kit.ts)
+      body: Record<TabId, { [key: string]: unknown }>
       // plan 10: the review answer path keys (src/pane/review/state.ts holds their shapes)
       reviewPhase: Record<
         string,
