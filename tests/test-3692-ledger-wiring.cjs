@@ -22,6 +22,7 @@
  *   L8  audit   each executed op's audit_ref.q_hash matches exactly one research-audit.jsonl record
  *   L9  theo    a quick plan with theo leaves mints one theo op per leaf; outcomes map from the checks
  *   L10 dash    no em-dash or en-dash in this file
+ *   L11 torn    a torn operations.json refuses a deep step with ledger_corrupt
  *
  * Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs before any repo module loads;
  * vendor keys are deleted; the provider is the OpenAlex replay, reached through the REAL corpus path.
@@ -221,8 +222,11 @@ async function main() {
   await leg('L1 quick run writes operations.json: one op per fetch query, all terminal, run.operations equals the file, completion sums up', async function () {
     const room = newRoom();
     const plan = builtQuick(room);
-    const nq = fetchQs(plan).length;
-    const out = await runQuickWith(room, plan, shapeRoute);
+    const qs = fetchQs(plan);
+    const nq = qs.length;
+    const emptyQ = qs[1] ? qs[1].q : null;
+    // one search answers with a counted zero, the others with results: the ledger must tell them apart
+    const out = await runQuickWith(room, plan, function (q) { return q === emptyQ ? 'gap_primary_zero' : shapeRoute(q); });
     const ledger = ledgerOf(room, plan.run_id);
     if (!ledger) return 'operations.json missing';
     const run = runJson(room, plan.run_id);
@@ -234,6 +238,8 @@ async function main() {
     assert.deepStrictEqual(run.operations, ledger.operations, 'run.operations differs from the file');
     assert.ok(run.completion && typeof run.completion.complete === 'boolean', 'run.completion missing');
     assert.strictEqual(sum, ledger.operations.length, 'by_state sum ' + sum);
+    assert.ok(nq >= 2 && countBy(ledger, function (o) { return o.state === 'executed_empty' && o.result_count === 0; }) === 1, 'expected one executed_empty op with a counted zero: ' + byState(ledger));
+    assert.ok(countBy(ledger, function (o) { return o.state === 'executed_with_results' && o.result_count > 0; }) === nq - 1, 'expected the rest executed_with_results: ' + byState(ledger));
     assert.deepStrictEqual(run.completion, operations.completion(ledger, { counterevidence_needed: false }), 'completion is not the ledger completion');
     assert.ok(out.run.completion && out.run.operations, 'the returned run lacks the ledger fields');
     return true;
@@ -429,6 +435,22 @@ async function main() {
       else if (c.outcome === 'failed') { assert.strictEqual(op.state, 'not_executed'); assert.ok(/^provider_failed:/.test(op.reason)); assert.strictEqual(op.attempted, true); }
       else assert.ok(op.state === 'not_executed' || op.state === 'refused_before_fetch', 'skipped check state ' + op.state);
     });
+    return true;
+  });
+
+  // ---- L11 corrupt ledger ----
+  await leg('L11 a torn operations.json refuses the deep step with ledger_corrupt, never reads as an empty ledger', async function () {
+    const room = newRoom();
+    const plan = deepPlan(room, {});
+    deepInit(room, plan);
+    const file = operations.ledgerPath(room.roomDir, plan.run_id);
+    fs.writeFileSync(file, '{"schema":"mos.research-operations/1","operations":[', 'utf8');
+    const n = deepMod.nextDeepStep(room.roomDir, plan.run_id);
+    const f = await deepMod.fetchRound(room.roomDir, plan.run_id, { fetchEnvelopeFn: deepSeam() });
+    console.log('L11 measured: nextDeepStep=' + n.reason + ' fetchRound=' + f.reason);
+    assert.strictEqual(n.ok, false);
+    assert.strictEqual(n.reason, 'ledger_corrupt');
+    assert.strictEqual(f.reason, 'ledger_corrupt');
     return true;
   });
 
