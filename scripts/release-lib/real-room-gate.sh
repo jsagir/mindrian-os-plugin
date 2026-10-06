@@ -24,6 +24,13 @@
 # passes with a loud WARN. `node scripts/real-room-run.cjs --desktop-verified mac|win`
 # records the leg on the existing receipt.
 #
+# THE NEGATIVE LEG (369.25-24, FCLOSE-07; navigator 2026-10-06 01:00 "the gate refuses the cut when the negative leg did not
+# refuse"): the receipt must also carry `negative_leg`, written by the same run: the never-ready fixture with room.db missing
+# (room_db_missing) and corrupted (room_db_corrupted), quick, deep, eureka and analogies each refused with a typed
+# not_ready_reason. The gate reads every job's own `refused` flag and reason, never only the summary `all_refused`: a receipt
+# with no negative leg is NONEGATIVE, one in which any job ran, is missing, or refused with no typed reason is NEGATIVE_RAN.
+# The check lives here and not in release.sh so the step blocks the 341 tripwire hashes stay as they are.
+#
 # LOCAL ONLY: this gate reads one local JSON file and one git sha. No network. It
 # prints names, shas, counts and paths, never an environment value.
 #
@@ -38,10 +45,10 @@
 # Quick 261005-muy. Hyphens only.
 
 # _real_room_check(receipt_dir, head_sha) -- prints lines, each starting with a tag:
-#   KIND <OK|NORECEIPT|UNREADABLE|MISMATCH|INVALID|OFFLINE>
+#   KIND <OK|NORECEIPT|UNREADABLE|MISMATCH|INVALID|NONEGATIVE|NEGATIVE_RAN|OFFLINE>
 #   MSG  <text>        the reason (every non-OK kind)
 #   LAST <sha> <reader> <read_at>   NORECEIPT only: the newest receipt in the dir, if any
-#   LINE <text>        a summary line (OK only)
+#   LINE <text>        a summary line (OK only; one is 'negative leg: refused <n> of <n> (<reasons>)')
 #   WARN <text>        a loud warning (OK only)
 _real_room_check() {
   MINDRIAN_RR_DIR="${1:-}" MINDRIAN_RR_HEAD="${2:-}" node -e '
@@ -84,10 +91,34 @@ _real_room_check() {
       if (!okc) { p("KIND", "INVALID"); p("MSG", "the " + blocks[i] + " counts are not all numbers"); done(); }
       lines.push(blocks[i] + ": " + String(b.status || "recorded") + " (" + keys.map(function (k) { return k + "=" + b.counts[k]; }).join(", ") + ")");
     }
+    var NL_INJECTIONS = ["room_db_missing", "room_db_corrupted"];
+    var nl = r.negative_leg;
+    if (!nl || typeof nl !== "object" || Array.isArray(nl)) {
+      p("KIND", "NONEGATIVE");
+      p("MSG", "the receipt has no negative leg: nothing proves quick, deep, Eureka and analogies refuse a room with no usable room.db");
+      done();
+    }
+    var nlRooms = Array.isArray(nl.rooms) ? nl.rooms : [];
+    var nlReasons = [], nlJobs = 0;
+    for (var ri = 0; ri < NL_INJECTIONS.length; ri++) {
+      var inj = NL_INJECTIONS[ri], room = null;
+      for (var rj = 0; rj < nlRooms.length; rj++) { if (nlRooms[rj] && nlRooms[rj].injection === inj) { room = nlRooms[rj]; break; } }
+      if (!room || !room.jobs || typeof room.jobs !== "object") { p("KIND", "NEGATIVE_RAN"); p("MSG", "the negative leg has no " + inj + " room: no job was shown to refuse there"); done(); }
+      for (var ji = 0; ji < blocks.length; ji++) {
+        var jn = blocks[ji], jb = room.jobs[jn];
+        if (!jb || typeof jb !== "object") { p("KIND", "NEGATIVE_RAN"); p("MSG", jn + " has no record on " + inj + ": it was not shown to refuse"); done(); }
+        if (jb.refused !== true) { p("KIND", "NEGATIVE_RAN"); p("MSG", jn + " RAN on " + inj + ": the field defect R3 shape"); done(); }
+        if (typeof jb.not_ready_reason !== "string" || !jb.not_ready_reason.trim()) { p("KIND", "NEGATIVE_RAN"); p("MSG", jn + " refused on " + inj + " with no typed reason: a refusal must name the failed requirement"); done(); }
+        nlJobs++;
+        if (nlReasons.indexOf(jb.not_ready_reason) === -1) nlReasons.push(jb.not_ready_reason);
+      }
+    }
+    if (nl.all_refused !== true) { p("KIND", "NEGATIVE_RAN"); p("MSG", "the negative leg records all_refused " + String(nl.all_refused) + ": it did not refuse every job"); done(); }
     if (r.offline === true) { p("KIND", "OFFLINE"); p("MSG", "the receipt was recorded with --offline: the web lines were planned and shown, never sent"); done(); }
     p("KIND", "OK");
     p("LINE", "read by " + r.reader.trim() + " at " + String(r.read_at || "unknown") + " (version " + String(r.version || "unknown") + ")");
     lines.forEach(function (l) { p("LINE", l); });
+    p("LINE", "negative leg: refused " + nlJobs + " of " + nlJobs + " (" + nlReasons.join(", ") + ")");
     var dv = r.desktop_verified && typeof r.desktop_verified === "object" ? r.desktop_verified : {};
     if (dv.mac || dv.win) {
       p("LINE", "desktop verified: mac " + (dv.mac || "not run") + ", win " + (dv.win || "not run"));
@@ -164,6 +195,8 @@ mos_real_room_gate() {
     UNREADABLE) detail="READ FAILURE -- ${msg}. Treated as a failure, never a pass." ;;
     MISMATCH)   detail="MISMATCH -- ${msg} (HEAD is ${short})." ;;
     INVALID)    detail="INVALID RECEIPT -- ${msg}." ;;
+    NONEGATIVE) detail="NO NEGATIVE LEG -- ${msg}." ;;
+    NEGATIVE_RAN) detail="NEGATIVE LEG RAN -- ${msg}. A cut needs every research door to refuse a room with no usable room.db." ;;
     OFFLINE)    detail="OFFLINE RECEIPT -- ${msg}. A real cut needs a run without --offline." ;;
     *)          detail="READ FAILURE -- the receipt reader gave no verdict." ;;
   esac

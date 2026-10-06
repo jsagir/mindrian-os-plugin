@@ -29,7 +29,7 @@ A real release also tells Theo, before anything is mutated. `release.sh` Step 0.
 
 ## The real-room rule
 
-No cut without a real-room run read by a human (navigator ruling 2026-10-05). `release.sh` Step 2.6 refuses a cut unless `~/.mindrian/release-real-room/<HEAD sha>.json` exists, written by `node scripts/real-room-run.cjs --read-by "<your name>"` after you read its report; `--no-real-room-check` is the audited opt-out, `--desktop-verified mac|win` records the Desktop leg, and the doctor point `real-room-run` shows the latest receipt against HEAD. The rule lives in RULE 10 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
+No cut without a real-room run read by a human (navigator ruling 2026-10-05). `release.sh` Step 2.6 refuses a cut unless `~/.mindrian/release-real-room/<HEAD sha>.json` exists, written by `node scripts/real-room-run.cjs --read-by "<your name>"` after you read its report; `--no-real-room-check` is the audited opt-out, `--desktop-verified mac|win` records the Desktop leg, and the doctor point `real-room-run` shows the latest receipt against HEAD. The receipt also carries a negative leg (the never-ready fixture, room.db missing and corrupted, every research job must refuse with a typed reason) and Step 2.6 refuses a receipt without it or whose negative leg ran. The rule lives in RULE 10 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
 ## Entry Point
 
