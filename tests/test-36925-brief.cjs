@@ -22,6 +22,9 @@
  *   BR8  a nextMove pair { cli, mcp } prints both surface lines when the primaries differ and one line when equal
  *   BR9  the Theo block renders "not asked" with its reason for a not-asked face (never blank, never the empty sentinel),
  *        decodes percent-encoded list scalars, and says "not recorded" for a legacy BRAIN.md with no face keys
+ *   BR11 (369.25-26) RECORD BASIS leaves out FEYNMAN.md's three generated timestamp lines (timeline_last_rendered,
+ *        dial_memory_last_rendered, the '*Last refreshed: ...*' line) and nothing else: both fingerprints hold when only
+ *        those move and both move on a narrative change
  *   BR10 a section the navigator data and its contract both mark as having no dedicated command (legal-ip, financial-model)
  *        carries the capability.cjs marker line in PROPOSED NEXT MOVE; a section with a command does not
  *   NM1  agreement beats Theo's rank: Theo first X, ledger and contract both Y -> primary Y, X kept as an alternative
@@ -196,6 +199,8 @@ function block(text, heading) {
   return (n === -1 ? rest : rest.slice(0, n)).trim();
 }
 function sha(file) { return 'sha256:' + crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
+// 369.25-26: FEYNMAN.md's basis hash leaves out its generated timestamp lines
+function shaBasis(file) { return 'sha256:' + crypto.createHash('sha256').update(brief().maskGeneratedFeynmanLines(fs.readFileSync(file, 'utf8'))).digest('hex'); }
 
 const mkCap = (cli, mcp) => ({ cli, mcp, label: cli === 'runnable' && mcp === 'runnable' ? 'runnable here (CLI and Desktop)' : (cli === 'runnable' ? 'runnable on CLI; instruction-only on Desktop and Cowork' : 'instruction-only') });
 const stubCap = (instructionOnly) => (name) => {
@@ -471,7 +476,7 @@ arm('BR6 RECORD BASIS names the room id and each input revision; recordBasis cha
   ['MINTO.md', 'FEYNMAN.md', 'BRAIN.md', 'CONTEXT.md', 'ROOM.md'].forEach((f) => {
     const line = rb.split('\n').find((l) => l.indexOf(f) !== -1);
     check(line, 'no RECORD BASIS line for ' + f);
-    has(line, sha(path.join(room.sectionPath, f)), f + ' content hash');
+    has(line, f === 'FEYNMAN.md' ? shaBasis(path.join(room.sectionPath, f)) : sha(path.join(room.sectionPath, f)), f + ' content hash');
     check(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/.test(line), f + ' mtime missing: ' + line);
   });
   const base = B.recordBasis(room.sectionPath, id);
@@ -494,6 +499,62 @@ arm('BR6 RECORD BASIS names the room id and each input revision; recordBasis cha
   const withExtra = B.recordBasis(room.sectionPath, id, [{ label: 'claim records', digest: 'abc' }]);
   eq(withExtra.fingerprint, base.fingerprint, 'extras leave the files fingerprint alone');
   check(withExtra.full_fingerprint !== base.full_fingerprint, 'extras move the full fingerprint');
+});
+
+// ---- BR11 (369.25-26, P6) ---------------------------------------------------------------------------------------
+
+arm('BR11 RECORD BASIS ignores FEYNMAN.md generated timestamp lines only; any other change moves both fingerprints', () => {
+  const room = withMinto('br11', 'Onboarding takes too long because nobody owns the first week');
+  const B = brief();
+  const id = identity(room.roomDir);
+  B.renderBrief({ sectionPath: room.sectionPath, roomDir: room.roomDir });
+  const p = path.join(room.sectionPath, 'FEYNMAN.md');
+  // the two shipped renderers write the generated lines; run them at one time, then again an hour later
+  const TR = require(path.join(ROOT, 'lib', 'core', 'feynman', 'timeline-runner.cjs'));
+  const DR = require(path.join(ROOT, 'lib', 'core', 'feynman', 'dial-memory-runner.cjs'));
+  const refresh = (now) => {
+    const db = nav().openRoomDbForCaller(room.roomDir);
+    try {
+      const a = TR.refreshSection(room.roomDir, SEC, { db, now_ms: now, force: true });
+      const b = DR.refreshSection(room.roomDir, SEC, { db, now_ms: now });
+      check(a.status === 'refreshed' && b.status === 'refreshed', 'renderers: ' + JSON.stringify([a, b]));
+    } finally { nav().closeRoomDbForCaller(db); }
+  };
+  const T1 = Date.UTC(2031, 0, 2, 3, 4, 5);
+  refresh(T1);
+  const before = fs.readFileSync(p, 'utf8');
+  const ISO = '\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ';
+  check(/^timeline_last_rendered:/m.test(before), 'FEYNMAN.md has no timeline_last_rendered line');
+  check(/^dial_memory_last_rendered:/m.test(before), 'FEYNMAN.md has no dial_memory_last_rendered line');
+  check(new RegExp('^\\*Last refreshed: ' + ISO, 'm').test(before), 'FEYNMAN.md has no "*Last refreshed: ...*" line');
+  const extras = [{ label: 'claim records', digest: 'abc' }];
+  const base = B.recordBasis(room.sectionPath, id, extras);
+
+  // only the generated timestamp lines move
+  refresh(T1 + 3600 * 1000);
+  const moved = fs.readFileSync(p, 'utf8');
+  check(moved !== before, 'the second render changed nothing, so the arm proves nothing');
+  const changedLines = moved.split('\n').filter((ln, i) => ln !== before.split('\n')[i]);
+  check(changedLines.length >= 3 && changedLines.every((ln) => /^(timeline_last_rendered|dial_memory_last_rendered):|^\*Last refreshed: /.test(ln)), 'more than the generated lines moved: ' + JSON.stringify(changedLines));
+  const afterTs = B.recordBasis(room.sectionPath, id, extras);
+  eq(afterTs.fingerprint, base.fingerprint, 'files fingerprint moved when only generated timestamp lines moved');
+  eq(afterTs.full_fingerprint, base.full_fingerprint, 'full fingerprint moved when only generated timestamp lines moved');
+
+  // a content line moves both
+  fs.writeFileSync(p, moved + '\nThe first week has no owner, which is why new hires wait.\n', 'utf8');
+  const afterContent = B.recordBasis(room.sectionPath, id, extras);
+  check(afterContent.fingerprint !== base.fingerprint, 'files fingerprint did not move on a narrative change');
+  check(afterContent.full_fingerprint !== base.full_fingerprint, 'full fingerprint did not move on a narrative change');
+  fs.writeFileSync(p, moved, 'utf8');
+
+  // the masking is exactly the three shapes: the timeline summary line keeps its event counts
+  const M = B.maskGeneratedFeynmanLines;
+  check(typeof M === 'function', 'maskGeneratedFeynmanLines is not exported');
+  const tl = (n, now, d) => '*Last refreshed: ' + now + '. ' + n + ' insight events, first captured 2026-01-01T00:00:00Z, last touched 2026-10-06T04:00:00Z (' + d + ').*';
+  eq(M(tl(3, '2026-10-06T05:00:00Z', '2 minutes ago')), M(tl(3, '2026-10-06T06:00:00Z', '1 hour ago')), 'timeline line: time-dependent parts must not count');
+  check(M(tl(3, '2026-10-06T05:00:00Z', 'x')) !== M(tl(4, '2026-10-06T05:00:00Z', 'x')), 'timeline line: the event count must count');
+  check(M(tl(3, '2026-10-06T05:00:00Z', 'x')) !== M(tl(3, '2026-10-06T05:00:00Z', 'x').replace('04:00:00Z', '05:00:00Z')), 'timeline line: the last touched time must count');
+  check(M('A human sentence mentioning timeline_last_rendered: 2026-10-06T05:00:00Z in prose.') === 'A human sentence mentioning timeline_last_rendered: 2026-10-06T05:00:00Z in prose.', 'prose is not masked');
 });
 
 // ---- BR7 ---------------------------------------------------------------------------------------------------------

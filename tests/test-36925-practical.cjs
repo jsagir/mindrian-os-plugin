@@ -24,8 +24,9 @@
  *                   BUT lists the contradiction, THE QUESTION THAT MATTERS NOW names it, and record_basis_fingerprint
  *                   differs from before
  *   P5b             WHAT CHANGED mentions the new contradiction (a separate arm so the owner of a failure is plain)
- *   P6  MEASURED    (carry-over, labeled; never a pass or a fail of the product) a full session-start then on-stop cycle on a
- *                   born fixture room: is each brief fresh at the end, and if not, which input moved
+ *   P6  freshness   (369.25-26: asserted; plan 24 measured it first) a full session-start, on-stop, second session-start, on-stop
+ *                   cycle on a born fixture room: every brief reads fresh at the head of the second session-start, after its
+ *                   guardian settles, and after each on-stop; a stale brief names the input that moved and fails the arm
  *   P7  KNOWN GAP   (carry-over from plan 21, labeled; not a pass) decide()'s offer against the brief's composed primary,
  *                   measured live over the fixture room's nests and printed with its counts
  *   P8  dash guard
@@ -286,8 +287,12 @@ function movedInputs(briefText, sectionPath) {
   basis.split('\n').forEach((ln) => {
     const m = ln.match(/^- ([A-Z]+\.md) (sha256:[0-9a-f]{64}) modified /);
     if (!m) return;
+    // The hash a brief names is the hash freshness is judged on (FEYNMAN.md without its generated timestamp lines).
     let now = null;
-    try { now = 'sha256:' + sha(fs.readFileSync(path.join(sectionPath, m[1]))); } catch (_e) { now = null; }
+    try {
+      const inp = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'brief.cjs')).recordBasis(sectionPath).inputs.find((i) => i.file === m[1]);
+      now = inp ? inp.sha256 : null;
+    } catch (_e) { now = null; }
     if (now !== m[2]) moved.push(m[1] + (now === null ? ' (gone)' : ''));
   });
   return moved;
@@ -337,7 +342,7 @@ function hookText(room, ss) {
   return String(ss.stdout || '').replace(/\\n/g, '\n');
 }
 
-arm('P6 MEASURED (carry-over, not a verdict): is a brief fresh after a full session-start then on-stop cycle on a born room', async () => {
+arm('P6 freshness: every brief stays fresh across a second session-start and the on-stops around it (record basis ignores generated timestamp lines)', async () => {
   const room = born('cycle');
   const nestsAll = fs.readdirSync(room.roomDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== '.').map((d) => d.name);
   const t0 = Date.now();
@@ -397,7 +402,11 @@ arm('P6 MEASURED (carry-over, not a verdict): is a brief fresh after a full sess
   console.log('    MEASURED P6: after the second session-start and its guardian (waited ' + g2.waited.toFixed(1) + ' s, guardian seen: ' + g2.sawGuardian + ', input moved: ' + g2.moved + '): ' + fmt(afterNext, staleNext));
   console.log('    MEASURED P6: then the on-stop of that second session: ' + fmt(afterNextStop, staleNextStop));
   console.log('    MEASURED P6: across the second session-start FEYNMAN.md changed in ' + feyChanged + ' of ' + nests.length + ' nests; changed lines (count of nests): ' + (Object.keys(lineCounts).length === 0 ? 'none' : Object.keys(lineCounts).map((k) => JSON.stringify(k) + ' x' + lineCounts[k]).join(' | ')));
-  if (staleOne.length > 0 || printedStale || staleNext.length > 0 || staleNextStop.length > 0) console.log('    KNOWN GAP P6 (not a pass): a brief can read stale; the input that moved is named above. Not fixed in plan 24.');
+  eq(staleOne, [], 'briefs stale after session-start, settle, one on-stop: ' + fmt(afterOne, staleOne));
+  eq(staleTwo, [], 'briefs stale after a second on-stop: ' + fmt(afterTwo, staleTwo));
+  check(printedStale === false, 'the second session-start printed a stale marker at the head: ' + staleAtHook);
+  eq(staleNext, [], 'briefs stale after the second session-start and its guardian: ' + fmt(afterNext, staleNext));
+  eq(staleNextStop, [], 'briefs stale after the on-stop of the second session: ' + fmt(afterNextStop, staleNextStop));
 });
 
 // ---- P7 ---------------------------------------------------------------------------------------------------------
