@@ -10,6 +10,7 @@
 // cannot be swapped into the plugin's own import: that is why the view takes them as a parameter.
 import type { On } from 'claude-code'
 import { expect, mock, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
@@ -138,11 +139,7 @@ function shellHook(on: On, cur: { input: PaneInput; deps: PaneDeps }): void {
   )
 }
 
-async function draw(
-  $: Parameters<Parameters<typeof test>[1]>[0],
-  surface: Surface,
-  columns: number,
-) {
+async function draw($: Engine, surface: Surface, columns: number) {
   return $.ui.mount({
     plugin: PLUGIN_NAME,
     surface,
@@ -182,16 +179,6 @@ test('the tab strip: four buttons, labels from the deck, no hotkey, the active o
   }
 })
 
-test('a tab press runs the tab action with that tab', async ($, on) => {
-  calls.length = 0
-  const cur = { input: input(), deps: NO_BODIES }
-  shellHook(on, cur)
-  const ui = await draw($, 'terminal', 100)
-  await ui.press({ key: 'tab:sources' })
-  expect(calls).toContain('setTab:sources')
-  await ui.unmount()
-})
-
 test('under 30 columns the strip is a Select on terminal and desktop, buttons on vscode and mobile', async ($, on) => {
   const cur = { input: input({ bodyColumns: 25 }), deps: NO_BODIES }
   shellHook(on, cur)
@@ -209,16 +196,6 @@ test('under 30 columns the strip is a Select on terminal and desktop, buttons on
     expect(await ui.find({ type: 'Button', key: 'tab:room' })).toBeDefined()
     await ui.unmount()
   }
-})
-
-test('a Select pick on a narrow pane runs the tab action', async ($, on) => {
-  calls.length = 0
-  const cur = { input: input({ bodyColumns: 25 }), deps: NO_BODIES }
-  shellHook(on, cur)
-  const ui = await draw($, 'terminal', 25)
-  await ui.select({ key: 'tab:select', value: 'review' })
-  expect(calls).toContain('setTab:review')
-  await ui.unmount()
 })
 
 test('notes: sample banner, mode note, narrow note and the working note, each at most once', async ($, on) => {
@@ -368,10 +345,13 @@ test('the registrar draws the shell on every surface at every width, and a tab p
         const roomAfter = await ui.find({ type: 'Button', key: 'tab:room' })
         expect(think?.props.variant).toBe('primary')
         expect(roomAfter?.props.variant).not.toBe('primary')
+        // The tab is session state shared by every mount of the test: put it back.
+        await ui.press({ key: 'tab:room' })
       } else {
-        await ui.select({ key: 'tab:select', value: 'sources' })
+        await $.ui.select({ plugin: PLUGIN_NAME, key: 'tab:select', value: 'sources' })
         const select = await ui.find({ type: 'Select' })
         expect(select?.props.value).toBe('sources')
+        await $.ui.select({ plugin: PLUGIN_NAME, key: 'tab:select', value: 'room' })
       }
       await ui.unmount()
     }
