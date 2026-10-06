@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Phases 369 and 369.1 COMPLETE and verified human_needed (2026-10-04); UATs filed; quick tasks A6 (364 Theo step fixtures) and answered_via (CR-02) in flight; beta.56 held (Theo canon window 25, Phase 26 row)
-last_updated: "2026-10-03T21:40:00.000Z"
-last_activity: 2026-10-06 ~11:00 -- v2.0.0-beta.63 CUT (Phase 369.25 / spoken 369.3a COMPLETE: 27 plans, 25 planned + gap-closure 26 and 27): release commit 563c24262, tag at origin, npm next and latest beta.63, marketplace pinned, aggregator run-all-36925 PASSED=57 FAILED=0 on the cut candidate 0f8a9a984, negative leg refused 12 of 12 in the real Step 2.6; post-publish eval-refresh recovery e79bd0430 and acceptance 24/24; placeholder now 2.0.0-beta.64. Open (CLOSE.md section 4): ranker weighting deferred to 369.6, openRoomDb still mints for ungated callers, no live Theo ask yet (stubs only), Desktop leg unrecorded, 19-24 s session-start. Next: 369.2 waves 2-4 (plans 13-34, 22 plans, waves 6-18) to the beta.65 cut. Loop in force: proceed until beta.65.
+stopped_at: Phase 369.2 plans 13-33 COMPLETE (waves 10-17); plan 34 at the human checkpoint (navigator reads the two-seed real-room report, then decides the beta.65 cut); completion report 369.2-COMPLETION-REPORT.md
+last_updated: "2026-10-06T20:30:00.000Z"
+last_activity: 2026-10-06 ~20:30 -- 369.2 waves 10-17 executed, closure file PASS 27 FAIL 0 KNOWN 3, aggregators 369.2 70/0, 369.25 57/0, 366 70/0/1, 363 46/1/1/6 (baseline); quick fixes k2k6, p8d, d4, d10, h3r; MCP stdin-EOF fix merged; beta.65 cut NOT yet made (awaiting the navigator read)
 progress:
   total_phases: 121
   completed_phases: 48
