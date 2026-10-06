@@ -6,6 +6,7 @@
 // renderPane($, e, deps) is this view function instead.
 import type { RenderElement } from 'claude-code'
 
+import { fixFlags } from '../band/alerts'
 import { text } from '../copy/text'
 import type { ViewModel } from '../model/view-model'
 import type { TabId } from '../runtime/ids'
@@ -142,7 +143,7 @@ export function buildPane(el: PaneEl, input: PaneInput, deps: PaneDeps): RenderE
       {notes.map((note) => (
         <Text {...ink(mode, theme)}>{note}</Text>
       ))}
-      {input.keysOpen ? keysPanel(el, { keys, mode, theme, act: input.act }) : null}
+      {input.keysOpen ? keysPanel(el, { keys, mode, theme, act: input.act, fixes: fixFlags(input.vm) }) : null}
       {input.explainOpen
         ? explainNote(el, { explainId: body?.explainId ?? EXPLAIN_FOR_TAB[tab], mode, theme })
         : null}
