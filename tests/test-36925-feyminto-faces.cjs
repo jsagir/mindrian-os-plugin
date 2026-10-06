@@ -275,12 +275,22 @@ arm('F6 the regeneration keys the FEYNMAN face to the room id (FEYNMINTO-11 clea
   const p = path.join(r.roomDir, SEC, 'FEYNMAN.md');
   const ident = identityMod().readRoomIdentity(r.roomDir, { door: 'in_place' });
   check(ident.ok === true, 'identity not ready');
-  check(inv().validateFaceRoomId(p, ident).violations.length === 1, 'a born room starts with one not-yet-keyed warning on this face (plan 17 stamps at birth)');
+  // 369.25-17 RE-PINNED: birth now stamps room_id into every FEYNMAN.md (this arm used to expect one not-yet-keyed warning on a
+  // born room, "plan 17 stamps at birth"). A born room is keyed already; to keep proving that the REGENERATION stamps a face birth
+  // did not reach (a legacy room, a nest made later) the birth stamp is removed first.
+  eq(inv().validateFaceRoomId(p, ident).violations.length, 0, 'a born room is keyed at birth (369.25-17)');
+  const unstamp = (room) => {
+    const f = path.join(room.roomDir, SEC, 'FEYNMAN.md');
+    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/^room_id: .*\n/m, ''), 'utf8');
+  };
+  unstamp(r);
+  check(inv().validateFaceRoomId(p, ident).violations.length === 1, 'a face birth did not reach starts with one not-yet-keyed warning');
   gen(r);
   eq(fm(read(r, 'FEYNMAN.md')).room_id, ident.room_id, 'FEYNMAN room_id after the regeneration');
   eq(inv().validateFaceRoomId(p, ident).violations.length, 0, 'FEYNMINTO-11 violations on FEYNMAN after the regeneration');
   eq(fm(read(r, 'FEYNMAN.md')).edit_surface.length > 0, true, 'the edit surface survives the stamp');
   const n = born('f6n');
+  unstamp(n);
   strip(n);
   gen(n);
   eq(fm(read(n, 'FEYNMAN.md')).room_id, undefined, 'a not-ready room writes no room_id on the face');
