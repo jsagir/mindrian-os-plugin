@@ -380,24 +380,33 @@ arm('I8a MINTO sources that are also ROOM.md wikilinks, and the ones that appear
 
 // ---------------------------------------------------------------------------------------------------------------
 // I8b one home: identity
-// shell: grep -H '^room:' */MINTO.md ; sqlite3 -readonly room.db "select count(*) from identity; ... instr(key,slug)>0 or instr(value,slug)>0 ;
-//        select count(*) from nodes where id='room:<slug>'"  -> room a: 14 / 2 / 1 ; room b: 15 / 3 / 1
+// shell: grep -H '^room:' */MINTO.md ; sqlite3 -readonly room.db "select count(*) from identity;
+//        select count(*) from identity where key in ('room.room_id','room.slug','room.canonical_path','room.parent','room.depth','room.created_at','room.birth_version');
+//        select value from identity where key='room.room_id'; select count(*) from nodes where id='room:<slug>'"
+//        -> room a: 14 / 7 / <uuid> / 1 ; room b: 15 / 7 / <uuid> / 1
 // 369.25-07 RE-MEASURED: birth now commits the seven room.* keys and the Room node for every room, so room a went from
-// 7 / 0 / 0 to 14 / 2 / 1 (room.slug and room.canonical_path name the room) and room b from 8 / 1 / 1 to 15 / 3 / 1
-// (its extra legacy row room_slug still counts; the test no longer inserts the Room node itself, birth did).
+// 7 / 0 / 0 to 14 rows and room b from 8 / 1 / 1 to 15 rows (its extra legacy row room_slug still counts; the test no longer
+// inserts the Room node itself, birth did).
+// 369.25-14 RE-MEASURED: the walk counts the seven keys, not rows containing the slug (RESEARCH Pitfall 17), reads the room id,
+// and compares each face's room: value with it. The room id is a fresh uuid per birth, so the arm checks its shape and reads
+// the expected value back from the report's own room block instead of pinning a literal.
 // ---------------------------------------------------------------------------------------------------------------
-arm('I8b MINTO room value, room.db present, Room node, identity rows naming the room, slug-vs-db agreement', () => {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+arm('I8b MINTO room value (slug and room id), room.db present, Room node, the seven identity keys, identity ready', () => {
   const a = report('a');
-  eq(a.room, Object.assign({}, a.room, {
-    slug: A_SLUG, room_db: 'present', room_node: true, identity_rows_total: 14, identity_rows_naming_room: 2, slug_db_agreement: true,
-  }), 'a room identity (369.25-07: the owner committed the Room node and the seven keys at birth)');
+  check(UUID_RE.test(String(a.room.room_id)), 'a room_id is not a uuid: ' + a.room.room_id);
+  eq([a.room.slug, a.room.room_db, a.room.room_node, a.room.identity_rows_total, a.room.identity_keys_present, a.room.identity_ready],
+    [A_SLUG, 'present', true, 14, 7, true], 'a room identity (369.25-14: seven keys, ready)');
+  eq(Object.keys(a.room).filter((k) => k === 'identity_rows_naming_room' || k === 'slug_db_agreement'), [], 'a room block carries no substring counters');
   const b = report('b');
-  eq([b.room.room_db, b.room.room_node, b.room.identity_rows_total, b.room.identity_rows_naming_room, b.room.slug_db_agreement],
-    ['present', true, 15, 3, true], 'b room identity');
-  eq(nest(b, 'problem-definition').I8b, { minto_room: 'vi3-scaffold-b', matches_slug: true }, 'b A I8b');
-  eq(nest(b, 'market-analysis').I8b, { minto_room: 'some-other-room', matches_slug: false }, 'b B I8b');
-  eq(nest(b, 'solution-design').I8b, { minto_room: null, matches_slug: null }, 'b C I8b (MINTO missing)');
-  eq(nest(a, '.').I8b, { minto_room: null, matches_slug: null }, 'a root I8b (MINTO has no room key)');
+  check(UUID_RE.test(String(b.room.room_id)), 'b room_id is not a uuid: ' + b.room.room_id);
+  eq([b.room.room_db, b.room.room_node, b.room.identity_rows_total, b.room.identity_keys_present, b.room.identity_ready],
+    ['present', true, 15, 7, true], 'b room identity');
+  const bid = b.room.room_id;
+  eq(nest(b, 'problem-definition').I8b, { minto_room: 'vi3-scaffold-b', matches_slug: true, room_id_expected: bid, matches_room_id: false }, 'b A I8b');
+  eq(nest(b, 'market-analysis').I8b, { minto_room: 'some-other-room', matches_slug: false, room_id_expected: bid, matches_room_id: false }, 'b B I8b');
+  eq(nest(b, 'solution-design').I8b, { minto_room: null, matches_slug: null, room_id_expected: bid, matches_room_id: null }, 'b C I8b (MINTO missing)');
+  eq(nest(a, '.').I8b, { minto_room: null, matches_slug: null, room_id_expected: a.room.room_id, matches_room_id: null }, 'a root I8b (MINTO has no room key)');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -578,14 +587,14 @@ arm('M3 the room summary names the duplicates and the identity result (room a an
   [
     /== room summary ==/, /nests walked: 14/, /nests with every face: 0/,
     /MINTO sources also listed in ROOM\.md links: 0/, /Theo face restating CONTEXT\.md sequence: 0 command name\(s\)/,
-    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity rows naming the room: 2\)/,
+    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
     /edit-surface marker absent: 12 of 12 face file\(s\)/, /duplications found: 0 of 3/,
   ].forEach((re) => check(re.test(ta), 'room a summary lacks ' + re + '\n' + ta.slice(ta.indexOf('== room summary ==')) ));
   const tb = mod().renderText(report('b'));
   [
     /nests walked: 14/, /nests with every face: 1/, /MINTO sources also listed in ROOM\.md links: 2/,
     /Theo face restating CONTEXT\.md sequence: 2 command name\(s\)/,
-    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity rows naming the room: 3\)/,
+    /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
     /edit-surface marker absent: 14 of 16 face file\(s\)/, /duplications found: 2 of 3/,
   ].forEach((re) => check(re.test(tb), 'room b summary lacks ' + re + '\n' + tb.slice(tb.indexOf('== room summary =='))));
   const s = report('b').summary;
@@ -601,8 +610,9 @@ arm('M4 a room with no room.db reports `room.db: missing` and still walks the fi
   fs.cpSync(B_DIR, copy, { recursive: true, filter: (src) => path.basename(src) !== '.mindrian' });
   check(!fs.existsSync(path.join(copy, '.mindrian', 'room.db')), 'fixture copy still has a room.db');
   const rep = mod().walkRoom(copy);
-  eq([rep.room.room_db, rep.room.room_node, rep.room.identity_rows_total, rep.room.identity_rows_naming_room, rep.room.slug_db_agreement],
-    ['missing', null, null, null, null], 'room block without a db');
+  eq([rep.room.room_db, rep.room.room_node, rep.room.identity_rows_total, rep.room.identity_keys_present, rep.room.identity_ready],
+    ['missing', null, null, null, null], 'room block without a db (369.25-14: the seven-key fields replace the substring counters)');
+  eq([rep.room.room_id, rep.room.identity_ready], [null, null], 'room block without a db: no room id, identity not judged');
   eq(nest(rep, 'problem-definition').I2, { lines: 54, bytes: 1764, wikilinks: 4, over_60_lines: false }, 'the files are still walked');
   eq(nest(rep, 'problem-definition').I8a, { minto_sources: 3, in_room_md: 2, absent_from_room_md: 1 }, 'I8a still measured');
   const text = mod().renderText(rep);
