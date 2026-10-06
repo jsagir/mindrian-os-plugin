@@ -27,7 +27,22 @@
  *   R6d  the helper consumedSlots(lensId) names the union of needs over round one and round two
  *   R7   no em-dash or en-dash in this file
  *
- * Plan 19 adds R3x and R4x to this file.
+ * Phase 369.2 Plan 19 (369.2-R09; SEED-118 D2 and D3; Phase 0 probes CODE-03 and CODE-04; brief tests 2 and 3).
+ * Every leaf fetches its own search and every slot on the plan is sent or refused by name.
+ *
+ * Measured before plan 19: two leaves sharing one lens: queries by leaf L1=2, L2=0, L3=1 and the L2 term
+ * in 0 queries; a scientific-roadmapping plan: 8 round-one queries, all ci.derivation and ci.retest, the L1
+ * marker term in 0 queries and the L6 extra term in 0 queries and in no typed refusal.
+ *
+ *   R3a  CODE-03 plan: every researchable leaf has at least 1 round-one query, and the L2 term is in a query
+ *   R3b  CODE-03 plan driven to synthesize: every researchable leaf has a terminal ledger op
+ *   R3c  three leaves on one lens: the lane spends at least 3 queries when the cap allows; when the search cap
+ *        allows 1, the leaves left without a query have a not_executed op with reason search_cap
+ *   R3d  roundOneQueries gives the same hashes when it runs again on the saved plan, and the run grant approves
+ *        every query it returns
+ *   R4a  CODE-04 plan: the L1 marker is in a round-one query, the limiter marker still is
+ *   R4b  CODE-04 plan: the L6 extra term is in a query or the leaf carries refusal unused_slot:term
+ *   R4c  a limiter-lane leaf with a non-ci lens and its own term sends that term, the ci queries stay
  *
  * Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs before any repo module loads; vendor
  * keys are deleted; the provider is the OpenAlex replay reached through the REAL corpus path; a net guard
@@ -334,6 +349,178 @@ async function main() {
     const ws = families.consumedSlots('ws.gap').slice().sort();
     assert.deepStrictEqual(ws, ['synonyms', 'term'], 'ws.gap ' + JSON.stringify(ws));
     assert.deepStrictEqual(families.consumedSlots('no.such.lens'), [], 'unknown lens');
+    return true;
+  });
+
+
+  // ---- plan 19: per-leaf dispatch (CODE-03) and SR leaf slots (CODE-04) ----
+  // the whitespace question set plus extra ws.gap leaves under the gap claim K1, each with its own term: the plan
+  // stays ready (every key-line dimension is still covered)
+  function wsReadyQs(extraTerms) {
+    const qs = clone(QS_WS);
+    extraTerms.forEach(function (t, i) {
+      qs.leaves.push(Object.assign({}, qs.leaves[0], { id: 'L' + (4 + i), slots: { term: t } }));
+    });
+    return qs;
+  }
+  function code03Plan(room) {
+    const qs = clone(QS_WS);
+    qs.leaves = [
+      Object.assign({}, qs.leaves[0], { id: 'L1', slots: { term: 'thin-film sensors' } }),
+      Object.assign({}, qs.leaves[0], { id: 'L2', slots: { term: 'dielectric probes' } }),
+      Object.assign({}, qs.leaves[1], { id: 'L3', lens: 'ws.covered_elsewhere' }),
+    ];
+    return buildDeep(room, qs);
+  }
+  function countByLeaf(r1) {
+    const by = {};
+    r1.forEach(function (lane) { lane.queries.forEach(function (q) { by[q.leaf_ids[0]] = (by[q.leaf_ids[0]] || 0) + 1; }); });
+    return by;
+  }
+  function allQueryText(r1) {
+    const all = [];
+    r1.forEach(function (lane) { lane.queries.forEach(function (q) { all.push(String(q.q)); }); });
+    return all;
+  }
+
+  await leg('R3a two leaves on one lens: every researchable leaf has a round-one query, the L2 term is sent', async function () {
+    const room = newRoom();
+    const plan = code03Plan(room);
+    const r1 = deepMod.roundOneQueries(plan);
+    const by = countByLeaf(r1);
+    console.log('R3a queries by leaf L1/L2/L3 = ' + (by.L1 || 0) + '/' + (by.L2 || 0) + '/' + (by.L3 || 0));
+    const fetch = plan.leaves.filter(function (l) { return l.researchable === true && l.corpus === 'openalex'; });
+    const starved = fetch.filter(function (l) { return !(by[l.id] >= 1); }).map(function (l) { return l.id; });
+    assert.strictEqual(starved.length, 0, 'leaves with 0 queries: ' + starved.join(',') + ' (counts L1=' + (by.L1 || 0) + ' L2=' + (by.L2 || 0) + ' L3=' + (by.L3 || 0) + ')');
+    const inL2 = allQueryText(r1).filter(function (q) { return q.indexOf('dielectric probes') !== -1; }).length;
+    assert.ok(inL2 >= 1, 'the term dielectric probes is in ' + inL2 + ' queries');
+    // the lanes stay grouped by lens for the analyst
+    const gap = r1.filter(function (l) { return l.lane === 'ws-gap'; })[0];
+    assert.ok(gap && gap.leaf_ids.indexOf('L1') !== -1 && gap.leaf_ids.indexOf('L2') !== -1, 'the ws-gap lane lost a leaf ' + JSON.stringify(gap && gap.leaf_ids));
+    return true;
+  });
+
+  await leg('R3b CODE-03 plan driven to synthesize: every researchable leaf has a terminal ledger op', async function () {
+    const room = newRoom();
+    const plan = buildDeep(room, wsReadyQs(['dielectric probes']));
+    // the whitespace set names no limiter, so buildPlan calls a deep plan on it a wish; the lens-lane path under
+    // test is the one a plan without limiter lanes takes, so the test marks the plan ready to drive it
+    plan.status = 'ready';
+    plan.plan_hash = planMod.planHash(plan);
+    deepInit(room, plan);
+    const result = await driveDeep(room, plan);
+    assert.ok(result.ok, 'synthesize');
+    const ledger = operations.readLedger(room.roomDir, plan.run_id);
+    const fetch = plan.leaves.filter(function (l) { return l.researchable === true && l.corpus === 'openalex'; });
+    fetch.forEach(function (l) {
+      const mine = ledger.operations.filter(function (o) { return o.plan_dimension === l.id; });
+      assert.ok(mine.length >= 1, 'leaf ' + l.id + ' has no op in the ledger');
+      const open = mine.filter(function (o) { return operations.TERMINAL_STATES.indexOf(o.state) === -1; });
+      assert.strictEqual(open.length, 0, 'leaf ' + l.id + ' has a non-terminal op ' + open.map(function (o) { return o.state; }).join(','));
+    });
+    return true;
+  });
+
+  await leg('R3c three leaves on one lens: at least 3 queries when the cap allows, search_cap ops when it does not', async function () {
+    const room = newRoom();
+    const plan = buildDeep(room, wsReadyQs(['dielectric probes', 'coating monitors']));
+    assert.strictEqual(plan.budget.queries_per_round, 2, 'queries_per_round ' + plan.budget.queries_per_round);
+    const same = plan.leaves.filter(function (l) { return l.lens === 'ws.gap'; });
+    assert.ok(same.length >= 2, 'ws.gap leaves ' + same.length);
+    const r1 = deepMod.roundOneQueries(plan);
+    const by = countByLeaf(r1);
+    const spent = r1.reduce(function (n, l) { return n + l.queries.length; }, 0);
+    console.log('R3c leaves on the lens ' + same.length + ', queries spent ' + spent + ', by leaf ' + JSON.stringify(by));
+    same.forEach(function (l) { assert.ok(by[l.id] >= 1, 'leaf ' + l.id + ' has ' + (by[l.id] || 0) + ' queries'); });
+    assert.ok(spent >= same.length, 'the lane spent ' + spent + ' queries for ' + same.length + ' leaves');
+    // a cap of 1 search leaves the others without one: each is named in the ledger
+    const tight = clone(plan);
+    tight.budget.max_searches = 2;
+    tight.plan_hash = planMod.planHash(tight);
+    const r1t = deepMod.roundOneQueries(tight);
+    const sent = r1t.reduce(function (n, l) { return n + l.queries.length; }, 0);
+    assert.strictEqual(sent, 1, 'a cap of 1 sent ' + sent + ' queries');
+    assert.ok(Array.isArray(r1t.cut) && r1t.cut.length >= 1, 'roundOneQueries returned no cut list');
+    const sentBy = countByLeaf(r1t);
+    deepInit(room, tight);
+    const ledger = operations.readLedger(room.roomDir, tight.run_id);
+    const left = same.filter(function (l) { return !sentBy[l.id]; });
+    assert.ok(left.length >= 1, 'no leaf was left without a query');
+    left.forEach(function (l) {
+      const capped = ledger.operations.filter(function (o) { return o.plan_dimension === l.id && o.state === 'not_executed' && o.reason === 'search_cap'; });
+      assert.ok(capped.length >= 1, 'leaf ' + l.id + ' has no not_executed search_cap op: ' + JSON.stringify(ledger.operations.filter(function (o) { return o.plan_dimension === l.id; }).map(function (o) { return [o.state, o.reason]; })));
+    });
+    return true;
+  });
+
+  await leg('R3d roundOneQueries repeats on the saved plan and the run grant approves every query it returns', async function () {
+    const room = newRoom();
+    const plan = code03Plan(room);
+    const a = deepMod.roundOneQueries(plan);
+    const b = deepMod.roundOneQueries(plan);
+    const ha = JSON.stringify(a.map(function (l) { return [l.lane, l.queries.map(function (q) { return q.q_hash + ':' + q.leaf_ids[0]; })]; }));
+    const hb = JSON.stringify(b.map(function (l) { return [l.lane, l.queries.map(function (q) { return q.q_hash + ':' + q.leaf_ids[0]; })]; }));
+    assert.strictEqual(ha, hb, 'a second pass differs: ' + ha + ' vs ' + hb);
+    const grant = grants.buildRunGrant(plan);
+    a.forEach(function (l) { l.queries.forEach(function (q) { assert.ok(grant.approved_hashes.indexOf(q.q_hash) !== -1, 'a sent query is not approved: ' + q.q); }); });
+    return true;
+  });
+
+  function code04Plan(room, edit) {
+    const qs = clone(QS_SR);
+    const byId = {};
+    qs.leaves.forEach(function (l) { byId[l.id] = l; });
+    byId.L1.slots = { term: 'ALPHAMARK_mu_verify_term' };
+    byId.L6.slots = { limiter: 'cathode host capacity', term: 'BETAMARK_ci_derivation_term' };
+    byId.L9.slots = { limiter: 'LIMMARK anode interface resistance' };
+    if (edit) edit(byId);
+    return buildDeep(room, qs);
+  }
+
+  await leg('R4a SR plan: the L1 marker is sent in a round-one query beside the limiter queries', async function () {
+    const room = newRoom();
+    const plan = code04Plan(room);
+    const r1 = deepMod.roundOneQueries(plan);
+    const text = allQueryText(r1).join('\n');
+    const alpha = allQueryText(r1).filter(function (q) { return q.indexOf('ALPHAMARK') !== -1; }).length;
+    const lim = allQueryText(r1).filter(function (q) { return q.indexOf('LIMMARK') !== -1; }).length;
+    console.log('R4a round-one queries ' + allQueryText(r1).length + ', ALPHAMARK in ' + alpha + ', LIMMARK in ' + lim);
+    assert.ok(alpha >= 1, 'ALPHAMARK is in ' + alpha + ' of ' + allQueryText(r1).length + ' queries');
+    assert.ok(lim >= 1, 'LIMMARK is in ' + lim + ' queries');
+    assert.ok(text.indexOf('fundamental limit') !== -1, 'the ci.* limiter queries are gone');
+    const alphaQ = r1.map(function (l) { return l.queries; }).reduce(function (a, b) { return a.concat(b); }, []).filter(function (q) { return q.q.indexOf('ALPHAMARK') !== -1; })[0];
+    assert.deepStrictEqual(alphaQ.leaf_ids, ['L1'], 'the L1 query is attached to ' + JSON.stringify(alphaQ.leaf_ids));
+    const l1 = plan.leaves.filter(function (l) { return l.id === 'L1'; })[0];
+    assert.ok(l1.queries.length >= 1 && l1.queries.some(function (q) { return q.q.indexOf('ALPHAMARK') !== -1; }), 'the L1 leaf carries ' + l1.queries.length + ' queries');
+    return true;
+  });
+
+  await leg('R4b SR plan: the L6 extra term is in a query or the leaf is refused unused_slot:term', async function () {
+    const room = newRoom();
+    const plan = code04Plan(room);
+    const r1 = deepMod.roundOneQueries(plan);
+    const inQuery = allQueryText(r1).filter(function (q) { return q.indexOf('BETAMARK') !== -1; }).length;
+    const l6 = plan.leaves.filter(function (l) { return l.id === 'L6'; })[0];
+    const refused = !!(l6.refusal && l6.refusal.reason === 'unused_slot:term');
+    console.log('R4b BETAMARK in ' + inQuery + ' queries, L6 refusal ' + JSON.stringify(l6.refusal));
+    assert.ok(inQuery >= 1 || refused, 'BETAMARK is in ' + inQuery + ' queries and L6 refusal is ' + JSON.stringify(l6.refusal));
+    assert.ok(JSON.stringify(l6).indexOf('BETAMARK') === -1, 'the refused leaf echoes the slot value');
+    return true;
+  });
+
+  await leg('R4c a limiter-lane leaf with a non-ci lens and its own term sends that term, the ci queries stay', async function () {
+    const room = newRoom();
+    const plan = code04Plan(room, function (byId) {
+      byId.L8.lens = 'mu.verify';
+      byId.L8.slots = { term: 'GAMMAMARK volume swing' };
+    });
+    const r1 = deepMod.roundOneQueries(plan);
+    const flat = r1.map(function (l) { return l.queries; }).reduce(function (a, b) { return a.concat(b); }, []);
+    const gamma = flat.filter(function (q) { return q.q.indexOf('GAMMAMARK') !== -1; });
+    assert.ok(gamma.length >= 1, 'GAMMAMARK is in ' + gamma.length + ' queries');
+    assert.ok(gamma.every(function (q) { return q.leaf_ids.length === 1 && q.leaf_ids[0] === 'L8'; }), 'GAMMAMARK is attached to ' + JSON.stringify(gamma.map(function (q) { return q.leaf_ids; })));
+    const lm1 = flat.filter(function (q) { return q.lane === 'LM1' && q.template_id.indexOf('ci.') === 0; });
+    assert.ok(lm1.length >= 1, 'the LM1 ci queries are gone');
     return true;
   });
 
