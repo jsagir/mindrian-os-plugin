@@ -5,11 +5,17 @@
 //
 // Nothing here calls a real Mindrian OS server: the stand-in answers the three tools the loader may
 // name (status_read through resolveDirs, whitespace_scan and room_artifact) and records each call.
+import type { On, RenderElement } from 'claude-code'
 import { expect, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
+import { text } from '../src/copy/text'
 import type { LiveIo } from '../src/model/live/io'
+import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import { emptyBody } from '../src/pane/kit'
+import { buildPane } from '../src/pane/pane'
+import type { PaneDeps, PaneInput } from '../src/pane/pane'
 import { fetchGaps, openQuestionText, titleFromMarkdown } from '../src/pane/think/gaps'
 import { fixtureFor } from '../src/pane/think/fixtures'
 import {
@@ -20,8 +26,12 @@ import {
   togglePick,
 } from '../src/pane/think/model'
 import type { ThinkModel } from '../src/pane/think/model'
-import type { Actions } from '../src/pane/types'
-import { BRAIN_SERVER, MINDRIAN_SERVER } from '../src/runtime/ids'
+import { understandingPanel } from '../src/pane/think/understanding'
+import { gapList, stateNote, uncertaintyBlock } from '../src/pane/think/uncertainty'
+import type { Actions, ShellActions, TabBody, TabContext } from '../src/pane/types'
+import { BRAIN_SERVER, MINDRIAN_SERVER, PLUGIN_NAME } from '../src/runtime/ids'
+import type { Mode } from '../src/theme/plain'
+import type { Theme } from '../src/theme/theme'
 
 // ---------------------------------------------------------------------------------------------
 // Stand-ins
@@ -393,4 +403,478 @@ test('fixtures: missing is not recorded with no gaps; several is the searching s
     uncertainty: { state: 'unavailable' },
     gaps: { state: 'unavailable' },
   })
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: the panels. Drawn by a test hook of their own on a pane id the plugin does not claim
+// (rule 11); their Buttons' onPress functions are captured as the view draws, because a press on a
+// Button a test hook drew finds nothing.
+// ---------------------------------------------------------------------------------------------
+
+const SHELL_ID = 'think-core-shell-test'
+const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
+type Surface = (typeof SURFACES)[number]
+
+const THEME: Theme = {
+  where: '#1E3A6E',
+  yourMove: '#C8A43C',
+  problem: '#A63D2F',
+  frame: '#0D0D0D',
+  reading: '#F5F0E8',
+  logoGreen: '#2D6B4A',
+}
+const COLOR: Mode = { plain: false, note: null, theme: THEME }
+const PLAIN: Mode = { plain: true, note: 'N01', theme: null }
+const NONE_OPEN = { room: false, think: false, sources: false, review: false }
+
+const PANE_PROPS = (bodyColumns: number) =>
+  ({
+    title: 'Mindrian workspace',
+    isFocused: true,
+    bodyColumns,
+    placement: 'dock',
+    scroll: { offset: 0, bodyRows: 30 },
+    view: {},
+  }) as const
+
+type Node = Record<string, unknown>
+
+function walk(node: unknown, visit: (n: Node) => void): void {
+  if (typeof node !== 'object' || node === null) return
+  if (Array.isArray(node)) {
+    for (const child of node) walk(child, visit)
+    return
+  }
+  const rec = node as Node
+  visit(rec)
+  walk(rec.props, visit)
+  walk(rec.children, visit)
+}
+
+function propsOf(n: unknown): Node {
+  const props = (n as Node | undefined)?.props
+  return typeof props === 'object' && props !== null ? (props as Node) : {}
+}
+
+function shown(tree: unknown): string {
+  const out: string[] = []
+  const grab = (n: unknown): void => {
+    if (typeof n === 'string') out.push(n)
+    else if (Array.isArray(n)) n.forEach(grab)
+    else if (typeof n === 'object' && n !== null) {
+      const rec = n as Node
+      if (typeof rec.label === 'string') out.push(rec.label)
+      grab(rec.children)
+      grab(rec.props)
+    }
+  }
+  grab(tree)
+  return out.join('\n')
+}
+
+function colorKeys(tree: unknown): string[] {
+  const out: string[] = []
+  walk(tree, (n) => {
+    for (const k of ['color', 'backgroundColor', 'borderColor']) if (k in n) out.push(k)
+  })
+  return out
+}
+
+// Boxes with a background that have another background somewhere below them (blocks never nest).
+function nestedBackgrounds(tree: unknown): number {
+  let count = 0
+  walk(tree, (n) => {
+    if ('backgroundColor' in propsOf(n) || 'backgroundColor' in n) {
+      let inner = 0
+      const below = [n.props, n.children]
+      for (const part of below) {
+        walk(part, (m) => {
+          if ('backgroundColor' in m || 'backgroundColor' in propsOf(m)) inner += 1
+        })
+      }
+      if (inner > 0) count += 1
+    }
+  })
+  return count
+}
+
+function drawnButtons(tree: unknown): Node[] {
+  const out: Node[] = []
+  walk(tree, (n) => {
+    if (n.type === 'Button') out.push(n)
+  })
+  return out
+}
+
+type Log = { calls: string[]; patches: { tab: string; partial: Record<string, unknown> }[] }
+function shellAct(log: Log): ShellActions {
+  return {
+    setTab: async (tab) => {
+      log.calls.push('setTab:' + tab)
+    },
+    fill: async () => true,
+    toast: () => {},
+    toggleKeys: async () => {},
+    toggleExplain: async () => {},
+    toggleDetails: async () => {},
+    io: fakeIo({}).io,
+    patch: async (tab, partial) => {
+      log.patches.push({ tab, partial })
+    },
+    update: async () => {},
+    refresh: async () => {},
+    readAsset: async () => '',
+    sampleName: async () => null,
+    focus: async () => {},
+  }
+}
+const newLog = (): Log => ({ calls: [], patches: [] })
+
+function paneInput(over: Partial<PaneInput>): PaneInput {
+  return {
+    surface: 'terminal',
+    tab: 'think',
+    vm: SAMPLES.wide,
+    mode: COLOR,
+    theme: THEME,
+    bodyColumns: 100,
+    isFocused: true,
+    working: false,
+    keysOpen: false,
+    explainOpen: false,
+    detailsOpen: NONE_OPEN,
+    body: emptyBody(),
+    act: shellAct(newLog()),
+    ...over,
+  }
+}
+
+type Pressers = Record<string, () => void>
+type Part = (ctx: TabContext) => RenderElement | null
+
+function partsBody(parts: Part[], pressers: Pressers): TabBody {
+  return {
+    view: (ctx) => {
+      const { Box } = ctx.el
+      const drawn = parts.map((part) => part(ctx)).filter((node) => node !== null)
+      walk(drawn, (n) => {
+        if (n.type === 'Button' && typeof n.onPress === 'function') {
+          pressers[String(propsOf(n).key)] = n.onPress as () => void
+        }
+      })
+      return <Box flexDirection="column">{drawn}</Box>
+    },
+    keys: () => [],
+    explainId: 'X02',
+  }
+}
+
+function shellHook(on: On, cur: { input: PaneInput; deps: PaneDeps }): void {
+  on('ui.render', { component: 'Pane', requestId: SHELL_ID }, ($, e) =>
+    buildPane($.ui.resolve(e), { ...cur.input, surface: e.surface as Surface }, cur.deps),
+  )
+}
+
+function draw($: Engine, surface: Surface, columns = 100) {
+  return $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: SHELL_ID })
+}
+
+const depsOf = (think: TabBody): PaneDeps => ({
+  bodies: { room: undefined, think, sources: undefined, review: undefined },
+})
+
+const WIDE = fixtureFor('wide')
+const MISSING = fixtureFor('missing')
+const UNREADABLE = fixtureFor('unreadable')
+const SEVERAL = fixtureFor('several')
+
+test('understanding panel: the sentence, P72 with the sample count and a P73 button on v that goes to Sources', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = {
+    input: paneInput({ act: shellAct(log) }),
+    deps: depsOf(partsBody([(ctx) => understandingPanel(ctx, WIDE)], pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const panel = await ui.find({ key: 'think:understanding' })
+    const words = shown(panel)
+    expect(words).toContain(text('P70'))
+    expect(words).toContain('The regional innovation grant looks like the strongest funding route (sample)')
+    expect(words).toContain(text('P72', { n: 4 }))
+    const evidence = (await ui.findAll({ type: 'Button' })).filter((b) => b.key === 'think:evidence')
+    expect(evidence).toHaveLength(1)
+    expect(evidence[0]?.props.label).toBe(text('P73'))
+    expect(evidence[0]?.props.hotkey).toBe('v')
+    await ui.unmount()
+  }
+  pressers['think:evidence']?.()
+  expect(log.calls).toEqual(['setTab:sources'])
+})
+
+test('understanding panel: not recorded shows P70 and M04 with no button; unreadable shows M03; a sentence with no count draws no P72', async ($, on) => {
+  const pressers: Pressers = {}
+  const noCount: typeof WIDE = {
+    ...WIDE,
+    understanding: ok({ sentence: 'A recorded sentence (sample)', evidenceCount: null }),
+  }
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => understandingPanel(ctx, MISSING)], pressers)) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let panel = await ui.find({ key: 'think:understanding' })
+  expect(shown(panel)).toContain(text('P70'))
+  expect(shown(panel)).toContain(text('M04'))
+  expect(drawnButtons(panel)).toEqual([])
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => understandingPanel(ctx, UNREADABLE)], pressers))
+  ui = await draw($, 'terminal')
+  panel = await ui.find({ key: 'think:understanding' })
+  expect(shown(panel)).toContain(text('M03'))
+  expect(drawnButtons(panel)).toEqual([])
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => understandingPanel(ctx, noCount)], pressers))
+  ui = await draw($, 'terminal')
+  panel = await ui.find({ key: 'think:understanding' })
+  expect(shown(panel)).toContain('A recorded sentence (sample)')
+  expect(shown(panel)).not.toContain(text('P72', { n: 0 }).replace('0', ''))
+  expect(shown(panel)).not.toContain('pieces of evidence')
+  // The sentence is there, so the jump button is too.
+  expect(drawnButtons(panel)).toHaveLength(1)
+  await ui.unmount()
+})
+
+test('uncertainty block: P74 on a yellow block with black words and the uncertainty text; the claim line P79 is never drawn', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => uncertaintyBlock(ctx, WIDE)], pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const block = await ui.find({ key: 'think:unsure' })
+    expect(block?.props.backgroundColor).toBe(THEME.yourMove)
+    const words = shown(block)
+    expect(words).toContain(text('P74'))
+    expect(words).toContain('Whether the grant window stays open long enough for your timeline (sample)')
+    expect(words).not.toContain(text('P79'))
+    const texts: Node[] = []
+    walk(block, (n) => {
+      if (n.type === 'Text') texts.push(n)
+    })
+    expect(texts.length).toBeGreaterThan(0)
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.frame)
+    await ui.unmount()
+  }
+})
+
+test('uncertainty block: not recorded shows M04 and unreadable shows M03, each under P74; the live open-question source never carries P79', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => uncertaintyBlock(ctx, MISSING)], pressers)) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let block = await ui.find({ key: 'think:unsure' })
+  expect(shown(block)).toContain(text('P74'))
+  expect(shown(block)).toContain(text('M04'))
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => uncertaintyBlock(ctx, UNREADABLE)], pressers))
+  ui = await draw($, 'terminal')
+  block = await ui.find({ key: 'think:unsure' })
+  expect(shown(block)).toContain(text('M03'))
+  expect(shown(block)).not.toContain(text('P79'))
+  await ui.unmount()
+})
+
+test('gap list: P75 on a red block with cream words, up to three titles, then P76 with the real count', async ($, on) => {
+  const pressers: Pressers = {}
+  const three: typeof WIDE = { ...WIDE, gaps: ok({ points: ['One (sample)', 'Two (sample)', 'Three (sample)'], total: 4, more: 1 }) }
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => gapList(ctx, WIDE, [])], pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const block = await ui.find({ key: 'think:gaps' })
+    expect(block?.props.backgroundColor).toBe(THEME.problem)
+    const words = shown(block)
+    expect(words).toContain(text('P75'))
+    expect(words).toContain('Grant terms for the funding case (sample)')
+    expect(words).toContain('Match requirements for the regional grant (sample)')
+    expect(words).toContain(text('P76', { n: 3 }))
+    const texts: Node[] = []
+    walk(block, (n) => {
+      if (n.type === 'Text') texts.push(n)
+    })
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.reading)
+    await ui.unmount()
+  }
+  cur.deps = depsOf(partsBody([(ctx) => gapList(ctx, three, [])], pressers))
+  const ui = await draw($, 'terminal')
+  const block = await ui.find({ key: 'think:gaps' })
+  expect(drawnButtons(block)).toHaveLength(3)
+  expect(shown(block)).toContain(text('P76', { n: 1 }))
+  await ui.unmount()
+})
+
+test('gap list: none found says P77, an unreadable scan says M03, a search under way draws no list', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => gapList(ctx, MISSING, [])], pressers)) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let block = await ui.find({ key: 'think:gaps' })
+  expect(shown(block)).toContain(text('P75'))
+  expect(shown(block)).toContain(text('P77'))
+  // Nothing was found, so nothing is flagged red.
+  expect(block?.props.backgroundColor).toBeUndefined()
+  expect(drawnButtons(block)).toEqual([])
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => gapList(ctx, UNREADABLE, [])], pressers))
+  ui = await draw($, 'terminal')
+  block = await ui.find({ key: 'think:gaps' })
+  expect(shown(block)).toContain(text('M03'))
+  expect(block?.props.backgroundColor).toBeUndefined()
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => gapList(ctx, SEVERAL, [])], pressers))
+  ui = await draw($, 'terminal')
+  expect(await ui.find({ key: 'think:gaps' })).toBeUndefined()
+  await ui.unmount()
+
+  // Points not resolvable to a title are counted in P76 and never drawn.
+  const unresolved: typeof WIDE = { ...WIDE, gaps: ok({ points: [], total: 4, more: 4 }) }
+  cur.deps = depsOf(partsBody([(ctx) => gapList(ctx, unresolved, [])], pressers))
+  ui = await draw($, 'terminal')
+  block = await ui.find({ key: 'think:gaps' })
+  expect(shown(block)).toContain(text('P75'))
+  expect(shown(block)).toContain(text('P76', { n: 4 }))
+  expect(drawnButtons(block)).toEqual([])
+  await ui.unmount()
+})
+
+test('gap list: each title is a plain pick row with no hotkey; a picked one is marked inverse; pressing it toggles the pick through act.patch', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = {
+    input: paneInput({ act: shellAct(log) }),
+    deps: depsOf(partsBody([(ctx) => gapList(ctx, WIDE, ['Match requirements for the regional grant (sample)'])], pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const block = await ui.find({ key: 'think:gaps' })
+  const rows = drawnButtons(block)
+  expect(rows.map((b) => propsOf(b).key)).toEqual(['pick:0', 'pick:1'])
+  for (const row of rows) {
+    expect(propsOf(row).plain).toBe(true)
+    expect('hotkey' in propsOf(row)).toBe(false)
+  }
+  expect(propsOf(rows[0]).label).toBe('Grant terms for the funding case (sample)')
+  const inverse: Node[] = []
+  walk(block, (n) => {
+    if (n.type === 'Text' && propsOf(n).inverse === true) inverse.push(n)
+  })
+  expect(inverse).toHaveLength(1)
+  await ui.unmount()
+
+  // Pressing the first row adds it to the one already picked (picks come from the slice).
+  pressers['pick:0']?.()
+  await Promise.resolve()
+  expect(log.patches).toEqual([
+    {
+      tab: 'think',
+      partial: {
+        picks: [
+          'Match requirements for the regional grant (sample)',
+          'Grant terms for the funding case (sample)',
+        ],
+      },
+    },
+  ])
+})
+
+test('state note: searching says P78; a gap says P75 with a red mark; otherwise nothing is drawn', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => stateNote(ctx, SEVERAL)], pressers)) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let note = await ui.find({ key: 'think:state' })
+  expect(shown(note)).toContain(text('P78'))
+  await ui.unmount()
+
+  cur.deps = depsOf(partsBody([(ctx) => stateNote(ctx, WIDE)], pressers))
+  ui = await draw($, 'terminal')
+  note = await ui.find({ key: 'think:state' })
+  expect(shown(note)).toContain(text('P75'))
+  const marks: Node[] = []
+  walk(note, (n) => {
+    if (propsOf(n).backgroundColor === THEME.problem) marks.push(n)
+  })
+  expect(marks.length).toBeGreaterThan(0)
+  await ui.unmount()
+
+  for (const model of [MISSING, UNREADABLE]) {
+    cur.deps = depsOf(partsBody([(ctx) => stateNote(ctx, model)], pressers))
+    ui = await draw($, 'terminal')
+    expect(await ui.find({ key: 'think:state' })).toBeUndefined()
+    await ui.unmount()
+  }
+})
+
+test('the yellow block and the red list are siblings: no colored block sits inside another', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: paneInput({}),
+    deps: depsOf(
+      partsBody(
+        [(ctx) => understandingPanel(ctx, WIDE), (ctx) => uncertaintyBlock(ctx, WIDE), (ctx) => gapList(ctx, WIDE, []), (ctx) => stateNote(ctx, WIDE)],
+        pressers,
+      ),
+    ),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const unsure = await ui.find({ key: 'think:unsure' })
+    const gaps = await ui.find({ key: 'think:gaps' })
+    expect(unsure).toBeDefined()
+    expect(gaps).toBeDefined()
+    expect(nestedBackgrounds(await ui.find({ key: 'think:unsure' }))).toBe(0)
+    expect(nestedBackgrounds(await ui.find({ key: 'think:gaps' }))).toBe(0)
+    // The gap list is not below the unsure-about block, nor the other way round.
+    let gapsInUnsure = 0
+    walk(unsure, (n) => {
+      if (propsOf(n).key === 'think:gaps' || n.key === 'think:gaps') gapsInUnsure += 1
+    })
+    expect(gapsInUnsure).toBe(0)
+    await ui.unmount()
+  }
+})
+
+test('plain mode: the blocks become bordered boxes with their heading words and no color prop anywhere', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: paneInput({ mode: PLAIN, theme: null }),
+    deps: depsOf(
+      partsBody(
+        [(ctx) => understandingPanel(ctx, WIDE), (ctx) => uncertaintyBlock(ctx, WIDE), (ctx) => gapList(ctx, WIDE, ['Grant terms for the funding case (sample)']), (ctx) => stateNote(ctx, WIDE)],
+        pressers,
+      ),
+    ),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    for (const [key, heading] of [
+      ['think:understanding', text('P70')],
+      ['think:unsure', text('P74')],
+      ['think:gaps', text('P75')],
+    ] as const) {
+      const box = await ui.find({ key })
+      expect(box?.type).toBe('Box')
+      expect(box?.props.borderStyle).toBe('single')
+      expect(shown(box)).toContain(heading)
+      expect(colorKeys(box)).toEqual([])
+    }
+    expect(colorKeys(await ui.find({ key: 'think:state' }))).toEqual([])
+    await ui.unmount()
+  }
 })
