@@ -755,7 +755,10 @@ const PLANTED_PATH = path.join(FIXTURE_ROOT, 'planted-cases.json');
 const PHASE_DIR = path.join(REPO_ROOT, '.planning', 'phases', '355-hidden-in-plain-sight-jev-through-theo-cross-connection-engi');
 const VERIFICATION_PATH = path.join(PHASE_DIR, '355-VERIFICATION.md');
 const SESSION_STAMPED_PATH = path.join(PHASE_DIR, 'labeling-session-pairings-stamped.json');
-const NAME_SNAPSHOT_PATH = path.join(REPO_ROOT, 'data', 'framework-names.json');
+// D-51: the record names the snapshot the endpoints were resolved against. That is a
+// historical fact, so it reads a frozen pin, not the live data/framework-names.json
+// (release.sh refreshes the live file on every cut).
+const NAME_SNAPSHOT_PATH = path.join(FIXTURE_ROOT, 'name-snapshot-pin.json');
 const SECTION_HEADING = '## Hit-rate record (SPEC Req 7)';
 const SECTION_END = '<!-- hit-rate-record:end -->';
 const SECTION_REGEN_COMMENT = '<!-- Regenerate with node scripts/measure-355-hit-rate.cjs record; verifiers append below, never overwrite this section. -->';

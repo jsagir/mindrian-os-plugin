@@ -1,0 +1,5 @@
+{
+  "_note": "Frozen copy of the two data/framework-names.json fields the hit-rate record names (D-51). The record states a historical fact, so it must not follow the live file, which release.sh refreshes on every cut.",
+  "snapshot_date": "2026-10-02",
+  "source_sha256": "3d7fd83e19e5725e96b6dfa30b683f074d60bf28802b44722a0d940a36687f06"
+}

@@ -61,3 +61,10 @@ A deliberate subset of artifacts in every room carries a leading frontmatter
 `methodology:` (a command slug whose registry `frameworks[0]` resolves); the
 rest carry neither, so a stamp's `handle_unresolved` path is exercised too,
 not only its resolved path.
+
+## Name snapshot pin (D-51)
+
+`name-snapshot-pin.json` is a frozen copy of the two `data/framework-names.json`
+fields the hit-rate record names (`snapshot_date`, `source_sha256`). The record
+states a historical fact, so it reads this pin and not the live file, which
+`release.sh` refreshes on every cut.
