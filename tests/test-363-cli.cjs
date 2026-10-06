@@ -635,10 +635,12 @@ async function main() {
           const byId = {};
           saved.perspective.limiters.forEach(function (l) { byId[l.id] = l; });
           for (let k = 0; k < ids.length; k += 1) {
-            if (ranked[0].indexOf(ids[k]) === -1 || ranked[0].indexOf(byId[ids[k]].statement) === -1) return tag + ' ranked-by line does not name ' + ids[k];
+            // 369.2-30 (INPUT addendum 2): jobs and moves, no ids. The line names each limiter by its statement.
+            if (ranked[0].indexOf(byId[ids[k]].statement) === -1) return tag + ' ranked-by line does not name ' + ids[k];
+            if (ranked[0].indexOf(ids[k]) !== -1 && /^LM?\d+$/.test(ids[k])) return tag + ' ranked-by line carries the id ' + ids[k];
           }
           for (let k = 1; k < ids.length; k += 1) {
-            if (ranked[0].indexOf(ids[k - 1]) > ranked[0].indexOf(ids[k])) return tag + ' ranked-by order changed';
+            if (ranked[0].indexOf(byId[ids[k - 1]].statement) > ranked[0].indexOf(byId[ids[k]].statement)) return tag + ' ranked-by order changed';
           }
         }
       }

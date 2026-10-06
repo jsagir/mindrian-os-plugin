@@ -389,7 +389,8 @@ async function main() {
     if (lc.leaf_id !== 'L3') return 'local check leaf ' + lc.leaf_id;
     const audit = auditFor(room, q.runId);
     if (audit.some(function (a) { return /L3/.test(String(a.origin_ref)); })) return 'a request was made for the room-only leaf';
-    if (q.ran.json.card.body_md.indexOf('the gap may be an extraction failure') === -1) return 'the card does not say the gap may be an extraction failure';
+    // 369.2-30 (INPUT addendum 2): jobs and moves, no ids (was: 'the gap may be an extraction failure')
+    if (q.ran.json.card.body_md.indexOf('already mention it, possibly in other words') === -1) return 'the card does not say the room may hold it in other words';
     if (q.ran.json.card.body_md.indexOf('Nothing was sent for this check.') === -1) return 'the card does not say nothing was sent';
     return true;
   });
@@ -414,7 +415,8 @@ async function main() {
     const deepPlanned = cli(['plan', qsPath, '--room', room.roomDir, '--mode', 'deep', '--section', 'market-analysis'], { preload: preloadZero() });
     if (deepPlanned.code !== 0 || !deepPlanned.json || !deepPlanned.json.card || deepPlanned.json.card.shape !== 'F.6') return 'deep plan ' + deepPlanned.stdout.slice(0, 300);
     const shown = deepPlanned.json.card.body_md;
-    if (shown.indexOf('### Not researchable in this run') === -1 || !/- ws:irrelevant: navigator judgment/.test(shown)) return 'the plan review card does not show it as not researchable';
+    // 369.2-30 (INPUT addendum 2): jobs and moves, no ids (was: '- ws:irrelevant: navigator judgment')
+    if (shown.indexOf('### Not researchable in this run') === -1 || !/- Irrelevant zone: navigator judgment/.test(shown)) return 'the plan review card does not show it as not researchable';
     const searched = plan.leaves.filter(function (l) { return l.dimension === 'ws:irrelevant' && (l.queries || []).length > 0; });
     if (searched.length !== 0) return 'the irrelevant dimension has queries';
     if (auditFor(room, q.runId).some(function (a) { return /irrelevant/.test(String(a.template_id)); })) return 'the irrelevant dimension was searched';

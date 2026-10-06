@@ -450,7 +450,8 @@ async function main() {
     assert.ok(rowLines[1].indexOf('argues against "' + q1 + '": ') !== -1, 'contradicts row: ' + rowLines[1]);
     assert.ok(/\(https?:\/\/[^,]+, retrieved \d{4}-\d{2}-\d{2}\)$/.test(rowLines[0]) && rowLines[0].indexOf('record hash') === -1, 'row tail: ' + rowLines[0]);
     assert.ok(/^- .*: 64 works in OpenAlex \(searched\)$/m.test(body), 'search line shape absent');
-    assert.ok(body.indexOf('exact-phrase') === -1 && body.indexOf('empty_valid') === -1, 'a search outcome code is on the card');
+    const found = body.split('### What the searches found')[1].split('###')[0];
+    assert.ok(found.indexOf('exact-phrase') === -1 && found.indexOf('empty_valid') === -1 && found.indexOf('(ok') === -1, 'a search outcome code is in the searches section: ' + found);
     const qLeaf3 = plan.leaves.filter(function (l) { return l.dimension === 'ws:extraction_failure'; })[0].question.replace(/\s*\?+\s*$/, '');
     assert.ok(body.indexOf('- Checked in this room for "' + qLeaf3 + '": 0 room artifacts already mention it. Nothing was sent for this check.') !== -1, 'local check line absent');
     const q1b = plan.leaves[0].question.replace(/\s*\?+\s*$/, '');
