@@ -25,7 +25,17 @@ bash tests/run-all-369.26.sh
 - Desktop: covered only by the kit's `mount` loops over `terminal` and `desktop`. A real Desktop render is deferred (phase CONTEXT, Deferred).
 - Cowork: a mod has no Cowork surface. Stated skip.
 
-## Engine facts (measured in plan 01)
+## Engine facts
+
+The full rules are in `.planning/phases/369.26-mindrian-workspace-mod-an-orientation-band-and-docked-review/369.26-ENGINE-RULES.md`: read it before writing any hook file. In short:
+
+- `$` never crosses an import: a helper that takes `$` lives in the same file as the hook, or the hook is registered by a registrar that receives `on`.
+- `read($, x)`, `update($, x, fn)` and `atom(x, initial)` need `x` as a literal `{ plugin, key } as const` or an atom declared in the same file; atoms imported from `src/state/atoms.ts` are refused (the file holds references and starting values only).
+- `plugin.json` carries `"types": "./types/state.d.ts"` and that d.ts has no `import`.
+- A render hook cannot write state; the engine's test `$` has no env, fs, state, store or plugin noun.
+- `tests/test-369.26-engine-rules.cjs` proves a state-reading hook validates and that each mistake is still refused.
+
+### Measured in plan 01
 
 Measured on Claude Code 2.1.290 (declaration file written by 2.1.289), 2026-10-06. Every later plan reads this section.
 

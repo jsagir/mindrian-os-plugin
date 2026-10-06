@@ -81,6 +81,7 @@ run_if     "WS-01 wall guard"                          tests/test-369.26-wall.cj
 run_claude "WS-01 claude plugin validate"              validate "$MOD"
 run_claude "WS-01 claude plugin test"                  test     "$MOD"
 run_if     "WS-01 mod type-check (tsc -p)"             "$MOD/scripts/typecheck.cjs" node "$MOD/scripts/typecheck.cjs"
+run_if     "WS-01 engine rules (state-reading hook validates, mistakes refused)" tests/test-369.26-engine-rules.cjs node tests/test-369.26-engine-rules.cjs
 
 # --- (2) phase legs, named now, landed by later plans (run_if) ----------------
 run_if "copy deck"                                     tests/test-369.26-copy.cjs           node tests/test-369.26-copy.cjs
