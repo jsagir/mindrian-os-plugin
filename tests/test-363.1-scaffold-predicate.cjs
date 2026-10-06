@@ -134,10 +134,10 @@ function runCli(args) {
 // ---------------------------------------------------------------------------
 // SCAFFOLD_BASENAMES / isScaffoldBasename
 // ---------------------------------------------------------------------------
-leg('SCAFFOLD_BASENAMES is a frozen Set of the seven scaffold kinds plus the shipped reference docs', () => {
+leg('SCAFFOLD_BASENAMES is a frozen Set of the seven scaffold kinds, the generated BRIEF.md (369.25-19) and the shipped reference docs', () => {
   assert.ok(sp.SCAFFOLD_BASENAMES instanceof Set);
   assert.equal(Object.isFrozen(sp.SCAFFOLD_BASENAMES), true);
-  const expected = ['BRAIN.md', 'CONTEXT.md', 'FEYNMAN.md', 'MINTO.md', 'ROOM.md', 'STATE.md', 'USER.md']
+  const expected = ['BRAIN.md', 'BRIEF.md', 'CONTEXT.md', 'FEYNMAN.md', 'MINTO.md', 'ROOM.md', 'STATE.md', 'USER.md']
     .concat(roomSkeletonScaffold.REFERENCE_DOCS).sort();
   assert.deepEqual([...sp.SCAFFOLD_BASENAMES].sort(), expected);
 });

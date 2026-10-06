@@ -91,6 +91,34 @@ function stop(room, extraEnv) {
   return { code: r.status, ms: Date.now() - t0, out: r.stdout, err: r.stderr };
 }
 
+// scripts/on-stop recompiles every ROOM.md under a 0.4 s timeout per section; on a loaded machine some recompiles finish in the
+// next stop (a race that predates this plan). ROOM.md is a brief input, so a brief moves when its ROOM.md moves. To test what this
+// plan owns (no input change, no brief change), stop until every ROOM.md reads the same as at the previous stop. Returns the count.
+function roomMdHashes(roomDir) {
+  const o = {};
+  fs.readdirSync(roomDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== '.').forEach((d) => {
+    try { o[d.name] = sha(fs.readFileSync(path.join(roomDir, d.name, 'ROOM.md'), 'utf8')); } catch (_e) { o[d.name] = null; }
+  });
+  return o;
+}
+function settle(room) {
+  let prev = null;
+  for (let i = 1; i <= 8; i += 1) {
+    const r = stop(room);
+    eq(r.code, 0, 'settling stop ' + i + ' exit code');
+    const h = JSON.stringify(roomMdHashes(room.roomDir));
+    if (h === prev) return i;
+    prev = h;
+  }
+  throw new Error('ROOM.md recompiles did not settle in 8 stops');
+}
+// The bytes of a nest's five brief inputs, hashed: when this is equal before and after, the brief must be byte-identical.
+function inputsHash(room, section) {
+  return sha(['MINTO.md', 'FEYNMAN.md', 'BRAIN.md', 'CONTEXT.md', 'ROOM.md'].map((f) => {
+    try { return f + ':' + sha(fs.readFileSync(path.join(room.roomDir, section, f), 'utf8')); } catch (_e) { return f + ':absent'; }
+  }).join('\n'));
+}
+
 function briefPath(room, section) { return path.join(room.roomDir, section, 'BRIEF.md'); }
 function readBrief(room, section) { try { return fs.readFileSync(briefPath(room, section), 'utf8'); } catch (_e) { return null; } }
 function sha(text) { return crypto.createHash('sha256').update(text).digest('hex'); }
@@ -152,7 +180,7 @@ arm('BW1 each regenerated nest has BRIEF.md: ten headings, generated_at, record_
 
 // ---- BW2 ---------------------------------------------------------------------------------------------------------
 
-arm('BW2 on-stop writes a BRIEF per face-carrying nest, none elsewhere; two more stops leave every byte identical', () => {
+arm('BW2 on-stop writes a BRIEF per face-carrying nest, none elsewhere; stops with no input change leave every byte identical', () => {
   const room = born('stop');
   const nests = faceNests(room.roomDir);
   nests.forEach((s) => check(readBrief(room, s) === null, s + ': fixture must start with no BRIEF.md'));
@@ -166,11 +194,23 @@ arm('BW2 on-stop writes a BRIEF per face-carrying nest, none elsewhere; two more
   const none = fs.readdirSync(room.roomDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== '.' && nests.indexOf(d.name) === -1);
   check(none.length > 0, 'fixture has a directory with no face');
   none.forEach((d) => check(readBrief(room, d.name) === null, d.name + ': a directory with no face must not get a BRIEF.md'));
-  const after1 = snapshotBriefs(room, nests);
+  // Per nest, across the first and the next stop: no input change means no brief change.
+  const inA = {};
+  nests.forEach((s) => { inA[s] = inputsHash(room, s); });
+  const briefA = snapshotBriefs(room, nests);
+  eq(stop(room).code, 0, 'second stop exit code');
+  nests.forEach((s) => {
+    if (inputsHash(room, s) === inA[s]) eq(sha(readBrief(room, s)), briefA[s], s + ': inputs unchanged but the brief bytes moved');
+  });
+  const n = settle(room);
+  console.log('  BW2 stops to settle ROOM.md recompiles: ' + n + ' (after the two above)');
+  const settled = snapshotBriefs(room, nests);
   const r2 = stop(room);
   const r3 = stop(room);
-  eq([r2.code, r3.code], [0, 0], 'second and third stop exit codes');
-  eq(snapshotBriefs(room, nests), after1, 'BRIEF.md bytes after the second and third stop equal the first');
+  eq([r2.code, r3.code], [0, 0], 'two further stop exit codes');
+  eq(snapshotBriefs(room, nests), settled, 'BRIEF.md bytes after two more stops equal the settled bytes');
+  // No temp file left behind by the tmp + rename write.
+  nests.forEach((s) => eq(fs.readdirSync(path.join(room.roomDir, s)).filter((f) => f.indexOf('BRIEF.md.tmp') === 0), [], s + ': leftover BRIEF.md tmp'));
 });
 
 // ---- BW3 ---------------------------------------------------------------------------------------------------------
@@ -178,7 +218,7 @@ arm('BW2 on-stop writes a BRIEF per face-carrying nest, none elsewhere; two more
 arm('BW3 one nest regenerated after a new artifact: only its BRIEF.md changes', () => {
   const room = born('one');
   const nests = faceNests(room.roomDir);
-  eq(stop(room).code, 0, 'priming stop');
+  settle(room);
   const before = snapshotBriefs(room, nests);
   nests.forEach((s) => check(before[s] !== null, s + ': primed brief missing'));
   fs.writeFileSync(path.join(room.roomDir, SEC, 'customer-calls.md'),
@@ -189,7 +229,7 @@ arm('BW3 one nest regenerated after a new artifact: only its BRIEF.md changes', 
   eq(changed, [SEC], 'nests whose BRIEF.md changed after one regeneration');
   const f0 = fmOf(readBrief(room, SEC));
   check(/^sha256:/.test(f0.record_basis_fingerprint || ''), 'fingerprint present on the changed brief');
-  eq(stop(room).code, 0, 'stop after the regeneration');
+  settle(room);
   const end = snapshotBriefs(room, nests);
   nests.filter((s) => s !== SEC).forEach((s) => eq(end[s], before[s], s + ': an untouched nest stays byte-identical after a stop'));
 });
@@ -251,8 +291,10 @@ arm('BW5 the walk: no nest over 8000 tokens, 11 nests with every face, BRIEF.md 
   room.nests.forEach((s) => {
     const roomMd = fs.readFileSync(path.join(room.roomDir, s, 'ROOM.md'), 'utf8');
     check(!/\[\[BRIEF[\]|#]/.test(roomMd), s + ': ROOM.md lists BRIEF.md as an artifact');
-    const minto = fs.readFileSync(path.join(room.roomDir, s, 'MINTO.md'), 'utf8');
-    check(!/\[\[BRIEF[\]|#]/.test(minto), s + ': MINTO.md lists BRIEF.md as a source');
+    if (fs.existsSync(path.join(room.roomDir, s, 'MINTO.md'))) {
+      const minto = fs.readFileSync(path.join(room.roomDir, s, 'MINTO.md'), 'utf8');
+      check(!/\[\[BRIEF[\]|#]/.test(minto), s + ': MINTO.md lists BRIEF.md as a source');
+    }
   });
 });
 

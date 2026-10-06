@@ -822,6 +822,51 @@ function updateFeynmanFace(room, section, artifacts, prev, newContent, records, 
   }
 }
 
+// 369.25-19 (FBRIEF-01, ICM audit change 9): the nest's ten-block BRIEF.md, a generated projection of the faces and the
+// room records, never an owner. Two triggers call this one function: the MINTO regeneration below (after the FEYNMAN
+// face) and scripts/on-stop's section walk. It renders through the one renderBrief (next move composed for both
+// surfaces through nextMoveForSection, the path decide() and suggest_next also use), and writes BRIEF.md by tmp + rename
+// only when the record_basis_full_fingerprint differs from the file already on disk, so a nest whose inputs did not
+// change keeps its bytes. A person's text between the YOUR DECISION sentinels is carried into the new render verbatim.
+const BRIEF_DECISION_RE = /<!-- feyminto:your-decision:start -->\r?\n([\s\S]*?)\r?\n<!-- feyminto:your-decision:end -->/;
+const BRIEF_FULL_FP_RE = /^record_basis_full_fingerprint:\s*(\S+)\s*$/m;
+
+function renderBriefForSection(roomDir, sectionDir, opts) {
+  try {
+    const briefMod = require('../lib/core/feyminto/brief.cjs');
+    const briefPath = path.join(sectionDir, 'BRIEF.md');
+    let existing = null;
+    try { existing = fs.readFileSync(briefPath, 'utf-8'); } catch (_e) { existing = null; }
+    let yourDecision;
+    if (existing !== null) {
+      const d = existing.match(BRIEF_DECISION_RE);
+      if (d && d[1].trim().length > 0) yourDecision = d[1];
+    }
+    const text = briefMod.renderBrief(Object.assign({ sectionPath: sectionDir, roomDir: roomDir, yourDecision: yourDecision }, (opts && opts.render) || {}));
+    const fpNew = text.match(BRIEF_FULL_FP_RE);
+    const fpOld = existing !== null ? existing.match(BRIEF_FULL_FP_RE) : null;
+    if (existing !== null && fpNew && fpOld && fpNew[1] === fpOld[1]) {
+      return { written: false, skipped: true, reason: 'record_basis_unchanged' };
+    }
+    const tmp = briefPath + '.tmp.' + process.pid;
+    fs.writeFileSync(tmp, text);
+    fs.renameSync(tmp, briefPath);
+    return { written: true, skipped: false, reason: existing === null ? 'created' : 'record_basis_changed' };
+  } catch (e) {
+    return { written: false, skipped: false, reason: 'error: ' + String((e && e.message) || e).slice(0, 160) };
+  }
+}
+
+// The call both write paths make after the FEYNMAN face: never throws, never blocks the MINTO write.
+function renderBriefAfterWrite(resolved) {
+  try {
+    const roomDir = roomDirOf(resolved.room, resolved.section);
+    return renderBriefForSection(roomDir, resolved.section.dir);
+  } catch (_e) {
+    return { written: false, skipped: false, reason: 'error' };
+  }
+}
+
 // ---------- Rendering ----------
 
 function renderSectionMinto(section, artifacts, room, preserved, records) {
@@ -1135,6 +1180,7 @@ function runTier0(args) {
     process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
     // 369.25-15: one owner per state; the FEYNMAN face is updated in the same regeneration pass.
     updateFeynmanFace(resolved.room, resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
+    renderBriefAfterWrite(resolved);
   } else {
     process.stderr.write(
       'tier-0 write REJECTED by invariants gate for ' +
@@ -1733,6 +1779,7 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   if (env.success) {
     process.stdout.write('wrote MINTO.md: ' + target + '\n');
     updateFeynmanFace(resolved.room, resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
+    renderBriefAfterWrite(resolved);
   } else {
     process.stderr.write(
       'tier-1 write REJECTED by invariants gate for ' +
@@ -1939,4 +1986,6 @@ module.exports = {
   runTier0,
   // Phase 88-04-B addition
   atomicWriteMinto,
+  // 369.25-19: BRIEF.md for one nest, shared with scripts/on-stop
+  renderBriefForSection,
 };

@@ -480,6 +480,46 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
         fs.renameSync(tmp2, stalePath);
       } catch (_e) { /* soft-fail */ }
     }
+    // 369.25 FBRIEF-01 (ICM audit change 9): the ten-block BRIEF.md per nest, rendered by the one renderBrief through the
+    // generator helper (the same function the MINTO regeneration calls), here on the STATE.md close-out path. A nest
+    // whose RECORD BASIS fingerprint is unchanged is not rewritten. The render has its own deadline,
+    // MINDRIAN_BRIEF_ONSTOP_BUDGET_MS (default 1200 ms, the guardian on-stop walk precedent), checked after each nest, so
+    // the first nest always renders and later nests wait for the next stop; nests with no BRIEF.md go first, then the
+    // oldest BRIEF.md, so a short budget still reaches every nest over successive stops. Every error is caught here.
+    try {
+      const briefStart = Date.now();
+      const rawBudget = process.env.MINDRIAN_BRIEF_ONSTOP_BUDGET_MS;
+      const parsed = Number(rawBudget);
+      const budgetMs = (rawBudget !== undefined && rawBudget !== "" && Number.isFinite(parsed) && parsed >= 0) ? parsed : 1200;
+      const genMod = require(path.join(pluginRoot, "scripts", "vault-section-minto-generator.cjs"));
+      const FACES = ["MINTO.md", "FEYNMAN.md", "BRAIN.md"];
+      const todo = [];
+      for (const d of entries) {
+        const sp = path.join(roomDir, d.name);
+        try {
+          if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+          if (!FACES.some((f) => fs.existsSync(path.join(sp, f)))) continue;
+        } catch (_e) { continue; }
+        let at = 0;
+        try { at = fs.statSync(path.join(sp, "BRIEF.md")).mtimeMs; } catch (_e) { at = 0; }
+        todo.push({ sp: sp, at: at, name: d.name });
+      }
+      todo.sort((a, b) => (a.at - b.at) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+      let wrote = 0;
+      let skippedN = 0;
+      let failedN = 0;
+      let done = 0;
+      for (const t of todo) {
+        const res = genMod.renderBriefForSection(roomDir, t.sp);
+        done += 1;
+        if (res && res.written) wrote += 1; else if (res && res.skipped) skippedN += 1; else failedN += 1;
+        if (Date.now() - briefStart >= budgetMs) break;
+      }
+      try {
+        fs.appendFileSync(path.join(roomDir, ".mindrian", "session-close.log"),
+          new Date().toISOString().replace(/[.]\d+Z$/, "Z") + " on-stop-brief written=" + wrote + " skipped=" + skippedN + " failed=" + failedN + " left=" + (todo.length - done) + " elapsed_ms=" + (Date.now() - briefStart) + "\n");
+      } catch (_e) { /* soft-fail */ }
+    } catch (_e) { /* soft-fail: the hook still exits 0 */ }
   ' >/dev/null 2>&1 || true
 
   # Best-effort observability: elapsed-ms trace into a room-local log. Bounded

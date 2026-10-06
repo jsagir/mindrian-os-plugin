@@ -111,6 +111,8 @@ const RESERVED_FILES = new Set([
   'STATE.md',
   'MINTO.md',
   'TEAM-STATE.md',
+  // 369.25-19: the generated brief is a projection of this nest, never an artifact the nest references.
+  'BRIEF.md',
 ]);
 
 // Wikilink: [[target]] or [[target|label]]
