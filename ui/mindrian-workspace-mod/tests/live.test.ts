@@ -2,14 +2,17 @@
 // engine rule: `$` does not cross an import, and the engine's own test `$` has no env, fs or state
 // noun), so a test hands it a plain stand-in and records every call. A failing source is its own
 // Seen state and the rest still draw.
-import { expect, test } from 'claude-code/testing'
+import type { On } from 'claude-code'
+import { expect, mock, test } from 'claude-code/testing'
 
 import { fetchPlace, resolveDirs } from '../src/model/live/binding'
 import { fetchGates } from '../src/model/live/gates'
 import { fetchHealth } from '../src/model/live/health'
 import type { EnvName, LiveIo } from '../src/model/live/io'
 import { fetchPurpose } from '../src/model/live/purpose'
+import { refreshViewModel } from '../src/model/live/refresh'
 import { fetchContext } from '../src/model/live/usage'
+import { isViewModel } from '../src/model/view-model'
 import { MINDRIAN_SERVER } from '../src/runtime/ids'
 
 type Call = { kind: string; a?: string; b?: string; c?: unknown }
@@ -330,4 +333,185 @@ test('mutation arm: a call to another tool or another server is caught by the sa
   ])
   expect(breaches([{ kind: 'mcp', a: MINDRIAN_SERVER, b: 'gate_answer', c: {} }])).toEqual(['tool gate_answer'])
   expect(breaches([{ kind: 'mcp', a: MINDRIAN_SERVER, b: 'gate_list', c: {} }])).toEqual([])
+})
+
+// ---------------------------------------------------------------------------------------------
+// refreshViewModel
+// ---------------------------------------------------------------------------------------------
+
+const GOOD: Over = {
+  env: { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' },
+  cwd: '/r/a/03_funding',
+  files: {
+    '/r/a/03_funding/ROOM.md': '---\npurpose: Funding routes\n---\n',
+    '/home/p/.mindrian/room-health.json': '{"status":"drift","at":1}',
+  },
+  usage: { context: { window: 200000, percent: 62 } },
+  mcp: (_server, tool) =>
+    Promise.resolve(
+      tool === 'gate_list' ? reply({ ok: true, room: 'a', count: 1, gates: [rawGate('g1', 5000)] }) : binding(),
+    ),
+}
+
+test('refreshViewModel assembles a live model from the five sources', async () => {
+  const { io } = makeIo(GOOD)
+  const vm = await refreshViewModel(io)
+  expect(isViewModel(vm)).toBe(true)
+  expect(vm.source).toBe('live')
+  expect(vm.sampleName).toBeNull()
+  expect(vm.readAt).toBe(1760000000000)
+  expect(vm.place.room).toEqual({ state: 'ok', value: 'a' })
+  expect(vm.place.folder).toEqual({ state: 'ok', value: '03_funding' })
+  expect(vm.purpose).toEqual({ state: 'ok', value: 'Funding routes' })
+  expect(vm.health).toEqual({ state: 'ok', value: 'drift' })
+  expect(vm.context).toEqual({ state: 'ok', value: 62 })
+  expect(vm.waiting).toEqual({ state: 'ok', value: 1 })
+  expect(vm.details.updatedAt).toEqual({ state: 'ok', value: 1760000000000 })
+  for (const key of ['reads', 'writes', 'version', 'files'] as const) {
+    expect(vm.details[key]).toEqual({ state: 'not_recorded' })
+  }
+  // One status_read and one cwd read are shared by the place and the purpose.
+  const shared = makeIo(GOOD)
+  await refreshViewModel(shared.io)
+  expect(shared.calls.filter((c) => c.kind === 'mcp' && c.b === 'status_read').length).toBe(1)
+  expect(shared.calls.filter((c) => c.kind === 'cwd').length).toBe(1)
+})
+
+test('refreshViewModel: next step is not_recorded for a live room, even with a decision waiting', async () => {
+  const { io } = makeIo(GOOD)
+  const vm = await refreshViewModel(io)
+  expect(vm.waiting).toEqual({ state: 'ok', value: 1 })
+  expect(vm.next).toEqual({
+    step: { state: 'not_recorded' },
+    reason: { state: 'not_recorded' },
+    command: null,
+    method: { state: 'not_recorded' },
+    isLookingUp: false,
+  })
+})
+
+test('refreshViewModel: a source that fails is its own unavailable state and the others still carry real values', async () => {
+  const usageDown = makeIo(GOOD)
+  usageDown.io.usage = () => Promise.reject(new Error('no session'))
+  const a = await refreshViewModel(usageDown.io)
+  expect(a.context).toEqual({ state: 'unavailable' })
+  expect(a.purpose).toEqual({ state: 'ok', value: 'Funding routes' })
+  expect(a.health).toEqual({ state: 'ok', value: 'drift' })
+  expect(a.waiting).toEqual({ state: 'ok', value: 1 })
+
+  const serverDown = makeIo({ ...GOOD, mcp: () => Promise.reject(new Error('server not connected')) })
+  const b = await refreshViewModel(serverDown.io)
+  expect(b.place.isBound).toBe(false)
+  expect(b.waiting).toEqual({ state: 'unavailable' })
+  expect(b.gates).toEqual({ state: 'unavailable' })
+  expect(b.purpose).toEqual({ state: 'unavailable' })
+  // The sources that need no server still draw.
+  expect(b.health).toEqual({ state: 'ok', value: 'drift' })
+  expect(b.context).toEqual({ state: 'ok', value: 62 })
+  expect(isViewModel(b)).toBe(true)
+
+  const clockDown = makeIo(GOOD)
+  clockDown.io.now = () => Promise.reject(new Error('no clock'))
+  const c = await refreshViewModel(clockDown.io)
+  expect(c.details.updatedAt).toEqual({ state: 'unavailable' })
+  expect(c.purpose).toEqual({ state: 'ok', value: 'Funding routes' })
+})
+
+test('refreshViewModel: a refresh in flight is not started twice; after it settles a new call fetches again', async () => {
+  let release: () => void = () => {}
+  const gate = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  const { io, calls } = makeIo({
+    ...GOOD,
+    mcp: async (_server, tool) => {
+      await gate
+      return tool === 'gate_list' ? reply({ ok: true, room: 'a', count: 0, gates: [] }) : binding()
+    },
+  })
+  const first = refreshViewModel(io)
+  const second = refreshViewModel(io)
+  expect(second).toBe(first)
+  release()
+  const [a, b] = await Promise.all([first, second])
+  expect(a).toBe(b)
+  expect(calls.filter((c) => c.kind === 'mcp' && c.b === 'status_read').length).toBe(1)
+
+  await refreshViewModel(io)
+  expect(calls.filter((c) => c.kind === 'mcp' && c.b === 'status_read').length).toBe(2)
+})
+
+// ---------------------------------------------------------------------------------------------
+// The registrar, driven through the engine events a session raises
+// ---------------------------------------------------------------------------------------------
+
+type Written = { key: string; value: unknown }
+
+// Answers everything beneath the plugin; records each state write the plugin makes.
+function wireBeneath(
+  on: On,
+  over: { mcp?: 'reject'; writes: Written[]; stateSetRefuses?: boolean },
+): void {
+  mock.env(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' })
+  mock.clock(on, { now: 1760000000000 })
+  on('mcp.call', ($$, e) => {
+    if (over.mcp === 'reject') return { deny: 'server not connected' }
+    const data =
+      e.tool === 'gate_list'
+        ? { ok: true, room: 'a', count: 0, gates: [] }
+        : { ok: true, segments: { room_binding: { bound: true, source: 'session', registry_fallback: false, slug: 'a' } } }
+    return { value: { content: [{ type: 'text', text: JSON.stringify(data) }], isError: false } }
+  })
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('fs.exists', () => ({ value: true }))
+  on('fs.read', ($$, e) => ({
+    value: e.path.endsWith('ROOM.md') ? '---\npurpose: Funding routes\n---\n' : '{"status":"sound","at":1}',
+  }))
+  on('state.set', ($$, e) => {
+    over.writes.push({ key: e.key, value: e.value })
+    if (over.stateSetRefuses) return { deny: 'refused' }
+    return { value: { isSet: true, version: 1 } }
+  })
+  on('state.get', () => ({ value: { value: undefined, version: 0 } }))
+}
+
+const START = { cwd: '/r/a/03_funding', surface: 'terminal', isInteractive: true } as const
+const COMPLETE = { answer: '', durationMs: 5, isAborted: false, turnId: 't1', reason: 'answer' } as const
+
+test('registrar: session.start refreshes the live model into the viewModel key and passes the event on', async ($, on) => {
+  const writes: Written[] = []
+  wireBeneath(on, { writes })
+  on('session.start', ($$, e) => ({ cwd: e.cwd }))
+  const result = await $.session.start(START)
+  expect(result).toEqual({ cwd: '/r/a/03_funding' })
+  expect(writes.map((w) => w.key)).toEqual(['viewModel'])
+  const vm = writes[0]?.value
+  expect(isViewModel(vm)).toBe(true)
+  if (isViewModel(vm)) {
+    expect(vm.source).toBe('live')
+    expect(vm.purpose).toEqual({ state: 'ok', value: 'Funding routes' })
+    expect(vm.context).toEqual({ state: 'ok', value: 40 })
+  }
+})
+
+test('registrar: turn.complete refreshes again, and never touches the sample or any other key', async ($, on) => {
+  const writes: Written[] = []
+  wireBeneath(on, { writes })
+  on('turn.complete', ($$, e) => ({ text: e.answer }))
+  const result = await $.turn.complete(COMPLETE)
+  expect(result).toMatchObject({ text: '' })
+  expect(writes.map((w) => w.key)).toEqual(['viewModel'])
+})
+
+test('registrar: a dead server or a refused write never blocks the session or the turn', async ($, on) => {
+  const writes: Written[] = []
+  wireBeneath(on, { writes, mcp: 'reject', stateSetRefuses: true })
+  on('session.start', ($$, e) => ({ cwd: e.cwd }))
+  on('turn.complete', ($$, e) => ({ text: e.answer }))
+  expect(await $.session.start(START)).toEqual({ cwd: '/r/a/03_funding' })
+  expect(await $.turn.complete(COMPLETE)).toMatchObject({ text: '' })
+  // The refresh still ran and wrote an honest model: the server-backed facts are unavailable.
+  const vm = writes[0]?.value
+  expect(isViewModel(vm) && vm.waiting.state === 'unavailable').toBe(true)
 })
