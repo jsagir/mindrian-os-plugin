@@ -1,0 +1,32 @@
+{
+  "provenance": "annex C16, 369.2-LARRY-ANNEX.md:137-141, names the labels; the definitions are written by the 369.25 planner from those names and Canon Part 9; the navigator may amend them",
+  "not_a_ladder": true,
+  "note": "A vocabulary, not a ladder: the order below is the order a resolver tests the records in, never a ranking from uncertain to true. A label is shown only with its definition and the record it stands on.",
+  "labels": [
+    {
+      "label": "quote_matched",
+      "definition": "the quoted words were found verbatim in the named source; it says nothing about whether the source is right",
+      "record": "the source and the matched passage"
+    },
+    {
+      "label": "source_reports",
+      "definition": "a source says this and nobody here has checked it beyond reading it",
+      "record": "the source"
+    },
+    {
+      "label": "derived",
+      "definition": "reasoned here from other recorded claims; it is only as strong as those claims",
+      "record": "the input claim ids"
+    },
+    {
+      "label": "independently_checked",
+      "definition": "a second, independent source or a run result agrees",
+      "record": "the second source or the verification record"
+    },
+    {
+      "label": "canonically_confirmed",
+      "definition": "a person confirmed this claim in room.db (Canon Part 9)",
+      "record": "the confirmed node and who confirmed it"
+    }
+  ]
+}
