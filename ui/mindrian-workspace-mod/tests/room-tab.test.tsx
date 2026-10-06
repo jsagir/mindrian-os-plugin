@@ -768,7 +768,7 @@ test('roomBody view: the where line, purpose, next step and waiting in that orde
   const root = (await ui.drawn()) as Node
   walk(root, (n) => {
     const k = propsOf(n).key
-    if (typeof k === 'string' && k.startsWith('room:') && n.type === 'Box') keys.push(k)
+    if (typeof k === 'string' && k.startsWith('room:') && k !== 'room:body' && n.type === 'Box') keys.push(k)
   })
   expect(keys).toEqual(['room:where', 'room:purpose', 'room:next', 'room:waiting'])
   await ui.unmount()
@@ -784,7 +784,7 @@ test('roomBody view: at the wide sample the element budget holds (UI-SPEC 13.2: 
     const groups: string[] = []
     walk(await ui.drawn(), (n) => {
       const k = propsOf(n).key
-      if (typeof k === 'string' && n.type === 'Box' && (k.startsWith('room:') || k === 'hint-line' || k === 'tab-strip')) {
+      if (typeof k === 'string' && n.type === 'Box' && ((k.startsWith('room:') && k !== 'room:body') || k === 'hint-line')) {
         groups.push(k)
       }
     })
@@ -1042,16 +1042,40 @@ test('the real pane: pressing the P43 button goes to Review; pressing P33 adds Q
   await ui.unmount()
 })
 
-test('opening the pane on a live model refreshes it through the Mindrian OS server only; a sample makes no call', async ($, on) => {
-  const live = wireReal(on, {})
-  const run = () =>
-    $.command.run({ command: 'workspace', args: 'room', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
+const OPEN_WORKSPACE = ($: Engine) =>
+  $.command.run({ command: 'workspace', args: 'room', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
+
+test('opening the pane on a live model refreshes it through the Mindrian OS server only, and again on a tab press', async ($, on) => {
+  const live = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' })
   on('command.register', (_$, e) => ({ value: { command: e.name } }))
   const ui = await mountReal($, 'terminal')
-  await run()
-  // The engine raises ui.open for the pane when the command opens it; the body then loads.
+  await OPEN_WORKSPACE($)
+  // The engine raised ui.open for the pane: the Room body loaded the live model.
   expect(live.opened.length).toBeGreaterThan(0)
   expect(live.mcp.length).toBeGreaterThan(0)
   expect(live.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  // The refreshed model is what the pane draws: the folder's purpose read from the live source.
+  expect(shown(await ui.find({ key: 'room:purpose' }))).toContain('Funding routes')
+  expect(shown(await ui.drawn())).not.toContain(text('N04'))
+
+  const before = live.mcp.length
+  await ui.press({ key: 'tab:review' })
+  await ui.press({ key: 'tab:room' })
+  expect(live.mcp.length).toBeGreaterThan(before)
+  expect(live.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  expect(await activeTab(ui)).toBe('room')
+  await ui.unmount()
+})
+
+test('a sample makes no call when the pane opens or when a tab is pressed', async ($, on) => {
+  const sample = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  const ui = await mountReal($, 'terminal')
+  await OPEN_WORKSPACE($)
+  expect(sample.opened.length).toBeGreaterThan(0)
+  await ui.press({ key: 'tab:review' })
+  await ui.press({ key: 'tab:room' })
+  expect(sample.mcp).toEqual([])
+  expect(shown(await ui.find({ key: 'room:purpose' }))).toContain('building the funding case (sample)')
   await ui.unmount()
 })
