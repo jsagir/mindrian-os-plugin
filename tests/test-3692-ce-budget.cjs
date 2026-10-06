@@ -21,6 +21,8 @@
  *   B6  no false pass: a needed pass with no falsifier executed anywhere is not_run, ran false, not complete
  *   B7  reserve formula and enforcement: 16 -> 3, 8 -> 2, 3 -> 1, cap 1 -> 0 (never starves round one);
  *       rounds and follow-ups never spend the reserve
+ *   B9  ruling (plan 14 open decision): unsearched researchable leaves stay mandatory; the run is incomplete and
+ *       names each dimension not executed and why (no_query_composed)
  *   B8  no em-dash or en-dash in this file
  *
  * Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs before any repo module loads;
@@ -285,6 +287,20 @@ async function main() {
     assert.deepStrictEqual(got, { 16: 3, 8: 2, 3: 1, 1: 0 });
     assert.ok(roundSpend <= 8 - 2, 'rounds spent ' + roundSpend + ' of a ' + (8 - 2) + ' search round budget');
     assert.ok(s.state.searches_used <= 8, 'searches_used ' + s.state.searches_used);
+    return true;
+  });
+
+  // ---- B9 orchestrator ruling (plan 14 open decision) ----
+  await leg('B9 ruling: researchable web leaves no limiter lane owns stay mandatory, so a scientific-roadmapping run is never complete and says which dimensions were not executed and why', async function () {
+    if (!b3) return 'B3 did not run';
+    const comp = b3.run.completion;
+    const ce = b3.run.counterevidence;
+    const unsearched = comp.incomplete.filter(function (i) { return i.reason === 'no_query_composed'; });
+    console.log('B9 measured: counterevidence status=' + ce.status + ' completion.complete=' + comp.complete + ' incomplete=' + comp.incomplete.length + ' no_query_composed=' + unsearched.length);
+    assert.strictEqual(ce.status, 'complete', 'the counterevidence leg should be complete in this scenario');
+    assert.strictEqual(comp.complete, false, 'a run with unsearched mandatory leaves read complete');
+    assert.ok(unsearched.length > 0, 'no unsearched dimension is named');
+    assert.ok(unsearched.every(function (i) { return i.mandatory === true && i.state === 'not_executed' && typeof i.plan_dimension === 'string' && i.plan_dimension.length > 0; }), 'an unsearched dimension is non-blocking or unnamed');
     return true;
   });
 
