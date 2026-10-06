@@ -5,9 +5,11 @@
 import { expect, test } from 'claude-code/testing'
 
 import { fetchPlace, resolveDirs } from '../src/model/live/binding'
+import { fetchGates } from '../src/model/live/gates'
 import { fetchHealth } from '../src/model/live/health'
 import type { EnvName, LiveIo } from '../src/model/live/io'
 import { fetchPurpose } from '../src/model/live/purpose'
+import { fetchContext } from '../src/model/live/usage'
 import { MINDRIAN_SERVER } from '../src/runtime/ids'
 
 type Call = { kind: string; a?: string; b?: string; c?: unknown }
@@ -205,4 +207,127 @@ test('fetchHealth: a refused read or no home is unavailable', async () => {
   expect(await fetchHealth(refused.io)).toEqual({ state: 'unavailable' })
   const noHome = makeIo()
   expect(await fetchHealth(noHome.io)).toEqual({ state: 'unavailable' })
+})
+
+// ---------------------------------------------------------------------------------------------
+// Context percent
+// ---------------------------------------------------------------------------------------------
+
+test('fetchContext: a percent in the usage is ok', async () => {
+  const { io } = makeIo({ usage: { startedAt: 1, context: { tokens: 124000, window: 200000, percent: 62 } } })
+  expect(await fetchContext(io)).toEqual({ state: 'ok', value: 62 })
+})
+
+test('fetchContext: no percent yet (before the first response) is not_recorded', async () => {
+  const { io } = makeIo({ usage: { context: { window: 200000 } } })
+  expect(await fetchContext(io)).toEqual({ state: 'not_recorded' })
+})
+
+test('fetchContext: a rejected usage call is unavailable and the call is the free one', async () => {
+  const calls: string[] = []
+  const { io } = makeIo()
+  io.usage = () => {
+    calls.push('usage')
+    return Promise.reject(new Error('no session'))
+  }
+  expect(await fetchContext(io)).toEqual({ state: 'unavailable' })
+  expect(calls).toEqual(['usage'])
+})
+
+// ---------------------------------------------------------------------------------------------
+// Open decisions
+// ---------------------------------------------------------------------------------------------
+
+const rawGate = (id: string, expires: number) => ({
+  gate_id: id,
+  kind: 'general',
+  header: 'Pick ' + id,
+  select_mode: 'single',
+  options: [{ id: 'a', label: 'A', description: null, rank: 1, preview: null, recommended: false }],
+  recommended: null,
+  subject_node_id: null,
+  evidence_node_ids: [],
+  approving: null,
+  minted_at: 1000,
+  expires_at: expires,
+})
+
+test('fetchGates: two gates come back sorted by expiry and waiting is 2', async () => {
+  const { io } = makeIo({
+    mcp: () => Promise.resolve(reply({ ok: true, room: 'a', count: 2, gates: [rawGate('late', 9000), rawGate('soon', 5000)] })),
+  })
+  const read = await fetchGates(io)
+  expect(read.waiting).toEqual({ state: 'ok', value: 2 })
+  expect(read.gates.state).toBe('ok')
+  if (read.gates.state === 'ok') expect(read.gates.value.map((g) => g.gateId)).toEqual(['soon', 'late'])
+})
+
+test('fetchGates: no open gates is ok [] and waiting 0 (not a failure)', async () => {
+  const { io } = makeIo({ mcp: () => Promise.resolve(reply({ ok: true, room: 'a', count: 0, gates: [] })) })
+  const read = await fetchGates(io)
+  expect(read.gates).toEqual({ state: 'ok', value: [] })
+  expect(read.waiting).toEqual({ state: 'ok', value: 0 })
+})
+
+test('fetchGates: room_unbound, lookup_failed or a rejected call is unavailable for both facts', async () => {
+  const down = { gates: { state: 'unavailable' }, waiting: { state: 'unavailable' } }
+  for (const reason of ['room_unbound', 'lookup_failed']) {
+    const { io } = makeIo({ mcp: () => Promise.resolve(reply({ ok: false, reason, message: 'm' }, true)) })
+    expect(await fetchGates(io)).toEqual(down)
+  }
+  const rejected = makeIo({ mcp: () => Promise.reject(new Error('refused')) })
+  expect(await fetchGates(rejected.io)).toEqual(down)
+  const junk = makeIo({ mcp: () => Promise.resolve({ content: [] }) })
+  expect(await fetchGates(junk.io)).toEqual(down)
+})
+
+test('fetchGates: the count is what the room reports, never rounded or invented', async () => {
+  const many = Array.from({ length: 7 }, (_v, i) => rawGate('g' + i, 1000 + i))
+  const { io } = makeIo({ mcp: () => Promise.resolve(reply({ ok: true, room: 'a', count: 7, gates: many })) })
+  expect((await fetchGates(io)).waiting).toEqual({ state: 'ok', value: 7 })
+})
+
+// ---------------------------------------------------------------------------------------------
+// The only tools addressed (Canon Part 8, threat T-369.26-06-01)
+// ---------------------------------------------------------------------------------------------
+
+const ALLOWED_TOOLS = ['status_read', 'gate_list']
+
+// The rule the fetcher set must obey: every MCP call is on the Mindrian OS server and names one of
+// the two read-only tools. The mutation arm below proves the rule can fail.
+function breaches(calls: Call[]): string[] {
+  const bad: string[] = []
+  for (const c of calls) {
+    if (c.kind !== 'mcp') continue
+    if (c.a !== MINDRIAN_SERVER) bad.push('server ' + String(c.a))
+    if (!ALLOWED_TOOLS.includes(String(c.b))) bad.push('tool ' + String(c.b))
+  }
+  return bad
+}
+
+test('across every fetcher the only MCP calls are status_read and gate_list on the Mindrian OS server, with no room content', async () => {
+  const { io, calls } = makeIo({
+    env: { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' },
+    cwd: '/r/a/03_funding',
+    files: { '/r/a/03_funding/ROOM.md': '---\npurpose: secret room words\n---\n' },
+    mcp: (_server, tool) =>
+      Promise.resolve(tool === 'gate_list' ? reply({ ok: true, room: 'a', count: 0, gates: [] }) : binding()),
+  })
+  const located = await resolveDirs(io)
+  await Promise.all([fetchPlace(io), fetchPurpose(io, located), fetchHealth(io), fetchContext(io), fetchGates(io)])
+
+  const mcp = calls.filter((c) => c.kind === 'mcp')
+  expect(mcp.length).toBeGreaterThan(0)
+  expect(breaches(calls)).toEqual([])
+  // Arguments are empty objects: nothing a person wrote can ride along.
+  for (const c of mcp) expect(c.c).toEqual({})
+})
+
+test('mutation arm: a call to another tool or another server is caught by the same rule', () => {
+  expect(breaches([{ kind: 'mcp', a: MINDRIAN_SERVER, b: 'brain_query', c: {} }])).toEqual(['tool brain_query'])
+  expect(breaches([{ kind: 'mcp', a: 'plugin:mos:mindrian-brain', b: 'status_read', c: {} }])).toEqual([
+    'server plugin:mos:mindrian-brain',
+  ])
+  expect(breaches([{ kind: 'mcp', a: MINDRIAN_SERVER, b: 'gate_answer', c: {} }])).toEqual(['tool gate_answer'])
+  expect(breaches([{ kind: 'mcp', a: MINDRIAN_SERVER, b: 'gate_list', c: {} }])).toEqual([])
 })
