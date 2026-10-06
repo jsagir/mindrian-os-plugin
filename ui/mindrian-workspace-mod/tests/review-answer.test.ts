@@ -4,11 +4,39 @@
 //
 // Arms are grouped: tables (verdicts, consequence, refusals) first; the gate client and the answer
 // machine arms are added by the later tasks of the plan.
+import type { PluginState } from 'claude-code'
 import { expect, test } from 'claude-code/testing'
 
 import type { GateCard, GateOption } from '../src/model/view-model'
-import { OPTION_VERDICTS, consequenceId, verdictFor } from '../src/pane/review/verdicts'
+import { answerGate, checkGate, listedGateIds, mirrorGate } from '../src/pane/review/gate-client'
+import type { GateIo } from '../src/pane/review/gate-client'
 import { isForeign, refusalCopy } from '../src/pane/review/refusals'
+import {
+  asPhaseEntry,
+  checkingEntry,
+  claimSaving,
+  ledgerIdOf,
+  phaseOf,
+  refusedEntry,
+  reviewInitial,
+  savedEntry,
+  savingEntry,
+  withId,
+  withMirror,
+  withoutId,
+  withPhase,
+} from '../src/pane/review/state'
+import type { LastResult, PhaseEntry } from '../src/pane/review/state'
+import { OPTION_VERDICTS, consequenceId, verdictFor } from '../src/pane/review/verdicts'
+import { MINDRIAN_SERVER } from '../src/runtime/ids'
+
+// The shapes in src/pane/review/state.ts and the inline ones in types/state.d.ts cannot drift
+// (tsc fails this file if they do).
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
+type Assert<T extends true> = T
+type State = PluginState['mindrian-workspace']
+export type ReviewPhaseMatches = Assert<Equal<State['reviewPhase'], Record<string, PhaseEntry>>>
+export type ReviewLastMatches = Assert<Equal<State['reviewLast'], LastResult | null>>
 
 function opt(id: string, over: Partial<GateOption> = {}): GateOption {
   return { id, label: id + ' label', description: null, rank: null, preview: null, recommended: false, ...over }
@@ -167,4 +195,272 @@ test('refusalCopy: returns copy ids, never a sentence or a code', () => {
   for (const code of ['unknown_gate', 'gate_expired', 'stale_subject', 'session_mismatch', 'whatever']) {
     expect(refusalCopy(code)).toMatch(/^E0[1-7]$/)
   }
+})
+
+// ---------------------------------------------------------------------------------------------
+// state: plain data and pure reducers (the engine will not let an atom cross an import)
+// ---------------------------------------------------------------------------------------------
+
+test('state: starting values are fresh objects each call', () => {
+  const a = reviewInitial()
+  const b = reviewInitial()
+  expect(a).toEqual({ phase: {}, last: null, mirrors: {}, dismissed: [], foreign: [], open: null })
+  a.dismissed.push('x')
+  a.phase['g'] = savingEntry('c')
+  expect(b.dismissed).toEqual([])
+  expect(b.phase).toEqual({})
+})
+
+test('state: claimSaving puts saving with the claim, and leaves a card that is already saving exactly as it is', () => {
+  const first = claimSaving({}, 'g-1', 'claim-a')
+  expect(phaseOf(first, 'g-1')).toEqual(savingEntry('claim-a'))
+  const second = claimSaving(first, 'g-1', 'claim-b')
+  expect(second).toBe(first)
+  expect(phaseOf(second, 'g-1')?.claim).toBe('claim-a')
+  // Another card is independent; a refused or saved card can be pressed again.
+  expect(phaseOf(claimSaving(first, 'g-2', 'claim-c'), 'g-2')?.claim).toBe('claim-c')
+  const refused = withPhase(first, 'g-1', refusedEntry('E02'))
+  expect(phaseOf(claimSaving(refused, 'g-1', 'claim-d'), 'g-1')).toEqual(savingEntry('claim-d'))
+  const saved = withPhase(first, 'g-1', savedEntry('D24', 'Yes'))
+  expect(phaseOf(claimSaving(saved, 'g-1', 'claim-e'), 'g-1')?.phase).toBe('saving')
+})
+
+test('state: withPhase sets and clears one card without touching the others or the input', () => {
+  const base = { 'g-1': savingEntry('a') }
+  const set = withPhase(base, 'g-2', checkingEntry('D31'))
+  expect(Object.keys(set).sort()).toEqual(['g-1', 'g-2'])
+  expect(Object.keys(base)).toEqual(['g-1'])
+  expect(withPhase(set, 'g-1', null)).toEqual({ 'g-2': checkingEntry('D31') })
+  expect(withPhase(undefined, 'g-1', null)).toEqual({})
+})
+
+test('state: a damaged stored entry reads as ready, never as saved', () => {
+  expect(asPhaseEntry(null)).toBeUndefined()
+  expect(asPhaseEntry('saved')).toBeUndefined()
+  expect(asPhaseEntry({ phase: 'saved' })).toBeUndefined()
+  expect(asPhaseEntry({ phase: 'done', claim: '', copyId: 'D24', label: '' })).toBeUndefined()
+  expect(asPhaseEntry({ phase: 'saved', claim: '', copyId: 'D24', label: 'Yes' })).toEqual(savedEntry('D24', 'Yes'))
+  expect(phaseOf({ 'g-1': { phase: 'saved' } }, 'g-1')).toBeUndefined()
+  expect(phaseOf({}, 'constructor')).toBeUndefined()
+})
+
+test('state: mirrors, dismissed and foreign helpers', () => {
+  expect(ledgerIdOf(withMirror({}, 'g-1', 'L-9'), 'g-1')).toBe('L-9')
+  expect(ledgerIdOf({}, 'g-1')).toBeUndefined()
+  expect(ledgerIdOf({ 'g-1': '' }, 'g-1')).toBeUndefined()
+  expect(ledgerIdOf({}, 'toString')).toBeUndefined()
+  expect(withId(['a'], 'b')).toEqual(['a', 'b'])
+  expect(withId(['a'], 'a')).toEqual(['a'])
+  expect(withId(undefined, 'a')).toEqual(['a'])
+  expect(withoutId(['a', 'b'], 'a')).toEqual(['b'])
+})
+
+// ---------------------------------------------------------------------------------------------
+// gate client: the three calls, with their exact arguments
+// ---------------------------------------------------------------------------------------------
+
+type McpCall = { server: string; tool: string; args: Record<string, unknown> }
+
+const reply = (data: unknown, isError = false) => ({
+  content: [{ type: 'text', text: JSON.stringify(data) }],
+  isError,
+})
+
+function makeGateIo(handler: (call: McpCall) => unknown): { io: GateIo; calls: McpCall[] } {
+  const calls: McpCall[] = []
+  const io: GateIo = {
+    mcpCall: (server, tool, args) => {
+      const entry = { server, tool, args }
+      calls.push(entry)
+      try {
+        return Promise.resolve(handler(entry))
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+  }
+  return { io, calls }
+}
+
+test('answerGate: an ok reply, and the arguments object has exactly gate_id, chosen and verdict', async () => {
+  const { io, calls } = makeGateIo(() =>
+    reply({ ok: true, gate_id: 'g-1', chosen: ['approve'], verdict: 'approve', ratified: true, answered_via: 'mcp_relayed' }),
+  )
+  const out = await answerGate(io, 'g-1', 'approve', 'approve')
+  expect(out).toEqual({ kind: 'ok', replayed: false, answeredElsewhere: false, verdict: 'approve', chosen: ['approve'] })
+  expect(calls).toHaveLength(1)
+  expect(calls[0]).toEqual({
+    server: MINDRIAN_SERVER,
+    tool: 'gate_answer',
+    args: { gate_id: 'g-1', chosen: ['approve'], verdict: 'approve' },
+  })
+  expect(Object.keys(calls[0]?.args ?? {}).sort()).toEqual(['chosen', 'gate_id', 'verdict'])
+})
+
+test('answerGate: a repeat answer is ok with replayed true', async () => {
+  const { io } = makeGateIo(() =>
+    reply({ ok: true, replayed: true, already_answered: true, gate_id: 'g-1', verdict: 'approve', chosen: ['approve'] }),
+  )
+  expect(await answerGate(io, 'g-1', 'approve', 'approve')).toEqual({
+    kind: 'ok',
+    replayed: true,
+    answeredElsewhere: false,
+    verdict: 'approve',
+    chosen: ['approve'],
+  })
+})
+
+test('answerGate: an answer made through a mirror says answered elsewhere', async () => {
+  const { io } = makeGateIo(() =>
+    reply({ ok: true, replayed: true, answered_elsewhere: true, gate_id: 'L-9', verdict: 'reject', chosen: ['reject'] }),
+  )
+  const out = await answerGate(io, 'L-9', 'defer', 'defer')
+  expect(out).toEqual({ kind: 'ok', replayed: true, answeredElsewhere: true, verdict: 'reject', chosen: ['reject'] })
+})
+
+test('answerGate: a refusal carries the runtime code, whether the reply is marked an error or not', async () => {
+  const marked = makeGateIo(() => reply({ ok: false, reason: 'stale_subject', gate_id: 'g-1' }, true))
+  expect(await answerGate(marked.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'refused', code: 'stale_subject' })
+  const unmarked = makeGateIo(() => reply({ ok: false, reason: 'card_pending' }))
+  expect(await answerGate(unmarked.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'refused', code: 'card_pending' })
+  const noReason = makeGateIo(() => reply({ ok: false }, true))
+  expect(await answerGate(noReason.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'refused', code: 'error' })
+  // An ok-less reply is never read as a success.
+  const noOk = makeGateIo(() => reply({ gate_id: 'g-1' }))
+  expect(await answerGate(noOk.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'refused', code: 'unknown' })
+})
+
+test('answerGate: a rejected call is unreachable and a non-JSON reply is unreadable', async () => {
+  const down = makeGateIo(() => {
+    throw new Error('server gone')
+  })
+  expect(await answerGate(down.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'unreachable' })
+  for (const raw of [
+    { content: [{ type: 'text', text: 'not json' }], isError: false },
+    { content: [], isError: false },
+    { content: [{ type: 'text', text: 'Internal error' }], isError: true },
+    'nonsense',
+    null,
+  ]) {
+    const odd = makeGateIo(() => raw)
+    expect(await answerGate(odd.io, 'g-1', 'approve', 'approve')).toEqual({ kind: 'unreadable' })
+  }
+})
+
+test('mirrorGate: gate_render with mirror_of and the recorded option ids in order, nothing else', async () => {
+  const c = card({ gateId: 'g-src', options: [opt('approve'), opt('reject'), opt('defer')] })
+  const { io, calls } = makeGateIo(() => reply({ ok: true, gate_id: 'L-new', renderer: 'headless', mirror_of: 'g-src' }))
+  expect(await mirrorGate(io, c)).toEqual({ kind: 'ok', ledgerId: 'L-new' })
+  expect(calls[0]).toEqual({
+    server: MINDRIAN_SERVER,
+    tool: 'gate_render',
+    args: {
+      mirror_of: 'g-src',
+      options: [
+        { id: 'approve', label: 'approve' },
+        { id: 'reject', label: 'reject' },
+        { id: 'defer', label: 'defer' },
+      ],
+    },
+  })
+  // No header, no kind, no subject, no evidence: the card is drawn from the room's own record.
+  expect(Object.keys(calls[0]?.args ?? {}).sort()).toEqual(['mirror_of', 'options'])
+})
+
+test('mirrorGate: refusals, unreachable, a suppressed or id-less reply', async () => {
+  const c = card()
+  const refused = makeGateIo(() => reply({ ok: false, reason: 'unknown_gate', gate_id: 'g-1' }, true))
+  expect(await mirrorGate(refused.io, c)).toEqual({ kind: 'refused', code: 'unknown_gate' })
+  const down = makeGateIo(() => {
+    throw new Error('gone')
+  })
+  expect(await mirrorGate(down.io, c)).toEqual({ kind: 'unreachable' })
+  const suppressed = makeGateIo(() => reply({ ok: true, suppressed: true, gate_id: 'x' }))
+  expect(await mirrorGate(suppressed.io, c)).toEqual({ kind: 'refused', code: 'suppressed' })
+  const noId = makeGateIo(() => reply({ ok: true }))
+  expect(await mirrorGate(noId.io, c)).toEqual({ kind: 'unreadable' })
+})
+
+const contractOf = (c: GateCard, over: Record<string, unknown> = {}) => ({
+  gate_id: c.gateId,
+  header: c.header,
+  options: c.options.map((o) => ({ id: o.id, label: o.label })),
+  ...over,
+})
+
+test('checkGate: open with the same header and the same option ids is current (gate_list with that gate id)', async () => {
+  const c = card()
+  const { io, calls } = makeGateIo(() => reply({ ok: true, room: 'r', gate: { gate_id: c.gateId, state: 'open', contract: contractOf(c) } }))
+  expect(await checkGate(io, c)).toBe('current')
+  expect(calls[0]).toEqual({ server: MINDRIAN_SERVER, tool: 'gate_list', args: { gate_id: 'g-1' } })
+})
+
+test('checkGate: no longer open, or a different header, or different option ids, is changed', async () => {
+  const c = card()
+  for (const state of ['answered', 'closed', 'expired', 'unknown']) {
+    const gone = makeGateIo(() => reply({ ok: true, gate: { gate_id: c.gateId, state } }))
+    expect(await checkGate(gone.io, c)).toBe('changed')
+  }
+  const header = makeGateIo(() =>
+    reply({ ok: true, gate: { gate_id: c.gateId, state: 'open', contract: contractOf(c, { header: 'Another question' }) } }),
+  )
+  expect(await checkGate(header.io, c)).toBe('changed')
+  const ids = makeGateIo(() =>
+    reply({ ok: true, gate: { gate_id: c.gateId, state: 'open', contract: contractOf(c, { options: [{ id: 'approve' }, { id: 'defer' }, { id: 'reject' }] }) } }),
+  )
+  expect(await checkGate(ids.io, c)).toBe('changed')
+  const fewer = makeGateIo(() =>
+    reply({ ok: true, gate: { gate_id: c.gateId, state: 'open', contract: contractOf(c, { options: [{ id: 'approve' }] }) } }),
+  )
+  expect(await checkGate(fewer.io, c)).toBe('changed')
+})
+
+test('checkGate: a rejected, unreadable, refused or odd reply is failed', async () => {
+  const c = card()
+  const down = makeGateIo(() => {
+    throw new Error('gone')
+  })
+  expect(await checkGate(down.io, c)).toBe('failed')
+  const bad = makeGateIo(() => ({ content: [{ type: 'text', text: '<html>' }], isError: false }))
+  expect(await checkGate(bad.io, c)).toBe('failed')
+  const lookup = makeGateIo(() => reply({ ok: false, reason: 'lookup_failed' }, true))
+  expect(await checkGate(lookup.io, c)).toBe('failed')
+  const noGate = makeGateIo(() => reply({ ok: true, room: 'r' }))
+  expect(await checkGate(noGate.io, c)).toBe('failed')
+  const noContract = makeGateIo(() => reply({ ok: true, gate: { gate_id: c.gateId, state: 'open' } }))
+  expect(await checkGate(noContract.io, c)).toBe('failed')
+})
+
+test('listedGateIds: the ids the room lists, or null when it cannot be read', async () => {
+  const listed = makeGateIo(() => reply({ ok: true, room: 'r', count: 2, gates: [{ gate_id: 'a', options: [] }, { gate_id: 'b', options: [] }] }))
+  expect(await listedGateIds(listed.io)).toEqual(['a', 'b'])
+  expect(listed.calls[0]).toEqual({ server: MINDRIAN_SERVER, tool: 'gate_list', args: {} })
+  const none = makeGateIo(() => reply({ ok: true, room: 'r', count: 0, gates: [] }))
+  expect(await listedGateIds(none.io)).toEqual([])
+  const unbound = makeGateIo(() => reply({ ok: false, reason: 'room_unbound' }, true))
+  expect(await listedGateIds(unbound.io)).toBeNull()
+  const down = makeGateIo(() => {
+    throw new Error('gone')
+  })
+  expect(await listedGateIds(down.io)).toBeNull()
+})
+
+test('the review folder names no Brain server and one file makes the gate_answer call', async () => {
+  // A source read is not available inside the engine harness (no fs noun), so the guarantee is
+  // proved on the behavior: every call above went to MINDRIAN_SERVER. The repo grep gate (plan
+  // acceptance) covers the text.
+  const seen: string[] = []
+  const io: GateIo = {
+    mcpCall: (server) => {
+      seen.push(server)
+      return Promise.resolve(reply({ ok: true, gate_id: 'x', gate: { state: 'open', contract: {} }, gates: [] }))
+    },
+  }
+  const c = card()
+  await answerGate(io, 'g-1', 'approve', 'approve')
+  await mirrorGate(io, c)
+  await checkGate(io, c)
+  await listedGateIds(io)
+  expect(seen).toHaveLength(4)
+  expect(seen.every((s) => s === MINDRIAN_SERVER)).toBe(true)
 })

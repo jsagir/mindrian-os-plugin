@@ -13,6 +13,19 @@ declare module 'claude-code' {
       keysOpen: boolean
       explainOpen: boolean
       detailsOpen: Record<'room' | 'think' | 'sources' | 'review', boolean>
+      // Plan 10 (the review answer path). JSON data only, written inline because this file may not
+      // import. Shapes mirror src/pane/review/state.ts (PhaseEntry, LastResult); starting values are
+      // reviewInitial() there. Keyed by the RECORDED gate id the card was listed under.
+      reviewPhase: Record<
+        string,
+        { phase: 'ready' | 'saving' | 'saved' | 'refused' | 'checking'; claim: string; copyId: string; label: string }
+      >
+      reviewLast: { gateId: string; label: string; verdict: string; at: number } | null
+      // recorded gate id -> the id of the card drawn in THIS conversation by gate_render mirror_of
+      reviewMirrors: Record<string, string>
+      reviewDismissed: string[]
+      reviewForeign: string[]
+      reviewOpen: string | null
     }
   }
 }
