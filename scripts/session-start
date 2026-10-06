@@ -124,7 +124,7 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
         const r = res && res.readiness;
         if (!r || r.state !== "not_ready") return;
         const req = rr.REQUIREMENT_LINES[r.reason] || String(r.reason || "unknown");
-        process.stdout.write("FeyMinto: this room is not ready (" + req + "). The recovery rebuilds the record from ROOM.md and the registry and indexes the files already here; it runs only on your word: answer the recovery card when a filing asks, or run /mos:graph --derive.");
+        process.stdout.write(require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs")).readinessLine(req));
       }).catch(function (_e) { /* soft-fail: say nothing */ });
     } catch (_e) { /* soft-fail: say nothing */ }
   ' 2>/dev/null || echo "")
@@ -1165,6 +1165,14 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
               const triple = fm.readTriple(sp);
               brainRes = await brainStale.computeBrainStaleness(sp, triple);
               if (brainRes && brainRes.exists === true) anyBrainMdSeen = true;
+              // 369.25 plan 20: when BRAIN.md is the FeyMinto Theo face, attach what it says happened to the
+              // question (asked, or not asked and why) so the line below is not "Brain derivation: fresh".
+              if (brainRes && brainRes.exists === true) {
+                try {
+                  const ff = fmt.readFaceFields(fs.readFileSync(path.join(sp, "BRAIN.md"), "utf8"));
+                  if (ff) Object.assign(brainRes, ff);
+                } catch (_e) { /* a legacy or unreadable BRAIN.md keeps its old line */ }
+              }
             } catch (_e) { brainRes = null; }
             if (brainRes) {
               sections[name] = sections[name] || {};
@@ -1199,11 +1207,36 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
             } catch (_e) { /* advisory; do not block session-start */ }
           }
         }
+        // 5b. 369.25 plan 20 (FBRIEF-02): the active nest first three brief blocks, linked rest. The active nest
+        // is the session focus section when the session id is in the environment (read through the navigation
+        // read-only door), else the nest whose BRIEF.md or MINTO.md changed last. A room with no BRIEF.md anywhere
+        // gets no head and keeps the per-section rendering below byte for byte. Soft-fail: on any error, no head.
+        let briefHead = null;
+        let nestLinks = null;
+        try {
+          const sid = process.env.CLAUDE_CODE_SESSION_ID || process.env.MINDRIAN_ACTIVE_SESSION_ID || "";
+          let nav = null;
+          let rdb = null;
+          if (sid) {
+            try {
+              nav = require(path.join(pluginRoot, "lib", "core", "navigation.cjs"));
+              rdb = nav.openRoomDbReadOnlyForCaller(roomDir);
+            } catch (_e) { rdb = null; }
+          }
+          try {
+            const asm = fmt.assembleBriefHead({ roomDir: roomDir, sessionId: sid || undefined, db: rdb || undefined });
+            if (asm && typeof asm.head === "string" && asm.head.length > 0) { briefHead = asm.head; nestLinks = asm.links; }
+          } finally {
+            try { if (rdb && nav) nav.closeRoomDbForCaller(rdb); } catch (_e) { /* best effort */ }
+          }
+        } catch (_e) { briefHead = null; nestLinks = null; }
         // 6. Format and emit (always runs, even when Brain staleness skipped).
         const block = fmt.formatTripleContext({
           sections: sections,
           pendingTier1: pendingTier1,
           staleReport: staleReport,
+          briefHead: briefHead,
+          nestLinks: nestLinks,
         });
         process.stdout.write(block || "");
       })().catch(function (_e) { /* soft-fail: emit nothing */ });
