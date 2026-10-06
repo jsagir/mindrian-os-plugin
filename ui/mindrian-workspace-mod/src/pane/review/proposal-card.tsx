@@ -11,8 +11,6 @@
 // than one answer, an unclassified choice, an approve that would run work) is read-only: D30 stands where
 // the buttons would be, and Decide later is still there (plan 10 OQ-14 and OQ-15: no sentence is invented).
 // A card raised in another conversation draws P114 and the P115 button instead of choices.
-import type { RenderElement, RenderNode } from 'claude-code'
-
 import { text } from '../../copy/text'
 import { recommendedOption } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
@@ -26,6 +24,11 @@ import { expiryWords } from './expiry'
 import { readReview, runAsk, runLater } from './review-io'
 import type { ReviewSlice } from './review-io'
 import type { PhaseEntry } from './state'
+
+// The drawn types come from the panel frame, so this folder never imports the engine's module (the
+// review folder holds no engine state API, see tests/test-369.26-review-answer.cjs).
+type RenderNode = Parameters<typeof panel>[3][number]
+type RenderElement = ReturnType<typeof panel>
 
 // The words of a phase entry: one deck sentence per state, or null for an entry with no sentence.
 export function phaseWords(entry: PhaseEntry): string | null {

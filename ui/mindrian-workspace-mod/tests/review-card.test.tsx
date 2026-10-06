@@ -941,10 +941,10 @@ function wireReal(on: On, env: Record<string, string>, answer?: Beneath['answer'
   on('fs.exists', () => ({ value: true }))
   on('session.cwd', () => ({ value: '/r/a/03_funding' }))
   on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
-  on('mcp.call', (_$, e) => {
+  on('mcp.call', async (_$, e) => {
     const args = (e.args ?? {}) as Record<string, unknown>
     beneath.mcp.push({ server: e.server, tool: e.tool, args })
-    return { value: beneath.answer(e.tool, args) as never }
+    return { value: (await beneath.answer(e.tool, args)) as never }
   })
   on('prompt.submit', (_$, e) => {
     beneath.submits.push(e)

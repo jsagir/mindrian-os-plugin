@@ -65,7 +65,9 @@ scenario('the review folder names no Brain server and holds no $, atom, read or 
     const code = src.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
     assert.ok(!/BRAIN_SERVER|mindrian-brain|brain_/.test(code), f + ' names the Brain');
     assert.ok(!/\$\./.test(code) && !/\(\$[,)]/.test(code), f + ' uses $');
-    assert.ok(!/\batom\(|\bupdate\(|\bread\(|from 'claude-code'/.test(code), f + ' reaches the engine state API');
+    // Plan 14 (route B): the adapter calls `act.update(...)`, a closure the hook file built, so a member call
+    // is not the engine's `update($, ref, fn)`. Only a bare atom(, update( or read( is the engine state API.
+    assert.ok(!/(?<![.\w])(?:atom|update|read)\(|from 'claude-code'/.test(code), f + ' reaches the engine state API');
   }
 });
 

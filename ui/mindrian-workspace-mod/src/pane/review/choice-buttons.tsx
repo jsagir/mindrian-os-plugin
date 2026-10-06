@@ -11,8 +11,6 @@
 // It starts as 'boxed' (C-27); the real render check (task 3) decides whether it flips and records why in
 // INTERIM.md. A press runs plan 10's answer machine through the adapter (src/pane/review/review-io.ts);
 // this file never names a runtime tool.
-import type { RenderElement } from 'claude-code'
-
 import { text } from '../../copy/text'
 import { choiceOptions, recommendedOption } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
@@ -35,7 +33,7 @@ export function ChoiceButtons(
   card: GateCard,
   waiting: GateCard[],
   form: ChoiceForm = CHOICE_FORM,
-): RenderElement {
+) {
   const { Box, Text, Button } = ctx.el
   const layout = paneLayout(ctx.bodyColumns)
   const recommended = recommendedOption(card)
