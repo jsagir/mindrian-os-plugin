@@ -1028,17 +1028,19 @@ test('the real pane at Think: the missing sample shows M04 and P77 with no butto
   }
 })
 
-test('the real pane at Think: the several sample is the searching state (P78, no gap list); unreadable is M03 everywhere', async ($, on) => {
+test('the real pane at Think: the several sample is the searching state (P78 and no gap list)', async ($, on) => {
   wireReal(on, { MOS_WORKSPACE_SAMPLE: 'several' })
-  let ui = await mountReal($, 'terminal')
+  const ui = await mountReal($, 'terminal')
   await openThink(ui)
   expect(shown(await drawn(ui, 'think:state'))).toContain(text('P78'))
   expect(await ui.find({ key: 'think:gaps' })).toBeUndefined()
   await backToRoom(ui)
   await ui.unmount()
+})
 
+test('the real pane at Think: the unreadable sample is M03 in every part', async ($, on) => {
   wireReal(on, { MOS_WORKSPACE_SAMPLE: 'unreadable' })
-  ui = await mountReal($, 'terminal')
+  const ui = await mountReal($, 'terminal')
   await openThink(ui)
   expect(shown(await drawn(ui, 'think:understanding'))).toContain(text('M03'))
   expect(shown(await ui.find({ key: 'think:unsure' }))).toContain(text('M03'))
