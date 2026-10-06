@@ -16,8 +16,11 @@ import type { TabId } from '../runtime/ids'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
 
-// Plan 02 narrowed labelId from a string to the CopyId union (the copy deck now exists).
-export type KeySpec = { key: string; labelId: CopyId }
+// Plan 02 narrowed labelId from a string to the CopyId union (the copy deck now exists); plan 07
+// narrows it again to the hint labels (H01 to H22), the ids a key line is made of. None of them
+// has a placeholder, so text(labelId) is valid on the whole union.
+export type KeyLabelId = Extract<CopyId, `H${string}`>
+export type KeySpec = { key: string; labelId: KeyLabelId }
 
 export type ExplainId = 'X01' | 'X02' | 'X03' | 'X04'
 

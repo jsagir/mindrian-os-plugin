@@ -11,8 +11,13 @@ import type { ViewModel } from '../model/view-model'
 import type { TabId } from '../runtime/ids'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
+import { detailsBlock, detailsButton } from './details-block'
+import { explainNote } from './explain-note'
+import { hintLine } from './hint-line'
 import { ink, page } from './ink'
+import { keysPanel } from './keys-panel'
 import { paneLayout } from './layout'
+import { EXPLAIN_FOR_TAB, keyList } from './state'
 import { tabStrip } from './tab-strip'
 import type { Surface } from './tab-strip'
 import type { KeySpec, PaneEl, ShellActions, TabBody, TabContext } from './types'
@@ -95,14 +100,55 @@ export function buildPane(el: PaneEl, input: PaneInput, deps: PaneDeps): RenderE
   if (input.working) notes.push(text('P05'))
 
   const bodyEl = safeView(body, ctx)
+  const keys = keyList(body !== undefined, safeKeys(body, ctx), tab)
+
+  const hint = hintLine(el, {
+    keys,
+    isFocused: input.isFocused,
+    bodyColumns: input.bodyColumns,
+    keysOpen: input.keysOpen,
+    mode,
+    theme,
+    act: input.act,
+  })
+
+  // With nothing to draw from (no model yet) the pane stops at the strip and the hint line.
+  if (input.vm === null || ctx === null) {
+    return (
+      <Box flexDirection="column" width={input.bodyColumns} {...page(mode, theme)}>
+        {strip}
+        {hint}
+        {notes.map((note) => (
+          <Text {...ink(mode, theme)}>{note}</Text>
+        ))}
+      </Box>
+    )
+  }
+
+  let extra: RenderElement | null = null
+  if (body?.detailsExtra !== undefined) {
+    try {
+      extra = body.detailsExtra(ctx)
+    } catch {
+      extra = null
+    }
+  }
+  const detailsOpen = input.detailsOpen[tab]
 
   return (
     <Box flexDirection="column" width={input.bodyColumns} {...page(mode, theme)}>
       {strip}
+      {hint}
       {notes.map((note) => (
         <Text {...ink(mode, theme)}>{note}</Text>
       ))}
+      {input.keysOpen ? keysPanel(el, { keys, mode, theme, act: input.act }) : null}
+      {input.explainOpen
+        ? explainNote(el, { explainId: body?.explainId ?? EXPLAIN_FOR_TAB[tab], mode, theme })
+        : null}
       {bodyEl}
+      {detailsButton(el, { tab, open: detailsOpen, act: input.act })}
+      {detailsOpen ? detailsBlock(el, { vm: input.vm, mode, theme, extra }) : null}
     </Box>
   )
 }

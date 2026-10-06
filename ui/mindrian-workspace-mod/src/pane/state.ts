@@ -2,7 +2,7 @@
 // (src/registrars/pane.tsx): the engine scan reads a literal reference only in the file that uses
 // it, so this file holds decisions on plain values and nothing that touches `$`.
 import type { TabId } from '../runtime/ids'
-import type { ExplainId } from './types'
+import type { ExplainId, KeySpec } from './types'
 
 export type SubPanel = 'explain' | 'keys' | 'details'
 
@@ -41,4 +41,15 @@ export const EXPLAIN_FOR_TAB: Readonly<Record<TabId, ExplainId>> = {
   think: 'X02',
   sources: 'X03',
   review: 'X04',
+}
+
+// How many tab keys the hint line shows before Help and Esc (UI-SPEC 8.4).
+export const HINT_TAB_KEYS = 4
+
+// The whole key list of a tab: what its body says plus the shell's details key where it is armed.
+// With no body the tab shows nothing to press, so the list is empty (the hint line then reads only
+// Help and Esc).
+export function keyList(hasBody: boolean, bodyKeys: KeySpec[], tab: TabId): KeySpec[] {
+  if (!hasBody) return []
+  return detailsKeyArmed(tab) ? [...bodyKeys, { key: 's', labelId: 'H04' }] : bodyKeys
 }
