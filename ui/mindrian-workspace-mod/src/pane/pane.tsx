@@ -75,6 +75,7 @@ export function buildPane(el: PaneEl, input: PaneInput, deps: PaneDeps): RenderE
       ? null
       : {
           el,
+          surface: input.surface,
           vm: input.vm,
           theme,
           mode,

@@ -72,6 +72,10 @@ export type ShellActions = Actions & {
 
 export type TabContext = {
   el: PaneEl
+  // The surface being drawn. The element table `el` lists a Select on mobile too, but mobile draws
+  // none (the declared table has no Select), so a body that wants a picker asks here (plan 15).
+  // Optional so a context built by a test needs no surface.
+  surface?: 'terminal' | 'desktop' | 'vscode' | 'mobile'
   vm: ViewModel
   // Null in plain mode and when the palette cannot load; colors only ever come from here.
   theme: Theme | null

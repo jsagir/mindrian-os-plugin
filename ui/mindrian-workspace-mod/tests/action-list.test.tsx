@@ -303,7 +303,11 @@ function listBody(handlers: Handlers): TabBody {
       walk(drawn, (n) => {
         const key = String(propsOf(n).key)
         if (n.type === 'Button' && typeof n.onPress === 'function') handlers.press[key] = n.onPress as () => void
-        if (n.type === 'Select' && typeof n.onSelect === 'function') handlers.select[key] = n.onSelect as (value: string) => void
+        // A Select's element carries its handler as `onEvent`, which reads the picked value off `e.value`.
+        if (n.type === 'Select' && typeof n.onEvent === 'function') {
+          const onEvent = n.onEvent as (e: { value: string }) => void
+          handlers.select[key] = (value) => onEvent({ value })
+        }
       })
       return <Box flexDirection="column">{drawn}</Box>
     },
@@ -369,8 +373,8 @@ test('view: the open list draws the heading, the filter and one row per command 
     }
     // A command name is not drawn while details are closed.
     for (const row of load.rows) expect(s).not.toContain(row.command)
-    // No problem-type filter: one picker only.
-    expect(s).not.toContain('problem')
+    // No problem-type filter: the label is drawn once, and the only picker is the folder one.
+    expect(s.split(text('P120')).length - 1).toBe(1)
     const select = await ui.find({ type: 'Select' })
     if (surface === 'mobile') {
       expect(select).toBeUndefined()
@@ -481,6 +485,11 @@ test('view: plain mode draws the list in a single border with no color prop anyw
 
 // ---------- presses: only ever add words to the prompt box ----------
 
+// Let the chain of awaits a press starts run to its end (no timers in this environment).
+async function settle(): Promise<void> {
+  for (let i = 0; i < 20; i++) await Promise.resolve()
+}
+
 test('press: a row adds its command exactly as stored to the prompt box and toasts P34, nothing more', async ($, on) => {
   const load = loadedSample()
   const log = newLog()
@@ -493,7 +502,7 @@ test('press: a row adds its command exactly as stored to the prompt box and toas
   const ui = await draw($, 'terminal')
   handlers.press['action:1']?.()
   handlers.press['action:0']?.()
-  await new Promise((resolve) => setTimeout(resolve, 0))
+  await settle()
   expect(log.fills).toEqual(['/sample:beta', '/sample:alpha'])
   expect(log.toasts).toEqual([text('P34'), text('P34')])
   // The only act closures touched are the fill and the toast: no read, no write.
@@ -514,13 +523,13 @@ test('press: a box that did not take the words toasts P35; a pick in the filter 
   shellHook(on, cur)
   const ui = await draw($, 'terminal')
   handlers.press['action:0']?.()
-  await new Promise((resolve) => setTimeout(resolve, 0))
+  await settle()
   expect(log.toasts).toEqual([text('P35')])
 
   handlers.select['actions:filter']?.('funding')
   handlers.select['actions:filter']?.('not-a-folder')
   handlers.select['actions:filter']?.(ALL_FOLDERS)
-  await new Promise((resolve) => setTimeout(resolve, 0))
+  await settle()
   // The unknown folder is ignored; the other two are written to the room slice.
   expect(log.patches).toEqual([
     { tab: 'room', partial: { actionFilter: 'funding' } },
