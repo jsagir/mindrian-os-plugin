@@ -7,7 +7,7 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "13c75a76e9063af570ccc74dc8ca2ea5b51368b412eac0c77e4fb57724032715",
+      "digest": "39a771cc6375c7f15e72e2c628698195ccdb467f1cae107e0f79d95bcfd8567f",
       "source_count": 114
     },
     {
@@ -27,12 +27,12 @@
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "3cb52be592c535149fe44d624a838eb17339272a73bff102a5b72740ed490d15"
+      "digest": "888b60461ec4069ac589463c6f227aa46a83cb87cafad0d6afabfafe3f42265e"
     },
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "2862210fe044dc82a3be3edbed3693edea4918fa1fc7340ec35b669796323f2d"
+      "digest": "b8541649c79cf32501d5373fe84a3a08004072d1fb0b8dd4c2a3ac7dd40371d1"
     },
     {
       "role": "cockpit",
