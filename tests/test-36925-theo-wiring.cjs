@@ -533,33 +533,36 @@ arm('T8 dash guard; the empty-answer sentinel appears only in the empty-records 
 // ---- T9 ----------------------------------------------------------------------------------------------------
 
 arm('T9 the engine does not count a "not asked" or shape line as a consumed section', () => {
-  const engine = require(path.join(ROOT, 'lib', 'core', 'navigation-engine.cjs'));
-  const sections = {
-    pattern_matches: { body: '- Run Methodology (confidence: 0.8)', tokens_estimate: 4 },
-    framework_chain_predictions: { body: NOT_ASKED.no_handle, tokens_estimate: 4 },
-    cross_domain_analogies: { body: NOT_ASKED.unavailable, tokens_estimate: 4 },
-    wicked_indicators: { body: NOT_ASKED.tier_denied, tokens_estimate: 4 },
-    unfilled_opportunity_matches: { body: 'the answer came in a shape this section does not read', tokens_estimate: 4 },
-    assessment_thinking_chain_position: { body: NO_SIGNAL, tokens_estimate: 4 },
-    problemtype_classification: null,
-    flagged_contradictions_xroom: { body: NOT_ASKED.offline, tokens_estimate: 4 },
-    hsi_signals: { body: NOT_ASKED.birth, tokens_estimate: 4 },
-  };
-  const brain = {
-    exists: true, section: 'market-analysis', brain_generated_at: '2026-04-20T12:00:00Z', brain_graph_version: 1,
-    governing_thought_hash: 'sha256:abc123', staleness: 'fresh', stale_reason: null, author: 'brain', confidence_baseline: 0.5,
-    parse_failed: false, sections, flagged_weaknesses: [],
-  };
-  const quadruple = {
-    room: { exists: true, identity_text: 'market analysis section', references: [] },
-    state: { exists: true, artifact_count: 3, completeness_score: 0.6 },
-    reasoning: { exists: true, governing_thought: 'Customers will pay a premium for X', reasoning_health_score: 0.7, is_stale: false, arguments: [] },
-    brain,
-  };
-  const d = engine.decide(
-    { userText: 'help me think about market sizing', sectionPath: '/tmp/fixture-room/market-analysis', sessionId: 'test-session-1' },
-    { quadruple, brainAvailable: true, userPersona: { archetype: 'Founder', problem_type: 'IDP', venture_stage: 'discovery' }, intentSignal: { intent: 'analyze', confidence: 0.6 } });
-  eq(d.decision_trace.brain_md_sections_consumed, ['pattern_matches'], 'only the section with content is consumed');
+  // Run in a child process so the engine loads in its natural order (this process loaded navigation first, which
+  // makes the engine print a circular-require warning that has nothing to do with the arm).
+  const code = `
+    const engine = require(${JSON.stringify(path.join(ROOT, 'lib', 'core', 'navigation-engine.cjs'))});
+    const sections = {
+      pattern_matches: { body: '- Run Methodology (confidence: 0.8)', tokens_estimate: 4 },
+      framework_chain_predictions: { body: ${JSON.stringify(NOT_ASKED.no_handle)}, tokens_estimate: 4 },
+      cross_domain_analogies: { body: ${JSON.stringify(NOT_ASKED.unavailable)}, tokens_estimate: 4 },
+      wicked_indicators: { body: ${JSON.stringify(NOT_ASKED.tier_denied)}, tokens_estimate: 4 },
+      unfilled_opportunity_matches: { body: 'the answer came in a shape this section does not read', tokens_estimate: 4 },
+      assessment_thinking_chain_position: { body: ${JSON.stringify(NO_SIGNAL)}, tokens_estimate: 4 },
+      problemtype_classification: null,
+      flagged_contradictions_xroom: { body: ${JSON.stringify(NOT_ASKED.offline)}, tokens_estimate: 4 },
+      hsi_signals: { body: ${JSON.stringify(NOT_ASKED.birth)}, tokens_estimate: 4 },
+    };
+    const brain = { exists: true, section: 'market-analysis', brain_generated_at: '2026-04-20T12:00:00Z', brain_graph_version: 1,
+      governing_thought_hash: 'sha256:abc123', staleness: 'fresh', stale_reason: null, author: 'brain', confidence_baseline: 0.5,
+      parse_failed: false, sections, flagged_weaknesses: [] };
+    const quadruple = { room: { exists: true, identity_text: 'market analysis section', references: [] },
+      state: { exists: true, artifact_count: 3, completeness_score: 0.6 },
+      reasoning: { exists: true, governing_thought: 'Customers will pay a premium for X', reasoning_health_score: 0.7, is_stale: false, arguments: [] }, brain };
+    const d = engine.decide({ userText: 'help me think about market sizing', sectionPath: '/tmp/fixture-room/market-analysis', sessionId: 'test-session-1' },
+      { quadruple, brainAvailable: true, userPersona: { archetype: 'Founder', problem_type: 'IDP', venture_stage: 'discovery' }, intentSignal: { intent: 'analyze', confidence: 0.6 } });
+    process.stdout.write('CONSUMED=' + JSON.stringify(d.decision_trace.brain_md_sections_consumed));
+  `;
+  const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', timeout: 60000 });
+  check(r.status === 0, 'engine child exit ' + r.status + ' ' + r.stderr.slice(0, 300));
+  const m = r.stdout.match(/CONSUMED=(\[.*\])/);
+  check(m, 'no CONSUMED line: ' + r.stdout.slice(0, 200));
+  eq(JSON.parse(m[1]), ['pattern_matches'], 'only the section with content is consumed');
 });
 
 // ---- runner ------------------------------------------------------------------------------------------------

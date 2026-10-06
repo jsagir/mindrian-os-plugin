@@ -272,10 +272,16 @@ arm('I4 CONTEXT.md present, the four ICM parts, the three ruling sections, gener
 // I5 factory vs product
 // shell: find <nest> -type f -name '*.md' -not -path '*/.*' | count ; grep -lE 'DO NOT EDIT|generated_at|last_generated_at|auto_scaffolded'
 // ---------------------------------------------------------------------------------------------------------------
+// 369.25-17 MOVING: birth now writes every core section's BRAIN.md (the FeyMinto Theo face, "not asked: at birth"), and the face
+// carries brain_generated_at, so each of the 11 core nests of room a gained one md file and one generated-marked file. BEFORE:
+// business-model 3/2, competitive-analysis 4/2, financial-model 3/2, funding 3/2, legal-ip 3/2, market-analysis 4/2, opportunity-bank
+// 3/2, problem-definition 4/2, solution-design 4/2, strategy 4/2, team-execution 3/2. AFTER: one more of each (the table below).
+// Measured on a fresh room a: find <nest> -type f -name '*.md' -not -path '*/.*' | wc -l ; grep -lE 'DO NOT EDIT|generated_at|
+// last_generated_at|auto_scaffolded' over those files | wc -l. The root, assets, references and team are unchanged.
 const A_I5 = { // [md files, generated-marked]
-  '.': [4, 1], assets: [1, 1], 'business-model': [3, 2], 'competitive-analysis': [4, 2], 'financial-model': [3, 2], funding: [3, 2],
-  'legal-ip': [3, 2], 'market-analysis': [4, 2], 'opportunity-bank': [3, 2], 'problem-definition': [4, 2], references: [3, 1],
-  'solution-design': [4, 2], strategy: [4, 2], 'team-execution': [3, 2], team: [1, 1],
+  '.': [4, 1], assets: [1, 1], 'business-model': [4, 3], 'competitive-analysis': [5, 3], 'financial-model': [4, 3], funding: [4, 3],
+  'legal-ip': [4, 3], 'market-analysis': [5, 3], 'opportunity-bank': [4, 3], 'problem-definition': [5, 3], references: [3, 1],
+  'solution-design': [5, 3], strategy: [5, 3], 'team-execution': [4, 3], team: [1, 1],
 };
 arm('I5 generated-marked files vs authored files per nest (room a table, room b three nests)', () => {
   const rep = report('a');
@@ -286,7 +292,7 @@ arm('I5 generated-marked files vs authored files per nest (room a table, room b 
   const b = report('b');
   eq(nest(b, '.').I5, { md_files: 4, generated_marked: 1, authored: 3 }, 'b root I5');
   eq(nest(b, 'problem-definition').I5, { md_files: 10, generated_marked: 3, authored: 7 }, 'b A I5');
-  eq(nest(b, 'market-analysis').I5, { md_files: 6, generated_marked: 2, authored: 4 }, 'b B I5');
+  eq(nest(b, 'market-analysis').I5, { md_files: 7, generated_marked: 3, authored: 4 }, 'b B I5 (369.25-17: birth wrote its BRAIN.md face; was 6 / 2)');
   eq(nest(b, 'solution-design').I5, { md_files: 4, generated_marked: 2, authored: 2 }, 'b C I5');
 });
 
@@ -304,8 +310,10 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
   const bare = { present: true, edit_surface_marker: false, governing_thought_placeholder: null };
   const marked = { present: true, edit_surface_marker: true, governing_thought_placeholder: null };
   eq(nest(a, '.').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': missing, 'BRAIN.md': missing }, 'a root faces');
+  // 369.25-17 MOVING: BEFORE the BRAIN.md of every core nest of room a was missing (11 of 11 absent); birth now writes the face,
+  // and the face declares edit_surface, so it is present and marked (grep -cE '^(editable_fields|edit_surface|human_edited):' = 1).
   WITH_CONTEXT.forEach((k) => {
-    eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': marked, 'BRAIN.md': missing }, 'a ' + k + ' faces');
+    eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': marked, 'BRAIN.md': marked }, 'a ' + k + ' faces');
   });
   NO_CONTEXT.forEach((k) => eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': missing, 'BRAIN.md': missing }, 'a ' + k + ' faces'));
   const b = report('b');
@@ -314,7 +322,7 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
     'FEYNMAN.md': { present: true, edit_surface_marker: true, governing_thought_placeholder: null },
     'BRAIN.md': { present: true, edit_surface_marker: false, governing_thought_placeholder: null },
   }, 'b A faces');
-  eq(nest(b, 'market-analysis').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': marked, 'BRAIN.md': missing }, 'b B faces');
+  eq(nest(b, 'market-analysis').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': marked, 'BRAIN.md': marked }, 'b B faces (369.25-17: birth wrote the BRAIN.md face)');
   eq(nest(b, 'solution-design').I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': marked, 'BRAIN.md': bare }, 'b C faces');
 });
 
@@ -332,11 +340,15 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // 369.25-15 RE-MEASURED: the seeded FEYNMAN.md now carries three frontmatter lines and the two FeyMinto blocks, +462 bytes
 // on every nest that has one (wc -c per file: 111 123 113 97 99 113 115 119 113 99 111 became 573 585 575 559 561 575 577 581
 // 575 561 573). Each value below is that nest's ROOM.md + FEYNMAN.md (wc -c), e.g. business-model 1467 + 573 = 2040.
+// 369.25-17 RE-MEASURED: birth stamps room_id into every FEYNMAN.md (one frontmatter line, 9 + 36 + 1 = 46 bytes), so each nest
+// that has a FEYNMAN.md grows by 46 bytes (wc -c per file, room a: 573 585 575 559 561 575 577 581 575 561 573 became
+// 619 631 621 605 607 621 623 627 621 607 619). Each value below is that nest's ROOM.md + FEYNMAN.md (wc -c), e.g.
+// business-model 1467 + 619 = 2086. BRAIN.md is not one of the I7 load files, so the face adds nothing here.
 const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
-  '.': 1825, assets: 709, 'business-model': 2040, 'competitive-analysis': 2077, 'financial-model': 1995,
-  funding: 2085, 'legal-ip': 1990, 'market-analysis': 2052, 'opportunity-bank': 2100,
-  'problem-definition': 2088, references: 1031, 'solution-design': 2049, strategy: 2135,
-  'team-execution': 1988, team: 681,
+  '.': 1825, assets: 709, 'business-model': 2086, 'competitive-analysis': 2123, 'financial-model': 2041,
+  funding: 2131, 'legal-ip': 2036, 'market-analysis': 2098, 'opportunity-bank': 2146,
+  'problem-definition': 2134, references: 1031, 'solution-design': 2095, strategy: 2181,
+  'team-execution': 2034, team: 681,
 };
 function contextBytes(dir, k) {
   const f = path.join(dir, k === '.' ? '' : k, 'CONTEXT.md');
@@ -357,7 +369,7 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
     eq(n.I7.feynman_body_tokens, A_FEYNMAN_TOKENS[k] === undefined ? null : A_FEYNMAN_TOKENS[k], 'a ' + k + ' feynman_body_tokens');
     eq(n.I7.feynman_over_1500, A_FEYNMAN_TOKENS[k] === undefined ? null : false, 'a ' + k + ' feynman_over_1500');
   });
-  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 581, 'BRIEF.md': null }, 'a problem-definition I7 files');
+  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 627, 'BRIEF.md': null }, 'a problem-definition I7 files (369.25-17: 581 + the 46 byte room_id line)');
   const b = report('b');
   const A = nest(b, 'problem-definition').I7;
   // 369.25-16 MOVING: room b's CONTEXT.md share is measured at test time too (part 7 moved it by 862 bytes). Authored
@@ -369,8 +381,9 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
   eq(A.files['BRIEF.md'], 32, 'b A BRIEF bytes');
   const B = nest(b, 'market-analysis').I7;
   // 369.25-15 RE-MEASURED: nest B's seeded FEYNMAN.md grew 113 -> 575 bytes, so ROOM 1708 + MINTO 83 + FEYNMAN 575 + BRIEF 32000 = 34366 (wc -c; was 33904)
-  const bExpB = 34366 + contextBytes(B_DIR, 'market-analysis');
-  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 34366 + CONTEXT at test time)');
+  // 369.25-17 RE-MEASURED: birth stamped room_id into it, 575 -> 621 bytes, so 1708 + 83 + 621 + 32000 = 34412 (wc -c)
+  const bExpB = 34412 + contextBytes(B_DIR, 'market-analysis');
+  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 34412 + CONTEXT at test time)');
   // 369.25-07 RE-MEASURED: b root ROOM 1208 + MINTO 733 = 1941 bytes (wc -c), ceil(1941 / 4) = 486 tokens (was 1891 / 473)
   eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1941, 486], 'b root I7');
 });
@@ -414,10 +427,29 @@ arm('I8b MINTO room value (slug and room id), room.db present, Room node, the se
   eq([b.room.room_db, b.room.room_node, b.room.identity_rows_total, b.room.identity_keys_present, b.room.identity_ready],
     ['present', true, 15, 7, true], 'b room identity');
   const bid = b.room.room_id;
-  eq(nest(b, 'problem-definition').I8b, { minto_room: 'vi3-scaffold-b', matches_slug: true, room_id_expected: bid, matches_room_id: false }, 'b A I8b');
-  eq(nest(b, 'market-analysis').I8b, { minto_room: 'some-other-room', matches_slug: false, room_id_expected: bid, matches_room_id: false }, 'b B I8b');
-  eq(nest(b, 'solution-design').I8b, { minto_room: null, matches_slug: null, room_id_expected: bid, matches_room_id: null }, 'b C I8b (MINTO missing)');
-  eq(nest(a, '.').I8b, { minto_room: null, matches_slug: null, room_id_expected: a.room.room_id, matches_room_id: null }, 'a root I8b (MINTO has no room key)');
+  // 369.25-17 MOVING: I8b also reads FEYNMAN.md `room_id` and BRAIN.md `room_id` (and MINTO.md `room_slug`) and reports
+  // matches_room_id per face (`faces`). Birth stamps room_id into every FEYNMAN.md and writes it into every BRAIN.md face, so
+  // on room a each of the 11 core nests reads FEYNMAN true and BRAIN true (grep -m1 '^room_id:' <face> equals the room.db
+  // value: sqlite3 -readonly room.db "select value from identity where key='room.room_id'"). Hand-written faces carry no
+  // room_id and read null, never false.
+  const nul = { value: null, matches_room_id: null };
+  const keyed = (id) => ({ value: id, matches_room_id: true });
+  eq(nest(b, 'problem-definition').I8b, { minto_room: 'vi3-scaffold-b', matches_slug: true, room_id_expected: bid, matches_room_id: false,
+    minto_room_slug: null, matches_room_slug: null,
+    faces: { 'MINTO.md': { value: 'vi3-scaffold-b', matches_room_id: false }, 'FEYNMAN.md': nul, 'BRAIN.md': nul } }, 'b A I8b (hand-written FEYNMAN and BRAIN carry no room_id)');
+  eq(nest(b, 'market-analysis').I8b, { minto_room: 'some-other-room', matches_slug: false, room_id_expected: bid, matches_room_id: false,
+    minto_room_slug: null, matches_room_slug: null,
+    faces: { 'MINTO.md': { value: 'some-other-room', matches_room_id: false }, 'FEYNMAN.md': keyed(bid), 'BRAIN.md': keyed(bid) } }, 'b B I8b');
+  eq(nest(b, 'solution-design').I8b, { minto_room: null, matches_slug: null, room_id_expected: bid, matches_room_id: null,
+    minto_room_slug: null, matches_room_slug: null,
+    faces: { 'MINTO.md': nul, 'FEYNMAN.md': keyed(bid), 'BRAIN.md': nul } }, 'b C I8b (MINTO missing, BRAIN hand-written)');
+  eq(nest(a, '.').I8b, { minto_room: null, matches_slug: null, room_id_expected: a.room.room_id, matches_room_id: null,
+    minto_room_slug: null, matches_room_slug: null,
+    faces: { 'MINTO.md': nul, 'FEYNMAN.md': nul, 'BRAIN.md': nul } }, 'a root I8b (MINTO has no room key)');
+  WITH_CONTEXT.forEach((k) => {
+    eq(nest(a, k).I8b.faces, { 'MINTO.md': nul, 'FEYNMAN.md': keyed(a.room.room_id), 'BRAIN.md': keyed(a.room.room_id) }, 'a ' + k + ' I8b faces keyed by birth');
+  });
+  NO_CONTEXT.forEach((k) => eq(nest(a, k).I8b.faces, { 'MINTO.md': nul, 'FEYNMAN.md': nul, 'BRAIN.md': nul }, 'a ' + k + ' I8b faces (no faces)'));
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -429,16 +461,25 @@ arm('I8b MINTO room value (slug and room id), room.db present, Room node, the se
 // ---------------------------------------------------------------------------------------------------------------
 const A_NAMES = { 'business-model': 3, 'competitive-analysis': 6, 'financial-model': 3, funding: 3, 'legal-ip': 1, 'market-analysis': 3,
   'opportunity-bank': 3, 'problem-definition': 3, 'solution-design': 3, strategy: 6, 'team-execution': 3 };
-arm('I8c BRAIN.md present, brain_query_count, CONTEXT section-2 command names, the ones BRAIN.md restates', () => {
+// 369.25-17 REDEFINED AND MOVING: `restated` counts a section-2 name only on a BRAIN.md line with NO "(source: " tag; `tagged` counts the
+// names found only on tagged lines; `asked` and `not_asked_reason` come from the face frontmatter. Measured per nest with
+//   for n in <section-2 names>: grep -E -- "$n([^a-z0-9-]|$)" BRAIN.md | grep -v '(source: ' | grep -c .   (untagged lines)
+// and the same without the -v filter (any line). BEFORE (room a): BRAIN.md missing in all 11 core nests (brain_md false). AFTER: the
+// birth face is present (brain_query_count 0, asked false, not_asked_reason at_birth), restated 0 in every nest, and the section-2
+// names it points at on tagged lines are in A_TAGGED. Room b A and C are hand-written BRAIN.md files with no source tags: A keeps
+// restated 2 of 3, C keeps 0; room b B now has the birth face (tagged 2).
+const A_TAGGED = { 'business-model': 3, 'competitive-analysis': 1, 'financial-model': 3, funding: 0, 'legal-ip': 1, 'market-analysis': 2,
+  'opportunity-bank': 0, 'problem-definition': 1, 'solution-design': 3, strategy: 3, 'team-execution': 0 };
+arm('I8c BRAIN.md present, brain_query_count, CONTEXT section-2 command names, the ones BRAIN.md restates without a source tag', () => {
   const b = report('b');
-  eq(nest(b, 'problem-definition').I8c, { brain_md: true, brain_query_count: 3, context_command_names: 3, restated: 2 }, 'b A I8c');
-  eq(nest(b, 'solution-design').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0 }, 'b C I8c');
-  eq(nest(b, 'market-analysis').I8c, { brain_md: false, brain_query_count: null, context_command_names: 3, restated: null }, 'b B I8c (BRAIN missing)');
+  eq(nest(b, 'problem-definition').I8c, { brain_md: true, brain_query_count: 3, context_command_names: 3, restated: 2, tagged: 0, asked: null, not_asked_reason: null }, 'b A I8c');
+  eq(nest(b, 'solution-design').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0, tagged: 0, asked: null, not_asked_reason: null }, 'b C I8c');
+  eq(nest(b, 'market-analysis').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0, tagged: 2, asked: false, not_asked_reason: 'at_birth' }, 'b B I8c (the birth face)');
   const a = report('a');
   Object.keys(A_NAMES).forEach((k) => {
-    eq(nest(a, k).I8c, { brain_md: false, brain_query_count: null, context_command_names: A_NAMES[k], restated: null }, 'a ' + k + ' I8c');
+    eq(nest(a, k).I8c, { brain_md: true, brain_query_count: 0, context_command_names: A_NAMES[k], restated: 0, tagged: A_TAGGED[k], asked: false, not_asked_reason: 'at_birth' }, 'a ' + k + ' I8c');
   });
-  eq(nest(a, 'assets').I8c, { brain_md: false, brain_query_count: null, context_command_names: null, restated: null }, 'a assets I8c (no CONTEXT.md)');
+  eq(nest(a, 'assets').I8c, { brain_md: false, brain_query_count: null, context_command_names: null, restated: null, tagged: null, asked: null, not_asked_reason: null }, 'a assets I8c (no CONTEXT.md)');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -591,7 +632,10 @@ arm('M2 --json parses and carries every row for every nest', () => {
 
 // ---------------------------------------------------------------------------------------------------------------
 // M3 summary
-// shell: grep totals on the same rooms: faces present a 12, b 16 ; nests with all three faces a 0, b 1 ; marker true on b: A MINTO, A FEYNMAN, and
+// 369.25-17 MOVING: birth writes a BRAIN.md face in every core nest, so faces present a 12 -> 23 and b 16 -> 25, nests with all three faces
+// b 1 -> 2 (market-analysis gained the face), marker absent a 1 of 23, b 4 of 25 (root MINTO, B MINTO, and the hand-written BRAIN.md of A and C).
+// Measured: ls <room>/MINTO.md <room>/FEYNMAN.md <room>/BRAIN.md <room>/*/MINTO.md <room>/*/FEYNMAN.md <room>/*/BRAIN.md | wc -l, then grep -qE the marker per file.
+// (earlier) shell: grep totals on the same rooms: faces present a 12, b 16 ; nests with all three faces a 0, b 1 ; marker true on b: A MINTO, A FEYNMAN, and
 // (369.25-15 MOVING, BEFORE: absent 12 of 12 on a and 14 of 16 on b) the seeded FEYNMAN of B and C; on a only the root MINTO stays bare (1 of 12)
 // ---------------------------------------------------------------------------------------------------------------
 arm('M3 the room summary names the duplicates and the identity result (room a and room b)', () => {
@@ -600,18 +644,18 @@ arm('M3 the room summary names the duplicates and the identity result (room a an
     /== room summary ==/, /nests walked: 14/, /nests with every face: 0/,
     /MINTO sources also listed in ROOM\.md links: 0/, /Theo face restating CONTEXT\.md sequence: 0 command name\(s\)/,
     /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
-    /edit-surface marker absent: 1 of 12 face file\(s\)/, /duplications found: 0 of 3/,
+    /edit-surface marker absent: 1 of 23 face file\(s\)/, /duplications found: 0 of 3/,
   ].forEach((re) => check(re.test(ta), 'room a summary lacks ' + re + '\n' + ta.slice(ta.indexOf('== room summary ==')) ));
   const tb = mod().renderText(report('b'));
   [
-    /nests walked: 14/, /nests with every face: 1/, /MINTO sources also listed in ROOM\.md links: 2/,
+    /nests walked: 14/, /nests with every face: 2/, /MINTO sources also listed in ROOM\.md links: 2/,
     /Theo face restating CONTEXT\.md sequence: 2 command name\(s\)/,
     /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
-    /edit-surface marker absent: 4 of 16 face file\(s\)/, /duplications found: 2 of 3/,
+    /edit-surface marker absent: 4 of 25 face file\(s\)/, /duplications found: 2 of 3/,
   ].forEach((re) => check(re.test(tb), 'room b summary lacks ' + re + '\n' + tb.slice(tb.indexOf('== room summary =='))));
   const s = report('b').summary;
   eq([s.nests_walked, s.nests_with_every_face, s.minto_sources_in_room_md, s.theo_face_restated_commands, s.identity_in_room_db,
-    s.edit_surface_marker_absent, s.face_files_present, s.duplications_found], [14, 1, 2, 2, true, 4, 16, 2], 'b summary object');
+    s.edit_surface_marker_absent, s.face_files_present, s.duplications_found], [14, 2, 2, 2, true, 4, 25, 2], 'b summary object');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
