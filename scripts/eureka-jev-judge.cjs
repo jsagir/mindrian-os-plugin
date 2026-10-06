@@ -103,7 +103,7 @@ async function main() {
     try { recorded = JSON.parse(fs.readFileSync(responsesPath, 'utf8')); } catch (_e) { process.stdout.write(JSON.stringify({ ok: false, reason: 'no_recorded_responses' }) + '\n'); process.exit(2); }
   }
   const key = check ? null : client.loadKey();
-  if (!check && !key) { process.stdout.write(JSON.stringify({ ok: false, reason: 'no_key' }) + '\n'); process.exit(3); }
+  if (!check && !key) { process.stdout.write(JSON.stringify({ ok: false, reason: 'no_key', line: judge.JUDGE_LINES.no_key }) + '\n'); process.exit(3); }
 
   const ids = Array.from(new Set(candidates.reduce(function (acc, c) { return acc.concat([c.a, c.b]); }, [])));
   const excerpts = excerptsFor(room, ids);

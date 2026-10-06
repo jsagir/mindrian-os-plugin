@@ -321,6 +321,10 @@ async function perspectiveJudge(room, id, flags) {
   const res = await eurekaJudge.runJudge(room, flags['--tag'], { judge: 'none', module: mod });
   if (!res.ok) return { ok: false, reason: res.reason };
   const out = { ok: true, perspective: id, run_tag: res.tag, file: res.file, summary: res.summary };
+  // 369.2-27 (SW-17): the one-line reason no model judged these pairs, and the next move
+  const jstate = eurekaJudge.judgeState(room);
+  out.judge_state = jstate.state;
+  out.line = jstate.line;
   if (flags['--offline'] === true) out.offline = true;
   return out;
 }
