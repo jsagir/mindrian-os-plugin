@@ -388,6 +388,18 @@ async function main() {
     const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
     const ldb = navigation.openRoomDbForCaller(legacy.roomDir);
     try { ldb.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { navigation.closeRoomDbForCaller(ldb); }
+    // a TRUE legacy room records no id outside room.db (born before 369.25): plan 27 reads a recorded id as a lost graph
+    {
+      const rootFile = path.join(legacy.roomDir, '.room-root');
+      const cur = JSON.parse(fs.readFileSync(rootFile, 'utf8'));
+      delete cur.room_id;
+      fs.writeFileSync(rootFile, JSON.stringify(cur));
+      const regFile = path.join(isoA.roomsHome, '.rooms', 'registry.json');
+      const reg = JSON.parse(fs.readFileSync(regFile, 'utf8'));
+      Object.keys(reg.rooms || {}).forEach((k) => { if (reg.rooms[k] && typeof reg.rooms[k] === 'object') delete reg.rooms[k].room_id; });
+      fs.writeFileSync(regFile, JSON.stringify(reg, null, 2));
+    }
+
     const lb = parse(await server.tools.room_bind({ room: 'inj-legacy' }, { sessionId: 's-inj-legacy' }));
     check('J6 room_bind binds the legacy room', !!lb && lb.ok === true && lb.effective === true, short(lb));
     const lr = parse(await server.tools.context_assemble({ top_k: 3 }, { sessionId: 's-inj-legacy' }));

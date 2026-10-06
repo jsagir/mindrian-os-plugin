@@ -21,6 +21,10 @@
  *        and the recovery; the net call it makes writes nothing; inside a ready room the line is absent
  *   R6   the recovery card is named by its job: fixed header, no grant, no id, offers approve (recover) and defer
  *   R7   readinessFor: the per-operation table, requirement text from REQUIREMENT_LINES
+ *   L1-L5 (plan 27, Larry's leg B): a born room with work in its graph, room.db deleted, then a silent minting open
+ *        (openRoomDb) leaves an empty identity-less database; the recorded id outside room.db (.room-root, registry)
+ *        tells it from a legacy room, so it is room_graph_lost (blocking write and research), while a room with no
+ *        recorded id anywhere stays a legacy room; the card says what can and cannot come back; ready needs the row
  *   dash guard over the test and the two new modules
  *
  * Harness: in-process fake server (the tests/test-36925-rid-binding.cjs seam), fixture rooms born under an isolated
@@ -78,6 +82,22 @@ function removeDb(roomDir) {
 function zeroDb(roomDir) {
   removeDb(roomDir);
   fs.writeFileSync(dbFile(roomDir), Buffer.alloc(64));
+}
+// Make a room a TRUE legacy room: no recorded id anywhere outside room.db (a room born before 369.25 has none).
+// Removes the room_id from .room-root, from the registry entry and from the ROOM.md icm_self block.
+function stripRecordedId(roomDir, roomsHome) {
+  const rootFile = path.join(roomDir, '.room-root');
+  const cur = JSON.parse(fs.readFileSync(rootFile, 'utf8'));
+  delete cur.room_id;
+  fs.writeFileSync(rootFile, JSON.stringify(cur));
+  const regFile = path.join(roomsHome, '.rooms', 'registry.json');
+  if (fs.existsSync(regFile)) {
+    const reg = JSON.parse(fs.readFileSync(regFile, 'utf8'));
+    Object.keys(reg.rooms || {}).forEach((k) => { if (reg.rooms[k] && typeof reg.rooms[k] === 'object') delete reg.rooms[k].room_id; });
+    fs.writeFileSync(regFile, JSON.stringify(reg, null, 2));
+  }
+  const md = path.join(roomDir, 'ROOM.md');
+  if (fs.existsSync(md)) fs.writeFileSync(md, fs.readFileSync(md, 'utf8').replace(/^[ \t]*room_id:.*\n/m, ''));
 }
 const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
 
@@ -214,6 +234,7 @@ async function main() {
   await bind('s-legacy', 'rg-legacy');
   const ldb = navigation.openRoomDbForCaller(l.roomDir);
   try { ldb.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { navigation.closeRoomDbForCaller(ldb); }
+  stripRecordedId(l.roomDir, iso.roomsHome); // a true legacy room records no id outside room.db (plan 27)
   check('R4 setup: the legacy room reads identity_missing', identityMod.readRoomIdentity(l.roomDir).reason === 'identity_missing');
   const r4 = await file('s-legacy', 'r4');
   check('R4 a legacy room keeps working: the write lands', !!r4 && r4.ok === true, short(r4));
@@ -258,13 +279,13 @@ async function main() {
     !!rd && typeof rd.readinessFor === 'function' && Array.isArray(rd.OPERATIONS) && !!rd.REQUIREMENT_LINES && !!rd.BLOCKING, rd ? Object.keys(rd).join(',') : 'module absent');
   if (rd) {
     check('R7 OPERATIONS is the four operations', JSON.stringify(rd.OPERATIONS.slice().sort()) === JSON.stringify(['feyminto_face', 'governed_write', 'research', 'status']), short(rd.OPERATIONS));
-    check('R7 BLOCKING.feyminto_face is the owner module NOT_READY_REASONS plus room_db_not_writable (no drift)',
-      JSON.stringify(rd.BLOCKING.feyminto_face.slice().sort()) === JSON.stringify(identityMod.NOT_READY_REASONS.concat(['room_db_not_writable']).sort()), short(rd.BLOCKING.feyminto_face));
-    check('R7 BLOCKING: research blocks missing and unreadable only', JSON.stringify(rd.BLOCKING.research.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_unreadable']), short(rd.BLOCKING.research));
-    check('R7 BLOCKING: governed_write adds room_db_not_writable', JSON.stringify(rd.BLOCKING.governed_write.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_not_writable', 'room_db_unreadable']), short(rd.BLOCKING.governed_write));
+    check('R7 BLOCKING.feyminto_face is the owner module NOT_READY_REASONS plus room_db_not_writable and room_graph_lost (no drift)',
+      JSON.stringify(rd.BLOCKING.feyminto_face.slice().sort()) === JSON.stringify(identityMod.NOT_READY_REASONS.concat(['room_db_not_writable', 'room_graph_lost']).sort()), short(rd.BLOCKING.feyminto_face));
+    check('R7 BLOCKING: research blocks missing, unreadable and room_graph_lost only', JSON.stringify(rd.BLOCKING.research.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_unreadable', 'room_graph_lost']), short(rd.BLOCKING.research));
+    check('R7 BLOCKING: governed_write adds room_db_not_writable', JSON.stringify(rd.BLOCKING.governed_write.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_not_writable', 'room_db_unreadable', 'room_graph_lost']), short(rd.BLOCKING.governed_write));
     check('R7 BLOCKING: status blocks nothing and the face blocks every not-ready reason',
-      rd.BLOCKING.status.length === 0 && ['room_db_missing', 'room_db_unreadable', 'room_db_not_writable', 'identity_missing', 'identity_incomplete', 'identity_path_mismatch', 'registry_missing_room'].every((x) => rd.BLOCKING.feyminto_face.indexOf(x) !== -1), short(rd.BLOCKING));
-    check('R7 REQUIREMENT_LINES has a line for every reason', ['room_db_missing', 'room_db_unreadable', 'room_db_not_writable', 'identity_missing', 'identity_incomplete', 'identity_path_mismatch', 'registry_missing_room'].every((x) => typeof rd.REQUIREMENT_LINES[x] === 'string' && rd.REQUIREMENT_LINES[x].length > 0));
+      rd.BLOCKING.status.length === 0 && ['room_db_missing', 'room_db_unreadable', 'room_db_not_writable', 'identity_missing', 'identity_incomplete', 'identity_path_mismatch', 'registry_missing_room', 'room_graph_lost'].every((x) => rd.BLOCKING.feyminto_face.indexOf(x) !== -1), short(rd.BLOCKING));
+    check('R7 REQUIREMENT_LINES has a line for every reason', ['room_db_missing', 'room_db_unreadable', 'room_db_not_writable', 'identity_missing', 'identity_incomplete', 'identity_path_mismatch', 'registry_missing_room', 'room_graph_lost'].every((x) => typeof rd.REQUIREMENT_LINES[x] === 'string' && rd.REQUIREMENT_LINES[x].length > 0));
     const ops = ['governed_write', 'research', 'feyminto_face', 'status'];
     const table = (dir) => ops.map((op) => rd.readinessFor(dir, op));
     const flags = (res) => res.map((x) => x.blocking === true).join(',');
@@ -281,6 +302,7 @@ async function main() {
     const leg = birth('rg7-legacy');
     const legDb = navigation.openRoomDbForCaller(leg.roomDir);
     try { legDb.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { navigation.closeRoomDbForCaller(legDb); }
+    stripRecordedId(leg.roomDir, iso.roomsHome); // a true legacy room records no id outside room.db (plan 27)
     const tLeg = table(leg.roomDir);
     check('R7 legacy identity_missing: write and research are NOT blocked, the face is (false,false,true,false)', flags(tLeg) === 'false,false,true,false' && tLeg[0].reason === 'identity_missing' && tLeg[0].ok === true && tLeg[0].state === 'not_ready', flags(tLeg));
     const plain = path.join(iso.home, 'plain-folder-no-room');
@@ -311,6 +333,94 @@ async function main() {
       }
     }
   }
+
+  // ---- L1-L5: a re-minted empty graph is not a legacy room (plan 27, Larry's leg B) ------------------------------
+  const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+  const countNodes = (dir) => {
+    const d = navigation.openRoomDbForCaller(dir);
+    try { return d.prepare('SELECT count(*) AS c FROM nodes').get().c; } finally { navigation.closeRoomDbForCaller(d); }
+  };
+  const rdL = require(path.join(ROOT, 'lib', 'core', 'room-readiness.cjs'));
+  const g = birth('rg-lost');
+  await bind('s-lost', 'rg-lost');
+  const work = await file('s-lost', 'pre-loss');
+  check('L1 setup: a governed filing landed before the loss', !!work && work.ok === true, short(work));
+  const idLost = identityMod.readRoomIdentity(g.roomDir);
+  const nodesBefore = countNodes(g.roomDir);
+  check('L1 setup: the room holds work in its graph (node count above zero)', nodesBefore > 0, String(nodesBefore));
+  removeDb(g.roomDir);
+  const mint = roomDbMod.openRoomDb(g.roomDir); // the silent mint a hook or a forgetful path performs
+  try { mint.close(); } catch (_e) { /* best effort */ }
+  const nodesAfterMint = countNodes(g.roomDir);
+  check('L1 setup: room.db was recreated empty by the silent open (0 nodes) and has no identity rows',
+    fs.existsSync(dbFile(g.roomDir)) && nodesAfterMint === 0 && identityMod.readRoomIdentity(g.roomDir).reason === 'identity_missing', String(nodesAfterMint));
+  const lostW = rdL.readinessFor(g.roomDir, 'governed_write');
+  const lostR = rdL.readinessFor(g.roomDir, 'research');
+  const lostF = rdL.readinessFor(g.roomDir, 'feyminto_face');
+  const lostS = rdL.readinessFor(g.roomDir, 'status');
+  check('L1 readinessFor reports room_graph_lost, not_ready, blocking governed_write and research',
+    lostW.reason === 'room_graph_lost' && lostW.state === 'not_ready' && lostW.blocking === true && lostW.ok === false
+      && lostR.reason === 'room_graph_lost' && lostR.blocking === true && lostR.ok === false, short({ lostW, lostR }));
+  check('L1 the face is refused and status still answers', lostF.blocking === true && lostS.blocking === false && lostS.ok === true && lostS.state === 'not_ready', short({ lostF, lostS }));
+  check('L1 the answer carries the recorded room_id and the recover remediation',
+    !!idLost && lostW.room_id === idLost.room_id && lostW.remediation === 'recover_room_record', short(lostW));
+  check('L1 the requirement says the graph was recreated empty', typeof lostW.requirement === 'string' && /recreated empty/.test(lostW.requirement), lostW.requirement);
+
+  // L2: a TRUE legacy room (no recorded id anywhere) keeps working
+  const lg2 = birth('rg-legacy2');
+  const lg2db = navigation.openRoomDbForCaller(lg2.roomDir);
+  try { lg2db.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { navigation.closeRoomDbForCaller(lg2db); }
+  stripRecordedId(lg2.roomDir, iso.roomsHome);
+  const rootNow = JSON.parse(fs.readFileSync(path.join(lg2.roomDir, '.room-root'), 'utf8'));
+  check('L2 setup: no recorded id in .room-root, the registry or ROOM.md',
+    rootNow.room_id === undefined && !/room_id:/.test(fs.readFileSync(path.join(lg2.roomDir, 'ROOM.md'), 'utf8'))
+      && !JSON.stringify(JSON.parse(fs.readFileSync(path.join(iso.roomsHome, '.rooms', 'registry.json'), 'utf8')).rooms['rg-legacy2']).includes('room_id'));
+  const lgW = rdL.readinessFor(lg2.roomDir, 'governed_write');
+  const lgR = rdL.readinessFor(lg2.roomDir, 'research');
+  check('L2 a legacy room still reads identity_missing with governed_write and research NOT blocking',
+    lgW.reason === 'identity_missing' && lgW.ok === true && lgW.blocking === false && lgR.reason === 'identity_missing' && lgR.blocking === false, short({ lgW, lgR }));
+
+  // L3: a governed write on the L1 room is refused, tree unchanged, the card tells the truth
+  const hashLost = H.treeHash(g.roomDir);
+  const r3l = await file('s-lost', 'l3');
+  check('L3 a governed write on the re-minted room is refused room_not_ready with not_ready_reason room_graph_lost',
+    !!r3l && r3l.ok === false && r3l.reason === 'room_not_ready' && r3l.not_ready_reason === 'room_graph_lost', short(r3l));
+  check('L3 the refusal wrote nothing: tree hash unchanged', H.treeHash(g.roomDir) === hashLost);
+  const lcard = r3l && r3l.recovery_card;
+  const lnotice = (lcard && lcard.notice) || '';
+  check('L3 the card offers the recovery behind its approval', !!lcard && typeof r3l.recovery_gate_id === 'string' && lcard.options.some((o) => o.id === 'recover'), short(lcard));
+  check('L3 the card says what can come back: files indexed again and the recorded room id kept',
+    /indexed again/.test(lnotice) && /room id is kept/.test(lnotice), lnotice);
+  check('L3 the card says what cannot: claims, decisions and edges that lived only in the graph',
+    /claims, decisions and edges/.test(lnotice) && /cannot come back/.test(lnotice), lnotice);
+
+  // L4: approve the card, the existing approved heal runs
+  const ap3 = r3l && r3l.recovery_gate_id ? await answer('s-lost', r3l.recovery_gate_id, 'approve') : null;
+  check('L4 approving the card runs the heal (chain_result.recovered true)', !!ap3 && !!ap3.chain_result && ap3.chain_result.recovered === true, short(ap3));
+  const idHealed = identityMod.readRoomIdentity(g.roomDir);
+  check('L4 the room reads ready afterwards with the same room_id', idHealed.state === 'ready' && !!idLost && idHealed.room_id === idLost.room_id, short({ before: idLost && idLost.room_id, now: idHealed.room_id, reason: idHealed.reason }));
+  const nodesHealed = countNodes(g.roomDir);
+  check('L4 the healed graph is not the pre-loss graph (' + nodesBefore + ' nodes before the loss, ' + nodesHealed + ' after the heal): what lived only in the graph does not come back',
+    nodesHealed !== nodesBefore, nodesBefore + ' vs ' + nodesHealed);
+  console.log('INFO: L4 node count before loss ' + nodesBefore + ', after re-mint ' + nodesAfterMint + ', after approved heal ' + nodesHealed);
+  check('L4 readinessFor is ready for every operation after the heal', ['governed_write', 'research', 'feyminto_face', 'status'].every((op) => rdL.readinessFor(g.roomDir, op).state === 'ready'));
+  const r4l = await file('s-lost', 'l4');
+  check('L4 the same write now lands', !!r4l && r4l.ok === true, short(r4l));
+
+  // L5: a re-minted graph with 0 nodes is never reported ready (ready requires the room's own identity row)
+  const g5 = birth('rg-lost5');
+  removeDb(g5.roomDir);
+  const m5 = roomDbMod.openRoomDb(g5.roomDir);
+  try { m5.close(); } catch (_e) { /* best effort */ }
+  const n5 = countNodes(g5.roomDir);
+  const t5 = ['governed_write', 'research', 'feyminto_face', 'status'].map((op) => rdL.readinessFor(g5.roomDir, op));
+  check('L5 a re-minted graph with ' + n5 + ' nodes is never ready for any operation', n5 === 0 && t5.every((x) => x.state === 'not_ready' && x.reason === 'room_graph_lost'), short(t5));
+  const plain5 = path.join(iso.home, 'plain-folder-5');
+  fs.mkdirSync(plain5, { recursive: true });
+  const pm = roomDbMod.openRoomDb(plain5);
+  try { pm.close(); } catch (_e) { /* best effort */ }
+  const tp5 = rdL.readinessFor(plain5, 'governed_write');
+  check('L5 a plain folder with a minted empty db and no recorded id is not room_graph_lost and not ready either', tp5.state === 'not_ready' && tp5.reason === 'identity_missing' && tp5.blocking === false, short(tp5));
 
   // ---- source greps and the dash guard -------------------------------------------------------------------------
   const newModules = [path.join(ROOT, 'lib', 'core', 'room-readiness.cjs'), path.join(ROOT, 'lib', 'mcp', 'room-readiness-gate.cjs')];

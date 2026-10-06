@@ -135,6 +135,17 @@ function main() {
   const nav = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
   const ldb = nav.openRoomDbForCaller(legacy.roomDir);
   try { ldb.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { nav.closeRoomDbForCaller(ldb); }
+  // a TRUE legacy room records no id outside room.db (born before 369.25): plan 27 reads a recorded id as a lost graph
+  {
+    const rootFile = path.join(legacy.roomDir, '.room-root');
+    const cur = JSON.parse(fs.readFileSync(rootFile, 'utf8'));
+    delete cur.room_id;
+    fs.writeFileSync(rootFile, JSON.stringify(cur));
+    const regFile = path.join(iso.roomsHome, '.rooms', 'registry.json');
+    const reg = JSON.parse(fs.readFileSync(regFile, 'utf8'));
+    Object.keys(reg.rooms || {}).forEach((k) => { if (reg.rooms[k] && typeof reg.rooms[k] === 'object') delete reg.rooms[k].room_id; });
+    fs.writeFileSync(regFile, JSON.stringify(reg, null, 2));
+  }
   const idState = safe(() => require(path.join(ROOT, 'lib', 'core', 'navigation', 'room-identity.cjs')).readRoomIdentity(legacy.roomDir).reason, null);
   const rl = planner(['plan', QS_QUICK, '--room', legacy.roomDir, '--mode', 'quick']);
   check('NL1 a legacy room (identity missing: ' + idState + ') still plans', idState === 'identity_missing' && rl.code === 0 && rl.json && rl.json.ok === true, 'code ' + rl.code + ' ' + JSON.stringify(rl.json).slice(0, 300));
