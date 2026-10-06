@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Phase 369.2 plans 13-33 COMPLETE (waves 10-17); plan 34 at the human checkpoint (navigator reads the two-seed real-room report, then decides the beta.65 cut); completion report 369.2-COMPLETION-REPORT.md
-last_updated: "2026-10-06T20:30:00.000Z"
-last_activity: 2026-10-06 ~20:30 -- 369.2 waves 10-17 executed, closure file PASS 27 FAIL 0 KNOWN 3, aggregators 369.2 70/0, 369.25 57/0, 366 70/0/1, 363 46/1/1/6 (baseline); quick fixes k2k6, p8d, d4, d10, h3r; MCP stdin-EOF fix merged; beta.65 cut NOT yet made (awaiting the navigator read)
+stopped_at: Phase 369.2 COMPLETE (34 of 34 plans); v2.0.0-beta.65 CUT 2026-10-06 (tag at origin, npm latest and next, acceptance 24/24 after eval re-run); next: 369.3b, 369.4, 369.5, 369.6, one cut each
+last_updated: "2026-10-06T21:00:00.000Z"
+last_activity: 2026-10-06 ~20:40 -- v2.0.0-beta.65 CUT (Phase 369.2 complete: plans 13-34, closure PASS 27/0/3 known); release commit 851228da6; eval-refresh recovery path; Theo applied beta.64 placeholder registry; blog article and update mail drafted, not sent
 progress:
   total_phases: 121
   completed_phases: 48
