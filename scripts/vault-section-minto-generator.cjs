@@ -776,7 +776,7 @@ function previousMintoSnapshot(targetPath) {
   return snap;
 }
 
-function updateFeynmanFace(section, artifacts, prev, newContent, records, preserved) {
+function updateFeynmanFace(room, section, artifacts, prev, newContent, records, preserved) {
   let blocks;
   try { blocks = require('../lib/core/feyminto/feynman-blocks.cjs'); } catch (_e) { return { ok: false, reason: 'blocks_module_missing' }; }
   try {
@@ -811,6 +811,11 @@ function updateFeynmanFace(section, artifacts, prev, newContent, records, preser
       cannot.push('Assumption not yet validated: ' + a.text);
     });
     if (cannot.length === 0) cannot.push('Nothing recorded as unexplained yet.');
+    // Key the FEYNMAN face to the same room.db id the MINTO just carried (FEYNMINTO-11). Same value, same
+    // reader as plan 17's birth stamp, so a face the birth step has not reached (a legacy room, a nest created
+    // later) is keyed by the regeneration pass instead of waiting. A not-ready identity stamps nothing.
+    const ident = readRoomIdentityOnce(roomDirOf(room, section));
+    if (ident.room !== 'unknown' && fs.existsSync(feyPath)) blocks.stampFaceRoomId(feyPath, ident.room);
     return blocks.writeFeynmanBlocks(feyPath, { whatChanged: changed, cannotExplain: cannot });
   } catch (e) {
     return { ok: false, reason: String((e && e.message) || e).slice(0, 200) };
@@ -1129,7 +1134,7 @@ function runTier0(args) {
   if (env.success) {
     process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
     // 369.25-15: one owner per state; the FEYNMAN face is updated in the same regeneration pass.
-    updateFeynmanFace(resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
+    updateFeynmanFace(resolved.room, resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
   } else {
     process.stderr.write(
       'tier-0 write REJECTED by invariants gate for ' +
@@ -1727,7 +1732,7 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   const env = atomicWriteMinto(target, content, roomDir);
   if (env.success) {
     process.stdout.write('wrote MINTO.md: ' + target + '\n');
-    updateFeynmanFace(resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
+    updateFeynmanFace(resolved.room, resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
   } else {
     process.stderr.write(
       'tier-1 write REJECTED by invariants gate for ' +

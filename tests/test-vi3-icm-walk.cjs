@@ -294,13 +294,18 @@ arm('I5 generated-marked files vs authored files per nest (room a table, room b 
 // I6 edit surface declared
 // shell: grep -cE '^(editable_fields|edit_surface|human_edited):' <face> ; grep -m1 '^governing_thought_placeholder:' MINTO.md
 // ---------------------------------------------------------------------------------------------------------------
-arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (room a: no marker anywhere; room b: marker on A MINTO and A FEYNMAN)', () => {
+// 369.25-15 MOVING: the seeded FEYNMAN.md of every nest now declares edit_surface, editable_fields and edit_recorded_in
+// (plan 15, feynman-seed-writer). BEFORE: marker absent on 12 of 12 face files of room a (root MINTO + 11 FEYNMAN) and on
+// 14 of 16 of room b. AFTER: room a keeps only the root MINTO bare (1 of 12); room b has the marker on A MINTO, A FEYNMAN
+// and the ten seeded FEYNMAN of room b (absent 4 of 16: root MINTO, B MINTO, A and C BRAIN). Measured with `grep -qE '^(editable_fields|edit_surface|human_edited):'` per face file.
+arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (room a: seeded FEYNMAN marked, root MINTO bare; room b: marker on A MINTO, A FEYNMAN and the seeded FEYNMAN of B and C)', () => {
   const a = report('a');
   const missing = { present: false, edit_surface_marker: null, governing_thought_placeholder: null };
   const bare = { present: true, edit_surface_marker: false, governing_thought_placeholder: null };
+  const marked = { present: true, edit_surface_marker: true, governing_thought_placeholder: null };
   eq(nest(a, '.').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': missing, 'BRAIN.md': missing }, 'a root faces');
   WITH_CONTEXT.forEach((k) => {
-    eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': bare, 'BRAIN.md': missing }, 'a ' + k + ' faces');
+    eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': marked, 'BRAIN.md': missing }, 'a ' + k + ' faces');
   });
   NO_CONTEXT.forEach((k) => eq(nest(a, k).I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': missing, 'BRAIN.md': missing }, 'a ' + k + ' faces'));
   const b = report('b');
@@ -309,8 +314,8 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
     'FEYNMAN.md': { present: true, edit_surface_marker: true, governing_thought_placeholder: null },
     'BRAIN.md': { present: true, edit_surface_marker: false, governing_thought_placeholder: null },
   }, 'b A faces');
-  eq(nest(b, 'market-analysis').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': bare, 'BRAIN.md': missing }, 'b B faces');
-  eq(nest(b, 'solution-design').I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': bare, 'BRAIN.md': bare }, 'b C faces');
+  eq(nest(b, 'market-analysis').I6.faces, { 'MINTO.md': bare, 'FEYNMAN.md': marked, 'BRAIN.md': missing }, 'b B faces');
+  eq(nest(b, 'solution-design').I6.faces, { 'MINTO.md': missing, 'FEYNMAN.md': marked, 'BRAIN.md': bare }, 'b C faces');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -324,19 +329,24 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // Cross-check: solution-design = ROOM 1474 + FEYNMAN 113 = 1587 authored; its CONTEXT.md measured 4847, total 6434 tokens 1609,
 // the value that reddened the old pin [6423, 1606] when the ledger rebuild moved CONTEXT.md by 11 bytes.
 // 369.25-07 RE-MEASURED: the root is ROOM 1092 + MINTO 733 = 1825 (was 1775: the icm_self room_id line adds 50 bytes), wc -c.
+// 369.25-15 RE-MEASURED: the seeded FEYNMAN.md now carries three frontmatter lines and the two FeyMinto blocks, +462 bytes
+// on every nest that has one (wc -c per file: 111 123 113 97 99 113 115 119 113 99 111 became 573 585 575 559 561 575 577 581
+// 575 561 573). Each value below is that nest's ROOM.md + FEYNMAN.md (wc -c), e.g. business-model 1467 + 573 = 2040.
 const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
-  '.': 1825, assets: 709, 'business-model': 1578, 'competitive-analysis': 1615, 'financial-model': 1533,
-  funding: 1623, 'legal-ip': 1528, 'market-analysis': 1590, 'opportunity-bank': 1638,
-  'problem-definition': 1626, references: 1031, 'solution-design': 1587, strategy: 1673,
-  'team-execution': 1526, team: 681,
+  '.': 1825, assets: 709, 'business-model': 2040, 'competitive-analysis': 2077, 'financial-model': 1995,
+  funding: 2085, 'legal-ip': 1990, 'market-analysis': 2052, 'opportunity-bank': 2100,
+  'problem-definition': 2088, references: 1031, 'solution-design': 2049, strategy: 2135,
+  'team-execution': 1988, team: 681,
 };
 function contextBytes(dir, k) {
   const f = path.join(dir, k === '.' ? '' : k, 'CONTEXT.md');
   return fs.existsSync(f) ? fs.statSync(f).size : 0;
 }
-const A_FEYNMAN_TOKENS = { // FEYNMAN.md bytes (wc -c): 111 123 113 97 99 113 115 119 113 99 111, no frontmatter, body = whole file
-  'business-model': 28, 'competitive-analysis': 31, 'financial-model': 29, funding: 25, 'legal-ip': 25, 'market-analysis': 29,
-  'opportunity-bank': 29, 'problem-definition': 30, 'solution-design': 29, strategy: 25, 'team-execution': 28,
+// 369.25-15 RE-MEASURED: FEYNMAN.md bytes (wc -c) 573 585 575 559 561 575 577 581 575 561 573, of which the 164 byte
+// frontmatter (three keys) is not body; body bytes (awk after the second --- line, wc -c) 409 421 411 395 397 411 413 417 411 397 409.
+const A_FEYNMAN_TOKENS = { // ceil(body bytes / 4)
+  'business-model': 103, 'competitive-analysis': 106, 'financial-model': 103, funding: 99, 'legal-ip': 100, 'market-analysis': 103,
+  'opportunity-bank': 104, 'problem-definition': 105, 'solution-design': 103, strategy: 100, 'team-execution': 103,
 };
 arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEYNMAN 1500 body budget', () => {
   const a = report('a');
@@ -347,7 +357,7 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
     eq(n.I7.feynman_body_tokens, A_FEYNMAN_TOKENS[k] === undefined ? null : A_FEYNMAN_TOKENS[k], 'a ' + k + ' feynman_body_tokens');
     eq(n.I7.feynman_over_1500, A_FEYNMAN_TOKENS[k] === undefined ? null : false, 'a ' + k + ' feynman_over_1500');
   });
-  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 119, 'BRIEF.md': null }, 'a problem-definition I7 files');
+  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 581, 'BRIEF.md': null }, 'a problem-definition I7 files');
   const b = report('b');
   const A = nest(b, 'problem-definition').I7;
   // 369.25-16 MOVING: room b's CONTEXT.md share is measured at test time too (part 7 moved it by 862 bytes). Authored
@@ -358,8 +368,9 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
   eq([A.feynman_body_tokens, A.feynman_over_1500], [1600, true], 'b A FEYNMAN body: 6400 bytes after the frontmatter -> 1600 tokens, over 1500');
   eq(A.files['BRIEF.md'], 32, 'b A BRIEF bytes');
   const B = nest(b, 'market-analysis').I7;
-  const bExpB = 33904 + contextBytes(B_DIR, 'market-analysis');
-  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 33904 + CONTEXT at test time)');
+  // 369.25-15 RE-MEASURED: nest B's seeded FEYNMAN.md grew 113 -> 575 bytes, so ROOM 1708 + MINTO 83 + FEYNMAN 575 + BRIEF 32000 = 34366 (wc -c; was 33904)
+  const bExpB = 34366 + contextBytes(B_DIR, 'market-analysis');
+  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 34366 + CONTEXT at test time)');
   // 369.25-07 RE-MEASURED: b root ROOM 1208 + MINTO 733 = 1941 bytes (wc -c), ceil(1941 / 4) = 486 tokens (was 1891 / 473)
   eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1941, 486], 'b root I7');
 });
@@ -580,7 +591,8 @@ arm('M2 --json parses and carries every row for every nest', () => {
 
 // ---------------------------------------------------------------------------------------------------------------
 // M3 summary
-// shell: grep totals on the same rooms: faces present a 12, b 16 ; nests with all three faces a 0, b 1 ; marker true on b: A MINTO, A FEYNMAN
+// shell: grep totals on the same rooms: faces present a 12, b 16 ; nests with all three faces a 0, b 1 ; marker true on b: A MINTO, A FEYNMAN, and
+// (369.25-15 MOVING, BEFORE: absent 12 of 12 on a and 14 of 16 on b) the seeded FEYNMAN of B and C; on a only the root MINTO stays bare (1 of 12)
 // ---------------------------------------------------------------------------------------------------------------
 arm('M3 the room summary names the duplicates and the identity result (room a and room b)', () => {
   const ta = mod().renderText(report('a'));
@@ -588,18 +600,18 @@ arm('M3 the room summary names the duplicates and the identity result (room a an
     /== room summary ==/, /nests walked: 14/, /nests with every face: 0/,
     /MINTO sources also listed in ROOM\.md links: 0/, /Theo face restating CONTEXT\.md sequence: 0 command name\(s\)/,
     /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
-    /edit-surface marker absent: 12 of 12 face file\(s\)/, /duplications found: 0 of 3/,
+    /edit-surface marker absent: 1 of 12 face file\(s\)/, /duplications found: 0 of 3/,
   ].forEach((re) => check(re.test(ta), 'room a summary lacks ' + re + '\n' + ta.slice(ta.indexOf('== room summary ==')) ));
   const tb = mod().renderText(report('b'));
   [
     /nests walked: 14/, /nests with every face: 1/, /MINTO sources also listed in ROOM\.md links: 2/,
     /Theo face restating CONTEXT\.md sequence: 2 command name\(s\)/,
     /room identity in room\.db: yes \(room\.db: present, Room node: yes, identity keys: 7 of 7, room_id: [0-9a-f-]{36}\)/,
-    /edit-surface marker absent: 14 of 16 face file\(s\)/, /duplications found: 2 of 3/,
+    /edit-surface marker absent: 4 of 16 face file\(s\)/, /duplications found: 2 of 3/,
   ].forEach((re) => check(re.test(tb), 'room b summary lacks ' + re + '\n' + tb.slice(tb.indexOf('== room summary =='))));
   const s = report('b').summary;
   eq([s.nests_walked, s.nests_with_every_face, s.minto_sources_in_room_md, s.theo_face_restated_commands, s.identity_in_room_db,
-    s.edit_surface_marker_absent, s.face_files_present, s.duplications_found], [14, 1, 2, 2, true, 14, 16, 2], 'b summary object');
+    s.edit_surface_marker_absent, s.face_files_present, s.duplications_found], [14, 1, 2, 2, true, 4, 16, 2], 'b summary object');
 });
 
 // ---------------------------------------------------------------------------------------------------------------

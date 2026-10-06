@@ -95,8 +95,16 @@ leg('seedSection output for a rendered birth seed is template-identical', () => 
     const res = feynmanSeedWriter.seedSection(tmpRoom, 'business-model', preFixSeed('business-model'), { db: null });
     assert.equal(res.status, 'seeded', 'seedSection status: ' + JSON.stringify(res));
     const content = fs.readFileSync(path.join(tmpRoom, 'business-model', 'FEYNMAN.md'), 'utf8');
-    assert.equal(content, '# business-model\n\n' + preFixSeed('business-model') + '\n');
+    // 369.25-15 MOVING: a new FEYNMAN face now opens with three edit-surface frontmatter lines and ends with the two
+    // FeyMinto generated blocks (feynman-seed-writer, feynman-blocks). BEFORE this plan the whole file was
+    // '# business-model\n\n' + seed + '\n'; that H1-plus-seed text is still byte-identical here, between the
+    // frontmatter and the blocks. The face must still read as template-identical (the blocks are cut out first).
+    const fmEnd = content.indexOf('\n---\n', 4) + 5;
+    const blocksAt = content.indexOf('## What changed (auto)');
+    assert.ok(content.startsWith('---\nedit_surface: ') && fmEnd > 5 && blocksAt > fmEnd, 'frontmatter then blocks: ' + JSON.stringify(content));
+    assert.equal(content.slice(fmEnd, blocksAt), '# business-model\n\n' + preFixSeed('business-model') + '\n\n');
     assert.equal(index.isTemplateIdentical('FEYNMAN', content), true);
+    assert.equal(index.stripTemplate('FEYNMAN', content), '', 'no authored remainder in a freshly seeded face');
   } finally {
     fs.rmSync(tmpRoom, { recursive: true, force: true });
   }
