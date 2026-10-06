@@ -11,8 +11,9 @@
  *         four top-level perspective blocks (so the release gate reads it unchanged) and a rooms array of two
  *         entries {seed, slug, perspectives}; the second room gets its own slug; mos_real_room_gate accepts the
  *         receipt; the report holds Bottlenecks, HSI, Connections and Whitespace sections for each room.
- *   RD    the report prints the readiness counts for the seed118 room ('Confirmed claims: 0 of <n> typed
- *         claims') and the Eureka judge line (the plan 27 sentence), not the old '--judge none' note.
+ *   RD    the report prints the readiness counts for the seed118 room ('Confirmed claims: <n> of <total> typed
+ *         claims; other confirmed nodes: <n> (<types>).', matching the JSON result, none of the seed's own
+ *         claims confirmed) and the Eureka judge line (the plan 27 sentence), not the old '--judge none' note.
  *   R355  the ROADMAP card's measured bar (SEED-115 item 5): on each of the three Phase 355 fixture rooms a
  *         quick run through the canvas sends non-empty search strings that hold the room's own titles, returns
  *         evidence with a source URL, and no answer line carries the token not_enough_context.
@@ -245,18 +246,27 @@ leg('X0', 'two --seed flags run both rooms into ONE receipt (top-level blocks ke
   });
 });
 
-leg('RD', 'the report prints the readiness counts and the Eureka judge line for the seed118 room', function () {
+leg('RD', 'the report prints the readiness counts (claims apart from other confirmed nodes) and the Eureka judge line for the seed118 room', function () {
   const rp = report();
   check(rp.code === 0, 'the report run exited ' + rp.code + ': ' + tail(rp.stderr, 300));
   const block = roomBlock(rp.stdout, 2, 2);
   check(block !== null, 'no report block for room 2');
-  const m = /Confirmed claims: 0 of (\d+) typed claims; other confirmed nodes: (\d+)/.exec(block);
-  check(m !== null, 'room 2 has no "Confirmed claims: 0 of <n> typed claims" line');
-  check(Number(m[1]) >= 1, 'the typed claim total is ' + m[1] + ', the seed118 room seeds claims');
+  const m = /Confirmed claims: (\d+) of (\d+) typed claims; other confirmed nodes: (\d+) \(([^)]*)\)\./.exec(block);
+  check(m !== null, 'room 2 has no "Confirmed claims: <n> of <total> typed claims; other confirmed nodes: <n> (<types>)." line');
+  const confirmed = Number(m[1]);
+  const total = Number(m[2]);
+  const other = Number(m[3]);
   const w = live();
   check(w.res && Array.isArray(w.res.rooms) && w.res.rooms.length === 2, 'the live result has no rooms array');
   const rd = w.res.rooms[1].readiness;
-  check(rd && rd.claims_total === Number(m[1]) && rd.confirmed_claim_count === 0, 'the JSON readiness ' + JSON.stringify(rd) + ' does not match the report line');
+  check(rd && rd.claims_total === total && rd.confirmed_claim_count === confirmed && rd.confirmed_other_count === other, 'the JSON readiness ' + JSON.stringify(rd) + ' does not match the report line ' + m[0]);
+  // the seed118 seed writes 5 typed claims, none confirmed. Birth files the venture question as ONE confirmed claim
+  // (measured on HEAD: the report reads 1 of 6), so the claims the seed wrote are the total minus that one.
+  const seeded = w.res.rooms[1].seeded.claims;
+  check(seeded === 5, 'the seed118 seed wrote ' + seeded + ' claims, expected 5');
+  check(total - confirmed === seeded, 'the unconfirmed claims are ' + (total - confirmed) + ', not the ' + seeded + ' the seed wrote: a seeded claim was confirmed');
+  // the other confirmed nodes are named by type and never counted as claims
+  check(other > 0 && /Section: \d+/.test(m[4]) && !/\bclaim: \d+/.test(m[4]), 'the other confirmed nodes are not named by type apart from the claims: ' + m[4]);
   check(/No model judged these pairs/.test(block), 'the report holds no judge line (No model judged these pairs)');
   check(block.indexOf('--judge none') === -1, 'the old "--judge none" note is still in the report');
 });

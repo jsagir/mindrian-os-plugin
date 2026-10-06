@@ -9,9 +9,12 @@
  * WHAT: births a small committed fixture room (tests/fixtures/release-room) through
  * the room-birth chokepoint into an isolated rooms home, then walks the four research
  * jobs the plugin sells through the research planner CLI: a quick run, a deep run,
- * Eureka and analogies. It prints ONE report a person can read in two minutes (what
- * each job tried, what came back, what it could not do) and, only when the person
- * passes --read-by "<name>", writes the receipt that release.sh Step 2.6 looks for.
+ * Eureka and analogies. Since 369.2-32 it also reads the four other canvas perspectives
+ * (Bottlenecks, HSI, Connections, Whitespace) and the room's readiness counts, and it
+ * takes --seed more than once: every seed becomes its own room in one invocation and
+ * ONE receipt. It prints ONE report a person can read in two minutes (what each job
+ * tried, what came back, what it could not do) and, only when the person passes
+ * --read-by "<name>", writes the receipt that release.sh Step 2.6 looks for.
  *
  * WHY: Phase 369 regressed silently because no cut was read by a human on a real room.
  * A green suite proves the code paths exist; this proves a person looked at what the
@@ -19,7 +22,7 @@
  *
  * USAGE (argv switch-case router, no dependencies):
  *   node scripts/real-room-run.cjs [--read-by "<name>"] [--offline] [--json]
- *        [--rooms-home <dir>] [--seed <dir>] [--receipt-dir <dir>]
+ *        [--rooms-home <dir>] [--seed <dir>]... [--receipt-dir <dir>]
  *   node scripts/real-room-run.cjs --desktop-verified mac|win [--receipt-dir <dir>]
  *   node scripts/real-room-run.cjs --negative-only [--json]
  *
@@ -36,11 +39,18 @@
  *                     failed requirement). Exit 0 only when all eight refused. Writes no receipt.
  *   --json            prints the full result object (run ids included) instead of the report.
  *   --rooms-home      where the throwaway room is born (default <receipt-dir>/rooms).
+ *   --seed            a seed room directory (ROOM.md, sections/, seed.json, optional question sets). Repeat the
+ *                     flag to run several rooms in one invocation. The default seed keeps the slug
+ *                     release-fixture-<sha8>; any other seed gets release-fixture-<sha8>-<seed dir name>, so two
+ *                     rooms never overwrite each other. A seed with no question-set files skips quick and deep
+ *                     (status "no question set") and still runs every perspective.
  *   --receipt-dir     default $MINDRIAN_REAL_ROOM_RECEIPT_DIR, else $HOME/.mindrian/release-real-room.
  *
  * Receipt <receipt-dir>/<full sha>.json:
  *   { schema, sha, version, room, reader, read_at, offline,
- *     perspectives: { quick|deep|eureka|analogies: { status, counts: {numbers} } },
+ *     perspectives: { quick|deep|eureka|analogies|bottlenecks|hsi|connections|whitespace: { status, counts: {numbers} } },
+ *       (the FIRST seed's room; the release gate reads these top-level blocks)
+ *     rooms: [{ seed, slug, perspectives }],   (one entry per seed, the first one repeats the top-level blocks)
  *     feyminto: { nests: [{ nest, asked, not_asked_reason, frameworks_named: <count>, commands_runnable_here: <count> }] },
  *     negative_leg: { fixture, rooms: [{ injection, jobs: { <job>: { refused, not_ready_reason } } }], all_refused },
  *     providers: { tavily, openalex }, desktop_verified: { mac, win } }
@@ -100,7 +110,7 @@ const VALUE_FLAGS = ['--rooms-home', '--seed', '--receipt-dir', '--read-by', '--
 const BOOL_FLAGS = ['--offline', '--json', '--help', '--negative-only'];
 
 function parseArgs(argv) {
-  const opts = { offline: false, json: false, help: false };
+  const opts = { offline: false, json: false, help: false, seeds: [] };
   for (let i = 0; i < argv.length; i += 1) {
     const tok = argv[i];
     if (BOOL_FLAGS.indexOf(tok) !== -1) {
@@ -115,7 +125,7 @@ function parseArgs(argv) {
       const v = argv[i];
       if (typeof v !== 'string' || v.length === 0 || v.indexOf('--') === 0) throw refuse('missing_value', tok);
       if (tok === '--rooms-home') opts.roomsHome = v;
-      else if (tok === '--seed') opts.seed = v;
+      else if (tok === '--seed') { opts.seeds.push(v); if (opts.seed === undefined) opts.seed = v; }
       else if (tok === '--receipt-dir') opts.receiptDir = v;
       else if (tok === '--read-by') opts.readBy = v.trim();
       else opts.desktopVerified = v;
@@ -212,10 +222,24 @@ function removePreviousRoom(roomsHome, roomDir) {
   fs.rmSync(roomDir, { recursive: true, force: true });
 }
 
+// 369.2-32 (R25): the default seed keeps release-fixture-<sha8>; any other seed adds its directory name, so two
+// rooms born in one invocation never share a slug (the second would delete the first).
+function seedDirName(seedDir) {
+  return path.basename(seedDir).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'seed';
+}
+function roomSlug(sha, seedDir) {
+  const base = 'release-fixture-' + sha.slice(0, 8);
+  return path.resolve(seedDir) === DEFAULT_SEED ? base : base + '-' + seedDirName(seedDir);
+}
+function seedLabel(seedDir) {
+  const rel = path.relative(ROOT, seedDir);
+  return rel && rel.indexOf('..') !== 0 && !path.isAbsolute(rel) ? rel.split(path.sep).join('/') : path.basename(seedDir);
+}
+
 async function buildRoom(opts, sha, seedDir, roomsHome) {
   process.env.MINDRIAN_ROOMS_HOME = roomsHome;
   fs.mkdirSync(roomsHome, { recursive: true });
-  const slug = 'release-fixture-' + sha.slice(0, 8);
+  const slug = roomSlug(sha, seedDir);
   const roomDir = path.join(roomsHome, slug);
   removePreviousRoom(roomsHome, roomDir);
 
@@ -244,7 +268,7 @@ async function buildRoom(opts, sha, seedDir, roomsHome) {
     if (r && r.success) indexed += 1;
   }
   const seeded = seedGraph(roomDir, readJson(path.join(seedDir, 'seed.json'), {}));
-  return { slug: slug, roomDir: roomDir, indexed: indexed, seeded: seeded, registered: roomListed(roomsHome, slug) };
+  return { slug: slug, roomDir: roomDir, indexed: indexed, seeded: seeded, registered: roomListed(roomsHome, slug), venture: venture.name };
 }
 
 function roomListed(roomsHome, slug) {
@@ -369,10 +393,19 @@ function emptyCounts() {
   return { operations_planned: 0, executed_with_results: 0, executed_empty: 0, refused_before_fetch: 0, not_executed: 0, complete: 0, has_completion: false, incomplete_lines: [], counterevidence_status: null, counterevidence_line: '' };
 }
 
+// 369.2-32: a seed with no question-set file (the Phase 355 rooms) has nothing to plan for quick or deep
+function noQuestionSet(out, kind) {
+  out.status = 'no question set';
+  out.reason = 'this seed has no ' + kind + ' question set, so nothing was planned and nothing was sent';
+  out.lane_lines.push('lane openalex: provider absent (no ' + kind + ' question set, nothing planned)');
+  return out;
+}
+
 // -- job 1: quick -------------------------------------------------------------------------------
 function jobQuick(ctx) {
   const out = { status: 'not run', reason: null, lines: [], lane_lines: [], rows: 0, searches_planned: 0, searches_executed: 0, lanes_ran: 0, lanes_empty: 0, lanes_unavailable: 0, verdict: null, answer_line: null, run_id: null };
   Object.assign(out, emptyCounts());
+  if (!fs.existsSync(path.join(ctx.seedDir, 'question-set-quick.json'))) return noQuestionSet(out, 'quick');
   const planned = planRun(ctx.roomDir, path.join(ctx.seedDir, 'question-set-quick.json'), 'quick');
   if (!planned.ok) { out.status = 'plan failed'; out.reason = planned.reason; return out; }
   out.run_id = planned.run_id;
@@ -431,6 +464,7 @@ function recordRows(ctx, runId, lane, payload, label, tag) {
 function jobDeep(ctx) {
   const out = { status: 'not run', reason: null, lines: [], lane_lines: [], rows: 0, searches_planned: 0, searches_executed: 0, lanes_planned: 0, lanes_ran: 0, lanes_empty: 0, lanes_unavailable: 0, counterevidence_planned: 0, counterevidence_executed: 0, synthesis: 'not run', stop_reason: null, answer_line: null, run_id: null, steps: [] };
   Object.assign(out, emptyCounts());
+  if (!fs.existsSync(path.join(ctx.seedDir, 'question-set-deep.json'))) return noQuestionSet(out, 'deep');
   const planned = planRun(ctx.roomDir, path.join(ctx.seedDir, 'question-set-deep.json'), 'deep');
   if (!planned.ok) { out.status = 'plan failed'; out.reason = planned.reason; return out; }
   out.run_id = planned.run_id;
@@ -518,14 +552,25 @@ function jobDeep(ctx) {
 }
 
 // -- jobs 3 and 4: the perspectives (local, offline by design) ---------------------------------------
-function perspectiveRun(ctx, id) {
+function perspectiveRun(ctx, id, opts) {
   const rec = planner(['perspective-recall', '--room', ctx.roomDir, '--perspective', id, '--offline']);
   if (!ok(rec)) return { ok: false, reason: why(rec) };
   const j = rec.json;
-  const out = { ok: true, run_tag: j.run_tag, counts: isObj(j.counts) ? j.counts : {}, top: list(j.top), plan_run_id: j.plan ? j.plan.run_id : null, pairs_truncated: num(j.pairs_truncated), judge: null };
+  const out = { ok: true, run_tag: j.run_tag, counts: isObj(j.counts) ? j.counts : {}, top: list(j.top), plan_run_id: j.plan ? j.plan.run_id : null, pairs_truncated: num(j.pairs_truncated), judge: null, judge_state: null, judge_line: null };
+  if (opts && opts.judge === false) return out;
   const jud = planner(['perspective-judge', '--room', ctx.roomDir, '--perspective', id, '--tag', j.run_tag, '--judge', 'none', '--offline']);
   out.judge = ok(jud) && isObj(jud.json.summary) ? jud.json.summary : null;
+  // 369.2-27: the one sentence that says why no model judged the pairs, and the next move (never a key value)
+  out.judge_state = ok(jud) && typeof jud.json.judge_state === 'string' ? jud.json.judge_state : null;
+  out.judge_line = ok(jud) && typeof jud.json.line === 'string' ? noDash(jud.json.line) : null;
   return out;
+}
+
+// how many leaves of a perspective's own plan a web search could answer (researchable, corpus openalex)
+function researchableLeaves(ctx, planRunId) {
+  if (!planRunId) return 0;
+  const plan = readJson(path.join(ctx.roomDir, '.mindrian', 'research-runs', planRunId, 'plan.json'), null);
+  return list(plan && plan.leaves).filter(function (l) { return l && l.researchable === true && l.corpus === 'openalex'; }).length;
 }
 
 function pairLine(c) {
@@ -534,7 +579,7 @@ function pairLine(c) {
 }
 
 function jobEureka(ctx) {
-  const out = { status: 'not run', reason: null, candidates: 0, passed_stage_a: 0, judged: 0, excluded_known: 0, things: 0, lanes: {}, lane_lines: [], pairs: [], run_tag: null, judge_note: null };
+  const out = { status: 'not run', reason: null, candidates: 0, passed_stage_a: 0, judged: 0, excluded_known: 0, things: 0, lanes: {}, lane_lines: [], pairs: [], run_tag: null, judge_note: null, judge_state: null };
   const r = perspectiveRun(ctx, 'eureka');
   if (!r.ok) { out.status = 'failed'; out.reason = r.reason; return out; }
   const c = r.counts;
@@ -547,7 +592,8 @@ function jobEureka(ctx) {
   if (r.judge) {
     out.passed_stage_a = Math.max(0, out.candidates - num(r.judge.stage_a_failed));
     out.judged = num(r.judge.judged);
-    out.judge_note = r.judge.judge === 'none' ? 'no model judged these pairs (the planner door runs the judge with --judge none)' : 'judge: ' + r.judge.judge;
+    out.judge_state = r.judge_state;
+    out.judge_note = r.judge_line ? r.judge_line.replace(/\.\s*$/, '') : (r.judge.judge === 'none' ? 'No model judged these pairs' : 'judge: ' + r.judge.judge);
   }
   out.pairs = r.top.slice(0, 3).map(pairLine);
   out.status = out.candidates > 0 ? 'ran' : 'empty';
@@ -573,6 +619,70 @@ function jobAnalogies(ctx) {
   return out;
 }
 
+// -- jobs 5 to 8: the other four canvas perspectives (369.2-32, R25) ---------------------------------------------
+// Each is local recall over the room's own graph (no model, no network); the planner door also builds the plan a
+// web or Brain search would follow, so the block counts the leaves of that plan a web search could answer.
+const BLOCK_SPECS = Object.freeze([
+  Object.freeze({
+    key: 'bottlenecks', id: 'rs', header: 'Bottlenecks',
+    tried: 'to find the sections that lag the sections feeding them, and pair the things across that boundary, from the room\'s own graph and its declared feeds (local, no model, no network).',
+    lanes: Object.freeze(['flow_boundary', 'icm_declared', 'support_gap']),
+    cannot: 'judge which lagging section matters most, or search the web for them: it only plans the searches a person would approve.',
+  }),
+  Object.freeze({
+    key: 'hsi', id: 'hsi', header: 'HSI',
+    tried: 'to find pairs of things whose structure matches while their words do not, and pairs that share words (the control), from the room\'s own graph (local, no model, no network).',
+    lanes: Object.freeze(['relational', 'lexical']),
+    cannot: 'say whether a pair is a real match: a person reads the pairs and judges them.',
+  }),
+  Object.freeze({
+    key: 'connections', id: 'connections', header: 'Connections',
+    tried: 'to find things in different sections that carry different canon frameworks, or the same framework, and so may connect, from the room\'s own graph (local, no model, no network).',
+    lanes: Object.freeze(['canon_pair', 'framework_walk']),
+    cannot: 'check a lateral path between two frameworks: that check runs later, as a search under an approved line to the Brain.',
+  }),
+  Object.freeze({
+    key: 'whitespace', id: 'whitespace', header: 'Whitespace',
+    tried: 'to find empty ground: sections the room declares as related that nothing links, and things that border a marked zone, from the room\'s own graph (local, no model, no network).',
+    lanes: Object.freeze(['zone_border', 'declared_unlinked']),
+    cannot: 'prove the ground is empty: a zero from a search is not proof, so it only plans the checks.',
+  }),
+]);
+
+function jobBlock(ctx, spec) {
+  const out = { status: 'not run', reason: null, candidates: 0, things: 0, researchable_leaves: 0, excluded_known: 0, lanes: {}, lane_lines: [], pairs: [], run_tag: null };
+  const r = perspectiveRun(ctx, spec.id, { judge: false });
+  if (!r.ok) { out.status = 'failed'; out.reason = r.reason; spec.lanes.forEach(function (l) { out.lane_lines.push('lane ' + l + ': provider absent (the recall did not run)'); }); return out; }
+  const c = r.counts;
+  out.run_tag = r.run_tag;
+  out.candidates = num(c.candidates);
+  out.things = num(c.things);
+  out.excluded_known = num(c.excluded_known);
+  out.researchable_leaves = researchableLeaves(ctx, r.plan_run_id);
+  spec.lanes.forEach(function (l) {
+    out.lanes[l] = num(c[l]);
+    out.lane_lines.push('lane ' + l + ': ' + (out.lanes[l] > 0 ? 'ran (' + out.lanes[l] + ' pairs)' : 'empty'));
+  });
+  out.pairs = r.top.slice(0, 2).map(pairLine);
+  out.status = out.candidates > 0 ? 'ran' : 'empty';
+  return out;
+}
+
+// the readiness counts of one room (369.2-27): claims apart from every other confirmed node type, read-only
+function readReadiness(roomDir) {
+  const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+  const out = { claims_total: 0, confirmed_claim_count: 0, confirmed_other_count: 0, confirmed_other_by_type: {}, read: false };
+  let db = null;
+  try { db = navigation.openRoomDbReadOnlyForCaller(roomDir); } catch (_e) { db = null; }
+  if (!db) return out;
+  try {
+    Object.assign(out, navigation.readReadinessCounts(db), { read: true });
+  } catch (_e) { /* a failed read leaves the zero counts and read false */ } finally {
+    try { navigation.closeRoomDbForCaller(db); } catch (_e) { /* ignore */ }
+  }
+  return out;
+}
+
 // -- the report ----------------------------------------------------------------------------------------
 function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
@@ -590,16 +700,32 @@ function couldNotJobs(j, extra) {
   return (j.incomplete_lines.length > 0 ? j.incomplete_lines.join(' ') : 'nothing it promised was left undone.') + ' ' + (extra ? extra + ' ' : '') + 'Beyond that, it could not ';
 }
 
-function reportText(res) {
+// 369.2-27 (HARNESS-11): claims apart from every other confirmed node type, so the word confirmed never means
+// confirmed whitespace zones
+function readinessLine(rd) {
+  const types = Object.keys(rd.confirmed_other_by_type || {}).sort().map(function (t) { return t + ': ' + rd.confirmed_other_by_type[t]; });
+  return 'Confirmed claims: ' + rd.confirmed_claim_count + ' of ' + rd.claims_total + ' typed claims; other confirmed nodes: ' + rd.confirmed_other_count + ' (' + (types.length ? types.join(', ') : 'none') + ').';
+}
+
+function blockLines(spec, b) {
   const L = [];
-  const q = res.jobs.quick; const d = res.jobs.deep; const e = res.jobs.eureka; const a = res.jobs.analogies;
-  L.push('REAL-ROOM RELEASE RUN');
-  L.push('  commit:   ' + res.sha + '  (version ' + res.version + ')');
-  L.push('  room:     ' + res.room.slug + ' (born through the room chokepoint; registered: ' + (res.room.registered ? 'yes' : 'NO') + ')');
-  L.push('  seeded:   ' + res.room.indexed + ' artifacts indexed, ' + res.room.seeded.entities + ' entities, ' + res.room.seeded.claims + ' typed claims, ' + res.room.seeded.describes + ' entity links' + (res.room.seeded.failures.length ? ', FAILED: ' + res.room.seeded.failures.join(', ') : ''));
-  L.push('  mode:     ' + (res.offline ? 'OFFLINE: every egress line off, the web lines are planned and shown, never sent' : (res.read_by ? 'live, web lines approved by the reader' : 'dry: web lines NOT approved, nothing sent')));
-  L.push('  tavily:   ' + res.providers.tavily + (res.providers.tavily === 'absent' ? '  (no TAVILY_API_KEY in the environment or ~/.mindrian.env; the research planner\'s own search lines go to OpenAlex, so this run does not depend on it)' : ''));
-  L.push('  openalex: ' + res.providers.openalex);
+  L.push('== ' + spec.header + ' ==');
+  L.push('  It tried:  ' + spec.tried);
+  L.push('  It got:    ' + b.status + (b.reason ? ' - ' + b.reason.replace(/\.\s*$/, '') : '') + '. ' + plural(b.candidates, 'candidate pair', 'candidate pairs') + ' from ' + plural(b.things, 'thing', 'things') + '; ' + b.excluded_known + ' already-known pairs excluded; ' + plural(b.researchable_leaves, 'web search leaf', 'web search leaves') + ' in its plan.');
+  b.lane_lines.forEach(function (x) { L.push('  ' + x); });
+  b.pairs.forEach(function (x) { L.push('  pair: ' + x); });
+  L.push('  It could not: ' + spec.cannot);
+  L.push('');
+  return L;
+}
+
+function roomLines(room, i, n) {
+  const L = [];
+  const q = room.jobs.quick; const d = room.jobs.deep; const e = room.jobs.eureka; const a = room.jobs.analogies;
+  L.push('ROOM ' + i + ' of ' + n + ': ' + room.venture + ' (' + room.seed + ')');
+  L.push('  room:     ' + room.slug + ' (born through the room chokepoint; registered: ' + (room.registered ? 'yes' : 'NO') + ')');
+  L.push('  seeded:   ' + room.indexed + ' artifacts indexed, ' + room.seeded.entities + ' entities, ' + room.seeded.claims + ' typed claims, ' + room.seeded.describes + ' entity links' + (room.seeded.failures.length ? ', FAILED: ' + room.seeded.failures.join(', ') : ''));
+  L.push('  ' + readinessLine(room.readiness) + (room.readiness.read ? '' : ' (the room graph could not be read)'));
   L.push('');
   L.push('== Quick research ==');
   L.push('  It tried:  one grant-gated run of the room\'s question, with these searches, sent exactly as written:');
@@ -631,6 +757,20 @@ function reportText(res) {
   a.examples.forEach(function (s) { L.push('  pair: ' + s); });
   L.push('  It could not: fill the SAPPhIRE statement - ' + a.statement_note + '.');
   L.push('');
+  BLOCK_SPECS.forEach(function (spec) { blockLines(spec, room.jobs[spec.key]).forEach(function (x) { L.push(x); }); });
+  return L;
+}
+
+function reportText(res) {
+  const L = [];
+  L.push('REAL-ROOM RELEASE RUN');
+  L.push('  commit:   ' + res.sha + '  (version ' + res.version + ')');
+  L.push('  rooms:    ' + res.rooms.length + ' (' + res.rooms.map(function (r) { return r.seed; }).join(', ') + ')');
+  L.push('  mode:     ' + (res.offline ? 'OFFLINE: every egress line off, the web lines are planned and shown, never sent' : (res.read_by ? 'live, web lines approved by the reader' : 'dry: web lines NOT approved, nothing sent')));
+  L.push('  tavily:   ' + res.providers.tavily + (res.providers.tavily === 'absent' ? '  (no TAVILY_API_KEY in the environment or ~/.mindrian.env; the research planner\'s own search lines go to OpenAlex, so this run does not depend on it)' : ''));
+  L.push('  openalex: ' + res.providers.openalex);
+  L.push('');
+  res.rooms.forEach(function (room, i) { roomLines(room, i + 1, res.rooms.length).forEach(function (x) { L.push(x); }); });
   L.push(roomRead.formatFeyMintoBlock(res.jobs.feyminto));
   L.push('');
   L.push(negativeLeg.formatNegativeBlock(res.negative_leg));
@@ -668,8 +808,25 @@ function completionNumbers(j) {
   };
 }
 
+// the eight perspective blocks of one room: the four the gate reads (quick, deep, eureka, analogies) and the four
+// canvas perspectives added by 369.2-32 (numbers only)
+function perspectivesOf(jobs) {
+  const q = jobs.quick; const d = jobs.deep; const e = jobs.eureka; const a = jobs.analogies;
+  const out = {
+    quick: { status: q.status, counts: Object.assign({ searches_planned: q.searches_planned, searches_executed: q.searches_executed, rows: q.rows, lanes_ran: q.lanes_ran, lanes_empty: q.lanes_empty, lanes_unavailable: q.lanes_unavailable }, completionNumbers(q)) },
+    deep: { status: d.status, counts: Object.assign({ searches_planned: d.searches_planned, searches_executed: d.searches_executed, lanes_planned: d.lanes_planned, lanes_ran: d.lanes_ran, lanes_empty: d.lanes_empty, lanes_unavailable: d.lanes_unavailable, rows: d.rows, counterevidence_planned: d.counterevidence_planned, counterevidence_executed: d.counterevidence_executed }, completionNumbers(d)) },
+    eureka: { status: e.status, counts: { candidates: e.candidates, things: e.things, excluded_known: e.excluded_known, passed_stage_a: e.passed_stage_a, judged: e.judged } },
+    analogies: { status: a.status, counts: { pairs: a.pairs, structural_pairs: a.structural_pairs, things: a.things } },
+  };
+  BLOCK_SPECS.forEach(function (spec) {
+    const b = jobs[spec.key];
+    out[spec.key] = { status: b.status, counts: { candidates: b.candidates, researchable_leaves: b.researchable_leaves, things: b.things } };
+  });
+  return out;
+}
+
 function buildReceipt(res) {
-  const q = res.jobs.quick; const d = res.jobs.deep; const e = res.jobs.eureka; const a = res.jobs.analogies;
+  const first = perspectivesOf(res.jobs);
   return {
     schema: SCHEMA,
     sha: res.sha,
@@ -678,12 +835,8 @@ function buildReceipt(res) {
     reader: res.read_by,
     read_at: res.receipt.read_at,
     offline: res.offline === true,
-    perspectives: {
-      quick: { status: q.status, counts: Object.assign({ searches_planned: q.searches_planned, searches_executed: q.searches_executed, rows: q.rows, lanes_ran: q.lanes_ran, lanes_empty: q.lanes_empty, lanes_unavailable: q.lanes_unavailable }, completionNumbers(q)) },
-      deep: { status: d.status, counts: Object.assign({ searches_planned: d.searches_planned, searches_executed: d.searches_executed, lanes_planned: d.lanes_planned, lanes_ran: d.lanes_ran, lanes_empty: d.lanes_empty, lanes_unavailable: d.lanes_unavailable, rows: d.rows, counterevidence_planned: d.counterevidence_planned, counterevidence_executed: d.counterevidence_executed }, completionNumbers(d)) },
-      eureka: { status: e.status, counts: { candidates: e.candidates, things: e.things, excluded_known: e.excluded_known, passed_stage_a: e.passed_stage_a, judged: e.judged } },
-      analogies: { status: a.status, counts: { pairs: a.pairs, structural_pairs: a.structural_pairs, things: a.things } },
-    },
+    perspectives: first,
+    rooms: res.rooms.map(function (r) { return { seed: r.seed, slug: r.slug, perspectives: perspectivesOf(r.jobs) }; }),
     providers: { tavily: res.providers.tavily, openalex: res.providers.openalex },
     feyminto: { nests: res.jobs.feyminto.map(function (n) { return { nest: n.nest, asked: n.asked, not_asked_reason: n.not_asked_reason, frameworks_named: n.frameworks_named.length, commands_runnable_here: n.commands_runnable_here.length }; }) },
     negative_leg: negativeSummary(res.negative_leg),
@@ -705,11 +858,16 @@ async function runDesktopVerified(opts, receiptDir) {
 }
 
 async function runCeremony(opts, receiptDir) {
-  const seedDir = path.resolve(opts.seed || DEFAULT_SEED);
+  const seedDirs = (opts.seeds && opts.seeds.length ? opts.seeds : [DEFAULT_SEED]).map(function (d) { return path.resolve(d); });
   const roomsHome = path.resolve(opts.roomsHome || path.join(receiptDir, 'rooms'));
   const realRooms = path.join(os.homedir(), 'MindrianRooms');
   if (roomsHome === realRooms || roomsHome.indexOf(realRooms + path.sep) === 0) throw refuse('rooms_home_is_real_rooms', 'the release run never writes under ~/MindrianRooms');
-  if (!fs.existsSync(path.join(seedDir, 'ROOM.md')) || !fs.existsSync(path.join(seedDir, 'sections'))) throw refuse('seed_missing', seedDir);
+  seedDirs.forEach(function (seedDir) {
+    if (!fs.existsSync(path.join(seedDir, 'ROOM.md')) || !fs.existsSync(path.join(seedDir, 'sections'))) throw refuse('seed_missing', seedDir);
+  });
+  // two seeds that share a slug would delete each other's room
+  const slugs = seedDirs.map(function (d) { return roomSlug('0'.repeat(40), d); });
+  if (slugs.some(function (sl, i) { return slugs.indexOf(sl) !== i; })) throw refuse('duplicate_seed', 'two --seed values name the same room');
 
   const sha = headSha();
   const version = repoVersion();
@@ -717,27 +875,39 @@ async function runCeremony(opts, receiptDir) {
   try {
     progress('providers');
     const providers = { tavily: tavilyPresent() ? 'present' : 'absent', openalex: await openalexReachable(opts.offline) };
-    progress('birthing the fixture room');
-    const room = await buildRoom(opts, sha, seedDir, roomsHome);
-    const ctx = { roomDir: room.roomDir, seedDir: seedDir, offline: opts.offline, readBy: opts.readBy || null };
-    progress('quick');
-    const quick = jobQuick(ctx);
-    progress('deep');
-    const deep = jobDeep(ctx);
-    progress('eureka');
-    const eureka = jobEureka(ctx);
-    progress('analogies');
-    const analogies = jobAnalogies(ctx);
+    const rooms = [];
+    for (let i = 0; i < seedDirs.length; i += 1) {
+      const seedDir = seedDirs[i];
+      const tag = seedDirs.length > 1 ? ' (room ' + (i + 1) + ' of ' + seedDirs.length + ')' : '';
+      progress('birthing the fixture room' + tag);
+      const room = await buildRoom(opts, sha, seedDir, roomsHome);
+      const ctx = { roomDir: room.roomDir, seedDir: seedDir, offline: opts.offline, readBy: opts.readBy || null };
+      progress('quick' + tag);
+      const quick = jobQuick(ctx);
+      progress('deep' + tag);
+      const deep = jobDeep(ctx);
+      progress('eureka' + tag);
+      const eureka = jobEureka(ctx);
+      progress('analogies' + tag);
+      const analogies = jobAnalogies(ctx);
+      const jobs = { quick: quick, deep: deep, eureka: eureka, analogies: analogies };
+      BLOCK_SPECS.forEach(function (spec) { progress(spec.header.toLowerCase() + tag); jobs[spec.key] = jobBlock(ctx, spec); });
+      rooms.push({ seed: seedLabel(seedDir), seedDir: seedDir, slug: room.slug, dir: room.roomDir, venture: room.venture, indexed: room.indexed, seeded: room.seeded, registered: room.registered, jobs: jobs, readiness: readReadiness(room.roomDir) });
+    }
+    const first = rooms[0];
     progress('feyminto');
-    const feyminto = await roomRead.feymintoLeg(room.roomDir, { offline: opts.offline });
+    const feyminto = await roomRead.feymintoLeg(first.dir, { offline: opts.offline });
     progress('negative leg');
-    const negative = negativeLeg.runNegativeLeg({ roomsHome: roomsHome, sha: sha, plannerCli: PLANNER_CLI, seedDir: seedDir, scratch: SCRATCH });
+    // the negative leg plans quick and deep from a question set: the first seed that has one
+    const negSeed = seedDirs.filter(function (d) { return fs.existsSync(path.join(d, 'question-set-quick.json')) && fs.existsSync(path.join(d, 'question-set-deep.json')); })[0] || DEFAULT_SEED;
+    const negative = negativeLeg.runNegativeLeg({ roomsHome: roomsHome, sha: sha, plannerCli: PLANNER_CLI, seedDir: negSeed, scratch: SCRATCH });
     const res = {
       ok: true,
       sha: sha, version: version, offline: opts.offline, read_by: opts.readBy || null,
       providers: providers,
-      room: { slug: room.slug, dir: room.roomDir, indexed: room.indexed, seeded: room.seeded, registered: room.registered },
-      jobs: { quick: quick, deep: deep, eureka: eureka, analogies: analogies, feyminto: feyminto },
+      room: { slug: first.slug, dir: first.dir, indexed: first.indexed, seeded: first.seeded, registered: first.registered },
+      jobs: Object.assign({}, first.jobs, { feyminto: feyminto }),
+      rooms: rooms.map(function (r) { return { seed: r.seed, slug: r.slug, dir: r.dir, venture: r.venture, indexed: r.indexed, seeded: r.seeded, registered: r.registered, jobs: r.jobs, readiness: r.readiness }; }),
       negative_leg: negative,
       receipt: { written: false, file: null, read_at: null },
     };
@@ -767,7 +937,8 @@ function runNegativeOnly(opts) {
   }
 }
 
-const HELP = 'Usage: node scripts/real-room-run.cjs [--read-by "<name>"] [--offline] [--json] [--rooms-home <dir>] [--seed <dir>] [--receipt-dir <dir>]\n'
+const HELP = 'Usage: node scripts/real-room-run.cjs [--read-by "<name>"] [--offline] [--json] [--rooms-home <dir>] [--seed <dir>]... [--receipt-dir <dir>]\n'
+  + '       (--seed may repeat: every seed is born as its own room and all of them go into ONE receipt)\n'
   + '       node scripts/real-room-run.cjs --negative-only [--json]   (only the negative leg; writes no receipt)\n'
   + '       node scripts/real-room-run.cjs --desktop-verified mac|win [--receipt-dir <dir>]\n';
 
