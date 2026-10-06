@@ -16,7 +16,7 @@
 // to its job (and its second job when the canon names one), and a command to its jobs through its
 // `serves_jtbd` list. A command matches a folder when one of its jobs is one of the folder's jobs.
 //
-// Never read here: `hitl_shape`. A press adds text for the person to submit; the mod adds or
+// Never read here: the registry's confirmation-shape field. A press adds text for the person to submit; the mod adds or
 // removes no confirmation.
 import type { Actions } from '../types'
 import type { BodySlice } from '../kit'
