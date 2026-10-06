@@ -1,0 +1,123 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "map-unknowns",
+  "command": "/mos:map-unknowns",
+  "stated_question": "Can Kestrel Watch detect thin fiber tethers on small drones before contact?",
+  "scqa": {
+    "situation": "Kestrel Watch flies small drones past tethered fiber links.",
+    "complication": "Thin fiber tethers return almost no signal to the onboard sensors.",
+    "question": "What must be true for a sensor stack to detect a thin tether in time?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A light sensor stack versus a tether it cannot see."
+    },
+    "goal": {
+      "target": "Know which tether signatures the current sensors miss.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that thin tethers are already detected reliably"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [],
+    "limiters": [],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Known knowns",
+      "dimension": "mu:known_known"
+    },
+    {
+      "id": "K2",
+      "label": "Blind spots",
+      "dimension": "mu:blind_spot"
+    },
+    {
+      "id": "K3",
+      "label": "Hidden knowns",
+      "dimension": "mu:hidden_known"
+    },
+    {
+      "id": "K4",
+      "label": "Unknown unknowns",
+      "dimension": "mu:unknown_unknown"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K2",
+      "question": "Can Kestrel Watch detect thin fiber tethers before contact?",
+      "origin": "user_stated",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Field tests showing reliable detection of thin tethers."
+      },
+      "slots": {
+        "term": "thin-wire detection"
+      },
+      "query_kinds": {
+        "practice": "optical time domain reflectometry",
+        "mechanism": "fiber backscatter",
+        "adjacent": "powerline detection"
+      }
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Does published work support cutting tethers as a counter?",
+      "origin": "framework_dimension",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Studies showing cutting does not stop the link."
+      },
+      "slots": {
+        "term": "cable cutting"
+      }
+    },
+    {
+      "id": "L3",
+      "parent": "K3",
+      "question": "What does the crew already suspect about tether returns but has not written down?",
+      "origin": "framework_dimension",
+      "dimension": "mu:hidden_known",
+      "lens": "mu.reveal",
+      "researchable": false,
+      "falsifier": {
+        "text": ""
+      },
+      "slots": {},
+      "not_researchable_reason": "tacit knowledge the team must surface"
+    },
+    {
+      "id": "L4",
+      "parent": "K4",
+      "question": "What adjacent evidence would reveal a tether signature nobody has named?",
+      "origin": "mece_gap",
+      "dimension": "mu:unknown_unknown",
+      "lens": "mu.reveal",
+      "researchable": false,
+      "falsifier": {
+        "text": ""
+      },
+      "slots": {},
+      "not_researchable_reason": "needs a field test, not a literature search"
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}
