@@ -17,7 +17,7 @@ import type { PaneEl, ShellActions } from './types'
 
 // The words for a fact that is not ok. `searching` has no word of its own in the deck, so it reads
 // as not recorded yet.
-function missing(seen: Exclude<Seen<unknown>, { state: 'ok' }>): string {
+export function missing(seen: Exclude<Seen<unknown>, { state: 'ok' }>): string {
   switch (seen.state) {
     case 'no_room_file':
       return text('M01')

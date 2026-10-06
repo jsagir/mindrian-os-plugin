@@ -62,6 +62,18 @@ function walk(node: unknown, visit: (n: Node) => void): void {
   walk(rec.children, visit)
 }
 
+// The props of a drawn node, or an empty record (an element with no props has none).
+function propsOf(n: unknown): Node {
+  const props = (n as Node | undefined)?.props
+  return typeof props === 'object' && props !== null ? (props as Node) : {}
+}
+
+// All the words of a tree as one string, with no separator, so a sentence drawn as a bold label and
+// the rest reads as the deck's sentence.
+function flat(tree: unknown): string {
+  return shown(tree).split('\n').join('')
+}
+
 function shown(tree: unknown): string {
   const out: string[] = []
   const grab = (n: unknown): void => {
@@ -158,9 +170,8 @@ function panelsBody(parts: ((ctx: TabContext) => import('claude-code').RenderEle
       const { Box } = ctx.el
       const drawn = parts.map((part) => part(ctx))
       walk(drawn, (n) => {
-        const props = n.props as Node | undefined
-        if (n.type === 'Button' && props !== undefined && typeof props.onPress === 'function') {
-          pressers[String(n.key)] = props.onPress as () => void
+        if (n.type === 'Button' && typeof n.onPress === 'function') {
+          pressers[String(propsOf(n).key)] = n.onPress as () => void
         }
       })
       return <Box flexDirection="column">{drawn}</Box>
@@ -220,23 +231,21 @@ test('where line: P10 on the blue block with cream words and a bold label on eve
     const line = await ui.find({ key: 'room:where' })
     expect(line?.type).toBe('Box')
     expect(line?.props.backgroundColor).toBe(THEME.where)
-    const s = shown(line)
-    expect(s).toContain(text('P10', { room: 'Sample room (sample)', folder: 'Funding (sample)' }).replace("You're in: ", ''))
-    expect(s).toContain("You're in: ")
+    expect(flat(line)).toBe(text('P10', { room: 'Sample room (sample)', folder: 'Funding (sample)' }))
     // Cream words, label bold.
     const texts: Node[] = []
     walk(line, (n) => {
       if (n.type === 'Text') texts.push(n)
     })
-    expect(texts.some((t) => (t.props as Node).color === THEME.reading)).toBe(true)
-    expect(texts.some((t) => (t.props as Node).bold === true && shown(t) === "You're in: ")).toBe(true)
+    expect(texts.some((t) => propsOf(t).color === THEME.reading)).toBe(true)
+    expect(texts.some((t) => propsOf(t).bold === true && shown(t) === "You're in: ")).toBe(true)
     await ui.unmount()
 
     cur.input = input({ mode: PLAIN, theme: null })
     ui = await draw($, surface)
     const plain = await ui.find({ key: 'room:where' })
     expect(colorKeys(plain)).toEqual([])
-    expect(shown(plain)).toContain("You're in: ")
+    expect(flat(plain)).toBe(text('P10', { room: 'Sample room (sample)', folder: 'Funding (sample)' }))
     await ui.unmount()
   }
 })
@@ -249,12 +258,12 @@ test('where line: the top of the room draws P11 and a room that is not bound dra
   }
   shellHook(on, cur)
   let ui = await draw($, 'terminal')
-  expect(shown(await ui.find({ key: 'room:where' }))).toContain(text('P11', { room: 'Sample room (sample)' }))
+  expect(flat(await ui.find({ key: 'room:where' }))).toBe(text('P11', { room: 'Sample room (sample)' }))
   await ui.unmount()
 
   cur.input = input({ vm: SAMPLES.noroom })
   ui = await draw($, 'terminal')
-  expect(shown(await ui.find({ key: 'room:where' }))).toContain(text('P12'))
+  expect(flat(await ui.find({ key: 'room:where' }))).toBe(text('P12'))
   await ui.unmount()
 })
 
@@ -376,7 +385,7 @@ test('plain mode: each panel is a single-bordered Box with a bold heading and no
       expect(box?.props.borderStyle).toBe('single')
       const bold: Node[] = []
       walk(box, (n) => {
-        if (n.type === 'Text' && (n.props as Node).bold === true) bold.push(n)
+        if (n.type === 'Text' && propsOf(n).bold === true) bold.push(n)
       })
       expect(bold.some((t) => shown(t) === heading)).toBe(true)
     }
@@ -401,7 +410,7 @@ test('color mode: panels sit on the cream page with black words; no panel carrie
       if (n.type === 'Text') texts.push(n)
     })
     expect(texts.length).toBeGreaterThan(0)
-    for (const t of texts) expect((t.props as Node).color).toBe(THEME.frame)
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.frame)
   }
   await ui.unmount()
 })
