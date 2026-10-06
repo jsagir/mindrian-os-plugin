@@ -482,18 +482,20 @@ function colorKeys(tree: unknown): string[] {
 
 // Boxes with a background that have another background somewhere below them (blocks never nest).
 function nestedBackgrounds(tree: unknown): number {
+  // Only a drawn element (it has a type) counts; its props object is not a second element.
+  const has = (n: Node): boolean =>
+    typeof n.type === 'string' && ('backgroundColor' in n || 'backgroundColor' in propsOf(n))
   let count = 0
   walk(tree, (n) => {
-    if ('backgroundColor' in propsOf(n) || 'backgroundColor' in n) {
-      let inner = 0
-      const below = [n.props, n.children]
-      for (const part of below) {
-        walk(part, (m) => {
-          if ('backgroundColor' in m || 'backgroundColor' in propsOf(m)) inner += 1
-        })
-      }
-      if (inner > 0) count += 1
+    if (!has(n)) return
+    let inner = 0
+    // Only what is drawn BELOW this node: its children, not its own props.
+    for (const part of [n.children, propsOf(n).children]) {
+      walk(part, (m) => {
+        if (has(m)) inner += 1
+      })
     }
+    if (inner > 0) count += 1
   })
   return count
 }
@@ -877,4 +879,12 @@ test('plain mode: the blocks become bordered boxes with their heading words and 
     expect(colorKeys(await ui.find({ key: 'think:state' }))).toEqual([])
     await ui.unmount()
   }
+})
+
+test('the nesting detector itself: a block inside a block counts, two siblings do not', () => {
+  const inner = { type: 'Box', props: { backgroundColor: 'b', children: [] } }
+  const nested = { type: 'Box', props: { backgroundColor: 'a', children: [inner] } }
+  expect(nestedBackgrounds(nested)).toBe(1)
+  const siblings = { type: 'Box', props: { children: [nested.props.children[0], { type: 'Box', props: { backgroundColor: 'c' } }] } }
+  expect(nestedBackgrounds(siblings)).toBe(0)
 })
