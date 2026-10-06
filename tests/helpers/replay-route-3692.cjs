@@ -41,11 +41,13 @@ const ROUTES = Object.freeze([
   // 369.2-31: the SEED-118 shaped room (tests/fixtures/release-room-seed118). Practice names hit, problem
   // names find nothing (the positive finding); the baseline row answers the deployed countermeasure that
   // contradicts the entanglement limiter; the last row is the lane B pair that matches the governing question.
-  // ASSUMED: the baseline kind (a later plan) composes a string that carries the word deployed or countermeasure.
+  // 369.2-33: the baseline row is keyed to the strings the planner really composes for the seed118 deep set
+  // (measured on plan.baseline, plan 23): the shaped governing question 'limiter binds first unlocks' bare, and with
+  // the three facet suffixes. The old row matched the words deployed or countermeasure, which no baseline string holds.
   Object.freeze([/optical time domain reflectometry|powerline detection/i, 'seed118_practice_hits']),
   Object.freeze([/thin.wire detection|cable cutting/i, 'seed118_problem_zero']),
   Object.freeze([/fiber tether sensing/i, 'seed118_problem_zero']),
-  Object.freeze([/deployed|countermeasure/i, 'seed118_baseline_countermeasure']),
+  Object.freeze([/^"?limiter binds first unlocks"?(?: AND \((?:success OR adoption OR "case study"|review OR survey OR "systematic review"|limitation OR failure OR "no effect")\))?$/i, 'seed118_baseline_countermeasure']),
   Object.freeze([/fibre.tethered drone/i, 'seed118_lane_b_bearing']),
 ]);
 
