@@ -21,7 +21,9 @@
  *   G9  release.sh                    Step 2.6 sits after Step 2.5 and before Step 3; dry-run reports; opt-out
  *   G10 text                          dash guard, CHANGELOG, RULE 10, the include line
  *   G11-G13 (369.25-24, FCLOSE-07)    the receipt's negative leg: absent -> NONEGATIVE, a job that RAN -> NEGATIVE_RAN,
- *                                     both legs -> PASS with 'negative leg: refused 8 of 8 (...)'
+ *                                     both legs -> PASS with 'negative leg: refused 12 of 12 (...)' (8 of 8 before plan 27)
+ *   G12f-G12h, G14 (369.25-27)        the third room room_db_reminted: a leg lacking it or with a job that RAN on it -> NEGATIVE_RAN;
+ *                                     on the receipt a real OFFLINE run wrote: OFFLINE, OK (12 of 12), NONEGATIVE, NEGATIVE_RAN
  *
  * Isolation: every spawn gets HOME and USERPROFILE in a temp dir; the rooms home and the receipt dir
  * are temp dirs; --offline everywhere; the Theo stamp reader is stubbed for the dry-run arm. Nothing
@@ -87,8 +89,8 @@ function runGate(receiptDir, dry, noCheck) {
 function counts(over) {
   return Object.assign({ n: 1 }, over || {});
 }
-// The negative leg a real run records (plan 369.25-23): the never-ready fixture with room.db missing and with it
-// corrupted, each of the four research jobs refused with a typed reason.
+// The negative leg a real run records (plan 369.25-23, plan 27): the never-ready fixture with room.db missing, with it
+// corrupted and with it deleted then silently re-minted, each of the four research jobs refused with a typed reason.
 const JOBS = ['quick', 'deep', 'eureka', 'analogies'];
 function negJobs(reason, over) {
   const jobs = {};
@@ -101,6 +103,7 @@ function negLeg(over) {
     rooms: [
       { injection: 'room_db_missing', jobs: negJobs('room_db_missing') },
       { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+      { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost') },
     ],
     all_refused: true,
   }, over || {});
@@ -164,7 +167,7 @@ arm('G3 a receipt for HEAD with a reader and four blocks passes and prints the r
   check(r.out.indexOf('Test Reader') !== -1, 'reader not printed: ' + r.out);
   ['quick', 'deep', 'eureka', 'analogies'].forEach((k) => check(r.out.indexOf(k) !== -1, k + ' block not printed: ' + r.out));
   ['4', '7', '11', '13'].forEach((n) => check(new RegExp('(^|[^0-9])' + n + '([^0-9]|$)').test(r.out), 'count ' + n + ' not printed: ' + r.out));
-  check(r.out.indexOf('negative leg: refused 8 of 8') !== -1, 'the negative-leg line is not printed on a pass: ' + r.out);
+  check(r.out.indexOf('negative leg: refused 12 of 12') !== -1, 'the negative-leg line is not printed on a pass: ' + r.out);
   // an invalid receipt is refused: no reader, a missing block
   const dirNoReader = mk('g3b');
   putReceipt(dirNoReader, HEAD, { reader: '' });
@@ -230,6 +233,7 @@ arm('G12 a receipt whose negative leg ran a job is refused, naming the job and t
     rooms: [
       { injection: 'room_db_missing', jobs: negJobs('room_db_missing') },
       { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable', { quick: { refused: false, not_ready_reason: null } }) },
+      { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost') },
     ],
     all_refused: false,
   }) });
@@ -243,6 +247,7 @@ arm('G12 a receipt whose negative leg ran a job is refused, naming the job and t
     rooms: [
       { injection: 'room_db_missing', jobs: negJobs('room_db_missing', { eureka: { refused: false, not_ready_reason: 'room_db_missing' } }) },
       { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+      { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost') },
     ],
     all_refused: true,
   }) });
@@ -254,6 +259,7 @@ arm('G12 a receipt whose negative leg ran a job is refused, naming the job and t
     rooms: [
       { injection: 'room_db_missing', jobs: negJobs('room_db_missing', { analogies: { refused: true } }) },
       { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+      { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost') },
     ],
     all_refused: true,
   }) });
@@ -262,7 +268,7 @@ arm('G12 a receipt whose negative leg ran a job is refused, naming the job and t
   // a job missing from a room is not refused either
   const missing = negJobs('room_db_missing'); delete missing.deep;
   const dir4 = mk('g12d');
-  putReceipt(dir4, HEAD, { negative_leg: negLeg({ rooms: [{ injection: 'room_db_missing', jobs: missing }, { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') }], all_refused: true }) });
+  putReceipt(dir4, HEAD, { negative_leg: negLeg({ rooms: [{ injection: 'room_db_missing', jobs: missing }, { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') }, { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost') }], all_refused: true }) });
   const r4 = runGate(dir4, false, false);
   check(r4.code === 1 && /deep/.test(r4.out), 'a missing job passed: ' + r4.out);
   // the leg with a single room is not the whole leg: both injections must be there
@@ -272,12 +278,41 @@ arm('G12 a receipt whose negative leg ran a job is refused, naming the job and t
   check(r5.code === 1, 'a negative leg with only one injected room passed: ' + r5.out);
 });
 
+arm('G12f (plan 27) a receipt whose negative leg lacks the reminted room, or where a job ran on it, is refused naming the job and room_db_reminted', () => {
+  // the two-room leg a pre-plan-27 run recorded: the gate does not accept it
+  const dir = mk('g12f');
+  putReceipt(dir, HEAD, { negative_leg: negLeg({ rooms: [
+    { injection: 'room_db_missing', jobs: negJobs('room_db_missing') },
+    { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+  ], all_refused: true }) });
+  const r = runGate(dir, false, false);
+  check(r.code === 1 && /NEGATIVE LEG RAN/.test(r.out) && /room_db_reminted/.test(r.out), 'a negative leg without the reminted room passed: ' + r.out);
+  // a job RAN on the reminted room while the summary flag lies
+  const dir2 = mk('g12g');
+  putReceipt(dir2, HEAD, { negative_leg: negLeg({ rooms: [
+    { injection: 'room_db_missing', jobs: negJobs('room_db_missing') },
+    { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+    { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost', { analogies: { refused: false, not_ready_reason: null } }) },
+  ], all_refused: true }) });
+  const r2 = runGate(dir2, false, false);
+  check(r2.code === 1 && /NEGATIVE LEG RAN/.test(r2.out) && /analogies/.test(r2.out) && /room_db_reminted/.test(r2.out), 'a job that ran on the reminted room was believed: ' + r2.out);
+  // a reminted job refused with no typed reason is not a refusal
+  const dir3 = mk('g12h');
+  putReceipt(dir3, HEAD, { negative_leg: negLeg({ rooms: [
+    { injection: 'room_db_missing', jobs: negJobs('room_db_missing') },
+    { injection: 'room_db_corrupted', jobs: negJobs('room_db_unreadable') },
+    { injection: 'room_db_reminted', jobs: negJobs('room_graph_lost', { deep: { refused: true } }) },
+  ], all_refused: true }) });
+  const r3 = runGate(dir3, false, false);
+  check(r3.code === 1 && /deep/.test(r3.out) && /room_db_reminted/.test(r3.out), 'an untyped refusal on the reminted room passed: ' + r3.out);
+});
+
 arm('G13 a receipt with both legs passes and prints the negative-leg line with the reasons', () => {
   const dir = mk('g13');
   putReceipt(dir, HEAD);
   const r = runGate(dir, false, false);
   check(r.code === 0, 'gate refused a receipt with both legs: ' + r.out);
-  check(r.out.indexOf('negative leg: refused 8 of 8 (room_db_missing, room_db_unreadable)') !== -1, 'the negative-leg line is not as pinned: ' + r.out);
+  check(r.out.indexOf('negative leg: refused 12 of 12 (room_db_missing, room_db_unreadable, room_graph_lost)') !== -1, 'the negative-leg line is not as pinned: ' + r.out);
   check(/PASS/.test(r.out), 'no PASS line: ' + r.out);
 });
 
@@ -334,7 +369,7 @@ arm('G7 --read-by writes the receipt; --desktop-verified updates only that leg; 
   check(rec.desktop_verified && rec.desktop_verified.mac === null && rec.desktop_verified.win === null, 'desktop_verified ' + JSON.stringify(rec.desktop_verified));
   check(rec.offline === true, 'an --offline receipt must say offline: ' + rec.offline);
   const nl = rec.negative_leg;
-  check(nl && typeof nl === 'object' && nl.all_refused === true && Array.isArray(nl.rooms) && nl.rooms.length === 2, 'the receipt carries no negative leg that refused: ' + JSON.stringify(nl));
+  check(nl && typeof nl === 'object' && nl.all_refused === true && Array.isArray(nl.rooms) && nl.rooms.length === 3 && nl.rooms.some((r) => r.injection === 'room_db_reminted'), 'the receipt carries no negative leg that refused: ' + JSON.stringify(nl));
   nl.rooms.forEach((room) => JOBS.forEach((j) => check(room.jobs && room.jobs[j] && room.jobs[j].refused === true && typeof room.jobs[j].not_ready_reason === 'string', 'negative leg ' + room.injection + '/' + j + ' not refused with a reason: ' + JSON.stringify(room.jobs && room.jobs[j]))));
 
   // the gate refuses it: an offline run proves nothing about the web lines
@@ -350,6 +385,41 @@ arm('G7 --read-by writes the receipt; --desktop-verified updates only that leg; 
 
   const none = runScript(['--desktop-verified', 'win', '--receipt-dir', mk('norec')]);
   check(none.code === 2 && /no_receipt_for_head/.test(none.err), 'expected exit 2 no_receipt_for_head, got ' + none.code + ': ' + none.err);
+});
+
+// ---------------------------------------------------------------------------
+// G14 (plan 27): the four gate kinds, hermetically, on the receipt an OFFLINE real-room-run wrote in a temp HOME, rooms
+// home and receipt dir (the G7 receipt): OFFLINE as written, OK once the offline flag is flipped in a copy, NONEGATIVE
+// with the negative leg removed, NEGATIVE_RAN with the reminted room removed or a job running on it.
+// ---------------------------------------------------------------------------
+arm('G14 gate kinds on the real offline receipt: OFFLINE, OK, NONEGATIVE, NEGATIVE_RAN (reminted room missing, a job ran on it)', () => {
+  const file = path.join(RUN_RECEIPTS, HEAD + '.json');
+  check(fs.existsSync(file), 'the offline receipt from G7 is absent: ' + file);
+  const rec = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const kinds = [];
+  const put = (tag, mutate) => {
+    const dir = mk('g14-' + tag);
+    const copy = JSON.parse(JSON.stringify(rec));
+    mutate(copy);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, HEAD + '.json'), JSON.stringify(copy, null, 2));
+    return runGate(dir, false, false);
+  };
+  const off = runGate(RUN_RECEIPTS, false, false);
+  check(off.code === 1 && /OFFLINE RECEIPT/.test(off.out), 'the offline receipt as written was not refused OFFLINE: ' + off.out);
+  kinds.push('OFFLINE');
+  const ok = put('ok', (c) => { c.offline = false; });
+  check(ok.code === 0 && /PASS/.test(ok.out) && /negative leg: refused 12 of 12 \(room_db_missing, room_db_unreadable, room_graph_lost\)/.test(ok.out), 'the real receipt with offline flipped did not pass with the 12-of-12 line: ' + ok.out);
+  kinds.push('OK');
+  const none = put('none', (c) => { c.offline = false; delete c.negative_leg; });
+  check(none.code === 1 && /NO NEGATIVE LEG/.test(none.out), 'no negative leg was not refused NONEGATIVE: ' + none.out);
+  kinds.push('NONEGATIVE');
+  const noRem = put('norem', (c) => { c.offline = false; c.negative_leg.rooms = c.negative_leg.rooms.filter((r) => r.injection !== 'room_db_reminted'); });
+  check(noRem.code === 1 && /NEGATIVE LEG RAN/.test(noRem.out) && /room_db_reminted/.test(noRem.out), 'a real receipt without the reminted room was not refused NEGATIVE_RAN: ' + noRem.out);
+  const ran = put('ran', (c) => { c.offline = false; const rr = c.negative_leg.rooms.find((r) => r.injection === 'room_db_reminted'); rr.jobs.eureka.refused = false; });
+  check(ran.code === 1 && /NEGATIVE LEG RAN/.test(ran.out) && /eureka/.test(ran.out) && /room_db_reminted/.test(ran.out), 'a real receipt where eureka ran on the reminted room was not refused NEGATIVE_RAN: ' + ran.out);
+  kinds.push('NEGATIVE_RAN');
+  console.log('INFO: gate kinds exercised hermetically on the real offline receipt: ' + kinds.join(', '));
 });
 
 // ---------------------------------------------------------------------------

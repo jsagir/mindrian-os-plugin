@@ -14,6 +14,9 @@
  * second fixture) and runs the first planner verb of each job exactly as scripts/real-room-run.cjs runs it:
  *   room_db_missing    the fixture as built: no .mindrian/room.db           expected not_ready_reason room_db_missing
  *   room_db_corrupted  the fixture plus 64 zero bytes as .mindrian/room.db  expected not_ready_reason room_db_unreadable
+ *   room_db_reminted   (plan 27, Larry's leg B) a room born through the real birth path with work in its graph, room.db
+ *                      deleted, then a silent minting open (openRoomDb): an empty identity-less database and the room id
+ *                      still recorded in .room-root                          expected not_ready_reason room_graph_lost
  * quick and deep run `plan <question set> --room <dir> --mode quick|deep`; Eureka and analogies run
  * `perspective-recall --room <dir> --perspective <id> --offline`. A job counts as REFUSED only when ALL of these hold:
  * exit code 2, reason room_not_ready, not_ready_reason as expected, the requirement text lib/core/room-readiness.cjs
@@ -21,6 +24,10 @@
  * byte-identical after (nothing was planned or written). The leg runs the planner CLI only. It never runs the session
  * start hook against a negative room: the whole hook creates an identity-less room.db (plan 13), which would turn the
  * next job's reason from room_db_missing into identity_missing.
+ *
+ * The reminted room is built by buildRemintedRoom in a CHILD process with its own HOME and rooms home under the same
+ * scratch directory, so birth never writes the run's registry. Its room.db state is 'reminted_empty' (a database that holds
+ * no room.* identity rows) before and after every job.
  *
  * WHERE. The negative rooms are built under the run's scratch directory (a mkdtemp under the OS temp dir), never in
  * the rooms home: the builder refuses a target under ~/.mindrian, which is the run's default rooms home, and a refused
@@ -36,17 +43,28 @@ const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const FIXTURE = 'tests/fixtures/never-ready-room/build-fixture.cjs';
-const NEGATIVE_INJECTIONS = Object.freeze(['room_db_missing', 'room_db_corrupted']);
-const EXPECTED_REASON = Object.freeze({ room_db_missing: 'room_db_missing', room_db_corrupted: 'room_db_unreadable' });
-const EXPECTED_DB_STATE = Object.freeze({ room_db_missing: 'absent', room_db_corrupted: 'corrupt' });
+const NEGATIVE_INJECTIONS = Object.freeze(['room_db_missing', 'room_db_corrupted', 'room_db_reminted']);
+const EXPECTED_REASON = Object.freeze({ room_db_missing: 'room_db_missing', room_db_corrupted: 'room_db_unreadable', room_db_reminted: 'room_graph_lost' });
+const EXPECTED_DB_STATE = Object.freeze({ room_db_missing: 'absent', room_db_corrupted: 'corrupt', room_db_reminted: 'reminted_empty' });
 const JOBS = Object.freeze(['quick', 'deep', 'eureka', 'analogies']);
 const SQLITE_MAGIC = 'SQLite format 3\u0000';
 
 function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
 function noDash(s) { return String(s).replace(/[\u2014\u2013]/g, '-'); }
 
-// 'absent' | 'corrupt' (a file that is not a SQLite database) | 'database'
+// 'absent' | 'corrupt' (a file that is not a SQLite database) | 'reminted_empty' (a database with no room.* identity
+// rows, read through a copy so nothing is written under roomDir) | 'database'
 function roomDbState(roomDir) {
+  const base = rawDbState(roomDir);
+  if (base !== 'database') return base;
+  try {
+    const id = require(path.join(ROOT, 'lib', 'core', 'navigation', 'room-identity.cjs')).readRoomIdentity(roomDir, { door: 'copy' });
+    if (id && id.reason === 'identity_missing') return 'reminted_empty';
+  } catch (_e) { /* an unreadable identity leaves the plain database state */ }
+  return 'database';
+}
+
+function rawDbState(roomDir) {
   const f = path.join(roomDir, '.mindrian', 'room.db');
   let fd = null;
   try {
@@ -97,9 +115,13 @@ function plannerRun(plannerCli, args) {
 }
 
 function buildRoom(scratchParent, injection, sha) {
-  const { buildNeverReadyRoom } = require(path.join(ROOT, 'tests', 'fixtures', 'never-ready-room', 'build-fixture.cjs'));
+  const { buildNeverReadyRoom, buildRemintedRoom } = require(path.join(ROOT, 'tests', 'fixtures', 'never-ready-room', 'build-fixture.cjs'));
   const dirName = 'negative-' + injection + '-' + sha.slice(0, 8);
   const slug = 'negative-' + injection.replace(/_/g, '-') + '-' + sha.slice(0, 8);
+  if (injection === 'room_db_reminted') {
+    const rem = buildRemintedRoom(path.join(scratchParent, dirName), { slug: slug });
+    return { dirName: dirName, roomDir: rem.roomDir };
+  }
   const built = buildNeverReadyRoom(path.join(scratchParent, dirName), { slug: slug });
   if (injection === 'room_db_corrupted') {
     fs.mkdirSync(path.join(built.roomDir, '.mindrian'), { recursive: true });
@@ -167,9 +189,9 @@ function formatNegativeBlock(leg) {
   const c = countRefused(leg);
   const lines = requirementLines();
   L.push('== Negative leg: rooms that are not ready ==');
-  L.push('  It tried:  quick, deep, Eureka and analogies on the never-ready fixture with room.db missing, and with room.db corrupted.');
+  L.push('  It tried:  quick, deep, Eureka and analogies on the never-ready fixture with room.db missing, with room.db corrupted, and on a born room whose room.db was deleted and silently recreated empty.');
   if (leg.all_refused) {
-    L.push('  It got:    refused ' + c.refused + ' of ' + c.total + ' with a typed reason: ' + lines.room_db_missing + '; ' + lines.room_db_unreadable + '.');
+    L.push('  It got:    refused ' + c.refused + ' of ' + c.total + ' with a typed reason: ' + lines.room_db_missing + '; ' + lines.room_db_unreadable + '; ' + lines.room_graph_lost + '.');
   } else {
     const f = leg.first_not_refused || { injection: 'unknown', job: 'unknown' };
     L.push('  It got:    refused ' + c.refused + ' of ' + c.total + '; RAN on ' + f.job + ' for ' + f.injection + ': this is the R3 defect (a room with no usable record looks like a room with a record).');

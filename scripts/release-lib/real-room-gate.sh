@@ -26,8 +26,8 @@
 #
 # THE NEGATIVE LEG (369.25-24, FCLOSE-07; navigator 2026-10-06 01:00 "the gate refuses the cut when the negative leg did not
 # refuse"): the receipt must also carry `negative_leg`, written by the same run: the never-ready fixture with room.db missing
-# (room_db_missing) and corrupted (room_db_corrupted), quick, deep, eureka and analogies each refused with a typed
-# not_ready_reason. The gate reads every job's own `refused` flag and reason, never only the summary `all_refused`: a receipt
+# (room_db_missing), corrupted (room_db_corrupted) and deleted-then-silently-re-minted (room_db_reminted, 369.25-27: a born
+# room whose graph was recreated empty), quick, deep, eureka and analogies each refused with a typed not_ready_reason. The gate reads every job's own `refused` flag and reason, never only the summary `all_refused`: a receipt
 # with no negative leg is NONEGATIVE, one in which any job ran, is missing, or refused with no typed reason is NEGATIVE_RAN.
 # The check lives here and not in release.sh so the step blocks the 341 tripwire hashes stay as they are.
 #
@@ -91,7 +91,7 @@ _real_room_check() {
       if (!okc) { p("KIND", "INVALID"); p("MSG", "the " + blocks[i] + " counts are not all numbers"); done(); }
       lines.push(blocks[i] + ": " + String(b.status || "recorded") + " (" + keys.map(function (k) { return k + "=" + b.counts[k]; }).join(", ") + ")");
     }
-    var NL_INJECTIONS = ["room_db_missing", "room_db_corrupted"];
+    var NL_INJECTIONS = ["room_db_missing", "room_db_corrupted", "room_db_reminted"];
     var nl = r.negative_leg;
     if (!nl || typeof nl !== "object" || Array.isArray(nl)) {
       p("KIND", "NONEGATIVE");

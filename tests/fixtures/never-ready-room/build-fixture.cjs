@@ -70,7 +70,67 @@ function buildNeverReadyRoom(targetDir, opts) {
   return { roomDir, artifacts };
 }
 
-module.exports = { buildNeverReadyRoom };
+/*
+ * 369.25 plan 27 (Larry's leg B): the THIRD negative-leg room, injection room_db_reminted.
+ *
+ * buildRemintedRoom(targetDir, { slug }) builds a room under <targetDir>/rooms/<slug> through the REAL birth path
+ * (lib/core/navigation/room-birth.cjs birthRoom: identity in room.db, the room_id projected to .room-root, the faces
+ * and the graph work birth writes), then removes room.db with its -wal and -shm, then performs the SILENT MINTING OPEN:
+ * a plain lib/core/room-db.cjs openRoomDb call, which is exactly what a hook or a forgetful path does and which leaves
+ * an empty identity-less database behind. The recorded id stays in .room-root.
+ *
+ * Birth runs in a CHILD process whose HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are <targetDir>/home and
+ * <targetDir>/rooms, so the registry entry birth writes lands under targetDir and never in the navigator's rooms home
+ * (the run's own env may point at it). Same safety guard as buildNeverReadyRoom. Returns
+ * { roomDir, slug, room_id, nodes_before, nodes_after_mint }. No network.
+ */
+const REMINT_CHILD = [
+  "'use strict';",
+  "const fs = require('node:fs'); const path = require('node:path');",
+  "const a = JSON.parse(process.argv[1]);",
+  "const birth = require(path.join(a.root, 'lib', 'core', 'navigation', 'room-birth.cjs')).birthRoom({",
+  "  slug: a.slug, roomDir: a.roomDir, sessionId: 'negative-leg-reminted', ventureText: 'A fixture venture for the negative leg',",
+  "  jtbd: '', approvedBy: 'negative-leg', canonicalRole: 'founder', vname: a.slug, vstage: 'Pre-Opportunity' });",
+  "if (!birth || birth.ok !== true) { process.stderr.write('birth failed ' + JSON.stringify(birth).slice(0, 300)); process.exit(3); }",
+  "const roomDb = require(path.join(a.root, 'lib', 'core', 'room-db.cjs'));",
+  "const count = () => { const d = roomDb.openRoomDb(a.roomDir); try { return d.prepare('SELECT count(*) AS c FROM nodes').get().c; } finally { d.close(); } };",
+  "const before = count();",
+  "['', '-wal', '-shm'].forEach((x) => { try { fs.rmSync(path.join(a.roomDir, '.mindrian', 'room.db' + x), { force: true }); } catch (e) { /* none */ } });",
+  "const afterMint = count();",  // this open IS the silent mint
+  // settle the sidecars: the first read-only open of a WAL database leaves an empty -wal and a -shm behind, so a room
+  // that has been opened once already holds them and a later read (the readiness check) changes no byte of the tree
+  "require(path.join(a.root, 'lib', 'core', 'navigation', 'room-identity.cjs')).readRoomIdentity(a.roomDir, { door: 'in_place' });",
+  "const root = JSON.parse(fs.readFileSync(path.join(a.roomDir, '.room-root'), 'utf8'));",
+  "process.stdout.write(JSON.stringify({ room_id: root.room_id || null, nodes_before: before, nodes_after_mint: afterMint }) + '\\n');",
+].join('\n');
+
+function buildRemintedRoom(targetDir, opts) {
+  const options = opts || {};
+  const slug = options.slug || 'reminted-fixture';
+  if (!targetDir || typeof targetDir !== 'string') throw new Error('buildRemintedRoom: targetDir must be a string');
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('buildRemintedRoom: slug must be lowercase letters, digits and hyphens');
+  const target = path.resolve(targetDir);
+  forbiddenRoots().forEach((f) => {
+    if (isInside(target, f)) throw new Error('buildRemintedRoom: refusing a target under ' + f);
+  });
+  const home = path.join(target, 'home');
+  const roomsHome = path.join(target, 'rooms');
+  const roomDir = path.join(roomsHome, slug);
+  fs.mkdirSync(home, { recursive: true });
+  fs.mkdirSync(roomsHome, { recursive: true });
+  const env = Object.assign({}, process.env, { HOME: home, USERPROFILE: home, MINDRIAN_ROOMS_HOME: roomsHome });
+  delete env.CLAUDE_CODE_SESSION_ID;
+  delete env.MINDRIAN_ACTIVE_SESSION_ID;
+  const r = require('node:child_process').spawnSync(process.execPath, ['-e', REMINT_CHILD, JSON.stringify({ root: ROOT, slug: slug, roomDir: roomDir })], {
+    encoding: 'utf8', env: env, timeout: 180000, maxBuffer: 16 * 1024 * 1024,
+  });
+  if (r.status !== 0) throw new Error('buildRemintedRoom: child failed (' + r.status + ') ' + String(r.stderr || '').slice(-300));
+  const lines = String(r.stdout || '').split('\n').map((l) => l.trim()).filter((l) => l[0] === '{');
+  const info = JSON.parse(lines[lines.length - 1]);
+  return { roomDir: roomDir, slug: slug, room_id: info.room_id, nodes_before: info.nodes_before, nodes_after_mint: info.nodes_after_mint };
+}
+
+module.exports = { buildNeverReadyRoom, buildRemintedRoom };
 
 if (require.main === module) {
   try {

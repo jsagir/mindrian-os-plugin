@@ -14,8 +14,9 @@
  *        never-ready room (room.db missing: room_db_missing; room.db 64 zero bytes: room_db_unreadable), exit 2, the
  *        requirement text from REQUIREMENT_LINES, the room tree unchanged and no room.db created by the refusal;
  *        a born ready room still plans; a legacy room (identity rows deleted) still plans
- *   NL2  runNegativeLeg builds both rooms from buildNeverReadyRoom and records 2 rooms x 4 jobs, each refused with
- *        the expected reason, exit 2, room.db state unchanged; all_refused true
+ *   NL2  runNegativeLeg builds the three rooms (two from buildNeverReadyRoom, the third from buildRemintedRoom: plan 27,
+ *        Larry's leg B) and records 3 rooms x 4 jobs, each refused with the expected reason, exit 2, room.db state
+ *        unchanged; all_refused true; the reminted room is refused room_graph_lost by quick, deep, Eureka and analogies
  *   NL3  stub check: with the readiness check stubbed out the same leg reports all_refused false and names the
  *        first job that ran
  *   NL4  --negative-only prints the negative block, exits 0, writes no receipt (and creates no ~/.mindrian)
@@ -34,7 +35,7 @@ const cp = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const H = require('./helpers/isolated-home-36925.cjs');
-const { buildNeverReadyRoom } = require('./fixtures/never-ready-room/build-fixture.cjs');
+const { buildNeverReadyRoom, buildRemintedRoom } = require('./fixtures/never-ready-room/build-fixture.cjs');
 const PLANNER = path.join(ROOT, 'scripts', 'research-planner.cjs');
 const RUN = path.join(ROOT, 'scripts', 'real-room-run.cjs');
 const LEG_MOD = path.join(ROOT, 'scripts', 'release-lib', 'real-room-negative-leg.cjs');
@@ -82,6 +83,7 @@ function nrRoom(tag, injection) {
 const dbPath = (dir) => path.join(dir, '.mindrian', 'room.db');
 
 const MISSING = { injection: 'room_db_missing', reason: 'room_db_missing' };
+const REMINTED = { injection: 'room_db_reminted', reason: 'room_graph_lost' };
 const CORRUPT = { injection: 'room_db_corrupted', reason: 'room_db_unreadable' };
 
 const VERBS = [
@@ -126,6 +128,21 @@ function main() {
     });
   });
 
+  // plan 27 (Larry's leg B): a born room with work in its graph, room.db deleted, then a silent minting open
+  const rem = buildRemintedRoom(path.join(iso.home, 'nr-rem'), { slug: 'nr-rem' });
+  check('NL1 setup: the reminted room had work in its graph (' + rem.nodes_before + ' nodes), was recreated empty (' + rem.nodes_after_mint + ' nodes) and still records its id in .room-root',
+    rem.nodes_before > 0 && rem.nodes_after_mint === 0 && fs.existsSync(dbPath(rem.roomDir))
+      && typeof JSON.parse(fs.readFileSync(path.join(rem.roomDir, '.room-root'), 'utf8')).room_id === 'string', JSON.stringify(rem).slice(0, 300));
+  VERBS.forEach((v) => {
+    const before = H.treeHash(rem.roomDir);
+    const r = planner(v.args(rem.roomDir));
+    const j = r.json || {};
+    check('NL1 ' + REMINTED.injection + ' ' + v.job + ': exit 2, room_not_ready, ' + REMINTED.reason + ', the requirement text',
+      r.code === 2 && j.ok === false && j.reason === 'room_not_ready' && j.not_ready_reason === REMINTED.reason && j.requirement === REQUIREMENT_LINES[REMINTED.reason],
+      'code ' + r.code + ' ' + JSON.stringify(j).slice(0, 300) + ' ' + r.err.slice(0, 200));
+    check('NL1 ' + REMINTED.injection + ' ' + v.job + ': the refusal wrote nothing (tree unchanged)', H.treeHash(rem.roomDir) === before);
+  });
+
   const born = H.birthFixtureRoom({ iso, slug: 'nl-born' });
   check('NL1 setup: a born room is ok', born && born.ok === true, JSON.stringify(born).slice(0, 200));
   const rb = planner(['plan', QS_QUICK, '--room', born.roomDir, '--mode', 'quick']);
@@ -157,29 +174,32 @@ function main() {
   let leg = null;
   if (!legMod) check('NL2 the negative-leg module loads', false, 'module absent: ' + LEG_MOD);
   else {
-    check('NL2 NEGATIVE_INJECTIONS is room_db_missing and room_db_corrupted', JSON.stringify(legMod.NEGATIVE_INJECTIONS) === JSON.stringify(['room_db_missing', 'room_db_corrupted']), JSON.stringify(legMod.NEGATIVE_INJECTIONS));
+    check('NL2 NEGATIVE_INJECTIONS is room_db_missing, room_db_corrupted and room_db_reminted', JSON.stringify(legMod.NEGATIVE_INJECTIONS) === JSON.stringify(['room_db_missing', 'room_db_corrupted', 'room_db_reminted']), JSON.stringify(legMod.NEGATIVE_INJECTIONS));
     leg = legMod.runNegativeLeg({ roomsHome: path.join(iso.home, 'nl2-rooms'), sha: SHA, plannerCli: PLANNER, seedDir: SEED, scratch: scratch1 });
     check('NL2 the leg did not write to the rooms home it was given', !fs.existsSync(path.join(iso.home, 'nl2-rooms')));
-    check('NL2 two rooms, four jobs each', leg && leg.rooms.length === 2 && leg.rooms.every((r) => Object.keys(r.jobs).sort().join(',') === 'analogies,deep,eureka,quick'), JSON.stringify(leg).slice(0, 300));
+    check('NL2 three rooms, four jobs each', leg && leg.rooms.length === 3 && leg.rooms.every((r) => Object.keys(r.jobs).sort().join(',') === 'analogies,deep,eureka,quick'), JSON.stringify(leg).slice(0, 300));
     check('NL2 every job refused room_not_ready with the expected reason, exit 2',
       leg.rooms.every((r) => Object.keys(r.jobs).every((k) => {
         const jb = r.jobs[k];
-        const want = r.injection === 'room_db_missing' ? 'room_db_missing' : 'room_db_unreadable';
+        const want = { room_db_missing: 'room_db_missing', room_db_corrupted: 'room_db_unreadable', room_db_reminted: 'room_graph_lost' }[r.injection];
         return jb.refused === true && jb.reason === 'room_not_ready' && jb.not_ready_reason === want && jb.exit_code === 2 && jb.requirement === REQUIREMENT_LINES[want];
       })), JSON.stringify(leg.rooms.map((r) => r.jobs)).slice(0, 500));
     check('NL2 all_refused true, no first_not_refused', leg.all_refused === true && !leg.first_not_refused, JSON.stringify([leg.all_refused, leg.first_not_refused]));
     check('NL2 the fixture is the one never-ready fixture', leg.fixture === 'tests/fixtures/never-ready-room/build-fixture.cjs', leg.fixture);
-    check('NL2 room.db state recorded before and after each job and unchanged (missing stays absent, corrupted stays 64 bytes)',
-      leg.rooms.every((r) => Object.keys(r.jobs).every((k) => r.jobs[k].room_db_before === r.jobs[k].room_db_after && r.jobs[k].room_db_before === (r.injection === 'room_db_missing' ? 'absent' : 'corrupt'))),
+    check('NL2 the reminted room is refused room_graph_lost by quick, deep, Eureka and analogies (12 of 12 refused in all)',
+      (() => { const rr = leg.rooms.find((r) => r.injection === 'room_db_reminted'); return !!rr && ['quick', 'deep', 'eureka', 'analogies'].every((k) => rr.jobs[k].refused === true && rr.jobs[k].not_ready_reason === 'room_graph_lost'); })()
+        && leg.rooms.reduce((n, r) => n + Object.keys(r.jobs).filter((k) => r.jobs[k].refused === true).length, 0) === 12, JSON.stringify(leg.rooms.map((r) => [r.injection, Object.keys(r.jobs).map((k) => r.jobs[k].refused)])));
+    check('NL2 room.db state recorded before and after each job and unchanged (missing stays absent, corrupted stays 64 bytes, reminted stays reminted_empty)',
+      leg.rooms.every((r) => Object.keys(r.jobs).every((k) => r.jobs[k].room_db_before === r.jobs[k].room_db_after && r.jobs[k].room_db_before === ({ room_db_missing: 'absent', room_db_corrupted: 'corrupt', room_db_reminted: 'reminted_empty' })[r.injection])),
       JSON.stringify(leg.rooms.map((r) => [r.injection, Object.values(r.jobs).map((j) => [j.room_db_before, j.room_db_after])])).slice(0, 400));
     const roomNames = leg.rooms.map((r) => r.dir_name);
     check('NL2 the rooms are built under the run scratch (the builder refuses ~/.mindrian) and are named for the injection and the sha',
-      roomNames.every((n) => /^negative-room_db_(missing|corrupted)-aaaaaaaa$/.test(n) && fs.existsSync(path.join(scratch1, n, 'rooms'))
+      roomNames.every((n) => /^negative-room_db_(missing|corrupted|reminted)-aaaaaaaa$/.test(n) && fs.existsSync(path.join(scratch1, n, 'rooms'))
         && fs.readdirSync(path.join(scratch1, n, 'rooms')).some((slug) => fs.existsSync(path.join(scratch1, n, 'rooms', slug, '.room-root')))), roomNames.join(','));
     const block = legMod.formatNegativeBlock(leg);
-    check('NL2 formatNegativeBlock voice: header, It tried, It got refused 8 of 8, It could not; names only, no sha and no path',
-      block.indexOf('== Negative leg: rooms that are not ready ==') !== -1 && /It tried:/.test(block) && /It got:\s+refused 8 of 8/.test(block) && /It could not:/.test(block)
-        && block.indexOf(SHA) === -1 && block.indexOf(iso.home) === -1 && block.indexOf(REQUIREMENT_LINES.room_db_missing) !== -1 && block.indexOf(REQUIREMENT_LINES.room_db_unreadable) !== -1, block);
+    check('NL2 formatNegativeBlock voice: header, It tried, It got refused 12 of 12, It could not; names only, no sha and no path',
+      block.indexOf('== Negative leg: rooms that are not ready ==') !== -1 && /It tried:/.test(block) && /It got:\s+refused 12 of 12/.test(block) && /It could not:/.test(block)
+        && block.indexOf(SHA) === -1 && block.indexOf(iso.home) === -1 && block.indexOf(REQUIREMENT_LINES.room_db_missing) !== -1 && block.indexOf(REQUIREMENT_LINES.room_db_unreadable) !== -1 && block.indexOf(REQUIREMENT_LINES.room_graph_lost) !== -1, block);
   }
 
   // ---- NL3: stub check ----------------------------------------------------------------------------------------
@@ -190,6 +210,8 @@ function main() {
     const stubbed = legMod.runNegativeLeg({ roomsHome: path.join(iso.home, 'nl3-rooms'), sha: 'b'.repeat(40), plannerCli: stubCli, seedDir: SEED, scratch: scratch2 });
     check('NL3 stub check: all_refused false when the readiness check is stubbed out', stubbed && stubbed.all_refused === false, JSON.stringify(stubbed && stubbed.all_refused));
     check('NL3 the leg names the first job that ran (injection and job)', stubbed && stubbed.first_not_refused && stubbed.first_not_refused.injection === 'room_db_missing' && stubbed.first_not_refused.job === 'quick', JSON.stringify(stubbed && stubbed.first_not_refused));
+    const remRoom = stubbed && stubbed.rooms.find((r) => r.injection === 'room_db_reminted');
+    check('NL3 with readinessFor stubbed out the reminted room also ran (no job refused it)', !!remRoom && Object.keys(remRoom.jobs).every((k) => remRoom.jobs[k].refused === false), JSON.stringify(remRoom && Object.keys(remRoom.jobs).map((k) => remRoom.jobs[k].refused)));
     const text = legMod.formatNegativeBlock(stubbed);
     check('NL3 the text says RAN and names the R3 defect', /RAN on quick for room_db_missing/.test(text) && /R3/.test(text), text);
   }
@@ -210,11 +232,11 @@ function main() {
   const n5 = runNode([RUN, '--offline', '--json', '--read-by', 'Test Reader', '--rooms-home', path.join(iso.home, 'nl5-rooms'), '--receipt-dir', rc5]);
   const j5 = lastJson(n5.out);
   check('NL5 a full offline run exits 0 and its JSON carries negative_leg with all_refused true',
-    n5.code === 0 && j5 && j5.negative_leg && j5.negative_leg.all_refused === true && j5.negative_leg.rooms.length === 2, 'code ' + n5.code + ' ' + n5.out.slice(-400) + n5.err.slice(-300));
+    n5.code === 0 && j5 && j5.negative_leg && j5.negative_leg.all_refused === true && j5.negative_leg.rooms.length === 3, 'code ' + n5.code + ' ' + n5.out.slice(-400) + n5.err.slice(-300));
   const files = safe(() => fs.readdirSync(rc5).filter((f) => /\.json$/.test(f)), []);
   const receipt = files.length === 1 ? safe(() => JSON.parse(fs.readFileSync(path.join(rc5, files[0]), 'utf8')), null) : null;
-  check('NL5 the hermetic receipt carries negative_leg (both rooms, eight job outcomes, all_refused); the feyminto key is pinned by test-36925-room-read RR4',
-    !!receipt && receipt.negative_leg && receipt.negative_leg.all_refused === true && receipt.negative_leg.rooms.length === 2
+  check('NL5 the hermetic receipt carries negative_leg (all three rooms, twelve job outcomes, all_refused); the feyminto key is pinned by test-36925-room-read RR4',
+    !!receipt && receipt.negative_leg && receipt.negative_leg.all_refused === true && receipt.negative_leg.rooms.length === 3 && receipt.negative_leg.rooms.some((r) => r.injection === 'room_db_reminted')
       && receipt.negative_leg.rooms.every((r) => Object.keys(r.jobs).length === 4 && Object.values(r.jobs).every((jb) => jb.refused === true && typeof jb.not_ready_reason === 'string')),
     JSON.stringify(receipt && receipt.negative_leg).slice(0, 400));
   check('NL5 the receipt keeps the positive jobs as today (perspectives quick, deep, eureka, analogies)',
