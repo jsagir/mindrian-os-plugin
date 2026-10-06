@@ -240,6 +240,30 @@ scenario('17 --final not logged in: exit 77, nothing written', () => {
   assert.strictEqual(fs.existsSync(out), false);
 });
 
+scenario('17 gate probe: the no-login measurements run in a hermetic room and say what the runtime does', () => {
+  const GP = path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'gate-probe.cjs');
+  const r = spawnSync('node', [GP], { encoding: 'utf8', timeout: 120000 });
+  if (r.status === 77) { process.stdout.write('    SKIPPED gate probe (ENV GAP: MCP client package missing)\n'); return; }
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  const m = JSON.parse(r.stdout);
+  assert.strictEqual(m.binding.env_only.room_binding.bound, false, 'CLAUDE_ACTIVE_ROOM alone does not bind');
+  assert.strictEqual(m.binding.binding_file.room_binding.bound, true, 'a binding file for the session id does');
+  assert.strictEqual(m.direct_press.reply.reason, 'unknown_gate');
+  assert.strictEqual(m.direct_press.room_records_unchanged, true);
+  assert.strictEqual(m.session_mismatch.reply.reason, 'session_mismatch');
+  assert.strictEqual(m.mirror.ok, true);
+  assert.strictEqual(m.mirror.new_id_differs, true);
+  assert.strictEqual(m.mirror.records_unchanged, true);
+  assert.strictEqual(m.decide_later.records_identical_across_reads, true);
+  assert.strictEqual(m.answer.exactly_one_decision, true);
+  assert.strictEqual(m.answer.recorded_route, 'mcp_relayed');
+  assert.strictEqual(m.answer.owner_afterwards.answered_elsewhere, true);
+  assert.strictEqual(m.card_pending.claude_code_cli_declaring_elicitation.elicitation, false);
+  assert.strictEqual(typeof m.servers.mindrian_brain.wanted_present.framework_techniques, 'boolean');
+  assert.deepStrictEqual(m.servers.manifest.names_claude_code_gives_them, ['plugin:mos:mindrian-os', 'plugin:mos:mindrian-brain']);
+  assert.strictEqual(fs.readdirSync(os.tmpdir()).filter((n) => n.startsWith('mos-ws-gateprobe-')).length, 0, 'the probe removed its folders');
+});
+
 scenario('cleanup: no scratch folder and no private tmux server is left behind', () => {
   assert.strictEqual(scratchCount(), before);
   assert.strictEqual(harnessTmuxProcs(), 0);
