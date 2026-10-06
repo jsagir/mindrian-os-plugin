@@ -1839,7 +1839,7 @@ Plans:
 - [x] 369.2-20 lane_already_closed; entity-aware quotes with one correction window; contentHash pinned (R12, R13)
 - [x] 369.2-21 four query kinds per question; sentences shaped never quoted whole (R16)
 - [x] 369.2-22 quick cap reaches limiter leaves first or the card says it cannot (R14)
-- [ ] 369.2-23 field scan composed at plan time, first on the card (R17)
+- [x] 369.2-23 field scan composed at plan time, first on the card (R17)
 - [ ] 369.2-24 round-0 field scan; contradicted limiter demoted (R17)
 - [x] 369.2-25 keyed PatentsView source or provider_unavailable:patent (R08)
 - [x] 369.2-26 provider preflight; doctor reachability matrix (R15)
@@ -1848,7 +1848,7 @@ Plans:
 - [x] 369.2-29 plan-run route for find-bottlenecks, find-analogies, find-connections, scout hsi (R22)
 - [ ] 369.2-30 every planner card names the job and the move; id lint (R23)
 - [x] 369.2-31 SEED-118-shaped fixture room (R25)
-- [ ] 369.2-32 real-room-run takes several seeds; closure legs X0, RD, R355 (R25)
+- [x] 369.2-32 real-room-run takes several seeds; closure legs X0, RD, R355 (R25)
 - [ ] 369.2-33 closure legs D1-D12 and the rest (R25)
 - [ ] 369.2-34 closure green, completion report, VALIDATION flip, CHANGELOG; navigator reads both rooms and decides the cut (checkpoint)
 
