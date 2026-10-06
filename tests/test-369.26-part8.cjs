@@ -110,7 +110,6 @@ function braceBlock(code, from) {
   return code.slice(open);
 }
 
-const HELP_REQUIRED = false;
 const BRAIN_WORDS = /BRAIN_SERVER|mindrian-brain|\bbrain_[a-z]+|framework_techniques|framework_step/;
 // The two files that may name the Brain server or the tool at all.
 const BRAIN_FILES = ['src/registrars/pane.tsx', 'src/runtime/ids.ts'];
@@ -157,9 +156,7 @@ function checkTree(root) {
     }
   }
 
-  // (3) where the handle comes from, and who passes it on. TASK 1 ONLY: the help files land in task 2,
-  // which removes this allowance (HELP_REQUIRED becomes true) so a missing help file is a violation.
-  if (!HELP_REQUIRED && !code.has('src/pane/think/help-model.ts') && !code.has('src/pane/think/help-actions.tsx')) return bad;
+  // (3) where the handle comes from, and who passes it on.
   const model = code.get('src/pane/think/help-model.ts');
   if (model === undefined) {
     bad.push('src/pane/think/help-model.ts: missing');
@@ -191,7 +188,11 @@ function checkTree(root) {
     const calls = [...view.matchAll(/\brunLookup\s*\(([^)]*)\)/g)];
     if (calls.length === 0) bad.push('help-actions.tsx: no lookup call');
     for (const m of calls) {
-      if (!/^\s*ctx\.act\s*,\s*plan\.handle\s*$/.test(m[1])) bad.push('help-actions.tsx: runLookup is passed something other than plan.handle: ' + m[1].trim());
+      if (!/^\s*ctx\.act\s*,\s*handle\s*$/.test(m[1])) bad.push('help-actions.tsx: runLookup is passed something other than plan.handle: ' + m[1].trim());
+    }
+    // The one local named handle is the plan's checked handle, nothing else.
+    if ((view.match(/\bconst handle\b/g) || []).length !== 1 || !/\bconst handle\s*=\s*plan\.handle\s*$/m.test(view)) {
+      bad.push('help-actions.tsx: handle must be declared once, as const handle = plan.handle: it is passed something other than plan.handle');
     }
     if (/\bact\.guidance\b|\bmcpCall\b|\bio\./.test(view)) bad.push('help-actions.tsx: reaches a call path directly');
   }
@@ -276,19 +277,15 @@ scenario('mutation: a second Brain call anywhere makes the static check FAIL', (
   });
 });
 
-const helpLanded = () => fs.existsSync(path.join(MOD, 'src', 'pane', 'think', 'help-actions.tsx'));
-
 scenario('mutation: handing the lookup a room string from the view makes the static check FAIL', () => {
-  if (!helpLanded()) { SKIP_WHY = 'the help view is not written yet'; return 'skip'; }
   withSrcCopy((root) => {
-    mutate(root, 'src/pane/think/help-actions.tsx', /runLookup\(ctx\.act, plan\.handle\)/, 'runLookup(ctx.act, ctx.vm.purpose)');
+    mutate(root, 'src/pane/think/help-actions.tsx', /runLookup\(ctx\.act, handle\)/, 'runLookup(ctx.act, ctx.vm.purpose)');
     const bad = checkTree(root);
     assert.ok(bad.some((b) => /runLookup is passed something other than plan\.handle/.test(b)), bad.join('\n'));
   });
 });
 
 scenario('mutation: reading the handle from a room field in the model makes the static check FAIL', () => {
-  if (!helpLanded()) { SKIP_WHY = 'the help model is not written yet'; return 'skip'; }
   withSrcCopy((root) => {
     mutate(root, 'src/pane/think/help-model.ts', /const (\w+) = vm\.next\.method/, 'const $1 = vm.next.method; const leak = vm.purpose');
     const bad = checkTree(root);

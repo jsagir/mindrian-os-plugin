@@ -3,10 +3,26 @@
 // a module the plugin imports). The real `act.guidance` closure is proved under the real engine by
 // tests/test-369.26-part8.cjs (a scratch probe), because a test hook cannot lend the plugin's own
 // `$`; the real-pane arms that press P93 are added with the help view below.
+import type { On, RenderElement } from 'claude-code'
 import { expect, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
+import { text } from '../src/copy/text'
+import { SAMPLES } from '../src/model/fixtures'
+import { ok } from '../src/model/view-model'
+import type { ViewModel } from '../src/model/view-model'
+import { emptyBody } from '../src/pane/kit'
+import { buildPane } from '../src/pane/pane'
+import type { PaneDeps, PaneInput } from '../src/pane/pane'
+import { fixtureFor } from '../src/pane/think/fixtures'
+import { HelpActions, helpKeyList } from '../src/pane/think/help-actions'
+import { HELP_KINDS, helpFor, isHelpState, planFor, readHelp, runLookup, selectKind } from '../src/pane/think/help-model'
 import { isCanonicalHandle, lookupGuidance, textFromReply } from '../src/pane/think/lookup'
-import type { Actions } from '../src/pane/types'
+import type { ThinkModel } from '../src/pane/think/model'
+import type { Actions, ShellActions, TabBody, TabContext } from '../src/pane/types'
+import { PLUGIN_NAME } from '../src/runtime/ids'
+import type { Mode } from '../src/theme/plain'
+import type { Theme } from '../src/theme/theme'
 
 const CANON = JSON.stringify({ framework_names: ['Assumption Challenging', 'Dominant Design', "Porter's Five Forces"] })
 
@@ -116,4 +132,584 @@ test('lookupGuidance: a failed or throwing closure and an error reply are failed
 
 test('lookupGuidance: a reply with no text is failed', async () => {
   expect(await lookupGuidance(guidanceAct({ kind: 'reply', reply: { content: [] } }).act, 'Assumption Challenging')).toEqual({ kind: 'failed' })
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: the help model (pure)
+// ---------------------------------------------------------------------------------------------
+
+const WIDE_MODEL = fixtureFor('wide')
+const TITLES = ['Grant terms for the funding case (sample)', 'Match requirements for the regional grant (sample)']
+
+function vmWith(change: (m: ViewModel) => void): ViewModel {
+  const m: ViewModel = JSON.parse(JSON.stringify(SAMPLES.wide)) as ViewModel
+  change(m)
+  return m
+}
+
+test('helpFor: Why this matters carries the recorded reason as its rationale; the other four kinds carry none', () => {
+  const withReason = vmWith((m) => {
+    m.next.reason = ok('Your funding choice rests on one grant window (sample)')
+  })
+  expect(helpFor('why', WIDE_MODEL, withReason, []).rationale).toBe('Your funding choice rests on one grant window (sample)')
+  for (const kind of ['dig', 'connect', 'another', 'example'] as const) {
+    expect(helpFor(kind, WIDE_MODEL, withReason, TITLES).rationale).toBeNull()
+  }
+  expect(helpFor('why', WIDE_MODEL, SAMPLES.wide, []).rationale).toBeNull()
+})
+
+test('helpFor: the point is the picked title, else the first drawn gap title, else none', () => {
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.wide, [TITLES[1] as string]).point).toBe(TITLES[1])
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.wide, []).point).toBe(TITLES[0])
+  const noGaps: ThinkModel = { ...WIDE_MODEL, gaps: ok({ points: [], total: 0, more: 0 }) }
+  expect(helpFor('dig', noGaps, SAMPLES.wide, []).point).toBeNull()
+  expect(helpFor('another', { ...WIDE_MODEL, gaps: { state: 'unavailable' } }, SAMPLES.wide, []).point).toBeNull()
+})
+
+test('helpFor: with no point Why this matters falls back to the recorded step; the others do not', () => {
+  const noGaps: ThinkModel = { ...WIDE_MODEL, gaps: ok({ points: [], total: 0, more: 0 }) }
+  expect(helpFor('why', noGaps, SAMPLES.wide, []).point).toBe('look at the evidence behind your funding choice (sample)')
+  expect(helpFor('example', noGaps, SAMPLES.wide, []).point).toBeNull()
+  const noStep = vmWith((m) => {
+    m.next.step = { state: 'not_recorded' }
+  })
+  expect(helpFor('why', noGaps, noStep, []).point).toBeNull()
+})
+
+test('helpFor: the handle is the recorded method name and nothing else; a missing, unavailable or blank method gives none', () => {
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.wide, TITLES).handle).toBe('Assumption Challenging')
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.missing, TITLES).handle).toBeNull()
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.noroom, TITLES).handle).toBeNull()
+  const blank = vmWith((m) => {
+    m.next.method = ok('   ')
+  })
+  expect(helpFor('dig', WIDE_MODEL, blank, TITLES).handle).toBeNull()
+  // A room-like value in the method slot is passed on as the recorded value: the canon check, not helpFor, refuses it.
+  const odd = vmWith((m) => {
+    m.next.method = ok('jane.doe@example.com')
+  })
+  expect(helpFor('dig', WIDE_MODEL, odd, TITLES).handle).toBe('jane.doe@example.com')
+})
+
+test('helpFor: Connect needs two picks and names both titles', () => {
+  expect(helpFor('connect', WIDE_MODEL, SAMPLES.wide, []).needsPicks).toBe(true)
+  expect(helpFor('connect', WIDE_MODEL, SAMPLES.wide, [TITLES[0] as string]).needsPicks).toBe(true)
+  const two = helpFor('connect', WIDE_MODEL, SAMPLES.wide, TITLES)
+  expect(two.needsPicks).toBe(false)
+  expect(two.titles).toEqual([TITLES[0], TITLES[1]])
+  expect(helpFor('dig', WIDE_MODEL, SAMPLES.wide, []).needsPicks).toBe(false)
+})
+
+test('helpFor: it is pure over its inputs (nothing is read from the picks beyond titles)', () => {
+  const before = JSON.stringify(SAMPLES.wide)
+  helpFor('dig', WIDE_MODEL, SAMPLES.wide, TITLES)
+  expect(JSON.stringify(SAMPLES.wide)).toBe(before)
+})
+
+test('isHelpState and readHelp: a well-formed slice narrows, a malformed key reads as absent', () => {
+  expect(isHelpState({})).toBe(true)
+  expect(isHelpState({ help: 'dig', lookup: { state: 'ok', text: 'x' } })).toBe(true)
+  expect(isHelpState({ help: 'quiz' })).toBe(false)
+  expect(isHelpState({ lookup: { state: 'ok' } })).toBe(false)
+  expect(isHelpState(null)).toBe(false)
+  expect(readHelp({ help: 'dig', lookup: { state: 'failed' }, canon: ['a', 1, 'b'] })).toEqual({ kind: 'dig', lookup: { state: 'failed' }, canon: ['a', 'b'] })
+  expect(readHelp({ help: 'quiz', lookup: 7 })).toEqual({ kind: null, lookup: null, canon: [] })
+  expect(HELP_KINDS).toEqual(['dig', 'connect', 'another', 'why', 'example'])
+})
+
+test('planFor: the lookup is offered only for a handle that is in the canon; a rationale hides P91; P92 follows the point', () => {
+  const facts = helpFor('dig', WIDE_MODEL, SAMPLES.wide, [])
+  const canon = CANON_LIST
+  expect(planFor('dig', facts, canon, null)).toMatchObject({ showLookup: true, showP91: false, showHandoff: true, handle: 'Assumption Challenging' })
+  expect(planFor('dig', facts, [], null)).toMatchObject({ showLookup: false, showP91: true, showHandoff: true, handle: null })
+  expect(planFor('dig', { ...facts, handle: null, point: null }, canon, null)).toMatchObject({ showLookup: false, showP91: true, showHandoff: false })
+  expect(planFor('why', { ...facts, rationale: 'Because.' }, canon, null)).toMatchObject({ showP91: false })
+  expect(planFor('connect', helpFor('connect', WIDE_MODEL, SAMPLES.wide, []), canon, null)).toMatchObject({ needsPicks: true, showLookup: false, showHandoff: false, showP91: false })
+  expect(planFor('dig', facts, canon, { state: 'loading' })).toMatchObject({ showLookup: false })
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: the view (drawn by a test hook on a pane id the plugin does not claim, rule 11)
+// ---------------------------------------------------------------------------------------------
+
+const SHELL_ID = 'think-help-shell-test'
+const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
+type Surface = (typeof SURFACES)[number]
+
+const THEME: Theme = {
+  where: '#1E3A6E',
+  yourMove: '#C8A43C',
+  problem: '#A63D2F',
+  frame: '#0D0D0D',
+  reading: '#F5F0E8',
+  logoGreen: '#2D6B4A',
+}
+const COLOR: Mode = { plain: false, note: null, theme: THEME }
+const PLAIN: Mode = { plain: true, note: 'N01', theme: null }
+const NONE_OPEN = { room: false, think: false, sources: false, review: false }
+const CANON_LIST = ['assumption challenging']
+
+const PANE_PROPS = (bodyColumns: number) =>
+  ({
+    title: 'Mindrian workspace',
+    isFocused: true,
+    bodyColumns,
+    placement: 'dock',
+    scroll: { offset: 0, bodyRows: 30 },
+    view: {},
+  }) as const
+
+type Node = Record<string, unknown>
+
+function walk(node: unknown, visit: (n: Node) => void): void {
+  if (typeof node !== 'object' || node === null) return
+  if (Array.isArray(node)) {
+    for (const child of node) walk(child, visit)
+    return
+  }
+  const rec = node as Node
+  visit(rec)
+  walk(rec.props, visit)
+  walk(rec.children, visit)
+}
+
+function propsOf(n: unknown): Node {
+  const props = (n as Node | undefined)?.props
+  return typeof props === 'object' && props !== null ? (props as Node) : {}
+}
+
+function shown(tree: unknown): string {
+  const out: string[] = []
+  const grab = (n: unknown): void => {
+    if (typeof n === 'string') out.push(n)
+    else if (Array.isArray(n)) n.forEach(grab)
+    else if (typeof n === 'object' && n !== null) {
+      const rec = n as Node
+      if (typeof rec.label === 'string') out.push(rec.label)
+      if (typeof rec.text === 'string') out.push(rec.text)
+      grab(rec.children)
+      grab(rec.props)
+    }
+  }
+  grab(tree)
+  return out.join('\n')
+}
+
+function buttonsOf(tree: unknown): Node[] {
+  const out: Node[] = []
+  walk(tree, (n) => {
+    if (n.type === 'Button') out.push(n)
+  })
+  return out
+}
+
+const buttonKeys = (tree: unknown): string[] => buttonsOf(tree).map((b) => String(propsOf(b).key ?? b.key))
+
+type Log = {
+  calls: string[]
+  patches: { tab: string; partial: Record<string, unknown> }[]
+  fills: string[]
+  toasts: string[]
+  guided: string[]
+}
+const newLog = (): Log => ({ calls: [], patches: [], fills: [], toasts: [], guided: [] })
+
+function shellAct(log: Log, answer: Awaited<ReturnType<Actions['guidance']>> = { kind: 'failed' }): ShellActions {
+  return {
+    setTab: async (tab) => {
+      log.calls.push('setTab:' + tab)
+    },
+    fill: async (words) => {
+      log.fills.push(words)
+      return true
+    },
+    toast: (message) => {
+      log.toasts.push(message)
+    },
+    toggleKeys: async () => {},
+    toggleExplain: async () => {},
+    toggleDetails: async () => {},
+    io: {
+      mcpCall: async () => {
+        throw new Error('the help area must not call through io')
+      },
+      envGet: async () => undefined,
+      cwd: async () => '/r',
+      fsExists: async () => false,
+      fsRead: async () => {
+        throw new Error('no read')
+      },
+      usage: async () => ({}),
+      now: async () => 0,
+    },
+    patch: async (tab, partial) => {
+      log.patches.push({ tab, partial })
+    },
+    update: async () => {},
+    refresh: async () => {},
+    readAsset: async () => '',
+    sampleName: async () => null,
+    focus: async () => {},
+    guidance: async (handle) => {
+      log.guided.push(handle)
+      return answer
+    },
+  }
+}
+
+function paneInput(over: Partial<PaneInput>): PaneInput {
+  return {
+    surface: 'terminal',
+    tab: 'think',
+    vm: SAMPLES.wide,
+    mode: COLOR,
+    theme: THEME,
+    bodyColumns: 100,
+    isFocused: true,
+    working: false,
+    keysOpen: false,
+    explainOpen: false,
+    detailsOpen: NONE_OPEN,
+    body: emptyBody(),
+    act: shellAct(newLog()),
+    ...over,
+  }
+}
+
+const bodyWith = (think: Record<string, unknown>) => ({ ...emptyBody(), think })
+
+type Pressers = Record<string, () => void>
+
+// A body that draws the help area and captures each Button's onPress as it is drawn.
+function helpBody(picks: readonly string[], pressers: Pressers, model: ThinkModel = WIDE_MODEL): TabBody {
+  return {
+    view: (ctx: TabContext) => {
+      const { Box } = ctx.el
+      const drawn: RenderElement = HelpActions(ctx, model, picks)
+      walk(drawn, (n) => {
+        if (n.type === 'Button' && typeof n.onPress === 'function') pressers[String(propsOf(n).key)] = n.onPress as () => void
+      })
+      return <Box flexDirection="column">{drawn}</Box>
+    },
+    keys: () => [],
+    explainId: 'X02',
+  }
+}
+
+const depsOf = (think: TabBody): PaneDeps => ({
+  bodies: { room: undefined, think, sources: undefined, review: undefined },
+})
+
+function shellHook(on: On, cur: { input: PaneInput; deps: PaneDeps }): void {
+  on('ui.render', { component: 'Pane', requestId: SHELL_ID }, ($, e) =>
+    buildPane($.ui.resolve(e), { ...cur.input, surface: e.surface as Surface }, cur.deps),
+  )
+}
+
+const draw = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: SHELL_ID })
+
+// Larry marks drawn as 2-cell colored boxes: the backgrounds found under a tree.
+function backgrounds(tree: unknown): string[] {
+  const out: string[] = []
+  walk(tree, (n) => {
+    const bg = n.backgroundColor ?? propsOf(n).backgroundColor
+    if (typeof bg === 'string') out.push(bg)
+  })
+  return out
+}
+
+const withHandle = { model: WIDE_MODEL, canon: CANON_LIST }
+
+test('idle: heading P80, five buttons P81 to P85 in order with hotkeys g c a w x and the lines P86 to P90, and no mark or result yet', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({ body: bodyWith(withHandle) }), deps: depsOf(helpBody([], pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const area = await ui.find({ key: 'help:area' })
+    const words = shown(area)
+    expect(words).toContain(text('P80'))
+    const buttons = buttonsOf(area)
+    expect(buttons.map((b) => propsOf(b).label)).toEqual([text('P81'), text('P82'), text('P83'), text('P84'), text('P85')])
+    expect(buttons.map((b) => propsOf(b).hotkey)).toEqual(['g', 'c', 'a', 'w', 'x'])
+    expect(buttons.map((b) => propsOf(b).key)).toEqual(['help:dig', 'help:connect', 'help:another', 'help:why', 'help:example'])
+    for (const id of ['P86', 'P87', 'P88', 'P89', 'P90'] as const) expect(words).toContain(text(id))
+    expect(await ui.find({ key: 'help:result' })).toBeUndefined()
+    expect(backgrounds(area)).toEqual([])
+    await ui.unmount()
+  }
+})
+
+test('idle: the method name is never on screen, and no quiz, score or either-or word exists', async ($, on) => {
+  const cur = { input: paneInput({ body: bodyWith(withHandle) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const words = shown(await ui.find({ key: 'help:area' }))
+  expect(words).not.toContain('Assumption Challenging')
+  expect(words.toLowerCase()).not.toMatch(/quiz|score|grade|correct answer|which one/)
+  await ui.unmount()
+})
+
+test('idle in plain mode: the same five buttons and no color property anywhere', async ($, on) => {
+  const cur = { input: paneInput({ mode: PLAIN, theme: null, body: bodyWith({ ...withHandle, help: 'dig' }) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const area = await ui.find({ key: 'help:area' })
+  expect(buttonKeys(area)).toContain('help:dig')
+  expect(backgrounds(area)).toEqual([])
+  const colors: string[] = []
+  walk(area, (n) => {
+    for (const k of ['color', 'backgroundColor', 'borderColor']) if (k in n || k in propsOf(n)) colors.push(k)
+  })
+  expect(colors).toEqual([])
+  await ui.unmount()
+})
+
+test('Dig selected, a handle in the canon and a point: the red L02 mark and word, P93 on l with P94, and P92 on t', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({ body: bodyWith({ ...withHandle, help: 'dig' }) }), deps: depsOf(helpBody([], pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const result = await ui.find({ key: 'help:result' })
+    const words = shown(result)
+    expect(words).toContain(text('L02'))
+    expect(backgrounds(result)).toEqual([THEME.problem])
+    expect(words).toContain(text('P94'))
+    expect(words).not.toContain(text('P91'))
+    const lookup = buttonsOf(result).find((b) => propsOf(b).key === 'help:lookup')
+    expect(propsOf(lookup).label).toBe(text('P93'))
+    expect(propsOf(lookup).hotkey).toBe('l')
+    const handoff = buttonsOf(result).find((b) => propsOf(b).key === 'help:handoff')
+    expect(propsOf(handoff).label).toBe(text('P92'))
+    expect(propsOf(handoff).hotkey).toBe('t')
+    await ui.unmount()
+  }
+})
+
+test('Connect uses the blue L01 mark and Another way the yellow L03 mark; Why and Example draw no mark', async ($, on) => {
+  const expectMark = async (kind: string, mark: 'L01' | 'L02' | 'L03' | null, color: string | null, picks: string[]) => {
+    const cur = { input: paneInput({ body: bodyWith({ ...withHandle, help: kind }) }), deps: depsOf(helpBody(picks, {})) }
+    shellHook(on, cur)
+    const ui = await draw($, 'terminal')
+    const result = await ui.find({ key: 'help:result' })
+    for (const id of ['L01', 'L02', 'L03'] as const) {
+      if (id === mark) expect(shown(result)).toContain(text(id))
+      else expect(shown(result)).not.toContain(text(id))
+    }
+    expect(backgrounds(result)).toEqual(color === null ? [] : [color])
+    await ui.unmount()
+  }
+  await expectMark('connect', 'L01', THEME.where, TITLES)
+  await expectMark('another', 'L03', THEME.yourMove, [])
+  await expectMark('why', null, null, [])
+  await expectMark('example', null, null, [])
+})
+
+test('with no handle and a point the area reads P91 and offers P92 only; with neither it reads P91 and nothing else', async ($, on) => {
+  const noMethod = vmWith((m) => {
+    m.next.method = { state: 'not_recorded' }
+  })
+  const noGaps: ThinkModel = { ...WIDE_MODEL, gaps: ok({ points: [], total: 0, more: 0 }) }
+  const cur = { input: paneInput({ vm: noMethod, body: bodyWith({ model: WIDE_MODEL, canon: CANON_LIST, help: 'dig' }) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P91'))
+  expect(buttonKeys(result)).toEqual(['help:handoff'])
+  await ui.unmount()
+
+  cur.deps = depsOf(helpBody([], {}, noGaps))
+  ui = await draw($, 'terminal')
+  result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P91'))
+  expect(buttonKeys(result)).toEqual([])
+  await ui.unmount()
+})
+
+test('no dead control: with no handle recorded, or a handle the canon does not hold, the P93 button is not drawn', async ($, on) => {
+  const noMethod = vmWith((m) => {
+    m.next.method = { state: 'not_recorded' }
+  })
+  const cur = { input: paneInput({ vm: noMethod, body: bodyWith({ ...withHandle, help: 'dig' }) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  expect(buttonKeys(await ui.find({ key: 'help:area' }))).not.toContain('help:lookup')
+  await ui.unmount()
+
+  const odd = vmWith((m) => {
+    m.next.method = ok('Some Unlisted Framework')
+  })
+  cur.input = paneInput({ vm: odd, body: bodyWith({ ...withHandle, help: 'dig' }) })
+  ui = await draw($, 'terminal')
+  expect(buttonKeys(await ui.find({ key: 'help:area' }))).not.toContain('help:lookup')
+  await ui.unmount()
+
+  cur.input = paneInput({ body: bodyWith({ model: WIDE_MODEL, help: 'dig' }) })
+  ui = await draw($, 'terminal')
+  expect(buttonKeys(await ui.find({ key: 'help:area' }))).not.toContain('help:lookup')
+  await ui.unmount()
+})
+
+test('Connect with fewer than two picks says P97 and offers nothing else; with two it offers P92 and P93', async ($, on) => {
+  const cur = { input: paneInput({ body: bodyWith({ ...withHandle, help: 'connect' }) }), deps: depsOf(helpBody([TITLES[0] as string], {})) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P97'))
+  expect(buttonKeys(result)).toEqual([])
+  await ui.unmount()
+
+  cur.deps = depsOf(helpBody(TITLES, {}))
+  ui = await draw($, 'terminal')
+  result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).not.toContain(text('P97'))
+  expect(buttonKeys(result)).toEqual(['help:lookup', 'help:handoff'])
+  await ui.unmount()
+})
+
+test('Why this matters with a recorded reason shows that reason as data and no P91', async ($, on) => {
+  const withReason = vmWith((m) => {
+    m.next.reason = ok('Your funding choice rests on one grant window (sample)')
+  })
+  const cur = { input: paneInput({ vm: withReason, body: bodyWith({ ...withHandle, help: 'why' }) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain('Your funding choice rests on one grant window (sample)')
+  expect(shown(result)).not.toContain(text('P91'))
+  await ui.unmount()
+})
+
+test('lookup states: loading hides P93, ok shows P95 and the text as Markdown, failed shows P96', async ($, on) => {
+  const base = { ...withHandle, help: 'dig' }
+  const cur = { input: paneInput({ body: bodyWith({ ...base, lookup: { state: 'loading' } }) }), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let result = await ui.find({ key: 'help:result' })
+  expect(buttonKeys(result)).not.toContain('help:lookup')
+  await ui.unmount()
+
+  cur.input = paneInput({ body: bodyWith({ ...base, lookup: { state: 'ok', text: '# Assumptions\nTest the thing under the thing.' } }) })
+  ui = await draw($, 'terminal')
+  result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P95'))
+  expect(shown(result)).toContain('Test the thing under the thing.')
+  const markdown = await ui.find({ key: 'help:lookup-text' })
+  expect(markdown?.type).toBe('Markdown')
+  await ui.unmount()
+
+  cur.input = paneInput({ body: bodyWith({ ...base, lookup: { state: 'failed' } }) })
+  ui = await draw($, 'terminal')
+  result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P96'))
+  expect(shown(result)).not.toContain(text('P95'))
+  await ui.unmount()
+})
+
+test('a lookup result is never drawn longer than 10,000 characters', async ($, on) => {
+  const cur = {
+    input: paneInput({ body: bodyWith({ ...withHandle, help: 'dig', lookup: { state: 'ok', text: 'z'.repeat(30000) } }) }),
+    deps: depsOf(helpBody([], {})),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const markdown = await ui.find({ key: 'help:lookup-text' })
+  expect(String(markdown?.props.text).length).toBeLessThanOrEqual(10000)
+  await ui.unmount()
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: presses
+// ---------------------------------------------------------------------------------------------
+
+test('pressing a kind selects it and clears the lookup; pressing it again closes the area', async () => {
+  const log = newLog()
+  const act = shellAct(log)
+  await selectKind(act, null, 'dig')
+  await selectKind(act, 'dig', 'dig')
+  await selectKind(act, 'dig', 'why')
+  expect(log.patches).toEqual([
+    { tab: 'think', partial: { help: 'dig', lookup: undefined } },
+    { tab: 'think', partial: { help: undefined, lookup: undefined } },
+    { tab: 'think', partial: { help: 'why', lookup: undefined } },
+  ])
+})
+
+test('the kind buttons run selectKind through the view (a press on each of the five)', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({ act: shellAct(log), body: bodyWith(withHandle) }), deps: depsOf(helpBody([], pressers)) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  for (const kind of HELP_KINDS) pressers['help:' + kind]?.()
+  await ui.unmount()
+  expect(log.patches.map((p) => p.partial.help)).toEqual([...HELP_KINDS])
+})
+
+test('pressing P93 writes loading then ok with the text; a failed or refused answer writes failed; only the handle is passed to the closure', async () => {
+  const okLog = newLog()
+  await runLookup(shellAct(okLog, { kind: 'reply', reply: { content: [{ type: 'text', text: 'General guidance.' }], isError: false } }), 'Assumption Challenging')
+  expect(okLog.patches.map((p) => p.partial.lookup)).toEqual([{ state: 'loading' }, { state: 'ok', text: 'General guidance.' }])
+  expect(okLog.guided).toEqual(['Assumption Challenging'])
+
+  for (const answer of [{ kind: 'failed' }, { kind: 'refused' }] as const) {
+    const log = newLog()
+    await runLookup(shellAct(log, answer), 'Assumption Challenging')
+    expect(log.patches.map((p) => p.partial.lookup)).toEqual([{ state: 'loading' }, { state: 'failed' }])
+  }
+})
+
+test('pressing P93 in the view passes the recorded handle, and only it, to act.guidance', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = { input: paneInput({ act: shellAct(log), body: bodyWith({ ...withHandle, help: 'dig' }) }), deps: depsOf(helpBody([], pressers)) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  pressers['help:lookup']?.()
+  await ui.unmount()
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(log.guided).toEqual(['Assumption Challenging'])
+})
+
+test('hand-off: P92 fills the prompt with Q02 (Dig), Q03 (Connect, both titles), Q04 (Another way), Q05 (Why, Example); it never submits', async ($, on) => {
+  const cases: { kind: string; picks: string[]; want: string }[] = [
+    { kind: 'dig', picks: [], want: text('Q02', { point: TITLES[0] as string }) },
+    { kind: 'connect', picks: TITLES, want: text('Q03', { a: TITLES[0] as string, b: TITLES[1] as string }) },
+    { kind: 'another', picks: [TITLES[1] as string], want: text('Q04', { point: TITLES[1] as string }) },
+    { kind: 'why', picks: [], want: text('Q05', { point: TITLES[0] as string }) },
+    { kind: 'example', picks: [], want: text('Q05', { point: TITLES[0] as string }) },
+  ]
+  for (const c of cases) {
+    const log = newLog()
+    const pressers: Pressers = {}
+    const cur = { input: paneInput({ act: shellAct(log), body: bodyWith({ ...withHandle, help: c.kind }) }), deps: depsOf(helpBody(c.picks, pressers)) }
+    shellHook(on, cur)
+    const ui = await draw($, 'terminal')
+    pressers['help:handoff']?.()
+    await ui.unmount()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(log.fills).toEqual([c.want])
+    expect(log.toasts).toEqual([text('P34')])
+  }
+})
+
+test('keys: g, w, a lead and c, x follow; l and t appear only while drawn', () => {
+  const ctxOf = (think: Record<string, unknown>, vm: ViewModel = SAMPLES.wide): TabContext =>
+    ({ vm, body: bodyWith(think), mode: COLOR, theme: THEME }) as unknown as TabContext
+  const idle = helpKeyList(ctxOf(withHandle), WIDE_MODEL, [])
+  expect(idle.lead.map((k) => k.key)).toEqual(['g', 'w', 'a'])
+  expect(idle.rest.map((k) => k.key)).toEqual(['c', 'x'])
+  expect(idle.lead.map((k) => k.labelId)).toEqual(['H08', 'H11', 'H10'])
+  expect(idle.rest.map((k) => k.labelId)).toEqual(['H09', 'H12'])
+  const dig = helpKeyList(ctxOf({ ...withHandle, help: 'dig' }), WIDE_MODEL, [])
+  expect(dig.rest.map((k) => k.key)).toEqual(['c', 'x', 'l', 't'])
+  expect(dig.rest.map((k) => k.labelId)).toEqual(['H09', 'H12', 'H13', 'H14'])
+  const noHandle = helpKeyList(ctxOf({ model: WIDE_MODEL, canon: CANON_LIST, help: 'dig' }, SAMPLES.missing), WIDE_MODEL, [])
+  expect(noHandle.rest.map((k) => k.key)).toEqual(['c', 'x', 't'])
+  const needsPicks = helpKeyList(ctxOf({ ...withHandle, help: 'connect' }), WIDE_MODEL, [])
+  expect(needsPicks.rest.map((k) => k.key)).toEqual(['c', 'x'])
 })
