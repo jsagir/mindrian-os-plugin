@@ -1231,7 +1231,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
+      "teaching": "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
