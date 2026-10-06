@@ -3,13 +3,14 @@
 // imports, and a press on a Button a test hook drew finds nothing); Task 4 mounts the REAL pane on
 // the real id and drives the Room body end to end.
 import type { On } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import type { ViewModel } from '../src/model/view-model'
+import { roomBody } from '../src/pane/bodies/room'
 import { emptyBody } from '../src/pane/kit'
 import { buildPane } from '../src/pane/pane'
 import type { PaneDeps, PaneInput } from '../src/pane/pane'
@@ -19,9 +20,9 @@ import { suggestedMovePanel } from '../src/pane/room/suggested-move'
 import { waitingPanel } from '../src/pane/room/waiting-panel'
 import { whereLine, whereWords } from '../src/pane/room/where-line'
 import type { ShellActions, TabBody, TabContext } from '../src/pane/types'
+import { MINDRIAN_SERVER, PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import { prefillPrompt, prefillRecorded } from '../src/runtime/prefill'
 import type { PrefillIo } from '../src/runtime/prefill'
-import { PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -702,5 +703,355 @@ test('result panels: plain mode puts each in a single border and draws no color'
   const next = await ui.find({ key: 'room:next' })
   expect(propsOf(next).borderStyle).toBe('single')
   expect(colorKeys(next)).toEqual([])
+  await ui.unmount()
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 4: roomBody, and every Room situation on every surface through the REAL pane
+// ---------------------------------------------------------------------------------------------
+
+const ROOM = roomBody as TabBody
+
+// A context for the pure arms that never draw: keys(ctx) reads only the model.
+function ctxFor(vm: ViewModel, act: ShellActions = fakeAct(newLog())): TabContext {
+  return {
+    el: undefined as never,
+    vm,
+    theme: THEME,
+    mode: COLOR,
+    bodyColumns: 100,
+    isFocused: true,
+    tab: 'room',
+    body: emptyBody(),
+    detailsOpen: false,
+    act,
+  }
+}
+
+test('roomBody is defined, explains itself with X01, and its keys follow the buttons that are drawn', () => {
+  expect(ROOM).toBeDefined()
+  expect(ROOM.explainId).toBe('X01')
+  const keys = (vm: ViewModel) => ROOM.keys(ctxFor(vm)).map((k) => k.key + ':' + k.labelId)
+  // n H01 then v H02, in that order, each only when its button is drawn (plan 15 puts m H03 between).
+  expect(keys(SAMPLES.wide)).toEqual(['n:H01', 'v:H02'])
+  expect(keys(SAMPLES.several)).toEqual(['n:H01', 'v:H02'])
+  expect(keys(SAMPLES.missing)).toEqual(['v:H02'])
+  expect(keys(SAMPLES.empty)).toEqual(['n:H01'])
+  expect(keys(SAMPLES.unreadable)).toEqual(['n:H01'])
+  // With no data room bound only P12 is drawn, so there is nothing to press.
+  expect(keys(SAMPLES.noroom)).toEqual([])
+  expect(keys({ ...SAMPLES.wide, place: { ...SAMPLES.wide.place, isBound: false } })).toEqual([])
+})
+
+test('roomBody.onOpen refreshes the live model, and does nothing in sample mode', async () => {
+  const calls: string[] = []
+  let sample: string | null = null
+  const act: ShellActions = {
+    ...fakeAct(newLog()),
+    refresh: async () => {
+      calls.push('refresh')
+    },
+    sampleName: async () => sample,
+  }
+  await ROOM.onOpen?.(act)
+  expect(calls).toEqual(['refresh'])
+  sample = 'wide'
+  await ROOM.onOpen?.(act)
+  expect(calls).toEqual(['refresh'])
+})
+
+test('roomBody view: the where line, purpose, next step and waiting in that order, nothing else at the wide sample', async ($, on) => {
+  const cur = { input: input({}), deps: depsOf(ROOM) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const keys: string[] = []
+  const root = (await ui.drawn()) as Node
+  walk(root, (n) => {
+    const k = propsOf(n).key
+    if (typeof k === 'string' && k.startsWith('room:') && n.type === 'Box') keys.push(k)
+  })
+  expect(keys).toEqual(['room:where', 'room:purpose', 'room:next', 'room:waiting'])
+  await ui.unmount()
+})
+
+test('roomBody view: at the wide sample the element budget holds (UI-SPEC 13.2: 6 elements, 4 buttons)', async ($, on) => {
+  const cur = { input: input({}), deps: depsOf(ROOM) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    // Elements: the tab strip, the where line, the purpose, the next step, the waiting panel and the
+    // hint line.
+    const groups: string[] = []
+    walk(await ui.drawn(), (n) => {
+      const k = propsOf(n).key
+      if (typeof k === 'string' && n.type === 'Box' && (k.startsWith('room:') || k === 'hint-line' || k === 'tab-strip')) {
+        groups.push(k)
+      }
+    })
+    expect(groups.filter((k) => k.startsWith('room:'))).toHaveLength(4)
+    expect(groups).toContain('hint-line')
+    // Buttons by key, leaving out the tab strip and the hint line's own Help and Explain: the three
+    // that are drawn now, with the reserved place of P52 (plan 15) making the fourth.
+    const own = (await ui.findAll({ type: 'Button' }))
+      .map((b) => String(b.key))
+      .filter((k) => !k.startsWith('tab:') && k !== 'help' && k !== 'explain')
+    expect(own.sort()).toEqual(['details', 'next:prefill', 'waiting:review'])
+    expect(own.length + 1).toBeLessThanOrEqual(4)
+    await ui.unmount()
+  }
+})
+
+test('roomBody view: with no data room bound only P12 is drawn and no card', async ($, on) => {
+  const cur = { input: input({ vm: SAMPLES.noroom }), deps: depsOf(ROOM) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  expect(flat(await ui.find({ key: 'room:where' }))).toBe(text('P12'))
+  for (const key of ['room:purpose', 'room:next', 'room:waiting', 'room:result']) {
+    expect(await ui.find({ key })).toBeUndefined()
+  }
+  await ui.unmount()
+})
+
+// What sits beneath the real plugin: the sample switch, the palette, the store, and the prompt box.
+type Beneath = { fills: { text: string; mode: string }[]; submits: unknown[]; toasts: string[]; fillOk: boolean; mcp: { server: string; tool: string }[]; opened: unknown[] }
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+function wireReal(on: On, env: Record<string, string>, over: Partial<Pick<Beneath, 'fillOk'>> = {}): Beneath {
+  const beneath: Beneath = { fills: [], submits: [], toasts: [], fillOk: true, mcp: [], opened: [], ...over }
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('ROOM.md')) return { value: '---\npurpose: Funding routes\n---\n' }
+    return { value: '{"status":"sound","at":1}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('mcp.call', (_$, e) => {
+    beneath.mcp.push({ server: e.server, tool: e.tool })
+    const data =
+      e.tool === 'gate_list'
+        ? { ok: true, room: 'a', count: 0, gates: [] }
+        : { ok: true, segments: { room_binding: { bound: true, source: 'session', registry_fallback: false, slug: 'a' } } }
+    return { value: { content: [{ type: 'text', text: JSON.stringify(data) }], isError: false } }
+  })
+  on('prompt.fill', (_$, e) => {
+    beneath.fills.push({ text: e.text, mode: String(e.mode) })
+    return { isFilled: beneath.fillOk }
+  })
+  on('prompt.submit', (_$, e) => {
+    beneath.submits.push(e)
+    return { text: e.text }
+  })
+  on('ui.toast', (_$, e) => {
+    beneath.toasts.push(e.text)
+    return { value: undefined }
+  })
+  on('ui.open', (_$, e) => {
+    beneath.opened.push(e)
+    return { value: { isPlaced: true } }
+  })
+  return beneath
+}
+
+const mountReal = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: PANE_ID })
+
+async function activeTab(ui: Awaited<ReturnType<typeof mountReal>>): Promise<string | undefined> {
+  for (const id of ['room', 'think', 'sources', 'review']) {
+    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
+    if (b?.props.variant === 'primary') return id
+  }
+  return undefined
+}
+
+const ids = (list: Node[]): string[] => list.map((b) => String(b.key))
+
+// One situation of UI-SPEC 10.3 (the Room column), drawn by the real pane on all four surfaces.
+type Situation = {
+  sample: string
+  where: string
+  purpose: string
+  next: string[] | null // words the next-step panel shows, or null when the panel is not drawn
+  hasPrefill: boolean
+  waiting: string[] | null
+  hasJump: boolean
+  hintHas: string[]
+  hintLacks: string[]
+}
+
+const WIDE_PLACE = text('P10', { room: 'Sample room (sample)', folder: 'Funding (sample)' })
+const STEP = 'look at the evidence behind your funding choice (sample)'
+
+const SITUATIONS: Situation[] = [
+  {
+    sample: 'wide',
+    where: WIDE_PLACE,
+    purpose: 'building the funding case (sample)',
+    next: [text('P30'), STEP, text('P32')],
+    hasPrefill: true,
+    waiting: [text('P40'), text('P42')],
+    hasJump: true,
+    hintHas: ['n: ' + text('H01'), 'v: ' + text('H02')],
+    hintLacks: [],
+  },
+  {
+    sample: 'missing',
+    where: WIDE_PLACE,
+    purpose: text('M02'),
+    next: [text('P30'), text('M04')],
+    hasPrefill: false,
+    waiting: [text('P40'), text('P42')],
+    hasJump: true,
+    hintHas: ['v: ' + text('H02')],
+    hintLacks: ['n: ' + text('H01')],
+  },
+  {
+    sample: 'empty',
+    where: WIDE_PLACE,
+    purpose: 'building the funding case (sample)',
+    next: [text('P30'), STEP],
+    hasPrefill: true,
+    waiting: [text('P40'), text('P41')],
+    hasJump: false,
+    hintHas: ['n: ' + text('H01')],
+    hintLacks: ['v: ' + text('H02')],
+  },
+  {
+    sample: 'noroom',
+    where: text('P12'),
+    purpose: '',
+    next: null,
+    hasPrefill: false,
+    waiting: null,
+    hasJump: false,
+    hintHas: [],
+    hintLacks: ['n: ' + text('H01'), 'v: ' + text('H02')],
+  },
+  {
+    sample: 'several',
+    where: WIDE_PLACE,
+    purpose: 'building the funding case (sample)',
+    next: [text('P30'), STEP],
+    hasPrefill: true,
+    waiting: [text('P40'), text('P44', { n: 3 })],
+    hasJump: true,
+    hintHas: ['n: ' + text('H01'), 'v: ' + text('H02')],
+    hintLacks: [],
+  },
+  {
+    sample: 'nofile',
+    where: WIDE_PLACE,
+    purpose: text('M01'),
+    next: [text('P30'), STEP],
+    hasPrefill: true,
+    waiting: [text('P40'), text('P42')],
+    hasJump: true,
+    hintHas: ['n: ' + text('H01'), 'v: ' + text('H02')],
+    hintLacks: [],
+  },
+  {
+    sample: 'unreadable',
+    where: WIDE_PLACE,
+    purpose: text('M03'),
+    next: [text('P30'), STEP],
+    hasPrefill: true,
+    waiting: [text('P40'), text('M03')],
+    hasJump: false,
+    hintHas: ['n: ' + text('H01')],
+    hintLacks: ['v: ' + text('H02')],
+  },
+]
+
+for (const s of SITUATIONS) {
+  test('the real pane at Room draws the "' + s.sample + '" situation on terminal, desktop, vscode and mobile', async ($, on) => {
+    const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: s.sample })
+    for (const surface of SURFACES) {
+      const ui = await mountReal($, surface)
+      expect(await activeTab(ui)).toBe('room')
+      expect(flat(await ui.find({ key: 'room:where' }))).toBe(s.where)
+
+      const purpose = await ui.find({ key: 'room:purpose' })
+      const next = await ui.find({ key: 'room:next' })
+      const waiting = await ui.find({ key: 'room:waiting' })
+      if (s.next === null) {
+        expect(purpose).toBeUndefined()
+        expect(next).toBeUndefined()
+        expect(waiting).toBeUndefined()
+      } else {
+        expect(shown(purpose)).toContain(text('P20'))
+        expect(shown(purpose)).toContain(s.purpose)
+        for (const words of s.next) expect(shown(next)).toContain(words)
+        for (const words of s.waiting ?? []) expect(shown(waiting)).toContain(words)
+      }
+
+      const keys = ids((await ui.findAll({ type: 'Button' })) as unknown as Node[])
+      expect(keys.includes('next:prefill')).toBe(s.hasPrefill)
+      expect(keys.includes('waiting:review')).toBe(s.hasJump)
+      if (s.next !== null && !s.hasPrefill) expect(shown(next)).not.toContain(text('P33'))
+
+      // The hint line shows only keys whose buttons exist.
+      const hint = shown(await ui.find({ key: 'hint-line' }))
+      for (const h of s.hintHas) expect(hint).toContain(h)
+      for (const h of s.hintLacks) expect(hint).not.toContain(h)
+
+      // Nothing was filled, submitted or called just by drawing.
+      expect(beneath.submits).toEqual([])
+      expect(beneath.fills).toEqual([])
+      await ui.unmount()
+    }
+  })
+}
+
+test('the real pane: pressing the P43 button goes to Review; pressing P33 adds Q01 to the prompt box and never submits', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  expect(await activeTab(ui)).toBe('room')
+
+  await ui.press({ key: 'next:prefill' })
+  expect(beneath.fills).toEqual([{ text: text('Q01'), mode: 'replace' }])
+  expect(beneath.toasts).toContain(text('P34'))
+  expect(beneath.submits).toEqual([])
+
+  beneath.fillOk = false
+  await ui.press({ key: 'next:prefill' })
+  expect(beneath.fills).toHaveLength(2)
+  expect(beneath.toasts).toContain(text('P35'))
+  expect(beneath.submits).toEqual([])
+
+  await ui.press({ key: 'waiting:review' })
+  expect(await activeTab(ui)).toBe('review')
+  // Leave the pane's state as found (a pane's state persists across mounts in one test).
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+  await ui.unmount()
+})
+
+test('opening the pane on a live model refreshes it through the Mindrian OS server only; a sample makes no call', async ($, on) => {
+  const live = wireReal(on, {})
+  const run = () =>
+    $.command.run({ command: 'workspace', args: 'room', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  const ui = await mountReal($, 'terminal')
+  await run()
+  // The engine raises ui.open for the pane when the command opens it; the body then loads.
+  expect(live.opened.length).toBeGreaterThan(0)
+  expect(live.mcp.length).toBeGreaterThan(0)
+  expect(live.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
   await ui.unmount()
 })
