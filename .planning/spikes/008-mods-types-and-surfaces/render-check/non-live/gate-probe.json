@@ -1,0 +1,250 @@
+{
+  "measured_at": "2026-10-06T01:53:24.994Z",
+  "node": "v22.23.1",
+  "repo_version": "2.0.0-beta.62",
+  "binding": {
+    "env_only": {
+      "room_binding": {
+        "bound": false,
+        "source": "reg.active",
+        "registry_fallback": true,
+        "slug": "probe-room",
+        "room_id": null,
+        "identity": {
+          "state": "not_ready",
+          "reason": "identity_missing"
+        },
+        "note": "No room is bound to this session. Showing the registry fallback (room probe-room), not a binding. Call room_bind to bind a room."
+      },
+      "gate_list": {
+        "ok": false,
+        "reason": "room_unbound"
+      }
+    },
+    "binding_file": {
+      "room_binding": {
+        "bound": true,
+        "source": "session.primary",
+        "registry_fallback": false,
+        "slug": "probe-room",
+        "room_id": null,
+        "identity": {
+          "state": "not_ready",
+          "reason": "identity_missing"
+        }
+      }
+    },
+    "reading": "CLAUDE_ACTIVE_ROOM alone does not bind a session (status_read bound false, registry fallback only; gate_list refuses room_unbound). A binding file for the session id does (bound true, source session.primary). The live harness therefore gives the nested Claude Code a fresh session id (--session-id plus CLAUDE_CODE_SESSION_ID) and writes that binding file; whether the plugin server inherits the id is the live check."
+  },
+  "gate_list": {
+    "count": 2,
+    "card_keys": [
+      "gate_id",
+      "kind",
+      "header",
+      "select_mode",
+      "options",
+      "recommended",
+      "notice",
+      "approve_label",
+      "subject_node_id",
+      "evidence_node_ids",
+      "approving",
+      "framework",
+      "minted_at",
+      "expires_at",
+      "resumes"
+    ],
+    "option_keys": [
+      "id",
+      "label",
+      "description",
+      "rank",
+      "preview",
+      "recommended"
+    ],
+    "flagged": {
+      "top_level_recommended": "yes",
+      "per_option_recommended": [
+        [
+          "yes",
+          true
+        ],
+        [
+          "later",
+          false
+        ],
+        [
+          "no",
+          false
+        ]
+      ]
+    },
+    "unflagged": {
+      "top_level_recommended": "yes",
+      "per_option_recommended": [
+        [
+          "yes",
+          false
+        ],
+        [
+          "later",
+          false
+        ],
+        [
+          "no",
+          false
+        ]
+      ]
+    },
+    "reading": "The mod reads only the per-option recommended flag (src/model/mappers.ts recommendedOption). A card raised WITHOUT a per-option flag lists top_level_recommended (the runtime derives it from rank) but every per-option flag false, so the mod would draw no \"Mindrian suggests\" line for it."
+  },
+  "direct_press": {
+    "reply": {
+      "ok": false,
+      "reason": "unknown_gate"
+    },
+    "room_records_unchanged": true,
+    "reading": "A different server process does not know the gate id, so the refusal is unknown_gate (the mod maps it to E01). session_mismatch needs two sessions inside one server process (below). The card stays open in the room."
+  },
+  "session_mismatch": {
+    "reply": {
+      "ok": false,
+      "reason": "session_mismatch"
+    },
+    "reading": "Two sessions in one server process: the second is refused session_mismatch (the mod maps it to E04) and the gate stays open for its owner. Whether the plugin's own tool connection and the mod's $.mcp.call share one session is a live check."
+  },
+  "mirror": {
+    "ok": true,
+    "new_id_differs": true,
+    "renderer": "askuserquestion",
+    "records_unchanged": true,
+    "source_still_listed_once": true,
+    "reading": "The mirror gets its own id; the mod must answer the mirror id, not the source id. It leaves no record of its own."
+  },
+  "decide_later": {
+    "records_identical_across_reads": true,
+    "reading": "The mod writes nothing on Decide later because it makes no call; reads (gate_list, status_read) leave the records unchanged."
+  },
+  "answer": {
+    "first_of_two_at_once": {
+      "ok": true,
+      "replayed": false,
+      "already_answered": false,
+      "answered_elsewhere": false,
+      "answered_via": "mcp_relayed",
+      "ratified": true,
+      "decision_node_id": "decision:gate:gate-b983dd673caa3db3"
+    },
+    "second_of_two_at_once": {
+      "ok": true,
+      "replayed": true,
+      "already_answered": true,
+      "answered_elsewhere": false,
+      "answered_via": "mcp_relayed",
+      "ratified": true,
+      "decision_node_id": "decision:gate:gate-b983dd673caa3db3"
+    },
+    "later_press": {
+      "ok": true,
+      "replayed": true,
+      "already_answered": true,
+      "answered_elsewhere": false,
+      "answered_via": "mcp_relayed",
+      "ratified": true,
+      "decision_node_id": "decision:gate:gate-b983dd673caa3db3"
+    },
+    "owner_afterwards": {
+      "ok": true,
+      "replayed": true,
+      "already_answered": true,
+      "answered_elsewhere": true,
+      "answered_via": "mcp_relayed",
+      "ratified": true,
+      "decision_node_id": "decision:gate:gate-b983dd673caa3db3",
+      "via_gate_id": "gate-b983dd673caa3db3"
+    },
+    "room_after": {
+      "decision_nodes": [
+        "decision:gate:gate-b983dd673caa3db3"
+      ],
+      "gate_answer_anchor": {
+        "found": true,
+        "verdict": "approve",
+        "chosen": [
+          "yes"
+        ],
+        "answeredVia": "mcp_relayed",
+        "decisionNodeId": "decision:gate:gate-b983dd673caa3db3",
+        "viaGateId": "gate-b983dd673caa3db3"
+      }
+    },
+    "gates_still_listed_after": 1,
+    "reading": "Exactly one decision node however many presses; the route the room records is answered_via. The mod's call is recorded mcp_relayed; only a browser click through the shell is browser_nonce.",
+    "exactly_one_decision": true,
+    "recorded_route": "mcp_relayed"
+  },
+  "card_pending": {
+    "claude_code_cli_declaring_elicitation": {
+      "elicitation": false,
+      "elicitation_declared": true,
+      "claudeCode": true
+    },
+    "non_claude_host_declaring_elicitation": {
+      "elicitation": true,
+      "elicitation_declared": true,
+      "claudeCode": false
+    },
+    "reading": "On Claude Code (CLI, Desktop, Cowork) a card is the AskUserQuestion card even when the host declares elicitation, so a mirrored card there is never an elicitation card and the E07 card_pending refusal is reachable only on a non-Claude host."
+  },
+  "servers": {
+    "manifest": {
+      "plugin_name": "mos",
+      "mcp_json_servers": [
+        "mindrian-os",
+        "mindrian-brain"
+      ],
+      "names_claude_code_gives_them": [
+        "plugin:mos:mindrian-os",
+        "plugin:mos:mindrian-brain"
+      ],
+      "reading": "A plugin server is listed as plugin:<plugin name>:<server key>. The plugin is named \"mos\" and .mcp.json keys are mindrian-os and mindrian-brain, so the names are plugin:mos:mindrian-os and plugin:mos:mindrian-brain, the two the mod calls. The live /mcp screen is the confirming check."
+    },
+    "mindrian_os": {
+      "tool_count": 45,
+      "wanted_present": {
+        "gate_list": true,
+        "gate_render": true,
+        "gate_answer": true,
+        "status_read": true,
+        "room_artifact": true,
+        "whitespace_scan": true,
+        "room_bind": true
+      }
+    },
+    "mindrian_brain": {
+      "tool_count": 6,
+      "wanted_present": {
+        "brain_ask": true,
+        "brain_query": true,
+        "brain_schema": true,
+        "brain_search": true,
+        "brain_stats": true,
+        "brain_write": true,
+        "framework_techniques": false
+      },
+      "tools": [
+        "brain_ask",
+        "brain_query",
+        "brain_schema",
+        "brain_search",
+        "brain_stats",
+        "brain_write"
+      ],
+      "framework_techniques_call": {
+        "rejected": "Tool framework_techniques not found"
+      },
+      "reading": "The guarded Brain shim registers only the six tools above. A framework_techniques call through it comes back as an unknown tool, so the mod's Think-tab lookup cannot work through this shim until the shim proxies that one tool."
+    }
+  }
+}
