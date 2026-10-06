@@ -3,6 +3,7 @@
 // `$` here, no color value: a block asks for a job and the theme (plan 03) answers.
 import type { Elements, RenderElement, RenderNode, TextProps } from 'claude-code'
 
+import { text } from '../copy/text'
 import { paintProps } from '../theme/plain'
 import type { Mode } from '../theme/plain'
 import type { BlockJob, Theme } from '../theme/theme'
@@ -76,6 +77,36 @@ export function FrameCell(el: El, theme: Theme | null, mode: Mode): RenderElemen
     )
   }
   return <Box width={1} height={1} flexShrink={0} backgroundColor={theme.frame} />
+}
+
+// A band hint (C-28): words in the block's own legal text color (black on the cream row), normal
+// weight, never dim, never a host-colored Button label. One line, truncated at the end. In plain
+// mode no color prop exists. It is drawn text only: nothing a person can press.
+export function HintText(el: El, id: 'B80' | 'B82', theme: Theme | null, mode: Mode): RenderElement {
+  const { Text } = el
+  return <Text {...wordsProps(mode, theme, 'reading')}>{text(id)}</Text>
+}
+
+// A hotkey armed with nothing drawn (C-28). A Button's label color is the host's, so the band's
+// hints are Text; these keep `o` or `h` pressing while the band holds the keys (after ctrl+x tab or a
+// click, never while the prompt box has them, R-03) inside a Box with no width and hidden overflow.
+// Each hotkey is a literal (the source guard reads it).
+export function HiddenOpenKey(el: El, label: string, onPress: () => void): RenderElement {
+  const { Box, Button } = el
+  return (
+    <Box key="band:open:armed" width={0} height={1} flexShrink={0} overflow="hidden">
+      <Button key="band:open" label={label} hotkey="o" plain onPress={onPress} />
+    </Box>
+  )
+}
+
+export function HiddenHelpKey(el: El, label: string, onPress: () => void): RenderElement {
+  const { Box, Button } = el
+  return (
+    <Box key="band:help:armed" width={0} height={1} flexShrink={0} overflow="hidden">
+      <Button key="band:help" label={label} hotkey="h" plain onPress={onPress} />
+    </Box>
+  )
 }
 
 // The ten-cell bar (C-06). Filled count is Math.round(percent / 10), for the drawing only: 62 is

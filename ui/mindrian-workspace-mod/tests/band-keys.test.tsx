@@ -70,8 +70,45 @@ function shown(x: unknown): string {
   if (typeof x === 'string') return x
   if (typeof x !== 'object' || x === null) return ''
   const n = asNode(x)
+  if (n.type === 'Box' && n.props.width === 0) return ''
   if (n.type === 'Button') return String(n.props.label ?? '')
   return n.children.map(shown).join('')
+}
+
+// A key armed inside a Box with no width is drawn as nothing (C-28).
+function armedButtons(x: unknown): Node[] {
+  const out: Node[] = []
+  const go = (y: unknown, hidden: boolean): void => {
+    if (typeof y !== 'object' || y === null) return
+    const n = asNode(y)
+    const h = hidden || (n.type === 'Box' && n.props.width === 0)
+    if (n.type === 'Button' && h) out.push(n)
+    for (const c of n.children) go(c, h)
+  }
+  go(x, false)
+  return out
+}
+
+// Buttons that draw something a person can read.
+function drawnButtons(x: unknown): Node[] {
+  const out: Node[] = []
+  const go = (y: unknown, hidden: boolean): void => {
+    if (typeof y !== 'object' || y === null) return
+    const n = asNode(y)
+    const h = hidden || (n.type === 'Box' && n.props.width === 0)
+    if (n.type === 'Button' && !h) out.push(n)
+    for (const c of n.children) go(c, h)
+  }
+  go(x, false)
+  return out
+}
+
+function textNodes(x: unknown): Node[] {
+  const out: Node[] = []
+  walk(x, (n) => {
+    if (n.type === 'Text') out.push(n)
+  })
+  return out
 }
 
 const NO_ACT: BandActions = { open: () => {}, help: () => {}, checkup: () => {}, save: () => {} }
@@ -128,19 +165,63 @@ function slots(sample: keyof typeof SAMPLES, tier: 'T3-wide' | 'T3-compact' | 'T
   return bandSlots(EL, { vm: SAMPLES[sample], tier, theme: COLOR.theme, mode: COLOR }, NO_ACT)
 }
 
-test('slots at T3-wide: row 3 right holds two plain dim buttons, o then h', () => {
+test('slots at T3-wide: row 3 right holds ONE hint, B80, as black normal-weight Text on cream; o and h are armed and drawn as nothing (C-28)', () => {
   const s = slots('wide', 'T3-wide')
-  const [open, help] = buttons(s.row3Right)
-  expect(buttons(s.row3Right)).toHaveLength(2)
-  expect(open?.props).toMatchObject({ hotkey: 'o', label: text('B80'), plain: true, dimColor: true })
-  expect(help?.props).toMatchObject({ hotkey: 'h', label: text('B82'), plain: true, dimColor: true })
+  expect(shown(s.row3Right)).toBe(text('B80'))
+  expect(shown(s.row3Right)).toBe('/workspace: Open workspace')
+  const hint = textNodes(s.row3Right)
+  expect(hint).toHaveLength(1)
+  expect(hint[0]?.props).toMatchObject({ color: THEME.frame, backgroundColor: THEME.reading })
+  expect(hint[0]?.props.dimColor).toBeUndefined()
+  expect(hint[0]?.props.bold).toBeUndefined()
+  // no host-colored Button label anywhere in the hint
+  expect(drawnButtons(s.row3Right)).toHaveLength(0)
+  const [open, help] = armedButtons(s.row3Right)
+  expect(armedButtons(s.row3Right)).toHaveLength(2)
+  expect(open?.props).toMatchObject({ hotkey: 'o', label: text('B84') })
+  expect(help?.props).toMatchObject({ hotkey: 'h', label: text('H05') })
   expect(s.row1Fix).toBeUndefined()
   expect(s.row2Fix).toBeUndefined()
 })
 
-test('slots at T3-compact: the hints shrink to Help only', () => {
+test('slots in plain mode keep the words, with no color prop', () => {
+  const s = bandSlots(EL, { vm: SAMPLES.wide, tier: 'T3-wide', theme: null, mode: { plain: true, note: 'N01', theme: null } }, NO_ACT)
+  expect(shown(s.row3Right)).toBe(text('B80'))
+  const keys: string[] = []
+  walk(s.row3Right, (n) => keys.push(...Object.keys(n.props)))
+  expect(keys).not.toContain('color')
+  expect(keys).not.toContain('backgroundColor')
+  expect(keys).not.toContain('dimColor')
+})
+
+test('no band hint names a bare single-letter key as typeable from the prompt (C-28, R-03 answered)', () => {
+  // Everything drawn in the three-row slots, at every tier and sample: no `x: ` lead, no plain Button
+  // (a plain Button draws its hotkey letter), and the only slash word is the command.
+  const BARE = /(^|\s)[a-z0-9]: /
+  for (const sample of ['wide', 'drift', 'broken', 'limit', 'missing', 'empty', 'several'] as const) {
+    for (const tier of ['T3-wide', 'T3-compact'] as const) {
+      const s = slots(sample, tier)
+      for (const slot of [s.row1Fix, s.row2Fix, s.row3Right]) {
+        if (slot === undefined) continue
+        expect(BARE.test(shown(slot))).toBe(false)
+        for (const b of drawnButtons(slot)) expect(b.props.plain).toBeUndefined()
+        for (const t of textNodes(slot)) expect(BARE.test(shown(t))).toBe(false)
+      }
+    }
+  }
+  // the deck itself: the two hints lead with the command, never a letter
+  for (const id of ['B80', 'B82'] as const) {
+    expect(text(id).startsWith('/workspace')).toBe(true)
+    expect(BARE.test(text(id))).toBe(false)
+  }
+})
+
+test('slots at T3-compact: the hint shrinks to B82 and only h is armed', () => {
   const s = slots('wide', 'T3-compact')
-  expect(buttons(s.row3Right).map((b) => b.props.hotkey)).toEqual(['h'])
+  expect(shown(s.row3Right)).toBe(text('B82'))
+  expect(shown(s.row3Right)).toBe('/workspace: Help')
+  expect(armedButtons(s.row3Right).map((b) => b.props.hotkey)).toEqual(['h'])
+  expect(drawnButtons(s.row3Right)).toHaveLength(0)
 })
 
 test('slots: r exists only on a room problem, k only at 80 percent or more (INV-SL-4)', () => {
@@ -408,7 +489,7 @@ test('the all-keys panel lists o always, r only on a room problem and k only at 
   expect(await pane.find({ type: 'Button', key: 'keys:checkup' })).toBeUndefined()
   expect(await pane.find({ type: 'Button', key: 'keys:save' })).toBeUndefined()
   const open = await pane.find({ type: 'Button', key: 'keys:open' })
-  expect(open?.props).toMatchObject({ hotkey: 'o', label: text('B80') })
+  expect(open?.props).toMatchObject({ hotkey: 'o', label: text('B84') })
   await pane.unmount()
 })
 

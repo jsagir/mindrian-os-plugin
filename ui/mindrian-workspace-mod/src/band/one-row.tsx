@@ -8,9 +8,9 @@
 //   not bound (any width)  compact logo, the place words in the blue block, Help: no purpose, no
 //       next step, no alert (nothing is read from a room that is not there)
 //
-// The Help button is the one pressable here; its press closure comes from the hook file (`$` never
-// crosses an import), so this function takes `onHelp`. Buttons keep the engine's plain form
-// `h: Get help`; the concept's bracketed glyph labels are not used (OQ-05, R-03).
+// Help is the hint words (B82, C-28) with `h` armed behind them; its press closure comes from the hook
+// file (`$` never crosses an import), so this function takes `onHelp`. The concept's bracketed glyph
+// labels are not used (OQ-05, R-03).
 import type { RenderElement, RenderNode } from 'claude-code'
 
 import { text } from '../copy/text'
@@ -19,7 +19,7 @@ import type { Mode } from '../theme/plain'
 import type { BlockJob, Theme } from '../theme/theme'
 import { alertSlots, chooseAlerts } from './alerts'
 import type { Alert } from './alerts'
-import { Block, FrameCell, splitLabel, wordsProps } from './blocks'
+import { Block, FrameCell, HiddenHelpKey, HintText, splitLabel, wordsProps } from './blocks'
 import type { El } from './blocks'
 import { LogoCell } from './logo'
 
@@ -145,16 +145,16 @@ function fillerBlock(el: El, vm: ViewModel, theme: Theme | null, mode: Mode, col
   })
 }
 
-// The Help block: one pressable plain Button (never the words alone) on a cream block. The button
-// draws `h: Get help`; its label color on the cream block is the host's to decide (R-01, R-18).
+// The Help block (C-28): the hint words in black on a cream block (B82, never a host-colored Button
+// label), with `h` armed behind them and drawn as nothing. The words name the slash command because a
+// bare `h` is typed into the prompt box; `h` fires only once the band holds the keys.
 function helpBlock(el: El, theme: Theme | null, mode: Mode, onHelp: () => void): RenderElement {
-  const { Button } = el
   return Block(el, {
     job: 'reading',
     theme,
     mode,
     bordered: false,
-    children: [<Button key="band:help" label={text('B82')} hotkey="h" plain onPress={() => onHelp()} />],
+    children: [HintText(el, 'B82', theme, mode), HiddenHelpKey(el, text('H05'), () => onHelp())],
   })
 }
 

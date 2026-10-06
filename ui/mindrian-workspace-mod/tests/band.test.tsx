@@ -639,8 +639,12 @@ test('band, wide: three rows with the logo, place then waiting then context with
     expect(cells.filled).toBe(6)
     expect(at(r2, 'This folder is for: building the funding case (sample)')).toBe(0)
     expect(at(r3, 'Next: look at the evidence behind your funding choice (sample)')).toBe(0)
-    // No version. Plan 08 filled the key slots: Open and Help at the right end of row 3, and no
-    // fix key while the room is sound and the context is under the limit.
+    // No version. Plan 08 filled the key slots; C-28 made the right end of row 3 one readable hint
+    // (the slash command, Text) with `o` and `h` armed behind it, and no fix key while the room is
+    // sound and the context is under the limit.
+    expect(at(r3, '/workspace: Open workspace')).toBeGreaterThan(0)
+    expect(JSON.stringify(r3)).not.toContain('o: Open')
+    expect(JSON.stringify(r3)).not.toContain('h: Get help')
     expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['o', 'h'])
     expect(JSON.stringify(root)).not.toMatch(/version/i)
     await ui.unmount()

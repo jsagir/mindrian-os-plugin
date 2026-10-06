@@ -1,14 +1,22 @@
-// Plan 08: the band's keys, placed in the slots plan 05 left empty (UI-SPEC 7.1 HintLine, 8.2, 8.4,
-// 10.2, 10.5). Pure: the element table, the view model and the press closures in; nodes out.
+// Plan 08, reworked by C-28 after the first real render: the band's keys, placed in the slots plan 05
+// left empty (UI-SPEC 7.1 HintLine, 8.2, 8.4, 10.2, 10.5). Pure: the element table, the view model and
+// the press closures in; nodes out.
 //
-//   o  Open workspace (B80)   row 3, right end, T3-wide only (it leaves first, 10.2)
-//   h  Get help (B82)         row 3, right end, T3-wide and T3-compact; at T1 and T0 it is the Help
-//                             block of the one-row band (drawn by one-row.tsx)
-//   r  Run a checkup (B44)    right end of row 2, only on a room problem (INV-SL-4)
-//   k  Save my thinking (B55) front of row 1, only at 80 percent or more (INV-SL-4)
+//   hint  /workspace: Open workspace (B80) at T3-wide, /workspace: Help (B82) at T3-compact, row 3,
+//         right end. Plain Text in black on the cream row. It names the slash command because a
+//         bare letter is TYPED into the prompt box while the prompt box has focus (real render,
+//         2026-10-06); the command is the one thing that works from there. At T1 and T0 the same
+//         hint is the Help block of the one-row band (drawn by one-row.tsx).
+//   o     armed, drawn as nothing, T3-wide only (HiddenKey): opens the pane (B84)
+//   h     armed, drawn as nothing: opens or shuts the all-keys list (H05)
+//   r     Run a checkup (B44), right end of row 2, only on a room problem (INV-SL-4)
+//   k     Save my thinking (B55), front of row 1, only at 80 percent or more (INV-SL-4)
 //
-// At T1 the fix keys are not in the band (no room, and the alert block names the problem): they
-// are armed in the pane's all-keys panel, which `h` opens (src/pane/keys-panel.tsx).
+// None of the four fires while the prompt box has the keys; each fires only after the person gives
+// the band the keys (ctrl+x then tab, or a click). So no band hint draws a bare letter: `r` and `k`
+// are drawn as bracketed buttons that are pressed by a click or by Tab then Enter, and `o` and `h`
+// are never drawn. At T1 the fix keys are not in the band (no room, and the alert block names the
+// problem): they are armed in the pane's all-keys panel, which `h` opens (src/pane/keys-panel.tsx).
 //
 // The press closures come from the hook file (`$` never crosses an import). `r` and `k` only
 // prefill the prompt box (src/runtime/prefill.ts); `o` and `h` open the pane or its key panel.
@@ -23,7 +31,7 @@ import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
 import { fixFlags } from './alerts'
 import type { BandSlots } from './band'
-import { Block } from './blocks'
+import { Block, HiddenHelpKey, HiddenOpenKey, HintText } from './blocks'
 import type { El } from './blocks'
 import type { Tier } from './tier'
 
@@ -55,19 +63,20 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
   const flags = fixFlags(input.vm)
   const slots: BandSlots = {}
 
-  // Row 3, right end: dim hints on the cream row. The compact tier keeps Help only (10.2).
-  const hints = [
-    tier === 'T3-wide' ? (
-      <Button key="band:open" label={text('B80')} hotkey="o" plain dimColor onPress={() => void act.open()} />
-    ) : null,
-    <Button key="band:help" label={text('B82')} hotkey="h" plain dimColor onPress={() => void act.help()} />,
-  ].filter((b): b is RenderElement => b !== null)
+  // Row 3, right end: ONE readable hint, black on the cream row (C-28). It names the slash command,
+  // the one way that works from the prompt box (a bare letter would be typed into it). Wide says
+  // Open workspace (B80); compact says Help (B82). `o` and `h` stay armed behind it, drawn as
+  // nothing, and fire only while the band holds the keys.
   slots.row3Right = Block(el, {
     job: 'reading',
     theme,
     mode,
     bordered: false,
-    children: [<Box columnGap={2}>{hints}</Box>],
+    children: [
+      HintText(el, tier === 'T3-wide' ? 'B80' : 'B82', theme, mode),
+      ...(tier === 'T3-wide' ? [HiddenOpenKey(el, text('B84'), () => void act.open())] : []),
+      HiddenHelpKey(el, text('H05'), () => void act.help()),
+    ],
   })
 
   // Right end of row 2: the checkup, only when the room needs one or is broken.
@@ -77,7 +86,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
       theme,
       mode,
       bordered: false,
-      children: [<Button key="band:checkup" label={text('B44')} hotkey="r" plain onPress={() => void act.checkup()} />],
+      children: [<Button key="band:checkup" label={text('B44')} hotkey="r" onPress={() => void act.checkup()} />],
     })
   }
 
@@ -88,7 +97,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
       theme,
       mode,
       bordered: false,
-      children: [<Button key="band:save" label={text('B55')} hotkey="k" plain onPress={() => void act.save()} />],
+      children: [<Button key="band:save" label={text('B55')} hotkey="k" onPress={() => void act.save()} />],
     })
   }
   return slots

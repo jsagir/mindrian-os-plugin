@@ -60,7 +60,7 @@ const purpose = ' This folder is for: building the funding case (sample)';
 const next = ' Next: look at the evidence (sample)';
 out += at(1, 10) + bg('C') + fg('K') + purpose.padEnd(WIDTH - 10) + reset;
 out += at(2, 10) + bg('C') + fg('K') + next.padEnd(WIDTH - 10) + reset;
-out += at(2, 62) + bg('C') + dim + fg('K') + 'o: Open workspace   h: Get help' + reset;
+out += at(2, 62) + bg('C') + dim + fg('K') + '/workspace: Open workspace' + reset;
 // the prompt box under the band
 out += at(3, 0) + String.fromCharCode(0x256d) + String.fromCharCode(0x2500).repeat(WIDTH - 2) + String.fromCharCode(0x256e);
 out += at(4, 0) + String.fromCharCode(0x2502) + ' >' + ' '.repeat(WIDTH - 4) + String.fromCharCode(0x2502);

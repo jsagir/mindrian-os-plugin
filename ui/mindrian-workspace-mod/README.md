@@ -27,7 +27,7 @@ bash tests/run-all-369.26.sh
 
 ## The command
 
-`workspace` is the guaranteed way to open the pane (whether a band key fires while the prompt box has focus is unverified, risk R-03). It only opens the pane and flips two switches; it never sends a prompt and never runs work.
+`workspace` is the guaranteed way to open the pane, and the only thing the band tells you to type. The first real render (2026-10-06) answered R-03: a letter hotkey does NOT fire while the prompt box has focus, it is typed into the prompt box and sent as a message (C-28). It only opens the pane and flips two switches; it never sends a prompt and never runs work.
 
 | You type | What happens |
 |---|---|
@@ -43,19 +43,24 @@ The dev switch `MOS_WORKSPACE_SAMPLE=<name>` starts a session already showing a 
 
 Letters and digits only (an engine rule: one digit or one lowercase letter). Enter submits the prompt, so it is never a key here.
 
-| Where | Key | Does |
-|---|---|---|
-| Band | `o` | Open workspace (gives the pane focus if it is already open) |
-| Band | `h` | Get help: opens or shuts the all-keys list |
-| Band | `r` | Run a checkup (only shown when the room needs one; fills the prompt, does not send it) |
-| Band | `k` | Save my thinking (only shown at 80 percent context or more; fills the prompt, does not send it) |
-| Pane, everywhere | `h`, `e`, `s`, Esc | Help (all keys), Explain this, Show details (where a tab has details), Esc closes |
-| Room | `n`, `v`, `m` | Do this step (fills the prompt), Look at the decision (jumps to Review), More things to do |
-| Think | `g`, `c`, `a`, `w`, `x` | Dig in, Connect, Another way, Why, Example |
-| Think | `l`, `t`, `v` | Look up guidance and Talk it through (only after a help kind is picked), Look at the evidence (only when there is evidence) |
-| Sources | `b` | Back to the list (only while a source is open) |
-| Review | `1` to `3` | Choose the recorded answer of that rank (only while the pane has focus) |
-| Review | `d`, `i` | Decide later (writes nothing), Ask it here (draws a card another window raised) |
+**When each key fires (C-28).** A hotkey fires only while the site that drew it holds the keys: the band after ctrl+x then tab or a click, the pane after `/workspace`, a click, or the pane opening with focus. While the prompt box holds the keys (the normal case, you are typing) a letter is TYPED, not pressed, and a digit in an empty prompt box answers a band survey only. So the band never names a bare letter: its one hint is `/workspace: Open workspace` (`/workspace: Help` at narrower widths), black on the cream row. `o` and `h` stay armed behind it and are drawn as nothing. When the pane is open without the keys the pane says so (N06, "Type /workspace to use the workspace keys.").
+
+| Where | Key | Fires when | Does |
+|---|---|---|---|
+| Prompt box | `/workspace` | always (a command, not a key) | Opens the workspace and gives it the keys |
+| Band (armed, not drawn) | `o` | the band or the pane holds the keys | Open workspace (gives the pane focus if it is already open) |
+| Band (armed, not drawn) | `h` | the band or the pane holds the keys | Opens or shuts the all-keys list |
+| Band (button, no letter shown) | `r` | click, Tab then Enter, or the band holds the keys | Run a checkup (only shown when the room needs one; fills the prompt, does not send it) |
+| Band (button, no letter shown) | `k` | click, Tab then Enter, or the band holds the keys | Save my thinking (only shown at 80 percent context or more; fills the prompt, does not send it) |
+| Pane, everywhere | `h`, `e`, `s`, Esc | the pane holds the keys | Help (all keys), Explain this, Show details (where a tab has details), Esc closes |
+| Room | `n`, `v`, `m` | the pane holds the keys | Do this step (fills the prompt), Look at the decision (jumps to Review), More things to do |
+| Think | `g`, `c`, `a`, `w`, `x` | the pane holds the keys | Dig in, Connect, Another way, Why, Example |
+| Think | `l`, `t`, `v` | the pane holds the keys | Look up guidance and Talk it through (only after a help kind is picked), Look at the evidence (only when there is evidence) |
+| Sources | `b` | the pane holds the keys | Back to the list (only while a source is open) |
+| Review | `1` to `3` | the pane holds the keys | Choose the recorded answer of that rank |
+| Review | `d`, `i` | the pane holds the keys | Decide later (writes nothing), Ask it here (draws a card another window raised) |
+
+The band's hint words are `Text`, not a button: a Button's label color is the host's (it rendered pale on the cream row), only `Text` can be black. `o` and `h` are therefore kept as buttons inside a Box with no width. Unverified without a live session: whether a zero-width Button still takes a Tab stop (an invisible focus) and whether the pane's all-keys panel `o` label ("Open workspace", B84) reads right. The all-keys panel also lists the fix keys at T1.
 
 There are no letter or digit hotkeys for the tabs (digits stay free for the decision card). The tab strip is four buttons: Tab moves to the next button, Enter presses it, Esc closes the workspace (copy line H22). Under 30 columns it becomes a Select.
 
@@ -117,7 +122,7 @@ Differences from UI-SPEC 12.4, stated plainly:
 
 - **It does not replace the old status line.** A mod cannot (spike 008). Both draw until the navigator removes `statusLine` from settings after the band is proven (OQ-11).
 - **Dev-only load.** It loads with `--plugin-dir`. Shipping it inside the install is deferred (OQ-12).
-- **Nothing was seen on a real screen** (WS-16 above). Not eyeballed: paint, whether a band key fires while the prompt has focus, dim text legibility, the `▶` and `·` glyphs in the WSL terminal, the 60/40 split, the pane title chrome.
+- **Seen once on a real screen (2026-10-06, claude 2.1.290 and 291, truecolor, sample `wide`):** blocks, logo and bar paint correctly; a band key does NOT fire from the prompt box (fixed in the words, C-28); the Button-label hints were unreadable (fixed, now `Text`). Still not eyeballed after C-28: the `▶` and `·` glyphs in the WSL terminal, the 60/40 split, the pane title chrome.
 - **The Think tab's lookup does not work through the installed Brain shim yet.** The shim exposes six tools and `framework_techniques` is not one of them, so a lookup would show "Couldn't look that up right now. Nothing was sent from your data room." (Q-17-1). On a real room the button is not drawn anyway until `next.method` is recorded.
 - **A card the model raises without flagging an option** shows no "Mindrian suggests" line (Q-17-2).
 - **The Think tab is the heaviest view:** 8 buttons in 4 groups on the default view, exactly the budget with no spare.

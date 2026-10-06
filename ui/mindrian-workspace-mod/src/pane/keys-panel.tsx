@@ -42,7 +42,7 @@ export function keysPanel(el: PaneEl, a: KeysPanelInput): RenderElement {
       {a.fixes === undefined ? null : (
         <Button
           key="keys:open"
-          label={text('B80')}
+          label={text('B84')}
           hotkey="o"
           plain
           onPress={() => {

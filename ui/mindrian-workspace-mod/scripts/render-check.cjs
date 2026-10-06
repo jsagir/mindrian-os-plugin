@@ -307,7 +307,7 @@ function analyze(grid, ansiText, ctx) {
   }
 
   // 5: dim present, only judged when a dim-styled hint could have been drawn
-  const hints = firstOf(left, ['Open workspace', 'Get help']);
+  const hints = firstOf(left, ['/workspace: Open workspace', '/workspace: Help', 'Open workspace', 'Get help']);
   if (hints && !noColorRun) {
     items[5] = summary.dimCells > 0
       ? { result: 'PASS', detail: 'SGR 2 (dim) reached ' + summary.dimCells + ' cells. Readability on black and on cream is the human\'s check.', data: {} }
@@ -359,8 +359,8 @@ function analyze(grid, ansiText, ctx) {
     }
     info.paneOpened = tab !== null;
     const foc = G.findText(grid, 'Esc: Close');
-    const unf = G.findText(grid, 'Press o to use the workspace keys');
-    info.paneFocus = foc ? 'focused (the hint line shows Esc: Close)' : unf ? 'not focused (the pane shows "Press o to use the workspace keys")' : 'unknown (neither hint was found)';
+    const unf = G.findText(grid, 'to use the workspace keys');
+    info.paneFocus = foc ? 'focused (the hint line shows Esc: Close)' : unf ? 'not focused (the pane shows "Type /workspace to use the workspace keys")' : 'unknown (neither hint was found)';
   }
   if (ctx.sizeCols !== undefined && ctx.sizeCols <= 72 && !noColorRun) {
     const ell = rowsText(left).some((t) => t.indexOf('\u2026') !== -1);

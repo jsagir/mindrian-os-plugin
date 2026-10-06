@@ -65,7 +65,9 @@ function shown(x: unknown): string {
   if (typeof x === 'string') return x
   if (typeof x !== 'object' || x === null) return ''
   const n = asNode(x)
-  // A Button draws its label (the hotkey form is the engine's), so its words count as shown text.
+  // A Button draws its label (the hotkey form is the engine's), so its words count as shown text,
+  // except one armed inside a Box with no width (C-28): that key is drawn as nothing.
+  if (n.type === 'Box' && n.props.width === 0) return ''
   if (n.type === 'Button') return String(n.props.label ?? '')
   return n.children.map(shown).join('')
 }
@@ -165,10 +167,15 @@ test('T1 at 55 columns: compact logo, the name alone in blue, 1 decision waiting
   expect(place?.props.backgroundColor).toBe(THEME.where)
   expect(shown(alert)).toBe('1 decision waiting')
   expect(alert?.props.backgroundColor).toBe(THEME.yourMove)
-  const button = kids(help).find((c) => c.type === 'Button')
-  expect(button?.props.label).toBe('Get help')
+  // C-28: the hint is Text in black on cream; `h` is armed inside a zero-width Box and drawn as nothing
+  expect(shown(help)).toBe('/workspace: Help')
+  const hint = kids(help).find((c) => c.type === 'Text')
+  expect(hint?.props).toMatchObject({ color: THEME.frame, backgroundColor: THEME.reading })
+  expect(hint?.props.dimColor).toBeUndefined()
+  const armed = kids(help).find((c) => c.type === 'Box' && c.props.width === 0)
+  const button = kids(armed).find((c) => c.type === 'Button')
   expect(button?.props.hotkey).toBe('h')
-  expect(button?.props.plain).toBe(true)
+  expect(kids(help).some((c) => c.type === 'Button')).toBe(false)
   expect(help?.props.backgroundColor).toBe(THEME.reading)
   const all = shown(r)
   for (const absent of ['This folder is for', 'Next:', 'Context used', '%', 'version', 'Mindrian suggests']) {
@@ -188,9 +195,9 @@ test('T1: one alert slot below 68 columns, two from 68; the problem comes first 
     m.context = ok(85)
   })
   const narrow = blocks(row(both, 67))
-  expect(narrow.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', 'Get help'])
+  expect(narrow.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '/workspace: Help'])
   const wide = blocks(row(both, 68))
-  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '1 decision waiting', 'Get help'])
+  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '1 decision waiting', '/workspace: Help'])
 })
 
 test('T1: the context alert is a bold yellow block with the words of B50', () => {
@@ -227,7 +234,7 @@ test('T1: drift is a yellow block, broken a red block with cream words, an unrea
 
 test('T1: with nothing waiting a dim B66 sits in the alert slot from 48 columns and nothing below', () => {
   const wide = blocks(row(SAMPLES.empty, 55))
-  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Nothing waiting', 'Get help'])
+  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Nothing waiting', '/workspace: Help'])
   let dim = false
   walk(wide[1], (n) => {
     if (n.type === 'Text' && n.props.dimColor === true && shown(n) === 'Nothing waiting') dim = true
@@ -235,7 +242,7 @@ test('T1: with nothing waiting a dim B66 sits in the alert slot from 48 columns 
   expect(dim).toBe(true)
   expect(wide[1]?.props.backgroundColor).not.toBe(THEME.yourMove)
   const narrow = blocks(row(SAMPLES.empty, 47))
-  expect(narrow.map(shown)).toEqual(['Funding (sample)', 'Get help'])
+  expect(narrow.map(shown)).toEqual(['Funding (sample)', '/workspace: Help'])
 })
 
 test('T1: no block is ever empty, in any sample, at any width, color or plain', () => {
@@ -284,9 +291,9 @@ test('T0 at 25 columns: M:OS and the Help button only, whatever the room says', 
   for (const vm of [SAMPLES.wide, SAMPLES.limit, SAMPLES.broken, SAMPLES.noroom]) {
     const r = row(vm, 25, COLOR, 'T0')
     const line = shown(r)
-    expect(line).toBe('M:OS' + 'Get help')
+    expect(line).toBe('M:OS' + '/workspace: Help')
     expect(kids(r).filter((c) => c.type === 'Box' && num(c.props.width) === 9)).toHaveLength(0)
-    expect(blocks(r).some((b) => kids(b).some((c) => c.type === 'Button'))).toBe(true)
+    expect(blocks(r).some((b) => kids(b).some((c) => c.type === 'Box' && c.props.width === 0 && kids(c).some((k) => k.type === 'Button')))).toBe(true)
   }
 })
 
@@ -303,7 +310,7 @@ test('not bound at 100 columns: compact logo, B12 in the blue block, Help; no pu
   expect(num(logo?.props.width)).toBe(9)
   expect(num(logo?.props.height)).toBe(1)
   const bs = blocks(r)
-  expect(bs.map(shown)).toEqual(["You're not in a data room yet", 'Get help'])
+  expect(bs.map(shown)).toEqual(["You're not in a data room yet", '/workspace: Help'])
   expect(bs[0]?.props.backgroundColor).toBe(THEME.where)
   const all = shown(r)
   for (const absent of ['This folder is for', 'Next:', 'Context used', 'waiting', 'purpose']) {
@@ -317,7 +324,7 @@ test('not bound at 55 columns and with 4 rows: the same one row', () => {
     [60, 4],
   ] as const) {
     const r = row(noRoom(), columns, COLOR, 'T1', rows)
-    expect(blocks(r).map(shown)).toEqual(["You're not in a data room yet", 'Get help'])
+    expect(blocks(r).map(shown)).toEqual(["You're not in a data room yet", '/workspace: Help'])
   }
 })
 
@@ -338,11 +345,11 @@ test('a place that cannot be read: B14 in the blue block, with Help', () => {
   const bs = blocks(row(vm, 55))
   expect(shown(bs[0])).toBe("Can't tell where you are right now")
   expect(bs[0]?.props.backgroundColor).toBe(THEME.where)
-  expect(shown(bs.at(-1))).toBe('Get help')
+  expect(shown(bs.at(-1))).toBe('/workspace: Help')
 })
 
 test('not bound at T0: M:OS and Help only; and in plain mode the place line is words with a bar', () => {
-  expect(shown(row(noRoom(), 25, COLOR, 'T0'))).toBe('M:OS' + 'Get help')
+  expect(shown(row(noRoom(), 25, COLOR, 'T0'))).toBe('M:OS' + '/workspace: Help')
   const plain = row(noRoom(), 55, PLAIN)
   expect(shown(plain)).toContain("You're not in a data room yet")
   expect(shown(plain)).toContain(' | ')
@@ -422,7 +429,7 @@ test('mounted T1 at 55 columns: the one row with the name, the count and Help', 
     const drawn = asNode(await ui.drawn())
     expect(num(drawn.props.height)).toBe(1)
     const bs = blocks(drawn)
-    expect(bs.map(shown)).toEqual(['Funding (sample)', '1 decision waiting', 'Get help'])
+    expect(bs.map(shown)).toEqual(['Funding (sample)', '1 decision waiting', '/workspace: Help'])
     expect(await ui.find({ type: 'Text', text: /engine row/ })).toBeUndefined()
     await ui.unmount()
   }
@@ -432,7 +439,7 @@ test('mounted T0 at 25 columns, and a short window at 4 or 5 rows, keep the one 
   setup(on, 'wide')
   for (const surface of SURFACES) {
     const t0 = await mountBand($, surface, 25, 12)
-    expect(shown(await t0.drawn())).toBe('M:OS' + 'Get help')
+    expect(shown(await t0.drawn())).toBe('M:OS' + '/workspace: Help')
     await t0.unmount()
     for (const rows of [4, 5]) {
       const ui = await mountBand($, surface, 120, rows)
@@ -454,7 +461,7 @@ test('mounted, a room that is not bound: one row at (100, 6), (55, 6) and (60, 4
       const ui = await mountBand($, surface, columns, rows)
       const drawn = asNode(await ui.drawn())
       expect(num(drawn.props.height)).toBe(1)
-      expect(blocks(drawn).map(shown)).toEqual(["You're not in a data room yet", 'Get help'])
+      expect(blocks(drawn).map(shown)).toEqual(["You're not in a data room yet", '/workspace: Help'])
       await ui.unmount()
     }
   }
@@ -464,7 +471,7 @@ test('mounted T1 in the problem states: the alert names the problem and Help is 
   setup(on, 'drift')
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 55, 12)
-    expect(blocks(asNode(await ui.drawn())).map(shown)).toEqual(['Funding (sample)', 'Room needs a checkup', 'Get help'])
+    expect(blocks(asNode(await ui.drawn())).map(shown)).toEqual(['Funding (sample)', 'Room needs a checkup', '/workspace: Help'])
     expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['h'])
     await ui.unmount()
   }

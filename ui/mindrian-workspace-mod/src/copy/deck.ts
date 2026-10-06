@@ -43,8 +43,9 @@ export const COPY = {
   'B67': ' \u00B7 ',
   'B68': '{n} waiting',
   'B70': 'Larry is working',
-  'B80': 'Open workspace',
-  'B82': 'Get help',
+  'B80': '/workspace: Open workspace',
+  'B82': '/workspace: Help',
+  'B84': 'Open workspace',
   'B83': 'Problem:',
 
   // Pane strings (UI-SPEC 9.3)
@@ -204,7 +205,7 @@ export const COPY = {
   'N03': "Colors can't load. Showing plain text.",
   'N04': 'Sample data. This is not a real data room.',
   'N05': 'This window is narrow. Make it wider to read the workspace comfortably.',
-  'N06': 'Press o to use the workspace keys.',
+  'N06': 'Type /workspace to use the workspace keys.',
 
   // Refusals and errors (UI-SPEC 9.5)
   'E01': 'This decision card is not one this window drew. Ask for it again.',

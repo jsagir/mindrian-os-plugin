@@ -176,6 +176,27 @@ scenario('A4 copy rules: no long dash, ICM, command, file name, code or node id;
   }
 });
 
+// A4b (C-28): the only slash command on any screen is /workspace, and only the band hints and the unfocused-pane
+// line name it; no copy line leads with a bare single-letter key as a typeable hint (the prompt box would take it).
+scenario('A4b the only slash word is /workspace, in B80, B82 and N06; no band hint leads with a bare letter', () => {
+  check(deck, 'deck missing: ' + path.relative(REPO, DECK));
+  const allowed = new Set(['B80', 'B82', 'N06']);
+  for (const [id, text] of deck) {
+    const slashes = text.match(/(^|\s)\/[a-z]+/g) || [];
+    if (slashes.length > 0) {
+      check(allowed.has(id), id + ' names a slash command but is not one of B80, B82, N06');
+      for (const w of slashes) check(w.trim() === '/workspace', id + ' names a slash command other than /workspace: ' + w.trim());
+    }
+  }
+  for (const id of ['B80', 'B82']) {
+    const t = deck.get(id);
+    check(t !== undefined && t.startsWith('/workspace'), id + ' must lead with /workspace');
+    check(!/(^|\s)[a-z0-9]: /.test(t), id + ' names a bare single-letter key');
+  }
+  const n06 = deck.get('N06');
+  check(n06 !== undefined && !/\bPress [a-z0-9]\b/.test(n06), 'N06 tells a person to press a bare key');
+});
+
 // A5
 scenario('A5 placeholders are lowercase letters and match the spec per id', () => {
   check(spec && deck, 'spec or deck missing');
@@ -188,7 +209,7 @@ scenario('A5 placeholders are lowercase letters and match the spec per id', () =
 
 // A6
 scenario('A6 mutation: one changed spec string fails the parity comparison', () => {
-  const mutated = specSrc.replace('| B80 | Open workspace |', '| B80 | Open the workspace |');
+  const mutated = specSrc.replace('| B80 | /workspace: Open workspace |', '| B80 | Open the workspace |');
   check(mutated !== specSrc, 'mutation target not found in the spec');
   const m = parseSpec(mutated);
   // Compare the mutated spec against a perfect copy of the genuine spec, so this arm works with or without a deck.
