@@ -255,7 +255,7 @@ scenario('summarize: reports which SGR forms were seen, whether any background e
   assert.strictEqual(s.forms['48;2'], 1);
   assert.strictEqual(s.forms['38;5'], 1);
   assert.strictEqual(s.forms['basic-bg'], 1);
-  assert.strictEqual(s.dimCells, 1);
+  assert.strictEqual(s.dimCells, 2); // b and c: dim stays on until a reset
   const none = G.summarize(G.parseAnsi('plain text', 12, 1));
   assert.strictEqual(none.hasBackground, false);
   assert.strictEqual(none.dimCells, 0);
