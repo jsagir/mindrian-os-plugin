@@ -6,8 +6,9 @@
 #
 # IMPORTANT: this aggregator is written ONCE, here, in 369.25-02 (Wave 0). Later plans add their own test
 # files (tests/test-36925-*.cjs); the run_if legs below already name every one of them, so a landed file is
-# picked up automatically and a missing planned file reports SKIPPED, never PASSED. Only plan 25 edits this
-# file, to drop a healed run_known wrapper.
+# picked up automatically and a missing planned file reports SKIPPED, never PASSED. Plan 25 (the close) edited this
+# file once, to drop the run_known wrapper machinery: every red-at-HEAD leg it once held (the muy real-room rule, run_known
+# until plan 24) now passes outright, so the KNOWN counter below stays at 0 and is kept only for the summary format.
 #
 # Counters:
 #   PASSED  - the leg exited 0
@@ -62,27 +63,6 @@ run_if() {
   else
     echo "--- $label ---"; echo ">>> $label: SKIPPED (missing $guard)"; SKIP=$((SKIP+1)); echo ""
   fi
-}
-
-# run_known <label> <signature> <cmd...>
-# A pre-existing red this phase does not own. Exit 0 -> PASSED ("known red healed").
-# Non-zero exit whose combined output contains the literal signature -> KNOWN.
-# Any other non-zero exit -> FAILED (a new failure mode, investigate).
-run_known() {
-  local label="$1"; local signature="$2"; shift 2
-  echo "--- $label ---"
-  local out
-  out="$("$@" 2>&1)"
-  local status=$?
-  printf '%s\n' "$out" | tail -n 15
-  if [ "$status" -eq 0 ]; then
-    echo ">>> $label: PASSED (known red healed - drop the run_known wrapper at phase close)"; PASS=$((PASS+1))
-  elif printf '%s' "$out" | grep -qF -- "$signature"; then
-    echo ">>> $label: KNOWN (pre-existing red, signature matched)"; KNOWN=$((KNOWN+1))
-  else
-    echo ">>> $label: FAILED (exit $status, recorded signature NOT found: $signature)"; FAIL=$((FAIL+1))
-  fi
-  echo ""
 }
 
 # --- 1. Guarded legs, one run_if per planned test file (the label names the plan that lands it) -
