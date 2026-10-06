@@ -154,7 +154,7 @@ test('alerts: a fact that cannot be read is never an alert (no false alarm)', ()
 })
 
 // ---------------------------------------------------------------------------------------------
-// T1: compact logo, the folder name alone in the blue block, alert blocks with words, Help.
+// T1: the M:OS mark, the folder name alone on paper, alert blocks with words, the hint only when it fits.
 
 test('T1 at 55 columns: the M:OS mark, the name alone on paper, 1 decision waiting on black; the hint is dropped first (C-31a)', () => {
   const r = row(SAMPLES.wide, 55)
