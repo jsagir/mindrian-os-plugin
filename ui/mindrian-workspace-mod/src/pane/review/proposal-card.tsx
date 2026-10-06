@@ -15,7 +15,7 @@ import { text } from '../../copy/text'
 import { recommendedOption } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
 import { plainBox } from '../../theme/plain'
-import { block, ink, onBlock } from '../ink'
+import { block, ground, ink, onBlock, soft } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import { ChoiceButtons } from './choice-buttons'
@@ -153,7 +153,7 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
     if (!hasReason(card)) {
       children.push(
         <Box key="review:no-reason">
-          <Text dimColor {...color}>
+          <Text {...soft(ctx.mode)} {...color}>
             {text('D04')}
           </Text>
         </Box>,
@@ -193,14 +193,16 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
   }
   if (plan.showAsk) {
     children.push(
-      <Button
-        key="review:ask"
-        label={text('P115')}
-        {...(ctx.isFocused ? { hotkey: 'i' } : {})}
-        onPress={() => {
-          void runAsk(ctx.act, ctx.body.review, card).catch(() => {})
-        }}
-      />,
+      <Box key="review:ask-ground" {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key="review:ask"
+          label={text('P115')}
+          {...(ctx.isFocused ? { hotkey: 'i' } : {})}
+          onPress={() => {
+            void runAsk(ctx.act, ctx.body.review, card).catch(() => {})
+          }}
+        />
+      </Box>,
     )
   }
 
@@ -215,14 +217,16 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
 
   if (plan.showLater) {
     children.push(
-      <Button
-        key="review:later"
-        label={text('D16')}
-        {...(ctx.isFocused ? { hotkey: 'd' } : {})}
-        onPress={() => {
-          void runLater(ctx.act, ctx.body.review, card).catch(() => {})
-        }}
-      />,
+      <Box key="review:later-ground" {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key="review:later"
+          label={text('D16')}
+          {...(ctx.isFocused ? { hotkey: 'd' } : {})}
+          onPress={() => {
+            void runLater(ctx.act, ctx.body.review, card).catch(() => {})
+          }}
+        />
+      </Box>,
     )
   }
 
@@ -230,7 +234,7 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
   if (consequence !== null) {
     children.push(
       <Box key="review:consequence">
-        <Text dimColor {...color}>
+        <Text {...soft(ctx.mode)} {...color}>
           {consequence}
         </Text>
       </Box>,
@@ -240,7 +244,7 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
   if (expiry !== null) {
     children.push(
       <Box key="review:expiry">
-        <Text dimColor {...color}>
+        <Text {...soft(ctx.mode)} {...color}>
           {expiry}
         </Text>
       </Box>,

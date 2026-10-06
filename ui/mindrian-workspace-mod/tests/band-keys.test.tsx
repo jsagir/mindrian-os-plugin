@@ -184,6 +184,20 @@ test('slots at T3-wide: row 3 right holds ONE hint, B80, as black normal-weight 
   expect(s.row2Fix).toBeUndefined()
 })
 
+test('C-29: the band checkup and save Buttons sit on the black frame, never on a cream block (the host label is light)', () => {
+  for (const [sample, slot, key] of [
+    ['drift', 'row2Fix', 'band:checkup'],
+    ['broken', 'row2Fix', 'band:checkup'],
+    ['limit', 'row1Fix', 'band:save'],
+  ] as const) {
+    const block = asNode(slots(sample, 'T3-wide')[slot])
+    expect(block.type).toBe('Box')
+    expect(block.props.backgroundColor).toBe(THEME.frame)
+    expect(block.props.backgroundColor).not.toBe(THEME.reading)
+    expect(buttons(block).map((b) => b.props.key)).toEqual([key])
+  }
+})
+
 test('slots in plain mode keep the words, with no color prop', () => {
   const s = bandSlots(EL, { vm: SAMPLES.wide, tier: 'T3-wide', theme: null, mode: { plain: true, note: 'N01', theme: null } }, NO_ACT)
   expect(shown(s.row3Right)).toBe(text('B80'))

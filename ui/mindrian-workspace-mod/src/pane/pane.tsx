@@ -154,7 +154,7 @@ export function buildPane(el: PaneEl, input: PaneInput, deps: PaneDeps): RenderE
         ? explainNote(el, { explainId: body?.explainId ?? EXPLAIN_FOR_TAB[tab], mode, theme })
         : null}
       {bodyEl}
-      {detailsButton(el, { tab, open: detailsOpen, act: input.act })}
+      {detailsButton(el, { tab, open: detailsOpen, mode, theme, act: input.act })}
       {detailsOpen ? detailsBlock(el, { vm: input.vm, mode, theme, extra }) : null}
     </Box>
   )

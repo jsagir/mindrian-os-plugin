@@ -7,7 +7,7 @@ import type { RenderElement, RenderNode } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { missing } from '../details-block'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import type { ThinkModel } from './model'
@@ -18,7 +18,7 @@ export function showsEvidence(model: ThinkModel): boolean {
 }
 
 export function understandingPanel(ctx: TabContext, model: ThinkModel): RenderElement {
-  const { Text, Button } = ctx.el
+  const { Box, Text, Button } = ctx.el
   const color = ink(ctx.mode, ctx.theme)
   const seen = model.understanding
   if (seen.state !== 'ok') {
@@ -42,14 +42,16 @@ export function understandingPanel(ctx: TabContext, model: ThinkModel): RenderEl
     )
   }
   children.push(
-    <Button
-      key="think:evidence"
-      label={text('P73')}
-      hotkey="v"
-      onPress={() => {
-        void ctx.act.setTab('sources')
-      }}
-    />,
+    <Box key="think:evidence-ground" {...ground(ctx.mode, ctx.theme)}>
+      <Button
+        key="think:evidence"
+        label={text('P73')}
+        hotkey="v"
+        onPress={() => {
+          void ctx.act.setTab('sources')
+        }}
+      />
+    </Box>,
   )
   return panel(ctx, 'think:understanding', text('P70'), children)
 }

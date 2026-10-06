@@ -6,6 +6,7 @@
 // Run a checkup only when the room has a problem, Save my thinking only at the context limit. A
 // one-row band cannot show them, so Help is where a problem's one-tap fix lives. They only move
 // to a tab or add a sentence to the prompt box (src/runtime/prefill.ts); none submits or writes.
+// C-29: each button sits on its own black chip (the host's light label color needs a black ground).
 import type { RenderElement } from 'claude-code'
 
 import type { FixFlags } from '../band/alerts'
@@ -14,7 +15,7 @@ import { prefillPrompt } from '../runtime/prefill'
 import type { Mode } from '../theme/plain'
 import { plainBox } from '../theme/plain'
 import type { Theme } from '../theme/theme'
-import { ink } from './ink'
+import { ground, ink } from './ink'
 import type { KeySpec, PaneEl, ShellActions } from './types'
 
 export type KeysPanelInput = {
@@ -40,47 +41,55 @@ export function keysPanel(el: PaneEl, a: KeysPanelInput): RenderElement {
         <Text {...color}>{k.key + ': ' + text(k.labelId)}</Text>
       ))}
       {a.fixes === undefined ? null : (
-        <Button
-          key="keys:open"
-          label={text('B84')}
-          hotkey="o"
-          plain
-          onPress={() => {
-            void a.act.setTab(a.fixes?.openTab ?? 'room')
-          }}
-        />
+        <Box key="keys:open-ground" {...ground(a.mode, a.theme)}>
+          <Button
+            key="keys:open"
+            label={text('B84')}
+            hotkey="o"
+            plain
+            onPress={() => {
+              void a.act.setTab(a.fixes?.openTab ?? 'room')
+            }}
+          />
+        </Box>
       )}
       {a.fixes !== undefined && a.fixes.checkup ? (
-        <Button
-          key="keys:checkup"
-          label={text('B44')}
-          hotkey="r"
-          plain
-          onPress={() => {
-            void prefillPrompt(a.act, 'Q06')
-          }}
-        />
+        <Box key="keys:checkup-ground" {...ground(a.mode, a.theme)}>
+          <Button
+            key="keys:checkup"
+            label={text('B44')}
+            hotkey="r"
+            plain
+            onPress={() => {
+              void prefillPrompt(a.act, 'Q06')
+            }}
+          />
+        </Box>
       ) : null}
       {a.fixes !== undefined && a.fixes.save ? (
+        <Box key="keys:save-ground" {...ground(a.mode, a.theme)}>
+          <Button
+            key="keys:save"
+            label={text('B55')}
+            hotkey="k"
+            plain
+            onPress={() => {
+              void prefillPrompt(a.act, 'Q07')
+            }}
+          />
+        </Box>
+      ) : null}
+      <Box key="keys:explain-ground" {...ground(a.mode, a.theme)}>
         <Button
-          key="keys:save"
-          label={text('B55')}
-          hotkey="k"
+          key="explain"
+          label={text('H18')}
+          hotkey="e"
           plain
           onPress={() => {
-            void prefillPrompt(a.act, 'Q07')
+            void a.act.toggleExplain()
           }}
         />
-      ) : null}
-      <Button
-        key="explain"
-        label={text('H18')}
-        hotkey="e"
-        plain
-        onPress={() => {
-          void a.act.toggleExplain()
-        }}
-      />
+      </Box>
       <Text bold {...color}>
         {text('H21')}
       </Text>

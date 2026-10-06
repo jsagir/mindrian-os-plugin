@@ -19,6 +19,7 @@
 import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
+import { ground } from '../ink'
 import type { KeySpec, TabBody, TabContext } from '../types'
 import { actionList } from '../room/action-list'
 import { jobPanel } from '../room/job-panel'
@@ -33,14 +34,16 @@ function actionsButton(ctx: TabContext, open: boolean, state: ReturnType<typeof 
   const { Box, Button } = ctx.el
   return (
     <Box key="actions:row" marginTop={1}>
-      <Button
-        key="room:actions"
-        label={text(open ? 'P53' : 'P52')}
-        hotkey="m"
-        onPress={() => {
-          void toggleActions(ctx.act, state)
-        }}
-      />
+      <Box key="actions:ground" {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key="room:actions"
+          label={text(open ? 'P53' : 'P52')}
+          hotkey="m"
+          onPress={() => {
+            void toggleActions(ctx.act, state)
+          }}
+        />
+      </Box>
     </Box>
   )
 }

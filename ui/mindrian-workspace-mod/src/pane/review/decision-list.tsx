@@ -13,7 +13,7 @@
 // closure on `ctx.act`. No `$`, no atom.
 import { text } from '../../copy/text'
 import type { GateCard } from '../../model/view-model'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import { isAnswered, phaseWords, ProposalCard } from './proposal-card'
@@ -123,13 +123,15 @@ export function DecisionList(ctx: TabContext) {
       : ProposalCard(ctx, state.open, heading, state.waiting)
 
   const list = state.others.map((other) => (
-    <Button
-      key={'review:open:' + other.gateId}
-      label={other.header}
-      onPress={() => {
-        void reopenCard(ctx.act, other.gateId).catch(() => {})
-      }}
-    />
+    <Box key={'review:open-ground:' + other.gateId} {...ground(ctx.mode, ctx.theme)}>
+      <Button
+        key={'review:open:' + other.gateId}
+        label={other.header}
+        onPress={() => {
+          void reopenCard(ctx.act, other.gateId).catch(() => {})
+        }}
+      />
+    </Box>
   ))
 
   return (

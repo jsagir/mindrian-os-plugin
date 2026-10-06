@@ -16,7 +16,7 @@ import { choiceOptions, recommendedOption } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
 import { paneLayout } from '../layout'
 import type { TabContext } from '../types'
-import { ink } from '../ink'
+import { edge, ground, ink } from '../ink'
 import { runChoice, stripFocusKey } from './review-io'
 
 export type ChoiceForm = 'boxed' | 'plain'
@@ -42,24 +42,24 @@ export function ChoiceButtons(
 
   const buttons = choiceOptions(card).map((option, index) => {
     const n = index + 1
-    const button = (
-      <Button
-        key={'choice:' + n}
-        label={choiceLabel(n, option.label, form)}
-        {...(ctx.isFocused ? { hotkey: String(n) } : {})}
-        {...(form === 'plain' ? { plain: true as const } : {})}
-        variant={recommended !== null && option.id === recommended.id ? 'primary' : 'secondary'}
-        onPress={() => {
-          void runChoice(ctx.act, ctx.body.review, card, option, waiting, focusKey).catch(() => {})
-        }}
-      />
-    )
-    return form === 'boxed' ? (
-      <Box key={'choice-box:' + n} borderStyle="single">
-        {button}
+    const primary = recommended !== null && option.id === recommended.id
+    return (
+      <Box
+        key={'choice-box:' + n}
+        {...(form === 'boxed' ? { borderStyle: 'single' as const, ...edge(ctx.mode, ctx.theme) } : {})}
+        {...ground(ctx.mode, ctx.theme, primary ? 'where' : 'frame')}
+      >
+        <Button
+          key={'choice:' + n}
+          label={choiceLabel(n, option.label, form)}
+          {...(ctx.isFocused ? { hotkey: String(n) } : {})}
+          {...(form === 'plain' ? { plain: true as const } : {})}
+          variant={primary ? 'primary' : 'secondary'}
+          onPress={() => {
+            void runChoice(ctx.act, ctx.body.review, card, option, waiting, focusKey).catch(() => {})
+          }}
+        />
       </Box>
-    ) : (
-      button
     )
   })
 

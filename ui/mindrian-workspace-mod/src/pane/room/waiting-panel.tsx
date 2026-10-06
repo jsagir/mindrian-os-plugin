@@ -6,7 +6,7 @@ import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { missing } from '../details-block'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import type { TabContext } from '../types'
 import { panel } from './panel'
 
@@ -32,7 +32,7 @@ export function showsJump(ctx: TabContext): boolean {
 }
 
 export function waitingPanel(ctx: TabContext): RenderElement {
-  const { Text, Button } = ctx.el
+  const { Box, Text, Button } = ctx.el
   const color = ink(ctx.mode, ctx.theme)
   const children = [
     <Text key="room:waiting-words" {...color}>
@@ -41,14 +41,16 @@ export function waitingPanel(ctx: TabContext): RenderElement {
   ]
   if (showsJump(ctx)) {
     children.push(
-      <Button
-        key="waiting:review"
-        label={text('P43')}
-        hotkey="v"
-        onPress={() => {
-          void ctx.act.setTab('review')
-        }}
-      />,
+      <Box key="waiting:review-ground" {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key="waiting:review"
+          label={text('P43')}
+          hotkey="v"
+          onPress={() => {
+            void ctx.act.setTab('review')
+          }}
+        />
+      </Box>,
     )
   }
   return panel(ctx, 'room:waiting', text('P40'), children)

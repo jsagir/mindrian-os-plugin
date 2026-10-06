@@ -10,7 +10,7 @@ import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { plainBox } from '../../theme/plain'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import { openSource } from './model'
@@ -27,13 +27,15 @@ function row(ctx: TabContext, source: SourceRow, index: number): RenderElement {
       {source.where !== null ? (
         <Text {...color}>{text('P102', { where: source.where })}</Text>
       ) : null}
-      <Button
-        key={`source:${index}`}
-        label={text('P103')}
-        onPress={() => {
-          void openSource(ctx.act, source)
-        }}
-      />
+      <Box key={`source-ground:${index}`} {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key={`source:${index}`}
+          label={text('P103')}
+          onPress={() => {
+            void openSource(ctx.act, source)
+          }}
+        />
+      </Box>
     </Box>
   )
 }

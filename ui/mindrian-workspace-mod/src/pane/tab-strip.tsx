@@ -1,8 +1,10 @@
 // Plan 07: the tab strip (UI-SPEC 6.2, 7.2 PaneTabs, 10.6, 12.2). Four buttons keyed tab:room,
 // tab:think, tab:sources, tab:review, labels P01 to P04, and NO letter or digit keys: digits stay free for the
-// decision card (C-24). The active tab is a blue block with cream words in color mode; in plain
-// mode it is a bold inverse label with a greater-than mark. Under 30 columns the strip becomes a
-// Select on terminal and desktop (buttons stay on vscode and mobile).
+// decision card (C-24). The strip is a black heading bar (C-29: a Button label is the host's light
+// color, so it needs a black or blue ground, never the cream page); the active tab is a blue block
+// with the primary variant, the others sit on black. In plain mode the active tab is a bold inverse
+// label with a greater-than mark and nothing is colored. Under 30 columns the strip becomes a Select
+// (also on the black bar) on terminal and desktop (buttons stay on vscode and mobile).
 import type { RenderElement } from 'claude-code'
 
 import { text } from '../copy/text'
@@ -10,7 +12,7 @@ import { TAB_IDS } from '../runtime/ids'
 import type { TabId } from '../runtime/ids'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
-import { block } from './ink'
+import { block, ground } from './ink'
 import type { PaneLayout } from './layout'
 import type { PaneEl } from './types'
 
@@ -47,7 +49,7 @@ export function tabStrip(el: PaneEl, a: TabStripInput): RenderElement {
   if (a.layout.tabsAsSelect && 'Select' in el && (a.surface === 'terminal' || a.surface === 'desktop')) {
     const { Select } = el
     return (
-      <Box flexDirection="row">
+      <Box flexDirection="row" {...ground(a.mode, a.theme, 'frame', { wide: true })}>
         <Select
           key="tab:select"
           options={TAB_IDS.map((id) => ({ value: id, label: tabLabel(id) }))}
@@ -62,7 +64,7 @@ export function tabStrip(el: PaneEl, a: TabStripInput): RenderElement {
   }
 
   return (
-    <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
+    <Box flexDirection="row" flexWrap="wrap" columnGap={1} {...block(a.mode, a.theme, 'frame')}>
       {TAB_IDS.map((id) => {
         const active = id === a.tab
         if (active && a.mode.plain) {
@@ -74,7 +76,7 @@ export function tabStrip(el: PaneEl, a: TabStripInput): RenderElement {
           )
         }
         return (
-          <Box {...block(a.mode, a.theme, active ? 'where' : 'reading')}>
+          <Box {...ground(a.mode, a.theme, active ? 'where' : 'frame')}>
             <Button
               key={'tab:' + id}
               label={tabLabel(id)}

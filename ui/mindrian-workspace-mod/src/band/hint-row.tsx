@@ -79,10 +79,11 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
     ],
   })
 
-  // Right end of row 2: the checkup, only when the room needs one or is broken.
+  // Right end of row 2: the checkup, only when the room needs one or is broken. C-29: a Button label is
+  // the host's light color, so its block is the black frame, never cream (on cream it is invisible).
   if (flags.checkup) {
     slots.row2Fix = Block(el, {
-      job: 'reading',
+      job: 'frame',
       theme,
       mode,
       bordered: false,
@@ -93,7 +94,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
   // Front of row 1: save my thinking, only at the context limit.
   if (flags.save) {
     slots.row1Fix = Block(el, {
-      job: 'reading',
+      job: 'frame',
       theme,
       mode,
       bordered: false,

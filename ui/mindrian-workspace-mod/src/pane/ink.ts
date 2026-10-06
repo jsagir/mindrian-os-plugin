@@ -17,6 +17,13 @@ export function page(mode: Mode, theme: Theme | null): { backgroundColor?: strin
   return p.backgroundColor === undefined ? {} : { backgroundColor: p.backgroundColor }
 }
 
+// The light words that read on the black frame (cream on black). Spread it on a Text inside a Box
+// that spreads `ground`.
+export function onFrame(mode: Mode, theme: Theme | null): { color?: string } {
+  const p = paintProps(mode, theme, 'frame')
+  return p.color === undefined ? {} : { color: p.color }
+}
+
 // A flat block of one job (a Box background). Spread it on a Box.
 export function block(mode: Mode, theme: Theme | null, job: BlockJob): { backgroundColor?: string } {
   const p = paintProps(mode, theme, job)
@@ -27,4 +34,43 @@ export function block(mode: Mode, theme: Theme | null, job: BlockJob): { backgro
 export function onBlock(mode: Mode, theme: Theme | null, job: BlockJob): { color?: string } {
   const p = paintProps(mode, theme, job)
   return p.color === undefined ? {} : { color: p.color }
+}
+
+// C-29 (UI-SPEC): a Button, a Select and a Markdown block have NO color prop; the host paints their
+// label in its own light color. On the cream page that label is nearly invisible. So every one of
+// them sits on a ground where a light label reads: the black frame (17.13), the blue `where` block
+// (9.82, the selected or primary one) or the red `problem` block (5.56, a control inside a red list).
+// Never cream, never yellow. `ground` is the ONLY way the pane gives a control its ground (the
+// source guard G11 reads each Button and Select for an enclosing Box that spreads it).
+//
+// The Box is `alignSelf: flex-start`, so a control sized to its label is a chip, not a full-width
+// bar; `wide` drops that for a whole bar (the tab strip and the hint line). Plain mode and a
+// missing theme return {}: borders and words only, nothing colored.
+export type GroundJob = 'frame' | 'where' | 'problem'
+
+export function ground(
+  mode: Mode,
+  theme: Theme | null,
+  job: GroundJob = 'frame',
+  o: { wide?: boolean } = {},
+): { backgroundColor?: string; alignSelf?: 'flex-start' } {
+  const p = paintProps(mode, theme, job)
+  if (p.backgroundColor === undefined) return {}
+  return o.wide === true ? { backgroundColor: p.backgroundColor } : { backgroundColor: p.backgroundColor, alignSelf: 'flex-start' as const }
+}
+
+// The border color of a boxed control on its ground: black on the cream page in color mode (so the
+// frame reads as one solid block), nothing in plain mode.
+export function edge(mode: Mode, theme: Theme | null): { borderColor?: string } {
+  const p = paintProps(mode, theme, 'frame')
+  return p.backgroundColor === undefined ? {} : { borderColor: p.backgroundColor }
+}
+
+// Quiet text (C-29, R-18 closed): `dimColor` on the cream page renders as faint grey and cannot be
+// read, so in color mode there is no dim text on cream at all (the words are plain black, spread
+// `ink`). Dim survives only in plain mode, where there is no page color and the host's own
+// foreground carries it. This is the only place the pane names `dimColor`; on a black block write
+// the prop directly, inside a Box that spreads `ground`.
+export function soft(mode: Mode): { dimColor?: true } {
+  return mode.plain ? { dimColor: true as const } : {}
 }

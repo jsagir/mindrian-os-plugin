@@ -18,6 +18,10 @@
 //                    in the logo and the theme
 //   G8 completeness  all four tab bodies defined, no dependency fields, every registrar non-empty
 //   G9 hotkeys       every hotkey literal is one character, 0-9 or a-z
+//   G11 ground       C-29: a Button or Select in src/pane sits inside a Box that spreads ground() (the host
+//                    paints their label in its own light color, invisible on the cream page); no dimColor
+//                    attribute in src/pane outside such a Box (dim on cream is faint grey, R-18 closed);
+//                    in src/band a Block on the cream `reading` job never holds a Button
 //   G10 mutation     one planted violation per guard, each must be reported (run inside each group)
 //
 // The Canon Part 8 proof (the one Brain-facing call) is tests/test-369.26-part8.cjs (plan 16). It is
@@ -495,7 +499,67 @@ function g9Hotkeys(tree) {
   return bad;
 }
 
-// Run one guard against a mod root (parses once). `which` is 'G1'..'G9'.
+// ---------- G11: controls sit on a ground (C-29) ----------
+
+function eachNodeWithAncestors(sf, fn) {
+  (function visit(node, chain) {
+    fn(node, chain);
+    const next = chain.concat([node]);
+    node.forEachChild((c) => { visit(c, next); });
+  })(sf, []);
+}
+
+const tagOf = (node) => (node.tagName && node.tagName.text) || '';
+
+// True when the JSX element `el` (a Box) spreads `ground(...)` directly in its attributes.
+function boxSpreadsGround(file, el) {
+  if (kindName(el) !== 'JsxElement' || !el.openingElement || tagOf(el.openingElement) !== 'Box') return false;
+  for (const attr of el.openingElement.attributes.properties) {
+    if (kindName(attr) === 'JsxSpreadAttribute' && /^ground\(/.test(nodeText(file, attr.expression))) return true;
+  }
+  return false;
+}
+
+function g11Ground(tree) {
+  const bad = [];
+  for (const f of tree.files) {
+    if (f.rel.startsWith('src/pane/')) {
+      eachNodeWithAncestors(f.sf, (n, chain) => {
+        const k = kindName(n);
+        const grounded = () => chain.some((a) => boxSpreadsGround(f, a));
+        if ((k === 'JsxSelfClosingElement' || k === 'JsxOpeningElement') && (tagOf(n) === 'Button' || tagOf(n) === 'Select')) {
+          if (!grounded()) bad.push('G11 a ' + tagOf(n) + ' outside a Box that spreads ground() at ' + where(f, n));
+        }
+        if (k === 'JsxAttribute' && n.name && n.name.text === 'dimColor' && !grounded()) {
+          bad.push('G11 a dimColor attribute outside a black ground at ' + where(f, n));
+        }
+        if (k === 'PropertyAssignment' && n.name && n.name.text === 'dimColor' && f.rel !== 'src/pane/ink.ts') {
+          bad.push('G11 a dimColor property outside src/pane/ink.ts at ' + where(f, n));
+        }
+      });
+    }
+    if (f.rel.startsWith('src/band/')) {
+      eachNode(f.sf, (n) => {
+        if (kindName(n) !== 'CallExpression' || nodeText(f, n.expression) !== 'Block') return;
+        for (const arg of n.arguments) {
+          if (kindName(arg) !== 'ObjectLiteralExpression') continue;
+          let cream = false;
+          for (const prop of arg.properties) {
+            if (kindName(prop) === 'PropertyAssignment' && prop.name && prop.name.text === 'job' && kindName(prop.initializer) === 'StringLiteral' && prop.initializer.text === 'reading') cream = true;
+          }
+          if (!cream) continue;
+          eachNode(arg, (m) => {
+            const mk = kindName(m);
+            if ((mk === 'JsxSelfClosingElement' || mk === 'JsxOpeningElement') && tagOf(m) === 'Button') bad.push('G11 a Button inside a cream Block at ' + where(f, m));
+          });
+        }
+      });
+    }
+  }
+  return bad;
+}
+
+// Run one guard against a mod root (parses once). `which` is 'G1'..'G9' or 'G11'.
 function runGuard(which, modRoot) {
   if (which === 'G1') return g1Dashes(modRoot);
   const tree = parseTree(modRoot);
@@ -509,6 +573,7 @@ function runGuard(which, modRoot) {
       case 'G7': return g7Style(tree);
       case 'G8': return g8Completeness(tree, modRoot);
       case 'G9': return g9Hotkeys(tree);
+      case 'G11': return g11Ground(tree);
       default: throw new Error('unknown guard ' + which);
     }
   } finally { tree.close(); }
@@ -572,6 +637,14 @@ const MUTATIONS = [
   ['G8', 'an empty registrar', (d) => plant(d, 'src/registrars/band.tsx', '// emptied\n', 'new')],
   ['G9', 'a multi-character hotkey', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} hotkey=\"Enter\" onPress={() => {}} />\n", 'new')],
   ['G9', 'an upper-case hotkey', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} hotkey=\"Q\" onPress={() => {}} />\n", 'new')],
+  ['G11', 'a Button on the cream page (no ground)', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} onPress={() => {}} />\n", 'new')],
+  ['G11', 'a Button inside a Box that is not a ground', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Box, Button } from 'claude-code'\nexport const zzMutation = () => <Box backgroundColor=\"x\"><Button label={null as never} onPress={() => {}} /></Box>\n", 'new')],
+  ['G11', 'a Select outside a ground', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Select } from 'claude-code'\nexport const zzMutation = () => <Select options={[]} value=\"a\" onSelect={() => {}} />\n", 'new')],
+  ['G11', 'the ground taken off the real details button', (d) => replaceIn(d, 'src/pane/details-block.tsx', '<Box key="details-ground" {...ground(a.mode, a.theme)}>', '<Box key="details-ground">')],
+  ['G11', 'dimColor on text on the cream page', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Text } from 'claude-code'\nexport const zzMutation = () => <Text dimColor>{null}</Text>\n", 'new')],
+  ['G11', 'the real consequence line made dim again', (d) => replaceIn(d, 'src/pane/review/proposal-card.tsx', '<Text {...soft(ctx.mode)} {...color}>\n          {consequence}', '<Text dimColor {...color}>\n          {consequence}')],
+  ['G11', 'a dimColor property outside the ink helper', (d) => plant(d, 'src/pane/zz-mutation.ts', 'export const zzMutation = { dimColor: true }\n', 'new')],
+  ['G11', 'a Button inside a cream Block in the band', (d) => plant(d, 'src/band/zz-mutation.tsx', "import { Button } from 'claude-code'\nimport { Block } from './blocks'\nexport const zzMutation = (el: any, theme: any, mode: any) => Block(el, { job: 'reading', theme, mode, children: [<Button label={null as never} onPress={() => {}} />] })\n", 'new')],
 ];
 
 // ---------- main ----------
@@ -622,6 +695,7 @@ async function main() {
   await scenario('G7 no italic, underline, strikethrough, timer, animation or gray_meta; logoGreen only in the logo and the theme', () => reportBad(g7Style(tree)));
   await scenario('G8 all four tab bodies defined, no dependency fields, every registrar registers something', () => reportBad(g8Completeness(tree, MOD)));
   await scenario('G9 every hotkey literal is one character in 0-9 or a-z', () => reportBad(g9Hotkeys(tree)));
+  await scenario('G11 every pane Button and Select sits in a Box that spreads ground(); no dimColor on the cream page; no Button in a cream band Block', () => reportBad(g11Ground(tree)));
   tree.close();
 
   process.stdout.write('  deck ids never referenced (' + unusedIds.length + '), each allow-listed above with its reason:\n');

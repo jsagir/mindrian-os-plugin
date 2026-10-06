@@ -12,7 +12,7 @@ import type { RenderElement } from 'claude-code'
 import { text } from '../../copy/text'
 import type { ViewModel } from '../../model/view-model'
 import { prefillPrompt, prefillRecorded } from '../../runtime/prefill'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import type { TabContext } from '../types'
 import { panel } from './panel'
 
@@ -22,7 +22,7 @@ export function showsPrefill(vm: ViewModel): boolean {
 }
 
 export function suggestedMovePanel(ctx: TabContext): RenderElement {
-  const { Text, Button } = ctx.el
+  const { Box, Text, Button } = ctx.el
   const color = ink(ctx.mode, ctx.theme)
   const next = ctx.vm.next
   const step = next.step
@@ -43,16 +43,18 @@ export function suggestedMovePanel(ctx: TabContext): RenderElement {
     <Text key="room:next-reason" {...color}>
       {reasonWords}
     </Text>,
-    <Button
-      key="next:prefill"
-      label={text('P33')}
-      hotkey="n"
-      variant="primary"
-      onPress={() => {
-        // The recorded command when the record carries one (data), else the plain sentence Q01.
-        // Both only fill the prompt box and toast P34 or P35.
-        void (command !== null ? prefillRecorded(ctx.act, command) : prefillPrompt(ctx.act, 'Q01'))
-      }}
-    />,
+    <Box key="next:prefill-ground" {...ground(ctx.mode, ctx.theme, 'where')}>
+      <Button
+        key="next:prefill"
+        label={text('P33')}
+        hotkey="n"
+        variant="primary"
+        onPress={() => {
+          // The recorded command when the record carries one (data), else the plain sentence Q01.
+          // Both only fill the prompt box and toast P34 or P35.
+          void (command !== null ? prefillRecorded(ctx.act, command) : prefillPrompt(ctx.act, 'Q01'))
+        }}
+      />
+    </Box>,
   ])
 }

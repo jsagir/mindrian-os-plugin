@@ -11,13 +11,16 @@
 // the folders of the job canon. There is no problem-type filter: the registry has no such field,
 // and a control with nothing behind it is not drawn (UI-SPEC R-11).
 //
+// C-29: every control (Button, Select) sits on a black chip, or on the blue block when it is the
+// selected one; the details line is plain black text on the cream page, never dim.
+//
 // A pure view: no `$`, no atom, no color value. State is the Room slice of the body kit, read from
 // `ctx.body.room`; writes happen in the presses below, never while drawing.
 import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { prefillRecorded } from '../../runtime/prefill'
-import { ink } from '../ink'
+import { ground, ink, soft } from '../ink'
 import type { TabContext } from '../types'
 import { panel } from './panel'
 import { ALL_FOLDERS, effectiveFilter, filterRows, pickFolder, readActionsState } from './registry-model'
@@ -45,14 +48,16 @@ function filterControl(ctx: TabContext, load: Extract<ActionsLoad, { state: 'ok'
     return (
       <Box key="room:actions-filter" flexDirection="row" columnGap={1}>
         <Text {...color}>{text('P120')}</Text>
-        <Select
-          key="actions:filter"
-          options={options}
-          value={chosen}
-          onSelect={(value) => {
-            void pickFolder(ctx.act, load, value)
-          }}
-        />
+        <Box key="room:actions-filter-ground" {...ground(ctx.mode, ctx.theme)}>
+          <Select
+            key="actions:filter"
+            options={options}
+            value={chosen}
+            onSelect={(value) => {
+              void pickFolder(ctx.act, load, value)
+            }}
+          />
+        </Box>
       </Box>
     )
   }
@@ -61,15 +66,17 @@ function filterControl(ctx: TabContext, load: Extract<ActionsLoad, { state: 'ok'
       <Text {...color}>{text('P120')}</Text>
       <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
         {options.map((option, index) => (
-          <Button
-            key={'actions:filter-' + index}
-            label={option.label}
-            plain
-            variant={option.value === chosen ? 'primary' : 'secondary'}
-            onPress={() => {
-              void pickFolder(ctx.act, load, option.value)
-            }}
-          />
+          <Box key={'actions:filter-ground-' + index} {...ground(ctx.mode, ctx.theme, option.value === chosen ? 'where' : 'frame')}>
+            <Button
+              key={'actions:filter-' + index}
+              label={option.label}
+              plain
+              variant={option.value === chosen ? 'primary' : 'secondary'}
+              onPress={() => {
+                void pickFolder(ctx.act, load, option.value)
+              }}
+            />
+          </Box>
         ))}
       </Box>
     </Box>
@@ -82,16 +89,18 @@ function rowView(ctx: TabContext, row: ActionRow, index: number): RenderElement 
   return (
     <Box key={'room:action-' + index} flexDirection="column" marginTop={1}>
       <Text {...color}>{row.summary}</Text>
-      <Button
-        key={'action:' + index}
-        label={text('P122')}
-        onPress={() => {
-          // Only add the command, exactly as the registry stores it, to the prompt box.
-          void prefillRecorded(ctx.act, row.command)
-        }}
-      />
+      <Box key={'action-ground:' + index} {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key={'action:' + index}
+          label={text('P122')}
+          onPress={() => {
+            // Only add the command, exactly as the registry stores it, to the prompt box.
+            void prefillRecorded(ctx.act, row.command)
+          }}
+        />
+      </Box>
       {ctx.detailsOpen ? (
-        <Text dimColor {...color}>
+        <Text {...soft(ctx.mode)} {...color}>
           {text('P124', { name: row.command })}
         </Text>
       ) : null}

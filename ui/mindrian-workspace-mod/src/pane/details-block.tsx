@@ -11,7 +11,7 @@ import type { TabId } from '../runtime/ids'
 import type { Mode } from '../theme/plain'
 import { plainBox } from '../theme/plain'
 import type { Theme } from '../theme/theme'
-import { ink } from './ink'
+import { ground, ink } from './ink'
 import { detailsKeyArmed } from './state'
 import type { PaneEl, ShellActions } from './types'
 
@@ -49,17 +49,22 @@ function healthWords(vm: ViewModel): string {
   return text('B42')
 }
 
-export function detailsButton(el: PaneEl, a: { tab: TabId; open: boolean; act: ShellActions }): RenderElement {
-  const { Button } = el
+export function detailsButton(
+  el: PaneEl,
+  a: { tab: TabId; open: boolean; mode: Mode; theme: Theme | null; act: ShellActions },
+): RenderElement {
+  const { Box, Button } = el
   return (
-    <Button
-      key="details"
-      label={text(a.open ? 'P51' : 'P50')}
-      {...(detailsKeyArmed(a.tab) ? { hotkey: 's' } : {})}
-      onPress={() => {
-        void a.act.toggleDetails(a.tab)
-      }}
-    />
+    <Box key="details-ground" {...ground(a.mode, a.theme)}>
+      <Button
+        key="details"
+        label={text(a.open ? 'P51' : 'P50')}
+        {...(detailsKeyArmed(a.tab) ? { hotkey: 's' } : {})}
+        onPress={() => {
+          void a.act.toggleDetails(a.tab)
+        }}
+      />
+    </Box>
   )
 }
 

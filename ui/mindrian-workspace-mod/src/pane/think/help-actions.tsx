@@ -8,13 +8,16 @@
 // room text (Canon Part 8, R-24; tests/test-369.26-part8.cjs holds this file to it). The hand-off
 // only adds a sentence to the prompt box (`prefillPrompt`): there is no submit.
 //
+// C-29: each of the buttons sits on a black chip (the selected one on the blue block): the host's
+// light label color is unreadable on the cream page.
+//
 // Pure views over `ctx` (no `$`, no atom). Writes are in press handlers only (rule 4).
 import type { RenderElement, RenderNode } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { prefillPrompt } from '../../runtime/prefill'
 import { larryMark } from '../../theme/theme'
-import { block, ink } from '../ink'
+import { block, ground, ink } from '../ink'
 import type { KeyLabelId, KeySpec, TabContext } from '../types'
 import { GUIDANCE_MAX } from './lookup'
 import { HELP_KINDS, helpFor, planFor, readHelp, runLookup, selectKind } from './help-model'
@@ -134,14 +137,16 @@ function resultArea(ctx: TabContext, chosen: Chosen): RenderElement {
   if (handle !== null && plan.showLookup) {
     parts.push(
       <Box key="help:lookup-row" flexDirection="row" gap={1}>
-        <Button
-          key="help:lookup"
-          label={text('P93')}
-          hotkey="l"
-          onPress={() => {
-            void runLookup(ctx.act, handle)
-          }}
-        />
+        <Box key="help:lookup-ground" {...ground(ctx.mode, ctx.theme)}>
+          <Button
+            key="help:lookup"
+            label={text('P93')}
+            hotkey="l"
+            onPress={() => {
+              void runLookup(ctx.act, handle)
+            }}
+          />
+        </Box>
         <Text key="help:lookup-line" {...color}>
           {text('P94')}
         </Text>
@@ -150,14 +155,16 @@ function resultArea(ctx: TabContext, chosen: Chosen): RenderElement {
   }
   if (plan.showHandoff) {
     parts.push(
-      <Button
-        key="help:handoff"
-        label={text('P92')}
-        hotkey="t"
-        onPress={() => {
-          void askLarry(ctx, chosen)
-        }}
-      />,
+      <Box key="help:handoff-ground" {...ground(ctx.mode, ctx.theme)}>
+        <Button
+          key="help:handoff"
+          label={text('P92')}
+          hotkey="t"
+          onPress={() => {
+            void askLarry(ctx, chosen)
+          }}
+        />
+      </Box>,
     )
   }
   if (state.lookup?.state === 'ok') {
@@ -200,15 +207,17 @@ export function HelpActions(ctx: TabContext, model: ThinkModel, picks: readonly 
         const selected = state.kind === kind
         return (
           <Box key={`help:row-${kind}`} flexDirection="row" gap={1}>
-            <Button
-              key={`help:${kind}`}
-              label={text(spec.label)}
-              hotkey={spec.hotkey}
-              {...(selected && !ctx.mode.plain ? { variant: 'primary' as const } : {})}
-              onPress={() => {
-                void selectKind(ctx.act, state.kind, kind)
-              }}
-            />
+            <Box key={`help:ground-${kind}`} {...ground(ctx.mode, ctx.theme, selected ? 'where' : 'frame')}>
+              <Button
+                key={`help:${kind}`}
+                label={text(spec.label)}
+                hotkey={spec.hotkey}
+                {...(selected && !ctx.mode.plain ? { variant: 'primary' as const } : {})}
+                onPress={() => {
+                  void selectKind(ctx.act, state.kind, kind)
+                }}
+              />
+            </Box>
             <Text key={`help:line-${kind}`} {...color}>
               {text(spec.line)}
             </Text>

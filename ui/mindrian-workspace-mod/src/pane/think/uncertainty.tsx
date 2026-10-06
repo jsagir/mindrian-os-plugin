@@ -17,7 +17,7 @@ import { text } from '../../copy/text'
 import { plainBox } from '../../theme/plain'
 import type { BlockJob } from '../../theme/theme'
 import { missing } from '../details-block'
-import { block, ink, onBlock } from '../ink'
+import { block, ground, ink, onBlock } from '../ink'
 import type { TabContext } from '../types'
 import type { ThinkModel } from './model'
 import { togglePick } from './model'
@@ -99,37 +99,43 @@ export function gapList(ctx: TabContext, model: ThinkModel, picks: readonly stri
     ])
   }
   const words = onBlock(ctx.mode, ctx.theme, 'problem')
-  const children: RenderNode[] = [
-    <Text key="think:gaps-heading" bold {...words}>
-      {text('P75')}
-    </Text>,
-  ]
-  list.points.forEach((title, index) => {
-    const picked = picks.includes(title)
-    children.push(
-      <Box key={`think:pick-row-${index}`} flexDirection="row">
-        <Text key={`think:pick-mark-${index}`} {...(picked ? { inverse: true } : {})} {...words}>
-          {picked ? '[x]' : '[ ]'}
+  // The red block is drawn here, not through blockBox, so the pick buttons sit inside the Box that
+  // spreads `ground` (C-29): the host's light label color reads on red (5.56), and a button needs no
+  // second block of its own (blocks never nest).
+  return (
+    <Box
+      key="think:gaps"
+      flexDirection="column"
+      flexGrow={1}
+      flexShrink={1}
+      {...(ctx.mode.plain ? plainBox() : { paddingX: 1 })}
+      {...ground(ctx.mode, ctx.theme, 'problem', { wide: true })}
+    >
+      <Text key="think:gaps-heading" bold {...words}>
+        {text('P75')}
+      </Text>
+      {list.points.map((title, index) => (
+        <Box key={`think:pick-row-${index}`} flexDirection="row">
+          <Text key={`think:pick-mark-${index}`} {...(picks.includes(title) ? { inverse: true } : {})} {...words}>
+            {picks.includes(title) ? '[x]' : '[ ]'}
+          </Text>
+          <Button
+            key={`pick:${index}`}
+            label={title}
+            plain
+            onPress={() => {
+              void togglePick(ctx.act, picks, title)
+            }}
+          />
+        </Box>
+      ))}
+      {list.more > 0 ? (
+        <Text key="think:gaps-more" {...words}>
+          {text('P76', { n: list.more })}
         </Text>
-        <Button
-          key={`pick:${index}`}
-          label={title}
-          plain
-          onPress={() => {
-            void togglePick(ctx.act, picks, title)
-          }}
-        />
-      </Box>,
-    )
-  })
-  if (list.more > 0) {
-    children.push(
-      <Text key="think:gaps-more" {...words}>
-        {text('P76', { n: list.more })}
-      </Text>,
-    )
-  }
-  return blockBox(ctx, 'think:gaps', 'problem', children)
+      ) : null}
+    </Box>
+  )
 }
 
 // One line under the headings: a search under way (P78), or a gap exists (a red mark and the words

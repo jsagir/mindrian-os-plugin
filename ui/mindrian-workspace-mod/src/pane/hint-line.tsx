@@ -1,15 +1,20 @@
 // Plan 07: the hint line, tier 1 of three (UI-SPEC 8.4). Only the keys that work now: the tab's
-// own first four keys as dim text (each tab body draws its own pressable buttons with those
+// own first four keys as text (each tab body draws its own pressable buttons with those
 // hotkeys, and a letter must be unique among everything drawn at once, so the line only names
 // them), then Help as a pressable plain button, Explain this when it fits, then Esc. When the pane
 // does not hold the keyboard the whole line is replaced by N06, because a hotkey pressed while the
 // person is typing in the prompt box must never fire (R-03).
+//
+// C-29: the line is a black bar under the black tab bar. The Help and Explain buttons carry the
+// host's light label color, so they need the black ground, and the words beside them are cream on
+// that same bar, normal weight (no dim: dim on cream rendered as faint grey, R-18 closed). Plain
+// mode keeps the host's own colors and the dim hints.
 import type { RenderElement } from 'claude-code'
 
 import { text } from '../copy/text'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
-import { ink } from './ink'
+import { ground, onFrame, soft } from './ink'
 import { HINT_TAB_KEYS } from './state'
 import type { KeySpec, PaneEl, ShellActions } from './types'
 
@@ -29,12 +34,13 @@ const line = (k: KeySpec): string => k.key + ': ' + text(k.labelId)
 
 export function hintLine(el: PaneEl, a: HintInput): RenderElement {
   const { Box, Text, Button } = el
-  const color = ink(a.mode, a.theme)
+  const color = onFrame(a.mode, a.theme)
+  const dim = soft(a.mode)
 
   if (!a.isFocused) {
     return (
-      <Box key="hint-line">
-        <Text dimColor {...color}>
+      <Box key="hint-line" paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'frame', { wide: true })}>
+        <Text {...dim} {...color}>
           {text('N06')}
         </Text>
       </Box>
@@ -45,13 +51,13 @@ export function hintLine(el: PaneEl, a: HintInput): RenderElement {
   const esc = 'Esc: ' + text('H06')
   const help = 'h: ' + text('H05')
   const explain = 'e: ' + text('H18')
-  const width = [...shown.map(line), help, explain, esc].reduce((sum, s) => sum + s.length, 0) + 2 * (shown.length + 2)
+  const width = [...shown.map(line), help, explain, esc].reduce((sum, s) => sum + s.length, 0) + 2 * (shown.length + 2) + (a.mode.plain ? 0 : 2)
   const withExplain = !a.keysOpen && width <= a.bodyColumns
 
   return (
-    <Box key="hint-line" flexDirection="row" flexWrap="wrap" columnGap={2}>
+    <Box key="hint-line" flexDirection="row" flexWrap="wrap" columnGap={2} paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'frame', { wide: true })}>
       {shown.map((k) => (
-        <Text dimColor {...color}>
+        <Text {...dim} {...color}>
           {line(k)}
         </Text>
       ))}
@@ -75,7 +81,7 @@ export function hintLine(el: PaneEl, a: HintInput): RenderElement {
           }}
         />
       ) : null}
-      <Text dimColor {...color}>
+      <Text {...dim} {...color}>
         {esc}
       </Text>
     </Box>

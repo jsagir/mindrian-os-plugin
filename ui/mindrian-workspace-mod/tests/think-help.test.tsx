@@ -416,6 +416,8 @@ function backgrounds(tree: unknown): string[] {
   walk(tree, (n) => {
     // Only a drawn element counts (it has a type); its props object is not a second element.
     if (typeof n.type !== 'string') return
+    // The black and blue chips under the buttons are grounds (C-29), not marks.
+    if (String(n.key ?? propsOf(n).key ?? '').includes('ground')) return
     const bg = n.backgroundColor ?? propsOf(n).backgroundColor
     if (typeof bg === 'string') out.push(bg)
   })

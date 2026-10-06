@@ -6,24 +6,26 @@
 import type { RenderElement, RenderNode } from 'claude-code'
 
 import { text } from '../../copy/text'
-import { ink } from '../ink'
+import { ground, ink } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import { closeReading } from './model'
 import type { Reading } from './model'
 
 export function readingView(ctx: TabContext, reading: Reading): RenderElement {
-  const { Text, Markdown, Button } = ctx.el
+  const { Box, Text, Markdown, Button } = ctx.el
   const color = ink(ctx.mode, ctx.theme)
   const back = (
-    <Button
-      key="sources:back"
-      label={text('P106')}
-      hotkey="b"
-      onPress={() => {
-        void closeReading(ctx.act)
-      }}
-    />
+    <Box key="sources:back-ground" {...ground(ctx.mode, ctx.theme)}>
+      <Button
+        key="sources:back"
+        label={text('P106')}
+        hotkey="b"
+        onPress={() => {
+          void closeReading(ctx.act)
+        }}
+      />
+    </Box>
   )
   if (reading.state === 'unavailable') {
     return panel(ctx, 'sources:reading', text('P105'), [

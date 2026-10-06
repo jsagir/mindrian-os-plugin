@@ -472,9 +472,9 @@ test('the wide card at 100 columns, focused: heading, question, suggestion with 
     const later = await ui.find({ type: 'Button', key: 'review:later' })
     expect(later?.props.hotkey).toBe('d')
     expect(later?.props.label).toBe(text('D16'))
-    // The consequence line is dim.
+    // The consequence line is plain black on the cream page (C-29: dim on cream is unreadable, R-18).
     const line = await ui.find({ key: 'review:consequence' })
-    expect(dimText(line)).toBe(true)
+    expect(dimText(line)).toBe(false)
   })
 })
 
@@ -504,7 +504,7 @@ test('an option with no description gives D04 after the suggestion; no recommend
     expect(root).toContain(text('D04'))
     expect(root).not.toContain('D03')
     const d04 = await ui.find({ key: 'review:no-reason' })
-    expect(dimText(d04)).toBe(true)
+    expect(dimText(d04)).toBe(false)
   })
   const noSuggestion = card({ options: [opt('defer', { rank: 1 }), opt('approve', { rank: 2 })] })
   await withCard($, on, noSuggestion, viewOf(), async (ui) => {
@@ -763,9 +763,11 @@ test('ChoiceButtons exports CHOICE_FORM and both forms draw without error', asyn
     if (which === 'plain') {
       expect(one?.props.plain).toBe(true)
       expect(one?.props.label).toBe('Apply to the regional innovation grant (sample)')
-      expect(await ui.find({ key: 'choice-box:1' })).toBeUndefined()
+      // The plain form has no outline, but it still sits on its ground (C-29).
+      expect(propsOf(await ui.find({ key: 'choice-box:1' })).borderStyle).toBeUndefined()
+      expect(propsOf(await ui.find({ key: 'choice-box:1' })).backgroundColor).toBe(THEME.where)
     } else {
-      expect(await ui.find({ key: 'choice-box:1' })).toBeDefined()
+      expect(propsOf(await ui.find({ key: 'choice-box:1' })).borderStyle).toBe('single')
       expect(one?.props.label).toBe('[1] Apply to the regional innovation grant (sample)')
     }
     await ui.unmount()
