@@ -93,6 +93,10 @@ function roundOneHashes(plan) {
       if ((q.round === undefined || q.round === 1) && out.indexOf(q.q_hash) === -1) out.push(q.q_hash);
     });
   });
+  // 369.2-23: the field scan strings (round 0) are on the same card, so the run grant approves them too
+  ((plan.baseline && plan.baseline.queries) || []).forEach(function (q) {
+    if (out.indexOf(q.q_hash) === -1) out.push(q.q_hash);
+  });
   return out;
 }
 function standingFor(room, terms) {
