@@ -124,6 +124,12 @@ const REQUIRED_BLOCK_REGEXES = [
   { name: 'navigation', re: /^## Navigation$/m },
 ];
 
+// 369.25-19: a --write now also renders the nest's generated BRIEF.md beside MINTO.md; the fixtures are tracked
+// directories, so a test that removes the MINTO.md it generated removes the BRIEF.md too.
+function removeBrief(mintoPath) {
+  try { fs.unlinkSync(path.join(path.dirname(mintoPath), 'BRIEF.md')); } catch (_e) { /* not written */ }
+}
+
 function runCmd(args, opts) {
   const options = Object.assign(
     {
@@ -290,6 +296,7 @@ function testWritePhase(fx) {
 
   // Clean up so git status stays clean.
   fs.unlinkSync(mintoPath);
+  removeBrief(mintoPath);
 }
 
 function testFrozenBaselineRegression() {
@@ -355,6 +362,7 @@ function testFrozenBaselineRegression() {
 
     // Clean up.
     fs.unlinkSync(mintoPath);
+    removeBrief(mintoPath);
   }
 }
 
@@ -424,6 +432,7 @@ function testInvalidNarrativeFallthrough() {
     'invalid narrative fallthrough did not produce frozen baseline output'
   );
   fs.unlinkSync(mintoPath);
+  removeBrief(mintoPath);
 }
 
 function testMalformedNarrativeFallthrough() {
@@ -472,6 +481,7 @@ function testMalformedNarrativeFallthrough() {
       'malformed narrative fallthrough missing AAAK footer'
     );
     fs.unlinkSync(mintoPath);
+    removeBrief(mintoPath);
   } finally {
     if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
   }
@@ -505,6 +515,7 @@ function testTier1NoAaakFooter() {
     'tier-1 output should not contain aaak-end marker'
   );
   fs.unlinkSync(mintoPath);
+  removeBrief(mintoPath);
 }
 
 function testPromptDriftGlobal() {
