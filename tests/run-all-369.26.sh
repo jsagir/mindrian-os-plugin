@@ -92,6 +92,12 @@ run_if "registry sync"                                 tests/test-369.26-registr
 run_if "Canon Part 8 boundary"                         tests/test-369.26-part8.cjs          node tests/test-369.26-part8.cjs
 run_if "source guards"                                 tests/test-369.26-source-guards.cjs  node tests/test-369.26-source-guards.cjs
 
+# --- (2b) guards added by later plans (run_if, so a checkout without them skips) ---
+# Plan 10 and the live-source plan landed theirs without a leg; plan 11 added the three here.
+run_if "review answer path guard (plan 10)"            tests/test-369.26-review-answer.cjs  node tests/test-369.26-review-answer.cjs
+run_if "live sources validate guard (plan 06)"         tests/test-369.26-live-validate.cjs  node tests/test-369.26-live-validate.cjs
+run_if "pane body kit guard (plan 11)"                 tests/test-369.26-body-kit.cjs       node tests/test-369.26-body-kit.cjs
+
 # --- (3) regression neighbours (must stay green) ------------------------------
 run_if "regression: 369 walled manifest"               tests/test-369-walled-manifest.cjs   node tests/test-369-walled-manifest.cjs
 run_if "regression: 369 erasable TypeScript gate"      tests/test-369-ts-erasable-gate.cjs  node tests/test-369-ts-erasable-gate.cjs
