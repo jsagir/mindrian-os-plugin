@@ -20,6 +20,8 @@
  *   F6  the regeneration keys the FEYNMAN face to the room id (room_id), a not-ready room stamps nothing
  *   F5  a FEYNMAN holding only the seed and the generated blocks stays scaffold (lib/core/scaffold-predicate.cjs)
  *   F4  the human body region of FEYNMAN.md is byte-identical before and after writeFeynmanBlocks; dash guard
+ *   F7  (369.25-26) a CONTRADICTS pair filed after a MINTO write shows once in WHAT CHANGED as 'Counterevidence added: <text>';
+ *       the next write with no input change reads 'No change since the previous revision.'
  *
  * Every room lives under an isolated mkdtemp HOME and rooms home (tests/helpers/isolated-home-36925.cjs).
  * Nothing is written under ~/MindrianRooms or ~/.mindrian. Zero network.
@@ -323,6 +325,31 @@ arm('F4 the human body of FEYNMAN is byte-identical across writeFeynmanBlocks; d
   check(/Sources added: a\.md/.test(text) && /Missing: a thing/.test(text), 'blocks not updated');
   check(text.indexOf('My own words about this nest.') !== -1, 'human text lost');
   eq(H.dashGuard([GEN, BLOCKS, SEED_WRITER, __filename]), [], 'files with a dash character');
+});
+
+arm('F7 WHAT CHANGED records new counterevidence once; a regeneration with no input change reads no change (369.25-26, P5b)', () => {
+  const r = born('f7');
+  const B = blocks();
+  gen(r); // a MINTO face with no counterevidence
+  check(/None recorded in the room yet\./.test(between(read(r, 'MINTO.md'), '## Counterevidence\n', '\n## Assumptions\n') || ''), 'fixture MINTO should carry no counterevidence');
+  const { insertNode } = require(path.join(ROOT, 'lib', 'core', 'node-insert.cjs'));
+  const db = nav().openRoomDbForCaller(r.roomDir);
+  try {
+    const opts = { source_path: 'test:ff-f7', created_by: 'user', epistemic_type: 'observation', review_status: 'proposed' };
+    insertNode(db, 'claim:f7-a', 'claim', JSON.stringify({ section: SEC, text: 'Customers do not feel this problem today' }), opts);
+    insertNode(db, 'claim:f7-b', 'claim', JSON.stringify({ section: 'market-analysis', text: 'Interviewed teams pay to fix this problem today' }), opts);
+    const w = nav().writeEdge(db, { source_id: 'claim:f7-a', target_id: 'claim:f7-b', edge_type: 'CONTRADICTS' });
+    check(w && w.ok === true, 'writeEdge CONTRADICTS: ' + JSON.stringify(w));
+  } finally { nav().closeRoomDbForCaller(db); }
+  gen(r);
+  const wc = between(read(r, 'FEYNMAN.md'), B.SENTINELS.whatChanged[0], B.SENTINELS.whatChanged[1]);
+  check(wc !== null, 'what changed block missing');
+  const added = wc.split(/\r?\n/).filter((ln) => /^\s*-\s*Counterevidence added:/.test(ln));
+  eq(added.length, 1, 'count of "Counterevidence added:" lines in WHAT CHANGED: ' + wc);
+  check(/Interviewed teams pay to fix this problem today/.test(added[0]), 'the line does not name the new item: ' + added[0]);
+  gen(r); // nothing moved since the last write
+  const wc3 = between(read(r, 'FEYNMAN.md'), B.SENTINELS.whatChanged[0], B.SENTINELS.whatChanged[1]);
+  check(wc3 !== null && /No change since the previous revision\./.test(wc3) && !/Counterevidence added:/.test(wc3), 'third write should read no change: ' + wc3);
 });
 
 console.log('\nfeyminto-faces (369.25-15): ' + passed + ' passed, ' + failed + ' failed' +

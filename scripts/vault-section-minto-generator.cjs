@@ -753,7 +753,7 @@ function renderRecordBlocks(records, narrative) {
 // What the FEYNMAN face says after a MINTO regeneration: what changed, and what the room cannot yet explain.
 const SOURCE_ARTIFACTS_RE = /^## Source Artifacts\s*$/m;
 function previousMintoSnapshot(targetPath) {
-  const snap = { exists: false, sources: [], governingThought: null, lastGeneratedAt: null };
+  const snap = { exists: false, sources: [], governingThought: null, lastGeneratedAt: null, counter: null };
   let raw;
   try { raw = fs.readFileSync(targetPath, 'utf-8'); } catch (_e) { return snap; }
   snap.exists = true;
@@ -771,6 +771,22 @@ function previousMintoSnapshot(targetPath) {
       if (/^##\s/.test(ln)) break;
       const m = ln.match(/^- \[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/);
       if (m) snap.sources.push(m[1].trim());
+    }
+  }
+  // 369.25-26: the previous face's Counterevidence bullets, so a contradiction filed since then can be named.
+  // null when the face has no such section (a face written before plan 15): nothing can be said to be new.
+  const ce = raw.search(/^## Counterevidence\s*$/m);
+  if (ce !== -1) {
+    snap.counter = [];
+    const rest = raw.slice(ce).split(/\r?\n/).slice(1);
+    for (const ln of rest) {
+      if (/^##\s/.test(ln)) break;
+      const b = ln.match(/^- (.+?)\s*$/);
+      if (!b || /\(model narrative\)$/.test(b[1]) || /^and \d+ more in the room graph$/.test(b[1])) continue;
+      let text = b[1].replace(/ \[answered: [^\]]*\]$/, '');
+      const at2 = text.lastIndexOf(' (contradicts: ');
+      if (at2 !== -1) text = text.slice(0, at2);
+      snap.counter.push(text.trim());
     }
   }
   return snap;
@@ -792,6 +808,15 @@ function updateFeynmanFace(room, section, artifacts, prev, newContent, records, 
     const gtNow = extractGoverningThought(newContent);
     if (prev.exists && prev.governingThought !== null && prev.governingThought !== sha256GoverningThought(gtNow)) {
       changed.push('The governing thought changed.');
+    }
+    // 369.25-26 (P5b): counterevidence filed since the previous MINTO. Only the rows the MINTO renders are compared
+    // (RECORD_ROWS_MAX), since the previous face holds no more; capped at 3 lines here.
+    if (Array.isArray(prev.counter)) {
+      const had = new Set(prev.counter);
+      const fresh = (records.counter || []).slice(0, RECORD_ROWS_MAX).map(function (r) { return String(r.item.text).trim(); })
+        .filter(function (txt) { return !had.has(txt); });
+      fresh.slice(0, 3).forEach(function (txt) { changed.push('Counterevidence added: ' + txt); });
+      if (fresh.length > 3) changed.push('(and ' + (fresh.length - 3) + ' more)');
     }
     const prevAt = prev.lastGeneratedAt ? Date.parse(prev.lastGeneratedAt) : NaN;
     const log = preserved && Array.isArray(preserved.decision_log) ? preserved.decision_log : [];
