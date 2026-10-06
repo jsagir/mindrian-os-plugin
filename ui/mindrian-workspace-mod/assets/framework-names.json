@@ -1,6 +1,6 @@
 {
   "snapshot_note": "Every live :Framework name read from Theo via lib/core/brain-client.cjs askOp ('list_frameworks'), not only the FEEDS_INTO-linked subset. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-10-02",
+  "snapshot_date": "2026-10-06",
   "source": "theo list_frameworks via lib/core/brain-client.cjs askOp",
   "source_sha256": "3d7fd83e19e5725e96b6dfa30b683f074d60bf28802b44722a0d940a36687f06",
   "framework_names": [
@@ -425,8 +425,8 @@
   ],
   "stale_review": [],
   "theo_stamp": {
-    "mapped_by": "command-registry@2.0.0-beta.51",
-    "plugin_version": "2.0.0-beta.56",
-    "refreshed_at": "2026-10-02T20:10:16.708Z"
+    "mapped_by": "command-registry@2.0.0-beta.63",
+    "plugin_version": "2.0.0-beta.64",
+    "refreshed_at": "2026-10-06T08:59:57.520Z"
   }
 }
