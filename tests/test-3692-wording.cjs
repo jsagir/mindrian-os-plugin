@@ -25,6 +25,7 @@
  *        the release gate still accepts it
  *   WD7  job-lines unit contract: the exact reason words, the label cut, the collapse by dimension, the
  *        count of the rest, the four evidence-against sentences, no line for not_needed
+ *   WD9  a refused search slot: not searched with its reason, verdict unresolved, card section Not searched
  *   WD8  no em-dash or en-dash in this file
  *
  * Hermetic: HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs before any repo module loads; vendor
@@ -376,6 +377,30 @@ async function main() {
     assert.strictEqual(jl.emptyResultLine([]), '');
     const open = jl.deepOpeningLine({ executed: 12, planned: 20, rows: 7, governing: 'weakened', stop: 'cap' });
     assert.strictEqual(open, 'The deep run made 12 of 20 planned searches and kept 7 checked rows; the main question now reads weaker. It stopped because the search budget ran out.');
+    return true;
+  });
+
+  // ---- WD9 refused slot ----
+  await leg('WD9 a refused search slot reads as not searched with its reason, keeps the verdict unresolved, and the card has a Not searched section', async function () {
+    const room = newRoom();
+    const qs = clone(QS_WS);
+    qs.leaves[0].slots = { term: 'x' };
+    const built = planner.buildPlan(room.roomDir, qs, { mode: 'quick', now: new Date('2026-10-04T00:00:00Z') });
+    const plan = built.plan;
+    const w = grants.writeGrant(room.roomDir, grants.buildRunGrant(plan), { approved_via: VIA });
+    if (!w.ok) return 'grant ' + JSON.stringify(w);
+    const env = real.realFetchEnvelope(function () { return 'gap_primary_zero'; });
+    const out = await quickMod.runQuick(room.roomDir, plan, { fetchEnvelopeFn: env, now: Date.now() });
+    if (out.status !== 'done') return 'quick ' + out.status + ' ' + out.reason;
+    const line = out.run.answer_line;
+    ANSWERS.push({ tag: 'WD9', line: line, complete: out.run.completion.complete });
+    console.log('WD9 measured: verdict=' + out.run.verdict + ' complete=' + out.run.completion.complete + ' answer=' + line);
+    assert.strictEqual(out.run.verdict, 'unresolved', 'a refused dimension must keep the verdict unresolved');
+    assert.strictEqual(out.run.completion.complete, false);
+    assert.ok(line.indexOf(' was not searched: one of its search terms could not be used.') !== -1, 'the refused-slot sentence is absent');
+    assert.ok(out.card.body_md.indexOf('### Not searched') !== -1 && out.card.body_md.indexOf('one of its search terms could not be used') !== -1, 'the card lacks the Not searched section');
+    const bad = lintLine(out.card.body_md.split('### Not searched')[1].split('###')[0], { complete: false });
+    assert.strictEqual(bad.length, 0, 'lint on the section: ' + JSON.stringify(bad));
     return true;
   });
 

@@ -70,6 +70,7 @@ const SCHEMA = 'mos.real-room-receipt/1';
 const MAX_DEEP_STEPS = 80;
 const negativeLeg = require(path.join(ROOT, 'scripts', 'release-lib', 'real-room-negative-leg.cjs'));
 const roomRead = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'room-read.cjs'));
+const jobLines = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'job-lines.cjs'));
 
 // -- small helpers -------------------------------------------------------------
 function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
@@ -339,9 +340,39 @@ function laneState(t) {
   return 'provider absent' + (t.failure ? ' (' + t.failure + ')' : ' (the provider did not answer)');
 }
 
+// 369.2-16 (R07, R25): what the run itself recorded. run.json.completion is computed from the operation ledger
+// (369.2-13/14), so the report counts executed versus planned operations and names the jobs left undone from it,
+// never from a command return. null when the run left no completion (offline, dry, a loop that did not finish).
+function completionCounts(comp) {
+  const b = isObj(comp) && isObj(comp.by_state) ? comp.by_state : null;
+  if (!b) return null;
+  const c = {
+    executed_with_results: num(b.executed_with_results), executed_empty: num(b.executed_empty),
+    refused_before_fetch: num(b.refused_before_fetch), not_executed: num(b.not_executed),
+  };
+  c.operations_planned = c.executed_with_results + c.executed_empty + c.refused_before_fetch + c.not_executed + list(comp.open).length;
+  c.complete = comp.complete === true ? 1 : 0;
+  return c;
+}
+function applyCompletion(out, run, opts) {
+  const comp = isObj(run) ? run.completion : null;
+  const c = completionCounts(comp);
+  if (!c) return;
+  Object.assign(out, c);
+  out.has_completion = true;
+  out.searches_executed = c.executed_with_results + c.executed_empty;
+  out.incomplete_lines = jobLines.incompleteLines(comp, { max: 3, operations: run.operations, skipFalsifiers: !!(opts && opts.skipFalsifiers) });
+  out.counterevidence_status = isObj(comp.counterevidence) ? comp.counterevidence.status : null;
+  out.counterevidence_line = isObj(comp.counterevidence) ? jobLines.counterevidenceLine(comp.counterevidence, {}) : '';
+}
+function emptyCounts() {
+  return { operations_planned: 0, executed_with_results: 0, executed_empty: 0, refused_before_fetch: 0, not_executed: 0, complete: 0, has_completion: false, incomplete_lines: [], counterevidence_status: null, counterevidence_line: '' };
+}
+
 // -- job 1: quick -------------------------------------------------------------------------------
 function jobQuick(ctx) {
   const out = { status: 'not run', reason: null, lines: [], lane_lines: [], rows: 0, searches_planned: 0, searches_executed: 0, lanes_ran: 0, lanes_empty: 0, lanes_unavailable: 0, verdict: null, answer_line: null, run_id: null };
+  Object.assign(out, emptyCounts());
   const planned = planRun(ctx.roomDir, path.join(ctx.seedDir, 'question-set-quick.json'), 'quick');
   if (!planned.ok) { out.status = 'plan failed'; out.reason = planned.reason; return out; }
   out.run_id = planned.run_id;
@@ -378,6 +409,8 @@ function jobQuick(ctx) {
   out.lanes_ran = rows.length > 0 ? 1 : 0;
   out.lanes_empty = rows.length > 0 ? 0 : 1;
   out.searches_executed = out.searches_planned;
+  // 369.2-16: from here on the counts come from the run's own completion, not from the plan
+  applyCompletion(out, run, { skipFalsifiers: false });
   return out;
 }
 
@@ -397,6 +430,7 @@ function recordRows(ctx, runId, lane, payload, label, tag) {
 
 function jobDeep(ctx) {
   const out = { status: 'not run', reason: null, lines: [], lane_lines: [], rows: 0, searches_planned: 0, searches_executed: 0, lanes_planned: 0, lanes_ran: 0, lanes_empty: 0, lanes_unavailable: 0, counterevidence_planned: 0, counterevidence_executed: 0, synthesis: 'not run', stop_reason: null, answer_line: null, run_id: null, steps: [] };
+  Object.assign(out, emptyCounts());
   const planned = planRun(ctx.roomDir, path.join(ctx.seedDir, 'question-set-deep.json'), 'deep');
   if (!planned.ok) { out.status = 'plan failed'; out.reason = planned.reason; return out; }
   out.run_id = planned.run_id;
@@ -470,6 +504,13 @@ function jobDeep(ctx) {
   Object.keys(t.lanes).forEach(function (l) { out.lane_lines.push('lane ' + l + ': ' + laneState(t.lanes[l])); });
   out.counterevidence_executed = executed.filter(function (e) { return e.lane === 'CE'; }).length;
   const ce = isObj(state.ce) ? state.ce : {};
+  // 369.2-16: run.json.completion, when synthesis wrote one, replaces the plan-side counts
+  const runDone = readJson(path.join(ctx.roomDir, '.mindrian', 'research-runs', planned.run_id, 'run.json'), null);
+  applyCompletion(out, runDone, { skipFalsifiers: true });
+  if (out.has_completion && isObj(runDone.counterevidence)) {
+    out.counterevidence_planned = num(runDone.counterevidence.planned);
+    out.counterevidence_executed = num(runDone.counterevidence.executed);
+  }
   out.counterevidence_note = list(ce.gaps).length ? 'gaps: ' + list(ce.gaps).map(function (g) { return g.branch + ' (' + g.reason + ')'; }).join('; ') : (ce.skipped ? 'skipped: ' + ce.skipped_reason : null);
   if (out.status === 'not run') out.status = finished ? 'ran' : 'stopped';
   if (!finished && !out.reason) out.reason = 'the deep loop did not reach synthesis in ' + MAX_DEEP_STEPS + ' steps';
@@ -535,6 +576,20 @@ function jobAnalogies(ctx) {
 // -- the report ----------------------------------------------------------------------------------------
 function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
+// the report words for a job's own completion (369.2-16): executed of planned operations, and the jobs left undone
+function searchesGot(j) {
+  if (!j.has_completion) return j.searches_executed + ' of ' + j.searches_planned + ' searches executed.';
+  return j.searches_executed + ' of ' + j.operations_planned + ' planned searches ran (' + j.executed_with_results + ' with records, ' + j.executed_empty + ' came back empty).';
+}
+function ceGot(d) {
+  const status = { complete: 'complete', partial: 'partial', not_run: 'not run', not_needed: 'not needed' }[d.counterevidence_status] || null;
+  return d.counterevidence_executed + ' of ' + d.counterevidence_planned + ' searches executed' + (d.has_completion && status ? ' (' + status + ')' : '');
+}
+function couldNotJobs(j, extra) {
+  if (!j.has_completion) return '';
+  return (j.incomplete_lines.length > 0 ? j.incomplete_lines.join(' ') : 'nothing it promised was left undone.') + ' ' + (extra ? extra + ' ' : '') + 'Beyond that, it could not ';
+}
+
 function reportText(res) {
   const L = [];
   const q = res.jobs.quick; const d = res.jobs.deep; const e = res.jobs.eureka; const a = res.jobs.analogies;
@@ -549,18 +604,18 @@ function reportText(res) {
   L.push('== Quick research ==');
   L.push('  It tried:  one grant-gated run of the room\'s question, with these searches, sent exactly as written:');
   q.lines.forEach(function (s) { L.push('               ' + s); });
-  L.push('  It got:    ' + q.status + (q.reason ? ' - ' + q.reason.replace(/\.\s*$/, '') : '') + '. ' + plural(q.rows, 'evidence row', 'evidence rows') + '; ' + q.searches_executed + ' of ' + q.searches_planned + ' searches executed.' + (q.verdict ? ' Verdict: ' + noDash(typeof q.verdict === 'string' ? q.verdict : JSON.stringify(q.verdict)) + '.' : ''));
+  L.push('  It got:    ' + q.status + (q.reason ? ' - ' + q.reason.replace(/\.\s*$/, '') : '') + '. ' + plural(q.rows, 'evidence row', 'evidence rows') + '; ' + searchesGot(q) + (q.verdict ? ' Verdict: ' + noDash(typeof q.verdict === 'string' ? q.verdict : JSON.stringify(q.verdict)) + '.' : ''));
   if (q.answer_line) L.push('  It said:   ' + q.answer_line);
   q.lane_lines.forEach(function (s) { L.push('  ' + s); });
-  L.push('  It could not: reach the web without the grant and the reader; check what the papers actually say (that is the reader\'s job).');
+  L.push('  It could not: ' + couldNotJobs(q) + 'reach the web without the grant and the reader; check what the papers actually say (that is the reader\'s job).');
   L.push('');
   L.push('== Deep research ==');
   L.push('  It tried:  a plan review, then fetch rounds up to the planner\'s own cap, a counterevidence round and a synthesis, over ' + plural(d.searches_planned, 'planned search', 'planned searches') + ':');
   d.lines.forEach(function (s) { L.push('               ' + s); });
-  L.push('  It got:    ' + d.status + (d.reason ? ' - ' + d.reason.replace(/\.\s*$/, '') : '') + '. Lanes planned ' + d.lanes_planned + ', ran ' + d.lanes_ran + ', empty ' + d.lanes_empty + ', unavailable ' + d.lanes_unavailable + '; ' + plural(d.rows, 'evidence row', 'evidence rows') + '; counterevidence ' + d.counterevidence_executed + ' of ' + d.counterevidence_planned + ' searches executed' + (d.counterevidence_note ? ' (' + d.counterevidence_note + ')' : '') + '; synthesis ' + d.synthesis + (d.stop_reason ? ' (stopped on ' + d.stop_reason + ')' : '') + '.');
+  L.push('  It got:    ' + d.status + (d.reason ? ' - ' + d.reason.replace(/\.\s*$/, '') : '') + '. Lanes planned ' + d.lanes_planned + ', ran ' + d.lanes_ran + ', empty ' + d.lanes_empty + ', unavailable ' + d.lanes_unavailable + '; ' + plural(d.rows, 'evidence row', 'evidence rows') + '; ' + (d.has_completion ? searchesGot(d).replace(/\.$/, '') + '; ' : '') + 'counterevidence ' + ceGot(d) + (d.counterevidence_note ? ' (' + d.counterevidence_note + ')' : '') + '; synthesis ' + d.synthesis + (d.stop_reason ? ' (stopped on ' + d.stop_reason + ')' : '') + '.');
   if (d.answer_line) L.push('  It said:   ' + d.answer_line);
   d.lane_lines.forEach(function (s) { L.push('  ' + s); });
-  L.push('  It could not: judge the evidence. The rows here were written by this harness from the titles of what came back, a mechanical stand-in for the analyst lane, so this run checks the machinery, not the research.');
+  L.push('  It could not: ' + couldNotJobs(d, d.counterevidence_line && d.counterevidence_status !== 'complete' ? d.counterevidence_line : '') + 'judge the evidence. The rows here were written by this harness from the titles of what came back, a mechanical stand-in for the analyst lane, so this run checks the machinery, not the research.');
   L.push('');
   L.push('== Eureka ==');
   L.push('  It tried:  to find cross-section pairs the room does not already connect, from the room\'s own graph (local, no model, no network).');
@@ -605,6 +660,14 @@ function negativeSummary(leg) {
   };
 }
 
+// 369.2-16: the six completion numbers a receipt carries per research job (numbers only; the gate reads them)
+function completionNumbers(j) {
+  return {
+    operations_planned: num(j.operations_planned), executed_with_results: num(j.executed_with_results), executed_empty: num(j.executed_empty),
+    refused_before_fetch: num(j.refused_before_fetch), not_executed: num(j.not_executed), complete: j.complete === 1 ? 1 : 0,
+  };
+}
+
 function buildReceipt(res) {
   const q = res.jobs.quick; const d = res.jobs.deep; const e = res.jobs.eureka; const a = res.jobs.analogies;
   return {
@@ -616,8 +679,8 @@ function buildReceipt(res) {
     read_at: res.receipt.read_at,
     offline: res.offline === true,
     perspectives: {
-      quick: { status: q.status, counts: { searches_planned: q.searches_planned, searches_executed: q.searches_executed, rows: q.rows, lanes_ran: q.lanes_ran, lanes_empty: q.lanes_empty, lanes_unavailable: q.lanes_unavailable } },
-      deep: { status: d.status, counts: { searches_planned: d.searches_planned, searches_executed: d.searches_executed, lanes_planned: d.lanes_planned, lanes_ran: d.lanes_ran, lanes_empty: d.lanes_empty, lanes_unavailable: d.lanes_unavailable, rows: d.rows, counterevidence_planned: d.counterevidence_planned, counterevidence_executed: d.counterevidence_executed } },
+      quick: { status: q.status, counts: Object.assign({ searches_planned: q.searches_planned, searches_executed: q.searches_executed, rows: q.rows, lanes_ran: q.lanes_ran, lanes_empty: q.lanes_empty, lanes_unavailable: q.lanes_unavailable }, completionNumbers(q)) },
+      deep: { status: d.status, counts: Object.assign({ searches_planned: d.searches_planned, searches_executed: d.searches_executed, lanes_planned: d.lanes_planned, lanes_ran: d.lanes_ran, lanes_empty: d.lanes_empty, lanes_unavailable: d.lanes_unavailable, rows: d.rows, counterevidence_planned: d.counterevidence_planned, counterevidence_executed: d.counterevidence_executed }, completionNumbers(d)) },
       eureka: { status: e.status, counts: { candidates: e.candidates, things: e.things, excluded_known: e.excluded_known, passed_stage_a: e.passed_stage_a, judged: e.judged } },
       analogies: { status: a.status, counts: { pairs: a.pairs, structural_pairs: a.structural_pairs, things: a.things } },
     },
