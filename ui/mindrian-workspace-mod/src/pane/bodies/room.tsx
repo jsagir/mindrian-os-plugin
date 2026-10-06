@@ -5,7 +5,9 @@
 //
 // Order, top to bottom: the where line (blue), the purpose panel (P20), the next-step panel (P30),
 // the waiting panel (P40), the result panels (P55 and P56, only once the runtime recorded a result),
-// then the place where plan 15 adds the actions button (P52). The shell draws the details button
+// then the "More things to do here" button (P52, key m; plan 15) and, only while it is open, the
+// list under it (src/pane/room/action-list.tsx). The list is closed by default and each time the tab
+// opens; its state is the Room slice of the body kit. The shell draws the details button
 // below this body; its block already holds P60 to P66, so this body adds no `detailsExtra`.
 //
 // With no data room bound the body draws ONLY the where line, which then reads P12 (UI-SPEC 10.3:
@@ -16,12 +18,32 @@
 // and the model, and acts through `ctx.act` (the plan 11 body kit).
 import type { RenderElement } from 'claude-code'
 
+import { text } from '../../copy/text'
 import type { KeySpec, TabBody, TabContext } from '../types'
+import { actionList } from '../room/action-list'
 import { jobPanel } from '../room/job-panel'
+import { readActionsState, toggleActions } from '../room/registry-model'
 import { resultPanel } from '../room/result-panel'
 import { showsPrefill, suggestedMovePanel } from '../room/suggested-move'
 import { showsJump, waitingPanel } from '../room/waiting-panel'
 import { whereLine } from '../room/where-line'
+
+// The P52 button (P53 while the list is open): one deliberate press opens or closes the list.
+function actionsButton(ctx: TabContext, open: boolean, state: ReturnType<typeof readActionsState>): RenderElement {
+  const { Box, Button } = ctx.el
+  return (
+    <Box key="actions:row" marginTop={1}>
+      <Button
+        key="room:actions"
+        label={text(open ? 'P53' : 'P52')}
+        hotkey="m"
+        onPress={() => {
+          void toggleActions(ctx.act, state)
+        }}
+      />
+    </Box>
+  )
+}
 
 function view(ctx: TabContext): RenderElement {
   const { Box } = ctx.el
@@ -33,6 +55,7 @@ function view(ctx: TabContext): RenderElement {
     )
   }
   const result = resultPanel(ctx)
+  const actions = readActionsState(ctx.body.room)
   return (
     <Box key="room:body" flexDirection="column">
       {whereLine(ctx)}
@@ -40,17 +63,20 @@ function view(ctx: TabContext): RenderElement {
       {suggestedMovePanel(ctx)}
       {waitingPanel(ctx)}
       {result}
-      {/* plan 15: the actions button (P52) and its list go here */}
+      {actionsButton(ctx, actions.open, actions)}
+      {actions.open ? actionList(ctx) : null}
     </Box>
   )
 }
 
-// n H01 then v H02, each only when its button is drawn (plan 15 inserts m H03 between them).
+// n H01, v H02, then m H03 (UI-SPEC 8.4), each only when its button is drawn; the m button is drawn
+// whenever a data room is bound.
 function keys(ctx: TabContext): KeySpec[] {
   if (!ctx.vm.place.isBound) return []
   const list: KeySpec[] = []
   if (showsPrefill(ctx.vm)) list.push({ key: 'n', labelId: 'H01' })
   if (showsJump(ctx)) list.push({ key: 'v', labelId: 'H02' })
+  list.push({ key: 'm', labelId: 'H03' })
   return list
 }
 
@@ -58,9 +84,10 @@ export const roomBody: TabBody = {
   view,
   keys,
   explainId: 'X01',
-  // Opening the tab reads the live model again, so the waiting count and the health are current. A
-  // sample is fixed data: it makes no call.
+  // Opening the tab closes the action list (collapsed each time) and reads the live model again, so
+  // the waiting count and the health are current. A sample is fixed data: it makes no call.
   onOpen: async (act) => {
+    await act.patch('room', { actionsOpen: false })
     if ((await act.sampleName()) !== null) return
     await act.refresh()
   },

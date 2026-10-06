@@ -677,6 +677,8 @@ test('Esc steps back one layer at a time: explain, then all keys, then details, 
   expect(detailsKeyArmed('room') && detailsKeyArmed('think') && detailsKeyArmed('sources')).toBe(true)
 })
 
+// 140 columns: with the Room tab's m key (plan 15) the hint line is wider than 100 and the shell moves
+// Explain into the all-keys panel (UI-SPEC 8.4); 140 keeps the Explain button on the line.
 test('the registrar: Help, Explain and details toggle their panels', async ($, on) => {
   mock.env(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
   mock.store(on, {})
@@ -685,7 +687,7 @@ test('the registrar: Help, Explain and details toggle their panels', async ($, o
     plugin: PLUGIN_NAME,
     surface: 'terminal',
     component: 'Pane',
-    props: PANE_PROPS(100),
+    props: PANE_PROPS(140),
     requestId: PANE_ID,
   })
   const every = async (): Promise<string> => shown(await ui.drawn())
