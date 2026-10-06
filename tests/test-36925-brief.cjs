@@ -22,6 +22,8 @@
  *   BR8  a nextMove pair { cli, mcp } prints both surface lines when the primaries differ and one line when equal
  *   BR9  the Theo block renders "not asked" with its reason for a not-asked face (never blank, never the empty sentinel),
  *        decodes percent-encoded list scalars, and says "not recorded" for a legacy BRAIN.md with no face keys
+ *   BR10 a section the navigator data and its contract both mark as having no dedicated command (legal-ip, financial-model)
+ *        carries the capability.cjs marker line in PROPOSED NEXT MOVE; a section with a command does not
  *   NM1  agreement beats Theo's rank: Theo first X, ledger and contract both Y -> primary Y, X kept as an alternative
  *   NM2  an instruction-only suggestion is never primary on that surface; it can be an alternative labeled instruction-only
  *   NM3  toTierCandidates returns the buildLedgerCandidates shape with source 'feyminto_face', at most 3 items
@@ -570,6 +572,21 @@ arm('BR9 THEO\'S CONTRIBUTION: not asked with its reason, decoded lists, legacy 
   fs.rmSync(path.join(bare.sectionPath, 'BRAIN.md'));
   const t4 = brief().renderBrief({ sectionPath: bare.sectionPath, roomDir: bare.roomDir });
   has(block(t4, "## THEO'S CONTRIBUTION"), 'not asked', 'no face reads not asked');
+});
+
+// ---- BR10 --------------------------------------------------------------------------------------------------------
+
+arm('BR10 a section with no dedicated command says so in PROPOSED NEXT MOVE (the plan 06 marker); one with a command does not', () => {
+  const room = born('br10');
+  const LINE = 'no runnable command here; instruction-only or assisted';
+  ['legal-ip', 'financial-model'].forEach((sec) => {
+    const t = brief().renderBrief({ sectionPath: path.join(room.roomDir, sec), roomDir: room.roomDir });
+    const pm = block(t, '## PROPOSED NEXT MOVE');
+    has(pm, LINE, sec + ' carries the section marker');
+    has(pm, 'general command', sec + ' says the primary is a general command, not a dedicated one');
+  });
+  const t = brief().renderBrief({ sectionPath: room.sectionPath, roomDir: room.roomDir });
+  check(block(t, '## PROPOSED NEXT MOVE').indexOf(LINE) === -1, 'a section with a dedicated command must not carry the marker');
 });
 
 // ---- NM ----------------------------------------------------------------------------------------------------------
