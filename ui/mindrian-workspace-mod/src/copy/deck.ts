@@ -1,6 +1,6 @@
 // Plan 02: the copy deck. The only place a user-visible word lives (navigator rule 2026-10-06; WS-02).
 // One entry per row of UI-SPEC section 9 (369.26-UI-SPEC.md), copied character for character. The retired
-// ids B31, B81, D20, D21 and D22 are absent and are never reused. B67 is the joiner: a middle dot with one
+// ids B31, B81, B83, D20, D21 and D22 are absent and are never reused. B67 is the joiner: a middle dot with one
 // space each side (written as an escape so this source stays ASCII). P63 names its placeholder {state}: the
 // spec writes it as prose and the value is one of B40, B41, B42 or B43. tests/test-369.26-copy.cjs holds
 // this file to the spec; call sites use text() from ./text and never hold a literal string.
@@ -46,7 +46,6 @@ export const COPY = {
   'B80': '/workspace: Open workspace',
   'B82': '/workspace: Help',
   'B84': 'Open workspace',
-  'B83': 'Problem:',
 
   // Pane strings (UI-SPEC 9.3)
   'P00': 'Mindrian workspace',
@@ -105,7 +104,7 @@ export const COPY = {
   'P90': 'See a worked example.',
   'P91': 'Larry has nothing recorded for this yet.',
   'P92': 'Talk this through with Larry',
-  'P93': 'Look up general guidance',
+  'P93': 'Look up guidance',
   'P94': 'Sends only the name of the method. Nothing from your data room leaves your machine.',
   'P95': 'General guidance',
   'P96': "Couldn't look that up right now. Nothing was sent from your data room.",
@@ -126,6 +125,7 @@ export const COPY = {
   'P115': 'Ask it here',
   'P116': '{n} decisions are waiting for you',
   'P117': 'Also waiting',
+  'P118': 'Set aside for later',
   'P120': 'Show steps for:',
   'P121': 'All folders',
   'P122': 'Add to my prompt',
@@ -145,7 +145,7 @@ export const COPY = {
   'D14': 'Nothing was saved. This decision is still waiting for you.',
   'D16': 'Decide later',
   'D23': 'Saving your decision',
-  'D24': 'Saved to your data room: {label}.',
+  'D24': 'You chose {label}. Saved to your data room.',
   'D26': 'Already saved. Nothing changed.',
   'D27': 'This was answered somewhere else. Nothing changed here.',
   'D30': 'This card lets you pick more than one answer. Answer it in the conversation.',
@@ -153,6 +153,7 @@ export const COPY = {
   'D32': 'Still current. Nothing has changed since this was drawn.',
   'D33': 'The work behind this changed after the card was drawn. Look again before you decide.',
   'D34': "Couldn't check. Look again before you decide.",
+  'D40': 'This is only a suggestion. The decision is yours.',
 
   // Marks, hints, explain, prompts (UI-SPEC 9.5)
   'L01': 'Building',

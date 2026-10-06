@@ -15,7 +15,8 @@
 //   G6 network       $.mcp.call only where allowed; the MCP tools called are exactly the audited set;
 //                    gate_answer and gate_render only in src/pane/review/gate-client.ts
 //   G7 style         no italic, underline, strikethrough, timer, animation, gray_meta; logoGreen only
-//                    in the logo and the theme
+//                    in the theme; no primary variant, no round border
+//   G12 roles        C-30: evidence, contradiction and assumption are drawn only in their role's files
 //   G8 completeness  all four tab bodies defined, no dependency fields, every registrar non-empty
 //   G9 hotkeys       every hotkey literal is one character, 0-9 or a-z
 //   G11 ground       C-29: a Button or Select in src/pane sits inside a Box that spreads ground() (the host
@@ -52,7 +53,6 @@ const EN = String.fromCharCode(0x2013);
 const UNUSED_DECK_ALLOW = {
   B02: 'UI-SPEC 12.2 reads B02 once in plain mode, but plan 08 draws B01 there: B02 is 32 characters and would push the alert off a 55-column row (369.26-08-SUMMARY)',
   B67: 'UI-SPEC 9.2 and 17.3 use B67 only when a name and a count share one plain string; the band keeps them in separate blocks split by the plain separator (C-17, plan 05), so no string joins them',
-  B83: 'UI-SPEC 9.2 and OQ-02: the bold lead word of a problem block, used only if the navigator rules red is for the logo only; under the default it is never drawn (plan 02)',
   L04: 'UI-SPEC 7.4 gives help results the marks L01 to L03; no row of section 7 assigns the black A decision mark or the cream Handing over mark a site (Larry turns draw them in the host)',
   L05: 'UI-SPEC 7.4 gives help results the marks L01 to L03; no row of section 7 assigns the black A decision mark or the cream Handing over mark a site (Larry turns draw them in the host)',
   P79: 'UI-SPEC 7.4 UncertaintyPanel dim line; plan 12 holds it back until the planned reasoning brief (369.25) supplies the one gap that could change the decision, because the interim open-question source cannot support that claim (T-369.26-12-02)',
@@ -79,8 +79,18 @@ const PASSTHROUGH_FILE = 'src/pane/review/review-io.ts';
 const GATE_WRITE_TOOLS = new Set(['gate_answer', 'gate_render']);
 const TOOL_SHAPED = /^(brain|framework|chain|suggest|stop|room|gate|status|whitespace|extract|detect|graph|vault)_[a-z_]+$/;
 
-// G7
-const LOGO_GREEN_FILES = (rel) => rel === 'src/band/logo.tsx' || rel.startsWith('src/theme/');
+// G7 and G12 (C-30, C-32): the five-squares test as a build gate. A job is drawn only in its role's
+// files. `logoGreen` and `contradiction` are drawn nowhere in src/ but the theme (the logo is the
+// plain text mark now, and no contradiction source exists); `evidence` only in the theme and the
+// pane's ground helper (the pane draws no blue today); `assumption` only in the no-evidence list,
+// the help result's Challenging mark and the helpers. `structure` and `paper` are free.
+const THEME_FILES = (rel) => rel.startsWith('src/theme/') || rel === 'src/pane/ink.ts';
+const LOGO_GREEN_FILES = (rel) => rel.startsWith('src/theme/');
+const ROLE_FILES = {
+  evidence: (rel) => THEME_FILES(rel),
+  contradiction: (rel) => rel.startsWith('src/theme/'),
+  assumption: (rel) => THEME_FILES(rel) || rel === 'src/pane/think/uncertainty.tsx' || rel === 'src/pane/think/help-actions.tsx',
+};
 
 // G8
 const BODY_FILES = ['room', 'think', 'sources', 'review'].map((n) => 'src/pane/bodies/' + n + '.tsx');
@@ -446,7 +456,24 @@ function g7Style(tree) {
   ];
   for (const f of tree.files) {
     for (const [re, label] of rules) if (re.test(f.code)) bad.push('G7 ' + label + ' in ' + f.rel);
-    if (/\blogoGreen\b/.test(f.code) && !LOGO_GREEN_FILES(f.rel)) bad.push('G7 logoGreen outside the logo and the theme in ' + f.rel);
+    if (/\blogoGreen\b/.test(f.code) && !LOGO_GREEN_FILES(f.rel)) bad.push('G7 logoGreen outside the theme in ' + f.rel);
+    if (/\bteal\b|\bamethyst\b|\bsienna\b/.test(f.code)) bad.push('G7 a retired palette name in ' + f.rel);
+    if (/variant\s*[=:]\s*\{?\s*['"]primary['"]/.test(f.code)) bad.push('G7 a primary variant in ' + f.rel + ' (C-30: no blue or primary button)');
+    if (/borderStyle\s*[=:]\s*\{?\s*['"]round['"]/.test(f.code)) bad.push('G7 a round border in ' + f.rel);
+  }
+  return bad;
+}
+
+// G12 (C-30, C-32): each role color is drawn only by the files of its role. Looks for the job as a
+// string literal (a job argument) or as a theme key (`theme.evidence`), outside comments.
+function g12Roles(tree) {
+  const bad = [];
+  for (const f of tree.files) {
+    for (const [role, allowed] of Object.entries(ROLE_FILES)) {
+      if (allowed(f.rel)) continue;
+      const re = new RegExp("['\"]" + role + "['\"]|\\btheme\\." + role + "\\b|\\bTHEME\\." + role + "\\b");
+      if (re.test(f.code)) bad.push('G12 the ' + role + ' role is drawn outside its files in ' + f.rel);
+    }
   }
   return bad;
 }
@@ -545,7 +572,7 @@ function g11Ground(tree) {
           if (kindName(arg) !== 'ObjectLiteralExpression') continue;
           let cream = false;
           for (const prop of arg.properties) {
-            if (kindName(prop) === 'PropertyAssignment' && prop.name && prop.name.text === 'job' && kindName(prop.initializer) === 'StringLiteral' && prop.initializer.text === 'reading') cream = true;
+            if (kindName(prop) === 'PropertyAssignment' && prop.name && prop.name.text === 'job' && kindName(prop.initializer) === 'StringLiteral' && prop.initializer.text === 'paper') cream = true;
           }
           if (!cream) continue;
           eachNode(arg, (m) => {
@@ -574,6 +601,7 @@ function runGuard(which, modRoot) {
       case 'G8': return g8Completeness(tree, modRoot);
       case 'G9': return g9Hotkeys(tree);
       case 'G11': return g11Ground(tree);
+      case 'G12': return g12Roles(tree);
       default: throw new Error('unknown guard ' + which);
     }
   } finally { tree.close(); }
@@ -625,6 +653,11 @@ const MUTATIONS = [
   ['G6', 'mcpCall to a second server', (d) => plant(d, 'src/zz-mutation.ts', "export const zzMutation = (io: any) => io.mcpCall('other:server', 'status_read', {})\n", 'new')],
   ['G7', 'an italic prop', (d) => plant(d, 'src/zz-mutation.tsx', "import { Text } from 'claude-code'\nexport const zzMutation = () => <Text italic>{null}</Text>\n", 'new')],
   ['G7', 'a timer', (d) => plant(d, 'src/zz-mutation.ts', 'export const zzMutation = () => setTimeout(() => {}, 10)\n', 'new')],
+  ['G7', 'a primary variant on a Button', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} variant=\"primary\" onPress={() => {}} />\n", 'new')],
+  ['G7', 'a round border', (d) => plant(d, 'src/zz-mutation.tsx', "import { Box } from 'claude-code'\nexport const zzMutation = () => <Box borderStyle=\"round\">{null}</Box>\n", 'new')],
+  ['G12', 'the evidence role drawn in a band file', (d) => plant(d, 'src/band/zz-mutation.ts', "export const zzMutation = (theme: any) => theme.evidence\n", 'new')],
+  ['G12', 'the contradiction role drawn in a pane file', (d) => plant(d, 'src/pane/zz-mutation.ts', "export const zzMutation = () => 'contradiction'\n", 'new')],
+  ['G12', 'the assumption role drawn in the decision card', (d) => plant(d, 'src/pane/review/zz-mutation.ts', "export const zzMutation = () => 'assumption'\n", 'new')],
   ['G7', 'logoGreen outside the logo', (d) => plant(d, 'src/zz-mutation.ts', 'export const zzMutation = (theme: any) => theme.logoGreen\n', 'new')],
   ['G7', 'gray_meta', (d) => plant(d, 'src/zz-mutation.ts', "export const zzMutation = 'gray_meta'\n", 'new')],
   ['G8', 'an undefined tab body', (d) => plant(d, 'src/pane/bodies/room.tsx', '\nexport const zzSeam: TabBody | undefined = undefined\n', 'append')],
@@ -644,7 +677,7 @@ const MUTATIONS = [
   ['G11', 'dimColor on text on the cream page', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Text } from 'claude-code'\nexport const zzMutation = () => <Text dimColor>{null}</Text>\n", 'new')],
   ['G11', 'the real consequence line made dim again', (d) => replaceIn(d, 'src/pane/review/proposal-card.tsx', '<Text {...soft(ctx.mode)} {...color}>\n          {consequence}', '<Text dimColor {...color}>\n          {consequence}')],
   ['G11', 'a dimColor property outside the ink helper', (d) => plant(d, 'src/pane/zz-mutation.ts', 'export const zzMutation = { dimColor: true }\n', 'new')],
-  ['G11', 'a Button inside a cream Block in the band', (d) => plant(d, 'src/band/zz-mutation.tsx', "import { Button } from 'claude-code'\nimport { Block } from './blocks'\nexport const zzMutation = (el: any, theme: any, mode: any) => Block(el, { job: 'reading', theme, mode, children: [<Button label={null as never} onPress={() => {}} />] })\n", 'new')],
+  ['G11', 'a Button inside a cream Block in the band', (d) => plant(d, 'src/band/zz-mutation.tsx', "import { Button } from 'claude-code'\nimport { Block } from './blocks'\nexport const zzMutation = (el: any, theme: any, mode: any) => Block(el, { job: 'paper', theme, mode, children: [<Button label={null as never} onPress={() => {}} />] })\n", 'new')],
 ];
 
 // ---------- main ----------
@@ -692,9 +725,10 @@ async function main() {
     must(/test-369\.26-part8\.cjs/.test(agg), 'run-all-369.26.sh no longer names the Part 8 leg');
     must(/test-369\.26-source-guards\.cjs/.test(agg), 'run-all-369.26.sh no longer names this file');
   });
-  await scenario('G7 no italic, underline, strikethrough, timer, animation or gray_meta; logoGreen only in the logo and the theme', () => reportBad(g7Style(tree)));
+  await scenario('G7 no italic, underline, strikethrough, timer, animation or gray_meta; logoGreen only in the theme; no primary variant or round border', () => reportBad(g7Style(tree)));
   await scenario('G8 all four tab bodies defined, no dependency fields, every registrar registers something', () => reportBad(g8Completeness(tree, MOD)));
   await scenario('G9 every hotkey literal is one character in 0-9 or a-z', () => reportBad(g9Hotkeys(tree)));
+  await scenario('G12 role lock: evidence, contradiction and assumption are drawn only in their role files', () => reportBad(g12Roles(tree)));
   await scenario('G11 every pane Button and Select sits in a Box that spreads ground(); no dimColor on the cream page; no Button in a cream band Block', () => reportBad(g11Ground(tree)));
   tree.close();
 

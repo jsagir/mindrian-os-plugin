@@ -68,7 +68,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
   // Open workspace (B80); compact says Help (B82). `o` and `h` stay armed behind it, drawn as
   // nothing, and fire only while the band holds the keys.
   slots.row3Right = Block(el, {
-    job: 'reading',
+    job: 'paper',
     theme,
     mode,
     bordered: false,
@@ -83,7 +83,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
   // the host's light color, so its block is the black frame, never cream (on cream it is invisible).
   if (flags.checkup) {
     slots.row2Fix = Block(el, {
-      job: 'frame',
+      job: 'structure',
       theme,
       mode,
       bordered: false,
@@ -94,7 +94,7 @@ export function bandSlots(el: El, input: BandKeysInput, act: BandActions): BandS
   // Front of row 1: save my thinking, only at the context limit.
   if (flags.save) {
     slots.row1Fix = Block(el, {
-      job: 'frame',
+      job: 'structure',
       theme,
       mode,
       bordered: false,

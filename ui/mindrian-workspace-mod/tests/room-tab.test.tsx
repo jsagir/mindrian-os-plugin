@@ -31,11 +31,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -230,7 +230,7 @@ test('where line words: a folder P10, the top of the room P11, no room P12, an u
   expect(whereWords({ ...wide, room: { state: 'unavailable' } })).toBe(text('B14'))
 })
 
-test('where line: P10 on the blue block with cream words and a bold label on every surface; plain mode has no color', async ($, on) => {
+test('where line: P10 as black words on the page with a bold label, no block and no blue, on every surface; plain mode has no color', async ($, on) => {
   const pressers: Pressers = {}
   const cur = { input: input({}), deps: depsOf(panelsBody([whereLine], pressers)) }
   shellHook(on, cur)
@@ -239,14 +239,15 @@ test('where line: P10 on the blue block with cream words and a bold label on eve
     let ui = await draw($, surface)
     const line = await ui.find({ key: 'room:where' })
     expect(line?.type).toBe('Box')
-    expect(line?.props.backgroundColor).toBe(THEME.where)
+    // C-30, C-32: where you are is orientation, not evidence: no colored block at all.
+    expect(line?.props.backgroundColor).toBeUndefined()
     expect(flat(line)).toBe(text('P10', { room: 'Sample room (sample)', folder: 'Funding (sample)' }))
-    // Cream words, label bold.
+    // Black words, label bold.
     const texts: Node[] = []
     walk(line, (n) => {
       if (n.type === 'Text') texts.push(n)
     })
-    expect(texts.some((t) => propsOf(t).color === THEME.reading)).toBe(true)
+    expect(texts.some((t) => propsOf(t).color === THEME.structure)).toBe(true)
     expect(texts.some((t) => propsOf(t).bold === true && shown(t) === "You're in: ")).toBe(true)
     await ui.unmount()
 
@@ -419,7 +420,7 @@ test('color mode: panels sit on the cream page with black words; no panel carrie
       if (n.type === 'Text') texts.push(n)
     })
     expect(texts.length).toBeGreaterThan(0)
-    for (const t of texts) expect(propsOf(t).color).toBe(THEME.frame)
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.structure)
   }
   await ui.unmount()
 })
@@ -445,7 +446,7 @@ function withStep(over: Partial<ViewModel['next']>): ViewModel {
   return { ...SAMPLES.wide, next: { ...SAMPLES.wide.next, ...over } }
 }
 
-test('next step: the wide sample shows P30, the step as data, P32 (no reason recorded) and the P33 primary button on n', async ($, on) => {
+test('next step: the wide sample shows P30, the step as data, P32 (no reason recorded) and the P33 button on n (no primary variant)', async ($, on) => {
   const pressers: Pressers = {}
   const cur = { input: input({}), deps: depsOf(panelsBody([suggestedMovePanel], pressers)) }
   shellHook(on, cur)
@@ -461,7 +462,7 @@ test('next step: the wide sample shows P30, the step as data, P32 (no reason rec
     expect(go).toHaveLength(1)
     expect(go[0]?.props.label).toBe(text('P33'))
     expect(go[0]?.props.hotkey).toBe('n')
-    expect(go[0]?.props.variant).toBe('primary')
+    expect(go[0]?.props.variant).toBeUndefined()
     await ui.unmount()
   }
 })
@@ -876,8 +877,8 @@ const mountReal = ($: Engine, surface: Surface, columns = 100) =>
 
 async function activeTab(ui: Awaited<ReturnType<typeof mountReal>>): Promise<string | undefined> {
   for (const id of ['room', 'think', 'sources', 'review']) {
-    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
-    if (b?.props.variant === 'primary') return id
+    // The active tab is a label, not a Button (C-30, C-32): it carries the key tab-active:<id>.
+    if ((await ui.find({ key: `tab-active:${id}` })) !== undefined) return id
   }
   return undefined
 }

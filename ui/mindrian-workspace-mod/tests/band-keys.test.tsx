@@ -37,11 +37,11 @@ function make(type: string) {
 const EL = { Box: make('Box'), Text: make('Text'), Button: make('Button') } as unknown as El
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -171,7 +171,7 @@ test('slots at T3-wide: row 3 right holds ONE hint, B80, as black normal-weight 
   expect(shown(s.row3Right)).toBe('/workspace: Open workspace')
   const hint = textNodes(s.row3Right)
   expect(hint).toHaveLength(1)
-  expect(hint[0]?.props).toMatchObject({ color: THEME.frame, backgroundColor: THEME.reading })
+  expect(hint[0]?.props).toMatchObject({ color: THEME.structure, backgroundColor: THEME.paper })
   expect(hint[0]?.props.dimColor).toBeUndefined()
   expect(hint[0]?.props.bold).toBeUndefined()
   // no host-colored Button label anywhere in the hint
@@ -192,8 +192,8 @@ test('C-29: the band checkup and save Buttons sit on the black frame, never on a
   ] as const) {
     const block = asNode(slots(sample, 'T3-wide')[slot])
     expect(block.type).toBe('Box')
-    expect(block.props.backgroundColor).toBe(THEME.frame)
-    expect(block.props.backgroundColor).not.toBe(THEME.reading)
+    expect(block.props.backgroundColor).toBe(THEME.structure)
+    expect(block.props.backgroundColor).not.toBe(THEME.paper)
     expect(buttons(block).map((b) => b.props.key)).toEqual([key])
   }
 })
@@ -278,12 +278,12 @@ test('slots at T1 and T0 add nothing (the Help block belongs to the one-row band
 const PALETTE_TEXT = JSON.stringify({
   version: 1,
   base: {
-    mondrian_red: THEME.problem,
-    mondrian_blue: THEME.where,
-    mondrian_yellow: THEME.yourMove,
-    mondrian_black: THEME.frame,
-    mondrian_white: THEME.reading,
-    cream: THEME.reading,
+    mondrian_red: THEME.assumption,
+    mondrian_blue: THEME.evidence,
+    mondrian_yellow: THEME.contradiction,
+    mondrian_black: THEME.structure,
+    mondrian_white: THEME.paper,
+    cream: THEME.paper,
     gray_meta: '#A09A90',
     success_green: THEME.logoGreen,
   },
@@ -369,8 +369,8 @@ const mountPane = ($: Engine) =>
 
 async function activeTab(pane: Awaited<ReturnType<typeof mountPane>>): Promise<string | undefined> {
   for (const id of ['room', 'think', 'sources', 'review']) {
-    const b = await pane.find({ type: 'Button', key: `tab:${id}` })
-    if (b?.props.variant === 'primary') return id
+    // The active tab is a label, not a Button (C-30, C-32): it carries the key tab-active:<id>.
+    if ((await pane.find({ key: `tab-active:${id}` })) !== undefined) return id
   }
   return undefined
 }

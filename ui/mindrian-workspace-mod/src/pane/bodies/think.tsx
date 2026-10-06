@@ -23,9 +23,10 @@ import { showsEvidence, understandingPanel } from '../think/understanding'
 import { gapList, stateNote, uncertaintyBlock } from '../think/uncertainty'
 import type { KeySpec, TabBody, TabContext } from '../types'
 
-// The two blocks sit side by side from this body width (the same cut the decision card uses for its
-// choice row, UI-SPEC 10.6), else one under the other.
-const SIDE_BY_SIDE_AT = 72
+// The two blocks sit side by side from this body width, else one under the other (C-31b: below 90
+// columns the unsure-about words and the red list were squeezed and the shorter block stretched to
+// the taller one's height; the row is also top-aligned so a short block stays short).
+const SIDE_BY_SIDE_AT = 90
 
 function view(ctx: TabContext): RenderElement {
   const { Box, Text } = ctx.el
@@ -50,9 +51,9 @@ function view(ctx: TabContext): RenderElement {
     <Box key="think:body" flexDirection="column">
       {understandingPanel(ctx, model)}
       {stateNote(ctx, model)}
-      <Box key="think:blocks" flexDirection={row ? 'row' : 'column'} gap={1} marginTop={1}>
+      <Box key="think:blocks" flexDirection={row ? 'row' : 'column'} {...(row ? { alignItems: 'flex-start' as const } : {})} gap={1} marginTop={1}>
         {uncertaintyBlock(ctx, model)}
-        {gapList(ctx, model, picks)}
+        {gapList(ctx, model, picks, row)}
       </Box>
       {HelpActions(ctx, model, picks)}
     </Box>

@@ -35,11 +35,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -461,11 +461,12 @@ test('the wide card at 100 columns, focused: heading, question, suggestion with 
     const row = await ui.find({ key: 'review:choices' })
     expect(propsOf(row).flexDirection).toBe('row')
     expect(root).not.toContain(text('D05'))
-    // The recommended one is primary, the others secondary; digits are hotkeys while focused.
+    // All three choices are equal (C-30, C-32): none is primary or blue, so a suggestion never looks
+    // like a decision already made; digits are hotkeys while focused.
     const one = await ui.find({ type: 'Button', key: 'choice:1' })
     const two = await ui.find({ type: 'Button', key: 'choice:2' })
     const three = await ui.find({ type: 'Button', key: 'choice:3' })
-    expect(one?.props.variant).toBe('primary')
+    expect(one?.props.variant).toBe('secondary')
     expect(two?.props.variant).toBe('secondary')
     expect(three?.props.variant).toBe('secondary')
     expect([one?.props.hotkey, two?.props.hotkey, three?.props.hotkey]).toEqual(['1', '2', '3'])
@@ -530,7 +531,7 @@ test('at 60 columns the choice buttons are stacked with D05 above them; in plain
   })
 })
 
-test('plain mode: no color prop anywhere, the suggestion marker is a greater-than mark, the suggested button is the primary one', async ($, on) => {
+test('plain mode: no color prop anywhere, the suggestion marker is a greater-than mark, no choice is primary', async ($, on) => {
   await withCard($, on, WIDE_CARD, viewOf({ mode: PLAIN }), async (ui) => {
     const card = await ui.find({ key: 'review:card' })
     expect(colorKeys(card)).toEqual([])
@@ -538,7 +539,7 @@ test('plain mode: no color prop anywhere, the suggestion marker is a greater-tha
     expect(suggestion.startsWith('>')).toBe(true)
     expect(suggestion).not.toContain('▶')
     const one = await ui.find({ type: 'Button', key: 'choice:1' })
-    expect(one?.props.variant).toBe('primary')
+    expect(one?.props.variant).toBe('secondary')
     // The card sits in a bordered box in plain mode (UI-SPEC 12.2).
     expect(propsOf(card).borderStyle).toBe('single')
   })
@@ -627,22 +628,24 @@ test('saved shows D24 with the label, D13, D26 or D27 in place of the buttons', 
   }
 })
 
-test('refused shows the E sentence on a red block with cream words and keeps the card and its buttons', async ($, on) => {
+test('refused shows the E sentence as plain bold words, never red, and keeps the card and its buttons', async ($, on) => {
   await withCard($, on, WIDE_CARD, viewOf({ review: withPhase(WIDE_CARD.gateId, refusedEntry('E06')) }), async (ui) => {
     const block = await ui.find({ key: 'review:refusal' })
-    expect(propsOf(block).backgroundColor).toBe(THEME.problem)
+    expect(propsOf(block).backgroundColor).toBeUndefined()
     expect(shown(block)).toContain(text('E06'))
     const texts: Node[] = []
     walk(block, (n) => {
       if (n.type === 'Text') texts.push(n)
     })
-    expect(texts.some((t) => propsOf(t).color === THEME.reading)).toBe(true)
+    // C-30, C-32: errors are plain words (bold black on the page), red is not an error color.
+    expect(texts.some((t) => propsOf(t).bold === true && propsOf(t).color === THEME.structure)).toBe(true)
+    expect(JSON.stringify(block)).not.toContain(THEME.assumption)
     // The card is unchanged above it and the buttons are still there.
     const root = shown(await ui.drawn())
     expect(root).toContain(WIDE_CARD.header)
     expect(await ui.find({ key: 'choice:1' })).toBeDefined()
   })
-  // Plain mode: a bordered box, no color.
+  // Plain mode: the same words, no color.
   await withCard(
     $,
     on,
@@ -651,10 +654,18 @@ test('refused shows the E sentence on a red block with cream words and keeps the
     async (ui) => {
       const block = await ui.find({ key: 'review:refusal' })
       expect(colorKeys(block)).toEqual([])
-      expect(propsOf(block).borderStyle).toBe('single')
       expect(shown(block)).toContain(text('E07'))
     },
   )
+})
+
+test('a suggestion line is followed by D40, "only a suggestion"; no suggestion draws no D40 (C-30)', async ($, on) => {
+  await withCard($, on, WIDE_CARD, viewOf(), async (ui) => {
+    const suggestion = shown(await ui.find({ key: 'review:suggestion' }))
+    expect(suggestion.length).toBeGreaterThan(0)
+    expect(shown(await ui.find({ key: 'review:suggestion-only' }))).toBe(text('D40'))
+    expect(text('D40')).toBe('This is only a suggestion. The decision is yours.')
+  })
 })
 
 test('checking draws D31 then D32, D33 or D34; D31 hides the buttons, a finished check keeps them', async ($, on) => {
@@ -765,7 +776,7 @@ test('ChoiceButtons exports CHOICE_FORM and both forms draw without error', asyn
       expect(one?.props.label).toBe('Apply to the regional innovation grant (sample)')
       // The plain form has no outline, but it still sits on its ground (C-29).
       expect(propsOf(await ui.find({ key: 'choice-box:1' })).borderStyle).toBeUndefined()
-      expect(propsOf(await ui.find({ key: 'choice-box:1' })).backgroundColor).toBe(THEME.where)
+      expect(propsOf(await ui.find({ key: 'choice-box:1' })).backgroundColor).toBe(THEME.structure)
     } else {
       expect(propsOf(await ui.find({ key: 'choice-box:1' })).borderStyle).toBe('single')
       expect(one?.props.label).toBe('[1] Apply to the regional innovation grant (sample)')
@@ -1000,6 +1011,7 @@ test('the real pane at Review: several decisions say P116 with the real count, o
   let root = shown(await ui.drawn())
   expect(root).toContain(text('P116', { n: 3 }))
   expect(root).toContain('Which grant route should the funding case take? (sample)')
+  // Several waiting: the open card is first, the others are "Also waiting" (P117).
   expect(root).toContain(text('P117'))
   const others = ['Which customer group should you test first? (sample)', 'Run the next step of the funding chain? (sample)']
   const second = await ui.find({ type: 'Button', key: 'review:open:sample-gate-2' })
@@ -1156,7 +1168,7 @@ test('the real pane: a card from another conversation shows the refusal, then P1
   await ui.unmount()
 })
 
-test('the real pane: Decide later makes zero calls, says D14 in the card place, lists the card under P117, and a press brings it back', async ($, on) => {
+test('the real pane: Decide later makes zero calls, says D14 in the card place, lists the card under P118 (not "Also waiting"), and a press brings it back', async ($, on) => {
   const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
   const ui = await mountReal($, 'terminal')
   await openReview(ui)
@@ -1166,7 +1178,10 @@ test('the real pane: Decide later makes zero calls, says D14 in the card place, 
   expect(beneath.toasts).toContain(text('D14'))
   let root = shown(await ui.drawn())
   expect(root).toContain(text('D14'))
-  expect(root).toContain(text('P117'))
+  // C-31d: the only card was set aside, so the list is headed P118 (never "Also waiting", which would
+  // imply a second item that is not there).
+  expect(root).toContain(text('P118'))
+  expect(root).not.toContain(text('P117'))
   expect(await ui.find({ key: 'choice:1' })).toBeUndefined()
   const back = await ui.find({ type: 'Button', key: 'review:open:' + WIDE_CARD.gateId })
   expect(back?.props.label).toBe(WIDE_CARD.header)

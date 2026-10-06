@@ -7,20 +7,20 @@ import type { BlockJob, Theme } from '../theme/theme'
 
 // The reading text color on the cream page (black words). Spread it on a Text.
 export function ink(mode: Mode, theme: Theme | null): { color?: string } {
-  const p = paintProps(mode, theme, 'reading')
+  const p = paintProps(mode, theme, 'paper')
   return p.color === undefined ? {} : { color: p.color }
 }
 
 // The cream page behind the pane. Spread it on a Box.
 export function page(mode: Mode, theme: Theme | null): { backgroundColor?: string } {
-  const p = paintProps(mode, theme, 'reading')
+  const p = paintProps(mode, theme, 'paper')
   return p.backgroundColor === undefined ? {} : { backgroundColor: p.backgroundColor }
 }
 
-// The light words that read on the black frame (cream on black). Spread it on a Text inside a Box
+// The light words that read on the black structure ground (cream on black). Spread it on a Text inside a Box
 // that spreads `ground`.
-export function onFrame(mode: Mode, theme: Theme | null): { color?: string } {
-  const p = paintProps(mode, theme, 'frame')
+export function onStructure(mode: Mode, theme: Theme | null): { color?: string } {
+  const p = paintProps(mode, theme, 'structure')
   return p.color === undefined ? {} : { color: p.color }
 }
 
@@ -38,20 +38,20 @@ export function onBlock(mode: Mode, theme: Theme | null, job: BlockJob): { color
 
 // C-29 (UI-SPEC): a Button, a Select and a Markdown block have NO color prop; the host paints their
 // label in its own light color. On the cream page that label is nearly invisible. So every one of
-// them sits on a ground where a light label reads: the black frame (17.13), the blue `where` block
-// (9.82, the selected or primary one) or the red `problem` block (5.56, a control inside a red list).
-// Never cream, never yellow. `ground` is the ONLY way the pane gives a control its ground (the
+// them sits on a ground where a light label reads: the black `structure` ground (17.13), the blue `evidence` block
+// (9.82, reserved: the pane draws no blue today) or the red `assumption` block (5.56, a control inside
+// the no-evidence list). Never cream, never yellow. C-32: the simplest ground that reads is the black chip. `ground` is the ONLY way the pane gives a control its ground (the
 // source guard G11 reads each Button and Select for an enclosing Box that spreads it).
 //
 // The Box is `alignSelf: flex-start`, so a control sized to its label is a chip, not a full-width
 // bar; `wide` drops that for a whole bar (the tab strip and the hint line). Plain mode and a
 // missing theme return {}: borders and words only, nothing colored.
-export type GroundJob = 'frame' | 'where' | 'problem'
+export type GroundJob = 'structure' | 'evidence' | 'assumption'
 
 export function ground(
   mode: Mode,
   theme: Theme | null,
-  job: GroundJob = 'frame',
+  job: GroundJob = 'structure',
   o: { wide?: boolean } = {},
 ): { backgroundColor?: string; alignSelf?: 'flex-start' } {
   const p = paintProps(mode, theme, job)
@@ -62,7 +62,7 @@ export function ground(
 // The border color of a boxed control on its ground: black on the cream page in color mode (so the
 // frame reads as one solid block), nothing in plain mode.
 export function edge(mode: Mode, theme: Theme | null): { borderColor?: string } {
-  const p = paintProps(mode, theme, 'frame')
+  const p = paintProps(mode, theme, 'structure')
   return p.backgroundColor === undefined ? {} : { borderColor: p.backgroundColor }
 }
 
@@ -73,4 +73,11 @@ export function edge(mode: Mode, theme: Theme | null): { borderColor?: string } 
 // the prop directly, inside a Box that spreads `ground`.
 export function soft(mode: Mode): { dimColor?: true } {
   return mode.plain ? { dimColor: true as const } : {}
+}
+
+// C-30 and C-32: a selected option is marked with a greater-than sign, never a color and never a
+// primary variant. A Button label cannot be bold (the host paints it), so the mark carries it.
+// The sign is a drawing glyph, not a word.
+export function selectedLabel(label: string): string {
+  return '> ' + label
 }

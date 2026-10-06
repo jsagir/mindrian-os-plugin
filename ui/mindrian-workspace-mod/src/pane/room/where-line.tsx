@@ -1,14 +1,14 @@
 // Plan 11: the where line, the first row of the Room tab (UI-SPEC 7.3 JobPanel, 10.3). Inside a
 // folder it reads P10, at the top of the data room P11, with no data room bound P12. A place the
 // model could not read says so in the band's own words (B14), never a guess. In color mode it is a
-// blue block (the `where` job) with cream words and a bold label; in plain mode the same words with
-// the label in bold and no block.
+// bold label on the page (C-30, C-32: where you are is orientation, not evidence, so no blue block);
+// plain mode draws the same words.
 import type { RenderElement } from 'claude-code'
 
 import { splitLabel } from '../../band/blocks'
 import { text } from '../../copy/text'
 import type { Place } from '../../model/view-model'
-import { block, onBlock } from '../ink'
+import { ink } from '../ink'
 import type { TabContext } from '../types'
 
 // The words, pure. Exported so the body can test them without a mount.
@@ -24,9 +24,9 @@ export function whereWords(place: Place): string {
 export function whereLine(ctx: TabContext): RenderElement {
   const { Box, Text } = ctx.el
   const [label, rest] = splitLabel(whereWords(ctx.vm.place))
-  const color = onBlock(ctx.mode, ctx.theme, 'where')
+  const color = ink(ctx.mode, ctx.theme)
   return (
-    <Box key="room:where" paddingX={1} {...block(ctx.mode, ctx.theme, 'where')}>
+    <Box key="room:where">
       {label === '' ? (
         <Text wrap="truncate-end" {...color}>
           {rest}

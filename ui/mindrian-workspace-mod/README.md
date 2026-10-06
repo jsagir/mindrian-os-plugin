@@ -10,6 +10,9 @@ Everything that can be proven without a logged-in terminal is built, tested and 
 
 - **WS-16 (the spike 008 render check) is PENDING-HUMAN.** The agent that built the check had no Claude login, so nothing was rendered in a real session and no live result exists. Every live row in `.planning/spikes/008-mods-types-and-surfaces/render-check/RESULTS.md` says PENDING-HUMAN and the spike 008 verdict says PENDING (human). The way to close it is `.planning/spikes/008-mods-types-and-surfaces/render-check/RUNBOOK.md`: one command, `node ui/mindrian-workspace-mod/scripts/render-check.cjs --final`, about 30 to 40 minutes, no model prompt, a throwaway room. Until the navigator runs it and a follow-up session records the answer, treat every "looks right" claim about paint (colors, the 60/40 split, hotkeys with the prompt focused, dim text, the glyphs) as unverified. [RESULTS.md](../../.planning/spikes/008-mods-types-and-surfaces/render-check/RESULTS.md) is the template that run fills in.
 
+- **C-32 (2026-10-06): usability first, brand second.** The five-rectangle logo is gone: every tier draws the plain text mark `M:OS`. No yellow is drawn anywhere; red appears only for the list of points with no evidence (a scoped use of the canon red role); no blue is drawn in the pane; no button is primary; a selected option is marked with `>`; refusals are plain bold words; the choices on a decision card are equal and a line says the suggestion is only a suggestion. Deferred brand requirements (doorway edge, dashed unknown frames, the ink-plane card, blue evidence planes) are listed in UI-SPEC 17.1 under C-32 and are not built. Source guard G12 holds the role scope.
+- **C-31a to C-31d (layout fixes from the navigator's screenshots, 2026-10-06):** a docked or narrow band keeps the place and the waiting count and drops the hint first; the Think tab's two blocks are top-aligned from 90 columns and stacked below it, with the red list capped at 3 rows; a pick row is a mark plus a one-line label; the guidance chip is short, on its own row, and `Set aside for later` heads a list that has no open card. Tests pin the structure; before and after screenshots are still owed (implementation complete; visual verification pending).
+
 ## Load it
 
 ```
@@ -147,16 +150,16 @@ Each has a default the mod already follows, so nothing is blocked. Answer in a w
 
 Smaller notes, no ruling needed unless you want one:
 
-- **Held-back copy.** Five deck entries are not drawn on purpose and are allow-listed in the source guard with their UI-SPEC reason: B02, B67, B83 (only if you rule red is for the logo only), L04, L05, and P79 ("This is the one gap that could change your decision", held back until the planned reasoning brief can support the claim).
+- **Held-back copy.** Five deck entries are not drawn on purpose (B83 is retired, C-32) and are allow-listed in the source guard with their UI-SPEC reason: B02, B67, L04, L05, and P79 ("This is the one gap that could change your decision", held back until the planned reasoning brief can support the claim).
 - **A card that changed under you** can read E03 and then D32 ("Still current") because the check cannot see the changed subject. Plan 10 fixed this on purpose; it is a candidate for a ruling.
 
 ## What keeps it honest (the permanent guards)
 
 `bash tests/run-all-369.26.sh` runs them all. The two that matter most for later edits:
 
-- `tests/test-369.26-source-guards.cjs`: no long dash in any mod file, no hex color in `src/`, no `require`, `process`, Node built-in or `fetch`, every visible string a copy-deck id (checked on the syntax tree), every deck id used or allow-listed with a reason, only the audited MCP tools, the only write `gate_answer` in the gate client, no italic, underline, strikethrough, timer or `gray_meta`, `logoGreen` only in the logo and the theme, all four tab bodies defined, every hotkey one character, and (G11, C-29) every pane `Button` and `Select` inside a Box that spreads `ground()`, no `dimColor` attribute on the cream page, no `Button` in a cream band block. Each guard has a mutation arm that plants a violation in a scratch copy and must see it.
+- `tests/test-369.26-source-guards.cjs`: no long dash in any mod file, no hex color in `src/`, no `require`, `process`, Node built-in or `fetch`, every visible string a copy-deck id (checked on the syntax tree), every deck id used or allow-listed with a reason, only the audited MCP tools, the only write `gate_answer` in the gate client, no italic, underline, strikethrough, timer or `gray_meta`, `logoGreen` and `contradiction` only in the theme (G7), no primary variant and no round border (G7), role lock G12 (evidence, contradiction and assumption drawn only in their role files), all four tab bodies defined, every hotkey one character, and (G11, C-29) every pane `Button` and `Select` inside a Box that spreads `ground()`, no `dimColor` attribute on the cream page, no `Button` in a cream band block. Each guard has a mutation arm that plants a violation in a scratch copy and must see it.
 - `tests/test-369.26-part8.cjs`: the Brain boundary (referenced here, not repeated).
-- `tests/ground.test.tsx` (run by `claude plugin test`): draws every tab and sub-view on terminal, desktop, vscode and mobile at four widths and fails when a `Button` or `Select` is not on a black, blue or red ground, when text on the cream page is dim, or when it is not the theme's black.
+- `tests/ground.test.tsx` (run by `claude plugin test`): draws every tab and sub-view on terminal, desktop, vscode and mobile at four widths and fails when a `Button` or `Select` is not on a black, blue or red ground, and (C-30, C-32) when yellow or blue is drawn in the pane, red is drawn outside the no-evidence list and its marks, a Button has the primary variant, or a border is round, when text on the cream page is dim, or when it is not the theme's black.
 
 ## Engine facts
 

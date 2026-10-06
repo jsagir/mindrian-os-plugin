@@ -1,7 +1,7 @@
 // C-29 (UI-SPEC): the host paints a Button, a Select and a Markdown block in its own light color and no
 // prop changes it. On the cream pane page that label is invisible (real render, claude 2.1.290,
 // Windows Terminal, 2026-10-06). So in color mode every Button and Select the pane draws must sit on a
-// ground where a light label reads (black frame, blue `where`, or red `problem`), and no text on the
+// ground where a light label reads (black structure, blue evidence, or red assumption), and no text on the
 // cream page may be dim (it renders as faint grey, R-18 closed) or lack the theme's black ink.
 //
 // This test draws EVERY tab, on every surface and at wide, narrow and Select-width panes, with the
@@ -34,16 +34,16 @@ type Surface = (typeof SURFACES)[number]
 const WIDTHS = [100, 60, 35, 25] as const
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
 const PLAIN: Mode = { plain: true, note: 'N01', theme: null }
-const LEGAL_GROUNDS = [THEME.frame, THEME.where, THEME.problem]
+const LEGAL_GROUNDS = [THEME.structure, THEME.evidence, THEME.assumption]
 
 const ACT: ShellActions = {
   setTab: async () => {},
@@ -145,15 +145,15 @@ function audit(tree: unknown): string[] {
     const bg = nearestBg(chain)
     if (type === 'Button' || type === 'Select') {
       if (bg === undefined || !LEGAL_GROUNDS.includes(bg)) {
-        bad.push(`${type} ${label(node)} sits on ${bg === undefined ? 'the host background' : bg === THEME.reading ? 'the cream page' : bg}`)
+        bad.push(`${type} ${label(node)} sits on ${bg === undefined ? 'the host background' : bg === THEME.paper ? 'the cream page' : bg}`)
       }
     }
     if ((type === 'Text' || type === 'Button') && dimOf(node)) {
-      if (bg !== THEME.frame) bad.push(`${type} ${label(node)} is dim outside a black block (on ${bg ?? 'the host background'})`)
+      if (bg !== THEME.structure) bad.push(`${type} ${label(node)} is dim outside a black block (on ${bg ?? 'the host background'})`)
     }
     // Text drawn directly on the cream page is the theme's black. (A Text inside a Text inherits.)
-    if (type === 'Text' && bg === THEME.reading && !chain.some((c) => c.type === 'Text')) {
-      if (colorOf(node) !== THEME.frame) bad.push(`Text ${JSON.stringify(childrenOf(node)).slice(0, 40)} on cream has color ${colorOf(node) ?? 'the host color'}`)
+    if (type === 'Text' && bg === THEME.paper && !chain.some((c) => c.type === 'Text')) {
+      if (colorOf(node) !== THEME.structure) bad.push(`Text ${JSON.stringify(childrenOf(node)).slice(0, 40)} on cream has color ${colorOf(node) ?? 'the host color'}`)
     }
   })
   return bad
@@ -282,58 +282,113 @@ for (const scenario of SCENARIOS) {
 
 test('C-29 ground: the audit itself fails on a Button on the cream page, on dim text on cream, and on host-colored text on cream', async ($, on) => {
   // Hand-built trees (no engine): the walker must report each planted fault.
-  const page = { type: 'Box', props: { backgroundColor: THEME.reading } }
+  const page = { type: 'Box', props: { backgroundColor: THEME.paper } }
   const tree = (kids: unknown[]) => ({ ...page, children: kids })
   const button = { type: 'Button', props: { key: 'b', label: 'x' } }
   expect(audit(tree([button]))).toHaveLength(1)
-  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.yourMove }, children: [button] }]))).toHaveLength(1)
-  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.frame }, children: [button] }]))).toEqual([])
-  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.where }, children: [button] }]))).toEqual([])
-  expect(audit(tree([{ type: 'Text', props: { dimColor: true, color: THEME.frame }, children: ['x'] }]))).toHaveLength(1)
-  expect(audit(tree([{ type: 'Text', props: { color: THEME.reading }, children: ['x'] }]))).toHaveLength(1)
+  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.contradiction }, children: [button] }]))).toHaveLength(1)
+  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.structure }, children: [button] }]))).toEqual([])
+  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.evidence }, children: [button] }]))).toEqual([])
+  expect(audit(tree([{ type: 'Text', props: { dimColor: true, color: THEME.structure }, children: ['x'] }]))).toHaveLength(1)
+  expect(audit(tree([{ type: 'Text', props: { color: THEME.paper }, children: ['x'] }]))).toHaveLength(1)
   expect(audit(tree([{ type: 'Text', props: {}, children: ['x'] }]))).toHaveLength(1)
-  expect(audit(tree([{ type: 'Text', props: { color: THEME.frame }, children: ['x'] }]))).toEqual([])
-  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.frame }, children: [{ type: 'Text', props: { dimColor: true, color: THEME.reading }, children: ['x'] }] }]))).toEqual([])
+  expect(audit(tree([{ type: 'Text', props: { color: THEME.structure }, children: ['x'] }]))).toEqual([])
+  expect(audit(tree([{ type: 'Box', props: { backgroundColor: THEME.structure }, children: [{ type: 'Text', props: { dimColor: true, color: THEME.paper }, children: ['x'] }] }]))).toEqual([])
   void $
   void on
 })
 
-test('C-29 ground: the tab strip is a black bar; the active tab is a blue block, the others black chips', async ($, on) => {
+test('C-29 ground: the tab strip is a black bar; the active tab is a bold paper label with a greater-than mark, the others black chips (no primary)', async ($, on) => {
   const cur = { input: base({ tab: 'think' }) }
   shellHook(on, cur)
   const ui = await draw($, 'terminal', 100)
   const root = await ui.drawn()
   const seen: Record<string, string | undefined> = {}
   let barBg: string | undefined
+  let activeBg: string | undefined
+  let activeText: Node | undefined
   walkChain(root, ({ node, chain }) => {
     if (node.type === 'Button' && String(node.key ?? propsOf(node).key).startsWith('tab:')) {
       seen[String(node.key ?? propsOf(node).key)] = nearestBg(chain)
+      expect(propsOf(node).variant).toBeUndefined()
     }
-    if (node.type === 'Box' && barBg === undefined && chain.length === 1 && bgOf(node) === THEME.frame) barBg = THEME.frame
+    if (node.type === 'Box' && String(node.key ?? propsOf(node).key) === 'tab-active:think') activeBg = bgOf(node)
+    if (node.type === 'Text' && chain.some((c) => String(c.key ?? propsOf(c).key) === 'tab-active:think')) activeText = node
+    if (node.type === 'Box' && barBg === undefined && chain.length === 1 && bgOf(node) === THEME.structure) barBg = THEME.structure
   })
-  expect(seen).toEqual({ 'tab:room': THEME.frame, 'tab:think': THEME.where, 'tab:sources': THEME.frame, 'tab:review': THEME.frame })
-  expect(barBg).toBe(THEME.frame)
+  expect(seen).toEqual({ 'tab:room': THEME.structure, 'tab:sources': THEME.structure, 'tab:review': THEME.structure })
+  expect(activeBg).toBe(THEME.paper)
+  expect(propsOf(activeText as Node).bold).toBe(true)
+  expect(colorOf(activeText as Node)).toBe(THEME.structure)
+  expect(JSON.stringify(activeText)).toContain('> ')
+  expect(barBg).toBe(THEME.structure)
   await ui.unmount()
 })
 
-test('C-29 ground: choice rows are black blocks and the recommended one is blue, outlined in black', async ($, on) => {
+test('C-29 ground: choice rows are equal black blocks outlined in black; none is blue or primary (C-30: a suggestion is not a decision)', async ($, on) => {
   const cur = { input: base({ tab: 'review' }) }
   shellHook(on, cur)
   const ui = await draw($, 'terminal', 100)
   const root = await ui.drawn()
   const grounds: Record<string, string | undefined> = {}
   const edges: Record<string, unknown> = {}
+  const variants: Record<string, unknown> = {}
   walkChain(root, ({ node, chain }) => {
     const key = String(node.key ?? propsOf(node).key)
     if (node.type === 'Button' && key.startsWith('choice:')) {
       grounds[key] = nearestBg(chain)
       const box = chain[chain.length - 1] as Node
       edges[key] = propsOf(box).borderColor
+      variants[key] = propsOf(node).variant
     }
   })
-  expect(grounds).toEqual({ 'choice:1': THEME.where, 'choice:2': THEME.frame, 'choice:3': THEME.frame })
-  expect(Object.values(edges)).toEqual([THEME.frame, THEME.frame, THEME.frame])
+  expect(grounds).toEqual({ 'choice:1': THEME.structure, 'choice:2': THEME.structure, 'choice:3': THEME.structure })
+  expect(Object.values(edges)).toEqual([THEME.structure, THEME.structure, THEME.structure])
+  expect(Object.values(variants)).toEqual(['secondary', 'secondary', 'secondary'])
   await ui.unmount()
+})
+
+// C-30 and C-32: the role walks. Over every scenario, surface and width in color mode.
+function roleAudit(tree: unknown): string[] {
+  const bad: string[] = []
+  walkChain(tree, ({ node, chain }) => {
+    const bg = bgOf(node)
+    const key = String(node.key ?? propsOf(node).key)
+    const inside = (k: string) => chain.some((c) => String(c.key ?? propsOf(c).key) === k) || key === k
+    // Yellow (contradiction) is drawn nowhere: the mod has no contradiction source.
+    if (bg === THEME.contradiction || colorOf(node) === THEME.contradiction) bad.push(`yellow drawn at ${label(node)}`)
+    // Blue (evidence) is not drawn in the pane today.
+    if (bg === THEME.evidence || colorOf(node) === THEME.evidence) bad.push(`blue drawn at ${label(node)}`)
+    // Red (assumption) only inside the no-evidence list, its gap mark and the Challenging mark.
+    if (bg === THEME.assumption && !inside('think:gaps') && key !== 'think:state-mark' && key !== 'help:mark-block') bad.push(`red drawn at ${label(node)}`)
+    if (String(node.type) === 'Button' && propsOf(node).variant === 'primary') bad.push(`primary button ${label(node)}`)
+    if (propsOf(node).borderStyle === 'round') bad.push(`round border at ${label(node)}`)
+  })
+  return bad
+}
+
+for (const scenario of SCENARIOS) {
+  test(`C-30 roles: ${scenario.name}: no yellow, no blue, red only for the no-evidence list and its marks, no primary button`, async ($, on) => {
+    const cur = { input: base() }
+    shellHook(on, cur)
+    for (const surface of SURFACES) {
+      for (const width of WIDTHS) {
+        cur.input = base({ ...scenario.over(), bodyColumns: width })
+        const ui = await draw($, surface, width)
+        expect(roleAudit(await ui.drawn())).toEqual([])
+        await ui.unmount()
+      }
+    }
+  })
+}
+
+test('C-30 roles: the role audit itself fails on yellow, blue, red outside its list and a primary button', () => {
+  const page = (kids: unknown[]) => ({ type: 'Box', props: { backgroundColor: THEME.paper }, children: kids })
+  expect(roleAudit(page([{ type: 'Box', props: { backgroundColor: THEME.contradiction }, children: [] }]))).toHaveLength(1)
+  expect(roleAudit(page([{ type: 'Box', props: { backgroundColor: THEME.evidence }, children: [] }]))).toHaveLength(1)
+  expect(roleAudit(page([{ type: 'Box', props: { backgroundColor: THEME.assumption }, children: [] }]))).toHaveLength(1)
+  expect(roleAudit(page([{ type: 'Box', props: { key: 'think:gaps', backgroundColor: THEME.assumption }, children: [] }]))).toEqual([])
+  expect(roleAudit(page([{ type: 'Button', props: { key: 'b', variant: 'primary' }, children: [] }]))).toHaveLength(1)
 })
 
 test('C-29 ground: plain mode is unchanged: no color anywhere, borders and words, the quiet lines stay dim', async ($, on) => {

@@ -90,7 +90,7 @@ test('workspace opens at Review when a decision waits and answers P00', async ($
   expect(waits).toMatchObject({ text: text('P00') })
   expect(beneath.opened).toEqual([OPENED])
   const ui = await mountPane($)
-  expect((await ui.find({ type: 'Button', key: 'tab:review' }))?.props.variant).toBe('primary')
+  expect(await ui.find({ key: 'tab-active:review' })).toBeDefined()
   await ui.unmount()
 })
 
@@ -99,7 +99,7 @@ test('workspace opens at Room when nothing waits', async ($, on) => {
   await run($, '')
   expect(beneath.opened).toEqual([OPENED])
   const ui = await mountPane($)
-  expect((await ui.find({ type: 'Button', key: 'tab:room' }))?.props.variant).toBe('primary')
+  expect(await ui.find({ key: 'tab-active:room' })).toBeDefined()
   await ui.unmount()
 })
 
@@ -115,7 +115,7 @@ test('workspace <tab> opens that tab', async ($, on) => {
   await run($, 'sources')
   expect(beneath.opened).toEqual([OPENED])
   const ui = await mountPane($)
-  expect((await ui.find({ type: 'Button', key: 'tab:sources' }))?.props.variant).toBe('primary')
+  expect(await ui.find({ key: 'tab-active:sources' })).toBeDefined()
   await ui.unmount()
 })
 
@@ -143,13 +143,13 @@ test('workspace sample <name> sets the sample, opens at its natural tab and answ
   expect(beneath.opened).toEqual([OPENED])
   let ui = await mountPane($)
   expect(JSON.stringify(await ui.drawn())).toContain(text('N04'))
-  expect((await ui.find({ type: 'Button', key: 'tab:review' }))?.props.variant).toBe('primary')
+  expect(await ui.find({ key: 'tab-active:review' })).toBeDefined()
   await ui.unmount()
 
   // A sample where nothing waits lands on Room.
   await run($, 'sample empty')
   ui = await mountPane($)
-  expect((await ui.find({ type: 'Button', key: 'tab:room' }))?.props.variant).toBe('primary')
+  expect(await ui.find({ key: 'tab-active:room' })).toBeDefined()
   await ui.unmount()
 })
 

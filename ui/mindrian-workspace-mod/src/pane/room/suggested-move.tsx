@@ -43,12 +43,11 @@ export function suggestedMovePanel(ctx: TabContext): RenderElement {
     <Text key="room:next-reason" {...color}>
       {reasonWords}
     </Text>,
-    <Box key="next:prefill-ground" {...ground(ctx.mode, ctx.theme, 'where')}>
+    <Box key="next:prefill-ground" {...ground(ctx.mode, ctx.theme)}>
       <Button
         key="next:prefill"
         label={text('P33')}
         hotkey="n"
-        variant="primary"
         onPress={() => {
           // The recorded command when the record carries one (data), else the plain sentence Q01.
           // Both only fill the prompt box and toast P34 or P35.

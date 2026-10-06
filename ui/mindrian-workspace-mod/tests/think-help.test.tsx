@@ -238,11 +238,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -480,7 +480,7 @@ test('Dig selected, a handle in the canon and a point: the red L02 mark and word
     const result = await ui.find({ key: 'help:result' })
     const words = shown(result)
     expect(words).toContain(text('L02'))
-    expect(backgrounds(result)).toEqual([THEME.problem])
+    expect(backgrounds(result)).toEqual([THEME.assumption])
     expect(words).toContain(text('P94'))
     expect(words).not.toContain(text('P91'))
     const lookup = buttonsOf(result).find((b) => propsOf(b).key === 'help:lookup')
@@ -493,7 +493,7 @@ test('Dig selected, a handle in the canon and a point: the red L02 mark and word
   }
 })
 
-test('Connect uses the blue L01 mark and Another way the yellow L03 mark; Why and Example draw no mark', async ($, on) => {
+test('Connect and Another way draw their word with no square (blue is evidence, yellow is a contradiction); Why and Example draw no mark (C-30)', async ($, on) => {
   const cur = { input: paneInput({}), deps: depsOf(helpBody([], {})) }
   shellHook(on, cur)
   const expectMark = async (kind: string, mark: 'L01' | 'L02' | 'L03' | null, color: string | null, picks: string[]) => {
@@ -508,8 +508,8 @@ test('Connect uses the blue L01 mark and Another way the yellow L03 mark; Why an
     expect(backgrounds(result)).toEqual(color === null ? [] : [color])
     await ui.unmount()
   }
-  await expectMark('connect', 'L01', THEME.where, TITLES)
-  await expectMark('another', 'L03', THEME.yourMove, [])
+  await expectMark('connect', 'L01', null, TITLES)
+  await expectMark('another', 'L03', null, [])
   await expectMark('why', null, null, [])
   await expectMark('example', null, null, [])
 })
@@ -789,8 +789,8 @@ type Mounted = Awaited<ReturnType<typeof mountReal>>
 
 async function activeTab(ui: Mounted): Promise<string | undefined> {
   for (const id of ['room', 'think', 'sources', 'review']) {
-    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
-    if (b?.props.variant === 'primary') return id
+    // The active tab is a label, not a Button (C-30, C-32): it carries the key tab-active:<id>.
+    if ((await ui.find({ key: `tab-active:${id}` })) !== undefined) return id
   }
   return undefined
 }

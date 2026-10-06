@@ -3,7 +3,7 @@
 // tree out. It reads `maxRows` and `bodyColumns` from props only (never the window size from anywhere else), draws no
 // timer and no animation, and never writes state.
 //
-// Layout: a root row `bodyColumns` wide. Left, the logo (10 columns, 3 rows). Right, three rows of
+// Layout: a root row `bodyColumns` wide. Left, the M:OS text mark (6 columns, 3 rows, C-32). Right, three rows of
 // one line each, blocks separated by one black frame column (a ' | ' in plain mode):
 //   row 1  place, waiting, context (the context block jumps to the front at 80 percent or more)
 //   row 2  purpose, then the health block only when the room needs a checkup or is broken

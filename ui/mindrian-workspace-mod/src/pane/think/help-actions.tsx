@@ -1,14 +1,14 @@
 // Plan 16: the help area of the Think tab (UI-SPEC 7.4 HelpActions, heading P80). Five buttons that
 // each name the useful job in plain words (the method's own name never appears here), and under the
-// one that was pressed: its Larry mark and word (red L02 for Dig, blue L01 for Connect, yellow L03
-// for Another way; Why and Example have none), then the text in the strict order of help-model.ts.
+// one that was pressed: its Larry mark and word (red L02 for Dig; Connect and Another way draw their
+// word with no square, C-30; Why and Example have none), then the text in the strict order of help-model.ts.
 //
 // The only way a press can cause a Brain call is the one runLookup call below, and its handle
 // is the plan's checked handle: a recorded method name that is an exact member of the canon, never
 // room text (Canon Part 8, R-24; tests/test-369.26-part8.cjs holds this file to it). The hand-off
 // only adds a sentence to the prompt box (`prefillPrompt`): there is no submit.
 //
-// C-29: each of the buttons sits on a black chip (the selected one on the blue block): the host's
+// C-29: each of the buttons sits on a black chip (the selected one is marked with a greater-than sign, C-32): the host's
 // light label color is unreadable on the cream page.
 //
 // Pure views over `ctx` (no `$`, no atom). Writes are in press handlers only (rule 4).
@@ -17,7 +17,7 @@ import type { RenderElement, RenderNode } from 'claude-code'
 import { text } from '../../copy/text'
 import { prefillPrompt } from '../../runtime/prefill'
 import { larryMark } from '../../theme/theme'
-import { block, ground, ink } from '../ink'
+import { block, ground, ink, onStructure, selectedLabel } from '../ink'
 import type { KeyLabelId, KeySpec, TabContext } from '../types'
 import { GUIDANCE_MAX } from './lookup'
 import { HELP_KINDS, helpFor, planFor, readHelp, runLookup, selectKind } from './help-model'
@@ -81,14 +81,16 @@ async function askLarry(ctx: TabContext, chosen: Chosen): Promise<void> {
   else await prefillPrompt(ctx.act, 'Q05', { point: facts.point })
 }
 
-// The Larry mark: a 2-cell colored block, then one word. In plain mode the word alone.
+// The Larry mark: a 2-cell colored block, then one word. A square is drawn only when its color role
+// is true (C-30, OQ-18): "Challenging" opens an assumption, so it keeps red; "Building" and
+// "Another view" are the word alone. In plain mode the word alone.
 function markRow(ctx: TabContext, id: 'L01' | 'L02' | 'L03'): RenderElement {
   const { Box, Text } = ctx.el
   const color = ink(ctx.mode, ctx.theme)
-  const paint = ctx.mode.plain || ctx.theme === null ? {} : block(ctx.mode, ctx.theme, larryMark(ctx.theme, id).job)
+  const job = ctx.mode.plain || ctx.theme === null ? null : larryMark(ctx.theme, id).job
   return (
     <Box key="help:mark" flexDirection="row">
-      {ctx.mode.plain || ctx.theme === null ? null : <Box key="help:mark-block" width={2} height={1} flexShrink={0} marginRight={1} {...paint} />}
+      {job === null ? null : <Box key="help:mark-block" width={2} height={1} flexShrink={0} marginRight={1} {...block(ctx.mode, ctx.theme, job)} />}
       <Text bold {...color}>
         {text(id)}
       </Text>
@@ -136,7 +138,7 @@ function resultArea(ctx: TabContext, chosen: Chosen): RenderElement {
   const handle = plan.handle
   if (handle !== null && plan.showLookup) {
     parts.push(
-      <Box key="help:lookup-row" flexDirection="row" gap={1}>
+      <Box key="help:lookup-row" flexDirection="column">
         <Box key="help:lookup-ground" {...ground(ctx.mode, ctx.theme)}>
           <Button
             key="help:lookup"
@@ -169,8 +171,10 @@ function resultArea(ctx: TabContext, chosen: Chosen): RenderElement {
   }
   if (state.lookup?.state === 'ok') {
     parts.push(
-      <Box key="help:lookup-result" flexDirection="column" marginTop={1}>
-        <Text key="help:lookup-heading" bold {...color}>
+      // C-30 (OQ-19) and C-29: the guidance comes from the teaching graph, not from the person's
+      // evidence, and the Markdown label is the host's light color, so it sits on a black block.
+      <Box key="help:lookup-result" flexDirection="column" marginTop={1} {...ground(ctx.mode, ctx.theme, 'structure', { wide: true })}>
+        <Text key="help:lookup-heading" bold {...onStructure(ctx.mode, ctx.theme)}>
           {text('P95')}
         </Text>
         <Markdown key="help:lookup-text" text={state.lookup.text.slice(0, GUIDANCE_MAX)} />
@@ -207,12 +211,11 @@ export function HelpActions(ctx: TabContext, model: ThinkModel, picks: readonly 
         const selected = state.kind === kind
         return (
           <Box key={`help:row-${kind}`} flexDirection="row" gap={1}>
-            <Box key={`help:ground-${kind}`} {...ground(ctx.mode, ctx.theme, selected ? 'where' : 'frame')}>
+            <Box key={`help:ground-${kind}`} {...ground(ctx.mode, ctx.theme)}>
               <Button
                 key={`help:${kind}`}
-                label={text(spec.label)}
+                label={selected ? selectedLabel(text(spec.label)) : text(spec.label)}
                 hotkey={spec.hotkey}
-                {...(selected && !ctx.mode.plain ? { variant: 'primary' as const } : {})}
                 onPress={() => {
                   void selectKind(ctx.act, state.kind, kind)
                 }}

@@ -1,7 +1,7 @@
 // Plan 14: one decision card, drawn from the recorded contract and never from model text (UI-SPEC 7.6
 // ProposalCard, C-08, C-19, C-26). Top to bottom: the heading (P110 or P116), the question (the card's
 // recorded header), one suggestion line only when the record marks a recommended option (the filled
-// triangle, D01, its label, then D03 with its recorded description, else D04 as a dim line), the choice
+// triangle, D01, its label, then D03 with its recorded description, else D04 as a dim line; then D40, "only a suggestion"), the choice
 // buttons, Decide later, ONE dim consequence line naming the real key before the press, and the expiry
 // line P113. Nothing here is invented: a choice, a label or a reason that is not recorded is not drawn.
 //
@@ -14,8 +14,7 @@
 import { text } from '../../copy/text'
 import { recommendedOption } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
-import { plainBox } from '../../theme/plain'
-import { block, ground, ink, onBlock, soft } from '../ink'
+import { ground, ink, soft } from '../ink'
 import { panel } from '../room/panel'
 import type { TabContext } from '../types'
 import { ChoiceButtons } from './choice-buttons'
@@ -150,6 +149,12 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
         <Text {...color}>{suggestion}</Text>
       </Box>,
     )
+    // D40 (C-30): a suggestion is never read as a decision already made.
+    children.push(
+      <Box key="review:suggestion-only">
+        <Text {...color}>{text('D40')}</Text>
+      </Box>,
+    )
     if (!hasReason(card)) {
       children.push(
         <Box key="review:no-reason">
@@ -161,21 +166,12 @@ export function ProposalCard(ctx: TabContext, card: GateCard, heading: string, w
     }
   }
 
-  // The words for where the card stands. A refusal is a red block with cream words; the card stays.
+  // The words for where the card stands. A refusal is plain bold words (C-30, C-32: red is not an
+  // error color and nothing here is colored); the card and its buttons stay.
   const words = plan.entry === undefined ? null : phaseWords(plan.entry)
-  if (plan.entry !== undefined && plan.entry.phase === 'refused' && words !== null) {
+  if (words !== null) {
     children.push(
-      <Box
-        key="review:refusal"
-        paddingX={1}
-        {...(ctx.mode.plain ? plainBox() : block(ctx.mode, ctx.theme, 'problem'))}
-      >
-        <Text {...onBlock(ctx.mode, ctx.theme, 'problem')}>{words}</Text>
-      </Box>,
-    )
-  } else if (words !== null) {
-    children.push(
-      <Box key="review:phase">
+      <Box key={plan.entry !== undefined && plan.entry.phase === 'refused' ? 'review:refusal' : 'review:phase'}>
         <Text bold {...color}>
           {words}
         </Text>

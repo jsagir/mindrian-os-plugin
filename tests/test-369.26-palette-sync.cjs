@@ -105,32 +105,38 @@ function ratio(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-// job name -> palette key name (the mod's own mapping; values come from the asset).
+// job name (a Canon v5 role since C-30) -> palette key name (the mod's own mapping; values come from the asset).
 const KEY = {
-  where: 'mondrian_blue',
-  yourMove: 'mondrian_yellow',
-  problem: 'mondrian_red',
-  frame: 'mondrian_black',
-  reading: 'cream',
+  evidence: 'mondrian_blue',
+  contradiction: 'mondrian_yellow',
+  assumption: 'mondrian_red',
+  structure: 'mondrian_black',
+  paper: 'cream',
 };
 
-// [text job, background job, expected ratio] from the UI-SPEC Color table.
+// [text job, background job, expected ratio] from the UI-SPEC Color table and section 20.4.
 const MEASURED = [
-  ['reading', 'frame', 17.13],
-  ['frame', 'reading', 17.13],
-  ['reading', 'where', 9.82],
-  ['frame', 'yourMove', 8.17],
-  ['reading', 'problem', 5.56],
-  ['yourMove', 'frame', 8.17],
-  ['where', 'frame', 1.75],
+  ['paper', 'structure', 17.13],
+  ['structure', 'paper', 17.13],
+  ['paper', 'evidence', 9.82],
+  ['structure', 'contradiction', 8.17],
+  ['paper', 'assumption', 5.56],
+  ['contradiction', 'structure', 8.17],
+  ['evidence', 'structure', 1.75],
+  // graphics (3.0 floor): evidence and assumption on paper, assumption on structure, yellow on blue
+  ['evidence', 'paper', 9.82],
+  ['assumption', 'paper', 5.56],
+  ['assumption', 'structure', 3.08],
+  ['contradiction', 'evidence', 4.68],
 ];
 const FORBIDDEN = [
-  ['reading', 'yourMove', 2.1],
-  ['yourMove', 'reading', 2.1],
-  ['frame', 'where', 1.75],
-  ['where', 'frame', 1.75],
-  ['problem', 'frame', 3.08],
-  ['yourMove', 'problem', 2.65],
+  ['paper', 'contradiction', 2.1],
+  ['contradiction', 'paper', 2.1],
+  ['structure', 'evidence', 1.75],
+  ['evidence', 'structure', 1.75],
+  ['assumption', 'structure', 3.08],
+  ['contradiction', 'assumption', 2.65],
+  ['evidence', 'assumption', 1.77],
 ];
 
 function loadAssetBase() {
@@ -158,7 +164,7 @@ scenario('forbidden pairs match the table and every text pair stays below 4.5', 
 
 scenario('the allowed text pairs all clear 4.5 (the block-edge pair is a graphic, not text)', () => {
   const base = loadAssetBase();
-  for (const [t, b] of [['reading', 'where'], ['frame', 'yourMove'], ['reading', 'problem'], ['reading', 'frame'], ['frame', 'reading']]) {
+  for (const [t, b] of [['paper', 'evidence'], ['structure', 'contradiction'], ['paper', 'assumption'], ['paper', 'structure'], ['structure', 'paper']]) {
     const got = ratio(base[KEY[t]], base[KEY[b]]);
     assert.ok(got >= 4.5, t + ' on ' + b + ' measures ' + got.toFixed(2));
   }
@@ -169,6 +175,23 @@ scenario('gray_meta is not a job: the five job keys exist and none is gray_meta'
   for (const k of Object.values(KEY)) assert.ok(typeof base[k] === 'string', k + ' present');
   assert.ok(!Object.values(KEY).includes('gray_meta'));
   assert.ok(typeof base.success_green === 'string', 'success_green present');
+});
+
+scenario('the old job names are gone from src: no where, yourMove, problem, frame or reading used as a theme job', () => {
+  const OLD = /['"](where|yourMove|problem|frame|reading)['"]|\b(theme|THEME)\.(where|yourMove|problem|frame|reading)\b|\bonFrame\b/;
+  const hits = [];
+  const walkSrc = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const abs = path.join(dir, entry.name);
+      if (entry.isDirectory()) { walkSrc(abs); continue; }
+      if (!/\.tsx?$/.test(entry.name)) continue;
+      // The Sources reading state has a field called reading; that is not a theme job.
+      const text = fs.readFileSync(abs, 'utf8').split('\n').filter((l) => !/'reading' in x/.test(l)).join('\n');
+      if (OLD.test(stripComments(text))) hits.push(path.relative(MOD, abs));
+    }
+  };
+  walkSrc(path.join(MOD, 'src'));
+  assert.deepStrictEqual(hits, []);
 });
 
 // ---------- (3) no hex color literal in src/ ----------

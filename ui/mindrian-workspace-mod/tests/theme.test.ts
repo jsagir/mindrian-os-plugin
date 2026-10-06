@@ -9,7 +9,7 @@ import { expect, test } from 'claude-code/testing'
 
 import { decideMode, paintProps, plainBox } from '../src/theme/plain'
 import type { Mode, ModeInputs } from '../src/theme/plain'
-import { ALLOWED_PAIRS, PALETTE_KEY, assertAllowedPair, blockStyle, larryMark, parseTheme } from '../src/theme/theme'
+import { ALLOWED_PAIRS, PALETTE_KEY, assertAllowedPair, assertEdgeAllowed, blockStyle, edgeAllowed, larryMark, parseTheme } from '../src/theme/theme'
 import type { BlockJob, JobName, Theme } from '../src/theme/theme'
 
 const FIXTURE = {
@@ -28,11 +28,11 @@ const FIXTURE = {
 const GOOD = JSON.stringify(FIXTURE)
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 
@@ -66,11 +66,11 @@ test('parseTheme reads the six jobs from the palette base keys', async () => {
 
 test('the job to palette key names are the six strings, and none is the grey meta key', async () => {
   expect(PALETTE_KEY).toEqual({
-    where: 'mondrian_blue',
-    yourMove: 'mondrian_yellow',
-    problem: 'mondrian_red',
-    frame: 'mondrian_black',
-    reading: 'cream',
+    evidence: 'mondrian_blue',
+    contradiction: 'mondrian_yellow',
+    assumption: 'mondrian_red',
+    structure: 'mondrian_black',
+    paper: 'cream',
     logoGreen: 'success_green',
   })
   expect(Object.values(PALETTE_KEY).includes('gray_meta')).toBe(false)
@@ -143,7 +143,7 @@ test('the trigger order: the switch first, then the palette, then the environmen
 // ---------------------------------------------------------------------------------------------
 
 test('in plain mode no object this module returns has a color or backgroundColor key', async () => {
-  const jobs: BlockJob[] = ['where', 'yourMove', 'problem', 'frame', 'reading']
+  const jobs: BlockJob[] = ['evidence', 'contradiction', 'assumption', 'structure', 'paper']
   const modes: Mode[] = [
     decideMode(inputs({ switchOn: true })),
     decideMode(inputs({ paletteText: null })),
@@ -165,9 +165,9 @@ test('in plain mode no object this module returns has a color or backgroundColor
 
 test('in color mode paintProps is the block style, and with no theme it is empty', async () => {
   const mode = decideMode(inputs())
-  expect(paintProps(mode, mode.theme, 'where')).toEqual({ backgroundColor: '#1E3A6E', color: '#F5F0E8' })
-  expect(paintProps(mode, mode.theme, 'yourMove')).toEqual({ backgroundColor: '#C8A43C', color: '#0D0D0D' })
-  expect(paintProps(mode, null, 'where')).toEqual({})
+  expect(paintProps(mode, mode.theme, 'evidence')).toEqual({ backgroundColor: '#1E3A6E', color: '#F5F0E8' })
+  expect(paintProps(mode, mode.theme, 'contradiction')).toEqual({ backgroundColor: '#C8A43C', color: '#0D0D0D' })
+  expect(paintProps(mode, null, 'evidence')).toEqual({})
 })
 
 // ---------------------------------------------------------------------------------------------
@@ -175,25 +175,25 @@ test('in color mode paintProps is the block style, and with no theme it is empty
 // ---------------------------------------------------------------------------------------------
 
 test('blockStyle gives the legal text color for each block', async () => {
-  expect(blockStyle(THEME, 'where')).toEqual({ backgroundColor: THEME.where, color: THEME.reading })
-  expect(blockStyle(THEME, 'yourMove')).toEqual({ backgroundColor: THEME.yourMove, color: THEME.frame })
-  expect(blockStyle(THEME, 'problem')).toEqual({ backgroundColor: THEME.problem, color: THEME.reading })
-  expect(blockStyle(THEME, 'frame')).toEqual({ backgroundColor: THEME.frame, color: THEME.reading })
-  expect(blockStyle(THEME, 'reading')).toEqual({ backgroundColor: THEME.reading, color: THEME.frame })
+  expect(blockStyle(THEME, 'evidence')).toEqual({ backgroundColor: THEME.evidence, color: THEME.paper })
+  expect(blockStyle(THEME, 'contradiction')).toEqual({ backgroundColor: THEME.contradiction, color: THEME.structure })
+  expect(blockStyle(THEME, 'assumption')).toEqual({ backgroundColor: THEME.assumption, color: THEME.paper })
+  expect(blockStyle(THEME, 'structure')).toEqual({ backgroundColor: THEME.structure, color: THEME.paper })
+  expect(blockStyle(THEME, 'paper')).toEqual({ backgroundColor: THEME.paper, color: THEME.structure })
 })
 
 test('the pair law: exactly five allowed pairs, every forbidden pair throws', async () => {
   expect(ALLOWED_PAIRS.length).toBe(5)
   for (const p of ALLOWED_PAIRS) assertAllowedPair(p.text, p.bg)
   const forbidden: [JobName, JobName][] = [
-    ['reading', 'yourMove'],
-    ['yourMove', 'reading'],
-    ['frame', 'where'],
-    ['where', 'frame'],
-    ['problem', 'frame'],
-    ['yourMove', 'problem'],
-    ['logoGreen', 'frame'],
-    ['reading', 'logoGreen'],
+    ['paper', 'contradiction'],
+    ['contradiction', 'paper'],
+    ['structure', 'evidence'],
+    ['evidence', 'structure'],
+    ['assumption', 'structure'],
+    ['contradiction', 'assumption'],
+    ['logoGreen', 'structure'],
+    ['paper', 'logoGreen'],
   ]
   for (const [t, b] of forbidden) {
     let threw = false
@@ -206,10 +206,37 @@ test('the pair law: exactly five allowed pairs, every forbidden pair throws', as
   }
 })
 
-test('the five Larry marks use the blue, red, yellow, black and cream jobs', async () => {
-  expect(larryMark(THEME, 'L01')).toEqual({ id: 'L01', job: 'where', backgroundColor: THEME.where })
-  expect(larryMark(THEME, 'L02').job).toBe('problem')
-  expect(larryMark(THEME, 'L03').job).toBe('yourMove')
-  expect(larryMark(THEME, 'L04').job).toBe('frame')
-  expect(larryMark(THEME, 'L05').job).toBe('reading')
+test('the five Larry marks: a square only when its role is true (C-30): Challenging red, Building and Another view none', async () => {
+  expect(larryMark(THEME, 'L01')).toEqual({ id: 'L01', job: null, backgroundColor: null })
+  expect(larryMark(THEME, 'L02')).toEqual({ id: 'L02', job: 'assumption', backgroundColor: THEME.assumption })
+  expect(larryMark(THEME, 'L03')).toEqual({ id: 'L03', job: null, backgroundColor: null })
+  expect(larryMark(THEME, 'L04').job).toBe('structure')
+  expect(larryMark(THEME, 'L05').job).toBe('paper')
+})
+
+test('the adjacency law: paper touches evidence, assumption and structure; structure touches assumption; blue never touches red or black', async () => {
+  const touching: [BlockJob, BlockJob][] = [
+    ['paper', 'evidence'],
+    ['paper', 'assumption'],
+    ['paper', 'structure'],
+    ['structure', 'assumption'],
+    ['structure', 'contradiction'],
+    ['evidence', 'contradiction'],
+    ['evidence', 'evidence'],
+  ]
+  for (const [a, b] of touching) {
+    assertEdgeAllowed(a, b)
+    assertEdgeAllowed(b, a)
+  }
+  const never: [BlockJob, BlockJob][] = [
+    ['evidence', 'assumption'],
+    ['evidence', 'structure'],
+    ['assumption', 'contradiction'],
+    ['contradiction', 'paper'],
+  ]
+  for (const [a, b] of never) {
+    expect(edgeAllowed(a, b)).toBe(false)
+    expect(edgeAllowed(b, a)).toBe(false)
+    expect(() => assertEdgeAllowed(a, b)).toThrow()
+  }
 })

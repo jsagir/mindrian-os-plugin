@@ -58,11 +58,11 @@ function Words(
 // sits on the frame (black) so the row stays one piece; in plain mode it is just dim text.
 function DimNote(el: El, s: string, mode: Mode, theme: Theme | null): RenderElement {
   return Block(el, {
-    job: 'frame',
+    job: 'structure',
     theme,
     mode,
     bordered: false,
-    children: [Words(el, s, mode, theme, 'frame', { dim: true })],
+    children: [Words(el, s, mode, theme, 'structure', { dim: true })],
   })
 }
 
@@ -84,12 +84,12 @@ export function PlaceTile(el: El, place: Place, theme: Theme | null, mode: Mode)
     line = text('B14')
   }
   return Block(el, {
-    job: 'where',
+    job: 'paper',
     theme,
     mode,
     grow: true,
     bordered: false,
-    children: [Words(el, line, mode, theme, 'where')],
+    children: [Words(el, line, mode, theme, 'paper')],
   })
 }
 
@@ -112,17 +112,17 @@ export function PurposeTile(el: El, purpose: Seen<string>, theme: Theme | null, 
       line = text('B21')
   }
   return Block(el, {
-    job: 'reading',
+    job: 'paper',
     theme,
     mode,
     grow: true,
     bordered: false,
-    children: [Words(el, line, mode, theme, 'reading')],
+    children: [Words(el, line, mode, theme, 'paper')],
   })
 }
 
 // The next step, step only (the reason lives in the pane, C-09). Not recorded B32, unreadable B33,
-// looking it up B34. Cream with black text, never yellow: yellow is kept for "something needs you".
+// looking it up B34. Paper with black words (no yellow is drawn, C-30).
 export function NextTile(el: El, next: NextMove, theme: Theme | null, mode: Mode): RenderElement {
   const step = next.step
   let line: string
@@ -131,12 +131,12 @@ export function NextTile(el: El, next: NextMove, theme: Theme | null, mode: Mode
   else if (step.state === 'searching' || next.isLookingUp) line = text('B34')
   else line = text('B32')
   return Block(el, {
-    job: 'reading',
+    job: 'paper',
     theme,
     mode,
     grow: true,
     bordered: false,
-    children: [Words(el, line, mode, theme, 'reading')],
+    children: [Words(el, line, mode, theme, 'paper')],
   })
 }
 
@@ -149,17 +149,19 @@ export function WaitingTile(el: El, waiting: Seen<number>, theme: Theme | null, 
   if (n <= 0) return DimNote(el, text('B61'), mode, theme)
   const line = n === 1 ? text('B60') : text('B63', { n })
   return Block(el, {
-    job: 'yourMove',
+    job: 'structure',
     theme,
     mode,
     bordered: false,
-    children: [Words(el, line, mode, theme, 'yourMove', { warn: true })],
+    children: [Words(el, line, mode, theme, 'structure', { bold: true, warn: true })],
   })
 }
 
-// Context used. Under 50 percent B50 on the frame, 50 to 79 B51 (same words, the bar turns yellow),
-// 80 and over B52 on a yellow block, bold, with no bar. Not known yet B54, unreadable B53. The bar
-// is drawn only when `showBar` (tier T3-wide) and never in plain mode.
+// Context used. Under 80 percent B50 or B51 (same words) on a paper block, with a black ten-cell bar
+// at the wide tier and no color change at any percent (C-30, C-32). 80 and over B52 on a black
+// block, bold, with no bar: machine work reached a boundary and only a person can save. Not known
+// yet B54, unreadable B53, both on paper. The bar is drawn only when `showBar` (tier T3-wide) and
+// never in plain mode.
 export function ContextTile(
   el: El,
   context: Seen<number>,
@@ -171,48 +173,48 @@ export function ContextTile(
   if (context.state !== 'ok') {
     const line = context.state === 'unavailable' ? text('B53') : text('B54')
     return Block(el, {
-      job: 'frame',
+      job: 'paper',
       theme,
       mode,
       bordered: false,
-      children: [Words(el, line, mode, theme, 'frame')],
+      children: [Words(el, line, mode, theme, 'paper')],
     })
   }
   const percent = context.value
   const n = Math.round(percent)
   if (percent >= 80) {
     return Block(el, {
-      job: 'yourMove',
+      job: 'structure',
       theme,
       mode,
       bordered: false,
-      children: [Words(el, text('B52', { n }), mode, theme, 'yourMove', { bold: true, warn: true })],
+      children: [Words(el, text('B52', { n }), mode, theme, 'structure', { bold: true, warn: true })],
     })
   }
   const line = percent < 50 ? text('B50', { n }) : text('B51', { n })
   const bar = showBar ? ContextBar(el, percent, theme, mode) : null
-  const children: RenderElement[] = [Words(el, line, mode, theme, 'frame')]
+  const children: RenderElement[] = [Words(el, line, mode, theme, 'paper')]
   if (bar !== null && theme !== null) {
-    children.push(<Box width={1} height={1} flexShrink={0} backgroundColor={theme.frame} />)
+    children.push(<Box width={1} height={1} flexShrink={0} backgroundColor={theme.paper} />)
     children.push(bar)
   }
-  return Block(el, { job: 'frame', theme, mode, bordered: false, children })
+  return Block(el, { job: 'paper', theme, mode, bordered: false, children })
 }
 
 // Room health. A sound room draws nothing (INV-SL-2: no manufactured glance). A room that needs a
-// checkup is yellow (B41), a broken room red with cream text (B42), a check that cannot run is dim
-// words with no block (B43, never an alarm). The fix button comes from plan 08 through a slot.
+// checkup (B41) and a broken room (B42, bold) are black blocks with cream words: there is no
+// warning color (C-30), the words carry the severity. A check that cannot run is dim words with no
+// block (B43, never an alarm). The fix button comes from plan 08 through a slot.
 export function HealthTile(el: El, health: Seen<HealthStatus>, theme: Theme | null, mode: Mode): RenderElement | null {
   if (health.state !== 'ok') return DimNote(el, text('B43'), mode, theme)
   if (health.value === 'sound') return null
   const drift = health.value === 'drift'
-  const job: BlockJob = drift ? 'yourMove' : 'problem'
   return Block(el, {
-    job,
+    job: 'structure',
     theme,
     mode,
     bordered: false,
-    children: [Words(el, drift ? text('B41') : text('B42'), mode, theme, job, { warn: true })],
+    children: [Words(el, drift ? text('B41') : text('B42'), mode, theme, 'structure', { bold: !drift, warn: true })],
   })
 }
 

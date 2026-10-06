@@ -14,7 +14,7 @@ import type { RenderElement } from 'claude-code'
 import { text } from '../copy/text'
 import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
-import { ground, onFrame, soft } from './ink'
+import { ground, onStructure, soft } from './ink'
 import { HINT_TAB_KEYS } from './state'
 import type { KeySpec, PaneEl, ShellActions } from './types'
 
@@ -34,12 +34,12 @@ const line = (k: KeySpec): string => k.key + ': ' + text(k.labelId)
 
 export function hintLine(el: PaneEl, a: HintInput): RenderElement {
   const { Box, Text, Button } = el
-  const color = onFrame(a.mode, a.theme)
+  const color = onStructure(a.mode, a.theme)
   const dim = soft(a.mode)
 
   if (!a.isFocused) {
     return (
-      <Box key="hint-line" paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'frame', { wide: true })}>
+      <Box key="hint-line" paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'structure', { wide: true })}>
         <Text {...dim} {...color}>
           {text('N06')}
         </Text>
@@ -55,7 +55,7 @@ export function hintLine(el: PaneEl, a: HintInput): RenderElement {
   const withExplain = !a.keysOpen && width <= a.bodyColumns
 
   return (
-    <Box key="hint-line" flexDirection="row" flexWrap="wrap" columnGap={2} paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'frame', { wide: true })}>
+    <Box key="hint-line" flexDirection="row" flexWrap="wrap" columnGap={2} paddingX={a.mode.plain ? 0 : 1} {...ground(a.mode, a.theme, 'structure', { wide: true })}>
       {shown.map((k) => (
         <Text {...dim} {...color}>
           {line(k)}

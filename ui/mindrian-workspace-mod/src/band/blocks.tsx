@@ -76,7 +76,7 @@ export function FrameCell(el: El, theme: Theme | null, mode: Mode): RenderElemen
       </Box>
     )
   }
-  return <Box width={1} height={1} flexShrink={0} backgroundColor={theme.frame} />
+  return <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />
 }
 
 // A band hint (C-28): words in the block's own legal text color (black on the cream row), normal
@@ -84,7 +84,7 @@ export function FrameCell(el: El, theme: Theme | null, mode: Mode): RenderElemen
 // mode no color prop exists. It is drawn text only: nothing a person can press.
 export function HintText(el: El, id: 'B80' | 'B82', theme: Theme | null, mode: Mode): RenderElement {
   const { Text } = el
-  return <Text {...wordsProps(mode, theme, 'reading')}>{text(id)}</Text>
+  return <Text {...wordsProps(mode, theme, 'paper')}>{text(id)}</Text>
 }
 
 // A hotkey armed with nothing drawn (C-28). A Button's label color is the host's, so the band's
@@ -110,22 +110,22 @@ export function HiddenHelpKey(el: El, label: string, onPress: () => void): Rende
 }
 
 // The ten-cell bar (C-06). Filled count is Math.round(percent / 10), for the drawing only: 62 is
-// 6, 5 is 1, 49 is 5, 100 is 10. Filled cells are cream under 50 percent and yellow from 50 (the
-// cells sit in the black context block, which is a frame cell, not a colored block). An unfilled
-// cell is a dim middle dot. Plain mode draws no bar at all (the words carry the number).
+// 6, 5 is 1, 49 is 5, 100 is 10. The bar sits on the paper context block (C-30, C-32): filled cells
+// are black, an empty cell is a black middle dot, and nothing changes color at 50 percent (a meter
+// is not a signal; the exact number is always beside the bar). No dim text on paper (C-29). Plain
+// mode draws no bar at all (the words carry the number).
 export function ContextBar(el: El, percent: number, theme: Theme | null, mode: Mode): RenderElement | null {
   if (mode.plain || theme === null) return null
   const { Box, Text } = el
   const clamped = Math.min(100, Math.max(0, percent))
   const on = Math.round(clamped / 10)
-  const fill = clamped < 50 ? theme.reading : theme.yourMove
   const cells: RenderNode[] = []
   for (let i = 0; i < 10; i += 1) {
     cells.push(
       i < on ? (
-        <Box width={1} height={1} flexShrink={0} backgroundColor={fill} />
+        <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />
       ) : (
-        <Text dimColor color={theme.reading} backgroundColor={theme.frame}>
+        <Text color={theme.structure} backgroundColor={theme.paper}>
           {DOT}
         </Text>
       ),

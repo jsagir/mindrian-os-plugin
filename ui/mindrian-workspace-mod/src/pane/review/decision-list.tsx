@@ -4,7 +4,8 @@
 // Nothing waits: P111. The model could not read the decisions: P112. No data room: P12 only.
 //
 // A card the person set aside with Decide later is still waiting (the runtime still lists it): it is
-// listed under P117 and a press brings it back. When every waiting card is set aside the card place
+// listed under P117 (under P118 when nothing else is open, so "Also waiting" never implies a second
+// item that is not there, C-31d) and a press brings it back. When every waiting card is set aside the card place
 // says D14. A card the runtime has just answered is no longer waiting, whatever the model still lists
 // until its next re-read; the sentence for that answer is drawn once, above the list (the `settled`
 // mark, cleared when the tab is opened again).
@@ -138,7 +139,9 @@ export function DecisionList(ctx: TabContext) {
     <Box key="review:body" flexDirection="column">
       {settledNote(ctx, state)}
       {card}
-      {state.others.length > 0 ? panel(ctx, 'review:also', text('P117'), list) : null}
+      {state.others.length > 0
+        ? panel(ctx, 'review:also', state.open === null ? text('P118') : text('P117'), list)
+        : null}
     </Box>
   )
 }

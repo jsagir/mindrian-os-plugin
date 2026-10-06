@@ -30,11 +30,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const PALETTE_TEXT = JSON.stringify({
@@ -179,21 +179,24 @@ test('paneLayout: the width table (UI-SPEC 10.6)', () => {
   expect(paneLayout(29)).toEqual({ choiceRow: false, stacked: true, widthNote: true, tabsAsSelect: true })
 })
 
-test('the tab strip: four buttons, labels from the deck, no hotkey, the active one primary, first thing drawn', async ($, on) => {
+test('the tab strip: four buttons, labels from the deck, no hotkey, the active one a label with a greater-than mark and no primary variant, first thing drawn', async ($, on) => {
   const cur = { input: input({ tab: 'think' }), deps: NO_BODIES }
   shellHook(on, cur)
   for (const surface of SURFACES) {
     const ui = await draw($, surface, 100)
     const buttons = await ui.findAll({ type: 'Button' })
     const tabs = buttons.filter((b) => String(b.key).startsWith('tab:'))
-    expect(tabs.map((b) => b.key)).toEqual(['tab:room', 'tab:think', 'tab:sources', 'tab:review'])
-    expect(tabs.map((b) => b.props.label)).toEqual([text('P01'), text('P02'), text('P03'), text('P04')])
+    // The active tab (think) is a label with a greater-than mark, not a Button (C-30, C-32).
+    expect(tabs.map((b) => b.key)).toEqual(['tab:room', 'tab:sources', 'tab:review'])
+    expect(tabs.map((b) => b.props.label)).toEqual([text('P01'), text('P03'), text('P04')])
     for (const b of tabs) expect(b.props.hotkey).toBeUndefined()
-    expect(tabs.filter((b) => b.props.variant === 'primary').map((b) => b.key)).toEqual(['tab:think'])
+    expect(tabs.filter((b) => b.props.variant === 'primary')).toEqual([])
+    expect(await ui.find({ key: 'tab-active:think' })).toBeDefined()
+    expect(JSON.stringify(await ui.find({ key: 'tab-active:think' }))).toContain('> ' + text('P02'))
 
     // The strip is the first child of the pane's root, and there is no title row of its own.
     const root = (await ui.drawn()) as { children: unknown[] }
-    expect(JSON.stringify(root.children[0])).toContain('tab:room')
+    expect(JSON.stringify(root.children[0])).toMatch(/tab(-active)?:room/)
     expect(shown(root)).not.toContain(text('P00'))
     await ui.unmount()
   }
@@ -213,7 +216,8 @@ test('under 30 columns the strip is a Select on terminal and desktop, buttons on
   for (const surface of ['vscode', 'mobile'] as const) {
     const ui = await draw($, surface, 25)
     expect(await ui.find({ type: 'Select' })).toBeUndefined()
-    expect(await ui.find({ type: 'Button', key: 'tab:room' })).toBeDefined()
+    // The active tab (room) is a label; the others are buttons.
+    expect(await ui.find({ type: 'Button', key: 'tab:think' })).toBeDefined()
     await ui.unmount()
   }
 })
@@ -276,7 +280,7 @@ test('plain mode: no color anywhere, the active tab is a bold inverse label with
   }
 })
 
-test('color mode: the active tab sits on the blue block and the others on cream (theme only)', async ($, on) => {
+test('color mode: the active tab sits on paper, the strip is black, and nothing is blue (theme only)', async ($, on) => {
   const cur = { input: input({ tab: 'room' }), deps: NO_BODIES }
   shellHook(on, cur)
   const ui = await draw($, 'terminal', 100)
@@ -286,8 +290,9 @@ test('color mode: the active tab sits on the blue block and the others on cream 
     const p = n.props as Record<string, unknown> | undefined
     if (p && typeof p.backgroundColor === 'string') fills.push(p.backgroundColor)
   })
-  expect(fills).toContain(THEME.where)
-  expect(fills).toContain(THEME.reading)
+  expect(fills).not.toContain(THEME.evidence)
+  expect(fills).toContain(THEME.structure)
+  expect(fills).toContain(THEME.paper)
   await ui.unmount()
 })
 
@@ -331,7 +336,7 @@ test('with no model to draw (no live model yet and no sample) the shell draws on
   const cur = { input: input({ vm: null }), deps }
   shellHook(on, cur)
   const ui = await draw($, 'terminal', 100)
-  expect(await ui.find({ type: 'Button', key: 'tab:room' })).toBeDefined()
+  expect(await ui.find({ type: 'Button', key: 'tab:think' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: 'SHOULD NOT DRAW' })).toBeUndefined()
   await ui.unmount()
 })
@@ -353,18 +358,16 @@ test('the registrar draws the shell on every surface at every width, and a tab p
         requestId: PANE_ID,
       })
       const root = (await ui.drawn()) as { children: unknown[] }
-      expect(JSON.stringify(root.children[0])).toMatch(/tab:(room|select)/)
+      expect(JSON.stringify(root.children[0])).toMatch(/tab(-active)?:(room|select)/)
       // The sample is on: N04 is drawn.
       expect(shown(root)).toContain(text('N04'))
 
       if (columns >= 30 || surface === 'vscode' || surface === 'mobile') {
-        const room = await ui.find({ type: 'Button', key: 'tab:room' })
-        expect(room?.props.variant).toBe('primary')
+        expect(await ui.find({ key: 'tab-active:room' })).toBeDefined()
         await ui.press({ key: 'tab:think' })
-        const think = await ui.find({ type: 'Button', key: 'tab:think' })
-        const roomAfter = await ui.find({ type: 'Button', key: 'tab:room' })
-        expect(think?.props.variant).toBe('primary')
-        expect(roomAfter?.props.variant).not.toBe('primary')
+        expect(await ui.find({ key: 'tab-active:think' })).toBeDefined()
+        expect(await ui.find({ key: 'tab-active:room' })).toBeUndefined()
+        expect(await ui.find({ type: 'Button', key: 'tab:room' })).toBeDefined()
         // The tab is session state shared by every mount of the test: put it back.
         await ui.press({ key: 'tab:room' })
       } else {

@@ -8,7 +8,7 @@ import type { Engine } from 'claude-code/testing'
 
 import { chooseAlerts } from '../src/band/alerts'
 import type { El } from '../src/band/blocks'
-import { renderOneRow } from '../src/band/one-row'
+import { planRow, renderOneRow } from '../src/band/one-row'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import { PLUGIN_NAME } from '../src/runtime/ids'
@@ -35,11 +35,11 @@ function make(type: string) {
 const EL = { Box: make('Box'), Text: make('Text'), Button: make('Button') } as unknown as El
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -156,54 +156,88 @@ test('alerts: a fact that cannot be read is never an alert (no false alarm)', ()
 // ---------------------------------------------------------------------------------------------
 // T1: compact logo, the folder name alone in the blue block, alert blocks with words, Help.
 
-test('T1 at 55 columns: compact logo, the name alone in blue, 1 decision waiting in yellow, then Help', () => {
+test('T1 at 55 columns: the M:OS mark, the name alone on paper, 1 decision waiting on black; the hint is dropped first (C-31a)', () => {
   const r = row(SAMPLES.wide, 55)
   expect(num(r.props.width)).toBe(55)
   const [logo] = kids(r)
-  expect(num(logo?.props.width)).toBe(9)
+  // C-32: the mark is the plain text M:OS, six columns, one row.
+  expect(num(logo?.props.width)).toBe(6)
   expect(num(logo?.props.height)).toBe(1)
+  expect(shown(logo)).toBe('M:OS')
   const [place, alert, help] = blocks(r)
   expect(shown(place)).toBe('Funding (sample)')
-  expect(place?.props.backgroundColor).toBe(THEME.where)
+  expect(place?.props.backgroundColor).toBe(THEME.paper)
   expect(shown(alert)).toBe('1 decision waiting')
-  expect(alert?.props.backgroundColor).toBe(THEME.yourMove)
-  // C-28: the hint is Text in black on cream; `h` is armed inside a zero-width Box and drawn as nothing
-  expect(shown(help)).toBe('/workspace: Help')
-  const hint = kids(help).find((c) => c.type === 'Text')
-  expect(hint?.props).toMatchObject({ color: THEME.frame, backgroundColor: THEME.reading })
-  expect(hint?.props.dimColor).toBeUndefined()
-  const armed = kids(help).find((c) => c.type === 'Box' && c.props.width === 0)
-  const button = kids(armed).find((c) => c.type === 'Button')
-  expect(button?.props.hotkey).toBe('h')
-  expect(kids(help).some((c) => c.type === 'Button')).toBe(false)
-  expect(help?.props.backgroundColor).toBe(THEME.reading)
+  expect(alert?.props.backgroundColor).toBe(THEME.structure)
+  // 6 + 1 + 12 (the place keeps at least 12) + 1 + 20 + 1 + 18 = 59 columns are needed for the hint beside them: not at 55.
+  expect(help).toBeUndefined()
+  // `h` stays armed, drawn as nothing, in a zero-width Box that is a direct child of the row.
+  const armed = kids(r).find((c) => c.type === 'Box' && c.props.width === 0)
+  expect(kids(armed).find((c) => c.type === 'Button')?.props.hotkey).toBe('h')
+  expect(shown(r)).not.toContain('/workspace')
   const all = shown(r)
   for (const absent of ['This folder is for', 'Next:', 'Context used', '%', 'version', 'Mindrian suggests']) {
     expect(all).not.toContain(absent)
   }
 })
 
-test('T1: the waiting words shorten below 48 columns and carry the real count', () => {
-  expect(shown(blocks(row(SAMPLES.wide, 47))[1])).toBe('1 waiting')
-  expect(shown(blocks(row(SAMPLES.several, 47))[1])).toBe('3 waiting')
+test('T1 at 62 columns: everything fits, so the hint is black Text on paper and the armed h is a Button inside a zero-width Box (C-28)', () => {
+  const r = row(SAMPLES.wide, 62)
+  const [place, alert, help] = blocks(r)
+  expect(shown(place)).toBe('Funding (sample)')
+  expect(shown(alert)).toBe('1 decision waiting')
+  expect(shown(help)).toBe('/workspace: Help')
+  const hint = kids(help).find((c) => c.type === 'Text')
+  expect(hint?.props).toMatchObject({ color: THEME.structure, backgroundColor: THEME.paper })
+  expect(hint?.props.dimColor).toBeUndefined()
+  expect(kids(help).some((c) => c.type === 'Button')).toBe(false)
+  expect(help?.props.backgroundColor).toBe(THEME.paper)
+  const armed = kids(r).find((c) => c.type === 'Box' && c.props.width === 0)
+  expect(kids(armed).find((c) => c.type === 'Button')?.props.hotkey).toBe('h')
+})
+
+test('T1: the waiting words shorten when the row is tight and always carry the real count (C-31a)', () => {
+  expect(shown(blocks(row(SAMPLES.wide, 38))[1])).toBe('1 waiting')
+  expect(shown(blocks(row(SAMPLES.several, 38))[1])).toBe('3 waiting')
   expect(shown(blocks(row(SAMPLES.several, 55))[1])).toBe('3 decisions waiting')
   expect(shown(blocks(row(SAMPLES.wide, 48))[1])).toBe('1 decision waiting')
 })
 
-test('T1: one alert slot below 68 columns, two from 68; the problem comes first and has its words', () => {
+test('C-31a planRow: the order of loss is the hint, then the long waiting words, then the extra alerts; place and the count stay', () => {
+  const both = withModel((m) => {
+    m.context = ok(85)
+  })
+  const full = planRow(both, 100, 'T1')
+  expect(full).toMatchObject({ short: false, hint: true })
+  expect(full.alerts.map((a) => a.kind)).toEqual(['context', 'waiting'])
+  const noHint = planRow(both, 70, 'T1')
+  expect(noHint.hint).toBe(false)
+  expect(noHint.alerts).toHaveLength(2)
+  const shortWords = planRow(SAMPLES.several, 36, 'T1')
+  expect(shortWords).toMatchObject({ hint: false, short: true })
+  expect(shortWords.alerts).toEqual([{ kind: 'waiting', n: 3 }])
+  // T0 keeps the waiting count first and never draws the hint.
+  const t0 = planRow(withModel((m) => { m.context = ok(85) }), 28, 'T0')
+  expect(t0.hint).toBe(false)
+  expect(t0.alerts).toEqual([{ kind: 'waiting', n: 1 }])
+})
+
+test('T1: one alert slot below 68 columns, two from 68; the problem comes first; the hint goes first when they no longer fit', () => {
   const both = withModel((m) => {
     m.context = ok(85)
   })
   const narrow = blocks(row(both, 67))
   expect(narrow.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '/workspace: Help'])
   const wide = blocks(row(both, 68))
-  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '1 decision waiting', '/workspace: Help'])
+  expect(wide.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '1 decision waiting'])
+  const roomy = blocks(row(both, 100))
+  expect(roomy.map(shown)).toEqual(['Funding (sample)', 'Context used: 85%', '1 decision waiting', '/workspace: Help'])
 })
 
-test('T1: the context alert is a bold yellow block with the words of B50', () => {
+test('T1: the context alert is a bold black block with the words of B50 (no warning color)', () => {
   const r = row(SAMPLES.limit, 55)
   const alert = blocks(r)[1]
-  expect(alert?.props.backgroundColor).toBe(THEME.yourMove)
+  expect(alert?.props.backgroundColor).toBe(THEME.structure)
   let bold = false
   walk(alert, (n) => {
     if (n.type === 'Text' && n.props.bold === true && shown(n) === 'Context used: 85%') bold = true
@@ -211,36 +245,37 @@ test('T1: the context alert is a bold yellow block with the words of B50', () =>
   expect(bold).toBe(true)
 })
 
-test('T1: drift is a yellow block, broken a red block with cream words, an unreadable room no alarm', () => {
+test('T1: drift and broken are black blocks with cream words, never yellow or red; an unreadable room is no alarm', () => {
   const drift = blocks(row(SAMPLES.drift, 55))[1]
   expect(shown(drift)).toBe('Room needs a checkup')
-  expect(drift?.props.backgroundColor).toBe(THEME.yourMove)
+  expect(drift?.props.backgroundColor).toBe(THEME.structure)
 
   const broken = blocks(row(SAMPLES.broken, 55))[1]
   expect(shown(broken)).toBe('Room is broken')
-  expect(broken?.props.backgroundColor).toBe(THEME.problem)
+  expect(broken?.props.backgroundColor).toBe(THEME.structure)
   let words: Node | undefined
   walk(broken, (n) => {
     if (n.type === 'Text' && shown(n) === 'Room is broken') words = n
   })
-  expect(words?.props.color).toBe(THEME.reading)
+  expect(words?.props.color).toBe(THEME.paper)
+  expect(words?.props.bold).toBe(true)
 
   const r = row(SAMPLES.unreadable, 55)
   const colors = blocks(r).map((b) => b.props.backgroundColor)
-  expect(colors).not.toContain(THEME.yourMove)
-  expect(colors).not.toContain(THEME.problem)
+  expect(colors).not.toContain(THEME.contradiction)
+  expect(colors).not.toContain(THEME.assumption)
   expect(shown(r)).not.toContain('waiting')
 })
 
-test('T1: with nothing waiting a dim B66 sits in the alert slot from 48 columns and nothing below', () => {
-  const wide = blocks(row(SAMPLES.empty, 55))
+test('T1: with nothing waiting a dim B66 sits in the alert slot from 48 columns when it fits, and nothing below', () => {
+  const wide = blocks(row(SAMPLES.empty, 70))
   expect(wide.map(shown)).toEqual(['Funding (sample)', 'Nothing waiting', '/workspace: Help'])
   let dim = false
   walk(wide[1], (n) => {
     if (n.type === 'Text' && n.props.dimColor === true && shown(n) === 'Nothing waiting') dim = true
   })
   expect(dim).toBe(true)
-  expect(wide[1]?.props.backgroundColor).not.toBe(THEME.yourMove)
+  expect(wide[1]?.props.backgroundColor).not.toBe(THEME.contradiction)
   const narrow = blocks(row(SAMPLES.empty, 47))
   expect(narrow.map(shown)).toEqual(['Funding (sample)', '/workspace: Help'])
 })
@@ -287,14 +322,19 @@ test('T1 plain mode: no color prop, the full place line, a bold bang on a warnin
 // ---------------------------------------------------------------------------------------------
 // T0: the words alone and Help.
 
-test('T0 at 25 columns: M:OS and the Help button only, whatever the room says', () => {
-  for (const vm of [SAMPLES.wide, SAMPLES.limit, SAMPLES.broken, SAMPLES.noroom]) {
+test('T0 at 25 columns: M:OS, the place and the waiting count; the hint is gone but h stays armed (C-31a)', () => {
+  for (const vm of [SAMPLES.wide, SAMPLES.limit, SAMPLES.broken]) {
     const r = row(vm, 25, COLOR, 'T0')
     const line = shown(r)
-    expect(line).toBe('M:OS' + '/workspace: Help')
-    expect(kids(r).filter((c) => c.type === 'Box' && num(c.props.width) === 9)).toHaveLength(0)
-    expect(blocks(r).some((b) => kids(b).some((c) => c.type === 'Box' && c.props.width === 0 && kids(c).some((k) => k.type === 'Button')))).toBe(true)
+    expect(line.startsWith('M:OS')).toBe(true)
+    expect(line).toContain('Funding')
+    expect(line).not.toContain('/workspace')
+    expect(kids(r).some((c) => c.type === 'Box' && c.props.width === 0 && kids(c).some((k) => k.type === 'Button'))).toBe(true)
   }
+  // The waiting count is the alert kept at T0, in the short words, whatever else is wrong.
+  expect(shown(row(SAMPLES.wide, 25, COLOR, 'T0'))).toContain('1 waiting')
+  expect(shown(row(SAMPLES.limit, 25, COLOR, 'T0'))).not.toContain('Context used')
+  expect(shown(row(SAMPLES.several, 25, COLOR, 'T0'))).toContain('3 waiting')
 })
 
 // ---------------------------------------------------------------------------------------------
@@ -304,14 +344,14 @@ function noRoom(): ViewModel {
   return SAMPLES.noroom
 }
 
-test('not bound at 100 columns: compact logo, B12 in the blue block, Help; no purpose, no next, no alert', () => {
+test('not bound at 100 columns: the M:OS mark, B12 on paper, Help; no purpose, no next, no alert', () => {
   const r = row(noRoom(), 100)
   const [logo] = kids(r)
-  expect(num(logo?.props.width)).toBe(9)
+  expect(num(logo?.props.width)).toBe(6)
   expect(num(logo?.props.height)).toBe(1)
   const bs = blocks(r)
   expect(bs.map(shown)).toEqual(["You're not in a data room yet", '/workspace: Help'])
-  expect(bs[0]?.props.backgroundColor).toBe(THEME.where)
+  expect(bs[0]?.props.backgroundColor).toBe(THEME.paper)
   const all = shown(r)
   for (const absent of ['This folder is for', 'Next:', 'Context used', 'waiting', 'purpose']) {
     expect(all).not.toContain(absent)
@@ -334,22 +374,23 @@ test('not bound with a remembered room: B13, still no purpose and no next', () =
   }, SAMPLES.noroom)
   const bs = blocks(row(vm, 100))
   expect(shown(bs[0])).toBe('Last data room used: funding-room')
-  expect(bs[0]?.props.backgroundColor).toBe(THEME.where)
+  expect(bs[0]?.props.backgroundColor).toBe(THEME.paper)
   expect(bs).toHaveLength(2)
 })
 
-test('a place that cannot be read: B14 in the blue block, with Help', () => {
+test('a place that cannot be read: B14 on paper, with Help', () => {
   const vm = withModel((m) => {
     m.place = { isBound: true, registryFallback: false, room: { state: 'unavailable' }, folder: { state: 'unavailable' } }
   })
   const bs = blocks(row(vm, 55))
   expect(shown(bs[0])).toBe("Can't tell where you are right now")
-  expect(bs[0]?.props.backgroundColor).toBe(THEME.where)
-  expect(shown(bs.at(-1))).toBe('/workspace: Help')
+  expect(bs[0]?.props.backgroundColor).toBe(THEME.paper)
+  // C-31a: at 55 columns the hint is dropped before the count.
+  expect(shown(bs.at(-1))).toBe('1 decision waiting')
 })
 
-test('not bound at T0: M:OS and Help only; and in plain mode the place line is words with a bar', () => {
-  expect(shown(row(noRoom(), 25, COLOR, 'T0'))).toBe('M:OS' + '/workspace: Help')
+test('not bound at T0: M:OS and the place words, no hint; and in plain mode the place line is words with a bar', () => {
+  expect(shown(row(noRoom(), 25, COLOR, 'T0'))).toBe('M:OS' + "You're not in a data room yet")
   const plain = row(noRoom(), 55, PLAIN)
   expect(shown(plain)).toContain("You're not in a data room yet")
   expect(shown(plain)).toContain(' | ')
@@ -358,7 +399,7 @@ test('not bound at T0: M:OS and Help only; and in plain mode the place line is w
   expect(keys).not.toContain('backgroundColor')
 })
 
-test('top of the room at T1: the room name alone in the blue block', () => {
+test('top of the room at T1: the room name alone on paper', () => {
   const vm = withModel((m) => {
     m.place = { isBound: true, registryFallback: false, room: ok('funding-room'), folder: ok(null) }
   })
@@ -374,12 +415,12 @@ test('top of the room at T1: the room name alone in the blue block', () => {
 const PALETTE_TEXT = JSON.stringify({
   version: 1,
   base: {
-    mondrian_red: THEME.problem,
-    mondrian_blue: THEME.where,
-    mondrian_yellow: THEME.yourMove,
-    mondrian_black: THEME.frame,
-    mondrian_white: THEME.reading,
-    cream: THEME.reading,
+    mondrian_red: THEME.assumption,
+    mondrian_blue: THEME.evidence,
+    mondrian_yellow: THEME.contradiction,
+    mondrian_black: THEME.structure,
+    mondrian_white: THEME.paper,
+    cream: THEME.paper,
     gray_meta: '#A09A90',
     success_green: THEME.logoGreen,
   },
@@ -410,26 +451,27 @@ function mountBand($: Engine, surface: (typeof SURFACES)[number], columns: numbe
   })
 }
 
-// How many filled and dim bar cells a drawn band carries (the ten-cell bar of T3-wide only).
+// How many bar cells (filled and middle dots) a drawn band carries (the ten-cell bar of T3-wide only).
 function barCount(x: unknown): number {
   let n = 0
   walk(x, (node) => {
-    if (node.type === 'Box' && num(node.props.width) === 1 && num(node.props.height) === 1 && node.children.length === 0) {
-      if (node.props.backgroundColor === THEME.reading || node.props.backgroundColor === THEME.yourMove) n += 1
+    // The bar is one ten-column row Box whose ten children are filled cells and middle dots.
+    if (node.type === 'Box' && num(node.props.width) === 10 && num(node.props.height) === 1 && node.props.flexDirection === 'row') {
+      n += node.children.length
     }
-    if (node.type === 'Text' && node.children.includes('\u00B7') && node.props.dimColor === true) n += 1
   })
   return n
 }
 
-test('mounted T1 at 55 columns: the one row with the name, the count and Help', async ($, on) => {
+test('mounted T1 at 55 columns: the one row with the name and the count; the hint is dropped first, h stays armed', async ($, on) => {
   setup(on, 'wide')
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 55, 40)
     const drawn = asNode(await ui.drawn())
     expect(num(drawn.props.height)).toBe(1)
     const bs = blocks(drawn)
-    expect(bs.map(shown)).toEqual(['Funding (sample)', '1 decision waiting', '/workspace: Help'])
+    expect(bs.map(shown)).toEqual(['Funding (sample)', '1 decision waiting'])
+    expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['h'])
     expect(await ui.find({ type: 'Text', text: /engine row/ })).toBeUndefined()
     await ui.unmount()
   }
@@ -439,7 +481,10 @@ test('mounted T0 at 25 columns, and a short window at 4 or 5 rows, keep the one 
   setup(on, 'wide')
   for (const surface of SURFACES) {
     const t0 = await mountBand($, surface, 25, 12)
-    expect(shown(await t0.drawn())).toBe('M:OS' + '/workspace: Help')
+    const t0line = shown(await t0.drawn())
+    expect(t0line.startsWith('M:OS')).toBe(true)
+    expect(t0line).toContain('1 waiting')
+    expect(t0line).not.toContain('/workspace')
     await t0.unmount()
     for (const rows of [4, 5]) {
       const ui = await mountBand($, surface, 120, rows)
@@ -467,11 +512,11 @@ test('mounted, a room that is not bound: one row at (100, 6), (55, 6) and (60, 4
   }
 })
 
-test('mounted T1 in the problem states: the alert names the problem and Help is the only button', async ($, on) => {
+test('mounted T1 in the problem states: the alert names the problem and the armed h is the only button', async ($, on) => {
   setup(on, 'drift')
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 55, 12)
-    expect(blocks(asNode(await ui.drawn())).map(shown)).toEqual(['Funding (sample)', 'Room needs a checkup', '/workspace: Help'])
+    expect(blocks(asNode(await ui.drawn())).map(shown)).toEqual(['Funding (sample)', 'Room needs a checkup'])
     expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['h'])
     await ui.unmount()
   }

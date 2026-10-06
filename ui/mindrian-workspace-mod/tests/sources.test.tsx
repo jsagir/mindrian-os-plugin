@@ -367,11 +367,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -889,8 +889,8 @@ const mountReal = ($: Engine, surface: Surface, columns = 100) =>
 
 async function activeTab(ui: Awaited<ReturnType<typeof mountReal>>): Promise<string | undefined> {
   for (const id of ['room', 'think', 'sources', 'review']) {
-    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
-    if (b?.props.variant === 'primary') return id
+    // The active tab is a label, not a Button (C-30, C-32): it carries the key tab-active:<id>.
+    if ((await ui.find({ key: `tab-active:${id}` })) !== undefined) return id
   }
   return undefined
 }

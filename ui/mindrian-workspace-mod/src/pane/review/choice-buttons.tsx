@@ -1,7 +1,9 @@
 // Plan 14: the choice buttons (UI-SPEC 7.6, 10.6, C-25, C-27, OQ-06). One button per recorded choice, by
 // rank, at most three, numbered [1] to [3]; the digit is the hotkey and is armed only while the pane
 // holds the keyboard (a bare digit typed in the prompt box must never save a decision, R-03). The
-// recommended choice is the primary button (the blue block in color mode); the others are secondary.
+// choices are all equal (C-30, C-32): the same black chip, the same secondary look, none highlighted or
+// blue, so a suggestion never looks like a decision already made; the suggestion line names the
+// recommended one in words.
 // Pane width 72 or more: one row; 40 to 71: stacked one per row with D05 above; in plain mode D05 is
 // drawn at any width.
 //
@@ -12,7 +14,7 @@
 // INTERIM.md. A press runs plan 10's answer machine through the adapter (src/pane/review/review-io.ts);
 // this file never names a runtime tool.
 import { text } from '../../copy/text'
-import { choiceOptions, recommendedOption } from '../../model/mappers'
+import { choiceOptions } from '../../model/mappers'
 import type { GateCard } from '../../model/view-model'
 import { paneLayout } from '../layout'
 import type { TabContext } from '../types'
@@ -36,25 +38,23 @@ export function ChoiceButtons(
 ) {
   const { Box, Text, Button } = ctx.el
   const layout = paneLayout(ctx.bodyColumns)
-  const recommended = recommendedOption(card)
   const focusKey = stripFocusKey(ctx.mode.plain, ctx.bodyColumns)
   const color = ink(ctx.mode, ctx.theme)
 
   const buttons = choiceOptions(card).map((option, index) => {
     const n = index + 1
-    const primary = recommended !== null && option.id === recommended.id
     return (
       <Box
         key={'choice-box:' + n}
         {...(form === 'boxed' ? { borderStyle: 'single' as const, ...edge(ctx.mode, ctx.theme) } : {})}
-        {...ground(ctx.mode, ctx.theme, primary ? 'where' : 'frame')}
+        {...ground(ctx.mode, ctx.theme)}
       >
         <Button
           key={'choice:' + n}
           label={choiceLabel(n, option.label, form)}
           {...(ctx.isFocused ? { hotkey: String(n) } : {})}
           {...(form === 'plain' ? { plain: true as const } : {})}
-          variant={primary ? 'primary' : 'secondary'}
+          variant="secondary"
           onPress={() => {
             void runChoice(ctx.act, ctx.body.review, card, option, waiting, focusKey).catch(() => {})
           }}

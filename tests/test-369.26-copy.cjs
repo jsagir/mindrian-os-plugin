@@ -30,7 +30,7 @@ const TEXT = path.join(REPO, 'ui', 'mindrian-workspace-mod', 'src', 'copy', 'tex
 const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
 const DOT = ' ' + String.fromCharCode(0x00b7) + ' ';
-const EXPECTED_RETIRED = ['B31', 'B81', 'D20', 'D21', 'D22'];
+const EXPECTED_RETIRED = ['B31', 'B81', 'B83', 'D20', 'D21', 'D22'];
 const ID_RE = /^[BPDLHXQMNE][0-9]{2,3}$/;
 
 if (!fs.existsSync(SPEC)) {
@@ -152,7 +152,7 @@ scenario('A2 the deck equals the spec, id for id and word for word', () => {
 });
 
 // A3
-scenario('A3 retired ids (B31, B81, D20, D21, D22) are absent from the deck', () => {
+scenario('A3 retired ids (B31, B81, B83, D20, D21, D22) are absent from the deck', () => {
   check(deck, 'deck missing: ' + path.relative(REPO, DECK));
   const src = fs.readFileSync(DECK, 'utf8');
   for (const id of EXPECTED_RETIRED) {

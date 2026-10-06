@@ -11,8 +11,8 @@
 // the folders of the job canon. There is no problem-type filter: the registry has no such field,
 // and a control with nothing behind it is not drawn (UI-SPEC R-11).
 //
-// C-29: every control (Button, Select) sits on a black chip, or on the blue block when it is the
-// selected one; the details line is plain black text on the cream page, never dim.
+// C-29: every control (Button, Select) sits on a black chip; the selected filter option is marked
+// with a greater-than sign (C-30, C-32), never a color; the details line is plain black text on the cream page, never dim.
 //
 // A pure view: no `$`, no atom, no color value. State is the Room slice of the body kit, read from
 // `ctx.body.room`; writes happen in the presses below, never while drawing.
@@ -20,7 +20,7 @@ import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { prefillRecorded } from '../../runtime/prefill'
-import { ground, ink, soft } from '../ink'
+import { ground, ink, selectedLabel, soft } from '../ink'
 import type { TabContext } from '../types'
 import { panel } from './panel'
 import { ALL_FOLDERS, effectiveFilter, filterRows, pickFolder, readActionsState } from './registry-model'
@@ -66,12 +66,11 @@ function filterControl(ctx: TabContext, load: Extract<ActionsLoad, { state: 'ok'
       <Text {...color}>{text('P120')}</Text>
       <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
         {options.map((option, index) => (
-          <Box key={'actions:filter-ground-' + index} {...ground(ctx.mode, ctx.theme, option.value === chosen ? 'where' : 'frame')}>
+          <Box key={'actions:filter-ground-' + index} {...ground(ctx.mode, ctx.theme)}>
             <Button
               key={'actions:filter-' + index}
-              label={option.label}
+              label={option.value === chosen ? selectedLabel(option.label) : option.label}
               plain
-              variant={option.value === chosen ? 'primary' : 'secondary'}
               onPress={() => {
                 void pickFolder(ctx.act, load, option.value)
               }}

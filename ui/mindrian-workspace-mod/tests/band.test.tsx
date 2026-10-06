@@ -49,11 +49,11 @@ function make(type: string) {
 const EL = { Box: make('Box'), Text: make('Text'), Button: make('Button') } as unknown as El
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -115,58 +115,21 @@ test('pickTier: a survey yields at every size, a short window yields at every wi
 // ---------------------------------------------------------------------------------------------
 // LogoCell: geometry and the only-the-theme rule.
 
-test('LogoCell tall: ten columns, three rows, five rectangles and the green sliver', () => {
-  const logo = asNode(LogoCell(EL, 'tall', THEME, COLOR))
-  expect(num(logo.props.width)).toBe(10)
-  expect(num(logo.props.height)).toBe(3)
-
-  const columns = kids(logo)
-  expect(columns.map((c) => num(c.props.width)).reduce((a, b) => a + b, 0)).toBe(10)
-  // Every column is three rows tall: its own height, or the sum of its stacked cells.
-  for (const c of columns) {
-    const stacked = kids(c)
-    const rows = stacked.length === 0 ? num(c.props.height) : stacked.map((s) => num(s.props.height)).reduce((a, b) => a + b, 0)
-    expect(rows).toBe(3)
+test('LogoCell: the plain text mark M:OS in every variant, six columns, white on a black cell (C-32)', () => {
+  for (const [variant, height] of [['tall', 3], ['compact', 1], ['text', 1]] as const) {
+    const logo = asNode(LogoCell(EL, variant, THEME, COLOR))
+    expect(num(logo.props.width)).toBe(6)
+    expect(num(logo.props.height)).toBe(height)
+    expect(logo.props.backgroundColor).toBe(THEME.structure)
+    // No rectangles, no green sliver, no role color: the words and one black cell.
+    const colors = new Set(backgrounds(logo))
+    expect(colors).toEqual(new Set([THEME.structure]))
+    let words: Node | undefined
+    walk(logo, (n) => {
+      if (n.type === 'Text' && n.children.includes('M:OS')) words = n
+    })
+    expect(words?.props).toMatchObject({ bold: true, color: THEME.paper })
   }
-
-  const [blue, f1, ry, f2, cream, f3, green] = columns
-  expect(num(blue?.props.width)).toBe(3)
-  expect(blue?.props.backgroundColor).toBe(THEME.where)
-  expect(f1?.props.backgroundColor).toBe(THEME.frame)
-  expect(num(ry?.props.width)).toBe(2)
-  const [red, yellow] = kids(ry)
-  expect(red?.props.backgroundColor).toBe(THEME.problem)
-  expect(num(red?.props.height)).toBe(1)
-  expect(yellow?.props.backgroundColor).toBe(THEME.yourMove)
-  expect(num(yellow?.props.height)).toBe(2)
-  expect(f2?.props.backgroundColor).toBe(THEME.frame)
-  expect(num(cream?.props.width)).toBe(1)
-  expect(cream?.props.backgroundColor).toBe(THEME.reading)
-  expect(f3?.props.backgroundColor).toBe(THEME.frame)
-  expect(num(green?.props.width)).toBe(1)
-  const [sliver, frameRow] = kids(green)
-  expect(sliver?.props.backgroundColor).toBe(THEME.logoGreen)
-  expect(num(sliver?.props.height)).toBe(2)
-  expect(frameRow?.props.backgroundColor).toBe(THEME.frame)
-  expect(num(frameRow?.props.height)).toBe(1)
-})
-
-test('LogoCell compact: nine columns, one row', () => {
-  const logo = asNode(LogoCell(EL, 'compact', THEME, COLOR))
-  expect(num(logo.props.width)).toBe(9)
-  expect(num(logo.props.height)).toBe(1)
-  const cells = kids(logo)
-  expect(cells.map((c) => num(c.props.width))).toEqual([2, 1, 1, 1, 1, 1, 1, 1])
-  expect(cells.map((c) => c.props.backgroundColor)).toEqual([
-    THEME.where,
-    THEME.frame,
-    THEME.problem,
-    THEME.yourMove,
-    THEME.frame,
-    THEME.reading,
-    THEME.frame,
-    THEME.logoGreen,
-  ])
 })
 
 test('LogoCell text and plain: the M:OS words alone, bold, no color prop at all', () => {
@@ -195,7 +158,7 @@ function filled(percent: number): { on: number; colors: unknown[]; dots: number;
   const bar = asNode(ContextBar(EL, percent, THEME, COLOR))
   const cells = kids(bar)
   const on = cells.filter((c) => c.type === 'Box')
-  const dots = cells.filter((c) => c.type === 'Text' && c.children.includes('·') && c.props.dimColor === true)
+  const dots = cells.filter((c) => c.type === 'Text' && c.children.includes('·') && c.props.dimColor === undefined)
   return { on: on.length, colors: on.map((c) => c.props.backgroundColor), dots: dots.length, total: cells.length }
 }
 
@@ -216,10 +179,13 @@ test('ContextBar: the rounding cases from the plan', () => {
   }
 })
 
-test('ContextBar: cream under 50, yellow from 50; plain mode draws no bar', () => {
-  expect(filled(49).colors.every((c) => c === THEME.reading)).toBe(true)
-  expect(filled(50).colors.every((c) => c === THEME.yourMove)).toBe(true)
-  expect(filled(62).colors.every((c) => c === THEME.yourMove)).toBe(true)
+test('ContextBar: black cells on paper at every percent, no color change at 50, no dim; plain mode draws no bar', () => {
+  for (const p of [10, 49, 50, 62, 79]) {
+    expect(filled(p).colors.every((c) => c === THEME.structure)).toBe(true)
+  }
+  // The empty cells are black middle dots on paper, never dim (no dim text on paper, C-29).
+  const dots = kids(asNode(ContextBar(EL, 30, THEME, COLOR))).filter((c) => c.type === 'Text')
+  for (const d of dots) expect(d.props).toMatchObject({ color: THEME.structure, backgroundColor: THEME.paper })
   expect(ContextBar(EL, 62, null, PLAIN)).toBe(null)
 })
 
@@ -227,14 +193,14 @@ test('ContextBar: cream under 50, yellow from 50; plain mode draws no bar', () =
 // Block, FrameCell, splitLabel.
 
 test('Block: a job paints its background and its legal text color; padding one column', () => {
-  const b = asNode(Block(EL, { job: 'where', theme: THEME, mode: COLOR, children: ['x'] }))
-  expect(b.props.backgroundColor).toBe(THEME.where)
+  const b = asNode(Block(EL, { job: 'evidence', theme: THEME, mode: COLOR, children: ['x'] }))
+  expect(b.props.backgroundColor).toBe(THEME.evidence)
   expect(b.props.paddingX).toBe(1)
   expect(b.children).toEqual(['x'])
 })
 
 test('Block in plain mode: a single border and no color prop', () => {
-  const b = asNode(Block(EL, { job: 'yourMove', theme: null, mode: PLAIN, children: ['x'] }))
+  const b = asNode(Block(EL, { job: 'contradiction', theme: null, mode: PLAIN, children: ['x'] }))
   expect(b.props.borderStyle).toBe('single')
   expect(Object.keys(b.props)).not.toContain('backgroundColor')
   expect(Object.keys(b.props)).not.toContain('color')
@@ -243,7 +209,7 @@ test('Block in plain mode: a single border and no color prop', () => {
 test('FrameCell: one black column in color, a plain separator in plain mode', () => {
   const f = asNode(FrameCell(EL, THEME, COLOR))
   expect(num(f.props.width)).toBe(1)
-  expect(f.props.backgroundColor).toBe(THEME.frame)
+  expect(f.props.backgroundColor).toBe(THEME.structure)
   const p = asNode(FrameCell(EL, null, PLAIN))
   expect(Object.keys(p.props)).not.toContain('backgroundColor')
 })
@@ -297,13 +263,13 @@ function dimWords(x: unknown): boolean {
 }
 
 const WIDE: ViewModel = SAMPLES.wide
-const COLORED_BLOCKS = [THEME.where, THEME.yourMove, THEME.problem]
+const COLORED_BLOCKS = [THEME.evidence, THEME.contradiction, THEME.assumption]
 
-test('PlaceTile: a folder draws B10 on the blue block with cream words, the label bold', () => {
+test('PlaceTile: a folder draws B10 on paper with black words, the label bold (place is not evidence)', () => {
   const t = PlaceTile(EL, WIDE.place, THEME, COLOR)
   expect(shown(t)).toBe("You're in: Funding (sample)")
-  expect(asNode(t).props.backgroundColor).toBe(THEME.where)
-  expect(textColors(t)).toContain(THEME.reading)
+  expect(asNode(t).props.backgroundColor).toBe(THEME.paper)
+  expect(textColors(t)).toContain(THEME.structure)
   expect(hasBold(t, "You're in: ")).toBe(true)
 })
 
@@ -324,8 +290,8 @@ test('PlaceTile: no room bound B12, a remembered room B13, an unreadable place B
 test('PurposeTile: a purpose draws B20 on cream with black words', () => {
   const t = PurposeTile(EL, WIDE.purpose, THEME, COLOR)
   expect(shown(t)).toBe('This folder is for: building the funding case (sample)')
-  expect(asNode(t).props.backgroundColor).toBe(THEME.reading)
-  expect(textColors(t)).toContain(THEME.frame)
+  expect(asNode(t).props.backgroundColor).toBe(THEME.paper)
+  expect(textColors(t)).toContain(THEME.structure)
   expect(hasBold(t, 'This folder is for: ')).toBe(true)
 })
 
@@ -346,7 +312,7 @@ test('NextTile: a step draws B30 and never the reason; the tile is cream, never 
   const t = NextTile(EL, next, THEME, COLOR)
   expect(shown(t)).toBe('Next: look at the evidence behind your funding choice (sample)')
   expect(shown(t)).not.toContain('because')
-  expect(backgrounds(t)).toEqual([THEME.reading, THEME.reading])
+  expect(backgrounds(t)).toEqual([THEME.paper, THEME.paper])
 })
 
 test('NextTile: not recorded B32, unreadable B33, looking it up B34; all cream', () => {
@@ -359,15 +325,16 @@ test('NextTile: not recorded B32, unreadable B33, looking it up B34; all cream',
   for (const [step, isLookingUp, words] of cases) {
     const t = NextTile(EL, { ...WIDE.next, step, isLookingUp }, THEME, COLOR)
     expect(shown(t)).toBe(words)
-    expect(backgrounds(t).every((b) => b === THEME.reading)).toBe(true)
+    expect(backgrounds(t).every((b) => b === THEME.paper)).toBe(true)
   }
 })
 
-test('WaitingTile: one decision B60 on yellow with black words', () => {
+test('WaitingTile: one decision B60 on a black block with bold cream words (yellow is not drawn)', () => {
   const t = WaitingTile(EL, ok(1), THEME, COLOR)
   expect(shown(t)).toBe('A decision is waiting')
-  expect(asNode(t).props.backgroundColor).toBe(THEME.yourMove)
-  expect(textColors(t)).toContain(THEME.frame)
+  expect(asNode(t).props.backgroundColor).toBe(THEME.structure)
+  expect(textColors(t)).toContain(THEME.paper)
+  expect(hasBold(t, 'A decision is waiting')).toBe(true)
 })
 
 test('WaitingTile: several draw B63 with the real number', () => {
@@ -387,33 +354,34 @@ test('WaitingTile: none draws B61 and unreadable B62 as dim words with no colore
   }
 })
 
-test('ContextTile: under 50 draws B50 on the frame with cream words and a cream bar', () => {
+test('ContextTile: under 50 draws B50 on paper with black words and a black bar', () => {
   const t = ContextTile(EL, ok(30), THEME, COLOR, true)
   expect(shown(t)).toBe('Context used: 30%' + '\u00B7'.repeat(7))
-  expect(asNode(t).props.backgroundColor).toBe(THEME.frame)
-  expect(backgrounds(t)).toContain(THEME.reading)
-  expect(backgrounds(t)).not.toContain(THEME.yourMove)
+  expect(asNode(t).props.backgroundColor).toBe(THEME.paper)
+  expect(backgrounds(t)).toContain(THEME.structure)
+  expect(backgrounds(t)).not.toContain(THEME.contradiction)
   expect(hasBold(t, 'Context used: ')).toBe(true)
 })
 
-test('ContextTile: 50 to 79 draws the same words with a yellow bar', () => {
+test('ContextTile: 50 to 79 draws the same words and the same black bar: nothing changes color (a meter is not a signal)', () => {
   const t = ContextTile(EL, ok(62), THEME, COLOR, true)
   expect(shown(t)).toContain('Context used: 62%')
-  expect(asNode(t).props.backgroundColor).toBe(THEME.frame)
-  expect(backgrounds(t).filter((b) => b === THEME.yourMove)).toHaveLength(6)
+  expect(asNode(t).props.backgroundColor).toBe(THEME.paper)
+  expect(backgrounds(t)).not.toContain(THEME.contradiction)
+  expect(backgrounds(t).filter((b) => b === THEME.structure)).toHaveLength(6)
 })
 
 test('ContextTile: no bar when the tier has none', () => {
   const t = ContextTile(EL, ok(62), THEME, COLOR, false)
   expect(shown(t)).toBe('Context used: 62%')
-  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.frame]))
+  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.paper]))
 })
 
-test('ContextTile: 80 and over turns the block yellow and bold with no bar', () => {
+test('ContextTile: 80 and over is a black block with bold cream words and no bar', () => {
   const t = ContextTile(EL, ok(85), THEME, COLOR, true)
   expect(shown(t)).toBe('Context used: 85%. Save your thinking now.')
-  expect(asNode(t).props.backgroundColor).toBe(THEME.yourMove)
-  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.yourMove]))
+  expect(asNode(t).props.backgroundColor).toBe(THEME.structure)
+  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.structure]))
   expect(hasBold(t, 'Context used: 85%. Save your thinking now.')).toBe(true)
 })
 
@@ -426,22 +394,23 @@ test('HealthTile: a sound room draws nothing', () => {
   expect(HealthTile(EL, ok('sound'), THEME, COLOR)).toBe(null)
 })
 
-test('HealthTile: drift is yellow with black words, broken is red with cream words', () => {
+test('HealthTile: drift and broken are black blocks with cream words (broken bold); no warning color', () => {
   const drift = HealthTile(EL, ok('drift'), THEME, COLOR)
   expect(shown(drift)).toBe('Room needs a checkup')
-  expect(asNode(drift).props.backgroundColor).toBe(THEME.yourMove)
-  expect(textColors(drift)).toContain(THEME.frame)
+  expect(asNode(drift).props.backgroundColor).toBe(THEME.structure)
+  expect(textColors(drift)).toContain(THEME.paper)
   const broken = HealthTile(EL, ok('broken'), THEME, COLOR)
   expect(shown(broken)).toBe('Room is broken')
-  expect(asNode(broken).props.backgroundColor).toBe(THEME.problem)
-  expect(textColors(broken)).toContain(THEME.reading)
+  expect(asNode(broken).props.backgroundColor).toBe(THEME.structure)
+  expect(textColors(broken)).toContain(THEME.paper)
+  expect(hasBold(broken, 'Room is broken')).toBe(true)
 })
 
 test('HealthTile: a check that cannot run is dim words, never an alarm', () => {
   const t = HealthTile(EL, { state: 'unavailable' }, THEME, COLOR)
   expect(shown(t)).toBe("Can't check the room right now")
   expect(dimWords(t)).toBe(true)
-  expect(backgrounds(t).some((b) => b === THEME.problem || b === THEME.yourMove)).toBe(false)
+  expect(backgrounds(t).some((b) => b === THEME.assumption || b === THEME.contradiction)).toBe(false)
 })
 
 test('WorkingNote: dim words only while a turn runs', () => {
@@ -534,12 +503,12 @@ test('plain mode: the context bar is never drawn', () => {
 const PALETTE_TEXT = JSON.stringify({
   version: 1,
   base: {
-    mondrian_red: THEME.problem,
-    mondrian_blue: THEME.where,
-    mondrian_yellow: THEME.yourMove,
-    mondrian_black: THEME.frame,
-    mondrian_white: THEME.reading,
-    cream: THEME.reading,
+    mondrian_red: THEME.assumption,
+    mondrian_blue: THEME.evidence,
+    mondrian_yellow: THEME.contradiction,
+    mondrian_black: THEME.structure,
+    mondrian_white: THEME.paper,
+    cream: THEME.paper,
     gray_meta: '#A09A90',
     success_green: THEME.logoGreen,
   },
@@ -607,15 +576,18 @@ function at(row: Node | undefined, words: string): number {
   return row === undefined ? -1 : shown(row).indexOf(words)
 }
 
-// Cells of the bar inside a row: filled one-column boxes and dim middle dots.
+// Cells of the bar inside a row: the ten-column row Box holds one child per cell, a filled black
+// cell (a Box) or a middle dot (a Text).
 function barCells(row: Node): { filled: number; dots: number } {
   let filled = 0
   let dots = 0
   walk(row, (n) => {
-    if (n.type === 'Box' && num(n.props.width) === 1 && num(n.props.height) === 1 && n.children.length === 0) {
-      if (n.props.backgroundColor === THEME.reading || n.props.backgroundColor === THEME.yourMove) filled += 1
+    if (n.type === 'Box' && num(n.props.width) === 10 && num(n.props.height) === 1 && n.props.flexDirection === 'row') {
+      for (const c of kids(n)) {
+        if (c.type === 'Box') filled += 1
+        else dots += 1
+      }
     }
-    if (n.type === 'Text' && n.children.includes('\u00B7') && n.props.dimColor === true) dots += 1
   })
   return { filled, dots }
 }
@@ -651,18 +623,16 @@ test('band, wide: three rows with the logo, place then waiting then context with
   }
 })
 
-test('band, wide: the logo spans the three rows in the five job colors', async ($, on) => {
+test('band, wide: the logo slot is the plain M:OS text mark, three rows tall, no rectangles (C-32)', async ($, on) => {
   setup(on, { sample: 'wide' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
     const { root } = await rowsOf(ui)
     const logo = kids(root)[0]
-    expect(num(logo?.props.width)).toBe(10)
+    expect(num(logo?.props.width)).toBe(6)
     expect(num(logo?.props.height)).toBe(3)
-    const colors = new Set(backgrounds(logo))
-    for (const c of [THEME.where, THEME.problem, THEME.yourMove, THEME.reading, THEME.frame, THEME.logoGreen]) {
-      expect(colors.has(c)).toBe(true)
-    }
+    expect(shown(logo)).toBe('M:OS')
+    expect(new Set(backgrounds(logo))).toEqual(new Set([THEME.structure]))
     await ui.unmount()
   }
 })
@@ -750,7 +720,7 @@ test('band, missing data: its own words for the purpose and the next step, the w
   }
 })
 
-test('band, empty: dim words and no yellow block with words in it', async ($, on) => {
+test('band, empty: dim words and no colored block with words in it', async ($, on) => {
   setup(on, { sample: 'empty' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
@@ -759,7 +729,7 @@ test('band, empty: dim words and no yellow block with words in it', async ($, on
     const dim = await ui.find({ type: 'Text', text: /Nothing is waiting on you/ })
     expect(dim?.props.dimColor).toBe(true)
     walk(rows[0], (n) => {
-      if (n.props.backgroundColor === THEME.yourMove && n.type === 'Text') expect(shown(n)).toBe('')
+      if (n.props.backgroundColor === THEME.contradiction && n.type === 'Text') expect(shown(n)).toBe('')
     })
     await ui.unmount()
   }
@@ -774,7 +744,7 @@ test('band, several: the real number of decisions', async ($, on) => {
   }
 })
 
-test('band, at the limit: B52 on a yellow bold block, no bar, still the place block', async ($, on) => {
+test('band, at the limit: B52 on a black bold block, no bar, still the place block', async ($, on) => {
   setup(on, { sample: 'limit' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
@@ -785,7 +755,7 @@ test('band, at the limit: B52 on a yellow bold block, no bar, still the place bl
     expect(barCells(rows[0] as Node)).toEqual({ filled: 0, dots: 0 })
     const found = await ui.find({ type: 'Text', text: /Save your thinking now/ })
     expect(found?.props.bold).toBe(true)
-    expect(found?.props.backgroundColor).toBe(THEME.yourMove)
+    expect(found?.props.backgroundColor).toBe(THEME.structure)
     await ui.unmount()
   }
 })
@@ -800,29 +770,30 @@ test('band, health: a sound room adds nothing to row 2', async ($, on) => {
   }
 })
 
-test('band, health: drift is a yellow block at the end of row 2', async ($, on) => {
+test('band, health: drift is a black block at the end of row 2', async ($, on) => {
   setup(on, { sample: 'drift' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
     const { rows } = await rowsOf(ui)
     // The health block, then its one-tap fix (plan 08: the checkup button) at the very end.
     const health = kids(rows[1]).find((n) => shown(n) === 'Room needs a checkup')
-    expect(health?.props.backgroundColor).toBe(THEME.yourMove)
+    expect(health?.props.backgroundColor).toBe(THEME.structure)
     expect((await ui.find({ type: 'Button', key: 'band:checkup' }))?.props.label).toBe('Run a checkup')
     await ui.unmount()
   }
 })
 
-test('band, health: broken is a red block with cream words at the end of row 2', async ($, on) => {
+test('band, health: broken is a black block with bold cream words at the end of row 2', async ($, on) => {
   setup(on, { sample: 'broken' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
     const { rows } = await rowsOf(ui)
     const health = kids(rows[1]).find((n) => shown(n) === 'Room is broken')
-    expect(health?.props.backgroundColor).toBe(THEME.problem)
+    expect(health?.props.backgroundColor).toBe(THEME.structure)
     expect((await ui.find({ type: 'Button', key: 'band:checkup' }))?.props.label).toBe('Run a checkup')
     const words = await ui.find({ type: 'Text', text: /Room is broken/ })
-    expect(words?.props.color).toBe(THEME.reading)
+    expect(words?.props.color).toBe(THEME.paper)
+    expect(words?.props.bold).toBe(true)
     await ui.unmount()
   }
 })

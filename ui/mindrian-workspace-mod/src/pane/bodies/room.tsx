@@ -3,7 +3,7 @@
 // for, what to do next with one reason, and what is waiting on you. Anything the model could not read
 // is its own words in its own place, never a guess (UI-SPEC 10.4).
 //
-// Order, top to bottom: the where line (blue), the purpose panel (P20), the next-step panel (P30),
+// Order, top to bottom: the where line (words on the page), the purpose panel (P20), the next-step panel (P30),
 // the waiting panel (P40), the result panels (P55 and P56, only once the runtime recorded a result),
 // then the "More things to do here" button (P52, key m; plan 15) and, only while it is open, the
 // list under it (src/pane/room/action-list.tsx). The list is closed by default and each time the tab

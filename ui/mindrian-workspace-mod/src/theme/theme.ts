@@ -1,11 +1,17 @@
-// Plan 03: the one theme. A component asks for a job (where, yourMove, problem, frame, reading,
-// logoGreen), never a color. Values come from assets/palette.json (a derived copy of
+// Plan 03: the one theme. A component asks for a job (a Canon v5 ROLE since C-30: evidence,
+// contradiction, assumption, structure, paper, plus logoGreen), never a color. Values come from assets/palette.json (a derived copy of
 // references/visual/palette.json, guarded by tests/test-369.26-palette-sync.cjs), read at run
 // time through $.fs.read of $.plugin.root. No color value is written in this file: the legal
 // text-on-block pairs are the measured ones from the UI-SPEC Color table.
 import type { EngineInterface } from 'claude-code'
 
-export type JobName = 'where' | 'yourMove' | 'problem' | 'frame' | 'reading' | 'logoGreen'
+// C-30 (Canon v5): the job name IS the role, so a job can only be used for its role (guard G12).
+//   evidence       blue: the person's sources and the count of evidence
+//   contradiction  yellow: two credible readings that disagree (NOT drawn anywhere: no source)
+//   assumption     red: an assumption that needs examination (the no-evidence list)
+//   structure      black: structure and the human gate (frame, bars, chips, the decision plane)
+//   paper          cream: the human canvas (place, purpose, next, the page, all reading)
+export type JobName = 'evidence' | 'contradiction' | 'assumption' | 'structure' | 'paper' | 'logoGreen'
 export type Theme = Record<JobName, string>
 
 // A job that can be a block behind words. logoGreen is the logo's sliver only, never a block.
@@ -14,15 +20,15 @@ export type BlockJob = Exclude<JobName, 'logoGreen'>
 // Job to the NAME of its palette.json base key. The values are never held here.
 // The palette's grey meta key is not used by this mod (C-20); muted text is dimColor on the text's own color.
 export const PALETTE_KEY: Readonly<Record<JobName, string>> = {
-  where: 'mondrian_blue',
-  yourMove: 'mondrian_yellow',
-  problem: 'mondrian_red',
-  frame: 'mondrian_black',
-  reading: 'cream',
+  evidence: 'mondrian_blue',
+  contradiction: 'mondrian_yellow',
+  assumption: 'mondrian_red',
+  structure: 'mondrian_black',
+  paper: 'cream',
   logoGreen: 'success_green',
 }
 
-const JOBS: readonly JobName[] = ['where', 'yourMove', 'problem', 'frame', 'reading', 'logoGreen']
+const JOBS: readonly JobName[] = ['evidence', 'contradiction', 'assumption', 'structure', 'paper', 'logoGreen']
 
 // A seven-character hash-hex value, built from character classes (no literal color).
 const HEX_VALUE = /^#[0-9A-Fa-f]{6}$/
@@ -72,14 +78,15 @@ export async function loadTheme($: EngineInterface): Promise<Theme | null> {
 }
 
 // The legal text-on-background pairs, exactly the measured ones (UI-SPEC Color table):
-// reading on where 9.82, frame on yourMove 8.17, reading on problem 5.56, reading on frame
-// 17.13, frame on reading 17.13. Everything else is refused.
+// paper on evidence 9.82 is cream on blue, structure on contradiction 8.17 is black on yellow,
+// paper on assumption 5.56, paper on structure 17.13 (cream words on the black plane), structure on
+// paper 17.13 (black words on the page). Everything else is refused.
 export const ALLOWED_PAIRS: readonly { text: BlockJob; bg: BlockJob }[] = [
-  { text: 'reading', bg: 'where' },
-  { text: 'frame', bg: 'yourMove' },
-  { text: 'reading', bg: 'problem' },
-  { text: 'reading', bg: 'frame' },
-  { text: 'frame', bg: 'reading' },
+  { text: 'paper', bg: 'evidence' },
+  { text: 'structure', bg: 'contradiction' },
+  { text: 'paper', bg: 'assumption' },
+  { text: 'paper', bg: 'structure' },
+  { text: 'structure', bg: 'paper' },
 ]
 
 // Throws for any pair that is not in ALLOWED_PAIRS: cream on yellow, yellow text on cream, black on
@@ -91,13 +98,40 @@ export function assertAllowedPair(text: JobName, bg: JobName): void {
 }
 export const assertPairAllowed = assertAllowedPair
 
+// C-30 (alignment doc 4.8): the adjacency law. Two planes may TOUCH only when their edge ratio is
+// at least 3.0: paper with evidence, assumption or structure; structure with assumption or
+// contradiction; evidence with contradiction. Forbidden to touch: evidence with
+// assumption (1.77), evidence with structure (1.75), assumption with contradiction (2.65),
+// contradiction with paper (2.10, unless bordered black). Between forbidden neighbors the band
+// draws a paper cell and the pane a blank row. Pure; used by tests and by FrameCell, not a runtime
+// throw.
+export const ALLOWED_EDGES: readonly { a: BlockJob; b: BlockJob }[] = [
+  { a: 'paper', b: 'evidence' },
+  { a: 'paper', b: 'assumption' },
+  { a: 'paper', b: 'structure' },
+  { a: 'structure', b: 'assumption' },
+  { a: 'structure', b: 'contradiction' },
+  { a: 'evidence', b: 'contradiction' },
+]
+
+// True when the two planes may touch (order does not matter; two planes of one job are one plane).
+export function edgeAllowed(a: BlockJob, b: BlockJob): boolean {
+  if (a === b) return true
+  return ALLOWED_EDGES.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a))
+}
+
+// Throws for two planes that may not touch.
+export function assertEdgeAllowed(a: BlockJob, b: BlockJob): void {
+  if (!edgeAllowed(a, b)) throw new Error(`theme: ${a} may not touch ${b}`)
+}
+
 // The text job each block carries; every entry is in ALLOWED_PAIRS.
 const TEXT_ON: Readonly<Record<BlockJob, BlockJob>> = {
-  where: 'reading',
-  yourMove: 'frame',
-  problem: 'reading',
-  frame: 'reading',
-  reading: 'frame',
+  evidence: 'paper',
+  contradiction: 'structure',
+  assumption: 'paper',
+  structure: 'paper',
+  paper: 'structure',
 }
 
 export type BlockProps = { backgroundColor: string; color: string }
@@ -110,18 +144,24 @@ export function blockStyle(theme: Theme, job: BlockJob): BlockProps {
   return { backgroundColor: theme[job], color: theme[textJob] }
 }
 
-// The five Larry marks (Canon Part 12, copy deck L01 to L05): a 2-cell block then one word.
+// The five Larry marks (Canon Part 12, copy deck L01 to L05): a 2-cell block then one word. In the
+// mod a square is drawn only when its color role is true (C-30, OQ-18): "Challenging" opens an
+// assumption (red); "Building" and "Another view" carry NO square (blue is evidence, yellow is a
+// contradiction, and neither word says so); the two held-back marks keep their jobs.
 export type LarryMarkId = 'L01' | 'L02' | 'L03' | 'L04' | 'L05'
 
-const LARRY_JOB: Readonly<Record<LarryMarkId, BlockJob>> = {
-  L01: 'where', // building
-  L02: 'problem', // challenging
-  L03: 'yourMove', // another view
-  L04: 'frame', // a decision
-  L05: 'reading', // handing over
+const LARRY_JOB: Readonly<Record<LarryMarkId, BlockJob | null>> = {
+  L01: null, // building: word only
+  L02: 'assumption', // challenging
+  L03: null, // another view: word only
+  L04: 'structure', // a decision
+  L05: 'paper', // handing over
 }
 
-export function larryMark(theme: Theme, which: LarryMarkId): { id: LarryMarkId; job: BlockJob; backgroundColor: string } {
+export function larryMark(
+  theme: Theme,
+  which: LarryMarkId,
+): { id: LarryMarkId; job: BlockJob | null; backgroundColor: string | null } {
   const job = LARRY_JOB[which]
-  return { id: which, job, backgroundColor: theme[job] }
+  return { id: which, job, backgroundColor: job === null ? null : theme[job] }
 }

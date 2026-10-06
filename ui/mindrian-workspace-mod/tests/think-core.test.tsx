@@ -418,11 +418,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -651,14 +651,15 @@ test('understanding panel: not recorded shows P70 and M04 with no button; unread
   await ui.unmount()
 })
 
-test('uncertainty block: P74 on a yellow block with black words and the uncertainty text; the claim line P79 is never drawn', async ($, on) => {
+test('uncertainty block: P74 and the uncertainty text as black words on the page, no yellow block (C-30, C-32); the claim line P79 is never drawn', async ($, on) => {
   const pressers: Pressers = {}
   const cur = { input: paneInput({}), deps: depsOf(partsBody([(ctx) => uncertaintyBlock(ctx, WIDE)], pressers)) }
   shellHook(on, cur)
   for (const surface of SURFACES) {
     const ui = await draw($, surface)
     const block = await ui.find({ key: 'think:unsure' })
-    expect(block?.props.backgroundColor).toBe(THEME.yourMove)
+    expect(block?.props.backgroundColor).toBeUndefined()
+    expect(JSON.stringify(block)).not.toContain(THEME.contradiction)
     const words = shown(block)
     expect(words).toContain(text('P74'))
     expect(words).toContain('Whether the grant window stays open long enough for your timeline (sample)')
@@ -668,7 +669,7 @@ test('uncertainty block: P74 on a yellow block with black words and the uncertai
       if (n.type === 'Text') texts.push(n)
     })
     expect(texts.length).toBeGreaterThan(0)
-    for (const t of texts) expect(propsOf(t).color).toBe(THEME.frame)
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.structure)
     await ui.unmount()
   }
 })
@@ -699,7 +700,7 @@ test('gap list: P75 on a red block with cream words, up to three titles, then P7
   for (const surface of SURFACES) {
     const ui = await draw($, surface)
     const block = await ui.find({ key: 'think:gaps' })
-    expect(block?.props.backgroundColor).toBe(THEME.problem)
+    expect(block?.props.backgroundColor).toBe(THEME.assumption)
     const words = shown(block)
     expect(words).toContain(text('P75'))
     expect(words).toContain('Grant terms for the funding case (sample)')
@@ -709,7 +710,7 @@ test('gap list: P75 on a red block with cream words, up to three titles, then P7
     walk(block, (n) => {
       if (n.type === 'Text') texts.push(n)
     })
-    for (const t of texts) expect(propsOf(t).color).toBe(THEME.reading)
+    for (const t of texts) expect(propsOf(t).color).toBe(THEME.paper)
     await ui.unmount()
   }
   cur.deps = depsOf(partsBody([(ctx) => gapList(ctx, three, [])], pressers))
@@ -811,7 +812,7 @@ test('state note: searching says P78; a gap says P75 with a red mark; otherwise 
   expect(shown(note)).toContain(text('P75'))
   const marks: Node[] = []
   walk(note, (n) => {
-    if (propsOf(n).backgroundColor === THEME.problem) marks.push(n)
+    if (propsOf(n).backgroundColor === THEME.assumption) marks.push(n)
   })
   expect(marks.length).toBeGreaterThan(0)
   await ui.unmount()
@@ -957,8 +958,8 @@ type Mounted = Awaited<ReturnType<typeof mountReal>>
 
 async function activeTab(ui: Mounted): Promise<string | undefined> {
   for (const id of ['room', 'think', 'sources', 'review']) {
-    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
-    if (b?.props.variant === 'primary') return id
+    // The active tab is a label, not a Button (C-30, C-32): it carries the key tab-active:<id>.
+    if ((await ui.find({ key: `tab-active:${id}` })) !== undefined) return id
   }
   return undefined
 }

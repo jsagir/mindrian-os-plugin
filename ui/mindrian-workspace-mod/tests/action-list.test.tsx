@@ -43,11 +43,11 @@ const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
 type Surface = (typeof SURFACES)[number]
 
 const THEME: Theme = {
-  where: '#1E3A6E',
-  yourMove: '#C8A43C',
-  problem: '#A63D2F',
-  frame: '#0D0D0D',
-  reading: '#F5F0E8',
+  evidence: '#1E3A6E',
+  contradiction: '#C8A43C',
+  assumption: '#A63D2F',
+  structure: '#0D0D0D',
+  paper: '#F5F0E8',
   logoGreen: '#2D6B4A',
 }
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
@@ -382,7 +382,7 @@ test('view: the open list draws the heading, the filter and one row per command 
       expect(select).toBeUndefined()
       // One button per option: P121 first, then the canon's folders.
       const optionButtons = (await ui.findAll({ type: 'Button' })).filter((b) => String(b.key).startsWith('actions:filter-'))
-      expect(optionButtons.map((b) => b.props.label)).toEqual([text('P121'), 'problem-definition', 'competitive-analysis', 'funding'])
+      expect(optionButtons.map((b) => b.props.label)).toEqual(['> ' + text('P121'), 'problem-definition', 'competitive-analysis', 'funding'])
     } else {
       expect(select).toBeDefined()
       expect(select?.props.value).toBe(ALL_FOLDERS)
