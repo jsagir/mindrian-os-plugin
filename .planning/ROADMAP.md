@@ -1846,10 +1846,10 @@ Plans:
 - [x] 369.2-27 readReadinessCounts; Eureka judge-state sentence (R20, R24)
 - [x] 369.2-28 analogy matcher reads SAPPhIRE encodings (R21)
 - [x] 369.2-29 plan-run route for find-bottlenecks, find-analogies, find-connections, scout hsi (R22)
-- [ ] 369.2-30 every planner card names the job and the move; id lint (R23)
+- [x] 369.2-30 every planner card names the job and the move; id lint (R23)
 - [x] 369.2-31 SEED-118-shaped fixture room (R25)
 - [x] 369.2-32 real-room-run takes several seeds; closure legs X0, RD, R355 (R25)
-- [ ] 369.2-33 closure legs D1-D12 and the rest (R25)
+- [x] 369.2-33 closure legs D1-D12 and the rest (R25)
 - [ ] 369.2-34 closure green, completion report, VALIDATION flip, CHANGELOG; navigator reads both rooms and decides the cut (checkpoint)
 
 ### Phase 369.25: FeyMinto and Room Identity (spoken: 369.3a): the one authority, proven on the room and consumed by its nests (brief 2026-10-05 prove one authority; SEED-122) (INSERTED 2026-10-05, navigator: "bring it fw"; ROADMAP id 369.25 because the GSD tooling pads a letter suffix away, 369.3a would collide with 369.3)
