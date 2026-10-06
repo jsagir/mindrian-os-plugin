@@ -200,9 +200,15 @@ async function main() {
     const ledger = operations.readLedger(room.roomDir, plan.run_id);
     const miss = ledger.operations.filter(function (o) { return o.state === 'not_executed' && o.reason === 'quick_cap'; });
     console.log('K2 measured (quick): cut kinds=' + JSON.stringify(cut.map(function (c) { return c.kind; })) + ' quick_cap ops=' + JSON.stringify(miss.map(function (o) { return o.kind; })));
+    assert.strictEqual(miss.length, cut.length, 'quick_cap ops ' + miss.length + ' vs queries_cut ' + cut.length);
+    // a falsifier template keeps the ledger kind falsifier (counterevidence counting, annex C17); every other cut
+    // query is closed with its own kind
     cut.forEach(function (c) {
-      assert.ok(miss.some(function (o) { return o.kind === c.kind && o.plan_dimension === 'L1'; }), 'no quick_cap op for cut kind ' + c.kind);
+      const want = operations.FALSIFIER_TEMPLATES.indexOf(c.template_id) !== -1 ? 'falsifier' : c.kind;
+      assert.ok(miss.some(function (o) { return o.kind === want && o.template_id === c.template_id && o.plan_dimension === 'L1'; }), 'no quick_cap op for cut ' + JSON.stringify(c));
     });
+    assert.ok(cut.some(function (c) { return c.kind === 'adjacent'; }), 'the adjacent kind was not cut');
+    assert.ok(miss.some(function (o) { return o.kind === 'adjacent'; }), 'no adjacent op in the ledger');
     return true;
   });
 
@@ -228,7 +234,8 @@ async function main() {
 
   await leg('K3 the card lists the exact shaped string, and no sentence is quoted whole', async function () {
     const room = newRoom();
-    const plan = build(room, 'quick', function (qs) { qs.leaves[1].slots = { term: SENTENCE }; });
+    // L1 carries no kinds here, so the quick cap of 3 holds L1's 2 searches and L2's 1
+    const plan = build(room, 'quick', function (qs) { delete qs.leaves[0].query_kinds; qs.leaves[1].slots = { term: SENTENCE }; });
     const l2 = leafOf(plan, 'L2');
     const shaped = families.shapeWebPhrase(SENTENCE).value;
     const qs = l2.queries.map(function (q) { return q.q; });
