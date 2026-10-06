@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Fixed
+- **The stdio MCP server exits when stdin closes or its parent process is gone.** This stops leftover servers after subagent runs.
+
 ## [2.0.0-beta.63] - 2026-10-06
 
 ### Added
