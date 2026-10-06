@@ -31,7 +31,7 @@ const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
 const DOT = ' ' + String.fromCharCode(0x00b7) + ' ';
 const EXPECTED_RETIRED = ['B31', 'B81', 'D20', 'D21', 'D22'];
-const ID_RE = /^[BPDLHXQMNE][0-9]{2}$/;
+const ID_RE = /^[BPDLHXQMNE][0-9]{2,3}$/;
 
 if (!fs.existsSync(SPEC)) {
   process.stdout.write('SKIPPED (ENV GAP): UI-SPEC not found at ' + SPEC + '\n');
@@ -99,7 +99,7 @@ function readDeck() {
   const src = fs.readFileSync(DECK, 'utf8');
   const map = new Map();
   const dupes = [];
-  const lineRe = /^\s*'([A-Z][0-9]{2})':\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,?\s*$/gm;
+  const lineRe = /^\s*'([A-Z][0-9]{2,3})':\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,?\s*$/gm;
   let m;
   while ((m = lineRe.exec(src)) !== null) {
     if (map.has(m[1])) dupes.push(m[1]);
