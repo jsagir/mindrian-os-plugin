@@ -59,6 +59,15 @@ const FILE_RUN_LINE = 'research-planner.cjs" file-run';
 
 const POINTER = 'Grant-covered quick research runs (Phase 363, D-05) execute in the 355.1 ambient child under the navigator\'s standing research grant, never in this cadence runner, which stays zero-egress.';
 
+// Plan 369.2-25 (commit 3b2936658) added exactly this one sentence to the --broad section of research.md.
+const BROAD_HEADING = '## `--broad` (a 3-lens preset of THIS pipeline)';
+const PATENT_LENS_SENTENCE = 'The patent lens searches PatentsView when PATENTSVIEW_API_KEY is set; without it the lens says it has no patent source before searching, and returns nothing. It never searches a biomedical index under a patent label.';
+
+// Plan 369.2-29 (commit 64cc85f04) added exactly one section to scout.md: from this heading up to,
+// not including, the "## Step 6: Generate Summary" heading.
+const SCOUT_PLAN_RUN_HEADING = '## Plan-run route (search the literature for what this found)\n';
+const SCOUT_PLAN_RUN_END = '## Step 6: Generate Summary';
+
 const SCOUT_BASE_SENTENCE = 'It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner.';
 const SCHED_BASE_SENTENCE = 'It is Canon Part 8 zero-egress (inherited from Plan 01): no Brain query, no web fetch.';
 
@@ -255,6 +264,12 @@ leg('K2 byte preservation: every pre-phase section is identical (the R10 paragra
   }
   const baseSecs = sections(baseBody);
   const curSecs = sections(stripped);
+  // Plan 369.2-25 (commit 3b2936658): one PatentsView sentence (and its blank line) is allowed in the
+  // --broad section only. Remove it once from that section, then the byte compare below stays strict.
+  const broad = curSecs.get(BROAD_HEADING);
+  if (broad !== undefined && broad.split(PATENT_LENS_SENTENCE + '\n\n').length - 1 === 1) {
+    curSecs.set(BROAD_HEADING, broad.replace(PATENT_LENS_SENTENCE + '\n\n', ''));
+  }
   assert.ok(baseSecs.size >= 10, 'base must have sections');
   for (const [heading, text] of baseSecs) {
     assert.ok(curSecs.has(heading), 'section missing: ' + heading);
@@ -324,7 +339,15 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
     assert.ok(t.indexOf('ambient child') !== -1 && t.indexOf('standing research grant') !== -1);
   }
   // Nothing else moved: removing the pointer restores the base text byte for byte.
-  assert.equal(scout.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer');
+  // Plan 369.2-29 (commit 64cc85f04) also added one Plan-run route section to scout.md. Allow exactly
+  // that section (one heading, ends at the Step 6 heading), remove it with the pointer, then compare.
+  assert.equal(scout.split(SCOUT_PLAN_RUN_HEADING).length - 1, 1, 'scout.md must hold the Plan-run route heading once');
+  const prStart = scout.indexOf(SCOUT_PLAN_RUN_HEADING);
+  const prEnd = scout.indexOf('\n' + SCOUT_PLAN_RUN_END, prStart);
+  assert.ok(prEnd !== -1, 'the Plan-run route section must end at the Step 6 heading');
+  assert.ok(scout.slice(prStart + SCOUT_PLAN_RUN_HEADING.length, prEnd).indexOf('\n## ') === -1, 'the Plan-run route section must hold no other ## heading');
+  const scoutWithoutRoute = scout.slice(0, prStart) + scout.slice(prEnd + 1);
+  assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer and the Plan-run route section');
   assert.equal(sched.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
 });
 
