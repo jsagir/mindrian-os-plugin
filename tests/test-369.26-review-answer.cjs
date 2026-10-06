@@ -2,9 +2,7 @@
 //
 // Static arms read the repo files; engine arms run the real `claude` binary on throwaway copies of
 // the mod (never the repo tree):
-//   1. the recipe in tests/fixtures/review-io-recipe.ts (how the hook file builds a ReviewIo) passes
-//      the engine's static scan, and validate lists the review state keys it reads and writes;
-//   2. the in-flight guards are mutation-tested: with the in-process guard (and then also the state
+//   1. the in-flight guards are mutation-tested: with the in-process guard (and then also the state
 //      claim check) removed from a copy of the machine, the concurrency arms FAIL (and pass on an
 //      untouched copy, so each arm discriminates).
 // Exit 77 (ENV GAP, never a pass) when the claude binary is not on PATH.
@@ -75,10 +73,7 @@ scenario('the review folder names no Brain server and holds no $, atom, read or 
 const LONG_DASH = new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']');
 
 scenario('the review files and their tests hold no em-dash or en-dash', () => {
-  const files = walk(REVIEW, []).concat([
-    path.join(MOD, 'tests', 'review-answer.test.ts'),
-    path.join(MOD, 'tests', 'fixtures', 'review-io-recipe.ts'),
-  ]);
+  const files = walk(REVIEW, []).concat([path.join(MOD, 'tests', 'review-answer.test.ts')]);
   for (const f of files) {
     const s = fs.readFileSync(f, 'utf8');
     assert.ok(!LONG_DASH.test(s), f + ' has a long dash');
@@ -102,32 +97,6 @@ function withScratch(fn) {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 }
-
-scenario('the ReviewIo recipe passes the engine scan and validate lists the review keys it uses', () => {
-  if (!HAVE_CLAUDE) return 'skip';
-  withScratch((dest) => {
-    fs.copyFileSync(
-      path.join(dest, 'tests', 'fixtures', 'review-io-recipe.ts'),
-      path.join(dest, 'src', 'registrars', 'review-recipe.ts'),
-    );
-    const f = path.join(dest, 'src', 'registrars', 'review-recipe.ts');
-    // the recipe lives two folders deep in tests/fixtures; in src/registrars the relative imports shift
-    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/'\.\.\/\.\.\/src\//g, "'../"));
-    const reg = path.join(dest, 'src', 'register.tsx');
-    let s = fs.readFileSync(reg, 'utf8');
-    s = s.replace("import { registerPane } from './registrars/pane'", "import { registerPane } from './registrars/pane'\nimport { registerReviewRecipe } from './registrars/review-recipe'");
-    s = s.replace('  registerPane(on, options)', '  registerPane(on, options)\n  registerReviewRecipe(on, options)');
-    assert.ok(s.includes('registerReviewRecipe(on, options)'), 'the scratch register.tsx was not wired');
-    fs.writeFileSync(reg, s);
-    const r = spawnSync('claude', ['plugin', 'validate', dest], { encoding: 'utf8' });
-    const out = (r.stdout || '') + (r.stderr || '');
-    assert.strictEqual(r.status, 0, out);
-    for (const key of ['reviewPhase', 'reviewLast', 'reviewMirrors', 'reviewDismissed', 'reviewForeign']) {
-      assert.ok(out.includes('mindrian-workspace.' + key), 'validate does not list ' + key + '\n' + out);
-    }
-    assert.match(out, /command\.run\{command=review-recipe\}/);
-  });
-});
 
 function runTests(dest) {
   const r = spawnSync('claude', ['plugin', 'test', dest], { encoding: 'utf8' });

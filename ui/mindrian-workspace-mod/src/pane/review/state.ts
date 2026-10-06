@@ -4,11 +4,10 @@
 // `{ plugin, key } as const` reference (or an atom) written in the SAME FILE that calls `read` or
 // `update`, and `$` never crosses an import. So this file holds NO `atom(...)` and NO `$`: the plan's
 // phaseAtom, lastResultAtom, mirrorsAtom, dismissedAtom, foreignAtom and openCardAtom cannot be
-// exported from here and imported by a component. They are six state KEYS (declared in
-// types/state.d.ts, the one contract the manifest names) with starting values here; the one hook file
-// that owns `$` (src/registrars/pane.tsx, where plan 14 wires the card) spells each reference itself
-// and offers the answer machine a ReviewIo of closures (src/pane/review/answer-machine.ts). The
-// reducers below are what those closures pass to `update`, so the claim rule lives in one tested place.
+// exported from here and imported by a component. Plan 14 shipped route B: the review state is the
+// `review` slice of the one `body` key (src/pane/review/review-io.ts), and plan 18 retired the six
+// top-level keys plan 10 first declared. This file keeps the starting values and the reducers the
+// slice's closures pass to `act.update`, so the claim rule lives in one tested place.
 //
 // Every value is JSON data (no functions, no undefined): state holds data only.
 import type { CopyId } from '../../copy/deck'
@@ -23,16 +22,6 @@ export type PhaseEntry = { phase: PhaseName; claim: string; copyId: string; labe
 
 // What the Room tab's result panel draws (plan 11): set only after the runtime said ok.
 export type LastResult = { gateId: string; label: string; verdict: string; at: number }
-
-// The six keys, in the state contract (types/state.d.ts) as reviewPhase and so on.
-export const REVIEW_KEYS = {
-  phase: 'reviewPhase',
-  last: 'reviewLast',
-  mirrors: 'reviewMirrors',
-  dismissed: 'reviewDismissed',
-  foreign: 'reviewForeign',
-  open: 'reviewOpen',
-} as const
 
 // Starting values. Fresh objects each call so a reducer can never mutate a shared default.
 export function reviewInitial(): {

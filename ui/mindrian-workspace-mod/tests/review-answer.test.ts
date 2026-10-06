@@ -4,7 +4,6 @@
 //
 // Arms are grouped: tables (verdicts, consequence, refusals) first; the gate client and the answer
 // machine arms are added by the later tasks of the plan.
-import type { PluginState } from 'claude-code'
 import { expect, test } from 'claude-code/testing'
 
 import type { GateCard, GateOption } from '../src/model/view-model'
@@ -32,14 +31,6 @@ import {
 import type { LastResult, PhaseEntry } from '../src/pane/review/state'
 import { OPTION_VERDICTS, consequenceId, verdictFor } from '../src/pane/review/verdicts'
 import { MINDRIAN_SERVER } from '../src/runtime/ids'
-
-// The shapes in src/pane/review/state.ts and the inline ones in types/state.d.ts cannot drift
-// (tsc fails this file if they do).
-type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
-type Assert<T extends true> = T
-type State = PluginState['mindrian-workspace']
-export type ReviewPhaseMatches = Assert<Equal<State['reviewPhase'], Record<string, PhaseEntry>>>
-export type ReviewLastMatches = Assert<Equal<State['reviewLast'], LastResult | null>>
 
 function opt(id: string, over: Partial<GateOption> = {}): GateOption {
   return { id, label: id + ' label', description: null, rank: null, preview: null, recommended: false, ...over }

@@ -12,8 +12,8 @@
 //
 // ENGINE RULES (369.26-ENGINE-RULES.md rules 1 and 2, binding): `$` never crosses an import and a state
 // key is spelled in the file that reads or updates it. So the machine takes a ReviewIo, a set of
-// closures built in the one hook file that owns `$` (the recipe is
-// tests/fixtures/review-io-recipe.ts, proved against the engine by tests/test-369.26-review-answer.cjs),
+// closures built in the one hook file that owns `$` (src/registrars/pane.tsx and review-io.ts; the
+// engine accepts the shipped wiring, proved by `claude plugin validate`),
 // and never sees `$`, `read` or `update` itself. That also makes every arm
 // testable with a plain recording stand-in (the engine's own test `$` has no state noun).
 //

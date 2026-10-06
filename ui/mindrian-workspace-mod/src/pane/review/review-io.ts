@@ -3,8 +3,8 @@
 // ENGINE RULES (369.26-ENGINE-RULES.md "Pane body recipe"): a body gets `act` and never `$`, and its state
 // is a slice of the one `body` key. The review state is therefore `body.review`, written through
 // `act.update('review', fn)` (a functional update, one `update($, bodyAtom, ...)` in the hook file) and
-// read from `ctx.body.review`. Plan 10's six top-level keys in types/state.d.ts (reviewPhase and its
-// siblings) stay declared and are NOT used by the pane: the slice replaces them. Slice keys:
+// read from `ctx.body.review`. Plan 10's six top-level keys (reviewPhase and its siblings) were retired
+// by plan 18: the slice replaced them. Slice keys:
 //   phase      Record<gateId, PhaseEntry>   where each card is in the answer (plan 10's entries)
 //   lastResult LastResult                   set only after the runtime said ok (the Room tab's P55)
 //   mirrors    Record<gateId, ledgerId>     cards drawn here through gate_render mirror_of

@@ -29,16 +29,6 @@ export type InitialMatchesTheDeclaration = Assert<
       detailsOpen: Record<TabId, boolean>
       // plan 11: the pane body kit (src/pane/kit.ts)
       body: Record<TabId, { [key: string]: unknown }>
-      // plan 10: the review answer path keys (src/pane/review/state.ts holds their shapes)
-      reviewPhase: Record<
-        string,
-        { phase: 'ready' | 'saving' | 'saved' | 'refused' | 'checking'; claim: string; copyId: string; label: string }
-      >
-      reviewLast: { gateId: string; label: string; verdict: string; at: number } | null
-      reviewMirrors: Record<string, string>
-      reviewDismissed: string[]
-      reviewForeign: string[]
-      reviewOpen: string | null
     }
   >
 >
