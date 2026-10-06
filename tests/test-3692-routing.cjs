@@ -21,6 +21,8 @@
  *   R5d  counterevidence: an assumed limiter whose statement is a sentence is a CE gap bad_slot:limiter (a
  *        refused_before_fetch op), a sentence goal target is a gap bad_slot:goal, a term-shaped goal target
  *        ('energy density') still composes
+ *   R5e  counterevidence: an assumed limiter of 5 or more content words and no punctuation is still a sentence:
+ *        a CE gap bad_slot:limiter, never a quoted phrase; a 4-word goal target still composes (quick 261006)
  *   R6a  composeForLeaf mu.verify {term, term2}: refused unused_slot:term2, no query
  *   R6b  a slot the lens does consume (eu.transfer term2, ws.gap synonyms) still composes
  *   R6c  a quick plan with that leaf: local-only with leaf.refusal unused_slot:term2, the card names the reason
@@ -293,6 +295,25 @@ async function main() {
     assert.ok(goalGap.some(function (o) { return o.state === 'refused_before_fetch' && o.reason === 'bad_slot:goal'; }), 'CE:goal ops ' + JSON.stringify(goalGap.map(function (o) { return [o.state, o.reason]; })));
     const leaked = two.ledger.operations.filter(function (o) { return typeof o.q === 'string' && o.q.indexOf(SENT.slice(0, 40)) !== -1; });
     assert.strictEqual(leaked.length, 0, leaked.length + ' ledger operations carry the goal sentence');
+    return true;
+  });
+
+  // ---- R5e a short unpunctuated sentence limiter (quick 261006 D4, plan 17 follow-up) ----
+  await leg('R5e a 5-word limiter statement with no punctuation is a CE gap bad_slot:limiter, a 4-word goal target composes', async function () {
+    const SHORT = 'Entanglement requires pre-positioned physical barriers';
+    const one = await ceScenario(function (qs) {
+      const lm2 = qs.perspective.limiters.filter(function (l) { return l.id === 'LM2'; })[0];
+      lm2.label = SHORT;
+    });
+    const stmt = one.plan.perspective.limiters.filter(function (l) { return l.id === 'LM2'; })[0].statement;
+    assert.strictEqual(stmt, SHORT, 'the plan limiter statement is not the short sentence: ' + String(stmt).slice(0, 60));
+    const sent = one.ledger.operations.filter(function (o) { return typeof o.q === 'string' && o.q.indexOf('Entanglement requires') !== -1; });
+    assert.strictEqual(sent.length, 0, sent.length + ' ledger operations carry the short sentence: ' + JSON.stringify(sent.map(function (o) { return [o.plan_dimension, o.state, o.reason]; })));
+    const lm2 = ceOps(one.ledger, 'CE:LM2');
+    assert.ok(lm2.some(function (o) { return o.state === 'refused_before_fetch' && o.reason === 'bad_slot:limiter'; }), 'CE:LM2 ops ' + JSON.stringify(lm2.map(function (o) { return [o.state, o.reason]; })));
+    const two = await ceScenario(function (qs) { qs.perspective.goal.target = 'thin film energy density'; });
+    const goalOk = two.ledger.operations.filter(function (o) { return /^CE:goal_falsifier/.test(String(o.plan_dimension)) || (o.kind === 'falsifier' && typeof o.q === 'string' && o.q.indexOf('thin film energy density') !== -1); });
+    assert.ok(goalOk.length >= 1, 'the 4-word goal target did not compose (' + goalOk.length + ' ops)');
     return true;
   });
 
