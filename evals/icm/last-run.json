@@ -1,6 +1,6 @@
 {
-  "run_at": "2026-10-06T07:33:06.787Z",
-  "plugin_version": "2.0.0-beta.64",
+  "run_at": "2026-10-06T18:37:11.249Z",
+  "plugin_version": "2.0.0-beta.66",
   "rooms": [
     {
       "room": "alpha-room",
@@ -93,14 +93,14 @@
       "checklist": "ruling-writer",
       "item_id": "item-5-sequence-fits-job",
       "kind": "jev",
-      "ok": null,
-      "verdict": null,
-      "confidence": 0.45,
+      "ok": true,
+      "verdict": "pass",
+      "confidence": 0.53,
       "probabilities": {
-        "0": 0.27,
-        "1": 0.73
+        "0": 0.24,
+        "1": 0.76
       },
-      "detail": "ABSTAIN: jev score confidence 0.45 is below the 0.5 floor (spread across levels, not a considered verdict)",
+      "detail": "jev responded: pass (score 0.76, confidence 0.53)",
       "room": "alpha-room"
     },
     {
@@ -178,12 +178,12 @@
       "kind": "jev",
       "ok": null,
       "verdict": null,
-      "confidence": 0.06,
+      "confidence": 0.08,
       "probabilities": {
-        "0": 0.47,
-        "1": 0.53
+        "0": 0.46,
+        "1": 0.54
       },
-      "detail": "ABSTAIN: jev score confidence 0.06 is below the 0.5 floor (spread across levels, not a considered verdict)",
+      "detail": "ABSTAIN: jev score confidence 0.08 is below the 0.5 floor (spread across levels, not a considered verdict)",
       "room": "alpha-room"
     },
     {
@@ -293,7 +293,7 @@
       "verdict": "fail",
       "confidence": null,
       "probabilities": null,
-      "detail": "jev responded: fail (noul 0.3, no confidence -- Noul carries none)",
+      "detail": "jev responded: fail (noul 0.29, no confidence -- Noul carries none)",
       "room": "gamma-room"
     },
     {
@@ -324,12 +324,12 @@
       "kind": "jev",
       "ok": true,
       "verdict": "pass",
-      "confidence": 0.73,
+      "confidence": 0.75,
       "probabilities": {
-        "0": 0.14,
-        "1": 0.86
+        "0": 0.13,
+        "1": 0.87
       },
-      "detail": "jev responded: pass (score 0.86, confidence 0.73)",
+      "detail": "jev responded: pass (score 0.87, confidence 0.75)",
       "room": "gamma-room"
     },
     {
@@ -349,18 +349,18 @@
       "kind": "jev",
       "ok": null,
       "verdict": null,
-      "confidence": 0.07,
+      "confidence": 0.05,
       "probabilities": {
-        "0": 0.46,
-        "1": 0.54
+        "0": 0.53,
+        "1": 0.47
       },
-      "detail": "ABSTAIN: jev score confidence 0.07 is below the 0.5 floor (spread across levels, not a considered verdict)",
+      "detail": "ABSTAIN: jev score confidence 0.05 is below the 0.5 floor (spread across levels, not a considered verdict)",
       "room": "gamma-room"
     }
   ],
   "code_pass": 22,
   "code_total": 22,
-  "jev_pass": 2,
+  "jev_pass": 3,
   "jev_total": 8,
   "agreement": 1,
   "jev_model": "jev-1.13.0",
