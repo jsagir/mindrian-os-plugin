@@ -89,8 +89,19 @@ function realFetchEnvelope(route) {
   return fetchEnvelopeFn;
 }
 
+// 369.2-31: the preload hands the route module's merged `bodies` map (when it exports one) to the replay
+// fetch, so a spawned child can serve the SEED-118 bodies. A route module with no `bodies` export keeps the
+// default 363 bodies, so every existing caller works unchanged.
 function writePreload(dir, routeModulePath) {
-  return replayHelper.writeReplayPreload(dir, { routeModulePath: routeModulePath });
+  const file = replayHelper.writeReplayPreload(dir, { routeModulePath: routeModulePath });
+  if (typeof routeModulePath !== 'string' || routeModulePath.length === 0) return file;
+  const body = '\'use strict\';\n'
+    + 'const { makeReplayFetch } = require(' + JSON.stringify(path.join(__dirname, 'openalex-replay-363.cjs')) + ');\n'
+    + 'const route = require(' + JSON.stringify(routeModulePath) + ');\n'
+    + 'const bodies = route && typeof route === \'object\' && route.bodies && typeof route.bodies === \'object\' ? route.bodies : undefined;\n'
+    + 'globalThis.fetch = makeReplayFetch({ route: typeof route === \'function\' ? route : route.route, bodies: bodies });\n';
+  fs.writeFileSync(file, body, 'utf8');
+  return file;
 }
 
 function readReplayLog(file) {

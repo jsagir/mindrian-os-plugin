@@ -1,0 +1,152 @@
+{
+  "schema": "mos.release-room-seed/1",
+  "note": "The graph the seed artifacts would carry after extraction, written through the navigation chokepoint so the run does not depend on a model or an embedding download. Every name is invented. The spider-silk-encoding artifact shares no entity with any other artifact on purpose (SEED-118 defect 10): its only bridge to the rest of the room is the encoding text itself.",
+  "entities": [
+    {
+      "key": "fibre-tether",
+      "type": "technology",
+      "name": "fibre tether"
+    },
+    {
+      "key": "port-cranes",
+      "type": "market",
+      "name": "port crane rows"
+    },
+    {
+      "key": "vibration-sensing",
+      "type": "technology",
+      "name": "line vibration sensing"
+    },
+    {
+      "key": "radar-spotters",
+      "type": "technology",
+      "name": "radar and spotters"
+    },
+    {
+      "key": "terminal-operators",
+      "type": "market",
+      "name": "container terminal operators"
+    },
+    {
+      "key": "silk-thread",
+      "type": "technology",
+      "name": "silk thread rhythm"
+    },
+    {
+      "key": "web-anchors",
+      "type": "technology",
+      "name": "web anchor points"
+    }
+  ],
+  "describes": [
+    [
+      "problem-definition/tether-snags/tether-snags",
+      "fibre-tether"
+    ],
+    [
+      "problem-definition/tether-snags/tether-snags",
+      "port-cranes"
+    ],
+    [
+      "solution-design/mast-sensor/mast-sensor",
+      "vibration-sensing"
+    ],
+    [
+      "solution-design/mast-sensor/mast-sensor",
+      "port-cranes"
+    ],
+    [
+      "competitive-analysis/existing-detectors/existing-detectors",
+      "radar-spotters"
+    ],
+    [
+      "competitive-analysis/existing-detectors/existing-detectors",
+      "port-cranes"
+    ],
+    [
+      "market-analysis/port-operators/port-operators",
+      "terminal-operators"
+    ],
+    [
+      "market-analysis/port-operators/port-operators",
+      "port-cranes"
+    ],
+    [
+      "strategy/spider-silk-encoding/spider-silk-encoding",
+      "silk-thread"
+    ],
+    [
+      "strategy/spider-silk-encoding/spider-silk-encoding",
+      "web-anchors"
+    ]
+  ],
+  "known_pairs": [
+    [
+      "problem-definition/tether-snags/tether-snags",
+      "market-analysis/port-operators/port-operators",
+      "INFORMS"
+    ]
+  ],
+  "claims": [
+    {
+      "knowledge_type": "fact",
+      "text": "A snagged tether cuts the drone link and can drop the drone on a working quay.",
+      "source": "problem-definition/tether-snags/tether-snags"
+    },
+    {
+      "knowledge_type": "causal",
+      "text": "A hair-thin tether is almost invisible to a camera at range, so crews learn of it only after the snag.",
+      "source": "problem-definition/tether-snags/tether-snags"
+    },
+    {
+      "knowledge_type": "assumption",
+      "text": "Entanglement requires pre-positioned physical barriers.",
+      "source": "solution-design/mast-sensor/mast-sensor"
+    },
+    {
+      "knowledge_type": "heuristic",
+      "text": "Container terminals have the strictest downtime rules, so they are the segment to test first.",
+      "source": "market-analysis/port-operators/port-operators"
+    },
+    {
+      "knowledge_type": "assumption",
+      "text": "One sensor head can cover a whole crane row.",
+      "source": "solution-design/mast-sensor/mast-sensor"
+    }
+  ],
+  "theo_probes": [
+    {
+      "id": "plain",
+      "kind": "plain_methodology",
+      "prompt": "How do I tell a problem worth solving from one that only looks urgent?"
+    },
+    {
+      "id": "room_term",
+      "kind": "room_term",
+      "prompt": "What should Kestrel Watch test before a port field trial?"
+    },
+    {
+      "id": "private",
+      "kind": "private_sentence",
+      "prompt": "Our pivot after the investor call is to drop the utility segment."
+    }
+  ],
+  "known_preconditions": [
+    {
+      "defect": "D6",
+      "owner": "369.5",
+      "note": "An opportunity filing that writes an edge to a missing endpoint on a legacy foreign-key db. KNOWN, not replayed here."
+    },
+    {
+      "defect": "D12",
+      "owner": "369.5",
+      "note": "A label-less brain_query answers PLAN_REJECTED. KNOWN, a Theo network leg."
+    }
+  ],
+  "patent_need": {
+    "defect": "D1",
+    "lens": "patent",
+    "term": "fiber cable detection",
+    "note": "The room needs patent prior art on thin line detection. The patent lens has no patent corpus in the install; the replay body seed118_patent_need holds the zero answer."
+  }
+}

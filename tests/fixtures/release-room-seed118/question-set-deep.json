@@ -1,0 +1,360 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "scientific-roadmapping",
+  "command": "/mos:research",
+  "stated_question": "Can the Nimbus Robotics mast spot a fibre-tethered drone near the Haifa port cranes before Orla Venn PhD runs the field trial?",
+  "scqa": {
+    "situation": "Small survey drones on a thin fibre tether fly near the Haifa port cranes and power lines.",
+    "complication": "Each detection path hits a different wall and the first wall named is a sentence, not a measurable thing.",
+    "question": "Which limiter binds first and what unlocks it?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": null,
+  "perspective": {
+    "tension": {
+      "statement": "A thin tether is nearly invisible at range while the quay needs a warning in seconds."
+    },
+    "goal": {
+      "target": "detection range",
+      "threshold": "300",
+      "unit": "m",
+      "quantified": true,
+      "falsifier": "A mast sensor that already finds a fibre tether at crane distance would show the goal is met, so a measured ceiling below crane distance refutes the path."
+    },
+    "rung_phrase": {
+      "roadmap_type": "technology roadmap",
+      "idea_kind": "new mechanism"
+    },
+    "forum": [
+      {
+        "role": "frustrated_insider",
+        "pass_order": 1,
+        "contributed": [
+          "tether contrast"
+        ]
+      },
+      {
+        "role": "fresh_entrant",
+        "pass_order": 2,
+        "contributed": [
+          "vibration reading"
+        ]
+      },
+      {
+        "role": "physics_grounder",
+        "pass_order": 3,
+        "contributed": [
+          "scattering bound"
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "id": "P1",
+        "label": "Optical line sensing",
+        "from_10x": false
+      },
+      {
+        "id": "P2",
+        "label": "Vibration reading",
+        "from_10x": false
+      },
+      {
+        "id": "P3",
+        "label": "Passive barrier",
+        "from_10x": true
+      }
+    ],
+    "limiters": [
+      {
+        "id": "LM1",
+        "column": "physics",
+        "label": "Entanglement barrier",
+        "statement": "Entanglement requires pre-positioned physical barriers",
+        "path_id": "P3",
+        "s_curve": "near_ceiling",
+        "derivation": {
+          "claim": "A barrier only works where it was placed before the flight."
+        },
+        "leaf_id": "L8"
+      },
+      {
+        "id": "LM2",
+        "column": "assumed",
+        "label": "Tether contrast at range",
+        "statement": "Tether contrast at range",
+        "path_id": "P1",
+        "s_curve": "unknown",
+        "question": "Is contrast fixed by the fibre width or by the backdrop?",
+        "leaf_id": "L6"
+      }
+    ],
+    "unlock_chains": [
+      {
+        "limiter_id": "LM2",
+        "steps": [
+          {
+            "pushed_by": "field",
+            "kind": "field",
+            "note": "a narrower-band source"
+          },
+          {
+            "pushed_by": "self",
+            "kind": "field",
+            "note": "mast head redesign"
+          },
+          {
+            "pushed_by": "field",
+            "kind": "adoption",
+            "note": "terminal trial slot"
+          }
+        ]
+      }
+    ],
+    "ranking": [
+      "LM2",
+      "LM1"
+    ],
+    "tensions": [
+      {
+        "id": "T1",
+        "statement": "Insiders call the contrast fixed while entrants report a vibration workaround.",
+        "voices": [
+          "frustrated_insider",
+          "fresh_entrant"
+        ]
+      }
+    ]
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Tension",
+      "dimension": "sr:tension"
+    },
+    {
+      "id": "K2",
+      "label": "Goal",
+      "dimension": "sr:goal"
+    },
+    {
+      "id": "K3",
+      "label": "Paths",
+      "dimension": "sr:paths"
+    },
+    {
+      "id": "K4",
+      "label": "Paths from a 10X resurvey",
+      "dimension": "sr:paths_10x"
+    },
+    {
+      "id": "K5",
+      "label": "Limiters",
+      "dimension": "sr:limiters"
+    },
+    {
+      "id": "K6",
+      "label": "First adopters",
+      "dimension": "df:first_adopters"
+    },
+    {
+      "id": "K7",
+      "label": "Absorptive capacity",
+      "dimension": "df:absorptive_capacity"
+    },
+    {
+      "id": "K8",
+      "label": "Civil and defense crossing",
+      "dimension": "df:civil_defense_crossing"
+    },
+    {
+      "id": "K9",
+      "label": "Timing",
+      "dimension": "df:timing"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Can a mast sensor spot a fibre tether before the trial?",
+      "origin": "user_stated",
+      "dimension": "sr:tension",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Trial-range results at or above the needed range."
+      },
+      "slots": {
+        "term": "SEEDMARK_alpha tether"
+      }
+    },
+    {
+      "id": "L2",
+      "parent": "K2",
+      "question": "What baseline detection ranges are reported for thin lines?",
+      "origin": "framework_dimension",
+      "dimension": "sr:goal",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reported baselines already above the needed range."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L3",
+      "parent": "K3",
+      "question": "Which sensing routes have reached field demonstration?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "A survey finding no route beyond bench level."
+      },
+      "slots": {
+        "term": "thin-wire detection"
+      }
+    },
+    {
+      "id": "L4",
+      "parent": "K3",
+      "question": "Which neighbouring sensing routes were tried and dropped?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reports that routes were dropped for cost only."
+      },
+      "slots": {
+        "term": "fiber tether sensing"
+      }
+    },
+    {
+      "id": "L5",
+      "parent": "K4",
+      "question": "What neighbouring field read a thin line by another mechanism?",
+      "origin": "framework_dimension",
+      "dimension": "sr:paths_10x",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that neighbouring mechanisms fail at this range."
+      },
+      "slots": {
+        "term": "cable cutting",
+        "term2": "optical time domain reflectometry"
+      }
+    },
+    {
+      "id": "L6",
+      "parent": "K5",
+      "question": "Does contrast at range hold up against wind noise?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.retest",
+      "researchable": true,
+      "falsifier": {
+        "text": "Re-tests reproducing the same contrast limit."
+      },
+      "slots": {
+        "limiter": "tether contrast at range",
+        "term": "SEEDMARK_beta"
+      },
+      "limiter_id": "LM2"
+    },
+    {
+      "id": "L7",
+      "parent": "K5",
+      "question": "Which reviews attack the barrier claim?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.prior_attack",
+      "researchable": true,
+      "falsifier": {
+        "text": "Reviews confirming the barrier as the only defence."
+      },
+      "slots": {},
+      "limiter_id": "LM1"
+    },
+    {
+      "id": "L8",
+      "parent": "K5",
+      "question": "Is the barrier claim derived from first principles?",
+      "origin": "framework_dimension",
+      "dimension": "sr:limiters",
+      "lens": "ci.derivation",
+      "researchable": true,
+      "falsifier": {
+        "text": "A derivation showing the barrier is not required."
+      },
+      "slots": {},
+      "limiter_id": "LM1"
+    },
+    {
+      "id": "L9",
+      "parent": "K6",
+      "question": "Which buyers adopt a mast sensor first?",
+      "origin": "framework_dimension",
+      "dimension": "df:first_adopters",
+      "lens": "df.first_adopters",
+      "researchable": true,
+      "falsifier": {
+        "text": "Records of adoption starting elsewhere."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L10",
+      "parent": "K7",
+      "question": "What trial effort do new terminals face?",
+      "origin": "framework_dimension",
+      "dimension": "df:absorptive_capacity",
+      "lens": "df.absorptive_capacity",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases of trials with no added effort."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L11",
+      "parent": "K8",
+      "question": "Have earlier detectors crossed between civil and defense use?",
+      "origin": "framework_dimension",
+      "dimension": "df:civil_defense_crossing",
+      "lens": "df.civil_defense_crossing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Cases where crossing was blocked."
+      },
+      "slots": {}
+    },
+    {
+      "id": "L12",
+      "parent": "K9",
+      "question": "Where do incumbent and new detectors sit on their curves?",
+      "origin": "framework_dimension",
+      "dimension": "df:timing",
+      "lens": "df.timing",
+      "researchable": true,
+      "falsifier": {
+        "text": "Rate data placing both at one stage."
+      },
+      "slots": {}
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": [
+    {
+      "lens": "diffusion",
+      "reason": "adoption by terminal operators is disputed"
+    }
+  ],
+  "fixture_budget": {
+    "max_searches": 8,
+    "note": "The deep budget the SEED-118 session ran with (the HARNESS-01 analog). The plan carries the budget, not the question set, so the closure test applies it with set_budget; this key is the fixture's declaration of it."
+  }
+}

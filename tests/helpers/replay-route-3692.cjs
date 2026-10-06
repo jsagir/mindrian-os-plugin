@@ -20,10 +20,33 @@
  */
 
 const fs = require('node:fs');
+const path = require('node:path');
+
+// 369.2-31: the merged replay bodies a preload serves (the 363 set, the 369.2 set, the SEED-118 set; a later
+// file wins on a key collision and none is expected). A preload passes this map to makeReplayFetch.
+const BODY_FILES = Object.freeze([
+  path.join(__dirname, '..', 'fixtures', '363-openalex', 'bodies.json'),
+  path.join(__dirname, '..', 'fixtures', '3692-openalex', 'bodies.json'),
+  path.join(__dirname, '..', 'fixtures', '3692-openalex', 'seed118-bodies.json'),
+]);
+function mergedBodies() {
+  const out = {};
+  BODY_FILES.forEach(function (f) { Object.assign(out, JSON.parse(fs.readFileSync(f, 'utf8'))); });
+  return out;
+}
 
 const ROUTES = Object.freeze([
   Object.freeze([/cold storage|cold locker/i, 'synonym_hits']),
   Object.freeze([/review OR survey/, 'prior_review_two']),
+  // 369.2-31: the SEED-118 shaped room (tests/fixtures/release-room-seed118). Practice names hit, problem
+  // names find nothing (the positive finding); the baseline row answers the deployed countermeasure that
+  // contradicts the entanglement limiter; the last row is the lane B pair that matches the governing question.
+  // ASSUMED: the baseline kind (a later plan) composes a string that carries the word deployed or countermeasure.
+  Object.freeze([/optical time domain reflectometry|powerline detection/i, 'seed118_practice_hits']),
+  Object.freeze([/thin.wire detection|cable cutting/i, 'seed118_problem_zero']),
+  Object.freeze([/fiber tether sensing/i, 'seed118_problem_zero']),
+  Object.freeze([/deployed|countermeasure/i, 'seed118_baseline_countermeasure']),
+  Object.freeze([/fibre.tethered drone/i, 'seed118_lane_b_bearing']),
 ]);
 
 function logQuery(q) {
@@ -44,4 +67,4 @@ function route(q, url) {
   return 'gap_primary_zero';
 }
 
-module.exports = { route: route, ROUTES: ROUTES };
+module.exports = { route: route, ROUTES: ROUTES, bodies: mergedBodies(), BODY_FILES: BODY_FILES };

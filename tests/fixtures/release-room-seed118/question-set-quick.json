@@ -1,0 +1,174 @@
+{
+  "schema": "mos.research-question-set/1",
+  "template_id": "map-unknowns",
+  "command": "/mos:map-unknowns",
+  "stated_question": "Can the Nimbus Robotics mast spot a fibre-tethered drone near the Haifa port cranes before Orla Venn PhD runs the field trial?",
+  "scqa": {
+    "situation": "Small survey drones on a thin fibre tether fly near the Haifa port cranes and power lines.",
+    "complication": "A tether is almost invisible at range and radar does not see it, so a snag is found only after it happens.",
+    "question": "What must be true for a mast sensor to find a fibre tether early enough to matter?",
+    "answer_hypothesis": null
+  },
+  "mode_hint": "quick",
+  "perspective": {
+    "tension": {
+      "statement": "A cheap mast sensor versus a tether nobody sees until the snag."
+    },
+    "goal": {
+      "target": "Know which tether cues a mast sensor cannot read.",
+      "threshold": null,
+      "unit": null,
+      "quantified": false,
+      "falsifier": "evidence that the zone is already covered by a deployed detector"
+    },
+    "rung_phrase": {
+      "roadmap_type": "exploration",
+      "idea_kind": "open question"
+    },
+    "forum": [],
+    "paths": [
+      {
+        "id": "P1",
+        "label": "Mast sensor alone",
+        "from_10x": false
+      },
+      {
+        "id": "P2",
+        "label": "Mast sensor plus spotter cue",
+        "from_10x": false
+      }
+    ],
+    "limiters": [
+      {
+        "id": "LM1",
+        "column": "assumed",
+        "label": "Tether contrast against wind noise",
+        "path_id": "P1",
+        "s_curve": "unknown",
+        "question": "Is the limit set by the sensor range or by the wind noise floor?",
+        "leaf_id": "L6"
+      }
+    ],
+    "unlock_chains": [],
+    "tensions": []
+  },
+  "key_line": [
+    {
+      "id": "K1",
+      "label": "Known knowns",
+      "dimension": "mu:known_known"
+    },
+    {
+      "id": "K2",
+      "label": "Blind spots",
+      "dimension": "mu:blind_spot"
+    },
+    {
+      "id": "K3",
+      "label": "Hidden knowns",
+      "dimension": "mu:hidden_known"
+    },
+    {
+      "id": "K4",
+      "label": "Unknown unknowns",
+      "dimension": "mu:unknown_unknown"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "L1",
+      "parent": "K1",
+      "question": "Can the Nimbus Robotics mast spot a fibre-tethered drone near the Haifa port cranes before Orla Venn PhD runs the field trial?",
+      "origin": "user_stated",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Evidence that a pole-mounted sensor misses a fibre tether at crane distance."
+      },
+      "slots": {
+        "term": "Nimbus Robotics tether detection Haifa"
+      },
+      "query_kinds": {
+        "practice": "optical time domain reflectometry",
+        "adjacent": "powerline detection"
+      }
+    },
+    {
+      "id": "L2",
+      "parent": "K1",
+      "question": "Does published work support detecting a thin line by its own vibration?",
+      "origin": "framework_dimension",
+      "dimension": "mu:known_known",
+      "lens": "mu.verify",
+      "researchable": true,
+      "falsifier": {
+        "text": "Studies that contradict vibration-based line detection."
+      },
+      "slots": {
+        "term": "fibre tether vibration sensing"
+      }
+    },
+    {
+      "id": "L3",
+      "parent": "K2",
+      "question": "Which snag causes do crane crews report that a mast sensor would not touch?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "Crew reports showing none of these causes occur."
+      },
+      "slots": {
+        "term": "drone tether snags near cranes"
+      }
+    },
+    {
+      "id": "L4",
+      "parent": "K2",
+      "question": "What do neighbouring inspection uses require that this design has not read?",
+      "origin": "framework_dimension",
+      "dimension": "mu:blind_spot",
+      "lens": "mu.blind_spot",
+      "researchable": true,
+      "falsifier": {
+        "text": "A review showing neighbouring uses impose no extra requirement."
+      },
+      "slots": {
+        "term": "powerline inspection drone safety"
+      }
+    },
+    {
+      "id": "L5",
+      "parent": "K3",
+      "question": "What does the team already suspect about port crews but has not written down?",
+      "origin": "framework_dimension",
+      "dimension": "mu:hidden_known",
+      "lens": "mu.reveal",
+      "researchable": false,
+      "falsifier": {
+        "text": ""
+      },
+      "slots": {},
+      "not_researchable_reason": "tacit knowledge the team must surface"
+    },
+    {
+      "id": "L6",
+      "parent": "K4",
+      "question": "What adjacent evidence would reveal a tether cue nobody has named?",
+      "origin": "mece_gap",
+      "dimension": "mu:unknown_unknown",
+      "lens": "mu.reveal",
+      "researchable": true,
+      "falsifier": {
+        "text": "A broad survey finding no unnamed tether cue."
+      },
+      "slots": {
+        "term": "fibre-tethered drone detection near port cranes"
+      }
+    }
+  ],
+  "coverage_notes": [],
+  "lens_selection": []
+}

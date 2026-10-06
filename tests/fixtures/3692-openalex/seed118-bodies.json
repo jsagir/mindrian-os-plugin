@@ -1,0 +1,610 @@
+{
+  "_note": "Synthetic fixture text for the SEED-118 shaped room. Every title and abstract was written for this fixture; none is a real paper and no author is named. The counts in meta echo the counts RESEARCH Section 5 measured live (5085 for optical time domain reflectometry, 386 for powerline detection, 0 for the quoted limiter sentence).",
+  "seed118_practice_hits": {
+    "meta": {
+      "count": 5085,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9370001",
+        "doi": "https://doi.org/10.0000/synth3692s118.001",
+        "title": "Optical time domain reflectometry for locating a thin fibre line",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "describes": [
+            4
+          ],
+          "optical": [
+            5,
+            20
+          ],
+          "time": [
+            6
+          ],
+          "domain": [
+            7
+          ],
+          "reflectometry": [
+            8
+          ],
+          "used": [
+            9
+          ],
+          "to": [
+            10
+          ],
+          "locate": [
+            11
+          ],
+          "a": [
+            12,
+            15,
+            18
+          ],
+          "break": [
+            13
+          ],
+          "or": [
+            14
+          ],
+          "disturbance": [
+            16
+          ],
+          "along": [
+            17
+          ],
+          "thin": [
+            19
+          ],
+          "fibre": [
+            21
+          ],
+          "line": [
+            22
+          ],
+          "by": [
+            23
+          ],
+          "its": [
+            24
+          ],
+          "backscatter": [
+            25
+          ],
+          "trace.": [
+            26
+          ]
+        },
+        "publication_year": 2018,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 64,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9370002",
+        "doi": "https://doi.org/10.0000/synth3692s118.002",
+        "title": "Powerline detection from a moving platform",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "describes": [
+            4
+          ],
+          "powerline": [
+            5
+          ],
+          "detection": [
+            6
+          ],
+          "of": [
+            7
+          ],
+          "thin": [
+            8
+          ],
+          "overhead": [
+            9
+          ],
+          "lines": [
+            10
+          ],
+          "from": [
+            11
+          ],
+          "a": [
+            12
+          ],
+          "moving": [
+            13
+          ],
+          "platform,": [
+            14
+          ],
+          "using": [
+            15
+          ],
+          "line": [
+            16
+          ],
+          "contrast": [
+            17
+          ],
+          "and": [
+            18
+          ],
+          "vibration": [
+            19
+          ],
+          "cues.": [
+            20
+          ]
+        },
+        "publication_year": 2020,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 41,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9370003",
+        "doi": "https://doi.org/10.0000/synth3692s118.003",
+        "title": "Vibration cues on a tensioned thin line",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "reports": [
+            4
+          ],
+          "that": [
+            5,
+            14
+          ],
+          "a": [
+            6,
+            11,
+            15
+          ],
+          "tensioned": [
+            7
+          ],
+          "thin": [
+            8
+          ],
+          "line": [
+            9
+          ],
+          "carries": [
+            10
+          ],
+          "vibration": [
+            12
+          ],
+          "pattern": [
+            13
+          ],
+          "distant": [
+            16
+          ],
+          "sensor": [
+            17
+          ],
+          "can": [
+            18
+          ],
+          "read": [
+            19
+          ],
+          "without": [
+            20
+          ],
+          "seeing": [
+            21
+          ],
+          "the": [
+            22
+          ],
+          "line.": [
+            23
+          ]
+        },
+        "publication_year": 2019,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 27,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ]
+  },
+  "seed118_problem_zero": {
+    "meta": {
+      "count": 0,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": []
+  },
+  "seed118_baseline_countermeasure": {
+    "meta": {
+      "count": 1,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9370004",
+        "doi": "https://doi.org/10.0000/synth3692s118.004",
+        "title": "A deployed passive countermeasure that overcomes tether entanglement",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "describes": [
+            4
+          ],
+          "a": [
+            5,
+            10,
+            15
+          ],
+          "deployed": [
+            6
+          ],
+          "passive": [
+            7
+          ],
+          "countermeasure": [
+            8
+          ],
+          "for": [
+            9
+          ],
+          "fibre-tethered": [
+            11
+          ],
+          "drone": [
+            12
+          ],
+          "near": [
+            13
+          ],
+          "cranes:": [
+            14
+          ],
+          "self-clearing": [
+            16
+          ],
+          "line": [
+            17
+          ],
+          "guard": [
+            18
+          ],
+          "that": [
+            19
+          ],
+          "overcomes": [
+            20
+          ],
+          "entanglement": [
+            21
+          ],
+          "without": [
+            22
+          ],
+          "any": [
+            23
+          ],
+          "pre-positioned": [
+            24
+          ],
+          "physical": [
+            25
+          ],
+          "barrier.": [
+            26
+          ]
+        },
+        "publication_year": 2022,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 9,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ]
+  },
+  "seed118_lane_b_bearing": {
+    "meta": {
+      "count": 2,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9370005",
+        "doi": "https://doi.org/10.0000/synth3692s118.005",
+        "title": "Can a mast sensor spot a fibre-tethered drone near port cranes",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "asks": [
+            4
+          ],
+          "whether": [
+            5
+          ],
+          "a": [
+            6,
+            11,
+            18,
+            24
+          ],
+          "mast": [
+            7
+          ],
+          "sensor": [
+            8
+          ],
+          "can": [
+            9
+          ],
+          "spot": [
+            10
+          ],
+          "fibre-tethered": [
+            12
+          ],
+          "drone": [
+            13
+          ],
+          "near": [
+            14
+          ],
+          "port": [
+            15
+          ],
+          "cranes": [
+            16
+          ],
+          "before": [
+            17
+          ],
+          "field": [
+            19
+          ],
+          "trial": [
+            20
+          ],
+          "runs,": [
+            21
+          ],
+          "and": [
+            22
+          ],
+          "reports": [
+            23
+          ],
+          "first": [
+            25
+          ],
+          "bench": [
+            26
+          ],
+          "result.": [
+            27
+          ]
+        },
+        "publication_year": 2023,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 5,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9370006",
+        "doi": "https://doi.org/10.0000/synth3692s118.006",
+        "title": "Field trial design for spotting a fibre-tethered drone near cranes",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "sets": [
+            4
+          ],
+          "out": [
+            5
+          ],
+          "a": [
+            6,
+            11,
+            16
+          ],
+          "field": [
+            7
+          ],
+          "trial": [
+            8,
+            25
+          ],
+          "in": [
+            9
+          ],
+          "which": [
+            10
+          ],
+          "mast": [
+            12
+          ],
+          "sensor": [
+            13
+          ],
+          "must": [
+            14
+          ],
+          "spot": [
+            15
+          ],
+          "fibre-tethered": [
+            17
+          ],
+          "drone": [
+            18
+          ],
+          "near": [
+            19
+          ],
+          "the": [
+            20,
+            24
+          ],
+          "port": [
+            21
+          ],
+          "cranes,": [
+            22
+          ],
+          "with": [
+            23
+          ],
+          "run": [
+            26
+          ],
+          "before": [
+            27
+          ],
+          "any": [
+            28
+          ],
+          "fielding.": [
+            29
+          ]
+        },
+        "publication_year": 2023,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 3,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Line Sensing",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ]
+  },
+  "seed118_patent_need": {
+    "meta": {
+      "count": 0,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": []
+  }
+}
