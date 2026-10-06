@@ -1,7 +1,7 @@
 // Plan 05: the band's building blocks. Pure view functions over the resolved element table (a
 // module has no element globals, so every function takes the table as its first parameter). No
 // `$` here, no color value: a block asks for a job and the theme (plan 03) answers.
-import type { Elements, RenderElement, RenderNode } from 'claude-code'
+import type { Elements, RenderElement, RenderNode, TextProps } from 'claude-code'
 
 import { paintProps } from '../theme/plain'
 import type { Mode } from '../theme/plain'
@@ -28,7 +28,7 @@ export function splitLabel(s: string): [string, string] {
 
 // The Text props for words sitting on a block of this job: the legal text color and the block's
 // own background in color mode, nothing in plain mode; one line, truncated at the end.
-export function wordsProps(mode: Mode, theme: Theme | null, job: BlockJob): Record<string, string | boolean> {
+export function wordsProps(mode: Mode, theme: Theme | null, job: BlockJob): TextProps {
   return { wrap: 'truncate-end', ...paintProps(mode, theme, job) }
 }
 

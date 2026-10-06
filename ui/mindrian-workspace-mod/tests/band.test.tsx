@@ -10,6 +10,18 @@ import { ContextBar, Block, FrameCell, splitLabel } from '../src/band/blocks'
 import type { El } from '../src/band/blocks'
 import { LogoCell } from '../src/band/logo'
 import { pickTier } from '../src/band/tier'
+import {
+  ContextTile,
+  HealthTile,
+  NextTile,
+  PlaceTile,
+  PurposeTile,
+  WaitingTile,
+  WorkingNote,
+} from '../src/band/tiles'
+import { ok } from '../src/model/view-model'
+import type { Seen, ViewModel } from '../src/model/view-model'
+import { SAMPLES } from '../src/model/fixtures'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -237,4 +249,272 @@ test('splitLabel: the word that names the block is bold, the rest regular', () =
   expect(splitLabel('This folder is for: building the case')).toEqual(['This folder is for: ', 'building the case'])
   expect(splitLabel('No purpose written yet')).toEqual(['', 'No purpose written yet'])
   expect(splitLabel('Next: not recorded yet')).toEqual(['Next: ', 'not recorded yet'])
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: the tiles, state by state. `shown` is the text a person reads in a subtree.
+
+function shown(x: unknown): string {
+  if (typeof x === 'string') return x
+  if (typeof x !== 'object' || x === null) return ''
+  return asNode(x).children.map(shown).join('')
+}
+
+function backgrounds(x: unknown): unknown[] {
+  const out: unknown[] = []
+  walk(x, (n) => {
+    if (n.props.backgroundColor !== undefined) out.push(n.props.backgroundColor)
+  })
+  return out
+}
+
+function textColors(x: unknown): unknown[] {
+  const out: unknown[] = []
+  walk(x, (n) => {
+    if (n.type === 'Text' && n.props.color !== undefined) out.push(n.props.color)
+  })
+  return out
+}
+
+function hasBold(x: unknown, label: string): boolean {
+  let found = false
+  walk(x, (n) => {
+    if (n.type === 'Text' && n.props.bold === true && shown(n) === label) found = true
+  })
+  return found
+}
+
+function dimWords(x: unknown): boolean {
+  let found = false
+  walk(x, (n) => {
+    if (n.type === 'Text' && n.props.dimColor === true) found = true
+  })
+  return found
+}
+
+const WIDE: ViewModel = SAMPLES.wide
+const COLORED_BLOCKS = [THEME.where, THEME.yourMove, THEME.problem]
+
+test('PlaceTile: a folder draws B10 on the blue block with cream words, the label bold', () => {
+  const t = PlaceTile(EL, WIDE.place, THEME, COLOR)
+  expect(shown(t)).toBe("You're in: Funding (sample)")
+  expect(asNode(t).props.backgroundColor).toBe(THEME.where)
+  expect(textColors(t)).toContain(THEME.reading)
+  expect(hasBold(t, "You're in: ")).toBe(true)
+})
+
+test('PlaceTile: the top of the room draws the room name (B11)', () => {
+  const place = { ...WIDE.place, folder: ok<string | null>(null) }
+  expect(shown(PlaceTile(EL, place, THEME, COLOR))).toBe("You're in: Sample room (sample)")
+})
+
+test('PlaceTile: no room bound B12, a remembered room B13, an unreadable place B14', () => {
+  const none = { ...WIDE.place, isBound: false, registryFallback: false }
+  expect(shown(PlaceTile(EL, none, THEME, COLOR))).toBe("You're not in a data room yet")
+  const remembered = { ...none, registryFallback: true }
+  expect(shown(PlaceTile(EL, remembered, THEME, COLOR))).toBe('Last data room used: Sample room (sample)')
+  const broken = { ...WIDE.place, folder: { state: 'unavailable' } as Seen<string | null> }
+  expect(shown(PlaceTile(EL, broken, THEME, COLOR))).toBe("Can't tell where you are right now")
+})
+
+test('PurposeTile: a purpose draws B20 on cream with black words', () => {
+  const t = PurposeTile(EL, WIDE.purpose, THEME, COLOR)
+  expect(shown(t)).toBe('This folder is for: building the funding case (sample)')
+  expect(asNode(t).props.backgroundColor).toBe(THEME.reading)
+  expect(textColors(t)).toContain(THEME.frame)
+  expect(hasBold(t, 'This folder is for: ')).toBe(true)
+})
+
+test('PurposeTile: every missing state draws its own words and nothing else', () => {
+  const states: Array<[Seen<string>, string]> = [
+    [{ state: 'no_purpose' }, 'No purpose written yet'],
+    [{ state: 'not_recorded' }, 'No purpose written yet'],
+    [{ state: 'no_room_file' }, 'This folder has no description yet'],
+    [{ state: 'unavailable' }, "Can't read this folder's purpose right now"],
+  ]
+  for (const [seen, words] of states) {
+    expect(shown(PurposeTile(EL, seen, THEME, COLOR))).toBe(words)
+  }
+})
+
+test('NextTile: a step draws B30 and never the reason; the tile is cream, never yellow', () => {
+  const next = { ...WIDE.next, reason: ok('because the evidence is thin') }
+  const t = NextTile(EL, next, THEME, COLOR)
+  expect(shown(t)).toBe('Next: look at the evidence behind your funding choice (sample)')
+  expect(shown(t)).not.toContain('because')
+  expect(backgrounds(t)).toEqual([THEME.reading, THEME.reading])
+})
+
+test('NextTile: not recorded B32, unreadable B33, looking it up B34; all cream', () => {
+  const cases: Array<[Seen<string>, boolean, string]> = [
+    [{ state: 'not_recorded' }, false, 'Next: not recorded yet'],
+    [{ state: 'unavailable' }, false, "Next: can't read this right now"],
+    [{ state: 'searching' }, false, 'Next: looking it up'],
+    [{ state: 'not_recorded' }, true, 'Next: looking it up'],
+  ]
+  for (const [step, isLookingUp, words] of cases) {
+    const t = NextTile(EL, { ...WIDE.next, step, isLookingUp }, THEME, COLOR)
+    expect(shown(t)).toBe(words)
+    expect(backgrounds(t).every((b) => b === THEME.reading)).toBe(true)
+  }
+})
+
+test('WaitingTile: one decision B60 on yellow with black words', () => {
+  const t = WaitingTile(EL, ok(1), THEME, COLOR)
+  expect(shown(t)).toBe('A decision is waiting')
+  expect(asNode(t).props.backgroundColor).toBe(THEME.yourMove)
+  expect(textColors(t)).toContain(THEME.frame)
+})
+
+test('WaitingTile: several draw B63 with the real number', () => {
+  expect(shown(WaitingTile(EL, ok(3), THEME, COLOR))).toBe('3 decisions are waiting')
+  expect(shown(WaitingTile(EL, ok(12), THEME, COLOR))).toBe('12 decisions are waiting')
+})
+
+test('WaitingTile: none draws B61 and unreadable B62 as dim words with no colored block', () => {
+  for (const [seen, words] of [
+    [ok(0), 'Nothing is waiting on you'],
+    [{ state: 'unavailable' } as Seen<number>, "Can't check decisions right now"],
+  ] as Array<[Seen<number>, string]>) {
+    const t = WaitingTile(EL, seen, THEME, COLOR)
+    expect(shown(t)).toBe(words)
+    expect(dimWords(t)).toBe(true)
+    expect(backgrounds(t).some((b) => COLORED_BLOCKS.includes(b as string))).toBe(false)
+  }
+})
+
+test('ContextTile: under 50 draws B50 on the frame with cream words and a cream bar', () => {
+  const t = ContextTile(EL, ok(30), THEME, COLOR, true)
+  expect(shown(t)).toBe('Context used: 30%' + '\u00B7'.repeat(7))
+  expect(asNode(t).props.backgroundColor).toBe(THEME.frame)
+  expect(backgrounds(t)).toContain(THEME.reading)
+  expect(backgrounds(t)).not.toContain(THEME.yourMove)
+  expect(hasBold(t, 'Context used: ')).toBe(true)
+})
+
+test('ContextTile: 50 to 79 draws the same words with a yellow bar', () => {
+  const t = ContextTile(EL, ok(62), THEME, COLOR, true)
+  expect(shown(t)).toContain('Context used: 62%')
+  expect(asNode(t).props.backgroundColor).toBe(THEME.frame)
+  expect(backgrounds(t).filter((b) => b === THEME.yourMove)).toHaveLength(6)
+})
+
+test('ContextTile: no bar when the tier has none', () => {
+  const t = ContextTile(EL, ok(62), THEME, COLOR, false)
+  expect(shown(t)).toBe('Context used: 62%')
+  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.frame]))
+})
+
+test('ContextTile: 80 and over turns the block yellow and bold with no bar', () => {
+  const t = ContextTile(EL, ok(85), THEME, COLOR, true)
+  expect(shown(t)).toBe('Context used: 85%. Save your thinking now.')
+  expect(asNode(t).props.backgroundColor).toBe(THEME.yourMove)
+  expect(new Set(backgrounds(t))).toEqual(new Set([THEME.yourMove]))
+  expect(hasBold(t, 'Context used: 85%. Save your thinking now.')).toBe(true)
+})
+
+test('ContextTile: not known yet B54, unreadable B53, never a bar', () => {
+  expect(shown(ContextTile(EL, { state: 'not_recorded' }, THEME, COLOR, true))).toBe('Context used: not known yet')
+  expect(shown(ContextTile(EL, { state: 'unavailable' }, THEME, COLOR, true))).toBe("Can't read context use right now")
+})
+
+test('HealthTile: a sound room draws nothing', () => {
+  expect(HealthTile(EL, ok('sound'), THEME, COLOR)).toBe(null)
+})
+
+test('HealthTile: drift is yellow with black words, broken is red with cream words', () => {
+  const drift = HealthTile(EL, ok('drift'), THEME, COLOR)
+  expect(shown(drift)).toBe('Room needs a checkup')
+  expect(asNode(drift).props.backgroundColor).toBe(THEME.yourMove)
+  expect(textColors(drift)).toContain(THEME.frame)
+  const broken = HealthTile(EL, ok('broken'), THEME, COLOR)
+  expect(shown(broken)).toBe('Room is broken')
+  expect(asNode(broken).props.backgroundColor).toBe(THEME.problem)
+  expect(textColors(broken)).toContain(THEME.reading)
+})
+
+test('HealthTile: a check that cannot run is dim words, never an alarm', () => {
+  const t = HealthTile(EL, { state: 'unavailable' }, THEME, COLOR)
+  expect(shown(t)).toBe("Can't check the room right now")
+  expect(dimWords(t)).toBe(true)
+  expect(backgrounds(t).some((b) => b === THEME.problem || b === THEME.yourMove)).toBe(false)
+})
+
+test('WorkingNote: dim words only while a turn runs', () => {
+  expect(WorkingNote(EL, false, THEME, COLOR)).toBe(null)
+  const t = WorkingNote(EL, true, THEME, COLOR)
+  expect(shown(t)).toBe('Larry is working')
+  expect(dimWords(t)).toBe(true)
+})
+
+test('no tile source carries the stack words or a long dash', async () => {
+  // Read through the engine's own import graph is not possible here; the guard test of plan 18
+  // reads the source. This arm checks the words a person could see across every sample state.
+  const every: string[] = []
+  for (const vm of Object.values(SAMPLES)) {
+    every.push(
+      shown(PlaceTile(EL, vm.place, THEME, COLOR)),
+      shown(PurposeTile(EL, vm.purpose, THEME, COLOR)),
+      shown(NextTile(EL, vm.next, THEME, COLOR)),
+      shown(WaitingTile(EL, vm.waiting, THEME, COLOR)),
+      shown(ContextTile(EL, vm.context, THEME, COLOR, true)),
+      shown(HealthTile(EL, vm.health, THEME, COLOR)),
+    )
+  }
+  for (const words of every) {
+    expect(/ICM|Brain|Theo/.test(words)).toBe(false)
+    expect(words.includes('\u2014') || words.includes('\u2013')).toBe(false)
+  }
+})
+
+// Plain mode: every tile, every state, no color anywhere, warnings led by a bold bang.
+
+function everyTile(vm: ViewModel, theme: Theme | null, mode: Mode): unknown[] {
+  return [
+    PlaceTile(EL, vm.place, theme, mode),
+    PurposeTile(EL, vm.purpose, theme, mode),
+    NextTile(EL, vm.next, theme, mode),
+    WaitingTile(EL, vm.waiting, theme, mode),
+    ContextTile(EL, vm.context, theme, mode, true),
+    HealthTile(EL, vm.health, theme, mode),
+    WorkingNote(EL, true, theme, mode),
+  ]
+}
+
+test('plain mode: no tile in any sample state carries a color prop or a hex string', () => {
+  for (const vm of Object.values(SAMPLES)) {
+    for (const tile of everyTile(vm, null, PLAIN)) {
+      if (tile === null) continue
+      walk(tile, (n) => {
+        expect(Object.keys(n.props)).not.toContain('color')
+        expect(Object.keys(n.props)).not.toContain('backgroundColor')
+      })
+      expect(/#[0-9A-Fa-f]{6}/.test(JSON.stringify(tile))).toBe(false)
+    }
+  }
+})
+
+test('plain mode: a warning line starts with a bold bang', () => {
+  const warnings: unknown[] = [
+    WaitingTile(EL, ok(1), null, PLAIN),
+    WaitingTile(EL, ok(3), null, PLAIN),
+    ContextTile(EL, ok(85), null, PLAIN, true),
+    HealthTile(EL, ok('drift'), null, PLAIN),
+    HealthTile(EL, ok('broken'), null, PLAIN),
+  ]
+  for (const w of warnings) {
+    expect(shown(w).startsWith('!')).toBe(true)
+    let bold = false
+    walk(w, (n) => {
+      if (n.type === 'Text' && n.props.bold === true && shown(n).startsWith('!')) bold = true
+    })
+    expect(bold).toBe(true)
+  }
+  // A line that does not need the person has no bang.
+  expect(shown(WaitingTile(EL, ok(0), null, PLAIN)).startsWith('!')).toBe(false)
+  expect(shown(ContextTile(EL, ok(30), null, PLAIN, true)).startsWith('!')).toBe(false)
+})
+
+test('plain mode: the context bar is never drawn', () => {
+  expect(shown(ContextTile(EL, ok(62), null, PLAIN, true))).toBe('Context used: 62%')
 })
