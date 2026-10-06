@@ -355,6 +355,30 @@ function exitAfterTeardown(signal) {
     process.exit(0);
   })().catch(() => process.exit(0));
 }
+// stdin-EOF / parent-loss exit (orphan leak, 2026-10-06). A stdio MCP server
+// whose host dies without sending SIGTERM (a killed child session or subagent is
+// the common case) never received a signal, and the tree watcher kept the event
+// loop alive, so it lived on reparented to pid 1 holding memory (104 orphans,
+// about 5.8 GB, observed in one WSL session). The stdio contract is that the host
+// owning stdin owns the process lifetime: stdin end/close exits through the SAME
+// exitAfterTeardown path SIGTERM uses (snapshot + teardown first), and an unref'd
+// ppid watchdog covers a host that dies while a sibling still holds the pipe open.
+// Stdio branches only; the HTTP (Cowork) branch is unaffected.
+function registerParentLossListeners() {
+  const onEof = () => exitAfterTeardown('stdin-eof');
+  process.stdin.once('end', onEof);
+  process.stdin.once('close', onEof);
+  const startPpid = process.ppid;
+  if (process.platform !== 'win32' && startPpid > 1) {
+    const raw = Number(process.env.MINDRIAN_PARENT_WATCH_MS);
+    const ms = Number.isFinite(raw) && raw >= 50 ? raw : 5000;
+    const watch = setInterval(() => {
+      if (process.ppid !== startPpid) exitAfterTeardown('parent-lost');
+    }, ms);
+    if (typeof watch.unref === 'function') watch.unref();
+  }
+}
+
 function registerTerminalSignalListeners() {
   process.on('SIGTERM', () => exitAfterTeardown('SIGTERM'));
   process.on('SIGINT', () => exitAfterTeardown('SIGINT'));
@@ -374,6 +398,7 @@ async function main() {
       startTreeWatcherOnce(getServer());
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
       registerTerminalSignalListeners();
+      registerParentLossListeners();
       return;
     }
 
@@ -622,6 +647,7 @@ async function main() {
     startTreeWatcherOnce(getServer());
     process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);
     registerTerminalSignalListeners();
+    registerParentLossListeners();
   }
 }
 

@@ -24,6 +24,9 @@
 - **The real-room run covers two rooms and every perspective.** `node scripts/real-room-run.cjs` takes `--seed` more than once, runs each seed as its own room, writes one receipt with a rooms array, and prints Bottlenecks, HSI, Connections and Whitespace per room beside quick, deep, Eureka and analogies. A second fixture room, shaped like the failed session of 2026-10-04, ships with it, and `tests/test-3692-closure.cjs` holds one leg for each of that session's twelve defects (27 legs pass; 3 are named as known below).
 - **Known legs, named on purpose.** D6 (writing an edge to a missing endpoint on an old-shape room database) and the D9 flag alias (`--run-tag` on the Eureka judge) belong to Phase 369.5. D12 (a label-less Theo query that Theo's own allow-list refuses) needs live Theo and cannot be checked offline. Each prints its recorded signature in the closure run so the bar stays visible.
 
+### Fixed
+- **The stdio MCP server exits when stdin closes or its parent process is gone.** This stops leftover servers after subagent runs.
+
 ## [2.0.0-beta.63] - 2026-10-06
 
 ### Added
