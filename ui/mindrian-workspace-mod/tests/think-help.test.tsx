@@ -413,6 +413,8 @@ const draw = ($: Engine, surface: Surface, columns = 100) =>
 function backgrounds(tree: unknown): string[] {
   const out: string[] = []
   walk(tree, (n) => {
+    // Only a drawn element counts (it has a type); its props object is not a second element.
+    if (typeof n.type !== 'string') return
     const bg = n.backgroundColor ?? propsOf(n).backgroundColor
     if (typeof bg === 'string') out.push(bg)
   })
@@ -489,9 +491,11 @@ test('Dig selected, a handle in the canon and a point: the red L02 mark and word
 })
 
 test('Connect uses the blue L01 mark and Another way the yellow L03 mark; Why and Example draw no mark', async ($, on) => {
+  const cur = { input: paneInput({}), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
   const expectMark = async (kind: string, mark: 'L01' | 'L02' | 'L03' | null, color: string | null, picks: string[]) => {
-    const cur = { input: paneInput({ body: bodyWith({ ...withHandle, help: kind }) }), deps: depsOf(helpBody(picks, {})) }
-    shellHook(on, cur)
+    cur.input = paneInput({ body: bodyWith({ ...withHandle, help: kind }) })
+    cur.deps = depsOf(helpBody(picks, {}))
     const ui = await draw($, 'terminal')
     const result = await ui.find({ key: 'help:result' })
     for (const id of ['L01', 'L02', 'L03'] as const) {
@@ -682,11 +686,13 @@ test('hand-off: P92 fills the prompt with Q02 (Dig), Q03 (Connect, both titles),
     { kind: 'why', picks: [], want: text('Q05', { point: TITLES[0] as string }) },
     { kind: 'example', picks: [], want: text('Q05', { point: TITLES[0] as string }) },
   ]
+  const cur = { input: paneInput({}), deps: depsOf(helpBody([], {})) }
+  shellHook(on, cur)
   for (const c of cases) {
     const log = newLog()
     const pressers: Pressers = {}
-    const cur = { input: paneInput({ act: shellAct(log), body: bodyWith({ ...withHandle, help: c.kind }) }), deps: depsOf(helpBody(c.picks, pressers)) }
-    shellHook(on, cur)
+    cur.input = paneInput({ act: shellAct(log), body: bodyWith({ ...withHandle, help: c.kind }) })
+    cur.deps = depsOf(helpBody(c.picks, pressers))
     const ui = await draw($, 'terminal')
     pressers['help:handoff']?.()
     await ui.unmount()
