@@ -181,6 +181,7 @@ function memAct(mem: Mem): ShellActions {
     },
     readAsset: async () => '',
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async (key) => {
       mem.focused.push(key)
     },

@@ -77,6 +77,7 @@ const ACT: ShellActions = {
   refresh: async () => {},
   readAsset: async () => '',
   sampleName: async () => null,
+  guidance: async () => ({ kind: 'refused' }),
   focus: async () => {},
   toggleKeys: async () => {
     calls.push('toggleKeys')

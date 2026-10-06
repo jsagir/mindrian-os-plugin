@@ -176,6 +176,7 @@ function fakeAct(log: Log): ShellActions {
       return body
     },
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async () => {},
   }
 }

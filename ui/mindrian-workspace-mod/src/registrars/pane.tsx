@@ -21,11 +21,13 @@ import { refreshViewModel } from '../model/live/refresh'
 import { chooseViewModel } from '../model/read'
 import { allowedServer, asBody, isAssetName, mergeBody, replaceBody } from '../pane/kit'
 import { buildPane } from '../pane/pane'
+import { isCanonicalHandle } from '../pane/think/lookup'
 import { paneLayout } from '../pane/layout'
 import { closeDecision, closedFor, flipped } from '../pane/state'
 import { tabFocusKey } from '../pane/tab-strip'
 import { tabBodies } from '../pane/tab-bodies'
 import type { ShellActions } from '../pane/types'
+import { BRAIN_SERVER } from '../runtime/ids'
 import type { TabId } from '../runtime/ids'
 import { INITIAL } from '../state/atoms'
 import { decideMode } from '../theme/plain'
@@ -140,6 +142,25 @@ export function makeAct($: EngineInterface, focusKey: (tab: TabId) => string | n
         await $.ui.focus({ requestId: PANE, key })
       } catch {
         // A refused move is ignored on purpose.
+      }
+    },
+    // Plan 16 (Canon Part 8, R-24): the ONE Brain-facing call in the mod. The framework-name canon
+    // is read here, a handle that is not an exact member of it is refused with NO call, and what is
+    // sent is exactly `{ framework: handle }`: no room text, title, point or purpose is in scope of
+    // this closure's call, and tests/test-369.26-part8.cjs holds that shape.
+    guidance: async (handle) => {
+      let canonText: string
+      try {
+        canonText = await $.fs.read(`${$.plugin.root}/assets/framework-names.json`)
+      } catch {
+        return { kind: 'refused' }
+      }
+      if (!isCanonicalHandle(handle, canonText)) return { kind: 'refused' }
+      try {
+        const reply = await $.mcp.call(BRAIN_SERVER, 'framework_techniques', { framework: handle })
+        return { kind: 'reply', reply }
+      } catch {
+        return { kind: 'failed' }
       }
     },
   }

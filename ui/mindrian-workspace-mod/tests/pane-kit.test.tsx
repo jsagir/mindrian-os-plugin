@@ -128,6 +128,7 @@ function recordingAct(log: string[]): ShellActions {
     },
     readAsset: async (name) => 'asset:' + name,
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async (key) => {
       log.push('focus:' + key)
     },

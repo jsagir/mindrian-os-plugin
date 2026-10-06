@@ -128,6 +128,7 @@ function fakeAct(io: LiveIo, sample: string | null = null): { act: Actions; patc
     },
     readAsset: async () => '',
     sampleName: async () => sample,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async () => {},
   }
   return { act, patches, refreshes }
@@ -528,6 +529,7 @@ function shellAct(log: Log): ShellActions {
     refresh: async () => {},
     readAsset: async () => '',
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async () => {},
   }
 }

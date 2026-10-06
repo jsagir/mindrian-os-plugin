@@ -38,10 +38,11 @@ const MOD = path.join(REPO, 'ui', 'mindrian-workspace-mod');
 let passed = 0;
 let failed = 0;
 let skipped = 0;
+let SKIP_WHY = 'claude not on PATH';
 function scenario(name, fn) {
   try {
     const r = fn();
-    if (r === 'skip') { skipped += 1; process.stdout.write('  skip ' + name + ' (claude not on PATH)\n'); return; }
+    if (r === 'skip') { skipped += 1; process.stdout.write('  skip ' + name + ' (' + SKIP_WHY + ')\n'); return; }
     passed += 1; process.stdout.write('  ok ' + name + '\n');
   } catch (e) {
     failed += 1; process.stdout.write('  FAIL ' + name + '\n    ' + (e.stack || e.message || String(e)) + '\n');
@@ -109,6 +110,7 @@ function braceBlock(code, from) {
   return code.slice(open);
 }
 
+const HELP_REQUIRED = false;
 const BRAIN_WORDS = /BRAIN_SERVER|mindrian-brain|\bbrain_[a-z]+|framework_techniques|framework_step/;
 // The two files that may name the Brain server or the tool at all.
 const BRAIN_FILES = ['src/registrars/pane.tsx', 'src/runtime/ids.ts'];
@@ -155,7 +157,9 @@ function checkTree(root) {
     }
   }
 
-  // (3) where the handle comes from, and who passes it on.
+  // (3) where the handle comes from, and who passes it on. TASK 1 ONLY: the help files land in task 2,
+  // which removes this allowance (HELP_REQUIRED becomes true) so a missing help file is a violation.
+  if (!HELP_REQUIRED && !code.has('src/pane/think/help-model.ts') && !code.has('src/pane/think/help-actions.tsx')) return bad;
   const model = code.get('src/pane/think/help-model.ts');
   if (model === undefined) {
     bad.push('src/pane/think/help-model.ts: missing');
@@ -239,7 +243,7 @@ function mutate(root, file, from, to) {
 
 scenario('mutation: planting a room string in the Brain call args makes the static check FAIL', () => {
   withSrcCopy((root) => {
-    mutate(root, 'src/registrars/pane.tsx', '{ framework: handle }', '{ framework: handle, note: vm.purpose }');
+    mutate(root, 'src/registrars/pane.tsx', /\{ framework: handle \}\)/, '{ framework: handle, note: vm.purpose })');
     const bad = checkTree(root);
     assert.ok(bad.some((b) => /not exactly \{ framework: handle \}/.test(b)), bad.join('\n'));
   });
@@ -272,7 +276,10 @@ scenario('mutation: a second Brain call anywhere makes the static check FAIL', (
   });
 });
 
+const helpLanded = () => fs.existsSync(path.join(MOD, 'src', 'pane', 'think', 'help-actions.tsx'));
+
 scenario('mutation: handing the lookup a room string from the view makes the static check FAIL', () => {
+  if (!helpLanded()) { SKIP_WHY = 'the help view is not written yet'; return 'skip'; }
   withSrcCopy((root) => {
     mutate(root, 'src/pane/think/help-actions.tsx', /runLookup\(ctx\.act, plan\.handle\)/, 'runLookup(ctx.act, ctx.vm.purpose)');
     const bad = checkTree(root);
@@ -281,6 +288,7 @@ scenario('mutation: handing the lookup a room string from the view makes the sta
 });
 
 scenario('mutation: reading the handle from a room field in the model makes the static check FAIL', () => {
+  if (!helpLanded()) { SKIP_WHY = 'the help model is not written yet'; return 'skip'; }
   withSrcCopy((root) => {
     mutate(root, 'src/pane/think/help-model.ts', /const (\w+) = vm\.next\.method/, 'const $1 = vm.next.method; const leak = vm.purpose');
     const bad = checkTree(root);
@@ -473,12 +481,15 @@ test('part8 probe: only canonical names reach the Brain, and only as exactly { f
   expect(rest.length).toBeGreaterThan(9)
   for (const key of rest) expect(probe[key]).toBe('refused')
 
-  expect(beneath.calls).toEqual([
+  // Only the Brain calls are compared: the pane's own refresh also calls the Mindrian OS server.
+  const brain = beneath.calls.filter((c) => c.server === 'plugin:mos:mindrian-brain')
+  expect(brain).toEqual([
     { server: 'plugin:mos:mindrian-brain', tool: 'framework_techniques', args: { framework: 'Assumption Challenging' } },
     { server: 'plugin:mos:mindrian-brain', tool: 'framework_techniques', args: { framework: 'assumption challenging' } },
     { server: 'plugin:mos:mindrian-brain', tool: 'framework_techniques', args: { framework: 'Dominant Design' } },
   ])
   expect(JSON.stringify(beneath.calls)).not.toContain('example.com')
+  expect(beneath.calls.every((c) => c.tool !== 'brain_ask' && c.tool !== 'brain_query' && c.tool !== 'brain_search')).toBe(true)
   await ui.unmount()
 })
 `;
@@ -494,7 +505,7 @@ function runProbe(dest) {
 }
 
 scenario('engine: the real act.guidance closure sends only canonical names, as exactly { framework }, and refuses every room canary without a call', () => {
-  if (!HAVE_CLAUDE) return 'skip';
+  if (!HAVE_CLAUDE) { SKIP_WHY = 'claude not on PATH'; return 'skip'; }
   withScratch((dest) => {
     const out = runProbe(dest);
     assert.ok(PROBE_OK.test(out), out.slice(-4000));
@@ -503,7 +514,7 @@ scenario('engine: the real act.guidance closure sends only canonical names, as e
 });
 
 scenario('engine mutation: with the canon check removed from the scratch closure the probe FAILS (a room string reaches the Brain)', () => {
-  if (!HAVE_CLAUDE) return 'skip';
+  if (!HAVE_CLAUDE) { SKIP_WHY = 'claude not on PATH'; return 'skip'; }
   withScratch((dest) => {
     mutate(dest, 'src/registrars/pane.tsx', /if \(!isCanonicalHandle\(handle, canonText\)\) return \{ kind: 'refused' \}/, '');
     const out = runProbe(dest);
@@ -512,9 +523,9 @@ scenario('engine mutation: with the canon check removed from the scratch closure
 });
 
 scenario('engine mutation: with a room field added to the scratch Brain call the probe FAILS', () => {
-  if (!HAVE_CLAUDE) return 'skip';
+  if (!HAVE_CLAUDE) { SKIP_WHY = 'claude not on PATH'; return 'skip'; }
   withScratch((dest) => {
-    mutate(dest, 'src/registrars/pane.tsx', '{ framework: handle }', '{ framework: handle, note: \'jane.doe@example.com\' }');
+    mutate(dest, 'src/registrars/pane.tsx', /\{ framework: handle \}\)/, '{ framework: handle, note: \'jane.doe@example.com\' })');
     const out = runProbe(dest);
     assert.ok(PROBE_FAIL.test(out), 'adding a key did not fail the probe\n' + out.slice(-3000));
   });

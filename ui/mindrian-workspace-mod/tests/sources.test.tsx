@@ -470,6 +470,7 @@ function viewAct(log: Log, files: Record<string, string> = {}): ShellActions {
     refresh: async () => {},
     readAsset: async () => '',
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async () => {},
   }
 }

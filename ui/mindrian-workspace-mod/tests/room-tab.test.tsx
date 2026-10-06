@@ -142,6 +142,7 @@ function fakeAct(log: Log): ShellActions {
     refresh: async () => {},
     readAsset: async () => '',
     sampleName: async () => null,
+    guidance: async () => ({ kind: 'refused' }),
     focus: async () => {},
   }
 }

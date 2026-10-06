@@ -31,6 +31,10 @@ export type ExplainId = 'X01' | 'X02' | 'X03' | 'X04'
 // are plain. Select is absent on mobile: check `'Select' in el` before using it.
 export type PaneEl = Elements[keyof Elements]
 
+// What act.guidance answers (plan 16): `refused` (the handle is not an exact framework-name canon
+// member, nothing was sent), `failed` (the Brain call was rejected) or `reply` (the tool's reply).
+export type GuidanceAnswer = { kind: 'refused' } | { kind: 'failed' } | { kind: 'reply'; reply: unknown }
+
 // What a body can do. Every member is a closure over the hook file's `$` (or an object of them).
 // Plan 11 added the body kit (369.26-ENGINE-RULES.md, "Pane body recipe"): everything after `toast`.
 export type Actions = {
@@ -60,6 +64,10 @@ export type Actions = {
   sampleName: () => Promise<string | null>
   // Ask the pane to move the keyboard to a keyed control. A refused move is ignored.
   focus: (key: string) => Promise<void>
+  // Plan 16: the ONE Brain-facing call in the mod (Canon Part 8, R-24). It reads the framework-name
+  // canon, answers `refused` WITHOUT a call unless `handle` is an exact canon member, and otherwise
+  // calls `framework_techniques` with exactly `{ framework: handle }`. No room content can reach it.
+  guidance: (handle: string) => Promise<GuidanceAnswer>
 }
 
 // The shell's own actions: what a body can do, plus the three sub-panel toggles the shell's
