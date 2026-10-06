@@ -102,6 +102,35 @@ fi
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
+# ---------------------------------------------------------------------------
+# 369.25 plan 13 (HEAL-02): the heal net, at session start. Ask whether the room itself is ready (room.db present,
+# identity committed) through runDeriveBackfill with stopAfterReadiness: a pure check that writes nothing. It runs
+# HERE, straight after the room is resolved and before any block below that opens or creates room.db, so the answer
+# describes the room as the person left it. When the room is not ready the hook adds ONE plain line naming the failed
+# requirement and the recovery (appended to context further down); the recovery itself runs only on the person's word
+# (a recovery card answered, or /mos:graph --derive). Soft-fail on every step, stderr to /dev/null.
+# ---------------------------------------------------------------------------
+ROOM_READINESS_LINE=""
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
+  ROOM_READINESS_LINE=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    const path = require("path");
+    const roomDir = process.env.ROOM_DIR_ENV;
+    const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    try {
+      const backfill = require(path.join(pluginRoot, "lib", "core", "graph-backfill.cjs"));
+      const rr = require(path.join(pluginRoot, "lib", "core", "room-readiness.cjs"));
+      Promise.resolve(backfill.runDeriveBackfill({ roomDir: roomDir, stopAfterReadiness: true })).then(function (res) {
+        const r = res && res.readiness;
+        if (!r || r.state !== "not_ready") return;
+        const req = rr.REQUIREMENT_LINES[r.reason] || String(r.reason || "unknown");
+        process.stdout.write("FeyMinto: this room is not ready (" + req + "). The recovery rebuilds the record from ROOM.md and the registry and indexes the files already here; it runs only on your word: answer the recovery card when a filing asks, or run /mos:graph --derive.");
+      }).catch(function (_e) { /* soft-fail: say nothing */ });
+    } catch (_e) { /* soft-fail: say nothing */ }
+  ' 2>/dev/null || echo "")
+fi
+# --- end 369.25 plan 13 heal net ---
+
 # Read current version from plugin.json via platform.cjs (plan 85-06 sweep).
 # python3 is a Microsoft Store alias stub on Windows and produces "vunknown".
 # platform.cjs.readPluginJsonVersion is a fail-safe Node-native read.
@@ -1187,6 +1216,13 @@ ${TRIPLE_CONTEXT}"
   fi
 fi
 # --- end Phase 88-07 / Phase 90-03 ---
+
+# 369.25 plan 13: the one readiness line computed near the top (empty when the room is ready or none resolved).
+if [ -n "${ROOM_READINESS_LINE}" ]; then
+  context="${context}
+
+${ROOM_READINESS_LINE}"
+fi
 
 # ---------------------------------------------------------------------------
 # Phase 88-13: Feynman-MINTO guardian, session-start health check.

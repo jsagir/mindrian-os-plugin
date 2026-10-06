@@ -229,20 +229,28 @@ async function main() {
   check('R4 the next filing reports room_identity ready', !!r4c && r4c.ok === true && !!r4c.room_identity && r4c.room_identity.state === 'ready', short(r4c && r4c.room_identity));
 
   // ---- R5: session start ---------------------------------------------------------------------------------------
-  const nr = buildNeverReadyRoom(iso.home, { slug: 'rg-never-ready' });
+  // session-start resolves its room through the machine registry first, so this arm gets its own isolated home
+  // (a fresh registry): the never-ready room is found by its folder name, the ready room by its own registry entry
+  const iso2 = H.mkIsolatedHome('readiness-gate-ss');
+  const nr = buildNeverReadyRoom(iso2.home, { slug: 'rg-never-ready' });
   const backfill = require(path.join(ROOT, 'lib', 'core', 'graph-backfill.cjs'));
   const hashNr = H.treeHash(nr.roomDir);
   const netRes = await Promise.resolve(backfill.runDeriveBackfill({ roomDir: nr.roomDir, stopAfterReadiness: true }));
   check('R5 the net call the hook makes (stopAfterReadiness) reports not_ready and writes nothing',
     !!netRes && !!netRes.readiness && netRes.readiness.state === 'not_ready' && H.treeHash(nr.roomDir) === hashNr, short(netRes && netRes.readiness));
-  const ss = spawnSync('bash', [path.join(ROOT, 'scripts', 'session-start')], { cwd: nr.roomDir, env: iso.env, encoding: 'utf8', timeout: 180000 });
+  const ss = spawnSync('bash', [path.join(ROOT, 'scripts', 'session-start')], { cwd: nr.roomDir, env: iso2.env, encoding: 'utf8', timeout: 180000 });
   const out = String(ss.stdout || '');
   check('R5 session-start exits 0 in the never-ready room', ss.status === 0, 'exit ' + ss.status + ' ' + String(ss.stderr || '').slice(-200));
   check('R5 session-start prints the FeyMinto not-ready line', out.indexOf('FeyMinto: this room is not ready') !== -1, out.slice(0, 200));
   check('R5 the line names the failed requirement and the recovery', /room\.db is missing/.test(out) && /recovery/.test(out) && /\/mos:graph --derive/.test(out));
-  const readyRoom = H.birthFixtureRoom({ iso, slug: 'rg-ready-room' });
-  const ss2 = spawnSync('bash', [path.join(ROOT, 'scripts', 'session-start')], { cwd: readyRoom.roomDir, env: iso.env, encoding: 'utf8', timeout: 180000 });
+  const readyRoom = H.birthFixtureRoom({ iso: iso2, slug: 'rg-ready-room' });
+  const ss2 = spawnSync('bash', [path.join(ROOT, 'scripts', 'session-start')], { cwd: readyRoom.roomDir, env: iso2.env, encoding: 'utf8', timeout: 180000 });
   check('R5 inside a ready room session-start runs and the line is absent', ss2.status === 0 && String(ss2.stdout || '').length > 0 && String(ss2.stdout).indexOf('FeyMinto: this room is not ready') === -1, 'exit ' + ss2.status);
+  // birthFixtureRoom pointed the in-process env at iso2; put it back for the arms below
+  process.env.HOME = iso.home;
+  process.env.USERPROFILE = iso.home;
+  process.env.MINDRIAN_ROOMS_HOME = iso.roomsHome;
+  iso2.cleanup();
 
   // ---- R7: readinessFor per operation --------------------------------------------------------------------------
   const rd = safe(() => require(path.join(ROOT, 'lib', 'core', 'room-readiness.cjs')), null);
@@ -250,6 +258,8 @@ async function main() {
     !!rd && typeof rd.readinessFor === 'function' && Array.isArray(rd.OPERATIONS) && !!rd.REQUIREMENT_LINES && !!rd.BLOCKING, rd ? Object.keys(rd).join(',') : 'module absent');
   if (rd) {
     check('R7 OPERATIONS is the four operations', JSON.stringify(rd.OPERATIONS.slice().sort()) === JSON.stringify(['feyminto_face', 'governed_write', 'research', 'status']), short(rd.OPERATIONS));
+    check('R7 BLOCKING.feyminto_face is the owner module NOT_READY_REASONS plus room_db_not_writable (no drift)',
+      JSON.stringify(rd.BLOCKING.feyminto_face.slice().sort()) === JSON.stringify(identityMod.NOT_READY_REASONS.concat(['room_db_not_writable']).sort()), short(rd.BLOCKING.feyminto_face));
     check('R7 BLOCKING: research blocks missing and unreadable only', JSON.stringify(rd.BLOCKING.research.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_unreadable']), short(rd.BLOCKING.research));
     check('R7 BLOCKING: governed_write adds room_db_not_writable', JSON.stringify(rd.BLOCKING.governed_write.slice().sort()) === JSON.stringify(['room_db_missing', 'room_db_not_writable', 'room_db_unreadable']), short(rd.BLOCKING.governed_write));
     check('R7 BLOCKING: status blocks nothing and the face blocks every not-ready reason',
@@ -273,15 +283,28 @@ async function main() {
     try { legDb.prepare("DELETE FROM identity WHERE key LIKE 'room.%'").run(); } finally { navigation.closeRoomDbForCaller(legDb); }
     const tLeg = table(leg.roomDir);
     check('R7 legacy identity_missing: write and research are NOT blocked, the face is (false,false,true,false)', flags(tLeg) === 'false,false,true,false' && tLeg[0].reason === 'identity_missing' && tLeg[0].ok === true && tLeg[0].state === 'not_ready', flags(tLeg));
+    const plain = path.join(iso.home, 'plain-folder-no-room');
+    fs.mkdirSync(path.join(plain, '.mindrian'), { recursive: true });
+    const tPlain = table(plain);
+    check('R7 a plain folder with no .room-root and no room.db is not a room with a missing record: write and research stay open, the face is refused (false,false,true,false)',
+      flags(tPlain) === 'false,false,true,false' && tPlain[0].reason === 'room_db_missing' && tPlain[0].is_room === false && tPlain[0].ok === true, flags(tPlain));
+    check('R7 the same folder with a .room-root and no room.db IS a room with a missing record (true,true,true,false)', (() => {
+      fs.writeFileSync(path.join(plain, '.room-root'), '{}');
+      const tRoom = table(plain);
+      return flags(tRoom) === 'true,true,true,false' && tRoom[0].is_room === true;
+    })());
     if (isRoot) {
       skip('R7 not-writable row', 'running as uid 0');
     } else {
       const ro = birth('rg7-readonly');
+      // a room that has been used already holds its -wal and -shm files; without them a read-only folder cannot
+      // even be opened, which is a different (and honest) reason, room_db_unreadable
+      identityMod.readRoomIdentity(ro.roomDir, { door: 'in_place' });
       try {
         fs.chmodSync(dbFile(ro.roomDir), 0o444);
         fs.chmodSync(path.join(ro.roomDir, '.mindrian'), 0o555);
         const tRo = table(ro.roomDir);
-        check('R7 read-only room.db: write blocked, research not, face blocked (true,false,true,false)', flags(tRo) === 'true,false,true,false' && tRo[0].reason === 'room_db_not_writable' && tRo[0].remediation === 'restore_write_permission', flags(tRo));
+        check('R7 read-only room.db: only the write is blocked (true,false,false,false); research and the face read an identity that is ready', flags(tRo) === 'true,false,false,false' && tRo[0].reason === 'room_db_not_writable' && tRo[0].remediation === 'restore_write_permission', flags(tRo));
       } finally {
         try { fs.chmodSync(path.join(ro.roomDir, '.mindrian'), 0o755); } catch (_e) { /* best effort */ }
         try { fs.chmodSync(dbFile(ro.roomDir), 0o644); } catch (_e) { /* best effort */ }
