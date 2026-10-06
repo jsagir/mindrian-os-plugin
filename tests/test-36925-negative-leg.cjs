@@ -20,7 +20,7 @@
  *        first job that ran
  *   NL4  --negative-only prints the negative block, exits 0, writes no receipt (and creates no ~/.mindrian)
  *   NL5  a full offline run's JSON carries negative_leg all_refused true, and the receipt written for a hermetic
- *        tester (temp HOME, temp receipt dir) carries feyminto and negative_leg
+ *        tester (temp HOME, temp receipt dir) carries negative_leg (the feyminto key: test-36925-room-read RR4)
  *   dash guard over the two new modules and both edited scripts
  *
  * Isolation: every spawn gets HOME, USERPROFILE and MINDRIAN_ROOMS_HOME in a mkdtemp directory; the receipt dir is
@@ -148,6 +148,7 @@ function main() {
   else {
     check('NL2 NEGATIVE_INJECTIONS is room_db_missing and room_db_corrupted', JSON.stringify(legMod.NEGATIVE_INJECTIONS) === JSON.stringify(['room_db_missing', 'room_db_corrupted']), JSON.stringify(legMod.NEGATIVE_INJECTIONS));
     leg = legMod.runNegativeLeg({ roomsHome: path.join(iso.home, 'nl2-rooms'), sha: SHA, plannerCli: PLANNER, seedDir: SEED, scratch: scratch1 });
+    check('NL2 the leg did not write to the rooms home it was given', !fs.existsSync(path.join(iso.home, 'nl2-rooms')));
     check('NL2 two rooms, four jobs each', leg && leg.rooms.length === 2 && leg.rooms.every((r) => Object.keys(r.jobs).sort().join(',') === 'analogies,deep,eureka,quick'), JSON.stringify(leg).slice(0, 300));
     check('NL2 every job refused room_not_ready with the expected reason, exit 2',
       leg.rooms.every((r) => Object.keys(r.jobs).every((k) => {
@@ -161,8 +162,9 @@ function main() {
       leg.rooms.every((r) => Object.keys(r.jobs).every((k) => r.jobs[k].room_db_before === r.jobs[k].room_db_after && r.jobs[k].room_db_before === (r.injection === 'room_db_missing' ? 'absent' : 'corrupt'))),
       JSON.stringify(leg.rooms.map((r) => [r.injection, Object.values(r.jobs).map((j) => [j.room_db_before, j.room_db_after])])).slice(0, 400));
     const roomNames = leg.rooms.map((r) => r.dir_name);
-    check('NL2 the rooms live under the given rooms home and are named for the injection and the sha',
-      roomNames.every((n) => /^negative-room_db_(missing|corrupted)-aaaaaaaa$/.test(n) && fs.existsSync(path.join(iso.home, 'nl2-rooms', n, '.room-root'))), roomNames.join(','));
+    check('NL2 the rooms are built under the run scratch (the builder refuses ~/.mindrian) and are named for the injection and the sha',
+      roomNames.every((n) => /^negative-room_db_(missing|corrupted)-aaaaaaaa$/.test(n) && fs.existsSync(path.join(scratch1, n, 'rooms'))
+        && fs.readdirSync(path.join(scratch1, n, 'rooms')).some((slug) => fs.existsSync(path.join(scratch1, n, 'rooms', slug, '.room-root')))), roomNames.join(','));
     const block = legMod.formatNegativeBlock(leg);
     check('NL2 formatNegativeBlock voice: header, It tried, It got refused 8 of 8, It could not; names only, no sha and no path',
       block.indexOf('== Negative leg: rooms that are not ready ==') !== -1 && /It tried:/.test(block) && /It got:\s+refused 8 of 8/.test(block) && /It could not:/.test(block)
@@ -200,15 +202,15 @@ function main() {
     n5.code === 0 && j5 && j5.negative_leg && j5.negative_leg.all_refused === true && j5.negative_leg.rooms.length === 2, 'code ' + n5.code + ' ' + n5.out.slice(-400) + n5.err.slice(-300));
   const files = safe(() => fs.readdirSync(rc5).filter((f) => /\.json$/.test(f)), []);
   const receipt = files.length === 1 ? safe(() => JSON.parse(fs.readFileSync(path.join(rc5, files[0]), 'utf8')), null) : null;
-  check('NL5 the hermetic receipt carries feyminto (nests) and negative_leg (both rooms, eight job outcomes, all_refused)',
-    !!receipt && receipt.feyminto && Array.isArray(receipt.feyminto.nests) && receipt.feyminto.nests.length > 0
-      && receipt.negative_leg && receipt.negative_leg.all_refused === true && receipt.negative_leg.rooms.length === 2
+  check('NL5 the hermetic receipt carries negative_leg (both rooms, eight job outcomes, all_refused); the feyminto key is pinned by test-36925-room-read RR4',
+    !!receipt && receipt.negative_leg && receipt.negative_leg.all_refused === true && receipt.negative_leg.rooms.length === 2
       && receipt.negative_leg.rooms.every((r) => Object.keys(r.jobs).length === 4 && Object.values(r.jobs).every((jb) => jb.refused === true && typeof jb.not_ready_reason === 'string')),
-    JSON.stringify(receipt && { f: receipt.feyminto && Object.keys(receipt.feyminto), n: receipt.negative_leg }).slice(0, 400));
+    JSON.stringify(receipt && receipt.negative_leg).slice(0, 400));
   check('NL5 the receipt keeps the positive jobs as today (perspectives quick, deep, eureka, analogies)',
     !!receipt && receipt.perspectives && ['quick', 'deep', 'eureka', 'analogies'].every((k) => receipt.perspectives[k]), JSON.stringify(receipt && receipt.perspectives).slice(0, 200));
-  check('NL5 the negative rooms sit beside the fixture room in the rooms home',
-    fs.existsSync(path.join(iso.home, 'nl5-rooms')) && fs.readdirSync(path.join(iso.home, 'nl5-rooms')).filter((n) => /^negative-room_db_/.test(n)).length === 2);
+  const homeEntries = safe(() => fs.readdirSync(path.join(iso.home, 'nl5-rooms')).filter((n) => !n.startsWith('.')), []);
+  check('NL5 the rooms home holds the fixture room and no negative room: the negative rooms never enter it or its registry',
+    homeEntries.some((n) => /^release-fixture-/.test(n)) && !homeEntries.some((n) => /negative-/.test(n)) && !/negative-/.test(safe(() => fs.readFileSync(path.join(iso.home, 'nl5-rooms', '.rooms', 'registry.json'), 'utf8'), '')), homeEntries.join(','));
 
   // ---- dash guard -----------------------------------------------------------------------------------------------
   const bad = H.dashGuard([__filename, LEG_MOD, ROOM_READ_MOD, PLANNER, RUN]);

@@ -352,6 +352,12 @@ async function canonDoor(cmd, room, runId, itemId) {
 async function handle(cmd, pos, flags) {
   const room = flags['--room'] ? path.resolve(flags['--room']) : null;
   const via = flags['--approved-via'] || null;
+  // 369.25 FCLOSE-07, RFT-01 (field defect R3): a room whose room.db is missing or unreadable is refused by every
+  // room-taking verb with a typed reason, before anything is planned, sent or written.
+  if (room && cmd !== 'planners') {
+    const rd = require(path.join(__dirname, '..', 'lib', 'core', 'room-readiness.cjs')).readinessFor(room, 'research');
+    if (rd.blocking) return { ok: false, reason: 'room_not_ready', not_ready_reason: rd.reason, requirement: rd.requirement, room: room };
+  }
 
   switch (cmd) {
     // SEED-103: the Eureka perspective, stages 01-03. No free text on argv:
