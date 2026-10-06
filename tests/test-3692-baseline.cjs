@@ -205,6 +205,9 @@ async function driveBe(room, plan, o) {
   }
   if (!out.result || !out.result.ok) throw new Error('synthesize ' + JSON.stringify(out.result).slice(0, 300));
   out.finalState = deepMod.loadState(room.roomDir, id).state;
+  // the OpenAlex rolling budget (100 calls in 24h) lives in the hermetic HOME and this file runs many deep
+  // runs in one process: reset it between runs so a later leg is not starved by an earlier one
+  try { fs.unlinkSync(require(path.join(ROOT, 'lib', 'core', 'rs-egress-telemetry.cjs')).TELEMETRY_FILE); } catch (_e) { /* no file yet */ }
   return out;
 }
 async function runBe1() {
