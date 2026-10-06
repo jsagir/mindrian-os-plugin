@@ -14,9 +14,13 @@ import { emptyBody } from '../src/pane/kit'
 import { buildPane } from '../src/pane/pane'
 import type { PaneDeps, PaneInput } from '../src/pane/pane'
 import { jobPanel } from '../src/pane/room/job-panel'
+import { resultPanel } from '../src/pane/room/result-panel'
+import { suggestedMovePanel } from '../src/pane/room/suggested-move'
 import { waitingPanel } from '../src/pane/room/waiting-panel'
 import { whereLine, whereWords } from '../src/pane/room/where-line'
 import type { ShellActions, TabBody, TabContext } from '../src/pane/types'
+import { prefillPrompt, prefillRecorded } from '../src/runtime/prefill'
+import type { PrefillIo } from '../src/runtime/prefill'
 import { PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
@@ -164,11 +168,14 @@ function input(over: Partial<PaneInput>): PaneInput {
 // A body made of just the panels under test. Its Buttons' onPress functions are captured by key as
 // the view draws, so a pure arm can call them (a press on a test hook's own Button finds nothing).
 type Pressers = Record<string, () => void>
-function panelsBody(parts: ((ctx: TabContext) => import('claude-code').RenderElement)[], pressers: Pressers): TabBody {
+function panelsBody(
+  parts: ((ctx: TabContext) => import('claude-code').RenderElement | null)[],
+  pressers: Pressers,
+): TabBody {
   return {
     view: (ctx) => {
       const { Box } = ctx.el
-      const drawn = parts.map((part) => part(ctx))
+      const drawn = parts.map((part) => part(ctx)).filter((node) => node !== null)
       walk(drawn, (n) => {
         if (n.type === 'Button' && typeof n.onPress === 'function') {
           pressers[String(propsOf(n).key)] = n.onPress as () => void
@@ -424,5 +431,276 @@ test('nothing in these panels names a file, a command, a gate or a node id', asy
   for (const bad of ['ROOM.md', '.md', 'sample-gate', 'sample-node', 'gate_', '/mos', 'status_read']) {
     expect(s).not.toContain(bad)
   }
+  await ui.unmount()
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: the next-step panel with the prefill button, and the result panels
+// ---------------------------------------------------------------------------------------------
+
+// A model whose next step is recorded, with the given reason and command.
+function withStep(over: Partial<ViewModel['next']>): ViewModel {
+  return { ...SAMPLES.wide, next: { ...SAMPLES.wide.next, ...over } }
+}
+
+test('next step: the wide sample shows P30, the step as data, P32 (no reason recorded) and the P33 primary button on n', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: input({}), deps: depsOf(panelsBody([suggestedMovePanel], pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const panel = await ui.find({ key: 'room:next' })
+    const s = shown(panel)
+    expect(s).toContain(text('P30'))
+    expect(s).toContain('look at the evidence behind your funding choice (sample)')
+    expect(s).toContain(text('P32'))
+    expect(s).not.toContain(text('P31', { reason: 'x' }).replace('x', ''))
+    const go = (await ui.findAll({ type: 'Button' })).filter((b) => b.key === 'next:prefill')
+    expect(go).toHaveLength(1)
+    expect(go[0]?.props.label).toBe(text('P33'))
+    expect(go[0]?.props.hotkey).toBe('n')
+    expect(go[0]?.props.variant).toBe('primary')
+    await ui.unmount()
+  }
+})
+
+test('next step: a recorded reason reads P31 with the reason; the method name is not on this panel', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ vm: withStep({ reason: ok('your evidence is thin there') }) }),
+    deps: depsOf(panelsBody([suggestedMovePanel], pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const s = shown(await ui.find({ key: 'room:next' }))
+  expect(s).toContain(text('P31', { reason: 'your evidence is thin there' }))
+  expect(s).not.toContain(text('P32'))
+  expect(s).not.toContain('Assumption Challenging')
+  await ui.unmount()
+})
+
+test('next step: a step not recorded shows M04 and NO button, and a waiting decision never becomes the step', async ($, on) => {
+  const pressers: Pressers = {}
+  // gates ok with a card waiting, the step not recorded: the MISSING DATA concept.
+  expect(SAMPLES.missing.gates.state).toBe('ok')
+  expect(SAMPLES.missing.waiting).toEqual(ok(1))
+  const cur = { input: input({ vm: SAMPLES.missing }), deps: depsOf(panelsBody([suggestedMovePanel], pressers)) }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  let panel = await ui.find({ key: 'room:next' })
+  expect(shown(panel)).toContain(text('P30'))
+  expect(shown(panel)).toContain(text('M04'))
+  expect(buttons(panel)).toEqual([])
+  expect(shown(panel)).not.toContain('grant')
+  expect(shown(panel)).not.toContain(text('P33'))
+  await ui.unmount()
+
+  // An unreadable step is its own words (M03), also with no button; a step still being looked up
+  // reads as not recorded (the deck has no wording of its own for it, UI-SPEC 7.3).
+  for (const [vm, words] of [
+    [SAMPLES.noroom, text('M03')],
+    [withStep({ step: { state: 'searching' }, isLookingUp: true }), text('M04')],
+  ] as const) {
+    cur.input = input({ vm })
+    ui = await draw($, 'terminal')
+    panel = await ui.find({ key: 'room:next' })
+    expect(shown(panel)).toContain(words)
+    expect(buttons(panel)).toEqual([])
+    await ui.unmount()
+  }
+})
+
+test('next step: pressing P33 with no recorded command adds Q01 to the prompt box, P34 when it took it, P35 when it did not; it never submits', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = { input: input({ act: fakeAct(log) }), deps: depsOf(panelsBody([suggestedMovePanel], pressers)) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const press = pressers['next:prefill']
+  expect(typeof press).toBe('function')
+
+  press?.()
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(log.fills).toEqual([text('Q01')])
+  expect(log.toasts).toEqual([text('P34')])
+
+  log.fillResult = false
+  press?.()
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(log.fills).toEqual([text('Q01'), text('Q01')])
+  expect(log.toasts).toEqual([text('P34'), text('P35')])
+  // The act has no submit and no run: the only calls recorded are fills and toasts.
+  expect(log.calls).toEqual([])
+  await ui.unmount()
+})
+
+test('next step: a recorded command is the text that is filled, unchanged, instead of Q01', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const command = '/mos:research the funding route'
+  const cur = {
+    input: input({ vm: withStep({ command }), act: fakeAct(log) }),
+    deps: depsOf(panelsBody([suggestedMovePanel], pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  pressers['next:prefill']?.()
+  await Promise.resolve()
+  await Promise.resolve()
+  expect(log.fills).toEqual([command])
+  expect(log.toasts).toEqual([text('P34')])
+  await ui.unmount()
+})
+
+function fakeIo(filled: boolean): { io: PrefillIo; fills: string[]; toasts: string[] } {
+  const fills: string[] = []
+  const toasts: string[] = []
+  return {
+    io: {
+      fill: async (words) => {
+        fills.push(words)
+        return filled
+      },
+      toast: (message) => {
+        toasts.push(message)
+      },
+    },
+    fills,
+    toasts,
+  }
+}
+
+test('prefillRecorded fills the given text unchanged and tells the person with P34 or P35', async () => {
+  const took = fakeIo(true)
+  expect(await prefillRecorded(took.io, '  /mos:next  ')).toBe(true)
+  expect(took.fills).toEqual(['  /mos:next  '])
+  expect(took.toasts).toEqual([text('P34')])
+
+  const refused = fakeIo(false)
+  expect(await prefillRecorded(refused.io, '/mos:next')).toBe(false)
+  expect(refused.toasts).toEqual([text('P35')])
+})
+
+test('prefillRecorded does nothing for an empty, blank or over-long text, and never throws', async () => {
+  for (const bad of ['', '   ', '\n\t', 'x'.repeat(2001)]) {
+    const { io, fills, toasts } = fakeIo(true)
+    expect(await prefillRecorded(io, bad)).toBe(false)
+    expect(fills).toEqual([])
+    expect(toasts).toEqual([text('P35')])
+  }
+  // The limit itself is allowed.
+  const edge = fakeIo(true)
+  expect(await prefillRecorded(edge.io, 'x'.repeat(2000))).toBe(true)
+  // A box that throws is the same as a box that refuses.
+  const toasts: string[] = []
+  const throwing: PrefillIo = {
+    fill: async () => {
+      throw new Error('no box')
+    },
+    toast: (message) => {
+      toasts.push(message)
+    },
+  }
+  expect(await prefillRecorded(throwing, 'go')).toBe(false)
+  expect(toasts).toEqual([text('P35')])
+})
+
+test('prefillPrompt still fills a deck sentence (Q01) and toasts, with no submit closure to call', async () => {
+  const { io, fills, toasts } = fakeIo(true)
+  expect(await prefillPrompt(io, 'Q01')).toBe(true)
+  expect(fills).toEqual([text('Q01')])
+  expect(toasts).toEqual([text('P34')])
+  expect(Object.keys(io).sort()).toEqual(['fill', 'toast'])
+})
+
+const RESULT = { gateId: 'g-1', label: 'Yes, go with it', verdict: 'approve', at: 1760000000000 }
+
+test('result panels: nothing is drawn before the runtime recorded a result', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = { input: input({}), deps: depsOf(panelsBody([resultPanel], pressers)) }
+  shellHook(on, cur)
+  // No result at all, a result of the wrong shape, and a wrong type each draw nothing.
+  for (const review of [{}, { lastResult: null }, { lastResult: { label: 'x' } }, { lastResult: 'saved' }, { lastResult: { ...RESULT, at: 'now' } }]) {
+    cur.input = input({ body: { ...emptyBody(), review } })
+    const ui = await draw($, 'terminal')
+    const s = shown(await ui.drawn())
+    expect(s).not.toContain(text('P55'))
+    expect(s).not.toContain(text('P56'))
+    expect(await ui.find({ key: 'room:result' })).toBeUndefined()
+    await ui.unmount()
+  }
+})
+
+test('result panels: a recorded result draws P55 with D24 and the label, and P56 from the CURRENT count', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ vm: SAMPLES.empty, body: { ...emptyBody(), review: { lastResult: RESULT } } }),
+    deps: depsOf(panelsBody([resultPanel], pressers)),
+  }
+  shellHook(on, cur)
+  for (const [vm, still] of [
+    [SAMPLES.empty, text('P41')],
+    [SAMPLES.wide, text('P42')],
+    [SAMPLES.several, text('P44', { n: 3 })],
+    [SAMPLES.unreadable, text('M03')],
+  ] as const) {
+    cur.input = input({ vm, body: { ...emptyBody(), review: { lastResult: RESULT } } })
+    const ui = await draw($, 'terminal')
+    const s = shown(await ui.find({ key: 'room:result' }))
+    expect(s).toContain(text('P55'))
+    expect(s).toContain(text('D24', { label: 'Yes, go with it' }))
+    expect(s).toContain(text('P56'))
+    expect(s).toContain(still)
+    // A count the runtime did not give is never stated.
+    if (vm === SAMPLES.unreadable) for (const n of [text('P41'), text('P42')]) expect(s).not.toContain(n)
+    await ui.unmount()
+  }
+})
+
+test('result panels: nothing is drawn while a save is in the saving phase, and the second route name (last) is read too', async ($, on) => {
+  const pressers: Pressers = {}
+  const saving = { phase: 'saving', claim: 'c', copyId: '', label: '' }
+  const cur = {
+    input: input({ body: { ...emptyBody(), review: { lastResult: RESULT, phase: { 'g-2': saving } } } }),
+    deps: depsOf(panelsBody([resultPanel], pressers)),
+  }
+  shellHook(on, cur)
+  let ui = await draw($, 'terminal')
+  expect(await ui.find({ key: 'room:result' })).toBeUndefined()
+  await ui.unmount()
+
+  // The same slice with the card no longer saving draws the panels.
+  cur.input = input({ body: { ...emptyBody(), review: { lastResult: RESULT, phase: { 'g-2': { ...saving, phase: 'saved', claim: '' } } } } })
+  ui = await draw($, 'terminal')
+  expect(await ui.find({ key: 'room:result' })).toBeDefined()
+  await ui.unmount()
+
+  // Plan 10 names the slice key `last` in its notes; either name is a recorded result.
+  cur.input = input({ body: { ...emptyBody(), review: { last: RESULT } } })
+  ui = await draw($, 'terminal')
+  expect(shown(await ui.find({ key: 'room:result' }))).toContain(text('D24', { label: 'Yes, go with it' }))
+  await ui.unmount()
+})
+
+test('result panels: plain mode puts each in a single border and draws no color', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ mode: PLAIN, theme: null, body: { ...emptyBody(), review: { lastResult: RESULT } } }),
+    deps: depsOf(panelsBody([resultPanel, suggestedMovePanel], pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const result = await ui.find({ key: 'room:result' })
+  expect(colorKeys(result)).toEqual([])
+  const framed: Node[] = []
+  walk(result, (n) => {
+    if (n.type === 'Box' && propsOf(n).borderStyle === 'single') framed.push(n)
+  })
+  expect(framed).toHaveLength(2)
+  const next = await ui.find({ key: 'room:next' })
+  expect(propsOf(next).borderStyle).toBe('single')
+  expect(colorKeys(next)).toEqual([])
   await ui.unmount()
 })
