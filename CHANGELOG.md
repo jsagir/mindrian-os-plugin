@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.64 (in progress)
+## [2.0.0-beta.65] - 2026-10-06
 
 ### Changed
 - **Every research run now records what it searched, what it refused and what it did not run, and says so in its answer.** Each promised search is one operation with one of four end states: it ran and found records, it ran and came back empty (a counted zero from a call that finished), it was refused before anything left the machine, or it did not run. A failed call is never "empty". The answer names up to three questions that were not searched with the reason in plain words ("the run's search budget ran out"), counts the rest, and says what an empty result does and does not prove: it names the query and the provider and says this is not proof the literature is silent. A run reads "complete" only when its own ledger says so (Phase 369.2, plans 13 to 16).
