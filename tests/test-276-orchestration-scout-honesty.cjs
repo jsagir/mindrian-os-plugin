@@ -272,8 +272,10 @@ function spawnMcpSession(roomDir) {
     'response head: ' + JSON.stringify(scoutText.slice(0, 300)));
   const rationaleMatch = /\*\*Rationale:\*\*\s*(.+)/.exec(scoutText);
   const rationale = rationaleMatch ? rationaleMatch[1] : '(no Suggested Next rationale found)';
-  check('C2: Suggested Next rationale matches the honest template ("Instructions returned")',
-    rationale.indexOf('Instructions returned') !== -1,
+  // 369.25 FBRIEF-04: footers point at the decision path. The honesty intent is unchanged: the footer makes no false
+  // completion claim (it never says anything was gathered); it no longer carries a call-site rationale at all.
+  check('C2: Suggested Next rationale points at the one decision path and claims no completion ("gathered" is absent)',
+    rationale.indexOf('one decision path') !== -1 && rationale.indexOf('gathered') === -1,
     'actual rationale: ' + JSON.stringify(rationale));
 
   // ---------------------------------------------------------------------------
