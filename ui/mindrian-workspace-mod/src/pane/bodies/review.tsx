@@ -30,6 +30,11 @@ function keys(ctx: TabContext): KeySpec[] {
   return list
 }
 
+// A recorded label and its recorded description on one line (data only; no word of ours).
+function detailLine(label: string, description: string | null): string {
+  return `${label}: ${description ?? ''}`
+}
+
 // Under the shell's details button: each recorded choice's description, in full, so a description that
 // does not fit the compact card is one press away (UI-SPEC 13.2).
 function detailsExtra(ctx: TabContext): RenderElement | null {
@@ -45,7 +50,7 @@ function detailsExtra(ctx: TabContext): RenderElement | null {
         {text('D02')}
       </Text>
       {described.map((o) => (
-        <Text {...color}>{`${o.label}: ${o.description}`}</Text>
+        <Text {...color}>{detailLine(o.label, o.description)}</Text>
       ))}
     </Box>
   )
