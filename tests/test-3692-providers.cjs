@@ -14,6 +14,18 @@
 //      reported as searched
 // PV5  LENS_TO_SOURCE.patent is not pubmed and SOURCE_TO_TIER has an entry for 'patents'
 //
+// Phase 369.2 Plan 26 - provider preflight before dispatch and the doctor reachability matrix (HARNESS-03, SW-11, CFG-01; R15).
+//
+// PF1  no keys, lens set scholarly + industry + patent: result.preflight.unavailable names industry (tavily, no_key)
+//      and the patent lane; zero Tavily and zero PatentsView requests; result.lens_set drops both; each has a
+//      refused_before_fetch operation; scholarly still searches
+// PF2  the three Tavily lenses requested with no key: the answer line is the one sentence naming what was not
+//      searched; with a Tavily key set there is no such line
+// PF3  the doctor module matrix(): one row per lens with provider and state, industry 'no key' then 'ready', brain
+//      on theo, judge_jev on typesafe 'line off'; zero network; no key value in the rows or in check()
+// PF4  scripts/doctor.cjs --json in a temp HOME carries the research-providers module result
+// PF5  the doctor contract-parity and doc-parity tests pass with the new registry entry
+//
 // Never touches the network: globalThis.fetch is a thrower except inside a leg that installs its own
 // recording stub. HOME, USERPROFILE and MINDRIAN_ROOMS_HOME are mkdtemp dirs set before any repo module loads.
 //
@@ -32,6 +44,8 @@ const NET = installNetGuard();
 const { check, summary } = makeChecker('test-3692-providers');
 
 const fs = require('node:fs');
+const os = require('node:os');
+const cp = require('node:child_process');
 const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const driver = require(path.join(ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
@@ -221,6 +235,125 @@ async function main() {
     const I = driver._internal;
     check('PV5 LENS_TO_SOURCE.patent is not pubmed', I.LENS_TO_SOURCE.patent !== 'pubmed', 'patent=' + I.LENS_TO_SOURCE.patent);
     check('PV5 SOURCE_TO_TIER has an entry for patents', typeof I.SOURCE_TO_TIER.patents === 'string' && I.SOURCE_TO_TIER.patents.length > 0, 'tier=' + I.SOURCE_TO_TIER.patents);
+  }
+
+  // ---- PF1
+  {
+    const out = await runWith(['scholarly', 'industry', 'patent'], {});
+    const r = out.result || {};
+    const pre = r.preflight || {};
+    const un = Array.isArray(pre.unavailable) ? pre.unavailable : [];
+    const ind = un.find(function (u) { return u && u.lens === 'industry'; });
+    const pat = un.find(function (u) { return u && u.lens === 'patent'; });
+    check('PF1 preflight names industry as tavily with reason no_key',
+      !!ind && ind.provider === 'tavily' && ind.reason === 'no_key', 'unavailable=' + JSON.stringify(un));
+    check('PF1 preflight names the patent lane', !!pat && typeof pat.provider === 'string' && pat.provider.length > 0 && pat.reason === 'no_key', 'patent=' + JSON.stringify(pat));
+    check('PF1 preflight lists scholarly as available', Array.isArray(pre.available) && pre.available.indexOf('scholarly') !== -1 && pre.available.indexOf('industry') === -1, 'available=' + JSON.stringify(pre.available));
+    const tv = out.calls.filter(function (c) { return c.url.indexOf('api.tavily.com') !== -1; });
+    const pv = out.calls.filter(function (c) { return c.url.indexOf('patentsview') !== -1; });
+    check('PF1 zero Tavily and zero PatentsView requests', tv.length === 0 && pv.length === 0, 'tavily=' + tv.length + ' patentsview=' + pv.length);
+    const names = (Array.isArray(r.lens_set) ? r.lens_set : []).map(function (e) { return e.lens; });
+    check('PF1 result.lens_set drops both and keeps scholarly', names.indexOf('industry') === -1 && names.indexOf('patent') === -1 && names.indexOf('scholarly') !== -1, 'lens_set=' + JSON.stringify(names));
+    const li = lensResult(r, 'industry');
+    const lp = lensResult(r, 'patent');
+    check('PF1 each unavailable lens has a refused_before_fetch operation',
+      !!li && !!li.operation && li.operation.state === 'refused_before_fetch' && li.operation.reason === 'provider_unavailable:tavily'
+      && !!lp && !!lp.operation && lp.operation.state === 'refused_before_fetch' && lp.operation.reason === 'provider_unavailable:patent',
+      'industry=' + JSON.stringify(li && li.operation && { s: li.operation.state, r: li.operation.reason }) + ' patent=' + JSON.stringify(lp && lp.operation && { s: lp.operation.state, r: lp.operation.reason }));
+    const ls = lensResult(r, 'scholarly');
+    check('PF1 scholarly still searched', !!ls && !!ls.operation && (ls.operation.state === 'executed_with_results' || ls.operation.state === 'executed_empty') && out.calls.some(function (c) { return c.url.indexOf('openalex') !== -1; }),
+      'scholarly=' + JSON.stringify(ls && ls.operation && ls.operation.state) + ' thrown=' + (out.thrown && out.thrown.message));
+    // a healthy run keeps its shape: no preflight or answer_line key when nothing is unavailable
+    const healthy = await runWith(['scholarly'], {});
+    check('PF1 a run with every lens available carries no preflight or answer_line key',
+      !!healthy.result && healthy.result.preflight === undefined && healthy.result.answer_line === undefined,
+      'keys=' + JSON.stringify(Object.keys(healthy.result || {})));
+  }
+
+  // ---- PF2
+  {
+    const SENTENCE = 'Industry search needs a Tavily key, and none is set, so industry, competitive intelligence and grants were not searched.';
+    const out = await runWith(['scholarly', 'industry', 'competitive-intelligence', 'grants'], {});
+    const line = out.result && out.result.answer_line;
+    check('PF2 the answer line is the one sentence naming the three Tavily lenses', typeof line === 'string' && line.indexOf(SENTENCE) !== -1, 'answer_line=' + JSON.stringify(line));
+    check('PF2 the answer line has no dash characters', typeof line === 'string' && !/[–—]/.test(line), 'line=' + line);
+    const one = await runWith(['scholarly', 'industry'], {});
+    check('PF2 one unavailable Tavily lens reads in the singular',
+      !!one.result && one.result.answer_line === 'Industry search needs a Tavily key, and none is set, so industry was not searched.',
+      'answer_line=' + JSON.stringify(one.result && one.result.answer_line));
+    const keyed = await runWith(['scholarly', 'industry', 'competitive-intelligence', 'grants'], {}, function () { process.env.TAVILY_API_KEY = TV_KEY; });
+    check('PF2 with a Tavily key set there is no answer line and no unavailable lens',
+      !!keyed.result && keyed.result.answer_line === undefined && keyed.result.unavailable_lenses === undefined && keyed.calls.some(function (c) { return c.url.indexOf('api.tavily.com') !== -1; }),
+      'answer_line=' + JSON.stringify(keyed.result && keyed.result.answer_line));
+  }
+
+  // ---- PF3
+  {
+    let mod = null;
+    let loadErr = null;
+    try { mod = require(path.join(ROOT, 'lib', 'core', 'doctor', 'research-providers-module.cjs')); } catch (e) { loadErr = e; }
+    check('PF3 the module loads and exports check and matrix', !!mod && typeof mod.check === 'function' && typeof mod.matrix === 'function', 'load error=' + (loadErr && loadErr.message));
+    if (mod && typeof mod.matrix === 'function') {
+      const before = NET.attempts();
+      clearKeys();
+      const rows = mod.matrix({});
+      const row = function (lens) { return rows.find(function (x) { return x.lens === lens; }) || null; };
+      const lenses = Object.keys(driver._internal.LENS_TO_SOURCE);
+      check('PF3 one row per lens with a provider and a state',
+        lenses.every(function (l) { const x = row(l); return !!x && typeof x.provider === 'string' && typeof x.state === 'string' && x.state.length > 0; }),
+        'rows=' + JSON.stringify(rows.map(function (x) { return x.lens; })));
+      check('PF3 industry on tavily is no key with the key unset', !!row('industry') && row('industry').provider === 'tavily' && row('industry').state === 'no key', JSON.stringify(row('industry')));
+      check('PF3 patent has a patent provider and no key', !!row('patent') && row('patent').state === 'no key', JSON.stringify(row('patent')));
+      check('PF3 brain is on theo', !!row('brain') && row('brain').provider === 'theo', JSON.stringify(row('brain')));
+      check('PF3 the judge row is judge_jev on typesafe and line off by default', !!row('judge_jev') && row('judge_jev').provider === 'typesafe' && row('judge_jev').state === 'line off', JSON.stringify(row('judge_jev')));
+      check('PF3 a theo row and a planner row are present', !!row('theo') && row('theo').provider === 'theo' && !!row('planner') && row('planner').provider === 'openalex' && /^ready/.test(row('planner').state), JSON.stringify([row('theo'), row('planner')]));
+      process.env.TAVILY_API_KEY = TV_KEY;
+      process.env.PATENTSVIEW_API_KEY = PV_KEY;
+      const rows2 = mod.matrix({});
+      const ind2 = rows2.find(function (x) { return x.lens === 'industry'; });
+      check('PF3 industry is ready with a test key set', !!ind2 && ind2.state === 'ready', JSON.stringify(ind2));
+      const res = mod.check({});
+      const blob = JSON.stringify(rows2) + JSON.stringify(res);
+      clearKeys();
+      check('PF3 no key value in the rows or in check()', blob.indexOf(TV_KEY) === -1 && blob.indexOf(PV_KEY) === -1, 'key found in output');
+      check('PF3 check() returns a status, a detail, and one line per row',
+        !!res && ['ok', 'warn', 'error', 'skip'].indexOf(res.status) !== -1 && typeof res.detail === 'string' && res.detail.indexOf('industry -> tavily: ready') !== -1 && res.detail.indexOf('judge_jev -> typesafe: line off') !== -1,
+        'result=' + JSON.stringify(res).slice(0, 300));
+      check('PF3 matrix and check made zero network calls', NET.attempts() === before, 'attempts delta=' + (NET.attempts() - before));
+    }
+  }
+
+  // ---- PF4
+  {
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'pf4-home-'));
+    const env = Object.assign({}, process.env, { HOME: home, USERPROFILE: home, DOCTOR_TEST_MODE: '1', MINDRIAN_ACCEPTANCE_PROGRESS: '0' });
+    delete env.TAVILY_API_KEY;
+    delete env.PATENTSVIEW_API_KEY;
+    const r = cp.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'doctor.cjs'), '--json'], { env: env, cwd: ROOT, encoding: 'utf8', timeout: 180000 });
+    const text = String(r.stdout || '');
+    let json = null;
+    try { json = JSON.parse(text.slice(text.indexOf('{'))); } catch (_e) { json = null; }
+    const mres = json && json.checks && json.checks['research-providers'];
+    check('PF4 doctor --json carries the research-providers module result',
+      !!mres && typeof mres.status === 'string' && typeof mres.detail === 'string' && mres.detail.indexOf('industry -> tavily: no key') !== -1,
+      'exit=' + r.status + ' result=' + JSON.stringify(mres) + ' stderr=' + String(r.stderr || '').slice(-200));
+    try { fs.rmSync(home, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+  }
+
+  // ---- PF5
+  {
+    const run = function (file) {
+      return cp.spawnSync(process.execPath, [path.join(ROOT, 'tests', file)], { cwd: ROOT, encoding: 'utf8', timeout: 240000, env: Object.assign({}, process.env) });
+    };
+    const c = run('test-doctor-module-contract-parity.cjs');
+    check('PF5 the doctor module contract-parity test passes with the new entry', c.status === 0, 'exit=' + c.status + ' tail=' + String((c.stdout || '') + (c.stderr || '')).slice(-300));
+    const d = run('test-doctor-doc-parity.cjs');
+    const lines = String((d.stdout || '') + (d.stderr || '')).split('\n').filter(function (l) { return /^\s*FAIL - /.test(l); });
+    // The one violation allowed is the --none flag in doctor.md front matter (commit fa2f1414e, plan 267.3), a
+    // defect that predates this plan; any other violation, and any that names this module, fails the leg.
+    const mine = lines.filter(function (l) { return !/flag --none is documented/.test(l); });
+    check('PF5 the doctor doc-parity test reports no violation caused by the new entry', (d.status === 0 || mine.length === 0) && lines.every(function (l) { return l.indexOf('research-providers') === -1; }),
+      'exit=' + d.status + ' violations=' + JSON.stringify(lines));
   }
 
   check('net guard: no fetch escaped the stubs', NET.attempts() === 0, 'attempts=' + NET.attempts());
