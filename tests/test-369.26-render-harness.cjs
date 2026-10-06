@@ -264,6 +264,78 @@ scenario('17 gate probe: the no-login measurements run in a hermetic room and sa
   assert.strictEqual(fs.readdirSync(os.tmpdir()).filter((n) => n.startsWith('mos-ws-gateprobe-')).length, 0, 'the probe removed its folders');
 });
 
+// ---- quick fix: a session that ends at once must leave evidence, and secrets must never leak -------
+
+const SECRET = 'sk-test-SECRET-0123456789abcdef';
+
+function runProgram(label, program, envExtra, extra) {
+  const out = path.join(TMP, label);
+  const args = [RC, '--program', program, '--size', '100x20', '--label', label, '--out', out, '--timeout', '20'].concat(extra || []);
+  const r = spawnSync('node', args, { encoding: 'utf8', timeout: 90000, env: Object.assign({}, process.env, envExtra || {}) });
+  let json = null;
+  try { json = JSON.parse(fs.readFileSync(path.join(out, label + '.json'), 'utf8')); } catch (e) { json = null; }
+  return { r, out, json };
+}
+
+scenario('session that exits at once: status session_exited, non-empty .txt with the exit code, debug log kept, last 15 lines printed', () => {
+  const lines = [];
+  for (let i = 1; i <= 20; i += 1) lines.push('echo "engine line ' + i + '" >> "$MOS_RENDER_DEBUG_LOG"');
+  const { r, out, json } = runProgram('exits-now', lines.join('; ') + '; exit 3');
+  assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+  assert.ok(json, 'json written');
+  assert.strictEqual(json.status, 'session_exited');
+  assert.strictEqual(json.exitCode, 3);
+  const txt = fs.readFileSync(path.join(out, 'exits-now.txt'), 'utf8');
+  assert.ok(txt.trim().length > 0, 'the .txt is not empty');
+  assert.ok(/session ended before anything drew; exit code 3; see exits-now\.debug\.log/.test(txt), txt);
+  assert.ok(fs.statSync(path.join(out, 'exits-now.ansi')).size > 0, 'the .ansi is not empty');
+  const log = fs.readFileSync(path.join(out, 'exits-now.debug.log'), 'utf8');
+  assert.ok(/engine line 1\n/.test(log) && /engine line 20/.test(log), 'the whole debug log was kept');
+  assert.strictEqual(json.files.debugLog, 'exits-now.debug.log');
+  assert.ok(/exit code 3/.test(r.stdout), r.stdout);
+  assert.ok(/engine line 20/.test(r.stdout) && /engine line 6/.test(r.stdout), 'the last 15 lines are printed');
+  assert.ok(!/engine line 5\b/.test(r.stdout), 'only the last 15 lines');
+});
+
+scenario('session that exits with no debug log: the .debug.log still exists and says so in plain English', () => {
+  const { r, out, json } = runProgram('exits-silent', 'exit 0');
+  assert.strictEqual(r.status, 1, r.stdout + r.stderr);
+  assert.strictEqual(json.status, 'session_exited');
+  const log = fs.readFileSync(path.join(out, 'exits-silent.debug.log'), 'utf8');
+  assert.ok(/No debug log lines were written/.test(log), log);
+  assert.ok(/exit code 0/.test(fs.readFileSync(path.join(out, 'exits-silent.txt'), 'utf8')));
+});
+
+scenario('session that prints some output then dies: the last screen before it ended is kept in the .txt', () => {
+  const { json, out } = runProgram('dies-late', 'echo "loading plugin"; sleep 1; exit 7');
+  assert.strictEqual(json.status, 'session_exited');
+  assert.strictEqual(json.exitCode, 7);
+  const txt = fs.readFileSync(path.join(out, 'dies-late.txt'), 'utf8');
+  assert.ok(/exit code 7/.test(txt) && /loading plugin/.test(txt), txt);
+});
+
+scenario('secrets are handed to the child by name but never written to any file or printed', () => {
+  const prog = 'if [ "$CLAUDE_CODE_OAUTH_TOKEN" = "' + SECRET + '" ]; then echo TOKEN_PASSED; fi; ' +
+    'if [ -n "$HOME" ]; then echo HOME_PASSED; fi; ' +
+    'if [ "$COLORTERM" = "truecolor" ]; then echo COLORTERM_TRUECOLOR; fi; ' +
+    'echo "leak attempt: $CLAUDE_CODE_OAUTH_TOKEN"; echo "leak attempt: $CLAUDE_CODE_OAUTH_TOKEN" >> "$MOS_RENDER_DEBUG_LOG"; exit 4';
+  const { r, out, json } = runProgram('secrets', prog, { CLAUDE_CODE_OAUTH_TOKEN: SECRET, ANTHROPIC_API_KEY: SECRET + '-api', COLORTERM: '24bit' });
+  assert.strictEqual(json.status, 'session_exited');
+  const txt = fs.readFileSync(path.join(out, 'secrets.txt'), 'utf8');
+  assert.ok(/TOKEN_PASSED/.test(txt), 'the login token reached the child: ' + txt);
+  assert.ok(/HOME_PASSED/.test(txt), 'HOME reached the child');
+  assert.ok(/COLORTERM_TRUECOLOR/.test(txt), 'COLORTERM was set to truecolor in the child');
+  assert.deepStrictEqual(json.host.envHandedOver.secretsPassedThroughServerEnvironment.sort(), ['ANTHROPIC_API_KEY', 'CLAUDE_CODE_OAUTH_TOKEN']);
+  assert.ok(/secret removed/.test(txt), 'the leak attempt was scrubbed');
+  for (const f of fs.readdirSync(out)) {
+    const body = fs.readFileSync(path.join(out, f), 'utf8');
+    assert.ok(!body.includes(SECRET), 'secret found in ' + f);
+  }
+  assert.ok(!(r.stdout + r.stderr).includes(SECRET), 'secret printed to the console');
+  const ps = spawnSync('ps', ['-eo', 'args'], { encoding: 'utf8' }).stdout || '';
+  assert.ok(!ps.includes(SECRET), 'the secret is never on a command line');
+});
+
 scenario('cleanup: no scratch folder and no private tmux server is left behind', () => {
   assert.strictEqual(scratchCount(), before);
   assert.strictEqual(harnessTmuxProcs(), 0);

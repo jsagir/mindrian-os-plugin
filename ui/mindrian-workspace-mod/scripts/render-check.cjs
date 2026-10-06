@@ -117,9 +117,40 @@ function preflight(opts) {
 
 // ---- tmux ------------------------------------------------------------------------------------
 
-function makeTmux(sock) {
+// The tmux SERVER is started by the first tmux call (new-session), and a new session's environment
+// comes from the server's start environment. So whatever the child must see (the login token, HOME)
+// has to be in the environment of that first spawn. `env` is that explicit environment.
+function makeTmux(sock, env) {
   const base = ['-L', sock, '-f', '/dev/null'];
-  return (args) => spawnSync('tmux', base.concat(args), { encoding: 'utf8', timeout: 20000 });
+  return (args) => spawnSync('tmux', base.concat(args), { encoding: 'utf8', timeout: 20000, env: env || process.env });
+}
+
+// Secrets travel only through the tmux server's own environment (never on a command line, where
+// `ps` would show them) and are scrubbed from every file and every line the harness prints.
+const SECRET_NAMES = ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN'];
+// Not secret, so they ride on the `env` prefix of the child command: where claude keeps its login and config.
+const PASS_PLAIN = ['HOME', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_STATE_HOME', 'XDG_CACHE_HOME', 'XDG_RUNTIME_DIR', 'CLAUDE_CONFIG_DIR'];
+// The exit marker the child command prints after claude (or the test program) ends.
+const EXIT_RE = /CLAUDE_EXIT=(\d+)/;
+// How long the pane stays alive after the child ends, so the screen can be read back.
+const LINGER_SEC = 6;
+
+function secretValues(env) {
+  return SECRET_NAMES.map((n) => env[n]).filter((v) => typeof v === 'string' && v.length >= 8);
+}
+
+function scrubWith(secrets) {
+  return (text) => {
+    let t = String(text === undefined || text === null ? '' : text);
+    for (const s of secrets) t = t.split(s).join('[secret removed]');
+    return t;
+  };
+}
+
+function lastLines(text, n) {
+  const lines = String(text || '').split('\n');
+  while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+  return lines.slice(-n);
 }
 
 function parseSize(size) {
@@ -440,7 +471,7 @@ async function runOne(opts) {
   runCounter += 1;
   const sock = 'mos-ws-' + process.pid + '-' + runCounter;
   const name = sock;
-  const tmux = makeTmux(sock);
+  const tmux = makeTmux(sock, Object.assign({}, process.env));
   const out = path.resolve(opts.out);
   fs.mkdirSync(out, { recursive: true });
   const label = opts.label || (opts.sample + '-' + opts.size + '-' + opts.pane);
@@ -466,7 +497,16 @@ async function runOne(opts) {
   const noColorRun = envList.some((e) => /^NO_COLOR=./.test(e) || e === 'TERM=dumb');
   const assigns = (live ? [] : ['MOS_WORKSPACE_SAMPLE=' + opts.sample]).concat(['MINDRIAN_ROOMS_HOME=' + roomsHome], envList);
   if (live) assigns.push('CLAUDE_ACTIVE_ROOM=' + live.slug, 'CLAUDE_CODE_SESSION_ID=' + live.sessionId);
-  if (process.env.COLORTERM && !envList.some((e) => e.startsWith('COLORTERM='))) assigns.push('COLORTERM=' + process.env.COLORTERM);
+  // The parent's COLORTERM (the navigator exports truecolor) reaches the child as truecolor, unless a --env says otherwise.
+  if (process.env.COLORTERM && !envList.some((e) => e.startsWith('COLORTERM='))) assigns.push('COLORTERM=truecolor');
+  // Where claude keeps its login: pass HOME and the XDG and config folders through by name, so a
+  // different HOME can never be the reason a harness session is logged out.
+  const passedPlain = [];
+  for (const n of PASS_PLAIN) {
+    const v = n === 'HOME' ? (process.env.HOME || os.homedir()) : process.env[n];
+    if (v && !envList.some((e) => e.startsWith(n + '='))) { assigns.push(n + '=' + v); passedPlain.push(n); }
+  }
+  if (opts.program) assigns.push('MOS_RENDER_DEBUG_LOG=' + debugLog);
   const unsets = ['NO_COLOR', 'CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID', 'CLAUDE_ACTIVE_ROOM'];
   let inner;
   if (opts.program) inner = 'sh -c ' + shq(opts.program);
@@ -474,18 +514,46 @@ async function runOne(opts) {
     const dirs = probeDir ? [probeDir] : [MOD].concat(opts.repoPlugin ? [REPO] : []);
     inner = 'claude ' + dirs.map((d) => '--plugin-dir ' + shq(d)).join(' ') + (live ? ' --session-id ' + shq(live.sessionId) : '') + ' --debug-file ' + shq(debugLog);
   }
-  const command = 'env ' + unsets.map((u) => '-u ' + u).join(' ') + ' ' + assigns.map(shq).join(' ') + ' ' + inner;
+  // After the child ends, print its exit code and linger a few seconds, so the screen still shows the
+  // code and any last error when the session dies (a session that exits at once used to vanish with it).
+  const command = 'env ' + unsets.map((u) => '-u ' + u).join(' ') + ' ' + assigns.map(shq).join(' ') + ' ' + inner + '; echo "CLAUDE_EXIT=$?"; sleep ' + LINGER_SEC;
+  const secrets = secretValues(process.env);
+  const scrub = scrubWith(secrets);
+  const passedSecretNames = SECRET_NAMES.filter((n) => typeof process.env[n] === 'string' && process.env[n].length > 0);
 
   const res = {
     label, sample: live ? '(live room)' : opts.sample, size: opts.size, pane: opts.pane, keys: opts.keys || null, env: envList,
     status: 'started', answered: [], slashName: null, files: {}, logCounts: {}, host: {},
     items: {}, info: {}, frames: {}, inspections: {}, judgement: null, mcp: null, script: opts.scriptName || null,
   };
+  // Names only, never values: what the child was handed and what was taken away, for diffing against a plain run.
+  res.host.envHandedOver = {
+    removedFromChild: unsets.filter((u) => process.env[u] !== undefined),
+    passedByName: passedPlain.concat(passedSecretNames),
+    secretsPassedThroughServerEnvironment: passedSecretNames,
+    colorterm: assigns.find((a) => a.startsWith('COLORTERM=')) ? assigns.find((a) => a.startsWith('COLORTERM=')).slice(10) : '(unset)',
+    term: 'set by tmux (default-terminal), not by the harness',
+    cwd: 'a fresh scratch folder under ' + os.tmpdir(),
+  };
   const fail = (s) => { if (res.status === 'started') res.status = s; };
   let screen = '';
+  let exitCode = null;
+  let lastBeforeExit = '';
+  let debugKept = false;
+  const keepDebugLog = () => {
+    if (debugKept) return;
+    debugKept = true;
+    let text;
+    try { text = fs.readFileSync(debugLog, 'utf8'); } catch (e) { text = ''; }
+    if (text.trim() === '') text = 'No debug log lines were written: the session ended before it wrote anything to ' + path.basename(debugLog) + (opts.program ? ' (test program mode, no claude).' : '.') + '\n';
+    const kept = label + '.debug.log';
+    fs.writeFileSync(path.join(out, kept), scrub(text));
+    res.files.debugLog = kept;
+    res.debugTail = lastLines(scrub(text), 15);
+  };
   try {
     const ns = tmux(['new-session', '-d', '-s', name, '-x', String(cols), '-y', String(rows), '-c', cwd, command]);
-    if (ns.status !== 0) throw new Error('tmux new-session failed: ' + (ns.stderr || '').trim());
+    if (ns.status !== 0) throw new Error('tmux new-session failed: ' + scrub((ns.stderr || '').trim()));
     res.host.defaultTerminal = (tmux(['show-options', '-gv', 'default-terminal']).stdout || '').trim();
     res.host.colorterm = process.env.COLORTERM || '(unset)';
     res.host.tmux = (run('tmux', ['-V']).stdout || '').trim();
@@ -500,26 +568,38 @@ async function runOne(opts) {
     const readyRe = opts.readyText ? new RegExp(opts.readyText) : probeDir ? /half-block probe/ : BAND_READY;
     const deadline = Date.now() + (opts.timeoutSec || 60) * 1000;
     let ready = false;
+    let exited = false;
+    // After a keypress the screen is read every 150 ms (not every 500 ms), and the dialog is not
+    // answered again for 1.5 s, so a session that dies right after Enter is still caught on screen.
+    let quietUntil = 0;
+    let fastUntil = 0;
+    const pressed = () => { quietUntil = Date.now() + 1500; fastUntil = Date.now() + 10000; };
     while (Date.now() < deadline) {
       screen = cap();
-      if (/Do you trust the files in this folder|trust this folder|Yes, I trust/i.test(screen) && !opts.program) {
+      const em = EXIT_RE.exec(screen);
+      if (em) { exitCode = Number(em[1]); exited = true; break; }
+      if (screen.trim() !== '') lastBeforeExit = screen;
+      const quiet = Date.now() < quietUntil;
+      if (!quiet && /Do you trust the files in this folder|trust this folder|Yes, I trust/i.test(screen) && !opts.program) {
         keyName('Enter');
         res.answered.push('trust dialog: pressed Enter (Yes, trust this scratch folder)');
-        await sleep(1500);
+        pressed();
+        await sleep(150);
         continue;
       }
-      if (/Press Enter to continue/i.test(screen) && !opts.program) {
+      if (!quiet && /Press Enter to continue/i.test(screen) && !opts.program) {
         keyName('Enter');
         res.answered.push('"Press Enter to continue" dialog: pressed Enter');
-        await sleep(1500);
+        pressed();
+        await sleep(150);
         continue;
       }
       if (readyRe.test(screen)) { ready = true; break; }
       if (!alive()) break;
-      await sleep(500);
+      await sleep(Date.now() < fastUntil ? 150 : 500);
     }
     if (!ready) {
-      fail(alive() ? 'band_not_drawn' : 'session_exited');
+      fail(exited || !alive() ? 'session_exited' : 'band_not_drawn');
     } else {
       await sleep(1200);
       if (opts.pane === 'open') await openPane(h, null);
@@ -532,8 +612,8 @@ async function runOne(opts) {
         await sleep(600);
         keyName('Enter');
         await sleep(3500);
-        const mcpAnsi = tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '';
-        const mcpText = cap();
+        const mcpAnsi = scrub(tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
+        const mcpText = scrub(cap());
         fs.writeFileSync(path.join(out, label + '-mcp.ansi'), mcpAnsi);
         fs.writeFileSync(path.join(out, label + '-mcp.txt'), mcpText);
         const parsed = P.parseMcpServerNames(mcpText);
@@ -551,8 +631,8 @@ async function runOne(opts) {
           else if (step.op === 'burst') tmux(['send-keys', '-t', name].concat(step.keys));
           else if (step.op === 'open') await openPane(h, step.tab || null);
           else if (step.op === 'capture') {
-            const a = tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '';
-            const t = tmux(['capture-pane', '-p', '-t', name]).stdout || '';
+            const a = scrub(tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
+            const t = scrub(tmux(['capture-pane', '-p', '-t', name]).stdout || '');
             const g = G.parseAnsi(a, cols, rows);
             res.frames[step.name] = frameText(g);
             fs.writeFileSync(path.join(out, label + '-' + step.name + '.ansi'), a);
@@ -569,8 +649,22 @@ async function runOne(opts) {
     }
 
     // capture with colors, always (a failed run keeps its last screen for diagnosis)
-    const ansi = tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '';
-    const plain = tmux(['capture-pane', '-p', '-t', name]).stdout || '';
+    let ansi = scrub(tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
+    let plain = scrub(tmux(['capture-pane', '-p', '-t', name]).stdout || '');
+    const lateExit = EXIT_RE.exec(plain);
+    if (lateExit && exitCode === null) exitCode = Number(lateExit[1]);
+    // A session that ended after the band drew is still an ended session, not a pass.
+    if (lateExit && ready) fail('session_exited');
+    // Never leave a silent empty capture: say in plain English what happened and where to look.
+    if (res.status === 'session_exited' || (!ready && plain.trim() === '')) {
+      const code = exitCode === null ? 'unknown (the session was gone before the exit code could be read)' : String(exitCode);
+      const sentence = (ready ? 'The session ended after the band drew' : 'The session ended before anything drew') + '; exit code ' + code + '; see ' + label + '.debug.log.';
+      const before = scrub(lastBeforeExit).trim() !== '' ? '\n\n--- the last screen seen before the session ended ---\n' + scrub(lastBeforeExit).replace(/\s+$/, '') + '\n' : '';
+      const atEnd = plain.trim() !== '' ? '\n\n--- the screen when the session ended ---\n' + plain.replace(/\s+$/, '') + '\n' : '';
+      plain = sentence + before + atEnd;
+      if (ansi.trim() === '') ansi = sentence + '\n';
+      res.exitCode = exitCode;
+    }
     const grid = G.parseAnsi(ansi, cols, rows);
     const palette = loadPalette();
     const a = analyze(grid, ansi, { palette, keys: opts.keys || null, pane: opts.pane, sizeCols: cols, noColorRun, env: envList });
@@ -606,17 +700,34 @@ async function runOne(opts) {
     const hard = lines.filter((l) => /does not validate|threw while drawn|nothing was drawn/i.test(l));
     const refused = lines.filter((l) => /refused/i.test(l) && /workspace|ui\.|render|plugin|mod\b/i.test(l));
     res.logCounts = { doesNotValidate: lines.filter((l) => /does not validate/i.test(l)).length, refused: refused.length, threwWhileDrawn: lines.filter((l) => /threw while drawn/i.test(l)).length, nothingWasDrawn: lines.filter((l) => /nothing was drawn/i.test(l)).length, logLines: lines.length };
-    res.logEvidence = hard.concat(refused).slice(0, 5);
+    res.logEvidence = hard.concat(refused).slice(0, 5).map(scrub);
     if (hard.length + refused.length > 0) fail('engine_refused');
     if (res.status === 'started') res.status = 'ok';
+    // Any run that did not come out ok keeps its debug log next to its captures.
+    if (res.status !== 'ok') keepDebugLog();
   } finally {
+    // (also when an error escapes above: the log is the evidence)
+    if (res.status !== 'ok') { try { keepDebugLog(); } catch (e) { /* best effort */ } }
     tmux(['kill-session', '-t', name]);
     tmux(['kill-server']);
     if (live) { try { await live.close(); } catch (e) { /* best effort */ } }
     try { fs.rmSync(scratchRoot, { recursive: true, force: true }); } catch (e) { /* best effort */ }
   }
   fs.writeFileSync(path.join(out, label + '.json'), JSON.stringify(res, null, 2) + '\n');
+  if (res.status === 'session_exited') reportEnded(res, out);
   return res;
+}
+
+// After a session that ended: the exit code, what the child was handed (names only) and the last 15
+// lines of the kept debug log, in the console, so the navigator can paste it as it is.
+function reportEnded(res, out) {
+  const w = (s) => process.stdout.write(s + '\n');
+  const env = (res.host && res.host.envHandedOver) || {};
+  w('  SESSION ENDED: ' + res.label + ' (exit code ' + (res.exitCode === null || res.exitCode === undefined ? 'unknown' : res.exitCode) + ').');
+  w('  The child was handed (names only): passed through ' + ((env.passedByName || []).join(', ') || 'nothing') + '; removed ' + ((env.removedFromChild || []).join(', ') || 'nothing') + '; COLORTERM ' + (env.colorterm || '(unset)') + '.');
+  w('  Last screen text: ' + path.join(out, res.files.txt || (res.label + '.txt')));
+  w('  Last 15 lines of ' + path.join(out, res.files.debugLog || (res.label + '.debug.log')) + ':');
+  for (const l of res.debugTail || []) w('    | ' + l);
 }
 
 // judgeScript: the verdicts for a preset, from its frames and read-backs. A frame that was not
@@ -1027,7 +1138,7 @@ async function runFinal(o, host) {
 
 function summaryLine(r) {
   const parts = Object.keys(r.items).sort((a, b) => a - b).map((k) => k + ':' + r.items[k].result);
-  return r.label + ' -> ' + r.status + (parts.length ? ' [' + parts.join(' ') + ']' : '') + (r.status === 'band_not_drawn' ? ' (the band never appeared; see ' + (r.files.txt || 'the capture') + ')' : '');
+  return r.label + ' -> ' + r.status + (parts.length ? ' [' + parts.join(' ') + ']' : '') + (r.status === 'band_not_drawn' ? ' (the band never appeared; see ' + (r.files.txt || 'the capture') + ')' : '') + (r.status === 'session_exited' ? ' (the session ended; see ' + (r.files.txt || 'the capture') + ' and ' + (r.files.debugLog || 'the debug log') + ')' : '');
 }
 
 module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript };
