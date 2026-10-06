@@ -732,12 +732,13 @@ test('roomBody is defined, explains itself with X01, and its keys follow the but
   expect(ROOM).toBeDefined()
   expect(ROOM.explainId).toBe('X01')
   const keys = (vm: ViewModel) => ROOM.keys(ctxFor(vm)).map((k) => k.key + ':' + k.labelId)
-  // n H01 then v H02, in that order, each only when its button is drawn (plan 15 puts m H03 between).
-  expect(keys(SAMPLES.wide)).toEqual(['n:H01', 'v:H02'])
-  expect(keys(SAMPLES.several)).toEqual(['n:H01', 'v:H02'])
-  expect(keys(SAMPLES.missing)).toEqual(['v:H02'])
-  expect(keys(SAMPLES.empty)).toEqual(['n:H01'])
-  expect(keys(SAMPLES.unreadable)).toEqual(['n:H01'])
+  // n H01, v H02, then m H03 (plan 15), each only when its button is drawn; m's button is always
+  // drawn while a data room is bound.
+  expect(keys(SAMPLES.wide)).toEqual(['n:H01', 'v:H02', 'm:H03'])
+  expect(keys(SAMPLES.several)).toEqual(['n:H01', 'v:H02', 'm:H03'])
+  expect(keys(SAMPLES.missing)).toEqual(['v:H02', 'm:H03'])
+  expect(keys(SAMPLES.empty)).toEqual(['n:H01', 'm:H03'])
+  expect(keys(SAMPLES.unreadable)).toEqual(['n:H01', 'm:H03'])
   // With no data room bound only P12 is drawn, so there is nothing to press.
   expect(keys(SAMPLES.noroom)).toEqual([])
   expect(keys({ ...SAMPLES.wide, place: { ...SAMPLES.wide.place, isBound: false } })).toEqual([])
@@ -790,13 +791,13 @@ test('roomBody view: at the wide sample the element budget holds (UI-SPEC 13.2: 
     })
     expect(groups.filter((k) => k.startsWith('room:'))).toHaveLength(4)
     expect(groups).toContain('hint-line')
-    // Buttons by key, leaving out the tab strip and the hint line's own Help and Explain: the three
-    // that are drawn now, with the reserved place of P52 (plan 15) making the fourth.
+    // Buttons by key, leaving out the tab strip and the hint line's own Help and Explain: P33, P43,
+    // P52 (plan 15, the list itself is closed) and the details button P50.
     const own = (await ui.findAll({ type: 'Button' }))
       .map((b) => String(b.key))
       .filter((k) => !k.startsWith('tab:') && k !== 'help' && k !== 'explain')
-    expect(own.sort()).toEqual(['details', 'next:prefill', 'waiting:review'])
-    expect(own.length + 1).toBeLessThanOrEqual(4)
+    expect(own.sort()).toEqual(['details', 'next:prefill', 'room:actions', 'waiting:review'])
+    expect(own.length).toBeLessThanOrEqual(4)
     await ui.unmount()
   }
 })

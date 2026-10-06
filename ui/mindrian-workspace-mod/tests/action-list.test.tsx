@@ -8,13 +8,14 @@
 // registry is read from disk by tests/test-369.26-registry-sync.cjs, not here (a real file is not
 // readable under this harness).
 import type { On } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import type { ViewModel } from '../src/model/view-model'
+import { roomBody } from '../src/pane/bodies/room'
 import { emptyBody } from '../src/pane/kit'
 import type { BodyState } from '../src/pane/kit'
 import { buildPane } from '../src/pane/pane'
@@ -33,7 +34,7 @@ import {
 } from '../src/pane/room/registry-model'
 import type { ActionsLoad } from '../src/pane/room/registry-model'
 import type { ShellActions, TabBody } from '../src/pane/types'
-import { PLUGIN_NAME } from '../src/runtime/ids'
+import { PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -575,4 +576,201 @@ test('toggle: opening reads the registry once and caches it; closing writes only
   await toggleActions(act, { open: false, load: { state: 'unavailable' }, picked: null })
   expect(log.reads).toHaveLength(2)
   expect(isActionsLoad(log.patches[1]?.partial.actionRows)).toBe(true)
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: the Room body, its P52 button and the m key, through the REAL pane
+// ---------------------------------------------------------------------------------------------
+
+const ROOM = roomBody as TabBody
+
+// A context for the pure arms that never draw: keys(ctx) reads only the model.
+function ctxFor(vm: ViewModel, body: BodyState = emptyBody()) {
+  return {
+    el: undefined as never,
+    vm,
+    theme: THEME,
+    mode: COLOR,
+    bodyColumns: 100,
+    isFocused: true,
+    tab: 'room' as const,
+    body,
+    detailsOpen: false,
+    act: fakeAct(newLog()),
+  }
+}
+
+test('roomBody keys: n, v, then m, each only when its button is drawn; none with no room bound', () => {
+  const keys = (vm: ViewModel) => ROOM.keys(ctxFor(vm)).map((k) => k.key + ':' + k.labelId)
+  expect(keys(SAMPLES.wide)).toEqual(['n:H01', 'v:H02', 'm:H03'])
+  expect(keys(SAMPLES.several)).toEqual(['n:H01', 'v:H02', 'm:H03'])
+  expect(keys(SAMPLES.missing)).toEqual(['v:H02', 'm:H03'])
+  expect(keys(SAMPLES.empty)).toEqual(['n:H01', 'm:H03'])
+  expect(keys(SAMPLES.unreadable)).toEqual(['n:H01', 'm:H03'])
+  expect(keys(SAMPLES.noroom)).toEqual([])
+})
+
+test('roomBody.onOpen closes the list each time the tab opens, in a sample too', async () => {
+  const log = newLog()
+  const act: ShellActions = { ...fakeAct(log), refresh: async () => {} }
+  await ROOM.onOpen?.(act)
+  expect(log.patches).toEqual([{ tab: 'room', partial: { actionsOpen: false } }])
+  const sample: ShellActions = { ...act, sampleName: async () => 'wide' }
+  log.patches.length = 0
+  await ROOM.onOpen?.(sample)
+  expect(log.patches).toEqual([{ tab: 'room', partial: { actionsOpen: false } }])
+})
+
+type Beneath = { fills: { text: string; mode: string }[]; submits: unknown[]; toasts: string[]; mcp: string[]; assetReads: string[]; registry: string }
+
+function wireReal(on: On, env: Record<string, string>): Beneath {
+  const beneath: Beneath = { fills: [], submits: [], toasts: [], mcp: [], assetReads: [], registry: SAMPLE_REGISTRY }
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('command-registry.json')) {
+      beneath.assetReads.push('command-registry.json')
+      return { value: beneath.registry }
+    }
+    if (e.path.endsWith('section-job-canon.json')) {
+      beneath.assetReads.push('section-job-canon.json')
+      return { value: SAMPLE_CANON }
+    }
+    return { value: '{}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('mcp.call', (_$, e) => {
+    beneath.mcp.push(e.server + ':' + e.tool)
+    return { value: { content: [{ type: 'text', text: '{"ok":false}' }], isError: false } }
+  })
+  on('prompt.fill', (_$, e) => {
+    beneath.fills.push({ text: e.text, mode: String(e.mode) })
+    return { isFilled: true }
+  })
+  on('prompt.submit', (_$, e) => {
+    beneath.submits.push(e)
+    return { text: e.text }
+  })
+  on('ui.toast', (_$, e) => {
+    beneath.toasts.push(e.text)
+    return { value: undefined }
+  })
+  return beneath
+}
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+const mountReal = ($: Engine, surface: Surface) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(100), requestId: PANE_ID })
+
+const buttonKeys = async (ui: Awaited<ReturnType<typeof mountReal>>): Promise<string[]> =>
+  ((await ui.findAll({ type: 'Button' })) as unknown as Node[]).map((b) => String(b.key))
+
+test('the real pane: the Room tab draws P52 on m with the list closed, and the default view keeps 4 buttons', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountReal($, surface)
+    const button = await ui.find({ type: 'Button', key: 'room:actions' })
+    expect(button?.props.label).toBe(text('P52'))
+    expect(button?.props.hotkey).toBe('m')
+    // Closed by default: no list, no filter, no row.
+    expect(await ui.find({ key: 'room:actions-list' })).toBeUndefined()
+    // UI-SPEC 13.2: the Room tab's own buttons are P33, P43, P52 and the details button P50.
+    const own = (await buttonKeys(ui)).filter((k) => !k.startsWith('tab:') && k !== 'help' && k !== 'explain')
+    expect(own.sort()).toEqual(['details', 'next:prefill', 'room:actions', 'waiting:review'])
+    // The hint line names the key.
+    expect(shown(await ui.find({ key: 'hint-line' }))).toContain('m: ' + text('H03'))
+    await ui.unmount()
+  }
+  // Nothing is read until the list is opened.
+  expect(beneath.assetReads).toEqual([])
+})
+
+test('the real pane: m opens the list (P53), reads the registry once, caches it, closes and reopens without a second read', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+
+  await ui.press({ key: 'room:actions' })
+  expect((await ui.find({ type: 'Button', key: 'room:actions' }))?.props.label).toBe(text('P53'))
+  const list = await ui.find({ key: 'room:actions-list' })
+  expect(shown(list)).toContain(text('P123'))
+  expect(shown(list)).toContain('See the market (sample)')
+  expect(beneath.assetReads.sort()).toEqual(['command-registry.json', 'section-job-canon.json'])
+
+  await ui.press({ key: 'room:actions' })
+  expect((await ui.find({ type: 'Button', key: 'room:actions' }))?.props.label).toBe(text('P52'))
+  expect(await ui.find({ key: 'room:actions-list' })).toBeUndefined()
+
+  await ui.press({ key: 'room:actions' })
+  expect(await ui.find({ key: 'room:actions-list' })).toBeDefined()
+  expect(beneath.assetReads).toHaveLength(2)
+
+  // The tab round trip closes it again: collapsed each time the Room tab opens.
+  await ui.press({ key: 'tab:review' })
+  await ui.press({ key: 'tab:room' })
+  expect(await ui.find({ key: 'room:actions-list' })).toBeUndefined()
+  expect((await ui.find({ type: 'Button', key: 'room:actions' }))?.props.label).toBe(text('P52'))
+
+  // No call to any server and nothing submitted by any of it.
+  expect(beneath.mcp).toEqual([])
+  expect(beneath.submits).toEqual([])
+  await ui.unmount()
+})
+
+test('the real pane: pressing a row adds the command to the prompt box and never submits', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await ui.press({ key: 'room:actions' })
+  await ui.press({ key: 'action:2' })
+  expect(beneath.fills).toEqual([{ text: '/sample:gamma', mode: 'replace' }])
+  expect(beneath.toasts).toContain(text('P34'))
+  expect(beneath.submits).toEqual([])
+  await ui.press({ key: 'room:actions' })
+  await ui.unmount()
+})
+
+test('the real pane: on mobile the filter is buttons, and picking a folder narrows the rows', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'mobile')
+  await ui.press({ key: 'room:actions' })
+  expect(await ui.find({ type: 'Select' })).toBeUndefined()
+  expect((await buttonKeys(ui)).filter((k) => k.startsWith('action:'))).toHaveLength(3)
+  await ui.press({ key: 'actions:filter-1' })
+  expect((await buttonKeys(ui)).filter((k) => k.startsWith('action:'))).toHaveLength(1)
+  expect(shown(await ui.find({ key: 'room:actions-list' }))).toContain('Look at the problem again (sample)')
+  // Leave the pane's state as found.
+  await ui.press({ key: 'actions:filter-0' })
+  await ui.press({ key: 'room:actions' })
+  await ui.unmount()
+})
+
+test('the real pane: a registry that cannot be read says M03 inside the open list and the next open tries again', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  beneath.registry = '{ not json'
+  const ui = await mountReal($, 'terminal')
+  await ui.press({ key: 'room:actions' })
+  const list = await ui.find({ key: 'room:actions-list' })
+  expect(shown(list)).toContain(text('M03'))
+  expect((await buttonKeys(ui)).filter((k) => k.startsWith('action:'))).toHaveLength(0)
+  await ui.press({ key: 'room:actions' })
+
+  beneath.registry = SAMPLE_REGISTRY
+  await ui.press({ key: 'room:actions' })
+  expect(shown(await ui.find({ key: 'room:actions-list' }))).toContain('See the market (sample)')
+  await ui.press({ key: 'room:actions' })
+  await ui.unmount()
 })
