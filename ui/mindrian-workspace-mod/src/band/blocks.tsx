@@ -110,30 +110,41 @@ export function HiddenHelpKey(el: El, label: string, onPress: () => void): Rende
 }
 
 // The ten-cell bar (C-06). Filled count is Math.round(percent / 10), for the drawing only: 62 is
-// 6, 5 is 1, 49 is 5, 100 is 10. The bar sits on the paper context block (C-30, C-32): filled cells
-// are black, an empty cell is a black middle dot, and nothing changes color at 50 percent (a meter
-// is not a signal; the exact number is always beside the bar). No dim text on paper (C-29). Plain
-// mode draws no bar at all (the words carry the number).
+// 6, 5 is 1, 49 is 5, 100 is 10. The bar is a small black track with a paper (cream) fill (F4,
+// 2026-10-06 run): a black fill on the band read as a gap, because black cells touching the black
+// frame look empty. The fill must never share a color with the track behind it (a unit test and a
+// source guard hold that). The track has a black cap cell at each end, so the bar keeps its edges at
+// 0 and at 100 percent, when every cell is the same. An empty cell is a paper middle dot on the black
+// track. Nothing changes color at 50 percent (a meter is not a signal; the exact number is always
+// beside the bar). No new color role: black is structure, paper is paper. No dim text. Plain mode
+// draws no bar at all (the words carry the number).
+export const BAR_CELLS = 10
+export const BAR_COLUMNS = BAR_CELLS + 2
+
 export function ContextBar(el: El, percent: number, theme: Theme | null, mode: Mode): RenderElement | null {
   if (mode.plain || theme === null) return null
   const { Box, Text } = el
   const clamped = Math.min(100, Math.max(0, percent))
   const on = Math.round(clamped / 10)
   const cells: RenderNode[] = []
-  for (let i = 0; i < 10; i += 1) {
+  for (let i = 0; i < BAR_CELLS; i += 1) {
     cells.push(
       i < on ? (
-        <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />
+        <Box width={1} height={1} flexShrink={0} backgroundColor={theme.paper} />
       ) : (
-        <Text color={theme.structure} backgroundColor={theme.paper}>
+        <Text color={theme.paper} backgroundColor={theme.structure}>
           {DOT}
         </Text>
       ),
     )
   }
   return (
-    <Box width={10} height={1} flexShrink={0} flexDirection="row">
-      {cells}
+    <Box width={BAR_COLUMNS} height={1} flexShrink={0} flexDirection="row">
+      <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />
+      <Box width={BAR_CELLS} height={1} flexShrink={0} flexDirection="row">
+        {cells}
+      </Box>
+      <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />
     </Box>
   )
 }

@@ -19,6 +19,7 @@
 //   G12 roles        C-30: evidence, contradiction and assumption are drawn only in their role's files
 //   G8 completeness  all four tab bodies defined, no dependency fields, every registrar non-empty
 //   G9 hotkeys       every hotkey literal is one character, 0-9 or a-z
+//   G13 bar fill     F4 (2026-10-06): the context bar's filled cell never takes the job of the track behind it
 //   G11 ground       C-29: a Button or Select in src/pane sits inside a Box that spreads ground() (the host
 //                    paints their label in its own light color, invisible on the cream page); no dimColor
 //                    attribute in src/pane outside such a Box (dim on cream is faint grey, R-18 closed);
@@ -478,6 +479,29 @@ function g12Roles(tree) {
   return bad;
 }
 
+// G13 (F4, 2026-10-06 real run): the filled cells of the context bar were black on the black band, so
+// only the four empty dots showed. In ContextBar (src/band/blocks.tsx) the background job of a filled
+// cell must differ from every background job of the track behind it (the two caps and the empty
+// cells). Read from the source, so a palette edit cannot hide it.
+function g13BarFill(tree) {
+  const f = tree.files.find((x) => x.rel === 'src/band/blocks.tsx');
+  if (!f) return ['G13 src/band/blocks.tsx is missing'];
+  const at = f.code.indexOf('export function ContextBar');
+  if (at < 0) return ['G13 ContextBar is not in src/band/blocks.tsx'];
+  const body = f.code.slice(at);
+  const filled = /i\s*<\s*on\s*\?\s*\(\s*<Box\b[^>]*backgroundColor=\{theme\.(\w+)\}/.exec(body);
+  if (!filled) return ['G13 the filled cell of ContextBar (the Box in the i < on branch) has no theme background job'];
+  const all = [];
+  const re = /backgroundColor=\{theme\.(\w+)\}/g;
+  let m;
+  while ((m = re.exec(body)) !== null) all.push(m[1]);
+  const track = all.slice();
+  track.splice(track.indexOf(filled[1]), 1); // remove the filled cell's own entry once
+  if (track.length === 0) return ['G13 ContextBar has no track background (caps or empty cells) to compare the fill with'];
+  if (track.includes(filled[1])) return ['G13 the ContextBar fill uses the ' + filled[1] + ' job, the same as the track behind it: the filled cells would not show'];
+  return [];
+}
+
 function g8Completeness(tree, modRoot) {
   const bad = [];
   for (const b of BODY_FILES) {
@@ -602,6 +626,7 @@ function runGuard(which, modRoot) {
       case 'G9': return g9Hotkeys(tree);
       case 'G11': return g11Ground(tree);
       case 'G12': return g12Roles(tree);
+      case 'G13': return g13BarFill(tree);
       default: throw new Error('unknown guard ' + which);
     }
   } finally { tree.close(); }
@@ -668,6 +693,7 @@ const MUTATIONS = [
     fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
   }],
   ['G8', 'an empty registrar', (d) => plant(d, 'src/registrars/band.tsx', '// emptied\n', 'new')],
+  ['G13', 'the bar fill drawn in the track job (black on black)', (d) => replaceIn(d, 'src/band/blocks.tsx', 'i < on ? (\n        <Box width={1} height={1} flexShrink={0} backgroundColor={theme.paper} />', 'i < on ? (\n        <Box width={1} height={1} flexShrink={0} backgroundColor={theme.structure} />')],
   ['G9', 'a multi-character hotkey', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} hotkey=\"Enter\" onPress={() => {}} />\n", 'new')],
   ['G9', 'an upper-case hotkey', (d) => plant(d, 'src/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} hotkey=\"Q\" onPress={() => {}} />\n", 'new')],
   ['G11', 'a Button on the cream page (no ground)', (d) => plant(d, 'src/pane/zz-mutation.tsx', "import { Button } from 'claude-code'\nexport const zzMutation = () => <Button label={null as never} onPress={() => {}} />\n", 'new')],
@@ -729,6 +755,7 @@ async function main() {
   await scenario('G8 all four tab bodies defined, no dependency fields, every registrar registers something', () => reportBad(g8Completeness(tree, MOD)));
   await scenario('G9 every hotkey literal is one character in 0-9 or a-z', () => reportBad(g9Hotkeys(tree)));
   await scenario('G12 role lock: evidence, contradiction and assumption are drawn only in their role files', () => reportBad(g12Roles(tree)));
+  await scenario('G13 the context bar fill never takes the job of the track behind it (F4)', () => reportBad(g13BarFill(tree)));
   await scenario('G11 every pane Button and Select sits in a Box that spreads ground(); no dimColor on the cream page; no Button in a cream band Block', () => reportBad(g11Ground(tree)));
   tree.close();
 

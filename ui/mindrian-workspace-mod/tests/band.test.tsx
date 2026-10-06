@@ -154,9 +154,15 @@ test('LogoCell text and plain: the M:OS words alone, bold, no color prop at all'
 // ---------------------------------------------------------------------------------------------
 // ContextBar: ten cells, the rounding rule, the two fill colors, the dim middle dot.
 
-function filled(percent: number): { on: number; colors: unknown[]; dots: number; total: number } {
+// The bar is a track: a cap cell, ten cells, a cap cell (F4). The cells are the inner ten-column row.
+function trackCells(percent: number): { bar: Node; caps: Node[]; inner: Node; cells: Node[] } {
   const bar = asNode(ContextBar(EL, percent, THEME, COLOR))
-  const cells = kids(bar)
+  const [capL, inner, capR] = kids(bar)
+  return { bar, caps: [capL as Node, capR as Node], inner: inner as Node, cells: kids(inner as Node) }
+}
+
+function filled(percent: number): { on: number; colors: unknown[]; dots: number; total: number } {
+  const { cells } = trackCells(percent)
   const on = cells.filter((c) => c.type === 'Box')
   const dots = cells.filter((c) => c.type === 'Text' && c.children.includes('·') && c.props.dimColor === undefined)
   return { on: on.length, colors: on.map((c) => c.props.backgroundColor), dots: dots.length, total: cells.length }
@@ -179,14 +185,45 @@ test('ContextBar: the rounding cases from the plan', () => {
   }
 })
 
-test('ContextBar: black cells on paper at every percent, no color change at 50, no dim; plain mode draws no bar', () => {
+test('ContextBar: paper fill on a black track at every percent, no color change at 50, no dim; plain mode draws no bar', () => {
   for (const p of [10, 49, 50, 62, 79]) {
-    expect(filled(p).colors.every((c) => c === THEME.structure)).toBe(true)
+    expect(filled(p).colors.every((c) => c === THEME.paper)).toBe(true)
   }
-  // The empty cells are black middle dots on paper, never dim (no dim text on paper, C-29).
-  const dots = kids(asNode(ContextBar(EL, 30, THEME, COLOR))).filter((c) => c.type === 'Text')
-  for (const d of dots) expect(d.props).toMatchObject({ color: THEME.structure, backgroundColor: THEME.paper })
+  // The empty cells are paper middle dots on the black track, never dim (no dim text, C-29).
+  const dots = trackCells(30).cells.filter((c) => c.type === 'Text')
+  for (const d of dots) expect(d.props).toMatchObject({ color: THEME.paper, backgroundColor: THEME.structure })
   expect(ContextBar(EL, 62, null, PLAIN)).toBe(null)
+})
+
+// F4 (the 2026-10-06 run): the filled cells were black on the black band and only the four dots
+// showed. A filled cell must never share its color with the track behind it (the two caps and the
+// background of an empty cell), at any percent, whatever the palette says.
+function fillIsVisible(bar: Node): boolean {
+  const [capL, inner, capR] = kids(bar)
+  const cells = kids(inner as Node)
+  const track = new Set<unknown>([
+    (capL as Node).props.backgroundColor,
+    (capR as Node).props.backgroundColor,
+    ...cells.filter((c) => c.type === 'Text').map((c) => c.props.backgroundColor),
+  ])
+  if (track.has(undefined)) return false
+  return cells.filter((c) => c.type === 'Box').every((c) => typeof c.props.backgroundColor === 'string' && !track.has(c.props.backgroundColor))
+}
+
+test('ContextBar: a filled cell never has the color of the track behind it, at any percent (F4)', () => {
+  for (const p of [0, 4, 5, 10, 33, 49, 50, 62, 79, 100]) {
+    const t = trackCells(p)
+    expect(fillIsVisible(t.bar)).toBe(true)
+    // The track keeps its edges at 0 and at 100 percent: a cap cell on each side, 12 columns in all.
+    expect(num(t.bar.props.width)).toBe(12)
+    expect(t.caps).toHaveLength(2)
+  }
+})
+
+test('ContextBar: the F4 check has teeth (a palette where paper equals black fails it)', () => {
+  const same: Theme = { ...THEME, paper: THEME.structure }
+  const bar = asNode(ContextBar(EL, 62, same, { plain: false, note: null, theme: same }))
+  expect(fillIsVisible(bar)).toBe(false)
 })
 
 // ---------------------------------------------------------------------------------------------

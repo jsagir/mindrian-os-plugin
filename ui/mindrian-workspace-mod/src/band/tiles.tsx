@@ -157,8 +157,9 @@ export function WaitingTile(el: El, waiting: Seen<number>, theme: Theme | null, 
   })
 }
 
-// Context used. Under 80 percent B50 or B51 (same words) on a paper block, with a black ten-cell bar
-// at the wide tier and no color change at any percent (C-30, C-32). 80 and over B52 on a black
+// Context used. Under 80 percent B50 or B51 (same words) on a paper block, with a ten-cell bar (a
+// black track with a paper fill and a black cap at each end, F4) at the wide tier and no color change
+// at any percent (C-30, C-32). 80 and over B52 on a black
 // block, bold, with no bar: machine work reached a boundary and only a person can save. Not known
 // yet B54, unreadable B53, both on paper. The bar is drawn only when `showBar` (tier T3-wide) and
 // never in plain mode.
