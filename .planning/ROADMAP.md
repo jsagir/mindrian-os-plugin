@@ -1858,35 +1858,37 @@ Plans:
 **Depends on:** Phase 369.2 wave 1 (the beta.61 cut); the rooms quick 261005-l9o. Ships as the cut after beta.61; 369.2 waves 2-4 follow it and carry the pattern.
 **Amendments adopted (Lawrence, 2026-10-05, AMENDMENTS-RECONCILIATION-2026-10-05.md):** a ninth failure test, a session of work accumulating against a never-ready room, and the question why the heal-first net (graph-backfill.cjs step 0) did not fire; at least one readback per slice by a reader other than the writer; AN-01 (a null anchor on a successful filing gets a typed reason, never null); the Subject Audit as a slice with a test (a nest whose recommended frameworks share a premise renders the premise, never corroboration); owner the navigator, stop condition the design v2 practical test, 369.2 waves 2-4 proceed in parallel and are not gated on this phase.
 **Requirements**: FZERO-01..02, RID-01..10, RFT-01..09, AN-01, HEAL-01..02, FEYM-01..07, TFACE-01..08, FBRIEF-01..06, FCLOSE-01..07 (52, minted at plan time 2026-10-06; table in 369.25-01-PLAN.md)
-**Plans:** 25 plans
+**Plans:** 27 plans (25 planned + gap-closure plans 26 and 27; CUT as v2.0.0-beta.63, tag at 563c24262, 2026-10-06)
 
 Plans:
 
-- [ ] 369.25-01-PLAN.md - Phase 0 status table (read-only): referrers, affected version, never-ready repro and why step 0 did not fire, walk BEFORE; the never-ready fixture builder
-- [ ] 369.25-02-PLAN.md - the three re-pins with MOVING markers, run-all-36925 written once, the isolated-home helper
-- [ ] 369.25-03-PLAN.md - room identity owner API: write, read with typed not_ready (copy and in-place doors), repair without invented values, projections, Windows path normalization
-- [ ] 369.25-04-PLAN.md - AN-01: typed anchor reasons on artifact_file and claim_write
-- [ ] 369.25-05-PLAN.md - FeyMinto Theo ask over four theo-mcp reads (recommend_chain for framework_route), three handle-only allow rules
-- [ ] 369.25-06-PLAN.md - capability marker (runnable here / instruction-only / assisted) and the three command sources; the navigator table as data
-- [ ] 369.25-07-PLAN.md - birth commits the Room node and seven identity keys in STEP 2 and reads them back; projections; failure tests 2 and 8
-- [ ] 369.25-08-PLAN.md - Theo face renderer: provenance, not-asked lines, capability, three sources, why it fits, limitations, shared premise
-- [ ] 369.25-09-PLAN.md - heal net step 0 checks the room itself; never-ready recovery (failure test 9)
-- [ ] 369.25-10-PLAN.md - bound set add-and-primary everywhere, explicit unbind, binding results; failure tests 3 and 4
-- [ ] 369.25-11-PLAN.md - adapters, chain anchor and filing carry the room id; failure tests 5, 6, 7
-- [ ] 369.25-12-PLAN.md - FEYNMINTO-11 identity invariant and guardian validator; FEYNMINTO-01 on FEYNMAN, FEYNMINTO-12 on MINTO
-- [ ] 369.25-13-PLAN.md - readiness per operation, recovery card, session-start net; failure test 1
-- [ ] 369.25-14-PLAN.md - working sequence on the CLI and the Windows shape; doctor --icm-walk as the different reader
-- [ ] 369.25-15-PLAN.md - MINTO and FEYNMAN keyed to the room id with edit surfaces and the design v2 blocks
-- [ ] 369.25-16-PLAN.md - FeyMinto contract as part 7 of the generated CONTEXT.md
-- [ ] 369.25-17-PLAN.md - Theo face wired into BRAIN.md and birth; honest legacy labels; I8c untagged
-- [ ] 369.25-18-PLAN.md - next-move composition and the ten-block brief renderer; claim-state vocabulary
-- [ ] 369.25-19-PLAN.md - BRIEF.md materialized on the on-stop walk and after each regen
-- [ ] 369.25-20-PLAN.md - session start and context_assemble inject the first three brief blocks
-- [ ] 369.25-21-PLAN.md - decide and suggest_next read the next move from the face; footers point at it
-- [ ] 369.25-22-PLAN.md - the name FeyMinto on docs, doctor, heal and the recovery card
-- [ ] 369.25-23-PLAN.md - real-room FeyMinto leg and the negative leg; research refuses a room with no usable room.db
-- [ ] 369.25-24-PLAN.md - Step 2.6 gate requires the negative leg; the design v2 practical test
-- [ ] 369.25-25-PLAN.md - close: walk AFTER beside BEFORE, Layer Contract map, CHANGELOG, SEED-124, the beta.63 cut behind RULE 10 (checkpoint)
+- [x] 369.25-01-PLAN.md - Phase 0 status table (read-only): referrers, affected version, never-ready repro and why step 0 did not fire, walk BEFORE; the never-ready fixture builder
+- [x] 369.25-02-PLAN.md - the three re-pins with MOVING markers, run-all-36925 written once, the isolated-home helper
+- [x] 369.25-03-PLAN.md - room identity owner API: write, read with typed not_ready (copy and in-place doors), repair without invented values, projections, Windows path normalization
+- [x] 369.25-04-PLAN.md - AN-01: typed anchor reasons on artifact_file and claim_write
+- [x] 369.25-05-PLAN.md - FeyMinto Theo ask over four theo-mcp reads (recommend_chain for framework_route), three handle-only allow rules
+- [x] 369.25-06-PLAN.md - capability marker (runnable here / instruction-only / assisted) and the three command sources; the navigator table as data
+- [x] 369.25-07-PLAN.md - birth commits the Room node and seven identity keys in STEP 2 and reads them back; projections; failure tests 2 and 8
+- [x] 369.25-08-PLAN.md - Theo face renderer: provenance, not-asked lines, capability, three sources, why it fits, limitations, shared premise
+- [x] 369.25-09-PLAN.md - heal net step 0 checks the room itself; never-ready recovery (failure test 9)
+- [x] 369.25-10-PLAN.md - bound set add-and-primary everywhere, explicit unbind, binding results; failure tests 3 and 4
+- [x] 369.25-11-PLAN.md - adapters, chain anchor and filing carry the room id; failure tests 5, 6, 7
+- [x] 369.25-12-PLAN.md - FEYNMINTO-11 identity invariant and guardian validator; FEYNMINTO-01 on FEYNMAN, FEYNMINTO-12 on MINTO
+- [x] 369.25-13-PLAN.md - readiness per operation, recovery card, session-start net; failure test 1
+- [x] 369.25-14-PLAN.md - working sequence on the CLI and the Windows shape; doctor --icm-walk as the different reader
+- [x] 369.25-15-PLAN.md - MINTO and FEYNMAN keyed to the room id with edit surfaces and the design v2 blocks
+- [x] 369.25-16-PLAN.md - FeyMinto contract as part 7 of the generated CONTEXT.md
+- [x] 369.25-17-PLAN.md - Theo face wired into BRAIN.md and birth; honest legacy labels; I8c untagged
+- [x] 369.25-18-PLAN.md - next-move composition and the ten-block brief renderer; claim-state vocabulary
+- [x] 369.25-19-PLAN.md - BRIEF.md materialized on the on-stop walk and after each regen
+- [x] 369.25-20-PLAN.md - session start and context_assemble inject the first three brief blocks
+- [x] 369.25-21-PLAN.md - decide and suggest_next read the next move from the face; footers point at it
+- [x] 369.25-22-PLAN.md - the name FeyMinto on docs, doctor, heal and the recovery card
+- [x] 369.25-23-PLAN.md - real-room FeyMinto leg and the negative leg; research refuses a room with no usable room.db
+- [x] 369.25-24-PLAN.md - Step 2.6 gate requires the negative leg; the design v2 practical test
+- [x] 369.25-25-PLAN.md - close: walk AFTER beside BEFORE, Layer Contract map, CHANGELOG, SEED-124, the beta.63 cut behind RULE 10 (checkpoint)
+- [x] 369.25-26-PLAN.md - gap closure: WHAT CHANGED records new counterevidence (P5b); RECORD BASIS ignores FEYNMAN generated timestamp lines (P6)
+- [x] 369.25-27-PLAN.md - gap closure (Larry's leg B): room_graph_lost for a re-minted empty graph; third negative-leg injection room_db_reminted; the gate checks it
 
 ### Phase 369.3: Reliable transitions: rooms, Accept, resume, admission control and hooks (execution-truth program, brief Phase 2) (INSERTED)
 
