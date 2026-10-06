@@ -87,6 +87,7 @@ run_if     "WS-01 engine rules (state-reading hook validates, mistakes refused)"
 run_if "copy deck"                                     tests/test-369.26-copy.cjs           node tests/test-369.26-copy.cjs
 run_if "palette sync"                                  tests/test-369.26-palette-sync.cjs   node tests/test-369.26-palette-sync.cjs
 run_if "render parser"                                 tests/test-369.26-render-parser.cjs  node tests/test-369.26-render-parser.cjs
+run_if "render harness (fake tty through tmux)"        tests/test-369.26-render-harness.cjs node tests/test-369.26-render-harness.cjs
 run_if "registry sync"                                 tests/test-369.26-registry-sync.cjs  node tests/test-369.26-registry-sync.cjs
 run_if "Canon Part 8 boundary"                         tests/test-369.26-part8.cjs          node tests/test-369.26-part8.cjs
 run_if "source guards"                                 tests/test-369.26-source-guards.cjs  node tests/test-369.26-source-guards.cjs
