@@ -42,6 +42,9 @@ const DOC_PROSE_ALLOWLIST = new Set([
   // class E --fix invokes `generate-section-intelligence.cjs --recursive`; the
   // --recursive belongs to that generator, not to doctor.cjs.
   '--recursive',
+  // the interactive_first_reward front matter line reads "--none (diagnostic surface)" (plan 267.3,
+  // commit fa2f1414e); --none there means "no flag is needed", it is not a doctor.cjs flag.
+  '--none',
 ]);
 
 // Registry module id -> doctor class letter. Modules without a class letter (the
