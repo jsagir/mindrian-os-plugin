@@ -1840,7 +1840,7 @@ Plans:
 - [x] 369.2-21 four query kinds per question; sentences shaped never quoted whole (R16)
 - [x] 369.2-22 quick cap reaches limiter leaves first or the card says it cannot (R14)
 - [x] 369.2-23 field scan composed at plan time, first on the card (R17)
-- [ ] 369.2-24 round-0 field scan; contradicted limiter demoted (R17)
+- [x] 369.2-24 round-0 field scan; contradicted limiter demoted (R17)
 - [x] 369.2-25 keyed PatentsView source or provider_unavailable:patent (R08)
 - [x] 369.2-26 provider preflight; doctor reachability matrix (R15)
 - [x] 369.2-27 readReadinessCounts; Eureka judge-state sentence (R20, R24)
