@@ -154,8 +154,12 @@ test('LogoCell compact: nine columns, one row', () => {
 })
 
 test('LogoCell text and plain: the M:OS words alone, bold, no color prop at all', () => {
-  const text = asNode(LogoCell(EL, 'text', THEME, COLOR))
-  expect(text.children).toContain('M:OS')
+  const words = asNode(LogoCell(EL, 'text', THEME, COLOR))
+  let found = false
+  walk(words, (n) => {
+    if (n.children.includes('M:OS') && n.props.bold === true) found = true
+  })
+  expect(found).toBe(true)
   const plainTall = asNode(LogoCell(EL, 'tall', null, PLAIN))
   const seen: string[] = []
   walk(plainTall, (n) => {
