@@ -106,6 +106,55 @@ Then follow the framework phases from the reference file. Start by mapping the s
 
 Every system has a bottleneck. Your job is to find it before they optimize the wrong subsystem.
 
+## Plan-run route (search the literature for what this found)
+
+**Body Shape:** E (Action Report). The planner CLI prints JSON only; read each answer and act on it. Every argument is a room path, a run id, a tag or an enum value, never room text. This is the same route `/mos:eureka` uses (Canon Part 7: reuse before build); nothing leaves the room until the navigator approves the exact searches on a card.
+
+### Route step 1: Recall the lagging sections and build the plan
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" perspective-recall --room ROOM_DIR --perspective rs --mode quick
+```
+
+Read `run_tag`, `counts`, `top` and `plan` from the JSON. When `plan` is null, the room has nothing to search for yet: say so in one line, name what was looked for (a section that lags the sections that feed it) and `counts`, and stop. When `plan.ok` is false, or `plan.status` is not `ready`, say the plan was not made ready, say in plain words what `plan.errors` names, and stop; never approve a plan that is not ready. Otherwise keep `plan.run_id`.
+
+### Route step 2: Plan review card (F.6), then the one search approval
+
+Read the plan from `ROOM_DIR/.mindrian/research-runs/<run_id>/plan.json` and show it: each leaf question, the falsifier for each, its source, the budget, and every search under the leaf's `queries` (the `q` values) exactly as it will be sent. Fire the F.6 Plan Review card with AskUserQuestion (Run this plan / Stop without running). Never take a typed yes as the answer: only the card answers it. On a yes:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" review approve <run_id> --room ROOM_DIR --approved-via cli
+```
+
+This writes the approval for this one run; it covers exactly the searches the card listed, and an approval only lets the run fetch, it never files anything. On a stop, say the plan is saved and nothing was fetched, then stop.
+
+### Route step 3: Run
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" run-quick <run_id> --room ROOM_DIR
+```
+
+Run it straight after the approval. A `reask` answer means the approval does not cover one of these exact searches, or has lapsed: fire the F.0 card it returns with AskUserQuestion, never work around it.
+
+### Route step 4: Write the result
+
+`status: done` gives an evidence card. Write the result from that card in the four zones (header, the answer line, the strip, the footer), in plain words naming what was searched and what was not (the answer line already says which). Every factual statement ends with its row id. Never render a score, similarity, differential or percentage. Never grade or praise a finding.
+
+### Route step 5: File (F.8, only on the navigator's yes)
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" basket <run_id> --room ROOM_DIR
+```
+
+Fire the F.8 basket with AskUserQuestion, multi-select over the items the card lists (an empty pick files nothing). Only on a card yes, Write `{"approved": true, "items": [<the picked item ids>]}` to a scratch `selection.json` and file:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/research-planner.cjs" file-run <run_id> <selection.json> --room ROOM_DIR --approved-via cli
+```
+
+Show the filing report as is, including anything that did not land.
+
+
 ## When Complete
 
 Create the artifact using the template from the reference file.
