@@ -1,0 +1,238 @@
+{
+  "_note": "Synthetic fixture text. The two DOIs are the ones named in the 369.2 INPUT session; the titles and abstracts were written for this fixture from the words of the governing question and are not the real papers. No real author names.",
+  "input_session_lane_b": {
+    "meta": {
+      "count": 2,
+      "db_response_time_ms": 41,
+      "page": 1,
+      "per_page": 200,
+      "groups_count": null,
+      "cost_usd": 0.001
+    },
+    "results": [
+      {
+        "id": "https://openalex.org/W9369201",
+        "doi": "https://doi.org/10.1080/08850607.2016.1230706",
+        "title": "Placing artificial intelligence on the evidence side: can it help students test historical claims",
+        "abstract_inverted_index": {
+          "This": [
+            0
+          ],
+          "synthetic": [
+            1
+          ],
+          "fixture": [
+            2
+          ],
+          "abstract": [
+            3
+          ],
+          "asks": [
+            4
+          ],
+          "whether": [
+            5
+          ],
+          "artificial": [
+            6
+          ],
+          "intelligence": [
+            7
+          ],
+          "placed": [
+            8
+          ],
+          "on": [
+            9
+          ],
+          "the": [
+            10,
+            30
+          ],
+          "evidence": [
+            11
+          ],
+          "side": [
+            12
+          ],
+          "of": [
+            13
+          ],
+          "a": [
+            14
+          ],
+          "history": [
+            15
+          ],
+          "lesson": [
+            16
+          ],
+          "can": [
+            17
+          ],
+          "help": [
+            18
+          ],
+          "high": [
+            19
+          ],
+          "school": [
+            20
+          ],
+          "students": [
+            21
+          ],
+          "test": [
+            22
+          ],
+          "historical": [
+            23
+          ],
+          "claims.": [
+            24
+          ],
+          "Students": [
+            25
+          ],
+          "weigh": [
+            26
+          ],
+          "each": [
+            27
+          ],
+          "claim": [
+            28
+          ],
+          "against": [
+            29
+          ],
+          "sources": [
+            31
+          ],
+          "before": [
+            32
+          ],
+          "they": [
+            33
+          ],
+          "accept": [
+            34
+          ],
+          "it.": [
+            35
+          ]
+        },
+        "publication_year": 2016,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 31,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Journal of Evidence Teaching",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      },
+      {
+        "id": "https://openalex.org/W9369202",
+        "doi": "https://doi.org/10.1080/02684527.2017.1400230",
+        "title": "Testing historical claims in high school: what a source checking aid adds for students",
+        "abstract_inverted_index": {
+          "Synthetic": [
+            0
+          ],
+          "fixture": [
+            1
+          ],
+          "text.": [
+            2
+          ],
+          "High": [
+            3
+          ],
+          "school": [
+            4
+          ],
+          "students": [
+            5
+          ],
+          "test": [
+            6,
+            26
+          ],
+          "a": [
+            7
+          ],
+          "historical": [
+            8
+          ],
+          "claim": [
+            9
+          ],
+          "against": [
+            10
+          ],
+          "planted": [
+            11
+          ],
+          "accounts,": [
+            12
+          ],
+          "and": [
+            13
+          ],
+          "the": [
+            14,
+            21
+          ],
+          "study": [
+            15
+          ],
+          "asks": [
+            16
+          ],
+          "whether": [
+            17
+          ],
+          "an": [
+            18
+          ],
+          "aid": [
+            19
+          ],
+          "on": [
+            20
+          ],
+          "evidence": [
+            22
+          ],
+          "side": [
+            23
+          ],
+          "helps": [
+            24
+          ],
+          "them": [
+            25
+          ],
+          "it.": [
+            27
+          ]
+        },
+        "publication_year": 2017,
+        "type": "article",
+        "is_retracted": false,
+        "cited_by_count": 18,
+        "primary_location": {
+          "source": {
+            "display_name": "Synthetic Review of History Learning",
+            "is_in_doaj": false
+          }
+        },
+        "authorships": []
+      }
+    ],
+    "group_by": []
+  }
+}
