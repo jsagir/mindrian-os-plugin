@@ -15,6 +15,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
+import { registerWorkspaceCommand } from '../command/workspace'
 import { chooseViewModel } from '../model/read'
 import { buildPane } from '../pane/pane'
 import { paneLayout } from '../pane/layout'
@@ -36,6 +37,7 @@ const tabAtom = atom({ plugin: 'mindrian-workspace', key: 'tab' } as const, INIT
 const keysOpenAtom = atom({ plugin: 'mindrian-workspace', key: 'keysOpen' } as const, INITIAL.keysOpen)
 const explainOpenAtom = atom({ plugin: 'mindrian-workspace', key: 'explainOpen' } as const, INITIAL.explainOpen)
 const detailsOpenAtom = atom({ plugin: 'mindrian-workspace', key: 'detailsOpen' } as const, INITIAL.detailsOpen)
+const plainAtom = atom({ plugin: 'mindrian-workspace', key: 'plain' } as const, INITIAL.plain)
 const sampleAtom = atom({ plugin: 'mindrian-workspace', key: 'sample' } as const, INITIAL.sample)
 const viewModelAtom = atom({ plugin: 'mindrian-workspace', key: 'viewModel' } as const, INITIAL.viewModel)
 
@@ -82,6 +84,8 @@ function makeAct($: EngineInterface, focusKey: (tab: TabId) => string | null): S
 }
 
 export const registerPane: Register = (on) => {
+  registerWorkspaceCommand(on)
+
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const el = $.ui.resolve(e)
     const tab = await read($, tabAtom)
@@ -106,7 +110,10 @@ export const registerPane: Register = (on) => {
     const vm = chooseViewModel(fromAtom, fromEnv, live)
 
     // The mode, decided from plain values read here (the person's switch, the palette, the env).
-    const switchOn = await $.store.get('plain')
+    // The state value is what redraws the pane when `workspace plain` flips it; the store is what
+    // survives a restart. Either one says plain.
+    const plainState = await read($, plainAtom)
+    const switchOn = plainState === true || (await $.store.get('plain')) === true
     let paletteText: string | null
     try {
       paletteText = await $.fs.read(`${$.plugin.root}/${PALETTE_ASSET}`)
