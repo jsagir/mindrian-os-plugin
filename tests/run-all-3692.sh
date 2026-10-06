@@ -144,16 +144,13 @@ run "3692: mux card before answer"                node tests/test-mux-card-befor
 run "3692: 366 guard navigator release"           node tests/test-366-guard-navigator-release.cjs
 run "3692: 369 hook require graph"                node tests/test-369-hook-require-graph.cjs
 
-# --- 3. Pre-existing reds this phase does not own (signatures measured on HEAD in 369.2-03) -------
-run_known "3692: known red 257 brain tool egress invariant (plan 08 investigates)" \
-  'brain_query: a blocked call must open no socket at all' \
-  node tests/test-257-brain-tool-egress-invariant.cjs
-run_known "3692: known red rs-fetcher industry (Tavily orchestration)" \
-  'FAIL  Test 1: happy path Tavily orchestration' \
-  node lib/memory/test-rs-fetcher-industry.cjs
-run_known "3692: known red muy real-room rule (CHANGELOG names the rule)" \
-  'G10b' \
-  node tests/test-muy-real-room-rule.cjs
+# --- 3. Former known reds, healed (369.2-34, 2026-10-06) ------------------------------------------
+# These three were run_known wrappers in 369.2-03. Each test file now exits 0 on HEAD (measured in
+# 369.2-34: 257 invariant "PASS (0 failures)"; rs-fetcher industry 17/17; muy real-room rule 20/0),
+# so the wrappers are plain run legs. The run_known helper above stays for a future known red.
+run "3692: 257 brain tool egress invariant (healed by plan 08)"            node tests/test-257-brain-tool-egress-invariant.cjs
+run "3692: rs-fetcher industry (healed by plans 02 and 06)"                node lib/memory/test-rs-fetcher-industry.cjs
+run "3692: muy real-room rule (healed by the beta.61 CHANGELOG, plan 12)"  node tests/test-muy-real-room-rule.cjs
 
 # --- 4. Gates (plain run) -------------------------------------------------------------------------
 run "3692: skill-mirrors generator --check"             node scripts/build-skill-mirrors.cjs --check
