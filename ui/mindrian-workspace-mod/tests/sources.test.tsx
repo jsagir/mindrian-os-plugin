@@ -819,7 +819,12 @@ const LIVE_FILES: Record<string, string> = {
 
 // What sits beneath the real plugin. `gates` is what gate_list answers with: the evidence ids of the
 // open cards. Every call is recorded.
-function wireReal(on: On, env: Record<string, string>, evidence: string[][] = []): Beneath {
+function wireReal(
+  on: On,
+  env: Record<string, string>,
+  evidence: string[][] = [],
+  gateDown = false,
+): Beneath {
   const beneath: Beneath = { mcp: [], fills: [], submits: [] }
   mock.env(on, env)
   mock.store(on, {})
@@ -836,6 +841,9 @@ function wireReal(on: On, env: Record<string, string>, evidence: string[][] = []
     const args = (e.args ?? {}) as Record<string, unknown>
     beneath.mcp.push({ server: e.server, tool: e.tool, args })
     let data: unknown
+    if (e.tool === 'gate_list' && gateDown) {
+      return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: false, reason: 'lookup_failed' }) }], isError: true } }
+    }
     if (e.tool === 'gate_list') {
       data = {
         ok: true,
@@ -886,7 +894,10 @@ async function activeTab(ui: Awaited<ReturnType<typeof mountReal>>): Promise<str
   return undefined
 }
 
-const keyOf = (n: Node): string => String(propsOf(n).key ?? n.key)
+// A live room has no model until the pane is opened (the band's own hooks read it in a real session):
+// open through the workspace command at Room, which reads the model, then walk to Sources.
+const OPEN_WORKSPACE = ($: Engine) =>
+  $.command.run({ command: 'workspace', args: 'room', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
 
 test('sourcesBody is defined, explains itself with X03, and offers b H07 only while a reading is open', () => {
   expect(sourcesBody).toBeDefined()
@@ -953,6 +964,7 @@ test('the real pane at a live room: opening Sources lists only what resolves; Re
   ])
   on('command.register', (_$, e) => ({ value: { command: e.name } }))
   const ui = await mountReal($, 'terminal')
+  await OPEN_WORKSPACE($)
   await ui.press({ key: 'tab:sources' })
   expect(await activeTab(ui)).toBe('sources')
 
@@ -1004,25 +1016,25 @@ test('the real pane at a live room: opening Sources lists only what resolves; Re
   await ui.press({ key: 'tab:room' })
   expect(await activeTab(ui)).toBe('room')
   await ui.unmount()
-  void keyOf
 })
 
-test('the real pane at a live room with no open decision says P104; with every list read failing says M03', async ($, on) => {
-  let beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [])
-  let ui = await mountReal($, 'terminal')
+test('the real pane at a live room with no open decision says P104 and reads no artifact', async ($, on) => {
+  const beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [])
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  const ui = await mountReal($, 'terminal')
+  await OPEN_WORKSPACE($)
   await ui.press({ key: 'tab:sources' })
   expect(shown(await ui.find({ key: 'sources:list' }))).toContain(text('P104'))
   expect(beneath.mcp.filter((c) => c.tool === 'room_artifact')).toEqual([])
   await ui.press({ key: 'tab:room' })
   await ui.unmount()
+})
 
-  // gate_list down: the list cannot be read.
-  beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [])
-  on('mcp.call', (_$, e) => {
-    if (e.tool === 'gate_list') return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: false, reason: 'lookup_failed' }) }], isError: true } }
-    return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: true, segments: {} }) }], isError: false } }
-  })
-  ui = await mountReal($, 'terminal')
+test('the real pane at a live room with the decision list unreadable says M03', async ($, on) => {
+  wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [], true)
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  const ui = await mountReal($, 'terminal')
+  await OPEN_WORKSPACE($)
   await ui.press({ key: 'tab:sources' })
   expect(shown(await ui.find({ key: 'sources:list' }))).toContain(text('M03'))
   await ui.press({ key: 'tab:room' })
