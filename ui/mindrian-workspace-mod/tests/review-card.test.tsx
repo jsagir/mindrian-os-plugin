@@ -254,7 +254,12 @@ async function draw($: Engine, surface: Surface, columns: number) {
   return $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: SHELL_ID })
 }
 
-// Draw one card with one view on one surface and hand the engine's drawn handles to `check`.
+// One rig per test: the engine wants the render hook registered before the test first calls `$`, so the
+// hook is registered once and each drawing only swaps what it draws.
+type Rig = { cur: { input: PaneInput; deps: PaneDeps } }
+const rigs = new WeakMap<object, Rig>()
+
+// Draw one card with one view on the given surfaces and hand the engine's drawn handles to `check`.
 async function withCard(
   $: Engine,
   on: On,
@@ -265,13 +270,35 @@ async function withCard(
   surfaces: readonly Surface[] = ['terminal'],
 ): Promise<void> {
   const pressers: Pressers = {}
-  const cur = { input: paneInput(mem, v), deps: depsOf(cardBody(c, v, pressers)) }
-  shellHook(on, cur)
+  const next = { input: paneInput(mem, v), deps: depsOf(cardBody(c, v, pressers)) }
+  let rig = rigs.get(on)
+  if (rig === undefined) {
+    rig = { cur: next }
+    rigs.set(on, rig)
+    shellHook(on, rig.cur)
+  } else {
+    rig.cur.input = next.input
+    rig.cur.deps = next.deps
+  }
   for (const surface of surfaces) {
     const ui = await draw($, surface, v.columns)
     await check(ui, pressers, mem)
     await ui.unmount()
   }
+}
+
+// Does a drawn node hold a Text drawn dim?
+function dimText(tree: unknown): boolean {
+  let dim = false
+  walk(tree, (n) => {
+    if (n.type === 'Text' && propsOf(n).dimColor === true) dim = true
+  })
+  return dim
+}
+
+// Let the awaits of a press run to the end (no timer exists in the engine environment).
+async function settle(): Promise<void> {
+  for (let i = 0; i < 200; i += 1) await Promise.resolve()
 }
 
 // ---- consequence.ts: pure --------------------------------------------------------------------------
@@ -379,7 +406,7 @@ test('the in-flight claim is atomic over act.update: two presses at once send on
   const approve = c.options[0] as GateOption
   const first = pressChoice(reviewIo(act, {}), c, approve)
   const second = pressChoice(reviewIo(act, {}), c, approve)
-  await Promise.resolve()
+  await settle()
   expect(mem.calls.filter((x) => x.tool === 'gate_answer')).toHaveLength(1)
   // While the call is open the card says saving and nothing says saved.
   expect(readReview(mem.body.review).phase['g-1']?.phase).toBe('saving')
@@ -443,7 +470,7 @@ test('the wide card at 100 columns, focused: heading, question, suggestion with 
     expect(later?.props.label).toBe(text('D16'))
     // The consequence line is dim.
     const line = await ui.find({ key: 'review:consequence' })
-    expect(propsOf(line).dimColor).toBe(true)
+    expect(dimText(line)).toBe(true)
   })
 })
 
@@ -473,7 +500,7 @@ test('an option with no description gives D04 after the suggestion; no recommend
     expect(root).toContain(text('D04'))
     expect(root).not.toContain('D03')
     const d04 = await ui.find({ key: 'review:no-reason' })
-    expect(propsOf(d04).dimColor).toBe(true)
+    expect(dimText(d04)).toBe(true)
   })
   const noSuggestion = card({ options: [opt('defer', { rank: 1 }), opt('approve', { rank: 2 })] })
   await withCard($, on, noSuggestion, viewOf(), async (ui) => {
@@ -658,7 +685,7 @@ test('pressing a choice runs the answer machine: one gate_answer to the Mindrian
     viewOf(),
     async (_ui, pressers) => {
       pressers['choice:1']?.()
-      await new Promise((r) => setTimeout(r, 20))
+      await settle()
       const answers = mem.calls.filter((c) => c.tool === 'gate_answer')
       expect(answers).toHaveLength(1)
       expect(answers[0]?.server).toBe(MINDRIAN_SERVER)
@@ -682,7 +709,7 @@ test('pressing the second choice sends its own verdict; Decide later makes zero 
     viewOf(),
     async (_ui, pressers) => {
       pressers['choice:2']?.()
-      await new Promise((r) => setTimeout(r, 20))
+      await settle()
       const answers = mem.calls.filter((c) => c.tool === 'gate_answer')
       expect(answers[0]?.args).toEqual({ gate_id: WIDE_CARD.gateId, chosen: ['defer'], verdict: 'defer' })
     },
@@ -696,7 +723,7 @@ test('pressing the second choice sends its own verdict; Decide later makes zero 
     viewOf(),
     async (_ui, pressers) => {
       pressers['review:later']?.()
-      await new Promise((r) => setTimeout(r, 20))
+      await settle()
       expect(later.calls).toEqual([])
       expect(readReview(later.body.review).dismissed).toEqual([WIDE_CARD.gateId])
       expect(readReview(later.body.review).phase).toEqual({})
@@ -713,32 +740,29 @@ test('ChoiceButtons exports CHOICE_FORM and both forms draw without error', asyn
   expect(['boxed', 'plain']).toContain(CHOICE_FORM)
   expect(choiceLabel(2, 'Yes', 'boxed')).toBe('[2] Yes')
   expect(choiceLabel(2, 'Yes', 'plain')).toBe('Yes')
-  for (const form of ['boxed', 'plain'] as const) {
-    const pressers: Pressers = {}
-    const body: TabBody = {
-      view: (ctx: TabContext) => {
-        const { Box } = ctx.el
-        const drawn = ChoiceButtons(ctx, WIDE_CARD, [WIDE_CARD], form)
-        walk(drawn, (n) => {
-          if (n.type === 'Button' && typeof n.onPress === 'function') pressers[String(propsOf(n).key)] = n.onPress as () => void
-        })
-        return <Box flexDirection="column">{drawn}</Box>
-      },
-      keys: () => [],
-      explainId: 'X04',
-    }
-    const mem = newMem()
-    const cur = { input: paneInput(mem, viewOf()), deps: depsOf(body) }
-    shellHook(on, cur)
+  let form: 'boxed' | 'plain' = 'boxed'
+  const body: TabBody = {
+    view: (ctx: TabContext) => {
+      const { Box } = ctx.el
+      return <Box flexDirection="column">{ChoiceButtons(ctx, WIDE_CARD, [WIDE_CARD], form)}</Box>
+    },
+    keys: () => [],
+    explainId: 'X04',
+  }
+  const cur = { input: paneInput(newMem(), viewOf()), deps: depsOf(body) }
+  shellHook(on, cur)
+  for (const which of ['boxed', 'plain'] as const) {
+    form = which
     const ui = await draw($, 'terminal', 100)
     const one = await ui.find({ type: 'Button', key: 'choice:1' })
     expect(one).toBeDefined()
-    if (form === 'plain') {
+    if (which === 'plain') {
       expect(one?.props.plain).toBe(true)
       expect(one?.props.label).toBe('Apply to the regional innovation grant (sample)')
       expect(await ui.find({ key: 'choice-box:1' })).toBeUndefined()
     } else {
       expect(await ui.find({ key: 'choice-box:1' })).toBeDefined()
+      expect(one?.props.label).toBe('[1] Apply to the regional innovation grant (sample)')
     }
     await ui.unmount()
   }

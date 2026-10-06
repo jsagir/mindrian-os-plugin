@@ -44,22 +44,24 @@ function card(
   }
 }
 
+// The option ids are the ones real producers record (approve, defer, reject), so the Review tab's
+// answer path can classify every choice and draw this card with pressable buttons (plan 14).
 function grantCard(): GateCard {
   return card(
     1,
     'Which grant route should the funding case take? (sample)',
     [
       option(
-        'sample-gate-1-a',
+        'approve',
         'Apply to the regional innovation grant (sample)',
         1,
         true,
         'Closest to your stated need and the earliest window.',
       ),
-      option('sample-gate-1-b', 'Pursue a foundation partnership (sample)', 2, false, null),
-      option('sample-gate-1-c', 'Wait for the next funding window (sample)', 3, false, null),
+      option('defer', 'Not yet, show me more (sample)', 2, false, null),
+      option('reject', 'No, leave this route out (sample)', 3, false, null),
     ],
-    { approving: ['sample-gate-1-a'] },
+    { approving: ['approve'] },
   )
 }
 
