@@ -4,8 +4,10 @@
 //
 // Order, top to bottom: the understanding panel, the state note (a search under way, or a gap
 // exists), then the unsure-about block and the gap list as SIBLINGS (side by side from 72 columns,
-// one under the other below that; blocks never nest). With no data room bound the body draws only
-// P12 (UI-SPEC 10.3). Nothing here writes a room file or submits anything.
+// one under the other below that; blocks never nest), then (plan 16) the help area: five guided
+// buttons and, under the pressed one, a recorded reason, a guarded general-guidance lookup or a
+// talk-it-through hand-off (src/pane/think/help-actions.tsx). With no data room bound the body
+// draws only P12 (UI-SPEC 10.3). Nothing here writes a room file or submits anything.
 //
 // Data: `onOpen` loads the model into the `think` slice of the body kit (once per open and per tab
 // press, never on a turn); the view reads it from `ctx.body.think` and narrows it with
@@ -14,6 +16,8 @@ import type { RenderElement } from 'claude-code'
 
 import { text } from '../../copy/text'
 import { ink } from '../ink'
+import { HelpActions, helpKeyList } from '../think/help-actions'
+import { loadCanon } from '../think/help-model'
 import { isThinkState, loadThink, picksOf } from '../think/model'
 import { showsEvidence, understandingPanel } from '../think/understanding'
 import { gapList, stateNote, uncertaintyBlock } from '../think/uncertainty'
@@ -50,17 +54,22 @@ function view(ctx: TabContext): RenderElement {
         {uncertaintyBlock(ctx, model)}
         {gapList(ctx, model, picks)}
       </Box>
-      {/* plan 16: the help area (P80 and its buttons) goes here */}
+      {HelpActions(ctx, model, picks)}
     </Box>
   )
 }
 
-// v H17 when the P73 button is drawn (plan 16 adds g, w, a).
+// g H08, w H11, a H10, v H17 (only when the P73 button is drawn), then c H09, x H12, and l H13 and
+// t H14 only while those buttons are drawn (UI-SPEC 8.4). The hint line takes the first four, so on
+// the wide sample it reads g, w, a, v; the all-keys panel lists them all.
 function keys(ctx: TabContext): KeySpec[] {
   if (!ctx.vm.place.isBound) return []
   const slice = ctx.body.think
   if (!isThinkState(slice)) return []
-  return showsEvidence(slice.model) ? [{ key: 'v', labelId: 'H17' }] : []
+  const titles = slice.model.gaps.state === 'ok' ? slice.model.gaps.value.points : []
+  const help = helpKeyList(ctx, slice.model, picksOf(slice.picks, titles))
+  const evidence: KeySpec[] = showsEvidence(slice.model) ? [{ key: 'v', labelId: 'H17' }] : []
+  return [...help.lead, ...evidence, ...help.rest]
 }
 
 export const thinkBody: TabBody = {
@@ -72,5 +81,8 @@ export const thinkBody: TabBody = {
   onOpen: async (act) => {
     if ((await act.sampleName()) === null) await act.refresh()
     await loadThink(act)
+    // The framework-name canon, read once per open so the view knows whether the lookup button may
+    // be drawn (a handle outside the canon is never offered).
+    await loadCanon(act)
   },
 }

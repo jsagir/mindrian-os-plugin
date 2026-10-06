@@ -772,7 +772,7 @@ function wireReal(on: On, env: Record<string, string>, over: Wire = {}): Beneath
     return { isFilled: true }
   })
   on('ui.toast', (_$, e) => {
-    beneath.toasts.push(String(e.message))
+    beneath.toasts.push(e.text)
     return { value: undefined }
   })
   on('ui.open', () => ({ value: { isPlaced: true } }))
@@ -864,7 +864,13 @@ test('the real pane at Think: the default view has at most 5 element groups and 
   const body = await drawn(ui, 'help:area').then(() => ui.find({ key: 'think:body' }))
   const keys = buttonKeys(body)
   const children = Array.isArray(body?.children) ? (body?.children as unknown[]).length : -1
+  // Measured: 8 buttons (the evidence jump, two pick rows, the five help buttons) in 4 element groups
+  // (understanding, state note, the two blocks, the help area): UI-SPEC 13.2's budget of 5 and 8 holds.
+  expect([...keys].sort()).toEqual(
+    ['help:another', 'help:connect', 'help:dig', 'help:example', 'help:why', 'pick:0', 'pick:1', 'think:evidence'].sort(),
+  )
   expect(keys.length).toBeLessThanOrEqual(8)
+  expect(children).toBe(4)
   expect(children).toBeLessThanOrEqual(5)
   expect(await ui.find({ key: 'help:result' })).toBeUndefined()
   await backToRoom(ui)
@@ -902,8 +908,10 @@ test('the real pane: a Brain failure reads P96 and states nothing was sent from 
   await ui.press({ key: 'help:dig' })
   await drawn(ui, 'help:lookup')
   await ui.press({ key: 'help:lookup' })
-  const failed = await drawn(ui, 'help:lookup-failed')
-  expect(shown(failed)).toContain(text('P96'))
+  // A Text is not addressable by key in the harness, so wait on the keyed result box instead.
+  let result = await ui.find({ key: 'help:result' })
+  for (let i = 0; i < 40 && !shown(result).includes(text('P96')); i += 1) result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).toContain(text('P96'))
   expect(await ui.find({ key: 'help:lookup-text' })).toBeUndefined()
   expect(brainCalls(beneath)).toHaveLength(1)
   await ui.press({ key: 'help:dig' })
