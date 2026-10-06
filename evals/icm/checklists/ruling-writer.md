@@ -1,17 +1,17 @@
 # Ruling writer checklist
 
 Writer graded: the ruling document generator, `lib/core/room-skeleton-scaffold.cjs::writeSectionContracts`
-(rewritten in Plan 02 to splice a six-part generated block above preserved authored prose;
-353-02-SUMMARY.md).
+(rewritten in Plan 02 to splice a generated block above preserved authored prose, six parts then;
+353-02-SUMMARY.md; Phase 369.25 plan 16 added a seventh part, FeyMinto).
 
-## Item 1: the six parts are present, in order
+## Item 1: the seven parts are present, in order
 
 - kind: code
 - contract: `writeSectionContracts`'s generated block (Job; Methodology sequence; Writing rules;
-  Gates; Checks; Commands that write here), spliced between the `mos:ruling:begin`/`mos:ruling:end`
+  Gates; Checks; Commands that write here; FeyMinto), spliced between the `mos:ruling:begin`/`mos:ruling:end`
   markers.
-- check: parse the generated CONTEXT.md, assert all six numbered headings are present and in the
-  documented order.
+- check: parse the generated CONTEXT.md, assert all seven numbered headings are present and in the
+  documented order (the seventh is `## 7. FeyMinto`).
 - crosses the wire: nothing. Local file parse, zero network.
 
 ## Item 2: the frontmatter carries the four generated keys
