@@ -110,7 +110,7 @@
     },
     {
       "knowledge_type": "assumption",
-      "text": "One sensor head can cover a whole crane row.",
+      "text": "The mast sensor can read a thin tether the way a spider reads its thread: the vibration and the rhythm of the shake tell the wind or a falling leaf from trapped prey, by touch alone.",
       "source": "solution-design/mast-sensor/mast-sensor"
     }
   ],
