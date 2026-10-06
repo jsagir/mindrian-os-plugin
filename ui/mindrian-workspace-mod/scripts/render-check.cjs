@@ -4,8 +4,8 @@
 // WHAT IT DOES (plain English): it starts a real Claude Code session inside a hidden tmux screen,
 // with this mod loaded and the fixture data switched on (no model call, no room), at a fixed
 // terminal size. It reads the screen back WITH its colors, turns that into a grid of cells, and
-// checks each UI-SPEC 17.2 item it can reach: did the blocks really paint, does the logo line up,
-// does the ten-cell bar draw, does a hotkey fire, what happens under NO_COLOR. It writes the raw
+// checks each UI-SPEC 17.2 item it can reach: did the blocks really paint, does the M:OS mark draw,
+// does the context bar show, does a hotkey fire, what happens under NO_COLOR. It writes the raw
 // capture, a text copy, an HTML picture and a JSON analysis for every run, and one INTERIM.md
 // with a row per item and the fallback chosen for any item that failed.
 //
@@ -32,6 +32,7 @@ const { spawnSync } = require('node:child_process');
 
 const G = require('./lib/ansi-grid.cjs');
 const P = require('./lib/live-pure.cjs');
+const S = require('./lib/slash-safe.cjs');
 
 const MOD = path.resolve(__dirname, '..');
 const REPO = path.resolve(MOD, '..', '..');
@@ -45,9 +46,9 @@ const IDS_PATH = path.join(MOD, 'src', 'runtime', 'ids.ts');
 const ITEMS = [
   { n: 1, name: 'Box backgroundColor paints a solid block (hex string)', fallback: 'plain mode (UI-SPEC section 12); the words still read', later: null },
   { n: 2, name: 'The 10x3 and 9x1 logos line up cell for cell, no seams', fallback: 'the text mark B01 (M:OS) instead of the logo', later: null },
-  { n: 3, name: 'Ten 1-column cells draw a contiguous run; the middle dot draws; 62 percent gives 6', fallback: 'drop the bar; the number remains', later: null },
+  { n: 3, name: 'The context bar: ten cells between two black caps, a paper fill that shows on the black track, the middle dot draws, 62 percent gives 6; at the limit (80 and over) words and a fix chip, no bar', fallback: 'drop the bar; the number remains', later: null },
   { n: 4, name: 'The half-block glyph stacks red over yellow in one cell (optional)', fallback: 'side by side (already the default)', later: 'plan 17' },
-  { n: 5, name: 'Text dimColor is present (readability is the human\'s)', fallback: 'bold or plain weight instead of dim; no grey', later: null },
+  { n: 5, name: 'A band hint is normal-weight black on cream, never dim (C-28, C-29, C-32); dim on a black block is the human\'s check', fallback: 'plain black Text, normal weight; no grey', later: null },
   { n: 6, name: 'A Button inside a bordered Box keeps hotkey, focus and wrapped label', fallback: 'the engine\'s plain 1: label form', later: 'plan 14' },
   { n: 7, name: 'A hotkey fires with the prompt box focused (typed o)', fallback: 'o and h only after focus moves; the workspace command opens the pane', later: null },
   { n: 8, name: 'The band\'s width when the pane is docked, and what maxRows includes', fallback: 'no change: tiers already follow the props', later: null },
@@ -198,6 +199,45 @@ function firstOf(grid, texts) {
   return null;
 }
 
+// The rows the band owns on the screen: from the row of its M:OS mark down to (not including) the top
+// of the prompt box, at most 3 rows. The statusline under the prompt also says "Next:", and a docked
+// or inline pane says "A decision is waiting for you", so a text search for band words must stay in
+// these rows (F3). Returns null when the mark is not on the screen (the band is not drawn, or the
+// pane covers it).
+function isPromptTop(text) {
+  return /^\s*[\u256d\u250c]/.test(text) || /^\s*\u2500{10,}/.test(text);
+}
+
+function bandRegion(grid) {
+  let top = null;
+  for (let r = 0; r < grid.rows; r += 1) {
+    const t = G.rowText(grid, r);
+    if (/^\s{0,3}M:OS(\s|$)/.test(t)) { top = r; break; }
+  }
+  if (top === null) return null;
+  let promptTop = null;
+  for (let r = top + 1; r < grid.rows; r += 1) {
+    if (isPromptTop(G.rowText(grid, r))) { promptTop = r; break; }
+  }
+  // The mark is a black cell as tall as the band (1 row, or 3 at the three-row band, C-32): a row is
+  // a band row while the cell under the mark still has a fill. A notification row or a statusline
+  // under a one-row band has none. With the fills stripped (NO_COLOR) only the top row counts.
+  const mark = G.findText(grid, 'M:OS', { fromRow: top });
+  const limit = Math.min(grid.rows, top + 3, promptTop === null ? grid.rows : promptTop);
+  let end = top + 1;
+  while (end < limit && mark && G.effectiveBg(grid.cells[end][mark.col]) !== null) end += 1;
+  return { top, end, promptTop };
+}
+
+// firstOf, kept inside the band rows when a region is given.
+function firstIn(grid, texts, region) {
+  for (const t of texts) {
+    const f = G.findText(grid, t, region ? { fromRow: region.top } : undefined);
+    if (f && (!region || f.row < region.end)) return Object.assign({ text: t }, f);
+  }
+  return null;
+}
+
 // analyze(grid, ansiText, ctx): one entry per UI-SPEC 17.2 item this run can speak to. An item the
 // run does not test is simply absent. Each entry: { result, detail, data }. result is PASS, FAIL
 // or INCONCLUSIVE; the rollup turns "no run tested it" into NOT REACHED.
@@ -209,7 +249,10 @@ function analyze(grid, ansiText, ctx) {
   const tab = findTabStrip(grid);
   const paneCol = tab && tab.col > grid.cols / 3 ? Math.max(0, tab.col - 1) : null;
   const left = paneCol ? sliceGrid(grid, 0, paneCol) : grid;
-  const bandAnchor = firstOf(left, ["Next:", "You're in:", "You're not in", 'Funding (sample)', 'M:OS']);
+  // F3: the band is found by its own M:OS mark, never by "Next:" (the statusline says that too) or by
+  // words a pane draws. Every band search below stays inside the band rows.
+  const region = bandRegion(left);
+  const bandAnchor = region ? firstIn(left, ['M:OS'], region) : null;
   const bandDrawn = bandAnchor !== null;
 
   const info = {
@@ -224,22 +267,27 @@ function analyze(grid, ansiText, ctx) {
     middleDotsOnScreen: (ansiText.match(new RegExp(DOT, 'g')) || []).length,
   };
 
-  if (!bandDrawn) {
-    return { items, info, summary };
-  }
+  info.bandRows = region ? { top: region.top, end: region.end, promptTop: region.promptTop } : null;
 
   // 1: every block that is drawn sits on the right fill.
-  if (!noColorRun) {
+  if (bandDrawn && !noColorRun) {
     const exp = [
       // C-30 and C-32: place is a paper block; a waiting decision is a black block (no yellow, no blue).
-      { name: 'place', texts: ["You're in:", 'Funding (sample)'], key: 'cream' },
+      { name: 'place', texts: ["You're in:", "You're not in", 'Funding (sample)'], key: 'cream' },
       { name: 'waiting', texts: ['A decision is waiting', 'decisions are waiting', 'decision waiting'], key: 'mondrian_black' },
       { name: 'purpose', texts: ['This folder is for:'], key: 'cream' },
       { name: 'next', texts: ['Next:'], key: 'cream' },
     ];
+    // The context block: paper under the limit, a black block at 80 and over (C-32). Added to the
+    // list only when its words are in the band rows.
+    const cx = firstIn(left, ['Context used:'], region);
+    if (cx) {
+      const cm = /Context used: (\d+)%/.exec(G.rowText(left, cx.row).slice(cx.col));
+      if (cm) exp.push({ name: Number(cm[1]) >= 80 ? 'context-limit' : 'context', texts: ['Context used:'], key: Number(cm[1]) >= 80 ? 'mondrian_black' : 'cream' });
+    }
     const checks = [];
     for (const e of exp) {
-      const hit = firstOf(left, e.texts);
+      const hit = firstIn(left, e.texts, region);
       if (!hit) continue;
       const r = G.checkPaint(left, palette, [{ name: e.name, key: e.key, row: hit.row, col: hit.col }])[0];
       checks.push(r);
@@ -264,7 +312,7 @@ function analyze(grid, ansiText, ctx) {
 
     // 2: the mark. C-32: the five-rectangle logo is retired; every tier draws the plain text mark M:OS,
     // bold, light words on a black cell. Nothing here reads a rectangle grid any more.
-    const mark = G.findText(left, 'M:OS');
+    const mark = bandAnchor;
     if (mark) {
       const cell = left.cells[mark.row][mark.col];
       const bg = G.effectiveBg(cell);
@@ -279,23 +327,37 @@ function analyze(grid, ansiText, ctx) {
     info.logoVariant = items[2].data && items[2].data.variant && items[2].result === 'PASS' ? items[2].data.variant : null;
   }
 
-  // 3 and 10: the context bar and the middle dot
-  const ctxText = G.findText(left, 'Context used:');
+  // 3 and 10: the context bar and the middle dot. F3: at the limit (80 and over) the block shows words
+  // and a fix chip and NO bar (UI-SPEC 8, B52). F4: under the limit the bar is ten cells between two
+  // black caps, with a paper fill that must not share a color with the track behind it.
+  const ctxText = bandDrawn ? firstIn(left, ['Context used:'], region) : null;
   if (ctxText && !noColorRun) {
     const pm = /Context used: (\d+)%/.exec(G.rowText(left, ctxText.row).slice(ctxText.col));
     const percent = pm ? Number(pm[1]) : undefined;
     const col = G.locateBar(left, ctxText.row, ctxText.endCol, palette);
     const bandWidth = left.cols - 5;
-    const barExpected = bandWidth >= 84;
-    if (col === null) {
+    const barExpected = bandWidth >= 84 && region.end - region.top >= 3;
+    if (percent !== undefined && percent >= 80) {
+      const rowTxt = G.rowText(left, ctxText.row);
+      const words = /Save your thinking now\./.test(rowTxt);
+      const chip = rowsText(left).slice(region.top, region.end).some((t) => /Save my thinking/.test(t));
+      if (col !== null) items[3] = { result: 'FAIL', detail: 'a ten-cell bar is drawn at ' + percent + ' percent; the limit state (80 and over) draws words and a fix chip, no bar.', data: { percent } };
+      else if (barExpected && !words) items[3] = { result: 'FAIL', detail: 'the limit state at ' + percent + ' percent on a ' + bandWidth + ' column band does not say "Save your thinking now."', data: { percent } };
+      else if (barExpected && !chip) items[3] = { result: 'FAIL', detail: 'the limit state at ' + percent + ' percent shows the words but no "Save my thinking" fix chip in the band rows.', data: { percent } };
+      else items[3] = { result: 'PASS', detail: 'limit state at ' + percent + ' percent: no bar' + (words ? ', the words "Save your thinking now."' : ', the short one-row words') + (chip ? ' and the "Save my thinking" fix chip' : '') + '.', data: { percent, limit: true, words, chip } };
+    } else if (col === null) {
       if (barExpected) {
-        items[3] = { result: 'FAIL', detail: 'no ten-cell bar found on the Context row although the band is ' + bandWidth + ' columns wide (84 or more needs the bar).', data: { percent } };
+        items[3] = { result: 'FAIL', detail: 'no ten-cell bar (black cap, ten cells, black cap) found on the Context row although the band is ' + bandWidth + ' columns wide (84 or more needs the bar).', data: { percent } };
       }
     } else {
       const b = G.checkBar(left, ctxText.row, col, palette, { percent });
+      const why = [];
+      if (!b.fillVisible) why.push('the filled cells share a color with the track behind them (they would not show)');
+      if (!b.dotsVisible) why.push('an empty cell dot has the color of its own background');
+      if (!b.capsOk) why.push('the black caps at the two ends are missing');
       items[3] = {
         result: b.ok ? 'PASS' : 'FAIL',
-        detail: 'bar at col ' + col + ': ' + b.total + ' cells, ' + b.filled + ' filled (rule gives ' + b.expectedFilled + ' at ' + percent + ' percent), empty cells ' + (b.emptyAreDots ? 'are U+00B7' : 'are NOT U+00B7') + ', filled run ' + (b.filledFromLeft ? 'contiguous from the left' : 'broken'),
+        detail: 'bar at col ' + col + ': ' + b.total + ' cells, ' + b.filled + ' filled (rule gives ' + b.expectedFilled + ' at ' + percent + ' percent), empty cells ' + (b.emptyAreDots ? 'are U+00B7' : 'are NOT U+00B7') + ', filled run ' + (b.filledFromLeft ? 'contiguous from the left' : 'broken') + ', fill ' + (b.fillVisible ? 'shows on the track' : 'does NOT show on the track') + (why.length ? '; ' + why.join('; ') : ''),
         data: b,
       };
       items[10] = b.empty > 0 && b.emptyAreDots
@@ -304,12 +366,23 @@ function analyze(grid, ansiText, ctx) {
     }
   }
 
-  // 5: dim present, only judged when a dim-styled hint could have been drawn
-  const hints = firstOf(left, ['/workspace: Open workspace', '/workspace: Help', 'Open workspace', 'Get help']);
+  // 5: a band hint is normal-weight black on cream and never dim (C-28, C-29, C-32). The hint words are
+  // read inside the band rows. Dim on a black block is allowed and is the human's check.
+  const hints = bandDrawn ? firstIn(left, ['/workspace: Open workspace', '/workspace: Help'], region) : null;
   if (hints && !noColorRun) {
-    items[5] = summary.dimCells > 0
-      ? { result: 'PASS', detail: 'SGR 2 (dim) reached ' + summary.dimCells + ' cells. Readability on black and on cream is the human\'s check.', data: {} }
-      : { result: 'FAIL', detail: 'the hint row was drawn but no dim attribute reached the screen.', data: {} };
+    const cells = left.cells[hints.row].slice(hints.col, hints.col + hints.text.length);
+    const dim = cells.filter((c) => c.dim).length;
+    const bold = cells.filter((c) => c.bold).length;
+    const fgNear = G.nearest(cells[0].fg, palette, ['mondrian_black', 'cream', 'mondrian_blue', 'mondrian_red', 'mondrian_yellow']);
+    const bgNear = G.nearest(G.effectiveBg(cells[0]), palette, ['mondrian_black', 'cream', 'mondrian_blue', 'mondrian_red', 'mondrian_yellow']);
+    const problems = [];
+    if (dim > 0) problems.push(dim + ' hint cells are dim (SGR 2)');
+    if (bold > 0) problems.push(bold + ' hint cells are bold');
+    if (!fgNear || fgNear.key !== 'mondrian_black') problems.push('the hint text is ' + (fgNear ? fgNear.key : 'the terminal default') + ', not black');
+    if (!bgNear || bgNear.key !== 'cream') problems.push('the hint sits on ' + (bgNear ? bgNear.key : 'the terminal default') + ', not cream');
+    items[5] = problems.length === 0
+      ? { result: 'PASS', detail: 'the hint "' + hints.text + '" is normal-weight black on cream, no dim. Readability is the human\'s check. (dim cells on the whole screen: ' + summary.dimCells + ', allowed only on black blocks)', data: { dimCells: summary.dimCells } }
+      : { result: 'FAIL', detail: 'the hint "' + hints.text + '": ' + problems.join('; '), data: { dimCells: summary.dimCells } };
   }
 
   // 7: a typed `o` fired or went into the prompt
@@ -327,10 +400,7 @@ function analyze(grid, ansiText, ctx) {
     for (let c = left.cols - 1; c >= 0; c -= 1) {
       if (G.effectiveBg(left.cells[bandAnchor.row][c]) !== null) { right = c; break; }
     }
-    let promptTop = null;
-    for (let r = bandAnchor.row + 1; r < left.rows; r += 1) {
-      if (/^\s*[\u256d\u250c]/.test(G.rowText(left, r))) { promptTop = r; break; }
-    }
+    const promptTop = region.promptTop;
     const logoTop = items[2] && items[2].data && items[2].data.origin ? items[2].data.origin.row : bandAnchor.row;
     info.band = {
       anchorRow: bandAnchor.row,
@@ -347,6 +417,12 @@ function analyze(grid, ansiText, ctx) {
     };
   }
 
+  // 8, when the band is not on the screen: with the pane open at a narrow size the pane fills the
+  // width and covers the band. Nothing to measure; said in words, never a fake pass (F3).
+  if (!bandDrawn && ctx.pane === 'open' && tab !== null) {
+    items[8] = { result: 'INCONCLUSIVE', detail: 'terminal ' + grid.cols + 'x' + grid.rows + ': the band is not on the screen while the pane is open at this size (the M:OS mark is not drawn), so its width could not be measured.', data: {} };
+  }
+
   // 9: the engine's own pane title, 12: truncation and overflow
   if (ctx.pane === 'open') {
     if (!tab) {
@@ -360,8 +436,9 @@ function analyze(grid, ansiText, ctx) {
     const unf = G.findText(grid, 'to use the workspace keys');
     info.paneFocus = foc ? 'focused (the hint line shows Esc: Close)' : unf ? 'not focused (the pane shows "Type /workspace to use the workspace keys")' : 'unknown (neither hint was found)';
   }
-  if (ctx.sizeCols !== undefined && ctx.sizeCols <= 72 && !noColorRun) {
-    const ell = rowsText(left).some((t) => t.indexOf('\u2026') !== -1);
+  if (ctx.sizeCols !== undefined && ctx.sizeCols <= 72 && !noColorRun && bandDrawn) {
+    // Only the band rows count: the statusline and a pane also cut text with an ellipsis (F3).
+    const ell = rowsText(left).slice(region.top, region.end).some((t) => t.indexOf('\u2026') !== -1);
     const labelsIntact = !!firstOf(left, ["You're in:", 'Funding (sample)', 'M:OS']);
     items[12] = ell
       ? { result: 'PASS', detail: 'truncate-end drew an ellipsis on a band row at ' + ctx.sizeCols + ' columns.', data: {} }
@@ -463,26 +540,38 @@ function analyzeHalfblock(grid, palette) {
   return { result: 'FAIL', detail: 'no U+2580 cell reached the screen (the probe band did not draw or the glyph was dropped)', data: {} };
 }
 
+// The one way a slash command is run in a live session (F1, lib/slash-safe.cjs): type the whole text,
+// read the screen, press Enter only when the prompt line shows exactly that text AND the suggestion
+// list highlights the mod command. Otherwise Down until it does, or the plugin-qualified form, or
+// nothing is sent and the run ends as open_step_unsafe. No model prompt is ever sent by the harness.
+const WORKSPACE_SPEC = {
+  typed: '/workspace',
+  tokenRe: /^\/(?:[\w.-]+:)?workspace$/,
+  descRe: /Mindrian workspace|mindrian-workspace/i,
+  // The plugin name is "mindrian-workspace" (plugin.json); whether the host accepts the qualified form
+  // is only learned by trying it, and it is tried only after the plain form failed.
+  qualified: ['/mindrian-workspace:workspace'],
+};
+
 // Open the workspace pane by its slash command (never by a hotkey, so a script does not depend on
-// item 7). The slash name is read off the screen the way a person would see it.
+// item 7). Returns true when the pane opened; h.res.openStep says what was sent or why nothing was.
 async function openPane(h, tab) {
-  h.keysLit('/workspace');
-  await sleep(1200);
-  const seen = h.cap();
-  const found = seen.match(/\/(?:[\w.-]+:)?workspace\b[\w.:-]*/g) || [];
-  found.sort((a, b) => b.length - a.length);
-  const slash = found[0] || '/workspace';
-  h.res.slashName = slash;
-  if (slash !== '/workspace') { h.keyName('C-u'); await sleep(300); h.keysLit(slash); await sleep(600); }
-  if (tab) { h.keysLit(' ' + tab); await sleep(400); }
+  const r = await S.submitSlashSafely(h, Object.assign({}, WORKSPACE_SPEC, { suffix: tab ? ' ' + tab : '' }));
+  h.res.openStep = { state: r.state, reason: r.reason, typed: r.typed, target: r.target, moves: r.moves, notes: r.notes };
+  h.res.slashName = r.target || null;
+  for (const n of r.notes) h.res.answered.push('open step: ' + n);
+  if (!r.ok) {
+    h.res.paneOpenedByCommand = false;
+    h.res.openUnsafe = true;
+    return false;
+  }
+  // One Enter was sent. Never press it again: a second Enter on a prompt that is not empty could run
+  // the command twice. Wait for the pane.
   let opened = false;
-  for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
-    h.keyName('Enter');
-    for (let w = 0; w < 10 && !opened; w += 1) {
-      await sleep(500);
-      const screen = h.cap();
-      opened = G.findText(G.parseAnsi(screen, h.cols, h.rows), 'Sources') !== null && /Room/.test(screen) && /Review/.test(screen);
-    }
+  for (let w = 0; w < 16 && !opened; w += 1) {
+    await sleep(500);
+    const screen = h.cap();
+    opened = G.findText(G.parseAnsi(screen, h.cols, h.rows), 'Sources') !== null && /Room/.test(screen) && /Review/.test(screen);
   }
   h.res.paneOpenedByCommand = opened;
   return opened;
@@ -584,7 +673,8 @@ async function runOne(opts) {
     const alive = () => tmux(['has-session', '-t', name]).status === 0;
     const keysLit = (s) => tmux(['send-keys', '-t', name, '-l', s]);
     const keyName = (k) => tmux(['send-keys', '-t', name, k]);
-    const h = { cap, keysLit, keyName, cols, rows, res };
+    const capAnsi = () => (tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
+    const h = { cap, capAnsi, keysLit, keyName, cols, rows, res };
 
     // wait for the band (answering a trust or onboarding dialog only when its text is recognized)
     const readyRe = opts.readyText ? new RegExp(opts.readyText) : probeDir ? /half-block probe/ : BAND_READY;
@@ -652,14 +742,17 @@ async function runOne(opts) {
     } else {
       await sleep(1200);
       if (opts.pane === 'open') await openPane(h, null);
+      if (res.openUnsafe) fail('open_step_unsafe');
       if (opts.keys) {
         keysLit(opts.keys);
         await sleep(1800);
       }
-      if (opts.listMcp) {
-        keysLit('/mcp');
-        await sleep(600);
-        keyName('Enter');
+      if (opts.listMcp && !res.openUnsafe) {
+        const m = await S.submitSlashSafely(h, { typed: '/mcp', tokenRe: /^\/mcp$/, descRe: null, qualified: [] });
+        for (const n of m.notes) res.answered.push('/mcp step: ' + n);
+        if (!m.ok) { res.mcpUnsafe = { reason: m.reason, notes: m.notes }; fail('slash_step_unsafe'); }
+      }
+      if (opts.listMcp && !res.openUnsafe && !res.mcpUnsafe) {
         await sleep(3500);
         const mcpAnsi = scrub(tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
         const mcpText = scrub(cap());
@@ -672,13 +765,14 @@ async function runOne(opts) {
         keyName('Escape');
         await sleep(800);
       }
-      if (opts.script) {
+      if (opts.script && !res.openUnsafe && !res.mcpUnsafe) {
         for (const step of opts.script) {
+          if (res.openUnsafe) break; // the open step sent nothing: later keys would land in the prompt box
           if (step.op === 'wait') await sleep(step.ms);
           else if (step.op === 'type') keysLit(step.text);
           else if (step.op === 'key') keyName(step.name);
           else if (step.op === 'burst') tmux(['send-keys', '-t', name].concat(step.keys));
-          else if (step.op === 'open') await openPane(h, step.tab || null);
+          else if (step.op === 'open') { await openPane(h, step.tab || null); if (res.openUnsafe) fail('open_step_unsafe'); }
           else if (step.op === 'capture') {
             const a = scrub(tmux(['capture-pane', '-p', '-e', '-t', name]).stdout || '');
             const t = scrub(tmux(['capture-pane', '-p', '-t', name]).stdout || '');
@@ -944,6 +1038,7 @@ const HELP = [
   '                           write <out>/final/ (captures, summary.json, FINAL-RUN.md). One command, in your own logged-in terminal:',
   '                             node ui/mindrian-workspace-mod/scripts/render-check.cjs --final',
   '  --group <name>           with --final: size | states | keys | probes | live (default all)',
+  '  --allow-256             with --final: run even when COLORTERM is not truecolor or 24bit (Claude then rounds colors to 256,\n                           so the fill-distance checks are approximate). Without this flag --final exits 77 and says how to fix it.',
   '  --live                   build a hermetic room with one raised card; sample switch OFF; the session bound to the room',
   '  --script <name|file>     play a key script after the band is up; a preset name (roundtrip, decide-later, double-press,',
   '                           o-empty, o-after-text, h-empty, digit-in-pane) or a file of steps (wait, type, key, burst, open, capture, inspect)',
@@ -979,6 +1074,7 @@ function parseArgs(argv) {
     else if (a === '--folder-name') o.folderName = val();
     else if (a === '--repo-plugin') o.repoPlugin = true;
     else if (a === '--final') o.final = true;
+    else if (a === '--allow-256') o.allow256 = true;
     else if (a === '--group') o.group = val();
     else if (a === '--help' || a === '-h') o.help = true;
     else throw new Error('unknown option ' + a);
@@ -994,6 +1090,10 @@ async function main(argv) {
     const dir = path.resolve(o.out || DEFAULT_OUT);
     process.stdout.write('wrote ' + writeInterim(dir, [], { pending: true }) + '\n');
     return 0;
+  }
+  if (o.final && !o.allow256 && !isTruecolor(process.env.COLORTERM)) {
+    process.stdout.write('ENV GAP (exit 77): COLORTERM is ' + (process.env.COLORTERM ? '"' + process.env.COLORTERM + '"' : 'not set') + ', and the final check needs truecolor or 24bit. Without it Claude Code rounds colors to 256 and the fill-distance checks are wrong. Fix: run `export COLORTERM=truecolor` in this terminal, then run the same command again (or add --allow-256 to run with approximate colors). Nothing was run and nothing was written.\n');
+    return 77;
   }
   let host;
   try { host = preflight(o); } catch (e) {
@@ -1047,6 +1147,8 @@ function resolveScript(arg) {
   if (!fs.existsSync(arg)) throw new Error('--script ' + arg + ' is neither a preset (' + Object.keys(P.PRESETS).join(', ') + ') nor a file');
   return { script: P.parseScript(fs.readFileSync(arg, 'utf8')), scriptName: path.basename(arg, path.extname(arg)) };
 }
+
+function isTruecolor(v) { return /^(truecolor|24bit)$/i.test(String(v || '').trim()); }
 
 const FINAL_SIZES = ['55x40', '80x24', '110x30', '120x40', '160x45', '200x60'];
 const LONG_FOLDER = 'Funding-and-grant-applications-for-the-first-three-pilot-sites';
@@ -1148,7 +1250,7 @@ function buildFinalReport(results, meta) {
   L.push('');
   L.push('## What the machine cannot judge (the person reads the HTML pictures)');
   L.push('');
-  L.push('Item 1 to 3 and 5: whether the blocks, the logo cells, the ten-cell bar and the dim text LOOK right and read on black and on cream. Item 6: whether the boxed choice buttons look right and wrap. Item 10: whether the triangle and the middle dot draw in your terminal font. Item 12: whether the shortened folder name reads well.');
+  L.push('Item 1 to 3 and 5: whether the blocks, the M:OS mark, the context bar (its fill must show on the black track) and the plain hints LOOK right and read on black and on cream. Item 6: whether the boxed choice buttons look right and wrap. Item 10: whether the triangle and the middle dot draw in your terminal font. Item 12: whether the shortened folder name reads well.');
   L.push('');
   L.push('## Navigator answer');
   L.push('');
@@ -1178,7 +1280,7 @@ async function runFinal(o, host) {
     if (r.judgement) for (const v of r.judgement.verdicts) process.stdout.write('    ' + v.id + ': ' + v.result + ' - ' + v.detail + '\n');
     if (r.status !== 'ok') bad += 1;
   }
-  const meta = { generated: new Date().toISOString(), host: host.tmux + ', claude ' + host.claude + ', COLORTERM ' + (process.env.COLORTERM || '(unset)') + ', default-terminal ' + ((results[0] && results[0].host.defaultTerminal) || '?') };
+  const meta = { generated: new Date().toISOString(), host: host.tmux + ', claude ' + host.claude + ', COLORTERM ' + (process.env.COLORTERM || '(unset)') + (o.allow256 && !isTruecolor(process.env.COLORTERM) ? ' (--allow-256: colors are rounded to 256, the fill-distance numbers are approximate)' : '') + ', default-terminal ' + ((results[0] && results[0].host.defaultTerminal) || '?') };
   fs.writeFileSync(path.join(dir, 'FINAL-RUN.md'), buildFinalReport(results, meta));
   fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(results.map((r) => ({ label: r.label, status: r.status, size: r.size, pane: r.pane, items: r.items, judgement: r.judgement, mcp: r.mcp, inspections: r.inspections, info: r.info })), null, 2) + '\n');
   process.stdout.write('\nwrote ' + path.join(dir, 'FINAL-RUN.md') + '\nopen the .html files under ' + dir + ' in a browser, read FINAL-RUN.md, then fill RESULTS.md from the template.\n');
@@ -1190,7 +1292,7 @@ function summaryLine(r) {
   return r.label + ' -> ' + r.status + (parts.length ? ' [' + parts.join(' ') + ']' : '') + (r.status === 'band_not_drawn' ? ' (the band never appeared; see ' + (r.files.txt || 'the capture') + ')' : '') + (r.status === 'session_exited' ? ' (the session ended; see ' + (r.files.txt || 'the capture') + ' and ' + (r.files.debugLog || 'the debug log') + ')' : '');
 }
 
-module.exports = { analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript, trustDialogState };
+module.exports = { isTruecolor, bandRegion, analyze, rollUp, buildInterim, writeInterim, runOne, preflight, MATRIX, ITEMS, sliceGrid, findTabStrip, frameText, finalRuns, buildFinalReport, resolveScript, writeHalfblockProbe, analyzeHalfblock, judgeScript, trustDialogState };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write('render-check: ' + (e.stack || e.message) + '\n'); process.exit(1); });

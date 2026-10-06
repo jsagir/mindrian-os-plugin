@@ -214,38 +214,77 @@ scenario('checkLogo: a logo with no background fill at all (text only) fails and
   assert.ok(r.mismatch && r.mismatch.got !== undefined);
 });
 
-scenario('checkBar and locateBar: ten cells, six filled at 62 percent, empty cells are U+00B7', () => {
-  const filled = bgHex(HEX.mondrian_yellow) + ' ';
-  const bar = filled.repeat(6) + RESET + DOT.repeat(4);
-  const cap = 'Context used: 62% ' + bar;
+// F4 (2026-10-06 real run): the bar is a black track with a black cap at each end, a paper fill and
+// paper dots on the black. A canned bar segment: cap, `filled` paper cells, `empty` dots, cap.
+const fgHex = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return sgr('38;2;' + ((n >> 16) & 255) + ';' + ((n >> 8) & 255) + ';' + (n & 255));
+};
+function barSeg(filled, o) {
+  const opt = Object.assign({ fillBg: HEX.cream, dotBg: HEX.mondrian_black, dotFg: HEX.cream, capBg: HEX.mondrian_black }, o || {});
+  let t = bgHex(opt.capBg) + ' ';
+  for (let i = 0; i < 10; i += 1) t += i < filled ? bgHex(opt.fillBg) + ' ' : bgHex(opt.dotBg) + fgHex(opt.dotFg) + DOT;
+  return t + bgHex(opt.capBg) + ' ' + RESET;
+}
+
+scenario('checkBar and locateBar: cap, ten cells, cap; six filled at 62 percent, empty cells are U+00B7, the fill shows on the track', () => {
+  const cap = bgHex(HEX.cream) + 'Context used: 62% ' + RESET + barSeg(6);
   const g = G.parseAnsi(cap, 40, 1);
   const col = G.locateBar(g, 0, 0, PALETTE);
-  assert.strictEqual(col, 'Context used: 62% '.length);
+  assert.strictEqual(col, 'Context used: 62% '.length + 1, 'the first of the ten cells, after the left cap');
   const r = G.checkBar(g, 0, col, PALETTE, { percent: 62 });
   assert.strictEqual(r.total, 10);
   assert.strictEqual(r.filled, 6);
   assert.strictEqual(r.empty, 4);
   assert.strictEqual(r.emptyAreDots, true);
+  assert.strictEqual(r.capsOk, true);
+  assert.strictEqual(r.fillVisible, true);
+  assert.strictEqual(r.dotsVisible, true);
   assert.strictEqual(r.expectedFilled, 6);
   assert.strictEqual(r.roundingOk, true);
   assert.strictEqual(r.ok, true);
 });
 
-scenario('checkBar mutation: five filled at 62, a space for an empty cell, and a short bar each fail', () => {
-  const filled = bgHex(HEX.mondrian_yellow) + ' ';
-  const five = G.parseAnsi(filled.repeat(5) + RESET + DOT.repeat(5), 20, 1);
-  const r5 = G.checkBar(five, 0, 0, PALETTE, { percent: 62 });
+scenario('checkBar F4: a fill with the color of the track behind it FAILS (the bug of the real run), whatever the cause', () => {
+  // The fill is paper but the empty cells sit on paper too: the fill and the track are one color.
+  const same = G.parseAnsi(barSeg(6, { dotBg: HEX.cream, dotFg: HEX.mondrian_black }), 20, 1);
+  const rs = G.checkBar(same, 0, G.locateBar(same, 0, 0, PALETTE), PALETTE, { percent: 62 });
+  assert.strictEqual(rs.fillVisible, false);
+  assert.strictEqual(rs.ok, false);
+  // A dot with its own background color is invisible too.
+  const blind = G.parseAnsi(barSeg(6, { dotFg: HEX.mondrian_black }), 20, 1);
+  const rb = G.checkBar(blind, 0, G.locateBar(blind, 0, 0, PALETTE), PALETTE, { percent: 62 });
+  assert.strictEqual(rb.dotsVisible, false);
+  assert.strictEqual(rb.ok, false);
+  // The old bar (black fill on the paper block, paper dots, no caps) is not a bar any more: not found.
+  const old = G.parseAnsi(bgHex(HEX.cream) + 'x ' + bgHex(HEX.mondrian_black) + ' '.repeat(6) + bgHex(HEX.cream) + fgHex(HEX.mondrian_black) + DOT.repeat(4) + RESET, 30, 1);
+  assert.strictEqual(G.locateBar(old, 0, 0, PALETTE), null);
+  // A bar whose fill is black on a black track (caps and fill one color): the cells are not paper, so no bar.
+  const blackFill = G.parseAnsi(barSeg(6, { fillBg: HEX.mondrian_black }), 20, 1);
+  assert.strictEqual(G.locateBar(blackFill, 0, 0, PALETTE), null);
+});
+
+scenario('checkBar mutation: five filled at 62, a space for an empty cell, a short bar and a missing cap each fail', () => {
+  const five = G.parseAnsi(barSeg(5), 20, 1);
+  const r5 = G.checkBar(five, 0, G.locateBar(five, 0, 0, PALETTE), PALETTE, { percent: 62 });
   assert.strictEqual(r5.filled, 5);
   assert.strictEqual(r5.roundingOk, false);
   assert.strictEqual(r5.ok, false);
 
-  const spaceEmpty = G.parseAnsi(filled.repeat(6) + RESET + DOT.repeat(3) + ' ', 20, 1);
-  const rs = G.checkBar(spaceEmpty, 0, 0, PALETTE, { percent: 62 });
-  assert.strictEqual(rs.total < 10 || rs.emptyAreDots === false, true);
-  assert.strictEqual(rs.ok, false);
+  const spaceEmpty = G.parseAnsi(bgHex(HEX.mondrian_black) + ' ' + (bgHex(HEX.cream) + ' ').repeat(6) + bgHex(HEX.mondrian_black) + DOT.repeat(3) + ' ' + RESET, 20, 1);
+  assert.strictEqual(G.locateBar(spaceEmpty, 0, 0, PALETTE), null);
 
-  const short = G.parseAnsi(filled.repeat(6) + RESET + DOT.repeat(2), 20, 1);
-  assert.strictEqual(G.checkBar(short, 0, 0, PALETTE, { percent: 62 }).ok, false);
+  const short = G.parseAnsi(bgHex(HEX.mondrian_black) + ' ' + (bgHex(HEX.cream) + ' ').repeat(6) + bgHex(HEX.mondrian_black) + fgHex(HEX.cream) + DOT.repeat(2) + bgHex(HEX.mondrian_black) + ' ' + RESET, 20, 1);
+  assert.strictEqual(G.locateBar(short, 0, 0, PALETTE), null);
+
+  // No right cap: the bar edge would merge into the paper block at 100 percent, so it is not accepted.
+  const noCap = G.parseAnsi(bgHex(HEX.mondrian_black) + ' ' + (bgHex(HEX.cream) + ' ').repeat(10) + RESET, 20, 1);
+  assert.strictEqual(G.locateBar(noCap, 0, 0, PALETTE), null);
+  // 100 and 0 percent keep their edges.
+  const full = G.parseAnsi(barSeg(10), 20, 1);
+  assert.strictEqual(G.checkBar(full, 0, G.locateBar(full, 0, 0, PALETTE), PALETTE, { percent: 100 }).ok, true);
+  const none = G.parseAnsi(barSeg(0), 20, 1);
+  assert.strictEqual(G.checkBar(none, 0, G.locateBar(none, 0, 0, PALETTE), PALETTE, { percent: 0 }).ok, true);
 });
 
 scenario('summarize: reports which SGR forms were seen, whether any background exists, and dim use', () => {
@@ -261,6 +300,127 @@ scenario('summarize: reports which SGR forms were seen, whether any background e
   assert.strictEqual(none.dimCells, 0);
 });
 
+
+// ---- F3: the checks follow the current UI-SPEC (C-28 to C-32), on canned captures ---------------------
+
+const RC = require(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'render-check.cjs'));
+const WHITE = HEX.cream;
+const BLACK = HEX.mondrian_black;
+const seg = (bg, fg, text, flags) => (bg ? bgHex(bg) : sgr('49')) + (fg ? fgHex(fg) : '') + (flags && flags.bold ? sgr('1') : '') + (flags && flags.dim ? sgr('2') : '') + text + RESET;
+const RULE = String.fromCharCode(0x2500).repeat(60);
+const markCell = (first) => seg(BLACK, WHITE, first ? ' M:OS ' : '      ', { bold: true });
+// A three-row band at the wide tier. o.pct is the context percent; o.bar draws the ten-cell bar.
+function wideBand(o) {
+  const opt = Object.assign({ pct: 62, bar: true, hint: seg(WHITE, BLACK, '/workspace: Open workspace'), chip: false, next: true }, o || {});
+  const ctx = opt.pct >= 80
+    ? seg(BLACK, WHITE, ' Context used: ' + opt.pct + '%. Save your thinking now. ', { bold: true }) + (opt.chip ? seg(BLACK, WHITE, ' [ Save my thinking ] ') : '')
+    : seg(WHITE, BLACK, ' Context used: ' + opt.pct + '% ') + (opt.bar ? barSeg(Math.round(opt.pct / 10)) : '');
+  const r0 = markCell(true) + seg(WHITE, BLACK, " You're in: Funding (sample) ") + seg(BLACK, null, ' ') + seg(BLACK, WHITE, ' A decision is waiting ', { bold: true }) + seg(BLACK, null, ' ') + ctx;
+  const r1 = markCell(false) + seg(WHITE, BLACK, ' This folder is for: building the funding case (sample) ');
+  const r2 = markCell(false) + (opt.next ? seg(WHITE, BLACK, ' Next: look at the evidence (sample) ') + '   ' + opt.hint : '');
+  return [r0, r1, r2, RULE, '> ', RULE, '  statusline: Next: Run Methodology'];
+}
+const screenOf = (rows) => rows.join('\n');
+const analyzeCanned = (rows, ctx) => {
+  const text = screenOf(rows);
+  const grid = G.parseAnsi(text, 140, 12);
+  return RC.analyze(grid, text, Object.assign({ palette: PALETTE, keys: null, pane: 'none', sizeCols: 140, noColorRun: false, env: [] }, ctx || {}));
+};
+
+scenario('F3 item 3: the new bar passes; the old black-fill bar and a bar-less 62 percent band FAIL', () => {
+  const ok = analyzeCanned(wideBand());
+  assert.strictEqual(ok.items[3].result, 'PASS', ok.items[3].detail);
+  assert.strictEqual(ok.items[3].data.filled, 6);
+  assert.strictEqual(ok.items[10].result, 'PASS');
+  const missing = analyzeCanned(wideBand({ bar: false }));
+  assert.strictEqual(missing.items[3].result, 'FAIL');
+  assert.ok(/no ten-cell bar/.test(missing.items[3].detail), missing.items[3].detail);
+  const rows = wideBand({ bar: false });
+  rows[0] = rows[0] + bgHex(WHITE) + ' ' + bgHex(BLACK) + ' '.repeat(6) + bgHex(WHITE) + fgHex(BLACK) + DOT.repeat(4) + RESET; // the old F4 bar
+  const old = analyzeCanned(rows);
+  assert.strictEqual(old.items[3].result, 'FAIL');
+});
+
+scenario('F3 item 3: the limit state (80 and over) is words and a fix chip with NO bar; a bar there, or a missing chip, FAILS', () => {
+  const ok = analyzeCanned(wideBand({ pct: 85, chip: true }));
+  assert.strictEqual(ok.items[3].result, 'PASS', ok.items[3].detail);
+  assert.strictEqual(ok.items[3].data.limit, true);
+  assert.strictEqual(ok.items[3].data.chip, true);
+  const noChip = analyzeCanned(wideBand({ pct: 85, chip: false }));
+  assert.strictEqual(noChip.items[3].result, 'FAIL');
+  assert.ok(/fix chip/.test(noChip.items[3].detail), noChip.items[3].detail);
+  const rows = wideBand({ pct: 85, chip: true });
+  rows[0] = rows[0] + seg(WHITE, BLACK, ' ') + barSeg(9);
+  const withBar = analyzeCanned(rows);
+  assert.strictEqual(withBar.items[3].result, 'FAIL');
+  assert.ok(/no bar/.test(withBar.items[3].detail), withBar.items[3].detail);
+  // The limit block is a black block (C-32): item 1 reads it as one.
+  assert.strictEqual(ok.items[1].result, 'PASS', ok.items[1].detail);
+  assert.ok(ok.items[1].data.checks.some((c) => c.name === 'context-limit' && c.bgMatches));
+});
+
+scenario('F3 item 5: a band hint is normal-weight black on cream; a dim hint (the old design) FAILS, a bold or wrongly colored one too', () => {
+  assert.strictEqual(analyzeCanned(wideBand()).items[5].result, 'PASS');
+  const dim = analyzeCanned(wideBand({ hint: seg(WHITE, BLACK, '/workspace: Open workspace', { dim: true }) }));
+  assert.strictEqual(dim.items[5].result, 'FAIL');
+  assert.ok(/dim/.test(dim.items[5].detail), dim.items[5].detail);
+  const bold = analyzeCanned(wideBand({ hint: seg(WHITE, BLACK, '/workspace: Open workspace', { bold: true }) }));
+  assert.strictEqual(bold.items[5].result, 'FAIL');
+  const pale = analyzeCanned(wideBand({ hint: seg(WHITE, HEX.mondrian_blue, '/workspace: Open workspace') }));
+  assert.strictEqual(pale.items[5].result, 'FAIL');
+  assert.ok(/not black/.test(pale.items[5].detail), pale.items[5].detail);
+});
+
+scenario('F3 item 1: the band is read by its own rows; "Next:" in the statusline or a pane never counts (the one-row band has no Next row)', () => {
+  // One-row band (55 columns): the mark cell is one row tall; the statusline says "Next:" in default colors.
+  const one = [markCell(true) + seg(WHITE, BLACK, ' Funding (sample) ') + seg(BLACK, null, ' ') + seg(BLACK, WHITE, ' 1 decision waiting ', { bold: true }), '  plugin notice', RULE, '> ', RULE, '  statusline: Next: Run Methodology'];
+  const a = analyzeCanned(one, { sizeCols: 55 });
+  assert.strictEqual(a.items[1].result, 'PASS', a.items[1].detail);
+  assert.deepStrictEqual(a.items[1].data.checks.map((c) => c.name).sort(), ['place', 'waiting']);
+  assert.deepStrictEqual(a.info.bandRows, { top: 0, end: 1, promptTop: 2 });
+  // A Next row that IS in the band and has the wrong fill still FAILS (the check is not weakened).
+  const rows = wideBand();
+  rows[2] = markCell(false) + ' Next: look at the evidence (sample) ';
+  const bad = analyzeCanned(rows);
+  assert.strictEqual(bad.items[1].result, 'FAIL');
+  assert.ok(/next \(wanted cream/.test(bad.items[1].detail), bad.items[1].detail);
+  // A waiting block that is not black FAILS.
+  const rows2 = wideBand();
+  rows2[0] = rows2[0].replace(bgHex(BLACK) + fgHex(WHITE) + sgr('1') + ' A decision is waiting ', bgHex(WHITE) + fgHex(BLACK) + sgr('1') + ' A decision is waiting ');
+  const wrong = analyzeCanned(rows2);
+  assert.strictEqual(wrong.items[1].result, 'FAIL');
+  assert.ok(/waiting \(wanted mondrian_black/.test(wrong.items[1].detail), wrong.items[1].detail);
+});
+
+scenario('F3 an open pane that covers the band: no band item is read from the pane or the statusline; item 8 says why, item 9 reads the pane', () => {
+  const tab = seg(null, null, ' [ Room ] [ Think ] [ Sources ]  > Review ');
+  const covered = [tab, seg(WHITE, BLACK, ' A decision is waiting for you '), seg(WHITE, BLACK, ' Esc: Close '), '', RULE, '> ', RULE, '  statusline: Next: Run Methodology'];
+  const a = analyzeCanned(covered, { pane: 'open', sizeCols: 55 });
+  assert.strictEqual(a.items[1], undefined);
+  assert.strictEqual(a.items[2], undefined);
+  assert.strictEqual(a.items[3], undefined);
+  assert.strictEqual(a.items[5], undefined);
+  assert.strictEqual(a.items[8].result, 'INCONCLUSIVE');
+  assert.ok(/not on the screen/.test(a.items[8].detail), a.items[8].detail);
+  assert.strictEqual(a.items[9].result, 'PASS');
+  assert.strictEqual(a.info.paneOpened, true);
+});
+
+scenario('F3 item 2: the plain M:OS mark (C-32) is the only logo read; the retired rectangle logo is never expected', () => {
+  const a = analyzeCanned(wideBand());
+  assert.strictEqual(a.items[2].result, 'PASS');
+  assert.strictEqual(a.items[2].data.variant, 'text');
+  const notBold = wideBand();
+  notBold[0] = notBold[0].replace(sgr('1') + ' M:OS ', ' M:OS ');
+  assert.strictEqual(analyzeCanned(notBold).items[2].result, 'FAIL');
+});
+
+scenario('F3 ITEMS: items 3 and 5 are renamed to the current design (no ten-cell bar at the limit, no dim hint)', () => {
+  const byN = Object.fromEntries(RC.ITEMS.map((i) => [i.n, i.name]));
+  assert.ok(/limit/.test(byN[3]) && /caps/.test(byN[3]), byN[3]);
+  assert.ok(/never dim/.test(byN[5]), byN[5]);
+  assert.ok(/M:OS|mark/.test(byN[2]) || /logos/.test(byN[2]), byN[2]);
+});
 
 // ---- 369.26-17: the pure additions for the final render check (records hash, MCP name parsing,
 // script runner, deck lookup, round trip judging) and the live fixture room ----------------------

@@ -97,7 +97,7 @@ scenario('NO_COLOR run reports what the host did and skips the paint items', () 
 });
 
 scenario('pane open: tab strip and title found, the pane column and band edge are measured', () => {
-  const { json } = runRc('pane', ['FAKE_MODE=good', 'FAKE_PANE=1'], ['--pane', 'open']);
+  const { json } = runRc('pane', ['FAKE_MODE=good', 'FAKE_AC=right', 'FAKE_AC_LOG=' + path.join(TMP, 'pane-ac.log')], ['--pane', 'open']);
   assert.ok(json);
   assert.strictEqual(json.items['9'].result, 'PASS');
   assert.strictEqual(json.items['9'].data.titleDrawn, true);
@@ -262,6 +262,143 @@ scenario('17 gate probe: the no-login measurements run in a hermetic room and sa
   assert.strictEqual(typeof m.servers.mindrian_brain.wanted_present.framework_techniques, 'boolean');
   assert.deepStrictEqual(m.servers.manifest.names_claude_code_gives_them, ['plugin:mos:mindrian-os', 'plugin:mos:mindrian-brain']);
   assert.strictEqual(fs.readdirSync(os.tmpdir()).filter((n) => n.startsWith('mos-ws-gateprobe-')).length, 0, 'the probe removed its folders');
+});
+
+
+// ---- F1: the open step must never start another command (the real run of 2026-10-06) ---------------
+
+// Runs the harness with --pane open against the fake autocomplete. Returns the json and what the fake
+// logged ("RAN mod ..." or "MODEL_TURN ...", the stand-in for a model turn).
+function runAc(mode) {
+  const logFile = path.join(TMP, 'ac-' + mode + '.log');
+  const { r, json, out } = runRc('ac-' + mode, ['FAKE_MODE=good', 'FAKE_AC=' + mode, 'FAKE_AC_LOG=' + logFile], ['--pane', 'open']);
+  const log = fs.existsSync(logFile) ? fs.readFileSync(logFile, 'utf8').trim().split('\n').filter(Boolean) : [];
+  return { r, json, out, log };
+}
+
+scenario('F1 open step, the mod command is highlighted first: Enter once, the pane opens, no other command runs', () => {
+  const { json, log } = runAc('right');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  assert.deepStrictEqual(log, ['RAN mod /workspace']);
+  assert.strictEqual(json.openStep.state, 'sent');
+  assert.deepStrictEqual(json.openStep.moves, []);
+  assert.strictEqual(json.paneOpenedByCommand, true);
+});
+
+scenario('F1 open step, a WRONG command is highlighted first (the real failure): Down until the mod command, then Enter; no model turn', () => {
+  const { json, log } = runAc('wrong-first');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  assert.deepStrictEqual(log, ['RAN mod /workspace'], 'only the mod command ran');
+  assert.deepStrictEqual(json.openStep.moves, ['Down']);
+  assert.strictEqual(json.openStep.target, '/workspace');
+  assert.ok(/after 1 Down/.test(json.answered.join(' ')), json.answered.join(' | '));
+});
+
+scenario('F1 open step, the highlight is a pointer glyph instead of a color: read the same way', () => {
+  const { json, log } = runAc('pointer');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  assert.deepStrictEqual(log, ['RAN mod /workspace']);
+  assert.deepStrictEqual(json.openStep.moves, ['Down']);
+});
+
+scenario('F1 open step, Down does nothing and the wrong command stays highlighted: open_step_unsafe, nothing sent', () => {
+  const { json, log } = runAc('down-ignored');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'open_step_unsafe');
+  assert.deepStrictEqual(log, [], 'no command ran and no model turn started: ' + log.join(' | '));
+  assert.strictEqual(json.openStep.state, 'open_step_unsafe');
+  assert.strictEqual(json.paneOpenedByCommand, false);
+  assert.ok(/pressed nothing/.test(json.answered.join(' ')));
+});
+
+scenario('F1 open step, the mod command is not in the list at all: open_step_unsafe, nothing sent, the typed text is cleared', () => {
+  const { json, log, out } = runAc('not-in-list');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'open_step_unsafe');
+  assert.strictEqual(json.openStep.reason, 'mod_command_not_in_list');
+  assert.deepStrictEqual(log, []);
+  assert.ok(!/>\s*\/workspace/.test(fs.readFileSync(path.join(out, 'ac-not-in-list.txt'), 'utf8')), 'the prompt line was cleared with Ctrl-U');
+});
+
+scenario('F1 open step, no suggestion list is visible: the highlight cannot be checked, so nothing is sent', () => {
+  const { json, log } = runAc('no-list');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'open_step_unsafe');
+  assert.strictEqual(json.openStep.reason, 'no_suggestion_list_visible');
+  assert.deepStrictEqual(log, []);
+});
+
+scenario('F1 open step, the highlight cannot be read from the screen (all rows look alike): never guessed, nothing sent', () => {
+  const { json, log } = runAc('unreadable');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'open_step_unsafe');
+  assert.strictEqual(json.openStep.reason, 'highlight_not_readable');
+  assert.deepStrictEqual(log, [], 'the wrong command was highlighted and Enter was never pressed');
+});
+
+scenario('F1 open step, the plain form lists only the wrong command but the plugin-qualified form works: it is used', () => {
+  const { json, log } = runAc('qualified');
+  assert.ok(json);
+  assert.strictEqual(json.status, 'ok', JSON.stringify(json.answered));
+  assert.deepStrictEqual(log, ['RAN mod /mindrian-workspace:workspace']);
+  assert.strictEqual(json.openStep.typed, '/mindrian-workspace:workspace');
+});
+
+scenario('F1 slash reader: prompt line, suggestion rows and the highlighted row from canned screens', () => {
+  const SS = require(path.join(REPO, 'ui', 'mindrian-workspace-mod', 'scripts', 'lib', 'slash-safe.cjs'));
+  const E = String.fromCharCode(27);
+  const rule = String.fromCharCode(0x2500).repeat(20);
+  const P = String.fromCharCode(0x276f);
+  // History above the prompt echoes a past command; only the line under a rule is the live prompt.
+  const screen = (rows) => ['', P + ' /icm-workspace-architect', '', rule, P + ' /workspace', rule].concat(rows).join('\n');
+  const st = SS.readSlashState(screen(['  ' + E + '[1m' + E + '[38;5;105m/icm-workspace-architect' + E + '[0m   Design a workspace', '  /workspace   Mindrian workspace (mindrian-workspace)']), 60, 12);
+  assert.strictEqual(st.promptText, '/workspace');
+  assert.deepStrictEqual(st.rows.map((x) => x.token), ['/icm-workspace-architect', '/workspace']);
+  assert.strictEqual(st.highlightedIndex, 0);
+  assert.strictEqual(st.signal, 'style');
+  const flat = SS.readSlashState(screen(['  /icm-workspace-architect   Design a workspace', '  /workspace   Mindrian workspace']), 60, 12);
+  assert.strictEqual(flat.highlightedIndex, null);
+  assert.strictEqual(flat.signal, 'highlight_not_readable');
+  const none = SS.readSlashState(screen([]), 60, 12);
+  assert.strictEqual(none.rows.length, 0);
+  assert.strictEqual(none.signal, 'no_suggestion_list');
+  const target = SS.pickTarget(st.rows, { tokenRe: /^\/(?:[\w.-]+:)?workspace$/, descRe: /Mindrian workspace/i });
+  assert.strictEqual(target.token, '/workspace');
+  assert.strictEqual(SS.pickTarget(st.rows.slice(0, 1), { tokenRe: /^\/(?:[\w.-]+:)?workspace$/ }), null);
+});
+
+// ---- F2: --final needs truecolor ---------------------------------------------------------------------
+
+scenario('F2 --final without COLORTERM truecolor or 24bit: exit 77, one-line fix, nothing written; --allow-256 and truecolor go on', () => {
+  const bin = path.join(TMP, 'bin3');
+  fs.mkdirSync(bin);
+  fs.writeFileSync(path.join(bin, 'claude'), '#!/bin/sh\nif [ "$1" = "--version" ]; then echo "9.9.9 (fake)"; exit 0; fi\nif [ "$1" = "auth" ]; then echo \'{"loggedIn": false}\'; exit 0; fi\nexit 3\n', { mode: 0o755 });
+  const base = Object.assign({}, process.env, { PATH: bin + path.delimiter + process.env.PATH });
+  const withTerm = (v) => { const e = Object.assign({}, base); if (v === null) delete e.COLORTERM; else e.COLORTERM = v; return e; };
+  for (const v of [null, '', '256color', 'yes']) {
+    const out = path.join(TMP, 'ct-' + String(v));
+    const r = spawnSync('node', [RC, '--final', '--out', out], { encoding: 'utf8', env: withTerm(v), timeout: 60000 });
+    assert.strictEqual(r.status, 77, String(v) + ': ' + r.stdout + r.stderr);
+    assert.ok(/export COLORTERM=truecolor/.test(r.stdout), r.stdout);
+    assert.ok(/--allow-256/.test(r.stdout), r.stdout);
+    assert.ok(/Nothing was run and nothing was written/.test(r.stdout));
+    assert.strictEqual(fs.existsSync(out), false, 'no output folder for COLORTERM=' + v);
+  }
+  for (const v of ['truecolor', '24bit']) {
+    const r = spawnSync('node', [RC, '--final', '--out', path.join(TMP, 'ct-ok')], { encoding: 'utf8', env: withTerm(v), timeout: 60000 });
+    assert.strictEqual(r.status, 77, r.stdout + r.stderr);
+    assert.ok(/not logged in/.test(r.stdout) && !/COLORTERM/.test(r.stdout), 'COLORTERM=' + v + ' passes the gate and reaches the login check: ' + r.stdout);
+  }
+  const o = spawnSync('node', [RC, '--final', '--allow-256', '--out', path.join(TMP, 'ct-override')], { encoding: 'utf8', env: withTerm(null), timeout: 60000 });
+  assert.strictEqual(o.status, 77, o.stdout + o.stderr);
+  assert.ok(/not logged in/.test(o.stdout) && !/COLORTERM/.test(o.stdout), '--allow-256 skips the gate: ' + o.stdout);
+  // The gate is for --final only: a plain single run does not ask for it.
+  const single = spawnSync('node', [RC, '--sample', 'wide', '--out', path.join(TMP, 'ct-single')], { encoding: 'utf8', env: withTerm(null), timeout: 60000 });
+  assert.ok(!/COLORTERM/.test(single.stdout), single.stdout);
+  assert.ok(/--allow-256/.test(spawnSync('node', [RC, '--help'], { encoding: 'utf8' }).stdout), '--help names the override');
 });
 
 // ---- quick fix: a session that ends at once must leave evidence, and secrets must never leak -------

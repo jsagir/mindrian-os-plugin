@@ -2,7 +2,7 @@
 
 What this is: the part of the check that needs a real, logged-in Claude Code. The agent that prepared it had no login (`claude auth status` said `loggedIn: false`), so it built and tested everything that does not need one and left every live result as PENDING-HUMAN. Nothing below was faked.
 
-What it costs you: about 30 to 40 minutes, mostly waiting. It sends no prompt to any model (the harness only types keys and the two slash commands `/workspace` and `/mcp`), so it should spend no tokens. It touches no real room: the live runs build a throwaway room in the OS temp folder and delete it.
+What it costs you: about 30 to 40 minutes, mostly waiting. It sends no prompt to any model. The harness types keys and the two slash commands `/workspace` and `/mcp`. It presses Enter on a slash command only when the prompt line shows exactly that text and the suggestion list highlights the right command (the first real run, 2026-10-06, pressed Enter on `/workspace` while the list had highlighted `/icm-workspace-architect`, which started a model turn). If it cannot make the right command the highlighted one, it sends nothing and the run ends as `open_step_unsafe` (or `slash_step_unsafe` for `/mcp`); the run's json says why under `openStep`. So it should spend no tokens. It touches no real room: the live runs build a throwaway room in the OS temp folder and delete it.
 
 ## Before you start (one minute)
 
@@ -10,6 +10,7 @@ In your own WSL terminal, from `/home/jsagi/dev/MindrianOS-Plugin`:
 
 1. `claude auth status` must say `"loggedIn": true`. If not, run `claude`, type `/login`, finish, quit.
 2. `tmux -V` must print a version (3.7 is installed).
+3. `COLORTERM` must be `truecolor` or `24bit` in that terminal: run `export COLORTERM=truecolor`. Without it Claude Code rounds colors to 256 and the fill-distance checks are wrong, so `--final` refuses to start (exit 77, one line saying how to fix it). `--allow-256` overrides that and the report then says the color numbers are approximate. The first real run had COLORTERM unset.
 
 ## Step 1: run the whole check (one command)
 
@@ -42,11 +43,11 @@ Everything lands in `.planning/spikes/008-mods-types-and-surfaces/render-check/f
 
 | # | Check | Open this picture | What to look at |
 |---|---|---|---|
-| 1 | Colored blocks paint solid | `size-wide-160x45-open.html` | The place block is solid blue, "A decision is waiting" solid yellow, the purpose and next rows solid cream, the context block black. No stripes, no gaps between cells, no block that stops short. |
-| 2 | Logo lines up | `size-wide-160x45-none.html` (tall) and `size-narrow-55x40-none.html` (compact) | Top-left. Tall: blue block, black frame line, red over yellow in the middle, cream, green on the right. Compact: one row, red and yellow side by side. No thin seams between the rows. |
-| 3 | Ten-cell bar | `size-wide-160x45-none.html` | "Context used: 62%": ten cells, the first six yellow in one unbroken run, the other four dots. |
+| 1 | Colored blocks paint solid (C-30, C-32) | `size-wide-160x45-none.html` | The place, purpose, next and context blocks are solid cream (paper); "A decision is waiting" is a solid black block with cream bold words. No yellow, no blue, no stripes, no gaps between cells, no block that stops short. At 55 columns the band is one row (place and waiting only); there is no Next row there. The machine reads only the band's own rows: "Next:" in the statusline does not count. |
+| 2 | The M:OS mark (C-32) | `size-wide-160x45-none.html` and `size-narrow-55x40-none.html` | Top-left: the plain text mark `M:OS`, bold cream on a black cell, in every tier. The five-rectangle logo is retired. |
+| 3 | Context bar (F4) | `size-wide-160x45-none.html`, `state-limit-160x45.html` | "Context used: 62%": a black track with a black cap at each end, the first six cells paper (cream) in one unbroken run, the other four paper dots on the black. The filled cells must show (before F4 they were black on black and only the dots showed). At 85 percent (the limit state) there is no bar: black block, the words "Context used: 85%. Save your thinking now." and the "Save my thinking" chip. |
 | 4 | Half-block glyph | `probe-halfblock.html` | The first cell of the band row: top half red, bottom half yellow. If it shows as one color or a gap, the compact logo stays side by side (the default; nothing to change). |
-| 5 | Dim text readable | `size-wide-160x45-none.html`, `live-roundtrip-opened.html` | The band hint "/workspace: Open workspace" (black on cream, C-28; the first run read pale on cream when it was a Button) and the consequence line under the card. Readable on black and on cream? If not, say so; the fallback is plain weight. |
+| 5 | Hints are normal weight, never dim (C-28, C-29, C-32) | `size-wide-160x45-none.html`, `live-roundtrip-opened.html` | The band hint "/workspace: Open workspace" must be plain black on cream (the machine fails the run if it is dim, bold or not black), and so must the consequence line under the card. Dim is allowed only on a black block. Readable? If not, say so. |
 | 6 | Boxed choice buttons | `live-roundtrip-opened.html` | The choices drawn as outlined boxes, "[1] Yes, go with it" with the long labels wrapping inside the box, the suggested one in blue. FINAL-RUN.md also says whether a digit press reached the button. If they look wrong, the fallback is `CHOICE_FORM = 'plain'` in `src/pane/review/choice-buttons.tsx` (the follow-up session flips it). |
 | 7 | Hotkeys with the prompt focused | `key-o-empty-after.html`, `key-o-after-text-after.html`, `key-h-empty-after.html`, `key-digit-in-pane-after.html` | FINAL-RUN.md gives a word for each (fired, or the letter went into the prompt). Look at the prompt line in `key-o-after-text-after.html`: does it show "helloo" (the `o` was typed) or did the pane open? |
 | 8 | Band width and rows when docked | `size-wide-160x45-open.html` against `size-wide-160x45-none.html` | The numbers are in FINAL-RUN.md (where the pane starts, where the band fill ends). Look: does the band shrink to the left 60 percent like `/home/jsagi/Downloads/mindrian-terminal-concepts/wide.png`, or does it run under the pane? |
@@ -83,6 +84,19 @@ Reply in a word to each, and the follow-up session records your words verbatim i
 
 ## If something goes wrong
 
-- `ENV GAP (exit 77)`: no login, no tmux or no package. The sentence says which; fix it and re-run the same command. Nothing is written.
+- `ENV GAP (exit 77)`: no login, no tmux, no package, or `COLORTERM` not truecolor (see Before you start, point 3). The sentence says which; fix it and re-run the same command. Nothing is written.
 - A run says `band_not_drawn`: open its `.txt` in `final/`. It holds the last screen and shows which dialog the harness did not recognize.
 - Leftovers: the harness uses its own private tmux server (`mos-ws-*`) and its own temp folders (`mos-ws-scratch-*`, `mos-ws-live-*`); `tmux -L <name> kill-server` for a stray server, and delete stray folders under the OS temp directory. It never touches your own tmux sessions.
+
+## ENV GAP: the live round trip could not be judged (first real run, 2026-10-06)
+
+Status: ENV GAP. Nothing is guessed here; this records what the run showed. Do not read the live steps a to h of that run as passes or as fails of the mod.
+
+Observed in the first real run (claude 2.1.291, tmux 3.7, `final/FINAL-RUN.md`, "Live gate round trip"):
+
+1. The nested session did not read the room as bound. The band frame `final/live-roundtrip-band.txt` shows `M:OS   You're not in a data room yet` and the hint `/workspace: Help`; the session header shows the folder `/tmp/mos-ws-live-X2Vs8k/rooms/live-check-room/Funding`; the SessionStart hook line in `final/live-roundtrip-opened.txt` says `session-start: no active room`. The harness had written a session binding file for the session id into the throwaway rooms home and had passed `CLAUDE_ACTIVE_ROOM`, `CLAUDE_CODE_SESSION_ID` and `MINDRIAN_ROOMS_HOME` (see `lib/live-room.cjs` and `assigns` in `runOne`). The binding route did not carry into the nested session. Why it did not carry is NOT known; no fix was tried.
+2. The room read-back never changed: `final/live-roundtrip.json`, `final/live-decide-later.json` and `final/live-double-press.json` show `decisionNodes: []`, `answered_via` null, and an unchanged records hash (live-roundtrip: `59517a24...` before and after). So no step of the round trip had a card to answer.
+3. Separate harness defect, found on the same frames and now fixed in `render-check.cjs` and `lib/slash-safe.cjs` (F1): the open step typed `/workspace:` (it read the band hint `/workspace: Open workspace` off the screen as the command name). The session answered `Unknown command: /workspace:. Did you mean /workspace?` and `Args from unknown skill: review` (`final/live-roundtrip-opened.txt`). Later keys went into the prompt box (`final/live-roundtrip.txt` ends with `1i1` in the prompt line). So steps b to h could not have passed even with a bound room.
+4. In the 80 columns and wider `open` runs (`final/size-wide-110x30-open.txt` and the others) the Enter after `/workspace` started `/icm-workspace-architect` (a model turn). Fixed by the safe open step above.
+
+Judgement rule for the next run: if the band frame of `live-roundtrip` again says "You're not in a data room yet", record steps a to h as ENV GAP again and report the exact band text; do not edit the mod for it.

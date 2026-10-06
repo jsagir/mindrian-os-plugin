@@ -438,39 +438,57 @@ function findLogo(grid, palette, variant, opts) {
 // ---- the context bar -------------------------------------------------------------------------
 
 const DOT = '·';
-// C-32: the bar's filled cells are black on the paper block. Cream is NOT a fill any more (the paper
-// block around the bar is cream, so counting it would shift the bar by one cell); yellow stays
-// accepted only so the old parser fixtures still read.
-const FILL_KEYS = ['mondrian_black', 'mondrian_yellow'];
+// F4 (2026-10-06 real run): the bar is a black track with a paper fill and a black cap cell at each
+// end: cap, ten cells (filled = a space on paper, empty = U+00B7), cap. The old bar (black fill on the
+// paper block) read as a gap on the black band, so a bar whose filled cells share a color with the
+// track behind it is a FAILURE here, never a pass (fillVisible).
+const FILL_KEYS = ['cream'];
+const TRACK_KEYS = ['mondrian_black'];
 
+function isBlank(cell) { return cell.ch === ' ' || cell.ch === ''; }
+
+function keyOfBg(cell, palette) {
+  const bg = effectiveBg(cell);
+  if (bg === null) return null;
+  const nr = nearest(bg, palette);
+  return nr ? nr.keys : null;
+}
+
+// 'cap' (a black space), 'filled' (a space on paper), 'empty' (U+00B7), or 'other'.
 function barKind(cell, palette) {
   if (cell.ch === DOT) return 'empty';
-  const bg = effectiveBg(cell);
-  if (bg !== null && (cell.ch === ' ' || cell.ch === '')) {
-    const nr = nearest(bg, palette);
-    if (nr && nr.keys.some((k) => FILL_KEYS.indexOf(k) !== -1)) return 'filled';
-  }
+  if (!isBlank(cell)) return 'other';
+  const keys = keyOfBg(cell, palette);
+  if (!keys) return 'other';
+  if (keys.some((k) => TRACK_KEYS.indexOf(k) !== -1)) return 'cap';
+  if (keys.some((k) => FILL_KEYS.indexOf(k) !== -1)) return 'filled';
   return 'other';
 }
 
-// locateBar(grid, row, fromCol, palette): the first column at or after fromCol where ten
-// consecutive cells are all bar cells (a filled 1-column cell or U+00B7), or null.
+// locateBar(grid, row, fromCol, palette): the column of the FIRST of the ten bar cells, or null.
+// The ten cells (each a filled cell or U+00B7) must sit between a black cap on the left and a black
+// cap on the right, so a paper space of the block around the bar is never mistaken for a fill.
 function locateBar(grid, row, fromCol, palette) {
   const cells = grid.cells[row];
   if (!cells) return null;
-  for (let c = fromCol; c + 10 <= cells.length; c += 1) {
+  for (let c = Math.max(fromCol, 1); c + 11 <= cells.length; c += 1) {
+    if (barKind(cells[c - 1], palette) !== 'cap') continue;
     let ok = true;
     for (let k = 0; k < 10; k += 1) {
-      if (barKind(cells[c + k], palette) === 'other') { ok = false; break; }
+      const kind = barKind(cells[c + k], palette);
+      if (kind !== 'filled' && kind !== 'empty') { ok = false; break; }
     }
-    if (ok) return c;
+    if (ok && barKind(cells[c + 10], palette) === 'cap') return c;
   }
   return null;
 }
 
-// checkBar(grid, row, startCol, palette, opts): count the ten-cell bar from startCol.
+// checkBar(grid, row, startCol, palette, opts): count the ten-cell bar from startCol (the first cell
+// after the left cap, as locateBar returns it).
 // opts.percent: also check the rounding rule, filled = Math.round(percent / 10).
-// Returns { total, filled, empty, filledFromLeft, emptyAreDots, expectedFilled, roundingOk, ok }.
+// Returns { total, filled, empty, filledFromLeft, emptyAreDots, capsOk, fillVisible, dotsVisible, fillBg, trackBg,
+//           expectedFilled, roundingOk, ok }. fillVisible is false when any filled cell has the same
+// color as a cap or as the background of an empty cell (the F4 failure).
 function checkBar(grid, row, startCol, palette, opts) {
   const cells = grid.cells[row] || [];
   let total = 0;
@@ -478,29 +496,43 @@ function checkBar(grid, row, startCol, palette, opts) {
   let empty = 0;
   let sawEmpty = false;
   let filledFromLeft = true;
+  const fillBgs = new Set();
+  const trackBgs = new Set();
+  let dotsVisible = true;
+  const capL = startCol > 0 ? cells[startCol - 1] : null;
+  const capR = cells[startCol + 10];
+  const capsOk = !!capL && !!capR && barKind(capL, palette) === 'cap' && barKind(capR, palette) === 'cap';
+  if (capL) trackBgs.add(effectiveBg(capL));
+  if (capR) trackBgs.add(effectiveBg(capR));
   for (let k = 0; k < 10; k += 1) {
     const cell = cells[startCol + k];
     const kind = cell ? barKind(cell, palette) : 'other';
-    if (kind === 'other') break;
+    if (kind !== 'filled' && kind !== 'empty') break;
     total += 1;
-    if (kind === 'filled') { filled += 1; if (sawEmpty) filledFromLeft = false; }
-    else { empty += 1; sawEmpty = true; }
+    if (kind === 'filled') { filled += 1; fillBgs.add(effectiveBg(cell)); if (sawEmpty) filledFromLeft = false; }
+    else {
+      empty += 1; sawEmpty = true; trackBgs.add(effectiveBg(cell));
+      if (cell.fg === null || cell.fg === effectiveBg(cell)) dotsVisible = false;
+    }
   }
-  // An empty cell that was drawn as a space or a block is not a dot: look one past the run.
+  // An empty cell that was drawn as a space or a block is not a dot.
   let emptyAreDots = true;
   for (let k = 0; k < 10; k += 1) {
     const cell = cells[startCol + k];
     if (!cell) { emptyAreDots = false; break; }
-    const kind = barKind(cell, palette);
-    if (kind === 'filled') continue;
+    if (barKind(cell, palette) === 'filled') continue;
     if (cell.ch !== DOT) { emptyAreDots = false; break; }
   }
-  const res = { total, filled, empty, filledFromLeft, emptyAreDots, expectedFilled: null, roundingOk: null, ok: false };
+  let fillVisible = true;
+  for (const f of fillBgs) {
+    if (f === null || trackBgs.has(f)) fillVisible = false;
+  }
+  const res = { total, filled, empty, filledFromLeft, emptyAreDots, capsOk, fillVisible, dotsVisible, fillBg: Array.from(fillBgs), trackBg: Array.from(trackBgs), expectedFilled: null, roundingOk: null, ok: false };
   if (opts && typeof opts.percent === 'number') {
     res.expectedFilled = Math.round(opts.percent / 10);
     res.roundingOk = filled === res.expectedFilled;
   }
-  res.ok = total === 10 && emptyAreDots && filledFromLeft && (res.roundingOk === null || res.roundingOk === true);
+  res.ok = total === 10 && emptyAreDots && filledFromLeft && capsOk && fillVisible && dotsVisible && (res.roundingOk === null || res.roundingOk === true);
   return res;
 }
 
