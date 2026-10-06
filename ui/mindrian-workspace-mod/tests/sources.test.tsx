@@ -476,6 +476,12 @@ const newLog = (): Log => ({ calls: [], patches: [] })
 
 type Pressers = Record<string, () => void>
 
+// Everything a press starts runs on microtasks only (the fake act never waits on a timer), so a
+// few turns of the microtask queue let it finish. (The test environment has no setTimeout type.)
+async function settle(): Promise<void> {
+  for (let i = 0; i < 50; i += 1) await Promise.resolve()
+}
+
 // A body made of the one view under test. Button onPress functions are captured by key as the view
 // draws, so a pure arm can call them (a press on a test hook's own Button finds nothing, rule 11).
 function viewBody(draw: (ctx: TabContext) => RenderElement | null, pressers: Pressers): TabBody {
@@ -592,7 +598,7 @@ test('list 2: pressing a row reads that artifact through the Mindrian server and
   const ui = await draw($, 'terminal')
   expect(typeof pressers['source:1']).toBe('function')
   pressers['source:1']?.()
-  await new Promise((resolve) => setTimeout(resolve, 20))
+  await settle()
   expect(log.calls).toEqual([
     { server: MINDRIAN_SERVER, tool: 'room_artifact', args: { path: WIDE_ROWS[1]?.path, max_bytes: 40000 } },
   ])
@@ -697,7 +703,7 @@ test('reading 3: Back clears the reading and writes nothing else', async ($, on)
   const ui = await draw($, 'terminal')
   expect(typeof pressers['sources:back']).toBe('function')
   pressers['sources:back']?.()
-  await new Promise((resolve) => setTimeout(resolve, 20))
+  await settle()
   expect(log.patches).toEqual([{ reading: null }])
   expect(log.calls).toEqual([])
   await ui.unmount()
