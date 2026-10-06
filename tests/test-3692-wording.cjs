@@ -404,6 +404,145 @@ async function main() {
     return true;
   });
 
+  // ---- WD7c-WD10: every card names the job and the move, never an id (369.2-30, INPUT addendum 2, R23) ----
+  // The square-bracketed row citation is the one exempt token, so brackets are stripped per line before the lint.
+  function lintBody(body) {
+    const bad = [];
+    String(body).split('\n').forEach(function (raw) {
+      const line = raw.replace(/\[[^\]]*\]/g, '');
+      if (!line.trim()) return;
+      lintLine(line, { complete: false }).forEach(function (v) { bad.push(v.rule + '=' + v.match + ' in "' + raw.trim().slice(0, 90) + '"'); });
+    });
+    return bad;
+  }
+  function srDeepPlan(room) {
+    return planner.buildPlan(room.roomDir, clone(QS_SR), { mode: 'deep', now: new Date('2026-10-04T00:00:00Z') }).plan;
+  }
+  const QS_FIBER = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', '3692-question-sets', 'fiber-sensing.json'), 'utf8'));
+
+  await leg('WD7c the quick evidence card: rows, searches, local checks and Theo skips read as jobs and moves, zero lint violations', async function () {
+    const room = newRoom();
+    const built = planner.buildPlan(room.roomDir, clone(QS_WS), { mode: 'quick', now: new Date('2026-10-04T00:00:00Z') });
+    const plan = built.plan;
+    const w = grants.writeGrant(room.roomDir, grants.buildRunGrant(plan), { approved_via: VIA });
+    if (!w.ok) return 'grant ' + JSON.stringify(w);
+    const env = real.realFetchEnvelope(function () { return 'contested_rows'; });
+    const out = await quickMod.runQuick(room.roomDir, plan, {
+      fetchEnvelopeFn: env, now: Date.now(),
+      rowsProvider: async function (c) {
+        return c.records.slice(0, 2).map(function (r, i) { return { leaf_id: c.leaves[0].id, record_id: String(r.id), claim: 'c', quote: r.title, label: i === 0 ? 'supports' : 'contradicts' }; });
+      },
+    });
+    if (out.status !== 'done') return 'quick ' + out.status + ' ' + out.reason;
+    const body = out.card.body_md;
+    const skipRun = Object.assign({}, out.run, { theo_checks: [
+      { leaf_id: plan.leaves[0].id, outcome: 'skipped', reason: 'egress_line_off' },
+      { leaf_id: plan.leaves[1].id, outcome: 'skipped', reason: 'not_canon' },
+    ] });
+    const body2 = quickMod.evidenceCard(skipRun, plan).body_md;
+    const bad = lintBody(body).concat(lintBody(body2));
+    console.log('WD7c lint: violations=' + bad.length + (bad.length ? ' ' + bad.slice(0, 6).join(' || ') : ''));
+    assert.strictEqual(bad.length, 0, bad.slice(0, 6).join(' || '));
+    const q1 = 'Is there published work on thin-film sensors for milk quality';
+    const rowLines = body.split('\n').filter(function (l) { return /^- \[E-[A-Z]+-\d+\] /.test(l); });
+    assert.strictEqual(rowLines.length, 2, 'row lines ' + rowLines.length);
+    assert.ok(/^- \[E-[A-Z]+-\d+\] ".+" supports "/.test(rowLines[0]) && rowLines[0].indexOf('supports "' + q1 + '": ') !== -1, 'supports row: ' + rowLines[0]);
+    assert.ok(rowLines[1].indexOf('argues against "' + q1 + '": ') !== -1, 'contradicts row: ' + rowLines[1]);
+    assert.ok(/\(https?:\/\/[^,]+, retrieved \d{4}-\d{2}-\d{2}\)$/.test(rowLines[0]) && rowLines[0].indexOf('record hash') === -1, 'row tail: ' + rowLines[0]);
+    assert.ok(/^- .*: 64 works in OpenAlex \(searched\)$/m.test(body), 'search line shape absent');
+    assert.ok(body.indexOf('exact-phrase') === -1 && body.indexOf('empty_valid') === -1, 'a search outcome code is on the card');
+    const qLeaf3 = plan.leaves.filter(function (l) { return l.dimension === 'ws:extraction_failure'; })[0].question.replace(/\s*\?+\s*$/, '');
+    assert.ok(body.indexOf('- Checked in this room for "' + qLeaf3 + '": 0 room artifacts already mention it. Nothing was sent for this check.') !== -1, 'local check line absent');
+    const q1b = plan.leaves[0].question.replace(/\s*\?+\s*$/, '');
+    const q2b = plan.leaves[1].question.replace(/\s*\?+\s*$/, '');
+    assert.ok(body2.indexOf('- The framework pair behind "' + q1b + '": not checked, the Theo line is off for this room, so nothing was sent') !== -1, 'egress skip line absent');
+    assert.ok(body2.indexOf('- The framework pair behind "' + q2b + '": not checked, one of the names is not a canon framework name, so nothing was sent') !== -1, 'canon skip line absent');
+    return true;
+  });
+
+  await leg('WD8c the deep plan review card (SR and fiber-sensing) names the lens by its question, paths and limiters by label, zero lint violations', async function () {
+    const room = newRoom();
+    const sr = srDeepPlan(room);
+    const fiber = planner.buildPlan(room.roomDir, clone(QS_FIBER), { mode: 'deep', now: new Date('2026-10-04T00:00:00Z') }).plan;
+    const qroom = newRoom();
+    const quickPlan = planner.buildPlan(qroom.roomDir, clone(QS_WS), { mode: 'quick', now: new Date('2026-10-04T00:00:00Z') }).plan;
+    const all = [['sr', sr], ['fiber', fiber], ['quick', quickPlan]].map(function (p) { return { tag: p[0], body: planMod.planReviewCard(p[1]).body_md }; });
+    const bad = [];
+    all.forEach(function (c) { lintBody(c.body).forEach(function (b) { bad.push(c.tag + ': ' + b); }); });
+    console.log('WD8c lint: violations=' + bad.length + (bad.length ? ' ' + bad.slice(0, 6).join(' || ') : ''));
+    assert.strictEqual(bad.length, 0, bad.slice(0, 6).join(' || '));
+    all.forEach(function (c) {
+      assert.ok(c.body.indexOf('   - lens:') === -1, c.tag + ' still prints lens:');
+      const sub = c.body.split('\n').filter(function (l) { return /^   - looked at as:/.test(l); });
+      assert.ok(sub.length > 0, c.tag + ' has no looked-at-as line');
+      sub.forEach(function (l) { assert.ok(/^   - looked at as: [^;]+; asked by \/mos:[a-z-]+; searches (OpenAlex|the room|Theo)$/.test(l), c.tag + ' sub-question line shape: ' + l); });
+    });
+    const srBody = all[0].body;
+    assert.ok(srBody.indexOf('- Lithium metal anode\n') !== -1, 'path line without its id');
+    assert.ok(srBody.indexOf('- Conversion cathode, from the 10X resurvey') !== -1, 'the 10X path line');
+    assert.ok(/\| Cathode theoretical capacity \[near ceiling\] \| Interface resistance at the anode \|/.test(srBody), 'limiter row by label');
+    assert.ok(srBody.indexOf('Ranked by what each one unlocks downstream: Interface resistance at the anode; ') !== -1, 'ranked line by label');
+    assert.ok(/^- Interface resistance at the anode unlocks a chain of 2 steps$/m.test(srBody), 'chain line by label');
+    return true;
+  });
+
+  await leg('WD9c the extend card and the not-ready cards read as jobs and moves, zero lint violations', async function () {
+    const room = newRoom();
+    const sr = srDeepPlan(room);
+    const fam = [
+      ['whitespace-gap/v1', 'gap search'], ['concept-evidence/v1', 'evidence search'], ['causal-link/v1', 'cause and effect search'],
+      ['constraint-interrogation/v1', 'wall test'], ['diffusion/v1', 'adoption search'],
+    ];
+    const tids = ['ws.exact', 'ce.exact', 'cl.break', 'ci.derivation', 'df.timing'];
+    const qs = fam.map(function (f, i) { return { template_id: tids[i], family: f[0], q: '"term ' + i + '" AND (a OR b)', q_hash: 'h' + i }; });
+    const state = { run_id: 'rp-2026-10-06-00000000', max_searches_base: 16, searches_used: 4, remaining_usd: null };
+    const ext = deepMod.extendCard(state, qs, false);
+    const promo = deepMod.extendCard(state, qs, false, 'baseline_promotion');
+    const bad = [];
+    [['extend', ext.body_md], ['promo', promo.body_md]].forEach(function (c) { lintBody(c[1]).forEach(function (b) { bad.push(c[0] + ': ' + b); }); });
+    // the not-ready cards of cardFor, from a ready plan whose status and coverage are set the way each status sets them
+    const fiber = planner.buildPlan(room.roomDir, clone(QS_FIBER), { mode: 'deep', now: new Date('2026-10-04T00:00:00Z') }).plan;
+    const cards = {};
+    ['incomplete', 'needs_lens_leaves', 'wish', 'local_only'].forEach(function (st) {
+      const p = clone(fiber);
+      p.status = st;
+      p.pyramid.coverage.uncovered = ['df:timing', 'sr:paths'];
+      const cf = planner.cardFor(room.roomDir, p, {});
+      cards[st] = cf.card ? cf.card.body_md : '';
+      lintBody(cards[st]).forEach(function (b) { bad.push(st + ': ' + b); });
+    });
+    console.log('WD9c lint: violations=' + bad.length + (bad.length ? ' ' + bad.slice(0, 6).join(' || ') : ''));
+    assert.strictEqual(bad.length, 0, bad.slice(0, 6).join(' || '));
+    assert.ok(ext.body_md.indexOf('New searches (none has been sent yet):') !== -1, 'extend header');
+    fam.forEach(function (f, i) { assert.ok(ext.body_md.indexOf('\n- ' + f[1] + ': "term ' + i + '" AND (a OR b)') !== -1, 'extend line for ' + f[1]); });
+    assert.ok(promo.body_md.indexOf('New searches (none has been sent yet):') !== -1, 'promotion header');
+    assert.ok(cards.incomplete.indexOf('- Timing: no sub-question covers this yet') !== -1 && cards.incomplete.indexOf('- Paths: no sub-question covers this yet') !== -1, 'uncovered lines by label: ' + cards.incomplete);
+    assert.ok(cards.incomplete.indexOf('[root') === -1, 'a [root] path prefix is still on a warning');
+    assert.ok(sr.leaves.length > 0, 'sr');
+    return true;
+  });
+
+  await leg('WD10 no card says confirmed, and a limiter the field scan refuted reads as already overcome, never as a code', async function () {
+    const room = newRoom();
+    const sr = srDeepPlan(room);
+    const lim = sr.perspective.limiters;
+    const second = clone(sr);
+    second.perspective.limiters[1].baseline = 'contradicted';
+    second.perspective.limiters[2].baseline = 'supported';
+    const body = planMod.planReviewCard(second).body_md;
+    const firstWords = lim[1].statement;
+    const secondWords = lim[2].statement;
+    const bad = lintBody(body).filter(function (b) { return /^confirmed=/.test(b); });
+    console.log('WD10 measured: confirmed findings=' + bad.length + ' (first limiter "' + firstWords + '", second "' + secondWords + '")');
+    assert.strictEqual(bad.length, 0, 'the word confirmed is on the card');
+    assert.ok(!/confirmed/i.test(body), 'confirmed on the plan card');
+    assert.ok(body.indexOf(firstWords + ' (the field scan found it already overcome)') !== -1, 'refuted limiter wording');
+    assert.ok(body.indexOf(secondWords + ' (the field scan supports it)') !== -1, 'supported limiter wording');
+    assert.ok(!/contradicted/.test(body), 'a status code is on the card');
+    assert.ok(body.indexOf(firstWords + ' goes last: the field scan found it already overcome.') !== -1, 'the demoted limiter line');
+    return true;
+  });
+
   // ---- WD8 dash ----
   await leg('WD8 no em-dash or en-dash in this file or the lint helper', async function () {
     const files = [__filename, path.join(__dirname, 'helpers', 'jobs-moves-lint-3692.cjs')];
