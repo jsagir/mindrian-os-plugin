@@ -639,8 +639,9 @@ test('band, wide: three rows with the logo, place then waiting then context with
     expect(cells.filled).toBe(6)
     expect(at(r2, 'This folder is for: building the funding case (sample)')).toBe(0)
     expect(at(r3, 'Next: look at the evidence behind your funding choice (sample)')).toBe(0)
-    // No version, no key buttons: the slots are empty until plan 08.
-    expect(await ui.findAll({ type: 'Button' })).toHaveLength(0)
+    // No version. Plan 08 filled the key slots: Open and Help at the right end of row 3, and no
+    // fix key while the room is sound and the context is under the limit.
+    expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['o', 'h'])
     expect(JSON.stringify(root)).not.toMatch(/version/i)
     await ui.unmount()
   }
@@ -689,7 +690,9 @@ test('band: a survey and a short window yield to the engine', async ($, on) => {
   }
 })
 
-test('band: tiers T1 and T0 are plan 08s, so they yield for now (this pins it)', async ($, on) => {
+// Flipped by plan 08 (plan 05 pinned these as yields): T1, T0 and a room that is not bound now draw
+// the one-row band.
+test('band: tiers T1 and T0 draw the one-row band, not the engine row (flipped from the plan 05 yield pin)', async ($, on) => {
   setup(on, { sample: 'wide' })
   for (const surface of SURFACES) {
     for (const [columns, rows] of [
@@ -699,17 +702,23 @@ test('band: tiers T1 and T0 are plan 08s, so they yield for now (this pins it)',
       [20, 6],
     ] as const) {
       const ui = await mountBand($, surface, columns, rows)
-      expect(await isEngine(ui)).toBe(true)
+      expect(await isEngine(ui)).toBe(false)
+      const root = asNode(await ui.drawn())
+      expect(num(root.props.height)).toBe(1)
+      expect(num(root.props.width)).toBe(columns)
+      expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['h'])
       await ui.unmount()
     }
   }
 })
 
-test('band: a room that is not bound yields (plan 08 draws it)', async ($, on) => {
+test('band: a room that is not bound draws one row at a wide size too (flipped from the plan 05 yield pin)', async ($, on) => {
   setup(on, { sample: 'noroom' })
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
-    expect(await isEngine(ui)).toBe(true)
+    expect(await isEngine(ui)).toBe(false)
+    expect(shown(await ui.drawn())).toContain("You're not in a data room yet")
+    expect(num(asNode(await ui.drawn()).props.height)).toBe(1)
     await ui.unmount()
   }
 })
@@ -792,9 +801,10 @@ test('band, health: drift is a yellow block at the end of row 2', async ($, on) 
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
     const { rows } = await rowsOf(ui)
-    const last = kids(rows[1]).at(-1)
-    expect(shown(last)).toBe('Room needs a checkup')
-    expect(last?.props.backgroundColor).toBe(THEME.yourMove)
+    // The health block, then its one-tap fix (plan 08: the checkup button) at the very end.
+    const health = kids(rows[1]).find((n) => shown(n) === 'Room needs a checkup')
+    expect(health?.props.backgroundColor).toBe(THEME.yourMove)
+    expect((await ui.find({ type: 'Button', key: 'band:checkup' }))?.props.label).toBe('Run a checkup')
     await ui.unmount()
   }
 })
@@ -804,9 +814,9 @@ test('band, health: broken is a red block with cream words at the end of row 2',
   for (const surface of SURFACES) {
     const ui = await mountBand($, surface, 100, 6)
     const { rows } = await rowsOf(ui)
-    const last = kids(rows[1]).at(-1)
-    expect(shown(last)).toBe('Room is broken')
-    expect(last?.props.backgroundColor).toBe(THEME.problem)
+    const health = kids(rows[1]).find((n) => shown(n) === 'Room is broken')
+    expect(health?.props.backgroundColor).toBe(THEME.problem)
+    expect((await ui.find({ type: 'Button', key: 'band:checkup' }))?.props.label).toBe('Run a checkup')
     const words = await ui.find({ type: 'Text', text: /Room is broken/ })
     expect(words?.props.color).toBe(THEME.reading)
     await ui.unmount()

@@ -2,14 +2,16 @@
 // (UI-SPEC 10.1, 10.3, 10.5; C-17, C-23; OQ-10). The pure parts are drawn with a stand-in element
 // table (the engine's own test `$` cannot call `$.ui.resolve`, see tests/band.test.tsx); the
 // mounted, per-surface arms are added in task 3 of this plan.
-import type { RenderElement } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import type { On, RenderElement } from 'claude-code'
+import { expect, mock, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
 import { chooseAlerts } from '../src/band/alerts'
 import type { El } from '../src/band/blocks'
 import { renderOneRow } from '../src/band/one-row'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
+import { PLUGIN_NAME } from '../src/runtime/ids'
 import type { ViewModel } from '../src/model/view-model'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
@@ -355,4 +357,185 @@ test('top of the room at T1: the room name alone in the blue block', () => {
   })
   expect(shown(blocks(row(vm, 55))[0])).toBe('funding-room')
   expect(shown(blocks(row(vm, 55, PLAIN))[0])).toBe("You're in: funding-room")
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: the band draws every tier and case through the registrar, on both surfaces the engine
+// raises AbovePrompt on. Beneath the plugin the test answers the engine's own row, the palette
+// file, the environment and the store.
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: THEME.problem,
+    mondrian_blue: THEME.where,
+    mondrian_yellow: THEME.yourMove,
+    mondrian_black: THEME.frame,
+    mondrian_white: THEME.reading,
+    cream: THEME.reading,
+    gray_meta: '#A09A90',
+    success_green: THEME.logoGreen,
+  },
+})
+
+const SURFACES = ['terminal', 'desktop'] as const
+
+function setup(on: On, sample: string, env: Record<string, string> = {}): void {
+  mock.env(on, { MOS_WORKSPACE_SAMPLE: sample, ...env })
+  mock.store(on, {})
+  on('fs.read', () => ({ value: PALETTE_TEXT }))
+  on('ui.render', { component: 'AbovePrompt' }, (): RenderElement => ({ type: 'Text', children: ['engine row'] }) as RenderElement)
+}
+
+function mountBand($: Engine, surface: (typeof SURFACES)[number], columns: number, rows: number) {
+  return $.ui.mount({
+    plugin: PLUGIN_NAME,
+    surface,
+    component: 'AbovePrompt',
+    props: {
+      hasSurvey: false,
+      isWorking: false,
+      maxRows: rows,
+      bodyColumns: columns,
+      scroll: { offset: 0, bodyRows: rows },
+      view: {},
+    },
+  })
+}
+
+// How many filled and dim bar cells a drawn band carries (the ten-cell bar of T3-wide only).
+function barCount(x: unknown): number {
+  let n = 0
+  walk(x, (node) => {
+    if (node.type === 'Box' && num(node.props.width) === 1 && num(node.props.height) === 1 && node.children.length === 0) {
+      if (node.props.backgroundColor === THEME.reading || node.props.backgroundColor === THEME.yourMove) n += 1
+    }
+    if (node.type === 'Text' && node.children.includes('\u00B7') && node.props.dimColor === true) n += 1
+  })
+  return n
+}
+
+test('mounted T1 at 55 columns: the one row with the name, the count and Help', async ($, on) => {
+  setup(on, 'wide')
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 55, 40)
+    const drawn = asNode(await ui.drawn())
+    expect(num(drawn.props.height)).toBe(1)
+    const bs = blocks(drawn)
+    expect(bs.map(shown)).toEqual(['Funding (sample)', '1 decision waiting', 'Get help'])
+    expect(await ui.find({ type: 'Text', text: /engine row/ })).toBeUndefined()
+    await ui.unmount()
+  }
+})
+
+test('mounted T0 at 25 columns, and a short window at 4 or 5 rows, keep the one row', async ($, on) => {
+  setup(on, 'wide')
+  for (const surface of SURFACES) {
+    const t0 = await mountBand($, surface, 25, 12)
+    expect(shown(await t0.drawn())).toBe('M:OS' + 'Get help')
+    await t0.unmount()
+    for (const rows of [4, 5]) {
+      const ui = await mountBand($, surface, 120, rows)
+      expect(num(asNode(await ui.drawn()).props.height)).toBe(1)
+      expect(shown(await ui.drawn())).toContain('Funding (sample)')
+      await ui.unmount()
+    }
+  }
+})
+
+test('mounted, a room that is not bound: one row at (100, 6), (55, 6) and (60, 4)', async ($, on) => {
+  setup(on, 'noroom')
+  for (const surface of SURFACES) {
+    for (const [columns, rows] of [
+      [100, 6],
+      [55, 6],
+      [60, 4],
+    ] as const) {
+      const ui = await mountBand($, surface, columns, rows)
+      const drawn = asNode(await ui.drawn())
+      expect(num(drawn.props.height)).toBe(1)
+      expect(blocks(drawn).map(shown)).toEqual(["You're not in a data room yet", 'Get help'])
+      await ui.unmount()
+    }
+  }
+})
+
+test('mounted T1 in the problem states: the alert names the problem and Help is the only button', async ($, on) => {
+  setup(on, 'drift')
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 55, 12)
+    expect(blocks(asNode(await ui.drawn())).map(shown)).toEqual(['Funding (sample)', 'Room needs a checkup', 'Get help'])
+    expect((await ui.findAll({ type: 'Button' })).map((b) => b.props.hotkey)).toEqual(['h'])
+    await ui.unmount()
+  }
+})
+
+test('mounted T1 in plain mode (NO_COLOR): words and bars, no color prop anywhere', async ($, on) => {
+  setup(on, 'wide', { NO_COLOR: '1' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 55, 12)
+    const drawn = await ui.drawn()
+    const keys: string[] = []
+    walk(drawn, (n) => keys.push(...Object.keys(n.props)))
+    expect(keys).not.toContain('color')
+    expect(keys).not.toContain('backgroundColor')
+    expect(shown(drawn)).toContain("You're in: Funding (sample)")
+    expect(shown(drawn)).toContain('! 1 decision waiting')
+    await ui.unmount()
+  }
+})
+
+// UI-SPEC 10.7: the tier at each size. Each row is the band's own columns and rows, so a docked
+// pane's narrowing is passed directly (the test never asks the host to split the width).
+const MATRIX: Array<{ label: string; columns: number; rows: number; want: 'T1' | 'T3-compact' | 'T3-wide' }> = [
+  { label: '55 by 40, no pane', columns: 55, rows: 20, want: 'T1' },
+  { label: '80 by 24, no pane', columns: 75, rows: 12, want: 'T3-compact' },
+  { label: '110 by 30, no dock', columns: 105, rows: 15, want: 'T3-wide' },
+  { label: '110 by 30, docked', columns: 63, rows: 15, want: 'T1' },
+  { label: '120 by 40, no dock', columns: 115, rows: 20, want: 'T3-wide' },
+  { label: '120 by 40, docked', columns: 69, rows: 20, want: 'T1' },
+  { label: '160 by 45, no dock', columns: 155, rows: 22, want: 'T3-wide' },
+  { label: '160 by 45, docked', columns: 91, rows: 22, want: 'T3-wide' },
+  { label: '200 by 60, no dock', columns: 195, rows: 30, want: 'T3-wide' },
+  { label: '200 by 60, docked', columns: 115, rows: 30, want: 'T3-wide' },
+]
+
+test('size matrix: the tier at each UI-SPEC 10.7 size on both surfaces', async ($, on) => {
+  setup(on, 'wide')
+  for (const surface of SURFACES) {
+    for (const size of MATRIX) {
+      const ui = await mountBand($, surface, size.columns, size.rows)
+      const drawn = asNode(await ui.drawn())
+      expect(num(drawn.props.width)).toBe(size.columns)
+      const height = num(drawn.props.height)
+      const bar = barCount(drawn)
+      const where = `${size.label} on ${surface}`
+      if (size.want === 'T1') {
+        expect([where, height]).toEqual([where, 1])
+      } else {
+        expect([where, height]).toEqual([where, 3])
+        expect([where, bar]).toEqual([where, size.want === 'T3-wide' ? 10 : 0])
+      }
+      await ui.unmount()
+    }
+  }
+})
+
+test('collapse: the place, the waiting count, the purpose and the next step are all still drawn at 84 and at 72 columns', async ($, on) => {
+  setup(on, 'wide')
+  for (const surface of SURFACES) {
+    for (const columns of [84, 72]) {
+      const ui = await mountBand($, surface, columns, 6)
+      const all = shown(await ui.drawn())
+      for (const kept of [
+        "You're in: Funding (sample)",
+        'A decision is waiting',
+        'This folder is for: building the funding case (sample)',
+        'Next: look at the evidence behind your funding choice (sample)',
+      ]) {
+        expect([columns, all.includes(kept)]).toEqual([columns, true])
+      }
+      await ui.unmount()
+    }
+  }
 })

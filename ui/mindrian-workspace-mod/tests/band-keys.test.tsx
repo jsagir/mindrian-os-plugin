@@ -284,6 +284,118 @@ async function paneText(pane: Awaited<ReturnType<typeof mountPane>>): Promise<st
   return shown(await pane.drawn())
 }
 
+test('o with a decision waiting opens the workspace at Review, titled P00, asking for focus', async ($, on) => {
+  const beneath = wire(on, 'wide')
+  for (const surface of SURFACES) {
+    beneath.opened.length = 0
+    const band = await mountBand($, surface)
+    expect(await band.find({ type: 'Button', key: 'band:open' })).toBeDefined()
+    await band.press({ key: 'band:open' })
+    expect(beneath.opened).toEqual([OPENED])
+    const pane = await mountPane($)
+    expect(await activeTab(pane)).toBe('review')
+    await pane.unmount()
+    await band.unmount()
+  }
+})
+
+test('o with nothing waiting opens the workspace at Room', async ($, on) => {
+  const beneath = wire(on, 'empty')
+  const band = await mountBand($, 'terminal')
+  await band.press({ key: 'band:open' })
+  expect(beneath.opened).toEqual([OPENED])
+  const pane = await mountPane($)
+  expect(await activeTab(pane)).toBe('room')
+  await pane.unmount()
+  await band.unmount()
+})
+
+test('o with the pane already open opens it again with focus and never closes it or moves the tab', async ($, on) => {
+  const beneath = wire(on, 'wide', { paneOpen: true })
+  const band = await mountBand($, 'terminal')
+  await band.press({ key: 'band:open' })
+  expect(beneath.opened).toEqual([OPENED])
+  expect(beneath.closed).toEqual([])
+  const pane = await mountPane($)
+  expect(await activeTab(pane)).toBe('room')
+  await pane.unmount()
+  await band.unmount()
+})
+
+test('h with the pane closed opens it on Room with the all-keys panel open', async ($, on) => {
+  const beneath = wire(on, 'wide')
+  const band = await mountBand($, 'terminal')
+  await band.press({ key: 'band:help' })
+  expect(beneath.opened).toEqual([OPENED])
+  const pane = await mountPane($)
+  expect(await activeTab(pane)).toBe('room')
+  expect(await paneText(pane)).toContain(text('H20'))
+  await pane.unmount()
+  await band.unmount()
+})
+
+test('h with the pane open and the panel shut opens the panel, without opening the pane again', async ($, on) => {
+  const beneath = wire(on, 'wide', { paneOpen: true })
+  const band = await mountBand($, 'terminal')
+  const pane = await mountPane($)
+  expect(await paneText(pane)).not.toContain(text('H20'))
+  await band.press({ key: 'band:help' })
+  expect(await paneText(pane)).toContain(text('H20'))
+  expect(beneath.opened).toEqual([])
+  await pane.unmount()
+  await band.unmount()
+})
+
+test('h with the panel open shuts it', async ($, on) => {
+  const beneath = wire(on, 'wide', { paneOpen: true })
+  const band = await mountBand($, 'terminal')
+  const pane = await mountPane($)
+  await band.press({ key: 'band:help' })
+  expect(await paneText(pane)).toContain(text('H20'))
+  await band.press({ key: 'band:help' })
+  expect(await paneText(pane)).not.toContain(text('H20'))
+  expect(beneath.closed).toEqual([])
+  await pane.unmount()
+  await band.unmount()
+})
+
+test('r adds the checkup request to the prompt box and k the save request; neither submits', async ($, on) => {
+  const beneath = wire(on, 'drift')
+  for (const surface of SURFACES) {
+    const band = await mountBand($, surface)
+    await band.press({ key: 'band:checkup' })
+    await band.unmount()
+  }
+  expect(beneath.fills).toMatchObject([
+    { text: text('Q06'), mode: 'replace' },
+    { text: text('Q06'), mode: 'replace' },
+  ])
+  expect(beneath.toasts).toEqual([text('P34'), text('P34')])
+  expect(beneath.submits).toEqual([])
+})
+
+test('k at the limit adds Q07; a box that cannot take it says P35; still no submit', async ($, on) => {
+  const beneath = wire(on, 'limit', { fillOk: false })
+  const band = await mountBand($, 'terminal')
+  await band.press({ key: 'band:save' })
+  expect(beneath.fills).toMatchObject([{ text: text('Q07'), mode: 'replace' }])
+  expect(beneath.toasts).toEqual([text('P35')])
+  expect(beneath.submits).toEqual([])
+  await band.unmount()
+})
+
+test('a band tree carries each hotkey once, and every band hotkey is one lowercase letter', async ($, on) => {
+  wire(on, 'limit')
+  for (const surface of SURFACES) {
+    const band = await mountBand($, surface)
+    const keys = (await band.findAll({ type: 'Button' })).map((b) => b.props.hotkey)
+    expect(keys.length).toBeGreaterThan(0)
+    for (const k of keys) expect(/^[a-z]$/.test(String(k))).toBe(true)
+    expect(new Set(keys).size).toBe(keys.length)
+    await band.unmount()
+  }
+})
+
 // ---------------------------------------------------------------------------------------------
 // The all-keys panel: a one-row band's fix keys are reachable through Help (UI-SPEC 10.5).
 

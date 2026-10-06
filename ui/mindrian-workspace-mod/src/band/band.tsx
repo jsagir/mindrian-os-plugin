@@ -11,8 +11,11 @@
 // The version is never drawn (C-10, OQ-04: there is no verified source). Healthy rooms draw no
 // health block (C-15).
 //
-// Tiers T1 and T0 and the rooms that are not bound are plan 08's: this returns null for them and
-// the registrar yields to the engine's own drawing.
+// Plan 08: `renderBand` still draws only the two three-row tiers (and returns null for the rest);
+// `drawBand` is the one entry the registrar calls. It routes every tier and case: the three-row
+// band with its key slots (hint-row.tsx), the one-row band for T1 and T0 and for any room that is
+// not bound at any width (one-row.tsx), and null (the registrar yields to the engine's own
+// drawing) for a survey or a window under four rows.
 import type { RenderElement, RenderNode } from 'claude-code'
 
 import type { ViewModel } from '../model/view-model'
@@ -20,7 +23,10 @@ import type { Mode } from '../theme/plain'
 import type { Theme } from '../theme/theme'
 import { FrameCell } from './blocks'
 import type { El } from './blocks'
+import { bandSlots } from './hint-row'
+import type { BandActions } from './hint-row'
 import { LogoCell } from './logo'
+import { renderOneRow } from './one-row'
 import { pickTier } from './tier'
 import { ContextTile, HealthTile, NextTile, PlaceTile, PurposeTile, WaitingTile, WorkingNote } from './tiles'
 
@@ -32,7 +38,7 @@ export type BandProps = {
   isWorking: boolean
 }
 
-// Seams plan 08 fills with buttons (Save my thinking, the checkup, the key hints). Empty here.
+// The slots hint-row.tsx fills with the band's keys (Save my thinking, the checkup, the hints).
 export type BandSlots = {
   row1Fix?: RenderNode
   row2Fix?: RenderNode
@@ -97,4 +103,23 @@ export function renderBand(
       </Box>
     </Box>
   )
+}
+
+// Every tier and case (plan 08). The tier comes from `maxRows` and `bodyColumns` only. A room that
+// is not bound draws one row at every width (UI-SPEC 10.3), so only a bound room reaches the
+// three-row band, and only at the two three-row tiers.
+export function drawBand(
+  el: El,
+  vm: ViewModel,
+  theme: Theme | null,
+  mode: Mode,
+  props: BandProps,
+  act: BandActions,
+): RenderElement | null {
+  const tier = pickTier(props.bodyColumns, props.maxRows, props.hasSurvey)
+  if (tier === 'yield') return null
+  if (tier === 'T0' || tier === 'T1' || !vm.place.isBound) {
+    return renderOneRow(el, vm, theme, mode, props, tier === 'T0' ? 'T0' : 'T1', { onHelp: () => void act.help() })
+  }
+  return renderBand(el, vm, theme, mode, props, bandSlots(el, { vm, tier, theme, mode }, act))
 }
