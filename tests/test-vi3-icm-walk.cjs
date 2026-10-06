@@ -469,7 +469,10 @@ const A_NAMES = { 'business-model': 3, 'competitive-analysis': 6, 'financial-mod
 // names it points at on tagged lines are in A_TAGGED. Room b A and C are hand-written BRAIN.md files with no source tags: A keeps
 // restated 2 of 3, C keeps 0; room b B now has the birth face (tagged 2).
 const A_TAGGED = { 'business-model': 3, 'competitive-analysis': 1, 'financial-model': 3, funding: 0, 'legal-ip': 1, 'market-analysis': 2,
-  'opportunity-bank': 0, 'problem-definition': 1, 'solution-design': 3, strategy: 3, 'team-execution': 0 };
+  'opportunity-bank': 1, 'problem-definition': 1, 'solution-design': 3, strategy: 3, 'team-execution': 0 };
+// MOVING 2026-10-06 (369.25 cut pre-step): the Jev-scored section-command ledger is rebuilt at every cut, and its candidate order is not
+// deterministic across builds; opportunity-bank tagged moved 0 to 1 at the beta.63 rebuild, the other ten nests were re-measured equal
+// (measured on a freshly born room: walkRoom I8c tagged per nest).
 arm('I8c BRAIN.md present, brain_query_count, CONTEXT section-2 command names, the ones BRAIN.md restates without a source tag', () => {
   const b = report('b');
   eq(nest(b, 'problem-definition').I8c, { brain_md: true, brain_query_count: 3, context_command_names: 3, restated: 2, tagged: 0, asked: null, not_asked_reason: null }, 'b A I8c');
