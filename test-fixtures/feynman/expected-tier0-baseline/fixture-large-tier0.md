@@ -3,12 +3,18 @@ schema_version: "1.0"
 type: section-minto
 section: solution-design
 created: 2026-04-14
-room: fixture-large
+room: unknown
+room_identity: room_db_missing
+room_slug: fixture-large
 parent-moc: ROOM.md
 methodology: minto-pyramid
-sources: [aaak-fallback/aaak-fallback.md, architecture-overview/architecture-overview.md, brain-bridge/brain-bridge.md, cascade-detector/cascade-detector.md, cli-surface/cli-surface.md, cowork-surface/cowork-surface.md, data-layer/data-layer.md, desktop-surface/desktop-surface.md, export-pipeline/export-pipeline.md, graph-sync/graph-sync.md, reasoning-renderer/reasoning-renderer.md, scanner-engine/scanner-engine.md]
+sources: [ROOM.md#artifacts-in-this-section]
+sources_count: 12
 related: []
 status: active
+edit_surface: "governing_thought is yours to edit; every other field and block is generated"
+editable_fields: [governing_thought]
+edit_recorded_in: "decision record (88-10/88-11) committed by the owner"
 governing_thought: "Solution Design synthesizes 12 artifacts into a coherent argument for this section of the venture."
 governing_thought_placeholder: true
 last_generated_at: "2026-04-14T00:00:00Z"
@@ -89,6 +95,18 @@ decision_log: []
 > - Missing: user journey map
 > - Missing: technical feasibility
 
+## Counterevidence
+
+- None recorded in the room yet.
+
+## Assumptions
+
+- None recorded in the room yet.
+
+## What would change the conclusion
+
+Not yet stated. Until it is, treat the governing thought as unsettled.
+
 ## Cross-References
 
 - *(no sibling sections to cross-reference)*
@@ -120,8 +138,8 @@ decision_log: []
 
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
-> **Compression ratio:** 7.4x
-> **Tokens:** 164 compressed from 1214 source
+> **Compression ratio:** 7.6x
+> **Tokens:** 164 compressed from 1241 source
 > **Method:** tier-0-heuristic
 
 ### Assertion

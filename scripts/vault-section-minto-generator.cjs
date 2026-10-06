@@ -555,10 +555,274 @@ function findRelatedSections(currentSection, room) {
     .sort();
 }
 
+// ---------- Phase 369.25-15: the room id, the edit surface, the room's own counter-records ----------
+
+// The face is keyed to the room_id room.db holds (FEYNMINTO-11), never to the slug. One in-place read per room
+// directory per process; a room whose identity is not ready writes room: unknown plus room_identity: <reason>,
+// so the slug can never sit in the id field. Lazy require: the cold path stays free of the identity module.
+const IDENTITY_CACHE = new Map();
+function readRoomIdentityOnce(roomDir) {
+  const key = String(roomDir || '');
+  if (IDENTITY_CACHE.has(key)) return IDENTITY_CACHE.get(key);
+  let out;
+  try {
+    const { readRoomIdentity } = require('../lib/core/navigation/room-identity.cjs');
+    const ident = readRoomIdentity(key, { door: 'in_place' });
+    out = ident && ident.ok === true && typeof ident.room_id === 'string' && ident.room_id.length > 0
+      ? { room: ident.room_id, reason: null }
+      : { room: 'unknown', reason: (ident && ident.reason) || 'identity_unreadable' };
+  } catch (_e) {
+    out = { room: 'unknown', reason: 'identity_unreadable' };
+  }
+  IDENTITY_CACHE.set(key, out);
+  return out;
+}
+
+function roomDirOf(room, section) {
+  return (room && room.roomDir) || (section && section.parentRoomDir) || '';
+}
+
+// The frontmatter lines that name the room: id, slug projection, and the reason when the id is not ready.
+function roomFrontmatterLines(room, section) {
+  const ident = readRoomIdentityOnce(roomDirOf(room, section));
+  const lines = ['room: ' + ident.room];
+  if (ident.reason) lines.push('room_identity: ' + ident.reason);
+  lines.push('room_slug: ' + room.roomName);
+  return lines;
+}
+
+// The edit surface a person can act on (ICM audit change 2): which field is theirs, and where a change is recorded.
+const EDIT_SURFACE_LINES = [
+  'edit_surface: "governing_thought is yours to edit; every other field and block is generated"',
+  'editable_fields: [governing_thought]',
+  'edit_recorded_in: "decision record (88-10/88-11) committed by the owner"',
+];
+
+// ICM audit 4(b): the artifact list has one home, ROOM.md's reference index. MINTO links to it and keeps a count.
+const SOURCES_INDEX_LINK = 'ROOM.md#artifacts-in-this-section';
+function sourcesFrontmatterLines(artifactCount) {
+  return ['sources: [' + SOURCES_INDEX_LINK + ']', 'sources_count: ' + artifactCount];
+}
+
+const RECORD_LINE_MAX = 160;
+const RECORD_ROWS_MAX = 8;
+const NOT_YET_STATED = 'Not yet stated. Until it is, treat the governing thought as unsettled.';
+
+function clipText(s) {
+  const t = String(s === undefined || s === null ? '' : s).replace(/\s+/g, ' ').trim();
+  return t.length > RECORD_LINE_MAX ? t.slice(0, RECORD_LINE_MAX - 3) + '...' : t;
+}
+
+// The room's own records for one section, read through navigation (the only door to room.db), read-only:
+// CONTRADICTS rows (navigation.findContradictions) and blocking assumptions (navigation.findBlockingAssumptions).
+// Any failure degrades to "no records" (a legacy un-migrated room.db has no review_status column and throws).
+function readSectionRecords(roomDir, sectionSlug) {
+  const out = { counter: [], assumptions: [] };
+  if (typeof roomDir !== 'string' || roomDir.length === 0 || typeof sectionSlug !== 'string') return out;
+  let navigation;
+  try {
+    navigation = require('../lib/core/navigation.cjs');
+  } catch (_e) {
+    return out;
+  }
+  let db = null;
+  try {
+    db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+    if (!db) return out;
+    const hasSourceSection = db.prepare('PRAGMA table_info(nodes)').all().some(function (c) { return c.name === 'source_section'; });
+    const inSection = hasSourceSection
+      ? "(json_extract(n.properties,'$.section') = ? OR n.source_section = ?)"
+      : "json_extract(n.properties,'$.section') = ?";
+    const sectionArgs = hasSourceSection ? [sectionSlug, sectionSlug] : [sectionSlug];
+    const nodeInfo = db.prepare(
+      "SELECT json_extract(properties,'$.text') AS text, review_status AS status FROM nodes WHERE id = ?"
+    );
+    const describe = function (id) {
+      const r = nodeInfo.get(id);
+      const text = r && typeof r.text === 'string' && r.text.trim().length > 0 ? clipText(r.text) : id;
+      return { id: id, text: text, status: r && r.status ? r.status : null };
+    };
+
+    // Counterevidence: every section node touching a CONTRADICTS edge is a focus for findContradictions.
+    const inSectionStmt = db.prepare('SELECT 1 AS x FROM nodes n WHERE n.id = ? AND ' + inSection);
+    const inSectionMemo = new Map();
+    const sectionIds = {
+      has: function (id) {
+        if (!inSectionMemo.has(id)) inSectionMemo.set(id, !!inSectionStmt.get(id, ...sectionArgs));
+        return inSectionMemo.get(id);
+      },
+    };
+    const focusRows = db.prepare(
+      'SELECT DISTINCT n.id AS id FROM nodes n JOIN edges e ON (e.source = n.id OR e.target = n.id) ' +
+        "WHERE e.type = 'CONTRADICTS' AND " + inSection + ' ORDER BY n.id LIMIT 50'
+    ).all(...sectionArgs);
+    const seenPairs = new Set();
+    for (const f of focusRows) {
+      let rows = [];
+      try { rows = navigation.findContradictions(db, f.id) || []; } catch (_e) { rows = []; }
+      for (const row of rows) {
+        const a = row.claimA && row.claimA.id;
+        const b = row.claimB && row.claimB.id;
+        if (!a || !b) continue;
+        const pair = a + '>' + b;
+        if (seenPairs.has(pair)) continue;
+        // only rows that touch this section are this section's counterevidence
+        if (!sectionIds.has(a) && !sectionIds.has(b)) continue;
+        seenPairs.add(pair);
+        // the contradicting item is the end that is not the section's own; both inside -> the target
+        const itemId = sectionIds.has(a) && !sectionIds.has(b) ? b : (sectionIds.has(b) && !sectionIds.has(a) ? a : b);
+        const againstId = itemId === a ? b : a;
+        out.counter.push({ item: describe(itemId), against: describe(againstId) });
+      }
+    }
+
+    // Assumptions: every section node with an outgoing DEPENDS_ON or ASSUMES edge is a goal for findBlockingAssumptions.
+    const goalSql =
+      'SELECT DISTINCT n.id AS id FROM nodes n JOIN edges e ON e.source = n.id ' +
+      "WHERE e.type IN ('DEPENDS_ON','ASSUMES') AND " + inSection + ' ORDER BY n.id LIMIT 50';
+    const goalRows = db.prepare(goalSql).all(...sectionArgs);
+    const seenAssumptions = new Set();
+    for (const g of goalRows) {
+      let rows = [];
+      try { rows = navigation.findBlockingAssumptions(db, g.id) || []; } catch (_e) { rows = []; }
+      for (const row of rows) {
+        const id = row.assumption && row.assumption.id;
+        if (!id || seenAssumptions.has(id)) continue;
+        seenAssumptions.add(id);
+        const d = describe(id);
+        d.status = (row.assumption && row.assumption.reviewStatus) || d.status;
+        out.assumptions.push(d);
+      }
+    }
+  } catch (_e) {
+    return { counter: [], assumptions: [] };
+  } finally {
+    try { if (db) navigation.closeRoomDbForCaller(db); } catch (_e) { /* best effort */ }
+  }
+  return out;
+}
+
+// A counterevidence item the owner already closed (rejected or invalidated) is answered.
+function counterIsAnswered(row) {
+  const st = row && row.item && row.item.status;
+  return st === 'rejected' || st === 'invalidated';
+}
+
+function narrativeList(narrative, key) {
+  const v = narrative && narrative[key];
+  return Array.isArray(v) ? v.filter(function (x) { return typeof x === 'string' && x.trim().length > 0; }).map(clipText) : [];
+}
+
+// The three design-v2 blocks. Room records first; a tier-1 narrative may add lines labelled as model narrative.
+function renderRecordBlocks(records, narrative) {
+  const rec = records || { counter: [], assumptions: [] };
+  const lines = [];
+
+  lines.push('## Counterevidence', '');
+  const counterLines = rec.counter.slice(0, RECORD_ROWS_MAX).map(function (r) {
+    return '- ' + r.item.text + ' (contradicts: ' + r.against.text + ')' + (counterIsAnswered(r) ? ' [answered: ' + r.item.status + ']' : '');
+  });
+  if (rec.counter.length > RECORD_ROWS_MAX) counterLines.push('- and ' + (rec.counter.length - RECORD_ROWS_MAX) + ' more in the room graph');
+  narrativeList(narrative, 'counterevidence').forEach(function (t) { counterLines.push('- ' + t + ' (model narrative)'); });
+  if (counterLines.length === 0) counterLines.push('- None recorded in the room yet.');
+  lines.push(...counterLines, '');
+
+  lines.push('## Assumptions', '');
+  const assumptionLines = rec.assumptions.slice(0, RECORD_ROWS_MAX).map(function (a) {
+    return '- ' + a.text + ' (validity: ' + (a.status || 'unknown') + ')';
+  });
+  if (rec.assumptions.length > RECORD_ROWS_MAX) assumptionLines.push('- and ' + (rec.assumptions.length - RECORD_ROWS_MAX) + ' more in the room graph');
+  narrativeList(narrative, 'assumptions').forEach(function (t) { assumptionLines.push('- ' + t + ' (model narrative)'); });
+  if (assumptionLines.length === 0) assumptionLines.push('- None recorded in the room yet.');
+  lines.push(...assumptionLines, '');
+
+  lines.push('## What would change the conclusion', '');
+  const changeLines = [];
+  rec.counter.filter(function (r) { return !counterIsAnswered(r); }).slice(0, RECORD_ROWS_MAX).forEach(function (r) {
+    changeLines.push('- If "' + r.item.text + '" holds, the governing thought needs revision.');
+  });
+  rec.assumptions.slice(0, RECORD_ROWS_MAX).forEach(function (a) {
+    changeLines.push('- If "' + a.text + '" is false, the governing thought needs revision.');
+  });
+  narrativeList(narrative, 'what_would_change').forEach(function (t) { changeLines.push('- ' + t + ' (model narrative)'); });
+  if (changeLines.length === 0) changeLines.push(NOT_YET_STATED);
+  lines.push(...changeLines, '');
+  return lines;
+}
+
+// What the FEYNMAN face says after a MINTO regeneration: what changed, and what the room cannot yet explain.
+const SOURCE_ARTIFACTS_RE = /^## Source Artifacts\s*$/m;
+function previousMintoSnapshot(targetPath) {
+  const snap = { exists: false, sources: [], governingThought: null, lastGeneratedAt: null };
+  let raw;
+  try { raw = fs.readFileSync(targetPath, 'utf-8'); } catch (_e) { return snap; }
+  snap.exists = true;
+  const gt = extractGoverningThought(raw);
+  snap.governingThought = gt ? sha256GoverningThought(gt) : null;
+  const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (fmMatch) {
+    const g = fmMatch[1].match(/^last_generated_at:\s*"?([^"\r\n]+)"?\s*$/m);
+    if (g) snap.lastGeneratedAt = g[1].trim();
+  }
+  const at = raw.search(SOURCE_ARTIFACTS_RE);
+  if (at !== -1) {
+    const rest = raw.slice(at).split(/\r?\n/).slice(1);
+    for (const ln of rest) {
+      if (/^##\s/.test(ln)) break;
+      const m = ln.match(/^- \[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/);
+      if (m) snap.sources.push(m[1].trim());
+    }
+  }
+  return snap;
+}
+
+function updateFeynmanFace(section, artifacts, prev, newContent, records, preserved) {
+  let blocks;
+  try { blocks = require('../lib/core/feyminto/feynman-blocks.cjs'); } catch (_e) { return { ok: false, reason: 'blocks_module_missing' }; }
+  try {
+    const feyPath = path.join(section.dir, 'FEYNMAN.md');
+    const rels = artifacts.map(function (f) { return path.relative(section.dir, f.path).split(path.sep).join('/'); });
+    const was = new Set(prev.sources);
+    const now = new Set(rels);
+    const added = rels.filter(function (r) { return !was.has(r); });
+    const removed = prev.sources.filter(function (r) { return !now.has(r); });
+    const changed = [];
+    if (added.length > 0) changed.push('Sources added: ' + added.join(', '));
+    if (removed.length > 0) changed.push('Sources removed: ' + removed.join(', '));
+    const gtNow = extractGoverningThought(newContent);
+    if (prev.exists && prev.governingThought !== null && prev.governingThought !== sha256GoverningThought(gtNow)) {
+      changed.push('The governing thought changed.');
+    }
+    const prevAt = prev.lastGeneratedAt ? Date.parse(prev.lastGeneratedAt) : NaN;
+    const log = preserved && Array.isArray(preserved.decision_log) ? preserved.decision_log : [];
+    log.forEach(function (d) {
+      const t = d && d.timestamp ? Date.parse(d.timestamp) : NaN;
+      if (!Number.isNaN(t) && !Number.isNaN(prevAt) && t > prevAt) {
+        changed.push('Decision recorded: ' + String(d.action || 'unnamed') + ' (' + String(d.user_response || 'no response') + ')');
+      }
+    });
+    if (changed.length === 0) changed.push('No change since the previous revision.');
+
+    const cannot = deriveGaps(section, artifacts);
+    (records.counter || []).filter(function (r) { return !counterIsAnswered(r); }).forEach(function (r) {
+      cannot.push('Counterevidence with no answer yet: ' + r.item.text);
+    });
+    (records.assumptions || []).forEach(function (a) {
+      cannot.push('Assumption not yet validated: ' + a.text);
+    });
+    if (cannot.length === 0) cannot.push('Nothing recorded as unexplained yet.');
+    return blocks.writeFeynmanBlocks(feyPath, { whatChanged: changed, cannotExplain: cannot });
+  } catch (e) {
+    return { ok: false, reason: String((e && e.message) || e).slice(0, 200) };
+  }
+}
+
 // ---------- Rendering ----------
 
-function renderSectionMinto(section, artifacts, room, preserved) {
+function renderSectionMinto(section, artifacts, room, preserved, records) {
   const title = slugToTitle(section.name);
+  // 369.25-15: the room's own counter-records for this section (read once; the caller may pass them in).
+  const sectionRecords = records || readSectionRecords(roomDirOf(room, section), section.name);
   const date = today();
   const parentRel = path
     .relative(section.dir, path.join(section.parentRoomDir, 'STATE.md'))
@@ -570,9 +834,6 @@ function renderSectionMinto(section, artifacts, room, preserved) {
   const gaps = deriveGaps(section, artifacts);
   const siblings = findRelatedSections(section, room);
 
-  const sourcesArr = artifacts.map((f) =>
-    path.relative(section.dir, f.path).split(path.sep).join('/')
-  );
   const relatedArr = siblings.map((s) => `../${s}/MINTO.md`);
 
   const claimSections = [];
@@ -620,12 +881,13 @@ function renderSectionMinto(section, artifacts, room, preserved) {
     'type: section-minto',
     `section: ${section.name}`,
     `created: ${date}`,
-    `room: ${room.roomName}`,
+    ...roomFrontmatterLines(room, section),
     'parent-moc: ROOM.md',
     'methodology: minto-pyramid',
-    `sources: [${sourcesArr.join(', ')}]`,
+    ...sourcesFrontmatterLines(artifacts.length),
     `related: [${relatedArr.join(', ')}]`,
     'status: active',
+    ...EDIT_SURFACE_LINES,
     'governing_thought: "' + gtTier0Escaped + '"',
     // Phase 363.1 D-07: say in the file itself that the thought is the
     // fallback, so the health scorer never pays it. Conditional spread keeps a
@@ -658,6 +920,7 @@ function renderSectionMinto(section, artifacts, room, preserved) {
     '> [!warning] Missing Evidence',
     ...gapLines,
     '',
+    ...renderRecordBlocks(sectionRecords, null),
     '## Cross-References',
     '',
     ...crossRefLines,
@@ -825,12 +1088,16 @@ function runTier0(args) {
   const target = path.join(resolved.section.dir, 'MINTO.md');
   // Phase 88-00: read-before-write so v88 fields preserve across regen.
   const preserved = readPreservedV88Fields(target);
+  // 369.25-15: the previous revision (for the FEYNMAN what-changed block) and the room's own records, read once.
+  const prevSnapshot = previousMintoSnapshot(target);
+  const records = readSectionRecords(roomDirOf(resolved.room, resolved.section), resolved.section.name);
   // Pre-81 structural generation, preserved byte-equivalent.
   const structuralBody = renderSectionMinto(
     resolved.section,
     resolved.artifacts,
     resolved.room,
-    preserved
+    preserved,
+    records
   );
   // Deterministic AAAK compression of the structural body.
   const aaak = compressToAaak(structuralBody, {
@@ -861,6 +1128,8 @@ function runTier0(args) {
   const env = atomicWriteMinto(target, content, roomDir);
   if (env.success) {
     process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
+    // 369.25-15: one owner per state; the FEYNMAN face is updated in the same regeneration pass.
+    updateFeynmanFace(resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
   } else {
     process.stderr.write(
       'tier-0 write REJECTED by invariants gate for ' +
@@ -982,8 +1251,9 @@ function emitSectionPlanPayload(roomDir, sectionName) {
   return payload;
 }
 
-function renderFeynmanMinto(structural, narrative, room, section, artifacts, preserved) {
+function renderFeynmanMinto(structural, narrative, room, section, artifacts, preserved, records) {
   const title = slugToTitle(section.name);
+  const sectionRecords = records || readSectionRecords(roomDirOf(room, section), section.name);
   const date = structural.frontmatter.created;
   const mm = narrative.mental_model;
 
@@ -1011,12 +1281,13 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
     'type: ' + fm.type,
     'section: ' + fm.section,
     'created: ' + fm.created,
-    'room: ' + fm.room,
+    ...roomFrontmatterLines(room, section),
     'parent-moc: ' + fm['parent-moc'],
     'methodology: ' + fm.methodology,
-    'sources: [' + fm.sources.join(', ') + ']',
+    ...sourcesFrontmatterLines(fm.sources.length),
     'related: [' + fm.related.join(', ') + ']',
     'status: ' + fm.status,
+    ...EDIT_SURFACE_LINES,
     'governing_thought: "' + gtTier1Escaped + '"',
     ...(isPlaceholderGoverningThought(narrative.governing_thought) ? ['governing_thought_placeholder: true'] : []),
     ...v88Lines,
@@ -1092,8 +1363,9 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
       '> [!warning] Missing Evidence',
     ],
     gapLines,
+    [''],
+    renderRecordBlocks(sectionRecords, narrative),
     [
-      '',
       '## Cross-References',
       '',
     ],
@@ -1415,6 +1687,8 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   const target = path.join(resolved.section.dir, 'MINTO.md');
   // Phase 88-00: read-before-write so v88 fields preserve across regen.
   const preserved = readPreservedV88Fields(target);
+  const prevSnapshot = previousMintoSnapshot(target);
+  const records = readSectionRecords(roomDirOf(resolved.room, resolved.section), resolved.section.name);
   const structural = buildStructuralPayload(
     resolved.room,
     resolved.section,
@@ -1426,7 +1700,8 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
     resolved.room,
     resolved.section,
     resolved.artifacts,
-    preserved
+    preserved,
+    records
   );
 
   if (options.dryRun) {
@@ -1452,6 +1727,7 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   const env = atomicWriteMinto(target, content, roomDir);
   if (env.success) {
     process.stdout.write('wrote MINTO.md: ' + target + '\n');
+    updateFeynmanFace(resolved.section, resolved.artifacts, prevSnapshot, content, records, preserved);
   } else {
     process.stderr.write(
       'tier-1 write REJECTED by invariants gate for ' +

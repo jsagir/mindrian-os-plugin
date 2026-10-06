@@ -3,12 +3,18 @@ schema_version: "1.0"
 type: section-minto
 section: market-analysis
 created: 2026-04-14
-room: fixture-medium
+room: unknown
+room_identity: room_db_missing
+room_slug: fixture-medium
 parent-moc: ROOM.md
 methodology: minto-pyramid
-sources: [buyer-persona/buyer-persona.md, channel-fit/channel-fit.md, incumbent-gap/incumbent-gap.md, pricing-anchor/pricing-anchor.md, tam-estimate/tam-estimate.md, wedge-segment/wedge-segment.md]
+sources: [ROOM.md#artifacts-in-this-section]
+sources_count: 6
 related: []
 status: active
+edit_surface: "governing_thought is yours to edit; every other field and block is generated"
+editable_fields: [governing_thought]
+edit_recorded_in: "decision record (88-10/88-11) committed by the owner"
 governing_thought: "Market Analysis synthesizes 6 artifacts into a coherent argument for this section of the venture."
 governing_thought_placeholder: true
 last_generated_at: "2026-04-14T00:00:00Z"
@@ -83,6 +89,18 @@ decision_log: []
 > - Missing: SAM sizing
 > - Missing: SOM sizing
 
+## Counterevidence
+
+- None recorded in the room yet.
+
+## Assumptions
+
+- None recorded in the room yet.
+
+## What would change the conclusion
+
+Not yet stated. Until it is, treat the governing thought as unsettled.
+
 ## Cross-References
 
 - *(no sibling sections to cross-reference)*
@@ -108,8 +126,8 @@ decision_log: []
 
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
-> **Compression ratio:** 7.1x
-> **Tokens:** 117 compressed from 832 source
+> **Compression ratio:** 7.8x
+> **Tokens:** 117 compressed from 914 source
 > **Method:** tier-0-heuristic
 
 ### Assertion

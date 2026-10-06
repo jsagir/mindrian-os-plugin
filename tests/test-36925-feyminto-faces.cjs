@@ -17,6 +17,7 @@
  *   F2  a freshly born room's FEYNMAN.md has edit_surface, editable_fields [body], edit_recorded_in and both blocks
  *       seeded with 'Nothing yet: this nest was just created.'
  *   F3  stampFaceRoomId adds or replaces room_id and keeps every other key and the body byte-identical
+ *   F5  a FEYNMAN holding only the seed and the generated blocks stays scaffold (lib/core/scaffold-predicate.cjs)
  *   F4  the human body region of FEYNMAN.md is byte-identical before and after writeFeynmanBlocks; dash guard
  *
  * Every room lives under an isolated mkdtemp HOME and rooms home (tests/helpers/isolated-home-36925.cjs).
@@ -251,6 +252,21 @@ arm('F3 stampFaceRoomId adds or replaces room_id and keeps every other key and t
   eq((fs.readFileSync(p, 'utf8').match(/^room_id:/gm) || []).length, 1, 'exactly one room_id line');
   const missing = blocks().stampFaceRoomId(path.join(r.roomDir, SEC, 'NOPE.md'), 'x');
   check(missing && missing.ok === false, 'a missing face returns ok:false and never throws');
+});
+
+arm('F5 a FEYNMAN carrying only the seed and the two generated blocks is still scaffold; one human line makes it content', () => {
+  const r = born('f5');
+  gen(r);
+  const p = path.join(r.roomDir, SEC, 'FEYNMAN.md');
+  const { isScaffoldFile } = require(path.join(ROOT, 'lib', 'core', 'scaffold-predicate.cjs'));
+  check(blocks().HEADER === blocks().WHAT_CHANGED_HEADING, 'HEADER export is the first heading');
+  check(fs.readFileSync(p, 'utf8').indexOf(blocks().WHAT_CHANGED_HEADING) !== -1, 'the generated blocks are in the file');
+  eq(isScaffoldFile(p), true, 'seed + generated blocks must stay scaffold (never counted as the owner\'s work)');
+  // the section MINTO must not count it as an artifact: a second write keeps sources_count at 2
+  gen(r);
+  eq(fm(read(r, 'MINTO.md')).sources_count, '2', 'sources_count after a second write');
+  fs.appendFileSync(p, '\nMy own line about this nest.\n', 'utf8');
+  eq(isScaffoldFile(p), false, 'a human line outside the blocks makes the face content');
 });
 
 arm('F4 the human body of FEYNMAN is byte-identical across writeFeynmanBlocks; dash guard', () => {
