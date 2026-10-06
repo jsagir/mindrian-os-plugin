@@ -3,8 +3,9 @@
 // element table: the engine's own test `$` cannot call `$.ui.resolve` (a render hook calls it on
 // its own `$`), so the stand-in builds the same plain-data element the table would
 // ({ type, props, children }). Later tasks extend this file with the tiles and the mounted tests.
-import type { RenderElement } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import type { On, RenderElement } from 'claude-code'
+import { expect, mock, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
 import { ContextBar, Block, FrameCell, splitLabel } from '../src/band/blocks'
 import type { El } from '../src/band/blocks'
@@ -22,6 +23,7 @@ import {
 import { ok } from '../src/model/view-model'
 import type { Seen, ViewModel } from '../src/model/view-model'
 import { SAMPLES } from '../src/model/fixtures'
+import { PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -57,8 +59,10 @@ const THEME: Theme = {
 const COLOR: Mode = { plain: false, note: null, theme: THEME }
 const PLAIN: Mode = { plain: true, note: 'N01', theme: null }
 
+// The engine hands a drawn tree back with absent props and children left out: normalize.
 function asNode(x: unknown): Node {
-  return x as Node
+  const n = x as Partial<Node>
+  return { type: n.type ?? '', props: n.props ?? {}, children: Array.isArray(n.children) ? n.children : [] }
 }
 
 function kids(x: unknown): Node[] {
@@ -517,4 +521,342 @@ test('plain mode: a warning line starts with a bold bang', () => {
 
 test('plain mode: the context bar is never drawn', () => {
   expect(shown(ContextTile(EL, ok(62), null, PLAIN, true))).toBe('Context used: 62%')
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: the mounted band, on both surfaces the engine raises AbovePrompt on.
+//
+// Beneath the plugin the test answers three things: the engine's own row (what a yielded band
+// returns), the palette file (the mod reads its own copy through $.fs.read), and the environment
+// and store (mock.env, mock.store). The fixture palette carries hex on purpose (the no-hex rule
+// covers src/ only).
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: THEME.problem,
+    mondrian_blue: THEME.where,
+    mondrian_yellow: THEME.yourMove,
+    mondrian_black: THEME.frame,
+    mondrian_white: THEME.reading,
+    cream: THEME.reading,
+    gray_meta: '#A09A90',
+    success_green: THEME.logoGreen,
+  },
+})
+
+const SURFACES = ['terminal', 'desktop'] as const
+
+type Over = { hasSurvey?: boolean; isWorking?: boolean }
+
+function bandProps(columns: number, rows: number, over: Over = {}) {
+  return {
+    hasSurvey: false,
+    isWorking: false,
+    maxRows: rows,
+    bodyColumns: columns,
+    scroll: { offset: 0, bodyRows: rows },
+    view: {},
+    ...over,
+  }
+}
+
+type World = { sample: string | null; env?: Record<string, string>; palette?: 'ok' | 'broken' }
+type Dollar = Engine
+
+// What sits beneath the plugin, registered once per test BEFORE the first `$` call (the engine
+// refuses a hook added after that): the environment, the store, the palette file and the engine's
+// own row.
+function setup(on: On, world: World): void {
+  mock.env(on, { ...(world.sample === null ? {} : { MOS_WORKSPACE_SAMPLE: world.sample }), ...(world.env ?? {}) })
+  mock.store(on, {})
+  const text = world.palette === 'broken' ? 'this is not json' : PALETTE_TEXT
+  on('fs.read', () => ({ value: text }))
+  on('ui.render', { component: 'AbovePrompt' }, (): RenderElement => ({ type: 'Text', children: ['engine row'] }) as RenderElement)
+}
+
+async function mountBand(
+  $: Dollar,
+  surface: (typeof SURFACES)[number],
+  columns: number,
+  rows: number,
+  over: Over = {},
+) {
+  return $.ui.mount({
+    plugin: PLUGIN_NAME,
+    surface,
+    component: 'AbovePrompt',
+    props: bandProps(columns, rows, over),
+  })
+}
+
+type Drawn = Awaited<ReturnType<typeof mountBand>>
+
+async function rowsOf(ui: Drawn): Promise<{ root: Node; rows: Node[] }> {
+  const root = asNode(await ui.drawn())
+  const column = kids(root)[1]
+  return { root, rows: column === undefined ? [] : kids(column) }
+}
+
+async function isEngine(ui: Drawn): Promise<boolean> {
+  return (await ui.find({ type: 'Text', text: /engine row/ })) !== undefined
+}
+
+// The index of a string inside a row's reading order (-1 when absent).
+function at(row: Node | undefined, words: string): number {
+  return row === undefined ? -1 : shown(row).indexOf(words)
+}
+
+// Cells of the bar inside a row: filled one-column boxes and dim middle dots.
+function barCells(row: Node): { filled: number; dots: number } {
+  let filled = 0
+  let dots = 0
+  walk(row, (n) => {
+    if (n.type === 'Box' && num(n.props.width) === 1 && num(n.props.height) === 1 && n.children.length === 0) {
+      if (n.props.backgroundColor === THEME.reading || n.props.backgroundColor === THEME.yourMove) filled += 1
+    }
+    if (n.type === 'Text' && n.children.includes('\u00B7') && n.props.dimColor === true) dots += 1
+  })
+  return { filled, dots }
+}
+
+test('band, wide: three rows with the logo, place then waiting then context with ten bar cells', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { root, rows } = await rowsOf(ui)
+    expect(num(root.props.width)).toBe(100)
+    expect(rows).toHaveLength(3)
+    const [r1, r2, r3] = rows
+    const place = at(r1, "You're in: Funding (sample)")
+    const waiting = at(r1, 'A decision is waiting')
+    const context = at(r1, 'Context used: 62%')
+    expect(place).toBeGreaterThan(-1)
+    expect(waiting).toBeGreaterThan(place)
+    expect(context).toBeGreaterThan(waiting)
+    const cells = barCells(r1 as Node)
+    expect(cells.filled + cells.dots).toBe(10)
+    expect(cells.filled).toBe(6)
+    expect(at(r2, 'This folder is for: building the funding case (sample)')).toBe(0)
+    expect(at(r3, 'Next: look at the evidence behind your funding choice (sample)')).toBe(0)
+    // No version, no key buttons: the slots are empty until plan 08.
+    expect(await ui.findAll({ type: 'Button' })).toHaveLength(0)
+    expect(JSON.stringify(root)).not.toMatch(/version/i)
+    await ui.unmount()
+  }
+})
+
+test('band, wide: the logo spans the three rows in the five job colors', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { root } = await rowsOf(ui)
+    const logo = kids(root)[0]
+    expect(num(logo?.props.width)).toBe(10)
+    expect(num(logo?.props.height)).toBe(3)
+    const colors = new Set(backgrounds(logo))
+    for (const c of [THEME.where, THEME.problem, THEME.yourMove, THEME.reading, THEME.frame, THEME.logoGreen]) {
+      expect(colors.has(c)).toBe(true)
+    }
+    await ui.unmount()
+  }
+})
+
+test('band, compact: 80 columns keep the three rows and the number but drop the bar', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 80, 6)
+    const { rows } = await rowsOf(ui)
+    expect(rows).toHaveLength(3)
+    expect(at(rows[0], 'Context used: 62%')).toBeGreaterThan(-1)
+    expect(barCells(rows[0] as Node)).toEqual({ filled: 0, dots: 0 })
+    expect(await ui.find({ type: 'Text', text: /Context used: 62%/ })).toBeDefined()
+    await ui.unmount()
+  }
+})
+
+test('band: a survey and a short window yield to the engine', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    // A survey holds the band.
+    const survey = await mountBand($, surface, 100, 6, { hasSurvey: true })
+    expect(await isEngine(survey)).toBe(true)
+    await survey.unmount()
+    // Under four rows.
+    const short = await mountBand($, surface, 100, 3)
+    expect(await isEngine(short)).toBe(true)
+    await short.unmount()
+  }
+})
+
+test('band: tiers T1 and T0 are plan 08s, so they yield for now (this pins it)', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    for (const [columns, rows] of [
+      [100, 5],
+      [100, 4],
+      [60, 12],
+      [20, 6],
+    ] as const) {
+      const ui = await mountBand($, surface, columns, rows)
+      expect(await isEngine(ui)).toBe(true)
+      await ui.unmount()
+    }
+  }
+})
+
+test('band: a room that is not bound yields (plan 08 draws it)', async ($, on) => {
+  setup(on, { sample: 'noroom' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    expect(await isEngine(ui)).toBe(true)
+    await ui.unmount()
+  }
+})
+
+test('band: with no view model there is nothing to draw, so nothing is drawn', async ($, on) => {
+  setup(on, { sample: null })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    expect(await isEngine(ui)).toBe(true)
+    await ui.unmount()
+  }
+})
+
+test('band, missing data: its own words for the purpose and the next step, the waiting block unchanged', async ($, on) => {
+  setup(on, { sample: 'missing' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    expect(at(rows[0], 'A decision is waiting')).toBeGreaterThan(-1)
+    expect(at(rows[1], 'No purpose written yet')).toBe(0)
+    expect(at(rows[2], 'Next: not recorded yet')).toBe(0)
+    // A waiting decision never stands in for the next step.
+    expect(at(rows[2], 'decision')).toBe(-1)
+    await ui.unmount()
+  }
+})
+
+test('band, empty: dim words and no yellow block with words in it', async ($, on) => {
+  setup(on, { sample: 'empty' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    expect(at(rows[0], 'Nothing is waiting on you')).toBeGreaterThan(-1)
+    const dim = await ui.find({ type: 'Text', text: /Nothing is waiting on you/ })
+    expect(dim?.props.dimColor).toBe(true)
+    walk(rows[0], (n) => {
+      if (n.props.backgroundColor === THEME.yourMove && n.type === 'Text') expect(shown(n)).toBe('')
+    })
+    await ui.unmount()
+  }
+})
+
+test('band, several: the real number of decisions', async ($, on) => {
+  setup(on, { sample: 'several' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    expect(await ui.find({ type: 'Text', text: /3 decisions are waiting/ })).toBeDefined()
+    await ui.unmount()
+  }
+})
+
+test('band, at the limit: B52 on a yellow bold block, no bar, still the place block', async ($, on) => {
+  setup(on, { sample: 'limit' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    const limit = at(rows[0], 'Context used: 85%. Save your thinking now.')
+    expect(limit).toBeGreaterThan(-1)
+    expect(at(rows[0], "You're in: Funding (sample)")).toBeGreaterThan(limit)
+    expect(barCells(rows[0] as Node)).toEqual({ filled: 0, dots: 0 })
+    const found = await ui.find({ type: 'Text', text: /Save your thinking now/ })
+    expect(found?.props.bold).toBe(true)
+    expect(found?.props.backgroundColor).toBe(THEME.yourMove)
+    await ui.unmount()
+  }
+})
+
+test('band, health: a sound room adds nothing to row 2', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    expect(kids(rows[1])).toHaveLength(1)
+    await ui.unmount()
+  }
+})
+
+test('band, health: drift is a yellow block at the end of row 2', async ($, on) => {
+  setup(on, { sample: 'drift' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    const last = kids(rows[1]).at(-1)
+    expect(shown(last)).toBe('Room needs a checkup')
+    expect(last?.props.backgroundColor).toBe(THEME.yourMove)
+    await ui.unmount()
+  }
+})
+
+test('band, health: broken is a red block with cream words at the end of row 2', async ($, on) => {
+  setup(on, { sample: 'broken' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { rows } = await rowsOf(ui)
+    const last = kids(rows[1]).at(-1)
+    expect(shown(last)).toBe('Room is broken')
+    expect(last?.props.backgroundColor).toBe(THEME.problem)
+    const words = await ui.find({ type: 'Text', text: /Room is broken/ })
+    expect(words?.props.color).toBe(THEME.reading)
+    await ui.unmount()
+  }
+})
+
+test('band: Larry is working is appended to the end of row 1 while a turn runs', async ($, on) => {
+  setup(on, { sample: 'wide' })
+  for (const surface of SURFACES) {
+    const idle = await mountBand($, surface, 100, 6)
+    expect(await idle.find({ type: 'Text', text: /Larry is working/ })).toBeUndefined()
+    await idle.unmount()
+    const busy = await mountBand($, surface, 100, 6, { isWorking: true })
+    const { rows } = await rowsOf(busy)
+    expect(at(rows[0], 'Larry is working')).toBeGreaterThan(at(rows[0], 'Context used: 62%'))
+    expect(shown(kids(rows[0] as Node).at(-1))).toBe('Larry is working')
+    await busy.unmount()
+  }
+})
+
+test('band, plain mode: NO_COLOR draws the same rows as words, no color prop anywhere', async ($, on) => {
+  setup(on, { sample: 'wide', env: { NO_COLOR: '1' } })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { root, rows } = await rowsOf(ui)
+    expect(rows).toHaveLength(3)
+    const keys: string[] = []
+    walk(root, (n) => keys.push(...Object.keys(n.props)))
+    expect(keys).not.toContain('color')
+    expect(keys).not.toContain('backgroundColor')
+    expect(shown(kids(root)[0])).toBe('M:OS')
+    expect(at(rows[0], '! A decision is waiting')).toBeGreaterThan(-1)
+    expect(at(rows[0], 'Context used: 62%')).toBeGreaterThan(-1)
+    expect(barCells(rows[0] as Node)).toEqual({ filled: 0, dots: 0 })
+    expect(at(rows[0], ' | ')).toBeGreaterThan(-1)
+    expect(/#[0-9A-Fa-f]{6}/.test(JSON.stringify(root))).toBe(false)
+    await ui.unmount()
+  }
+})
+
+test('band, plain mode: a palette that cannot be read also draws plain words, never a baked-in color', async ($, on) => {
+  setup(on, { sample: 'wide', palette: 'broken' })
+  for (const surface of SURFACES) {
+    const ui = await mountBand($, surface, 100, 6)
+    const { root, rows } = await rowsOf(ui)
+    expect(rows).toHaveLength(3)
+    const keys: string[] = []
+    walk(root, (n) => keys.push(...Object.keys(n.props)))
+    expect(keys).not.toContain('backgroundColor')
+    expect(keys).not.toContain('color')
+    await ui.unmount()
+  }
 })
