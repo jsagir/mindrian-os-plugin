@@ -6,7 +6,7 @@
 // Nothing here calls a real Mindrian OS server: the stand-in answers the three tools the loader may
 // name (status_read through resolveDirs, whitespace_scan and room_artifact) and records each call.
 import type { On, RenderElement } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
@@ -14,6 +14,7 @@ import type { LiveIo } from '../src/model/live/io'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import { emptyBody } from '../src/pane/kit'
+import { thinkBody } from '../src/pane/bodies/think'
 import { buildPane } from '../src/pane/pane'
 import type { PaneDeps, PaneInput } from '../src/pane/pane'
 import { fetchGaps, openQuestionText, titleFromMarkdown } from '../src/pane/think/gaps'
@@ -29,7 +30,7 @@ import type { ThinkModel } from '../src/pane/think/model'
 import { understandingPanel } from '../src/pane/think/understanding'
 import { gapList, stateNote, uncertaintyBlock } from '../src/pane/think/uncertainty'
 import type { Actions, ShellActions, TabBody, TabContext } from '../src/pane/types'
-import { BRAIN_SERVER, MINDRIAN_SERVER, PLUGIN_NAME } from '../src/runtime/ids'
+import { BRAIN_SERVER, MINDRIAN_SERVER, PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -887,4 +888,252 @@ test('the nesting detector itself: a block inside a block counts, two siblings d
   expect(nestedBackgrounds(nested)).toBe(1)
   const siblings = { type: 'Box', props: { children: [nested.props.children[0], { type: 'Box', props: { backgroundColor: 'c' } }] } }
   expect(nestedBackgrounds(siblings)).toBe(0)
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: thinkBody on the real pane. The real registrar draws the pane on the real id; what sits
+// beneath the plugin (env, store, fs, the Mindrian OS server, the prompt box) is answered here.
+// ---------------------------------------------------------------------------------------------
+
+type Beneath = { mcp: { server: string; tool: string }[]; opened: unknown[]; scanFails: boolean; bound: boolean }
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+function wireReal(on: On, env: Record<string, string>, over: Partial<Pick<Beneath, 'scanFails' | 'bound'>> = {}): Beneath {
+  const beneath: Beneath = { mcp: [], opened: [], scanFails: false, bound: true, ...over }
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('MINTO.md')) return { value: '---\ngoverning_thought: The live room says the grant route wins.\n---\n' }
+    if (e.path.endsWith('ROOM.md')) return { value: '---\npurpose: Funding routes\n---\n' }
+    return { value: '{"status":"sound","at":1}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('mcp.call', (_$, e) => {
+    beneath.mcp.push({ server: e.server, tool: e.tool })
+    if (e.tool === 'whitespace_scan' && beneath.scanFails) throw new Error('scan down')
+    const data =
+      e.tool === 'gate_list'
+        ? { ok: true, room: 'a', count: 0, gates: [] }
+        : e.tool === 'whitespace_scan'
+          ? scanOf([claim('funding/a/a.md')])
+          : e.tool === 'room_artifact'
+            ? { ok: true, path: 'funding/a/a.md', markdown: '# Grant terms from the room', truncated: false }
+            : { ok: true, segments: { room_binding: { bound: beneath.bound, source: 'session', registry_fallback: false, slug: 'a' } } }
+    return { value: { content: [{ type: 'text', text: JSON.stringify(data) }], isError: false } }
+  })
+  on('prompt.fill', () => ({ isFilled: true }))
+  on('ui.toast', () => ({ value: undefined }))
+  on('ui.open', (_$, e) => {
+    beneath.opened.push(e)
+    return { value: { isPlaced: true } }
+  })
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  return beneath
+}
+
+const mountReal = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: PANE_ID })
+
+type Mounted = Awaited<ReturnType<typeof mountReal>>
+
+async function activeTab(ui: Mounted): Promise<string | undefined> {
+  for (const id of ['room', 'think', 'sources', 'review']) {
+    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
+    if (b?.props.variant === 'primary') return id
+  }
+  return undefined
+}
+
+// Waits (in engine turns, never in time) until a keyed element is drawn.
+async function drawn(ui: Mounted, key: string) {
+  for (let i = 0; i < 40; i += 1) {
+    const found = await ui.find({ key })
+    if (found !== undefined) return found
+  }
+  return undefined
+}
+
+async function openThink(ui: Mounted): Promise<void> {
+  await ui.press({ key: 'tab:think' })
+  expect(await activeTab(ui)).toBe('think')
+}
+
+async function backToRoom(ui: Mounted): Promise<void> {
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+}
+
+test('thinkBody is defined, names X02 and its key list is v H17 only when the P73 button is drawn', () => {
+  expect(thinkBody).toBeDefined()
+  expect(thinkBody?.explainId).toBe('X02')
+})
+
+test('the real pane at Think draws the wide sample on terminal, desktop, vscode and mobile, with v in the hint line', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountReal($, surface)
+    await openThink(ui)
+    const understanding = await drawn(ui, 'think:understanding')
+    expect(shown(understanding)).toContain(text('P70'))
+    expect(shown(understanding)).toContain('The regional innovation grant looks like the strongest funding route (sample)')
+    expect(shown(await ui.find({ key: 'think:unsure' }))).toContain('Whether the grant window stays open long enough for your timeline (sample)')
+    const gaps = await ui.find({ key: 'think:gaps' })
+    expect(shown(gaps)).toContain('Grant terms for the funding case (sample)')
+    expect(shown(gaps)).toContain(text('P76', { n: 3 }))
+    expect(shown(await ui.find({ key: 'think:state' }))).toContain(text('P75'))
+    const keys = (await ui.findAll({ type: 'Button' })).map((b) => String(b.key))
+    expect(keys).toContain('think:evidence')
+    expect(shown(await ui.find({ key: 'hint-line' }))).toContain('v: ' + text('H17'))
+    // The blocks are siblings in the real tree too.
+    expect(nestedBackgrounds(await ui.find({ key: 'think:unsure' }))).toBe(0)
+    expect(nestedBackgrounds(await ui.find({ key: 'think:gaps' }))).toBe(0)
+    await backToRoom(ui)
+    await ui.unmount()
+  }
+  // A sample makes no call.
+  expect(beneath.mcp).toEqual([])
+})
+
+test('the real pane at Think: the missing sample shows M04 and P77 with no button, and no v in the hint line', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'missing' })
+  for (const surface of SURFACES) {
+    const ui = await mountReal($, surface)
+    await openThink(ui)
+    expect(shown(await drawn(ui, 'think:understanding'))).toContain(text('M04'))
+    expect(shown(await ui.find({ key: 'think:unsure' }))).toContain(text('M04'))
+    expect(shown(await ui.find({ key: 'think:gaps' }))).toContain(text('P77'))
+    expect(await ui.find({ key: 'think:state' })).toBeUndefined()
+    const keys = (await ui.findAll({ type: 'Button' })).map((b) => String(b.key))
+    expect(keys).not.toContain('think:evidence')
+    expect(shown(await ui.find({ key: 'hint-line' }))).not.toContain('v: ' + text('H17'))
+    await backToRoom(ui)
+    await ui.unmount()
+  }
+})
+
+test('the real pane at Think: the several sample is the searching state (P78, no gap list); unreadable is M03 everywhere', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'several' })
+  let ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  expect(shown(await drawn(ui, 'think:state'))).toContain(text('P78'))
+  expect(await ui.find({ key: 'think:gaps' })).toBeUndefined()
+  await backToRoom(ui)
+  await ui.unmount()
+
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'unreadable' })
+  ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  expect(shown(await drawn(ui, 'think:understanding'))).toContain(text('M03'))
+  expect(shown(await ui.find({ key: 'think:unsure' }))).toContain(text('M03'))
+  expect(shown(await ui.find({ key: 'think:gaps' }))).toContain(text('M03'))
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane at Think with no data room bound draws only P12 and no panel', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'noroom' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  expect(shown(await drawn(ui, 'think:noroom'))).toContain(text('P12'))
+  for (const key of ['think:understanding', 'think:unsure', 'think:gaps', 'think:state']) {
+    expect(await ui.find({ key })).toBeUndefined()
+  }
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: pressing a gap title toggles its pick in the slice and marks it; pressing P73 goes to Sources', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'think:gaps')
+  const marksOf = async (): Promise<number> => {
+    let n = 0
+    walk(await ui.find({ key: 'think:gaps' }), (node) => {
+      if (node.type === 'Text' && propsOf(node).inverse === true) n += 1
+    })
+    return n
+  }
+  expect(await marksOf()).toBe(0)
+  await ui.press({ key: 'pick:0' })
+  expect(await marksOf()).toBe(1)
+  await ui.press({ key: 'pick:1' })
+  expect(await marksOf()).toBe(2)
+  await ui.press({ key: 'pick:0' })
+  expect(await marksOf()).toBe(1)
+
+  await ui.press({ key: 'think:evidence' })
+  expect(await activeTab(ui)).toBe('sources')
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+  await ui.unmount()
+})
+
+const OPEN_THINK = ($: Engine) =>
+  $.command.run({ command: 'workspace', args: 'think', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
+
+test('opening the pane at Think on a live room loads once per open and once per tab press, through the Mindrian OS server only', async ($, on) => {
+  const live = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' })
+  const ui = await mountReal($, 'terminal')
+  await OPEN_THINK($)
+  expect(live.opened.length).toBeGreaterThan(0)
+  const scans = () => live.mcp.filter((c) => c.tool === 'whitespace_scan').length
+  expect(scans()).toBe(1)
+  expect(live.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  expect(live.mcp.some((c) => c.server === BRAIN_SERVER)).toBe(false)
+  const tools = new Set(live.mcp.map((c) => c.tool))
+  for (const tool of tools) expect(['status_read', 'gate_list', 'whitespace_scan', 'room_artifact', 'status']).toContain(tool)
+
+  // The live data is what is drawn: the governing thought and the resolved gap title; the open
+  // question node carries no plain words, so the unsure-about block reads M04.
+  expect(shown(await drawn(ui, 'think:understanding'))).toContain('The live room says the grant route wins.')
+  expect(shown(await ui.find({ key: 'think:gaps' }))).toContain('Grant terms from the room')
+  expect(shown(await ui.find({ key: 'think:unsure' }))).toContain(text('M04'))
+  // No evidence count is recorded by any live source, so P72 is never drawn live.
+  expect(shown(await ui.find({ key: 'think:understanding' }))).not.toContain('pieces of evidence')
+
+  await ui.press({ key: 'tab:review' })
+  await ui.press({ key: 'tab:think' })
+  expect(scans()).toBe(2)
+  expect(live.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+  await ui.unmount()
+})
+
+test('a failing load never throws: the tab draws M03 for the scan-backed parts', async ($, on) => {
+  wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, { scanFails: true })
+  const ui = await mountReal($, 'terminal')
+  await OPEN_THINK($)
+  expect(shown(await drawn(ui, 'think:gaps'))).toContain(text('M03'))
+  expect(shown(await ui.find({ key: 'think:unsure' }))).toContain(text('M03'))
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
+})
+
+test('a live room with no data room bound draws only P12 on the Think tab', async ($, on) => {
+  wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, { bound: false })
+  const ui = await mountReal($, 'terminal')
+  await OPEN_THINK($)
+  expect(shown(await drawn(ui, 'think:noroom'))).toContain(text('P12'))
+  expect(await ui.find({ key: 'think:gaps' })).toBeUndefined()
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
 })
