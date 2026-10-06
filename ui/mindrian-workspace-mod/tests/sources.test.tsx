@@ -1,10 +1,17 @@
 // Plan 13: the Sources tab. Task 1 tests the model as pure code over a recording fake `act` (engine
 // rule 11: a test cannot swap a module the plugin imports, so the loaders take `act` and a fake
-// stands in); Tasks 2 and 3 mount the view functions and then the REAL pane.
-import { expect, test } from 'claude-code/testing'
+// stands in); Task 2 draws the list and reading views through the real shell on four surfaces;
+// Task 3 mounts the REAL pane on the real id and opens the tab.
+import type { On, RenderElement } from 'claude-code'
+import { expect, mock, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
 
 import { SAMPLES } from '../src/model/fixtures'
-import { MINDRIAN_SERVER } from '../src/runtime/ids'
+import { emptyBody } from '../src/pane/kit'
+import { buildPane } from '../src/pane/pane'
+import type { PaneDeps, PaneInput } from '../src/pane/pane'
+import { sourcesList } from '../src/pane/sources/list'
+import { readingView } from '../src/pane/sources/reading'
 import { sampleSources, sampleText } from '../src/pane/sources/fixtures'
 import {
   closeReading,
@@ -13,7 +20,12 @@ import {
   loadSources,
   openSource,
 } from '../src/pane/sources/model'
-import type { SourceRow } from '../src/pane/sources/model'
+import type { Reading, SourceRow, SourcesLoad } from '../src/pane/sources/model'
+import type { ShellActions, TabBody, TabContext } from '../src/pane/types'
+import { MINDRIAN_SERVER, PLUGIN_NAME } from '../src/runtime/ids'
+import { text } from '../src/copy/text'
+import type { Mode } from '../src/theme/plain'
+import type { Theme } from '../src/theme/theme'
 import type { Actions } from '../src/pane/types'
 
 // ---------------------------------------------------------------------------------------------
@@ -343,4 +355,432 @@ test('sample 2: the empty sample is an empty list and the unreadable sample is u
   // Every named sample has an answer.
   for (const name of Object.keys(SAMPLES)) expect(sampleSources(name)).not.toBeNull()
   expect(sampleSources(null)).toBeNull()
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 2: the list and the reading view, drawn through the real shell on four surfaces
+// ---------------------------------------------------------------------------------------------
+
+const SHELL_ID = 'sources-shell-test'
+const SURFACES = ['terminal', 'desktop', 'vscode', 'mobile'] as const
+type Surface = (typeof SURFACES)[number]
+
+const THEME: Theme = {
+  where: '#1E3A6E',
+  yourMove: '#C8A43C',
+  problem: '#A63D2F',
+  frame: '#0D0D0D',
+  reading: '#F5F0E8',
+  logoGreen: '#2D6B4A',
+}
+const COLOR: Mode = { plain: false, note: null, theme: THEME }
+const PLAIN: Mode = { plain: true, note: 'N01', theme: null }
+const NONE_OPEN = { room: false, think: false, sources: false, review: false }
+
+const PANE_PROPS = (bodyColumns: number) =>
+  ({
+    title: 'Mindrian workspace',
+    isFocused: true,
+    bodyColumns,
+    placement: 'dock',
+    scroll: { offset: 0, bodyRows: 40 },
+    view: {},
+  }) as const
+
+type Node = Record<string, unknown>
+
+function walk(node: unknown, visit: (n: Node) => void): void {
+  if (typeof node !== 'object' || node === null) return
+  if (Array.isArray(node)) {
+    for (const child of node) walk(child, visit)
+    return
+  }
+  const rec = node as Node
+  visit(rec)
+  walk(rec.props, visit)
+  walk(rec.children, visit)
+}
+
+function propsOf(n: unknown): Node {
+  const props = (n as Node | undefined)?.props
+  return typeof props === 'object' && props !== null ? (props as Node) : {}
+}
+
+function shown(tree: unknown): string {
+  const out: string[] = []
+  const grab = (n: unknown): void => {
+    if (typeof n === 'string') out.push(n)
+    else if (Array.isArray(n)) n.forEach(grab)
+    else if (typeof n === 'object' && n !== null) {
+      const rec = n as Node
+      if (typeof rec.label === 'string') out.push(rec.label)
+      if (typeof rec.text === 'string') out.push(rec.text)
+      grab(rec.children)
+      grab(rec.props)
+    }
+  }
+  grab(tree)
+  return out.join('\n')
+}
+
+function nodesOf(tree: unknown, type: string): Node[] {
+  const out: Node[] = []
+  walk(tree, (n) => {
+    if (n.type === type) out.push(n)
+  })
+  return out
+}
+
+function colorKeys(tree: unknown): string[] {
+  const out: string[] = []
+  walk(tree, (n) => {
+    for (const k of ['color', 'backgroundColor', 'borderColor']) if (k in n) out.push(k)
+  })
+  return out
+}
+
+// The recording act the views are driven with: the live reads answer from `files`, every write is
+// recorded, and a Button's onPress (captured as the view draws) is called by key.
+type Log = { calls: Call[]; patches: Record<string, unknown>[] }
+function viewAct(log: Log, files: Record<string, string> = {}): ShellActions {
+  return {
+    setTab: async () => {},
+    fill: async () => true,
+    toast: () => {},
+    toggleKeys: async () => {},
+    toggleExplain: async () => {},
+    toggleDetails: async () => {},
+    io: {
+      mcpCall: async (server, tool, args) => {
+        log.calls.push({ server, tool, args })
+        return room(files)({ server, tool, args })
+      },
+      envGet: async () => undefined,
+      cwd: async () => '/r',
+      fsExists: async () => false,
+      fsRead: async () => '',
+      usage: async () => ({}),
+      now: async () => 0,
+    },
+    patch: async (_tab, partial) => {
+      log.patches.push(partial)
+    },
+    update: async () => {},
+    refresh: async () => {},
+    readAsset: async () => '',
+    sampleName: async () => null,
+    focus: async () => {},
+  }
+}
+const newLog = (): Log => ({ calls: [], patches: [] })
+
+type Pressers = Record<string, () => void>
+
+// A body made of the one view under test. Button onPress functions are captured by key as the view
+// draws, so a pure arm can call them (a press on a test hook's own Button finds nothing, rule 11).
+function viewBody(draw: (ctx: TabContext) => RenderElement | null, pressers: Pressers): TabBody {
+  return {
+    view: (ctx) => {
+      const { Box } = ctx.el
+      const drawn = draw(ctx)
+      walk(drawn, (n) => {
+        if (n.type === 'Button' && typeof n.onPress === 'function') {
+          pressers[String(propsOf(n).key)] = n.onPress as () => void
+        }
+      })
+      return <Box flexDirection="column">{drawn}</Box>
+    },
+    keys: () => [],
+    explainId: 'X03',
+  }
+}
+
+function input(over: Partial<PaneInput>): PaneInput {
+  return {
+    surface: 'terminal',
+    tab: 'sources',
+    vm: SAMPLES.wide,
+    mode: COLOR,
+    theme: THEME,
+    bodyColumns: 100,
+    isFocused: true,
+    working: false,
+    keysOpen: false,
+    explainOpen: false,
+    detailsOpen: NONE_OPEN,
+    body: emptyBody(),
+    act: viewAct(newLog()),
+    ...over,
+  }
+}
+
+function depsOf(sources: TabBody): PaneDeps {
+  return { bodies: { room: undefined, think: undefined, sources, review: undefined } }
+}
+
+function shellHook(on: On, cur: { input: PaneInput; deps: PaneDeps }): void {
+  on('ui.render', { component: 'Pane', requestId: SHELL_ID }, ($, e) =>
+    buildPane($.ui.resolve(e), { ...cur.input, surface: e.surface as Surface }, cur.deps),
+  )
+}
+
+async function draw($: Engine, surface: Surface, columns = 100) {
+  return $.ui.mount({
+    plugin: PLUGIN_NAME,
+    surface,
+    component: 'Pane',
+    props: PANE_PROPS(columns),
+    requestId: SHELL_ID,
+  })
+}
+
+const WIDE_LOAD = sampleSources('wide') as SourcesLoad
+const WIDE_ROWS = WIDE_LOAD.state === 'ok' ? WIDE_LOAD.value : []
+const SHORT: Reading = {
+  state: 'ok',
+  path: WIDE_ROWS[0]?.path ?? '',
+  title: WIDE_ROWS[0]?.title ?? '',
+  text: sampleText(WIDE_ROWS[0]?.path ?? '') ?? '',
+  isCut: false,
+}
+
+// Anything that names the stack: a path, a node id, a tool name. Returns what leaked.
+function leaks(tree: unknown): string[] {
+  const s = shown(tree)
+  const found: string[] = []
+  for (const bad of ['room_artifact', 'gate_list', 'sample-evidence', 'sample-market', '.md', 'node_id', 'MINDRIAN']) {
+    if (s.includes(bad)) found.push(bad)
+  }
+  return found
+}
+
+test('list 1: the wide sample draws P100 and one row per source with its title, P102 and a P103 button with no hotkey, on four surfaces', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({}),
+    deps: depsOf(viewBody((ctx) => sourcesList(ctx, WIDE_LOAD), pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const list = await ui.find({ key: 'sources:list' })
+    const s = shown(list)
+    expect(s).toContain(text('P100'))
+    expect(WIDE_ROWS.length).toBeGreaterThan(1)
+    WIDE_ROWS.forEach((row, i) => {
+      expect(s).toContain(row.title)
+      expect(s).toContain(text('P102', { where: row.where as string }))
+      const button = nodesOf(list, 'Button').find((b) => propsOf(b).key === `source:${i}`)
+      expect(button).toBeDefined()
+      expect(propsOf(button).label).toBe(text('P103'))
+      expect('hotkey' in propsOf(button)).toBe(false)
+    })
+    expect(nodesOf(list, 'Button').length).toBe(WIDE_ROWS.length)
+    await ui.unmount()
+  }
+})
+
+test('list 2: pressing a row reads that artifact through the Mindrian server and writes the reading; it writes nothing else', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const files: Record<string, string> = { [WIDE_ROWS[1]?.path as string]: '# Market size\n\ntext' }
+  const cur = {
+    input: input({ act: viewAct(log, files), vm: { ...SAMPLES.wide, source: 'live', sampleName: null } }),
+    deps: depsOf(viewBody((ctx) => sourcesList(ctx, WIDE_LOAD), pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  expect(typeof pressers['source:1']).toBe('function')
+  pressers['source:1']?.()
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  expect(log.calls).toEqual([
+    { server: MINDRIAN_SERVER, tool: 'room_artifact', args: { path: WIDE_ROWS[1]?.path, max_bytes: 40000 } },
+  ])
+  expect(log.patches.length).toBe(1)
+  const written = log.patches[0] as { reading: Reading }
+  expect(written.reading.state).toBe('ok')
+  await ui.unmount()
+})
+
+test('list 3: an empty list says P104 and no row; a not-yet-loaded list draws only the heading', async ($, on) => {
+  const pressers: Pressers = {}
+  let load: SourcesLoad | null = { state: 'ok', value: [] }
+  const cur = {
+    input: input({ vm: SAMPLES.empty }),
+    deps: depsOf(viewBody((ctx) => sourcesList(ctx, load), pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    load = { state: 'ok', value: [] }
+    let ui = await draw($, surface)
+    let list = await ui.find({ key: 'sources:list' })
+    expect(shown(list)).toContain(text('P104'))
+    expect(nodesOf(list, 'Button')).toEqual([])
+    await ui.unmount()
+
+    load = null
+    ui = await draw($, surface)
+    list = await ui.find({ key: 'sources:list' })
+    expect(shown(list)).toContain(text('P100'))
+    expect(shown(list)).not.toContain(text('P104'))
+    expect(shown(list)).not.toContain(text('M03'))
+    await ui.unmount()
+  }
+})
+
+test('list 4: an unreadable list says M03 and nothing else', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ vm: SAMPLES.unreadable }),
+    deps: depsOf(viewBody((ctx) => sourcesList(ctx, { state: 'unavailable' }), pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const list = await ui.find({ key: 'sources:list' })
+    expect(shown(list)).toContain(text('M03'))
+    expect(shown(list)).not.toContain(text('P104'))
+    expect(nodesOf(list, 'Button')).toEqual([])
+    await ui.unmount()
+  }
+})
+
+test('reading 1: a short text draws P105, the title, the text as Markdown, no P107 and a Back button on key b', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({}),
+    deps: depsOf(viewBody((ctx) => readingView(ctx, SHORT), pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const view = await ui.find({ key: 'sources:reading' })
+    const s = shown(view)
+    expect(s).toContain(text('P105'))
+    expect(s).toContain(SHORT.title)
+    const markdown = nodesOf(view, 'Markdown')
+    expect(markdown.length).toBe(1)
+    expect(propsOf(markdown[0]).text).toBe(SHORT.state === 'ok' ? SHORT.text : '')
+    // No link handler: a link in the person's own file is drawn, never followed.
+    expect('onLinkPress' in propsOf(markdown[0])).toBe(false)
+    expect(s).not.toContain(text('P107'))
+    const back = nodesOf(view, 'Button')
+    expect(back.length).toBe(1)
+    expect(propsOf(back[0]).label).toBe(text('P106'))
+    expect(propsOf(back[0]).hotkey).toBe('b')
+    await ui.unmount()
+  }
+})
+
+test('reading 2: a cut text shows P107 and the Markdown never gets more than 10,000 characters', async ($, on) => {
+  const pressers: Pressers = {}
+  const cut: Reading = { state: 'ok', path: 'x/y.md', title: 'Long (sample)', text: 'z'.repeat(10000), isCut: true }
+  const cur = { input: input({}), deps: depsOf(viewBody((ctx) => readingView(ctx, cut), pressers)) }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const view = await ui.find({ key: 'sources:reading' })
+    expect(shown(view)).toContain(text('P107'))
+    for (const md of nodesOf(view, 'Markdown')) expect(String(propsOf(md).text).length).toBeLessThanOrEqual(10000)
+    await ui.unmount()
+  }
+})
+
+test('reading 3: Back clears the reading and writes nothing else', async ($, on) => {
+  const log = newLog()
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ act: viewAct(log) }),
+    deps: depsOf(viewBody((ctx) => readingView(ctx, SHORT), pressers)),
+  }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  expect(typeof pressers['sources:back']).toBe('function')
+  pressers['sources:back']?.()
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  expect(log.patches).toEqual([{ reading: null }])
+  expect(log.calls).toEqual([])
+  await ui.unmount()
+})
+
+test('reading 4: an unreadable artifact says M03 with its title and still offers Back', async ($, on) => {
+  const pressers: Pressers = {}
+  const bad: Reading = { state: 'unavailable', title: 'Interview (sample)' }
+  const cur = { input: input({}), deps: depsOf(viewBody((ctx) => readingView(ctx, bad), pressers)) }
+  shellHook(on, cur)
+  const ui = await draw($, 'terminal')
+  const view = await ui.find({ key: 'sources:reading' })
+  const s = shown(view)
+  expect(s).toContain(text('P105'))
+  expect(s).toContain('Interview (sample)')
+  expect(s).toContain(text('M03'))
+  expect(nodesOf(view, 'Markdown')).toEqual([])
+  expect(propsOf(nodesOf(view, 'Button')[0]).hotkey).toBe('b')
+  await ui.unmount()
+})
+
+test('plain mode 1: no color prop anywhere, and each row is in a bordered Box', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({ mode: PLAIN, theme: null }),
+    deps: depsOf(viewBody((ctx) => sourcesList(ctx, WIDE_LOAD), pressers)),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    const list = await ui.find({ key: 'sources:list' })
+    expect(colorKeys(list)).toEqual([])
+    WIDE_ROWS.forEach((_row, i) => {
+      const found: Node[] = []
+      walk(list, (n) => {
+        if (n.type === 'Box' && propsOf(n).key === `sources:row:${i}`) found.push(n)
+      })
+      expect(found.length).toBe(1)
+      expect(propsOf(found[0]).borderStyle).toBe('single')
+    })
+    await ui.unmount()
+  }
+  cur.deps = depsOf(viewBody((ctx) => readingView(ctx, SHORT), pressers))
+  const ui = await draw($, 'terminal')
+  expect(colorKeys(await ui.find({ key: 'sources:reading' }))).toEqual([])
+  await ui.unmount()
+})
+
+test('plain mode 2: no path, node id or tool name is drawn; a mutation that draws a path is caught', async ($, on) => {
+  const pressers: Pressers = {}
+  const cur = {
+    input: input({}),
+    deps: depsOf(
+      viewBody((ctx) => {
+        const { Box } = ctx.el
+        return (
+          <Box key="both" flexDirection="column">
+            {sourcesList(ctx, WIDE_LOAD)}
+            {readingView(ctx, SHORT)}
+          </Box>
+        )
+      }, pressers),
+    ),
+  }
+  shellHook(on, cur)
+  for (const surface of SURFACES) {
+    const ui = await draw($, surface)
+    expect(leaks(await ui.find({ key: 'both' }))).toEqual([])
+    await ui.unmount()
+  }
+  // The mutation: the same list with the path put in a Text must be flagged by the scan.
+  cur.deps = depsOf(
+    viewBody((ctx) => {
+      const { Box, Text } = ctx.el
+      return (
+        <Box key="mutated" flexDirection="column">
+          {sourcesList(ctx, WIDE_LOAD)}
+          <Text>{WIDE_ROWS[0]?.path}</Text>
+        </Box>
+      )
+    }, pressers),
+  )
+  const ui = await draw($, 'terminal')
+  expect(leaks(await ui.find({ key: 'mutated' })).length).toBeGreaterThan(0)
+  await ui.unmount()
 })
