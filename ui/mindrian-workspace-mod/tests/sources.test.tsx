@@ -22,7 +22,8 @@ import {
 } from '../src/pane/sources/model'
 import type { Reading, SourceRow, SourcesLoad } from '../src/pane/sources/model'
 import type { ShellActions, TabBody, TabContext } from '../src/pane/types'
-import { MINDRIAN_SERVER, PLUGIN_NAME } from '../src/runtime/ids'
+import { sourcesBody } from '../src/pane/bodies/sources'
+import { MINDRIAN_SERVER, PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import { text } from '../src/copy/text'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
@@ -788,5 +789,242 @@ test('plain mode 2: no path, node id or tool name is drawn; a mutation that draw
   )
   const ui = await draw($, 'terminal')
   expect(leaks(await ui.find({ key: 'mutated' })).length).toBeGreaterThan(0)
+  await ui.unmount()
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: sourcesBody, load on open and the Back key, through the REAL pane on the real id
+// ---------------------------------------------------------------------------------------------
+
+type Beneath = { mcp: { server: string; tool: string; args: Record<string, unknown> }[]; fills: unknown[]; submits: unknown[] }
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+const LIVE_FILES: Record<string, string> = {
+  'evidence/interview-03/interview-03.md': '# Interview notes\n\nThe owner said the window closes soon.',
+  'market/size/size.md': '# Market size\n\nAbout two thousand clinics.',
+}
+
+// What sits beneath the real plugin. `gates` is what gate_list answers with: the evidence ids of the
+// open cards. Every call is recorded.
+function wireReal(on: On, env: Record<string, string>, evidence: string[][] = []): Beneath {
+  const beneath: Beneath = { mcp: [], fills: [], submits: [] }
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('ROOM.md')) return { value: '---\npurpose: Funding routes\n---\n' }
+    return { value: '{"status":"sound","at":1}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('mcp.call', (_$, e) => {
+    const args = (e.args ?? {}) as Record<string, unknown>
+    beneath.mcp.push({ server: e.server, tool: e.tool, args })
+    let data: unknown
+    if (e.tool === 'gate_list') {
+      data = {
+        ok: true,
+        room: 'a',
+        count: evidence.length,
+        gates: evidence.map((ids, i) => ({
+          gate_id: 'g' + i,
+          kind: 'general',
+          header: 'Card ' + i,
+          select_mode: 'single',
+          options: [{ id: 'o' + i, label: 'Yes', rank: 1 }],
+          evidence_node_ids: ids,
+          expires_at: 1000 + i,
+        })),
+      }
+    } else if (e.tool === 'room_artifact') {
+      const body = LIVE_FILES[String(args.path)]
+      data =
+        body === undefined
+          ? { ok: false, reason: 'not_found', path: args.path }
+          : { ok: true, path: args.path, bytes: body.length, markdown: body, truncated: false }
+    } else {
+      data = { ok: true, segments: { room_binding: { bound: true, source: 'session', registry_fallback: false, slug: 'a' } } }
+    }
+    return { value: { content: [{ type: 'text', text: JSON.stringify(data) }], isError: false } }
+  })
+  on('prompt.fill', (_$, e) => {
+    beneath.fills.push(e)
+    return { isFilled: true }
+  })
+  on('prompt.submit', (_$, e) => {
+    beneath.submits.push(e)
+    return { text: e.text }
+  })
+  on('ui.toast', () => ({ value: undefined }))
+  on('ui.open', () => ({ value: { isPlaced: true } }))
+  return beneath
+}
+
+const mountReal = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: PANE_ID })
+
+async function activeTab(ui: Awaited<ReturnType<typeof mountReal>>): Promise<string | undefined> {
+  for (const id of ['room', 'think', 'sources', 'review']) {
+    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
+    if (b?.props.variant === 'primary') return id
+  }
+  return undefined
+}
+
+const keyOf = (n: Node): string => String(propsOf(n).key ?? n.key)
+
+test('sourcesBody is defined, explains itself with X03, and offers b H07 only while a reading is open', () => {
+  expect(sourcesBody).toBeDefined()
+  const body = sourcesBody as TabBody
+  expect(body.explainId).toBe('X03')
+  const base = {
+    el: undefined as never,
+    vm: SAMPLES.wide,
+    theme: null,
+    mode: PLAIN,
+    bodyColumns: 100,
+    isFocused: true,
+    tab: 'sources' as const,
+    detailsOpen: false,
+    act: viewAct(newLog()),
+  }
+  expect(body.keys({ ...base, body: emptyBody() })).toEqual([])
+  const reading: Reading = { state: 'ok', path: 'a/b.md', title: 'T', text: 'x', isCut: false }
+  const open = { ...emptyBody(), sources: { reading } }
+  expect(body.keys({ ...base, body: open })).toEqual([{ key: 'b', labelId: 'H07' }])
+  // A cleared reading is closed again.
+  expect(body.keys({ ...base, body: { ...emptyBody(), sources: { reading: null } } })).toEqual([])
+})
+
+for (const sample of ['wide', 'several', 'empty', 'unreadable', 'noroom'] as const) {
+  test('the real pane opens Sources at the "' + sample + '" sample with no call, on terminal, desktop, vscode and mobile', async ($, on) => {
+    const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: sample })
+    const expected = sampleSources(sample)
+    for (const surface of SURFACES) {
+      const ui = await mountReal($, surface)
+      await ui.press({ key: 'tab:sources' })
+      expect(await activeTab(ui)).toBe('sources')
+      if (sample === 'noroom') {
+        expect(shown(await ui.find({ key: 'sources:body' }))).toContain(text('P12'))
+        expect(await ui.find({ key: 'sources:list' })).toBeUndefined()
+      } else {
+        const list = await ui.find({ key: 'sources:list' })
+        const s = shown(list)
+        expect(s).toContain(text('P100'))
+        if (expected?.state === 'unavailable') {
+          expect(s).toContain(text('M03'))
+        } else if (expected?.state === 'ok' && expected.value.length === 0) {
+          expect(s).toContain(text('P104'))
+        } else if (expected?.state === 'ok') {
+          for (const row of expected.value) expect(s).toContain(row.title)
+          expect(nodesOf(list, 'Button').length).toBe(expected.value.length)
+        }
+        expect(leaks(list)).toEqual([])
+      }
+      expect(beneath.fills).toEqual([])
+      expect(beneath.submits).toEqual([])
+      // Leave the pane's state as found (a pane's state persists across mounts in one test).
+      await ui.press({ key: 'tab:room' })
+      await ui.unmount()
+    }
+    expect(beneath.mcp).toEqual([])
+  })
+}
+
+test('the real pane at a live room: opening Sources lists only what resolves; Read this shows the text; Back returns', async ($, on) => {
+  const beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [
+    ['evidence/interview-03/interview-03.md', 'opaque-node-id', 'market/size/size.md'],
+    ['evidence/interview-03/interview-03.md', 'gone/missing.md'],
+  ])
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  const ui = await mountReal($, 'terminal')
+  await ui.press({ key: 'tab:sources' })
+  expect(await activeTab(ui)).toBe('sources')
+
+  const list = await ui.find({ key: 'sources:list' })
+  const s = shown(list)
+  expect(s).toContain('Interview notes')
+  expect(s).toContain('Market size')
+  expect(s).toContain(text('P102', { where: 'evidence' }))
+  expect(s).toContain(text('P102', { where: 'market' }))
+  // Two sources resolved; the opaque id and the missing file are not drawn.
+  expect(nodesOf(list, 'Button').length).toBe(2)
+  expect(leaks(list)).toEqual([])
+  // Only the Mindrian server; reads only; at most 10 artifact probes of 4096 bytes.
+  expect(beneath.mcp.every((c) => c.server === MINDRIAN_SERVER)).toBe(true)
+  const tools = new Set(beneath.mcp.map((c) => c.tool))
+  expect([...tools].every((t) => t === 'gate_list' || t === 'room_artifact' || t === 'status_read')).toBe(true)
+  const probes = beneath.mcp.filter((c) => c.tool === 'room_artifact')
+  expect(probes.length).toBeLessThanOrEqual(10)
+  for (const probe of probes) expect(probe.args.max_bytes).toBe(4096)
+  // The hint line has no Back key while the list is shown.
+  expect(shown(await ui.find({ key: 'hint-line' }))).not.toContain(text('H07'))
+
+  // Read the first source.
+  await ui.press({ key: 'source:0' })
+  const view = await ui.find({ key: 'sources:reading' })
+  expect(view).toBeDefined()
+  expect(shown(view)).toContain(text('P105'))
+  expect(shown(view)).toContain('The owner said the window closes soon.')
+  expect(shown(view)).not.toContain(text('P107'))
+  expect(await ui.find({ key: 'sources:list' })).toBeUndefined()
+  expect(shown(await ui.find({ key: 'hint-line' }))).toContain('b: ' + text('H07'))
+  const reads = beneath.mcp.filter((c) => c.tool === 'room_artifact' && c.args.max_bytes === 40000)
+  expect(reads.map((c) => c.args.path)).toEqual(['evidence/interview-03/interview-03.md'])
+
+  // Back returns to the list; reading wrote nothing.
+  await ui.press({ key: 'sources:back' })
+  expect(await ui.find({ key: 'sources:reading' })).toBeUndefined()
+  expect(await ui.find({ key: 'sources:list' })).toBeDefined()
+  expect(beneath.fills).toEqual([])
+  expect(beneath.submits).toEqual([])
+
+  // Opening the tab again clears an open reading and loads again.
+  await ui.press({ key: 'source:1' })
+  expect(await ui.find({ key: 'sources:reading' })).toBeDefined()
+  await ui.press({ key: 'tab:review' })
+  await ui.press({ key: 'tab:sources' })
+  expect(await ui.find({ key: 'sources:reading' })).toBeUndefined()
+  expect(await ui.find({ key: 'sources:list' })).toBeDefined()
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+  await ui.unmount()
+  void keyOf
+})
+
+test('the real pane at a live room with no open decision says P104; with every list read failing says M03', async ($, on) => {
+  let beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [])
+  let ui = await mountReal($, 'terminal')
+  await ui.press({ key: 'tab:sources' })
+  expect(shown(await ui.find({ key: 'sources:list' }))).toContain(text('P104'))
+  expect(beneath.mcp.filter((c) => c.tool === 'room_artifact')).toEqual([])
+  await ui.press({ key: 'tab:room' })
+  await ui.unmount()
+
+  // gate_list down: the list cannot be read.
+  beneath = wireReal(on, { MINDRIAN_ROOMS_HOME: '/r', HOME: '/home/p' }, [])
+  on('mcp.call', (_$, e) => {
+    if (e.tool === 'gate_list') return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: false, reason: 'lookup_failed' }) }], isError: true } }
+    return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: true, segments: {} }) }], isError: false } }
+  })
+  ui = await mountReal($, 'terminal')
+  await ui.press({ key: 'tab:sources' })
+  expect(shown(await ui.find({ key: 'sources:list' }))).toContain(text('M03'))
+  await ui.press({ key: 'tab:room' })
   await ui.unmount()
 })
