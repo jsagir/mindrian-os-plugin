@@ -4,13 +4,14 @@
 // tests/test-369.26-part8.cjs (a scratch probe), because a test hook cannot lend the plugin's own
 // `$`; the real-pane arms that press P93 are added with the help view below.
 import type { On, RenderElement } from 'claude-code'
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
 import { text } from '../src/copy/text'
 import { SAMPLES } from '../src/model/fixtures'
 import { ok } from '../src/model/view-model'
 import type { ViewModel } from '../src/model/view-model'
+import { thinkBody } from '../src/pane/bodies/think'
 import { emptyBody } from '../src/pane/kit'
 import { buildPane } from '../src/pane/pane'
 import type { PaneDeps, PaneInput } from '../src/pane/pane'
@@ -20,7 +21,7 @@ import { HELP_KINDS, helpFor, isHelpState, planFor, readHelp, runLookup, selectK
 import { isCanonicalHandle, lookupGuidance, textFromReply } from '../src/pane/think/lookup'
 import type { ThinkModel } from '../src/pane/think/model'
 import type { Actions, ShellActions, TabBody, TabContext } from '../src/pane/types'
-import { PLUGIN_NAME } from '../src/runtime/ids'
+import { BRAIN_SERVER, PANE_ID, PLUGIN_NAME } from '../src/runtime/ids'
 import type { Mode } from '../src/theme/plain'
 import type { Theme } from '../src/theme/theme'
 
@@ -718,4 +719,294 @@ test('keys: g, w, a lead and c, x follow; l and t appear only while drawn', () =
   expect(noHandle.rest.map((k) => k.key)).toEqual(['c', 'x', 't'])
   const needsPicks = helpKeyList(ctxOf({ ...withHandle, help: 'connect' }), WIDE_MODEL, [])
   expect(needsPicks.rest.map((k) => k.key)).toEqual(['c', 'x'])
+})
+
+// ---------------------------------------------------------------------------------------------
+// Task 3: the help area in the real Think body, on the real pane id. The real registrar draws the
+// pane; what sits beneath the plugin (env, store, fs, the Mindrian OS server, the Brain server,
+// the prompt box) is answered here, and every Brain call is recorded.
+// ---------------------------------------------------------------------------------------------
+
+type McpCall = { server: string; tool: string; args: unknown }
+type Beneath = { mcp: McpCall[]; fills: string[]; toasts: string[] }
+type Wire = { canon?: string[]; brainFails?: boolean }
+
+const PALETTE_TEXT = JSON.stringify({
+  version: 1,
+  base: {
+    mondrian_red: '#A63D2F',
+    mondrian_blue: '#1E3A6E',
+    mondrian_yellow: '#C8A43C',
+    mondrian_black: '#0D0D0D',
+    mondrian_white: '#F5F0E8',
+    cream: '#F5F0E8',
+    gray_meta: '#A09A90',
+    success_green: '#2D6B4A',
+  },
+})
+
+function wireReal(on: On, env: Record<string, string>, over: Wire = {}): Beneath {
+  const beneath: Beneath = { mcp: [], fills: [], toasts: [] }
+  const canonText = JSON.stringify({ framework_names: over.canon ?? ['Assumption Challenging', 'Dominant Design'] })
+  mock.env(on, env)
+  mock.store(on, {})
+  mock.clock(on, { now: 1760000000000 })
+  on('fs.read', (_$, e) => {
+    if (e.path.endsWith('palette.json')) return { value: PALETTE_TEXT }
+    if (e.path.endsWith('framework-names.json')) return { value: canonText }
+    return { value: '{"status":"sound","at":1}' }
+  })
+  on('fs.exists', () => ({ value: true }))
+  on('session.cwd', () => ({ value: '/r/a/03_funding' }))
+  on('session.usage', () => ({ value: { startedAt: 1, context: { window: 200000, percent: 40 }, rateLimits: [] } }))
+  on('mcp.call', (_$, e) => {
+    beneath.mcp.push({ server: e.server, tool: e.tool, args: e.args })
+    if (e.server === BRAIN_SERVER) {
+      if (over.brainFails === true) throw new Error('brain down')
+      return { value: { content: [{ type: 'text', text: '## What to test\nTest the assumption under the claim.' }], isError: false } }
+    }
+    return { value: { content: [{ type: 'text', text: JSON.stringify({ ok: true, count: 0, gates: [] }) }], isError: false } }
+  })
+  on('prompt.fill', (_$, e) => {
+    beneath.fills.push(e.text)
+    return { isFilled: true }
+  })
+  on('ui.toast', (_$, e) => {
+    beneath.toasts.push(String(e.message))
+    return { value: undefined }
+  })
+  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('command.register', (_$, e) => ({ value: { command: e.name } }))
+  return beneath
+}
+
+const mountReal = ($: Engine, surface: Surface, columns = 100) =>
+  $.ui.mount({ plugin: PLUGIN_NAME, surface, component: 'Pane', props: PANE_PROPS(columns), requestId: PANE_ID })
+
+type Mounted = Awaited<ReturnType<typeof mountReal>>
+
+async function activeTab(ui: Mounted): Promise<string | undefined> {
+  for (const id of ['room', 'think', 'sources', 'review']) {
+    const b = await ui.find({ type: 'Button', key: `tab:${id}` })
+    if (b?.props.variant === 'primary') return id
+  }
+  return undefined
+}
+
+// Waits (in engine turns, never in time) until a keyed element is drawn.
+async function drawn(ui: Mounted, key: string) {
+  for (let i = 0; i < 40; i += 1) {
+    const found = await ui.find({ key })
+    if (found !== undefined) return found
+  }
+  return undefined
+}
+
+async function openThink(ui: Mounted): Promise<void> {
+  await ui.press({ key: 'tab:think' })
+  expect(await activeTab(ui)).toBe('think')
+}
+
+async function backToRoom(ui: Mounted): Promise<void> {
+  await ui.press({ key: 'tab:room' })
+  expect(await activeTab(ui)).toBe('room')
+}
+
+const brainCalls = (b: Beneath): McpCall[] => b.mcp.filter((c) => c.server === BRAIN_SERVER)
+
+test('thinkBody keys: g, w, a, v then c, x, then l and t only while drawn', () => {
+  const ctxOf = (think: Record<string, unknown>, vm: ViewModel = SAMPLES.wide): TabContext =>
+    ({ vm, body: bodyWith(think), mode: COLOR, theme: THEME }) as unknown as TabContext
+  const idle = thinkBody.keys(ctxOf({ model: WIDE_MODEL, canon: CANON_LIST }))
+  expect(idle.map((k) => k.key)).toEqual(['g', 'w', 'a', 'v', 'c', 'x'])
+  expect(idle.map((k) => k.labelId)).toEqual(['H08', 'H11', 'H10', 'H17', 'H09', 'H12'])
+  const dig = thinkBody.keys(ctxOf({ model: WIDE_MODEL, canon: CANON_LIST, help: 'dig' }))
+  expect(dig.map((k) => k.key)).toEqual(['g', 'w', 'a', 'v', 'c', 'x', 'l', 't'])
+  expect(dig.map((k) => k.labelId)).toEqual(['H08', 'H11', 'H10', 'H17', 'H09', 'H12', 'H13', 'H14'])
+  // No evidence button (missing model): v is left out and the three help keys still lead.
+  const missing = thinkBody.keys(ctxOf({ model: fixtureFor('missing') }, SAMPLES.missing))
+  expect(missing.map((k) => k.key)).toEqual(['g', 'w', 'a', 'c', 'x'])
+})
+
+test('thinkBody keys: no data room bound draws no key; a missing model draws none', () => {
+  const none = (vm: ViewModel, think: Record<string, unknown>) =>
+    thinkBody.keys({ vm, body: bodyWith(think), mode: COLOR, theme: THEME } as unknown as TabContext)
+  expect(none(SAMPLES.noroom, { model: WIDE_MODEL })).toEqual([])
+  expect(none(SAMPLES.wide, {})).toEqual([])
+})
+
+test('the real pane at Think: the hint line shows g, w, a, v then Help and Esc; the all-keys panel lists every drawn key', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  for (const surface of SURFACES) {
+    const ui = await mountReal($, surface, 140)
+    await openThink(ui)
+    await drawn(ui, 'help:area')
+    const hint = shown(await ui.find({ key: 'hint-line' }))
+    for (const [key, id] of [['g', 'H08'], ['w', 'H11'], ['a', 'H10'], ['v', 'H17']] as const) expect(hint).toContain(key + ': ' + text(id))
+    expect(hint).not.toContain('c: ' + text('H09'))
+    expect(hint).not.toContain('x: ' + text('H12'))
+    expect(hint).toContain('Esc')
+    await ui.press({ key: 'help' })
+    const panel = shown(await drawn(ui, 'keys-panel'))
+    for (const [key, id] of [['g', 'H08'], ['w', 'H11'], ['a', 'H10'], ['v', 'H17'], ['c', 'H09'], ['x', 'H12']] as const) {
+      expect(panel).toContain(key + ': ' + text(id))
+    }
+    await ui.press({ key: 'help' })
+    await backToRoom(ui)
+    await ui.unmount()
+  }
+})
+
+test('the real pane at Think: the default view has at most 5 element groups and 8 buttons of its own with no help result showing', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  const body = await drawn(ui, 'help:area').then(() => ui.find({ key: 'think:body' }))
+  const keys = buttonKeys(body)
+  const children = Array.isArray(body?.children) ? (body?.children as unknown[]).length : -1
+  expect(keys.length).toBeLessThanOrEqual(8)
+  expect(children).toBeLessThanOrEqual(5)
+  expect(await ui.find({ key: 'help:result' })).toBeUndefined()
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: Dig then P93 sends exactly { framework: <recorded method> } to the Brain server and shows the result under P95', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:dig' })
+  expect(shown(await drawn(ui, 'help:result'))).toContain(text('L02'))
+  const button = await drawn(ui, 'help:lookup')
+  expect(button?.props.label).toBe(text('P93'))
+  expect(brainCalls(beneath)).toEqual([])
+  await ui.press({ key: 'help:lookup' })
+  const markdown = await drawn(ui, 'help:lookup-text')
+  expect(String(markdown?.props.text)).toContain('Test the assumption under the claim.')
+  expect(shown(await ui.find({ key: 'help:result' }))).toContain(text('P95'))
+  expect(brainCalls(beneath)).toEqual([{ server: BRAIN_SERVER, tool: 'framework_techniques', args: { framework: 'Assumption Challenging' } }])
+  // Nothing from the data room is in any call, and the only calls were this one.
+  expect(JSON.stringify(beneath.mcp)).not.toContain('Grant terms')
+  expect(JSON.stringify(beneath.mcp)).not.toContain('funding')
+  await ui.press({ key: 'help:dig' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: a Brain failure reads P96 and states nothing was sent from the data room', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, { brainFails: true })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:dig' })
+  await drawn(ui, 'help:lookup')
+  await ui.press({ key: 'help:lookup' })
+  const failed = await drawn(ui, 'help:lookup-failed')
+  expect(shown(failed)).toContain(text('P96'))
+  expect(await ui.find({ key: 'help:lookup-text' })).toBeUndefined()
+  expect(brainCalls(beneath)).toHaveLength(1)
+  await ui.press({ key: 'help:dig' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: when the recorded method is not in the canon the P93 button is never drawn and no Brain call is made', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' }, { canon: ['Dominant Design'] })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:dig' })
+  const result = await drawn(ui, 'help:result')
+  expect(shown(result)).toContain(text('P91'))
+  expect(buttonKeys(result)).toEqual(['help:handoff'])
+  expect(brainCalls(beneath)).toEqual([])
+  await ui.press({ key: 'help:dig' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: the hand-off fills the prompt box with the point (never submits), toast P34, and makes no Brain call', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:dig' })
+  await ui.press({ key: 'help:handoff' })
+  expect(beneath.fills).toEqual([text('Q02', { point: 'Grant terms for the funding case (sample)' })])
+  expect(beneath.toasts).toContain(text('P34'))
+  expect(brainCalls(beneath)).toEqual([])
+  await ui.press({ key: 'help:dig' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: Connect says P97 until two gap titles are picked, then the hand-off names both', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:connect' })
+  expect(shown(await drawn(ui, 'help:result'))).toContain(text('P97'))
+  expect(buttonKeys(await ui.find({ key: 'help:result' }))).toEqual([])
+  await ui.press({ key: 'pick:0' })
+  expect(shown(await ui.find({ key: 'help:result' }))).toContain(text('P97'))
+  await ui.press({ key: 'pick:1' })
+  const result = await ui.find({ key: 'help:result' })
+  expect(shown(result)).not.toContain(text('P97'))
+  await ui.press({ key: 'help:handoff' })
+  expect(beneath.fills).toEqual([
+    text('Q03', { a: 'Grant terms for the funding case (sample)', b: 'Match requirements for the regional grant (sample)' }),
+  ])
+  await ui.press({ key: 'help:connect' })
+  await ui.press({ key: 'pick:0' })
+  await ui.press({ key: 'pick:1' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: picking a gap title makes it the point for Dig', async ($, on) => {
+  const beneath = wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'pick:1' })
+  await ui.press({ key: 'help:dig' })
+  await ui.press({ key: 'help:handoff' })
+  expect(beneath.fills).toEqual([text('Q02', { point: 'Match requirements for the regional grant (sample)' })])
+  await ui.press({ key: 'help:dig' })
+  await ui.press({ key: 'pick:1' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: selecting another kind forgets the lookup text, and the missing sample offers no lookup (no recorded method)', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'wide' })
+  const ui = await mountReal($, 'terminal')
+  await openThink(ui)
+  await drawn(ui, 'help:area')
+  await ui.press({ key: 'help:dig' })
+  await drawn(ui, 'help:lookup')
+  await ui.press({ key: 'help:lookup' })
+  await drawn(ui, 'help:lookup-text')
+  await ui.press({ key: 'help:another' })
+  expect(await ui.find({ key: 'help:lookup-text' })).toBeUndefined()
+  expect(shown(await ui.find({ key: 'help:result' }))).toContain(text('L03'))
+  await ui.press({ key: 'help:another' })
+  await backToRoom(ui)
+  await ui.unmount()
+})
+
+test('the real pane: with the missing sample (no recorded method) no P93 button is drawn on any surface', async ($, on) => {
+  wireReal(on, { MOS_WORKSPACE_SAMPLE: 'missing' })
+  for (const surface of SURFACES) {
+    const ui = await mountReal($, surface)
+    await openThink(ui)
+    await drawn(ui, 'help:area')
+    await ui.press({ key: 'help:dig' })
+    expect(buttonKeys(await ui.find({ key: 'help:area' }))).not.toContain('help:lookup')
+    await ui.press({ key: 'help:dig' })
+    await backToRoom(ui)
+    await ui.unmount()
+  }
 })
