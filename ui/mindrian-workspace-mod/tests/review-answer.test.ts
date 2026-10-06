@@ -8,6 +8,9 @@ import type { PluginState } from 'claude-code'
 import { expect, test } from 'claude-code/testing'
 
 import type { GateCard, GateOption } from '../src/model/view-model'
+import { text } from '../src/copy/text'
+import { decideLater, mirrorHere, pressChoice, runCheck } from '../src/pane/review/answer-machine'
+import type { ReviewIo } from '../src/pane/review/answer-machine'
 import { answerGate, checkGate, listedGateIds, mirrorGate } from '../src/pane/review/gate-client'
 import type { GateIo } from '../src/pane/review/gate-client'
 import { isForeign, refusalCopy } from '../src/pane/review/refusals'
@@ -463,4 +466,429 @@ test('the review folder names no Brain server and one file makes the gate_answer
   await listedGateIds(io)
   expect(seen).toHaveLength(4)
   expect(seen.every((s) => s === MINDRIAN_SERVER)).toBe(true)
+})
+
+// ---------------------------------------------------------------------------------------------
+// the answer machine, over a recording stand-in for the hook file's closures
+// ---------------------------------------------------------------------------------------------
+
+type Stand = {
+  io: ReviewIo
+  calls: McpCall[]
+  // Every state write, in order, as a short readable line.
+  events: string[]
+  phase: Record<string, PhaseEntry>
+  mirrors: Record<string, string>
+  dismissed: string[]
+  foreign: string[]
+  last: LastResult[]
+  toasts: string[]
+  refreshes: { n: number }
+}
+
+type StandOver = {
+  mcp?: (call: McpCall) => unknown
+  failSetPhase?: (entry: PhaseEntry | null) => boolean
+  failRefresh?: boolean
+}
+
+// The claim closure uses the SAME pure reducer the hook file will pass to `update`, and runs it with
+// no await in between, like the engine's versioned write: two presses cannot both win.
+function makeStand(over: StandOver = {}): Stand {
+  const calls: McpCall[] = []
+  const st: Stand = {
+    calls,
+    events: [],
+    phase: {},
+    mirrors: {},
+    dismissed: [],
+    foreign: [],
+    last: [],
+    toasts: [],
+    refreshes: { n: 0 },
+    io: undefined as unknown as ReviewIo,
+  }
+  st.io = {
+    mcpCall: (server, tool, args) => {
+      const entry = { server, tool, args }
+      calls.push(entry)
+      try {
+        return Promise.resolve(over.mcp ? over.mcp(entry) : reply({ ok: true, gate_id: args.gate_id, verdict: args.verdict, chosen: args.chosen }))
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    claimSaving: (gateId, claim) => {
+      st.phase = claimSaving(st.phase, gateId, claim)
+      st.events.push(`claim:${gateId}`)
+      return Promise.resolve(phaseOf(st.phase, gateId)?.claim ?? null)
+    },
+    setPhase: (gateId, entry) => {
+      if (over.failSetPhase?.(entry)) return Promise.reject(new Error('state write refused'))
+      st.phase = withPhase(st.phase, gateId, entry)
+      st.events.push(entry === null ? `phase:${gateId}:ready` : `phase:${gateId}:${entry.phase}:${entry.copyId}`)
+      return Promise.resolve()
+    },
+    getLedgerId: (gateId) => Promise.resolve(ledgerIdOf(st.mirrors, gateId)),
+    setLedgerId: (gateId, ledgerId) => {
+      st.mirrors = withMirror(st.mirrors, gateId, ledgerId)
+      st.events.push(`mirror:${gateId}:${ledgerId}`)
+      return Promise.resolve()
+    },
+    setLast: (result) => {
+      st.last.push(result)
+      st.events.push(`last:${result.gateId}`)
+      return Promise.resolve()
+    },
+    dismiss: (gateId) => {
+      st.dismissed = withId(st.dismissed, gateId)
+      st.events.push(`dismiss:${gateId}`)
+      return Promise.resolve()
+    },
+    setForeign: (gateId, foreign) => {
+      st.foreign = foreign ? withId(st.foreign, gateId) : withoutId(st.foreign, gateId)
+      st.events.push(`foreign:${gateId}:${foreign}`)
+      return Promise.resolve()
+    },
+    toast: (message) => {
+      st.toasts.push(message)
+    },
+    refresh: () => {
+      st.refreshes.n += 1
+      return over.failRefresh ? Promise.reject(new Error('read failed')) : Promise.resolve()
+    },
+    now: () => Promise.resolve(1760000000000),
+  }
+  return st
+}
+
+const answers = (st: Stand) => st.calls.filter((c) => c.tool === 'gate_answer')
+
+async function settle(): Promise<void> {
+  for (let i = 0; i < 25; i += 1) await Promise.resolve()
+}
+
+const SAVED_COPY = /^phase:[^:]+:saved:(D13|D24|D26|D27)$/
+
+test('pressChoice: a choice the mod will not save makes zero calls and writes nothing', async () => {
+  const st = makeStand()
+  // an unknown option id, a chain-halt approve, a multi-answer card, and an option that is not on the card
+  const unknown = card({ options: [opt('revise')] })
+  expect(await pressChoice(st.io, unknown, opt('revise'))).toEqual({ kind: 'not_savable' })
+  const halt = card({ resumes: true, approving: ['approve'] })
+  expect(await pressChoice(st.io, halt, opt('approve'))).toEqual({ kind: 'not_savable' })
+  const multi = card({ selectMode: 'multi' })
+  expect(await pressChoice(st.io, multi, opt('approve'))).toEqual({ kind: 'not_savable' })
+  const stranger = card({ options: [opt('approve')] })
+  expect(await pressChoice(st.io, stranger, opt('reject'))).toEqual({ kind: 'not_savable' })
+  expect(st.calls).toHaveLength(0)
+  expect(st.events).toHaveLength(0)
+})
+
+test('pressChoice: saving is set before the call is awaited, and nothing says saved while the call is open', async () => {
+  let release: (value: unknown) => void = () => {}
+  const held = new Promise<unknown>((resolve) => {
+    release = resolve
+  })
+  const st = makeStand({ mcp: () => held })
+  const c = card()
+  const pending = pressChoice(st.io, c, opt('approve'))
+  await settle()
+  expect(phaseOf(st.phase, 'g-1')?.phase).toBe('saving')
+  expect(answers(st)).toHaveLength(1)
+  expect(st.events.filter((e) => SAVED_COPY.test(e))).toHaveLength(0)
+  expect(st.last).toHaveLength(0)
+  expect(st.refreshes.n).toBe(0)
+  release(reply({ ok: true, gate_id: 'g-1', verdict: 'approve', chosen: ['approve'] }))
+  expect(await pending).toEqual({ kind: 'saved', copyId: 'D24' })
+  expect(phaseOf(st.phase, 'g-1')).toEqual(savedEntry('D24', 'approve label'))
+})
+
+test('pressChoice: two concurrent presses produce exactly one gate_answer call', async () => {
+  const st = makeStand()
+  const c = card()
+  const [a, b] = await Promise.all([pressChoice(st.io, c, opt('approve')), pressChoice(st.io, c, opt('approve'))])
+  expect(answers(st)).toHaveLength(1)
+  const kinds = [a.kind, b.kind].sort()
+  expect(kinds).toEqual(['ignored', 'saved'])
+  expect(st.refreshes.n).toBe(1)
+  expect(st.last).toHaveLength(1)
+})
+
+test('pressChoice: ok and not replayed is D24 with the label, sets the result and refreshes once', async () => {
+  const st = makeStand()
+  const c = card()
+  const out = await pressChoice(st.io, c, opt('approve', { label: 'Yes, go with it' }))
+  expect(out).toEqual({ kind: 'saved', copyId: 'D24' })
+  expect(phaseOf(st.phase, 'g-1')).toEqual(savedEntry('D24', 'Yes, go with it'))
+  expect(st.last).toEqual([{ gateId: 'g-1', label: 'Yes, go with it', verdict: 'approve', at: 1760000000000 }])
+  expect(st.refreshes.n).toBe(1)
+  expect(answers(st)[0]?.args).toEqual({ gate_id: 'g-1', chosen: ['approve'], verdict: 'approve' })
+})
+
+test('pressChoice: a replayed answer is D26 and one answered elsewhere is D27, and neither sets a result', async () => {
+  const replayed = makeStand({ mcp: () => reply({ ok: true, replayed: true, gate_id: 'g-1', verdict: 'approve', chosen: ['approve'] }) })
+  expect(await pressChoice(replayed.io, card(), opt('approve'))).toEqual({ kind: 'saved', copyId: 'D26' })
+  expect(phaseOf(replayed.phase, 'g-1')?.copyId).toBe('D26')
+  expect(replayed.last).toHaveLength(0)
+  expect(answers(replayed)).toHaveLength(1)
+
+  const elsewhere = makeStand({
+    mcp: () => reply({ ok: true, replayed: true, answered_elsewhere: true, gate_id: 'g-1', verdict: 'reject', chosen: ['reject'] }),
+  })
+  expect(await pressChoice(elsewhere.io, card(), opt('approve'))).toEqual({ kind: 'saved', copyId: 'D27' })
+  expect(elsewhere.last).toHaveLength(0)
+  expect(answers(elsewhere)).toHaveLength(1)
+})
+
+test('pressChoice: a defer re-reads gate_list; still listed is D13, no longer listed is D24, an unreadable list is D24', async () => {
+  const listed = (ids: string[]) => (call: McpCall) =>
+    call.tool === 'gate_answer'
+      ? reply({ ok: true, gate_id: 'g-1', verdict: 'defer', chosen: ['defer'] })
+      : reply({ ok: true, room: 'r', count: ids.length, gates: ids.map((id) => ({ gate_id: id, options: [] })) })
+
+  const still = makeStand({ mcp: listed(['g-1', 'g-2']) })
+  expect(await pressChoice(still.io, card(), opt('defer'))).toEqual({ kind: 'saved', copyId: 'D13' })
+  expect(still.calls.map((c) => c.tool)).toEqual(['gate_answer', 'gate_list'])
+  expect(still.calls[1]?.args).toEqual({})
+  // A noted card is not a saved result.
+  expect(still.last).toHaveLength(0)
+
+  const gone = makeStand({ mcp: listed(['g-2']) })
+  expect(await pressChoice(gone.io, card(), opt('defer'))).toEqual({ kind: 'saved', copyId: 'D24' })
+  expect(gone.last).toHaveLength(1)
+
+  const blind = makeStand({
+    mcp: (call) => {
+      if (call.tool === 'gate_list') throw new Error('gone')
+      return reply({ ok: true, gate_id: 'g-1', verdict: 'defer', chosen: ['defer'] })
+    },
+  })
+  expect(await pressChoice(blind.io, card({ options: [opt('run'), opt('not_now')] }), opt('not_now'))).toEqual({ kind: 'saved', copyId: 'D24' })
+})
+
+test('pressChoice: a refusal keeps the card, clears nothing and sets no result', async () => {
+  const st = makeStand({ mcp: () => reply({ ok: false, reason: 'gate_expired', gate_id: 'g-1' }, true) })
+  const out = await pressChoice(st.io, card(), opt('approve'))
+  expect(out).toEqual({ kind: 'refused', copyId: 'E02', check: null })
+  expect(phaseOf(st.phase, 'g-1')).toEqual(refusedEntry('E02'))
+  expect(st.last).toHaveLength(0)
+  expect(st.dismissed).toEqual([])
+  expect(st.foreign).toEqual([])
+  expect(st.refreshes.n).toBe(0)
+  expect(answers(st)).toHaveLength(1)
+})
+
+test('pressChoice: a card can be pressed again after a refusal (nothing is stuck on saving)', async () => {
+  let n = 0
+  const st = makeStand({
+    mcp: () => {
+      n += 1
+      return n === 1
+        ? reply({ ok: false, reason: 'persistence_failed' }, true)
+        : reply({ ok: true, gate_id: 'g-1', verdict: 'approve', chosen: ['approve'] })
+    },
+  })
+  expect((await pressChoice(st.io, card(), opt('approve'))).kind).toBe('refused')
+  expect(phaseOf(st.phase, 'g-1')?.copyId).toBe('E07')
+  expect(await pressChoice(st.io, card(), opt('approve'))).toEqual({ kind: 'saved', copyId: 'D24' })
+  expect(answers(st)).toHaveLength(2)
+})
+
+test('pressChoice: session_mismatch and unknown_gate mark the card as from another conversation', async () => {
+  for (const [code, copy] of [
+    ['session_mismatch', 'E04'],
+    ['unknown_gate', 'E01'],
+  ] as const) {
+    const st = makeStand({ mcp: () => reply({ ok: false, reason: code }, true) })
+    const out = await pressChoice(st.io, card(), opt('approve'))
+    expect(out).toEqual({ kind: 'refused', copyId: copy, check: null })
+    expect(st.foreign).toEqual(['g-1'])
+  }
+  // Other refusals do not.
+  const other = makeStand({ mcp: () => reply({ ok: false, reason: 'room_switched' }, true) })
+  await pressChoice(other.io, card(), opt('approve'))
+  expect(other.foreign).toEqual([])
+})
+
+test('pressChoice: stale_subject then runs the check, D31 while it runs, then D32, D33 or D34', async () => {
+  const c = card()
+  const route = (gateRead: (call: McpCall) => unknown) => (call: McpCall) =>
+    call.tool === 'gate_answer' ? reply({ ok: false, reason: 'stale_subject', gate_id: 'g-1' }, true) : gateRead(call)
+
+  const current = makeStand({ mcp: route(() => reply({ ok: true, gate: { gate_id: 'g-1', state: 'open', contract: contractOf(c) } })) })
+  expect(await pressChoice(current.io, c, opt('approve'))).toEqual({ kind: 'refused', copyId: 'E03', check: 'current' })
+  expect(current.events.filter((e) => e.startsWith('phase:') || e.startsWith('claim:'))).toEqual([
+    'claim:g-1',
+    'phase:g-1:refused:E03',
+    'phase:g-1:checking:D31',
+    'phase:g-1:checking:D32',
+  ])
+  expect(current.calls.map((x) => x.tool)).toEqual(['gate_answer', 'gate_list'])
+  expect(current.calls[1]?.args).toEqual({ gate_id: 'g-1' })
+
+  const changed = makeStand({ mcp: route(() => reply({ ok: true, gate: { gate_id: 'g-1', state: 'answered' } })) })
+  expect((await pressChoice(changed.io, c, opt('approve'))).kind).toBe('refused')
+  expect(phaseOf(changed.phase, 'g-1')).toEqual(checkingEntry('D33'))
+
+  const failed = makeStand({
+    mcp: route(() => {
+      throw new Error('gone')
+    }),
+  })
+  await pressChoice(failed.io, c, opt('approve'))
+  expect(phaseOf(failed.phase, 'g-1')).toEqual(checkingEntry('D34'))
+})
+
+test('pressChoice: an unreachable runtime is E06 and an unreadable reply is E07, with nothing changed', async () => {
+  const down = makeStand({
+    mcp: () => {
+      throw new Error('gone')
+    },
+  })
+  expect(await pressChoice(down.io, card(), opt('approve'))).toEqual({ kind: 'refused', copyId: 'E06', check: null })
+  expect(phaseOf(down.phase, 'g-1')).toEqual(refusedEntry('E06'))
+  expect(down.last).toHaveLength(0)
+  expect(down.refreshes.n).toBe(0)
+
+  const odd = makeStand({ mcp: () => ({ content: [{ type: 'text', text: 'not json' }], isError: false }) })
+  expect(await pressChoice(odd.io, card(), opt('approve'))).toEqual({ kind: 'refused', copyId: 'E07', check: null })
+  expect(phaseOf(odd.phase, 'g-1')).toEqual(refusedEntry('E07'))
+})
+
+test('no optimistic path: no refusal and no unreachable runtime ever writes a saved, noted or already-saved copy id', async () => {
+  const codes = [
+    'unknown_gate',
+    'gate_expired',
+    'stale_subject',
+    'session_mismatch',
+    'chosen_not_in_card_options',
+    'chosen_not_approving',
+    'verdict_chosen_mismatch',
+    'room_switched',
+    'card_pending',
+    'persistence_failed',
+    'replay_lookup_failed',
+    'room_unbound',
+    'lookup_failed',
+    'something_new',
+  ]
+  const c = card()
+  for (const code of codes) {
+    const st = makeStand({
+      mcp: (call) =>
+        call.tool === 'gate_answer'
+          ? reply({ ok: false, reason: code }, true)
+          : reply({ ok: true, gate: { gate_id: 'g-1', state: 'open', contract: contractOf(c) } }),
+    })
+    await pressChoice(st.io, c, opt('approve'))
+    expect(st.events.filter((e) => SAVED_COPY.test(e))).toEqual([])
+    expect(st.last).toHaveLength(0)
+    expect(st.refreshes.n).toBe(0)
+    expect(phaseOf(st.phase, 'g-1')?.phase === 'saved').toBe(false)
+  }
+  for (const mcp of [
+    () => {
+      throw new Error('gone')
+    },
+    () => ({ content: [{ type: 'text', text: '<html>' }], isError: false }),
+    () => 'nonsense',
+  ]) {
+    const st = makeStand({ mcp })
+    await pressChoice(st.io, c, opt('approve'))
+    expect(st.events.filter((e) => SAVED_COPY.test(e))).toEqual([])
+    expect(st.last).toHaveLength(0)
+  }
+})
+
+test('pressChoice: a state write that fails mid-way never leaves the card stuck on saving', async () => {
+  const st = makeStand({ failSetPhase: (entry) => entry !== null && entry.phase === 'saved' })
+  const out = await pressChoice(st.io, card(), opt('approve'))
+  expect(out).toEqual({ kind: 'failed' })
+  expect(phaseOf(st.phase, 'g-1')).toBeUndefined()
+})
+
+test('pressChoice: a failed re-read after a real save is still a save', async () => {
+  const st = makeStand({ failRefresh: true })
+  expect(await pressChoice(st.io, card(), opt('approve'))).toEqual({ kind: 'saved', copyId: 'D24' })
+  expect(st.refreshes.n).toBe(1)
+})
+
+test('decideLater: zero MCP calls, the card is set aside, the D14 toast shows, and no phase is written', async () => {
+  const st = makeStand()
+  expect(await decideLater(st.io, card())).toEqual({ kind: 'later' })
+  expect(st.calls).toHaveLength(0)
+  expect(st.dismissed).toEqual(['g-1'])
+  expect(st.toasts).toEqual([text('D14')])
+  expect(st.events).toEqual(['dismiss:g-1'])
+  expect(st.refreshes.n).toBe(0)
+  expect(st.last).toHaveLength(0)
+})
+
+test('runCheck: D31 then D32, D33 or D34 by what gate_list says', async () => {
+  const c = card()
+  const st = makeStand({ mcp: () => reply({ ok: true, gate: { gate_id: 'g-1', state: 'open', contract: contractOf(c) } }) })
+  expect(await runCheck(st.io, c)).toEqual({ kind: 'checked', copyId: 'D32' })
+  expect(st.events).toEqual(['phase:g-1:checking:D31', 'phase:g-1:checking:D32'])
+  const gone = makeStand({ mcp: () => reply({ ok: true, gate: { gate_id: 'g-1', state: 'closed' } }) })
+  expect(await runCheck(gone.io, c)).toEqual({ kind: 'checked', copyId: 'D33' })
+  // The check answers nothing and refreshes nothing.
+  expect(st.calls.every((x) => x.tool === 'gate_list')).toBe(true)
+  expect(st.refreshes.n).toBe(0)
+})
+
+test('mirrorHere: ok stores the ledger id, clears foreign and the refusal, and the next press answers under the ledger id', async () => {
+  const st = makeStand({
+    mcp: (call) =>
+      call.tool === 'gate_render'
+        ? reply({ ok: true, gate_id: 'L-9', renderer: 'headless', mirror_of: 'g-1' })
+        : reply({ ok: true, gate_id: call.args.gate_id, verdict: call.args.verdict, chosen: call.args.chosen }),
+  })
+  const c = card()
+  // The card first came back as foreign, with a refusal on it.
+  await st.io.setForeign('g-1', true)
+  await st.io.setPhase('g-1', refusedEntry('E04'))
+  expect(await mirrorHere(st.io, c)).toEqual({ kind: 'mirrored', ledgerId: 'L-9' })
+  expect(st.mirrors).toEqual({ 'g-1': 'L-9' })
+  expect(st.foreign).toEqual([])
+  expect(phaseOf(st.phase, 'g-1')).toBeUndefined()
+  expect(st.calls[0]?.tool).toBe('gate_render')
+  expect(st.calls[0]?.args).toEqual({
+    mirror_of: 'g-1',
+    options: [
+      { id: 'approve', label: 'approve' },
+      { id: 'reject', label: 'reject' },
+      { id: 'defer', label: 'defer' },
+    ],
+  })
+
+  expect(await pressChoice(st.io, c, opt('approve'))).toEqual({ kind: 'saved', copyId: 'D24' })
+  const sent = answers(st)
+  expect(sent).toHaveLength(1)
+  expect(sent[0]?.args).toEqual({ gate_id: 'L-9', chosen: ['approve'], verdict: 'approve' })
+  // The phase and the result stay keyed by the recorded id the card is listed under.
+  expect(phaseOf(st.phase, 'g-1')?.copyId).toBe('D24')
+})
+
+test('mirrorHere: a refusal keeps the card foreign with a plain sentence; a source answered meanwhile is D27', async () => {
+  const c = card()
+  const refused = makeStand({ mcp: () => reply({ ok: false, reason: 'gate_expired' }, true) })
+  await refused.io.setForeign('g-1', true)
+  expect(await mirrorHere(refused.io, c)).toEqual({ kind: 'refused', copyId: 'E02' })
+  expect(refused.foreign).toEqual(['g-1'])
+  expect(refused.mirrors).toEqual({})
+  expect(phaseOf(refused.phase, 'g-1')).toEqual(refusedEntry('E02'))
+
+  const down = makeStand({
+    mcp: () => {
+      throw new Error('gone')
+    },
+  })
+  expect(await mirrorHere(down.io, c)).toEqual({ kind: 'refused', copyId: 'E06' })
+
+  const answered = makeStand({ mcp: () => reply({ ok: false, reason: 'mirror_source_answered', verdict: 'approve', chosen: ['approve'] }, true) })
+  expect(await mirrorHere(answered.io, c)).toEqual({ kind: 'answered_elsewhere' })
+  expect(phaseOf(answered.phase, 'g-1')).toEqual(savedEntry('D27', ''))
+  expect(answered.refreshes.n).toBe(1)
+  expect(answered.last).toHaveLength(0)
 })
