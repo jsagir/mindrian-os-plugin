@@ -1,0 +1,22 @@
+{
+  "_fixture_note": "369.2-25: a PatentSearch-shaped response built by hand to the documented envelope (error, count, total_hits, patents[]). It is NOT a live recording: the build machine had no PatentsView key and no network. Only the patent number 4902126 (the SEED-118 patent, 1990) is real; the other number and every title, abstract, date and assignee are placeholders. Inventor fields are omitted on purpose.",
+  "error": false,
+  "count": 2,
+  "total_hits": 2,
+  "patents": [
+    {
+      "patent_id": "4902126",
+      "patent_title": "FIXTURE TITLE for patent 4902126 (the public title is not recorded here)",
+      "patent_abstract": "Fixture abstract for patent 4902126: an optical fiber sensing arrangement placeholder.",
+      "patent_date": "1990-02-20",
+      "assignees": [{ "assignee_organization": "Fixture Assignee A" }]
+    },
+    {
+      "patent_id": "9000001",
+      "patent_title": "FIXTURE TITLE for a second placeholder patent",
+      "patent_abstract": "Fixture abstract for the second placeholder patent.",
+      "patent_date": "2018-06-05",
+      "assignees": [{ "assignee_organization": "Fixture Assignee B" }]
+    }
+  ]
+}
