@@ -90,7 +90,10 @@ scenario('a render hook that reads state (same-file atom + literal ref + importe
   if (!HAVE_CLAUDE) return 'skip';
   const r = scratch(bandWith(RECIPE_BODY, RECIPE_HEADER));
   assert.strictEqual(r.status, 0, r.out);
-  assert.match(r.out, /state reads: mindrian-workspace\.(plain, mindrian-workspace\.tab|tab, mindrian-workspace\.plain)/);
+  // The other registrars of the mod read state too (plans 05 to 07), so the line lists more than
+  // these two keys: assert that both are listed, not that they are the only ones (369.26-05).
+  const reads = (r.out.match(/state reads: ([^\n']*)/) || [])[1] || '';
+  assert.ok(reads.includes('mindrian-workspace.plain') && reads.includes('mindrian-workspace.tab'), r.out);
 });
 
 scenario('mutation: read($, importedAtom) is refused (rule 2)', () => {
