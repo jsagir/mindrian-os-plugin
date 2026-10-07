@@ -195,7 +195,11 @@ NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshne
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
 NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
 NO_REAL_ROOM_CHECK=0 # quick 261005-muy (navigator ruling 2026-10-05, RULE 10): the real-room receipt gate (Step 2.6) is ON by default; --no-real-room-check is the audited opt-out, never silent
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-real-room-check] [--no-cut-listener] [--dry-run]"
+NO_KEYHOLDER_NOTICE=0 # quick 261007-c6j (owner ruling 2026-10-02): Step 9.9 asks "Send the key-holder service notice now?" on every cut (default No); --no-keyholder-notice is the audited opt-out, never silent
+RESEND_KEYHOLDER_NOTICE=0 # quick 261007-c6j: a second Yes is refused (already_sent) unless --resend-keyholder-notice is given; it then mails only people with no marker or a failed marker
+INCLUDE_UNKNOWN_KEYHOLDER=0 # quick 261007-c6j: has an effect only together with --resend-keyholder-notice; it also mails people whose earlier mail has an unknown outcome
+REPAIR_KEYHOLDER_LEDGER=0 # quick 261007-c6j: keeps a quarantine copy of a corrupt ledger and drops its bad lines; each dropped line can be a person mailed again
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-keyholder-notice] [--resend-keyholder-notice] [--include-unknown] [--repair-keyholder-ledger] [--no-real-room-check] [--no-cut-listener] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -217,6 +221,10 @@ for arg in "$@"; do
     --no-suite-check)    NO_SUITE_CHECK=1 ;;
     --no-cut-listener)   NO_CUT_LISTENER=1 ;;
     --no-real-room-check) NO_REAL_ROOM_CHECK=1 ;;
+    --no-keyholder-notice) NO_KEYHOLDER_NOTICE=1 ;;
+    --resend-keyholder-notice) RESEND_KEYHOLDER_NOTICE=1 ;;
+    --include-unknown)   INCLUDE_UNKNOWN_KEYHOLDER=1 ;;
+    --repair-keyholder-ledger) REPAIR_KEYHOLDER_LEDGER=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -470,6 +478,21 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
   echo "              tag must be on origin, npm must answer for $NEW_VERSION, npx round-trip must work)"
+  echo "  Step 9.9  : key-holder notice -- asks \"Send the key-holder service notice now?\" on every cut, default No, never unattended; a Yes needs a verified Resend sender; a ledger outside git stops a double send (--resend-keyholder-notice mails only people not yet mailed); --no-keyholder-notice is the audited opt-out; never aborts the cut; sends nothing under --dry-run"
+  if [ "$NO_KEYHOLDER_NOTICE" = "1" ]; then
+    echo -e "              ${YELLOW}--no-keyholder-notice opt-out engaged (audit-logged; Step 9.9 will not ask, key holders hear nothing on this cut)${NC}"
+  fi
+  KH_DRY_ARGS=(dry-run --release-version "$NEW_VERSION")
+  if [ "$NO_KEYHOLDER_NOTICE" = "1" ]; then
+    KH_DRY_ARGS+=(--opted-out)
+  fi
+  if [ -f "$PLUGIN_DIR/scripts/release-lib/keyholder-notice.cjs" ]; then
+    if ! node "$PLUGIN_DIR/scripts/release-lib/keyholder-notice.cjs" "${KH_DRY_ARGS[@]}"; then
+      echo -e "${YELLOW}              ! key-holder notice preview crashed (the dry-run continues)${NC}"
+    fi
+  else
+    echo -e "${YELLOW}              ! key-holder notice module missing (reason=module_missing)${NC}"
+  fi
   echo "  Step 10   : claude plugin marketplace update mindrian-marketplace"
   echo "  Step 11   : post-release verification (remote HEAD match, marketplace cache version)"
   echo ""
@@ -1804,6 +1827,32 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance; then
   exit 1
 fi
 echo -e "${GREEN}  --acceptance (full) passed${NC}"
+
+# --- Step 9.9: key-holder notice (quick 261007-c6j, owner ruling 2026-10-02; asks on every cut, default No, never unattended, fail open) ---
+# The step runs after the npm publish (Step 9.5) and after the post-publish doctor (Step 9.8), so it
+# can never abort the cut (RULE 7: no split-brain). All logic lives in
+# scripts/release-lib/keyholder-notice.cjs: the question, the verified-sender gate, the live
+# recipient read, the ledger and lock outside git, the retry rule. The module never calls
+# process.exit and ends with status 0; a non-zero status or a missing module only prints a yellow
+# line. This block holds no exit line. stdin stays the stdin of this script: no terminal means No.
+echo ""
+echo "=== Step 9.9: key-holder notice (asked on every cut, default No, fail open) ==="
+KH_MODULE="$PLUGIN_DIR/scripts/release-lib/keyholder-notice.cjs"
+if [ ! -f "$KH_MODULE" ]; then
+  echo -e "${YELLOW}  ! key-holder notice module missing (reason=module_missing); the cut is unaffected${NC}"
+else
+  KH_ARGS=(run --release-version "$NEW_VERSION")
+  if [ "$NO_KEYHOLDER_NOTICE" = "1" ]; then KH_ARGS+=(--opted-out); fi
+  if [ "$RESEND_KEYHOLDER_NOTICE" = "1" ]; then KH_ARGS+=(--resend); fi
+  if [ "$INCLUDE_UNKNOWN_KEYHOLDER" = "1" ]; then KH_ARGS+=(--include-unknown); fi
+  if [ "$REPAIR_KEYHOLDER_LEDGER" = "1" ]; then KH_ARGS+=(--repair-keyholder-ledger); fi
+  if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ] || [ "$DRY_RUN" = "1" ]; then KH_ARGS+=(--dry-run); fi
+  KH_RC=0
+  node "$KH_MODULE" "${KH_ARGS[@]}" || KH_RC=$?
+  if [ "$KH_RC" != "0" ]; then
+    echo -e "${YELLOW}  ! key-holder notice module exited $KH_RC; the cut is unaffected (fail open)${NC}"
+  fi
+fi
 
 # --- Step 10: Update local cache ---
 echo ""

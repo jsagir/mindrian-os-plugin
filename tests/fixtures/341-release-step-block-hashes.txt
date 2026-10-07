@@ -95,14 +95,23 @@
 # until its own rebaseline.
 # STEP_BLOCK_COUNT 33 -> 35.
 
-35  STEP_BLOCK_COUNT
-3e6a88d0561369cb5d4bf8472cdeb9cc83cfaded9d7707caaf05a6449a7749af  # --- Step 0: Parse bump type + flags ---
+# Quick 261007-c6j (2026-10-07): re-pinned exactly three blocks and the count, using the generating
+# command above against release.sh:
+#   - "# --- Step 0: ..." moved: NO_KEYHOLDER_NOTICE, RESEND_KEYHOLDER_NOTICE,
+#     INCLUDE_UNKNOWN_KEYHOLDER, REPAIR_KEYHOLDER_LEDGER, their four case arms
+#     (--no-keyholder-notice, --resend-keyholder-notice, --include-unknown,
+#     --repair-keyholder-ledger) and USAGE_BLOCK.
+#   - "# --- Step 1: ..." moved: the Step 9.9 dry-run listing line and the preview call.
+#   - "# --- Step 9.9: ..." added: the key-holder notice block, after Step 9.8 and before Step 10.
+# The Step 9.8 and Step 10 hashes are unchanged. STEP_BLOCK_COUNT 35 -> 36.
+36  STEP_BLOCK_COUNT
+f66fc3ea69d82a2f4680aeb1e9393b7313515da883212a9020076064a2683b59  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 93689249add769a622e448866995b8b58e1ddadb00c059d029a9d797fe07269b  # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
 381f0b828cfa270d4e3ad38b4c2dc6889c63c5b757905fce94f4523db0da9d58  # --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
 06f2893762efcb4f65930cf72323d9b2e0586cd3769dca4cb84002980ea25df3  # --- Step 0.6b: canon snapshot freshness gate (Phase 366 Plan 06, D-17) ---
 c1d2967ea55df90b9cf63d8966a8b902a88d4c856a139db890c0843bf6254f37  # --- Step 0.6c: phase suite gate (Phase 366 Plan 06, EPV366-01) ---
-819587c4fd95711e4d9b4786099523343ba7b7f344de52bc47ed7da3f451af74  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
+e46befd369bf96edb00e99b999fcf43a9ab536dcb8a81bc57194b925c405545d  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
 a7138c5c7a062e8183da61b88808f312c8c5749d472d1be23ab332422abab802  # --- Step 2: Run FULL verification (not just validation) ---
 55694c6b9f365dbac46f96cf9c2136dab9afd10285d952ce06abaf9ecb9683ba  # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 e6690f7ddc5bb2b45dc2bdcd4ac072c317846f75ba3856fe930d0ecab3303dd4  # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
@@ -129,5 +138,6 @@ d8ebd65d1682a2653b13b4e403cc693c3be0f563002fd4f27a30fd4ecbc59e44  # --- Step 8: 
 a6be87ffa237c13d06dee29a95f119b0d12e1a0e97b67c82a403afe4f9209376  # --- Step 9: Push both ---
 bd5ce06ecf71b31a29c94414cad83c56683d5a043a5c59190cf5be360704ac41  # --- Step 5.5 (tag-push verification): runs AFTER Step 9 push. ---
 cfdacfc8f16ca724187da17ceb865b3e55b6b75985669b26656377efa7b957d1  # --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
+8c1db5c6c5f37ab8eef38cd1ad9208dbbcc03529f0b49726a1a2c1727d1c6a02  # --- Step 9.9: key-holder notice (quick 261007-c6j, owner ruling 2026-10-02; asks on every cut, default No, never unattended, fail open) ---
 ed8f1ecb5d8064ea90719a8784429fe5336d3676e1a03ac3668738df0988bda5  # --- Step 10: Update local cache ---
 d373d7dbeed2276b6bdf91f71c505e3a0eb4ba70777a80b2f96f2975bec75758  # --- Step 11: Post-release verification ---

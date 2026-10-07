@@ -556,6 +556,128 @@ function runCli(args, opts) {
   });
 }
 
+
+function runAsync(cmd, args, opts) {
+  return new Promise(function (resolve) {
+    const child = cp.spawn(cmd, args, { env: opts.env, cwd: opts.cwd || REPO, stdio: ['ignore', 'pipe', 'pipe'] });
+    let so = '';
+    let se = '';
+    child.stdout.on('data', function (c) { so += c; });
+    child.stderr.on('data', function (c) { se += c; });
+    const timer = setTimeout(function () { child.kill('SIGKILL'); }, opts.timeoutMs || 90000);
+    child.on('close', function (code) {
+      clearTimeout(timer);
+      CAPTURED.push(so, se);
+      resolve({ status: code, stdout: so, stderr: se });
+    });
+  });
+}
+
+// Wiring of release.sh Step 9.9, doctor expectedSteps and the live dry-run (quick 261007-c6j task 3).
+async function wiringArms(stub, mkEnvFn, runFn) {
+  const RELEASE_SH = path.join(REPO, 'scripts', 'release.sh');
+  const src = fs.readFileSync(RELEASE_SH, 'utf8');
+  function headerIdx(prefix) { return src.indexOf('\n' + prefix) + 1; }
+  function blockOf(prefix) {
+    const start = headerIdx(prefix);
+    assert.ok(start > 0, 'header not found: ' + prefix);
+    const rest = src.slice(start + 1);
+    const next = rest.search(/^# --- Step/m);
+    return next === -1 ? src.slice(start) : src.slice(start, start + 1 + next);
+  }
+  function nonComment(t) { return t.split('\n').filter(function (l) { return !/^\s*#/.test(l); }); }
+
+  const FLAGS = ['--no-keyholder-notice', '--resend-keyholder-notice', '--include-unknown', '--repair-keyholder-ledger'];
+  for (const v of ['NO_KEYHOLDER_NOTICE', 'RESEND_KEYHOLDER_NOTICE', 'INCLUDE_UNKNOWN_KEYHOLDER', 'REPAIR_KEYHOLDER_LEDGER']) {
+    assert.ok(new RegExp('^' + v + '=0\\b', 'm').test(src), v + '=0 initialized');
+  }
+  for (const f of FLAGS) {
+    const esc = f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    assert.ok(new RegExp('^\\s*' + esc + '\\)\\s+[A-Z_]+=1 ;;', 'm').test(src), 'case arm for ' + f);
+  }
+  const usage = (src.match(/^USAGE_BLOCK="[^\n]*"$/m) || [''])[0];
+  for (const f of FLAGS) assert.ok(usage.indexOf('[' + f + ']') !== -1, 'USAGE_BLOCK has ' + f);
+  assert.ok(usage.indexOf('[--no-cut-listener] [--dry-run]') !== -1, 'the pinned pair stays adjacent');
+  assert.equal((usage.match(/\[--[a-z-]+\]/g) || []).length, 16, 'the usage text gained exactly the four new entries');
+  ok('static: four variables, four case arms, four usage entries, the pinned pair intact');
+
+  const i98 = headerIdx('# --- Step 9.8');
+  const i99 = headerIdx('# --- Step 9.9');
+  const i10 = headerIdx('# --- Step 10');
+  assert.ok(i98 > 0 && i99 > i98 && i10 > i99, 'Step 9.9 sits after Step 9.8 and before Step 10');
+  const b99 = blockOf('# --- Step 9.9');
+  const code99 = nonComment(b99).join('\n');
+  assert.ok(!/\bexit\b/.test(code99), 'Step 9.9 has no non-comment exit');
+  assert.ok(code99.indexOf('keyholder-notice.cjs') !== -1 && /\(run --release-version "\$NEW_VERSION"\)/.test(code99), 'calls the module with run and the version');
+  for (const pair of [['NO_KEYHOLDER_NOTICE', '--opted-out'], ['RESEND_KEYHOLDER_NOTICE', '--resend'], ['INCLUDE_UNKNOWN_KEYHOLDER', '--include-unknown'], ['REPAIR_KEYHOLDER_LEDGER', '--repair-keyholder-ledger'], ['MOS_TEST_DRY_RUN', '--dry-run']]) {
+    assert.ok(code99.indexOf(pair[0]) !== -1 && code99.indexOf(pair[1]) !== -1, 'maps ' + pair[0] + ' to ' + pair[1]);
+  }
+  assert.equal(nonComment(src).filter(function (l) { return /exit 1/.test(l); }).length, 70, 'non-comment exit 1 count is the baseline 70');
+  const pre = crypto.createHash('sha256').update(src.split('\n').slice(0, 79).join('\n') + '\n').digest('hex');
+  assert.equal(pre, '9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f', 'lines 1 to 79 are unchanged');
+  ok('static: Step 9.9 between 9.8 and 10, no exit line, flag mapping, exit-1 count 70, preamble unchanged');
+
+  const doctorSrc = fs.readFileSync(path.join(REPO, 'scripts', 'doctor.cjs'), 'utf8');
+  const am = doctorSrc.match(/const expectedSteps = \[([^\]]*)\]/);
+  assert.ok(am, 'doctor expectedSteps found');
+  const expectedSteps = JSON.parse('[' + am[1].replace(/'/g, '"') + ']');
+  assert.ok(expectedSteps.indexOf('Step 9.9') !== -1, 'expectedSteps lists Step 9.9');
+  ok('doctor expectedSteps lists Step 9.9');
+
+  const help = await runFn('bash', [RELEASE_SH, '--help'], { env: process.env, timeoutMs: 30000 });
+  assert.equal(help.status, 0);
+  for (const f of FLAGS) assert.ok(help.stdout.indexOf(f) !== -1, '--help lists ' + f);
+  ok('--help lists all four flags');
+
+  // live dry-run, hermetic seams as in tests/test-release-cut-listener-wiring.cjs
+  const dirTmp = mkTmp('wire');
+  const homeDir = path.join(dirTmp, 'home');
+  fs.mkdirSync(homeDir);
+  const reports = path.join(dirTmp, 'reports');
+  fs.mkdirSync(reports);
+  const ledger = path.join(dirTmp, 'ledger-never-made');
+  function envFor(withStub) {
+    const e = Object.assign({}, process.env);
+    for (const k of ['RESEND_API_KEY', 'MOS_KEYHOLDER_NOTICE_FROM', 'MOS_RESEND_API_BASE', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'CI']) delete e[k];
+    e.HOME = homeDir;
+    e.MINDRIAN_THEO_STAMP_CMD = "printf ''";
+    e.MINDRIAN_CUT_LISTENER_REPORT_DIR = reports;
+    e.THEO_DIR = path.join(dirTmp, 'no-theo');
+    delete e.THEO_PYTHON;
+    e.MINDRIAN_KEYHOLDER_NOTICE_LEDGER_DIR = ledger;
+    if (withStub) Object.assign(e, mkEnvFn(stub));
+    return e;
+  }
+  stub.reset();
+  const r1 = await runFn('bash', [RELEASE_SH, 'patch', '--dry-run'], { env: envFor(true) });
+  assert.equal(r1.status, 0, 'dry-run exits 0: ' + r1.stderr.slice(-500));
+  const out1 = r1.stdout;
+  const a98 = out1.indexOf('Step 9.8');
+  const a99 = out1.indexOf('Step 9.9');
+  const a10 = out1.indexOf('Step 10 ');
+  assert.ok(a98 !== -1 && a99 > a98 && a10 > a99, 'dry-run lists Step 9.9 between Step 9.8 and Step 10');
+  assert.ok(/keyholder-notice: sender check: PASSED/.test(out1), 'dry-run prints the sender verdict');
+  assert.ok(/keyholder-notice: recipients: key_rows=5 .*recipients=5/.test(out1), 'dry-run prints the recipient count');
+  assert.equal(stub.posts().length, 0, 'dry-run makes zero POST');
+  for (const t of expectedSteps) assert.ok(out1.indexOf(t) !== -1, 'dry-run output has ' + t);
+  const both = out1 + r1.stderr;
+  for (let i = 1; i <= 9; i += 1) assert.ok(both.indexOf('holder' + i) === -1, 'no address in the dry-run output');
+  assert.ok(both.indexOf(RKEY) === -1 && both.indexOf(SKEY) === -1, 'no secret in the dry-run output');
+  assert.ok(!fs.existsSync(ledger), 'dry-run writes nothing under the ledger dir');
+  ok('live dry-run: exit 0, Step 9.9 between 9.8 and 10, verdict and count printed, zero POST, no address, no secret, nothing written; every doctor expectedSteps member listed');
+
+  stub.reqs.length = 0;
+  const r2 = await runFn('bash', [RELEASE_SH, 'patch', '--dry-run'], { env: envFor(false) });
+  assert.equal(r2.status, 0, 'dry-run with no env exits 0');
+  assert.ok(/sender check: REFUSED/.test(r2.stdout) && /recipients: unavailable/.test(r2.stdout), 'no env: REFUSED and unavailable');
+  assert.equal(stub.reqs.length, 0, 'no env: no request');
+  const r3 = await runFn('bash', [RELEASE_SH, 'patch', '--dry-run', '--no-keyholder-notice'], { env: envFor(true) });
+  assert.equal(r3.status, 0);
+  assert.ok(/--no-keyholder-notice opt-out engaged/.test(r3.stdout) && /will not ask/.test(r3.stdout), 'opt-out names the flag and the consequence');
+  assert.equal(stub.reqs.length, 0, 'opt-out: no request');
+  ok('live dry-run: no env gives REFUSED and unavailable with no request; --no-keyholder-notice names the flag and the consequence');
+}
+
 async function part2() {
   const K = require(MOD_PATH);
   const notice = K.loadNotice(TPL_DIR);
@@ -1232,6 +1354,9 @@ async function part2() {
     assert.equal(process.exitCode, 2, 'main sets 2 on a bad argument');
     process.exitCode = savedExit;
     ok('exit arms: no process.exit call; main sets 0, 0 on a crash, 2 on bad input, and returns');
+
+    // ------------------------------------------------------------ wiring arms (Task 3)
+    await wiringArms(stub, mkEnv, runAsync);
 
     // ------------------------------------------------------------ leak arm
     const everything = CAPTURED.join('\n');
