@@ -1,0 +1,35 @@
+Subject: Your old M:OS key is retired - you do not need one now
+
+Hi,
+
+Short service note. You once asked for an M:OS key on mindrian-os.com. That key no longer works, and you do not need a new one.
+
+Website: https://mindrian-os.com
+
+What changed, in plain words:
+- Your old key is retired. Nothing to rotate, nothing to paste.
+- Theo, the methodology graph behind M:OS, now works without a key.
+- Setup is five steps now.
+
+Already installed? Update to the latest. In Claude Code run:
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+
+New on the site: The breakthrough might already exist in the wrong field
+Teams search in their own field's words, so a solution in another field stays hidden. Strip the industry nouns and the structural twin becomes searchable.
+Image: Same formation, different field. AI-generated concept illustration, made with Codex.
+Read it: https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field
+
+New here? Install in five steps (terminal first):
+1. Node.js. Check it with: node -v
+2. Claude Code. Mac or Linux: curl -fsSL https://claude.ai/install.sh | bash   Windows: irm https://claude.ai/install.ps1 | iex   Check it with: claude --version
+3. M:OS. Run: npx @mindrian_os/cli
+4. Your first room. Run: claude   then type: /mos:ignite
+5. Sign in on the website if you want an account.
+
+One choice that is yours: if you want the occasional letter from us, sign in at https://mindrian-os.com and tick the box on your home page. If you do not tick it, we will not send you the letter. This is the only service note you will get from us without that.
+
+Js.
+
+--
+npx @mindrian_os/cli | https://mindrian-os.com
