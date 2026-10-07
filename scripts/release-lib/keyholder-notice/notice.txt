@@ -1,20 +1,20 @@
-Subject: M:OS beta.65 is out: the breakthrough might already exist in the wrong field
+Subject: m:os beta.65 is out: the breakthrough might already exist in the wrong field
 
 THE BREAKTHROUGH MIGHT ALREADY EXIST IN THE WRONG FIELD
 Image: Same formation, different field. AI-generated concept illustration, made with Codex.
 
 Hi,
 
-M:OS beta.65 is out. What is new, in plain words:
-- Every research run now says what it searched, what it refused and what it did not run.
-- A deep research run opens with a scan of the field: what is already deployed, the field's own words, and the recent state of the art.
-- Searches are built by practice, mechanism and neighbor field, not only by your problem words.
+m:os beta.65 is out. What is new, in plain words:
+- Every research run says what it searched, what it refused and what it did not run. A gap in the answer is visible, not hidden.
+- A deep run opens with a scan of the field: what is already deployed, the field's own words and the recent state of the art. The search starts wider than your own wording.
+- Searches are built by practice, mechanism and neighbor field, not only by your problem words. A solution that lives in another field can turn up.
 
-What M:OS is: M:OS is a plugin for Claude, for Claude Code, Claude Desktop and Cowork. You give a hard problem a data room on your machine, where evidence and assumptions stay apart and you decide what to test next. It is built on the PWS (Problems Worth Solving) method.
+What m:os is: m:os is a plugin for Claude, for Claude Code, Claude Desktop and Cowork. You give a hard problem a data room on your machine, where evidence and assumptions stay apart and you decide what to test next. It is built on the PWS (Problems Worth Solving) method.
 
 The short version of the article: Teams search in their own field's words, so a solution in another field stays hidden. Strip the industry nouns and the structural twin becomes searchable.
 
-Update or install M:OS now.
+Update or install m:os now.
 Already installed, in Claude Code, run:
 /plugin marketplace update
 claude plugin update mos@mindrian-marketplace
@@ -25,6 +25,7 @@ Read the article: https://mindrian-os.com/blog/the-breakthrough-might-already-ex
 Want to work on your own problem with us? I would like to offer you a 30 minute one-to-one online session on Zoom with me and Lawrence, working on a problem you bring. Reply to this email with a line about your problem and a few times that suit you, and I will set it up.
 
 Js.
+Give complexity shape.
 
 --
 You get this because you once requested access on mindrian-os.com. Reply "stop" and I will not write again.

@@ -195,7 +195,7 @@ NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshne
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
 NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
 NO_REAL_ROOM_CHECK=0 # quick 261005-muy (navigator ruling 2026-10-05, RULE 10): the real-room receipt gate (Step 2.6) is ON by default; --no-real-room-check is the audited opt-out, never silent
-NO_KEYHOLDER_NOTICE=0 # quick 261007-c6j (owner ruling 2026-10-02): Step 9.9 asks "Send the key-holder service notice now?" on every cut (default No); --no-keyholder-notice is the audited opt-out, never silent
+NO_KEYHOLDER_NOTICE=0 # quick 261007-c6j (owner ruling 2026-10-02): Step 9.9 asks "Send the key-holder announcement now?" on every cut (default No); --no-keyholder-notice is the audited opt-out, never silent
 RESEND_KEYHOLDER_NOTICE=0 # quick 261007-c6j: a second Yes is refused (already_sent) unless --resend-keyholder-notice is given; it then mails only people with no marker or a failed marker
 INCLUDE_UNKNOWN_KEYHOLDER=0 # quick 261007-c6j: has an effect only together with --resend-keyholder-notice; it also mails people whose earlier mail has an unknown outcome
 REPAIR_KEYHOLDER_LEDGER=0 # quick 261007-c6j: keeps a quarantine copy of a corrupt ledger and drops its bad lines; each dropped line can be a person mailed again
@@ -478,7 +478,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
   echo "              tag must be on origin, npm must answer for $NEW_VERSION, npx round-trip must work)"
-  echo "  Step 9.9  : key-holder notice -- asks \"Send the key-holder service notice now?\" on every cut, default No, never unattended; a Yes needs a verified Resend sender; a ledger outside git stops a double send (--resend-keyholder-notice mails only people not yet mailed); --no-keyholder-notice is the audited opt-out; never aborts the cut; sends nothing under --dry-run"
+  echo "  Step 9.9  : key-holder notice -- asks \"Send the key-holder announcement now?\" on every cut, default No, never unattended; a Yes needs a verified Resend sender; a ledger outside git stops a double send (--resend-keyholder-notice mails only people not yet mailed); --no-keyholder-notice is the audited opt-out; never aborts the cut; sends nothing under --dry-run"
   if [ "$NO_KEYHOLDER_NOTICE" = "1" ]; then
     echo -e "              ${YELLOW}--no-keyholder-notice opt-out engaged (audit-logged; Step 9.9 will not ask, key holders hear nothing on this cut)${NC}"
   fi

@@ -72,7 +72,7 @@ function part1() {
   }
   ok('module exports the Task 1 pure functions and constants');
 
-  assert.equal(K.QUESTION, 'Send the key-holder service notice now?');
+  assert.equal(K.QUESTION, 'Send the key-holder announcement now?');
   ok('QUESTION text is exact');
   const REASON_KEYS = ['declined', 'no_tty', 'opted_out', 'already_sent', 'sender_unverified', 'no_recipient_source',
     'no_recipients', 'nothing_to_send', 'template_missing', 'ledger_unwritable', 'ledger_corrupt', 'ledger_locked',
@@ -90,7 +90,14 @@ function part1() {
     assert.ok(body.indexOf(EN) === -1, name + ' has no en-dash');
     assert.ok(!/brain/i.test(body), name + ' has no word Brain');
   }
-  ok('no em-dash, no en-dash, no word Brain in either template');
+  // The product name is written lowercase m:os. HTML comments are not shown to the reader, so the
+  // upper-case check reads the visible HTML (comments removed).
+  const htmlVisible = htmlRaw.replace(/<!--[\s\S]*?-->/g, '');
+  assert.ok(txtRaw.indexOf('M:OS') === -1, 'notice.txt has no upper-case M:OS');
+  assert.ok(htmlVisible.indexOf('M:OS') === -1, 'notice.html has no upper-case M:OS outside comments');
+  assert.ok(txtRaw.indexOf('m:os') !== -1 && htmlRaw.indexOf('m:os') !== -1, 'm:os is present in both templates');
+  assert.ok(txtRaw.indexOf('Give complexity shape.') !== -1 && htmlRaw.indexOf('Give complexity shape.') !== -1, 'brand line in both');
+  ok('no em-dash, no en-dash, no word Brain; the name is lowercase m:os; the brand line is present');
 
   // HTML format contract
   assert.ok(!/<style[\s>]/i.test(htmlRaw), 'no style element');
@@ -99,9 +106,9 @@ function part1() {
   assert.ok(/dir="ltr"/.test(htmlRaw), 'dir ltr');
   assert.ok(/text-align:left/.test(htmlRaw), 'text-align left');
   assert.ok(/<body[^>]*background:#F5F0E6/i.test(htmlRaw), 'paper ground #F5F0E6 on the body');
-  assert.ok(/Js\.\s*<\/td>/.test(htmlRaw), 'HTML sign-off Js.');
-  assert.ok(/\nJs\.\n/.test(txtRaw), 'text sign-off Js.');
-  ok('HTML contract: inline styles only, table layout, LTR, paper ground; sign-off Js. in both');
+  assert.ok(/Js\.<br>\s*<span[^>]*>Give complexity shape\.<\/span><\/td>/.test(htmlRaw), 'HTML sign-off Js. then Give complexity shape.');
+  assert.ok(/\nJs\.\nGive complexity shape\.\n/.test(txtRaw), 'text sign-off Js. then Give complexity shape.');
+  ok('HTML contract: inline styles only, table layout, LTR, paper ground; sign-off Js. then Give complexity shape. in both');
 
   // footer: the npm path before the website link; website link in body and footer
   const txtFooter = txtRaw.slice(txtRaw.lastIndexOf('\n--\n'));
@@ -1244,6 +1251,20 @@ async function part2() {
 
     // ------------------------------------------------------------ batch and bcc arms (owner decision 2026-10-07)
     assert.equal(K.BATCH_MAX, 49, 'the batch limit constant');
+    assert.equal(K.BATCH_COUNT, 5);
+    const planCases = [[0, 0, 0], [1, 1, 1], [3, 3, 1], [4, 4, 1], [5, 5, 1], [6, 5, 2], [100, 5, 20], [245, 5, 49], [246, 6, 41], [1000, 21, 48]];
+    for (const [n, cnt, size] of planCases) {
+      const pl = K.batchPlan(n);
+      assert.equal(pl.count, cnt, 'plan count for ' + n);
+      assert.equal(pl.size, size, 'plan size for ' + n);
+      const list = Array.from({ length: n }, function (_, i) { return 'x' + i; });
+      const bs = K.makeBatches(list);
+      assert.equal(bs.length, cnt);
+      assert.deepEqual([].concat.apply([], bs), list, 'every person is in exactly one batch, in order');
+      assert.ok(bs.every(function (b) { return b.length >= 1 && b.length <= Math.min(size, K.BATCH_MAX); }), 'no batch exceeds the plan size or the limit');
+      assert.deepEqual(K.makeBatches(list.slice()), bs, 'the split is deterministic');
+    }
+    assert.deepEqual(K.makeBatches(['a', 'b', 'c', 'd', 'e', 'f']).map(function (b) { return b.length; }), [2, 1, 1, 1, 1], 'an even split, larger batches first');
     assert.ok(K.BATCH_MAX <= 50, 'the batch limit stays within the documented 50');
     function rows(n) { return Array.from({ length: n }, function (_, i) { return { email: 'holder' + (i + 1) + AT + 'stub.invalid', user_id: 'u' + (i + 1) }; }); }
     // one batch: every recipient only in bcc
@@ -1252,16 +1273,19 @@ async function part2() {
     deps = mkDeps(stub, dir, { batchSize: undefined });
     res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
     assert.equal(res.sent, 5);
-    assert.equal(stub.posts().length, 1, 'five recipients go in one message');
+    assert.equal(stub.posts().length, 5, 'five recipients go in five batches of one');
     let bb = JSON.parse(stub.posts()[0].body);
     assert.deepEqual(bb.to, [FROM_ADDR], 'To is the sender address');
     assert.equal(bb.reply_to, FROM_ADDR, 'Reply-To is the sender address');
     assert.ok(!('cc' in bb), 'no cc');
-    assert.equal(bb.bcc.length, 5);
-    for (let i = 1; i <= 5; i += 1) {
-      assert.ok(bb.bcc.indexOf(addr(i)) !== -1, 'recipient in bcc');
-      assert.ok(bb.to.indexOf(addr(i)) === -1, 'recipient not in to');
-      assert.equal(stub.posts()[0].body.split(addr(i)).length - 1, 1, 'recipient appears exactly once in the message, in bcc');
+    assert.equal(bb.bcc.length, 1);
+    for (const p of stub.posts()) {
+      const m = JSON.parse(p.body);
+      assert.equal(m.headers['List-Unsubscribe'], '<mailto:' + FROM_ADDR + '?subject=stop>', 'List-Unsubscribe mailto of the sender on every POST');
+      assert.ok(!/holder/.test(m.headers['List-Unsubscribe']), 'no recipient in List-Unsubscribe');
+      assert.equal(Object.keys(m.headers).length, 1, 'only the one extra header');
+      assert.ok(m.to.indexOf(m.bcc[0]) === -1, 'recipient not in to');
+      assert.equal(p.body.split(m.bcc[0]).length - 1, 1, 'recipient appears exactly once in the message, in bcc');
     }
     assert.ok(!hasLine(deps, /holder\d/), 'no address in output');
     snap(dir);
@@ -1283,9 +1307,9 @@ async function part2() {
     deps = mkDeps(stub, dir, { batchSize: undefined });
     res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
     assert.equal(res.sent, 120);
-    assert.deepEqual(seenPending.map(function (x) { return x.n; }), [49, 49, 22], 'batches of at most the constant');
+    assert.deepEqual(seenPending.map(function (x) { return x.n; }), [24, 24, 24, 24, 24], '120 recipients go in 5 batches of 24');
     assert.ok(seenPending.every(function (x) { return x.n <= K.BATCH_MAX && x.allPending && !x.toHasRecipient; }), 'every member pending before the POST; no recipient in to');
-    assert.ok(hasLine(deps, /batches=3 batch_size=49/) && hasLine(deps, /to_send=120 batches=3/), 'the batch count is printed');
+    assert.ok(hasLine(deps, /recipients=120 .*batches=5 batch_size=24/) && hasLine(deps, /to_send=120 batches=5 batch_size=24/), 'the batch count and size are printed');
     assert.ok(!lockPresent(dir));
     snap(dir);
     // an unknown batch marks every member unknown and is skipped on retry
@@ -1348,6 +1372,52 @@ async function part2() {
     snap(dir);
     ok('batch arms: To is the sender, Reply-To is the sender, recipients only in bcc, batches of at most 49, pending for every member before the POST, unknown batch skipped on retry, interrupted batch then retry mails only unmarked people, 5 failed batches stop the run');
 
+    // default plan: Idempotency-Key per batch, interrupted batch, deterministic retry, streak counted in batches
+    stub.reset();
+    stub.cfg.keyRows = rows(10);
+    stub.cfg.authUsers = [];
+    dir = newDir();
+    let accP = 0;
+    deps = mkDeps(stub, dir, { batchSize: undefined, afterAccept: async function () { accP += 1; if (accP === 3) throw new Error('simulated kill'); } });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'crash');
+    const planPosts = stub.posts();
+    assert.equal(planPosts.length, 3, 'three batches were posted before the kill');
+    const sP = K.ledgerSalt(dir).salt;
+    for (const p of planPosts) {
+      const mb = JSON.parse(p.body).bcc;
+      assert.equal(mb.length, 2, '10 recipients go in 5 batches of 2');
+      const keys = mb.map(function (a) { return K.markerFor(sP, a); }).sort();
+      assert.equal(p.headers['idempotency-key'], notice.hash.slice(0, 12) + '-' + crypto.createHash('sha256').update(keys.join(',')).digest('hex').slice(0, 32), 'key is a hash of the sorted member markers');
+    }
+    const firstBatches = planPosts.map(function (p) { return JSON.parse(p.body).bcc; });
+    const killedP = firstBatches[2];
+    for (const a of killedP) assert.equal(K.readMarkers(dir).markers.get(K.markerFor(sP, a)), 'pending');
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, dir, { batchSize: undefined });
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.ok(hasLine(deps, /already_mailed=4 unknown_skipped=2 to_send=4 batches=4 batch_size=1/), 'the retry rebuilds its plan from the 4 unmarked people');
+    const retryBatches = stub.posts().map(function (p) { return JSON.parse(p.body).bcc; });
+    assert.equal(retryBatches.length, 4);
+    const firstSet = new Set(firstBatches.reduce(function (a, b) { return a.concat(b); }, []));
+    for (const b of retryBatches) for (const a of b) assert.ok(!firstSet.has(a), 'the retry mails nobody from a batch that was already posted, killed batch included');
+    assert.equal(new Set(retryBatches.reduce(function (a, b) { return a.concat(b); }, [])).size, 4, 'the 4 unmarked people are mailed once each');
+    const retryAddrs = retryBatches.map(function (b) { return b[0]; });
+    assert.deepEqual(retryAddrs, retryAddrs.slice().sort(), 'the retry order is deterministic (sorted)');
+    for (const p of stub.posts()) assert.equal(JSON.parse(p.body).headers['List-Unsubscribe'], '<mailto:' + FROM_ADDR + '?subject=stop>');
+    snap(dir);
+    stub.reset();
+    stub.cfg.keyRows = rows(30);
+    stub.cfg.authUsers = [];
+    stub.cfg.send = function () { return { status: 422, body: {} }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir, { batchSize: undefined });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(stub.posts().length, 5, '5 batches, the streak counts batches');
+    assert.equal(res.failed, 30);
+    snap(dir);
+    ok('default plan: key from sorted member markers, killed batch held back on retry, deterministic retry plan, List-Unsubscribe on every POST, streak counted in batches');
+
     // ------------------------------------------------------------ dry-run arms
     const ALLOWED = [/^keyholder-notice: step 9\.9 /, /^keyholder-notice: opt-out: /, /^keyholder-notice: sender check: (PASSED|REFUSED)/,
       /^keyholder-notice: recipients: /, /^keyholder-notice: ledger: /, /^keyholder-notice: nothing is sent/];
@@ -1360,7 +1430,7 @@ async function part2() {
     await K.dryRun({ releaseVersion: '0.0.0' }, deps);
     allAllowed(deps);
     assert.ok(hasLine(deps, /sender check: PASSED/) && hasLine(deps, /recipients: key_rows=5 .*recipients=5/) && hasLine(deps, /auth_only_excluded=1/));
-    assert.ok(hasLine(deps, /recipients=5 .*batches=\d+ batch_size=49/), 'dry-run prints the batch count and the recipient count');
+    assert.ok(hasLine(deps, /recipients=5 .*batches=5 batch_size=1$/), 'dry-run prints the batch count, the batch size and the recipient count');
     assert.ok(hasLine(deps, /ledger: no prior send/) && hasLine(deps, /nothing is sent/));
     assert.equal(stub.posts().length, 0, 'dry-run: zero POST');
     for (const l of deps._out) for (let i = 1; i <= 9; i += 1) assert.ok(l.indexOf(localPart(i)) === -1, 'dry-run prints no address');

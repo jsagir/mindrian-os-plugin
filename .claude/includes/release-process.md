@@ -33,7 +33,7 @@ No cut without a real-room run read by a human (navigator ruling 2026-10-05). `r
 
 ## The key-holder notice
 
-`release.sh` Step 9.9 asks on every cut: "Send the key-holder service notice now?" The default is No, and a person must answer; no terminal, CI or an auto-yes flag means No. A Yes needs a verified Resend sender, and a ledger outside git stops a double send. A second Yes needs `--resend-keyholder-notice`, and then only people not yet mailed receive the mail; `--include-unknown` also covers a batch whose result is unknown, and `--repair-keyholder-ledger` fixes a corrupt ledger. `--no-keyholder-notice` is the audited opt-out. The step runs after the publish and never aborts the cut; the rule lives in RULE 11 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
+`release.sh` Step 9.9 asks on every cut: "Send the key-holder announcement now?" The default is No, and a person must answer; no terminal, CI or an auto-yes flag means No. A Yes needs a verified Resend sender, and a ledger outside git stops a double send. A second Yes needs `--resend-keyholder-notice`, and then only people not yet mailed receive the mail; `--include-unknown` also covers a batch whose result is unknown, and `--repair-keyholder-ledger` fixes a corrupt ledger. `--no-keyholder-notice` is the audited opt-out. The step runs after the publish and never aborts the cut; the rule lives in RULE 11 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
 ## Entry Point
 

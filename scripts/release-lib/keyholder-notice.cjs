@@ -3,8 +3,8 @@
 /*
  * scripts/release-lib/keyholder-notice.cjs
  *
- * WHAT: all the logic of release.sh Step 9.9, the key-holder notice. On a cut it asks a person
- * "Send the key-holder service notice now?" (default No). On Yes, and only when the sender is
+ * WHAT: all the logic of release.sh Step 9.9, the key-holder announcement. On a cut it asks a person
+ * "Send the key-holder announcement now?" (default No). On Yes, and only when the sender is
  * verified, it mails the key holders one note in batches. Every message has the sender in to and
  * in reply_to and the batch in bcc, so no recipient sees another.
  *
@@ -44,7 +44,7 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 
 const TEMPLATE_DIR = path.join(__dirname, 'keyholder-notice');
-const QUESTION = 'Send the key-holder service notice now?';
+const QUESTION = 'Send the key-holder announcement now?';
 const LEDGER_FILE = 'ledger.jsonl';
 const LOCK_FILE = 'ledger.lock';
 
@@ -513,7 +513,7 @@ async function loadRecipients(env, http) {
   }
   counts.recipients = set.size;
   if (set.size === 0) return { ok: false, reason: REASONS.no_recipients, counts };
-  return { ok: true, recipients: Array.from(set), counts };
+  return { ok: true, recipients: Array.from(set).sort(), counts };
 }
 
 function classify(status) {
@@ -529,6 +529,8 @@ function classify(status) {
  * to (the sender), so 49 bcc recipients keep the to plus bcc total at 50 or below.
  */
 const BATCH_MAX = 49;
+/** Owner decision 2026-10-07: send in 5 bcc batches unless a batch would exceed BATCH_MAX. */
+const BATCH_COUNT = 5;
 
 /** The bare address inside a From value (angle brackets allowed). Lowercased. Null when invalid. */
 function fromAddress(from) {
@@ -537,11 +539,42 @@ function fromAddress(from) {
   return ADDRESS_SHAPE.test(a) ? a : null;
 }
 
-/** Split the list into batches no larger than the limit. A smaller limit is allowed (tests). */
-function makeBatches(list, size) {
-  const n = Math.max(1, Math.min(BATCH_MAX, Number.isInteger(size) && size > 0 ? size : BATCH_MAX));
+/**
+ * The batch plan for n recipients. Fewer than 5 recipients: one person per batch. Otherwise 5
+ * batches of ceil(n / 5); when that exceeds BATCH_MAX, as many batches as needed so none does.
+ * Returns {count, size} where size is the largest batch.
+ */
+function batchPlan(n) {
+  if (!(n > 0)) return { count: 0, size: 0 };
+  if (n < BATCH_COUNT) return { count: n, size: 1 };
+  let count = BATCH_COUNT;
+  if (Math.ceil(n / count) > BATCH_MAX) count = Math.ceil(n / BATCH_MAX);
+  return { count, size: Math.ceil(n / count) };
+}
+
+/**
+ * Split the list into batches. Deterministic: the same ordered list always gives the same batches,
+ * so a retry rebuilds batches from the same unmarked members. The split is even (the first
+ * n mod count batches get one more person). A forced size (a test seam) chunks in order instead and
+ * never exceeds BATCH_MAX.
+ */
+function makeBatches(list, forcedSize) {
   const out = [];
-  for (let i = 0; i < list.length; i += n) out.push(list.slice(i, i + n));
+  if (Number.isInteger(forcedSize) && forcedSize > 0) {
+    const n = Math.min(BATCH_MAX, forcedSize);
+    for (let i = 0; i < list.length; i += n) out.push(list.slice(i, i + n));
+    return out;
+  }
+  const plan = batchPlan(list.length);
+  if (plan.count === 0) return out;
+  const base = Math.floor(list.length / plan.count);
+  const extra = list.length % plan.count;
+  let at = 0;
+  for (let i = 0; i < plan.count; i += 1) {
+    const len = base + (i < extra ? 1 : 0);
+    out.push(list.slice(at, at + len));
+    at += len;
+  }
   return out;
 }
 
@@ -576,6 +609,7 @@ async function sendAll(recipients, notice, env, http, deps, ledger) {
       from: env.MOS_KEYHOLDER_NOTICE_FROM,
       to: [sender],
       reply_to: sender,
+      headers: { 'List-Unsubscribe': '<mailto:' + sender + '?subject=stop>' },
       bcc: members.map(function (m) { return m.address; }),
       subject: notice.subject,
       text: notice.text,
@@ -784,7 +818,7 @@ async function runStep(opts, deps) {
     const rec = await loadRecipients(d.env, http);
     if (!rec.ok) return refuse(rec.reason, rec.detail || null);
     const c = rec.counts;
-    say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + makeBatches(rec.recipients, d.batchSize).length + ' batch_size=' + BATCH_MAX);
+    say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + batchPlan(rec.recipients.length).count + ' batch_size=' + batchPlan(rec.recipients.length).size);
 
     const sl = ledgerSalt(dir);
     if (!sl.ok) return refuse(sl.reason, sl.detail || null);
@@ -799,7 +833,7 @@ async function runStep(opts, deps) {
       if ((state === 'pending' || state === 'unknown_outcome') && !o.includeUnknown) { unknownSkipped += 1; continue; }
       todo.push(a);
     }
-    say('keyholder-notice: already_mailed=' + alreadyMailed + ' unknown_skipped=' + unknownSkipped + ' to_send=' + todo.length + ' batches=' + makeBatches(todo, d.batchSize).length);
+    say('keyholder-notice: already_mailed=' + alreadyMailed + ' unknown_skipped=' + unknownSkipped + ' to_send=' + todo.length + ' batches=' + makeBatches(todo, d.batchSize).length + ' batch_size=' + (d.batchSize ? Math.min(BATCH_MAX, d.batchSize) : batchPlan(todo.length).size));
     const stats = { to_send: todo.length, already_mailed: alreadyMailed, unknown_skipped: unknownSkipped };
     if (todo.length === 0) return refuse(REASONS.nothing_to_send, 'every recipient is already mailed or held back', stats);
 
@@ -831,7 +865,7 @@ async function dryRun(opts, deps) {
   const onSig = function () { ac.abort(); };
   if (d.signal) d.signal.addEventListener('abort', onSig, { once: true });
   try {
-    say('keyholder-notice: step 9.9 key-holder service notice (dry run)');
+    say('keyholder-notice: step 9.9 key-holder announcement (dry run)');
     if (o.optedOut) {
       say('keyholder-notice: opt-out: engaged (--no-keyholder-notice), Step 9.9 will not ask');
       say('keyholder-notice: nothing is sent in a dry run');
@@ -844,7 +878,7 @@ async function dryRun(opts, deps) {
     const rec = await loadRecipients(d.env, http);
     if (rec.ok) {
       const c = rec.counts;
-      say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + makeBatches(rec.recipients, d.batchSize).length + ' batch_size=' + BATCH_MAX);
+      say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + batchPlan(rec.recipients.length).count + ' batch_size=' + batchPlan(rec.recipients.length).size);
     } else {
       say('keyholder-notice: recipients: unavailable (' + rec.reason + ')');
     }
@@ -982,6 +1016,8 @@ module.exports = {
   resendBase,
   makeHttp,
   BATCH_MAX,
+  BATCH_COUNT,
+  batchPlan,
   fromAddress,
   makeBatches,
   checkSender,
