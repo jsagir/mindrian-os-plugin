@@ -1,7 +1,7 @@
 ## [Unreleased] -- v2.0.0-beta.66 (in progress)
 
 ### Added
-- 
+- **A cut now asks, after the post-publish check, whether to send the key-holder notice.** The default is No and a person must answer: no terminal, CI or an auto-yes flag means No. A Yes needs a verified Resend sender. Each message has the sender in To and Reply-To and a batch of holders in bcc, so nobody sees another holder. A ledger outside git stops a double send, and a retry with `--resend-keyholder-notice` mails only people not yet mailed. `--no-keyholder-notice` opts out. Step 9.9 never aborts the cut.
 
 ## [2.0.0-beta.65] - 2026-10-06
 

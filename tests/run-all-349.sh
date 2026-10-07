@@ -86,6 +86,7 @@ run_if "349: docs lockstep"            tests/test-349-docs-lockstep.cjs         
 # the same script, so its two suites join this aggregator deliberately.
 run_if "quick 261002-5v9: release-cut listener units"  tests/test-release-cut-listener.cjs        node tests/test-release-cut-listener.cjs
 run_if "quick 261002-5v9: release-cut listener wiring" tests/test-release-cut-listener-wiring.cjs node tests/test-release-cut-listener-wiring.cjs
+run_if "quick 261007-c6j: key-holder notice (module, templates, wiring, docs)" tests/test-release-keyholder-notice.cjs node tests/test-release-keyholder-notice.cjs
 
 # --- Unguarded regression legs (always run, must stay green all phase) -----
 # This phase edits the single highest-blast-radius script in the repo, so
@@ -117,6 +118,10 @@ PHASE_349_SURFACES=(
   "scripts/release-cut-listener.cjs"
   "tests/test-release-cut-listener.cjs"
   "tests/test-release-cut-listener-wiring.cjs"
+  "scripts/release-lib/keyholder-notice.cjs"
+  "scripts/release-lib/keyholder-notice/notice.txt"
+  "scripts/release-lib/keyholder-notice/notice.html"
+  "tests/test-release-keyholder-notice.cjs"
 )
 
 echo "--- 349: em-dash guard ---"

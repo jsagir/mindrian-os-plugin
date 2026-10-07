@@ -31,6 +31,10 @@ A real release also tells Theo, before anything is mutated. `release.sh` Step 0.
 
 No cut without a real-room run read by a human (navigator ruling 2026-10-05). `release.sh` Step 2.6 refuses a cut unless `~/.mindrian/release-real-room/<HEAD sha>.json` exists, written by `node scripts/real-room-run.cjs --read-by "<your name>"` after you read its report; `--no-real-room-check` is the audited opt-out, `--desktop-verified mac|win` records the Desktop leg, and the doctor point `real-room-run` shows the latest receipt against HEAD. The receipt also carries a negative leg (the never-ready fixture with room.db missing, corrupted, and deleted then silently recreated empty; every research job must refuse each of the three with a typed reason) and Step 2.6 refuses a receipt without it or whose negative leg ran. The rule lives in RULE 10 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
 
+## The key-holder notice
+
+`release.sh` Step 9.9 asks on every cut: "Send the key-holder service notice now?" The default is No, and a person must answer; no terminal, CI or an auto-yes flag means No. A Yes needs a verified Resend sender, and a ledger outside git stops a double send. A second Yes needs `--resend-keyholder-notice`, and then only people not yet mailed receive the mail; `--include-unknown` also covers a batch whose result is unknown, and `--repair-keyholder-ledger` fixes a corrupt ledger. `--no-keyholder-notice` is the audited opt-out. The step runs after the publish and never aborts the cut; the rule lives in RULE 11 of `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`.
+
 ## Entry Point
 
 Run `scripts/release.sh <version>` to enforce all five gates. Never bump versions by hand.

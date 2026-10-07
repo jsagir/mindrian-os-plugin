@@ -679,6 +679,52 @@ async function wiringArms(stub, mkEnvFn, runFn) {
   ok('live dry-run: no env gives REFUSED and unavailable with no request; --no-keyholder-notice names the flag and the consequence');
 }
 
+
+// Doc arms (quick 261007-c6j task 4): RULE 11, the include section, the aggregator registration.
+function docArms() {
+  const K = require(MOD_PATH);
+  const rulingPath = path.join(REPO, 'docs', 'RELEASE-CEREMONY-RULING-SYSTEM.md');
+  const incPath = path.join(REPO, '.claude', 'includes', 'release-process.md');
+  const ruling = fs.readFileSync(rulingPath, 'utf8');
+  const inc = fs.readFileSync(incPath, 'utf8');
+  for (const [name, body] of [['ruling doc', ruling], ['include', inc]]) {
+    assert.ok(body.indexOf(EM) === -1 && body.indexOf(EN) === -1, name + ' has no em-dash or en-dash');
+  }
+  const h = ruling.search(/^## RULE 11/m);
+  assert.ok(h !== -1, 'the ruling doc has a heading that starts with ## RULE 11');
+  const after = ruling.slice(h + 5);
+  const nextSep = after.search(/^---$/m);
+  const sec = nextSep === -1 ? ruling.slice(h) : ruling.slice(h, h + 5 + nextSep);
+  const must = ['Step 9.9', K.QUESTION, 'default No', '--no-keyholder-notice', '--resend-keyholder-notice', '--include-unknown',
+    '--repair-keyholder-ledger', 'pending', 'remaining window', 'ledger_locked', 'RESEND_API_KEY', '.mindrian/release-keyholder-notice',
+    'not a lockstep place', 'bcc', 'Reply-To', 'BATCH_MAX'];
+  for (const t of must) assert.ok(sec.indexOf(t) !== -1, 'RULE 11 names ' + t);
+  for (const r of Object.keys(K.REASONS)) assert.ok(sec.indexOf(r) !== -1, 'RULE 11 lists the typed reason ' + r);
+  assert.ok(!/^\d+\. /m.test(sec), 'RULE 11 uses hyphen bullets, no numbered list');
+  const r5 = ruling.slice(ruling.indexOf('## RULE 5'), ruling.indexOf('## RULE 6'));
+  assert.equal((r5.match(/^\d+\. /gm) || []).length, 9, 'RULE 5 still has exactly nine numbered lines');
+  ok('doc arms: RULE 11 in the ruling doc names the step, flags, reasons, ledger, bcc batches; RULE 5 keeps nine lines');
+
+  const ih = inc.indexOf('## The key-holder notice');
+  assert.ok(ih !== -1, 'the include has the section');
+  const rest = inc.slice(ih + 5);
+  const nx = rest.search(/^## /m);
+  const isec = nx === -1 ? inc.slice(ih) : inc.slice(ih, ih + 5 + nx);
+  for (const t of ['Step 9.9', '--no-keyholder-notice', '--resend-keyholder-notice', 'RULE 11']) assert.ok(isec.indexOf(t) !== -1, 'include section names ' + t);
+  assert.ok(!/npx|claude plugin/.test(isec), 'the include section does not write npx or claude plugin');
+  assert.ok(!/^\d+\. /m.test(isec) && isec.indexOf('```') === -1, 'no numbered line, no fenced block in the section');
+  assert.equal((inc.match(/^\d\. /gm) || []).length, 5, 'the include still has exactly five numbered lines');
+  assert.ok(!/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|[0-9]+)\s+places\b/i.test(inc), 'no counting phrase in the include');
+  ok('doc arms: the include has the key-holder notice section and keeps its pins');
+
+  const agg = fs.readFileSync(path.join(REPO, 'tests', 'run-all-349.sh'), 'utf8');
+  assert.ok(/run_if "quick 261007-c6j[^"]*"\s+tests\/test-release-keyholder-notice\.cjs\s+node tests\/test-release-keyholder-notice\.cjs/.test(agg), 'run-all-349 runs this test');
+  for (const f of ['scripts/release-lib/keyholder-notice.cjs', 'scripts/release-lib/keyholder-notice/notice.txt', 'scripts/release-lib/keyholder-notice/notice.html', 'tests/test-release-keyholder-notice.cjs']) {
+    assert.ok(agg.indexOf('"' + f + '"') !== -1, 'em-dash guard covers ' + f);
+  }
+  ok('doc arms: run-all-349.sh registers this test and its em-dash guard covers the new files');
+}
+
 async function part2() {
   const K = require(MOD_PATH);
   const notice = K.loadNotice(TPL_DIR);
@@ -1467,6 +1513,7 @@ async function part2() {
 
     // ------------------------------------------------------------ wiring arms (Task 3)
     await wiringArms(stub, mkEnv, runAsync);
+    docArms();
 
     // ------------------------------------------------------------ leak arm
     const everything = CAPTURED.join('\n');
