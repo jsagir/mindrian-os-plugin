@@ -1,35 +1,31 @@
-Subject: Your old M:OS key is retired - you do not need one now
+Subject: M:OS beta.65 is out: the breakthrough might already exist in the wrong field
+
+THE BREAKTHROUGH MIGHT ALREADY EXIST IN THE WRONG FIELD
+Image: Same formation, different field. AI-generated concept illustration, made with Codex.
 
 Hi,
 
-Short service note. You once asked for an M:OS key on mindrian-os.com. That key no longer works, and you do not need a new one.
+M:OS beta.65 is out. What is new, in plain words:
+- Every research run now says what it searched, what it refused and what it did not run.
+- A deep research run opens with a scan of the field: what is already deployed, the field's own words, and the recent state of the art.
+- Searches are built by practice, mechanism and neighbor field, not only by your problem words.
 
-Website: https://mindrian-os.com
+What M:OS is: M:OS is a plugin for Claude, for Claude Code, Claude Desktop and Cowork. You give a hard problem a data room on your machine, where evidence and assumptions stay apart and you decide what to test next. It is built on the PWS (Problems Worth Solving) method.
 
-What changed, in plain words:
-- Your old key is retired. Nothing to rotate, nothing to paste.
-- Theo, the methodology graph behind M:OS, now works without a key.
-- Setup is five steps now.
+The short version of the article: Teams search in their own field's words, so a solution in another field stays hidden. Strip the industry nouns and the structural twin becomes searchable.
 
-Already installed? Update to the latest. In Claude Code run:
+Update or install M:OS now.
+Already installed, in Claude Code, run:
 /plugin marketplace update
 claude plugin update mos@mindrian-marketplace
+New here, run: npx @mindrian_os/cli
 
-New on the site: The breakthrough might already exist in the wrong field
-Teams search in their own field's words, so a solution in another field stays hidden. Strip the industry nouns and the structural twin becomes searchable.
-Image: Same formation, different field. AI-generated concept illustration, made with Codex.
-Read it: https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field
+Read the article: https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field
 
-New here? Install in five steps (terminal first):
-1. Node.js. Check it with: node -v
-2. Claude Code. Mac or Linux: curl -fsSL https://claude.ai/install.sh | bash   Windows: irm https://claude.ai/install.ps1 | iex   Check it with: claude --version
-3. M:OS. Run: npx @mindrian_os/cli
-4. Your first room. Run: claude   then type: /mos:ignite
-5. Sign in on the website if you want an account.
-
-One choice that is yours: if you want the occasional letter from us, sign in at https://mindrian-os.com and tick the box on your home page. If you do not tick it, we will not send you the letter. This is the only service note you will get from us without that.
+Want to work on your own problem with us? I would like to offer you a 30 minute one-to-one online session on Zoom with me and Lawrence, working on a problem you bring. Reply to this email with a line about your problem and a few times that suit you, and I will set it up.
 
 Js.
 
 --
+You get this because you once requested access on mindrian-os.com. Reply "stop" and I will not write again.
 npx @mindrian_os/cli | https://mindrian-os.com
