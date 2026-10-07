@@ -1,6 +1,6 @@
 'use strict';
 /*
- * tests/test-release-keyholder-notice.cjs -- quick 261007-c6j (owner ruling 2026-10-02).
+ * tests/test-release-keyholder-notice.cjs -- quick 261007-c6j (owner ruling 2026-10-02, owner decision 2026-10-07).
  *
  * Hermetic suite for scripts/release-lib/keyholder-notice.cjs and its two mail
  * templates. No live network: the only server is a loopback stub on 127.0.0.1.
@@ -18,6 +18,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const REPO = path.resolve(__dirname, '..');
+const UPDATE = require(path.join(REPO, 'lib', 'core', 'update-path.cjs'));
 const MOD_PATH = path.join(REPO, 'scripts', 'release-lib', 'keyholder-notice.cjs');
 const TPL_DIR = path.join(REPO, 'scripts', 'release-lib', 'keyholder-notice');
 
@@ -80,25 +81,86 @@ function part1() {
   for (const k of REASON_KEYS) assert.equal(K.REASONS[k], k, 'reason ' + k);
   ok('REASONS is frozen and carries every typed reason');
 
-  // ---- template contract (generic only; the owner is rewriting the mail content) ----
+  // ---- template contract (content pins by the owner rewrite of 2026-10-07) ----
   const txtRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.txt'), 'utf8');
   const htmlRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.html'), 'utf8');
+  function count(hay, needle) { return hay.split(needle).length - 1; }
   for (const [name, body] of [['notice.txt', txtRaw], ['notice.html', htmlRaw]]) {
     assert.ok(body.indexOf(EM) === -1, name + ' has no em-dash');
     assert.ok(body.indexOf(EN) === -1, name + ' has no en-dash');
     assert.ok(!/brain/i.test(body), name + ' has no word Brain');
   }
   ok('no em-dash, no en-dash, no word Brain in either template');
-  assert.ok(htmlRaw.indexOf('data:') === -1, 'the string data: appears nowhere in the HTML');
-  const imgs = htmlRaw.match(/<img\b[^>]*>/gi) || [];
-  for (const img of imgs) {
-    const alt = (img.match(/\salt="([^"]*)"/) || [])[1];
-    assert.ok(alt && alt.trim().length > 0, 'every img has a non-empty alt');
-    assert.ok(!/src="data:/i.test(img), 'img src is never a data: URI');
+
+  // HTML format contract
+  assert.ok(!/<style[\s>]/i.test(htmlRaw), 'no style element');
+  assert.ok(!/\sclass\s*=/i.test(htmlRaw), 'no class attribute');
+  assert.ok(/role="presentation"/.test(htmlRaw), 'table layout role=presentation');
+  assert.ok(/dir="ltr"/.test(htmlRaw), 'dir ltr');
+  assert.ok(/text-align:left/.test(htmlRaw), 'text-align left');
+  assert.ok(/<body[^>]*background:#F5F0E6/i.test(htmlRaw), 'paper ground #F5F0E6 on the body');
+  assert.ok(/Js\.\s*<\/td>/.test(htmlRaw), 'HTML sign-off Js.');
+  assert.ok(/\nJs\.\n/.test(txtRaw), 'text sign-off Js.');
+  ok('HTML contract: inline styles only, table layout, LTR, paper ground; sign-off Js. in both');
+
+  // footer: the npm path before the website link; website link in body and footer
+  const txtFooter = txtRaw.slice(txtRaw.lastIndexOf('\n--\n'));
+  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') !== -1 && txtFooter.indexOf('https://mindrian-os.com') !== -1, 'text footer has both');
+  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') < txtFooter.indexOf('https://mindrian-os.com'), 'text footer: npm path first');
+  const htmlFooter = htmlRaw.slice(htmlRaw.lastIndexOf('<tr>'));
+  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') !== -1 && htmlFooter.indexOf('href="https://mindrian-os.com"') !== -1, 'html footer has both');
+  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') < htmlFooter.indexOf('href="https://mindrian-os.com"'), 'html footer: npm path first');
+  assert.ok(htmlRaw.slice(0, htmlRaw.lastIndexOf('<tr>')).indexOf('mindrian-os.com') !== -1, 'html body has the website');
+  ok('footer: npm path first, website link present');
+
+  // update and install commands (the two update commands come from the single source)
+  for (const cmd of [UPDATE.MARKETPLACE_UPDATE_COMMAND, UPDATE.PLUGIN_UPDATE_COMMAND, 'npx @mindrian_os/cli']) {
+    assert.ok(txtRaw.indexOf(cmd) !== -1, 'text has the command ' + cmd);
+    assert.ok(htmlRaw.indexOf('>' + cmd + '</code>') !== -1, 'html has the command ' + cmd);
   }
+  ok('update and install commands are in both templates; the update pair equals lib/core/update-path.cjs');
+
+  // invitation and opt-out
+  for (const [name, body] of [['notice.txt', txtRaw], ['notice.html', htmlRaw]]) {
+    for (const w of ['30 minute', 'Zoom', 'Reply']) assert.ok(body.indexOf(w) !== -1, name + ' invitation has ' + w);
+    assert.ok(/Reply "stop"/.test(body), name + ' has the opt-out line with the word stop');
+  }
+  ok('invitation words (30 minute, Zoom, Reply) and the opt-out line with stop are in both templates');
+
+  // article and URL set
+  const ARTICLE = 'https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field';
+  const HERO = 'https://mindrian-os.com/images/blog/the-breakthrough-might-already-exist-in-the-wrong-field-hero.jpg';
+  assert.equal(count(txtRaw, ARTICLE), 1, 'article URL once in text');
+  const hrefCount = count(htmlRaw, 'href="' + ARTICLE + '"');
+  assert.ok(hrefCount >= 1, 'article URL is an href in html');
+  assert.equal(count(htmlRaw, ARTICLE), hrefCount, 'every article URL occurrence in html is a link target');
+  assert.equal(count(htmlRaw, HERO), 1, 'hero URL once in html');
+  assert.equal(count(htmlRaw, 'src="' + HERO + '"'), 1, 'hero URL only as the img src');
+  assert.equal(count(txtRaw, HERO), 0, 'hero URL not in text');
+  const ALLOWED_TXT = new Set(['https://mindrian-os.com', ARTICLE]);
+  const ALLOWED_HTML = new Set(ALLOWED_TXT);
+  ALLOWED_HTML.add(HERO);
+  function urlsOf(s) {
+    return (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).map(function (u) { return u.replace(/[.,;]+$/, ''); });
+  }
+  for (const u of urlsOf(txtRaw)) assert.ok(ALLOWED_TXT.has(u), 'text URL in the allowed set: ' + u);
+  for (const u of urlsOf(htmlRaw)) assert.ok(ALLOWED_HTML.has(u), 'html URL in the allowed set: ' + u);
+  ok('URL set is pinned: website root, article, hero image (html only); no other host');
+
+  // image arms
+  assert.equal((htmlRaw.match(/<img\b/gi) || []).length, 1, 'exactly one img element');
+  const img = htmlRaw.match(/<img\b[^>]*>/i)[0];
+  assert.ok(/\ssrc="https:\/\/[^"]+"/.test(img) && !/src="data:/i.test(img), 'img src is https, not data:');
+  assert.equal((img.match(/\ssrc="([^"]+)"/) || [])[1], HERO, 'img src equals the hero URL');
+  assert.ok(htmlRaw.indexOf('data:') === -1, 'the string data: appears nowhere in the HTML');
+  const alt = (img.match(/\salt="([^"]*)"/) || [])[1];
+  assert.ok(alt && alt.trim().length > 0, 'img has non-empty alt');
+  assert.ok(/\swidth="\d+"/.test(img), 'img has a width attribute');
+  const CAPTION = 'AI-generated concept illustration, made with Codex.';
+  assert.ok(htmlRaw.indexOf(CAPTION) !== -1 && txtRaw.indexOf(CAPTION) !== -1, 'caption in html and text');
   const htmlBytes = Buffer.byteLength(htmlRaw, 'utf8');
   assert.ok(htmlBytes < 51200, 'HTML under 51200 bytes');
-  ok('generic template arms: no data: URI, alt text on every img, size ' + htmlBytes + ' bytes (limit 51200); the image is never fetched');
+  ok('image arms: one img, https src, alt, width, caption, size ' + htmlBytes + ' bytes (limit 51200); the image is never fetched');
 
   // ---- parse arms ----
   const notice = K.loadNotice(TPL_DIR);

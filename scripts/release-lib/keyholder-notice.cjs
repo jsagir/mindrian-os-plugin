@@ -3,14 +3,14 @@
 /*
  * scripts/release-lib/keyholder-notice.cjs
  *
- * WHAT: all the logic of release.sh Step 9.9, the key-holder service notice. On a cut it asks a
- * person "Send the key-holder service notice now?" (default No). On Yes, and only when the
- * sender is verified, it mails each key holder one service note, one person per mail.
+ * WHAT: all the logic of release.sh Step 9.9, the key-holder notice. On a cut it asks a person
+ * "Send the key-holder service notice now?" (default No). On Yes, and only when the sender is
+ * verified, it mails each key holder one note, one person per mail.
  *
- * WHY (owner ruling 2026-10-02, owner decision 2026-10-07): the old keys are dead. Each holder
- * needs one honest note: old key retired, Theo needs no key, five-step install, tick the box on
- * the home page for the letter, plus the update commands and one article link. The notice is not
- * a newsletter and not a release announcement.
+ * WHY (owner ruling 2026-10-02, owner decision 2026-10-07): key holders hear from us once, with
+ * the news of the new version, one paragraph about M:OS, the article, the update and install
+ * commands and an invitation to a one-to-one session. The mail text lives in the two files of
+ * the keyholder-notice directory and is owned by the owner; this module only sends it.
  *
  * ENV (process environment only, no file fallback):
  *   RESEND_API_KEY                 Resend API key. It needs full access: the sender check reads the domains list.
