@@ -512,6 +512,7 @@ function mkDeps(stub, dir, over) {
     homedir: '/nonexistent-home',
     ledgerDir: dir,
     pace: 0,
+    batchSize: 1, // most arms run one recipient per batch so each person is observable alone; the batch arms override this
     noticeDir: TPL_DIR,
   }, over || {});
   d._out = out;
@@ -520,7 +521,7 @@ function mkDeps(stub, dir, over) {
 function snap(dir) {
   try { CAPTURED.push(fs.readFileSync(path.join(dir, 'ledger.jsonl'), 'utf8')); } catch (e) { /* none */ }
 }
-function addrOfPost(rec) { return JSON.parse(rec.body).to[0]; }
+function addrOfPost(rec) { const b = JSON.parse(rec.body); assert.equal(b.bcc.length, 1, 'batchSize 1 arm: one recipient in bcc'); return b.bcc[0]; }
 function countsByAddr(stub) {
   const m = {};
   for (const r of stub.posts()) { const a = addrOfPost(r); m[a] = (m[a] || 0) + 1; }
@@ -826,17 +827,19 @@ async function part2() {
     assert.equal(res.reason, null, 'happy path has no refusal reason');
     assert.equal(res.sent, 5);
     const posts = stub.posts();
-    assert.equal(posts.length, 5, 'one POST per recipient');
+    assert.equal(posts.length, 5, 'one POST per batch (batch size 1 here)');
     const led = K.readLedger(dir);
     const saltRec = led.records.find(function (x) { return x.event === 'salt'; }).salt;
     for (const p of posts) {
       const b = JSON.parse(p.body);
-      assert.ok(Array.isArray(b.to) && b.to.length === 1, 'to is an array of one');
-      assert.ok(!('cc' in b) && !('bcc' in b), 'no cc, no bcc');
+      assert.deepEqual(b.to, [FROM_ADDR], 'to is the sender address only');
+      assert.equal(b.reply_to, FROM_ADDR, 'reply_to is the sender address');
+      assert.ok(Array.isArray(b.bcc) && b.bcc.length === 1, 'bcc holds the batch');
+      assert.ok(!('cc' in b), 'no cc');
       assert.equal(b.from, FROM); assert.equal(b.subject, notice.subject);
       assert.equal(b.text, notice.text); assert.equal(b.html, notice.html);
-      const mk = K.markerFor(saltRec, b.to[0]);
-      assert.equal(p.headers['idempotency-key'], notice.hash.slice(0, 12) + '-' + mk.slice(0, 32), 'idempotency key');
+      const mk = K.markerFor(saltRec, b.bcc[0]);
+      assert.equal(p.headers['idempotency-key'], notice.hash.slice(0, 12) + '-' + crypto.createHash('sha256').update([mk].sort().join(',')).digest('hex').slice(0, 32), 'idempotency key is a hash of the sorted member markers');
       assert.ok(p.headers['idempotency-key'].indexOf(localPart(1)) === -1);
       assert.equal(p.headers.authorization, 'Bearer ' + RKEY);
     }
@@ -1193,6 +1196,112 @@ async function part2() {
     snap(dir);
     ok('marker write failure: ledger_unwritable, stop at once, pending stays pending');
 
+    // ------------------------------------------------------------ batch and bcc arms (owner decision 2026-10-07)
+    assert.equal(K.BATCH_MAX, 49, 'the batch limit constant');
+    assert.ok(K.BATCH_MAX <= 50, 'the batch limit stays within the documented 50');
+    function rows(n) { return Array.from({ length: n }, function (_, i) { return { email: 'holder' + (i + 1) + AT + 'stub.invalid', user_id: 'u' + (i + 1) }; }); }
+    // one batch: every recipient only in bcc
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir, { batchSize: undefined });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 5);
+    assert.equal(stub.posts().length, 1, 'five recipients go in one message');
+    let bb = JSON.parse(stub.posts()[0].body);
+    assert.deepEqual(bb.to, [FROM_ADDR], 'To is the sender address');
+    assert.equal(bb.reply_to, FROM_ADDR, 'Reply-To is the sender address');
+    assert.ok(!('cc' in bb), 'no cc');
+    assert.equal(bb.bcc.length, 5);
+    for (let i = 1; i <= 5; i += 1) {
+      assert.ok(bb.bcc.indexOf(addr(i)) !== -1, 'recipient in bcc');
+      assert.ok(bb.to.indexOf(addr(i)) === -1, 'recipient not in to');
+      assert.equal(stub.posts()[0].body.split(addr(i)).length - 1, 1, 'recipient appears exactly once in the message, in bcc');
+    }
+    assert.ok(!hasLine(deps, /holder\d/), 'no address in output');
+    snap(dir);
+    // many recipients: batch size never above the constant, pending for every member before the POST
+    stub.reset();
+    stub.cfg.keyRows = rows(120);
+    stub.cfg.authUsers = [];
+    dir = newDir();
+    const seenPending = [];
+    stub.cfg.send = function (rec, n) {
+      const b = JSON.parse(rec.body);
+      const lg = K.readLedger(dir);
+      const sl = lg.records.find(function (x) { return x.event === 'salt'; }).salt;
+      const latest = new Map();
+      for (const r of lg.records) if (r.event === 'marker') latest.set(r.m, r.state);
+      seenPending.push({ n: b.bcc.length, allPending: b.bcc.every(function (a) { return latest.get(K.markerFor(sl, a)) === 'pending'; }), toHasRecipient: b.to.some(function (a) { return /^holder/.test(a); }) });
+      return { status: 200, body: {} };
+    };
+    deps = mkDeps(stub, dir, { batchSize: undefined });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 120);
+    assert.deepEqual(seenPending.map(function (x) { return x.n; }), [49, 49, 22], 'batches of at most the constant');
+    assert.ok(seenPending.every(function (x) { return x.n <= K.BATCH_MAX && x.allPending && !x.toHasRecipient; }), 'every member pending before the POST; no recipient in to');
+    assert.ok(hasLine(deps, /batches=3 batch_size=49/) && hasLine(deps, /to_send=120 batches=3/), 'the batch count is printed');
+    assert.ok(!lockPresent(dir));
+    snap(dir);
+    // an unknown batch marks every member unknown and is skipped on retry
+    stub.reset();
+    stub.cfg.keyRows = rows(6);
+    stub.cfg.authUsers = [];
+    stub.cfg.send = function (rec, n) { return n === 2 ? { status: 503, body: {} } : { status: 200, body: {} }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir, { batchSize: 2 });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 4); assert.equal(res.unknown, 2);
+    const unkBatch = JSON.parse(stub.posts()[1].body).bcc;
+    const unkKey = stub.posts()[1].headers['idempotency-key'];
+    const sB = K.ledgerSalt(dir).salt;
+    for (const a of unkBatch) assert.equal(K.readMarkers(dir).markers.get(K.markerFor(sB, a)), 'unknown_outcome', 'every member of an unknown batch is unknown');
+    stub.reqs.length = 0; stub.cfg.send = null;
+    deps = mkDeps(stub, dir, { batchSize: 2 });
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.reason, 'nothing_to_send'); assert.ok(hasLine(deps, /unknown_skipped=2/));
+    assert.equal(stub.posts().length, 0);
+    deps = mkDeps(stub, dir, { batchSize: 2 });
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true, includeUnknown: true }, deps);
+    assert.equal(stub.posts().length, 1);
+    assert.equal(stub.posts()[0].headers['idempotency-key'], unkKey, 'same batch, same Idempotency-Key');
+    snap(dir);
+    // an interrupted batch, then a retry that mails only unmarked people
+    stub.reset();
+    stub.cfg.keyRows = rows(6);
+    stub.cfg.authUsers = [];
+    dir = newDir();
+    let accB = 0;
+    deps = mkDeps(stub, dir, { batchSize: 2, afterAccept: async function () { accB += 1; if (accB === 2) throw new Error('simulated kill'); } });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'crash');
+    const killedBatch = JSON.parse(stub.posts()[1].body).bcc;
+    const sK = K.ledgerSalt(dir).salt;
+    for (const a of killedBatch) assert.equal(K.readMarkers(dir).markers.get(K.markerFor(sK, a)), 'pending', 'every member of the killed batch stays pending');
+    const firstPosts = stub.posts().length;
+    deps = mkDeps(stub, dir, { batchSize: 2 });
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.ok(hasLine(deps, /already_mailed=2 unknown_skipped=2 to_send=2/), 'retry: 2 sent, 2 held back, 2 to send');
+    const retryBcc = stub.posts().slice(firstPosts).map(function (r) { return JSON.parse(r.body).bcc; });
+    assert.equal(retryBcc.length, 1);
+    for (const a of retryBcc[0]) assert.ok(killedBatch.indexOf(a) === -1 && !JSON.parse(stub.posts()[0].body).bcc.includes(a), 'the retry mails only unmarked people');
+    const perAddr = {};
+    for (const r of stub.posts()) for (const a of JSON.parse(r.body).bcc) perAddr[a] = (perAddr[a] || 0) + 1;
+    assert.ok(Object.values(perAddr).every(function (n) { return n === 1; }), 'nobody was mailed twice');
+    snap(dir);
+    // five failed batches in a row stop the run
+    stub.reset();
+    stub.cfg.keyRows = rows(14);
+    stub.cfg.authUsers = [];
+    stub.cfg.send = function () { return { status: 422, body: {} }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir, { batchSize: 2 });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'send_failed');
+    assert.equal(stub.posts().length, 5, 'stopped after 5 failed batches');
+    assert.equal(res.failed, 10, 'failed counts people');
+    snap(dir);
+    ok('batch arms: To is the sender, Reply-To is the sender, recipients only in bcc, batches of at most 49, pending for every member before the POST, unknown batch skipped on retry, interrupted batch then retry mails only unmarked people, 5 failed batches stop the run');
+
     // ------------------------------------------------------------ dry-run arms
     const ALLOWED = [/^keyholder-notice: step 9\.9 /, /^keyholder-notice: opt-out: /, /^keyholder-notice: sender check: (PASSED|REFUSED)/,
       /^keyholder-notice: recipients: /, /^keyholder-notice: ledger: /, /^keyholder-notice: nothing is sent/];
@@ -1205,6 +1314,7 @@ async function part2() {
     await K.dryRun({ releaseVersion: '0.0.0' }, deps);
     allAllowed(deps);
     assert.ok(hasLine(deps, /sender check: PASSED/) && hasLine(deps, /recipients: key_rows=5 .*recipients=5/) && hasLine(deps, /auth_only_excluded=1/));
+    assert.ok(hasLine(deps, /recipients=5 .*batches=\d+ batch_size=49/), 'dry-run prints the batch count and the recipient count');
     assert.ok(hasLine(deps, /ledger: no prior send/) && hasLine(deps, /nothing is sent/));
     assert.equal(stub.posts().length, 0, 'dry-run: zero POST');
     for (const l of deps._out) for (let i = 1; i <= 9; i += 1) assert.ok(l.indexOf(localPart(i)) === -1, 'dry-run prints no address');

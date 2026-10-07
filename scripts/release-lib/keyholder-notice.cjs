@@ -5,7 +5,8 @@
  *
  * WHAT: all the logic of release.sh Step 9.9, the key-holder notice. On a cut it asks a person
  * "Send the key-holder service notice now?" (default No). On Yes, and only when the sender is
- * verified, it mails each key holder one note, one person per mail.
+ * verified, it mails the key holders one note in batches. Every message has the sender in to and
+ * in reply_to and the batch in bcc, so no recipient sees another.
  *
  * WHY (owner ruling 2026-10-02, owner decision 2026-10-07): key holders hear from us once, with
  * the news of the new version, one paragraph about M:OS, the article, the update and install
@@ -522,28 +523,70 @@ function classify(status) {
 }
 
 /**
- * Send one mail per recipient. recipients is the list still to be mailed. For each address:
- * write the pending marker, POST, write the final marker. A pending marker that cannot be
- * written stops the run before the POST. Returns {sent, failed, unknown, stopped}.
+ * Largest number of recipients in one message. The Resend send-email reference
+ * (https://resend.com/docs/api-reference/emails/send-email, read 2026-10-07) documents "Max 50" for
+ * the to field and does not state a separate cap for bcc. Every message here has one address in
+ * to (the sender), so 49 bcc recipients keep the to plus bcc total at 50 or below.
+ */
+const BATCH_MAX = 49;
+
+/** The bare address inside a From value (angle brackets allowed). Lowercased. Null when invalid. */
+function fromAddress(from) {
+  const m = /<([^<>]+)>/.exec(String(from));
+  const a = (m ? m[1] : String(from)).trim().toLowerCase();
+  return ADDRESS_SHAPE.test(a) ? a : null;
+}
+
+/** Split the list into batches no larger than the limit. A smaller limit is allowed (tests). */
+function makeBatches(list, size) {
+  const n = Math.max(1, Math.min(BATCH_MAX, Number.isInteger(size) && size > 0 ? size : BATCH_MAX));
+  const out = [];
+  for (let i = 0; i < list.length; i += n) out.push(list.slice(i, i + n));
+  return out;
+}
+
+/**
+ * Send the notice in batches. Each message has the sender address in to and in reply_to, and the
+ * batch in bcc: no recipient address is ever in to or cc, and recipients never see each other.
+ * recipients is the list still to be mailed. For each batch: write a pending marker for EVERY
+ * member (a failed write stops the run before the POST), POST, then write the final state for every
+ * member. An unknown result marks the whole batch unknown_outcome. The Idempotency-Key is a hash
+ * of the sorted member markers. Returns {sent, failed, unknown, batches, stopped}; the three counts
+ * are people.
  */
 async function sendAll(recipients, notice, env, http, deps, ledger) {
   const d = deps || {};
-  const out = { sent: 0, failed: 0, unknown: 0, stopped: null };
+  const out = { sent: 0, failed: 0, unknown: 0, batches: 0, stopped: null };
   const base = resendBase(env);
   const aborted = d.aborted || function () { return false; };
+  const sender = fromAddress(env.MOS_KEYHOLDER_NOTICE_FROM);
+  if (!sender) { out.stopped = REASONS.sender_unverified; return out; }
+  const batches = makeBatches(recipients, d.batchSize);
   let streak = 0;
-  for (let i = 0; i < recipients.length; i += 1) {
+  for (let i = 0; i < batches.length; i += 1) {
     if (aborted()) { out.stopped = REASONS.interrupted; break; }
-    const address = recipients[i];
-    const marker = markerFor(ledger.salt, address);
-    const pend = appendMarker(ledger.dir, marker, 'pending');
-    if (!pend.ok) { out.stopped = REASONS.ledger_unwritable; break; }
-    const body = JSON.stringify({ from: env.MOS_KEYHOLDER_NOTICE_FROM, to: [address], subject: notice.subject, text: notice.text, html: notice.html });
+    const members = batches[i].map(function (address) { return { address, marker: markerFor(ledger.salt, address) }; });
+    let pendingOk = true;
+    for (const m of members) {
+      if (!appendMarker(ledger.dir, m.marker, 'pending').ok) { pendingOk = false; break; }
+    }
+    if (!pendingOk) { out.stopped = REASONS.ledger_unwritable; break; }
+    const sortedMarkers = members.map(function (m) { return m.marker; }).sort();
+    const body = JSON.stringify({
+      from: env.MOS_KEYHOLDER_NOTICE_FROM,
+      to: [sender],
+      reply_to: sender,
+      bcc: members.map(function (m) { return m.address; }),
+      subject: notice.subject,
+      text: notice.text,
+      html: notice.html,
+    });
     const headers = {
       Authorization: 'Bearer ' + env.RESEND_API_KEY,
       'Content-Type': 'application/json',
-      'Idempotency-Key': notice.hash.slice(0, 12) + '-' + marker.slice(0, 32),
+      'Idempotency-Key': notice.hash.slice(0, 12) + '-' + crypto.createHash('sha256').update(sortedMarkers.join(',')).digest('hex').slice(0, 32),
     };
+    out.batches += 1;
     let res = await http(base + '/emails', { method: 'POST', headers, body });
     if (res.status === 429) {
       const wait = Math.min(10, Math.max(0, Number(res.retryAfter) || 0));
@@ -552,23 +595,26 @@ async function sendAll(recipients, notice, env, http, deps, ledger) {
     }
     const cls = classify(res.status);
     if (cls === 'accepted') {
-      if (typeof d.afterAccept === 'function') await d.afterAccept({ index: i });
-      const w = appendMarker(ledger.dir, marker, 'sent');
-      if (!w.ok) { out.stopped = REASONS.ledger_unwritable; break; }
-      out.sent += 1;
+      if (typeof d.afterAccept === 'function') await d.afterAccept({ index: i, members: members.length });
+      for (const m of members) {
+        if (!appendMarker(ledger.dir, m.marker, 'sent').ok) { out.stopped = REASONS.ledger_unwritable; break; }
+        out.sent += 1;
+      }
+      if (out.stopped) break;
       streak = 0;
-      if (typeof d.afterSent === 'function') await d.afterSent({ index: i });
+      if (typeof d.afterSent === 'function') await d.afterSent({ index: i, members: members.length });
     } else {
       const state = cls === 'unknown' ? 'unknown_outcome' : 'failed';
-      const w = appendMarker(ledger.dir, marker, state);
-      if (!w.ok) { out.stopped = REASONS.ledger_unwritable; break; }
-      if (cls === 'unknown') out.unknown += 1; else out.failed += 1;
+      for (const m of members) {
+        if (!appendMarker(ledger.dir, m.marker, state).ok) { out.stopped = REASONS.ledger_unwritable; break; }
+        if (cls === 'unknown') out.unknown += 1; else out.failed += 1;
+      }
+      if (out.stopped) break;
       streak += 1;
-      if (d.onProblem) d.onProblem(res.status);
       if (streak >= MAX_FAIL_STREAK) { out.stopped = REASONS.send_failed; break; }
     }
     if (aborted()) { out.stopped = REASONS.interrupted; break; }
-    if (i + 1 < recipients.length) await sleep(d.pace, d.signal);
+    if (i + 1 < batches.length) await sleep(d.pace, d.signal);
   }
   return out;
 }
@@ -622,6 +668,7 @@ function normDeps(deps) {
     promptTimeoutMs: d.promptTimeoutMs !== undefined ? d.promptTimeoutMs : ((Number.isFinite(promptS) && promptS > 0 ? promptS : 300) * 1000),
     afterAccept: d.afterAccept,
     afterSent: d.afterSent,
+    batchSize: d.batchSize,
     signal: d.signal || null,
     aborted: d.aborted || function () { return false; },
   };
@@ -737,7 +784,7 @@ async function runStep(opts, deps) {
     const rec = await loadRecipients(d.env, http);
     if (!rec.ok) return refuse(rec.reason, rec.detail || null);
     const c = rec.counts;
-    say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded);
+    say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + makeBatches(rec.recipients, d.batchSize).length + ' batch_size=' + BATCH_MAX);
 
     const sl = ledgerSalt(dir);
     if (!sl.ok) return refuse(sl.reason, sl.detail || null);
@@ -752,7 +799,7 @@ async function runStep(opts, deps) {
       if ((state === 'pending' || state === 'unknown_outcome') && !o.includeUnknown) { unknownSkipped += 1; continue; }
       todo.push(a);
     }
-    say('keyholder-notice: already_mailed=' + alreadyMailed + ' unknown_skipped=' + unknownSkipped + ' to_send=' + todo.length);
+    say('keyholder-notice: already_mailed=' + alreadyMailed + ' unknown_skipped=' + unknownSkipped + ' to_send=' + todo.length + ' batches=' + makeBatches(todo, d.batchSize).length);
     const stats = { to_send: todo.length, already_mailed: alreadyMailed, unknown_skipped: unknownSkipped };
     if (todo.length === 0) return refuse(REASONS.nothing_to_send, 'every recipient is already mailed or held back', stats);
 
@@ -797,7 +844,7 @@ async function dryRun(opts, deps) {
     const rec = await loadRecipients(d.env, http);
     if (rec.ok) {
       const c = rec.counts;
-      say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded);
+      say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + makeBatches(rec.recipients, d.batchSize).length + ' batch_size=' + BATCH_MAX);
     } else {
       say('keyholder-notice: recipients: unavailable (' + rec.reason + ')');
     }
@@ -934,6 +981,9 @@ module.exports = {
   pidAlive,
   resendBase,
   makeHttp,
+  BATCH_MAX,
+  fromAddress,
+  makeBatches,
   checkSender,
   loadRecipients,
   sendAll,
