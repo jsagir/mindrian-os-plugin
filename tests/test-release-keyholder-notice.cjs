@@ -81,7 +81,7 @@ function part1() {
   for (const k of REASON_KEYS) assert.equal(K.REASONS[k], k, 'reason ' + k);
   ok('REASONS is frozen and carries every typed reason');
 
-  // ---- template contract (content pins by the owner rewrite of 2026-10-07) ----
+  // ---- template contract (content pins by the owner rewrite of 2026-10-07, part 3) ----
   const txtRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.txt'), 'utf8');
   const htmlRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.html'), 'utf8');
   function count(hay, needle) { return hay.split(needle).length - 1; }
@@ -89,13 +89,21 @@ function part1() {
     assert.ok(body.indexOf(EM) === -1, name + ' has no em-dash');
     assert.ok(body.indexOf(EN) === -1, name + ' has no en-dash');
     assert.ok(!/brain/i.test(body), name + ' has no word Brain');
+    // The name is written /m:os. Upper-case M:OS never appears (case sensitive, comments included).
+    assert.ok(body.indexOf('M:OS') === -1, name + ' has no upper-case M:OS');
+    assert.ok(body.indexOf('/m:os') !== -1, name + ' has /m:os');
   }
-  // The product name is written lowercase m:os everywhere, in the raw files (comments included).
-  assert.ok(txtRaw.indexOf('M:OS') === -1, 'notice.txt has no upper-case M:OS');
-  assert.ok(htmlRaw.indexOf('M:OS') === -1, 'notice.html has no upper-case M:OS');
-  assert.ok(txtRaw.indexOf('m:os') !== -1 && htmlRaw.indexOf('m:os') !== -1, 'm:os is present in both templates');
-  assert.ok(txtRaw.indexOf('Give complexity shape.') !== -1 && htmlRaw.indexOf('Give complexity shape.') !== -1, 'brand line in both');
-  ok('no em-dash, no en-dash, no word Brain; the name is lowercase m:os; the brand line is present');
+  ok('no em-dash, no en-dash, no word Brain; no upper-case M:OS; the name is written /m:os');
+
+  // subject and preheader
+  assert.equal(txtRaw.split('\n')[0], 'Subject: /m:os beta.65: A wider search, a clearer research trail', 'subject line');
+  const previewLine = (txtRaw.split('\n')[1] || '').replace(/^Preview text:\s*/, '');
+  assert.ok(/^Preview text: /.test(txtRaw.split('\n')[1] || '') && previewLine.length > 0, 'preview text line');
+  const pre = htmlRaw.match(/<div style="display:none[^"]*">([^<]*)<\/div>/);
+  assert.ok(pre && pre[1] === previewLine, 'the hidden preheader div carries the preview text');
+  assert.ok(htmlRaw.indexOf('<title>/m:os beta.65') !== -1, 'html title');
+  assert.ok(txtRaw.slice(txtRaw.indexOf('\n\n') + 2).startsWith('/m:os\n'), 'the text body starts with /m:os');
+  ok('subject, preview text and hidden preheader div');
 
   // HTML format contract
   assert.ok(!/<style[\s>]/i.test(htmlRaw), 'no style element');
@@ -104,33 +112,61 @@ function part1() {
   assert.ok(/dir="ltr"/.test(htmlRaw), 'dir ltr');
   assert.ok(/text-align:left/.test(htmlRaw), 'text-align left');
   assert.ok(/<body[^>]*background:#F5F0E6/i.test(htmlRaw), 'paper ground #F5F0E6 on the body');
-  assert.ok(/Js\.<br>\s*<span[^>]*>Give complexity shape\.<\/span><\/td>/.test(htmlRaw), 'HTML sign-off Js. then Give complexity shape.');
-  assert.ok(/\nJs\.\nGive complexity shape\.\n/.test(txtRaw), 'text sign-off Js. then Give complexity shape.');
-  ok('HTML contract: inline styles only, table layout, LTR, paper ground; sign-off Js. then Give complexity shape. in both');
+  assert.ok(/>Js\.<\/td>/.test(htmlRaw), 'HTML sign-off Js.');
+  assert.ok(/\nJs\.\n/.test(txtRaw), 'text sign-off Js.');
+  ok('HTML contract: inline styles only, table layout, LTR, paper ground; sign-off Js. in both');
 
-  // footer: the npm path before the website link; website link in body and footer
-  const txtFooter = txtRaw.slice(txtRaw.lastIndexOf('\n--\n'));
-  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') !== -1 && txtFooter.indexOf('https://mindrian-os.com') !== -1, 'text footer has both');
-  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') < txtFooter.indexOf('https://mindrian-os.com'), 'text footer: npm path first');
+  // the logo is a table-cell raster: 225 px wide, 56 px high, no img, no data: URI
+  const logoStart = htmlRaw.indexOf('aria-label="/m:os"');
+  assert.ok(logoStart !== -1, 'the logo link has the text alternative /m:os');
+  const logo = htmlRaw.slice(logoStart, htmlRaw.indexOf('</a>', logoStart));
+  const bands = logo.match(/<table role="presentation"[^>]*\swidth="225"[^>]*>[\s\S]*?<\/table>/g) || [];
+  assert.ok(bands.length > 1, 'the logo is a stack of 225 px wide tables (raster rows)');
+  let logoHeight = 0;
+  for (const band of bands) {
+    const heights = (band.match(/<td\s[^>]*\sheight="(\d+)"/g) || []).map(function (t) { return Number(t.match(/height="(\d+)"/)[1]); });
+    assert.ok(heights.length > 0 && heights.every(function (h) { return h === heights[0]; }), 'every cell of a band has the same height');
+    logoHeight += heights[0];
+    const widths = (band.match(/<td\s(?:[^>]*\s)?width="(\d+)"/g) || []).map(function (t) { return Number(t.match(/width="(\d+)"/)[1]); });
+    assert.equal(widths.reduce(function (x, y) { return x + y; }, 0), 225, 'every band is 225 px wide');
+  }
+  assert.equal(logoHeight, 56, 'the logo raster is 56 px high');
+  assert.ok(!/<img\b/i.test(logo), 'no img tag in the logo');
+  ok('logo: table-cell raster, 225 x 56 px, no img tag, no data: URI');
+
+  // website link in body and footer
   const htmlFooter = htmlRaw.slice(htmlRaw.lastIndexOf('<tr>'));
-  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') !== -1 && htmlFooter.indexOf('href="https://mindrian-os.com"') !== -1, 'html footer has both');
-  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') < htmlFooter.indexOf('href="https://mindrian-os.com"'), 'html footer: npm path first');
-  assert.ok(htmlRaw.slice(0, htmlRaw.lastIndexOf('<tr>')).indexOf('mindrian-os.com') !== -1, 'html body has the website');
-  ok('footer: npm path first, website link present');
+  assert.ok(htmlFooter.indexOf('href="https://mindrian-os.com"') !== -1, 'html footer has the website link');
+  assert.ok(htmlRaw.slice(0, htmlRaw.lastIndexOf('<tr>')).indexOf('href="https://mindrian-os.com"') !== -1, 'html body has the website link');
+  const txtFooter = txtRaw.slice(txtRaw.lastIndexOf('\n--\n'));
+  assert.ok(txtFooter.indexOf('mindrian-os.com') !== -1, 'text footer has the website');
+  ok('the website link is in the body and the footer');
 
-  // update and install commands (the two update commands come from the single source)
+  // headings, update and install commands (the update pair comes from the single source)
+  assert.ok(htmlRaw.indexOf('Update or install /m:os') !== -1 && /UPDATE OR INSTALL \/m:os/.test(txtRaw), 'update heading');
+  assert.ok(htmlRaw.indexOf('The breakthrough might already exist') !== -1 && /THE BREAKTHROUGH MIGHT ALREADY EXIST/.test(txtRaw), 'article heading');
+  assert.ok(htmlRaw.indexOf('Bring us a problem') !== -1 && /BRING US A PROBLEM/.test(txtRaw), 'invitation heading');
   for (const cmd of [UPDATE.MARKETPLACE_UPDATE_COMMAND, UPDATE.PLUGIN_UPDATE_COMMAND, 'npx @mindrian_os/cli']) {
     assert.ok(txtRaw.indexOf(cmd) !== -1, 'text has the command ' + cmd);
     assert.ok(htmlRaw.indexOf('>' + cmd + '</code>') !== -1, 'html has the command ' + cmd);
   }
-  ok('update and install commands are in both templates; the update pair equals lib/core/update-path.cjs');
+  ok('headings and the three update and install commands; the update pair equals lib/core/update-path.cjs');
 
-  // invitation and opt-out
+  // invitation, stop line, unsubscribe
   for (const [name, body] of [['notice.txt', txtRaw], ['notice.html', htmlRaw]]) {
-    for (const w of ['30 minute', 'Zoom', 'Reply']) assert.ok(body.indexOf(w) !== -1, name + ' invitation has ' + w);
-    assert.ok(/Reply "stop"/.test(body), name + ' has the opt-out line with the word stop');
+    for (const w of ['30-minute', 'Zoom', 'Reply']) assert.ok(body.indexOf(w) !== -1, name + ' invitation has ' + w);
+    assert.ok(/unsubscribe/i.test(body), name + ' has the word unsubscribe');
   }
-  ok('invitation words (30 minute, Zoom, Reply) and the opt-out line with stop are in both templates');
+  assert.ok(/Reply "stop"/.test(txtRaw) && /Reply &ldquo;stop&rdquo;/.test(htmlRaw), 'the stop line in both');
+  ok('invitation words (30-minute, Zoom, Reply), the stop line and the word unsubscribe');
+
+  // the sender placeholder: once in each template, inside a mailto link
+  assert.equal(count(txtRaw, '{{SENDER}}'), 1, 'one {{SENDER}} in the text');
+  assert.equal(count(htmlRaw, '{{SENDER}}'), 1, 'one {{SENDER}} in the html');
+  assert.ok(txtRaw.indexOf('mailto:{{SENDER}}?subject=stop') !== -1 && htmlRaw.indexOf('href="mailto:{{SENDER}}?subject=stop"') !== -1, 'the placeholder sits in the mailto unsubscribe link');
+  assert.equal(count(txtRaw, '{{'), 1);
+  assert.equal(count(htmlRaw, '{{'), 1);
+  ok('the placeholder {{SENDER}} appears once in each template, in the unsubscribe mailto link');
 
   // article and URL set
   const ARTICLE = 'https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field';
@@ -152,8 +188,8 @@ function part1() {
   for (const u of urlsOf(htmlRaw)) assert.ok(ALLOWED_HTML.has(u), 'html URL in the allowed set: ' + u);
   ok('URL set is pinned: website root, article, hero image (html only); no other host');
 
-  // image arms
-  assert.equal((htmlRaw.match(/<img\b/gi) || []).length, 1, 'exactly one img element');
+  // image arms: exactly one img, the hero
+  assert.equal((htmlRaw.match(/<img\b/gi) || []).length, 1, 'exactly one img element (the logo is not an img)');
   const img = htmlRaw.match(/<img\b[^>]*>/i)[0];
   assert.ok(/\ssrc="https:\/\/[^"]+"/.test(img) && !/src="data:/i.test(img), 'img src is https, not data:');
   assert.equal((img.match(/\ssrc="([^"]+)"/) || [])[1], HERO, 'img src equals the hero URL');
@@ -165,7 +201,7 @@ function part1() {
   assert.ok(htmlRaw.indexOf(CAPTION) !== -1 && txtRaw.indexOf(CAPTION) !== -1, 'caption in html and text');
   const htmlBytes = Buffer.byteLength(htmlRaw, 'utf8');
   assert.ok(htmlBytes < 51200, 'HTML under 51200 bytes');
-  ok('image arms: one img, https src, alt, width, caption, size ' + htmlBytes + ' bytes (limit 51200); the image is never fetched');
+  ok('image arms: one img (the hero), https src, alt, width, caption; HTML size ' + htmlBytes + ' bytes (pinned under 51200); the image is never fetched');
 
   // ---- parse arms ----
   const notice = K.loadNotice(TPL_DIR);
@@ -730,6 +766,8 @@ function docArms() {
   ok('doc arms: run-all-349.sh registers this test and its em-dash guard covers the new files');
 }
 
+function txtOf(n) { return 'Subject: ' + n.subject + '\n\n' + n.text; }
+
 async function part2() {
   const K = require(MOD_PATH);
   const notice = K.loadNotice(TPL_DIR);
@@ -887,8 +925,14 @@ async function part2() {
       assert.equal(b.reply_to, FROM_ADDR, 'reply_to is the sender address');
       assert.ok(Array.isArray(b.bcc) && b.bcc.length === 1, 'bcc holds the batch');
       assert.ok(!('cc' in b), 'no cc');
-      assert.equal(b.from, FROM); assert.equal(b.subject, notice.subject);
-      assert.equal(b.text, notice.text); assert.equal(b.html, notice.html);
+      const rn = K.renderNotice(notice, FROM_ADDR);
+      assert.equal(rn.ok, true);
+      assert.equal(b.from, FROM); assert.equal(b.subject, rn.subject);
+      assert.equal(b.text, rn.text); assert.equal(b.html, rn.html);
+      assert.ok(b.text.indexOf('{{') === -1 && b.html.indexOf('{{') === -1 && b.subject.indexOf('{{') === -1, 'no placeholder remains after substitution');
+      assert.ok(b.text.indexOf('mailto:' + FROM_ADDR + '?subject=stop') !== -1, 'text unsubscribe link uses the sender address');
+      assert.ok(b.html.indexOf('href="mailto:' + FROM_ADDR + '?subject=stop"') !== -1, 'html unsubscribe link uses the sender address');
+      assert.equal(b.headers['List-Unsubscribe'], '<mailto:' + FROM_ADDR + '?subject=stop>', 'List-Unsubscribe uses the same address');
       const mk = K.markerFor(saltRec, b.bcc[0]);
       assert.equal(p.headers['idempotency-key'], notice.hash.slice(0, 12) + '-' + crypto.createHash('sha256').update([mk].sort().join(',')).digest('hex').slice(0, 32), 'idempotency key is a hash of the sorted member markers');
       assert.ok(p.headers['idempotency-key'].indexOf(localPart(1)) === -1);
@@ -1246,6 +1290,37 @@ async function part2() {
     assert.ok(!lockPresent(dir));
     snap(dir);
     ok('marker write failure: ledger_unwritable, stop at once, pending stays pending');
+
+    // sender placeholder: render and the unknown-placeholder refusal
+    {
+      const okRender = K.renderNotice(notice, FROM_ADDR);
+      assert.equal(okRender.ok, true);
+      assert.ok(!/\{\{|\}\}/.test(okRender.text + okRender.html + okRender.subject), 'no {{ remains after substitution');
+      assert.equal(K.renderNotice(notice, 'not-an-address').ok, false);
+      assert.equal(K.renderNotice(notice, '').reason, 'template_missing');
+      const andAddr = 'a&b' + AT + 'stub.invalid';
+      assert.ok(K.renderNotice(notice, andAddr).html.indexOf('mailto:a&amp;b' + AT) !== -1, 'the address is escaped in the html');
+      const badDir = mkTmp('badtpl');
+      fs.writeFileSync(path.join(badDir, 'notice.txt'), txtOf(notice).replace('{{SENDER}}', '{{OTHER}}'));
+      fs.writeFileSync(path.join(badDir, 'notice.html'), notice.html);
+      const badLoad = K.loadNotice(badDir);
+      assert.equal(badLoad.ok, false);
+      assert.equal(badLoad.reason, 'template_missing');
+      assert.equal(badLoad.detail, 'unknown_placeholder');
+      fs.writeFileSync(path.join(badDir, 'notice.txt'), txtOf(notice));
+      fs.writeFileSync(path.join(badDir, 'notice.html'), notice.html.replace('mailto:{{SENDER}}', 'mailto:{{SENDER}}{{ALSO}}'));
+      assert.equal(K.loadNotice(badDir).detail, 'unknown_placeholder');
+      stub.reset();
+      fs.writeFileSync(path.join(badDir, 'notice.html'), notice.html.replace('{{SENDER}}', '{{OTHER}}'));
+      const dBad = newDir();
+      const depsBad = mkDeps(stub, dBad, { noticeDir: badDir });
+      const resBad = await K.runStep({ releaseVersion: '0.0.0' }, depsBad);
+      assert.equal(resBad.reason, 'template_missing');
+      assert.ok(hasLine(depsBad, /reason=template_missing/));
+      assert.equal(stub.reqs.length, 0, 'an unknown placeholder refuses before any request');
+      assert.ok(!ledgerPresent(dBad) && !lockPresent(dBad));
+    }
+    ok('sender placeholder: filled with the From address in the text, the html and List-Unsubscribe; an unknown placeholder refuses with template_missing before any request');
 
     // ------------------------------------------------------------ batch and bcc arms (owner decision 2026-10-07)
     assert.equal(K.BATCH_MAX, 49, 'the batch limit constant');

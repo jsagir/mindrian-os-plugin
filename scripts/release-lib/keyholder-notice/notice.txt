@@ -1,32 +1,47 @@
-Subject: m:os beta.65 is out: the breakthrough might already exist in the wrong field
+Subject: /m:os beta.65: A wider search, a clearer research trail
+Preview text: See what your research checked, and why your next breakthrough might come from another field.
 
-THE BREAKTHROUGH MIGHT ALREADY EXIST IN THE WRONG FIELD
-Image: Same formation, different field. AI-generated concept illustration, made with Codex.
+/m:os
 
 Hi,
 
-m:os beta.65 is out. What is new, in plain words:
-- Every research run says what it searched, what it refused and what it did not run. A gap in the answer is visible, not hidden.
-- A deep run opens with a scan of the field: what is already deployed, the field's own words and the recent state of the art. The search starts wider than your own wording.
-- Searches are built by practice, mechanism and neighbor field, not only by your problem words. A solution that lives in another field can turn up.
+/m:os beta.65 is out. This update helps you see what your research actually covered, and look beyond the familiar language of your own field.
 
-What m:os is: m:os is a plugin for Claude, for Claude Code, Claude Desktop and Cowork. You give a hard problem a data room on your machine, where evidence and assumptions stay apart and you decide what to test next. It is built on the PWS (Problems Worth Solving) method.
+Here’s what’s new:
 
-The short version of the article: Teams search in their own field's words, so a solution in another field stays hidden. Strip the industry nouns and the structural twin becomes searchable.
+- Clearer research trails. Every run now states what it searched, what it refused, and what it did not run.
+- A better starting point. Deep research opens with a scan of what is already deployed, the field’s own terminology, and the recent state of the art.
+- A wider search. Searches are built around practices, mechanisms, and neighboring fields, not just the words you used to describe your problem.
 
-Update or install m:os now.
-Already installed, in Claude Code, run:
+UPDATE OR INSTALL /m:os
+
+Already installed? In Claude Code, run:
 /plugin marketplace update
+
+Then, in your terminal:
 claude plugin update mos@mindrian-marketplace
-New here, run: npx @mindrian_os/cli
 
-Read the article: https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field
+New here? Run in your terminal:
+npx @mindrian_os/cli
 
-Want to work on your own problem with us? I would like to offer you a 30 minute one-to-one online session on Zoom with me and Lawrence, working on a problem you bring. Reply to this email with a line about your problem and a few times that suit you, and I will set it up.
+/m:os is a plugin for Claude Code, Claude Desktop, and Cowork, built on the PWS (Problems Worth Solving) method. It gives a hard problem a data room on your machine, where evidence and assumptions stay separate and you decide what to test next.
+
+THE BREAKTHROUGH MIGHT ALREADY EXIST
+Image: Same formation, different field. AI-generated concept illustration, made with Codex.
+
+Your field may not have solved your problem. Another field may have, under a different name.
+
+Teams search using their own industry’s vocabulary, so useful solutions elsewhere can stay hidden. Our article explores a simple shift: strip away the industry nouns and make the underlying structure searchable.
+
+Read "The breakthrough might already exist in the wrong field": https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field
+
+BRING US A PROBLEM
+
+I’d like to offer you a 30-minute Zoom session with me and Lawrence, working on a problem you bring.
+
+Reply with a line about your problem and a few times that suit you, and I’ll set it up.
 
 Js.
-Give complexity shape.
 
 --
-You get this because you once requested access on mindrian-os.com. Reply "stop" and I will not write again.
-npx @mindrian_os/cli | https://mindrian-os.com
+You’re receiving this because you previously requested access on mindrian-os.com. Reply "stop" and I won’t write again, or unsubscribe here: mailto:{{SENDER}}?subject=stop

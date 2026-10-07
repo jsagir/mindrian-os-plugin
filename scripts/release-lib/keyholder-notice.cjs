@@ -45,6 +45,8 @@ const crypto = require('node:crypto');
 
 const TEMPLATE_DIR = path.join(__dirname, 'keyholder-notice');
 const QUESTION = 'Send the key-holder announcement now?';
+const SENDER_PLACEHOLDER = '{{SENDER}}';
+const ADDRESS_SHAPE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 const LEDGER_FILE = 'ledger.jsonl';
 const LOCK_FILE = 'ledger.lock';
 
@@ -102,10 +104,37 @@ function loadNotice(dir) {
     if (!m || cut === -1) return { ok: false, reason: REASONS.template_missing, detail: 'subject_missing' };
     const subject = m[1].trim();
     const text = raw.slice(cut + 2);
+    // The only placeholder is {{SENDER}}. Anything else in double braces is a template error.
+    for (const part of [subject, text, html]) {
+      if (part.split(SENDER_PLACEHOLDER).join('').match(/\{\{|\}\}/)) {
+        return { ok: false, reason: REASONS.template_missing, detail: 'unknown_placeholder' };
+      }
+    }
     return { ok: true, subject, text, html, hash: noticeHash(subject, text, html) };
   } catch (e) {
     return { ok: false, reason: REASONS.template_missing, detail: 'read_failed' };
   }
+}
+
+/**
+ * Fill the {{SENDER}} placeholder with the sender address, the same address used for To, Reply-To
+ * and List-Unsubscribe. Nothing else is substituted. Returns {ok, subject, text, html, hash} or
+ * {ok:false, reason:template_missing, detail}. The hash is the hash of the template.
+ */
+function renderNotice(notice, senderAddress) {
+  if (!notice || !notice.ok) return { ok: false, reason: REASONS.template_missing, detail: 'no_notice' };
+  if (typeof senderAddress !== 'string' || !ADDRESS_SHAPE.test(senderAddress)) {
+    return { ok: false, reason: REASONS.template_missing, detail: 'sender_invalid' };
+  }
+  const htmlSafe = senderAddress.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const fill = function (part, value) { return part.split(SENDER_PLACEHOLDER).join(value); };
+  const subject = fill(notice.subject, senderAddress);
+  const text = fill(notice.text, senderAddress);
+  const html = fill(notice.html, htmlSafe);
+  for (const part of [subject, text, html]) {
+    if (/\{\{|\}\}/.test(part)) return { ok: false, reason: REASONS.template_missing, detail: 'unknown_placeholder' };
+  }
+  return { ok: true, subject, text, html, hash: notice.hash };
 }
 
 function ledgerDir(env, homedir) {
@@ -458,7 +487,6 @@ async function checkSender(env, http) {
   return fail(listedUnverified ? 'domain_not_verified' : 'domain_not_listed');
 }
 
-const ADDRESS_SHAPE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 function cleanAddress(v) {
   if (typeof v !== 'string') return null;
   const a = v.trim().toLowerCase();
@@ -594,6 +622,8 @@ async function sendAll(recipients, notice, env, http, deps, ledger) {
   const aborted = d.aborted || function () { return false; };
   const sender = fromAddress(env.MOS_KEYHOLDER_NOTICE_FROM);
   if (!sender) { out.stopped = REASONS.sender_unverified; return out; }
+  const rn = renderNotice(notice, sender);
+  if (!rn.ok) { out.stopped = REASONS.template_missing; return out; }
   const batches = makeBatches(recipients, d.batchSize);
   let streak = 0;
   for (let i = 0; i < batches.length; i += 1) {
@@ -611,9 +641,9 @@ async function sendAll(recipients, notice, env, http, deps, ledger) {
       reply_to: sender,
       headers: { 'List-Unsubscribe': '<mailto:' + sender + '?subject=stop>' },
       bcc: members.map(function (m) { return m.address; }),
-      subject: notice.subject,
-      text: notice.text,
-      html: notice.html,
+      subject: rn.subject,
+      text: rn.text,
+      html: rn.html,
     });
     const headers = {
       Authorization: 'Bearer ' + env.RESEND_API_KEY,
@@ -819,6 +849,8 @@ async function runStep(opts, deps) {
     if (!rec.ok) return refuse(rec.reason, rec.detail || null);
     const c = rec.counts;
     say('keyholder-notice: recipients: key_rows=' + c.key_rows + ' with_address=' + c.with_address + ' via_auth=' + c.via_auth + ' no_address=' + c.no_address + ' recipients=' + c.recipients + ' auth_accounts=' + c.auth_accounts + ' auth_only_excluded=' + c.auth_only_excluded + ' batches=' + batchPlan(rec.recipients.length).count + ' batch_size=' + batchPlan(rec.recipients.length).size);
+    const rendered = renderNotice(notice, fromAddress(d.env.MOS_KEYHOLDER_NOTICE_FROM));
+    if (!rendered.ok) return refuse(REASONS.template_missing, 'the template does not fill (' + rendered.detail + ')');
 
     const sl = ledgerSalt(dir);
     if (!sl.ok) return refuse(sl.reason, sl.detail || null);
@@ -999,6 +1031,7 @@ module.exports = {
   LOCK_FILE,
   TEMPLATE_DIR,
   loadNotice,
+  renderNotice,
   noticeHash,
   redact,
   ledgerDir,
