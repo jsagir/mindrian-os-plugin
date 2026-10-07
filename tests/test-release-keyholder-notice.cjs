@@ -20,7 +20,6 @@ const crypto = require('node:crypto');
 const REPO = path.resolve(__dirname, '..');
 const MOD_PATH = path.join(REPO, 'scripts', 'release-lib', 'keyholder-notice.cjs');
 const TPL_DIR = path.join(REPO, 'scripts', 'release-lib', 'keyholder-notice');
-const UPDATE = require(path.join(REPO, 'lib', 'core', 'update-path.cjs'));
 
 const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
@@ -81,7 +80,7 @@ function part1() {
   for (const k of REASON_KEYS) assert.equal(K.REASONS[k], k, 'reason ' + k);
   ok('REASONS is frozen and carries every typed reason');
 
-  // ---- template contract ----
+  // ---- template contract (generic only; the owner is rewriting the mail content) ----
   const txtRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.txt'), 'utf8');
   const htmlRaw = fs.readFileSync(path.join(TPL_DIR, 'notice.html'), 'utf8');
   for (const [name, body] of [['notice.txt', txtRaw], ['notice.html', htmlRaw]]) {
@@ -89,96 +88,17 @@ function part1() {
     assert.ok(body.indexOf(EN) === -1, name + ' has no en-dash');
     assert.ok(!/brain/i.test(body), name + ' has no word Brain');
   }
-  assert.equal(htmlRaw.split(EM).length - 1, 0, 'HTML holds zero em-dashes');
   ok('no em-dash, no en-dash, no word Brain in either template');
-
-  assert.ok(!/<style[\s>]/i.test(htmlRaw), 'no style element');
-  assert.ok(!/\sclass\s*=/i.test(htmlRaw), 'no class attribute');
-  assert.ok(/role="presentation"/.test(htmlRaw), 'table layout role=presentation');
-  assert.ok(/dir="ltr"/.test(htmlRaw), 'dir ltr');
-  assert.ok(/text-align:left/.test(htmlRaw), 'text-align left');
-  assert.ok(/<body[^>]*background:#F5F0E6/i.test(htmlRaw), 'paper ground #F5F0E6 on the body');
-  ok('HTML contract: inline styles only, table layout, LTR, paper ground');
-
-  assert.ok(/Js\.\s*<\/td>/.test(htmlRaw), 'HTML sign-off Js.');
-  assert.ok(/\nJs\.\n/.test(txtRaw), 'text sign-off Js.');
-  const txtFooter = txtRaw.slice(txtRaw.lastIndexOf('\n--\n'));
-  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') !== -1 && txtFooter.indexOf('mindrian-os.com') !== -1, 'text footer has both');
-  assert.ok(txtFooter.indexOf('npx @mindrian_os/cli') < txtFooter.indexOf('mindrian-os.com'), 'text footer: npm path first');
-  const htmlFooter = htmlRaw.slice(htmlRaw.lastIndexOf('<tr>'));
-  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') !== -1 && htmlFooter.indexOf('mindrian-os.com') !== -1, 'html footer has both');
-  assert.ok(htmlFooter.indexOf('npx @mindrian_os/cli') < htmlFooter.indexOf('mindrian-os.com'), 'html footer: npm path first');
-  assert.ok(txtRaw.slice(0, txtRaw.lastIndexOf('\n--\n')).indexOf('mindrian-os.com') !== -1, 'text body has the website');
-  assert.ok(htmlRaw.slice(0, htmlRaw.lastIndexOf('<tr>')).indexOf('mindrian-os.com') !== -1, 'html body has the website');
-  ok('sign-off Js., website link in body and footer, npm path first in the footer');
-
-  // fixed points
-  assert.ok(/retired/i.test(txtRaw) && /retired/i.test(htmlRaw), 'old key retired');
-  assert.ok(/Theo/.test(txtRaw) && /Theo/.test(htmlRaw), 'Theo named');
-  assert.ok(/without a key/.test(txtRaw) && /without one/.test(htmlRaw), 'Theo needs no key');
-  for (let n = 1; n <= 5; n += 1) {
-    assert.ok(new RegExp('(^|\\n)' + n + '\\. ').test(txtRaw), 'text step ' + n);
-    assert.ok(new RegExp('>' + n + '</td>').test(htmlRaw), 'html step ' + n);
-  }
-  assert.ok(txtRaw.indexOf('tick the box on your home page') !== -1 && htmlRaw.indexOf('tick the box on your home page') !== -1, 'tick the box');
-  ok('the four fixed points are in both templates');
-
-  // update block
-  assert.ok(txtRaw.indexOf('Already installed? Update to the latest.') !== -1, 'text update heading');
-  assert.ok(htmlRaw.indexOf('Already installed? Update to the latest.') !== -1, 'html update heading');
-  for (const cmd of [UPDATE.MARKETPLACE_UPDATE_COMMAND, UPDATE.PLUGIN_UPDATE_COMMAND]) {
-    assert.ok(txtRaw.indexOf(cmd) !== -1, 'text has update command from the single source');
-    assert.ok(htmlRaw.indexOf('>' + cmd + '</code>') !== -1, 'html has update command from the single source');
-  }
-  ok('both update commands equal the exports of lib/core/update-path.cjs');
-
-  // article and URL set
-  const ARTICLE = 'https://mindrian-os.com/blog/the-breakthrough-might-already-exist-in-the-wrong-field';
-  const HERO = 'https://mindrian-os.com/images/blog/the-breakthrough-might-already-exist-in-the-wrong-field-hero.jpg';
-  function count(hay, needle) { return hay.split(needle).length - 1; }
-  assert.equal(count(txtRaw, ARTICLE), 1, 'article URL once in text');
-  const hrefCount = count(htmlRaw, 'href="' + ARTICLE + '"');
-  assert.ok(hrefCount >= 1, 'article URL is an href in html');
-  assert.equal(count(htmlRaw, ARTICLE), hrefCount, 'article URL only as an href value');
-  assert.equal(count(htmlRaw, HERO), 1, 'hero URL once in html');
-  assert.equal(count(htmlRaw, 'src="' + HERO + '"'), 1, 'hero URL only as the img src');
-  assert.equal(count(txtRaw, HERO), 0, 'hero URL not in text');
-  const ALLOWED_TXT = new Set(['https://mindrian-os.com', ARTICLE, 'https://claude.ai/install.sh', 'https://claude.ai/install.ps1']);
-  const ALLOWED_HTML = new Set(ALLOWED_TXT);
-  ALLOWED_HTML.add(HERO);
-  function urlsOf(s) {
-    return (s.match(/https?:\/\/[^\s"'<>)]+/g) || []).map(function (u) { return u.replace(/[.,;]+$/, ''); });
-  }
-  for (const u of urlsOf(txtRaw)) assert.ok(ALLOWED_TXT.has(u), 'text URL in the allowed set: ' + u);
-  for (const u of urlsOf(htmlRaw)) assert.ok(ALLOWED_HTML.has(u), 'html URL in the allowed set: ' + u);
-  assert.ok(!/\d+\.\d+\.\d+/.test(txtRaw) && !/\d+\.\d+\.\d+/.test(htmlRaw), 'no version number');
-  ok('URL set is pinned: website root, article, two install URLs, hero image only in html');
-
-  // image arms
-  assert.equal((htmlRaw.match(/<img\b/gi) || []).length, 1, 'exactly one img element');
-  const img = htmlRaw.match(/<img\b[^>]*>/i)[0];
-  assert.ok(/\ssrc="https:\/\/[^"]+"/.test(img) && !/src="data:/i.test(img), 'img src is https, not data:');
-  assert.equal((img.match(/\ssrc="([^"]+)"/) || [])[1], HERO, 'img src equals the hero URL');
   assert.ok(htmlRaw.indexOf('data:') === -1, 'the string data: appears nowhere in the HTML');
-  const alt = (img.match(/\salt="([^"]*)"/) || [])[1];
-  assert.ok(alt && alt.trim().length > 0, 'img has non-empty alt');
-  assert.ok(/\swidth="\d+"/.test(img), 'img has a width attribute');
-  const CAPTION = 'AI-generated concept illustration, made with Codex.';
-  assert.ok(htmlRaw.indexOf(CAPTION) !== -1 && txtRaw.indexOf(CAPTION) !== -1, 'caption in html and text');
+  const imgs = htmlRaw.match(/<img\b[^>]*>/gi) || [];
+  for (const img of imgs) {
+    const alt = (img.match(/\salt="([^"]*)"/) || [])[1];
+    assert.ok(alt && alt.trim().length > 0, 'every img has a non-empty alt');
+    assert.ok(!/src="data:/i.test(img), 'img src is never a data: URI');
+  }
   const htmlBytes = Buffer.byteLength(htmlRaw, 'utf8');
   assert.ok(htmlBytes < 51200, 'HTML under 51200 bytes');
-  ok('image arms: one img, https src, alt, width, caption, size ' + htmlBytes + ' bytes (limit 51200); no fetch of the image');
-
-  // word arms
-  const BAD_WORDS = /\b(expire|expires|expiry|expired|active|inactive|request|requests|usage|status|tier|release|newsletter|beta|changelog)\b/i;
-  for (const [name, body] of [['notice.txt', txtRaw], ['notice.html', htmlRaw]]) {
-    const m = body.match(BAD_WORDS);
-    assert.ok(!m, name + ' carries a banned word: ' + (m && m[0]));
-    const stripped = body.split('claude --version').join('');
-    assert.ok(!/version/i.test(stripped), name + ' uses the word version outside claude --version');
-    assert.ok(!/\d+\s*(days?|times|requests)/i.test(body), name + ' has a digit count claim');
-  }
-  ok('word arms: no banned word, version only inside claude --version, no count claim');
+  ok('generic template arms: no data: URI, alt text on every img, size ' + htmlBytes + ' bytes (limit 51200); the image is never fetched');
 
   // ---- parse arms ----
   const notice = K.loadNotice(TPL_DIR);
@@ -414,6 +334,857 @@ function part1() {
   assert.equal(l4.ok, false);
   assert.equal(l4.reason, 'ledger_unwritable');
   ok('lock arms: O_EXCL create, pid and time only, present lock refused and untouched, release only own pid');
+}
+
+// ---------------------------------------------------------------------------
+// Part 2: loopback stub, network pieces, prompt flow, retry, dry-run, CLI, exit, leak
+// ---------------------------------------------------------------------------
+const http = require('node:http');
+const cp = require('node:child_process');
+
+const RKEY = 're_test_' + crypto.randomBytes(8).toString('hex');
+const SKEY = 'svc_test_' + crypto.randomBytes(8).toString('hex');
+const FROM_ADDR = 'notice' + AT + 'stub.invalid';
+const FROM = 'MOS Notice <' + FROM_ADDR + '>';
+
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+async function waitFor(pred, ms) {
+  const end = Date.now() + (ms || 3000);
+  while (Date.now() < end) {
+    if (pred()) return true;
+    await sleep(10);
+  }
+  return false;
+}
+
+function defaultCfg() {
+  return {
+    domainsStatus: 200,
+    domainPages: [[{ name: 'stub.invalid', status: 'verified' }]],
+    send: null,
+    keyStatus: 200,
+    keyRows: [1, 2, 3, 4, 5].map(function (i) { return { email: addr(i), user_id: 'u' + i }; }),
+    authStatus: 200,
+    authUsers: [1, 2, 3, 4, 5, 9].map(function (i) { return { id: 'u' + i, email: addr(i) }; }),
+  };
+}
+
+function startStub() {
+  return new Promise(function (resolve) {
+    const stub = { cfg: defaultCfg(), reqs: [] };
+    const server = http.createServer(async function (req, res) {
+      const chunks = [];
+      for await (const c of req) chunks.push(c);
+      const body = Buffer.concat(chunks).toString('utf8');
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const rec = { method: req.method, path: u.pathname, query: u.searchParams, headers: req.headers, body };
+      stub.reqs.push(rec);
+      const cfg = stub.cfg;
+      function json(status, obj, headers) {
+        res.writeHead(status, Object.assign({ 'content-type': 'application/json' }, headers || {}));
+        res.end(JSON.stringify(obj));
+      }
+      try {
+        if (req.method === 'GET' && u.pathname === '/domains') {
+          if (cfg.domainsStatus !== 200) return json(cfg.domainsStatus, { message: 'no' });
+          let idx = 0;
+          const after = u.searchParams.get('after');
+          if (after) {
+            idx = cfg.domainPages.findIndex(function (pg) { return pg.some(function (d) { return 'id-' + d.name === after; }); }) + 1;
+          }
+          const page = cfg.domainPages[idx] || [];
+          return json(200, { object: 'list', has_more: idx + 1 < cfg.domainPages.length, data: page.map(function (d) { return { id: 'id-' + d.name, name: d.name, status: d.status }; }) });
+        }
+        if (req.method === 'POST' && u.pathname === '/emails') {
+          const n = stub.reqs.filter(function (r) { return r.method === 'POST' && r.path === '/emails'; }).length;
+          const ans = cfg.send ? await cfg.send(rec, n) : { status: 200, body: { id: 'mail-' + n } };
+          if (ans.destroy) { req.socket.destroy(); return undefined; }
+          return json(ans.status, ans.body || {}, ans.headers);
+        }
+        if (req.method === 'GET' && u.pathname === '/rest/v1/brain_api_keys') {
+          if (cfg.keyStatus !== 200) return json(cfg.keyStatus, { message: 'no' });
+          const m = /(\d+)-(\d+)/.exec(req.headers.range || '0-999');
+          return json(200, cfg.keyRows.slice(Number(m[1]), Number(m[2]) + 1));
+        }
+        if (req.method === 'GET' && u.pathname === '/auth/v1/admin/users') {
+          if (cfg.authStatus !== 200) return json(cfg.authStatus, { message: 'no' });
+          const page = Number(u.searchParams.get('page') || 1);
+          const per = Number(u.searchParams.get('per_page') || 50);
+          return json(200, { users: cfg.authUsers.slice((page - 1) * per, page * per) });
+        }
+        return json(404, {});
+      } catch (e) {
+        return json(500, {});
+      }
+    });
+    server.listen(0, '127.0.0.1', function () {
+      stub.base = 'http://127.0.0.1:' + server.address().port;
+      stub.reset = function () { stub.cfg = defaultCfg(); stub.reqs.length = 0; };
+      stub.posts = function () { return stub.reqs.filter(function (r) { return r.method === 'POST' && r.path === '/emails'; }); };
+      stub.close = function () { server.closeAllConnections(); return new Promise(function (r) { server.close(r); }); };
+      resolve(stub);
+    });
+  });
+}
+
+function mkEnv(stub, extra) {
+  return Object.assign({
+    RESEND_API_KEY: RKEY,
+    MOS_KEYHOLDER_NOTICE_FROM: FROM,
+    MOS_RESEND_API_BASE: stub.base,
+    SUPABASE_URL: stub.base,
+    SUPABASE_SERVICE_ROLE_KEY: SKEY,
+    MOS_KEYHOLDER_NOTICE_PACE_MS: '0',
+  }, extra || {});
+}
+function newDir() { return path.join(mkTmp('run'), 'ledger'); }
+function mkDeps(stub, dir, over) {
+  const out = [];
+  const d = Object.assign({
+    env: mkEnv(stub),
+    isTTY: true,
+    ask: async function () { return 'y'; },
+    out: function (l) { out.push(l); CAPTURED.push(l); },
+    err: function (l) { out.push(l); CAPTURED.push(l); },
+    fetch: globalThis.fetch,
+    homedir: '/nonexistent-home',
+    ledgerDir: dir,
+    pace: 0,
+    noticeDir: TPL_DIR,
+  }, over || {});
+  d._out = out;
+  return d;
+}
+function snap(dir) {
+  try { CAPTURED.push(fs.readFileSync(path.join(dir, 'ledger.jsonl'), 'utf8')); } catch (e) { /* none */ }
+}
+function addrOfPost(rec) { return JSON.parse(rec.body).to[0]; }
+function countsByAddr(stub) {
+  const m = {};
+  for (const r of stub.posts()) { const a = addrOfPost(r); m[a] = (m[a] || 0) + 1; }
+  return m;
+}
+function hasLine(deps, re) { return deps._out.some(function (l) { return re.test(l); }); }
+function lockPresent(dir) { return fs.existsSync(path.join(dir, 'ledger.lock')); }
+function ledgerPresent(dir) { return fs.existsSync(path.join(dir, 'ledger.jsonl')); }
+function failWriteWhen(pred) {
+  const real = fs.writeSync;
+  fs.writeSync = function (fd, buf) {
+    const s = Buffer.isBuffer(buf) ? buf.toString('utf8') : String(buf);
+    if (pred(s)) { const e = new Error('simulated disk failure'); e.code = 'EIO'; throw e; }
+    return real.apply(fs, arguments);
+  };
+  return function restore() { fs.writeSync = real; };
+}
+function runCli(args, opts) {
+  return new Promise(function (resolve) {
+    const child = cp.spawn(process.execPath, [MOD_PATH].concat(args), { env: opts.env, stdio: ['pipe', 'pipe', 'pipe'] });
+    let so = '';
+    let se = '';
+    child.stdout.on('data', function (c) { so += c; });
+    child.stderr.on('data', function (c) { se += c; });
+    const timer = setTimeout(function () { child.kill('SIGKILL'); }, 5000);
+    child.on('close', function (code, sig) {
+      clearTimeout(timer);
+      CAPTURED.push(so, se);
+      resolve({ status: code, signal: sig, stdout: so, stderr: se });
+    });
+    child.stdin.on('error', function () { /* closed early */ });
+    child.stdin.end(opts.input || '');
+  });
+}
+
+async function part2() {
+  const K = require(MOD_PATH);
+  const notice = K.loadNotice(TPL_DIR);
+  const stub = await startStub();
+  try {
+    for (const name of ['checkSender', 'loadRecipients', 'sendAll', 'runStep', 'dryRun', 'main']) {
+      assert.equal(typeof K[name], 'function', 'module exports ' + name);
+    }
+    ok('module exports the Task 2 functions');
+
+    // ------------------------------------------------------------ sender arms
+    const httpc = K.makeHttp(globalThis.fetch);
+    stub.reset();
+    let r = await K.checkSender(mkEnv(stub, { RESEND_API_KEY: '' }), httpc);
+    assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'api_key_unset');
+    r = await K.checkSender(mkEnv(stub, { MOS_KEYHOLDER_NOTICE_FROM: '' }), httpc);
+    assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'from_unset');
+    assert.equal(stub.reqs.length, 0, 'unset env makes no request');
+    stub.cfg.domainsStatus = 401;
+    r = await K.checkSender(mkEnv(stub), httpc);
+    assert.equal(r.ok, false); assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'api_status_401');
+    stub.cfg.domainsStatus = 200;
+    const closed = await new Promise(function (res) { const s = http.createServer(); s.listen(0, '127.0.0.1', function () { const p = s.address().port; s.close(function () { res(p); }); }); });
+    r = await K.checkSender(mkEnv(stub, { MOS_RESEND_API_BASE: 'http://127.0.0.1:' + closed }), httpc);
+    assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'api_unreachable');
+    stub.cfg.domainPages = [[{ name: 'other.invalid', status: 'verified' }]];
+    r = await K.checkSender(mkEnv(stub), httpc);
+    assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'domain_not_listed');
+    stub.cfg.domainPages = [[{ name: 'stub.invalid', status: 'pending' }]];
+    r = await K.checkSender(mkEnv(stub), httpc);
+    assert.equal(r.reason, 'sender_unverified'); assert.equal(r.detail, 'domain_not_verified');
+    stub.cfg.domainPages = [[{ name: 'stub.invalid', status: 'verified' }]];
+    r = await K.checkSender(mkEnv(stub), httpc);
+    assert.equal(r.ok, true, 'verified domain passes');
+    r = await K.checkSender(mkEnv(stub, { MOS_KEYHOLDER_NOTICE_FROM: 'notice' + AT + 'mail.stub.invalid' }), httpc);
+    assert.equal(r.ok, true, 'subdomain of a verified domain passes');
+    stub.reqs.length = 0;
+    stub.cfg.domainPages = [[{ name: 'other.invalid', status: 'verified' }], [{ name: 'stub.invalid', status: 'verified' }]];
+    r = await K.checkSender(mkEnv(stub), httpc);
+    assert.equal(r.ok, true, 'second page followed');
+    assert.equal(stub.reqs.filter(function (q) { return q.path === '/domains'; }).length, 2, 'two pages fetched');
+    assert.equal(stub.reqs[0].headers.authorization, 'Bearer ' + RKEY, 'bearer auth');
+    assert.equal(K.resendBase({ MOS_RESEND_API_BASE: 'https://evil.example/x' }), 'https://api.resend.com', 'non-loopback base ignored');
+    assert.equal(K.resendBase({}), 'https://api.resend.com');
+    assert.equal(K.resendBase({ MOS_RESEND_API_BASE: 'http://localhost:4000' }), 'http://localhost:4000');
+    assert.equal(K.resendBase({ MOS_RESEND_API_BASE: stub.base }), stub.base);
+    ok('sender arms: unset, 401, unreachable, not listed, not verified, verified, subdomain, paging, base guard');
+
+    // ------------------------------------------------------------ recipient arms
+    stub.reset();
+    stub.cfg.keyRows = [
+      { email: addr(1), user_id: 'u1' },
+      { email: null, user_id: 'u2' },
+      { email: addr(3).toUpperCase(), user_id: 'u3' },
+      { email: addr(3), user_id: 'u3b' },
+      { email: 'junk-value', user_id: null },
+      { email: '  ', user_id: 'u4' },
+    ];
+    stub.cfg.authUsers = [{ id: 'u1', email: addr(1) }, { id: 'u2', email: addr(2) }, { id: 'u4', email: addr(4) }, { id: 'u9', email: addr(9) }];
+    let lr = await K.loadRecipients(mkEnv(stub), httpc);
+    assert.equal(lr.ok, true);
+    assert.deepEqual(lr.recipients.map(function (a) { return a.toLowerCase(); }).sort(), [addr(1), addr(2), addr(3), addr(4)].sort(), 'recipient set');
+    assert.deepEqual(lr.counts, { key_rows: 6, with_address: 3, via_auth: 2, no_address: 1, recipients: 4, auth_accounts: 4, auth_only_excluded: 1 });
+    assert.ok(lr.recipients.indexOf(addr(9)) === -1, 'auth-only account is not mailed');
+    assert.ok(stub.reqs.length >= 2 && stub.reqs.every(function (q) { return q.method === 'GET'; }), 'every Supabase request is a GET');
+    assert.equal(stub.reqs[0].headers.apikey, SKEY);
+    assert.equal(stub.reqs[0].headers.authorization, 'Bearer ' + SKEY);
+    lr = await K.loadRecipients(mkEnv(stub, { SUPABASE_URL: '' }), httpc);
+    assert.equal(lr.reason, 'no_recipient_source');
+    lr = await K.loadRecipients(mkEnv(stub, { SUPABASE_SERVICE_ROLE_KEY: '' }), httpc);
+    assert.equal(lr.reason, 'no_recipient_source');
+    stub.cfg.keyStatus = 500;
+    lr = await K.loadRecipients(mkEnv(stub), httpc);
+    assert.equal(lr.reason, 'no_recipient_source');
+    stub.cfg.keyStatus = 200;
+    stub.cfg.authStatus = 500;
+    lr = await K.loadRecipients(mkEnv(stub), httpc);
+    assert.equal(lr.reason, 'no_recipient_source');
+    stub.cfg.authStatus = 200;
+    stub.cfg.keyRows = [];
+    lr = await K.loadRecipients(mkEnv(stub), httpc);
+    assert.equal(lr.reason, 'no_recipients');
+    ok('recipient arms: dedupe, via auth, auth-only excluded, counts, GET only, typed failures');
+
+    // ------------------------------------------------------------ flow arms
+    // no TTY
+    stub.reset();
+    let dir = newDir();
+    let deps = mkDeps(stub, dir, { isTTY: false });
+    let res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'no_tty'); assert.ok(hasLine(deps, /reason=no_tty/));
+    assert.equal(stub.reqs.length, 0, 'no TTY: zero requests');
+    // CI set with a TTY
+    deps = mkDeps(stub, dir, { env: mkEnv(stub, { CI: 'true' }) });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'no_tty');
+    assert.equal(stub.reqs.length, 0);
+    // declined answers
+    for (const a of ['n', '', 'maybe']) {
+      deps = mkDeps(stub, dir, { ask: async function () { return a; } });
+      res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+      assert.equal(res.reason, 'declined', 'answer ' + JSON.stringify(a));
+    }
+    assert.equal(stub.reqs.length, 0, 'declined: zero requests');
+    assert.ok(!ledgerPresent(dir) && !lockPresent(dir), 'declined: nothing on disk');
+    // prompt timeout
+    deps = mkDeps(stub, dir, { ask: function () { return new Promise(function () { /* never */ }); }, promptTimeoutMs: 40 });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'prompt_timeout');
+    // QUESTION is what is asked
+    let asked = null;
+    deps = mkDeps(stub, dir, { ask: async function (q) { asked = q; return 'n'; } });
+    await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.ok(asked && asked.indexOf(K.QUESTION) !== -1, 'the exact question is asked');
+    ok('flow arms: no TTY, CI, declined answers, timeout, exact question');
+
+    // sender failure on Yes
+    stub.cfg.domainPages = [[{ name: 'stub.invalid', status: 'pending' }]];
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'sender_unverified'); assert.ok(hasLine(deps, /reason=sender_unverified/));
+    assert.equal(stub.posts().length, 0, 'sender failure: zero POST');
+    assert.ok(!ledgerPresent(dir), 'sender failure: no ledger file');
+    assert.ok(!lockPresent(dir), 'sender failure: no lock left');
+    ok('a Yes with a failed sender check is refused, no ledger, no lock');
+
+    // already_sent
+    stub.reset();
+    dir = newDir();
+    K.ledgerSalt(dir);
+    K.appendLedger(dir, { event: 'started', recipients: 5, notice_hash: notice.hash, release_version: '0.0.0', override: false });
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'already_sent');
+    assert.ok(hasLine(deps, /--resend-keyholder-notice/), 'hint names the override flag');
+    assert.equal(stub.posts().length, 0);
+    assert.ok(!lockPresent(dir));
+    ok('a started record on record gives already_sent and zero POST');
+
+    // happy path
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, null, 'happy path has no refusal reason');
+    assert.equal(res.sent, 5);
+    const posts = stub.posts();
+    assert.equal(posts.length, 5, 'one POST per recipient');
+    const led = K.readLedger(dir);
+    const saltRec = led.records.find(function (x) { return x.event === 'salt'; }).salt;
+    for (const p of posts) {
+      const b = JSON.parse(p.body);
+      assert.ok(Array.isArray(b.to) && b.to.length === 1, 'to is an array of one');
+      assert.ok(!('cc' in b) && !('bcc' in b), 'no cc, no bcc');
+      assert.equal(b.from, FROM); assert.equal(b.subject, notice.subject);
+      assert.equal(b.text, notice.text); assert.equal(b.html, notice.html);
+      const mk = K.markerFor(saltRec, b.to[0]);
+      assert.equal(p.headers['idempotency-key'], notice.hash.slice(0, 12) + '-' + mk.slice(0, 32), 'idempotency key');
+      assert.ok(p.headers['idempotency-key'].indexOf(localPart(1)) === -1);
+      assert.equal(p.headers.authorization, 'Bearer ' + RKEY);
+    }
+    const evs = led.records.map(function (x) { return x.event; });
+    assert.deepEqual(evs, ['salt', 'started'].concat(Array(10).fill('marker'), ['finished']), 'ledger event sequence');
+    const marks = led.records.filter(function (x) { return x.event === 'marker'; });
+    for (let i = 0; i < 10; i += 2) {
+      assert.equal(marks[i].state, 'pending'); assert.equal(marks[i + 1].state, 'sent'); assert.equal(marks[i].m, marks[i + 1].m);
+    }
+    assert.equal(led.records[1].recipients, 5);
+    assert.equal(led.records[1].release_version, '0.0.0');
+    assert.equal(led.records[12].sent, 5);
+    assert.ok(!lockPresent(dir), 'no lock left after the happy path');
+    snap(dir);
+    ok('happy path: one POST per person, ledger salt/started/pending-sent/finished, idempotency key, no lock');
+
+    // markers are HMACs and the file holds no address or plain hash
+    const dump = fs.readFileSync(path.join(dir, 'ledger.jsonl'), 'utf8');
+    for (let i = 1; i <= 5; i += 1) {
+      assert.ok(dump.indexOf(addr(i)) === -1 && dump.indexOf(localPart(i)) === -1);
+      for (const h of hashes(addr(i)).concat(hashes(addr(i).toLowerCase()))) assert.ok(dump.indexOf(h) === -1, 'no plain hash');
+      assert.ok(marks.some(function (m2) { return m2.m === crypto.createHmac('sha256', saltRec).update(addr(i)).digest('hex'); }), 'marker recomputed from the salt');
+    }
+    if (process.platform !== 'win32') assert.equal(fs.statSync(path.join(dir, 'ledger.jsonl')).mode & 0o777, 0o600);
+    ok('salt privacy: every marker is an HMAC recomputed from the salt in the file; no address, no plain hash; mode 0600');
+
+    // 422 echoing an address
+    stub.reset();
+    dir = newDir();
+    stub.cfg.send = function (rec, n) { return n === 2 ? { status: 422, body: { message: 'invalid recipient ' + addrOfPost(rec) } } : { status: 200, body: { id: 'ok' } }; };
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 4); assert.equal(res.failed, 1); assert.equal(res.unknown, 0);
+    for (const l of deps._out) for (let i = 1; i <= 5; i += 1) assert.ok(l.indexOf(localPart(i)) === -1, 'no address in output');
+    const failedAddr = addrOfPost(stub.posts()[1]);
+    const rmk = K.readMarkers(dir).markers;
+    assert.equal(rmk.get(K.markerFor(K.ledgerSalt(dir).salt, failedAddr)), 'failed', 'definite failure ends as failed');
+    snap(dir);
+    // definite failure: retry mails it again
+    stub.reqs.length = 0; stub.cfg.send = null;
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(stub.posts().length, 1, 'retry mails only the failed recipient');
+    assert.equal(addrOfPost(stub.posts()[0]), failedAddr);
+    assert.ok(hasLine(deps, /already_mailed=4/) && hasLine(deps, /to_send=1/));
+    snap(dir);
+    ok('422 prints no address, ends failed, and a retry mails that person again');
+
+    // five in a row
+    stub.reset();
+    stub.cfg.keyRows = [1, 2, 3, 4, 5, 6, 7].map(function (i) { return { email: addr(i), user_id: 'u' + i }; });
+    stub.cfg.send = function () { return { status: 422, body: {} }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'send_failed');
+    assert.equal(stub.posts().length, 5, 'stopped after 5 in a row');
+    assert.ok(!lockPresent(dir));
+    snap(dir);
+    ok('five failures in a row stop the run with send_failed');
+
+    // 429 retry once
+    stub.reset();
+    stub.cfg.send = function (rec, n) { return n === 1 ? { status: 429, body: {}, headers: { 'retry-after': '0' } } : { status: 200, body: { id: 'ok' } }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 5);
+    const p429 = stub.posts();
+    assert.equal(p429.length, 6, 'the first mail was retried once');
+    assert.equal(p429[0].headers['idempotency-key'], p429[1].headers['idempotency-key'], 'same key on the retry');
+    stub.reset();
+    stub.cfg.send = function (rec, n) { return n <= 2 ? { status: 429, body: {}, headers: { 'retry-after': '0' } } : { status: 200, body: {} }; };
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.failed, 1, 'a second 429 is a failure');
+    snap(dir);
+    ok('429 with Retry-After is retried once, then counted as failed');
+
+    // auto-yes flags
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', autoYes: true }, deps);
+    assert.equal(res.reason, 'auto_yes_refused');
+    for (const flag of ['--yes', '--yes-all', '-y', '--assume-yes']) {
+      const d2 = mkDeps(stub, dir);
+      const saved = process.exitCode;
+      await K.main(['run', flag, '--release-version', '0.0.0'], d2);
+      assert.equal(process.exitCode, 0);
+      process.exitCode = saved;
+      assert.ok(hasLine(d2, /reason=auto_yes_refused/), flag + ' refused');
+    }
+    assert.equal(stub.reqs.length, 0, 'auto-yes: zero requests');
+    ok('--yes, --yes-all, -y and --assume-yes are refused');
+
+    // include-unknown without resend; repair on a clean ledger
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', includeUnknown: true, repair: true }, deps);
+    assert.equal(res.sent, 5);
+    assert.ok(hasLine(deps, /--include-unknown.*no effect/), 'include-unknown without the override flag has no effect');
+    assert.ok(hasLine(deps, /no repair needed/), 'clean ledger: no repair needed');
+    snap(dir);
+    ok('--include-unknown alone has no effect; --repair-keyholder-ledger on a clean ledger changes nothing');
+
+    // opt-out
+    stub.reset();
+    dir = newDir();
+    let askedOpt = false;
+    deps = mkDeps(stub, dir, { ask: async function () { askedOpt = true; return 'y'; } });
+    res = await K.runStep({ releaseVersion: '0.0.0', optedOut: true }, deps);
+    assert.equal(res.reason, 'opted_out');
+    assert.ok(hasLine(deps, /--no-keyholder-notice/) && hasLine(deps, /no notice was sent/), 'audit line names the flag and the consequence');
+    assert.equal(askedOpt, false, 'opt-out asks no question');
+    assert.equal(stub.reqs.length, 0);
+    ok('opt-out: one audit line with the flag and the consequence, no question, zero requests');
+
+    // crash
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir, { ask: async function () { throw new Error('boom ' + addr(1)); } });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'crash');
+    assert.ok(hasLine(deps, /reason=crash/));
+    assert.ok(!hasLine(deps, /holder1/), 'crash message is redacted');
+    assert.ok(!lockPresent(dir));
+    ok('a thrown error gives reason crash, redacted, and the function returns normally');
+
+    // ------------------------------------------------------------ retry arms
+    // interrupted run: hook throws after the third sent write
+    stub.reset();
+    dir = newDir();
+    let nSent = 0;
+    deps = mkDeps(stub, dir, { afterSent: async function () { nSent += 1; if (nSent === 3) throw new Error('simulated kill'); } });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'crash');
+    let l2 = K.readLedger(dir);
+    assert.equal(l2.records.filter(function (x) { return x.event === 'marker' && x.state === 'sent'; }).length, 3, 'three sent markers');
+    assert.ok(l2.records.some(function (x) { return x.event === 'started'; }), 'started record');
+    assert.ok(!l2.records.some(function (x) { return x.event === 'finished'; }), 'no finished record');
+    assert.ok(!lockPresent(dir), 'no lock left after the interrupted run');
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.sent, 2);
+    assert.ok(hasLine(deps, /already_mailed=3/) && hasLine(deps, /to_send=2/), 'second run prints already_mailed=3 and to_send=2');
+    const seen = countsByAddr(stub);
+    for (let i = 1; i <= 5; i += 1) assert.equal(seen[addr(i)], 1, 'each recipient mailed exactly once across both runs');
+    snap(dir);
+    ok('interrupted run then retry: each recipient mailed exactly once');
+
+    // pending before POST
+    stub.reset();
+    dir = newDir();
+    const checks2 = [];
+    stub.cfg.send = function (rec, n) {
+      const lg = K.readLedger(dir);
+      const sl = lg.records.find(function (x) { return x.event === 'salt'; }).salt;
+      const mk = K.markerFor(sl, addrOfPost(rec));
+      const mine = lg.records.filter(function (x) { return x.event === 'marker' && x.m === mk; });
+      const sentBefore = lg.records.filter(function (x) { return x.event === 'marker' && x.state === 'sent'; }).length;
+      checks2.push({ last: mine.length ? mine[mine.length - 1].state : null, sentBefore: sentBefore, n: n });
+      return { status: 200, body: { id: 'ok' } };
+    };
+    deps = mkDeps(stub, dir);
+    await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(checks2.length, 5);
+    for (const c of checks2) { assert.equal(c.last, 'pending', 'pending marker is on disk before the POST'); assert.equal(c.sentBefore, c.n - 1, 'earlier recipients are already sent'); }
+    snap(dir);
+    ok('a pending marker is on disk before each POST, and every earlier recipient is already sent');
+
+    // the one remaining window
+    stub.reset();
+    dir = newDir();
+    let acc = 0;
+    deps = mkDeps(stub, dir, { afterAccept: async function () { acc += 1; if (acc === 2) throw new Error('simulated kill'); } });
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'crash');
+    const firstKeys = {};
+    for (const p of stub.posts()) firstKeys[addrOfPost(p)] = p.headers['idempotency-key'];
+    const pendingAddr = addrOfPost(stub.posts()[1]);
+    const saltW = K.ledgerSalt(dir).salt;
+    assert.equal(K.readMarkers(dir).markers.get(K.markerFor(saltW, pendingAddr)), 'pending', 'marker stays pending');
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.ok(hasLine(deps, /unknown_skipped=1/), 'retry skips the pending recipient');
+    assert.equal(countsByAddr(stub)[pendingAddr], undefined, 'pending recipient not mailed');
+    assert.equal(stub.posts().length, 3);
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true, includeUnknown: true }, deps);
+    assert.equal(stub.posts().length, 1);
+    assert.equal(addrOfPost(stub.posts()[0]), pendingAddr);
+    assert.equal(stub.posts()[0].headers['idempotency-key'], firstKeys[pendingAddr], 'same Idempotency-Key as the first attempt');
+    snap(dir);
+    ok('the remaining window: pending counts as unknown, skipped by default, mailed with --include-unknown under the same key');
+
+    // unknown outcome: dropped connection and 503
+    stub.reset();
+    dir = newDir();
+    stub.cfg.send = function (rec, n) { return n === 2 ? { destroy: true } : (n === 3 ? { status: 503, body: {} } : { status: 200, body: {} }); };
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.sent, 3); assert.equal(res.unknown, 2); assert.equal(res.failed, 0);
+    const unkAddrs = [addrOfPost(stub.posts()[1]), addrOfPost(stub.posts()[2])];
+    const unkKeys = [stub.posts()[1].headers['idempotency-key'], stub.posts()[2].headers['idempotency-key']];
+    const sU = K.ledgerSalt(dir).salt;
+    for (const a of unkAddrs) assert.equal(K.readMarkers(dir).markers.get(K.markerFor(sU, a)), 'unknown_outcome');
+    stub.reqs.length = 0; stub.cfg.send = null;
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.reason, 'nothing_to_send');
+    assert.ok(hasLine(deps, /unknown_skipped=2/));
+    assert.equal(stub.posts().length, 0, 'unknown recipients are skipped by default');
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true, includeUnknown: true }, deps);
+    assert.equal(stub.posts().length, 2);
+    assert.deepEqual(stub.posts().map(function (p) { return p.headers['idempotency-key']; }).sort(), unkKeys.slice().sort(), 'same keys');
+    snap(dir);
+    ok('unknown outcome (dropped connection, 503): marker unknown_outcome, skipped by default, retried under the same keys');
+
+    // nothing to send
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.reason, 'nothing_to_send');
+    assert.equal(stub.posts().length, 0);
+    ok('every recipient sent: nothing_to_send, zero POST');
+
+    // corrupt ledger arms
+    stub.reset();
+    dir = newDir();
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'ledger.jsonl'), JSON.stringify({ v: 1, event: 'started', at: '2026-10-07T00:00:00.000Z', recipients: 5 }) + '\n');
+    for (const repairFlag of [false, true]) {
+      deps = mkDeps(stub, dir);
+      res = await K.runStep({ releaseVersion: '0.0.0', resend: true, repair: repairFlag }, deps);
+      assert.equal(res.reason, 'ledger_corrupt', 'no salt gives ledger_corrupt, repair ' + repairFlag);
+    }
+    assert.equal(stub.posts().length, 0);
+    assert.ok(!lockPresent(dir));
+    function seedLedger(d2) {
+      const s = K.ledgerSalt(d2).salt;
+      K.appendLedger(d2, { event: 'started', recipients: 5, notice_hash: notice.hash, release_version: '0.0.0', override: false });
+      K.appendMarker(d2, K.markerFor(s, addr(1)), 'pending');
+      K.appendMarker(d2, K.markerFor(s, addr(1)), 'sent');
+      return s;
+    }
+    // truncated last line
+    dir = newDir();
+    seedLedger(dir);
+    fs.appendFileSync(path.join(dir, 'ledger.jsonl'), '{"v":1,"event":"marker","m":"ab');
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.reason, 'ledger_corrupt');
+    assert.equal(stub.posts().length, 0);
+    assert.ok(!lockPresent(dir));
+    // garbage in the middle
+    dir = newDir();
+    seedLedger(dir);
+    const gl = fs.readFileSync(path.join(dir, 'ledger.jsonl'), 'utf8').split('\n');
+    fs.writeFileSync(path.join(dir, 'ledger.jsonl'), gl[0] + '\ngarbage here\n' + gl.slice(1).join('\n'));
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true }, deps);
+    assert.equal(res.reason, 'ledger_corrupt');
+    assert.equal(stub.posts().length, 0);
+    // repair, then the retry proceeds
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0', resend: true, repair: true }, deps);
+    assert.equal(res.sent, 4, 'after repair the retry mails the four with no marker');
+    assert.ok(fs.readdirSync(dir).some(function (n) { return /^ledger\.corrupt-/.test(n); }), 'quarantine copy exists');
+    assert.equal(K.readLedger(dir).corrupt_lines, 0);
+    assert.ok(hasLine(deps, /dropped 1 line/) && hasLine(deps, /mailed again/), 'repair prints the dropped count and the warning');
+    snap(dir);
+    ok('corrupt ledger: no salt, truncated line and garbage line refuse; repair keeps a quarantine copy and the retry proceeds');
+
+    // overlap: a stale lock
+    stub.reset();
+    dir = newDir();
+    fs.mkdirSync(dir, { recursive: true });
+    const lockPath = path.join(dir, 'ledger.lock');
+    const staleBody = JSON.stringify({ pid: 999999, at: '2020-01-01T00:00:00.000Z' }) + '\n';
+    fs.writeFileSync(lockPath, staleBody);
+    deps = mkDeps(stub, dir);
+    res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    assert.equal(res.reason, 'ledger_locked');
+    assert.equal(stub.posts().length, 0);
+    assert.equal(fs.readFileSync(lockPath, 'utf8'), staleBody, 'stale lock left untouched');
+    // F2: the refusal line
+    const refusal = deps._out.find(function (l) { return /ledger_locked/.test(l); });
+    assert.ok(refusal, 'a refusal line exists');
+    const ix = [];
+    let from = 0;
+    for (const t of [lockPath, 'pid 999999', 'age ', 'alive', 'delete it by hand only after you confirm no run is active']) {
+      const at = refusal.indexOf(t, from);
+      assert.ok(at !== -1, 'refusal line has "' + t + '" in order: ' + refusal);
+      ix.push(at);
+      from = at + t.length;
+    }
+    assert.ok(/age \d+ s/.test(refusal) || /age[^,]*\d+/.test(refusal), 'age in seconds');
+    assert.ok(/alive[^,;]*(no|yes)/.test(refusal), 'alive yes or no');
+    fs.unlinkSync(lockPath);
+    ok('overlap: a stale lock refuses with ledger_locked; the line prints path, pid, age, alive and the by-hand text; lock untouched');
+
+    // two runs in one process
+    stub.reset();
+    dir = newDir();
+    let release;
+    const hold = new Promise(function (res2) { release = res2; });
+    stub.cfg.send = function (rec, n) { return n === 1 ? hold.then(function () { return { status: 200, body: {} }; }) : { status: 200, body: {} }; };
+    const depsA = mkDeps(stub, dir);
+    const runA = K.runStep({ releaseVersion: '0.0.0' }, depsA);
+    assert.ok(await waitFor(function () { return stub.posts().length >= 1; }), 'run A reached its first POST');
+    const depsB = mkDeps(stub, dir);
+    const resB = await K.runStep({ releaseVersion: '0.0.0' }, depsB);
+    assert.equal(resB.reason, 'ledger_locked');
+    assert.equal(stub.posts().length, 1, 'run B made no POST');
+    assert.ok(lockPresent(dir), 'run B did not remove the lock it never created');
+    release();
+    const resA = await runA;
+    assert.equal(resA.sent, 5);
+    assert.ok(!lockPresent(dir), 'lock gone after run A ends');
+    snap(dir);
+    ok('two runs in one process: the second gives ledger_locked and sends nothing; the lock goes when the first ends');
+
+    // marker write failure
+    stub.reset();
+    dir = newDir();
+    let pendingCount = 0;
+    let restore = failWriteWhen(function (s) { if (s.indexOf('"state":"pending"') !== -1) { pendingCount += 1; return pendingCount === 2; } return false; });
+    try {
+      deps = mkDeps(stub, dir);
+      res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    } finally { restore(); }
+    assert.equal(res.reason, 'ledger_unwritable');
+    assert.equal(stub.posts().length, 1, 'nothing sent for the recipient whose pending marker failed');
+    assert.ok(!lockPresent(dir));
+    stub.reset();
+    dir = newDir();
+    let sentCount = 0;
+    restore = failWriteWhen(function (s) { if (s.indexOf('"state":"sent"') !== -1) { sentCount += 1; return sentCount === 1; } return false; });
+    try {
+      deps = mkDeps(stub, dir);
+      res = await K.runStep({ releaseVersion: '0.0.0' }, deps);
+    } finally { restore(); }
+    assert.equal(res.reason, 'ledger_unwritable');
+    assert.equal(stub.posts().length, 1, 'run stops at once after a failed sent write');
+    const s1 = K.ledgerSalt(dir).salt;
+    assert.equal(K.readMarkers(dir).markers.get(K.markerFor(s1, addrOfPost(stub.posts()[0]))), 'pending', 'marker stays pending');
+    assert.ok(!lockPresent(dir));
+    snap(dir);
+    ok('marker write failure: ledger_unwritable, stop at once, pending stays pending');
+
+    // ------------------------------------------------------------ dry-run arms
+    const ALLOWED = [/^keyholder-notice: step 9\.9 /, /^keyholder-notice: opt-out: /, /^keyholder-notice: sender check: (PASSED|REFUSED)/,
+      /^keyholder-notice: recipients: /, /^keyholder-notice: ledger: /, /^keyholder-notice: nothing is sent/];
+    function allAllowed(d2) {
+      for (const l of d2._out) assert.ok(ALLOWED.some(function (re) { return re.test(l); }), 'dry-run line is in the allowed set: ' + l);
+    }
+    stub.reset();
+    dir = newDir();
+    deps = mkDeps(stub, dir);
+    await K.dryRun({ releaseVersion: '0.0.0' }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /sender check: PASSED/) && hasLine(deps, /recipients: key_rows=5 .*recipients=5/) && hasLine(deps, /auth_only_excluded=1/));
+    assert.ok(hasLine(deps, /ledger: no prior send/) && hasLine(deps, /nothing is sent/));
+    assert.equal(stub.posts().length, 0, 'dry-run: zero POST');
+    for (const l of deps._out) for (let i = 1; i <= 9; i += 1) assert.ok(l.indexOf(localPart(i)) === -1, 'dry-run prints no address');
+    assert.ok(!ledgerPresent(dir) && !lockPresent(dir), 'dry-run writes nothing');
+    // ledger states
+    stub.reset();
+    dir = newDir();
+    await K.runStep({ releaseVersion: '0.0.0' }, mkDeps(stub, dir));
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, dir);
+    await K.dryRun({ releaseVersion: '0.0.0' }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /ledger: started \d{4}-\d{2}-\d{2}.*sent=5/), 'dry-run shows the start date and the counts');
+    assert.equal(stub.posts().length, 0);
+    fs.appendFileSync(path.join(dir, 'ledger.jsonl'), 'garbage\n');
+    deps = mkDeps(stub, dir);
+    await K.dryRun({ releaseVersion: '0.0.0' }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /ledger: corrupt \(1 bad lines?\)/));
+    fs.writeFileSync(path.join(dir, 'ledger.lock'), staleBody);
+    deps = mkDeps(stub, dir);
+    await K.dryRun({ releaseVersion: '0.0.0' }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /ledger: locked/));
+    assert.equal(fs.readFileSync(path.join(dir, 'ledger.lock'), 'utf8'), staleBody, 'dry-run does not take or remove the lock');
+    // opt-out
+    stub.reqs.length = 0;
+    deps = mkDeps(stub, newDir());
+    await K.dryRun({ releaseVersion: '0.0.0', optedOut: true }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /opt-out: engaged \(--no-keyholder-notice\)/));
+    assert.equal(stub.reqs.length, 0, 'dry-run opt-out: no request');
+    // no env: no network call
+    deps = mkDeps(stub, newDir(), { env: {} });
+    await K.dryRun({ releaseVersion: '0.0.0' }, deps);
+    allAllowed(deps);
+    assert.ok(hasLine(deps, /sender check: REFUSED/) && hasLine(deps, /recipients: unavailable/));
+    assert.equal(stub.reqs.length, 0, 'dry-run with no env: no network call');
+    ok('dry-run arms: allowed line set, counts, ledger states, opt-out, no env, zero POST, no address');
+
+    // ------------------------------------------------------------ CLI arms (subprocess)
+    stub.reset();
+    const cliHome = mkTmp('home');
+    const cliLedger = path.join(mkTmp('cli'), 'ledger');
+    const cliEnv = Object.assign({}, process.env, mkEnv(stub), { HOME: cliHome, MINDRIAN_KEYHOLDER_NOTICE_LEDGER_DIR: cliLedger });
+    delete cliEnv.CI;
+    let cli = await runCli(['run', '--release-version', '0.0.0'], { env: cliEnv, input: 'y\n' });
+    assert.equal(cli.status, 0, 'CLI run exits 0');
+    assert.ok(/reason=no_tty/.test(cli.stdout), 'piped y is not accepted: no_tty');
+    assert.equal(stub.reqs.length, 0);
+    assert.ok(!fs.existsSync(cliLedger), 'CLI no_tty: no ledger');
+    cli = await runCli(['dry-run', '--release-version', '0.0.0'], { env: cliEnv });
+    assert.equal(cli.status, 0, 'CLI dry-run exits 0');
+    assert.equal(stub.posts().length, 0, 'CLI dry-run: zero POST');
+    assert.ok(/nothing is sent/.test(cli.stdout));
+    cli = await runCli(['bogus'], { env: cliEnv });
+    assert.equal(cli.status, 2, 'bad subcommand exits 2');
+    ok('CLI arms: piped y gives no_tty with exit 0; dry-run exits 0 with zero POST; bad subcommand exits 2');
+
+    // optional pty arm
+    let ptyOk = false;
+    try { ptyOk = cp.spawnSync('script', ['--version'], { encoding: 'utf8' }).status === 0; } catch (e) { ptyOk = false; }
+    if (!ptyOk) {
+      console.log('  SKIP - pty arm (the script command is not available)');
+    } else {
+      const pty = await new Promise(function (resolve) {
+        const child = cp.spawn('script', ['-qec', process.execPath + ' ' + MOD_PATH + ' run --release-version 0.0.0', '/dev/null'], { env: cliEnv, stdio: ['pipe', 'pipe', 'pipe'] });
+        let so = '';
+        let sent = false;
+        child.stdout.on('data', function (c) {
+          so += c;
+          if (!sent && so.indexOf(K.QUESTION) !== -1) { sent = true; setTimeout(function () { child.stdin.write('n\n'); }, 50); }
+        });
+        const timer = setTimeout(function () { child.kill('SIGKILL'); }, 5000);
+        child.on('close', function (code) { clearTimeout(timer); CAPTURED.push(so); resolve({ code: code, out: so }); });
+        child.stdin.on('error', function () { /* ignore */ });
+      });
+      if (pty.out.indexOf(K.QUESTION) === -1) {
+        console.log('  SKIP - pty arm (no pty could be made)');
+      } else {
+        assert.ok(/reason=declined/.test(pty.out), 'pty: answer n gives declined');
+        ok('pty arm: the question is asked on a terminal and n gives declined');
+      }
+    }
+
+    // ------------------------------------------------------------ F1: SIGINT and SIGTERM
+    for (const sig of ['SIGINT', 'SIGTERM']) {
+      stub.reset();
+      dir = newDir();
+      let rel2;
+      const hold2 = new Promise(function (res2) { rel2 = res2; });
+      stub.cfg.send = function (rec, n) { return n === 1 ? hold2.then(function () { return { status: 200, body: {} }; }) : { status: 200, body: {} }; };
+      deps = mkDeps(stub, dir);
+      const before = process.listenerCount(sig);
+      const savedCode = process.exitCode;
+      const runM = K.main(['run', '--release-version', '0.0.0'], deps);
+      assert.ok(await waitFor(function () { return stub.posts().length >= 1; }), sig + ' arm: first POST reached');
+      assert.ok(lockPresent(dir), 'the run holds the lock mid-send');
+      process.kill(process.pid, sig);
+      await runM;
+      assert.equal(process.exitCode, sig === 'SIGINT' ? 130 : 143, sig + ' sets the exit code');
+      assert.ok(!lockPresent(dir), sig + ': the lock file is gone');
+      assert.equal(stub.posts().length, 1, sig + ': no further mail after the signal');
+      assert.equal(process.listenerCount(sig), before, sig + ': handler removed after main returns');
+      const mm = K.readMarkers(dir).markers;
+      const sg = K.ledgerSalt(dir).salt;
+      assert.equal(mm.get(K.markerFor(sg, addrOfPost(stub.posts()[0]))), 'unknown_outcome', sig + ': the in-flight mail is recorded as unknown_outcome');
+      process.exitCode = savedCode;
+      rel2();
+      snap(dir);
+    }
+    // a lock the run did not create is never removed by the signal path
+    stub.reset();
+    dir = newDir();
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'ledger.lock'), staleBody);
+    deps = mkDeps(stub, dir);
+    const savedC2 = process.exitCode;
+    await K.main(['run', '--release-version', '0.0.0'], deps);
+    process.exitCode = savedC2;
+    assert.equal(fs.readFileSync(path.join(dir, 'ledger.lock'), 'utf8'), staleBody, 'a foreign lock survives the run and the end of main');
+    fs.unlinkSync(path.join(dir, 'ledger.lock'));
+    ok('F1: SIGINT and SIGTERM release the lock this run created, set the exit code, return, and never touch a foreign lock');
+
+    // ------------------------------------------------------------ exit arms
+    const src = fs.readFileSync(MOD_PATH, 'utf8');
+    const stripped = src.replace(/\/\*[\s\S]*?\*\//g, '').split('\n').map(function (l) { return l.replace(/(^|\s)\/\/.*$/, ''); }).join('\n');
+    assert.ok(!/process\.exit\s*\(/.test(stripped), 'the module never calls process.exit');
+    const savedExit = process.exitCode;
+    process.exitCode = undefined;
+    stub.reset();
+    deps = mkDeps(stub, newDir(), { isTTY: false });
+    await K.main(['run', '--release-version', '0.0.0'], deps);
+    assert.equal(process.exitCode, 0, 'main sets 0 with no TTY');
+    process.exitCode = undefined;
+    deps = mkDeps(stub, newDir(), { ask: async function () { throw new Error('boom'); } });
+    await K.main(['run', '--release-version', '0.0.0'], deps);
+    assert.equal(process.exitCode, 0, 'main sets 0 on a crash');
+    assert.ok(hasLine(deps, /reason=crash/));
+    process.exitCode = undefined;
+    deps = mkDeps(stub, newDir());
+    await K.main(['nonsense'], deps);
+    assert.equal(process.exitCode, 2, 'main sets 2 on a bad subcommand');
+    process.exitCode = undefined;
+    deps = mkDeps(stub, newDir());
+    await K.main(['run', '--no-such-flag'], deps);
+    assert.equal(process.exitCode, 2, 'main sets 2 on a bad argument');
+    process.exitCode = savedExit;
+    ok('exit arms: no process.exit call; main sets 0, 0 on a crash, 2 on bad input, and returns');
+
+    // ------------------------------------------------------------ leak arm
+    const everything = CAPTURED.join('\n');
+    assert.ok(everything.length > 1000, 'the leak arm saw real output');
+    for (let i = 1; i <= 12; i += 1) {
+      assert.ok(everything.indexOf(addr(i)) === -1, 'no sentinel address in any output or ledger');
+      assert.ok(everything.indexOf(localPart(i) + AT) === -1);
+    }
+    for (let i = 1; i <= 9; i += 1) assert.ok(!new RegExp('holder' + i + '(?![0-9])').test(everything), 'no local part of a sentinel in any output or ledger: holder' + i);
+    assert.ok(everything.indexOf(RKEY) === -1, 'no Resend key value');
+    assert.ok(everything.indexOf(SKEY) === -1, 'no service key value');
+    ok('leak arm: no sentinel address, local part or secret value in any output, ledger or collected line');
+  } finally {
+    await stub.close();
+  }
 }
 
 // ---------------------------------------------------------------------------
