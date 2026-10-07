@@ -90,11 +90,9 @@ function part1() {
     assert.ok(body.indexOf(EN) === -1, name + ' has no en-dash');
     assert.ok(!/brain/i.test(body), name + ' has no word Brain');
   }
-  // The product name is written lowercase m:os. HTML comments are not shown to the reader, so the
-  // upper-case check reads the visible HTML (comments removed).
-  const htmlVisible = htmlRaw.replace(/<!--[\s\S]*?-->/g, '');
+  // The product name is written lowercase m:os everywhere, in the raw files (comments included).
   assert.ok(txtRaw.indexOf('M:OS') === -1, 'notice.txt has no upper-case M:OS');
-  assert.ok(htmlVisible.indexOf('M:OS') === -1, 'notice.html has no upper-case M:OS outside comments');
+  assert.ok(htmlRaw.indexOf('M:OS') === -1, 'notice.html has no upper-case M:OS');
   assert.ok(txtRaw.indexOf('m:os') !== -1 && htmlRaw.indexOf('m:os') !== -1, 'm:os is present in both templates');
   assert.ok(txtRaw.indexOf('Give complexity shape.') !== -1 && htmlRaw.indexOf('Give complexity shape.') !== -1, 'brand line in both');
   ok('no em-dash, no en-dash, no word Brain; the name is lowercase m:os; the brand line is present');

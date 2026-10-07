@@ -49,4 +49,8 @@ RISKS:
 
 NEXT: Edit the M:OS comment in draft/notice-v5.html (line 19) and tell me to re-copy and tighten the pin. Do a small live send with one test address before the first real cut.
 
+## Draft comment conflict: CLOSED
+
+The draft comment was fixed by the orchestrator (commit 78e56d7a5). notice.html was re-copied byte for byte and the pin now checks the raw file: zero `M:OS` in notice.txt and notice.html. Module test 65 checks pass; Task 1 and Task 3 verify commands rc=0 (341 step-block tripwire PASSED, no fixture change needed).
+
 ## Self-Check: PASSED
