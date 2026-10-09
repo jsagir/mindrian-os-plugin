@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://mindrian-os.com/logo_dark.svg" alt="MindrianOS" width="200" />
+  <img src="assets/theo-mos-wordmark.gif" alt="Theo's changing face beside the m:os wordmark" width="260" />
 
   # MindrianOS
 
