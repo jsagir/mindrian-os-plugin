@@ -255,6 +255,15 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/section-ruling-module.cjs",
       "description": "Reports four drift classes over a room's section ruling documents: a landed CONTEXT.md ruling_fingerprint disagreeing with a fresh recomputation from data/section-job-canon.json plus the shipped section-command-ledger; a section slug with no canon row (sections_without_job_id); a sub-room node with no declared job_id (subrooms_without_job_id, the parent-fallback case, report-only); and claim nodes filed since this module's introduced date with no SOURCED_FROM edge to a jtbd:* anchor (claims_without_anchor, legacy claims out of scope). No auto_heal key yet (R-353-A; Phase 352 classifies this row alongside room-map, proposed FALSE here since regenerating a ruling document can rewrite a file a human authored prose into, a judgment fix). --fix refuses (recoverable:false) on any room path outside tests/fixtures/icm-rooms/, so a real fleet room's ruling documents are only ever regenerated as the navigator's explicit act (D-353-9)."
+    },
+    {
+      "id": "graph-doctor",
+      "introduced_version": "2.0.0-beta.65",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/graph-doctor-module.cjs",
+      "description": "Local SQL graph doctor (quick 261009-4h4): read-only check of room.db for isolated nodes, duplicate names and open triads; writes a proposal queue pending the navigator gate. Check-only, never writes room.db, no fix."
     }
   ]
 }
